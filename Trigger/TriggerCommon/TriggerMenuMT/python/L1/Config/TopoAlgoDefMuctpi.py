@@ -13,8 +13,6 @@ class TopoAlgoDefMuctpi:
     @staticmethod
     def registerTopoAlgos(tm):
 
-        currentAlgoId = 0
-
         # dimu DR items
         listofalgos=[
             { "minDr": 0, "maxDr": 15, "mult": 2, 
@@ -36,8 +34,7 @@ class TopoAlgoDefMuctpi:
 
             inputList = [d.otype1 + d.olist] if (d.mult>1 or d.otype1==d.otype2) else [d.otype1 + d.olist, d.otype2 + d.olist]
             algoname = AlgConf.DeltaRSqrIncl1 if (d.mult>1 or d.otype1==d.otype2) else AlgConf.DeltaRSqrIncl2
-            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId)
-            currentAlgoId += 1
+            alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = -1)
  
             if (d.mult>1 or d.otype1==d.otype2):
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)

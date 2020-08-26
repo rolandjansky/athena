@@ -18,7 +18,7 @@
 #include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include <map>
 #include <vector>

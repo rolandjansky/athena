@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TestTools/ParallelCallTest.h"
 #include "RegSelTestAlg.h"

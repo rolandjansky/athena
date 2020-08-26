@@ -5,50 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetGlobalMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   GaudiKernel
-   PRIVATE
-   Commission/CommissionEvent
-   Control/AthenaBaseComps
-   Control/AthenaMonitoring
-   DetectorDescription/AtlasDetDescr
-   DetectorDescription/IdDictDetDescr
-   DetectorDescription/Identifier
-   Event/EventInfo
-   Event/EventPrimitives
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTracking
-   Generators/GeneratorObjects
-   InnerDetector/InDetConditions/BeamSpotConditionsData
-   InnerDetector/InDetConditions/InDetConditionsSummaryService
-   InnerDetector/InDetConditions/PixelConditionsTools
-   InnerDetector/InDetConditions/InDetByteStreamErrors
-   InnerDetector/InDetConditions/SCT_ConditionsTools
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelGeoModel
-   InnerDetector/InDetRawEvent/InDetBCM_RawData
-   InnerDetector/InDetRawEvent/InDetRawData
-   InnerDetector/InDetRecEvent/InDetPrepRawData
-   InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   Tools/LWHists
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkMeasurementBase
-   Tracking/TrkEvent/TrkParameters
-   Tracking/TrkEvent/TrkParticleBase
-   Tracking/TrkEvent/TrkTrack
-   Tracking/TrkEvent/TrkTrackSummary
-   Tracking/TrkEvent/TrkTruthData
-   Tracking/TrkEvent/VxVertex
-   Tracking/TrkExtrapolation/TrkExInterfaces
-   Tracking/TrkTools/TrkToolInterfaces
-   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist )
@@ -64,4 +20,5 @@ atlas_add_component( InDetGlobalMonitoring
    InDetRawData InDetPrepRawData InDetRIO_OnTrack InDetByteStreamErrors LWHists TrkSurfaces
    TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack
    TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces
-   TrkVertexFitterInterfaces PixelGeoModelLib InDetTrackSelectionToolLib )
+   TrkVertexFitterInterfaces PixelGeoModelLib InDetTrackSelectionToolLib
+   BeamSpotConditionsData InDetConditionsSummaryService SCT_ConditionsToolsLib )

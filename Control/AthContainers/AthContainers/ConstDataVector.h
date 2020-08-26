@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ConstDataVector.h 777302 2016-10-08 21:24:41Z ssnyder $
 /**
  * @file AthContainers/ConstDataVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -397,7 +394,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator begin();
+  iterator begin() noexcept;
 
 
   /**
@@ -409,7 +406,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  iterator end();
+  iterator end() noexcept;
 
 
   /**
@@ -421,7 +418,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rbegin();
+  reverse_iterator rbegin() noexcept;
 
 
   /**
@@ -433,7 +430,7 @@ public:
    * than a reference; the proxy will handle deleting an owned element
    * if it's assigned to.
    */
-  reverse_iterator rend();
+  reverse_iterator rend() noexcept;
 
 
   //@}
@@ -451,8 +448,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(value_type pElem);
+  value_type push_back(value_type pElem);
 
 
   /**
@@ -465,10 +464,11 @@ public:
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
    *
-   * For @c DataVector, this is just the same as @c push_back.
+   * For @c DataVector, this is like the same as @c push_back, and
+   * it returns the pushed element.
    * It's included just for interface compatibility with `std::vector`.
    */
-  void emplace_back(value_type pElem);
+  value_type emplace_back(value_type pElem);
 
 
   /**
@@ -528,8 +528,10 @@ public:
    *
    * Note: this method may only be called using the most derived
    * @c DataVector in the hierarchy.
+   *
+   * Returns the pushed pointer.
    */
-  void push_back(std::unique_ptr<const base_value_type> pElem);
+  value_type push_back(std::unique_ptr<const base_value_type> pElem);
 
 
   /**

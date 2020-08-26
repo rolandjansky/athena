@@ -24,13 +24,6 @@ namespace xAOD {
    const SG::AuxElement::Accessor< float >*
    showerShapeAccessorV1( xAOD::EgammaParameters::ShowerShapeType type );
 
-   const SG::AuxElement::Accessor< char >*
-   selectionMenuAccessorV1( xAOD::EgammaParameters::SelectionMenu menu ) ;
-
-   const SG::AuxElement::Accessor< unsigned int >*
-   selectionisEMAccessorV1( xAOD::EgammaParameters::SelectionisEM isEM ) ;
-
-
 } // namespace xAOD
 
 #endif // XAOD_EGAMMAACCESSORS_V1_H

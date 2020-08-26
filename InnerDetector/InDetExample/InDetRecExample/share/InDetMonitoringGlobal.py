@@ -72,6 +72,7 @@ if InDetFlags.doMonitoringGlobal():
 
   TrackCollection = InDetKeys.UnslimmedTracks()
 
+  from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool 
   InDetTrackSelectionToolGlobalMon_Baseline = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_Baseline",
                                                                                  UseTrkTrackTools = True,
                                                                                  CutLevel = "TightPrimary",

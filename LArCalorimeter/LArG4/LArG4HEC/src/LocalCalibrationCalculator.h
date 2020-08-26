@@ -26,7 +26,7 @@ namespace LArG4 {
     public:
 
       LocalCalibrationCalculator(const std::string& name, ISvcLocator *pSvcLocatorconst);
-      void GeometryTypeUpdateHandler(Property&);
+      void GeometryTypeUpdateHandler(Gaudi::Details::PropertyBase&);
       StatusCode initialize() override final;
       virtual ~LocalCalibrationCalculator();
 

@@ -48,7 +48,7 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
     kwargs.setdefault("InputEvgenCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
 
-    acc.addEventAlgo(CompFactory.ISF.SimKernelMTCfg(name, **kwargs))
+    acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs))
     return acc
 
 
@@ -68,7 +68,8 @@ def Kernel_GenericG4OnlyMTCfg(flags, name="ISF_Kernel_GenericG4OnlyMT", **kwargs
     tool = acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags))
     kwargs.setdefault("CavernSimulationSelectors", [tool])
 
-    return Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
+    return acc
 
 
 def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
@@ -78,7 +79,8 @@ def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
     Fulltool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags))
     kwargs.setdefault("SimulationTools", [PKtool, Fulltool])
 
-    return Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs)
+    acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
+    return acc
 
 
 def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **kwargs):
@@ -92,7 +94,8 @@ def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **
     kwargs.setdefault("InputConverter",
                       acc.getService("ISF_LongLivedInputConverter"))
 
-    return Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs)
+    acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
+    return acc
 
 
 def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
@@ -114,7 +117,8 @@ def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
     tool = acc.popToolsAndMerge(EnergyParticleOrderingToolCfg(flags))
     kwargs.setdefault("ParticleOrderingTool", tool)
 
-    return Kernel_GenericSimulatorMTCfg(flags, name, **kwargs)
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
+    return acc
 
 
 def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
@@ -129,7 +133,8 @@ def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
     kwargs.setdefault("SimulationTools", [PKtool, FastCalotool, Fatrastool])
 
     # not migrated 'simFlags.SimulationFlavour = "ATLFASTIIF"'
-    return Kernel_GenericSimulatorNoG4MTCfg(flags, name, **kwargs)
+    acc.merge(Kernel_GenericSimulatorNoG4MTCfg(flags, name, **kwargs))
+    return acc
 
 
 # non-MT

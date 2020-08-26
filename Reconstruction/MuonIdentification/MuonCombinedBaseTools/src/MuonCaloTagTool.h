@@ -21,8 +21,10 @@
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 #include "muonEvent/DepositInCalo.h"
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -58,7 +60,7 @@ namespace MuonCombined {
 
   private:
     
-    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const;
+    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
@@ -76,6 +78,7 @@ namespace MuonCombined {
     
     // --- Set up what to do and what not to do ---
     Gaudi::Property<bool> m_doCaloMuonTag {this, "doCaloMuonTag", true, "run CaloMuonTag Tool"};
+    Gaudi::Property<bool> m_doCaloMuonScore {this, "doCaloMuonScore", true, "run CaloMuonScoreTool"};
     Gaudi::Property<bool> m_doCaloLR {this, "doCaloLR", true, "run CaloMuonLikelihoodTool"};
     Gaudi::Property<bool> m_doTrkSelection {this, "doTrkSelection", true, "This variable should be set to false when there is no primary vertex reconstructed."};
     Gaudi::Property<bool> m_doCosmicTrackSelection {this, "doCosmicTrackSelection", false, "Apply track selection for cosmics"};
@@ -93,11 +96,15 @@ namespace MuonCombined {
     Gaudi::Property<double> m_eIsoPtRatioTransitionCut {this, "TrackEIsoPtRatioTransitionCut", 1.25, "Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt"};
     Gaudi::Property<double> m_eIsoPtRatioEndCapCut {this, "TrackEIsoPtRatioEndCapCut", 1.6, "Energy isolation for a .45 cone in Endcap, normalized to track pt"};
     Gaudi::Property<double> m_CaloLRlikelihoodCut {this, "CaloLRLikelihoodCut", 0.5, "CaloLR likelihood ratio hard cut"};
+    Gaudi::Property<double> m_CaloMuonScoreCut {this, "CaloMuonScoreCut", 0.4, "Calo muon convolutional neural network output score hard cut"};
     Gaudi::Property<double> m_trackIsoCone {this, "TrackIsoConeSize", 0.45, "Cone size for track isolation"};
     Gaudi::Property<double> m_energyIsoCone {this, "EnergyIsoConeSize", 0.4, "Cone size for energy isolation"};
     
     // --- CaloTrkMuIdTools ---
     ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood{this,"CaloMuonLikelihoodTool","CaloMuonLikelihoodTool/CaloMuonLikelihoodTool"};
+    ToolHandle<ICaloMuonScoreTool>  m_caloMuonScoreTool{this, "CaloMuonScoreTool", "CaloMuonScoreTool/CaloMuonScoreTool"};
+    ServiceHandle<ICaloMuonScoreONNXRuntimeSvc>  m_caloMuonScoreONNXRuntimeSvc{this, "CaloMuonScoreONNXRuntimeSvc", "CaloMuonScoreTool/CaloMuonScoreONNXRuntimeSvc"};
+
     ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"CaloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"CaloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 
     ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo{this,"TrackDepositInCaloTool","TrackDepositInCaloTool/TrackDepositInCaloTool"};

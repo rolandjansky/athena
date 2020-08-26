@@ -34,6 +34,11 @@ public:
     ToTrackParticleBase = 3
   };
 
+  ITrackLink() = default;
+  ITrackLink(const ITrackLink&) = default;
+  ITrackLink(ITrackLink&&) = default;
+  ITrackLink& operator=(const ITrackLink&) = default;
+  ITrackLink& operator=(ITrackLink&&) = default;
   virtual ~ITrackLink() = default;
 
   /** clone methods for copy constructors */

@@ -20,7 +20,7 @@
 #endif
 
 #ifndef GAUDIKERNEL_PROPERTY_H
-# include "GaudiKernel/Property.h"
+# include "Gaudi/Property.h"
 #endif
 
 

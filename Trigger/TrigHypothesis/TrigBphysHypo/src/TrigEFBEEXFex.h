@@ -24,11 +24,7 @@
 #include <string>
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
-#include "Constants.h"
-#include "BtrigUtils.h"
 #include "TrigBphysHelperUtilsTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
@@ -52,8 +48,6 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE);
     
   private:
-    
-    ToolHandle < Trk::IVertexFitter  >       m_fitterSvc;
     
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
     
@@ -99,11 +93,6 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     float m_bSVtxChi2Cut;
     int m_maxBsToStore;
     
-
-    
-    // FTK Flag
-    bool m_FTK;
-
     // Monitoring variables and containers
     //   General
     std::vector<int>   m_mon_Errors;
@@ -179,18 +168,12 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
 
-
-    // TrigEFBphysContainer* m_trigBphysColl_b;
-    // TrigEFBphysContainer* m_trigBphysColl_X;
-
     xAOD::TrigBphysContainer * m_TrigBphysColl_b;
     xAOD::TrigBphysContainer * m_TrigBphysColl_X;
     
     // Timers
     TrigTimer* m_TotTimer;
     TrigTimer* m_VtxFitTimer;
-    
-    Trk::TrkVKalVrtFitter* m_VKVFitter;       
     
     //Counters
     int m_lastEvent;
@@ -203,11 +186,7 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     int m_lastEventPassedBplus;
     int m_lastEventPassedBd;
     int m_lastEventPassedBs;
-    int m_lastEventPassedLb;
     unsigned int m_countPassedEventsBplus;
-    unsigned int m_countPassedEventsBs;
-    unsigned int m_countPassedEventsBd;
-    unsigned int m_countPassedEventsLb;
     
     unsigned int m_countPassedEEID;
     unsigned int m_countPassedEEOS;
@@ -238,7 +217,6 @@ class TrigEFBEEXFex: public HLT::ComboAlgo  {
     
 
     
-    void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
     void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
     void addUnique(std::vector<ElementLink<xAOD::TrackParticleContainer> >&, const ElementLink<xAOD::TrackParticleContainer>&);
     bool isUnique(const  xAOD::TrackParticle* id1, const  xAOD::TrackParticle* id2) const;

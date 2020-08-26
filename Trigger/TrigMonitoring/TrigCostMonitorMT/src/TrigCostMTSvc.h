@@ -19,8 +19,8 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
-#include "TrigCostDataStore.h"
 #include "AlgorithmPayload.h"
+#include "TrigCostDataStore.h"
 
 /**
  * @class TrigCostMTSvc
@@ -124,6 +124,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
   std::unique_ptr< std::atomic<bool>[] > m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
   std::unique_ptr< std::shared_mutex[] > m_slotMutex; //!< Used to control and protect whole-table operations.
+  std::mutex m_globalMutex; //!< Used to protect all-slot modifications.
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
 

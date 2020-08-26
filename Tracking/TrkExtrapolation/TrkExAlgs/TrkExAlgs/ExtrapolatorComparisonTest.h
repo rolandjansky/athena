@@ -15,7 +15,7 @@
 
 // ATHENA
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/RndmGenerators.h"

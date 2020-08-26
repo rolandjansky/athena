@@ -116,7 +116,7 @@ private:
   /**
      @brief Called when m_WriteSCT1_RawData is altered. Does nothing, but required by Gaudi.
   */
-  void SetupRdoOutputType(Property&);
+  void SetupRdoOutputType(Gaudi::Details::PropertyBase&);
 
   FloatProperty m_tfix{this, "FixedTime", -999., "Fixed time for Cosmics run selection"};
   BooleanProperty m_enableHits{this, "EnableHits", true, "Enable hits"};

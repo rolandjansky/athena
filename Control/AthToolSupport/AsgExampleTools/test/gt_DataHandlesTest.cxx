@@ -114,6 +114,29 @@ namespace asg
     ASSERT_SUCCESS (config.makeTool (tool, cleanup));
     tool->runTest ();
   }
+
+
+
+  // test that the read-key-array works
+  TEST_F (DataHandlesTest, read_array)
+  {
+    config.setPropertyFromString ("readKeyArray", "['Muons']");
+    config.setPropertyFromString ("readArray", "1");
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
+  // do a write handle test
+  TEST_F (DataHandlesTest, write_handle)
+  {
+    std::string writeKey = "Muons" + makeUniqueName();
+    config.setPropertyFromString ("writeKey", writeKey);
+    config.setPropertyFromString ("doWriteName", writeKey);
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
 }
 
 ATLAS_GOOGLE_TEST_MAIN

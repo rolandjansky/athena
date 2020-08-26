@@ -13,7 +13,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-//#include "GaudiKernel/Property.h"
+//#include "Gaudi/Property.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondAlg/MuonAlignmentErrorData.h"
 

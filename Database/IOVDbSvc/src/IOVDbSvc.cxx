@@ -35,7 +35,7 @@
 namespace {
   template<typename Prop_t>
   bool 
-  fetchProp( const std::vector<const Property*>* properties, Prop_t& p ){
+  fetchProp( const std::vector<const Gaudi::Details::PropertyBase*>* properties, Prop_t& p ){
     if (properties) {
       for ( const auto & pThisProperty: *properties ) {
         if ( pThisProperty->name()==p.name() ) {
@@ -776,7 +776,7 @@ StatusCode IOVDbSvc::checkEventSel() {
     ATH_MSG_FATAL( "Could not retrieve [" << joSvc.typeAndName() << "]" );
     return StatusCode::FAILURE;
   }
-  typedef std::vector<const Property*> Properties_t;
+  typedef std::vector<const Gaudi::Details::PropertyBase*> Properties_t;
   const Properties_t* evtSelProps=joSvc->getProperties("EventSelector");
   // do not return FAILURE if the EventSelector cannot be found, as this
   // happens online when we have no EventSelector

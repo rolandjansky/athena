@@ -46,6 +46,8 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       # Otherwise read from cool
       afmArgs.update( UseMapsFromCOOL = True )
     afmArgs.update( UseMapsFromCOOL = True )
+    if 'UseDCS' in kwargs and not kwargs['UseDCS']:
+      afmArgs['UseMapsFromCOOL'] = False
     mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
     result.addCondAlgo(mag_field_map_cond_alg)
     

@@ -30,6 +30,16 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 
+#ifdef HEPMC3
+// This suboptimal piece of code is here because the googletest is the worst testing suite ever.
+namespace HepMC3 {
+bool operator ==(const std::shared_ptr<HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()==b;}
+bool operator ==(const HepMC3::GenParticle a, const HepMC3::GenParticle b) {return a.id()==b.id();}
+bool operator !=(const std::shared_ptr<HepMC3::GenParticle> a, const HepMC3::GenParticle* const b){return a.get()!=b;}
+bool operator !=(const HepMC3::GenParticle a, const HepMC3::GenParticle b){return a.id()!=b.id();}
+}
+#endif
+
 namespace MCTesting {
 
   // needed every time an AthAlgorithm, AthAlgTool or AthService is instantiated
@@ -131,7 +141,7 @@ namespace MCTesting {
 
   class is_photon {
   public:
-    bool operator() ( const HepMC::GenParticlePtr p ) {
+    bool operator() ( HepMC::ConstGenParticlePtr p ) {
       return ( p && p->pdg_id() == 22 );
     }
   };
@@ -198,8 +208,13 @@ namespace MCTesting {
       HepMC::FourVector pmvxpos=hScatVx->position();
       genVertex->set_position(pmvxpos);
       //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+#ifdef HEPMC3
+      auto itrp =hScatVx->particles_in().begin();
+      if (hScatVx->particles_in().size()==2){
+#else
       HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
       if (hScatVx->particles_in_size()==2){
+#endif
         HepMC::FourVector mom1=(*itrp)->momentum();
         HepMC::FourVector mom2=(*(++itrp))->momentum();
         HepMC::FourVector vxmom;
@@ -212,6 +227,9 @@ namespace MCTesting {
       }
     }
 
+#ifdef HEPMC3
+    for (auto vtx: ge.vertices())  ge.remove_vertex(vtx);
+#else
     if(!ge.vertices_empty()){
       HepMC::GenEvent::vertex_iterator itvtx = ge.vertices_begin();
       while (itvtx != ge.vertices_end()) {
@@ -220,6 +238,7 @@ namespace MCTesting {
         delete vtx;
       }
     }
+#endif
 
     //.....add new vertex with geantino
     ge.add_vertex(genVertex);
@@ -237,10 +256,14 @@ namespace MCTesting {
     inputTestDataHandle->push_back(pEvent);
     inputTestDataHandle->push_back(buildEvent());  //a copy
     std::list<HepMC::GenParticlePtr> theGammas;
+#ifdef HEPMC3
+    std::copy_if( pEvent->particles().begin(), pEvent->particles().end(), std::back_inserter(theGammas), is_photon() );
+#else
     std::copy_if( pEvent->particles_begin(), pEvent->particles_end(),
                     back_inserter(theGammas), is_photon() );
+#endif
     ASSERT_EQ(1u, theGammas.size());
-    const HepMC::GenParticlePtr pGamma(theGammas.front());
+    HepMC::ConstGenParticlePtr pGamma(theGammas.front());
 #ifdef GENP_DEBUG
     pGamma->print();
     std::cout << "gamma barcode " << hex << HepMC::barcode(pGamma) << std::endl;
@@ -251,9 +274,14 @@ namespace MCTesting {
     HepMcParticleLink gammaLink11(pGamma, 1);
     HepMcParticleLink gammaLink12(HepMC::barcode(pGamma), 1);
 
-    std::cout << "Testing HepMcParticleLink streamer "
+    std::stringstream out;
+    out << "Testing HepMcParticleLink streamer "
               << gammaLink1 << " --- " << gammaLink11 <<std::endl;
-
+#ifdef HEPMC3
+    ASSERT_EQ(out.str(),"Testing HepMcParticleLink streamer Event index 0, Barcode 5, McEventCollection CollectionNotSet(a) --- Event index 1, Barcode 5, McEventCollection CollectionNotSet(a)\n");
+#else
+    ASSERT_EQ(out.str(),"Testing HepMcParticleLink streamer Event index 0, Barcode 10005, McEventCollection CollectionNotSet(a) --- Event index 1, Barcode 10005, McEventCollection CollectionNotSet(a)\n");
+#endif
 
 #ifdef GENP_DEBUG
     std::cout << "link barcode " << hex << gammaLink1.barcode() << std::endl;
@@ -282,7 +310,7 @@ namespace MCTesting {
     // Fill it with a dummy GenEvent
     inputTestDataHandle->push_back(HepMC::newGenEvent(20,1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // A HepMcParticleLink built using a GenParticle pointer should
     // still work.
     HepMcParticleLink testLink1a(particle1,0);
@@ -306,7 +334,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex1(0);
     const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -387,7 +415,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex2(1);
     const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
-    const HepMC::GenParticlePtr particle2 = populateGenEvent2(ge2);
+    HepMC::ConstGenParticlePtr particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent (identical to the first)
     const int process_id3(20);
     const int event_number3(17);
@@ -454,7 +482,7 @@ namespace MCTesting {
     const int event_number1(17);
     inputTestDataHandle->push_back(HepMC::newGenEvent(process_id1, event_number1));
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -468,7 +496,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex3(2);
     const HepMcParticleLink::index_type refEvtNum3 = static_cast<HepMcParticleLink::index_type>(event_number3);
     HepMC::GenEvent& ge3 = *(inputTestDataHandle->at(2));
-    const HepMC::GenParticlePtr particle3 = populateGenEvent(ge3);
+    HepMC::ConstGenParticlePtr particle3 = populateGenEvent(ge3);
 
     const int event_number4(89);
     inputTestDataHandle->push_back(new HepMC::GenEvent(ge1));
@@ -545,7 +573,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type refEvtNum4 = static_cast<HepMcParticleLink::index_type>(event_number4);
     HepMC::GenEvent& ge4 = *(inputTestDataHandle->at(3));
     ge4.set_event_number(event_number4);
-    const HepMC::GenParticlePtr particle4 = populateFilteredGenEvent(ge4);
+    HepMC::ConstGenParticlePtr particle4 = populateFilteredGenEvent(ge4);
 
     const IProxyDict* sg = SG::CurrentEventStore::store();
 
@@ -714,7 +742,7 @@ namespace MCTesting {
     const int event_number5(460);
     const HepMcParticleLink::index_type refEvtNum5 = static_cast<HepMcParticleLink::index_type>(event_number5);
     const int cutBarcode(210001);
-    const HepMC::GenParticlePtr cutParticlePtr{};
+    HepMC::ConstGenParticlePtr cutParticlePtr{};
 
     // Link to a GenParticle which was not recorded to the
     // McEventCollection, even though other parts of the same GenEvent
@@ -753,7 +781,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex1(0);
     const HepMcParticleLink::index_type refEvtNum1 = static_cast<HepMcParticleLink::index_type>(event_number1);
     HepMC::GenEvent& ge1 = *(inputTestDataHandle->at(0));
-    const HepMC::GenParticlePtr particle1 = populateGenEvent(ge1);
+    HepMC::ConstGenParticlePtr particle1 = populateGenEvent(ge1);
     // Add a second dummy GenEvent
     const int process_id2(20);
     const int event_number2(25);
@@ -761,7 +789,7 @@ namespace MCTesting {
     const HepMcParticleLink::index_type dummyIndex2(1);
     const HepMcParticleLink::index_type refEvtNum2 = static_cast<HepMcParticleLink::index_type>(event_number2);
     HepMC::GenEvent& ge2 = *(inputTestDataHandle->at(1));
-    const HepMC::GenParticlePtr particle2 = populateGenEvent2(ge2);
+    HepMC::ConstGenParticlePtr particle2 = populateGenEvent2(ge2);
     // Add a third dummy GenEvent
     const int process_id3(20);
     const int event_number3(17);

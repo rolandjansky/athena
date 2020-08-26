@@ -17,7 +17,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( FastJet )
-find_package( FastJetContrib COMPONENTS Nsubjettiness EnergyCorrelator SoftDrop )
+find_package( FastJetContrib COMPONENTS Nsubjettiness EnergyCorrelator )
 find_package( ROOT COMPONENTS Matrix Core MathCore Physics )
 
 # Component(s) in the package:

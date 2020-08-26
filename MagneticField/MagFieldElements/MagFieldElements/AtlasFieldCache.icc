@@ -146,11 +146,11 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
 inline bool
 MagField::AtlasFieldCache::solenoidOn() const
 {
-  return m_fieldMap ? m_fieldMap->solenoidOn() : false;
+  return m_fieldMap ? m_fieldMap->solenoidOn() && m_solScale > 0.0 : false;
 }
 
 inline bool
 MagField::AtlasFieldCache::toroidOn() const
 {
-  return m_fieldMap ? m_fieldMap->toroidOn() : false;
+  return m_fieldMap ? m_fieldMap->toroidOn() && m_torScale > 0.0 : false;
 }

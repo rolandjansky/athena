@@ -1,11 +1,20 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSimEvent/sTgcHitIdHelper.h"
+
 #include <iostream>
+#include <iomanip> // for std::array
 
 sTgcHitIdHelper* sTgcHitIdHelper::m_help = nullptr;
+
+namespace {
+    const static std::array<char, 1> v1 = {'T'};
+    const static std::array<char, 2> v2 = {'S','L'};
+    const static std::array<char, 5> v3 = {'0','1','2','3','4'};
+    const static std::array<char, 2> v4 = {'1','2'};
+}
 
 //private constructor
 sTgcHitIdHelper::sTgcHitIdHelper() : HitIdHelper(){
@@ -17,12 +26,6 @@ sTgcHitIdHelper* sTgcHitIdHelper::GetHelper(){
   if (!m_help) m_help = new sTgcHitIdHelper();
   return m_help;
 }
-
-static char v1[] = {'T'};
-static char v2[] = {'S','L'};
-static char v3[] = {'0','1','2','3','4'};
-static char v4[] = {'1','2'};
-
 
 void sTgcHitIdHelper::Initialize(){
 

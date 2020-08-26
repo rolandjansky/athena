@@ -4,7 +4,7 @@ Copyright! (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #ifndef TRIGT2MINBIAS_SPCOUNTHYPOTOOL_H
 #define TRIGT2MINBIAS_SPCOUNTHYPOTOOL_H
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

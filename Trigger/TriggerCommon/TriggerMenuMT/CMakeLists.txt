@@ -1,13 +1,7 @@
-################################################################################
-# Package: TriggerMenuMT
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
-
-# Declare the package's dependencies: 
-atlas_depends_on_subdirs( PRIVATE
-                          Trigger/TriggerCommon/TriggerJobOpts)
 
 # External dependencies:
 find_package( six )
@@ -49,8 +43,8 @@ function( atlas_build_lvl1_trigger_menu menu )
       COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${CMAKE_CURRENT_BINARY_DIR}/Menus/${menu}/
       ${CMAKE_XML_OUTPUT_DIRECTORY}/TriggerMenuMT
-      COMMAND ${CMAKE_COMMAND} -E touch
-      ${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
+      #COMMAND ${CMAKE_COMMAND} -E touch           # do not create stamp file to force rebuild every time
+      #${CMAKE_CURRENT_BINARY_DIR}/${menu}.stamp
       DEPENDS "Package_$<JOIN:$<TARGET_PROPERTY:ATLAS_PACKAGES_TARGET,ATLAS_PACKAGES>,;Package_>" )
 
    # Create custom target and add it to package dependencies
@@ -108,40 +102,46 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
-			      POST_BUILD_CMD ${ATLAS_FLAKE8})
+			                  POST_BUILD_CMD ${ATLAS_FLAKE8})
+
+atlas_install_scripts( scripts/generateMenuMT.py
+                       scripts/generateL1MenuMT.sh
+                       scripts/generateLVL1MenuMT.py
+                       scripts/generateL1TopoMenuMT.py
+                       scripts/test_HLTmenu.sh
+                       scripts/generateL1MenuRun3.py
+                       scripts/trigCompareOldandNewL1Menus.py
+                       scripts/verify_menu_config.py
+                       scripts/test_full_menu_cf.py )
+
 atlas_install_joboptions( share/*.py )
-
-atlas_install_scripts( scripts/generateMenuMT.py )
-atlas_install_scripts( scripts/generateL1MenuMT.sh )
-atlas_install_scripts( scripts/generateLVL1MenuMT.py )
-atlas_install_scripts( scripts/generateL1TopoMenuMT.py )
-atlas_install_scripts( scripts/test_HLTmenu.sh )
-atlas_install_scripts( scripts/generateL1MenuRun3.py )
-atlas_install_scripts( scripts/trigCompareOldandNewL1Menus.py )
-atlas_install_scripts( scripts/verify_menu_config.py )
-
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-atlas_add_test( generateMenuMT_newJO SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
-                PROPERTIES TIMEOUT 500 
-              )
+#----------------------------------
+# Tests:
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
+atlas_add_test( generateMenuMT_newJO
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO
+                PROPERTIES TIMEOUT 500 )
 
-atlas_add_test( ViewCFTest     SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest POST_EXEC_SCRIPT nopost.sh )
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
+atlas_add_test( ViewCFTest
+		        SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest
+		        POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
-                PROPERTIES TIMEOUT 4000 
-              )
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
+atlas_add_test( generateMenuMT
+		        SCRIPT bash test_HLTmenu.sh
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT
+                PROPERTIES TIMEOUT 4000 )
 
-# prparing to move the emulation tests from TUT
-#atlas_add_test( emu_step_processing
-#		SCRIPT scripts/test_emu_step_processing.sh
-#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-#		)
-
-#atlas_add_test( emu_step_menu_processing
-#		SCRIPT scripts/test_emu_step_menu_processing.sh
-#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-#		) 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
+atlas_add_test( full_menu_cf
+		        SCRIPT scripts/test_full_menu_cf.sh
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
+                PROPERTIES TIMEOUT 500)
 
 
 #----------------------------------

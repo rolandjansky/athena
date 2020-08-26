@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,7 @@ namespace xAOD {
    }
 
    Vertex_v1::Vertex_v1( const Vertex_v1& other ) 
-      : SG::AuxElement(),
+      : SG::AuxElement(other),
         m_position( other.m_position ),
         m_covariance( other.m_covariance ){
       //copy aux store content (only the stuffs already loaded in memory!)
@@ -241,11 +241,11 @@ namespace xAOD {
    const TrackParticle* Vertex_v1::trackParticle( size_t i ) const {
 
       if( ! trackAcc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
       if( ( trackAcc( *this ).size() <= i ) ||
           ( ! trackAcc( *this )[ i ].isValid() ) ) {
-         return 0;
+         return nullptr;
       }
 
       return ( *( trackAcc( *this )[ i ] ) );
@@ -272,11 +272,11 @@ namespace xAOD {
    const NeutralParticle* Vertex_v1::neutralParticle( size_t i ) const {
 
       if( ! neutralAcc.isAvailable( *this ) ) {
-         return 0;
+         return nullptr;
       }
       if( ( neutralAcc( *this ).size() <= i ) ||
           ( ! neutralAcc( *this )[ i ].isValid() ) ) {
-         return 0;
+         return nullptr;
       }
 
       return ( *( neutralAcc( *this )[ i ] ) );

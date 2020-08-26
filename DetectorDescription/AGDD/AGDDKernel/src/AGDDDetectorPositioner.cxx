@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDDetectorPositioner.h"
@@ -7,10 +7,8 @@
 #include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDVolumeStore.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
-
-AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t):AGDDPositioner(n,t),theDetector(0),theVolume(0)
-{
+AGDDDetectorPositioner::AGDDDetectorPositioner(const std::string& n, GeoTrf::Transform3D t) :
+  AGDDPositioner(n,t),
+  theDetector(nullptr),
+  theVolume(nullptr) {
 }

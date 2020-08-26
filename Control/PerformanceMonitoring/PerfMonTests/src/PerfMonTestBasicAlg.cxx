@@ -13,7 +13,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "PerfMonKernel/IPerfMonSvc.h"
 
 #include "AthenaKernel/CLASS_DEF.h"

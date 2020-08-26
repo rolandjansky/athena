@@ -18,7 +18,7 @@
 #include "GaudiKernel/IDataSelector.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaKernel/IDecisionSvc.h"

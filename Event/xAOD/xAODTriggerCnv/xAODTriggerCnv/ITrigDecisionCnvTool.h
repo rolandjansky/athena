@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ITrigDecisionCnvTool.h 688265 2015-08-08 16:31:45Z stelzer $
@@ -45,7 +45,7 @@ namespace xAODMaker {
       /// Function filling an xAOD::TrigDecision object with information
       virtual StatusCode convert( const TrigDec::TrigDecision* aod,
                                   xAOD::TrigDecision* xaod,
-                                  const TriggerInfo* level1TriggerInfo ) = 0;
+                                  const TriggerInfo* level1TriggerInfo ) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

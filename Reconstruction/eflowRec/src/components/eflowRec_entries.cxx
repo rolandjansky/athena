@@ -9,6 +9,9 @@
 #include "eflowRec/PFTrackSelector.h"
 #include "eflowRec/PFClusterSelectorTool.h"
 #include "eflowRec/PFAlgorithm.h"
+#include "eflowRec/PFChargedFlowElementCreatorAlgorithm.h"
+#include "eflowRec/PFNeutralFlowElementCreatorAlgorithm.h"
+#include "eflowRec/PFLCNeutralFlowElementCreatorAlgorithm.h"
 #include "eflowRec/PFCellLevelSubtractionTool.h"
 #include "eflowRec/PFRecoverSplitShowersTool.h"
 #include "eflowRec/PFMomentCalculatorTool.h"
@@ -24,6 +27,9 @@ DECLARE_COMPONENT( PFEGammaPFOAssoc )
 DECLARE_COMPONENT( PFClusterSelectorTool )
 DECLARE_COMPONENT( PFTrackSelector )
 DECLARE_COMPONENT( PFAlgorithm )
+DECLARE_COMPONENT( PFChargedFlowElementCreatorAlgorithm)
+DECLARE_COMPONENT( PFNeutralFlowElementCreatorAlgorithm)
+DECLARE_COMPONENT( PFLCNeutralFlowElementCreatorAlgorithm)
 DECLARE_COMPONENT( PFOChargedCreatorAlgorithm )
 DECLARE_COMPONENT( PFONeutralCreatorAlgorithm )
 DECLARE_COMPONENT( PFCellLevelSubtractionTool )

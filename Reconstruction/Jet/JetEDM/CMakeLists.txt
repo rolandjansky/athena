@@ -21,7 +21,7 @@ find_package( FastJet )
 atlas_add_library( JetEDM
                    Root/*.cxx
                    PUBLIC_HEADERS JetEDM
-                   PRIVATE_INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools xAODBase xAODJet xAODTracking
                    PRIVATE_LINK_LIBRARIES ${FASTJET_LIBRARIES} xAODMuon )
 

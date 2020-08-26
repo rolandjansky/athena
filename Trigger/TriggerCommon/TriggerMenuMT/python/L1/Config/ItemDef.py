@@ -16,10 +16,12 @@ log = logging.getLogger('Menu.L1.Config.ItemDef')
 # The trigger types
 from ..Base.Limits import Limits
 from ..Base.Logic import Logic, Not
-from ..Base.Items import MenuItem
+from ..Base.Items import MenuItem, meta_d
 from ..Base.Thresholds import TopoThreshold
 from ..Base.CTPCondition import ThrCondition, InternalTrigger  # noqa: F401
 from .TriggerTypeDef import TT
+
+from future.utils import with_metaclass
 
 
 
@@ -44,7 +46,7 @@ class ItemDef:
         isHIV5 = 'HI_v5' in menuName
         isPhaseII = '_PhaseII' in menuName
 
-        class d: pass
+        class d(with_metaclass(meta_d)): pass
 
         # ... and make them accessible by their name
         for thr in tc.getDefinedThresholds():

@@ -70,8 +70,10 @@ public:
 
 
   /// Copy constructor.
-  CachedPointer (const CachedPointer& other);
+  CachedPointer (const CachedPointer& other) noexcept;
 
+  /// Move constructor.
+  CachedPointer ( CachedPointer&& other) noexcept;
 
   /// Assignment.
   CachedPointer& operator= (const CachedPointer& other);

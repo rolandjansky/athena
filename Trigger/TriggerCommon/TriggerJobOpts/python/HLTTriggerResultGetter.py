@@ -312,14 +312,16 @@ class TrigDecisionGetterRun2(Configured):
             from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
             trigDecWriter = WriteTrigDecision()  # noqa: F841
 
-#            from TrigDecisionMaker.TrigDecisionMakerConfig import WritexAODTrigDecision
-#            trigDecWriter = WritexAODTrigDecision()
+#           WritexAODTrigDecision() is called within WriteTrigDecision()
 
             # inform TD maker that some parts may be missing
             if TriggerFlags.dataTakingConditions()=='Lvl1Only':
                 topSequence.TrigDecMaker.doL2=False
                 topSequence.TrigDecMaker.doEF=False
                 topSequence.TrigDecMaker.doHLT=False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doEF = False
+                topSequence.TrigNavigationCnvAlg.doHLT = False
             elif TriggerFlags.dataTakingConditions()=='HltOnly':
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence.TrigDecMaker.doL1=False
@@ -327,9 +329,13 @@ class TrigDecisionGetterRun2(Configured):
             # split HLT:
             if not TriggerFlags.doMergedHLTResult():
                 topSequence.TrigDecMaker.doHLT = False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doHLT = False
             else:
                 topSequence.TrigDecMaker.doL2 = False
                 topSequence.TrigDecMaker.doEF = False
+                topSequence.TrigNavigationCnvAlg.doL2 = False
+                topSequence.TrigNavigationCnvAlg.doEF = False
                 pass
                 
         else:

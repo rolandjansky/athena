@@ -22,28 +22,34 @@ class Test_generate_mergeable_collection_name(unittest.TestCase):
 
     def test_isISFRunAndHITSMergingRequired_expectBareNameWithSuffixReturned(self):
         simFlags.ISFRun.set_Value(True)
-        ISF_Flags.HITSMergingRequired.set_Value(True)
+        mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         expected_collection_name = 'aTestCollection_TESTSUFFIX'
         self.assertEqual(expected_collection_name, actual_collection_name)
 
     def test_isISFRunAndHITSMergingRequiredWithEmptyCollectionMergerAlgorithm_expectCollectionAddedToCollectionMergerAlgorithm(self):
         simFlags.ISFRun.set_Value(True)
-        ISF_Flags.HITSMergingRequired.set_Value(True)
+        mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         collection_merger = getAlgorithm('ISF_CollectionMerger')
         actual_collection_merger_input = collection_merger.InputPixelHits
@@ -54,28 +60,34 @@ class Test_generate_mergeable_collection_name(unittest.TestCase):
 
     def test_isISFRunAndNoHITSMergingRequired_expectBareCollectionNameReturned(self):
         simFlags.ISFRun.set_Value(True)
-        ISF_Flags.HITSMergingRequired.set_Value(False)
+        mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         expected_collection_name = 'aTestCollection'
         self.assertEqual(expected_collection_name, actual_collection_name)
 
     def test_isISFRunAndNoHITSMergingRequiredWithEmptyCollectionMergerAlgorithm_expectCollectionMergerAlgorithmUntouched(self):
         simFlags.ISFRun.set_Value(True)
-        ISF_Flags.HITSMergingRequired.set_Value(False)
+        mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         collection_merger = getAlgorithm('ISF_CollectionMerger')
         actual_collection_merger_input = collection_merger.InputPixelHits
@@ -86,42 +98,51 @@ class Test_generate_mergeable_collection_name(unittest.TestCase):
 
     def test_isNotISFRunAndNoHITSMergingRequired_expectBareCollectioNameReturned(self):
         simFlags.ISFRun.set_Value(False)
-        ISF_Flags.HITSMergingRequired.set_Value(False)
+        mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         expected_collection_name = 'aTestCollection'
         self.assertEqual(expected_collection_name, actual_collection_name)
 
     def test_isNotISFRunAndHITSMergingRequired_expectBareCollectioNameReturned(self):
         simFlags.ISFRun.set_Value(False)
-        ISF_Flags.HITSMergingRequired.set_Value(True)
+        mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         expected_collection_name = 'aTestCollection'
         self.assertEqual(expected_collection_name, actual_collection_name)
 
     def test_isNotISFRunAndNoHITSMergingRequired_expectCollectionMergerAlgorithmUntouched(self):
         simFlags.ISFRun.set_Value(False)
-        ISF_Flags.HITSMergingRequired.set_Value(False)
+        mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         collection_merger = getAlgorithm('ISF_CollectionMerger')
         actual_collection_merger_input = collection_merger.InputPixelHits
@@ -132,14 +153,17 @@ class Test_generate_mergeable_collection_name(unittest.TestCase):
 
     def test_isNotISFRunAndHITSMergingRequired_expectCollectionMergerAlgorithmUntouched(self):
         simFlags.ISFRun.set_Value(False)
-        ISF_Flags.HITSMergingRequired.set_Value(True)
+        mergeDict = {'ID':True, 'CALO':True, 'MUON':True}
+        ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
 
         bare_collection_name = 'aTestCollection'
         collection_suffix = '_TESTSUFFIX'
         merger_input_property = 'PixelHits'
+        region = 'ID'
         actual_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                                     collection_suffix,
-                                                                    merger_input_property)
+                                                                    merger_input_property,
+                                                                    region)
 
         collection_merger = getAlgorithm('ISF_CollectionMerger')
         actual_collection_merger_input = collection_merger.InputPixelHits

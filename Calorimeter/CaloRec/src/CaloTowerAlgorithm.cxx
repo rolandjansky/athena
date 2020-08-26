@@ -3,7 +3,7 @@
 */
 
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IToolSvc.h"
 

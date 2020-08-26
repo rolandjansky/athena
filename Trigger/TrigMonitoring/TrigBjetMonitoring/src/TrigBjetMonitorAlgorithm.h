@@ -37,6 +37,5 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!
 
-  bool m_doRun2;
 };
 #endif

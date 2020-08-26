@@ -139,7 +139,7 @@ def process(infname, confname, options, refs=None):
     
     top_level = DQRegion(id='topRegion',algorithm=worst)
     print('Building tree...')
-    refpairs = refs.split(',')
+    refpairs = refs.split(',') if refs else []
     try:
         refdict = dict(_.split(':') for _ in refpairs)
     except Exception as e:

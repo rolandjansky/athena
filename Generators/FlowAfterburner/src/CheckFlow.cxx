@@ -28,7 +28,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticlePtr>  MCparticleCollection ;
+typedef std::vector<HepMC::ConstGenParticlePtr>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),

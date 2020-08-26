@@ -42,7 +42,7 @@ msgcount.required = True # make the test exit code depend on this step
 
 # Add a step comparing counts in the log against reference
 refcomp = CheckSteps.RegTestStep("CountRefComp")
-refcomp.regex = 'TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*'
+refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
 refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
 refcomp.required = True # Final exit code depends on this step
 CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: IParticleHelpers.cxx 700032 2015-10-12 11:38:33Z krasznaa $
@@ -99,7 +99,7 @@ namespace xAOD {
       }
 
       // If the containers are empty, we're done:
-      if( ! copy.size() ) {
+      if( copy.empty() ) {
          return true;
       }
 
@@ -143,7 +143,7 @@ namespace xAOD {
 
       // Check if the decoration is available on the object:
       if( ! acc.isAvailable( copy ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Get the link:
@@ -151,7 +151,7 @@ namespace xAOD {
 
       // Check if the link is valid:
       if( ! link.isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Apparently all is fine:

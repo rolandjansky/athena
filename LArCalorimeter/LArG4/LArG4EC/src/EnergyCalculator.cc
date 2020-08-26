@@ -210,7 +210,7 @@ EnergyCalculator::EnergyCalculator(const std::string& name, ISvcLocator *pSvcLoc
   declareProperty("zSide",m_zside);
 }
 
-void EnergyCalculator::CorrectionTypeHandler(Property&)
+void EnergyCalculator::CorrectionTypeHandler(Gaudi::Details::PropertyBase&)
 {
   switch(m_corrProp.value())
     {
@@ -235,7 +235,7 @@ void EnergyCalculator::CorrectionTypeHandler(Property&)
     }
 }
 
-void EnergyCalculator::SolidTypeHandler(Property&)
+void EnergyCalculator::SolidTypeHandler(Gaudi::Details::PropertyBase&)
 {
   switch(m_solidtypeProp.value())
     {

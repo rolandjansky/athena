@@ -78,7 +78,7 @@ atlas_add_library( JetMomentToolsLib
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking xAODTruth JetEDM JetInterface TrackVertexAssociationToolLib
    JetRecLib JetUtils PFlowUtilsLib JetCalibToolsLib
-   xAODMetaData
+   xAODMetaData InDetTrackSelectionToolLib
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
 if( NOT XAOD_STANDALONE )

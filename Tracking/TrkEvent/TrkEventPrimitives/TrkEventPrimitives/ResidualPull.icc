@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <stdexcept>
+
 namespace Trk {
 // constructor with parameters
 inline Trk::ResidualPull::ResidualPull(

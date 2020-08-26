@@ -144,7 +144,7 @@ namespace Trig {
 
     // L2 chains
     l2chainsByName.clear();
-    auto level2TriggerInfo = dec->level2TriggerInfo();
+    const auto& level2TriggerInfo = dec->level2TriggerInfo();
 
     if ( unpackChains(level2TriggerInfo, l2chainsCache, l2chainsByName).isFailure() ) {
       ATH_MSG_WARNING("Unpacking  of L2 chains failed");
@@ -152,7 +152,7 @@ namespace Trig {
 
     // EF chains
     efchainsByName.clear();
-    auto eventFilterInfo = dec->eventFilterInfo();
+    const auto& eventFilterInfo = dec->eventFilterInfo();
   
     if ( unpackChains(eventFilterInfo, efchainsCache, efchainsByName).isFailure() ) {
       ATH_MSG_WARNING("Unpacking  of EF/HLT chains failed");    

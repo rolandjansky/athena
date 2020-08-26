@@ -80,7 +80,7 @@ private:
 private:
 
   /// Call-back method to configure the cut properties (min/max): mass
-  void setupChi2( Property& prop );
+  void setupChi2( Gaudi::Details::PropertyBase& prop );
 
 
   //------------------------------------------------------
@@ -260,7 +260,7 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline void D2PDMuonSelector::setupChi2( Property& /*prop*/ )
+inline void D2PDMuonSelector::setupChi2( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doChi2 = true;
   return;

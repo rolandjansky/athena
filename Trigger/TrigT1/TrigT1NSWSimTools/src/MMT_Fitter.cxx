@@ -49,7 +49,8 @@ evFit_entry MMT_Fitter::fit_event(int event, vector<Hit>& track, vector<hitData_
     ATH_MSG_WARNING("SOMETHING IS OFF!  fit_event\n");
     throw std::runtime_error("MMT_Fitter::fit_event: invalid ROI.theta");
   }
-
+  static_assert(std::is_trivially_copyable<float32fixed<2>>::value);
+  static_assert(std::is_trivially_destructible<float32fixed<2>>::value);
   float32fixed<2> M_x_local = Get_Local_Slope(track,ROI.theta.getFixed(),ROI.phi.getFixed()),Delta_Theta_division = Get_Delta_Theta_division(M_x_local,M_x_global,1.), Delta_Theta = Get_Delta_Theta(M_x_local,M_x_global), dtheta_idl=Get_Delta_Theta_division(ideal_local_slope(track),M_x_global);
 
   mxl = M_x_local.getFixed();

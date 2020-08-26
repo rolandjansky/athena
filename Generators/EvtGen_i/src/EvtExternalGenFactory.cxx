@@ -36,7 +36,6 @@
 #endif
 
 #include <iostream>
-using std::endl;
 
 EvtExternalGenFactory::EvtExternalGenFactory() {
 
@@ -80,16 +79,16 @@ void EvtExternalGenFactory::definePythiaGenerator(std::string xmlDir,
   int genId = EvtExternalGenFactory::PythiaGenId;
 
   EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Defining EvtPythiaEngine: data tables defined in "
-		       <<xmlDir<<endl;
+		       <<xmlDir<<std::endl;
 
   if (convertPhysCodes == true) {
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Pythia 6 codes in decay files will be converted to Pythia 8 codes"<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Pythia 6 codes in decay files will be converted to Pythia 8 codes"<<std::endl;
   } else {
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Pythia 8 codes need to be used in decay files"<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Pythia 8 codes need to be used in decay files"<<std::endl;
   }
 
   if (useEvtGenRandom == true) {
-    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Using EvtGen random engine for Pythia 8 as well"<<endl;
+    EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Using EvtGen random engine for Pythia 8 as well"<<std::endl;
   }
 
   EvtAbsExternalGen* pythiaGenerator = new EvtPythiaEngine(xmlDir, convertPhysCodes, useEvtGenRandom);
@@ -108,7 +107,7 @@ void EvtExternalGenFactory::definePythiaGenerator(std::string ,
 void EvtExternalGenFactory::definePhotosGenerator(std::string photonType, bool useEvtGenRandom) {
 
   int genId = EvtExternalGenFactory::PhotosGenId;
-  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Defining EvtPhotosEngine using photonType = "<<photonType<<endl;
+  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Defining EvtPhotosEngine using photonType = "<<photonType<<std::endl;
   EvtAbsExternalGen* photosGenerator = new EvtPhotosEngine(photonType, useEvtGenRandom);
   m_extGenMap[genId] = photosGenerator;
 }
@@ -122,7 +121,7 @@ void EvtExternalGenFactory::definePhotosGenerator(std::string, bool)
 #ifdef EVTGEN_TAUOLA
 void EvtExternalGenFactory::defineTauolaGenerator(bool useEvtGenRandom) {
   int genId = EvtExternalGenFactory::TauolaGenId;
-  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Defining EvtTauolaEngine."<<endl;
+  EvtGenReport(EVTGEN_INFO,"EvtGen")<<"Defining EvtTauolaEngine."<<std::endl;
   EvtAbsExternalGen* tauolaGenerator = new EvtTauolaEngine(useEvtGenRandom);
   m_extGenMap[genId] = tauolaGenerator;
 }

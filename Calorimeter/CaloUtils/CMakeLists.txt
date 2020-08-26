@@ -66,7 +66,7 @@ atlas_add_test( CaloTowerStore_test
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT test/CaloTowerBuilderTool_test.sh
    LOG_IGNORE_PATTERN "Reading file|Unable to locate catalog|Cache alignment"
-   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-12"
+   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-13"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( ToolWithConstants_test

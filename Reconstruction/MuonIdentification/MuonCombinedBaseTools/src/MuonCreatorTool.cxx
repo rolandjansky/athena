@@ -794,6 +794,7 @@ namespace MuonCombined {
       // init variables if necessary.
       
       mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloLRLikelihood);
+      mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloMuonScore);
       mu.setParameter(static_cast<int>( 0xFF ), xAOD::Muon::CaloMuonIDTag); 
       if ( m_fillExtraELossInfo) {
         // Here we can make sure that we store the extra calotag information - just always add it since this is then unambigious for debugging
@@ -805,8 +806,9 @@ namespace MuonCombined {
       return; 
     }
     
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
+    ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", LHR " << tag->caloLRLikelihood() << ", CaloMuonScore " << tag->caloMuonScore() );
     mu.setParameter(static_cast<float>( tag->caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
+    mu.setParameter(static_cast<float>( tag->caloMuonScore() ), xAOD::Muon::CaloMuonScore);
     mu.setParameter(static_cast<int>( tag->caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
     
     if ( m_fillExtraELossInfo) {

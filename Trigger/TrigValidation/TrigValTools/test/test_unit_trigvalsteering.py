@@ -7,6 +7,11 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Common
 import logging
 
+import os
+if not os.path.exists ('test_unit_trigvalsteering'):
+    os.mkdir ('test_unit_trigvalsteering')
+os.chdir ('test_unit_trigvalsteering')
+
 Common.trigvalsteering_logging_level = logging.DEBUG
 Common.package_prefix_dict['TrigValTools']='unit_'
 

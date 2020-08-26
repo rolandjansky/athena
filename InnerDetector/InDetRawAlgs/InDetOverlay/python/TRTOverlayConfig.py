@@ -79,6 +79,11 @@ def TRTOverlayAlgCfg(flags, name="TRTOverlay", **kwargs):
             "TRT_RDO_Container#TRT_RDOs"
         ]))
 
+        if flags.Overlay.DataOverlay:
+            acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+                "TRT_BSErrContainer#TRT_ByteStreamErrs"
+            ]))
+
     if flags.Output.doWriteRDO_SGNL:
         from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
         acc.merge(OutputStreamCfg(flags, "RDO_SGNL", ItemList=[

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDKernel/AGDDPositioner.h"
@@ -7,26 +7,23 @@
 #include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDVolumeStore.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/Rotation.h"
-
-AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t):m_isSensitiveDetector(false),m_volume(n),m_transform(t)
-{
+AGDDPositioner::AGDDPositioner(const std::string& n, GeoTrf::Transform3D t) :
+  m_isSensitiveDetector(false),
+  m_volume(n),
+  m_transform(t) {
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
 	m_theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
 }
-std::string AGDDPositioner::Volume() 
-{
+
+std::string AGDDPositioner::Volume() {
 	return m_volume;
 }
-const HepGeom::Transform3D& AGDDPositioner::Transform() 
-{
+
+const GeoTrf::Transform3D& AGDDPositioner::Transform() {
 	return m_transform;
 } 
 
-AGDDVolume* AGDDPositioner::GetVolume() 
-{
+AGDDVolume* AGDDPositioner::GetVolume() {
 	return m_theVolume;
 } 
 

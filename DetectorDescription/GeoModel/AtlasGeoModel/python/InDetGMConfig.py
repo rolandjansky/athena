@@ -13,11 +13,6 @@ def InDetServiceMaterialCfg (flags):
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     InDetServMatTool=CompFactory.InDetServMatTool
     servMatTool = InDetServMatTool()
-    if flags.GeoModel.Run=="RUN4":
-        InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
-        InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-        acc.addPublicTool( InDetServMatBuilderToolSLHC )
-        servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
     geoModelSvc.DetectorTools += [ servMatTool ]
     acc.addService(geoModelSvc)
     return acc

@@ -17,18 +17,26 @@ inline GenParticlePtr newGenParticlePtr(const HepMC3::FourVector &mom = HepMC3::
   return std::make_shared<HepMC3::GenParticle>(mom,pid,status);
 }
 inline int barcode(GenParticlePtr p){ 
+	if (!p) return 0;
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(ConstGenParticlePtr p){ 
+	if (!p) return 0;
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p->id();
 }
 inline int barcode(const HepMC3::GenParticle p){ 
 	std::shared_ptr<HepMC3::IntAttribute> barcode=p.attribute<HepMC3::IntAttribute>("barcode");
-		 return barcode?(barcode->value()):0;
+		 return barcode?(barcode->value()):p.id();
+}
+inline int barcode(const HepMC3::GenParticle* p){ 
+	if (!p) return 0;
+	std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
+		 return barcode?(barcode->value()):p->id();
 }
 template <class T> void suggest_barcode(T p, int i){p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(i));}
+using HepMC3::GenParticle;
 }
 #else
 #include "HepMC/GenParticle.h"

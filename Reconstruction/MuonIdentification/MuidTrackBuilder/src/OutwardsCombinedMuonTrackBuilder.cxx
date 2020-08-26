@@ -386,10 +386,11 @@ OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRe
         if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization before cleaning ");
 
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack);
             if (optimizedTrack) {
                 delete fittedTrack;
-                fittedTrack = optimizedTrack;
+		//until code is updated to use unique_ptr or removed
+                fittedTrack = optimizedTrack.release();
             }
         }
 
@@ -467,10 +468,11 @@ OutwardsCombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::T
         // fit with optimized spectrometer errors
         if (!m_muonErrorOptimizer.empty() && !fittedTrack->info().trackProperties(Trk::TrackInfo::StraightTrack)) {
             ATH_MSG_VERBOSE(" perform spectrometer error optimization before cleaning ");
-            Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	    std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack);
             if (optimizedTrack) {
                 delete fittedTrack;
-                fittedTrack = optimizedTrack;
+		//until code is updated to use unique_ptr or removed
+                fittedTrack = optimizedTrack.release();
             }
         }
         // muon cleaner
@@ -580,10 +582,11 @@ OutwardsCombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::T
 
         ATH_MSG_VERBOSE(" perform spectrometer error optimization... ");
 
-        Trk::Track* optimizedTrack = m_muonErrorOptimizer->optimiseErrors(*fittedTrack);
+	std::unique_ptr<Trk::Track> optimizedTrack = m_muonErrorOptimizer->optimiseErrors(fittedTrack);
         if (optimizedTrack) {
             delete fittedTrack;
-            fittedTrack = optimizedTrack;
+	    //until the code uses unique ptrs (or is removed since it's deprecated)
+            fittedTrack = optimizedTrack.release();
         }
     }
     return fittedTrack;

@@ -47,59 +47,69 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
     StatusCode finalize() override;
 
     /** Updator interface (full update for a layer): Dummy full update
-    */ 
-    const TrackParameters*  update( const TrackParameters* parm,
-                                    const Layer& sf,
-                                    PropDirection dir=alongMomentum,
-                                    ParticleHypothesis particle=pion,
-                                    MaterialUpdateMode matupmode=addNoise) const override;
+    */
+    std::unique_ptr<TrackParameters> update(
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** User updator interface (full update for a layer):
       The parmeters are given as a pointer, they are deleted inside the update method.
       Update occurs on the place where the parameters parm are according to the specified MaterialEffectsOnTrack
       */
-    virtual const TrackParameters* update( const TrackParameters* parm,
-                                           const MaterialEffectsOnTrack& meff,
-                                           ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override { 
-      (void) meff;
-      (void)particle; 
+    virtual std::unique_ptr<TrackParameters> update(
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
+      (void)meff;
+      (void)particle;
       (void)matupmode;
-      return parm; 
+      return std::unique_ptr<TrackParameters>(parm->clone());
     }
 
     /** Updator interface (pre-update for a layer): Dummy pre update
-    */ 
-    virtual const TrackParameters*   preUpdate( const TrackParameters* parm,
-                                        const Layer& sf,
-                                        PropDirection dir=alongMomentum,
-                                        ParticleHypothesis particle=pion,
-                                        MaterialUpdateMode matupmode=addNoise) const override;
+    */
+    virtual std::unique_ptr<TrackParameters> preUpdate(
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** Updator interface (post-update for a layer): Dummy post update
-    */ 
-    virtual const TrackParameters*   postUpdate(const TrackParameters& parm,
-                                        const Layer& sf,
-                                        PropDirection dir=alongMomentum,
-                                        ParticleHypothesis particle=pion,
-                                        MaterialUpdateMode matupmode=addNoise) const override;
+    */
+    virtual std::unique_ptr<TrackParameters> postUpdate(
+      const TrackParameters& parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
 
     /** Updator interface:
       The parmeters are given as a pointer, they are delete inside the update method.
       MaterialProperties based material update
       - used by all Layer-based methods
       */
-    virtual const TrackParameters*      update( const TrackParameters& parm,
-                                                const MaterialProperties& mprop,
-                                                double pathcorrection,
-                                                PropDirection dir=alongMomentum,
-                                                ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const override;
-    
+    virtual std::unique_ptr<TrackParameters> update(
+      const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override;
+
     virtual void validationAction() const override {};
 
-    virtual void modelAction(const TrackParameters* parm=nullptr) const override{ 
-      if(parm) return; 
+    virtual void modelAction(const TrackParameters* parm=nullptr) const override{
+      if(parm) return;
     }
 
     typedef IMaterialEffectsUpdator::ICache ICache;
@@ -116,66 +126,76 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
       return std::make_unique<Cache>();
     }
 
-    virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
-                                           const Layer& sf,
-                                           PropDirection dir=alongMomentum,
-                                           ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override {
-
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
-      return update(parm,sf,dir,particle,matupmode);
-    } 
-
-    virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
-                                           const MaterialEffectsOnTrack& meff,
-                                           Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override{
-
-      (void)icache;
-      return update(parm,meff,particle,matupmode);
-    } 
-
-    virtual const TrackParameters*   preUpdate(ICache& icache, const TrackParameters* parm,
-                                               const Layer& sf,
-                                               PropDirection dir=alongMomentum,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override{
-
-      (void)icache;
-      return preUpdate(parm,sf,dir,particle,matupmode);
+      return update(parm, sf, dir, particle, matupmode);
     }
 
-    virtual const TrackParameters*   postUpdate(ICache& icache,const TrackParameters& parm,
-                                                const Layer& sf,
-                                                PropDirection dir=alongMomentum,
-                                                ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const override{
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache,
+      const TrackParameters* parm,
+      const MaterialEffectsOnTrack& meff,
+      Trk::ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
+      (void)icache;
+      return update(parm, meff, particle, matupmode);
+    }
 
+    virtual std::unique_ptr<TrackParameters> preUpdate(
+      ICache& icache,
+      const TrackParameters* parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
+      (void)icache;
+      return preUpdate(parm, sf, dir, particle, matupmode);
+    }
+
+    virtual std::unique_ptr<TrackParameters> postUpdate(
+      ICache& icache,
+      const TrackParameters& parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise
+    ) const override {
       (void)icache;
       return postUpdate(parm,sf,dir,particle,matupmode);
     }
 
-    virtual const TrackParameters*    update(ICache& icache, const TrackParameters& parm,
-                                             const MaterialProperties& mprop,
-                                             double pathcorrection,
-                                             PropDirection dir=alongMomentum,
-                                             ParticleHypothesis particle=pion,
-                                             MaterialUpdateMode matupmode=addNoise) const override{
+    virtual std::unique_ptr<TrackParameters> update(
+      ICache& icache, const TrackParameters& parm,
+      const MaterialProperties& mprop,
+      double pathcorrection,
+      PropDirection dir=alongMomentum,
+      ParticleHypothesis particle=pion,
+      MaterialUpdateMode matupmode=addNoise
+    ) const override {
       (void) icache;
       return update(parm,mprop,pathcorrection,dir,particle,matupmode);
     }
 
     /** Validation Action: */
-    virtual void validationAction(ICache& icache) const override { 
+    virtual void validationAction(ICache& icache) const override {
       (void) icache;
-      validationAction(); 
+      validationAction();
     }
 
     /** Model Action:*/
-    virtual void modelAction(ICache& icache,const TrackParameters* parm=nullptr) const override{     
+    virtual void modelAction(ICache& icache,const TrackParameters* parm=nullptr) const override{
       (void) icache;
-      modelAction(parm); 
-    }   
+      modelAction(parm);
+    }
 
 
   private:
@@ -184,7 +204,7 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
     bool                         m_validationMode;            //!< boolean switch for the validation mode
     int                          m_validationDirectionSwitch; //!< jO switch for PropDirection
     PropDirection                m_validationDirection;       //!< distinction between forward and backward validation
-    ToolHandle< IMaterialMapper > m_materialMapper;            //!< the material mapper for recording the layer material 
+    ToolHandle< IMaterialMapper > m_materialMapper;            //!< the material mapper for recording the layer material
   };
 
 } // end of namespace

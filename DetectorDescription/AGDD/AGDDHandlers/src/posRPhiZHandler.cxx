@@ -5,7 +5,6 @@
 #include "AGDDHandlers/posRPhiZHandler.h"
 #include "AGDDKernel/AGDDPositioner.h"
 #include "GeoModelKernel/Units.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include <iostream>
 #include <vector>
@@ -35,5 +34,5 @@ void posRPhiZHandler::ElementHandle()
 	double y=radius*std::sin(phi*GeoModelKernelUnits::degree);
 	GeoTrf::Vector3D cvec=GeoTrf::Vector3D(x,y,zpos);
 
-	p=new AGDDPositioner(volume,Amg::EigenTransformToCLHEP(GeoTrf::Translation3D(cvec)*crot));
+	p=new AGDDPositioner(volume,GeoTrf::Translation3D(cvec)*crot);
 }

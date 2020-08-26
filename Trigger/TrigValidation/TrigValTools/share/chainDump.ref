@@ -1,0 +1,36 @@
+
+Info in <test_chainDump>: Creating test file testChainDump1.root
+Info in <test_chainDump>: Creating test file testChainDump2.root
+INFO     Loaded count histograms: ['chains', 'decisions']
+INFO     Loaded total-events histogram total, number of events: 100
+INFO     Loaded reference count histograms: ['chains', 'decisions']
+INFO     Loaded total-events reference histogram total, number of events: 100
+INFO     Comparing counts to reference
+INFO     HLTChain has 1 item(s) out of tolerance:
+  HLT_testChain1                                             26          5
+INFO     HLTDecision has 7 item(s) out of tolerance:
+  HLT_testChain1_Step0                                       96         18
+  HLT_testChain1_Step1                                       66         10
+  HLT_testChain1_Step2                                       57          7
+  HLT_testChain2_Step1                                      101         53
+  HLT_testChain3_Step0                                       76        179
+  HLT_testChain3_Step1                                       92        163
+  HLT_testChain3_Step2                                       96        112
+INFO     Writing counts from histogram chains to file HLTChain.txt
+INFO     Writing counts from histogram decisions to file HLTDecision.txt
+INFO     Writing total event count to file TotalEventsProcessed.txt
+INFO     Writing results to chainDump.json
+100
+HLT_testChain1                                             26          5 <<<<<<<<<<
+HLT_testChain2                                             30         40
+HLT_testChain3                                             62         52
+HLT_testChain1_Step0                                       96         18 <<<<<<<<<<
+HLT_testChain1_Step1                                       66         10 <<<<<<<<<<
+HLT_testChain1_Step2                                       57          7 <<<<<<<<<<
+HLT_testChain2_Step0                                       82         86
+HLT_testChain2_Step1                                      101         53 <<<<<<<<<<
+HLT_testChain2_Step2                                       71         72
+HLT_testChain3_Step0                                       76        179 <<<<<<<<<<
+HLT_testChain3_Step1                                       92        163 <<<<<<<<<<
+HLT_testChain3_Step2                                       96        112 <<<<<<<<<<
+{"HLTChain": {"counts": {"HLT_testChain1": {"count": 26, "ref_count": 5, "ref_diff": true}, "HLT_testChain2": {"count": 30, "ref_count": 40, "ref_diff": false}, "HLT_testChain3": {"count": 62, "ref_count": 52, "ref_diff": false}}, "hist_name": "chains"}, "HLTDecision": {"counts": {"HLT_testChain1_Step0": {"count": 96, "ref_count": 18, "ref_diff": true}, "HLT_testChain1_Step1": {"count": 66, "ref_count": 10, "ref_diff": true}, "HLT_testChain1_Step2": {"count": 57, "ref_count": 7, "ref_diff": true}, "HLT_testChain2_Step0": {"count": 82, "ref_count": 86, "ref_diff": false}, "HLT_testChain2_Step1": {"count": 101, "ref_count": 53, "ref_diff": true}, "HLT_testChain2_Step2": {"count": 71, "ref_count": 72, "ref_diff": false}, "HLT_testChain3_Step0": {"count": 76, "ref_count": 179, "ref_diff": true}, "HLT_testChain3_Step1": {"count": 92, "ref_count": 163, "ref_diff": true}, "HLT_testChain3_Step2": {"count": 96, "ref_count": 112, "ref_diff": true}}, "hist_name": "decisions"}, "TotalEventsProcessed": {"count": 100, "hist_name": "total", "ref_count": 100}}

@@ -7,6 +7,12 @@ atlas_subdir( ElectronEfficiencyCorrection )
 find_package( Boost )
 find_package( ROOT COMPONENTS Core Hist MathCore)
 
+if (XAOD_STANDALONE)
+  set (extra_private_libs )
+else ()
+  set (extra_private_libs AthAnalysisBaseCompsLib)
+endif ()
+
 # Component(s) in the package:
 atlas_add_library( ElectronEfficiencyCorrectionLib
    ElectronEfficiencyCorrection/*.h Root/*.cxx
@@ -14,7 +20,7 @@ atlas_add_library( ElectronEfficiencyCorrectionLib
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools
    xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces EgammaAnalysisInterfacesLib
-   PRIVATE_LINK_LIBRARIES AthAnalysisBaseCompsLib xAODCaloEvent xAODCore xAODEventInfo xAODTracking
+   PRIVATE_LINK_LIBRARIES ${extra_private_libs} xAODCaloEvent xAODCore xAODEventInfo xAODTracking
    xAODMetaData PathResolver )
 
 if( NOT XAOD_STANDALONE )

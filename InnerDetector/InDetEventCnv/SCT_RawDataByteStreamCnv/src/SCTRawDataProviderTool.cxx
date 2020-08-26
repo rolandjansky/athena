@@ -27,7 +27,7 @@ StatusCode SCTRawDataProviderTool::initialize()
 
 // Convert method
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
-                                           ISCT_RDO_Container& rdoIDCont,
+                                           SCT_RDO_Container& rdoIDCont,
                                            IDCInDetBSErrContainer& errs) const
 {
   if (vecROBFrags.empty()) return StatusCode::SUCCESS;

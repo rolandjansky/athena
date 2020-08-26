@@ -15,7 +15,7 @@
 
 // Framework includes
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IAuditorSvc.h"

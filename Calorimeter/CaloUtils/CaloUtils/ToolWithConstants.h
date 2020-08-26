@@ -26,7 +26,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/concepts.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <string>
 #include <sstream>
 #include <type_traits>
