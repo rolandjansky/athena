@@ -11,9 +11,10 @@
 //#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
-//#include "LumiBlockData/BunchCrossingCondData.h"
+// 4
+#include "LumiBlockData/BunchCrossingCondData.h"
 // 2
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+//#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 #include "TRandom3.h"
 
@@ -32,7 +33,11 @@ private:
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
 	// 2
-	ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
+	// 4
+	SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
+	
+	
 
 
 

@@ -13,6 +13,7 @@
 #include "xAODForward/AFPStationID.h"
 #include "EventInfo/EventID.h"
 
+
 #include <vector>
 
 
@@ -139,11 +140,11 @@ AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* 
 :AthMonitorAlgorithm(name,pSvcLocator)
 , m_afpHitContainerKey("AFPSiHitContainer")
 // 2
-, m_bunchCrossingTool("BunchCrossingTool")
+//, m_bunchCrossingTool("BunchCrossingTool")
 {
 	declareProperty("AFPSiHitContainer", m_afpHitContainerKey);
 	// 2
-	declareProperty("BunchCrossingTool", m_bunchCrossingTool);
+	//declareProperty("BunchCrossingTool", m_bunchCrossingTool);
 }
 
 
@@ -174,15 +175,12 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 		}
 	}
 	
-	// 2
-	std::cout << "\n\nKrecemo!...\n\n";
-	m_bunchCrossingTool.setTypeAndName("Trig::MCBunchCrossingTool/BunchCrossingTool"); // this works, but LHCBunch doesn't
-	ATH_CHECK( m_bunchCrossingTool.retrieve() );
+
+	// 4
+	std::cout << "\n\nBunchCrossingKey initialization!...\n\n";
+	ATH_CHECK( m_bunchCrossingKey.initialize());
 	std::cout << "\n\n\n";
 	ATH_MSG_INFO( "initialization completed" );
-	std::cout << "\n\n\n";
-	std::cout << "Number of filled bunches: " << m_bunchCrossingTool.numberOfFilledBunches() << std::endl;
-	std::cout << "Number of bunch trains: " << m_bunchCrossingTool.numberOfBunchTrains() << std::endl;
 	return AthMonitorAlgorithm::initialize();
 }
 
@@ -195,29 +193,41 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 
 StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	using namespace Monitored;
+	
+	//static constexpr int MAX_BCID = BunchCrossingCondData::m_MAX_BCID;
+	//std::cout << MAX_BCID << " to je taj broj.\n\n";
 
-	for(int j=0; j<3500; j++)
-	{
-		if(!m_bunchCrossingTool->isFilled(j))
-			std::cout << "Not filled " << j << "\n";
-	}
+
 	
 
-	// 2
+	// 4
 	unsigned int temp = GetEventInfo(ctx)->bcid();
-	if(m_bunchCrossingTool->isFilled(temp))
+	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
+	if (!bcidHdl.isValid()) {
+		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
+	}
+	const BunchCrossingCondData* bcData{*bcidHdl};
+	/*
+	for(int j=0; j<3560; j++)
 	{
-		std::cout << "Filled " << temp << "\n";
+		if(!bcData->isFilled(j))
+			std::cout << "\n\nNot filled " << j << "\n";
+	}
+	*/
+	if(bcData->isFilled(temp))
+	{
+		std::cout << "Filled: " << temp << std::endl;
 	}
 	else
 	{
-		std::cout << "\t\tNOT filled " << temp << "\n";	
+		std::cout << "\n\nNOT Filled: " << temp << std::endl;
 	}
+
 	
 	// !!! Check this logic for exteme values (min and max; 0? and 3564)
-	if(m_bunchCrossingTool->isFilled(temp))
+	if(bcData->isFilled(temp))
 	{
-		if(!m_bunchCrossingTool->isFilled(temp-1))
+		if(!bcData->isFilled(temp-1))
 		{
 			frontBCIDsVector.push_back(temp);
 			++counterForEventsFront;
@@ -225,7 +235,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		}
 		else
 		{
-			if(m_bunchCrossingTool->isFilled(temp+1))
+			if(bcData->isFilled(temp+1))
 			{
 				middleBCIDsVector.push_back(temp);
 				++counterForEventsMiddle;

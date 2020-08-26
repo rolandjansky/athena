@@ -10,6 +10,11 @@
 def Run3AFPExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
+    from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
+    BunchCrossingCondAlgDefault()
+
+
+    
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'Run3AFPMonitorCfg')
     
@@ -94,7 +99,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1']
     ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput47-Automatic.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput48-Automatic-200k.root'
     
     ConfigFlags.lock()
 
@@ -106,7 +111,10 @@ if __name__=='__main__':
     
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
+    
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run(100)
+    cfg.run(200000)
 
 
