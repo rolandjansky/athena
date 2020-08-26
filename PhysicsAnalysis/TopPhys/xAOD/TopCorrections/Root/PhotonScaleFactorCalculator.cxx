@@ -58,7 +58,7 @@ namespace top {
     }
 
     std::string isoNameLoose = m_config->photonIsolationLoose();
-    m_decor_isoSF_loose = "PH_SF_Iso_" + isoNameLoose;
+    m_decor_isoSF_loose = "PH_LOOSE_SF_Iso_" + isoNameLoose;
     i = isoNameLoose.find(s);
     if (i != std::string::npos) isoNameLoose.erase(i, s.length());
     std::string photonLooseIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoNameLoose;

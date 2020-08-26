@@ -252,19 +252,19 @@ namespace top {
     }
 
     m_decor_triggerEff = "EL_EFF_Trigger_" + m_config->electronID();
-    m_decor_triggerEff_loose = "EL_EFF_Trigger_" + m_config->electronIDLoose();
+    m_decor_triggerEff_loose = "EL_LOOSE_EFF_Trigger_" + m_config->electronIDLoose();
     m_decor_triggerSF = "EL_SF_Trigger_" + m_config->electronID();
-    m_decor_triggerSF_loose = "EL_SF_Trigger_" + m_config->electronIDLoose();
+    m_decor_triggerSF_loose = "EL_LOOSE_SF_Trigger_" + m_config->electronIDLoose();
     m_decor_recoSF = "EL_SF_Reco";
     m_decor_idSF = "EL_SF_ID_" + m_config->electronID();
-    m_decor_idSF_loose = "EL_SF_ID_" + m_config->electronIDLoose();
+    m_decor_idSF_loose = "EL_LOOSE_SF_ID_" + m_config->electronIDLoose();
     m_decor_isoSF = "EL_SF_Iso_" + m_config->electronIsolation();
-    m_decor_isoSF_loose = "EL_SF_Iso_" + m_config->electronIsolationLoose();
+    m_decor_isoSF_loose = "EL_LOOSE_SF_Iso_" + m_config->electronIsolationLoose();
     m_decor_chargeidSF = "EL_SF_ChargeID_" + m_config->electronID() + "_" + m_config->electronIsolation();
-    m_decor_chargeidSF_loose = "EL_SF_ChargeID_" + m_config->electronIDLoose() + "_" +
+    m_decor_chargeidSF_loose = "EL_LOOSE_SF_ChargeID_" + m_config->electronIDLoose() + "_" +
                                m_config->electronIsolationLoose();
     m_decor_chargemisidSF = "EL_SF_ChargeMisID_" + m_config->electronID() + "_" + m_config->electronIsolation();
-    m_decor_chargemisidSF_loose = "EL_SF_ChargeMisID_" + m_config->electronIDLoose() + "_" +
+    m_decor_chargemisidSF_loose = "EL_LOOSE_SF_ChargeMisID_" + m_config->electronIDLoose() + "_" +
                                   m_config->electronIsolationLoose();
 
     return StatusCode::SUCCESS;
