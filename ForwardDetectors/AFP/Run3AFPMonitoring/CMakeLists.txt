@@ -31,6 +31,10 @@ atlas_depends_on_subdirs(
         Trigger/TrigAnalysis/TrigDecisionTool
         Trigger/TrigAnalysis/TrigAnalysisInterfaces
         MuonSpectrometer/MuonAlignment/MuonAlignmentData
+        
+        Event/EventContainers
+        Tools/PathResolver
+        Control/StoreGate
 )
 
 # External dependencies:
@@ -50,9 +54,9 @@ atlas_add_component( Run3AFPMonitoring
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
-#        TrigAnalysisInterfaces
+        TrigAnalysisInterfaces
         xAODForward
-        #xAODTrigger
+        xAODTrigger
         #Trigger
         AthenaKernel
         SGAudCore

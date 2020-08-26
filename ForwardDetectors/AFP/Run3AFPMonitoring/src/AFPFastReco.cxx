@@ -26,7 +26,6 @@ void AFPFastReco::recoClusters()
 
     std::list toCluster(m_hitContainer->begin(), m_hitContainer->end());
 
-<<<<<<< HEAD
     while (toCluster.size() > 0) 
 	{
 		auto init = *(toCluster.begin());
@@ -57,36 +56,6 @@ void AFPFastReco::recoClusters()
 		const float z = yPlane * sin(tilt) + dz * layerID;
 
 		m_clusters.emplace_back(x, y, z, stationID, layerID);
-=======
-    while (toCluster.size() > 0) {
-      auto init = *(toCluster.begin());
-      toCluster.pop_front();
-      auto clusteredHits = findAround(init, toCluster);
-
-      float sumX      = 0;
-      float sumY      = 0;
-      float sumCharge = 0;
-      for (const xAOD::AFPSiHit* h : clusteredHits) {
-        const float charge = h->depositedCharge();
-        const float pixX   = dx * h->pixelColIDChip();
-        const float pixY   = dy * h->pixelRowIDChip();
-        sumX += charge * pixX;
-        sumY += charge * pixY;
-        sumCharge += charge;
-      }
-
-      const float xPlane = sumX / sumCharge;
-      const float yPlane = sumY / sumCharge;
-
-      const int stationID = init->stationID();
-      const int layerID   = init->pixelLayerID();
-
-      const float x = xPlane;
-      const float y = yPlane * cos(tilt);
-      const float z = yPlane * sin(tilt) + dz * layerID;
-
-      m_clusters.emplace_back(x, y, z, stationID, layerID);
->>>>>>> upstream/master
     }
 }
 

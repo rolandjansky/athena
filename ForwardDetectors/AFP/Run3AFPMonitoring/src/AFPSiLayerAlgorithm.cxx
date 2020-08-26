@@ -13,6 +13,8 @@
 #include "xAODForward/AFPStationID.h"
 #include "EventInfo/EventID.h"
 
+#include <vector>
+
 
 	unsigned int clusterCounter[1000][4][4];
 	unsigned int clusterCounterFront[1000][4][4];
@@ -44,7 +46,7 @@
 	unsigned int counterForEventsStationEnd = 0;
 	unsigned int counterForEventsStationMiddle = 0;
 	
-	
+	/*
 	int frontBCIDs[] = {63,75,87,99,114,126,138,150,165,177,189,201,240,252,264,276,291,303,315,327,342,354,366,378,417,429,441,453,468,480,492,
 504,519,531,543,555,594,606,618,630,645,657,669,681,696,708,720,732,780,792,804,816,831,843,855,867,882,894,906,918,957,969,981,993,1008,1020,
 1032,1044,1059,1071,1083,1095,1134,1146,1158,1170,1185,1197,1209,1221,1236,1248,1260,1272,1311,1323,1335,1347,1362,1374,1386,1398,1413,1425,1437,
@@ -53,7 +55,9 @@
 2319,2331,2343,2382,2394,2406,2418,2433,2445,2457,2469,2484,2496,2508,2520,2568,2580,2592,2604,2619,2631,2643,2655,2670,2682,2694,2706,2745,2757,
 2769,2781,2796,2808,2820,2832,2847,2859,2871,2883,2922,2934,2946,2958,2973,2985,2997,3009,3024,3036,3048,3060,3099,3111,3123,3135,3150,3162,3174,
 3186,3201,3213,3225,3237,3276,3288,3300,3312,3327,3339,3351,3363,3378,3390,3402,3414,-1};
-	
+	*/
+	std::vector<int> frontBCIDsVector;
+	/*
 	int middleBCIDs[] = {64,65,66,67,68,69,76,77,78,79,80,81,88,89,90,91,92,93,100,101,102,103,104,105,115,116,117,118,119,120,127,128,129,130,131,132,139,140,141,142,143,144,151,
 152,153,154,155,156,166,167,168,169,170,171,178,179,180,181,182,183,190,191,192,193,194,195,202,203,204,205,206,207,241,242,243,244,245,246,253,254,255,256,257,258,
 265,266,267,268,269,270,277,278,279,280,281,282,292,293,294,295,296,297,304,305,306,307,308,309,316,317,318,319,320,321,328,329,330,331,332,333,343,344,345,346,347,
@@ -94,7 +98,9 @@
 3278,3279,3280,3281,3282,3289,3290,3291,3292,3293,3294,3301,3302,3303,3304,3305,3306,3313,3314,3315,3316,3317,3318,3328,3329,3330,3331,3332,3333,3340,3341,3342,3343,
 3344,3345,3352,3353,3354,3355,3356,3357,3364,3365,3366,3367,3368,3369,3379,3380,3381,3382,3383,3384,3391,3392,3393,3394,3395,3396,3403,3404,3405,3406,3407,3408,3415,
 3416,3417,3418,3419,3420,-1};
-	
+	*/
+	std::vector<int> middleBCIDsVector;
+	/*
 	int endBCIDs[] = {70,82,94,106,121,133,145,157,172,184,196,208,247,259,271,283,298,310,322,334,349,361,373,385,424,436,448,460,475,487,499,511,526,538,550,562,
 601,613,625,637,652,664,676,688,703,715,727,739,787,799,811,823,838,850,862,874,889,901,913,925,964,976,988,1000,1015,1027,1039,1051,1066,1078,1090,1102,1141,1153,
 1165,1177,1192,1204,1216,1228,1243,1255,1267,1279,1318,1330,1342,1354,1369,1381,1393,1405,1420,1432,1444,1456,1495,1507,1519,1531,1546,1558,1570,1582,1597,1609,1621,
@@ -102,7 +108,9 @@
 2137,2149,2161,2173,2212,2224,2236,2248,2263,2275,2287,2299,2314,2326,2338,2350,2389,2401,2413,2425,2440,2452,2464,2476,2491,2503,2515,2527,2575,2587,2599,2611,2626,
 2638,2650,2662,2677,2689,2701,2713,2752,2764,2776,2788,2803,2815,2827,2839,2854,2866,2878,2890,2929,2941,2953,2965,2980,2992,3004,3016,3031,3043,3055,3067,3106,3118,
 3130,3142,3157,3169,3181,3193,3208,3220,3232,3244,3283,3295,3307,3319,3334,3346,3358,3370,3385,3397,3409,3421,-1};
-	
+	*/
+	std::vector<int> endBCIDsVector;
+		
 	bool isInList(int bcid, int* arr)
 	{
 		int i=0;
@@ -116,16 +124,26 @@
 		}
 		return false;
 	}
+	
+	bool isInListVector(int bcid, std::vector<int> arr)
+	{
+		for(int i=0; i<arr.size(); i++)
+		{
+			if(arr[i] == bcid)
+				return true;
+		}
+		return false;
+	}
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 , m_afpHitContainerKey("AFPSiHitContainer")
-//, m_bunchCrossingCondTool("BunchCrossingCondData")
-//, m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
+// 2
+, m_bunchCrossingTool("BunchCrossingTool")
 {
-	declareProperty( "AFPSiHitContainer", m_afpHitContainerKey );
-//	declareProperty("BCTool", m_bcTool);
-	//declareProperty("BunchCrossingCondData", m_bunchCrossingCondTool);
+	declareProperty("AFPSiHitContainer", m_afpHitContainerKey);
+	// 2
+	declareProperty("BunchCrossingTool", m_bunchCrossingTool);
 }
 
 
@@ -133,27 +151,17 @@ AFPSiLayerAlgorithm::~AFPSiLayerAlgorithm() {}
 
 
 StatusCode AFPSiLayerAlgorithm::initialize() {
-<<<<<<< HEAD
+
 	using namespace Monitored;
 
 	m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
 	m_TrackGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
-=======
-    using namespace Monitored;
- 
-    m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
-    m_TrackGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
-    // We must declare to the framework in initialize what SG objects we are going to use:
-    SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
-    ATH_CHECK(m_afpHitContainerKey.initialize());
->>>>>>> upstream/master
+
 
 	// We must declare to the framework in initialize what SG objects we are going to use:
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 	ATH_CHECK(m_afpHitContainerKey.initialize());
 	
-	//SG::ReadHandleKey<BunchCrossingCondData> bunchCrossingCondTool("bcidCondTool");
-	//ATH_CHECK(m_bunchCrossingCondTool.initialize());
 	
 	for(int a=0; a<1000; a++)
 	{
@@ -165,111 +173,72 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 			}
 		}
 	}
-	/*
-	StatusCode sc = m_bunchCrossingCondTool.retrieve();
-	if(sc.isFailure())
-	{
-		ATH_MSG_WARNING("\n\n\t\tUnable to retrieve m_bunchCrossingCondTool.\n\n");
-	}
-	else
-	{
-		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
-	}
-	*/
-	//ATH_CHECK(m_bunchCrossingKey.initialize());
-	ATH_MSG_INFO("Initializing...");
-//	CHECK(m_bcTool.retrieve());
-	ATH_MSG_INFO("Retrieved the bunch crossing tool.");
+	
+	// 2
+	std::cout << "\n\nKrecemo!...\n\n";
+	m_bunchCrossingTool.setTypeAndName("Trig::MCBunchCrossingTool/BunchCrossingTool"); // this works, but LHCBunch doesn't
+	ATH_CHECK( m_bunchCrossingTool.retrieve() );
+	std::cout << "\n\n\n";
+	ATH_MSG_INFO( "initialization completed" );
+	std::cout << "\n\n\n";
+	std::cout << "Number of filled bunches: " << m_bunchCrossingTool.numberOfFilledBunches() << std::endl;
+	std::cout << "Number of bunch trains: " << m_bunchCrossingTool.numberOfBunchTrains() << std::endl;
 	return AthMonitorAlgorithm::initialize();
 }
 
-StatusCode AFPSiLayerAlgorithm::execute(const EventContext& ctx) const {
-	using namespace Monitored;
-	
+//StatusCode AFPSiLayerAlgorithm::execute(const EventContext& ctx) const {
+//	using namespace Monitored;
 
-<<<<<<< HEAD
 	
-	
-	//std::cout << "\n\t\t MAX_BCID: " << m_bunchCrossingCondTool.m_MAX_BCID;
-		
-	//std::cout << "\n\tNumber of filled bunches: " << m_bunchCrossingCondTool.numberOfFilledBunches() << "\n";	
-	//std::cout << "\tNumber of bunch trains: " << m_bunchCrossingCondTool.numberOfBunchTrains() << "\n";
-	unsigned int bcid_type = GetEventInfo(ctx)->bcid();
-/*	if(m_bcTool->isFilled(bcid_type))
+//	return StatusCode::SUCCESS;
+//}
+
+StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
+	using namespace Monitored;
+
+	for(int j=0; j<3500; j++)
 	{
-		std::cout << "Bunch is filled: " << bcid_type << " \n";
+		if(!m_bunchCrossingTool->isFilled(j))
+			std::cout << "Not filled " << j << "\n";
 	}
-*/
-	return StatusCode::SUCCESS;
-=======
-StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
-    using namespace Monitored;
-
-    // Declare the quantities which should be monitored:
-    auto lb = Monitored::Scalar<int>("lb", 0); 
-    auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
-    auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
-    auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
-    auto timeOverThreshold = Monitored::Scalar<float>("timeOverThreshold", 0.0);
-    auto clusterX = Monitored::Scalar<float>("clusterX", 0.0);
-    auto clusterY = Monitored::Scalar<float>("clusterY", 0.0); 
-    auto trackX = Monitored::Scalar<float>("trackX", 0.0);
-    auto trackY = Monitored::Scalar<float>("trackY", 0.0);
-    
-    lb = GetEventInfo(ctx)->lumiBlock();
- 
-    SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer(m_afpHitContainerKey, ctx);
-    if(! afpHitContainer.isValid())
-    {
-	ATH_MSG_WARNING("evtStore() does not contain hits collection with name " << m_afpHitContainerKey);
-	return StatusCode::SUCCESS;
-    }
-
-    ATH_CHECK( afpHitContainer.initialize() );
-
-    nSiHits = afpHitContainer->size();
-    fill("AFPSiLayerTool", lb, nSiHits);    
-
-    for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
-    {
-      pixelRowIDChip = hitsItr->pixelRowIDChip();
-      pixelColIDChip = hitsItr->pixelColIDChip();
-      timeOverThreshold = hitsItr->timeOverThreshold();
 	
-      if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
-      {
-        fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip, pixelColIDChip);
-	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
-	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
-	fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
+
+	// 2
+	unsigned int temp = GetEventInfo(ctx)->bcid();
+	if(m_bunchCrossingTool->isFilled(temp))
+	{
+		std::cout << "Filled " << temp << "\n";
+	}
+	else
+	{
+		std::cout << "\t\tNOT filled " << temp << "\n";	
+	}
 	
-      }
-	else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
-      }
-
-    AFPMon::AFPFastReco fast(afpHitContainer.get());
-    fast.reco();
-
-    for (const auto& cluster : fast.clusters()) {
-      clusterX = cluster.x;
-      clusterY = cluster.y;
-      fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterX, clusterY);
-    }
-
-    for (const auto& track : fast.tracks()) {
-      trackX = track.x;
-      trackY = track.y;
-      fill(m_tools[m_TrackGroup.at(m_stationnames.at(track.station))], trackX, trackY);
-    }
- 
-
-    return StatusCode::SUCCESS;
->>>>>>> upstream/master
-}
-
-
-StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
-	using namespace Monitored;
+	// !!! Check this logic for exteme values (min and max; 0? and 3564)
+	if(m_bunchCrossingTool->isFilled(temp))
+	{
+		if(!m_bunchCrossingTool->isFilled(temp-1))
+		{
+			frontBCIDsVector.push_back(temp);
+			++counterForEventsFront;
+			++counterForEventsStationFront;
+		}
+		else
+		{
+			if(m_bunchCrossingTool->isFilled(temp+1))
+			{
+				middleBCIDsVector.push_back(temp);
+				++counterForEventsMiddle;
+				++counterForEventsStationMiddle;
+			}
+			else
+			{
+				endBCIDsVector.push_back(temp);
+				++counterForEventsEnd;
+				++counterForEventsStationEnd;
+			}
+		}
+	}
 
 	static unsigned int numberOfClusterStationPlane[4][4] = { {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} };
 	//static unsigned int lumiBlocks[100];
@@ -309,65 +278,18 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	
 	lb = GetEventInfo(ctx)->lumiBlock();
-	muPerBCID = 1;//lbAverageInteractionsPerCrossing(ctx);
+	muPerBCID = lbAverageInteractionsPerCrossing(ctx);
 	//run = GetEventInfo(ctx)->runNumber();
 	fill("AFPSiLayerTool", lb, muPerBCID);
 	
-	//////////////
-	/*
-	unsigned int bcid_type = GetEventInfo(ctx)->bcid();
-	
-	SG::ReadCondHandle<BunchCrossingCondData> bcidHdl(m_bunchCrossingKey,ctx);
-	if (!bcidHdl.isValid()) 
-	{
-		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
-		return StatusCode::FAILURE;
-	}
-	else
-	{
-		ATH_MSG_WARNING("\n\n\t\tRetrieve works!!!.\n\n");
-	}
-	
-	const BunchCrossingCondData* bcData{*bcidHdl};
-	//bcData->isFilled(bcid_type)
-	int maxbcid = {bcData->m_MAX_BCID};
-	
-	std::cout << "\n\n\tMAX_BCID: " << maxbcid << std::endl;
-	std::cout << "\nThis is for the testing purposes.";
-	std::cout << "\n\n\tNumber of bunch trains: " << bcData->numberOfBunchTrains() << std::endl;
-	std::cout << "\n\n\tNumber of filled bunches: " << bcData->numberOfFilledBunches() << std::endl;
-	
-	if (bcData->isFilled(bcid_type))
-	{
-		std::cout << "\tFilled: " << bcid_type << std::endl;
-	}
-	else
-	{
-		std::cout << "\tNOT filled: " << bcid_type << std::endl;
-	}
-	*/
-	//////////////////
-
 
 	++counterForEvents;		// Counter for the all BCIDs
 	++counterForEventsStation;
 
 	int tempbcid = GetEventInfo(ctx)->bcid();
-
-	// IMPORTANT PART
-	/*
-	EventID::number_type specialBCID = GetEventInfo(ctx)->bcid();
-	if (m_bunchCrossingCondTool->isFilled(specialBCID))
-	{
-		std::cout << "\tFilled: " << specialBCID << std::endl;
-	}
-	else
-	{
-		std::cout << "\tNOT filled: " << specialBCID << std::endl;
-	}
-	*/
-	// END OF IMPORTANT PART
 	
+
+	/* Old way for BCIDs
 	if(isInList(tempbcid, frontBCIDs) == true)
 	{
 		++counterForEventsFront;
@@ -383,6 +305,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		++counterForEventsMiddle;
 		++counterForEventsStationMiddle;
 	}
+	*/
+	
 	//std::cout << "\t\t" << counterForEvents << " lb:" << lb << std::endl;
 	
 
@@ -404,7 +328,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
-				
 		lb = GetEventInfo(ctx)->lumiBlock();
 		pixelRowIDChip = hitsItr->pixelRowIDChip();
 		pixelColIDChip = hitsItr->pixelColIDChip();
@@ -539,7 +462,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		{++clusterCounterStation[lb][cluster.station];}
 	}
 	// ========== Front Station ==========
-	if(isInList(GetEventInfo(ctx)->bcid(), frontBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters()) 
 		{
@@ -573,7 +496,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	// ..... end front station .....
 			
 	// ========== End Station ==========
-	if(isInList(GetEventInfo(ctx)->bcid(), endBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
 	{	
 		for(const auto& cluster : fast.clusters())
 		{
@@ -607,7 +530,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	// ..... end end station .....
 	
 	// ========== Middle Station ==========
-	if(isInList(GetEventInfo(ctx)->bcid(), middleBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters())
 		{
@@ -640,7 +563,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			// end stations
 		
 		// ========== Front BCID ========== (planes)
-	if(isInList(GetEventInfo(ctx)->bcid(), frontBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters()) 
 			{
@@ -690,7 +613,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	}
 		
 	// ========== End BCID ==========
-	if(isInList(GetEventInfo(ctx)->bcid(), endBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters()) 
 		{
@@ -712,8 +635,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 						{
 							clustersPerPlaneEnd = -0.1;
 						}
-						//std::cout << "\tFILL END" << std::endl;
-						//std::cout << "clustersPerPlaneEnd (it was zero on cernbox): " << clustersPerPlaneEnd << std::endl;
 						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
 					}
 				}
@@ -727,8 +648,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			{
 				++clusterCounterEnd[lb][cluster.station][cluster.layer];				
 				previouslbEnd = lb;
-				//std::cout << "\tFirst time" << std::endl;
-				//std::cout << "\tLuminosity block: " << lb << std::endl;
 			}
 			
 			// Lumiblock is same, so proceed
@@ -740,7 +659,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	}
 		
 	// ========== Middle BCID ==========
-	if(isInList(GetEventInfo(ctx)->bcid(), middleBCIDs))
+	if(isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters()) 
 		{
@@ -762,8 +681,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 						{
 							clustersPerPlaneMiddle = -0.1;
 						}
-						//std::cout << "\tFILL Middle" << std::endl;
-						//std::cout << "clustersPerPlaneMiddle (it was zero on cernbox): " << clustersPerPlaneMiddle << std::endl;
 						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
 					}
 				}
@@ -777,8 +694,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			{
 				++clusterCounterMiddle[lb][cluster.station][cluster.layer];				
 				previouslbMiddle = lb;
-				//std::cout << "\tFirst time" << std::endl;
-				//std::cout << "\tLuminosity block: " << lb << std::endl;
 			}
 			
 			// Lumiblock is same, so proceed
