@@ -265,7 +265,7 @@ def ambiguityProcessorTool_builder( name, config):
    #-----------------------
    #Set/Get subtools
 
-   trackFitterTool    = trackFitterTool_getter(config),
+   #trackFitterTool    = trackFitterTool_getter(config),
 
    scoringTool        = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name()),
                                                       config = config)
@@ -277,16 +277,25 @@ def ambiguityProcessorTool_builder( name, config):
    trackSelectionTool = trackSelectionTool_getter(config)
 
 
-   #Return configured tool
-   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
-   return  Trk__SimpleAmbiguityProcessorTool(    name             = name , 
-                                   **setDefaults(kwargs,
-                                                 Fitter           = trackFitterTool,
+   kwargs = setDefaults(kwargs,
+                                                 Fitter           = trackFitterTool_getter(config), # trackFitterTool,
                                                  ScoringTool      = scoringTool,
                                                  AssociationTool  = associationTool,
                                                  TrackSummaryTool = trackSummaryTool,
-                                                 SelectionTool    = trackSelectionTool,
+                                                 SelectionTool    = trackSelectionTool
                                                  )
+
+   #Return configured tool
+   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
+   return  Trk__SimpleAmbiguityProcessorTool(    name             = name, 
+                                                 **kwargs
+                                   #**setDefaults(kwargs,
+                                   #              Fitter           = trackFitterTool,
+                                   #              ScoringTool      = scoringTool,
+                                   #              AssociationTool  = associationTool,
+                                   #              TrackSummaryTool = trackSummaryTool,
+                                   #              SelectionTool    = trackSelectionTool
+                                   #              )
                                              )
 
    
@@ -303,10 +312,10 @@ def ambiguitySolverAlg_builder(name, config):
       def getTrackOutput():
          #If we are also applying TRT then this collection is just intermediate
          if config.doTRT():
-            return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
+            return  config.trkTracksPT()
          #Otherwise use final collection name
          else:
-            return  config.tracksPT()
+            return  config.trkTracksAS() #"%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
 
 
       #-----------------------

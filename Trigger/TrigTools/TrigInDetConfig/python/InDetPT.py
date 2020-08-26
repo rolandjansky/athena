@@ -17,45 +17,20 @@ log = logging.getLogger("InDetPT")
 from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 
-
-
-# Start using already decided naming conventions
-# NB: this is only needed at the moment since the signature menu code is 
-#     inconcistent in what flags they pass the ID Trigger configuration 
-#     for the FTF And precision tracking. Once that is tidied up, this
-#     should be removed
- 
-def remapSuffix( signature ):
-   suffix_map = { 
-      'electron':  'Electron', 
-      'muon':      'Muon',
-      'muonFS':    'MuonFS',
-      'muonLate':  'MuonLate',
-      'muonIso':   'MuonIso',
-      'bjet':      'Bjet',
-      'tau':       'Tau',
-      'tauId':     'Tau',
-      'tauEF':     'Tau',
-      'tauTrk':    'Tau',
-      'tauTrkTwo': 'Tau'
-   } 
-
-
-   
-   if signature in suffix_map :
-      return suffix_map[ signature ]
-
-   return signature
-   
-
 def makeInDetPrecisionTracking( whichSignature, 
                                 verifier = False, 
-                                inputFTFtracks='TrigFastTrackFinder_Tracks', 
-                                outputTrackPrefixName = "HLT_ID", 
+                                inputFTFtracks='TrigFastTrackFinder_Tracks',  #FIXME: Obsolete
+                                outputTrackPrefixName = "HLT_ID", #FIXME: Obsolete
                                 rois = 'EMViewRoIs', 
-                                doTRTextension = True ) :
+                                doTRTextension = True ) :   #FIXME: Obsolete, this should go into Slice settings now
 
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
+
+  #Load signature configuration (containing cut values, names of collections, etc)
+  from .InDetTrigConfigSettings import getInDetTrigConfig     
+
+  #Remap only temporary until signatures fix their naming
+  configSetting = getInDetTrigConfig( whichSignature, doRemap = False )
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
@@ -66,24 +41,22 @@ def makeInDetPrecisionTracking( whichSignature,
   
   #Name settings for output Tracks/TrackParticles
   #This first part is for ambiguity solver tracks
-  nameAmbiTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'AmbSol', signature)
+  nameAmbiTrackCollection = configSetting.trkTracksAS() #"%s%sTrkTrack%s"         %(outputTrackPrefixName, 'AmbSol', signature)
   
   #Tracks from TRT extension
-  nameExtTrackCollection = "%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
+  nameExtTrackCollection = configSetting.trkTracksTE() #"%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
 
   #Note IDTrig suffix as a key to specify that this collection comes from precision tracking rather than fast tracking (FTF)
-  outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-  outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  #outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  #outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
-  #Load signature configuration (containing cut values, names of collections, etc)
-  from .InDetTrigConfigSettings import getInDetTrigConfig     
-
-  #Remap only temporary until signatures fix their naming
-  configSetting = getInDetTrigConfig( whichSignature, doRemap = False )
+  outPTTracks             = configSetting.trkTracksPT() #"%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  outPTTrackParticles     = configSetting.tracksPT()  #"%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
-  #e.g InDetTrigPT_Tracks_electron
+  #Therefore, we have to adapt output names of the algorithm which produces last collection
+  #However, this condition should be handled internally in configuration of the algs once TRT is configured with builders as well
   if configSetting.doTRT:
      nameExtTrackCollection = outPTTracks
   else:
@@ -98,7 +71,7 @@ def makeInDetPrecisionTracking( whichSignature,
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
     verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                             ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks )]
+                             ( 'TrackCollection' , 'StoreGateSvc+' + configSetting.tracksFTF() )]
   
   from AthenaCommon.AppMgr import ToolSvc
 
