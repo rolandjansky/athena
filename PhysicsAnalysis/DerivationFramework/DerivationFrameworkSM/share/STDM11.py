@@ -173,6 +173,8 @@ STDM11SlimmingHelper.ExtraVariables = ExtraContentJets_STDM11
 
 STDM11SlimmingHelper.ExtraVariables += ExtraContentTrk
 
+STDM11SlimmingHelper.ExtraVariables += ["InDetTrackParticles.truthMatchProbability"]
+
 #STDM11SlimmingHelper.ExtraVariables += ["TruthParticles.px.py.pz.e.m.phi.pdgId.status.barcode"]
 
 STDM11SlimmingHelper.AllVariables = ["TruthEvents", "TruthParticles"]
