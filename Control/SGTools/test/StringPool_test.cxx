@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: StringPool_test.cxx,v 1.2 2007-12-10 22:20:04 ssnyder Exp $
 /**
  * @file  SGTools/StringPool_test.cxx
  * @author scott snyder
@@ -14,7 +12,9 @@
 #undef NDEBUG
 
 #include "SGTools/StringPool.h"
+#include "SGTools/exceptions.h"
 #include "CxxUtils/crc64.h"
+#include "TestTools/expect_exception.h"
 #include <vector>
 #include <string>
 #include <cstdlib>
@@ -143,8 +143,22 @@ void test1()
 }
 
 
+// Test collisions.
+void test2()
+{
+  std::cout << "test2\n";
+
+  SG::StringPool sp;
+  SG::StringPool::sgkey_t key = sp.stringToKey ("HLTNav_ComboHypo_merged_Step3_Step3_1muEFSA_Step3_1muEFSA_MuonEFSAHypoAux.", 187169987);
+  assert (key == 522984112);
+  EXPECT_EXCEPTION (SG::ExcSgkeyCollision,
+                    sp.stringToKey ("IMfastCalo_view_159_EMCaloRoIs", 33347479););
+}
+
+
 int main()
 {
   test1();
+  test2();
   return 0;
 }

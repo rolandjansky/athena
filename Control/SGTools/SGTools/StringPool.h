@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: StringPool.h,v 1.4 2008-09-03 17:19:10 ssnyder Exp $
 /**
  * @file  SGTools/StringPool.h
  * @author scott snyder
@@ -65,7 +62,7 @@ public:
    * @param aux Auxiliary data to include along with the string.
    * @return A key identifying the string.
    *         A given string will always return the same key.
-   *         Will abort in case of a hash collision!
+   *         Will throw ExcSgkeyCollision in case of a hash collision!
    */
   sgkey_t stringToKey (const std::string& str, sgaux_t aux = 0);
 

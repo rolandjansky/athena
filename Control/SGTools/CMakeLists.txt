@@ -33,7 +33,7 @@ atlas_add_test( exceptions_test
 atlas_add_test( StringPool_test
                 SOURCES
                 test/StringPool_test.cxx
-                LINK_LIBRARIES SGTools )
+                LINK_LIBRARIES SGTools TestTools )
 
 atlas_add_test( DataProxy_test
                 SOURCES
