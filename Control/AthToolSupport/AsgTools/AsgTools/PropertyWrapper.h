@@ -43,6 +43,23 @@ namespace Gaudi
 
   public:
     operator const T& () const noexcept;
+    const T& value () const noexcept {return m_value;}
+
+  public:
+    template<typename T2>
+    Property<T>& operator = (T2&& that);
+
+  public:
+    template<typename T2>
+    decltype(auto) operator + (T2&& that) const;
+
+  public:
+    decltype(auto) empty () const {return m_value.empty();}
+    decltype(auto) size () const {return m_value.size();};
+    decltype(auto) begin () const {return m_value.begin();}
+    decltype(auto) end () const {return m_value.end();}
+    template<typename T2> decltype(auto) operator [] (const T2& index) const {
+      return m_value[index];}
 
   private:
     T m_value;
@@ -84,10 +101,53 @@ namespace Gaudi
 
 
 
+  template<typename T> template<typename T2>
+  Property<T>& Property<T> ::
+  operator = (T2&& that)
+  {
+    m_value = std::forward<T2>(that);
+    return *this;
+  }
+
+
+
+  template<typename T> template<typename T2>
+  decltype(auto) Property<T> ::
+  operator + (T2&& that) const
+  {
+    return m_value + std::forward<T2>(that);
+  }
+
+
+
+  template<typename T1,typename T2>
+  decltype(auto) operator + (T1&& lh, const Property<T2>& rh)
+  {
+    return std::forward<T1>(lh) + rh.value();
+  }
+
+
+
+  template<typename T,typename T2>
+  bool operator == (const Property<T>& lhs, const T2& rhs)
+  {
+    return lhs.value() == rhs;
+  }
+
+
+
+  template<typename T,typename T2>
+  bool operator != (const Property<T>& lhs, const T2& rhs)
+  {
+    return lhs.value() != rhs;
+  }
+
+
+
   template<typename T>
   std::ostream& operator << (std::ostream& str, const Property<T>& property)
   {
-    return str << property.operator const T&();
+    return str << property.value();
   }
 }
 

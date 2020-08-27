@@ -53,8 +53,9 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -89,9 +90,6 @@ public:
   // Inherited method to decorate a jet container
   virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const override;
 
-  // Finalization.
-  StatusCode finalize() override;
-
   // Evaluate JVT from Rpt and JVFcorr.
   float evaluateJvt(float rpt, float jvfcorr) const;
 
@@ -119,7 +117,6 @@ private:  // data
 
   // Internal objects
   TString m_fn;
-  TFile * m_jvtfile;
   TH2F * m_jvthisto;
 
 };
