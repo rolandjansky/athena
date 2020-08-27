@@ -17,7 +17,7 @@ MADGRAPH_RUN_NAME='run_01'
 MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
-from MadGraphUtilsHelpers import checkSettingExists,checkSetting,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
+from MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
 from MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 def setup_path_protection():
@@ -436,7 +436,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
             ### NLO RUN ###
             mglog.info('Package up process_dir')
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
-            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=--exclude=*/*/*/*/*.o'])
+            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=*/*/*/*/*.o'])
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
@@ -488,7 +488,10 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
     # Modify run card, then print
-    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'iseed':str(random_seed),'python_seed':str(random_seed)})
+    settings={'iseed':str(random_seed)}
+    if not isNLO:
+        settings['python_seed']=str(random_seed)
+    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings)
     print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
     mglog.info('Generating events from gridpack')
@@ -550,6 +553,20 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
 
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
+        #turn off systematics for gridpack generation and store settings for standalone run
+        run_card_dict=getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat')
+        systematics_settings=None
+        if checkSetting('systematics_program','systematics',run_card_dict):
+            if not checkSettingIsTrue('store_rwgt_info',run_card_dict):
+                raise RuntimeError('Trying to run NLO systematics but reweight info not stored')
+            if checkSettingExists('systematics_arguments',run_card_dict):
+                systematics_settings=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+            else:
+                systematics_settings={}
+            mglog.info('Turning off systematics for now, running standalone later')
+            modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
+
         if not gridpack_compile:
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
@@ -580,6 +597,14 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     mglog.info('Moving generated events to be in correct format for arrange_output().')
     mglog.info('Unzipping generated events.')
     unzip = subprocess.Popen(['gunzip','-f','events.lhe.gz'])
+
+    # run systematics
+    if isNLO and not systematics_settings is None:
+        mglog.info('Running systematics standalone')
+        systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
+        systematics = subprocess.Popen(['python',systematics_path]+['events.lhe']*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings])
+        systematics.wait()
+
     unzip.wait()
 
     mglog.info('Moving file over to '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe')
@@ -1645,7 +1670,7 @@ def find_key_and_update(akey,dictionary):
     return akey
 
 
-def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
+def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={},output_location=None):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
     Keys can include MASS (for masses) and DECAY X (for decays of particle X)"""
@@ -1677,7 +1702,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
     os.rename(param_card_input, param_card_old) # change name of original card
 
     oldcard = open(param_card_old,'r')
-    newcard = open(process_dir+'/Cards/param_card.dat','w')
+    param_card_location= process_dir+'/Cards/param_card.dat' if output_location is None else output_location
+    newcard = open(param_card_location,'w')
     decayEdit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
     doneParams = {} #tracks which params have been done
@@ -2084,7 +2110,10 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
         systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
         if 'weight_info' not in systematics_arguments:
             mglog.info('Enforcing systematic weight name convention')
-            systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
+            if ' dyn' in systematics_arguments and len(dyn.split(',')>1):               
+                systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES
+            else:
+                systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
             modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)},skipBaseFragment=True)
 
     if not isNLO:

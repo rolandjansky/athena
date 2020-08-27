@@ -121,6 +121,9 @@ private:
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
 
+  /// Flag to assume MC sample correspond to single-particle gun
+  bool m_isSPG;
+
 };
 
 #endif

@@ -10,9 +10,14 @@
 #include <string>
 #include <map>
 
+
+#define PYTHIA8_PTRWRAP(A) A
 #ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER > 8300
+  #if PYTHIA_VERSION_INTEGER > 8299
+    #define PYTHIA8_3SERIES
     typedef std::shared_ptr<Pythia8::UserHooks> UserHooksPtrType;
+    #undef PYTHIA8_PTRWRAP
+    #define PYTHIA8_PTRWRAP(A) std::shared_ptr<Pythia8::UserHooks>(A)
   #else
     typedef Pythia8::UserHooks* UserHooksPtrType;
   #endif
@@ -30,7 +35,7 @@ namespace Pythia8_UserHooks{
     
   public:
     
-    static UserHooksPtrType create(const string &hookName);
+    static UserHooks *create(const string &hookName);
     
   private:
     

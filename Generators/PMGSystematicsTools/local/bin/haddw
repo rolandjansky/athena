@@ -1,0 +1,168 @@
+#!/usr/bin/env python
+import ROOT as r
+import sys, os, re
+import optparse
+from ROOT import gDirectory
+
+
+def getListOfKeys(tf):
+   return [i for i in tf.GetListOfKeys()]
+   
+def doMergeTTree(v):
+  res=None
+  trees = []  
+  prevDir = gDirectory.GetDirectory('')
+  for ao, w in v:
+    newfile = r.TFile(str(abs(w))+".root", "RECREATE")
+    res = ao.CloneTree(-1, "fast")
+    output = r.addBranch(res, w, "1.")
+    output.Write()
+    newfile.Write()
+    trees.append(newfile)       
+    newfile.Close()
+  outputChain = r.TChain(str(ao.GetName()))
+  for i in trees: 
+    outputChain.Add(i.GetName())
+  mergeOutput = "merge.root"  
+  outputChain.Merge(mergeOutput)
+  prevDir.cd()
+  if outputChain.GetNtrees():
+    cloneTree = outputChain.CloneTree(-1,"fast") 
+    cloneTree.Write() 
+
+  for i in trees:
+    if os.path.exists(i.GetName()):
+      os.remove(i.GetName())
+  if os.path.exists(mergeOutput):
+    os.remove(mergeOutput)
+
+  return cloneTree                                         
+
+
+def doMergeTH(v):
+  res=None
+  for ao, w in v:
+    if res==None: 
+      res=ao.Clone() 
+      #res.Sumw2()
+      res.Scale(w)
+    else:
+      res.Add(ao,w)
+  return res
+
+
+def doMergeTGraph(v):
+  res=None
+  aotype=None
+  for ao, w in v:
+    if res==None: 
+      res=ao.Clone() 
+      for i in range(res.GetN()):
+        res.SetPoint(i,res.GetX()[i],ao.GetY()[i]*w) 
+        yerr_hi=(0+ (w*ao.GetErrorYhigh(i))**2)**0.5
+        if "TGraphErrors"==aotype:
+          yerr=(0+ (w*ao.GetErrorY(i))**2)**0.5
+          res.SetPointErrors(i,res.GetErrorX(i), yerr)
+        if "TGrapAsymmhErrors"==aotype:
+          yerr_lo=(0+ (w*ao.GetErrorYlow(i))**2)**0.5
+          yerr_hi=(0+ (w*ao.GetErrorYhigh(i))**2)**0.5
+          res.SetPointErrors(i,res.GetErrorXlow(i),res.GetErrorXhigh(i), yerr_lo, yerr_lo)
+      aotype=res.ClassName()
+    else:
+      assert ao.GetN()==res.GetN()
+      for i in range(res.GetN()):
+        assert ao.GetX()[i]==res.GetX()[i]
+        res.SetPoint(i,res.GetX()[i],res.GetY()[i]+(w*ao.GetY()[i]))
+        if "TGraphErrors"==aotype:
+          yerr=((res.GetErrorY(i))**2 + (w*ao.GetErrorY(i))**2)**0.5
+          res.SetPointErrors(i,res.GetErrorX(i), yerr  )
+        if "TGrapAsymmErrors"==aotype:
+          yerr_hi=((res.GetErrorYhigh(i))**2 + (w*ao.GetErrorYhigh(i))**2)**0.5
+          yerr_lo=((res.GetErrorYlow(i))**2 + (w*ao.GetErrorYlow(i))**2)**0.5
+          res.SetPointErrors(i,res.GetErrorXlow(i),res.GetErrorXhigh(i), yerr_lo, yerr_lo)
+  return res
+
+def doMerge(v):
+  if len(v):
+    if v[0][0].InheritsFrom("TGraph"): return doMergeTGraph(v)
+    elif v[0][0].InheritsFrom("TH1"): return doMergeTH(v)
+    elif v[0][0].InheritsFrom("TTree"): return doMergeTTree(v)
+    else: print "WARNING, object:", v[0][0].GetName(), " (type=%s)"%v[0][0].ClassName(), " could not be merged! This script can only merge TGraph*, TH* and TTree* objects... Skipping"
+  else:
+   return None
+
+addBranchCode = """ 
+TTree * addBranch(TTree* tree, float normalization, TString selection="1"){
+
+        TTree * newtree = tree->CopyTree(selection);
+        float normweight = normalization;
+        TBranch * bnormweight = newtree->Branch("normweight",&normweight,"normweight/F");
+        int nevents = newtree->GetEntries();
+
+        for (Long64_t i=0;i<nevents;i++) {
+            newtree->GetEntry(i);
+            bnormweight->Fill();
+        }
+
+        return newtree;
+}
+"""
+r.gInterpreter.Declare(addBranchCode)
+def main(argv):
+  """
+  The haddw executable is designed to be able to hadd simple root objects (currently TH* objects and TGraph* objects only), where each input file can be weighted by a float
+  """
+  parser = optparse.OptionParser( usage = "%prog [options] output.root input1:weight1 input2:weight2 .. " )
+  parser.add_option("-f","--filter", help="filter: only merge keys matching this regex", dest="filter", default=None)
+  parser.add_option("-e","--exclude", help="exclude/veto keys matching this regex", dest="exclude", default=None)
+  parser.add_option("-r","--replace", help="findString:replaceString. In the analysis object names, replace findString with replaceString ", dest="replace", default=None)
+  (opts, args) = parser.parse_args()
+  
+  r.TH1.SetDefaultSumw2()
+  opts.replace=opts.replace.split(":")
+  outputFile=args[0]
+  inputFiles={}
+  for i in range (1, len(args)):
+    if not ":"  in args[i]:
+      print("warning, you did not specify a weight for inputfile", args[i], " assuming 1.")
+      f,w=args[i], 1.
+    else:
+      f,w = args[i].split(":")
+
+    assert(os.path.isfile(f))
+    assert(f not in inputFiles.keys())
+    inputFiles[f]={"file":r.TFile.Open(f),"weight":float(w)}
+
+
+  outputKeys={}
+  for inF in inputFiles.keys():
+    f=inputFiles[inF]['file']
+    w=inputFiles[inF]['weight']
+    for key in getListOfKeys(f):
+      if f.Get(key.GetName()).InheritsFrom("TH1"):
+        sumw = f.Get(key.GetName()).Integral() 
+      if (opts.filter is not None):
+        if (not key.GetName()in re.findall(opts.filter,key.GetName())): continue
+      if (opts.exclude is not None):
+        if ( key.GetName() in re.findall(opts.exclude,key.GetName())): continue
+      if f.Get(key.GetName()).InheritsFrom("TTree"):   #if merging root trees, remember to divide the weight by the sum of weights for each DSID!
+        outputKeys.setdefault(key.GetName(),[]).append([f.Get(key.GetName()), w/sumw])
+      else:
+        outputKeys.setdefault(key.GetName(),[]).append([f.Get(key.GetName()), w])
+  
+  of=r.TFile.Open(outputFile,"RECREATE")
+  for k, v in outputKeys.items():
+   res=doMerge(v)
+   if opts.replace is not None:
+     res.SetName(res.GetName().replace(opts.replace[0],opts.replace[1])) 
+     res.SetTitle(res.GetTitle().replace(opts.replace[0],opts.replace[1]))
+   res.Write()
+
+  
+
+
+if __name__ == "__main__":
+  main( sys.argv[1:] )
+
+
+

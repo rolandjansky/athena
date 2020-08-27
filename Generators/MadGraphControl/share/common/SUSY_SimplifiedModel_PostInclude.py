@@ -1,5 +1,11 @@
 # This comes after all Simplified Model setup files
 from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card,check_reset_proc_number
+from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
+
+phys_short = get_physics_short()
+
+if 'rpv' in phys_short.lower() and not 'import ' in process:
+    raise RuntimeError('Please import a model when using an RPV decay; these are not handled by the standard MSSM model in MadGraph')
 
 # Set maximum number of events if the event multiplier has been modified
 if evt_multiplier>0:
@@ -17,8 +23,6 @@ if ktdurham is not None:
     run_settings.update({'ktdurham':ktdurham})
 
 # systematic variation
-from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
-phys_short = get_physics_short()
 if 'scup' in phys_short:
     syst_mod=dict_index_syst[0]
 elif 'scdw' in phys_short:
@@ -64,20 +68,29 @@ else:
     param_card_old = process_dir+'/Cards/param_card.dat'
     ktdurham = -1
     import tarfile
-    myTarball = tarfile.open(runArgs.inputGeneratorFile)
-    myEvents = None
-    for afile in myTarball.getnames():
-        if afile.endswith('.events'): myEvents = afile
-    if myEvents is None:
-        raise RuntimeError('No input events file found!')
+    if tarfile.is_tarfile(runArgs.inputGeneratorFile):
+        myTarball = tarfile.open(runArgs.inputGeneratorFile)
+        myEvents = None
+        for afile in myTarball.getnames():
+            if afile.endswith('.events'): myEvents = afile
+        if myEvents is None:
+            raise RuntimeError('No input events file found!')
+        else:
+            events_file = myTarball.extractfile( myEvents )
+            update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
+        myTarball.close()
     else:
-        events_file = myTarball.extractfile( myEvents )
-        update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
-        for aline in events_file:
-            if 'ktdurham' in aline and "=" in aline:
-                ktdurham = float(aline.split('=')[0].strip())
-                break
-    myTarball.close()
+        # Assume this is already an unzipped file -- happens when we run on multiple LHEs
+        update_lhe_file(lhe_file_old=runArgs.inputGeneratorFile,param_card_old=param_card_old,masses=masses)
+        with open(runArgs.inputGeneratorFile,'r') as events_file:
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
 
     if madspin_card is not None:
         # Do a stupid addition of madspin - requires a dummy process

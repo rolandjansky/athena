@@ -21,7 +21,7 @@ find_package( Herwig3 COMPONENTS HerwigAPI )
 find_package( ThePEG )
 find_package( GSL )
 find_package( OpenLoops )
-# find_package( VBFNLO )
+#find_package( VBFNLO )
 
 
 # Remove the --as-needed linker flags:

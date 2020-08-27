@@ -36,11 +36,13 @@ using boost::assign::operator+=;
   #undef PYTHIA8_NWEIGHTS
   #undef PYTHIA8_WEIGHT
   #undef PYTHIA8_WLABEL
-  #undef PYTHIA8_CONVERSION
   #define PYTHIA8_NWEIGHTS nVariationGroups
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
-  #define PYTHIA8_CONVERSION 1.0e9
+  #if PYTHIA_VERSION_INTEGER < 8244
+    #undef PYTHIA8_CONVERSION
+    #define PYTHIA8_CONVERSION 1.0e9
+  #endif 
   #endif
 #endif
 
@@ -60,7 +62,7 @@ m_sigmaTotal(0.),
 m_conversion(1.),
 m_failureCount(0),
 m_procPtr(0),
-m_userHooksPtrs(std::vector<UserHooksPtrType>()),
+m_userHooksPtrs(),
 m_doLHE3Weights(false),
 m_athenaTool("IPythia8Custom")
 {
@@ -75,7 +77,7 @@ m_athenaTool("IPythia8Custom")
   declareProperty("FxFxXS", m_doFxFxXS = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
   declareProperty("UserProcess", m_userProcess="");
-  declareProperty("UserHooks", m_userHooks);
+  declareProperty("UserHooks", m_userHooks={});
   declareProperty("UserResonances", m_userResonances="");
   declareProperty("UseLHAPDF", m_useLHAPDF=true);
   declareProperty("ParticleData", m_particleDataFile="");
@@ -104,18 +106,12 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
 
   if(m_procPtr != 0)     delete m_procPtr;
-
-#ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER < 8300
+  
+  #ifndef PYTHIA8_3SERIES
   for(UserHooksPtrType ptr: m_userHooksPtrs){
     delete ptr;
   }
   #endif
-#else
-  for(UserHooksPtrType ptr: m_userHooksPtrs){
-    delete ptr;
-  }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +143,8 @@ StatusCode Pythia8_i::genInitialize() {
 
   bool firstHook=true;
   for(const auto &hook: m_userHooks){
-    m_userHooksPtrs.push_back(Pythia8_UserHooks::UserHooksFactory::create(hook));
+    ATH_MSG_INFO("Adding user hook " + hook + ".");
+    m_userHooksPtrs.push_back(PYTHIA8_PTRWRAP(Pythia8_UserHooks::UserHooksFactory::create(hook)) );
     bool canSetHook = true;
     if(firstHook){
       canSetHook = m_pythia.setUserHooksPtr(m_userHooksPtrs.back());
@@ -521,8 +518,10 @@ StatusCode Pythia8_i::genFinalize(){
   double xs = info.sigmaGen(); // in mb
 
   if(m_doCKKWLAcceptance){
-    ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted());
-    xs *= m_nMerged / info.nAccepted();
+    const double accfactor = m_nMerged / info.nAccepted();
+    ATH_MSG_DEBUG("Multiplying cross-section by CKKWL merging acceptance of "<<m_nMerged <<"/" <<info.nAccepted() << " = " << accfactor
+                  << ": " << xs << " -> " << xs*accfactor);
+    xs *= accfactor;
   }
 
   if(m_doFxFxXS){

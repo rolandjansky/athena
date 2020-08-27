@@ -1,3 +1,4 @@
+
 #
 # File specifying the location of ThePEG to use.
 #

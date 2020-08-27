@@ -317,6 +317,7 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
         evgenLog.error("gennames '%s' " %(expectedgenpart))
         sys.exit(1)
 
+
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
     if not gens_notune(gennames) and len(jo_physshortparts) < 3:
@@ -347,47 +348,25 @@ else:
     evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
-    raise RunTimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
 
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
-elif evgenConfig.nEventsPerJob > 20000:
-    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 20000")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#    if multiInput !=0 :
-#        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-#        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
-#        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0 :
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.nEventsPerJob % 1000
-#        if multiInput !=0 :
-#            rounding=1
-#            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with roundeded '+str(evgenConfig.nEventsPerJob-rest1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-#            else:
-#                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-#        else:    
-           msg += "nEventsPerJob in range >= 1K must be a multiple of 1K and a divisor of 10K"
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        if multiInput !=0:
-#           rounding=1
-#           round_nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-#           evgenLog.info('Replacing nEventsPerJob lt 1000 '+str(evgenConfig.nEventsPerJob)+' with rounded '+str(round_nEventsPerJob))
-#           evgenConfig.nEventsPerJob=round_nEventsPerJob
-#        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
-#    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
@@ -489,8 +468,9 @@ if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"
     StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
     ## Used for pile-up (remove dynamic variables except flavour labels)
     if evgenConfig.saveJets:
-        StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-        StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+       for jetradius in [4,6]:
+          StreamEVGEN.ItemList += ["xAOD::JetContainer#AntiKt{}TruthJets".format(jetradius)]
+          StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#AntiKt{}TruthJetsAux.TruthLabelID.PartonTruthLabelID".format(jetradius)]
 
     # Remove any requested items from the ItemList so as not to write out
     for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
@@ -538,6 +518,39 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.spe
 if hasattr(testSeq, "TestHepMC") and not gens_testhepmc(evgenConfig.generators):
     evgenLog.info("Removing TestHepMC sanity checker")
     del testSeq.TestHepMC
+
+##=============================================================
+## Check release number
+##=============================================================
+# Function to check blacklist (from Spyros'es logParser.py)
+def checkBlackList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/BlackList_caches.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Blacklisted release flavours
+            badRelFlav=line.split(',')[0].strip()
+            # Blacklisted caches
+            badCache=line.split(',')[1].strip()
+            # Blacklisted generators
+            badGens=line.split(',')[2].strip()
+            
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==badRelFlav and cache==badCache and re.search(badGens,used_gens) is not None:
+                if badGens=="": badGens="all generators"
+                isError=relFlavour+","+cache+" is blacklisted for " + badGens
+                return isError
+    return isError
+## Announce start of JO checkingrelease nimber checking
+evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
+rel = os.popen("echo $AtlasVersion").read()
+rel = rel.strip()
+errorBL = checkBlackList("AthGeneration",rel,gennames)
+if (errorBL): 
+   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
+#    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
 
 
 ##==============================================================

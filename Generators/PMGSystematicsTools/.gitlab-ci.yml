@@ -1,0 +1,188 @@
+#image: lukasheinrich/recast_cvmfs_assisted:20161231
+image: atlas/atlas_external_cvmfs
+variables:
+  ATLAS_LOCAL_ROOT_BASE: /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+  SSH_SERVER_HOSTKEYS: lxplus7 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTA/5AzXgbkSapknIPDoEePTM1PzIBSiyDnpZihdDXKzm8UdXxCDJLUVjBwc1JfBjnaXPEeBKZDuozDss/m98m5qQu+s2Dks000V8cUFTU+BFotzRWX0jWSBpmzse0477b40X2XCPqX0Cqfx9yHdkuMlyF0kJRxXgsGTcwzwbmvqNHJdHHYJJz93hGpBhYMREcDN5VOxXz6Ack3X7xfF29xaC91oOAqq75O11LXF5Y4kAeN9kDG8o6Zsqk4c5at5aqWqzZfnnVtGjhkgU2Mt5aKwptaFMe0Z3ys/zZM4SnsE9NfompnnWsiKk2y09UvrbzuYPWLt43Fp3+IFqRJvBX
+before_script:
+ - mkdir -p ~/.ssh
+  # validate lxplus's SSH key
+ - 'echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
+  # tell SSH to forward Kerberos credentials so lxplus can access AFS/EOS on behalf of the user
+ - 'echo -e "Host *\n\tGSSAPIDelegateCredentials yes\n\tGSSAPITrustDNS yes\n\n" > ~/.ssh/config'
+ - echo "${KRB_PASSWORD}" | kinit ${KRB_USERNAME}@CERN.CH
+ #- ssh ${KRB_USERNAME}@lxplus7 "ls /eos/user/p/${KRB_USERNAME}/"
+ - set +e
+ - source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
+ - asetup 21.6.33,AthGeneration
+ - source ${LCG_RELEASE_BASE}/LCG_88/MCGenerators/rivet/${RIVETVER}/${LCG_PLATFORM}/rivetenv.sh
+ - source data/setupLHAPDF.sh
+ - export SYSTTOOLSPATH="${PWD}" 
+ - export PATH=/afs/cern.ch/sw/XML/TL2016/bin/x86_64-linux:$PATH
+ - export PATH="$PWD/local/bin:$PATH"
+ - export PYTHONPATH="$PWD/local/bin:$PYTHONPATH"
+ - set -e
+ - export DATE=`date +%d%m%y`
+ - export WWW=/eos/user/p/${KRB_USERNAME}//www/PMG/${CI_PROJECT_NAME}/${DATE}_${CI_COMMIT_SHA:1:7}
+ - ssh ${KRB_USERNAME}@lxplus7 "mkdir -p $WWW"
+ - xrdcp root://eosuser.cern.ch//eos/user/p/${KRB_USERNAME}/index.php .
+
+stages:
+- validate
+- download
+
+
+customMCofficialRivet:
+  stage: validate
+  script:
+   - mkdir inputs
+   - mkdir outputs
+   - INPATH=/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/YodaFormatCustomSample/user.lcorpe.user.mcfayden.evnt.2018-06-26_214326.999999.pp_13TeV.999999.Pv2P8_Zee_EXT0.RIVET.Custom_ZInc_sys_EXT0/
+   - xrdfs root://eosuser.cern.ch/ ls $INPATH| grep tgz | while read p ; do xrdcp root://eosuser.cern.ch/$p inputs/. ; done 
+   - ./unitTests/customMCofficialRivet.py outputs inputs
+   - cp ./index.php outputs/.
+   - ls outputs/*yoda > out.cp
+   - mkdir yodas
+   - while read p ; do echo `basename $p` ; cp $p  yodas/. ; yodadiff $p unitTests/customMCofficialRivetRefs/`basename $p` | tee diffs.txt ; if [ -s "diffs.txt" ]; then echo "fail" ; cat diffs.txt ; else echo "ok" ; fi ; done < out.cp 
+   - mv outputs customMCofficialRivet
+  artifacts:
+    when: always
+    paths:
+      - yodas
+      - yodas/*
+      - customMCofficialRivet
+      - customMCofficialRivet/*
+    expire_in: 1 week
+
+officialMCofficialRivet:
+  stage: validate
+  script:
+   - mkdir inputs
+   - mkdir outputs
+   - rsync -mav  --include "*MAXHTPTV280_500*/*.tgz"   --include='*/' --exclude '*' -e ssh ${KRB_USERNAME}@lxplus7:/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/YodaFormatJobOutputs/ inputs/
+   - find inputs
+   - ./unitTests/officialMCofficialRivet.py outputs inputs
+   - cp ./index.php outputs/.
+   - ls Zee_Sherpa_officialMCofficialRivet_/merged_final/*yoda > out.cp
+   - mkdir yodas
+   - while read p ; do echo `basename $p` ; cp $p  yodas/. ; yodadiff $p unitTests/officialMCofficialRivetRefs/`basename $p` | tee diffs.txt ; if [ -s "diffs.txt" ]; then echo "fail" ; cat diffs.txt ; else echo "ok" ; fi ; done < out.cp 
+   - mv outputs officialMCofficialRivet
+  artifacts:
+    when: always
+    paths:
+      - yodas
+      - yodas/*
+      - officialMCofficialRivet
+      - officialMCofficialRivet/*
+    expire_in: 1 week
+
+
+CxAODOutputExample:
+  stage: validate
+  script:
+   - mkdir inputs
+   - mkdir outputs
+   - INPATH=/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/CxAODReader_VVSemileptonic/
+   - xrdfs root://eosuser.cern.ch/ ls $INPATH| grep root | while read p ; do xrdcp root://eosuser.cern.ch/$p inputs/. ; done 
+   - ./unitTests/CxAODOutputExample.py outputs inputs
+   - cp ./index.php outputs/.
+   - mv outputs CxAODOutputExample
+  artifacts:
+    when: always
+    paths:
+      - CxAODOutputExample
+      - CxAODOutputExample/*
+    expire_in: 1 week
+
+
+Rivet3Format:
+  stage: validate
+  script:
+   - mkdir inputs
+   - mkdir outputs
+   - INPATH=/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/m4lRivet3.v2/
+   #- xrdfs root://eosuser.cern.ch/ ls $INPATH | while read p ; do xrdcp root://eosuser.cern.ch/$p inputs/. ; done 
+   - xrdcp -r root://eosuser.cern.ch/$INPATH inputs/. 
+   - ./unitTests/Rivet3Format.py outputs inputs
+   - cp ./index.php outputs/.
+   - find | grep yoda | grep wSys_v2 | grep -v gz | grep -v example > out.cp
+   - mkdir yodas
+   - while read p ; do echo `basename $p` ; cp $p  yodas/. ; yodadiff $p unitTests/Rivet3FormatRefs/`basename $p` | tee diffs.txt ; if [ -s "diffs.txt" ]; then echo "fail" ; cat diffs.txt ; else echo "ok" ; fi ; done < out.cp 
+   - mv outputs Rivet3Format
+  artifacts:
+    when: always
+    paths:
+      - yodas
+      - yodas/*
+      - Rivet3Format
+      - Rivet3Format/*
+    expire_in: 1 week
+
+Rivet3FormatTgz:
+  stage: validate
+  script:
+   - mkdir -p inputs/user.jroggel.mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.e6337.RIVET.test2_1406_EXT0
+   - mkdir outputs
+   - INPATH=/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/user.jroggel.mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.e6337.RIVET.test2_1406_EXT0
+   - xrdcp -r root://eosuser.cern.ch/$INPATH inputs/user.jroggel.mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.e6337.RIVET.test2_1406_EXT0/.
+   - find inputs/.
+   - ./unitTests/Rivet3FormatTgz.py outputs inputs
+   - cp ./index.php outputs/.
+   - find | grep yoda | grep  tgzTest  > out.cp
+   - mkdir yodas
+   - while read p ; do echo `basename $p` ; cp $p  yodas/. ; yodadiff $p unitTests/Rivet3FormatTgzRefs/`basename $p` | tee diffs.txt ; if [ -s "diffs.txt" ]; then echo "fail" ; cat diffs.txt ; else echo "ok" ; fi ; done < out.cp 
+   - mv outputs Rivet3FormatTgz
+  artifacts:
+    when: always
+    paths:
+      - yodas
+      - yodas/*
+      - Rivet3FormatTgz
+      - Rivet3FormatTgz/*
+    expire_in: 1 week
+
+RootFormatJobOutputs:
+  stage: validate
+  script:
+   - mkdir inputs
+   - mkdir outputs
+   - INPATH=/eos/user/p/${KRB_USERNAME}/SystToolsUnitTests/RootFormatJobOutputs/
+   - xrdcp -r root://eosuser.cern.ch/$INPATH inputs/.
+   - find inputs/.
+   - ./unitTests/RootFormatJobOutputs.py outputs inputs
+   - cp ./index.php outputs/.
+   - mv outputs RootFormatJobOutputs
+  artifacts:
+    when: always
+    paths:
+      - RootFormatJobOutputs
+      - RootFormatJobOutputs/*
+    expire_in: 1 week
+
+
+.readDB2:
+  stage: validate
+  script:
+   - ./unitTests/readDB.py
+
+.readDB1:
+  stage: validate
+  script:
+   - ./unitTests/readDB.sh
+
+copyToEOS:
+  stage: download
+  dependencies:
+    - RootFormatJobOutputs
+    - Rivet3FormatTgz
+    - Rivet3Format
+    - CxAODOutputExample
+    - officialMCofficialRivet
+    - customMCofficialRivet
+  script:
+    - scp -r ./* ${KRB_USERNAME}@lxplus7:${WWW}/
+
+.submitSampleRivet:
+  stage: validate
+  script:
+   - ./unitTests/submitSampleRivet.sh
+

@@ -30,7 +30,11 @@ def PrepareTruthJetInputs(algseq):
                                                           #IncludePromptPhotons=False,
                                                           BarCodeFromMetadata=0)
 
-    algseq += JetRecConf.JetAlgorithm("JetTruthCopyAlg", Tools=[ToolSvc.truthpartcopy,ToolSvc.truthpartcopywz])
+    ToolSvc += ParticleJetToolsConf.CopyTruthPartons("truthpartonscopy",
+                                                     OutputName="TruthLabelPartons",
+                                                     PtMin=5000)
+
+    algseq += JetRecConf.JetAlgorithm("JetTruthCopyAlg", Tools=[ToolSvc.truthpartcopy,ToolSvc.truthpartcopywz,ToolSvc.truthpartonscopy])
 
 def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
     jetcollname = 'AntiKt{0}{1}TruthJets'.format(int(jetradius*10),mods)
@@ -60,7 +64,7 @@ def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
             pjget = ToolSvc.truthwzget
         else:
             pjget = JetRecConf.PseudoJetGetter("truthwzget",
-                                               Label = "Truth",
+                                               Label = "TruthWZ",
                                                InputContainer = ToolSvc.truthpartcopywz.OutputName,
                                                OutputContainer = "PseudoJetTruthWZ",
                                                GhostScale = 0.0,
@@ -85,11 +89,29 @@ def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
                                   )
     ToolSvc += finder
 
+    if "truthpartonget" in ToolSvc:
+        truthpartonget = ToolSvc.truthpartonget
+    else:
+        truthpartonget = JetRecConf.PseudoJetGetter("truthpartonget",
+                                                    Label = "GhostPartons",
+                                                    InputContainer = ToolSvc.truthpartonscopy.OutputName,
+                                                    OutputContainer = "PseudoJetGhostPartons",
+                                                    GhostScale = 1e-40,
+                                                    SkipNegativeEnergy = True,
+                                                    )
+        ToolSvc += truthpartonget
+
+
+    from ParticleJetTools import ParticleJetToolsConf
+    partontruthlabel = ParticleJetToolsConf.Analysis__JetPartonTruthLabel("partontruthlabel")
+    ToolSvc += partontruthlabel
+
     #Now we setup a JetRecTool which will use the above JetFinder
     jetrectool = JetRecConf.JetRecTool(jetcollname+"Rec",
                                        JetFinder = finder,
-                                       PseudoJetGetters = [pjget],
-                                       OutputContainer = jetcollname
+                                       PseudoJetGetters = [pjget,truthpartonget],
+                                       OutputContainer = jetcollname,
+                                       JetModifiers = [partontruthlabel]
                                        )
     ToolSvc += jetrectool
 
