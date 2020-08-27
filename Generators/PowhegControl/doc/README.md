@@ -497,28 +497,52 @@ name is specified by this option.
 
 ## Using a particular version of PowhegControl
 
-Besides using a version of PowhegControl that is already in a release (i.e. something you set up with `asetup`), you can also check out any particular version you like. The most common use case of this is testing a version that is still being developed and hasn't been added to a release yet, e.g. when the interface of a new process is being added. To get any version from the Powheg experts' fork of Athena, use the following in a clean directory:
+Besides using a version of PowhegControl that is already in a release (i.e.
+something you set up with `asetup`), you can also check out any particular
+version you like. The most common use case of this is testing a version that is
+still being developed and hasn't been added to a release yet, e.g. when the
+interface of a new process is being added. To get any version from the Powheg
+experts' fork of Athena, use the following in a clean directory:
 
 ```bash
 setupATLAS
 lsetup git
-kinit
-git clone https://:@gitlab.cern.ch:8443/atlas-physics/pmg/mcexperts/powheg-experts/athena.git
+git clone ssh://git@gitlab.cern.ch:7999/atlas-physics/pmg/mcexperts/powheg-experts/athena.git
+# It's probably not a bad idea to use the Powheg expert's fork of Athena, which
+# you get with the above command. This is where the development of PowhegControl
+# is done; any important changes are then regularly merged into central Athena.
+# If you want to use central Athena, just replace the line above with:
+# git clone ssh://git@gitlab.cern.ch:7999/atlas/athena.git
 cd athena
-git checkout <THE BRANCH OR COMMIT YOU WANT TO USE>
+git checkout 21.6 # or whichever branch/commit you wish to use!
+# Branch 21.6 is the "master" for things related to MC event generation
 cd ..
 echo "+ Generators/PowhegControl" > package_filters.txt
 echo "- .*" >> package_filters.txt
-cd build/
-asetup AthGeneration,21.6,latest,here # or whichever release you want to use
+mkdir build
+cd build
+asetup AthGeneration,21.6.40 # or whichever release you want to use
 cmake -DATLAS_PACKAGE_FILTER_FILE=../package_filters.txt ../athena/Projects/WorkDir
-cmake --build ./
+cmake --build ./ # or just use the command "make" instead
 source */setup.sh
 cd ..
 mkdir run
 cd run
 # and run your event generation here
 ```
+
+Remember that if you want to use a very recent Powheg Box or Powheg process
+installation, **you need to also manually update the shell environment variable
+`POWHEGPATH` _after the release setup (`asetup ...`)_** to point to the desired
+location, e.g.:
+
+```bash
+export POWHEGPATH=/afs/cern.ch/atlas/offline/external/powhegbox/ATLASOTF-00-04-04
+```
+
+Hint: use `ls $POWHEGPATH/..` to list the available ATLAS Powheg installations.
+
+
 
 ## Re-using integration files
 
