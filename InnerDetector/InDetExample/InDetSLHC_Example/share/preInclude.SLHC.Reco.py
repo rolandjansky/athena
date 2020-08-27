@@ -13,28 +13,7 @@ DetFlags.overlay.BField_setOff()
 
 DetFlags.pileup.all_setOff()
 
-from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-TrkDetFlags.SLHC_Geometry=True
-
-## MaterialStoreGateKey
-TrkDetFlags.MaterialStoreGateKey="/GLOBAL/TrackingGeo/LayerMaterialITK"
-
-## MaterialMagicTag
-from AthenaCommon.GlobalFlags import jobproperties
-DetDescrVersion = jobproperties.Global.DetDescrVersion()
-# splitGeo = DetDescrVersion.split('-')
-# TrkDetFlags.MaterialMagicTag = splitGeo[0] + '-' + splitGeo[1] + '-' + splitGeo[2]
-TrkDetFlags.MaterialMagicTag = DetDescrVersion
-
-## MaterialVersion and MaterialSubVersion
-TrkDetFlags.MaterialVersion=17
-TrkDetFlags.MaterialSubVersion=""
-
-## To use the local material map
-TrkDetFlags.MaterialDatabaseLocal=False
-if TrkDetFlags.MaterialDatabaseLocal():
-    TrkDetFlags.MaterialDatabaseLocalPath="./" 
-    TrkDetFlags.MaterialDatabaseLocalName="AtlasLayerMaterial-"+DetDescrVersion+".db"
+include("InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py")
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doSLHC=True
@@ -55,6 +34,9 @@ InDetFlags.doLowBetaFinder=False # This should be False.
 
 if DetFlags.detdescr.Calo_on() and DetFlags.detdescr.SCT_on():
   InDetFlags.doROIConv = True   
+
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationTag="BTagCalibITk-50_50-02-00"
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs = True
