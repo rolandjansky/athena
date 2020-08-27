@@ -1,10 +1,11 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
+from AthenaCommon.Constants import DEBUG
 
 class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
@@ -41,6 +42,8 @@ def fastCaloMenuSequence(name, doRinger):
     theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo")
     theFastCaloHypo.CaloClusters = sequenceOut
     CaloMenuDefs.L2CaloClusters = sequenceOut
+
+    theFastCaloHypo.OutputLevel = DEBUG
 
     from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
     return MenuSequence( Sequence    = sequence,

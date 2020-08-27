@@ -1,8 +1,9 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from AthenaCommon.Constants import DEBUG 
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -76,6 +77,7 @@ def fastElectronMenuSequence():
     theElectronHypo.Electrons = sequenceOut
 
     theElectronHypo.RunInView=True
+    theElectronHypo.OutputLevel = DEBUG
 
     from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
 
