@@ -5,6 +5,8 @@
 #ifndef MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
 #define MUONTGC_CNVTOOLS_TGC_RAWDATAPROVIDERTOOL_H
 
+#include "CxxUtils/checker_macros.h"
+
 #include "TGC_RawDataProviderToolCore.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
@@ -21,7 +23,7 @@ namespace Muon
    *  @author Mark Owen <markowen@cern.ch>
    */
   
-  class TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
+  class ATLAS_NOT_THREAD_SAFE TGC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public TGC_RawDataProviderToolCore
     {
     public:
       /** Default constructor */

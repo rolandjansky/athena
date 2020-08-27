@@ -24,6 +24,7 @@ def setupMenu():
     # be aware that it is necessary to leave at least one chain in the muon slice
     # otherwise athenaHLT will seg-fault 
     #---------------------------------------------------------------------
+
     log = logging.getLogger( __name__ )
     log.info('Executing menu....')
 

@@ -14,7 +14,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -158,7 +158,7 @@ StatusCode LarEMSamplingFraction::execute()
 		return StatusCode::FAILURE;
 	}
 	HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
-	const HepMC::GenParticle * gen  = *pit;
+	HepMC::ConstGenParticlePtr   gen  = *pit;
 	m_mc_pdg = gen->pdg_id();
 	m_mc_eta = gen->momentum().pseudoRapidity();
 	m_mc_phi = gen->momentum().phi();

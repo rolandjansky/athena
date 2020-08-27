@@ -2,8 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#include "TMVAToMVAUtils.h"
 #include "MVAUtils/BDT.h"
-#include "MVAUtils/TMVAToMVAUtils.h"
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
 
@@ -14,13 +15,13 @@
 #include <TRandom3.h>
 
 #include "CxxUtils/checker_macros.h"
-#include <iostream> 
+#include <iostream>
 #include <memory>
 #include <vector>
 
 using namespace std;
 
-/** 
+/**
     Utility to convert xml files from TMVA into root TTrees for this package.
 
     Usage: convertXmlToRootTree <inFile(xml)> [outFile(root)]
@@ -65,7 +66,7 @@ parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
         varInfo.varType = xml->GetAttrValue(attr);
       else if (name == "Min") varInfo.min=TString(xml->GetAttrValue(attr)).Atof();
       else if (name == "Max") varInfo.max=TString(xml->GetAttrValue(attr)).Atof();
-      
+
       attr = xml->GetNextAttr(attr);
     }
     //          ATH_MSG_DEBUG("Expression: " << expression << " Label: " << label << " varType: " << varType);
@@ -75,9 +76,9 @@ parseVariables(TXMLEngine *xml, void* node, const TString & nodeName)
   return result;
 }
 
-/* 
+/*
  * gSystem is a static expression of type TSystem
- * so this is no re-entrant. 
+ * so this is no re-entrant.
  */
 std::vector<XmlVariableInfo>
 parseXml  ATLAS_NOT_REENTRANT (const TString & xml_filename)
@@ -139,7 +140,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
   outFileName+=".root";
   outFileName.ReplaceAll(".xml.root", ".root");
   if(argc>2) outFileName=argv[2];
-  
+
   std::vector<XmlVariableInfo> variable_infos = parseXml(xmlFileName);
   bool isRegression = (AnalysisType == "Regression");
   bool isMulti = (AnalysisType == "Multiclass");
@@ -163,7 +164,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     if (varName != expression){
       varDefinition += " := " + expression;
     }
-    
+
     float average_value = (itvar->min+itvar->max)/2 ;
     var_avgerage.push_back(average_value);
     vars.push_back(new float(average_value));
@@ -230,7 +231,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
     cerr <<"Could not Retrieve BDT TTree from file , should not happen" <<endl;
     return 0;
   }
-  
+
   bdt = std::make_unique<MVAUtils::BDT>(bdt_tree);
   bdt->SetPointers(vars);
   cout << bdt->GetResponse() << endl;
@@ -239,7 +240,7 @@ int main  ATLAS_NOT_THREAD_SAFE (int argc, char** argv){
        << " , TMVA::Reader : "
        << (isRegression ? reader->EvaluateRegression(0, "BDTG") : isMulti ? reader->EvaluateMulticlass("BDTG")[NClass-1] : reader->EvaluateMVA("BDTG"))
        << endl;
-  for(uint i = 0; i != vars.size(); ++i) *vars[i] = var_avgerage[i]; 
+  for(uint i = 0; i != vars.size(); ++i) *vars[i] = var_avgerage[i];
   cout << "MVAUtils::BDT : "
        << (isRegression && !isGrad ? bdt->GetResponse() : isMulti ? bdt->GetMultiResponse(NClass)[NClass-1] : isGrad ? bdt->GetGradBoostMVA(vars) : bdt->GetClassification())
        << " , TMVA::Reader : "

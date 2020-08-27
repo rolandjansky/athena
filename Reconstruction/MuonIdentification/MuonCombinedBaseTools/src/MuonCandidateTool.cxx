@@ -18,18 +18,9 @@ namespace MuonCombined {
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCandidateTool::MuonCandidateTool (const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", this),
-      m_trackBuilder("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder", this),
-      m_trackExtrapolationTool("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool", this),
-      m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor", this)
+    : AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCandidateTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("ExtrapolationStrategy", m_extrapolationStrategy = 0 );
-    declareProperty("TrackBuilder",m_trackBuilder );
-    declareProperty("TrackExtrapolationTool",m_trackExtrapolationTool );
-    declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
   }
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -41,7 +32,7 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK( m_trackSummaryTool.retrieve() );
+    ATH_CHECK(m_trackSummaryTool.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
@@ -78,7 +69,7 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
       const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) {
+      if( m_extrapolationStrategy == 0u ) {
         standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
       } else {
          standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);

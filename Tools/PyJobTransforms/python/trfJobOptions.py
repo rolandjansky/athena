@@ -204,6 +204,14 @@ class JobOptionsTemplate(object):
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
                         print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
                 if 'CA' in self._exe.conf.argdict:
+                    print(os.linesep, '# Threading flags', file=runargsFile)
+                    #Pass the number of threads
+                    threads = self._exe._athenaMT
+                    concurrentEvents = self._exe._athenaConcurrentEvents
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('threads', threads))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'threads', threads), file=runargsFile)
+                    msg.debug('Adding runarg {0!s}={1!r}'.format('concurrentEvents', concurrentEvents))
+                    print('{0}.{1!s} = {2!r}'.format(self._runArgsName, 'concurrentEvents', concurrentEvents), file=runargsFile)
                     #ComponentAccumulator based config, import skeleton here:
                     print(os.linesep, '# Import skeleton and execute it', file=runargsFile)
                     print('from {0} import fromRunArgs'.format(self._exe._skeletonCA),file=runargsFile)

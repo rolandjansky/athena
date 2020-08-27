@@ -27,6 +27,7 @@
 
 #include <atomic>
 #include <inttypes.h>
+#include <memory>
 #include <mutex>
 #include <vector>
 
@@ -39,7 +40,6 @@ public:
   virtual ~CscCalibTool () = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode finalize() override final;
 
   /** given a charge on the CSC strip, convert that to ADC counts
       this is needed in the digitization for example where it is the charges
@@ -168,8 +168,8 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
 
   unsigned int m_nSamples;
-  mutable TF1* m_addedfunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
-  mutable TF1* m_bipolarFunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::unique_ptr<TF1> m_addedfunc ATLAS_THREAD_SAFE = nullptr; // Guarded by m_mutex
+  mutable std::unique_ptr<TF1> m_bipolarFunc ATLAS_THREAD_SAFE = nullptr; // Guarded by m_mutex
   mutable std::mutex m_mutex;
 
   bool m_onlineHLT;

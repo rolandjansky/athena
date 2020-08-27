@@ -33,7 +33,6 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -472,15 +471,6 @@ namespace Muon {
       std::set<Identifier>::iterator it = chamberSet.begin();
       std::set<Identifier>::iterator it_end = chamberSet.end();
       for( ;it!=it_end;++it ){
-
-	// this does not work yet....
-	// get geometry of chamber
-	//const Muon::MuonIntersectGeometry* intersectGeometry = m_intersectSvc->getChamberGeometry( *it );
-	  
-	//const MdtIntersectGeometry* mdtGeo = dynamic_cast<const MdtIntersectGeometry*>(intersectGeometry);
-	//if( !mdtGeo ) continue;
-	//geos.push_back( *mdtGeo->mdtChamberGeometry() );
-	
 	geos.push_back( createChamberGeometry( *it, gToStation ) );
       }
       
@@ -1574,19 +1564,18 @@ namespace Muon {
     int phi = m_idHelperSvc->mdtIdHelper().stationPhi(chid);
     int name = m_idHelperSvc->mdtIdHelper().stationName(chid);
     int isBarrel = m_idHelperSvc->mdtIdHelper().isBarrel(chid);
-    int isSmallMdt = m_idHelperSvc->mdtIdHelper().isSmallMdt(chid);
+    int isSmallMdt = m_idHelperSvc->issMdt(chid);
     TrkDriftCircleMath::MdtStationId stationId( isSmallMdt, isBarrel, name, eta, phi );
 
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
     if(MuonDetMgr==nullptr){
       ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
-      // return 0; 
     }
 
     // get detEL for first ml (always there)
     const MuonGM::MdtReadoutElement* detEl1 = MuonDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID( name,eta,phi,1,1,1 ) );
-    const MuonGM::MdtReadoutElement* detEl2 = 0;
+    const MuonGM::MdtReadoutElement* detEl2 = nullptr;
     int ntube2 = 0;
     // number of multilayers in chamber
     int nml = detEl1->nMDTinStation();

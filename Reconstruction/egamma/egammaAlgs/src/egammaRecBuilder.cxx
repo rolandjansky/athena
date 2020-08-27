@@ -13,7 +13,6 @@
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 #include "egammaRecEvent/egammaRecContainer.h"
-#include "egammaUtils/egammaDuplicateRemoval.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 // INCLUDE GAUDI HEADER FILES:
@@ -66,7 +65,7 @@ egammaRecBuilder::RetrieveEMTrackMatchBuilder()
   if (m_trackMatchBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve " << m_trackMatchBuilder);
     return StatusCode::FAILURE;
-  } 
+  }
     ATH_MSG_DEBUG("Retrieved Tool " << m_trackMatchBuilder);
 
   return StatusCode::SUCCESS;
@@ -89,7 +88,7 @@ egammaRecBuilder::RetrieveEMConversionBuilder()
   if (m_conversionBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve " << m_conversionBuilder);
     return StatusCode::FAILURE;
-  } 
+  }
     ATH_MSG_DEBUG("Retrieved Tool " << m_conversionBuilder);
 
   return StatusCode::SUCCESS;
@@ -118,15 +117,14 @@ egammaRecBuilder::execute_r(const EventContext& ctx) const
     ATH_MSG_ERROR("Could not retrieve cluster container:"
                   << m_inputTopoClusterContainerKey.key());
     return StatusCode::FAILURE;
-  } 
-    ATH_MSG_DEBUG("Retrieved input cluster container");
-  
+  }
 
   // Build the initial egamma Rec objects for all copied Topo Clusters
   SG::WriteHandle<EgammaRecContainer> egammaRecs(m_egammaRecContainerKey, ctx);
   ATH_CHECK(egammaRecs.record(std::make_unique<EgammaRecContainer>()));
-
-  for (size_t i(0); i < topoclusters->size(); i++) {
+  const size_t nTopo = topoclusters->size();
+  egammaRecs->reserve(nTopo);
+  for (size_t i(0); i < nTopo; i++) {
     const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i);
     const std::vector<ElementLink<xAOD::CaloClusterContainer>> ClusterLink{
       clusterLink
@@ -141,12 +139,8 @@ egammaRecBuilder::execute_r(const EventContext& ctx) const
   }
   // Do the conversion matching
   if (m_doConversions) {
-    ATH_MSG_DEBUG("Running ConversionBuilder");
     for (auto egRec : *egammaRecs) {
-      if (m_conversionBuilder->executeRec(ctx, egRec).isFailure()) {
-        ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-        return StatusCode::FAILURE;
-      }
+      ATH_CHECK(m_conversionBuilder->executeRec(ctx, egRec));
     }
   }
   return StatusCode::SUCCESS;

@@ -53,6 +53,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   , m_UseCSCHits(true) // On unless RUN3 symmetric layout
   , m_UseSTGCHits(false) // Off unless RUN3 layout
   , m_UseMMHits(false) // Off unless RUN3 layout
+  , m_UseBCMHits(true) //On unless RUN4 layout
   , m_RefBarcode(0)
 {
   declareProperty("TruthInput"        , m_inputTruthCollection);
@@ -83,6 +84,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   declareProperty("UseCSCHits"        , m_UseCSCHits);
   declareProperty("UseSTGCHits"       , m_UseSTGCHits);
   declareProperty("UseMMHits"         , m_UseMMHits);
+  declareProperty("UseBCMHits"        , m_UseBCMHits);
 
 }
 
@@ -114,7 +116,7 @@ StatusCode McEventCollectionFilter::execute(){
   //.......Reduce McEventCollection
   ATH_CHECK( ReduceMCEventCollection() );
 
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   ATH_CHECK( SiliconHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
@@ -144,6 +146,11 @@ StatusCode McEventCollectionFilter::execute(){
   //.......to relink all MM hits to the new particle
   if(m_UseMMHits) {
     ATH_CHECK( MM_HitsTruthRelink() );
+  }
+  
+  //.......to relink all BCM hits to the new particle
+  if(m_UseBCMHits) {
+    ATH_CHECK( BCMHitsTruthRelink() );
   }
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
@@ -251,7 +258,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //--------------------------------------------------------
 StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   //--------------------------------------------------------
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   //--------------------------------------------------------
   //
   if(!m_inputPixelHits.isValid())
@@ -275,6 +282,16 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   if (!m_outputSCTHits.isValid()) m_outputSCTHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputSCTHits,m_outputSCTHits));
+
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::BCMHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink BCM hits to the new particle
+  //--------------------------------------------------------
+  //
 
   if(!m_inputBCMHits.isValid())
     {

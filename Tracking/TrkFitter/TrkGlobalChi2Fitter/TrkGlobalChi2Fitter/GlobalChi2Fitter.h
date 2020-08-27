@@ -10,7 +10,23 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
+
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkToolInterfaces/IUpdator.h"
+
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkExInterfaces/INavigator.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
+
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
@@ -23,26 +39,12 @@
 
 class AtlasDetectorID;
 
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk {
   class Track;
   class TransportJacobian;
-  class IRIO_OnTrackCreator;
-  class IUpdator;
-  class IEnergyLossUpdator;
-  class IMultipleScatteringUpdator;
-  class IMaterialEffectsUpdator;
-  class INavigator;
-  class IPropagator;
-  class IExtrapolator;
-  class IResidualPullCalculator;
-  class ITrackingGeometrySvc;
   class TrackFitInputPreparator;
   class IMagneticFieldTool;
-  class IMagFieldSvc;
   class MeasuredPerigee;
   class PrepRawDataComparisonFunction;
   class MeasurementBaseComparisonFunction;
@@ -54,10 +56,14 @@ namespace Trk {
   class TrackingGeometry;
   class TrackingVolume;
   class Volume;
-  class ITrkMaterialProviderTool;
 
+  class GlobalChi2Fitter: public extends<AthAlgTool, IGlobalTrackFitter> {
+    struct PropagationResult {
+      std::unique_ptr<const TrackParameters> m_parameters;
+      std::unique_ptr<TransportJacobian> m_jacobian;
+      std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_preholes;
+    };
 
-  class GlobalChi2Fitter: virtual public IGlobalTrackFitter, public AthAlgTool {
     struct Cache {
       /*
        * Currently the information about what type of fit is being passed by the
@@ -88,11 +94,11 @@ namespace Trk {
       std::vector<double> m_phiweight;
       std::vector<int> m_firstmeasurement;
       std::vector<int> m_lastmeasurement;
-      
+
       std::vector < const Trk::Layer * >m_negdiscs;
       std::vector < const Trk::Layer * >m_posdiscs;
       std::vector < const Trk::Layer * >m_barrelcylinders;
-      
+
       bool m_fastmat = true;
 
       int m_lastiter;
@@ -101,7 +107,7 @@ namespace Trk {
       #ifdef GXFDEBUGCODE
       int m_iterations = 0;
       #endif
-      
+
       Amg::MatrixX m_derivmat;
       Amg::SymMatrixX m_fullcovmat;
 
@@ -211,7 +217,7 @@ namespace Trk {
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
     ) const override;
-  
+
   private:
     void calculateJac(
       Eigen::Matrix<double, 5, 5> &,
@@ -283,7 +289,7 @@ namespace Trk {
       Cache &,
       const Trk::TrackingVolume * tvol
     ) const;
-    
+
     /**
      * @brief Find the intersection of a set of track parameters onto a disc
      * surface.
@@ -521,21 +527,98 @@ namespace Trk {
       bool, bool, int
     ) const;
 
+    /**
+     * @brief Helper method that encapsulates calls to the propagator tool in
+     * the calculateTrackParameters() method.
+     *
+     * This method encapsulates some of the logic relating to passing or not
+     * passing a Jacobian matrix to make the calculateTrackParameters() a lot
+     * more readable.
+     *
+     * For information about parameters see the
+     * IPropagator::propagateParameters() method, which this method almost
+     * directly wraps.
+     */
+    PropagationResult calculateTrackParametersPropagateHelper(
+      const EventContext &,
+      const TrackParameters &,
+      const GXFTrackState &,
+      PropDirection,
+      MagneticFieldProperties,
+      bool
+    ) const;
+
+    /**
+     * @brief Propagate onto a track state, collecting new track parameters, and
+     * optionally the Jacobian and possible holes.
+     *
+     * This is a helper function for the calculateTrackParameters() method. Its
+     * purpose is to propagate from a set of track parameters onto a surface,
+     * finding the new track parameters at that surface and optionally the
+     * Jacobian and a list of possible holes.
+     *
+     * This method uses another helper function, aptly called
+     * calculateTrackParametersPropagateHelper(), which wraps the actual
+     * propagator calls. What calculateTrackParametersPropagate() is call this
+     * method once and check the result. If the result is invalid, that is to
+     * say we didn't manage to extract a correct set of track parameters, we
+     * try again but with the propagation direction flipped.
+     *
+     * If the calcderiv argument is set, this method will attempt to calculate
+     * the Jacobian as well as the new set of track parameters. This involves
+     * non-trivial logic which is abstracted away in the underlying helper
+     * function.
+     *
+     * @param[in] ctx An event context.
+     * @param[in] prev The origin track parameters to start the propagation.
+     * @param[in] ts The destination track state (in GX2F internal form).
+     * @param[in] propdir The propagation direction.
+     * @param[in] bf The magnetic field properties.
+     * @param[in] calcderiv If set, calculate the derivative.
+     *
+     * @return An instance of PropagationResult, which is a struct with three
+     * members. Firstly, it contains a unique pointer to a set of track
+     * parameters, which are the track parameters at the destination track
+     * state following propagation. If these parameters are a nullpointer, that
+     * indicates a failure state. Secondly, if requested, the Jacobian is stored
+     * in this struct. This may be a nullptr if it was not requested or if the
+     * calculation of the Jacobian failed. Thirdly, it contains a vector of
+     * possible holes found between the start and end of the propagation. Since
+     * these hole states are not always necessary, they are wrapped in a
+     * std::optional type.
+     */
+    PropagationResult calculateTrackParametersPropagate(
+      const EventContext &,
+      const TrackParameters &,
+      const GXFTrackState &,
+      PropDirection,
+      MagneticFieldProperties,
+      bool
+    ) const;
+
     FitterStatusCode calculateTrackParameters(
       const EventContext& ctx,
       GXFTrajectory&,
       bool) const;
 
+    std::variant<std::unique_ptr<const TrackParameters>, FitterStatusCode> updateEnergyLoss(
+      const Surface &,
+      const GXFMaterialEffects &,
+      const TrackParameters &,
+      double,
+      int
+    ) const;
+
     void calculateDerivatives(GXFTrajectory &) const;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
-    TransportJacobian *numericalDerivatives(
+    std::unique_ptr<TransportJacobian> numericalDerivatives(
       const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
       PropDirection,
-      const MagneticFieldProperties *
+      const MagneticFieldProperties
     ) const;
 
     virtual int iterationsOfLastFit() const;
@@ -564,21 +647,21 @@ namespace Trk {
       Cache & cache
     ) const;
 
-    ToolHandle < IRIO_OnTrackCreator > m_ROTcreator;
-    ToolHandle < IRIO_OnTrackCreator > m_broadROTcreator;
-    ToolHandle < IUpdator > m_updator;
-    ToolHandle < IExtrapolator > m_extrapolator;
-    ToolHandle < IMultipleScatteringUpdator > m_scattool;
-    ToolHandle < IEnergyLossUpdator > m_elosstool;
-    ToolHandle < IMaterialEffectsUpdator > m_matupdator;
-    ToolHandle < IPropagator > m_propagator;
-    ToolHandle < INavigator > m_navigator;
-    ToolHandle < IResidualPullCalculator > m_residualPullCalculator;  //!< The residual and pull calculator tool
-    ToolHandle < Trk::ITrkMaterialProviderTool > m_caloMaterialProvider;
-    ToolHandle < IMaterialEffectsOnTrackProvider > m_calotool;
-    ToolHandle < IMaterialEffectsOnTrackProvider > m_calotoolparam;
+    ToolHandle<IRIO_OnTrackCreator> m_ROTcreator {this, "RotCreatorTool", "", ""};
+    ToolHandle<IRIO_OnTrackCreator> m_broadROTcreator {this, "BroadRotCreatorTool", "", ""};
+    ToolHandle<IUpdator> m_updator {this, "MeasurementUpdateTool", "", ""};
+    ToolHandle<IExtrapolator> m_extrapolator {this, "ExtrapolationTool", "Trk::Extrapolator/CosmicsExtrapolator", ""};
+    ToolHandle<IMultipleScatteringUpdator> m_scattool {this, "MultipleScatteringTool", "Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator", ""};
+    ToolHandle<IEnergyLossUpdator> m_elosstool {this, "EnergyLossTool", "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator", ""};
+    ToolHandle<IMaterialEffectsUpdator> m_matupdator {this, "MaterialUpdateTool", "", ""};
+    ToolHandle<IPropagator> m_propagator {this, "PropagatorTool", "Trk::StraightLinePropagator/CosmicsPropagator", ""};
+    ToolHandle<INavigator> m_navigator {this, "NavigatorTool", "Trk::Navigator/CosmicsNavigator", ""};
+    ToolHandle<IResidualPullCalculator> m_residualPullCalculator {this, "ResidualPullCalculatorTool", "Trk::ResidualPullCalculator/ResidualPullCalculator", ""};
+    ToolHandle<Trk::ITrkMaterialProviderTool> m_caloMaterialProvider {this, "CaloMaterialProvider", "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool", ""};
+    ToolHandle<IMaterialEffectsOnTrackProvider> m_calotool {this, "MuidTool", "Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider", ""};
+    ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
 
-    ServiceHandle < ITrackingGeometrySvc > m_trackingGeometrySvc;
+    ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
       this,
@@ -587,40 +670,41 @@ namespace Trk {
       "Trk::GlobalChi2Fitter field conditions object key"
     };
 
-    bool m_signedradius;
-    bool m_calomat, m_extmat;
-    bool m_fillderivmatrix;
-    double m_outlcut;
-    double m_maxoutliers;
-    bool m_printderivs;
-    double m_p; // momentum (for estimating multiple scattering)
-    bool m_straightlineprop;
-    bool m_extensioncuts;
-    bool m_sirecal;
-    bool m_trtrecal;
-    bool m_kinkfinding;
     const AtlasDetectorID *m_DetID = nullptr;
-    bool m_decomposesegments;
-    bool m_getmaterialfromtrack;
-    bool m_domeastrackpar;
-    bool m_storemat;
-    double m_chi2cut;
-    double m_scalefactor;
-    bool m_redoderivs;
-    bool m_reintoutl;
-    TrackFitInputPreparator *m_inputPreparator;
-    int m_maxit;
-    bool m_acceleration;
-    bool m_numderiv;
-    int m_miniter;
-    bool m_fiteloss;
-    bool m_asymeloss;
-    int m_fixbrem;
-    bool m_useCaloTG = false;
-    bool m_rejectLargeNScat = false;
 
-    MagneticFieldProperties *m_fieldpropnofield;
-    MagneticFieldProperties *m_fieldpropfullfield;
+    Gaudi::Property<bool> m_signedradius {this, "SignedDriftRadius", true};
+    Gaudi::Property<bool> m_calomat {this, "MuidMat", false};
+    Gaudi::Property<bool> m_extmat {this, "ExtrapolatorMaterial", true};
+    Gaudi::Property<bool> m_fillderivmatrix {this, "FillDerivativeMatrix", false};
+    Gaudi::Property<bool> m_printderivs {this, "PrintDerivatives", false};
+    Gaudi::Property<bool> m_straightlineprop {this, "StraightLine", true};
+    Gaudi::Property<bool> m_extensioncuts {this, "TRTExtensionCuts", true};
+    Gaudi::Property<bool> m_sirecal {this, "RecalibrateSilicon", false};
+    Gaudi::Property<bool> m_trtrecal {this, "RecalibrateTRT", false};
+    Gaudi::Property<bool> m_kinkfinding {this, "KinkFinding", false};
+    Gaudi::Property<bool> m_decomposesegments {this, "DecomposeSegments", true};
+    Gaudi::Property<bool> m_getmaterialfromtrack {this, "GetMaterialFromTrack", true};
+    Gaudi::Property<bool> m_domeastrackpar {this, "MeasuredTrackParameters", true};
+    Gaudi::Property<bool> m_storemat {this, "StoreMaterialOnTrack", true};
+    Gaudi::Property<bool> m_redoderivs {this, "RecalculateDerivatives", false};
+    Gaudi::Property<bool> m_reintoutl {this, "ReintegrateOutliers", false};
+    Gaudi::Property<bool> m_acceleration {this, "Acceleration", false};
+    Gaudi::Property<bool> m_numderiv {this, "NumericalDerivs", false};
+    Gaudi::Property<bool> m_fiteloss {this, "FitEnergyLoss", false};
+    Gaudi::Property<bool> m_asymeloss {this, "AsymmetricEnergyLoss", true};
+    Gaudi::Property<bool> m_useCaloTG {this, "UseCaloTG", false};
+    Gaudi::Property<bool> m_rejectLargeNScat {this, "RejectLargeNScat", false};
+
+    Gaudi::Property<double> m_outlcut {this, "OutlierCut", 5.0};
+    Gaudi::Property<double> m_p {this, "Momentum", 0.0};
+    Gaudi::Property<double> m_chi2cut {this, "TrackChi2PerNDFCut", 1.e15};
+    Gaudi::Property<double> m_scalefactor {this, "TRTTubeHitCut", 2.5};
+
+    Gaudi::Property<int> m_maxoutliers {this, "MaxOutliers", 10};
+    Gaudi::Property<int> m_maxit {this, "MaxIterations", 30};
+    Gaudi::Property<int> m_miniter {this, "MinimumIterations", 1};
+    Gaudi::Property<int> m_fixbrem {this, "FixBrem", -1};
+
     ParticleMasses m_particleMasses;
 
     /*

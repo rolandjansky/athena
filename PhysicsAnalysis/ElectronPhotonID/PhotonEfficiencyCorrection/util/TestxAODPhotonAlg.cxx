@@ -254,9 +254,6 @@ int main( int argc, char* argv[] ) {
 	}  // END LOOP ON PHOTONS
      
    } // END LOOP ON EVENTS
-   CHECK(photonSF_ID.finalize());
-   CHECK(photonSF_Iso.finalize());
-   CHECK(photonSF_Trig.finalize());
 
    
    // Return gracefully:

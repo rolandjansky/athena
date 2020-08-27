@@ -17,6 +17,7 @@ base_class(name, pSvcLocator), // base_class = AthService
 m_eventSlots(),
 m_eventMonitored(),
 m_slotMutex(),
+m_globalMutex(),
 m_algStartInfo(),
 m_algStopTime(),
 m_threadToAlgMap(),
@@ -286,17 +287,25 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     outputHandle->push_back( tc ); 
     // tc is now owned by storegate and, and has an aux store provided by the TrigCompositeCollection
 
-    // Reminder: we are under a unique mutex here
     const uint32_t threadID = static_cast<uint32_t>( std::hash< std::thread::id >()(ap.m_algThreadID) );
-    if (m_threadToCounterMap.count(threadID) == 0) {
-      m_threadToCounterMap[threadID] = m_threadCounter++;
+    uint32_t threadEnumerator = 0; 
+    {
+      // We can have multiple slots get here at the same time
+      std::lock_guard<std::mutex> lock(m_globalMutex);
+      const std::unordered_map<uint32_t, uint32_t>::const_iterator mapIt = m_threadToCounterMap.find(threadID);
+      if (mapIt == m_threadToCounterMap.end()) {
+        threadEnumerator = m_threadCounter;
+        m_threadToCounterMap.insert( std::make_pair(threadID, m_threadCounter++) );
+      } else {
+        threadEnumerator = mapIt->second;
+      }
     }
 
     bool result = true;
     result &= tc->setDetail("alg", ai.callerHash());
     result &= tc->setDetail("store", ai.storeHash());
     result &= tc->setDetail("view", ai.m_viewID);
-    result &= tc->setDetail("thread", m_threadToCounterMap[threadID]);
+    result &= tc->setDetail("thread", threadEnumerator);
     result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
     result &= tc->setDetail("start", startTime);

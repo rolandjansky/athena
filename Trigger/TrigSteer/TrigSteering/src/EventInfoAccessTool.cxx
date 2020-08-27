@@ -89,7 +89,8 @@ StatusCode HLT::EventInfoAccessTool::addStreamTags(const std::vector< xAOD::Even
 
   // merge new and old
   std::vector< xAOD::EventInfo::StreamTag > xAODStreamTags;
-  for(const xAOD::EventInfo::StreamTag& st : streams ) {
+  xAODStreamTags.reserve(streams.size());
+for(const xAOD::EventInfo::StreamTag& st : streams ) {
     xAODStreamTags.push_back(st);
   }
   for(const xAOD::EventInfo::StreamTag& st : new_streams ) {
@@ -155,7 +156,7 @@ StatusCode HLT::EventInfoAccessTool::setStreamTags(const std::vector< xAOD::Even
   // record non xAOD - backwards compatability
   //create StreamTags from xAODStreamTag
   std::vector < TriggerInfo::StreamTag > StreamTags;
-  for (auto streamtag : set_streams){
+  for (const auto& streamtag : set_streams){
     //copy into streamtag 
     TriggerInfo::StreamTag newst(streamtag.name(), streamtag.type(), streamtag.obeysLumiblock(), streamtag.robs(), streamtag.dets());
     StreamTags.push_back(newst);

@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataBucketVoid.h,v 1.10 2008-06-04 14:52:59 ssnyder Exp $
 
 /**
  * @file  AthenaROOTAccess/DataBucketVoid.h
@@ -74,6 +72,8 @@ public:
    */
   virtual const std::type_info& tinfo() const override;
 
+
+  using DataBucketBase::cast;
 
   /**
    * @brief Return the contents of the @c DataBucket,

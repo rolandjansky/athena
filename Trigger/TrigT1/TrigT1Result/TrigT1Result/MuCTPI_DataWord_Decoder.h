@@ -36,7 +36,7 @@ public:
   /// Constructor
   MuCTPI_DataWord_Decoder( uint32_t dataword = 0 );
   /// Destructor
-  ~MuCTPI_DataWord_Decoder();
+  ~MuCTPI_DataWord_Decoder() = default;
 
   /// Flag showing whether there were more than 2 candidates in this candidate's sector
   uint16_t getSectorOverflow() const;

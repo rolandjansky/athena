@@ -66,6 +66,9 @@ namespace TrigConf {
       /** Accessor to the connector type */
       ConnectorType type() const;
 
+      /** names of all trigger lines */
+      std::vector<std::string> triggerLineNames() const;
+
       /** Accessor to the triggerlines on the connector
        * 
        * For electrical connectors from the L1Topo boards a triggerline vector holds up to 16 signals, which come from 
@@ -91,6 +94,8 @@ namespace TrigConf {
       ConnectorType m_type;
       std::vector<TrigConf::TriggerLine> m_triggerLines[2][2];
       std::map<std::string, TrigConf::TriggerLine*> m_lineByName;
+      std::size_t m_maxFpga{1};
+      std::size_t m_maxClock{1};
 
       bool m_isLegacy;
    };

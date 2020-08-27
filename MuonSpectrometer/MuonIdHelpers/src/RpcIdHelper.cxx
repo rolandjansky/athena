@@ -865,13 +865,13 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 // Private validation of levels
 
 bool RpcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, 
-				      int stationPhi, int doubletR) const
+				      int stationPhi, int doubletR, bool noPrint) const
 {
     std::string name = stationNameString(stationName);
 
     if ('B' != name[0])
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationName=" << name
             << endmsg;
 	return false;
@@ -879,7 +879,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if (stationEta < stationEtaMin(id) ||
         stationEta > stationEtaMax(id)    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationEta=" << stationEta
             << " for stationName=" << name
             << " stationEtaMin=" << stationEtaMin(id)
@@ -890,7 +890,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((stationPhi < stationPhiMin(id)) ||
         (stationPhi > stationPhiMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationPhi=" << stationPhi
             << " for stationName=" << name
             << " stationPhiMin=" << stationPhiMin(id)
@@ -901,7 +901,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((doubletR < doubletRMin(id)) ||
         (doubletR > doubletRMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid doubletR=" << doubletR
             << " for stationName=" << name
             << " doubletRMin=" << doubletRMin(id)

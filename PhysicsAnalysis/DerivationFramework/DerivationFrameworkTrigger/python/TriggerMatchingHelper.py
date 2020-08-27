@@ -1,15 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import (
-        DerivationFramework__TriggerMatchingTool)
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
-        DerivationFramework__CommonAugmentation)
-from DerivationFrameworkCore.DerivationFrameworkMaster import (
-        DerivationFrameworkJob)
+from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import DerivationFramework__TriggerMatchingTool
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob # noqa: F401
+
 import AthenaCommon.AppMgr as AppMgr
 from AthenaCommon.Configurable import Configurable
 import copy
-import logging
+from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 class TriggerMatchingHelper(object):

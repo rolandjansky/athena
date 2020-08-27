@@ -95,7 +95,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_forceTrigEmulation=false;
 }
 
-void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateDetail(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setDetail(m_detailedHists);
     // Detail for tools needs to be reset for every call in Analysis
     for( auto& tool : m_tools) {
@@ -103,18 +103,18 @@ void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
     }
 }
 
-void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateAltBinning(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setAltBinning(m_doJpsiee);
 }
 
-void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateTP(Gaudi::Details::PropertyBase& /*p*/){
     plot()->setTP(m_tp);
     for( auto& tool : m_tools) {
         tool->setTP(m_tp);
     }
 }
 
-void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
+void TrigEgammaAnalysisBaseTool::updateEmulation(Gaudi::Details::PropertyBase& /*p*/){
     // This may not be set yet if we're in the middle of initialization.
     if (!m_plot.typeAndName().empty()) {
       plot()->setEmulation(m_doEmulation);

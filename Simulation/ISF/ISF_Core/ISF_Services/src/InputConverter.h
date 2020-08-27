@@ -96,7 +96,7 @@ namespace ISF {
     double getParticleMass(const HepMC::GenParticle& p) const;
 
     /** get all generator particles which pass filters */
-    std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+    std::vector<HepMC::GenParticlePtr > getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
 
     /** check if the given particle passes all filters */
     bool passesFilters(const HepMC::GenParticle& p) const;

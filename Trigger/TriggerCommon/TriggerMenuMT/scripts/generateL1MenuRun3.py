@@ -29,9 +29,9 @@ def generateL1Menu(menu, cmdline):
     l1cfg = L1MenuConfig( menu )
 
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.triggerMenuSetup = menu
-    l1cfg.writeJSON( outputFile = getL1MenuFileName(), destdir = cmdline.dest)
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.triggerMenuSetup = menu
+    l1cfg.writeJSON( outputFile = getL1MenuFileName(ConfigFlags), destdir = cmdline.dest)
 
     return l1cfg.l1menu
 

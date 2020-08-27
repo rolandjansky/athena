@@ -55,10 +55,6 @@ atlas_add_test( ut_xaodcore_clearDecorations_test
    SOURCES test/ut_xaodcore_clearDecorations_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )
 
-atlas_add_test( ut_xaodcore_floatcompression_test
-   SOURCES test/ut_xaodcore_floatcompression_test.cxx
-   LINK_LIBRARIES xAODCore )
-
 atlas_add_test( ut_xaodcore_printhelpers_test
    SOURCES test/ut_xaodcore_printhelpers_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )

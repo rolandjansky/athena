@@ -8,6 +8,7 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg
 from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+from MuonConfig.MuonCalibConfig import MdtCalibrationDbToolCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 
@@ -35,28 +36,40 @@ def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
 
 def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
     """Return an RT_Relation_DB_DigiTool"""
+    acc = ComponentAccumulator()
     RT_Relation_DB_DigiTool = CompFactory.RT_Relation_DB_DigiTool
-    return RT_Relation_DB_DigiTool(name, **kwargs)
+    calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+    kwargs.setdefault("CalibrationDbTool", calibDbTool)
+    acc.setPrivateTools(RT_Relation_DB_DigiTool(name, **kwargs))
+    return acc
 
 
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
+    acc = ComponentAccumulator()
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     MDT_Response_DigiTool = CompFactory.MDT_Response_DigiTool
-    return MDT_Response_DigiTool(name, **kwargs)
+    acc.setPrivateTools(MDT_Response_DigiTool(name, **kwargs))
+    return acc
 
 
 def MDT_DigitizationToolCommonCfg(flags, name="MdtDigitizationTool", **kwargs):
     """Return ComponentAccumulator with common MdtDigitizationTool config"""
     from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
     acc = MdtCondDbAlgCfg(flags)
+    if "GetT0FromBD" in kwargs and kwargs["GetT0FromBD"]:
+        calibDbTool = acc.popToolsAndMerge(MdtCalibrationDbToolCfg(flags))
+        kwargs.setdefault("CalibrationDbTool", calibDbTool)
+    else:
+        kwargs.setdefault("CalibrationDbTool", '')
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
     kwargs.setdefault("UseTof", flags.Beam.Type != "cosmics")
     # "RT_Relation_DB_DigiTool" in jobproperties.Digitization.experimentalDigi() not migrated
-    kwargs.setdefault("DigitizationTool", MDT_Response_DigiToolCfg(flags))
+    digiTool = acc.popToolsAndMerge(MDT_Response_DigiToolCfg(flags))
+    kwargs.setdefault("DigitizationTool", digiTool)
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballCharge", QballConfig)
     if flags.Digitization.DoXingByXingPileUp:

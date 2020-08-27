@@ -31,7 +31,7 @@ namespace LArG4 {
       declareProperty("GeometryCalculator",m_geometryCalculator);
     }
 
-    void CalibrationCalculator::WheelTypeHandler(Property&)
+    void CalibrationCalculator::WheelTypeHandler(Gaudi::Details::PropertyBase&)
     {
       switch(m_wcalc_tProp.value())
         {

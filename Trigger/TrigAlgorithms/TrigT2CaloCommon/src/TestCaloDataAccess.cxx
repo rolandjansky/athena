@@ -7,7 +7,7 @@
 #include "tbb/blocked_range.h"
 #include "TestTools/expect.h"
 #include "TestTools/ParallelCallTest.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "TrigT2CaloCommon/LArCellCont.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloEvent/CaloConstCellContainer.h"

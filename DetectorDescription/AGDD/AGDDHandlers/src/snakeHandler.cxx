@@ -1,32 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/snakeHandler.h"
 #include "AGDDControl/XercesParser.h"
 #include "AGDDHandlers/snake_pointHandler.h"
 #include "AGDDModel/AGDDSnake.h"
+
 #include <iostream>
-
-#include "CLHEP/Vector/ThreeVector.h"
-
 #include <vector>
 
 using namespace xercesc;
 
 snakeHandler::snakeHandler(std::string s):XMLHandler(s)
 {
-//	std::cout<<"Creating handler for snake"<<std::endl;
 }
 
 void snakeHandler::ElementHandle()
 {
-	bool res;
+	bool res=false;
 	std::string name=getAttributeAsString("name",res);
 	std::string material=getAttributeAsString("material",res);
 	double radius=getAttributeAsDouble("radius",res);
 	
-	std::vector<CLHEP::Hep3Vector> points;
+	std::vector<GeoTrf::Vector3D> points;
 	
 	AGDDSnake *vol=new AGDDSnake(name);
  	vol->SetMaterial(material);
@@ -40,7 +37,7 @@ void snakeHandler::ElementHandle()
     {
         if (child->getNodeType()==DOMNode::ELEMENT_NODE) {
         XercesParser::elementLoop(child);
-		CLHEP::Hep3Vector p=snake_pointHandler::CurrentPoint();
+		GeoTrf::Vector3D p=snake_pointHandler::CurrentPoint();
 		points.push_back(p);
        }
     }

@@ -17,8 +17,7 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODMuon/MuonContainer.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
+#include "TrigTimeAlgs/TrigTimer.h"                  // for TrigTimer
 
 TrigEFMultiMuFex::TrigEFMultiMuFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::ComboAlgo(name, pSvcLocator)
@@ -260,7 +259,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
             // loop over the vector of muon containers
             msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
-            for ( const auto muel: muelv) {
+            for ( const auto& muel: muelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << muel.index()
                     << " sgkey: "  << muel.dataID()
@@ -290,7 +289,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
     std::vector<const xAOD::Muon*> uniqueMuons;
     // add all the unique muons into a single container
     for ( const auto& muelv : vec_elv_muons) {
-        for ( const auto muel : muelv ) {
+        for ( const auto& muel : muelv ) {
             m_bphysHelperTool->addUnique( *muel, uniqueMuons, 0.005,0.005,10,xAOD::Muon::InnerDetectorTrackParticle);
         } // loop over muonEL in each roi
     } // loop over rois

@@ -200,19 +200,17 @@ unsigned long RootTruthParticleCnvTool::refCount() const { abort(); }
 //               Implementation of the IProperty function(s)
 //
 
-StatusCode RootTruthParticleCnvTool::setProperty( const Property& ) { abort(); }
 StatusCode RootTruthParticleCnvTool::setProperty( const std::string& ) {
    abort(); }
-StatusCode RootTruthParticleCnvTool::setProperty( const std::string&,
-                                                  const std::string& ) {
-   abort(); }
-StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const { abort(); }
-const Property&
+StatusCode RootTruthParticleCnvTool::setProperty( const std::string&, const Gaudi::Details::PropertyBase& ) { abort(); }
+StatusCode RootTruthParticleCnvTool::setPropertyRepr( const std::string&, const std::string& ){ abort(); }
+StatusCode RootTruthParticleCnvTool::getProperty( Gaudi::Details::PropertyBase* ) const { abort(); }
+const Gaudi::Details::PropertyBase&
 RootTruthParticleCnvTool::getProperty( const std::string& ) const{ abort(); }
 StatusCode RootTruthParticleCnvTool::getProperty( const std::string&,
                                                   std::string& ) const {
    abort(); }
-const std::vector< Property* >&
+const std::vector< Gaudi::Details::PropertyBase* >&
 RootTruthParticleCnvTool::getProperties() const { abort(); }
 bool RootTruthParticleCnvTool::hasProperty( const std::string& ) const {
    abort(); }

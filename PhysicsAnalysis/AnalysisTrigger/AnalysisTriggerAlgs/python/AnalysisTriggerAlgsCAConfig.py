@@ -4,8 +4,14 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def RoIBResultToxAODCfg(flags, seqName=''):
+    if flags.Trigger.enableL1Phase1 and not flags.Trigger.enableL1CaloLegacy:
+        # No Run-2 L1 RoIs -> nothing to covert to xAOD -> don't add RoIBResultToxAOD
+        return ComponentAccumulator()
+
     acc = ComponentAccumulator(sequenceName=seqName)
     alg = CompFactory.RoIBResultToxAOD('RoIBResultToxAOD')
+    alg.DoMuon = not flags.Trigger.enableL1Phase1
+    alg.DoCalo = flags.Trigger.enableL1CaloLegacy
     acc.addEventAlgo(alg, sequenceName=seqName)
 
     if flags.Input.Format == 'BS':
@@ -16,12 +22,17 @@ def RoIBResultToxAODCfg(flags, seqName=''):
         acc.merge(ByteStreamReadCfg(flags, typeNames))
 
     # Create output list to return for use by the caller
-    outputList = [
-        ("xAOD::MuonRoIContainer",  alg.xAODKeyMuon),
-        ("xAOD::EmTauRoIContainer", alg.xAODKeyEmTau),
-        ("xAOD::EnergySumRoI",      alg.xAODKeyEsum),
-        ("xAOD::JetEtRoI",          alg.xAODKeyJetEt),
-        ("xAOD::JetRoIContainer",   alg.xAODKeyJet),
-    ]
+    outputList = []
+    if alg.DoMuon:
+        outputList += [
+            ("xAOD::MuonRoIContainer",  alg.xAODKeyMuon)
+        ]
+    if alg.DoCalo:
+        outputList += [
+            ("xAOD::EmTauRoIContainer", alg.xAODKeyEmTau),
+            ("xAOD::EnergySumRoI",      alg.xAODKeyEsum),
+            ("xAOD::JetEtRoI",          alg.xAODKeyJetEt),
+            ("xAOD::JetRoIContainer",   alg.xAODKeyJet)
+        ]
 
     return acc, outputList

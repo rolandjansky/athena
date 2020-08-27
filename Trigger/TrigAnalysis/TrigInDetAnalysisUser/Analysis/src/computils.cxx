@@ -275,6 +275,16 @@ std::string tail( std::string s, const std::string& pattern ) {
   return s;
 }
 
+
+std::string head( std::string s, const std::string& pattern ) {
+  size_t pos = s.find_last_of(pattern);
+  if ( pos != std::string::npos ) {
+    s.erase( pos, s.size() );
+  }
+  return s;
+}
+
+
 void contents( std::vector<std::string>&  keys, TDirectory* td, 
 	       const std::string& directory, const std::string& pattern, const std::string& path ) { 
   
@@ -304,7 +314,7 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
       /// not a directory so include this ...
       if ( directory == "" || contains( path, directory ) ) {
 	
-	if ( print ) std::cout << "will process " << tobj->GetName() << std::endl;
+	if ( print ) std::cout << "will process " << td->GetName() << " \t:: " << tobj->GetName() << std::endl;
 	print = false;
 	
 	if ( pattern == "" || contains(std::string(tobj->GetName()), pattern ) ) { 

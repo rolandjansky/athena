@@ -7,9 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import MeV, mm
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 
-#Functions yet to be migrated:
-#getParticlePositionFilterMS
-#getTruthStrategyGroupID, getTruthStrategyGroupIDHadInt, getTruthStrategyGroupCaloMuBrem_MC15, getTruthStrategyGroupCaloDecay, getValidationTruthStrategy, getLLPTruthStrategy
 
 # GenParticleFilters
 def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter", **kwargs):

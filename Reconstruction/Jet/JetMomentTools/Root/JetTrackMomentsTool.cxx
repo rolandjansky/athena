@@ -7,12 +7,11 @@
 #include <sstream>
 #include "JetUtils/JetDistances.h"
 #include "xAODPFlow/PFO.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 JetTrackMomentsTool::JetTrackMomentsTool(const std::string& name)
     : asg::AsgTool(name)
 {
-  declareInterface<IJetDecorator>(this);
 }
 
 

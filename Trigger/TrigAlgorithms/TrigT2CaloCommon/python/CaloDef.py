@@ -10,6 +10,10 @@ def setMinimalCaloSetup() :
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
+  if not hasattr(svcMgr,'RegSelSvcDefault'):
+    from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+    svcMgr += RegSelSvcDefault()
+
 
 
 ########################
@@ -74,12 +78,6 @@ def fastCaloRecoSequence(InViewRoIs, doRinger=False, ClustersName="HLT_FastCaloE
     fastCaloVDV.DataObjects = [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMCaloRoIs' )]
 
-    # Make sure BCID average still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
-
     fastCaloInViewSequence = seqAND( 'fastCaloInViewSequence', [fastCaloVDV, fastCaloAlg] )
     sequenceOut = fastCaloAlg.ClustersName
     return (fastCaloInViewSequence, sequenceOut)
@@ -116,7 +114,7 @@ def createFastCaloSequence(EMRoIDecisions, doRinger=False, ClustersName="HLT_Fas
 
 def clusterFSInputMaker( ):
   """Creates the inputMaker for FS in menu"""
-  RoIs = 'FSJETRoI'
+  RoIs = 'HLT_FSJETRoI'
   from AthenaConfiguration.ComponentFactory import CompFactory
   InputMakerAlg = CompFactory.InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
   InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
@@ -124,11 +122,11 @@ def clusterFSInputMaker( ):
   return InputMakerAlg
 
 
-def HLTCellMaker(RoIs='FSJETRoI', outputName="CaloCells", algSuffix=""):
+def HLTCellMaker(RoIs='HLT_FSJETRoI', outputName="CaloCells", algSuffix=""):
     cellMakerAlgo = _algoHLTCaloCell(name="HLTCaloCellMaker"+algSuffix, inputEDM=RoIs, outputEDM=outputName, RoIMode=True)
     return cellMakerAlgo
 
-def HLTFSCellMakerRecoSequence(RoIs='FSJETRoI'):
+def HLTFSCellMakerRecoSequence(RoIs='HLT_FSJETRoI'):
     cellMaker = HLTCellMaker(RoIs, outputName="CaloCellsFS", algSuffix="FS")
     RecoSequence = parOR("ClusterRecoSequenceFS", [cellMaker])
     return (RecoSequence, cellMaker.CellsName)
@@ -151,8 +149,6 @@ def HLTRoITopoRecoSequence(RoIs):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-    if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
-      topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")

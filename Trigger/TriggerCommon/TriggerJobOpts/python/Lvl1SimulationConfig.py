@@ -27,7 +27,7 @@ def Lvl1SimulationSequence( flags = None ):
     TriggerFlags.outputLVL1configFile = None
     log.info("setting up LVL1ConfigSvc, including the menu generation")
     from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
-    svcMgr += conf2toConfigurable(getL1ConfigSvc())
+    svcMgr += conf2toConfigurable(getL1ConfigSvc(flags))
 
     ##################################################
     # Calo
@@ -175,9 +175,9 @@ def Lvl1SimulationSequence( flags = None ):
     # Topo
     ##################################################
 
+    l1TopoSim = None
     if flags.Trigger.enableL1Phase1:
-        log.info("No phase1 configuration for L1Topo simulation is available, adding L1TopoSimPlaceholder")
-        l1TopoSim = AthSequencer("L1TopoSimPlaceholder")
+        log.info("No phase1 configuration for L1Topo simulation is available")
     else:
         from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
         l1TopoSim = L1TopoSimulation()
@@ -214,5 +214,9 @@ def Lvl1SimulationSequence( flags = None ):
         ctpSim += [roib]
 
     #l1Sim = seqAND("l1Sim", [caloTowerMaker] )
-    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
+    if l1TopoSim:
+      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
+    else:
+      l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+
     return l1Sim

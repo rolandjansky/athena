@@ -40,15 +40,15 @@ namespace ROIB {
     // constants:
     /** a ROD header as used in the LVL1 has 8 words, not counting the one
        hardware word in the beginning */
-    static const unsigned int wordsPerHeader = 8;             //!< number of words in header (Ref: ATL-DA-ES-0029)
+    static constexpr unsigned int wordsPerHeader = 8;             //!< number of words in header (Ref: ATL-DA-ES-0029)
 
     //! default constructor: empty object 
     Header()
       : m_header() {}
 
     //! constructor which fully specifies the initialiser values 
-    Header( const std::vector<uint32_t>& v)
-      : m_header( v ) {}
+    Header( std::vector<uint32_t>&& v)
+      : m_header( std::move(v) ) {}
 
     Header(Header&&) noexcept = default;
     Header(const Header&) = default;

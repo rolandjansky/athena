@@ -93,7 +93,7 @@ int main()
   auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
 
     // initialize cond obj with current scale factors and the field svc (needed to setup cache)
-  assert( fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.get()));
+  fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.get());
 
   Trk::SolenoidParametrization sol (*fieldCondObj);
   test1 (sol, *fieldCondObj);

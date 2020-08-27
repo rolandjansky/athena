@@ -44,12 +44,6 @@ namespace {
 
 } // private namespace
 
-/// Helper macro for initialising SG keys that are allowed to be missing
-#define INIT_SG_KEY(VAR)                                    \
-   do {                                                     \
-      ATH_CHECK( VAR.initialize( ! VAR.key().empty() ) );   \
-   } while( false )
-
 RoIBResultToxAOD::RoIBResultToxAOD( const std::string& name,
                                     ISvcLocator* svcLoc )
    : AthAlgorithm( name, svcLoc ) {
@@ -60,10 +54,10 @@ StatusCode RoIBResultToxAOD::initialize() {
 
    // Print system info.
    if( m_doCalo == false ) {
-      ATH_MSG_WARNING( "Inputs from LVL1 Calo systems switched off" );
+      ATH_MSG_INFO( "Inputs from LVL1 Calo systems switched off" );
    }
    if( m_doMuon == false ) {
-      ATH_MSG_WARNING( "Inputs from LVL1 Muon systems switched off" );
+      ATH_MSG_INFO( "Inputs from LVL1 Muon systems switched off" );
    }
 
    // Connect to the LVL1ConfigSvc for the trigger configuration.
@@ -91,17 +85,13 @@ StatusCode RoIBResultToxAOD::initialize() {
 
    // Initialise the keys.
    ATH_CHECK( m_roibResultKey.initialize() );
-   INIT_SG_KEY( m_cpmTowerKey );
-   INIT_SG_KEY( m_jetElementKey );
-   if( m_doMuon ) {
-      ATH_CHECK( m_muonRoIKey.initialize() );
-   }
-   if( m_doCalo ) {
-      ATH_CHECK( m_emtauRoIKey.initialize() );
-      ATH_CHECK( m_energysumRoIKey.initialize() );
-      ATH_CHECK( m_jetetRoIKey.initialize() );
-      ATH_CHECK( m_jetRoIKey.initialize() );
-   }
+   ATH_CHECK( m_cpmTowerKey.initialize(SG::AllowEmpty) );
+   ATH_CHECK( m_jetElementKey.initialize(SG::AllowEmpty) );
+   ATH_CHECK( m_muonRoIKey.initialize(m_doMuon) );
+   ATH_CHECK( m_emtauRoIKey.initialize(m_doCalo) );
+   ATH_CHECK( m_energysumRoIKey.initialize(m_doCalo) );
+   ATH_CHECK( m_jetetRoIKey.initialize(m_doCalo) );
+   ATH_CHECK( m_jetRoIKey.initialize(m_doCalo) );
 
    // Return gracefully.
    return StatusCode::SUCCESS;
@@ -114,6 +104,10 @@ StatusCode RoIBResultToxAOD::execute() {
 
    // Access the input object.
    auto roibResult = SG::makeHandle( m_roibResultKey, getContext() );
+   if (!roibResult.isValid()) {
+      ATH_MSG_ERROR("Failed to retrieve " << m_roibResultKey.key());
+      return StatusCode::FAILURE;
+   }
 
    // Create the muon RoIs:
    if( m_doMuon ) {

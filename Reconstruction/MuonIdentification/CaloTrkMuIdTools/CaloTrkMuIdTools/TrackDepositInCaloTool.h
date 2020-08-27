@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_TRACKDEPOSITINCALOTOOL_H
@@ -21,6 +21,7 @@
 // --- STL ---
 #include <map>
 #include <vector>
+#include <mutex>
 
 // --- Forward declarations ---
 class CaloCellContainer;
@@ -49,10 +50,9 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   */  
   public:
     TrackDepositInCaloTool(const std::string& type, const std::string& name, const IInterface* pInterface);
-    virtual ~TrackDepositInCaloTool();
+    virtual ~TrackDepositInCaloTool()=default;
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize(); 
 
     /** 
        Deprecated method, do not use. This method will be removed soon.
@@ -124,8 +124,10 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   private:
     /**
        Invoked from initialize(), initializes the CaloLayerMap.
+       Marked const because it must be called from some const methods
+       Actually will change mutable member variables
     */
-    StatusCode initializeDetectorInfo();
+    StatusCode initializeDetectorInfo() const;
     /**
        Extrapolate track to cylinder surface along straight line.
        (x0, y0, z0) is the starting position, (phi0,theta0) is the direction of the momentum, r is the bound of 
@@ -162,25 +164,26 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
   private:
 
     // Services & Tools
-    ITHistSvc*                          m_histSvc{};                             //!< Pointer to THistSvc
-     ToolHandle<Trk::IExtrapolator>     m_extrapolator{this, "ExtrapolatorHandle", ""};     //!< Extrapolator tool
-    const CaloDetDescrManager*          m_caloDDM{};                             //!< Calorimeter detector description manager
+    ITHistSvc*                          m_histSvc{};
+    ToolHandle<Trk::IExtrapolator>      m_extrapolator{this, "ExtrapolatorHandle", ""};
+    const mutable CaloDetDescrManager*  m_caloDDM{};                           //!< Calorimeter detector description manager
     const TileDetDescrManager*          m_tileDDM{};
     
-    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", ""}; //!< Tool to make the step-wise extrapolation
-    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; //!< Tool to make the step-wise extrapolation
+    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool{this, "ParticleCaloExtensionTool", "", "Tool to make the step-wise extrapolation"};
+    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""};
     
     // Members
-    const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.
+    const CaloCellContainer*    m_cellContainer;                               //!< CaloCell container.
 
-    bool            m_doExtr;                                                  //!< Flag to perform extrapolations using m_extrapolator
-    bool            m_doHist;                                                  //!< Flag to write histograms to track performance
-    bool            m_debugMode;                                               //!< Flag to run in specialized debug mode
-    bool            m_showNeighbours;
-    double          m_solenoidRadius;                                          //!< Radius of the solenoid surrounding the ID
-    CaloLayerMap    m_barrelLayerMap;                                          //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
-    CaloLayerMap    m_endCapLayerMap;                                          //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
-    
+    bool                 m_doExtr;                                             //!< Flag to perform extrapolations using m_extrapolator
+    bool                 m_doHist;                                             //!< Flag to write histograms to track performance
+    bool                 m_debugMode;                                          //!< Flag to run in specialized debug mode
+    bool                 m_showNeighbours;
+    double               m_solenoidRadius;                                     //!< Radius of the solenoid surrounding the ID
+    CaloLayerMap mutable m_barrelLayerMap;                                     //!< std::map of \f$r\f$ distance versus descriptor for cylindrical calo regions
+    CaloLayerMap mutable m_endCapLayerMap;                                     //!< std::map of \f$z\f$ distance versus descriptor for disc-like calo regions
+
+    std::once_flag mutable m_initializeOnce;
 
     // Histograms        
     TH1F* m_hDepositLayer12{};

@@ -12,33 +12,19 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedTool.h"
 
 namespace MuonCombined {
 
-  MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-	m_muonCombDebugger("MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool")
+  MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCombinedTool>(this);
-    declareProperty("Printer",m_printer );
-    declareProperty("MuonCombinedTagTools",     m_muonCombinedTagTools);
-    declareProperty("DeltaEtaPreSelection",     m_deltaEtaPreSelection = 0.5 );
-    declareProperty("DeltaPhiPreSelection",     m_deltaPhiPreSelection = 1.  );
-    declareProperty("PtBalancePreSelection",    m_ptBalance = 1.  );
-    declareProperty("RunMuonCombinedDebugger",  m_runMuonCombinedDebugger = false );
+    declareProperty("MuonCombinedTagTools", m_muonCombinedTagTools);
   }
-
-  MuonCombinedTool::~MuonCombinedTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCombinedTool::initialize() {
 
@@ -53,10 +39,6 @@ namespace MuonCombined {
       }
     }
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCombinedTool::finalize() {
     return StatusCode::SUCCESS;
   }
 

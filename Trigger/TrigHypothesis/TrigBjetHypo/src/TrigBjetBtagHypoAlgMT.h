@@ -37,6 +37,8 @@ class TrigBjetBtagHypoAlgMT : public TrigBjetHypoAlgBaseMT {
   // online monitoring 
   virtual StatusCode monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs ) const ;
   virtual StatusCode monitor_tracks( const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const;
+  virtual StatusCode monitor_flavor_tag_variable( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, const std::string& var_name) const;
+  virtual StatusCode monitor_btagging( const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL ) const;
   
  private:
   ToolHandleArray< TrigBjetBtagHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};

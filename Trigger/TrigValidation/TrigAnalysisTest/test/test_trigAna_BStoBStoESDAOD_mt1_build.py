@@ -30,7 +30,7 @@ BStoBS.args = ' -c "{:s}"'.format(BStoBSPreExec)
 # Extract the Main stream data
 filterBS = ExecStep.ExecStep('FilterBS')
 filterBS.type = 'other'
-filterBS.executable = 'athenaHLT-select-PEB-stream.py'
+filterBS.executable = 'trigbs_extractStream.py'
 filterBS.input = ''
 filterBS.args = '-s Main ' + findFile('data_test.*.Single_Stream.daq.RAW.*.data')
 
@@ -51,9 +51,10 @@ recoPreExec = ' '.join([
   "AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);",
   "AODFlags.AddEgammaMuonTracksInAOD.set_Value_and_Lock(False);",
   # Trigger flags
+  "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+  "ConfigFlags.Trigger.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
   "TriggerFlags.configForStartup=\'HLToffline\';",
-  "TriggerFlags.triggerMenuSetup=\'{:s}\';".format(menu_name),
   "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
   "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\');"])
 reco = ExecStep.ExecStep('Tier0Reco')

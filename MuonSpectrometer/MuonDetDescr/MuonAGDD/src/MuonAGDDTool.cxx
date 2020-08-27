@@ -156,7 +156,7 @@ StatusCode MuonAGDDTool::construct()
 bool MuonAGDDTool::WritePREsqlFile() const
 {
 
-	std::ifstream outfile(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	std::ifstream outfile(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	std::vector<std::string> newoutfilelines;
 	std::string outfileline;
@@ -171,14 +171,14 @@ bool MuonAGDDTool::WritePREsqlFile() const
 		}
 	outfile.close();
 
-	std::ofstream newoutfile(m_outFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+	std::ofstream newoutfile(m_outFileName.value().c_str(), std::ofstream::out | std::ofstream::trunc);
 	for(auto it = newoutfilelines.begin(); it != newoutfilelines.end(); ++it)
 	{
 		if(it != newoutfilelines.begin()) newoutfile << "\n";
 		newoutfile << *it;
 	}
 	newoutfile.close();
-	outfile.open(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+	outfile.open(m_outFileName.value().c_str(), std::ifstream::in | std::ifstream::binary);
 
 	int fileSize = 0;
 	if(outfile.is_open())

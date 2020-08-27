@@ -22,6 +22,7 @@
 #include <vector>
 #include <functional>
 #include <exception>
+#include <type_traits>
 
 // forward declarations
 namespace lwt {
@@ -122,7 +123,17 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        bool is_default = m_default_flag(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value) && !is_default) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name
+              + "'. This is only allowed when using a default"
+              " value for this input");
+          }
+        }
+        return {m_name, is_default ? NAN : ret_value};
       }
     };
 
@@ -142,7 +153,14 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value)) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name + "'.");
+          }
+        }
+        return {m_name, ret_value};
       }
     };
 

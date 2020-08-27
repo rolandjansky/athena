@@ -6,8 +6,6 @@ Elmar Ritsch, 04/02/2013
 
 from AthenaCommon import CfgMgr
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
 from ISF_SimulationSelectors import SimulationFlavor
 ### DefaultSimSelector configurations
 

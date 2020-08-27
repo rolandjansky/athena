@@ -12,7 +12,7 @@
 #include "TrigGenericAlgs/L1CorrelationAlgo.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <math.h>
@@ -285,7 +285,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltInitialize()
 }
 
 
-void L1CorrelationAlgo::updateHandler(Property&)
+void L1CorrelationAlgo::updateHandler(Gaudi::Details::PropertyBase&)
 {
   //  parseROBRequest();
 }

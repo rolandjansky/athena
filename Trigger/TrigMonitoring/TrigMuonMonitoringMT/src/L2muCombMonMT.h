@@ -2,13 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONMONITORINGMT_L2MUONCBMONMT_H
-#define TRIGMUONMONITORINGMT_L2MUONCBMONMT_H
+#ifndef TRIGMUONMONITORINGMT_L2MUCOMBMONMT_H
+#define TRIGMUONMONITORINGMT_L2MUCOMBMONMT_H
 
 #include "TrigMuonMonitorAlgorithm.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
-
-class MuonMatchingTool;
 
 /*
 This is a class for monitoring L2muComb.
@@ -25,4 +23,4 @@ class L2muCombMonMT : public TrigMuonMonitorAlgorithm{
 
 };
 
-#endif //TRIGMUONMONITORINGMT_L2MUONCBMONMT_H
+#endif //TRIGMUONMONITORINGMT_L2MUCOMBMONMT_H

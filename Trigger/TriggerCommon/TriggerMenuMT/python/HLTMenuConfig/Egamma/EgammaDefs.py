@@ -15,6 +15,7 @@ class TrigEgammaKeys(object):
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
+      TrigElectronTracksCollectionName = 'HLT_IDTrack_Electron_IDTrig'
       pidVersion = 'rel21_20180312'
 
 

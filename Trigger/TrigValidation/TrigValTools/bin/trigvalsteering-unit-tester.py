@@ -52,18 +52,28 @@ def main():
             log_file = '{:s}.unitTest.log'.format(test)
             cmd += ' >{:s} 2>&1'.format(log_file)
             ret_code = subprocess.call(cmd, shell=True)
+            failed = False
             status_str = 'OK'
             if ret_code != 0:
+                failed = True
                 status_str = 'FAILED WITH CODE {:d}'.format(ret_code)
             errors = grep_errors(log_file)
             if len(errors) > 0:
+                failed = True
                 status_str = 'ERROR IN LOG {:s}:'.format(log_file)
-
-            if status_str != 'OK':
-                n_failed += 1
             log.info('---- %s ---- %s', test, status_str)
-            for msg in errors:
-                print(msg)
+
+            if failed:
+                n_failed += 1
+                if len(errors) > 0:
+                    for msg in errors:
+                        print(msg)
+                else:
+                    log.error('Test failed but no ERROR messages found, printing full log below')
+                    with open(log_file) as f:
+                        for msg in f:
+                            print(msg)
+
     return n_failed
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FlaggedConditionTool.h"
@@ -54,10 +54,10 @@ bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditio
 
 // Is this element good (by IdentifierHash)?
 bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventContext& ctx) const {
-  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
+  const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     if (m_numWarnForFailures<m_maxNumWarnForFailures) {
-      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (isGood)");
+      ATH_MSG_WARNING(m_badIds.key() << " cannot be retrieved. (isGood)");
       m_numWarnForFailures++;
       if (m_numWarnForFailures==m_maxNumWarnForFailures) {
         ATH_MSG_WARNING("Disabling this type of messages from " << name());
@@ -66,7 +66,7 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId, const EventC
     return false;
   }
 
-  return (badIds->find(hashId) == badIds->end());
+  return (not badIds->present(hashId));
 }
 
 bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
@@ -80,10 +80,10 @@ bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
 const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId, const EventContext& ctx) const {
   static const std::string nullString;
 
-  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
+  const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     if (m_numWarnForFailures<m_maxNumWarnForFailures) {
-      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (details)");
+      ATH_MSG_WARNING(m_badIds.key() << " cannot be retrieved. (details)");
       m_numWarnForFailures++;
       if (m_numWarnForFailures==m_maxNumWarnForFailures) {
         ATH_MSG_WARNING("Disabling this type of messages from " << name());
@@ -92,8 +92,15 @@ const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashI
     return nullString;
   }
 
-  std::map<IdentifierHash, std::string>::const_iterator itr(badIds->find(hashId));
-  return ((itr != badIds->end()) ? (*itr).second : nullString);
+  if (badIds->present(hashId)) {
+    const IDCInDetBSErrContainer::ErrorCode value{badIds->retrieve(hashId)};
+    if (value>0) {
+      for (size_t error{0}; error<SCT_FlaggedCondEnum::NUM_ERROR_TYPES; error++) {
+        if (value & (1 << error)) return SCT_FlaggedCondEnum::ErrorTypeDescription[error];
+      }
+    }
+  }
+  return nullString;
 }
 
 const std::string& SCT_FlaggedConditionTool::details(const IdentifierHash& hashId) const {
@@ -114,10 +121,10 @@ const std::string& SCT_FlaggedConditionTool::details(const Identifier& Id) const
 }
 
 int SCT_FlaggedConditionTool::numBadIds(const EventContext& ctx) const {
-  const SCT_FlaggedCondData* badIds{getCondData(ctx)};
+  const IDCInDetBSErrContainer* badIds{getCondData(ctx)};
   if (badIds==nullptr) {
     if (m_numWarnForFailures<m_maxNumWarnForFailures) {
-      ATH_MSG_WARNING("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
+      ATH_MSG_WARNING(m_badIds.key() << " cannot be retrieved. (numBadIds)");
       m_numWarnForFailures++;
       if (m_numWarnForFailures==m_maxNumWarnForFailures) {
         ATH_MSG_WARNING("Disabling this type of messages from " << name());
@@ -126,7 +133,7 @@ int SCT_FlaggedConditionTool::numBadIds(const EventContext& ctx) const {
     return -1;
   }
 
-  return badIds->size();
+  return static_cast<int>(badIds->numberSet());
 }
 
 int SCT_FlaggedConditionTool::numBadIds() const {
@@ -134,17 +141,17 @@ int SCT_FlaggedConditionTool::numBadIds() const {
   return numBadIds(ctx);
 }
 
-const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds(const EventContext& ctx) const {
+const IDCInDetBSErrContainer* SCT_FlaggedConditionTool::getBadIds(const EventContext& ctx) const {
   return getCondData(ctx);
 }
 
-const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getBadIds() const {
+const IDCInDetBSErrContainer* SCT_FlaggedConditionTool::getBadIds() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return getBadIds(ctx);
 }
 
-const SCT_FlaggedCondData* SCT_FlaggedConditionTool::getCondData(const EventContext& ctx) const {
-  SG::ReadHandle<SCT_FlaggedCondData> condData{m_badIds, ctx};
+const IDCInDetBSErrContainer* SCT_FlaggedConditionTool::getCondData(const EventContext& ctx) const {
+  SG::ReadHandle<IDCInDetBSErrContainer> condData{m_badIds, ctx};
   if (not condData.isValid()) {
     if (m_numWarnForFailures<m_maxNumWarnForFailures) {
       ATH_MSG_WARNING("Failed to get " << m_badIds.key());

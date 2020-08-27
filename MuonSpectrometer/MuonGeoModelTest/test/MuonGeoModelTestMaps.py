@@ -15,7 +15,7 @@ include( "AtlasGeoModel/MuonGeoModel.py" )
 theApp.EvtSel = "EventSelector";
 theApp.EvtMax = 0;
 
-theApp.DLLs += [ "MuonGeoModelTest"]
+theApp.Dlls += [ "MuonGeoModelTest"]
 
 #---- display top algorithm 
 theApp.TopAlg         =        [ "MuonGMCheck" ]

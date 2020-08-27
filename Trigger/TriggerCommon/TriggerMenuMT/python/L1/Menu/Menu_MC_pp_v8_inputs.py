@@ -59,7 +59,7 @@ def defineInputsMenu():
             "type" : "ctpin",
             "legacy" : False,
             "thresholds" : [
-                'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4'  , 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 
+                'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 
                 'MBTS_C9', 'MBTS_C11', 'MBTS_C13', 'MBTS_C15', # 16x MBTSSI 
                 ('MBTS_C',3), # 1x MBTS_C
                 'NIMTGC',     # TGC
@@ -126,7 +126,6 @@ def defineInputsMenu():
         ]
     })
 
-
     topoBoards["Topo2"] = odict()
     topoBoards["Topo2"]["connectors"] = []
     topoBoards["Topo2"]["connectors"].append({
@@ -139,16 +138,16 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 0,
                 "algorithms" : [
-                    TopoMenuDef( 'HT190-J15s5.ETA21',                       outputbits = 0 ),
+                    TopoMenuDef( 'HT190-J15s5pETA21',                       outputbits = 0 ),
                     TopoMenuDef( '0DR03-EM7ab-CJ15ab',                      outputbits = 1 ),
                     TopoMenuDef( 'INVM_NFF',                                outputbits = 2, outputlines = ['500INVM9999-J30s6-AJ20s6'] ),
                     TopoMenuDef( 'INVM_AJ_HighMass',                        outputbits = 3, outputlines = ['700INVM9999-AJ30s6-AJ20s6'] ),
                     TopoMenuDef( 'INVM_AJ_LowMass',                         outputbits = 4, outputlines = ['300INVM9999-AJ30s6-AJ20s6'] ),
-                    TopoMenuDef( 'HT150-J20s5.ETA31',                       outputbits = 5 ),
-                    TopoMenuDef( '400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49', outputbits = 6 ),
+                    TopoMenuDef( 'HT150-J20s5pETA31',                       outputbits = 5 ),
+                    TopoMenuDef( '400INVM9999-AJ30s6pETA31-AJ20s6p31ETA49', outputbits = 6 ),
                     TopoMenuDef( '10MINDPHI-J20s2-XE30',                    outputbits = 7 ),
                     TopoMenuDef( '10MINDPHI-J20s2-XE50',                    outputbits = 8 ),
-                    TopoMenuDef( 'SC111-CJ15ab.ETA26',                      outputbits = 9 ),
+                    TopoMenuDef( 'SC111-CJ15abpETA26',                      outputbits = 9 ),
                     TopoMenuDef( '0DETA20-J50s1-Js2',                       outputbits = 10 ),
                     TopoMenuDef( '1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',   outputbits = 11 ),
                     TopoMenuDef( '2DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',   outputbits = 12 ),
@@ -162,7 +161,7 @@ def defineInputsMenu():
                 "fpga" : 0,
                 "clock" : 1,
                 "algorithms" : [
-                    TopoMenuDef( 'CEP-CJ50s6ETA21',                       outputbits = 0 ),
+                    TopoMenuDef( 'CEP-CJ50s6pETA21',                      outputbits = 0 ),
                     TopoMenuDef( 'CEP-CJ60s6',                            outputbits = 1 ),
                     TopoMenuDef( 'CEP-CJ50s6',                            outputbits = 2 ),
                     TopoMenuDef( '2DISAMB-J25ab-0DR25-TAU20abi-TAU12abi', outputbits = 3 ),
@@ -274,7 +273,6 @@ def defineInputsMenu():
         ]
 
     })
-
 
     muctpiBoard["MuCTPi"]["connectors"].append({
         "name" : "MuCTPiEl",

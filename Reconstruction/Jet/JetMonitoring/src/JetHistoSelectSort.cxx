@@ -10,7 +10,6 @@ JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::str
   , m_selectTool(this)
   , m_eventSelTool(this)
   , m_sortVar(this)
-  
 
 {
   declareInterface<IJetHistoFiller>(this);
@@ -19,7 +18,6 @@ JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::str
   declareProperty("Selector",m_selectTool);
   declareProperty("EventSelector",m_eventSelTool);
   declareProperty("SortVariable",m_sortVar);
-  
 }
 
 
@@ -37,6 +35,9 @@ StatusCode JetHistoSelectSort::initialize() {
   if(m_selectTool.isEnabled()){
     ATH_CHECK(m_selectTool.retrieve());
     ATH_MSG_INFO( " Selecting with "<< m_selectTool->name() );
+  }
+  if(m_inverseJetSel){
+    ATH_MSG_DEBUG( "   inverse Jet Selection will be applied" );
   }
 
   if(m_eventSelTool.isEnabled()){
@@ -73,8 +74,14 @@ StatusCode JetHistoSelectSort::processJetContainer(const JetMonitoringAlg& paren
 
   // select if needed
   if(m_selectTool.isEnabled()){
-    auto sel = [this] (const xAOD::Jet * j) {return ! m_selectTool->keep(*j) ; } ;
-    tmpList.remove_if( sel );
+    if (m_inverseJetSel) {
+      auto sel = [this] (const xAOD::Jet * j) {return  m_selectTool->keep(*j) ; } ;
+      tmpList.remove_if( sel );
+    }
+    else {
+      auto sel = [this] (const xAOD::Jet * j) {return ! m_selectTool->keep(*j) ; } ;
+      tmpList.remove_if( sel );
+    }
   }
 
   if(m_eventSelTool.isEnabled()){

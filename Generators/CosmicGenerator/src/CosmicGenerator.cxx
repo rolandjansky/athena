@@ -351,11 +351,11 @@ StatusCode CosmicGenerator::callGenerator() {
 
           if (vert_radius>m_radius) {
             phi1=atan2(vert.z(),vert.x())+M_PI;
-            float delta_phi=asin(m_radius/vert_radius);
+            float delta_phi=std::asin(m_radius/vert_radius);
             phi1=phi1+CLHEP::RandFlat::shoot(engine, -delta_phi, delta_phi);
           }
-          pp.setX(mag1*sin(theta1)*cos(phi1));
-          pp.setY(mag1*sin(theta1)*sin(phi1));
+          pp.setX(mag1*sin(theta1)*std::cos(phi1));
+          pp.setY(mag1*sin(theta1)*std::sin(phi1));
 
         } else {
           vert = generateVertex();
@@ -368,9 +368,9 @@ StatusCode CosmicGenerator::callGenerator() {
           mag1=pp.rho();
         }
 
-        CLHEP::Hep3Vector pp_corr(mag1*sin(theta1)*cos(phi1),
-                           -mag1*cos(theta1),
-                           mag1*sin(theta1)*sin(phi1));
+        CLHEP::Hep3Vector pp_corr(mag1*sin(theta1)*std::cos(phi1),
+                           -mag1*std::cos(theta1),
+                           mag1*std::sin(theta1)*std::sin(phi1));
         CLHEP::Hep3Vector direction(pp_corr.x(),pp_corr.y(), pp_corr.z());
 
         // if optimization activated, check for the direction of the generated muon
@@ -378,7 +378,7 @@ StatusCode CosmicGenerator::callGenerator() {
 
           CLHEP::Hep3Vector center_dir=m_center-vert3;
           double beta=direction.angle(center_dir);
-          double alpha=asin(m_radius/center_dir.r());
+          double alpha=std::asin(m_radius/center_dir.r());
 
           if(std::abs(beta)<alpha) {
 
@@ -525,9 +525,9 @@ StatusCode CosmicGenerator::callGenerator() {
       // m_pdgCode.push_back(charge*13);
       m_pdgCode.push_back(charge*-13);
 
-      const HepPDT::ParticleData* particle = particleData(abs(m_pdgCode.back()));
+      const HepPDT::ParticleData* particle = particleData(std::abs(m_pdgCode.back()));
       if (particle==nullptr){
-        ATH_MSG_FATAL( "Particle with PDG ID=" << abs(m_pdgCode.back()) << " returned a nullptr" );
+        ATH_MSG_FATAL( "Particle with PDG ID=" << std::abs(m_pdgCode.back()) << " returned a nullptr" );
         return StatusCode::FAILURE;
       }
 
@@ -728,13 +728,13 @@ bool CosmicGenerator::exzCut(const CLHEP::Hep3Vector& pos,const CLHEP::HepLorent
         double r =0;
         bool cut = false;
         if(pos.z()<0){
-          r = sqrt((pow(pos.x(),2)+pow(pos.z()+28000,2))) ; //FIXME Hardcoded values!
+          r = std::sqrt((std::pow(pos.x(),2)+std::pow(pos.z()+28000,2))) ; //FIXME Hardcoded values!
           double e = 0.45238*r+5000 ;  //FIXME Hardcoded values!
           cut = p.e()*m_GeV>e;
         }
         else
         {
-          r = sqrt((pow(pos.x(),2)+pow(pos.z()-20000,2))) ; //FIXME Hardcoded values!
+          r = std::sqrt((std::pow(pos.x(),2)+std::pow(pos.z()-20000,2))) ; //FIXME Hardcoded values!
           if(r<15000) { //FIXME Hardcoded values!
             cut = true;
           } else
@@ -767,10 +767,10 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
 
   // direction of trajectory
   // x=x0 - t sinth cosphi; y=y0 + t costh; z=z0 - t sinth sinphi
-  double cosphi = cos(phi);
-  double sinphi = sin(phi);
-  double costh = cos(theta);
-  double sinth = sin(theta);
+  double cosphi = std::cos(phi);
+  double sinphi = std::sin(phi);
+  double costh = std::cos(theta);
+  double sinth = std::sin(theta);
 
   double y0 = m_ysurface;
   double t = (ygen-y0)/costh;
@@ -787,8 +787,8 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
   if (min_dist14<p14_radius) {
 
     // z values at intersections
-    double z_plus14  = -cosphi*z_mid14+sinphi*sqrt(pow(p14_radius,2.)-pow(z_mid14,2.)) + p14_z;
-    double z_minus14 = -cosphi*z_mid14-sinphi*sqrt(pow(p14_radius,2.)-pow(z_mid14,2.)) + p14_z;
+    double z_plus14  = -cosphi*z_mid14+sinphi*std::sqrt(std::pow(p14_radius,2.)-std::pow(z_mid14,2.)) + p14_z;
+    double z_minus14 = -cosphi*z_mid14-sinphi*std::sqrt(std::pow(p14_radius,2.)-std::pow(z_mid14,2.)) + p14_z;
 
     // y values at intersections
     double y_plus14  = y0-costh*(z_plus14-z0)/sinth/sinphi;
@@ -811,8 +811,8 @@ double CosmicGenerator::pathLengthInRock(double xgen, double ygen, double zgen, 
   if (min_dist16<p16_radius) {
 
     // z values at intersections
-    double z_plus16  = -cosphi*z_mid16+sinphi*sqrt(pow(p16_radius,2.)-pow(z_mid16,2.)) + p16_z;
-    double z_minus16 = -cosphi*z_mid16-sinphi*sqrt(pow(p16_radius,2.)-pow(z_mid16,2.)) + p16_z;
+    double z_plus16  = -cosphi*z_mid16+sinphi*std::sqrt(std::pow(p16_radius,2.)-std::pow(z_mid16,2.)) + p16_z;
+    double z_minus16 = -cosphi*z_mid16-sinphi*std::sqrt(std::pow(p16_radius,2.)-std::pow(z_mid16,2.)) + p16_z;
 
     // determine y values at intersections
     double y_plus16  = y0-costh*(z_plus16-z0)/sinth/sinphi;
@@ -840,10 +840,10 @@ bool CosmicGenerator::pointsAtPixels(double xgen, double ygen, double zgen, doub
 
   // direction of trajectory
   // x=xgen+ t sinth cosphi; y=ygen+t costh; z=zgen+t sinth sinphi
-  double cosphi = cos(phi);
-  double sinphi = sin(phi);
-  double costh = cos(theta);
-  double sinth = sin(theta);
+  double cosphi = std::cos(phi);
+  double sinphi = std::sin(phi);
+  double costh = std::cos(theta);
+  double sinth = std::sin(theta);
   double t = ygen/costh;  //for parameterized trajectory
   double x_pos = xgen + t*sinth*cosphi; //x position at y=0
   double z_pos = zgen + t*sinth*sinphi; //z position at y=0

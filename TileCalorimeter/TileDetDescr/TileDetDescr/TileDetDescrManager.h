@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TileDetDescrManager_h
-#define TileDetDescrManager_h 1
+#ifndef TILEDETDESCR_TILEDETDESCRMANAGER_H
+#define TILEDETDESCR_TILEDETDESCRMANAGER_H
 
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "Identifier/IdentifierHash.h"
@@ -13,8 +13,7 @@
 #include <vector>
 #include <map>
 #include <cmath>
-
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 class TileDddbManager;
 class TileDetDescrRegion;
@@ -26,7 +25,7 @@ class CaloDetDescrElement;
 class TileCellDim;
 class MsgStream;
 
-typedef boost::shared_ptr<TileDddbManager> TileDddbManager_ptr;
+typedef std::shared_ptr<TileDddbManager> TileDddbManager_ptr;
 
 class TileDetDescrManager : public GeoVDetectorManager
 {

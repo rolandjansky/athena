@@ -28,7 +28,7 @@ done
 
 #Check if we got a top-level script 
 #Improve: Check if there is exactly one!
-if [ -z ${topscriptfile} ]
+if [ -z "$topscriptfile" ]
     then
     echo "ERROR: No top-level python script given"
     exit 1
@@ -60,7 +60,7 @@ do
 done
 
 
-if [[ -z $topscript  ]];
+if [ -z "$topscript" ];
     then
     echo "Could not find python script $topscriptfile"
     exit 1
@@ -68,6 +68,7 @@ fi
 
 #Finally: Execute it! 
 python $topscript $scriptargs
-
-
-
+status=$?
+if [ ! $status -eq 0 ]; then
+    exit $status
+fi

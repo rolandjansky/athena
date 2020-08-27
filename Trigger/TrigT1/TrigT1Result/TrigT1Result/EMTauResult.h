@@ -26,7 +26,7 @@ namespace ROIB {
 
   public:
     /* Constructor with header, trailer and RoI vector */
-    EMTauResult( const Header&, const Trailer&, const std::vector< EMTauRoI >& );
+    EMTauResult( Header&&, Trailer&&, std::vector< EMTauRoI >&& );
     /* Default constructor */
     EMTauResult();
     ~EMTauResult();

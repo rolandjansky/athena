@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace Amg {
   }
 
 
-  inline std::string toString( const MatrixX& matrix, int precision = 4, std::string offset="" ){
+  inline std::string toString( const MatrixX& matrix, int precision = 4, const std::string& offset="" ){
       std::ostringstream sout;
 
       sout << std::setiosflags(std::ios::fixed) << std::setprecision(precision);
@@ -72,7 +72,7 @@ namespace Amg {
   }
 
 #ifndef XAOD_STANDALONE
-  inline std::string toString( const CLHEP::HepGenMatrix& matrix, int precision = 4, std::string offset="" ){
+  inline std::string toString( const CLHEP::HepGenMatrix& matrix, int precision = 4, const std::string& offset="" ){
     std::ostringstream sout;
 
     sout << std::setiosflags(std::ios::fixed) << std::setprecision(precision);

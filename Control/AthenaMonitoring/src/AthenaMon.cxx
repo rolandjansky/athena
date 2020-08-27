@@ -17,7 +17,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "AthenaMonitoring/AthenaMon.h"
+#include "AthenaMon.h"
 
 class ISvcLocator;
 // class AlgFactory;

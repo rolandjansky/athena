@@ -18,7 +18,7 @@
 #include <set>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"
@@ -201,7 +201,7 @@ INav4MomDumper::dump( const std::string& collName )
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void INav4MomDumper::setupOutputStream( Property& /*outputStreamName*/ )
+void INav4MomDumper::setupOutputStream( Gaudi::Details::PropertyBase& /*outputStreamName*/ )
 {
   // reset internal state
   if ( m_outputStream && 

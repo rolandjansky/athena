@@ -25,7 +25,7 @@
 #include <fcntl.h>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // SGTools
 #include "SGTools/BuiltinsClids.h"  // to put ints,... in evtstore

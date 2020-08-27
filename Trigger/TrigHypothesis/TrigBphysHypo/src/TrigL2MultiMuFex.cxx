@@ -14,10 +14,6 @@
 
 #include "TrigL2MultiMuFex.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
-
-
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
@@ -107,16 +103,12 @@ TrigL2MultiMuFex::TrigL2MultiMuFex(const std::string & name, ISvcLocator* pSvcLo
 
   // Initialize the collections
   m_trigBphysColl = NULL;
-  //m_VertexColl    = NULL;
 }
 
 /*------------------------------*/
 TrigL2MultiMuFex::~TrigL2MultiMuFex()
 /*------------------------------*/
 {
-  // TODO: Delete the collections ?
-  //delete m_trigBphysColl;
-  //delete m_VertexColl;
 }
 
 /*-------------------------------------------*/
@@ -235,19 +227,7 @@ HLT::ErrorCode TrigL2MultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pa
   // Processing timers
   if ( timerSvc() ) m_BmmHypTot->start();
 
-    // Retrieve event info
-    //    int IdRun   = 0;
-    //    int IdEvent = 0;
-    //    // event info
-    //    uint32_t runNumber(0), evtNumber(0), lbBlock(0);
-    //    if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-    //        ATH_MSG_ERROR("Error retriving EventInfo" );
-    //    }
-    //    IdRun = runNumber;
-    //    IdEvent = evtNumber;
-
-
-    
+  
   // Check consistency of the number of input Trigger Elements
   if (m_checkNinputTE && inputTE.size() != m_NInputMuon ) {
     ATH_MSG_ERROR("Got wrong number of input TEs, expect " << m_NInputMuon << " got " << inputTE.size() );
@@ -272,7 +252,6 @@ HLT::ErrorCode TrigL2MultiMuFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigg
 {
     ATH_MSG_DEBUG(" In hltExecute " );
 
-    //  m_trigBphysColl = new TrigL2BphysContainer();
     m_trigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     m_trigBphysColl->setStore(&xAODTrigBphysAuxColl);
@@ -316,10 +295,6 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
       const HLT::TriggerElement* te1 = inputTE[0];
       const HLT::TriggerElement* te2 = inputTE[1];
       const HLT::TriggerElement* te3 = inputTE[2];
-
-    //      const CombinedMuonFeature *muon1;
-    //      const CombinedMuonFeature *muon2;
-    //      const CombinedMuonFeature *muon3;
 
     
     //if(getFeature(te1,muon1)!= HLT::OK) {
@@ -444,19 +419,6 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
       m_mon_MutrkPhi.push_back( (*ELidtrack1)->phi0() );
       m_mon_MutrkPhi.push_back( (*ELidtrack2)->phi0() );
       m_mon_MutrkPhi.push_back( (*ELidtrack3)->phi0() );
-
-    // simple lambda to help print out information, without tedious typing
-    /*
-    auto dumpinfo = [this] (const xAOD::L2CombinedMuon* muon) {
-        this->msg() << "pt=" << muon->pt()*muon->charge() << " trkAddr=" << muon->idTrack() << " Trk:Track=" << muon->idTrack()->track()
-    };
-    if (msgLvl() <= MSG::DEBUG ) {
-        ATH_MSG_DEBUG("1st CombinedMuonFeature " << dumpinfo(muon1) );
-        ATH_MSG_DEBUG("2st CombinedMuonFeature " << dumpinfo(muon2) );
-        ATH_MSG_DEBUG("3st CombinedMuonFeature " << dumpinfo(muon3) );
-    } // if debug
-    */
- 
 
     if (m_NMassMuon ==2) {   // check mass of opposite sign muon pairs
         

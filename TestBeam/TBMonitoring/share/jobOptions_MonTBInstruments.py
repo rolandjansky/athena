@@ -8,7 +8,7 @@
 include( "TBCnv/TBReadH8BS_jobOptions.py") 
 
 #---- Reconstruct Beam Instrumentation ------------------------
-theApp.DLLs+=["TBRec"]
+theApp.Dlls+=["TBRec"]
 #--- BPCs
 theApp.TopAlg += ["TBBPCRec/TBBPCRec"]
 TBBPCRec =  Algorithm("TBBPCRec")

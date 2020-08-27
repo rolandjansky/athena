@@ -12,7 +12,7 @@
 //--------------------------------------------------------------
 
 //load relevant libraries
-ApplicationMgr.DLLs += { "AthExStoreGateExample" };
+ApplicationMgr.Dlls += { "AthExStoreGateExample" };
 
 //top algorithms to be run
 ApplicationMgr.TopAlg = { "WriteData", "ReadData" };

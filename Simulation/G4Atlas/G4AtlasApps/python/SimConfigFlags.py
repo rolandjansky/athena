@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
@@ -77,9 +77,10 @@ def createSimConfigFlags():
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
-    scf.addFlag("Sim.ISF.HITSMergingRequired", True)
+    scf.addFlag("Sim.ISF.HITSMergingRequired", {'ID':True, 'CALO':True, 'MUON':True})
     scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
+    scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
 
     scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
@@ -95,5 +96,15 @@ def createSimConfigFlags():
     scf.addFlag("Sim.FastChain.PUWeights_lar_hec", [1.0]) # LAr HEC
     scf.addFlag("Sim.FastChain.PUWeights_lar_bapre", [1.0]) # LAr Barrel presampler
     scf.addFlag("Sim.FastChain.PUWeights_tile", [1.0]) # Tile
+    
+    # Fatras
+    scf.addFlag("Sim.Fatras.RandomStreamName", "FatrasRnd")
+    scf.addFlag("Sim.Fatras.G4RandomStreamName", "FatrasG4")
+    scf.addFlag("Sim.Fatras.TrkExRandomStreamName", "TrkExRnd")
+    # Fatras fine tuning
+    scf.addFlag("Sim.Fatras.MomCutOffSec", 50.) # common momentum cut-off for secondaries
+    scf.addFlag("Sim.Fatras.HadronIntProb", 1.) # hadronic interaction scale factor
+    scf.addFlag("Sim.Fatras.GaussianMixtureModel", True) # use Gaussian mixture model for Multiple Scattering
+    scf.addFlag("Sim.Fatras.BetheHeitlerScale", 1.) # scale to Bethe-Heitler contribution
 
     return scf

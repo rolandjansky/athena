@@ -240,13 +240,6 @@ private:
   /** switch to deactivate Pixel info init */
   Gaudi::Property<bool> m_pixelExists{ this, "PixelExists", true, "" };
   
-  /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
-  /** switch to deactivate Pixel info init */
-  Gaudi::Property<bool> m_TRTdEdx_DivideByL{ this, "TRTdEdx_DivideByL", true, "" };
-  /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
-  Gaudi::Property<bool> m_TRTdEdx_useHThits{ this, "TRTdEdx_useHThits", true, "" };
-  /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
-  Gaudi::Property<bool> m_TRTdEdx_corrected{ this, "TRTdEdx_corrected", true, "" };
   /** Only compute TRT dE/dx if there are at least this number of TRT hits or outliers.*/
   Gaudi::Property<int> m_minTRThitsForTRTdEdx{ this, "minTRThitsForTRTdEdx", 1, "" };
 

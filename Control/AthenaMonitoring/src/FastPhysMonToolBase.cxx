@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaMonitoring/FastPhysMonToolBase.h"
+#include "FastPhysMonToolBase.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "EventInfo/EventInfo.h"

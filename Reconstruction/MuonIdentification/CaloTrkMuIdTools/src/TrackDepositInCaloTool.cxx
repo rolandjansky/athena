@@ -52,11 +52,6 @@ TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const s
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Destructor
-///////////////////////////////////////////////////////////////////////////////
-TrackDepositInCaloTool::~TrackDepositInCaloTool(){}
-
-///////////////////////////////////////////////////////////////////////////////
 // Initialize
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode TrackDepositInCaloTool::initialize() {
@@ -65,15 +60,6 @@ StatusCode TrackDepositInCaloTool::initialize() {
     ATH_MSG_FATAL("AlgTool couldn't be initialized!");
     return StatusCode::FAILURE;
   } 
-  
-  if ( detStore()->retrieve(m_caloDDM).isFailure() ) {
-    ATH_MSG_WARNING("Unable to retrieve CaloDetDescrManager from DetectorStore. Calling the CaloDetDescrManager::instance() method");
-    m_caloDDM = CaloDetDescrManager::instance();
-  }
-  if ( !m_caloDDM ) {
-    ATH_MSG_ERROR("Unfortunately that did not succeed. Sending StatusCode::FAILURE");
-    return StatusCode::FAILURE;
-  }
   
   if ( detStore()->retrieve(m_tileDDM).isFailure() ) {
     ATH_MSG_ERROR("Could not retrieve TileDetDescrManager from DetectorStore!");
@@ -96,11 +82,6 @@ StatusCode TrackDepositInCaloTool::initialize() {
     }
   }
   
-  if ( initializeDetectorInfo().isFailure() ) {
-    ATH_MSG_ERROR("Could not initialize detector info.");
-    return StatusCode::FAILURE;
-  }
-
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_caloExtensionTool.retrieve()   );
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
@@ -109,20 +90,6 @@ StatusCode TrackDepositInCaloTool::initialize() {
   return StatusCode::SUCCESS;
 
 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Finalize
-///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::finalize() {
-
-  if (AlgTool::finalize().isFailure()) {
-    ATH_MSG_ERROR("AlgTool couldn't be finalized()!");
-    return StatusCode::FAILURE;
-  } 
-  
-  ATH_MSG_INFO("finalize() successful in " << name());
-  return StatusCode::SUCCESS;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -375,6 +342,12 @@ std::vector<const CaloCell*>* TrackDepositInCaloTool::getCaloCellsForTile(const 
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
   CaloCell_ID::CaloSample sample = descr->getSampling();
+
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if ( !m_caloDDM ) {
+    StatusCode sc = detStore()->retrieve( m_caloDDM );
+    if ( !sc.isSuccess() ) return result;
+  }
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -878,7 +851,9 @@ double TrackDepositInCaloTool::calcEnergy(const Trk::TrackParameters* par, const
 ///////////////////////////////////////////////////////////////////////////////
 // initializeDetectorInfo()
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode TrackDepositInCaloTool::initializeDetectorInfo() {
+StatusCode TrackDepositInCaloTool::initializeDetectorInfo() const {
+
+  if ( !m_caloDDM ) ATH_CHECK( detStore()->retrieve( m_caloDDM ) );
 
   ATH_MSG_DEBUG("In CaloTrkMuIdDetStore::initialize()");
   // Initialize LAr
@@ -1003,6 +978,11 @@ Amg::Vector3D* TrackDepositInCaloTool::extrapolateZ(const Amg::Vector3D& initial
 // getTraversedLayers
 ///////////////////////////////////////////////////////////////////////////////
 StatusCode TrackDepositInCaloTool::getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo , std::vector<Amg::Vector3D>& extrapolations) const {
+
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  StatusCode sc = StatusCode::SUCCESS;
+  std::call_once( m_initializeOnce, [this, &sc](){ sc = initializeDetectorInfo(); } );
+  if ( !sc.isSuccess() ) return sc;
 
   const Trk::TrackParameters* parAtSolenoid = 0;
   // --- To be replaced by a check, possibly extrapolating to solenoid surface if needed ---
@@ -1182,6 +1162,12 @@ that is closest to the track.
 ///////////////////////////////////////////////////////////////////////////////
 const CaloCell* TrackDepositInCaloTool::getClosestCellLAr(const Trk::TrackParameters* par, const CaloDetDescriptor* descr, const CaloCellContainer* caloCellCont) const {
 
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if ( !m_caloDDM ) {
+    StatusCode sc = detStore()->retrieve( m_caloDDM );
+    if ( !sc.isSuccess() ) return 0;
+  }
+
   CaloCell_ID::CaloSample sample = descr->getSampling();
   // ATH_MSG_INFO("Sampling = " << sample);
   const CaloDetDescrElement* cellDescr = m_caloDDM->get_element(sample, par->position().eta(), par->position().phi());
@@ -1214,6 +1200,12 @@ const CaloCell* TrackDepositInCaloTool::getClosestCellTile(const Trk::TrackParam
   double phiMax       = phiPar+phiWidth;
   // --- Fill vecHash ---
   CaloCell_ID::CaloSample sample = descr->getSampling();
+
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if ( !m_caloDDM ) {
+    StatusCode sc = detStore()->retrieve( m_caloDDM );
+    if ( !sc.isSuccess() ) return result;
+  }
 
   std::vector<IdentifierHash> vecHash;
   m_caloDDM->cellsInZone(etaMin, etaMax, phiMin, phiMax, sample, vecHash);
@@ -1416,6 +1408,12 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::deposits( const Trk::Track* t
 }
 
 void TrackDepositInCaloTool::showNeighbours(const CaloCell* cell) const {
+
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if ( !m_caloDDM ) {
+    StatusCode sc = detStore()->retrieve( m_caloDDM );
+    if ( !sc.isSuccess() ) return;
+  }
 
   // --- Get helper class for finding neighbours ---
   const CaloCell_ID* cellId = m_caloDDM->getCaloCell_ID();

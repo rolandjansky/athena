@@ -445,6 +445,7 @@ class SelectSpec(ToolSpec):
             args['Selector'] = selSpec
 
 
+
         self.name = selname
         self.path = path
         ConfigDict.__init__(self, **args)
@@ -460,7 +461,7 @@ class SelectSpec(ToolSpec):
         from AthenaConfiguration.ComponentFactory import CompFactory
         # conf = self.clone(self.name)
         # name = conf.pop('name')
-        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1))
+        selTool = CompFactory.JetHistoSelectSort(self.name, SelectedIndex=self.get('SelectedIndex',-1), InverseJetSel=self.get('InverseJetSel',False))
         if hasattr(self,'Selector'):
             self.Selector.topLevelDir = self.topLevelDir
             self.Selector.bottomLevelDir = self.bottomLevelDir

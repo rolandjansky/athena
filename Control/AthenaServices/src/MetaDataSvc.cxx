@@ -146,9 +146,9 @@ StatusCode MetaDataSvc::initialize() {
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
-      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
+      const std::vector<const Gaudi::Details::PropertyBase*>* evtselProps = joSvc->getProperties("EventSelector");
       if (evtselProps != nullptr) {
-         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
+         for (std::vector<const Gaudi::Details::PropertyBase*>::const_iterator iter = evtselProps->begin(),
                          last = evtselProps->end(); iter != last; iter++) {
             if ((*iter)->name() == "InputCollections") {
                // Get EventSelector to force in-time initialization and FirstInputFile incident

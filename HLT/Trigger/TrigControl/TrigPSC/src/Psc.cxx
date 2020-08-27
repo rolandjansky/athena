@@ -33,7 +33,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
 #include <sstream>
@@ -506,14 +506,18 @@ bool psc::Psc::prepareForRun (const ptree& args)
   {
     ERS_PSC_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump()
                   << "\" - " << e.what())
-
     return false;
   }
   catch(const ptree_bad_data & e)
   {
     ERS_PSC_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - "
                   << e.what())
+    return false;
+  }
 
+  // Initializations needed for start()
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>([&args](ITrigEventLoopMgr* mgr) {return mgr->prepareForStart(args);},
+                                            "prepareForStart").isSuccess()) {
     return false;
   }
 
@@ -539,9 +543,7 @@ bool psc::Psc::prepareForRun (const ptree& args)
     }
     return ret;
   };
-  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
-  {
-    ERS_PSC_ERROR("Error preparing the EventLoopMgr");
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess()) {
     return false;
   }
 
@@ -559,7 +561,6 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
 
   if(!callOnEventLoopMgr<IService>(&IService::sysStop, "sysStop").isSuccess())
   {
-    ERS_PSC_ERROR("Error stopping the EventLoopManager");
     return false;
   }
 
@@ -737,7 +738,6 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
              {return mgr->hltUpdateAfterFork(args);};
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(upd, "hltUpdateAfterFork").isSuccess())
   {
-    ERS_PSC_ERROR("Error updating EventLoopMgr after fork");
     return false;
   }
 

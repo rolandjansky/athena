@@ -3,7 +3,7 @@
 #=======================================================================
 # File:   ParticleBuilderOptions/python/AODFlags.py
 #=======================================================================
-""" AOD Building specific flags and job properties.  
+""" AOD Building specific flags and job properties.
 
 """
 
@@ -41,7 +41,7 @@ class Electron(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class egammaTrackSlimmer(JobProperty):
     """ If True, add egammaTrackSlimmer
     """
@@ -55,7 +55,7 @@ class AddEgammaMuonTracksInAOD(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
 
 class AddEgammaTracksInMCAOD(JobProperty):
@@ -86,7 +86,7 @@ class ThinNegativeEnergyNeutralPFOs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-   
+
 class ThinInDetForwardTrackParticles(JobProperty):
     """ If True, add ThinInDetForwardTrackParticles
     """
@@ -94,21 +94,21 @@ class ThinInDetForwardTrackParticles(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
- 
+
 class Muon(JobProperty):
     """ If True, add Muon
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class Tau(JobProperty):
     """ If True, add Tau
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class TrackParticleSlimmer(JobProperty):
     """ If True, add TrackParticleSlimmer which slims last hit
     """
@@ -129,7 +129,7 @@ class ParticleJet(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class JetTag(JobProperty):
     """ If True, add JetTag
     """
@@ -137,28 +137,28 @@ class JetTag(JobProperty):
     allowedTypes=['bool']
     # disable jet tagging since done at rdo->esd
     StoredValue=False
-    
+
 class SpclMC(JobProperty):
     """ If True, add SpclMC
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class TruthParticleJet(JobProperty):
     """ If True, add TruthParticleJet
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class Trigger(JobProperty):
     """ If True, add Trigger
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class Streaming(JobProperty):
     """ If True, add Streaming
     """
@@ -174,7 +174,7 @@ class TauRec(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    
+
 class Tau1p3p(JobProperty):
     """ If True, add Tau1p3p
     """
@@ -182,14 +182,14 @@ class Tau1p3p(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-# Fast Simulation AOD Builder    
+# Fast Simulation AOD Builder
 class FastSimulation(JobProperty):
     """ If True, add FastSimulation
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
-    
+
 class MissingEtTruth(JobProperty):
     """ If True, add Streaming
     """
@@ -198,7 +198,7 @@ class MissingEtTruth(JobProperty):
     # disable MissingEtTruth.
     # should be ON only if fasst AOD produced in standalone mode
     StoredValue=False
-    
+
 class FastTrackParticle(JobProperty):
     """ If True, add Streaming
     """
@@ -221,12 +221,12 @@ class McEventKeyStr(JobProperty):
 class AODFlagsContainer(JobPropertyContainer):
     """ The AOD building flag/job propertycontainer.
     """
-    
+
     JobProperty._log.info("AODFlags:: now uses JobProperty mechanisms")
 
     # Key member for McEventCollection, but overloaded by McEventKeyStr
     # via __getattribute__ and __setattr__ methods : see bellow
-    
+
     McEventKey="DummyStringValue"
 
     def __getattribute__(self, name):
@@ -282,13 +282,13 @@ class AODFlagsContainer(JobPropertyContainer):
     def fastSetOn(self):
         self._log.info("AODFlags:: using fastSetOn method. Is it usefull ?")
         self.FastSimulation.set_Value(True)
-        self.MissingEtTruth.set_Value(True)        
+        self.MissingEtTruth.set_Value(True)
         self.FastTrackParticle.set_Value(True)
-            
-# add the aod flags container to the top container 
+
+# add the aod flags container to the top container
 jobproperties.add_Container(AODFlagsContainer)
 
-# I want always the following flags in the AOD container  
+# I want always the following flags in the AOD container
 _list_AOD=[ \
     Photon,Electron,egammaTrackSlimmer, \
     AddEgammaMuonTracksInAOD, \
@@ -307,7 +307,7 @@ _list_AOD=[ \
     FastSimulation,MissingEtTruth,FastTrackParticle, \
     McEventKeyStr ]
 
-for j in _list_AOD: 
+for j in _list_AOD:
     jobproperties.AODFlagsContainer.add_JobProperty(j)
 del _list_AOD
 

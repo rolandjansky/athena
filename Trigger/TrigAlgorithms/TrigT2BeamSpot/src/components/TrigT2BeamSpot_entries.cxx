@@ -1,4 +1,3 @@
-#include "TrigT2BeamSpot/IT2VertexBeamSpotTool.h"
 #include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
 #include "TrigT2BeamSpot/T2VertexBeamSpot.h"
 

@@ -6,7 +6,7 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 from copy import deepcopy
-
+import re
 
 def mergeChainDefs(listOfChainDefs, chainDict):
 
@@ -52,11 +52,10 @@ def mergeParallel(chainDefList, offset):
         from itertools import izip_longest as zip_longest
     # Use zip_longest so that we get None in case one chain has more steps than the other
     orderedSteps = list(zip_longest(*allSteps))
-    myOrderedSteps = deepcopy(orderedSteps)
 
     combChainSteps =[]
-    log.debug("len(myOrderedSteps): %d", len(myOrderedSteps))
-    for step_index, steps in enumerate(myOrderedSteps):        
+    log.debug("len(orderedSteps): %d", len(orderedSteps))
+    for step_index, steps in enumerate(orderedSteps):
         mySteps = list(steps)
         log.debug("Merging step counter %d", step_index+1)
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)
@@ -64,14 +63,18 @@ def mergeParallel(chainDefList, offset):
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.info("Parallel merged chain %s with these steps:", chainName)
+    log.debug("Parallel merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
-        log.info('\n   %s', step)
+        log.debug('\n   %s', step)
 
     return combinedChainDef
 
 def getEmptySeqName(stepName, chain_index, step_number):
-    seqName = stepName  +  '_leg' + str(chain_index) + '_EmptySeqStep' + str(step_number)
+    #remove redundant instances of StepN
+    if re.search('^Step[0-9]_',stepName):
+        stepName = stepName[6:]
+
+    seqName = 'EmptySeq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
     return seqName
 
 
@@ -84,19 +87,19 @@ def serial_zip(allSteps, chainName):
     newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
         for step_index, step in enumerate(chainsteps):
-            log.info('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
+            log.debug('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
             # create list of correct length
             stepList = [None]*n_chains
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
-            log.info('Put step: ' + str(step.name))
+            log.debug('Put step: ' + str(step.name))
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
                     seqName = getEmptySeqName(step.name, chain_index, step_index+1)
-                    emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
+                    emptySeq =  RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
                     stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)            
             
             newsteps.append(stepList)
@@ -111,8 +114,8 @@ def mergeSerial(chainDefList):
     chainName = ''
     l1Thresholds = []
 
-    log.info('Merge chainDefList:')
-    log.info(chainDefList)
+    log.debug('Merge chainDefList:')
+    log.debug(chainDefList)
 
     for cConfig in chainDefList:
         if chainName == '':
@@ -141,17 +144,16 @@ def mergeSerial(chainDefList):
                                   
     combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
 
-    log.info("Serial merged chain %s with these steps:", chainName)
+    log.debug("Serial merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
-        log.info('   %s', step)
+        log.debug('   %s', step)
 
     return combinedChainDef
 
 
 def makeCombinedStep(steps, stepNumber, chainDefList):
-    from copy import deepcopy
     from TrigCompositeUtils.TrigCompositeUtils import legName
-    stepName = 'merged_Step' + str(stepNumber)
+    stepName = 'merged' #we will renumber all steps after chains are aligned #Step' + str(stepNumber)
     stepSeq = []
     stepMult = []
     log.verbose(" steps %s ", steps)
@@ -165,25 +167,30 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
     for chain_index, step in enumerate(steps):
         if step is None:
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
-            currentStep = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
-            seqName = getEmptySeqName(currentStep, chain_index, stepNumber)
-            log.info("  step %s,  empty sequence %s", currentStep, seqName)
+            currentStepName = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
+            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
+            log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
+
+
             stepSeq.append(emptySeq)
             stepMult.append(1)
             # we need a chain dict here, use the one corresponding to this leg of the chain
             stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].chainDicts[-1]))
         else:
             # Standard step, append it to the combined step
-            log.info("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
+            log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
             if len(step.sequences):
-                log.info("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
+                log.debug("      with sequences = %s", ' '.join(map(str, [seq.name for seq in step.sequences])))
 
             # this function only works if the input chains are single-object chains (one menu seuqnce)
             if len(step.sequences) > 1:
                 log.error("More than one menu sequence found in combined chain!!")
             comboHypo = step.comboHypoCfg
-            currentStep = step.name
+            currentStepName = step.name
+            #remove redundant instances of StepN_
+            if re.search('^Step[0-9]_',currentStepName):
+                currentStepName = currentStepName[6:]
 
             if len(step.sequences):
                 seq = step.sequences[0]
@@ -193,10 +200,10 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             comboHypoTools.extend(step.comboToolConfs)
             # update the chain dict list for the combined step with the chain dict from this step
             stepDicts += deepcopy(step.chainDicts)
- 
-        # the step naming for combined chains needs to be revisted!!
-        stepName += '_' + currentStep
 
+
+        # the step naming for combined chains needs to be revisted!!
+        stepName += '_' + currentStepName
         # for merged steps, we need to update the name to add the leg name
         stepDicts[-1]['chainName'] = legName(stepDicts[-1]['chainName'], chain_index)
         

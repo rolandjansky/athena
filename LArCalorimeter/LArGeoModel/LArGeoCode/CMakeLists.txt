@@ -1,6 +1,4 @@
-################################################################################
-# Package: LArGeoCode
-################################################################################
+#Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArGeoCode )

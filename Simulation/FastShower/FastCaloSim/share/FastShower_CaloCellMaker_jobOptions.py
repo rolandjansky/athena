@@ -50,6 +50,6 @@ CaloCellMakerFS.CaloCellMakerToolNames += ["CaloCellContainerCheckerTool"]
 
 # if necessary finalize and check the compactified/decompactified tool
 if CaloCellMakerFlags.doCompactCellInAddition or CaloCellMakerFlags.doCompactCellInstead:
-    theApp.DLLs+= ["CaloTools"]
+    theApp.Dlls+= ["CaloTools"]
     CaloCellMakerFS.CaloCompactCellMakerToolNames += ["CaloCellContainerFinalizerTool"]
     CaloCellMakerFS.CaloCompactCellMakerToolNames += ["CaloCellContainerCheckerTool"] 

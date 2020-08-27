@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -152,25 +152,25 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 //  if (m_outputlevel <=0) m_log << MSG::DEBUG << "VATO-7777 : entered "
 //                               << "DNA_Adjust, dir = " << direction << endmsg;
 
-  if ( predPar==NULL || updatedPar == NULL || fittableMeasurement == NULL) {
+  if ( predPar==nullptr || updatedPar == nullptr || fittableMeasurement == nullptr) {
     ATH_MSG_WARNING ("Inconsistent use: inputs are NULL pointers! " <<
                      predPar << ", " << updatedPar << ", " << fittableMeasurement);
-    return 0;
+    return nullptr;
   }
   const Trk::Surface&   surf = fittableMeasurement->associatedSurface();
-  Trk::DNA_MaterialEffects* estimatedMatEffects = 0;
+  Trk::DNA_MaterialEffects* estimatedMatEffects = nullptr;
   double cut_yminmax   = matEff.aggressiveDNA() ? m_yminmax_electron    : m_yminmax_generic;
   double cut_signifmin = matEff.aggressiveDNA() ? m_signifmin_electron  : m_signifmin_generic;
   double lambdaxmin    = matEff.aggressiveDNA() ? m_lambdaxmin_electron : m_lambdaxmin_generic;
   double lambdaqop     = matEff.aggressiveDNA() ? m_lambdaqop_electron  : m_lambdaqop_generic;
 
   // Check if error matrix of start parameter and its associated layer material exist
-  const Trk::Layer* lay = updatedPar ? (updatedPar->associatedSurface()).associatedLayer() : 0;
+  const Trk::Layer* lay = updatedPar ? (updatedPar->associatedSurface()).associatedLayer() : nullptr;
   
 
   m_currentDnaStrategy = unidentifiedStrategy;
 
-  if(!updatedPar->covariance()) return 0;
+  if(!updatedPar->covariance()) return nullptr;
 
   AmgSymMatrix(5) merr(*updatedPar->covariance());
 
@@ -263,7 +263,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
                                             fittableMeasurement->localCovariance());
     if (!fitQuality0) {
       ATH_MSG_DEBUG ("chi2 calculation failed for state with measurement " << *fittableMeasurement);
-      return 0;
+      return nullptr;
     }
     chi20 = fitQuality0->chiSquared();
     dof0  = std::fabs(fitQuality0->numberDoF());
@@ -277,7 +277,7 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
       ATH_MSG_WARNING ( (qop0==0.0 ? "FPE, bad fit (qop0="
                                   : "invalid chi2 from updator (chi20=")
                         << (qop0==0.0 ? qop0 : chi20) <<"). Stop dna at this state");
-      return 0;
+      return nullptr;
     }
     double qoplimit, stepFactor = 1.0+3.0*sqrt(chi20)*sigmaqop0/std::fabs(qop0);
     if (direction == Trk::alongMomentum) {
@@ -312,18 +312,18 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
         delete updatedPar; updatedPar = clonePars1;
         // --- Extrapolate changed updatedPar and calculate chi2 for step one
         const Trk::TrackParameters* testPredPars = m_extrapolator->extrapolate( *updatedPar,  surf, direction, false, matEff.particleType() );
-        if (testPredPars == NULL) {
+        if (testPredPars == nullptr) {
           ATH_MSG_WARNING ("Test extrapolation for DNA step 1 failed");
-          return 0;
+          return nullptr;
         }
         
         // --- Find out Chi2 and dof for step 1
         const FitQualityOnSurface* fitQuality1 = m_updator->predictedStateFitQuality
           ( *testPredPars,fittableMeasurement->localParameters(),
             fittableMeasurement->localCovariance() );
-        if (fitQuality1 == NULL) {
+        if (fitQuality1 == nullptr) {
           ATH_MSG_WARNING ("fit quality calculation for DNA step 1 failed");
-          return 0;
+          return nullptr;
         }
         chi21 = fitQuality1->chiSquared();
         //dof1  = fabs(fitQuality1->numberDoF());
@@ -344,16 +344,16 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
 	
         // --- Extrapolate changed updatedPar and calculate chi2 for step two
         testPredPars = m_extrapolator->extrapolate( *updatedPar,  surf, direction, false, matEff.particleType());
-        if (testPredPars == NULL) {
+        if (testPredPars == nullptr) {
           ATH_MSG_WARNING ("Test extrapolation for DNA step 2 failed");
-          return 0;
+          return nullptr;
         }
         const FitQualityOnSurface* fitQuality2 = m_updator->predictedStateFitQuality
               ( *testPredPars, fittableMeasurement->localParameters(),
 				fittableMeasurement->localCovariance() );
-        if (fitQuality2 == NULL) {
+        if (fitQuality2 == nullptr) {
           ATH_MSG_WARNING ("fit quality calculation for DNA step 2 failed");
-          return 0;
+          return nullptr;
         }
 
         chi22 = fitQuality2->chiSquared();
@@ -563,9 +563,9 @@ const Trk::DNA_MaterialEffects* Trk::InDetDynamicNoiseAdjustment::DNA_Adjust(
     delete updatedPar; updatedPar = clonePars;
 
     const Trk::TrackParameters* testPredPars = m_extrapolator->extrapolate(*updatedPar,  surf, direction, false, matEff.particleType());
-    if (testPredPars == NULL) {
+    if (testPredPars == nullptr) {
       ATH_MSG_WARNING ("extrapolation for adjusted cov fails - should never happen!");
-      return 0;
+      return nullptr;
     }
 
     // now replace by DNA-corrected prediction (delete TPs from KF)

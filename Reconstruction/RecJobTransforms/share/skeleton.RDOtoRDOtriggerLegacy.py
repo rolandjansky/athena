@@ -140,11 +140,12 @@ if _streamRDO:
     alg = xAODMaker__TrigDecisionCnvAlg()
     alg.AODKey = "TrigDecision"
     alg.xAODKey = "xTrigDecision"
-    alg.ExtraOutputs = [('xAOD::TrigDecision','StoreGateSvc+xTrigDecision')]
     topSequence.insert(idx+1, alg)
     from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__TrigNavigationCnvAlg
     trigNavCnv = xAODMaker__TrigNavigationCnvAlg()
-    trigNavCnv.ExtraOutputs = [('xAOD::TrigNavigation','StoreGateSvc+TrigNavigation')]
+    trigNavCnv.doL2 = False
+    trigNavCnv.doEF = False
+    trigNavCnv.doHLT = True
     topSequence.insert(idx+2, trigNavCnv)
     _TriggerESDList = {}
     _TriggerAODList = {}
@@ -198,6 +199,9 @@ if _streamRDO:
     _streamRDO.ItemList +=["2927#*"]
     _streamRDO.ItemList +=["2934#*"]
     _streamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+    # Never store wildcarded legacy EventInfo
+    if "EventInfo#*" in _streamRDO.ItemList:
+        _streamRDO.ItemList.remove("EventInfo#*")
 
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr( condSeq, "LumiBlockMuWriter" ):

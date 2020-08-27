@@ -44,10 +44,10 @@ public:
     explicit Identifier32 (value_type value);
 
     /// Copy constructor
-    Identifier32 (const Identifier32& other);
+    Identifier32 (const Identifier32& other) = default;
 
     /// Assignment.
-    Identifier32& operator= (const Identifier32& other);
+    Identifier32& operator= (const Identifier32& other) = default;
 
     ///----------------------------------------------------------------
     /// Modifications
@@ -130,18 +130,6 @@ inline Identifier32::Identifier32 ()
     : m_id(max_value)
 {}
 
-//-----------------------------------------------
-inline Identifier32::Identifier32 (const Identifier32& other)
-    : m_id(other.m_id)
-{}
-
-//-----------------------------------------------
-inline Identifier32& Identifier32::operator= (const Identifier32& other)
-{
-  if (this != &other)
-    m_id = other.m_id;
-  return *this;
-}
 
 //-----------------------------------------------
 inline Identifier32::Identifier32 (value_type value)

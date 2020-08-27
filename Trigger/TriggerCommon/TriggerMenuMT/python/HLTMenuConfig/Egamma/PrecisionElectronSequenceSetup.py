@@ -12,31 +12,31 @@ from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 
 def precisionElectronSequence(ConfigFlags):
-    """ fourth step:  precision tracking....."""    
+    """ fourth step:  precision electron....."""
     InViewRoIs = "precisionElectron"
     # EVCreator:
-    precisionTrackViewsMaker = EventViewCreatorAlgorithm("IMprecisionTrack")
-    precisionTrackViewsMaker.RoIsLink = "initialRoI"
-    precisionTrackViewsMaker.RoITool = ViewCreatorInitialROITool()
-    precisionTrackViewsMaker.InViewRoIs = InViewRoIs
-    precisionTrackViewsMaker.Views = "precisionElectronViews" #precisionTrackViews
-    precisionTrackViewsMaker.ViewFallThrough = True
-    precisionTrackViewsMaker.RequireParentView = True
+    precisionElectronViewsMaker = EventViewCreatorAlgorithm("IMprecisionElectron")
+    precisionElectronViewsMaker.RoIsLink = "initialRoI"
+    precisionElectronViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionElectronViewsMaker.InViewRoIs = InViewRoIs
+    precisionElectronViewsMaker.Views = "precisionElectronViews" #precisionElectronViews
+    precisionElectronViewsMaker.ViewFallThrough = True
+    precisionElectronViewsMaker.RequireParentView = True
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
     (electronPrecisionRec, electronPrecisionTrack, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
 
     electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionTrack, electronPrecisionRec])
-    precisionTrackViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs"
+    precisionElectronViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs"
 
-    electronPrecisionAthSequence = seqAND("electronPrecisionAthSequence", [precisionTrackViewsMaker, electronPrecisionInViewAlgs ] )
-    return (electronPrecisionAthSequence, precisionTrackViewsMaker, sequenceOut)
+    electronPrecisionAthSequence = seqAND("electronPrecisionAthSequence", [precisionElectronViewsMaker, electronPrecisionInViewAlgs ] )
+    return (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut)
 
 
 def precisionElectronMenuSequence():
     # retrieve the reco seuqence+EVC
-    (electronPrecisionAthSequence, precisionTrackViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags)
+    (electronPrecisionAthSequence, precisionElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(precisionElectronSequence, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
@@ -44,10 +44,9 @@ def precisionElectronMenuSequence():
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
 
-    # from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromDict
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
 
-    return  MenuSequence( Maker       = precisionTrackViewsMaker,                                        
+    return  MenuSequence( Maker       = precisionElectronViewsMaker,
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )

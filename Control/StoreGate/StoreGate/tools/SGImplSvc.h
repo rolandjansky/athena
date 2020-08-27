@@ -23,7 +23,7 @@
 #include <GaudiKernel/IInterface.h>     // for InterfaceID
 #include <GaudiKernel/IMessageSvc.h>    // for Level
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"   /*StringArrayProperty*/
+#include "Gaudi/Property.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "GaudiKernel/DataObjID.h"
@@ -665,7 +665,7 @@ private:
   void t2pRemove(const void* const pTrans);
 
   /// callback for output level property 
-  void msg_update_handler(Property& outputLevel);
+  void msg_update_handler(Gaudi::Details::PropertyBase& outputLevel);
 
   bool associateAux_impl (SG::AuxVectorBase* ptr,
                           const std::string& key,

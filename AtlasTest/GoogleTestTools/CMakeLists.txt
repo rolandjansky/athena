@@ -1,18 +1,9 @@
-# $Id: CMakeLists.txt 744649 2016-05-03 19:33:39Z krasznaa $
-################################################################################
-# Package: GoogleTestTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GoogleTestTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthenaCommon
-  PRIVATE
-  GaudiKernel )
-
+# External package dependencies:
 find_package( GMock )
 
 # In standalone mode we just use the headers from the package. While in
@@ -36,8 +27,3 @@ atlas_add_test( GoogleTestToolsTests
   SOURCES test/gt_GoogleTestTools.cxx
   INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} 
   LINK_LIBRARIES ${GMOCK_LIBRARIES} GaudiKernel GoogleTestTools )
-
-# Install files from the package:
-# atlas_install_python_modules( python/*.py )
-# atlas_install_joboptions( share/*.py )
-# atlas_install_scripts( share/runUnitTests.sh share/post.sh )

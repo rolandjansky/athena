@@ -5,36 +5,32 @@
 #ifndef MUONCOMBINEDBASETOOLS_MUONCALOTAGTOOL_H
 #define MUONCOMBINEDBASETOOLS_MUONCALOTAGTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTrigCaloTagExtensionTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/CaloTag.h"
-
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "TrkParameters/TrackParameters.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
-
-// - NEW
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
-//
 #include "muonEvent/DepositInCalo.h"
-
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
+#include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-
 #include "StoreGate/ReadHandleKey.h"
 
-// - STL
 #include <atomic>
+#include <string>
 #include <vector>
-
 
 namespace MuonCombined {
 
@@ -64,7 +60,7 @@ namespace MuonCombined {
 
   private:
     
-    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const;
+    void createMuon(const InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
@@ -81,40 +77,41 @@ namespace MuonCombined {
     mutable std::atomic_int m_nMuonsTagged;        //!< Counts the number of truth muons tagged
     
     // --- Set up what to do and what not to do ---
-    bool m_doCaloMuonTag;               //!< run CaloMuonTag Tool
-    bool m_doCaloLR;                    //!< run CaloMuonLikelihoodTool
-    bool m_doTrkSelection;              //!< This variable should be set to false when there is no primary vertex reconstructed.
-    bool m_doCosmicTrackSelection;      //!< Apply track selection for cosmics
-    
-    // --- Debugging options ---
-    bool m_showCutFlow;                 //!< Verbose track selection and track isolation
-    bool m_doTruth;                     //!< Display truth info for each analysed track
-    bool m_debugMode;                   //!< Switch for extra printout
-    bool m_doOldExtrapolation;          //!< In doubt ? >
-    //bool m_doDressing;                  //!< This is to speed up tests where high fake rate is expected. Should be true by default
-    bool m_ignoreSiAssocated;           //!< If true, ignore InDetCandidates which are SiAssociated
-    
-    // --- Isolation cuts ---
-    double m_ptIsoPtRatioCut;           //!< Pt isolation for a .45 cone, normalized to track pt
-    double m_eIsoBarrelCut;             //!< Energy isolation for a .45 cone in Barrel
-    double m_eIsoTransitionCut;         //!< Energy isolation  for a .45 cone in Barrel-EndCap transition region
-    double m_eIsoEndCapCut;             //!< Energy isolation for a .45 cone in Endcap
-    double m_eIsoPtRatioBarrelCut;      //!< Energy isolation for a .45 cone in Barrel, normalized to track pt
-    double m_eIsoPtRatioTransitionCut;  //!< Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt
-    double m_eIsoPtRatioEndCapCut;      //!< Energy isolation for a .45 cone in Endcap, normalized to track pt
-    double m_CaloLRlikelihoodCut;       //!< CaloLR likelihood cut
-    double m_trackIsoCone;              //!< Cone size for track isolation
-    double m_energyIsoCone;             //!< Cone size for energy isolation
+    Gaudi::Property<bool> m_doCaloMuonTag {this, "doCaloMuonTag", true, "run CaloMuonTag Tool"};
+    Gaudi::Property<bool> m_doCaloMuonScore {this, "doCaloMuonScore", true, "run CaloMuonScoreTool"};
+    Gaudi::Property<bool> m_doCaloLR {this, "doCaloLR", true, "run CaloMuonLikelihoodTool"};
+    Gaudi::Property<bool> m_doTrkSelection {this, "doTrkSelection", true, "This variable should be set to false when there is no primary vertex reconstructed."};
+    Gaudi::Property<bool> m_doCosmicTrackSelection {this, "doCosmicTrackSelection", false, "Apply track selection for cosmics"};
+    Gaudi::Property<bool> m_showCutFlow {this, "ShowCutFlow", true, "Verbose track selection and track isolation"};
+    Gaudi::Property<bool> m_doTruth {this, "ShowTruth", true, "Display truth info for each analysed track"};
+    Gaudi::Property<bool> m_debugMode {this, "DebugMode", false, "Switch for extra printout"};
+    Gaudi::Property<bool> m_doOldExtrapolation {this, "doOldExtrapolation", false};
+    Gaudi::Property<bool> m_ignoreSiAssocated {this, "IgnoreSiAssociatedCandidates", true, "If true, ignore InDetCandidates which are SiAssociated"};
+
+    Gaudi::Property<double> m_ptIsoPtRatioCut {this, "TrackPtIsoPtRatioCut", 5, "Pt isolation for a .45 cone, normalized to track pt"};
+    Gaudi::Property<double> m_eIsoBarrelCut {this, "TrackEIsoBarrelCut", 15000, "Energy isolation for a .45 cone in Barrel"};
+    Gaudi::Property<double> m_eIsoTransitionCut {this, "TrackEIsoTransitionCut", 8000, "Energy isolation  for a .45 cone in Barrel-EndCap transition region"};
+    Gaudi::Property<double> m_eIsoEndCapCut {this, "TrackEIsoEndCapCut", 12000, "Energy isolation for a .45 cone in Endcap"};
+    Gaudi::Property<double> m_eIsoPtRatioBarrelCut {this, "TrackEIsoPtRatioBarrelCut", 2.5, "Energy isolation for a .45 cone in Barrel, normalized to track pt"};
+    Gaudi::Property<double> m_eIsoPtRatioTransitionCut {this, "TrackEIsoPtRatioTransitionCut", 1.25, "Energy isolation  for a .45 cone in Barrel-EndCap transition region, normalized to track pt"};
+    Gaudi::Property<double> m_eIsoPtRatioEndCapCut {this, "TrackEIsoPtRatioEndCapCut", 1.6, "Energy isolation for a .45 cone in Endcap, normalized to track pt"};
+    Gaudi::Property<double> m_CaloLRlikelihoodCut {this, "CaloLRLikelihoodCut", 0.5, "CaloLR likelihood ratio hard cut"};
+    Gaudi::Property<double> m_CaloMuonScoreCut {this, "CaloMuonScoreCut", 0.4, "Calo muon convolutional neural network output score hard cut"};
+    Gaudi::Property<double> m_trackIsoCone {this, "TrackIsoConeSize", 0.45, "Cone size for track isolation"};
+    Gaudi::Property<double> m_energyIsoCone {this, "EnergyIsoConeSize", 0.4, "Cone size for energy isolation"};
     
     // --- CaloTrkMuIdTools ---
-    ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood; //!< CaloTrkMuIdTools::CaloMuonLikelihoodTool
+    ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood{this,"CaloMuonLikelihoodTool","CaloMuonLikelihoodTool/CaloMuonLikelihoodTool"};
+    ToolHandle<ICaloMuonScoreTool>  m_caloMuonScoreTool{this, "CaloMuonScoreTool", "CaloMuonScoreTool/CaloMuonScoreTool"};
+    ServiceHandle<ICaloMuonScoreONNXRuntimeSvc>  m_caloMuonScoreONNXRuntimeSvc{this, "CaloMuonScoreONNXRuntimeSvc", "CaloMuonScoreTool/CaloMuonScoreONNXRuntimeSvc"};
+
     ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"CaloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"CaloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 
-    ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo;   //!< CaloTrkMuIdTools::TrackDepositInCaloTool
-    
+    ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo{this,"TrackDepositInCaloTool","TrackDepositInCaloTool/TrackDepositInCaloTool"};
+
     // --- External tools ---
-    ToolHandle<xAOD::ITrackIsolationTool>  m_trackIsolationTool; //!< track isolation
-    ToolHandle<Trk::ITrackSelectorTool>    m_trkSelTool;         //!<  ITrackSelectorTool
+    ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool{this,"TrackIsolationTool","xAOD::TrackIsolationTool"};
+    ToolHandle<Trk::ITrackSelectorTool>   m_trkSelTool{this,"TrackSelectorTool","InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool"};
   };
 
 }	// end of namespace

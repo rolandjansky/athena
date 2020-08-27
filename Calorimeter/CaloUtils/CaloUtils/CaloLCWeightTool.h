@@ -29,7 +29,6 @@
 #include "GaudiKernel/EventContext.h"
 
 class CaloCell_ID;
-class CaloDetDescrManager;
 class ICalorimeterNoiseTool;
 class CaloCluster;
 
@@ -94,7 +93,6 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
 
 
   const CaloCell_ID* m_calo_id;
-  const CaloDetDescrManager* m_calo_dd_man; 
   
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
 };

@@ -250,8 +250,9 @@ class TriggerConfigGetter(Configured):
             else: # Does not have xAODMeta
                 # Run-3 Trigger Configuration Services
                 from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getHLTConfigSvc
-                svcMgr += getL1ConfigSvc()
-                svcMgr += getHLTConfigSvc()
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                svcMgr += getL1ConfigSvc(ConfigFlags)
+                svcMgr += getHLTConfigSvc(ConfigFlags)
 
                 # Needed for TrigConf::xAODMenuWriterMT
                 from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc

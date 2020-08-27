@@ -17,9 +17,10 @@
 #include <cmath>
 
 namespace {
-//note: sqrt is not constexpr; although gcc might accept it, clang doesn't.
-//but cmath constants can still be used..
-constexpr double invsqrt2PI = M_2_SQRTPI/(2.*M_SQRT2);//1. / sqrt(2. * M_PI);
+constexpr double invsqrt2PI =
+  M_2_SQRTPI / (2. * M_SQRT2); // 1. / sqrt(2. * M_PI);
+
+using namespace Trk::MultiComponentStateModeCalculator;
 
 /** bried method to determine the value of the a gaussian distribution at a
  * given value */
@@ -28,15 +29,13 @@ gaus(double x, double mean, double sigma)
 {
   // gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
   // = (1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) *
-  // ((x-mean)*(1/sigma)) )  
+  // ((x-mean)*(1/sigma)) )
   //= invsqrt2PI * invertsigma * exp (-0.5 *z * z)
-  double invertsigma = 1. / sigma;
-  double z = (x - mean) * invertsigma;
-  double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
-  return result;
+  const double invertsigma = 1. / sigma;
+  const double z = (x - mean) * invertsigma;
+  return (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
 }
 
-using namespace Trk::MultiComponentStateModeCalculator;
 /** @brief method to determine the pdf of the cashed mixture at a given value*/
 double
 pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
@@ -94,7 +93,8 @@ width(int i, const std::array<std::vector<Component>, 5>& mixture)
   return pdf;
 }
 
-}
+}//end of anonymous namespace
+
 
 std::array<double, 10>
 Trk::MultiComponentStateModeCalculator::calculateMode(
@@ -169,7 +169,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
       }
       // Ensure that phi is between -pi and pi
       if (i == 2) {
-        modes[i] = CxxUtils::wrapToPi( modes[i] ) ;
+        modes[i] = CxxUtils::wrapToPi(modes[i]);
       }
     }
   }
@@ -182,31 +182,33 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
   std::array<std::vector<Component>, 5>& mixture)
 {
 
-  for (int i = 0; i < 5; i++) {
+  constexpr Trk::ParamDefs parameter[5] = {
+    Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP
+  };
+
+  const size_t componentsNum = multiComponentState.size();
+  for (size_t i = 0; i < 5; ++i) {
     mixture[i].clear();
+    mixture[i].reserve(componentsNum);
   }
 
   // Loop over all the components in the multi-component state
-  Trk::MultiComponentState::const_iterator component =
-    multiComponentState.begin();
-  Trk::ParamDefs parameter[5] = {
-    Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP
-  };
-  for (; component != multiComponentState.end(); ++component) {
-    for (int i = 0; i < 5; ++i) {
-      const Trk::TrackParameters* componentParameters = component->first.get();
+  for (const Trk::ComponentParameters& component : multiComponentState) {
 
+    //And then for each component over each 5 parameters
+    for (size_t i = 0; i < 5; ++i) {
+
+      const Trk::TrackParameters* componentParameters = component.first.get();
       const AmgSymMatrix(5)* measuredCov = componentParameters->covariance();
-
       if (!measuredCov) {
         return;
       }
       // Enums for Perigee //
-      //                           d0=0, z0=1, phi0=2, theta=3, qOverP=4,
-      double weight = component->second;
+      // d0=0, z0=1, phi0=2, theta=3, qOverP=4,
+      double weight = component.second;
       double mean = componentParameters->parameters()[parameter[i]];
-      // FIXME ATLASRECTS-598 this std::abs() should not be necessary... for some
-      // reason cov(qOverP,qOverP) can be negative
+      // FIXME ATLASRECTS-598 this std::abs() should not be necessary... for
+      // some reason cov(qOverP,qOverP) can be negative
       double sigma = sqrt(std::abs((*measuredCov)(parameter[i], parameter[i])));
 
       // Ensure that we don't have any problems with the cyclical nature of phi
@@ -220,8 +222,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
           mean -= 2 * M_PI;
         }
       }
-      Component comp(weight, mean, sigma);
-      mixture[i].push_back(comp);
+      mixture[i].emplace_back(weight, mean, sigma);
     }
   }
 }
@@ -254,7 +255,8 @@ Trk::MultiComponentStateModeCalculator::findMode(
     double pdfPreviousMode = pdf(previousMode, i, mixture);
 
     if ((pdfMode + pdfPreviousMode) != 0.0) {
-      tolerance = std::abs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
+      tolerance =
+        std::abs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
     } else {
       return xStart;
     }

@@ -143,9 +143,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
 
     /// set the spacepoint iterator to the beginning of the space-point list  
     data.i_spforseed = data.l_spforseed.begin();
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for strip seeds
+    data.maxSeedsPerSP = m_maxOneSizeSSS;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedStripSeeds;
   } ///< end if-statement for iteration 0 
   else {  /// for the second iteration (PPP pass), don't redo the full init required the first time 
     data.r_first = 0;     ///< reset the first radial bin 
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for pixel seeds
+    data.maxSeedsPerSP = m_maxOneSizePPP;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedPixelSeeds;
     /// call fillLists to repopulate the candidate space points and exit 
     fillLists(data);
     return;
@@ -2096,13 +2104,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
   }
   /// There are three cases where we simply add our new seed to the list and push it into the map: 
     /// a) we have not yet reached our max number of seeds 
-  if (data.nOneSeeds < m_maxOneSize
+  if (data.nOneSeeds < data.maxSeedsPerSP
     /// b) we have reached the max number but always want to keep confirmed seeds 
     /// and the new seed is a confirmed one, with worse quality than the worst one so far 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
     /// c) we have reached the max number but always want to keep confirmed seeds 
     ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
     ){
     data.OneSeeds_Pro[data.nOneSeeds].set(p1,p2,p3,z);
     data.mapOneSeeds_Pro.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_Pro[data.nOneSeeds]));
@@ -2140,6 +2148,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 
   /// sort common SP by curvature 
   if(data.CmSp.size() > 2) std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+      
+  float bottomR=SPb->radius();
+  float bottomZ=SPb->z();
 
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_otherSP;
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_commonTopSP = data.CmSp.begin(), ie = data.CmSp.end();
@@ -2151,6 +2162,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     /// the seed quality is set to d0 initially 
     float seedQuality    = (*it_commonTopSP).second->param();
     float originalSeedQuality   = (*it_commonTopSP).second->param();
+
+    if(m_maxdImpact > 50){      //This only applies to LRT
+
+      float topR=(*it_commonTopSP).second->radius();
+      float topZ=(*it_commonTopSP).second->z();
+
+      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
+      float eta1=-std::log(std::tan(.5*theta1));
+
+      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
+      float theta0=std::atan2((*it_commonTopSP).second->param(),Zot);
+      float eta0=-std::log(std::tan(.5*theta0));
+
+      float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
+      //calculate weighted average of d0 and deltaEta, normalized by their maximum values
+      float f=std::min(0.5,originalSeedQuality/200.);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
+      seedQuality*=(1-f)/300.;
+      seedQuality+=f*deltaEta/2.5;
+    }
 
     bool                topSPisPixel = !(*it_commonTopSP).second->spacepoint->clusterList().second;
     
@@ -2378,8 +2408,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 }
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
-  int seedArrayPerSPSize = m_maxOneSize; 
-  if (m_alwaysKeepConfirmedSeeds)  seedArrayPerSPSize = 50; 
+  int seedArrayPerSPSize = (m_maxOneSizePPP>m_maxOneSizeSSS ? m_maxOneSizePPP : m_maxOneSizeSSS); 
+  if (m_alwaysKeepConfirmedStripSeeds || m_alwaysKeepConfirmedPixelSeeds)  seedArrayPerSPSize = 50; 
   data.initialize(EventData::ATLxk,
                   m_maxsizeSP,
                   seedArrayPerSPSize,

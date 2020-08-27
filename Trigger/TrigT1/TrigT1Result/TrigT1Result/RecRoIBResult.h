@@ -24,14 +24,15 @@ namespace ROIB {
   class RecRoIBResult {
 
   public:
-    /* Full Constructor */
-    RecRoIBResult( const std::vector< LVL1::RecEmTauRoI >& recEmTauRoIs,
-                   const std::vector< LVL1::RecMuonRoI >& recMuonRoIs,
-                   const std::vector< LVL1::RecJetRoI >& recJetRoIs );
+
     /* Empty constructor */
-    RecRoIBResult();
-    /* Destructor */
-    ~RecRoIBResult();
+    RecRoIBResult() = default;
+
+    /* Full Constructor */
+    RecRoIBResult( std::vector< LVL1::RecEmTauRoI >&& recEmTauRoIs,
+                   std::vector< LVL1::RecMuonRoI >&& recMuonRoIs,
+                   std::vector< LVL1::RecJetRoI >&& recJetRoIs );
+
 
     /* Gets the RecEmTauRoI part of the L1 reconstructed RDO */
     const std::vector< LVL1::RecEmTauRoI >& recEmTauRoIVector() const;

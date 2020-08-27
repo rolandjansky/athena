@@ -6,6 +6,7 @@
 #define TRK_GXFTRAJECTORY_H
 
 #include "TrkGlobalChi2Fitter/GXFTrackState.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 namespace Trk {
   class MeasurementBase;
@@ -30,10 +31,9 @@ namespace Trk {
     GXFTrajectory & operator=(GXFTrajectory & rhs);
 
     bool addMeasurementState(GXFTrackState *, int index = -1);
-    void addHoleState(const TrackParameters *);
-    void addMaterialState(GXFTrackState *, int index = -1, bool owntp = false);
+    void addMaterialState(GXFTrackState *, int index = -1);
 
-    void setReferenceParameters(const TrackParameters *);
+    void setReferenceParameters(std::unique_ptr<const TrackParameters>);
     void setScatteringAngles(std::vector < std::pair < double, double > >&);
     void setTrackStates(std::vector < GXFTrackState * >&);
     void setBrems(std::vector<double> &);
@@ -69,13 +69,13 @@ namespace Trk {
     std::vector < std::pair < double, double >>&scatteringSigmas();
     std::vector<double> & brems();
     
-    const TrackParameters *referenceParameters(bool takeownership = false);
+    const TrackParameters * referenceParameters();
     bool converged();
     int prefit();
     void resetReferenceParameters();
-    double chi2();
+    double chi2() const;
     double prevchi2();
-    int nDOF();
+    int nDOF() const;
   
     Amg::VectorX & residuals();
     Amg::VectorX & errors();
@@ -90,8 +90,11 @@ namespace Trk {
     std::vector < std::pair < const Layer *,
     const Layer *>>&upstreamMaterialLayers();
 
+    void resetCovariances(void);
+    std::unique_ptr<const FitQuality> quality(void) const;
+
     bool m_straightline;
-    MagneticFieldProperties *m_fieldprop;
+    MagneticFieldProperties m_fieldprop = Trk::FullField;
 
   private:
     std::vector < GXFTrackState * >m_states;  //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
@@ -112,7 +115,7 @@ namespace Trk {
     int m_ntrthits;
     int m_npseudo;
     int m_nmeasoutl;
-    const TrackParameters *m_refpar;
+    std::unique_ptr<const TrackParameters> m_refpar;
     bool m_converged;
     std::vector < std::pair < double, double >>m_scatteringangles;
     std::vector < std::pair < double, double >>m_scatteringsigmas;
@@ -123,7 +126,6 @@ namespace Trk {
     double m_totx0;
     double m_toteloss;
     double m_mass;
-    bool m_ownrefpar;
     int m_prefit;
     GXFTrackState *m_caloelossstate;
     std::vector < std::pair < const Layer *, const Layer *>>m_upstreammat;

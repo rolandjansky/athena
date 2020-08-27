@@ -8,7 +8,6 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
     TrigMuisoHypoAlg, TrigMuisoHypoTool,
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
-    TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool,
     TrigMuonEFInvMassHypoTool,
     TrigMuonLateMuRoIHypoAlg, TrigMuonLateMuRoIHypoTool
 )
@@ -243,14 +242,38 @@ def getThresholdsFromDict( chainDict ):
 
 def TrigMufastHypoToolFromDict( chainDict ):
 
-    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
-       thresholds = ['passthrough']
-    else:
-        thresholds = getThresholdsFromDict( chainDict )
+    thresholds = getThresholdsFromDict( chainDict )
     config = TrigMufastHypoConfig()
     tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
     # Setup MonTool for monitored variables in AthenaMonitoring package
     addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
+
+    return tool
+
+def TrigMufastHypoToolwORFromDict( chainDict ):
+
+    thresholds = getThresholdsFromDict( chainDict )
+    config = TrigMufastHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+
+    # Overlap Removal
+    tool.ApplyOR = True
+    # cut defintion
+    tool.RequireDR       = True
+    tool.RequireMass     = True
+    tool.RequireSameSign = True
+    # BB
+    tool.DRThresBB       = 0.05
+    tool.MassThresBB     = 0.20
+    # BE
+    tool.DRThresBE       = 0.05
+    tool.MassThresBE     = 0.20
+    # EE
+    tool.EtaBinsEC       = [0, 1.9, 2.1, 9.9]
+    tool.DRThresEC       = [0.06, 0.05, 0.05]
+    tool.MassThresEC     = [0.20, 0.15, 0.10]
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMufast, 'TrigMufastHypoTool', chainDict['chainName'] )
 
     return tool
 
@@ -325,77 +348,10 @@ class TrigMufastHypoConfig(object):
 
         return tool
 
-### for TrigL2MuonOverlapRemoverMufast
-def TrigL2MuonOverlapRemoverMufastToolFromDict( chainDict ):
-
-    thresholds = getThresholdsFromDict( chainDict )
-    config = TrigL2MuonOverlapRemoverMufastConfig()
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds)
-    # # Setup MonTool for monitored variables in AthenaMonitoring package
-    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMufast, 'TrigL2MuonOverlapRemoverMufastTool', chainDict['chainName'] )
-
-    return tool
-
-
-class TrigL2MuonOverlapRemoverMufastConfig(object):
-
-    def ConfigurationHypoTool( self, toolName, thresholds):
-        tool = CompFactory.TrigL2MuonOverlapRemoverTool( toolName )
-        tool.Multiplicity = len(thresholds)
-        tool.DoMufastBasedRemoval = True
-
-        # cut defintion
-        tool.MufastRequireDR       = True
-        tool.MufastRequireMass     = True
-        tool.MufastRequireSameSign = True
-        # BB
-        tool.MufastDRThresBB       = 0.05
-        tool.MufastMassThresBB     = 0.20
-        # BE
-        tool.MufastDRThresBE       = 0.05
-        tool.MufastMassThresBE     = 0.20
-        # EE
-        tool.MufastEtaBinsEC       = [0, 1.9, 2.1, 9.9]
-        tool.MufastDRThresEC       = [0.06, 0.05, 0.05]
-        tool.MufastMassThresEC     = [0.20, 0.15, 0.10]
-
-        return tool
-
-
-### for TrigL2MuonOverlapRemoverMucomb
-def TrigL2MuonOverlapRemoverMucombToolFromDict( chainDict ):
-
-    thresholds = getThresholdsFromDict( chainDict )
-    config = TrigL2MuonOverlapRemoverMucombConfig()
-    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds)
-    # # Setup MonTool for monitored variables in AthenaMonitoring package
-    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, 'TrigL2MuonOverlapRemoverMucombTool', chainDict['chainName'] )
-
-    return tool
-
-
-class TrigL2MuonOverlapRemoverMucombConfig(object):
-
-    def ConfigurationHypoTool( self, toolName, thresholds):
-        tool = CompFactory.TrigL2MuonOverlapRemoverTool( toolName )
-        tool.Multiplicity = len(thresholds)
-        tool.DoMucombBasedRemoval = True
-        # cut defintion
-        tool.MucombRequireDR       = True
-        tool.MucombRequireMufastDR = True
-        tool.MucombRequireMass     = True
-        tool.MucombRequireSameSign = True
-        tool.MucombEtaBins         = [0, 0.9, 1.1, 1.9, 2.1, 9.9]
-        tool.MucombDRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
-        tool.MucombMufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
-        tool.MucombMassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
-
-        return tool
-
 
 def TrigmuCombHypoToolFromDict( chainDict ):
 
-    if 'idperf' in chainDict['chainParts'][0]['chainPartName'] or 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
        thresholds = ['passthrough']
     else:
        thresholds = getThresholdsFromDict( chainDict )
@@ -413,6 +369,38 @@ def TrigmuCombHypoToolFromDict( chainDict ):
     addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
+
+
+def TrigmuCombHypoToolwORFromDict( chainDict ):
+
+    if 'idperf' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+       thresholds = getThresholdsFromDict( chainDict )
+
+    config = TrigmuCombHypoConfig()
+
+    tight = False # can be probably decoded from some of the proprties of the chain, expert work
+
+    acceptAll = False
+
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+
+    # Overlap Removal
+    tool.ApplyOR = True
+    tool.RequireDR       = True
+    tool.RequireMufastDR = True
+    tool.RequireMass     = True
+    tool.RequireSameSign = True
+    tool.EtaBins         = [0, 0.9, 1.1, 1.9, 2.1, 9.9]
+    tool.DRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
+    tool.MufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
+    tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
+
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, "TrigmuCombHypoTool", chainDict['chainName'] )
+
+    return tool
+
 
 class TrigmuCombHypoConfig(object):
 

@@ -31,6 +31,7 @@
 #include "McParticleEvent/TruthParticleParamDefs.h"
 #include "McParticleEvent/TruthEtIsolationsContainer.h"
 
+#include "AtlasHepMC/GenEvent.h"
 // Forward declaration
 
 // Needed for constructing the mirror container hierarchy
@@ -220,7 +221,7 @@ inline
 std::ostream& TruthParticleContainer::dump( std::ostream& out ) const 
 {
   if ( m_genEvent.isValid() ) {
-    HepMC::Print::line(out,*m_genEvent);
+    HepMC::Print::line(out,**m_genEvent);
   }
   return out;
 }

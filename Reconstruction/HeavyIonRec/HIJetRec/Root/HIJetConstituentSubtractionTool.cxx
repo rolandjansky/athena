@@ -50,7 +50,7 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
       return StatusCode::FAILURE;
     }
     shape = readHandleEvtShape.get();
-    es_index=HIEventShapeMap::getIndex(m_eventShapeKey.key());
+    es_index=m_eventShapeMapTool->getIndexFromShape(shape); 
     if(es_index==nullptr)
     {
       ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_eventShapeKey.key() << " adding it to the map");
@@ -88,7 +88,7 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
       if( msgLvl(MSG::DEBUG) )
       {
       	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
-        //here we can still keep cl->p4 because it's taking the unsubtracted state - moreover is debug 
+        //here we can still keep cl->p4 because it's taking the unsubtracted state - moreover is debug
       	p4_unsubtr+=cl->p4(HIJetRec::unsubtractedClusterState());
       }
     }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
@@ -25,7 +25,7 @@ class TrigMufastHypoMonitoring(GenericMonitoringTool):
         self.defineHistogram('XatBe', type='TH1F', path='EXPERT', title="DCA along X; X (cm)",
                              xbins=100, xmin=-1000, xmax=1000)
 
-class TrigL2MuonOverlapRemoverMonitoringMufast(GenericMonitoringTool):
+class TrigL2MuonOverlapRemoverMonitoringMufast(TrigMufastHypoMonitoring):
     def __init__ (self, name):
         super(TrigL2MuonOverlapRemoverMonitoringMufast, self).__init__(name)
 
@@ -71,7 +71,7 @@ class TrigmuCombHypoMonitoring(GenericMonitoringTool):
         self.defineHistogram('A0', type='TH1F', path='EXPERT', title="PCA along x-y from ID track from #muComb; PCA(A0) (mm)",
                              xbins=100, xmin=-0.6, xmax=0.6)
 
-class TrigL2MuonOverlapRemoverMonitoringMucomb(GenericMonitoringTool):
+class TrigL2MuonOverlapRemoverMonitoringMucomb(TrigmuCombHypoMonitoring):
     def __init__ (self, name):
         super(TrigL2MuonOverlapRemoverMonitoringMucomb, self).__init__(name)
 
@@ -135,4 +135,6 @@ class TrigMuonEFInvMassHypoMonitoring(GenericMonitoringTool):
         super(TrigMuonEFInvMassHypoMonitoring, self).__init__(name)
 
         self.defineHistogram('Mass', type='TH1F', path='EXPERT', title="Dimuon mass from #TrigMuonEFInvMHypo; Mass (GeV)",
+                             xbins=200, xmin=0, xmax=200)
+        self.defineHistogram('Mass_sel', type='TH1F', path='EXPERT', title="Dimuon mass for selected events from #TrigMuonEFInvMHypo; Mass (GeV)",
                              xbins=200, xmin=0, xmax=200)

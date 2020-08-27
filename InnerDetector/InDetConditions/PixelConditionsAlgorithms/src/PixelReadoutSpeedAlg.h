@@ -20,7 +20,7 @@
 #include "PixelConditionsData/PixelReadoutSpeedData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelReadoutSpeedAlg : public AthReentrantAlgorithm {
   public:

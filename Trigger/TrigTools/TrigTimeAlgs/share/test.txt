@@ -1,4 +1,4 @@
-ApplicationMgr.DLLs += { "TrigTimeAlgs" };
+ApplicationMgr.Dlls += { "TrigTimeAlgs" };
 //ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 //ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore" };
 //ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };

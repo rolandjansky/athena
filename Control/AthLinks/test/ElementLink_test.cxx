@@ -672,6 +672,9 @@ void test3 (SGTest::TestStore& store)
 
   TestStore::sgkey_t sgkey = store.stringToKey ("foocont3", fooclid);
 
+  //Add check to see if Element link optimized for std::vector expansion
+  static_assert(std::is_nothrow_move_constructible<ElementLink<FooCont>>::value);
+
   FooCont* foocont3 = new FooCont;
   for (int i=0; i < 4; i++)
     foocont3->push_back (new Foo(i+200));

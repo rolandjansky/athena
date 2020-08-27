@@ -5,12 +5,12 @@
 #ifndef LAYERANALYSIS_H
 #define LAYERANALYSIS_H
 
-
 #include "MuonLayerHough/HitNtuple.h"
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonRegionHough.h"
 #include "MuonStationIndex/MuonStationIndex.h"
+#include "CxxUtils/checker_macros.h"
 
 class TH1F;
 class TH2F;
@@ -40,8 +40,8 @@ namespace MuonHough {
       m_ntuple.initForRead(tree);
     }
     
-    void initialize();
-    void analyse();
+    void initialize ATLAS_NOT_THREAD_SAFE();
+    void analyse ATLAS_NOT_THREAD_SAFE();
     void finalize();
     
   private:
@@ -49,7 +49,7 @@ namespace MuonHough {
     void analysis( std::map<int,SectorData>& data );
     void drawSector( int region, int sector, SectorData& data, MuonDetectorHough& detectorHough, MuonDetectorHough& detectorHoughTruth );
     void calculateVariables(Plots* Plot);
-    void SetStyle();
+    void SetStyle ATLAS_NOT_THREAD_SAFE();
     int getMaxLayers(Muon::MuonStationIndex::DetectorRegionIndex region, int sector);
     void finishplot(TH1F* h);
     float linear_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex);

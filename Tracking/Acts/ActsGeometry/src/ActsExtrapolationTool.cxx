@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsGeometryContext.h"
@@ -22,6 +21,7 @@
 #include "Acts/Propagator/ActionList.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
 #include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 // BOOST
 #include <boost/variant/variant.hpp>
@@ -51,8 +51,7 @@ using ActsExtrapolationDetail::VariantPropagator;
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-    m_fieldServiceHandle("AtlasFieldSvc", name)
+  : base_class(type, name, parent)
 {
 }
 
@@ -70,18 +69,21 @@ ActsExtrapolationTool::initialize()
 
   ATH_MSG_INFO("Initializing ACTS extrapolation");
 
+  m_logger = makeActsAthenaLogger(this, "Prop", "ActsExtrapTool");
+
   ATH_CHECK( m_trackingGeometryTool.retrieve() );
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
   Acts::Navigator navigator(trackingGeometry);
 
-  if (m_fieldMode == "ATLAS"s) {
-    // we need the field service
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
+  if (m_fieldMode == "ATLAS"s) {    
     ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField(m_fieldServiceHandle.get());
+
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
+    BField_t bField;
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
@@ -115,7 +117,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-  Acts::MagneticFieldContext mctx;
+  Acts::MagneticFieldContext mctx = getMagneticFieldContext(ctx);
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
@@ -128,7 +130,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
 
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -208,7 +210,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -259,7 +261,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -320,7 +322,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-  Acts::MagneticFieldContext mctx;
+  Acts::MagneticFieldContext mctx = getMagneticFieldContext(ctx);
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
@@ -332,7 +334,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using AbortConditions = Acts::AbortList<EndOfWorld>;
   using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
 
-  Options options(anygctx, mctx);
+  Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
   bool debug = msg().level() == MSG::VERBOSE;
   options.debug = debug;
@@ -359,4 +361,16 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
     }, *m_varProp);
 
   return parameters;
+}
+
+Acts::MagneticFieldContext ActsExtrapolationTool::getMagneticFieldContext(const EventContext& ctx) const {
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  if (!readHandle.isValid()) {
+     std::stringstream msg;
+     msg << "Failed to retrieve magnetic field condition data " << m_fieldCacheCondObjInputKey.key() << ".";
+     throw std::runtime_error(msg.str());
+  }
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  return Acts::MagneticFieldContext(fieldCondObj);
 }

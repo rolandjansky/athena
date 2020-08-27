@@ -7,6 +7,7 @@
 #include "JetMomentTools/JetOriginCorrectionTool.h"
 
 #include "JetUtils/JetOriginHelpers.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 
 

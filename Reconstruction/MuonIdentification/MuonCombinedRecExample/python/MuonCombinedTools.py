@@ -16,7 +16,7 @@ from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs): 
+def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs):
     if beamFlags.beamType() == 'cosmics':
         kwargs.setdefault("pTMin", 500 )
         kwargs.setdefault("IPd0Max", 19999.0 )
@@ -39,7 +39,7 @@ def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedT
         kwargs.setdefault("useTrackQualityInfo", False )
     kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
-    return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs) 
+    return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
 
 def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
    #import pdb ; pdb.set_trace()
@@ -72,6 +72,10 @@ def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
     kwargs.setdefault("TrackSelector", getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool") )
     return CfgMgr.MuonCombined__InDetCandidateTool(name,**kwargs)
 
+def MuonPrintingTool(name="MuonPrintingTool",**kwargs ):
+    kwargs.setdefault("MuonStationPrinter", getPublicTool("MuonEDMPrinterTool"))
+    return CfgMgr.Rec__MuonPrintingTool(name,**kwargs)
+
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
@@ -90,6 +94,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
 
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
+    kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def ExtrapolateMuonToIPTool(name="ExtrapolateMuonToIPTool",**kwargs):
@@ -133,9 +138,9 @@ def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
-                         
+
 def MuonCombinedStacoTagTool(name="MuonCombinedStacoTagTool",**kwargs):
     kwargs.setdefault("ParticleCaloExtensionTool",  getPublicTool("MuonParticleCaloExtensionTool") )
-  
+
     return CfgMgr.MuonCombined__MuonCombinedStacoTagTool(name,**kwargs)
-                      
+

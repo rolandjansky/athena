@@ -22,7 +22,6 @@
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 // C++ Standard Library
 #include <cmath>
@@ -129,9 +128,6 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     ATH_CHECK(m_thistSvc->regHist("/file1/trap_pos", m_h_trap_pos));
   }
   ///////////////////////////////////////////////////
-
-  m_smallStepLength.setValue(m_smallStepLength.value() * CLHEP::micrometer);
-  m_tSurfaceDrift.setValue(m_tSurfaceDrift.value() * CLHEP::ns);
 
   // Surface drift time calculation Stuff
   m_tHalfwayDrift = m_tSurfaceDrift * 0.5;

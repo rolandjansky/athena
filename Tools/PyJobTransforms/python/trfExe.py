@@ -183,6 +183,7 @@ class transformExecutor(object):
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
+        self._athenaConcurrentEvents = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -961,8 +962,8 @@ class athenaExecutor(scriptExecutor):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
-        # Try to detect AthenaMT mode and number of threads
-        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+        # Try to detect AthenaMT mode, number of threads and number of concurrent events
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
 
         # Try to detect AthenaMP mode and number of workers
         self._athenaMP = detectAthenaMPProcs(self.conf.argdict)

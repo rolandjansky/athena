@@ -30,6 +30,8 @@
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <atomic>
 #include <cassert>
 #include <stdint.h>
@@ -113,7 +115,7 @@ namespace Muon
     
     //====LBTAG==== Added 02112008 for buffer format check
     int m_printerror;
-    mutable std::atomic_int m_RPCcheckfail[13];
+    mutable std::atomic_int m_RPCcheckfail[13] ATLAS_THREAD_SAFE;
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check

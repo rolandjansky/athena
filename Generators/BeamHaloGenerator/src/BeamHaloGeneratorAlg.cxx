@@ -97,8 +97,8 @@ StatusCode BeamHaloGeneratorAlg::genInitialize() {
     const Int_t nbins_E = 60;
     double xmin = 1e-2;
     double xmax = 3.5e3;
-    double logxmin = log10(xmin);
-    double logxmax = log10(xmax);
+    double logxmin = std::log10(xmin);
+    double logxmax = std::log10(xmax);
     double binwidth = (logxmax-logxmin)/nbins_E;
     Double_t xbins[nbins_E+1];
     xbins[0] = xmin;

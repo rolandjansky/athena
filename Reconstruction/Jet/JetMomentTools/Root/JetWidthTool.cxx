@@ -5,7 +5,7 @@
 // JetWidthTool.cxx
 
 #include "JetMomentTools/JetWidthTool.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "JetUtils/JetDistances.h"
 #include "PFlowUtils/IWeightPFOTool.h"
@@ -15,7 +15,6 @@
 JetWidthTool::JetWidthTool(std::string myname)
   : asg::AsgTool(myname)
 {
-  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************

@@ -43,11 +43,18 @@ CountDeadModulesAfterLastHit=False
 #rec.Commissioning=False
 from AthenaCommon.DetFlags import DetFlags
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheck = InDet__InDetBoundaryCheckTool(
+    name="TrigBphysInDetBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on()
+)
+ToolSvc += InDetBoundaryCheck
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "TrigBphysInDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
-                                                      usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                      useSCT        = DetFlags.haveRIO.SCT_on(),
+                                                      BoundaryCheckTool=InDetBoundaryCheck,
                                                       #Commissioning = rec.Commissioning())
 						      CountDeadModulesAfterLastHit = CountDeadModulesAfterLastHit)	
 ToolSvc += InDetHoleSearchTool

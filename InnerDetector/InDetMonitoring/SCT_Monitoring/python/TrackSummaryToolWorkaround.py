@@ -75,12 +75,17 @@ def TrackSummaryToolWorkaround(flags):
                                                              CheckDeadRegions=True,
                                                              CheckDisabledFEs=True)
     result.addPublicTool(InDetTestPixelLayerTool)
+    InDetBoundaryCheckTool = CompFactory.InDet.InDetBoundaryCheckTool(
+        name="InDetBoundaryCheckTool",
+        UsePixel=flags.Detector.GeometryPixel,
+        UseSCT=flags.Detector.GeometrySCT,
+        PixelLayerTool=InDetTestPixelLayerTool
+    )
+    result.addPublicTool(InDetBoundaryCheckTool)
     InDetHoleSearchTool = CompFactory.InDet.InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
-                                                          usePixel      = flags.Detector.GeometryPixel,
-                                                          useSCT        = flags.Detector.GeometrySCT,
                                                           CountDeadModulesAfterLastHit = True,
-                                                          PixelLayerTool = InDetTestPixelLayerTool)
+                                                          BoundaryCheckTool=InDetBoundaryCheckTool)
     result.addPublicTool(InDetHoleSearchTool)
     InDetPrdAssociationTool = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
                                                                           PixelClusterAmbiguitiesMapName = "PixelClusterAmbiguitiesMap",

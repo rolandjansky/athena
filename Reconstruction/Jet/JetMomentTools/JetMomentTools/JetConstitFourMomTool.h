@@ -12,6 +12,7 @@
 ///
 /// Tool to attach the LC constituent level 4-vector to EM Jets
 
+#include "AsgDataHandles/ReadHandleKeyArray.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetModifier.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

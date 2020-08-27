@@ -20,6 +20,11 @@ class StoreGateSvc;
 
 namespace TrigMufastHypoToolConsts {
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
+const int  errorCode_cannot_get_EL         = 1;
+const int  errorCode_EL_not_valid          = 2;
+const int  errorCode_inconsistent_overlap1 = 3;
+const int  errorCode_inconsistent_overlap2 = 4;
+const int  errorCode_cannot_get_RoI        = 5;
 }
 
 // --------------------------------------------------------------------------------
@@ -44,13 +49,15 @@ class TrigMufastHypoTool: public ::AthAlgTool {
       roi( r ),
       muFast( f ),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
-			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+			   TrigCompositeUtils::decisionIDs( previousDecision ).end() ),
+      passOR( true )
       {}
       
       TrigCompositeUtils::Decision* decision;
       const TrigRoiDescriptor* roi;
       const xAOD::L2StandAloneMuon* muFast;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+      bool passOR;
     };
 
     virtual StatusCode initialize() override;    
@@ -68,6 +75,14 @@ class TrigMufastHypoTool: public ::AthAlgTool {
 
     // for multipul muon event    
     StatusCode multiplicitySelection(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
+
+    StatusCode applyOverlapRemoval(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
+    StatusCode checkOverlap(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input) const;
+    bool isOverlap(const xAOD::L2StandAloneMuon *mf1, const xAOD::L2StandAloneMuon *mf2) const;
+    double dR(double eta1, double phi1, double eta2, double phi2) const;
+    double invMass(double m1, double pt1, double eta1, double phi1,
+                   double m2, double pt2, double eta2, double phi2) const;
+    StatusCode chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input, std::vector<unsigned int> mufastResult) const;
 
     float getLocalPhi(float, float, float) const;
 
@@ -101,6 +116,40 @@ class TrigMufastHypoTool: public ::AthAlgTool {
 
     Gaudi::Property< bool > m_doCalib {
         this, "DoCalib", false, "muoncalib chain" };
+
+    // Members for overlap removal
+    Gaudi::Property< bool > m_applyOR {
+        this, "ApplyOR", false, "apply overlap removal for mufast" };
+
+    Gaudi::Property<bool> m_requireDR{
+        this, "RequireDR", true, "require or not DR cut for overlap removal"};
+
+    Gaudi::Property<bool> m_requireMass{
+        this, "RequireMass", true, "require or not mass cut for overlap removal"};
+
+    Gaudi::Property<bool> m_requireSameSign{
+        this, "RequireSameSign", true, "require or not charge cut for overlap removal"};
+
+    Gaudi::Property< float > m_dRThresBB {
+        this, "DRThresBB", 0.05, "DR threshold in barel and barel region"};
+
+    Gaudi::Property< float > m_massThresBB {
+        this, "MassThresBB", 0.20, "mass threshold in barel and barel region"};
+
+    Gaudi::Property< float > m_dRThresBE {
+        this, "DRThresBE", 0.05, "DR threshold in barel and barel region"};
+
+    Gaudi::Property< float > m_massThresBE {
+        this, "MassThresBE", 0.20, "mass threshold in barel and endcap region"};
+
+    Gaudi::Property< std::vector<float> > m_etaBinsEC {
+        this, "EtaBinsEC", {0, 1.9, 2.1, 9.9}, "eta bins of DR and mass thresholds in endcap and barel region"};
+
+    Gaudi::Property< std::vector<float> > m_dRThresEC {
+        this, "DRThresEC", {0.06, 0.05, 0.05}, "DR threshold in endcap and barel region"};
+
+    Gaudi::Property< std::vector<float> > m_massThresEC {
+        this, "MassThresEC", {0.20, 0.15, 0.10}, "mass threshold in endcap and endcap region"};
 
 
     // Other members:   

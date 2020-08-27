@@ -5,10 +5,11 @@ atlas_subdir( ViewAlgs )
 
 # Component(s) in the package:
 atlas_add_library( ViewAlgsLib
+                   src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
                    INTERFACE
-                   LINK_LIBRARIES AthContainers AthLinks GaudiKernel TrigCompositeUtilsLib xAODTrigger )
+                   LINK_LIBRARIES AthContainers AthLinks GaudiKernel DecisionHandlingLib MuonCombinedEvent xAODJet xAODMuon TrigCompositeUtilsLib xAODTrigger )
 
 atlas_add_component( ViewAlgs
-                     src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES AthViews AthenaBaseComps CxxUtils DecisionHandlingLib MuonCombinedEvent StoreGateLib TrigSteeringEvent ViewAlgsLib xAODJet xAODMuon  )
+                     src/components/*.cxx
+                     LINK_LIBRARIES AthViews AthenaBaseComps CxxUtils DecisionHandlingLib MuonCombinedEvent StoreGateLib TrigSteeringEvent ViewAlgsLib xAODJet xAODMuon ViewAlgsLib )

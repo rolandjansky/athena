@@ -18,3 +18,7 @@ atlas_add_dictionary( TrigT1ResultDict
                       TrigT1Result/TrigT1ResultDict.h
                       TrigT1Result/selection.xml
                       LINK_LIBRARIES TrigT1Result )
+
+atlas_add_test( TrigT1Result_test
+                SOURCES test/type_trait_tests.cxx
+                LINK_LIBRARIES TrigT1Result )

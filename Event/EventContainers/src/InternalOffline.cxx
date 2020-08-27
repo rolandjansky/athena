@@ -9,7 +9,13 @@
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
-InternalOffline::InternalOffline(size_t max) : m_maximumSize(max) {}
+InternalOffline::InternalOffline(size_t max) : m_maximumSize(max) {
+  //Check optimization assumptions
+  static_assert(std::is_trivially_copyable<hashPair>::value);
+  static_assert(std::is_trivially_destructible<hashPair>::value);
+  static_assert(std::is_trivially_copyable<IdentifierHash>::value);
+  static_assert(std::is_trivially_destructible<IdentifierHash>::value);
+}
 
 
 bool InternalOffline::tryAddFromCache(IdentifierHash hash, EventContainers::IDC_WriteHandleBase&) {

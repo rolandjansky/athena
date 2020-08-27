@@ -66,6 +66,17 @@ public:
                  const std::string& name,
                  const K& key = {},
                  const std::string& doc = "");
+
+  
+  /**
+   * @brief Change the key of the object to which we're referring.
+   * @param sgkey The StoreGate key for the object.
+   * 
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+   * the store is not changed.
+   */
+  ReadHandleKey& operator= (const std::string& sgkey);
 };
 
 

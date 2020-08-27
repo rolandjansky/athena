@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSim/LArHitMaker.h"
 #include "LArSim/LArHitProducer.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -15,7 +15,7 @@
 
 // Constructor
 LArHitMaker::LArHitMaker(const std::string& name, ISvcLocator* pSvcLocator ) :
- AthAlgorithm(name , pSvcLocator),
+ AthLegacySequence(name , pSvcLocator),
  m_HitRetrieverNameAndType("LArHitProducerTest/producer1"),
  m_HitContainerLocation("LArHits"),
  m_HitRetrieverAlgorithm(0) ,
@@ -70,7 +70,7 @@ StatusCode LArHitMaker::initialize(){
 StatusCode LArHitMaker::execute(){
   ATH_MSG_DEBUG(" Start executing execute() method of "<< m_HitRetrieverNameAndType );
     
-    ATH_CHECK( m_HitRetrieverAlgorithm -> execute() );
+    ATH_CHECK( m_HitRetrieverAlgorithm -> execute(Gaudi::Hive::currentContext()) );
     
     LArHitProducer * producer = dynamic_cast<LArHitProducer*> ( m_HitRetrieverAlgorithm ) ;
     if(producer == NULL ) {

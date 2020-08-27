@@ -91,7 +91,6 @@ ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
 ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
 ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
 ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
-ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
 ApplicationMgr    SUCCESS ******************************************************************************
 CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/LAR/CellCorrOfl/deadOTX'
 ApplicationMgr       INFO Application Manager Started successfully

@@ -28,7 +28,7 @@ std::string get_default_string_map(const std::map <std::string, std::string> & m
 {
    std::map<std::string, std::string>::const_iterator it = m.find(key);
    if (it == m.end()) { return defval; }
-   else { return it->second; }
+   return it->second; 
 }
 
 std::map<std::string, std::string> parseOptions(const std::string& raw_options)

@@ -16,9 +16,9 @@
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
-#include "xAODCore/tools/FloatCompressor.h"
 
 #include "CxxUtils/checker_macros.h"
+#include "CxxUtils/FloatCompressor.h"
 
 using namespace std;
 
@@ -26,7 +26,7 @@ namespace xAOD {
 
    AuxContainerBase::AuxContainerBase( bool allowDynamicVars )
       : SG::IAuxStore(),
-        m_selection(), m_compression(),
+        m_compression(),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
@@ -54,14 +54,13 @@ namespace xAOD {
    {
       // Keep the source unmutable during copy
       guard_t guard( parent.m_mutex );
-      m_selection = parent.m_selection;
       m_compression = parent.m_compression;
       m_name = parent.m_name;
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
-         // cppcheck-suppress copyCtorPointerCopying
          m_ownsStore = false;
+         // cppcheck-suppress copyCtorPointerCopying
          m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_auxids = m_store->getAuxIDs();
@@ -75,7 +74,7 @@ namespace xAOD {
    ///
    AuxContainerBase::AuxContainerBase( SG::IAuxStore* store )
       : SG::IAuxStore(),
-        m_selection(), m_compression(),
+        m_compression(),
         m_auxids(), m_vecs(),
         m_store( store ),
         m_storeIO( 0 ), m_ownsStore( false ),
@@ -114,7 +113,6 @@ namespace xAOD {
 
       // Keep the objects locked during copy
       std::scoped_lock  lck{m_mutex, rhs.m_mutex};
-      m_selection = rhs.m_selection;
       m_compression = rhs.m_compression;
 
       // Clean up after the old dynamic store:
@@ -617,16 +615,6 @@ namespace xAOD {
       return dummy;
    }
 
-   void
-   AuxContainerBase::selectAux( const std::set< std::string >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_selection.selectAux( attributes );
-      return;
-   }
-
    AuxContainerBase::auxid_set_t
    AuxContainerBase::getSelectedAuxIDs() const {
 
@@ -639,76 +627,12 @@ namespace xAOD {
          // I mean, all the variables. Not just the ones reported as dynamic
          // by the internal object. Because the internal object may be something
          // that was put into this one in order to achieve data slimming.
-         return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
+         return m_store->getAuxIDs();
       }
 
       // In case we don't use an internal store, there are no dynamic
       // variables:
       return auxid_set_t();
-   }
-
-   //
-   /////////////////////////////////////////////////////////////////////////////
-
-   /////////////////////////////////////////////////////////////////////////////
-   //
-   //           Implementation of the SG::IAuxStoreCompression functions
-   //
-
-   void
-   AuxContainerBase::setCompressedAuxIDs( const std::vector< std::set< std::string > >& attributes ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_compression.setCompressedAuxIDs( attributes );
-   }
-
-   AuxContainerBase::auxid_set_t
-   AuxContainerBase::getCompressedAuxIDs( const bool& highComp ) const {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      return m_compression.getCompressedAuxIDs( getWritableAuxIDs(), highComp );
-   }
-
-   float
-   AuxContainerBase::getCompressedValue( const float& value, const bool& highComp ) const {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      // Two main modes are supported: High and Low Compression
-      const unsigned int idx = highComp ? AuxCompression::High : AuxCompression::Low;
-
-      // This part could be nicer if we were to rewrite xAOD::FloatCompressor
-      // to accept the number of bits in the call to reduceFloatPrecision instead
-      // of the constructor
-      static const unsigned int high_bits = m_compression.getCompressionBits(true);
-      static const unsigned int low_bits = m_compression.getCompressionBits(false);
-      static const std::vector< xAOD::FloatCompressor >
-      myFloatCompressors { xAOD::FloatCompressor(high_bits), xAOD::FloatCompressor(low_bits) };
-
-      return myFloatCompressors[ idx ].reduceFloatPrecision( value );
-   }
-
-   void
-   AuxContainerBase::setCompressionBits( const std::vector< unsigned int >& nbits ) {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      m_compression.setCompressionBits( nbits );
-   }
-
-   unsigned int
-   AuxContainerBase::getCompressionBits( const bool& highComp ) const {
-
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex );
-
-      return m_compression.getCompressionBits( highComp );
    }
 
    //

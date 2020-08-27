@@ -90,70 +90,70 @@ private:
   //------------------------------------------------------
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupJetVertexFraction( Property& prop );
+  void setupJetVertexFraction( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupFlavorTag( Property& prop );
+  void setupFlavorTag( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupEMFrac( Property& prop );
+  void setupEMFrac( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupPSFrac( Property& prop );
+  void setupPSFrac( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupN90( Property& prop );
+  void setupN90( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSamplingMax( Property& prop );
+  void setupSamplingMax( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupFCor( Property& prop );
+  void setupFCor( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupScaledJESEt( Property& prop );
+  void setupScaledJESEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupScaledJESE( Property& prop );
+  void setupScaledJESE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupScaledJESPt( Property& prop );
+  void setupScaledJESPt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupScaledJESP( Property& prop );
+  void setupScaledJESP( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupScaledJESMass( Property& prop );
+  void setupScaledJESMass( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateEt( Property& prop );
+  void setupSignalStateEt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateE( Property& prop );
+  void setupSignalStateE( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStatePt( Property& prop );
+  void setupSignalStatePt( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateP( Property& prop );
+  void setupSignalStateP( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateEta( Property& prop );
+  void setupSignalStateEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateAbsEta( Property& prop );
+  void setupSignalStateAbsEta( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateEtaVeto( Property& prop );
+  void setupSignalStateEtaVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStatePhi( Property& prop );
+  void setupSignalStatePhi( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStatePhiVeto( Property& prop );
+  void setupSignalStatePhiVeto( Gaudi::Details::PropertyBase& prop );
 
   /// Call-back method to configure the cut properties (min/max): 
-  void setupSignalStateMass( Property& prop );
+  void setupSignalStateMass( Gaudi::Details::PropertyBase& prop );
 
 
 
@@ -499,133 +499,133 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline void D2PDJetSelector::setupJetVertexFraction( Property& /*prop*/ )
+inline void D2PDJetSelector::setupJetVertexFraction( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doJVF = true;
   return;
 }
 
-inline void D2PDJetSelector::setupFlavorTag( Property& /*prop*/ )
+inline void D2PDJetSelector::setupFlavorTag( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doFlavorTag = true;
   return;
 }
 
-inline void D2PDJetSelector::setupEMFrac( Property& /*prop*/ )
+inline void D2PDJetSelector::setupEMFrac( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doEMFrac = true;
   return;
 }
 
-inline void D2PDJetSelector::setupPSFrac( Property& /*prop*/ )
+inline void D2PDJetSelector::setupPSFrac( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doPSFrac = true;
   return;
 }
 
-inline void D2PDJetSelector::setupN90( Property& /*prop*/ )
+inline void D2PDJetSelector::setupN90( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doN90 = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSamplingMax( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSamplingMax( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSamplingMax = true;
   return;
 }
 
-inline void D2PDJetSelector::setupFCor( Property& /*prop*/ )
+inline void D2PDJetSelector::setupFCor( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doFCor = true;
   return;
 }
 
-inline void D2PDJetSelector::setupScaledJESEt( Property& /*prop*/ )
+inline void D2PDJetSelector::setupScaledJESEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doScaledJESEt = true;
   return;
 }
 
-inline void D2PDJetSelector::setupScaledJESE( Property& /*prop*/ )
+inline void D2PDJetSelector::setupScaledJESE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doScaledJESE = true;
   return;
 }
 
-inline void D2PDJetSelector::setupScaledJESPt( Property& /*prop*/ )
+inline void D2PDJetSelector::setupScaledJESPt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doScaledJESPt = true;
   return;
 }
 
-inline void D2PDJetSelector::setupScaledJESP( Property& /*prop*/ )
+inline void D2PDJetSelector::setupScaledJESP( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doScaledJESP = true;
   return;
 }
 
-inline void D2PDJetSelector::setupScaledJESMass( Property& /*prop*/ )
+inline void D2PDJetSelector::setupScaledJESMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doScaledJESMass = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateEt( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateEt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateEt = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateE( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateE( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateE = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStatePt( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStatePt( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStatePt = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateP( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateP( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateP = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateEta( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateEta = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateAbsEta( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateAbsEta( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateAbsEta = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateEtaVeto( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateEtaVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateEtaVeto = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStatePhi( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStatePhi( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStatePhi = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStatePhiVeto( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStatePhiVeto( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStatePhiVeto = true;
   return;
 }
 
-inline void D2PDJetSelector::setupSignalStateMass( Property& /*prop*/ )
+inline void D2PDJetSelector::setupSignalStateMass( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   m_doSignalStateMass = true;
   return;

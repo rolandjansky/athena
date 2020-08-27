@@ -110,7 +110,6 @@ class ConfigurationJar( object ):
       self.TopSequence  = _as.AlgSequence  ("TopAlg")
       self.athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
       self.athOutSeq    = _as.AthSequencer ("AthOutSeq")
-      self.athRegSeq    = _as.AthSequencer ("AthRegSeq")
       
       self.AppMgr      = theApp
       self.ServiceMgr  = ServiceMgr     # takes care of AuditorSvc & ToolSvc
@@ -131,7 +130,6 @@ class ConfigurationJar( object ):
       d[ 'AthAlgSeq' ]     = self.athAlgSeq
       d[ 'TopSequence' ]   = self.TopSequence
       d[ 'AthOutSeq' ]     = self.athOutSeq
-      d[ 'AthRegSeq' ]     = self.athRegSeq
       d[ 'AppMgr' ]        = self.AppMgr
       d[ 'Streams' ]       = self.AppMgr._streams
       d[ 'ServiceMgr' ]    = self.ServiceMgr #takes care of {Auditor,Tool}Svc
@@ -305,6 +303,9 @@ def loadJobOptionsCatalogue( cfg_fname ):
  # restore job catalogue entries
    import GaudiPython.Bindings as gaudi
    for client in jocat:
+      if client == "ApplicationMgr":
+         # ApplicationMgr properties are already set
+         continue
       for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.

@@ -352,7 +352,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
 
     for (const xAOD::Muon* muon : *muonsHandle) {
       if (!muon->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle)) continue;
-      const ElementLink<xAOD::TrackParticleContainer> trackEL = muon->inDetTrackParticleLink();
+      const ElementLink<xAOD::TrackParticleContainer>& trackEL = muon->inDetTrackParticleLink();
       CHECK( trackEL.isValid() );
       tracksFromView.emplace_back(trackEL);
     }

@@ -11,7 +11,7 @@ from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 def ParticleHelperCfg(flags, name="ISF_ParticleHelper", **kwargs):
     acc = BarcodeSvcCfg(flags)
     kwargs.setdefault("BarcodeSvc", acc.getPrimary())
-    acc.setPrivateTools(CompFactory.ISF.ParticleHelper(name, **kwargs))
+    acc.addPublicTool(CompFactory.ISF.ParticleHelper(name, **kwargs))
     return acc
 
 
@@ -43,11 +43,13 @@ def EntryLayerFilterCfg(ConfigFlags, **kwargs):
 
 
 def MC12EntryLayerFilterCfg(flags, name="ISF_MC12EntryLayerFilter", **kwargs):
+    acc = ComponentAccumulator()
     kwargs.setdefault("AllowOnlyDefinedBarcodes", True)
     kwargs.setdefault("AllowOnlyLegacyPrimaries", False)
     kwargs.setdefault("LegacyParticleGenerationIncrement", 1000000)
     kwargs.setdefault("LegacyFirstSecondaryBarcode", 200001)
-    return CompFactory.ISF.GenericBarcodeFilter(name, **kwargs)
+    acc.setPrivateTools(CompFactory.ISF.GenericBarcodeFilter(name, **kwargs))
+    return acc
 
 
 def MC12LLPEntryLayerFilterCfg(flags, name="ISF_MC12LLPEntryLayerFilter", **kwargs):
@@ -59,9 +61,11 @@ def MC12PlusEntryLayerFilterCfg(flags, name="ISF_MC12PlusEntryLayerFilter", **kw
 
 
 def MC15EntryLayerFilterCfg(flags, name="ISF_MC15EntryLayerFilter", **kwargs):
+    acc = ComponentAccumulator()
     kwargs.setdefault("MinEkinCharged", 100.*MeV)
     kwargs.setdefault("MinEkinNeutral", -1.)
-    return CompFactory.ISF.EntryLayerFilter(name, **kwargs  )
+    acc.setPrivateTools(CompFactory.ISF.EntryLayerFilter(name, **kwargs))
+    return acc
 
 
 def MC15aEntryLayerFilterCfg(flags, name="ISF_MC15aEntryLayerFilter", **kwargs):

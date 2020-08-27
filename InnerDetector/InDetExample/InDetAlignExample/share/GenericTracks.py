@@ -472,7 +472,6 @@ if Cosmics:
                                                                       ConvertTrackParticles = False,
                                                                       ConvertTracks = True,
                                                                       AddTruthLink = False,
-                                                                      PrintIDSummaryInfo = True, 
                                                                       OutputLevel = INFO)
         topSequence += xAODSplitTrackParticleCnvAlg
         
@@ -495,7 +494,6 @@ if Cosmics:
                                                                       ConvertTrackParticles = False,
                                                                       ConvertTracks = True,
                                                                       AddTruthLink = False,
-                                                                      PrintIDSummaryInfo = True, 
                                                                       OutputLevel = INFO)
         topSequence += xAODSplitTrackParticleCnvAlg
 

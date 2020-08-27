@@ -1,43 +1,54 @@
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/ProxyProviderSvc_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/joboptions/ControlTest/StoreGateTestCommon.txt
+Initializing Gaudi ApplicationMgr using job opts /build/GMR/577.3/athena/AtlasTest/ControlTest/share/ProxyProviderSvc_test.txt
+JobOptionsSvc        INFO # =======> /build/GMR/577.3/build/build/Athena/x86_64-centos7-gcc8-opt/jobOptions/ControlTest/StoreGateTestCommon.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/HistoryStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (6,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (7,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (8,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (9,1): CLIDSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (10,1): MessageSvc.useColors = 1
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/joboptions/ToyConversion/ToyConversionOpts.txt
+JobOptionsSvc        INFO # =======> /build/GMR/577.3/build/build/Athena/x86_64-centos7-gcc8-opt/jobOptions/ToyConversion/ToyConversionOpts.txt
 JobOptionsSvc        INFO # (5,1): EventPersistencySvc.CnvServices += ["ToyConversionSvc"]
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/../share/ProxyProviderSvc_test.txt
+JobOptionsSvc        INFO # =======> /build/GMR/577.3/athena/AtlasTest/ControlTest/share/ProxyProviderSvc_test.txt
 JobOptionsSvc        INFO # (7,1): ProxyProviderSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (9,1): ClassIDSvc.OutputLevel = 2
 JobOptionsSvc        INFO # (10,1): MessageSvc.setVerbose = ["DataProxy", "EventPersistencySvc", "ToyConversionSvc", "StoreGateSvc", "EventDataSvc", "HistogramDataSvc", "ServiceManager", "HistogramPersistencySvc", "HistoryStore", "DetectorStore", "ApplicationMgr", "ProxyProviderSvc"]
 JobOptionsSvc        INFO # (11,1): MessageSvc.setDebug = ["ClassIDSvc"]
-JobOptionsSvc        INFO Job options successfully read in from ../share/ProxyProviderSvc_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /build/GMR/577.3/athena/AtlasTest/ControlTest/share/ProxyProviderSvc_test.txt
 ApplicationMgr      DEBUG Getting my own properties[m
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Tue Jul 17 15:42:25 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r2)
+                                          running on zeus on Tue Jul 28 09:01:40 2020
 ====================================================================================================================================[m
 ApplicationMgr       INFO Application Manager Configured successfully[m
 ServiceManager      DEBUG Initializing service DetectorStore[m
 DetectorStore       DEBUG Service base class initialized successfully[m
 DetectorStore     VERBOSE Initializing DetectorStore - package version StoreGate-00-00-00[m
 DetectorStore       DEBUG trying to create store SGImplSvc/DetectorStore_Impl[m
+DetectorStore_Impl  DEBUG Property update for OutputLevel : new value = 1[m
+DetectorStore_ImplVERBOSE Initializing DetectorStore_Impl - package version StoreGate-00-00-00[m
+DetectorStore_Impl  DEBUG Service base class initialized successfully[m
 EventPersistenc...  DEBUG  'CnvServices':[ 'ToyConversionSvc' ][m
 EventPersistenc...  DEBUG Service base class initialized successfully[m
+DetectorStore_ImplVERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 ClassIDSvc          DEBUG Service base class initialized successfully[m
-ClassIDSvc           INFO  getRegistryEntries: read 2468 CLIDRegistry entries for module ALL[m
-ClassIDSvc          DEBUG processCLIDDB: read 702 entries from CLIDDB file: /home/sss/atlas/dvtest/build/share/clid.db[m
+ClassIDSvc           INFO  getRegistryEntries: read 808 CLIDRegistry entries for module ALL[m
+ClassIDSvc          DEBUG processCLIDDB: read 1747 entries from CLIDDB file: /build/GMR/577.3/build/build/Athena/x86_64-centos7-gcc8-opt/share/clid.db[m
+DetectorStore_ImplVERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
 ProxyProviderSvc  VERBOSE Initializing ProxyProviderSvc - package version SGComps-00-00-00[m
 ProxyProviderSvc  VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
+ProxyProviderSvc    DEBUG Service base class initialized successfully[m
 ServiceManager      DEBUG Initializing service HistoryStore[m
 HistoryStore        DEBUG Service base class initialized successfully[m
 HistoryStore      VERBOSE Initializing HistoryStore - package version StoreGate-00-00-00[m
 HistoryStore        DEBUG trying to create store SGImplSvc/HistoryStore_Impl[m
+HistoryStore_Impl   DEBUG Property update for OutputLevel : new value = 1[m
+HistoryStore_Impl VERBOSE Initializing HistoryStore_Impl - package version StoreGate-00-00-00[m
+HistoryStore_Impl   DEBUG Service base class initialized successfully[m
+HistoryStore_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
+HistoryStore_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
 ServiceManager      DEBUG Initializing service ConditionStore[m
 ServiceManager      DEBUG Initializing service AppMgrRunable[m
 ServiceManager      DEBUG Initializing service EventLoopMgr[m
@@ -48,7 +59,7 @@ EventDataSvc      VERBOSE ServiceLocatorHelper::service: found service IncidentS
 HistogramDataSvc    DEBUG Service base class initialized successfully[m
 HistogramDataSvc  VERBOSE ServiceLocatorHelper::service: found service IncidentSvc[m
 HistogramPersis...  DEBUG Service base class initialized successfully[m
-[93;1mHistogramPersis...WARNING Histograms saving not required.[m
+HistogramPersis...  DEBUG Histograms saving not required.[m
 HistogramDataSvc  VERBOSE ServiceLocatorHelper::service: found service HistogramPersistencySvc[m
 ApplicationMgr       INFO Application Manager Initialized successfully[m
 ApplicationMgr Ready
@@ -60,15 +71,15 @@ StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl - package version Store
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc[m
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc[m
-StoreGateSvc_Impl   DEBUG  Bound handle 0x7ffc9a030060 to proxy 0x955930[m
+ClassIDSvc           INFO  getRegistryEntries: read 1019 CLIDRegistry entries for module ALL[m
 ToyConversionSvc    DEBUG Service base class initialized successfully[m
 EventPersistenc...VERBOSE ServiceLocatorHelper::service: found service ToyConversionSvc[m
 EventPersistenc...   INFO Added successfully Conversion service:ToyConversionSvc[m
-ClassIDSvc           INFO  getRegistryEntries: read 374 CLIDRegistry entries for module ALL[m
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL[m
 <<<<<<<<<<<<<<<<< Data Store Dump >>>>>>>>>>>>>>> 
 SGImplSvc(StoreGateSvc_Impl)::dump():
 Found 1 proxy for ClassID 8107 (Bar): 
- flags: (  valid,   locked,  reset) --- data:   0x957570 --- key: aBar
+ flags: (  valid,   locked,  reset) --- data:  0x4bb7d50 --- key: aBar
 <<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>> 
 
 StoreGateSvc        DEBUG Retrieved const pointer to object aFoo  of type Foo(CLID 8101)[m
@@ -77,18 +88,15 @@ Now we expect to see an error message:
 ToyConversionSvc     INFO No converter for object   CLID= 8109[m
 [93;1mDataProxy         WARNING accessData: conversion failed for data object 8109/aFooBar
  Returning NULL DataObject pointer  [m
-[93;1mSG::DataProxy_castWARNING this proxy 0x967500 has a NULL data object ptr[m
+[93;1mSG::DataProxy_castWARNING this proxy 0x512fb80 has a NULL data object ptr[m
 <<---Error Message Ends-------
 *** ProxyProviderSvc_test OK ***
 *** ProxyProviderSvc_test RecordBeforeRead BEGINS ***
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-DataProxy         VERBOSE requestRelease():  reset object aBar CLID 8107 address 0x957570[m
-DataProxy         VERBOSE requestRelease():  reset object aFoo CLID 8101 address 0x963fd0[m
-DataProxy         VERBOSE requestRelease():  reset object aFooBar CLID 8109 address 0[m
 [93;1mStoreGateSvc_Impl WARNING record_impl: you are recording an object with key existingFoo, type Foo (CLID 8101)
  There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.[m
-StoreGateSvc        DEBUG Recorded object @0x955c10 with key existingFoo of type Foo(CLID 8101)
- in DataObject @0x963fd0
+StoreGateSvc        DEBUG Recorded object @0x4e61ac0 with key existingFoo of type Foo(CLID 8101)
+ in DataObject @0x4f560f0
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved const pointer to object existingFoo  of type Foo(CLID 8101)[m
 6.28
@@ -103,15 +111,15 @@ Now we expect to see an error message:
 <<---Error Message Ends-------
 [93;1mStoreGateSvc_Impl WARNING record_impl: you are recording an object with key privFoo, type Foo (CLID 8101)
  There is already a persistent version of this object. Recording a duplicate may lead to unreproducible results and it is deprecated.[m
-StoreGateSvc        DEBUG Recorded object @0x971af0 with key privFoo of type Foo(CLID 8101)
- in DataObject @0x96fe90
+StoreGateSvc        DEBUG Recorded object @0x4da0030 with key privFoo of type Foo(CLID 8101)
+ in DataObject @0x4ed9a00
  object modifiable when retrieved[m
-StoreGateSvc        DEBUG overwrite: Recorded object @0x971ab0 with key privFoo of type Foo(CLID 8101)
- in DataObject @0x967d80
+StoreGateSvc        DEBUG overwrite: Recorded object @0x4dbd370 with key privFoo of type Foo(CLID 8101)
+ in DataObject @0x4ff46e0
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved non-const pointer to object privFoo  of type Foo(CLID 8101)[m
-StoreGateSvc        DEBUG Recorded object @0x971ad0 with key silly33 of type Foo(CLID 8101)
- in DataObject @0x969e00
+StoreGateSvc        DEBUG Recorded object @0x1d4f000 with key silly33 of type Foo(CLID 8101)
+ in DataObject @0x509ef70
  object modifiable when retrieved[m
 StoreGateSvc        DEBUG Retrieved non-const pointer to object silly33  of type Foo(CLID 8101)[m
 Now we expect to see an error message:
@@ -130,18 +138,7 @@ Now we expect to see an error message:
 
 *** ProxyProviderSvc_test HLTAutoKeyReset BEGINS ***
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-DataProxy         VERBOSE requestRelease():  release  object aBar CLID 8107 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object silly33 CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object privFoo CLID 8101 address 0x967d80[m
-DataProxy         VERBOSE requestRelease():  release  object diskFoo CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object existingFoo CLID 8101 address 0x963fd0[m
-DataProxy         VERBOSE requestRelease():  release  object aFooBar CLID 8109 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object aFoo CLID 8101 address 0[m
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_1 CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  reset object NOT_HLTAutoKey_3 CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_2 CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_3 CLID 8101 address 0[m
 *** ProxyProviderSvc_test HLTAutoKeyReset OK ***
 
 
@@ -149,31 +146,26 @@ DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_3 CLID 8
 
 
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=1[m
-DataProxy         VERBOSE requestRelease():  release  object NOT_HLTAutoKey_3 CLID 8101 address 0[m
-DataProxy         VERBOSE requestRelease():  release  object HLTAutoKey_1 CLID 8101 address 0[m
 =============Event #0 starts
-StoreGateSvc        DEBUG overwrite: Recorded object @0x971ad0 with key toOverwrite of type FooBar(CLID 8109)
- in DataObject @0x965c10
+StoreGateSvc        DEBUG overwrite: Recorded object @0x4dfc8d0 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0x4f0e360
  object modifiable when retrieved[m
 Overwritten FooBar i=0
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0x965c10[m
 FooBar i=0 deleted
 =============Event #1 starts
-StoreGateSvc        DEBUG overwrite: Recorded object @0x949920 with key toOverwrite of type FooBar(CLID 8109)
- in DataObject @0x965c10
+StoreGateSvc        DEBUG overwrite: Recorded object @0x4ea01f0 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0x4f0e360
  object modifiable when retrieved[m
 Overwritten FooBar i=1
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0x965c10[m
 FooBar i=1 deleted
 =============Event #2 starts
-StoreGateSvc        DEBUG overwrite: Recorded object @0x96fd00 with key toOverwrite of type FooBar(CLID 8109)
- in DataObject @0x965c10
+StoreGateSvc        DEBUG overwrite: Recorded object @0x4ee38b0 with key toOverwrite of type FooBar(CLID 8109)
+ in DataObject @0x4f0e360
  object modifiable when retrieved[m
 Overwritten FooBar i=2
 StoreGateSvc_Impl   DEBUG Clearing store with forceRemove=0[m
-DataProxy         VERBOSE requestRelease():  release  object toOverwrite CLID 8109 address 0x965c10[m
 FooBar i=2 deleted
 *** ProxyProviderSvc_test Overwrite OK ***
 

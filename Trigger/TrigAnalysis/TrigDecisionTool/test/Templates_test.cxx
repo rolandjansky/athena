@@ -128,6 +128,7 @@ void testFeatureLink() {
 int main() {  
   //  FeatureGroupUTest fg_test;
   //  fg_test.testIterate();
+  static_assert(std::is_nothrow_move_constructible<Feature<TrigInDetTrack>>::value);
   std::cout << "done" << std::endl;
   return 0;
 }

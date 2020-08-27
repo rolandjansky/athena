@@ -58,15 +58,15 @@ namespace Trk {
       virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks'
-	 @param tracks collection of tracks which will have ambiguities resolved. Will not be 
-	 modified.
-	 The tracks will be refitted if no fitQuality is given at input.
-         @param prdToTrackMap on optional prd-to-track map being filled by the processor.
-	 @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
-	 (i.e. client handles deletion).
+      @param tracks collection of tracks which will have ambiguities resolved. Will not be 
+      modified.
+      The tracks will be refitted if no fitQuality is given at input.
+      @param prdToTrackMap on optional prd-to-track map being filled by the processor.
+      @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
+      (i.e. client handles deletion).
 
-         If no prd-to-track map is given the processor will create
-         one internally (exported to storegate).*/
+      If no prd-to-track map is given the processor will create
+      one internally (exported to storegate).*/
       virtual TrackCollection*  process(const TrackCollection*, Trk::PRDtoTrackMap *prdToTrackMap) const override;
       virtual TrackCollection*  process(const TracksScores* scoredTracks) const override;
 
@@ -74,13 +74,14 @@ namespace Trk {
       virtual void statistics() override;
     private:
 
-      TrackCollection*  process_vector(std::vector<const Track*> &tracks, Trk::PRDtoTrackMap *prdToTrackMap) const;
+      TrackCollection*  processVector(const TrackCollection &tracks, Trk::PRDtoTrackMap *prdToTrackMap) const;
 
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
-	 @param tracks the TrackCollection is looped over, 
-	 and each Trk::Track is added to the various caches. 
-	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(const std::vector<const Track*> &tracks,
+      @param tracks the TrackCollection is looped over, 
+      and each Trk::Track is added to the various caches. 
+      The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
+      //void addNewTracks(const std::vector<const Track*> &tracks,
+      void addNewTracks(const TrackCollection &tracks,
                         TrackScoreMap& trackScoreTrackMap,
                         Trk::PRDtoTrackMap &prdToTrackMap,
                         Counter &stat) const;
@@ -143,18 +144,17 @@ namespace Trk {
       bool m_suppressTrackFit;
 
       /** control material effects (0=non-interacting, 1=pion, 2=electron, 3=muon, 4=pion) read in as an integer 
-	  read in as an integer and convert to particle hypothesis */
+      read in as an integer and convert to particle hypothesis */
       int m_matEffects;
       Trk::ParticleHypothesis m_particleHypothesis;
    
       /**Scoring tool
-	    This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
-	    @todo The actual tool that is used should be configured through job options*/
+      This tool is used to 'score' the tracks, i.e. to quantify what a good track is.
+      @todo The actual tool that is used should be configured through job options*/
       ToolHandle<ITrackScoringTool> m_scoringTool;
 
-
       /** refitting tool - used to refit tracks once shared hits are removed. 
-	    Refitting tool used is configured via jobOptions.*/
+      Refitting tool used is configured via jobOptions.*/
       ToolHandle<ITrackFitter> m_fitterTool;
 
       ToolHandle<Trk::IPRDtoTrackMapTool>         m_assoTool
@@ -164,13 +164,13 @@ namespace Trk {
         {this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
 
       /** selection tool - here the decision which hits remain on a track and
-	     which are removed are made
+       which are removed are made
       */
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
 
       /** monitoring statistics */
-      //enum RegionIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iDBM = 4, nRegions=5};
-      std::vector<float> m_etabounds;           //!< eta intervals for internal monitoring
+      //enum RegionIndex {iBarrel , iTransi , iEndcap , iDBM = 4, nRegions=4};
+      std::vector<float> m_etabounds;           //!< Four eta intervals for internal monitoring
       mutable std::mutex m_statMutex;
       mutable Counter m_stat ATLAS_THREAD_SAFE;
 

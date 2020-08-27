@@ -642,7 +642,7 @@ def muEFCBRecoSequence( RoIs, name ):
                               ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
-                              ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
+                              ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' ),
                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                               ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
@@ -688,7 +688,7 @@ def muEFCBRecoSequence( RoIs, name ):
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
@@ -731,10 +731,10 @@ def muEFCBRecoSequence( RoIs, name ):
   from AthenaCommon.AppMgr import ToolSvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-  ToolSvc.AtlasHoleSearchTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+  ToolSvc.AtlasHoleSearchTool.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
 
   #MS ID combination
   candidatesName = "MuonCandidates"
@@ -775,6 +775,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
   from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonInsideOutRecoAlg, MuGirlStauAlg, MuonCreatorAlg, StauCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  from MuonRecExample.MuonRecFlags import muonRecFlags
 
   efAlgs = []
 
@@ -789,6 +790,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
     from AthenaCommon.AlgSequence import AthSequencer
     from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
+    import AthenaCommon.CfgGetter as CfgGetter
     if not athenaCommonFlags.isOnline:
       condSequence = AthSequencer("AthCondSeq")
       if not hasattr(condSequence,"MdtCondDbAlg"):
@@ -796,8 +798,34 @@ def muEFInsideOutRecoSequence(RoIs, name):
       # Sets up and configures the muon alignment:
       from MuonRecExample import MuonAlignConfig # noqa: F401
 
-    theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
-    efAlgs.append(theSegmentFinderAlg)
+      if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
+        theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
+        efAlgs.append(theMuonLayerHough)
+        SegmentFinder = CfgGetter.getPublicTool("MuonClusterSegmentFinderTool")
+        Cleaner = CfgGetter.getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
+        Cleaner.Extrapolator = CfgGetter.getPublicTool("MuonStraightLineExtrapolator")
+        Cleaner.Fitter = CfgGetter.getPublicTool("MCTBSLFitterMaterialFromTrack")
+        Cleaner.PullCut = 3
+        Cleaner.PullCutPhi = 3
+        SegmentFinder.TrackCleaner = Cleaner
+      
+        theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,SegmentCollectionName="MuonSegments",
+                                                           MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
+                                                           MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
+                                                           MuonTruthSummaryTool = None)
+        # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
+        if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
+          CfgGetter.getPublicTool("CscSegmentUtilTool")
+          CfgGetter.getPublicTool("Csc2dSegmentMaker")
+          CfgGetter.getPublicTool("Csc4dSegmentMaker")
+        else:
+          theSegmentFinderAlg.Csc2dSegmentMaker = ""
+          theSegmentFinderAlg.Csc4dSegmentMaker = ""
+
+      else:
+        theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
+
+      efAlgs.append(theSegmentFinderAlg)
 
     # need to run precisions tracking for late muons, since we don't run it anywhere else
     TrackCollection="TrigFastTrackFinder_Tracks_MuonLate" 
@@ -821,7 +849,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
     from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
-    ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+    ToolSvc.CombinedMuonIDHoleSearch.BoundaryCheckTool.SctSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
     efAlgs.append(theIndetCandidateAlg)
 

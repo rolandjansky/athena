@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonLayerHough/LayerAnalysis.h"
@@ -13,17 +13,9 @@
 #include <fstream>
 #include <TApplication.h> 
 
-int main( int argc, char* argv[]){
-	 
+int main ATLAS_NOT_THREAD_SAFE(int argc, char* argv[]) {
   
   TApplication theApp("App", &argc, argv);
-	
-  //int data = 0;
-  // if( argc > 1 ) {
-  //   TString str = argv[1];
-  //   data = str.Atoi();
-  // }
-
 
   //set the input text file
   TString filename = "input";
@@ -52,21 +44,10 @@ int main( int argc, char* argv[]){
   TChain* ntupleToRead = new TChain("data") ;
   ntupleToRead->SetMakeClass(1);
   TString outName = "LayerAnalysis";
-  //TString inName = "HitNtuple2";
   TString postFix = filename;
-  // if( data == 0 )      postFix += "Cav";
-  // else if( data == 1 ) postFix += "Zmumu";
-  // else if( data == 2 ) postFix += "Overlay1";
-  // else if( data == 3 ) postFix += "Overlay10";
-  // else if( data == 4 ) postFix += "Overlay20";
-  // else if( data == 5 ) postFix += "CavNSW";
-  // else if( data == 6 ) postFix += "SingleNSW";
-  // ntupleToRead->Add("HitNtuple.root"); 
-
   for (unsigned int i = 0; i < fileList.size(); i++) {
     ntupleToRead->Add(fileList.at(i).c_str());
   }
-  //  ntupleToRead->Add(inName+postFix+".root");
   outName += "_" + postFix;
   outName += ".root";
   TFile* output = new TFile(outName,"RECREATE");
