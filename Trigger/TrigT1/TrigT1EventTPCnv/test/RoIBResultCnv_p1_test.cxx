@@ -188,7 +188,7 @@ void test1()
                         std::vector< EMTauRoI > {o+7, o+8, o+9});
   }
 
-  RoIBResult trans1 (muc, ctp, jet, emtau);
+  RoIBResult trans1 (std::move(muc), std::move(ctp), std::move(jet), std::move(emtau));
   
   testit (trans1);
 }

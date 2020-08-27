@@ -15,9 +15,9 @@
 
 namespace ROIB {
 
-  EMTauResult::EMTauResult( const Header& head, const Trailer& trail, const std::vector< EMTauRoI >& roIVector )
-    : m_EMTauResultHeader( head ), m_EMTauResultTrailer( trail ),
-      m_EMTauResultRoIVec( roIVector ) {
+  EMTauResult::EMTauResult( Header&& head, Trailer&& trail, std::vector< EMTauRoI >&& roIVector )
+    : m_EMTauResultHeader( std::move(head) ), m_EMTauResultTrailer( std::move(trail) ),
+      m_EMTauResultRoIVec( std::move(roIVector) ) {
 
   }
 

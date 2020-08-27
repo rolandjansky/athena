@@ -17,6 +17,23 @@
 #include <cassert>
 #include <cstdint>
 
+using namespace L1Topo;
+void trait_tests(){
+
+  static_assert(std::is_trivially_copy_constructible<Status>::value);
+  static_assert(std::is_trivially_destructible<Status>::value);
+  static_assert(std::is_trivially_copy_constructible<ModuleID>::value);
+  static_assert(std::is_trivially_destructible<ModuleID>::value);
+  static_assert(std::is_trivially_copy_constructible<L1TopoTOB>::value);
+  static_assert(std::is_trivially_destructible<L1TopoTOB>::value);
+  static_assert(std::is_nothrow_move_constructible<L1TopoTOB>::value);
+  static_assert(std::is_nothrow_move_constructible<L1TopoRDO>::value);
+  static_assert(std::is_trivially_copy_constructible<Header>::value);
+  static_assert(std::is_trivially_destructible<Header>::value);
+  static_assert(std::is_nothrow_move_constructible<Fibre>::value);
+
+}
+
 // Check decoding of header word via example
 void test1()
 {
@@ -207,9 +224,9 @@ void test9()
 	0x8b008079
 	});
   L1TopoRDO rdo2;
-  rdo1.setDataWords(data1);
+  rdo1.setDataWords(std::move(data1));
   rdo1.setSourceID(0x00910080); // module 0
-  rdo2.setDataWords(data2);
+  rdo2.setDataWords(std::move(data2));
   rdo2.setSourceID(0x00910090); // module 1
   std::cout << rdo1 << rdo2;
   // construct reference value - complicated by 128 bit length
@@ -281,13 +298,13 @@ void test12()
   std::vector<uint32_t> status = { 0, 1, 0, 0, 0  }; 
   std::vector<uint32_t>  count = { 0, 1, 0, 6, 13 };
   uint32_t word(0xd0440668); // word that matches the above values 0x1101 0000 0100 0100 0000 0110 0110 1000 = 0xd0440668
-  L1Topo::Fibre f1(status,count);
+  L1Topo::Fibre f1(std::move(status),std::move(count));
   std::cout << "Fibre with status and sizes " << f1 << std::endl;  
   std::cout << "Fibre word encoded from these " << L1Topo::formatHex8(f1.word()) << std::endl;
   std::cout << "Compare to word " << L1Topo::formatHex8(word) << std::endl;
   assert (f1.word()==word);
   L1Topo::Fibre f2(word);
-  L1Topo::Fibre f3(f2.status(),f2.count());
+  L1Topo::Fibre f3(std::vector<uint32_t>(f2.status()),std::vector<uint32_t>(f2.count()));
   std::cout << "L1Topo::Fibre  decoded from word " << L1Topo::formatHex8(f2.word()) << std::endl;
   std::cout << "L1Topo::Fibre re-encoded to word " << L1Topo::formatHex8(f3.word()) << std::endl;
   assert (f3.word() == f2.word());

@@ -10,25 +10,15 @@ using namespace std;
 
 namespace ROIB {
 
-  RecRoIBResult::RecRoIBResult( const std::vector< LVL1::RecEmTauRoI >& recEmTauRoIs,
-                                const std::vector< LVL1::RecMuonRoI >& recMuonRoIs,
-                                const std::vector< LVL1::RecJetRoI >& recJetRoIs )
-    : m_recRoIBResult_RecEmTauRoIVector( recEmTauRoIs ),
-      m_recRoIBResult_RecMuonRoIVector( recMuonRoIs ),
-      m_recRoIBResult_RecJetRoIVector( recJetRoIs ) {
+  RecRoIBResult::RecRoIBResult( std::vector< LVL1::RecEmTauRoI >&& recEmTauRoIs,
+                                std::vector< LVL1::RecMuonRoI >&& recMuonRoIs,
+                                std::vector< LVL1::RecJetRoI >&& recJetRoIs )
+    : m_recRoIBResult_RecEmTauRoIVector( std::move(recEmTauRoIs) ),
+      m_recRoIBResult_RecMuonRoIVector( std::move(recMuonRoIs) ),
+      m_recRoIBResult_RecJetRoIVector( std::move(recJetRoIs) ) {
 
   }
 
-  RecRoIBResult::RecRoIBResult()
-    : m_recRoIBResult_RecEmTauRoIVector(),
-      m_recRoIBResult_RecMuonRoIVector(),
-      m_recRoIBResult_RecJetRoIVector() {
-
-  }
-
-  RecRoIBResult::~RecRoIBResult() {
-
-  }
 
   const vector< LVL1::RecEmTauRoI >& RecRoIBResult::recEmTauRoIVector() const {
     return m_recRoIBResult_RecEmTauRoIVector;

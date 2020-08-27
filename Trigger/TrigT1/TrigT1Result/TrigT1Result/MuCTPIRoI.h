@@ -44,7 +44,7 @@ namespace ROIB {
     /// Default constructor
     MuCTPIRoI();
     /// Destructor
-    ~MuCTPIRoI();
+    ~MuCTPIRoI()= default;
 
     /// Method returning the RoI word
     uint32_t roIWord() const;

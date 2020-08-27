@@ -35,12 +35,6 @@ MuCTPI_MultiplicityWord_Decoder::MuCTPI_MultiplicityWord_Decoder( const uint32_t
   if (inclusiveTriggerMode) m_triggerMode = inclusive;
 }
 
-/**
- * Another useless I-don't-do-anythin' destructor.
- */
-MuCTPI_MultiplicityWord_Decoder::~MuCTPI_MultiplicityWord_Decoder() {
-
-}
 
 /**
  * @return total number of muon candidates

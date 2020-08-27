@@ -23,7 +23,7 @@ namespace ROIB {
     /* A RoI is a uint32_t */
     JetEnergyRoI( uint32_t );
     JetEnergyRoI();
-    ~JetEnergyRoI();
+    ~JetEnergyRoI() = default;
                                                                                 
     /* Method to update the RoI word format  Obselete*/
     void update();

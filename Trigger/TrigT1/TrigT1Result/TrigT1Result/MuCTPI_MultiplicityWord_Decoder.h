@@ -39,7 +39,7 @@ public:
   /// Constructor
   MuCTPI_MultiplicityWord_Decoder( const uint32_t multword, const bool inclusiveTriggerMode);
   /// Destructor
-  ~MuCTPI_MultiplicityWord_Decoder();
+  ~MuCTPI_MultiplicityWord_Decoder() = default;
 
   /// Function returning the total number of muon candidates
   uint16_t getNCandidates() const;
