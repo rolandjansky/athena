@@ -577,7 +577,7 @@ GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
 		
       if( name == tmp_name){
 
-	material_name  = rec->getString("NAME");
+	material_name  = detector+"::"+rec->getString("NAME");
 	material_id = rec->getLong(data_id);
 	material_density = rec->getDouble("DENSITY");
         		
@@ -791,7 +791,7 @@ const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) co
       tmp_name = detector+"::"+rec->getString("NAME");
 		
       if( name == tmp_name){
-	material_name  = rec->getString("NAME");
+	material_name  =detector+"::"+rec->getString("NAME");
 	material_id = rec->getLong(data_id);
 	material_density = rec->getDouble("DENSITY");
         		
@@ -1054,13 +1054,13 @@ GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
   return pelement;
 }
 
-void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *material) {
+void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) {
 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
     log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endmsg;
 	
-  std::string key = space + std::string("::")+ std::string(material->getName());
+  std::string key = std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
   if(m_materialMap.find(key)!=m_materialMap.end())
     log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endmsg;
@@ -1071,13 +1071,13 @@ void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *mat
   }
 }
 
-void RDBMaterialManager::addMaterial(const std::string & space, GeoMaterial *material) const {
+void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) const {
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
   if(log.level()==MSG::VERBOSE)
     log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endmsg;
 	
-  std::string key = space + std::string("::")+ std::string(material->getName());
+  std::string key = std::string(material->getName());
   // Check whether we already have materials with the same space::name defined
   if(m_materialMap.find(key)!=m_materialMap.end())
     log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endmsg;
@@ -1131,11 +1131,11 @@ void RDBMaterialManager::buildSpecialMaterials()
   GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
   ethElement->ref();
   m_elementVector.push_back(ethElement);
-  GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
+  GeoMaterial* ether = new GeoMaterial("special::Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
   // "Alternative" assembly material
-  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  GeoMaterial* hu = new GeoMaterial("special::HyperUranium",0.0);	
   hu->add(ethElement,1.);
   addMaterial("special",hu);
 }
@@ -1146,11 +1146,11 @@ void RDBMaterialManager::buildSpecialMaterials() const
   GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
   ethElement->ref();
   m_elementVector.push_back(ethElement);  
-  GeoMaterial* ether = new GeoMaterial("Ether",0.0);	
+  GeoMaterial* ether = new GeoMaterial("special::Ether",0.0);	
   ether->add(ethElement,1.);
   addMaterial("special",ether);
   // "Alternative" assembly material
-  GeoMaterial* hu = new GeoMaterial("HyperUranium",0.0);	
+  GeoMaterial* hu = new GeoMaterial("special::HyperUranium",0.0);	
   hu->add(ethElement,1.);
   addMaterial("special",hu);
 }

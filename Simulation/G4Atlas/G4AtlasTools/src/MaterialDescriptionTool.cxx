@@ -40,7 +40,6 @@ StatusCode MaterialDescriptionTool::preGeometryConfigure() const
   G4Element* Ca  = man->FindOrBuildElement("Ca");
   G4Element* Al  = man->FindOrBuildElement("Al");
   G4Element* Fe  = man->FindOrBuildElement("Fe");
-  G4Element* C   = man->FindOrBuildElement("C");
 
   // Constructor of G4Material inserts it into a table for later use
   G4Material *air = new G4Material("Air", 0.001214*CLHEP::g/CLHEP::cm3,4);
@@ -59,15 +58,6 @@ StatusCode MaterialDescriptionTool::preGeometryConfigure() const
   material_concrete->AddElement(Ca,0.049860);
   material_concrete->AddElement(Al,0.014245);
   material_concrete->AddElement(Fe,0.002850);
-
-  G4Material *material_scintillator = new G4Material("Scintillator",1.032*CLHEP::g/CLHEP::cm3,2);
-  material_scintillator->AddElement(C,0.5);
-  material_scintillator->AddElement(H,0.5);
-
-  G4Material *material_mylar = new G4Material("Mylar",1.39*CLHEP::g/CLHEP::cm3,3);
-  material_mylar->AddElement(H,4./11.);
-  material_mylar->AddElement(C,5./11.);
-  material_mylar->AddElement(O,2./11.);
 
   G4Material *material_rock = new G4Material("Rock",2.33*CLHEP::g/CLHEP::cm3,1);
   material_rock->AddElement(Si,1);
