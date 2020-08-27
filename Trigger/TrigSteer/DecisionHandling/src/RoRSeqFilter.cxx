@@ -166,7 +166,7 @@ size_t RoRSeqFilter::copyPassing( const DecisionContainer& input,
 
     if ( not intersection.empty() ) {      
       // This sets up the 'self' link & the 'seed' link (seeds from inputDecision)
-      Decision* decisionCopy = newDecisionIn( &output, inputDecision, name() );
+      Decision* decisionCopy = newDecisionIn( &output, inputDecision, "F" );
 
       // Copy accross only the DecisionIDs which have passed through this Filter for this Decision object. 
       // WARNING: Still need to 100% confirm if the correct set to propagate forward is objDecisions or intersection.
