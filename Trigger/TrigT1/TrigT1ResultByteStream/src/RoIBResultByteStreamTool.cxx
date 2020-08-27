@@ -264,7 +264,7 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
         unsigned int ctpVersionNumber = ((rod[CTPdataformat::Helper::FormatVersionPos] >> CTPdataformat::CTPFormatVersionShift) & CTPdataformat::CTPFormatVersionMask);
 
         // Create CTPResult object
-        cTPResult = ROIB::CTPResult(ctpVersionNumber, header, trailer, content);
+        cTPResult = ROIB::CTPResult(ctpVersionNumber, std::move(header), std::move(trailer), std::move(content));
         break;
       }
 
@@ -288,7 +288,7 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
         ROIB::Trailer trailer = roibTrailer(status, content.size());
 
         // Create MuCTPIResult object
-        muCTPIResult = ROIB::MuCTPIResult(header, trailer, content);
+        muCTPIResult = ROIB::MuCTPIResult(std::move(header), std::move(trailer), std::move(content));
         break;
       }
 
@@ -314,7 +314,7 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
         ROIB::Trailer trailer = roibTrailer(status, content.size());
 
         // Create JetEnergyResult object
-        jetEnergyResult[index] = ROIB::JetEnergyResult(header, trailer, content);
+        jetEnergyResult[index] = ROIB::JetEnergyResult(std::move(header), std::move(trailer), std::move(content));
         break;
       }
 
@@ -340,7 +340,7 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
         ROIB::Trailer trailer = roibTrailer(status, content.size());
 
         // Create EMTauResult object
-        eMTauResult[index] = ROIB::EMTauResult(header, trailer, content);
+        eMTauResult[index] = ROIB::EMTauResult(std::move(header), std::move(trailer), std::move(content));
         break;
       }
 
@@ -373,7 +373,7 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
         if (status.rod_error) content.setError(L1Topo::Error::ROD_ERROR);
 
         // Create L1TopoResult object
-        l1TopoResult.push_back(ROIB::L1TopoResult(header, trailer, content));
+        l1TopoResult.emplace_back(std::move(header), std::move(trailer), std::move(content));
         break;
       }
 
@@ -399,11 +399,11 @@ StatusCode RoIBResultByteStreamTool::convertFromBS(const std::vector<const ROBFr
 
   // Create and record the RoIBResult
   auto roibResult = SG::makeHandle(m_roibResultWriteKey, eventContext);
-  ATH_CHECK(roibResult.record(std::make_unique<ROIB::RoIBResult>(muCTPIResult, cTPResult, jetEnergyResult, eMTauResult)));
+  ATH_CHECK(roibResult.record(std::make_unique<ROIB::RoIBResult>(std::move(muCTPIResult), std::move(cTPResult), std::move(jetEnergyResult), std::move(eMTauResult))));
   ATH_MSG_DEBUG("Recorded RoIBResult with key " << m_roibResultWriteKey.key());
 
   // Add L1Topo result
-  if (l1TopoFound) roibResult->l1TopoResult(l1TopoResult);
+  if (l1TopoFound) roibResult->l1TopoResult(std::move(l1TopoResult));
 
   return StatusCode::SUCCESS;
 }
@@ -472,7 +472,7 @@ ROIB::Trailer RoIBResultByteStreamTool::roibTrailer(const DataStatus& dataStatus
   words.push_back(2);                      // number of status words
   words.push_back(dataSize);               // number of data words
   words.push_back(1);                      // status block position
-  return ROIB::Trailer(words);
+  return ROIB::Trailer(std::move(words));
 }
 
 template<typename RoIType> std::vector<RoIType> RoIBResultByteStreamTool::roibContent(const ROBFragment& rob) const {
@@ -504,7 +504,7 @@ L1TopoRDO RoIBResultByteStreamTool::l1topoContent(const ROBFragment& rob) const 
                     << static_cast<uint32_t>(*data) << MSG::dec);
     vDataWords.push_back(static_cast<uint32_t>(*data));
   }
-  content.setDataWords(vDataWords);
+  content.setDataWords(std::move(vDataWords));
   content.setSourceID(rob.rod_source_id());
   return content;
 }

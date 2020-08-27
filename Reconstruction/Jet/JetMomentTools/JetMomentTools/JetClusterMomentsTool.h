@@ -21,8 +21,9 @@
 ///  
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "JetInterface/IJetDecorator.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
 

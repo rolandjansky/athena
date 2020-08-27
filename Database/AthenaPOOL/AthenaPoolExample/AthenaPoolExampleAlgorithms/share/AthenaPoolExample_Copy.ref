@@ -118,6 +118,9 @@ ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for m
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
+EventInfoCnvAlg...WARNING Beam conditions service not available
+EventInfoCnvAlg...WARNING Will not fill beam spot information into xAOD::EventInfo
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
@@ -132,7 +135,6 @@ Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
-AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
@@ -187,7 +189,6 @@ CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventIn
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 ClassIDSvc           INFO  getRegistryEntries: read 32 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
@@ -236,7 +237,6 @@ SimplePoolRepli...  DEBUG --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
 SimplePoolRepli...  DEBUG ---->ClassID:????
 ##Params            DEBUG No objects passing selection criteria... Container has 0 Entries in total.
 AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolReplica1.root and cont: TTree=POOLContainerForm(DataHeaderForm)
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
@@ -278,6 +278,118 @@ SimplePoolRepli...  DEBUG ---->ClassID:????
 SimplePoolRepli...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolRepli...  DEBUG ---->Class:DataHeaderForm_p6
 SimplePoolRepli...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'Token'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [20?]  (7 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG ---->Class:Token
+SimplePoolRepli...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO bool [????]
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsSimulation)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsSimulation'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsSimulation) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [20?]  (8 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG ---->Class:bool
+SimplePoolRepli...  DEBUG ---->[0]:bool Typ:bool [9] Size:0 Offset:0 #Elements:1
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsCalibration)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsCalibration'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsCalibration) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [20?]  (9 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsTestBeam)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsTestBeam'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsTestBeam) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [20?]  (a , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(McChannel)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'McChannel'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(McChannel) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [20?]  (b , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG ---->Class:unsigned int
+SimplePoolRepli...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'RunNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [20?]  (c , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO unsigned long long [????]
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [20?]  (d , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG ---->Class:unsigned long long
+SimplePoolRepli...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23] Size:0 Offset:0 #Elements:1
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(LumiBlockN)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'LumiBlockN'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(LumiBlockN) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [20?]  (e , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(ConditionsRun)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'ConditionsRun'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(ConditionsRun) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [20?]  (f , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTime)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventTime'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTime) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [20?]  (10 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTimeNanoSec)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventTimeNanoSec'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTimeNanoSec) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [20?]  (11 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(BunchId)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'BunchId'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(BunchId) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [20?]  (12 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+StorageSvc           INFO Building shape according to reflection information using shape ID for:
+StorageSvc           INFO float [????]
+SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventWeight)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventWeight'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventWeight) of type ROOT_Tree
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [20?]  (13 , ffffffff)
+SimplePoolRepli...  DEBUG ---->ClassID:????
+SimplePoolRepli...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG ---->Class:float
+SimplePoolRepli...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolReplica1.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolReplica1.root and cont: POOLContainerForm(DataHeaderForm)
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
@@ -290,7 +402,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -304,7 +415,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 2
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -316,7 +426,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -330,7 +439,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 3
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -342,7 +450,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -356,7 +463,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 4
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -368,7 +474,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -382,7 +487,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 5
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -394,7 +498,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -408,7 +511,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 6
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -420,7 +522,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -434,7 +535,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 7
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -446,7 +546,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -460,7 +559,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 8
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -472,7 +570,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -486,7 +583,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 9
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -498,7 +594,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -512,7 +607,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 10
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -524,7 +618,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -538,7 +631,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 11
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -550,7 +642,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -564,7 +655,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 12
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -576,7 +666,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -590,7 +679,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 13
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -602,7 +690,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -616,7 +703,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 14
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -628,7 +714,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -642,7 +727,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 15
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -654,7 +738,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -668,7 +751,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 16
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -680,7 +762,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -694,7 +775,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 17
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -706,7 +786,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -720,7 +799,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 18
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -732,7 +810,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -746,7 +823,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 19
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -758,7 +834,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events processed so far  <<<===
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
 Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
@@ -772,7 +847,6 @@ Stream1             DEBUG  Added object 9102,"MyHits"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
 Stream1             DEBUG  Object/count: ExampleHitContainer_MyHits, 20
-Stream1.Stream1...WARNING Unable to retrieve AttributeList with key 'StoreGateSvc+SimpleTag'
 Stream1             DEBUG connectOutput done for SimplePoolReplica1.root
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 EventSelector        INFO Disconnecting input sourceID: ????
@@ -799,9 +873,9 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (7 , ffffffff)
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (14 , ffffffff)
 SimplePoolRepli...  DEBUG ---->ClassID:????
-SimplePoolRepli...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolRepli...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
 SimplePoolRepli...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolRepli...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
@@ -809,14 +883,14 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (8 , ffffffff)
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (15 , ffffffff)
 SimplePoolRepli...  DEBUG ---->ClassID:????
 SimplePoolRepli...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
+SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (16 , ffffffff)
 SimplePoolRepli...  DEBUG ---->ClassID:????
 Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop

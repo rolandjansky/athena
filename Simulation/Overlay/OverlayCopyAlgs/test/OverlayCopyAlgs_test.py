@@ -14,6 +14,7 @@ from OverlayConfiguration.OverlayTestHelpers import \
 from OverlayCopyAlgs.OverlayCopyAlgsConfig import \
     CopyCaloCalibrationHitContainersCfg, CopyJetTruthInfoCfg, CopyMcEventCollectionCfg, \
     CopyTimingsCfg, CopyTrackRecordCollectionsCfg
+from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 # Configure
 Configurable.configurableRun3Behavior = True
@@ -30,7 +31,10 @@ postprocessAndLockFlags(ConfigFlags, args)
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
-# Add truth overlay (needed downstream)
+# Add event info overlay (needed downstream)
+acc.merge(EventInfoOverlayCfg(ConfigFlags))
+
+# Add truth overlay
 acc.merge(CopyMcEventCollectionCfg(ConfigFlags))
 acc.merge(CopyJetTruthInfoCfg(ConfigFlags))
 acc.merge(CopyTimingsCfg(ConfigFlags))

@@ -45,12 +45,15 @@ namespace ROIB {
 
   public:
     /// Constructor with header, trailer and RoI vector
-    MuCTPIResult( const Header& head, const Trailer& trail, const std::vector< MuCTPIRoI >& roIVector );
+    MuCTPIResult( Header&& head, Trailer&& trail, std::vector< MuCTPIRoI > &&roIVector );
     /// Default constructor
     MuCTPIResult();
     /// Destructor
-    ~MuCTPIResult();
+    ~MuCTPIResult() = default;
 
+    MuCTPIResult(MuCTPIResult&&) noexcept = default;
+    MuCTPIResult& operator=(MuCTPIResult&&) noexcept = default;
+    
     /// Member function returning the header
     const Header& header() const;
     /// Member function returning the trailer

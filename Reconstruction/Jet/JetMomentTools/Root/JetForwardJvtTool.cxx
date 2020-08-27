@@ -11,6 +11,8 @@
 
 // JetForwardJvtTool includes
 #include "JetMomentTools/JetForwardJvtTool.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 // Jet EDM
 
@@ -22,7 +24,6 @@
   ////////////////
   JetForwardJvtTool::JetForwardJvtTool(const std::string& name) :
     AsgTool(name) {
-    declareInterface<IJetDecorator>(this);
   }
 
   // Destructor
@@ -63,12 +64,6 @@
     ATH_CHECK(m_jvtMomentKey.initialize());
     ATH_CHECK(m_sumPtsKey.initialize());
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode JetForwardJvtTool::finalize()
-  {
-    ATH_MSG_INFO ("Finalizing " << name() << "...");
     return StatusCode::SUCCESS;
   }
 

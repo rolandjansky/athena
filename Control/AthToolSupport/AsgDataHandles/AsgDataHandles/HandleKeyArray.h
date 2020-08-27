@@ -29,10 +29,10 @@ namespace SG {
   template <class T_Handle, class T_HandleKey/*, Gaudi::DataHandle::Mode MODE*/>
   class HandleKeyArray : public VarHandleKeyArrayCommon< T_HandleKey > {
   public:
-    // /**
-    //  * @brief default Constructor from a HandleKeyArray
-    //  */
-    // HandleKeyArray(){}
+    /**
+     * @brief default Constructor from a HandleKeyArray
+     */
+    HandleKeyArray(){}
 
     // /**
     //  * @brief Constructor from a HandleKeyArray that takes a vector

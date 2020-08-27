@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -120,7 +120,7 @@ struct X2
 
 CLASS_DEF(X1, 8011, 1)
 CLASS_DEF(X2, 8012, 1)
-SG_BASE(X2, X1);
+SG_BASES(X2, X1);
 
 CLASS_DEF( const int* , 206871866 , 1 )
 

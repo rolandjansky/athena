@@ -74,8 +74,12 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDic
         rcConstitPJKey = rcConstitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+rcJetsFullName+"/")
+
         rcPJs = [rcConstitPJKey]
-        rcJetRecAlg = getJetAlgorithm(rcJetsFullName, rcJetDef, rcPJs, rcModList)
+        rcJetRecAlg = getJetAlgorithm(rcJetsFullName, rcJetDef, rcPJs, rcModList, monTool)
 
         recoSeq += conf2toConfigurable( rcJetRecAlg )
 
@@ -100,8 +104,12 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDic
         groomedModList = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
         # Can add substructure mods here
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+groomedJetsFullName+"/")
+
         from JetRecConfig.JetGroomConfig import getJetGroomAlg
-        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,parentpjs,groomedModList)
+        groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,parentpjs,groomedModList,monTool)
         recoSeq += conf2toConfigurable( groomalg )
 
         sequenceOut = recordable(groomedJetsFullName)

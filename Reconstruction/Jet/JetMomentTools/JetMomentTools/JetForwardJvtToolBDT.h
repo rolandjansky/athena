@@ -23,6 +23,7 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/PropertyWrapper.h"
 
 // EDM includes
 #include "xAODEventInfo/EventInfo.h"
@@ -32,10 +33,10 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "JetInterface/IJetDecorator.h"
 #include "AsgTools/IAsgTool.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 
 namespace TMVA{ class Reader; }

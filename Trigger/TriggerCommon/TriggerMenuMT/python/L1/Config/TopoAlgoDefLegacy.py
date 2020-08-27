@@ -630,17 +630,17 @@ class TopoAlgoDefLegacy:
         # (ATR-8194) L1Topo HT Trigger
         if usev8:
             algoList = [
-            {"minHT": 150, "otype" : "J", "ocut" : 20, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 31}, #HT150-J20s5.ETA31
-            {"minHT": 190, "otype" : "J", "ocut" : 15, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 21}, #HT190-J15s5.ETA21
+            {"minHT": 150, "otype" : "J", "ocut" : 20, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 31}, #HT150-J20s5pETA31
+            {"minHT": 190, "otype" : "J", "ocut" : 15, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 21}, #HT190-J15s5pETA21
             ]
         else:
             algoList = [
-            {"minHT": 150, "otype" : "J", "ocut" : 20, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 31}, #HT150-J20s5.ETA31
-            {"minHT": 190, "otype" : "J", "ocut" : 15, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 21}, #HT190-J15s5.ETA21
-            {"minHT": 190, "otype" : "AJ", "ocut" : 15, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 21}, #HT190-AJ15all.ETA21
-            {"minHT": 150, "otype" : "AJ", "ocut" : 20, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 31}, #HT150-AJ20all.ETA31
-            {"minHT": 150, "otype" : "AJj","ocut" : 15, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 49}, #HT150-AJj15all.ETA49
-            {"minHT": 20,  "otype" : "AJj","ocut" : 15,  "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 49}, #HT20-AJj15all.ETA49
+            {"minHT": 150, "otype" : "J", "ocut" : 20, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 31}, #HT150-J20s5pETA31
+            {"minHT": 190, "otype" : "J", "ocut" : 15, "olist" : "s",   "nleading" : 5, "inputwidth": HW.OutputWidthSortJET, "oeta" : 21}, #HT190-J15s5pETA21
+            {"minHT": 190, "otype" : "AJ", "ocut" : 15, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 21}, #HT190-AJ15allpETA21
+            {"minHT": 150, "otype" : "AJ", "ocut" : 20, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 31}, #HT150-AJ20allpETA31
+            {"minHT": 150, "otype" : "AJj","ocut" : 15, "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 49}, #HT150-AJj15allpETA49
+            {"minHT": 20,  "otype" : "AJj","ocut" : 15,  "olist" : "all", "nleading" : HW.InputWidthJET, "inputwidth": HW.InputWidthJET, "oeta" : 49}, #HT20-AJj15allpETA49
             ]
         for x in algoList:
             
@@ -649,7 +649,7 @@ class TopoAlgoDefLegacy:
             for k in x:
                 setattr (d, k, x[k])
                 
-            toponame = "HT%d-%s%s%s%s.ETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))
+            toponame = "HT%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))
             
             log.debug("Define %s", toponame)
             
@@ -1145,7 +1145,7 @@ class TopoAlgoDefLegacy:
             
         # JetMatch
         if not usev8:
-            toponame = "0MATCH-4AJ20.ETA31-4AJj15.ETA31"
+            toponame = "0MATCH-4AJ20pETA31-4AJj15pETA31"
             alg = AlgConf.MultiplicityCustom( name = toponame, inputs = [ 'AJMatchall' ], outputs = [ toponame ], algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.InputWidthJET)
@@ -1158,7 +1158,7 @@ class TopoAlgoDefLegacy:
         
         # NoMatch for W T&P
         if not usev8:        
-            toponame = "NOT-02MATCH-EM10s1-AJj15all.ETA49"
+            toponame = "NOT-02MATCH-EM10s1-AJj15allpETA49"
             alg = AlgConf.NotMatch( name = toponame, inputs = [ 'EMs', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
@@ -1215,7 +1215,7 @@ class TopoAlgoDefLegacy:
             for k in x:
                 setattr (d, k, x[k])
                 
-            toponame = "%02d%s-XE0-HT0-AJj%sall.ETA49"  % (d.minRatio, d.Ratio, str(d.ocut))
+            toponame = "%02d%s-XE0-HT0-AJj%sallpETA49"  % (d.minRatio, d.Ratio, str(d.ocut))
             log.debug("Define %s", toponame)
             
             alg = AlgConf.Ratio( name = toponame, inputs = ['XE', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId ) 
@@ -1653,7 +1653,7 @@ class TopoAlgoDefLegacy:
             for k in x:
                 setattr (d, k, x[k])
 
-            toponame = "SC%d-%s%s%s%s.ETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))
+            toponame = "SC%d-%s%s%s%spETA%s" % (d.minHT, d.otype, str(d.ocut), d.olist, str(d.nleading) if d.olist=="s" else "", str(d.oeta))
 
             log.debug("Define %s", toponame)
 
@@ -1705,7 +1705,7 @@ class TopoAlgoDefLegacy:
 
 
         for x in [
-                {  "minInvm": 400, "maxInvm": 9999, "otype1" : "AJ", "ocut1": 30, "olist1" : "s", "nleading1" : 6, "inputwidth1": HW.OutputWidthSortJET, "otype2" : "AJ", "ocut2": 20, "olist2" : "s", "nleading2" : 6, "inputwidth2": HW.OutputWidthSortJET, "applyEtaCut":1, "minEta1": 0 ,"maxEta1": 31 , "minEta2": 31 ,"maxEta2": 49 , }, #400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49
+                {  "minInvm": 400, "maxInvm": 9999, "otype1" : "AJ", "ocut1": 30, "olist1" : "s", "nleading1" : 6, "inputwidth1": HW.OutputWidthSortJET, "otype2" : "AJ", "ocut2": 20, "olist2" : "s", "nleading2" : 6, "inputwidth2": HW.OutputWidthSortJET, "applyEtaCut":1, "minEta1": 0 ,"maxEta1": 31 , "minEta2": 31 ,"maxEta2": 49 , }, #400INVM9999-AJ30s6.ETA31-AJ20s6p31ETA49
                 ]:
             
                 class d:
@@ -1713,8 +1713,8 @@ class TopoAlgoDefLegacy:
                 for k in x:
                     setattr (d, k, x[k])
 
-                obj1 = "%s%s%s.%sETA%i"  % (d.otype1, str(d.ocut1), d.olist1 + (str(d.nleading1) if d.olist1.find('s')>=0 else ""),str(d.minEta1) if d.minEta1>0 else "", d.maxEta1)
-                obj2 = "-%s%s%s.%sETA%i"  % (d.otype2, str(d.ocut2), d.olist2 + (str(d.nleading2) if d.olist2.find('s')>=0 else ""),str(d.minEta2) if d.minEta2>0 else "", d.maxEta2)
+                obj1 = "%s%s%sp%sETA%i"  % (d.otype1, str(d.ocut1), d.olist1 + (str(d.nleading1) if d.olist1.find('s')>=0 else ""),str(d.minEta1) if d.minEta1>0 else "", d.maxEta1)
+                obj2 = "-%s%s%sp%sETA%i"  % (d.otype2, str(d.ocut2), d.olist2 + (str(d.nleading2) if d.olist2.find('s')>=0 else ""),str(d.minEta2) if d.minEta2>0 else "", d.maxEta2)
             
                 inputList = [d.otype1 + d.olist1, d.otype2 + d.olist2]
                         

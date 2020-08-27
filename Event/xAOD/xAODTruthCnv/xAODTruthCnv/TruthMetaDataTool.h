@@ -20,6 +20,10 @@
 #include "xAODTruth/TruthMetaDataContainer.h"
 #include "xAODTruth/TruthMetaDataAuxContainer.h"
 
+namespace SG {
+  typedef std::string SourceID;
+}
+
 namespace xAODMaker {
 
    /// Tool taking care of copying the truth metadata from file to file

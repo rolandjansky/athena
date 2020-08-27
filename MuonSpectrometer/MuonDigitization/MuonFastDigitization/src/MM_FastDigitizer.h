@@ -12,27 +12,24 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include <string>
-
-class TTree;
-class TFile;
 
 namespace MuonGM {
   class MuonDetectorManager;
 }
-
-//Random
-namespace CLHEP{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
 class ActiveStoreSvc;
 class MuonSimDataCollection;
+class TTree;
+class TFile;
 
 class MM_FastDigitizer : public AthAlgorithm {
 
@@ -45,13 +42,11 @@ class MM_FastDigitizer : public AthAlgorithm {
   StatusCode execute();
   StatusCode finalize();
 
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used
-  
   float RadsToDegrees(float Radians);
  
  private:
-  ActiveStoreSvc*             m_activeStore;
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
+  ActiveStoreSvc* m_activeStore;
   const MuonGM::MuonDetectorManager* m_detManager;
   
   TFile* m_file;
@@ -111,9 +106,9 @@ class MM_FastDigitizer : public AthAlgorithm {
 
  protected:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  ToolHandle <Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator;
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator{this,"ClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service used in Muon digitization"};
+
   std::string m_rndmEngineName;// name of random engine
   std::string m_inputObjectName; // name of the input objects
   SG::WriteHandleKey<MuonSimDataCollection> m_sdoName; // name of the output SDO collection

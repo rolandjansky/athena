@@ -7,7 +7,6 @@
  -----------------------------------------
  ***************************************************************************/
 
-#include "MuonGeoModelTest/PerfUtils.h"
 #include "MuonGeoModelTest/MuonGMCheck.h"
 
 #include "MuonDigitContainer/RpcDigitContainer.h"
@@ -32,6 +31,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "MuonGeoModelTest/PerfUtils.h"
 
 #include <boost/format.hpp>
 
@@ -48,8 +48,7 @@ using namespace MuonGM;
 
 MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    p_MuonMgr(nullptr),
-    m_fixedIdTool("MuonCalib::IdToFixedIdTool")
+    p_MuonMgr(nullptr)
 {
     m_mem = 0;
     m_cpu[0] = 0;
@@ -105,9 +104,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     declareProperty("testTgcDetectorElementHash",m_testTgcDetectorElementHash=0);
     declareProperty("testCscDetectorElementHash",m_testCscDetectorElementHash=0);
     
-        
-    declareProperty("idTool", m_fixedIdTool);
-    
     m_print_level	   =	0;
     declareProperty("print_level",     m_print_level);
     m_mdtgood = 0;
@@ -128,7 +124,8 @@ MuonGMCheck::initialize()
   // first get helpers 
   ATH_MSG_DEBUG("Get Muon Id Helpers from the det store (through their converters)" );
 	
-  ATH_CHECK( m_idHelperSvc.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_fixedIdTool.retrieve());
 
   ATH_MSG_DEBUG( " Muon Id Helper retrieved from handle "  );
   showVmemCpu("initialize (IDHELPER retrieved from handle)");

@@ -7,6 +7,9 @@
 #
 
 
+from __future__ import print_function
+
+
 class Notifier:
     def Notify (self, *args):
         print ('Notify', args)

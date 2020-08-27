@@ -151,6 +151,15 @@ public:
   bool isPresent_impl (const std::string& key) const;
 
 
+protected:
+  /**
+   * @brief Protected constructor used by WriteDecorHandle.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context, or nullptr to use the global default.
+   */
+  explicit ReadHandle (const VarHandleKey& key, const EventContext* ctx);
+
+
 private:
   /**
    * @brief Helper: dereference the pointer.
