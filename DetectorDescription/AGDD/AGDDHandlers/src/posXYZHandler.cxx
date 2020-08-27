@@ -26,7 +26,7 @@ void posXYZHandler::ElementHandle()
 	if (res) std::cout<<" symmetry implemented for "<<volume<<std::endl;
 	std::string sRot="";
 	CLHEP::Hep3Vector cvec;
-	CLHEP::HepRotation crot;
+	GeoTrf::Transform3D crot = GeoTrf::Transform3D::Identity();
 	std::vector<double> X_Y_Z=getAttributeAsVector("X_Y_Z",posRet);
 	if (posRet) 
 	{
@@ -35,10 +35,7 @@ void posXYZHandler::ElementHandle()
 	std::vector<double> rot=getAttributeAsVector("rot",rotRet);
 	if (rotRet) 
 	{
-		crot=CLHEP::HepRotation();
-		crot.rotateX(rot[0]*GeoModelKernelUnits::degree);
-		crot.rotateY(rot[1]*GeoModelKernelUnits::degree);
-		crot.rotateZ(rot[2]*GeoModelKernelUnits::degree);
+		crot = crot*GeoTrf::RotateZ3D(rot[2]*GeoModelKernelUnits::degree)*GeoTrf::RotateY3D(rot[1]*GeoModelKernelUnits::degree)*GeoTrf::RotateX3D(rot[0]*GeoModelKernelUnits::degree);
 	}
 	if (s_printFlag) {
 		std::cout<<"   posXYV "<<volume;
@@ -46,6 +43,6 @@ void posXYZHandler::ElementHandle()
 		if (rotRet) std::cout<<" rot= ("<<rot[0]<<";"<<rot[1]<<";"<<rot[2]<<")";
 		std::cout<<std::endl;
 	}
-	AGDDPositioner *p=new AGDDPositioner(volume,Amg::CLHEPTransformToEigen(HepGeom::Transform3D(crot,cvec)));
+	AGDDPositioner *p=new AGDDPositioner(volume,Amg::CLHEPTranslationToEigen(cvec)*crot);
 	globals::currentPositioner=p;
 }
