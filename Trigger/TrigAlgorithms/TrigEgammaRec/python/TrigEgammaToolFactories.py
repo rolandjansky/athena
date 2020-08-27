@@ -195,9 +195,6 @@ def configureClusterCorrections(slwAlg):
     from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections
     clusterTypes = ("ele37","ele55")
     for cl in clusterTypes:
-        clName = "CaloRunClusterCorrections"+cl
-        if hasattr(slwAlg,clName):
-            continue
         for tool in make_CaloSwCorrections (cl,version=EgammaSliceFlags.clusterCorrectionVersion()):
             slwAlg += tool
             slwAlg.ClusterCorrectionTools += [tool.getFullName()]
