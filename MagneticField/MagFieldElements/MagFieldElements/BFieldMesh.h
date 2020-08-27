@@ -2,14 +2,16 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//
-// BFieldMesh.h
-//
-// Generic 3-d mesh representing a simple field map.
-// The field type is templated - it may be short (for the toroid) or double (for
-// the solenoid)
-//
-// Masahiro Morii, Harvard University
+/*
+ * BFieldMesh.h
+ * Generic 3-d mesh representing a simple field map.
+ * The field type is templated - it may be short (for the toroid) or double (for
+ * the solenoid)
+ *
+ * Masahiro Morii, Harvard University
+ *
+ * AthenaMT : RD Schaffer , Christos Anastopoulos
+ */
 //
 #ifndef BFIELDMESH_H
 #define BFIELDMESH_H

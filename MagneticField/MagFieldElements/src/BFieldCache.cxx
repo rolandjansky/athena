@@ -3,6 +3,7 @@
 */
 
 #include "MagFieldElements/BFieldCache.h"
+#include "CxxUtils/vec.h"
 #include <cmath>
 
 void
@@ -29,15 +30,50 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
   const double fphi = (phi - m_phimin) * m_invphi;
   const double gphi = 1.0 - fphi;
   const double scale = m_scale;
+
+  /*
+   The following implement this  calculation
+   const double* field = m_field[i];
+   Bzrphi[i] = scale * (gz * ( gr * (gphi * field[0] + fphi * field[4]) +
+                               fr * (gphi * field[1] + fphi * field[5])) +
+                         fz * (gr * (gphi * field[2] + fphi * field[6]) +
+                               fr * (gphi * field[3] + fphi * field[7])));
+  in SIMD fashion.
+  The "lanes"  are
+  ( field[0], field[1], field[2], field[3])
+  ( field[4], field[5], field[6], field[7])
+  aka the "vertical" part of the inermost parenthesis.
+
+  Then we work our way out. Following the formula in a "vertical"
+  manner.
+  */
+
   // interpolate field values in z, r, phi
-  double Bzrphi[3];
+  std::array<double, 3> Bzrphi{};
+  CxxUtils::vec<double, 4> rInterCoeff = { gr, fr, gr, fr };
+
   for (int i = 0; i < 3; ++i) { // z, r, phi components
-    const double* field = m_field[i];
-    Bzrphi[i] = scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
-                               fr * (gphi * field[2] + fphi * field[3])) +
-                         fz * (gr * (gphi * field[4] + fphi * field[5]) +
-                               fr * (gphi * field[6] + fphi * field[7])));
+
+    CxxUtils::vec<double, 4> field1 = {
+      m_field[i][0], m_field[i][1], m_field[i][2], m_field[i][3]
+    };
+
+    CxxUtils::vec<double, 4> field2 = {
+      m_field[i][4], m_field[i][5], m_field[i][6], m_field[i][7]
+    };
+
+    CxxUtils::vec<double, 4> gPhiM = field1 * gphi;
+    CxxUtils::vec<double, 4> fPhiM = field2 * fphi;
+
+    CxxUtils::vec<double, 4> interp = (gPhiM + fPhiM) * rInterCoeff;
+
+    // Since a * (b+c) != (a*b + a*c)
+    // we try for now to keep binary compatibility,
+    // retain order of operations .
+    Bzrphi[i] =
+      scale * ((interp[0] + interp[1]) * gz + (interp[2] + interp[3]) * fz);
   }
+
   // convert (Bz,Br,Bphi) to (Bx,By,Bz)
   double invr;
   double c;
@@ -61,24 +97,25 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
     const double sr = m_scale * m_invr;
     const double sphi = m_scale * m_invphi;
 
-    std::array<double, 3> dBdz;
-    std::array<double, 3> dBdr;
-    std::array<double, 3> dBdphi;
+    std::array<double, 3> dBdz{};
+    std::array<double, 3> dBdr{};
+    std::array<double, 3> dBdphi{};
 
     for (int j = 0; j < 3; ++j) { // Bz, Br, Bphi components
       const double* field = m_field[j];
       dBdz[j] =
         sz *
-        (gr * (gphi * (field[4] - field[0]) + fphi * (field[5] - field[1])) +
-         fr * (gphi * (field[6] - field[2]) + fphi * (field[7] - field[3])));
+        (gr * (gphi * (field[2] - field[0]) + fphi * (field[6] - field[4])) +
+         fr * (gphi * (field[3] - field[1]) + fphi * (field[7] - field[5])));
       dBdr[j] =
         sr *
-        (gz * (gphi * (field[2] - field[0]) + fphi * (field[3] - field[1])) +
-         fz * (gphi * (field[6] - field[4]) + fphi * (field[7] - field[5])));
+        (gz * (gphi * (field[1] - field[0]) + fphi * (field[5] - field[4])) +
+         fz * (gphi * (field[3] - field[2]) + fphi * (field[7] - field[6])));
       dBdphi[j] =
-        sphi * (gz * (gr * (field[1] - field[0]) + fr * (field[3] - field[2])) +
-                fz * (gr * (field[5] - field[4]) + fr * (field[7] - field[6])));
+        sphi * (gz * (gr * (field[4] - field[0]) + fr * (field[5] - field[1])) +
+                fz * (gr * (field[6] - field[2]) + fr * (field[7] - field[3])));
     }
+
     // convert to cartesian coordinates
     const double cc = c * c;
     const double cs = c * s;
@@ -103,5 +140,4 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
     deriv[8] = dBdz[0];
   }
 }
-
 
