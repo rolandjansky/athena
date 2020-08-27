@@ -182,7 +182,26 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   //   * is Si+Si and both tracks have "innermost pixel hits" but  
   //     Rconv - RfirstHit > maxDeltaR_innermost 
   // In this case we do not want this to be in Photons
-  
+
+  if (!vx) {
+      if (trkHasInnermostHit || !m_noVertexNoInnermostAsAmb) {
+	  ATH_MSG_DEBUG("Returning Electron");                                                                                                                          	  type=xAOD::AmbiguityTool::electron;
+	  return xAOD::EgammaParameters::AuthorElectron;
+      }
+      else {
+	  ATH_MSG_DEBUG("Returning Ambiguous due to no conv vertex but track with innermost hits");
+	  type=xAOD::AmbiguityTool::ambiguousSOMETHINGNEW; // TODO: create new type.
+	  // NOTE: now there is no distinction between TrackEOverPBetterTanVertexEoverP, ...
+      	  return xAOD::EgammaParameters::AuthorAmbiguous;                                                                                                                     }
+  }
+
+  // here we have a conv vertex
+  if (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) {
+      ATH_MSG_DEBUG("Returning Electron");
+      type=xAOD::AmbiguityTool::electron;
+      return xAOD::EgammaParameters::AuthorElectron;
+  }
+
   if ( ((trkHasInnermostHit || !m_noVertexNoInnermostAsAmb) && !vx) || 
        (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) ){
     ATH_MSG_DEBUG("Returning Electron");
