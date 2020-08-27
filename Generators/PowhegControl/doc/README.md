@@ -531,6 +531,21 @@ cd run
 # and run your event generation here
 ```
 
+If you want to be sure that indeed your local build of PowhegControl is being
+used instead of the one from the release, you can open a Python prompt
+(`python`), run
+
+```python
+# In Python prompt
+import PowhegControl
+print PowhegControl.__file__
+```
+
+and check that the path that gets printed points to a location inside your local
+build directory (rather than to some CVMFS location). If this is not the case,
+something went wrong: either the build failed (there should be error messages
+from that!), or you forgot to `source */setup.sh` inside your build directory.
+
 Remember that if you want to use a very recent Powheg Box or Powheg process
 installation, **you need to also manually update the shell environment variable
 `POWHEGPATH` _after the release setup (`asetup ...`)_** to point to the desired
