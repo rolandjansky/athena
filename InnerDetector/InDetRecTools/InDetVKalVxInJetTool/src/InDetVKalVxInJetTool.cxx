@@ -12,6 +12,7 @@
 #include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
 #include "GeoModelKernel/GeoTube.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TMath.h"
@@ -92,7 +93,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_etaDependentCutsSvc("",name),
     m_useITkMaterialRejection(false),
     m_beamPipeMgr(nullptr),
-    m_pixelManager(nullptr)
+    m_pixelManager(nullptr),
+    m_pixelHelper(nullptr)
    {
 //
 // Declare additional interface
@@ -414,14 +416,18 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
        ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
        ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
+       ATH_CHECK(detStore()->retrieve(m_pixelHelper, "PixelID"));
 
        static constexpr int nbins_R = 75;
        double bins_R[nbins_R+1];
-       for(unsigned int i=0; i<=15; i++) bins_R[i] = 2*i;          // 2 mm bin width below R=30 mmm
-       for(unsigned int i=1; i<=60; i++) bins_R[i+15] = 30 + 6*i; // 6 mm bin width beyond R=30 mm
+       for(unsigned int i=0; i<=14; i++) bins_R[i] = 2*i - 1.;          // 2 mm bin width below R=27 mm, centered on R=24 mm (beampipe)
+       bins_R[15] = 30.; // 27-30 makes junction with pixel bins
+       static constexpr double Rbinwidth_pixel = 6.;
+       for(unsigned int i=1; i<=60; i++) bins_R[i+15] = 30 + Rbinwidth_pixel*i; // 6 mm bin width beyond R=30 mm
 
        static constexpr int nbins_Z = 1000;
        static constexpr double zmax = 3000.;
+       static constexpr double zbinwidth = 2*zmax/nbins_Z;
 
        std::string mapName = "ITkMaterialMap_"+m_instanceName;
        m_ITkPixMaterialMap = std::make_unique<TH2F>(mapName.c_str(),mapName.c_str(),nbins_Z,-zmax,zmax,nbins_R,bins_R); // x-axis = global z coordinates, -3240 mm to +3240 mm, 6 mm bin width / y-axis = global R coordinates, variable bin width
@@ -463,11 +469,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        ATH_MSG_INFO("BeamPipeRadius used for material rejection="<<beamPipeRadius);
 
        // Fill map with beam pipe radius for all z
-
-       for(int i=0;i<=nbins_Z;i++){
-	 int z = -zmax + (2*i+1)*zmax/nbins_Z;
-	 m_ITkPixMaterialMap->Fill(z,beamPipeRadius);
-       }
+       for(double z = -zmax + 0.5*zbinwidth; z<zmax; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,beamPipeRadius);
 
 
        InDetDD::SiDetectorElementCollection::const_iterator iter;
@@ -477,9 +479,52 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 	 // check the validity
 	 if (Pixel_ModuleID.is_valid()) {
 	   const InDetDD::SiDetectorElement *module = m_pixelManager->getDetectorElement(Pixel_ModuleID);
-	   m_ITkPixMaterialMap->Fill(module->center().z(), module->center().perp());
+
+	   //Take into account full module extent
+	   int bec = m_pixelHelper->barrel_ec(Pixel_ModuleID);
+	   bool isInclined = module->isInclined();
+
+	   if(bec==0){
+
+	     if(!isInclined){ // flat barrel
+	       double zMin_mod = module->zMin();
+	       double zMax_mod = module->zMax();
+	       double R = module->center().perp();
+	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,R);
+	     }
+
+	     else{ // inclined barrel
+	       double zMin_mod = module->zMin();
+	       double zMax_mod = module->zMax();
+	       double rMin_mod = module->rMin();
+	       double rMax_mod = module->rMax();
+	       if(zMin_mod>0){
+		 double alpha = (rMin_mod-rMax_mod)/(zMax_mod-zMin_mod);
+		 for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		   double R = rMax_mod + alpha*(z-zMin_mod);
+		   m_ITkPixMaterialMap->Fill(z,R);
+		 }
+	       }
+	       else{
+		 double alpha = (rMax_mod-rMin_mod)/(zMax_mod-zMin_mod);
+		 for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		   double R = rMin_mod + alpha*(z-zMin_mod);
+		   m_ITkPixMaterialMap->Fill(z,R);
+		 }
+	       }
+	     }
+
+	   }
+
+	   else{ // endcap disks
+	     double rMin_mod = module->rMin();
+	     double rMax_mod = module->rMax();
+	     double z = module->center().z();
+	     for(double R=rMin_mod; R<=rMax_mod; R+=Rbinwidth_pixel) m_ITkPixMaterialMap->Fill(z,R);
+	   }
+
 	 }
-       }
+       } // end loop over pixel modules
 
      }
 
