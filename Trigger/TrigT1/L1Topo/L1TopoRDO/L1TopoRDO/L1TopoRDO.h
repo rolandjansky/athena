@@ -29,19 +29,19 @@
 class L1TopoRDO {
  public:
   //! Constructor
-  L1TopoRDO();
-  //! Destructor
-  ~L1TopoRDO();
+  L1TopoRDO() :
+  m_error(0),
+  m_sourceID(0){ }
 
   //! get the data words
   const std::vector<uint32_t>& getDataWords() const;
   //! set the data words
-  void setDataWords(const std::vector<uint32_t>);
+  void setDataWords(std::vector<uint32_t>&&) noexcept;
 
   //! get the status words
   const std::vector<uint32_t>& getStatusWords() const;
   //! set the status words
-  void setStatusWords(const std::vector<uint32_t>);
+  void setStatusWords(std::vector<uint32_t>&&) noexcept;
 
   //! get a vector of Errors found during RAW to RDO conversion; see enum and
   // print helpers

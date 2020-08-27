@@ -23,22 +23,11 @@
 namespace ROIB {
 
 
-   CTPResult::CTPResult() :
-      m_CTPResultHeader(),
-      m_CTPResultTrailer(),
-      m_CTPResultRoIVec(),
-      //m_ctpVersionNumber(0),
-      m_ctpDataformat(0),
-      m_useRoIB(false),
-      m_l1aBunch(0)
-   {
-   }
 
-
-   CTPResult::CTPResult(unsigned int ctpVersion,  const Header& head, const Trailer& trail, const std::vector<CTPRoI>& rois) :
-      m_CTPResultHeader( head ),
-      m_CTPResultTrailer( trail ),
-      m_CTPResultRoIVec( rois ),
+   CTPResult::CTPResult(unsigned int ctpVersion,  Header&& head, Trailer &&trail, std::vector<CTPRoI>&& rois) :
+      m_CTPResultHeader( std::move(head) ),
+      m_CTPResultTrailer( std::move(trail) ),
+      m_CTPResultRoIVec( std::move(rois) ),
       //m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
       m_useRoIB(false),
@@ -49,21 +38,19 @@ namespace ROIB {
    }
 
 
-   CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v ) :
-      m_CTPResultHeader( head ),
-      m_CTPResultTrailer( trail ),
+   CTPResult::CTPResult(unsigned int ctpVersion, Header&& head, Trailer&& trail, const std::vector<uint32_t>& v ) :
+      m_CTPResultHeader( std::move(head) ),
+      m_CTPResultTrailer( std::move(trail) ),
       //m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
       m_useRoIB(false),
       m_l1aBunch(0)
    {
       m_useRoIB = (head.sourceID() == 0x770001);
+
       std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
       if (!m_useRoIB) m_l1aBunch = (head.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
    }
-
-
-   CTPResult::~CTPResult() {}
 
 
    const std::string CTPResult::dump() const

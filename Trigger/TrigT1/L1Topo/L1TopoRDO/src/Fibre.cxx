@@ -10,8 +10,8 @@
 
 namespace L1Topo {
 
-  Fibre::Fibre(const std::vector<uint32_t> status, const std::vector<uint32_t> count)
-    :m_status(status), m_count(count), m_word(0) {
+  Fibre::Fibre(std::vector<uint32_t> &&status, std::vector<uint32_t> &&count)
+    :m_status(std::move(status)), m_count(std::move(count)), m_word(0) {
     this->encode();
   }
 
