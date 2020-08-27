@@ -16,13 +16,13 @@ namespace TCS {
          m_name(name),
          m_originalCapacity(capacity)
       {
-         m_heap.heap = malloc( m_originalCapacity * sizeof(T) );
+         m_heap.heap = allocate(m_originalCapacity);
          m_heap.pos = (T*)m_heap.heap;
       }
 
       ~Heap() {
          clear();
-         free(m_heap.heap);
+         deallocate(m_heap.heap);
          m_heap.heap = nullptr;
          m_heap.pos = nullptr;
       }
@@ -41,7 +41,7 @@ namespace TCS {
             T * p = (T*)heap;
             for(unsigned int t=0; t<m_originalCapacity; ++t)
                (p++)->~T();
-            free(heap); // destroy other blocks
+            deallocate(heap); // destroy other blocks
          }
          m_heap.heapCollection.clear(); // clear the collection of memory blocks
       }
@@ -76,10 +76,21 @@ namespace TCS {
       std::string m_name{};
       size_t m_originalCapacity{0};
 
+      inline void *
+      allocate(size_t size) {
+         return ::operator new ( size * sizeof(T) );
+      }
+
+      inline void
+      deallocate(void* & mem) {
+         ::operator delete ( mem );
+         mem = nullptr;
+      }
+
       void
       extend() {
          m_heap.heapCollection.push_back(m_heap.heap); // park the old heap which has grown too small
-         m_heap.heap = malloc( m_originalCapacity * sizeof(T) ); // create a new heap the same size as the original one
+         m_heap.heap = allocate(m_originalCapacity); // create a new heap the same size as the original one
          m_heap.pos = (T*)m_heap.heap; // make current position point to it
       }
    };
