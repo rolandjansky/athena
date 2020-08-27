@@ -108,7 +108,6 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiPhotonGroup),    
 
         # low et threshold chains using Ringer
         ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
@@ -130,6 +129,8 @@ def setupMenu():
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH', stream=[PhysicsStream], groups=SingleElectronGroup),
 
+        # TnP triggers
+        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),    
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
 
@@ -139,9 +140,10 @@ def setupMenu():
         ChainProp(name='HLT_g5_loose_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_medium_L1EM3', groups=SinglePhotonGroup),
         ChainProp(name='HLT_g5_tight_L1EM3', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g25_loose_L1EM15VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g25_medium_L1EM15VH', groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g25_tight_L1EM15VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_etcut_L1EM20VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_loose_L1EM20VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_medium_L1EM20VH', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g25_tight_L1EM20VH', groups=SinglePhotonGroup),
         # Primary photon chains
         ChainProp(name='HLT_g140_loose_L1EM22VHI', groups=SinglePhotonGroup),
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
