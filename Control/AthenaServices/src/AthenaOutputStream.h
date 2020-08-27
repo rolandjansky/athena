@@ -224,6 +224,10 @@ private:
    /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
    void writeMetaData( const std::string outputFN="" );
 
+   /// Helper function for building the compression lists
+   std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
+                                              const CLID& item_id,
+                                              const std::string& item_key) const;
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H
