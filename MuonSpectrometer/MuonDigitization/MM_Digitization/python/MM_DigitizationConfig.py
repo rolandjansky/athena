@@ -19,10 +19,6 @@ def MM_LastXing():
     return 200
 
 def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )
-    # set rndm seeds
-    mmRndm = kwargs.setdefault("RndmEngine","MM_Digitization")
-    jobproperties.Digitization.rndmSeedList.addSeed(mmRndm, 49261510, 105132394 )
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", MM_FirstXing() ) # this should match the range for the MM in Digitization/share/MuonDigitization.py
         kwargs.setdefault("LastXing",  MM_LastXing() )  # this should match the range for the MM in Digitization/share/MuonDigitization.py
