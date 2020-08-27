@@ -20,7 +20,6 @@ def _setup():
     cppyy.load_library( "libStoreGateBindingsDict" ) # for storegatesvc
     cppyy.load_library( "libStoreGateBindings" ) # not linked from libStoreGateBindingsDict in ROOT6
 
-    
     global py_retrieve
     py_retrieve = cppyy.gbl.AthenaInternal.retrieveObjectFromStore
 
@@ -140,6 +139,14 @@ def _setup():
         return list(self._cpp_keys(clid, allKeys))
     StoreGateSvc._cpp_keys = StoreGateSvc.keys
     StoreGateSvc.keys = keys
+
+
+    #The cppyy version that comes with ROOT v6.22 checks also __len__!=0
+    #when casting to bool. Since we defined a __len__ method, newly-created 
+    #(empty) StoreGate instances are always casted to False and therfore 
+    #considered invalid. 
+    #Work-aroudn by implementing our own __bool__ method
+    StoreGateSvc.__bool__ = lambda self : True
     
     return
 
