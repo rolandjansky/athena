@@ -683,7 +683,8 @@ protected:
 	  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainname, 
 								    decisiontype, 
 								    roi_key, 
-								    TrigDefs::lastFeatureOfType, 
+								    // TrigDefs::lastFeatureOfType, 
+								    TrigDefs::allFeaturesOfType, 
 								    "roi" );
 			  			 
 	//	const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;
