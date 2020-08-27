@@ -12,9 +12,7 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-// Amg
 #include "GeoPrimitives/GeoPrimitives.h"
-// Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeArrayCreator.h"
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "TrkDetDescrUtils/BinUtility.h"
