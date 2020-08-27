@@ -83,7 +83,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      pAux = std::make_unique< SG::AuxStoreInternal >();
      TPC.setStore( pAux.get() );
      TPC.reserve( 1 );
-     TPC.push_back(new xAOD::TrackParticle(*trk));
+     TPC.push_back(new (std::nothrow) xAOD::TrackParticle(*trk));
      if(!TPC[0])return std::unique_ptr<xAOD::Vertex>(nullptr);
      const float mvx= (eventINFO) ? eventINFO->beamPosX() : 0.;
      const float mvy= (eventINFO) ? eventINFO->beamPosY() : 0.;
@@ -151,7 +151,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.setStore( pAux.get() );
      TPC.reserve( NPRT );
      for(int i=0; i<NPRT; i++){
-	TPC.push_back(new xAOD::TrackParticle(*particles[i]));
+	TPC.push_back(new (std::nothrow) xAOD::TrackParticle(*particles[i]));
 	if(!TPC[i])return std::unique_ptr<xAOD::Vertex>(nullptr);
 	const float mvx= (eventINFO) ? eventINFO->beamPosX() : 0.;
 	const float mvy= (eventINFO) ? eventINFO->beamPosY() : 0.;
