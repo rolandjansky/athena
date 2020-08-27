@@ -22,7 +22,8 @@
 ///
 
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "JetInterface/IJetDecorator.h"
 
 class JetECPSFractionTool : public asg::AsgTool,

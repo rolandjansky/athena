@@ -12,12 +12,12 @@
 
 #include "AthLinks/ElementLink.h"
 #include "AthLinks/ElementLinkVector.h"
-#include "GaudiKernel/EventContext.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandle.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AsgDataHandles/WriteHandle.h"
+#include "AsgDataHandles/WriteHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgTools/CurrentContext.h"
+#include "AsgTools/EventStoreType.h"
+#include "AsgMessaging/MsgStream.h"
 
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -251,7 +251,7 @@ namespace TrigCompositeUtils {
    * @param[in] id ID of chain to located failed decision nodes for. Passing 0 returns all decision nodes which failed at least one chain.
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  std::vector<const Decision*> getRejectedDecisionNodes(StoreGateSvc* eventStore, const DecisionID id = 0);
+  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionID id = 0);
   
 
 
