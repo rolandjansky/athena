@@ -98,13 +98,14 @@ def createCFTree(CFseq):
     seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
 
-    already_connected = []
+    recoSeq_list=set()
+    hypo_list=set()
     for menuseq in CFseq.step.sequences:
-        stepReco, seqAndView, already_connected = menuseq.addToSequencer(
-            stepReco,
-            seqAndView,
-            already_connected)
+        menuseq.addToSequencer(recoSeq_list, hypo_list)
 
+    stepReco += [recoseq for recoseq in recoSeq_list]
+    seqAndView += [hypo for hypo in hypo_list]
+       
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
 
