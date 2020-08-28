@@ -17,7 +17,7 @@ void Trk::RoT_Extractor::extract(std::vector<const RIO_OnTrack*>& rots, const st
   rots.reserve( rots.size() + measurements.size() ); 
   vector<const MeasurementBase*>::const_iterator it    = measurements.begin();
   vector<const MeasurementBase*>::const_iterator itEnd = measurements.end();
-  for (; it!=itEnd ; it++)
+  for (; it!=itEnd ; ++it)
   {
     const Trk::RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(*it);
     if ( convertCompRots && nullptr == rot) {
