@@ -118,8 +118,29 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
             // get the geoShape and translate
             Trk::GeoShapeConverter geoShaper;
             beamPipeTube = dynamic_cast<const GeoTube*>(beamPipeLogVolume->getShape());
-            if (beamPipeTube)
-                beamPipeRadius = beamPipeTube->getRMax()-m_beamPipeEnvelope;
+            if (beamPipeTube){
+
+	      for(unsigned int i=0;i<beamPipeTopVolume->getNChildVols();i++){
+
+		if(beamPipeTopVolume->getNameOfChildVol(i)=="SectionC03"){
+		  PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
+		  const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
+		  const GeoTube* childTube = 0;
+
+		  if (childLogVolume){
+		    childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
+		    if (childTube){
+		      beamPipeRadius = 0.5 * (childTube->getRMax()+childTube->getRMin());
+		    }
+		  }
+
+		  break; //Exit loop after SectionC03 is found
+		}
+
+	      } // Loop over child volumes
+
+	    }
+
         }
         ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
