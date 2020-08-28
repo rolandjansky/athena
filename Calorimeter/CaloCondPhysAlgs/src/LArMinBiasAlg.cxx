@@ -214,10 +214,10 @@
    for (int i=0;i<m_ncell;i++) m_eCell[i]=0.;
 
     std::vector <std::string> HitContainer;
-    HitContainer.push_back("LArHitEMB");
-    HitContainer.push_back("LArHitEMEC");
-    HitContainer.push_back("LArHitHEC");
-    HitContainer.push_back("LArHitFCAL");
+    HitContainer.emplace_back("LArHitEMB");
+    HitContainer.emplace_back("LArHitEMEC");
+    HitContainer.emplace_back("LArHitHEC");
+    HitContainer.emplace_back("LArHitFCAL");
     for (unsigned int iHitContainer=0;iHitContainer<HitContainer.size();iHitContainer++)
     {
       const LArHitContainer* hit_container ;

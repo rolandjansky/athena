@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloRescaleNoise.h"
@@ -11,8 +11,8 @@
 //Constructor
 CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(0),
-  m_calo_id(0),
+  m_thistSvc(nullptr),
+  m_calo_id(nullptr),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_iCool(0),
   m_SubHash(0),
@@ -26,7 +26,7 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
   m_elecNoise(0),
   m_pileupNoise (0),
   m_elecNoiseRescaled(0),
-  m_tree(0)
+  m_tree(nullptr)
 {
   declareProperty("noiseTool",m_noiseTool,"noise tool");
   declareProperty("absScaling",m_absScaling=false);

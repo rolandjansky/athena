@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,10 +20,10 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <string>
-#include <set>
+#include <cmath>
 #include <iostream>
-#include <math.h>
+#include <set>
+#include <string>
 
 using CxxUtils::strformat;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,19 +33,19 @@ CaloClusterNavigable::CaloClusterNavigable(CaloCellLink* pLink)
 
 CaloClusterNavigable::~CaloClusterNavigable()
 { 
-  if ( m_ownLinkStore && *m_cellLink != 0 ) delete *m_cellLink;
+  if ( m_ownLinkStore && *m_cellLink != nullptr ) delete *m_cellLink;
 }
 
 CaloCellLink* CaloClusterNavigable::getCellLink()
 {
   if ( m_ownLinkStore )
     {
-      if ( *m_cellLink == 0 ) m_cellLink.setElement(new CaloCellLink());
+      if ( *m_cellLink == nullptr ) m_cellLink.setElement(new CaloCellLink());
       return const_cast<CaloCellLink*>(*m_cellLink);
     }
   else
     {
-      return (CaloCellLink*)0;
+      return (CaloCellLink*)nullptr;
     }
 
   // check if local pointer to store
@@ -79,7 +79,7 @@ CaloClusterNavigable::getCellLink() const
   //		<< "cell link store, unexpected pointer = "
   //		<< *m_cellLink << std::endl;
   //    }
-  return m_cellLink.isValid() ? *m_cellLink : 0;
+  return m_cellLink.isValid() ? *m_cellLink : nullptr;
 }
 
 

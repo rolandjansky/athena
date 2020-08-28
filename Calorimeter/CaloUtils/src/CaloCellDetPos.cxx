@@ -30,7 +30,7 @@ bool CaloCellDetPos::getDetPosition(const CaloDetDescrManager& mgr,
     return false;
   }
   etaDet = etaAtlas + elt->eta_raw()-elt->eta();
-  phiDet = s_range.fix(phiAtlas + elt->phi_raw()-elt->phi());
+  phiDet = CaloPhiRange::fix(phiAtlas + elt->phi_raw()-elt->phi());
   return true;
 }
 
@@ -47,7 +47,7 @@ bool CaloCellDetPos::getAtlasPosition(const CaloDetDescrManager& mgr,
     return false;
   }
   etaAtlas = etaDet + elt->eta()-elt->eta_raw();
-  phiAtlas = s_range.fix(phiDet + elt->phi()-elt->phi_raw());
+  phiAtlas = CaloPhiRange::fix(phiDet + elt->phi()-elt->phi_raw());
   return true;
 }
 

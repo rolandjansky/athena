@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@ CaloCellEtSelector::~CaloCellEtSelector()
 bool CaloCellEtSelector::accept(const CaloCell* aCell) const
 {
   if (!aCell) return false;
-  return m_maxEt > m_minEt && aCell != 0 
+  return m_maxEt > m_minEt && aCell != nullptr 
     ? aCell->et() >= m_minEt && aCell->et() <= m_maxEt
     : aCell->et() >= m_minEt;
 }

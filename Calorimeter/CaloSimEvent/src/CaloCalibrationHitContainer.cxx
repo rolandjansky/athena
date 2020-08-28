@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // 09-Feb-2004 WGS: The following code was duplicated from
@@ -7,14 +7,16 @@
 
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "GaudiKernel/System.h"
+#include <cstdio>
 #include <typeinfo>
-#include <stdio.h>
 
 #include <iostream> 
 #include <sstream> 
+#include <utility>
+
 
 CaloCalibrationHitContainer::CaloCalibrationHitContainer(std::string collectionName)
-: AthenaHitsVector<CaloCalibrationHit>(collectionName)
+: AthenaHitsVector<CaloCalibrationHit>(std::move(collectionName))
 {
 
 }
