@@ -110,15 +110,15 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       std::vector<double> Impact,ImpactError;
       float Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
       AmgVector(5) tmpPerigee = Trk->perigeeParameters().parameters(); 
-      if( sin(tmpPerigee[2]-Jet.Phi())*Impact[0] < 0 ){ Impact[0] = -fabs(Impact[0]);}
-                                                  else{ Impact[0] =  fabs(Impact[0]);}
-      if(  (tmpPerigee[3]-Jet.Theta())*Impact[1] < 0 ){ Impact[1] = -fabs(Impact[1]);}
-                                                  else{ Impact[1] =  fabs(Impact[1]);}
+      if( sin(tmpPerigee[2]-Jet.Phi())*Impact[0] < 0 ){ Impact[0] = -std::abs(Impact[0]);}
+                                                  else{ Impact[0] =  std::abs(Impact[0]);}
+      if(  (tmpPerigee[3]-Jet.Theta())*Impact[1] < 0 ){ Impact[1] = -std::abs(Impact[1]);}
+                                                  else{ Impact[1] =  std::abs(Impact[1]);}
       double SignifR = Impact[0]/ sqrt(ImpactError[0]);
       double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
 //---Calibrated range selection
       if(Impact[1]<m_Z0_limLow || Impact[1]>m_Z0_limUpp) return safeReturn;  //Don't classify track far from PV in Z
-      if( sqrt(SignifR*SignifR +SignifZ*SignifZ) < 1.)   return safeReturn;  //Don't classify track too close to PV
+      if( std::sqrt(SignifR*SignifR +SignifZ*SignifZ) < 1.)   return safeReturn;  //Don't classify track too close to PV
 //---IBL/BL hits
       int hitIBL=0, hitBL=0; 
       uint8_t IBLhit,BLhit,IBLexp,BLexp;
@@ -142,8 +142,8 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       m_fitSvc->setCovVrtForConstraint(covPV[0],covPV[1],covPV[2],covPV[3],covPV[4],covPV[5]);
       m_fitSvc->setCnstType(6);                                // Set primary vertex constraint
       StatusCode sc=m_fitSvc->VKalVrtFit( TrkForFit, netralDummy, FitVrt, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2);
-      if(sc.isFailure())Chi2=exp(11.);
-      if(Chi2>exp(11.))Chi2=exp(11.);
+      if(sc.isFailure())Chi2=std::exp(11.);
+      if(Chi2>std::exp(11.))Chi2=std::exp(11.);
 */
 //====================== BDT weights
      double coeffPt=10.;

@@ -202,14 +202,14 @@ namespace InDet{
           if(!Check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return 0;
           if(m_fillHist){
             double xDif=fitVertex.x()-m_xLayerB, yDif=fitVertex.y()-m_yLayerB ; 
-            double Dist2D=sqrt(xDif*xDif+yDif*yDif);
+            double Dist2D=std::sqrt(xDif*xDif+yDif*yDif);
             if     (Dist2D < m_rLayerB-vrtRadiusError(fitVertex,errorMatrix))  m_hb_blshared->Fill((float)BLshared,m_w_1);
             else if(Dist2D > m_rLayerB+vrtRadiusError(fitVertex,errorMatrix))  m_hb_pxshared->Fill((float)PXshared,m_w_1);
          }
         } //end 2tr vertex cleaning code
 //
         if(m_fillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),m_w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),m_w_1);} }
-        if( !Charge && fabs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
+        if( !Charge && std::abs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
 	  trkFromV0.push_back(listSecondTracks[0]);
 	  trkFromV0.push_back(listSecondTracks[1]);
           if( trkFromV0.size() > 1) {
@@ -232,16 +232,16 @@ namespace InDet{
          { if( jetVrtDir<0. ) return 0; } 
 
       double xvt=fitVertex.x(); double yvt=fitVertex.y();
-      double Dist2DBP=sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
-      double Dist2DBL=sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
-      double Dist2DL1=sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
-      double Dist2DL2=sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
+      double Dist2DBP=std::sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
+      double Dist2DBL=std::sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
+      double Dist2DL1=std::sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
+      double Dist2DL2=std::sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
       double minDstMat=39.9;
-      minDstMat=TMath::Min(minDstMat,fabs(Dist2DBP-m_beampipeR));
-      minDstMat=TMath::Min(minDstMat,fabs(Dist2DBL-m_rLayerB));
-      minDstMat=TMath::Min(minDstMat,fabs(Dist2DL1-m_rLayer1));
-      minDstMat=TMath::Min(minDstMat,fabs(Dist2DL2-m_rLayer2));
-      if(m_existIBL) minDstMat=TMath::Min(minDstMat,fabs(Dist2DL2-m_rLayer3));  // 4-layer pixel detector
+      minDstMat=TMath::Min(minDstMat,std::abs(Dist2DBP-m_beampipeR));
+      minDstMat=TMath::Min(minDstMat,std::abs(Dist2DBL-m_rLayerB));
+      minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL1-m_rLayer1));
+      minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL2-m_rLayer2));
+      if(m_existIBL) minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL2-m_rLayer3));  // 4-layer pixel detector
  
  
       vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
@@ -260,7 +260,7 @@ namespace InDet{
       results.push_back(Signif3D);                                 //6th
       results.push_back(MomentumJet.E());                          //7th
       results.push_back(minDstMat);                                //8th
-      double nRatio = Momentum.Et(jetDir.Vect())/sqrt(MomentumJet.Perp());   nRatio /= (nRatio+4.); 
+      double nRatio = Momentum.Et(jetDir.Vect())/std::sqrt(MomentumJet.Perp());   nRatio /= (nRatio+4.); 
       results.push_back( nRatio );                                 //9th   New transverse energy ration
       results.push_back((Momentum.M()-2.*m_massPi)*eRatio/m_massB);           //10th   "Product" variable
       results.push_back((Momentum.Pt()/Momentum.M())*(m_massB/jetDir.Pt()) ); //11th   "Boost" variable
@@ -428,7 +428,7 @@ namespace InDet{
       } 
 //
 //-- To kill remnants of conversion
-      double Dist2D=sqrt(fitVertex.x()*fitVertex.x()+fitVertex.y()*fitVertex.y());
+      double Dist2D=std::sqrt(fitVertex.x()*fitVertex.x()+fitVertex.y()*fitVertex.y());
       if( listSecondTracks.size()==2  && (Dist2D > 20.) && Charge==0 ) {
         double mass_EE   =  massV0( TrkAtVrt,m_massE,m_massE);
         if(m_fillHist){m_hb_totmassEE->Fill( mass_EE, m_w_1); }
@@ -500,12 +500,12 @@ namespace InDet{
       for (i=0; i<NTracks; i++) {
          TrkSig3D[i] = m_fitSvc->VKalGetImpact(selectedTracks[i], primVrt.position(), 1, Impact, ImpactError);
          tmpPerigee = GetPerigee(selectedTracks[i])->parameters(); 
-         if( sin(tmpPerigee[2]-jetDir.Phi())*Impact[0] < 0 ){ Impact[0] = -fabs(Impact[0]);}
-	                                                else{ Impact[0] =  fabs(Impact[0]);}
-         if(  (tmpPerigee[3]-jetDir.Theta())*Impact[1] < 0 ){ Impact[1] = -fabs(Impact[1]);}
-	                                                else{ Impact[1] =  fabs(Impact[1]);}
-	 SignifR = Impact[0]/ sqrt(ImpactError[0]);
-	 SignifZ = Impact[1]/ sqrt(ImpactError[2]);
+         if( sin(tmpPerigee[2]-jetDir.Phi())*Impact[0] < 0 ){ Impact[0] = -std::abs(Impact[0]);}
+	                                                else{ Impact[0] =  std::abs(Impact[0]);}
+         if(  (tmpPerigee[3]-jetDir.Theta())*Impact[1] < 0 ){ Impact[1] = -std::abs(Impact[1]);}
+	                                                else{ Impact[1] =  std::abs(Impact[1]);}
+	 SignifR = Impact[0]/ std::sqrt(ImpactError[0]);
+	 SignifZ = Impact[1]/ std::sqrt(ImpactError[2]);
 	 int hL1=0, nLays=0; getPixelLayers(selectedTracks[i] , hitIBL[i] , hitBL[i], hL1, nLays );
          //----
          trkScore[i]=m_trackClassificator->trkTypeWgts(selectedTracks[i], primVrt, jetDir);
@@ -532,7 +532,7 @@ namespace InDet{
                  TLV.SetPtEtaPhiE(selectedTracks[i]->pt(),selectedTracks[i]->eta(),selectedTracks[i]->phi(),selectedTracks[i]->e());
 		 m_curTup->pTvsJet[i]=TLV.Perp(jetDir.Vect());
 		 TLorentzVector normJ;  normJ.SetPtEtaPhiM(1.,jetDir.Eta(),jetDir.Phi(),0.);
-		 m_curTup->prodTJ[i]=sqrt(TLV.Dot(normJ));
+		 m_curTup->prodTJ[i]=std::sqrt(TLV.Dot(normJ));
 		 m_curTup->nVrtT[i]=0;
             }
 	 }
@@ -571,7 +571,7 @@ namespace InDet{
                 if( m_multiWithPrimary ) iniVrt.setZero(); 
  	     } else {
                 jetVrtDir = projSV_PV(tmpVrt.fitVertex,primVrt,jetDir);
-                if( m_multiWithPrimary ) jetVrtDir=fabs(jetVrtDir); /* Always positive when primary vertex is seeked for*/ 
+                if( m_multiWithPrimary ) jetVrtDir=std::abs(jetVrtDir); /* Always positive when primary vertex is seeked for*/ 
                 if( jetVrtDir>0. ) iniVrt=tmpVrt.fitVertex;                /* Good initial estimation */ 
                 else               iniVrt=primVrt.position();
              }
@@ -582,7 +582,7 @@ namespace InDet{
                                *state, true);
              if(sc.isFailure())                       continue;          /* No fit */ 
              if(tmpVrt.chi2 > m_sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
-	     if(fabs(tmpVrt.fitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
+	     if(std::abs(tmpVrt.fitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
              Dist2D=tmpVrt.fitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
              double mass_PiPi =  tmpVrt.momentum.M();  
@@ -625,8 +625,8 @@ namespace InDet{
 	       }else{
                  if(m_fillHist && !m_multiVertex){m_hb_massPiPi->Fill( mass_PiPi, m_w_1);} /* Total mass with input particles masses*/
                  if(m_fillHist && !m_multiVertex){m_hb_massPPi->Fill( mass_PPi, m_w_1);} 
-	         if( fabs(mass_PiPi-m_massK0) < 22. )  BadTracks = 1;
-	         if( fabs(mass_PPi-m_massLam) <  8. )  BadTracks = 2;
+	         if( std::abs(mass_PiPi-m_massK0) < 22. )  BadTracks = 1;
+	         if( std::abs(mass_PPi-m_massLam) <  8. )  BadTracks = 2;
 	       }
 //
 //  Creation of V0 tracks
@@ -643,7 +643,7 @@ namespace InDet{
                     m_fitSvc->setCnstType(1, *state);       // Set mass  constraint
                   }
 		  if( BadTracks == 2 ) {  // Lambda case
-	            if( fabs(1./tmpVrt.trkAtVrt[0][2]) > fabs(1./tmpVrt.trkAtVrt[1][2]) ) {
+	            if( std::abs(1./tmpVrt.trkAtVrt[0][2]) > std::abs(1./tmpVrt.trkAtVrt[1][2]) ) {
 		            inpMassV0.push_back(m_massP);inpMassV0.push_back(m_massPi);
 	            }else{  inpMassV0.push_back(m_massPi);inpMassV0.push_back(m_massP); }
                     m_fitSvc->setMassInputParticles( inpMassV0, *state );
@@ -706,14 +706,14 @@ namespace InDet{
    	          jetDir.Px()*(tmpVrt.fitVertex.x()-primVrt.x())
                 + jetDir.Py()*(tmpVrt.fitVertex.y()-primVrt.y())
  		+ jetDir.Pz()*(tmpVrt.fitVertex.z()-primVrt.z());
-                if(m_getNegativeTail) jetVrtDir=fabs(jetVrtDir);  // For negative TAIL
+                if(m_getNegativeTail) jetVrtDir=std::abs(jetVrtDir);  // For negative TAIL
   	                                                          // accepts also negative
   	                                                          // track pairs
                 if(m_getNegativeTag) jetVrtDir=-jetVrtDir;        // For negative TAG
   	                                                          // accepts only negative
   	                                                          // track pairs
 	        if( (Signif3D>m_sel2VrtSigCut) ) {
-                  if(fabs(signif3Dproj)<m_sel2VrtSigCut)continue;
+                  if(std::abs(signif3Dproj)<m_sel2VrtSigCut)continue;
 	          listSecondTracks.push_back(selectedTracks[i]);
 	          listSecondTracks.push_back(selectedTracks[j]);
 	          closeVrtSig.push_back(Signif3D);
@@ -812,7 +812,7 @@ namespace InDet{
         getPixelProblems(p1, blP[0], l1P[0] );
         getPixelProblems(p2, blP[1], l1P[1] );
         double xDif=fitVertex.x()-m_xLayerB, yDif=fitVertex.y()-m_yLayerB ; 
-        double Dist2DBL=sqrt(xDif*xDif+yDif*yDif);
+        double Dist2DBL=std::sqrt(xDif*xDif+yDif*yDif);
         if      (Dist2DBL < m_rLayerB-vrtRadiusError(fitVertex, vrtErr)) {       //----------------------------------------- Inside B-layer
           if( blTrk[0]==0 && blTrk[1]==0) return false;  // No b-layer hits at all, but all expected
 	  if( blTrk[0]<1  && l1Trk[0]<1 ) return false;
@@ -826,11 +826,11 @@ namespace InDet{
 // 
 // L1 and L2 are considered only if vertex is in acceptance
 //
-	if(fabs(fitVertex.z())<400.){
+	if(std::abs(fitVertex.z())<400.){
           xDif=fitVertex.x()-m_xLayer1, yDif=fitVertex.y()-m_yLayer1 ;
-	  double Dist2DL1=sqrt(xDif*xDif+yDif*yDif);
+	  double Dist2DL1=std::sqrt(xDif*xDif+yDif*yDif);
           xDif=fitVertex.x()-m_xLayer2, yDif=fitVertex.y()-m_yLayer2 ; 
-	  double Dist2DL2=sqrt(xDif*xDif+yDif*yDif);
+	  double Dist2DL2=std::sqrt(xDif*xDif+yDif*yDif);
           if      (Dist2DL1 < m_rLayer1-vrtRadiusError(fitVertex, vrtErr)) {   //------------------------------------------ Inside 1st-layer
 	     if( l1Trk[0]==0 && l1Trk[1]==0 )     return false;  // No L1 hits at all
              if( l1Trk[0]<1  && l2Trk[0]<1  )     return false;  // Less than 1 hits on track 0

@@ -20,14 +20,14 @@ namespace InDet{
          long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits)
   const
   {
-     double Pt = sin(ThetaVert)/fabs(PInvVert);
+     double Pt = sin(ThetaVert)/std::abs(PInvVert);
 //- Track quality
      if(Pt               < m_cutPt) 			return StatusCode::FAILURE;
      if(!m_multiWithPrimary){           //Must not be used for primary vertex search
-       if(fabs(ZVert)      > m_cutZVrt)	                return StatusCode::FAILURE;
+       if(std::abs(ZVert)      > m_cutZVrt)	                return StatusCode::FAILURE;
      }
      if(Chi2 	         > m_cutChi2) 			return StatusCode::FAILURE;
-     if(fabs(A0Vert)     > m_cutA0) 			return StatusCode::FAILURE;
+     if(std::abs(A0Vert)     > m_cutA0) 			return StatusCode::FAILURE;
 
 
      if(PixelHits	    < m_cutPixelHits) 		return StatusCode::FAILURE;
@@ -75,8 +75,8 @@ namespace InDet{
 	  if ( coneDist(VectPerig,JetDir) > m_coneForTag )      continue;
           if( (*i_ntrk)->pt() > JetDir.Pt() )                   continue;
 
-          double trkP=1./fabs(VectPerig[4]);         
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
+          double trkP=1./std::abs(VectPerig[4]);         
+          if(trkP>10000.){  double trkPErr=std::sqrt(CovTrkMtx55)*trkP;
 	                    if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
                             if(trkPErr>0.5) continue;   }
 
@@ -108,10 +108,10 @@ namespace InDet{
 //std::cout<<"NwInnerM="<<(long int)InmHits<<", "<<(long int)InmSharedH<<", "<<(long int)InmSplitH<<", "<<(long int)InmOutlier<<'\n';
 
           Amg::Vector3D perigeePos=mPer.position();
-          double ImpactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
+          double ImpactA0=std::sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
                                +(perigeePos.y()-PrimVrt.y())*(perigeePos.y()-PrimVrt.y()) );
           double ImpactZ=perigeePos.z()-PrimVrt.z();
-          double ImpactSignif=sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
+          double ImpactSignif=std::sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
 
           //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
           //double ImpactA0=Impact[0];  
@@ -119,16 +119,16 @@ namespace InDet{
           if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, m_w_1); }
 //---- Improved cleaning
 /////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
-          if(fabs((*i_ntrk)->eta())>2.  ) {
+          if(std::abs((*i_ntrk)->eta())>2.  ) {
             if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
             if(m_existIBL){if(PixelHits)PixelHits -=1; if(SctHits)SctHits  -=1;}             // 4-layer pixel detector
             else          {if(PixelHits)PixelHits -=1;}                                      // 3-layer pixel detector
           }
-          if(fabs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
+          if(std::abs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
 //----Anti-pileup cut (in Sel2TrVrt now)
-//          double SignifR = Impact[0]/ sqrt(ImpactError[0]);
-//          if(fabs(SignifR) < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices
-//            double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
+//          double SignifR = Impact[0]/ std::sqrt(ImpactError[0]);
+//          if(std::abs(SignifR) < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices
+//            double SignifZ = Impact[1]/ std::sqrt(ImpactError[2]);
 //            if(SignifZ > 1.+m_AntiPileupSigZCut ) continue;
 //            if(SignifZ < 1.-m_AntiPileupSigZCut ) continue;
 //          }

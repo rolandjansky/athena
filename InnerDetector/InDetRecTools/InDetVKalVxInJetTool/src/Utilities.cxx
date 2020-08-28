@@ -9,7 +9,8 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "VxVertex/RecVertex.h"
- //-------------------------------------------------
+#include "CxxUtils/sincos.h"
+//-------------------------------------------------
 // Other stuff
 #include <cmath>
 
@@ -62,11 +63,11 @@ namespace InDet{
     double X;
     pnt1=trk1->perigeeParameters().position()-PVRT;
     pnt2=trk2->perigeeParameters().position()-PVRT;
-    fabs(mom1[1]*t[2]-mom1[2]*t[1])>fabs(mom1[0]*t[2]-mom1[2]*t[0]) ? X=(t[1]*pnt1[2]-t[2]*pnt1[1])/(mom1[1]*t[2]-mom1[2]*t[1])
-                                                                    : X=(t[0]*pnt1[2]-t[2]*pnt1[0])/(mom1[0]*t[2]-mom1[2]*t[0]);
+    std::abs(mom1[1]*t[2]-mom1[2]*t[1])>std::abs(mom1[0]*t[2]-mom1[2]*t[0]) ? X=(t[1]*pnt1[2]-t[2]*pnt1[1])/(mom1[1]*t[2]-mom1[2]*t[1])
+                                                                            : X=(t[0]*pnt1[2]-t[2]*pnt1[0])/(mom1[0]*t[2]-mom1[2]*t[0]);
     V1=pnt1+mom1*X;   // First particle vertex
-    fabs(mom2[1]*t[2]-mom2[2]*t[1])>fabs(mom2[0]*t[2]-mom2[2]*t[0]) ? X=(t[1]*pnt2[2]-t[2]*pnt2[1])/(mom2[1]*t[2]-mom2[2]*t[1])
-                                                                    : X=(t[0]*pnt2[2]-t[2]*pnt2[0])/(mom2[0]*t[2]-mom2[2]*t[0]);
+    std::abs(mom2[1]*t[2]-mom2[2]*t[1])>std::abs(mom2[0]*t[2]-mom2[2]*t[0]) ? X=(t[1]*pnt2[2]-t[2]*pnt2[1])/(mom2[1]*t[2]-mom2[2]*t[1])
+                                                                            : X=(t[0]*pnt2[2]-t[2]*pnt2[0])/(mom2[0]*t[2]-mom2[2]*t[0]);
     V2=pnt2+mom2*X;   // Second particle vertex
 //------------------------------------------------------------------------
     if(V1.dot(t)<0. && V2.dot(t)<0.) {V1*=0.;V2*=0.;}        // Check correctness of topology
@@ -109,21 +110,21 @@ namespace InDet{
 
   bool InDetVKalVxInJetTool::insideMatLayer(float xvt,float yvt) const
   {
-        float Dist2DBP=sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
-        float Dist2DBL=sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
-        float Dist2DL1=sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
-        float Dist2DL2=sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
+        float Dist2DBP=std::sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
+        float Dist2DBL=std::sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
+        float Dist2DL1=std::sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
+        float Dist2DL2=std::sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
         if(m_existIBL){              // 4-layer pixel detector
-               if( fabs(Dist2DBP-m_beampipeR)< 1.0)  return true;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_rLayerB)  < 2.5)     return true;
-               if( fabs(Dist2DL1-m_rLayer1)  < 3.0)      return true;
-               if( fabs(Dist2DL2-m_rLayer2)  < 3.0)      return true;
-               //if( fabs(Dist2DL2-m_rLayer3)  < 4.0)      return true;
+               if( std::abs(Dist2DBP-m_beampipeR)< 1.0)  return true;           // Beam Pipe removal  
+               if( std::abs(Dist2DBL-m_rLayerB)  < 2.5)     return true;
+               if( std::abs(Dist2DL1-m_rLayer1)  < 3.0)      return true;
+               if( std::abs(Dist2DL2-m_rLayer2)  < 3.0)      return true;
+               //if( std::abs(Dist2DL2-m_rLayer3)  < 4.0)      return true;
         }else{                       // 3-layer pixel detector
-               if( fabs(Dist2DBP-m_beampipeR)< 1.5)  return true;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_rLayerB)  < 3.5)     return true;
-               if( fabs(Dist2DL1-m_rLayer1)  < 4.0)      return true;
-               if( fabs(Dist2DL2-m_rLayer2)  < 5.0)      return true;
+               if( std::abs(Dist2DBP-m_beampipeR)< 1.5)  return true;           // Beam Pipe removal  
+               if( std::abs(Dist2DBL-m_rLayerB)  < 3.5)     return true;
+               if( std::abs(Dist2DL1-m_rLayer1)  < 4.0)      return true;
+               if( std::abs(Dist2DL2-m_rLayer2)  < 5.0)      return true;
         }
         return false; 
   }
@@ -155,9 +156,9 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
-    return sqrt(distx*distx+disty*disty+distz*distz);
+    return std::sqrt(distx*distx+disty*disty+distz*distz);
   }
   
   double InDetVKalVxInJetTool::vrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
@@ -188,9 +189,9 @@ namespace InDet{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
-    return sqrt(distx*distx+disty*disty+distz*distz);
+    return std::sqrt(distx*distx+disty*disty+distz*distz);
   }
 
   double InDetVKalVxInJetTool::vrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
@@ -213,9 +214,9 @@ namespace InDet{
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
-    return sqrt(distx*distx+disty*disty);
+    return std::sqrt(distx*distx+disty*disty);
   }
 
 //--------------------------------------------------
@@ -250,7 +251,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
     return Signif;
@@ -288,7 +289,7 @@ namespace InDet{
                 +2.*distx*WgtMtx(0,1)*disty
                 +2.*distx*WgtMtx(0,2)*distz
                 +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     if(projDist<0)Signif=-Signif;
     return Signif;
@@ -320,7 +321,7 @@ namespace InDet{
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=std::sqrt(Signif);
     if(Signif != Signif)  Signif = 0.;
     return Signif;
   }
@@ -337,22 +338,22 @@ namespace InDet{
                   +2.*DirX*VrtErr[1]*DirY
                      +DirY*VrtErr[2]*DirY;
     Covar /= DirX*DirX + DirY*DirY;
-    Covar=sqrt(Covar);
+    Covar=std::sqrt(Covar);
     if(Covar != Covar)  Covar = 0.;
     return Covar;
   }
 
 
 
-  double InDetVKalVxInJetTool::coneDist(const AmgVector(5) & VectPerig, const TLorentzVector & JetDir)
+  double InDetVKalVxInJetTool::coneDist(const AmgVector(5) & vectPerig, const TLorentzVector & jetDir)
   const
   {
   
-  	  double  etaTr = -log(tan(VectPerig[3]/2.));
-	  double  etaJet = JetDir.PseudoRapidity();
-	  double  adphi = fabs(JetDir.Phi()-VectPerig[2]);
+  	  double  etaTr = -std::log(std::tan(vectPerig[3]/2.));
+	  double  etaJet = jetDir.PseudoRapidity();
+	  double  adphi = std::abs(jetDir.Phi()-vectPerig[2]);
 	  while(adphi> M_PI)adphi-=2.*M_PI;
- 	  return  sqrt(adphi*adphi + (etaJet-etaTr)*(etaJet-etaTr));
+ 	  return  std::sqrt(adphi*adphi + (etaJet-etaTr)*(etaJet-etaTr));
   }
 
 
@@ -360,22 +361,27 @@ namespace InDet{
     /* Gives correct mass assignment in case of nonequal masses*/
 
 
-   double InDetVKalVxInJetTool::massV0(std::vector< std::vector<double> >& TrkAtVrt,
+   double InDetVKalVxInJetTool::massV0(std::vector< std::vector<double> >& trkAtVrt,
                                double massP, double massPi )
    const
    {
-        double p1=fabs(TrkAtVrt[0][2]); double p2=fabs(TrkAtVrt[1][2]);
-        double px = cos(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])/p1 
-                  + cos(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])/p2;
-        double py = sin(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])/p1 
-                  + sin(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])/p2;
-        double pz =                     cos(TrkAtVrt[0][1])/p1 
-                  +                     cos(TrkAtVrt[1][1])/p2;
-        double ee= (1./p1 > 1./p2) ? 
-            (sqrt(1./p1/p1+massP*massP)+sqrt(1./p2/p2+massPi*massPi)):
-            (sqrt(1./p2/p2+massP*massP)+sqrt(1./p1/p1+massPi*massPi));
+        double ap1=1./std::abs(trkAtVrt[0][2]);
+	double ap2=1./std::abs(trkAtVrt[1][2]);
+        CxxUtils::sincos phi1  (trkAtVrt[0][0]);
+        CxxUtils::sincos theta1(trkAtVrt[0][1]);
+        CxxUtils::sincos phi2  (trkAtVrt[1][0]);
+        CxxUtils::sincos theta2(trkAtVrt[1][1]);
+        double px = phi1.cs*theta1.sn*ap1 
+                  + phi2.cs*theta2.sn*ap2;
+        double py = phi1.sn*theta1.sn*ap1 
+                  + phi2.sn*theta2.sn*ap2;
+        double pz =         theta1.cs*ap1 
+                  +         theta2.cs*ap2;
+        double ee= (ap1 > ap2) ? 
+            (std::sqrt(ap1*ap1+massP*massP)+std::sqrt(ap2*ap2+massPi*massPi)):
+            (std::sqrt(ap2*ap2+massP*massP)+std::sqrt(ap1*ap1+massPi*massPi));
         double test=(ee-pz)*(ee+pz)-px*px-py*py;
-        return test>0 ? sqrt(test) : 0.; 
+        return test>0 ? std::sqrt(test) : 0.; 
     }
 
 
@@ -396,21 +402,25 @@ namespace InDet{
 
 //  Function returns a transverse momentum of track w/r some direction
 //
-  double InDetVKalVxInJetTool::pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& InpTrk) 
+  double InDetVKalVxInJetTool::pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& inpTrk) 
   const
   {
-     double Norm=sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
+     double Norm=std::sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
      double sx=Dir.x()/Norm; double sy=Dir.y()/Norm; double sz=Dir.z()/Norm;
 
      double px=0.,py=0.,pz=0.; double scale;
-     px = cos ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     py = sin ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     pz =                    cos(InpTrk[1])/fabs(InpTrk[2]);
+     double api=1./std::abs(inpTrk[2]);
+     CxxUtils::sincos phi  (inpTrk[0]);
+     CxxUtils::sincos theta(inpTrk[1]);
+
+     px = phi.cs * theta.sn*api;
+     py = phi.sn * theta.sn*api;
+     pz =          theta.cs*api;
        scale = px*sx + py*sy + pz*sz;
      px -= sx*scale;
      py -= sy*scale; 
      pz -= sz*scale;
-     return sqrt( px*px +py*py + pz*pz );
+     return std::sqrt( px*px +py*py + pz*pz );
    }
 
   TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const Trk::Perigee*>& InpTrk) 
@@ -421,10 +431,13 @@ namespace InDet{
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
        if( InpTrk[i] == NULL ){ continue; } 
        VectPerig = InpTrk[i]->parameters(); 
-       px += cos ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       py += sin ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       pz +=                       cos(VectPerig[3])/fabs(VectPerig[4]);
-       ee += sqrt( 1./(VectPerig[4]*VectPerig[4]) + m_massPi*m_massPi);
+       double api=1./std::abs(VectPerig[4]);
+       CxxUtils::sincos phi  (VectPerig[2]);
+       CxxUtils::sincos theta(VectPerig[3]);
+       px += phi.cs * theta.sn*api;
+       py += phi.sn * theta.sn*api;
+       pz +=          theta.cs*api;
+       ee += std::sqrt( api*api + m_massPi*m_massPi);
      }
      return TLorentzVector(px,py,pz,ee); 
    }
@@ -441,13 +454,16 @@ namespace InDet{
    }
 
 
-  TLorentzVector InDetVKalVxInJetTool::momAtVrt(const std::vector< double >& InpTrk) 
+  TLorentzVector InDetVKalVxInJetTool::momAtVrt(const std::vector< double >& inpTrk) 
   const
   {
-     double px = cos ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     double py = sin ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     double pz =                    cos(InpTrk[1])/fabs(InpTrk[2]);
-     double ee = sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
+     double api=1./std::abs(inpTrk[2]);
+     CxxUtils::sincos phi  (inpTrk[0]);
+     CxxUtils::sincos theta(inpTrk[1]);
+     double px = phi.cs * theta.sn*api;
+     double py = phi.sn * theta.sn*api;
+     double pz =          theta.cs*api;
+     double ee = std::sqrt( api*api + m_massPi*m_massPi);
      return TLorentzVector(px,py,pz,ee); 
    }
 //
@@ -516,7 +532,7 @@ namespace InDet{
           //}
           uint32_t HitPattern=Part->hitPattern();
 	  l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
-	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
+	  //   bitH=HitPattern&((int)std::pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
           if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;

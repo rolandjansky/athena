@@ -171,7 +171,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
       double jetVrtDir = jetDir.Px() * vDist.x() + jetDir.Py() * vDist.y() +
                          jetDir.Pz() * vDist.z();
       if (m_multiWithPrimary)
-        jetVrtDir = fabs(
+        jetVrtDir = std::abs(
           jetVrtDir); /* Always positive when primary vertex is seeked for*/
       if (jetVrtDir > 0.) { /* Good initial estimation */
         m_fitSvc->setApproximateVertex(newvrt.vertex.x(),
@@ -443,7 +443,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
     } } } }
     for(auto & curVrt : (*wrkVrtSet) ) {
        if(!curVrt.Good )                 continue;  //don't work on vertex which is already bad
-       if( fabs(curVrt.vertex.z())>650. ){curVrt.Good=false; continue;}  //vertex outside Pixel det. For ALL vertices
+       if( std::abs(curVrt.vertex.z())>650. ){curVrt.Good=false; continue;}  //vertex outside Pixel det. For ALL vertices
        if(curVrt.selTrk.size() != 1)     continue;
        curVrt.Good=false;       // Make them bad by default
        if(m_multiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
@@ -506,8 +506,8 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
              if(m_fillHist){ m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
                              m_hb_massPPi ->Fill( mass_PPi,  m_w_1); 
                              if( curVrt.vertex.perp()>20.)m_hb_massEE  ->Fill( mass_EE,   m_w_1);  } 
- 	     if( fabs(mass_PiPi-m_massK0) < 22.)     continue;
- 	     if( fabs(mass_PPi-m_massLam) <  8.)     continue;
+ 	     if( std::abs(mass_PiPi-m_massK0) < 22.)     continue;
+ 	     if( std::abs(mass_PPi-m_massLam) <  8.)     continue;
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
           }          
 //---
@@ -1022,9 +1022,9 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
            if( (*wrkVrtSet)[jv].selTrk.size()< 2) continue;   /* Bad vertices */
            if(!(*wrkVrtSet)[jv].Good )            continue;   /* Bad vertices */
            //if(!nTrkCommon(wrkVrtSet, V1, V2))     continue;   /* No common tracks*/
-           double tmp= fabs((*wrkVrtSet)[iv].vertex.x()-(*wrkVrtSet)[jv].vertex.x())
-                      +fabs((*wrkVrtSet)[iv].vertex.y()-(*wrkVrtSet)[jv].vertex.y())
-                      +fabs((*wrkVrtSet)[iv].vertex.z()-(*wrkVrtSet)[jv].vertex.z());
+           double tmp= std::abs((*wrkVrtSet)[iv].vertex.x()-(*wrkVrtSet)[jv].vertex.x())
+                      +std::abs((*wrkVrtSet)[iv].vertex.y()-(*wrkVrtSet)[jv].vertex.y())
+                      +std::abs((*wrkVrtSet)[iv].vertex.z()-(*wrkVrtSet)[jv].vertex.z());
            if(tmp>20.) continue;
            double tmpDst = vrtVrtDist((*wrkVrtSet)[iv].vertex,(*wrkVrtSet)[iv].vertexCov,
                                       (*wrkVrtSet)[jv].vertex,(*wrkVrtSet)[jv].vertexCov);
