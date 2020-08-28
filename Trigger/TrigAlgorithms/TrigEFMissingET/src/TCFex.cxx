@@ -39,6 +39,11 @@ namespace HLT { namespace MET {
   {
     // Retrieve the inputs
     auto clusters = SG::makeHandle(m_clusterKey, context);
+    if (!clusters.isValid())
+    {
+      ATH_MSG_ERROR("Failed to retrieve " << m_clusterKey);
+      return StatusCode::FAILURE;
+    }
 
     auto state = m_useUncalibrated ? 
       xAOD::CaloCluster::UNCALIBRATED : 

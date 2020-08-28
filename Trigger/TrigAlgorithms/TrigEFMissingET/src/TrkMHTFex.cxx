@@ -39,14 +39,14 @@ namespace HLT { namespace MET {
     CHECK( m_trackSelTool.retrieve() );
 
     // Update the decor keys if necessary
-    if (m_jvtKey.key().find(".") == std::string::npos) {
+      if (m_jvtKey.key().find(".") == std::string::npos)
       m_jvtKey = m_jetKey.key() + "." + m_jvtKey.key();
-      CHECK( m_jvtKey.initialize() );
-    }
-    else if (SG::contKeyFromKey(m_jvtKey.key() ) != m_jetKey.key() ) {
+      else if (SG::contKeyFromKey(m_jvtKey.key()) != m_jetKey.key())
+      {
       ATH_MSG_ERROR("JVT container key does not match jet key!");
       return StatusCode::FAILURE;
     }
+      CHECK(m_jvtKey.initialize());
     m_trackGA.emplace(m_trackGAName);
 
     return initializeBase(
@@ -60,8 +60,23 @@ namespace HLT { namespace MET {
   {
     // Retrieve the inputs
     auto jets = SG::makeHandle(m_jetKey, context);
+      if (!jets.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_jetKey);
+        return StatusCode::FAILURE;
+      }
     auto tracks = SG::makeHandle(m_trackKey, context);
+      if (!tracks.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_trackKey);
+        return StatusCode::FAILURE;
+      }
     auto vertices = SG::makeHandle(m_vertexKey, context);
+      if (!vertices.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_vertexKey);
+        return StatusCode::FAILURE;
+      }
     auto tva = SG::makeHandle(m_tvaKey, context);
     auto jvtAcc = SG::makeHandle<float>(m_jvtKey, context);
     auto& trackLinksAcc = *m_trackGA;
