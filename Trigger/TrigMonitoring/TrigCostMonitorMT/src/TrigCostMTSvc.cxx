@@ -306,6 +306,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     result &= tc->setDetail("store", ai.storeHash());
     result &= tc->setDetail("view", ai.m_viewID);
     result &= tc->setDetail("thread", threadEnumerator);
+    result &= tc->setDetail("thash", threadID);
     result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
     result &= tc->setDetail("start", startTime);
@@ -319,7 +320,8 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       ATH_MSG_VERBOSE("Algorithm:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG") << "'");
       ATH_MSG_VERBOSE("  Store:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'");
       ATH_MSG_VERBOSE("  View ID:" << tc->getDetail<int16_t>("view"));
-      ATH_MSG_VERBOSE("  Thread ID Hash:" << tc->getDetail<uint32_t>("thread") );
+      ATH_MSG_VERBOSE("  Thread #:" << tc->getDetail<uint32_t>("thread") );
+      ATH_MSG_VERBOSE("  Thread ID Hash:" << tc->getDetail<uint32_t>("thash") );
       ATH_MSG_VERBOSE("  Slot:" << tc->getDetail<uint32_t>("slot") );
       ATH_MSG_VERBOSE("  RoI ID Hash:" << tc->getDetail<int32_t>("roi") );
       ATH_MSG_VERBOSE("  Start Time:" << tc->getDetail<uint64_t>("start") << " mu s");
