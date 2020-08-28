@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-#from TriggerMenu.menu.MenuUtil import applyHLTPrescale, resetAllPrescales
+from six import iteritems
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -25,14 +25,17 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     if menu_name.startswith('LS2_v1'):
         log.info('LS2_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
         elif 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'TriggerValidation_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_trigvalid_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_trigvalid_mc_prescale
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
@@ -109,8 +112,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     elif menu_name.startswith('LS2_emu_v1'):
         log.info('LS2_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -153,3 +156,39 @@ def addSliceChainsToPrescales(flags, cosmic_prescales):
     combined.update(cosmic_prescales)
     from copy import deepcopy
     cosmic_prescales = deepcopy(combined)
+
+def disableChains(flags, trigvalid_prescales, type_group):
+    signatures = []
+    slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
+    for slice_prop in slice_props:
+        slice = getattr(flags, slice_prop)
+        if slice.signatures():
+            signatures.extend(slice.signatures())
+        else:
+            log.debug('SKIPPING ' + str(slice_prop))
+
+    chain_online_list=[]
+
+    for chain in signatures:
+        if type_group in chain.groups:
+            chain_online_list.append(chain.name)
+
+    trigvalid_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1, 0,-1] ]))
+
+
+def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
+    for item, prescales in iteritems(HLTPrescale):
+        # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
+        if item not in triggerPythonConfig.dicts().keys():
+            if signaturesOverwritten:
+                log.warning('Attempt to set prescales for nonexisting chain: %s', item)
+                continue
+            else:
+                log.error('Attempt to set prescales for nonexisting chain: %s', item)
+                continue
+        n = len(prescales)
+        hltchain = triggerPythonConfig.dicts()[item]
+        if n > 0:
+            hltchain['prescale'] = str(prescales[0])
+        log.info('Applied HLTPS to the item '+item+': PS'+ hltchain['prescale'])
+       

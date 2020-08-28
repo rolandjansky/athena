@@ -42,7 +42,7 @@ class ItemDef:
         # differently in different menus
 
         # define local flag for menu version
-        isV8 = '_v8' in menuName or 'LS2_v1'==menuName or 'run3_v1' in menuName
+        isV8 = '_v8' in menuName or 'LS2_v1' in menuName or 'run3_v1' in menuName
         isHIV5 = 'HI_v5' in menuName
         isPhaseII = '_PhaseII' in menuName
 
