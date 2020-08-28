@@ -213,7 +213,7 @@ setModifiers = ['noLArCalibFolders',
                 'enableHotIDMasking',
 ]
 
-if globalflags.DataSource.is_geant4():  # MC modifiers
+if ConfigFlags.Input.isMC:  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
@@ -348,7 +348,7 @@ topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
 # Event Info setup
 #--------------------------------------------------------------
 # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if globalflags.InputFormat.is_pool():
+if ConfigFlags.Input.Format == 'POOL':
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
@@ -416,11 +416,7 @@ if ConfigFlags.Input.Format == 'POOL':
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.isPartition:
-    if hasattr(svcMgr, "MetaDataSvc"):
-        # Need to set this property to ensure correct merging with MetaDataSvc from AthenaPoolCnvSvc/AthenaPool.py
-        # May be removed when the merging is fixed (or AthenaPool.py sets this property)
-        svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
+elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isPartition:
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
