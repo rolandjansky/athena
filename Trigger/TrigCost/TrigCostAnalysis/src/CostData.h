@@ -100,7 +100,6 @@ class CostData {
 
     /**
      * @brief Get the class typename given an algorithm instance name. Name is supplied in serialised hashed form.
-     * @return Total CPU time in milliseconds.
      */
     const std::string& algNameToClassType(size_t algNameHash) const;
 
@@ -123,7 +122,7 @@ class CostData {
     float m_liveTime; //!< Effective walltime of either the event or the LB, in seconds (@see m_liveTimeIsPerEvent).
     uint32_t m_lb; //!< Current luminosity block number
     uint32_t m_slot; //!< Current online slot number
-    bool m_liveTimeIsPerEvent; //!< If the livetime represents a single event of all of the current LB
+    bool m_liveTimeIsPerEvent; //!< If the livetime represents a single event or all of the current LB
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
 };
 
