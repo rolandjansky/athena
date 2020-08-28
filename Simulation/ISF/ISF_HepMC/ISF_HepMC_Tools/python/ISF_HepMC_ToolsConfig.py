@@ -39,7 +39,7 @@ def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.load_library('libAtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID ] )
     return getParticlePositionFilter(name, **kwargs)
@@ -48,7 +48,7 @@ def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwarg
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.load_library('libAtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
@@ -59,7 +59,7 @@ def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.load_library('libAtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
@@ -71,7 +71,7 @@ def getParticlePositionFilterWorld(name="ISF_ParticlePositionFilterWorld", **kwa
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.load_library('libAtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo,
