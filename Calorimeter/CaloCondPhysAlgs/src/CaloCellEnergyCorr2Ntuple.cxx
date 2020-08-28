@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellEnergyCorr2Ntuple.h"
@@ -18,8 +18,8 @@
 //Constructor
 CaloCellEnergyCorr2Ntuple::CaloCellEnergyCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(NULL),
-  m_calo_id(NULL),
+  m_thistSvc(nullptr),
+  m_calo_id(nullptr),
   m_key("EnergyCorr"), 
   m_FolderName("/LAR/CellCorrOfl/EnergyCorr"), 
   m_Hash(0),
@@ -29,7 +29,7 @@ CaloCellEnergyCorr2Ntuple::CaloCellEnergyCorr2Ntuple(const std::string& name, IS
   m_layer(0),
   m_detector(0),
   m_corr(0),
-  m_tree(NULL),
+  m_tree(nullptr),
   m_runNumber(0),
   m_lumiBlock(0)
 {

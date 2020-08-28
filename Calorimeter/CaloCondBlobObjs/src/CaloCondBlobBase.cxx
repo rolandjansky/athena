@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCondBlobObjs/CaloCondBlobBase.h"
 #include "CaloCondBlobObjs/CaloCondType.h"
-#include <time.h>
 #include <algorithm>
+#include <ctime>
 
 //
 //_____________________________________________________________
@@ -74,7 +74,7 @@ CaloCondBlobBase::createBlob(uint16_t objType,
   
   //=== calculate comment length, including two ASCII NULLs to end text fields
   uint32_t commentSizeChar(0);
-  if(author.size() || comment.size() || timeStamp){
+  if(!author.empty() || !comment.empty() || timeStamp){
     commentSizeChar += author.size()+comment.size()+sizeof(uint64_t) + 2;
     //=== force comment length to end on 4 byte boundary
     commentSizeChar += (commentSizeChar % sizeof(uint32_t)) ? 
@@ -98,7 +98,7 @@ CaloCondBlobBase::createBlob(uint16_t objType,
   
   //==== fill comment fields
   if(commentSizeChar){
-    if(!timeStamp) timeStamp = ::time(0);
+    if(!timeStamp) timeStamp = ::time(nullptr);
     uint64_t* pTimeStamp = reinterpret_cast<uint64_t*>(getBlobStart()+dataSizeByte/sizeof(uint32_t));
     pTimeStamp[0] = timeStamp;
     char* pChar = reinterpret_cast<char*>(++pTimeStamp); 

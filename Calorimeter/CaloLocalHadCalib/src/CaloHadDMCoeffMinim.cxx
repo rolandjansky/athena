@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,20 +16,20 @@
 //
 //-----------------------------------------------------------------------
 #include "CaloLocalHadCalib/CaloHadDMCoeffMinim.h"
-#include "CaloLocalHadCalib/GetLCDefs.h"
+#include "AthenaKernel/Units.h"
+#include "CaloConditions/CaloLocalHadCoeff.h"
+#include "CaloConditions/CaloLocalHadDefs.h"
 #include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
 #include "CaloLocalHadCalib/CaloHadDMCoeffFit.h"
 #include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
+#include "CaloLocalHadCalib/GetLCDefs.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
-#include "CaloConditions/CaloLocalHadCoeff.h"
-#include "CaloConditions/CaloLocalHadDefs.h"
-#include "AthenaKernel/Units.h"
-#include <math.h>
-#include <iostream>
-#include <sstream>
+#include "boost/io/ios_state.hpp"
+#include <cmath>
 #include <fstream>
 #include <iomanip>
-#include "boost/io/ios_state.hpp"
+#include <iostream>
+#include <sstream>
 
 #include <CLHEP/Vector/LorentzVector.h>
 
@@ -57,7 +57,7 @@ using Athena::Units::MeV;
 using Athena::Units::GeV;
 
 
-CaloHadDMCoeffMinim *CaloHadDMCoeffMinim::s_instance = 0;
+CaloHadDMCoeffMinim *CaloHadDMCoeffMinim::s_instance = nullptr;
 
 
 CaloHadDMCoeffMinim::CaloHadDMCoeffMinim() :
@@ -70,40 +70,40 @@ CaloHadDMCoeffMinim::CaloHadDMCoeffMinim() :
   m_NormalizationType("Lin"),
   m_NormalizationTypeNumber(0)
 {
-  m_data = 0;
-  m_HadDMCoeff = 0;
+  m_data = nullptr;
+  m_HadDMCoeff = nullptr;
   m_HadDMHelper = new CaloLocalHadCoeffHelper();
 
   // list of parameters available for minimization
-  m_minimPars.push_back( MinimPar("PreSamplerB", 1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("EMB1",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("EMB2",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("EMB3",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("PreSamplerE", 1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("EME1",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("EME2",        1.0, 0.5,  0.99, 2000.0) ); // 6
-  m_minimPars.push_back( MinimPar("EME3",        1.0, 0.5,  0.99, 2000.0)  );
-  m_minimPars.push_back( MinimPar("HEC0",        1.0, 0.5,  0.99, 2000.0)  );
-  m_minimPars.push_back( MinimPar("HEC1",        1.0, 0.5,  0.99, 2000.0)  );
-  m_minimPars.push_back( MinimPar("HEC2",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("HEC3",        1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileBar0",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileBar1",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileBar2",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileGap1",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileGap2",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileGap3",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileExt0",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileExt1",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("TileExt2",    1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("FCAL0",       1.0, 0.01, 0.99, 3.0)  );
-  m_minimPars.push_back( MinimPar("FCAL1",       1.0, 0.01, 0.99, 3.0)  );
-  m_minimPars.push_back( MinimPar("FCAL2",       1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("MINIFCAL0",   1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("MINIFCAL1",   1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("MINIFCAL2",   1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("MINIFCAL3",   1.0, 0.5,  0.99, 20.0)  );
-  m_minimPars.push_back( MinimPar("CONST",       0.0, 10.,  0.0,  5000.)  );
+  m_minimPars.emplace_back("PreSamplerB", 1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("EMB1",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("EMB2",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("EMB3",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("PreSamplerE", 1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("EME1",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("EME2",        1.0, 0.5,  0.99, 2000.0 ); // 6
+  m_minimPars.emplace_back("EME3",        1.0, 0.5,  0.99, 2000.0 );
+  m_minimPars.emplace_back("HEC0",        1.0, 0.5,  0.99, 2000.0 );
+  m_minimPars.emplace_back("HEC1",        1.0, 0.5,  0.99, 2000.0 );
+  m_minimPars.emplace_back("HEC2",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("HEC3",        1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileBar0",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileBar1",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileBar2",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileGap1",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileGap2",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileGap3",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileExt0",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileExt1",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("TileExt2",    1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("FCAL0",       1.0, 0.01, 0.99, 3.0 );
+  m_minimPars.emplace_back("FCAL1",       1.0, 0.01, 0.99, 3.0 );
+  m_minimPars.emplace_back("FCAL2",       1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("MINIFCAL0",   1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("MINIFCAL1",   1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("MINIFCAL2",   1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("MINIFCAL3",   1.0, 0.5,  0.99, 20.0 );
+  m_minimPars.emplace_back("CONST",       0.0, 10.,  0.0,  5000. );
 
   m_distance_cut = 1.5;
 
@@ -175,14 +175,14 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
 
   if( !m_data->GetEntries() ) {
     std::cout << "CaloHadDMCoeffMinim::process -> Error! No entries in DeadMaterialTree." << std::endl;
-    return 0;
+    return nullptr;
   }
 
   m_data->GetEntry(0);
   if(m_data->m_narea != m_HadDMCoeff->getSizeAreaSet()) {
     std::cout << "CaloHadDMCoeffFit::process -> Error! Different numbers of areas for DM definition" << std::endl;
     std::cout << "m_data->m_narea:" << m_data->m_narea << " m_HadDMCoeff->getSizeAreaSet():" << m_HadDMCoeff->getSizeAreaSet() << std::endl;
-    return 0;
+    return nullptr;
   }
 
   // We are going to receive dead material correction coefficients only for one
@@ -323,20 +323,20 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
     m_validNames.clear();
     if(indexes[CaloLocalHadCoeffHelper::DIM_EMFRAC] == 0) {
       // list of samplings to minimise for charged pions
-      m_validNames.push_back("EME2");
-      m_validNames.push_back("EME3");
-      m_validNames.push_back("HEC0");
-      m_validNames.push_back("HEC1");
-      m_validNames.push_back("FCAL0");
-      m_validNames.push_back("FCAL1");
-      m_validNames.push_back("CONST");
+      m_validNames.emplace_back("EME2");
+      m_validNames.emplace_back("EME3");
+      m_validNames.emplace_back("HEC0");
+      m_validNames.emplace_back("HEC1");
+      m_validNames.emplace_back("FCAL0");
+      m_validNames.emplace_back("FCAL1");
+      m_validNames.emplace_back("CONST");
     }else{
       // list of samplings to minimise for neutral pions
-      m_validNames.push_back("EME2");
-      m_validNames.push_back("EME3");
-      m_validNames.push_back("HEC0");
-      m_validNames.push_back("FCAL0");
-      m_validNames.push_back("CONST");
+      m_validNames.emplace_back("EME2");
+      m_validNames.emplace_back("EME3");
+      m_validNames.emplace_back("HEC0");
+      m_validNames.emplace_back("FCAL0");
+      m_validNames.emplace_back("CONST");
     }
 
     // setting up parameters which we are going to minimize
@@ -360,7 +360,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
     if(m_minimSubSample.size() > 80) {
       // preparing for minimization
       TVirtualFitter::SetDefaultFitter("Minuit");
-      TVirtualFitter * minuit = TVirtualFitter::Fitter(0, m_minimPars.size());
+      TVirtualFitter * minuit = TVirtualFitter::Fitter(nullptr, m_minimPars.size());
       for(unsigned int i_par=0; i_par<m_minimPars.size(); i_par++){
         MinimPar *par = &m_minimPars[i_par];
         minuit->SetParameter(i_par,par->name.c_str(), par->initVal, par->initErr, par->lowerLim, par->upperLim);
@@ -484,7 +484,7 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
             sprintf(cname,"c1_dmfcal_minuit_weights_frac%d_ener%d_lambda%d_phi%d_side%d",i_frac, i_ener, i_lambda, i_phi, i_side);
             TCanvas *c1_weights = new TCanvas(cname, cname, cc_xx, cc_yy);
             c1_weights->cd();
-            TPad *pad1=0, *pad2=0;
+            TPad *pad1=nullptr, *pad2=nullptr;
             float y_edge = 0.85;
             pad1 = new TPad("p1ps","p1ps",0.0, y_edge, 1.0, 1.0); pad1->Draw();
             pad2 = new TPad("p2ps","p2ps",0.0, 0.0, 1.0, y_edge); pad2->Draw();
@@ -538,7 +538,7 @@ void CaloHadDMCoeffMinim::make_report(std::string &sreport)
                   vye.push_back(m_minimResults[iBin][i_par].error);
                 }
               } // i_eta
-              if(vx.size()) {
+              if(!vx.empty()) {
                 TGraphErrors *gr = new TGraphErrors(dimEta->getNbins());
                 for(unsigned int i_p=0; i_p<vx.size(); i_p++){
                   gr->SetPoint(i_p, vx[i_p], vy[i_p]);

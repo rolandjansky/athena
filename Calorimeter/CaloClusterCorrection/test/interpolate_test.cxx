@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: interpolate_test.cxx,v 1.4 2008-12-23 03:40:05 ssnyder Exp $
@@ -54,7 +54,7 @@ const float data[] = {
 const int shape[2] = {15, 2};
 
 
-#define ARSZ(x) (sizeof(x)/sizeof(x[0]))
+#define ARSZ(x) (sizeof(x)/sizeof((x)[0]))
 
 
 // Test to see if two numbers are significantly different.
