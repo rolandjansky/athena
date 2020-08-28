@@ -9,6 +9,7 @@
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSteeringEvent/OnlineErrorCode.h"
+#include "TrigSteerMonitor/ISchedulerMonSvc.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
@@ -181,6 +182,7 @@ private:
   ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
+  ServiceHandle<ISchedulerMonSvc>    m_schedulerMonSvc{this, "SchedulerMonSvc", "SchedulerMonSvc"};
   ToolHandle<TrigCOOLUpdateHelper>   m_coolHelper{this, "CoolUpdateTool", "TrigCOOLUpdateHelper"};
   ToolHandle<HLTResultMTMaker>       m_hltResultMaker{this, "ResultMaker", "HLTResultMTMaker"};
   ToolHandle<GenericMonitoringTool>  m_monTool{this, "MonTool", "", "Monitoring tool"};
@@ -243,6 +245,9 @@ private:
   Gaudi::Property<bool> m_rewriteLVL1{
     this, "RewriteLVL1", false,
     "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
+
+  Gaudi::Property<bool> m_monitorScheduler{
+    this, "MonitorScheduler", false, "Enable SchedulerMonSvc to collect scheduler status data in online histograms"};
 
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};

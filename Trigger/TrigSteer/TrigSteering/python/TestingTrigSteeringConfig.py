@@ -166,7 +166,7 @@ class TestingTrigSteer( TrigSteer_baseClass ):
 
         # adding the steering monitoring tools
         try:
-            from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList
+            from TrigSteerMonitor.TrigSteerMonitorLegacyConfig import TrigSteerMonitorToolList
             self.MonTools += TrigSteerMonitorToolList
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
@@ -233,7 +233,7 @@ class TestingTrigSteer_L2( TrigSteer_baseClass ):
                     self += instance
                     log.info( "added algorithm to the configuration: "+alg)
         try:
-            from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList
+            from TrigSteerMonitor.TrigSteerMonitorLegacyConfig import TrigSteerMonitorToolList
             self.MonTools += TrigSteerMonitorToolList
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
@@ -295,7 +295,7 @@ class TestingTrigSteer_EF( TrigSteer_baseClass ) :
 
 
         try:
-            from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList
+            from TrigSteerMonitor.TrigSteerMonitorLegacyConfig import TrigSteerMonitorToolList
             self.MonTools += TrigSteerMonitorToolList
         except:
             log.warning("Attempt to add monitoring tools failed, will continue without them")
