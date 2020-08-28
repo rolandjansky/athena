@@ -28,11 +28,8 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
      if(getTrigInfoMap().count(trigName) != 0){
        ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
      }else {
-       ATH_MSG_INFO("Filling trigger info map");
        m_trigList.push_back(trigName);
-       ATH_MSG_INFO("Check1");
        setTrigInfo(trigName);
-       ATH_MSG_INFO("Check2");
      }
   }
 
@@ -132,7 +129,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
   }
     
   // Offline
-  if(info.isRNN && tau_vec.size()>0) fillRNNInputVars( trigger, tau_vec, false );
+  if(info.isRNN) fillRNNInputVars( trigger, tau_vec, false );
 
   tau_vec.clear();
 
@@ -143,7 +140,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     // If not pass, continue
     tau_vec.push_back(feat);
   }
-  if(info.isRNN && tau_vec.size()>0) fillRNNInputVars( trigger, tau_vec, true );
+  if(info.isRNN) fillRNNInputVars( trigger, tau_vec, true );
 
   
 
