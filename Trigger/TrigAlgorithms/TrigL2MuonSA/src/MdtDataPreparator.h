@@ -13,7 +13,7 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -127,7 +127,7 @@ namespace TrigL2MuonSA {
     IdentifierHash m_hash_id;
 
     // Region Selector
-    ServiceHandle<IRegSelSvc> m_regionSelector;
+    ToolHandle<IRegSelTool> m_regionSelector;
 
     // ROB DataProvider
     ServiceHandle<IROBDataProviderSvc> m_robDataProvider;

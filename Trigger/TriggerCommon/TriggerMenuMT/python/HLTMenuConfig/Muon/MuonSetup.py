@@ -359,6 +359,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                           CscRawDataProvider   = "",
                                                           CscPrepDataProvider  = "",
                                                           CscClusterProvider   = "")
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+    L2CscDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
     ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
@@ -368,6 +370,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding = False,
                                                         MDT_RawDataProvider = "",
                                                         MdtPrepDataProvider = "")
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+  L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
 
   ### RPC RDO data - turn off the data decoding here ###
@@ -379,6 +383,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding           = False,
                                                         DecodeBS             = False)
   ToolSvc += L2RpcDataPreparator
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+  L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
 
 
   ### TGC data preparation - turn off the data decoding here ###
@@ -388,6 +394,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding = False,
                                                         TgcPrepDataProvider  = "",
                                                         TgcRawDataProvider = "")
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+  L2TgcDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
 
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
