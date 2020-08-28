@@ -176,7 +176,7 @@ class TriggerConfigGetter(Configured):
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
-            if runNumber > 0 and runNumber < 230000 :
+            if runNumber is not None and runNumber > 0 and runNumber < 230000 :
                 self.isRun1Data = True
         self.isTriggerReprocessing = False
 
