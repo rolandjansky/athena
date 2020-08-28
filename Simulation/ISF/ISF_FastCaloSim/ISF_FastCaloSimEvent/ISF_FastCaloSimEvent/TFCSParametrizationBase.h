@@ -7,6 +7,7 @@
 
 #include <TNamed.h>
 #include <set>
+#include <map>
 
 class ICaloGeometry;
 class TFCSSimulationState;
@@ -130,6 +131,15 @@ public:
   ///The size() and operator[] methods give general access to these daughters
   virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
+  ///Some derived classes have daughter instances of TFCSParametrizationBase objects
+  ///The set_daughter method allows to change these daughters - expert use only!
+  ///The original element at this position is not deleted
+  virtual void set_daughter(unsigned int /*ind*/,TFCSParametrizationBase* /*param*/) {};
+  
+  ///The == operator compares the content of instances. 
+  ///The implementation in the base class only returns true for a comparison with itself
+  virtual bool operator==(const TFCSParametrizationBase& ref) const {return compare(ref);};
+
   ///Method in all derived classes to do some simulation
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
@@ -139,6 +149,16 @@ public:
   ///Deletes all objects from the s_cleanup_list. 
   ///This list can get filled during streaming operations, where an immediate delete is not possible
   static void DoCleanup();
+  
+  struct Duplicate_t {
+    TFCSParametrizationBase* replace=nullptr;
+    std::vector< TFCSParametrizationBase* > mother;
+    std::vector< unsigned int > index;
+  };
+  typedef std::map< TFCSParametrizationBase* , Duplicate_t > FindDuplicates_t;
+  typedef std::map< std::string , FindDuplicates_t > FindDuplicateClasses_t;
+  void FindDuplicates(FindDuplicateClasses_t& dup);
+  void RemoveDuplicates();
 
 protected:
   static constexpr double init_Ekin_nominal=0;//! Do not persistify!
@@ -149,6 +169,8 @@ protected:
   static constexpr double init_eta_max=100;//! Do not persistify!
 
   static std::vector< TFCSParametrizationBase* > s_cleanup_list;
+  
+  bool compare(const TFCSParametrizationBase& ref) const;
 
 #if defined(__FastCaloSimStandAlone__)
 public:

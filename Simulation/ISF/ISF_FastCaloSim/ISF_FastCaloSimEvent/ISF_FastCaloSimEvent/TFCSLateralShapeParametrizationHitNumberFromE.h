@@ -33,7 +33,13 @@ public:
 
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option = "") const override;
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
+
 private:
   // Information for the fluctuation terms
   // The variation is calculated as:

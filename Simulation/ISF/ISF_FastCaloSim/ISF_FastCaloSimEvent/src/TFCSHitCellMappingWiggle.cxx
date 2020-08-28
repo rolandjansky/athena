@@ -13,10 +13,7 @@
 #include "TH1.h"
 #include "TVector2.h"
 #include "TMath.h"
-
-#if 0 //defined(__FastCaloSimStandAlone__)
-#include "CaloGeometryFromFile.h"
-#endif
+#include <TClass.h>
 
 //=============================================
 //======= TFCSHitCellMappingWiggle =========
@@ -116,6 +113,16 @@ FCSReturnCode TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationStat
   return TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
 }
 
+bool TFCSHitCellMappingWiggle::operator==(const TFCSParametrizationBase& ref) const
+{
+  if(TFCSParametrizationBase::compare(ref)) return true;
+  if(!TFCSParametrization::compare(ref)) return false;
+  if(!TFCSLateralShapeParametrization::compare(ref)) return false;
+  if(!TFCSHitCellMappingWiggle::compare(ref)) return false;
+
+  return true;
+}
+
 void TFCSHitCellMappingWiggle::Print(Option_t *option) const
 {
   TFCSHitCellMapping::Print(option);
@@ -129,6 +136,40 @@ void TFCSHitCellMappingWiggle::Print(Option_t *option) const
     for (unsigned int i=0;i<get_number_of_bins();++i) msg()<<get_bin_low_edge(i)<<" < ("<<get_function(i)<<") < ";
     msg()<<get_bin_up_edge(get_number_of_bins()-1)<< endmsg;
   }  
+}
+
+bool TFCSHitCellMappingWiggle::compare(const TFCSParametrizationBase& ref) const
+{
+  if(IsA()!=ref.IsA()) {
+    ATH_MSG_DEBUG("compare(): different class types "<<IsA()->GetName()<<" != "<<ref.IsA()->GetName());
+    return false;
+  }
+  const TFCSHitCellMappingWiggle& ref_typed=static_cast<const TFCSHitCellMappingWiggle&>(ref);
+  
+  if(m_bin_low_edge != ref_typed.m_bin_low_edge ) {
+    ATH_MSG_DEBUG("operator==(): different bin edges");
+    return false;
+  }
+
+  for (unsigned int i=0;i<get_number_of_bins();++i) {
+    const TFCS1DFunction* f1=get_function(i);
+    const TFCS1DFunction* f2=ref_typed.get_function(i);
+    if(!f1 && !f2) continue;
+    if((f1 && !f2) || (!f1 && f2)) {
+      ATH_MSG_DEBUG("compare(): different only one function pointer is nullptr");
+      return false;
+    }
+    if(f1->IsA()!=f2->IsA()) {
+      ATH_MSG_DEBUG("compare(): different class types for function "<<i<<": "<<f1->IsA()->GetName()<<" != "<<f2->IsA()->GetName());
+      return false;
+    }
+    if(!(*f1==*f2)) {
+      ATH_MSG_DEBUG("compare(): difference in functions "<<i);
+      return false;
+    }
+  }  
+
+  return true;
 }
 
 void TFCSHitCellMappingWiggle::unit_test(TFCSSimulationState* simulstate,TFCSTruthState* truth, TFCSExtrapolationState* extrapol)

@@ -27,6 +27,8 @@ class TFCS1DFunctionInt32Histogram:public TFCS1DFunction
     ///and returns function value according to a histogram distribution
     virtual double rnd_to_fct(double rnd) const;
 
+    virtual bool operator==(const TFCS1DFunction& ref) const;
+
     const std::vector<float>& get_HistoBordersx() const {return m_HistoBorders;};
     std::vector<float>& get_HistoBordersx() {return m_HistoBorders;};
     const std::vector<HistoContent_t>& get_HistoContents() const {return m_HistoContents;};

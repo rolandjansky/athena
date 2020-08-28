@@ -45,6 +45,9 @@ public:
   virtual void set_eta(const TFCSParametrizationBase& ref);
   virtual void set_Ekin_eta(const TFCSParametrizationBase& ref);
   virtual void set_pdgid_Ekin_eta(const TFCSParametrizationBase& ref);
+  
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
 
 private:
   std::set< int > m_pdgid;

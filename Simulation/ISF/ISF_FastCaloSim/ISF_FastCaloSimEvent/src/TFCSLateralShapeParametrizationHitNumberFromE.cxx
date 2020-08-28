@@ -8,6 +8,7 @@
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
 #include "TMath.h"
+#include <TClass.h>
 
 //=============================================
 //======= TFCSHistoLateralShapeParametrization =========
@@ -66,6 +67,30 @@ int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimula
   ATH_MSG_DEBUG("#hits="<<hits);
   
   return hits;
+}
+
+bool TFCSLateralShapeParametrizationHitNumberFromE::operator==(const TFCSParametrizationBase& ref) const
+{
+  if(TFCSParametrizationBase::compare(ref)) return true;
+  if(!TFCSParametrization::compare(ref)) return false;
+  if(!TFCSLateralShapeParametrization::compare(ref)) return false;
+  if(!TFCSLateralShapeParametrizationHitNumberFromE::compare(ref)) return false;
+  return true;
+}
+
+bool TFCSLateralShapeParametrizationHitNumberFromE::compare(const TFCSParametrizationBase& ref) const
+{
+  if(IsA()!=ref.IsA()) {
+    ATH_MSG_DEBUG("compare(): different class types "<<IsA()->GetName()<<" != "<<ref.IsA()->GetName());
+    return false;
+  }
+  const TFCSLateralShapeParametrizationHitNumberFromE& ref_typed=static_cast<const TFCSLateralShapeParametrizationHitNumberFromE&>(ref);
+  if(m_stochastic!=ref_typed.m_stochastic || m_stochastic_hadron!=ref_typed.m_stochastic_hadron || m_constant!=ref_typed.m_constant) {
+    ATH_MSG_DEBUG("operator==(): different fluctuation model sigma^2=["<<m_stochastic<<"/sqrt(E/GeV)]^2 + ["<<m_constant<<" + "<<m_stochastic_hadron<<"/sqrt(E/GeV)]^2 != sigma^2=["<<ref_typed.m_stochastic<<"/sqrt(E/GeV)]^2 + ["<<ref_typed.m_constant<<" + "<<ref_typed.m_stochastic_hadron<<"/sqrt(E/GeV)]^2");
+    return false;
+  }
+
+  return true;
 }
 
 void TFCSLateralShapeParametrizationHitNumberFromE::Print(Option_t *option) const

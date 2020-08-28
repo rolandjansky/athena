@@ -34,9 +34,14 @@ public:
   /// and then fills all hits into calorimeter cells
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option="") const override;
 
   static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, TFCSExtrapolationState* extrapol=nullptr);
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
 
 private:
   //** Function for the hit-to-cell assignment accordion structure fix (wiggle)  **//

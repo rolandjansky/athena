@@ -31,6 +31,15 @@ FCSReturnCode TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& sim
   }
 }
 
+bool TFCSHitCellMapping::operator==(const TFCSParametrizationBase& ref) const
+{
+  if(TFCSParametrizationBase::compare(ref)) return true;
+  if(!TFCSParametrization::compare(ref)) return false;
+  if(!TFCSLateralShapeParametrization::compare(ref)) return false;
+
+  return true;
+}
+
 void TFCSHitCellMapping::Print(Option_t *option) const
 {
   TString opt(option);

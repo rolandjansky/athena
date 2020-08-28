@@ -46,6 +46,15 @@ FCSReturnCode TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstat
   return (FCSReturnCode)(FCSRetry+1);
 }
 
+bool TFCSParametrizationBase::compare(const TFCSParametrizationBase& ref) const
+{
+  if(this==&ref) {
+    ATH_MSG_DEBUG("compare(): identical instances "<< this <<" == " << &ref);
+    return true;
+  }
+  return false;
+}
+
 ///If called with argument "short", only a one line summary will be printed
 void TFCSParametrizationBase::Print(Option_t *option) const
 {
@@ -89,3 +98,109 @@ void TFCSParametrizationBase::DoCleanup()
   }  
   s_cleanup_list.resize(0);
 }
+
+void TFCSParametrizationBase::FindDuplicates(FindDuplicateClasses_t& dupclasses)
+{
+  for(unsigned int i=0;i<size();++i) if((*this)[i]) {
+    TFCSParametrizationBase* param=(*this)[i];
+    FindDuplicates_t& dup=dupclasses[param->GetName()];
+    //If param is already in the duplication list, skip over
+    auto checkexist=dup.find(param);
+    if(checkexist!=dup.end()) {
+      ATH_MSG_DEBUG("Found duplicate pointer for: "<<param<<"="<<param->GetName());
+      if(checkexist->second.replace) {
+        TFCSParametrizationBase* refparam=checkexist->second.replace;
+        ATH_MSG_DEBUG("Found duplicate pointer: "<<refparam<<"="<<refparam->GetName()<<", duplicate is "<<param<<"="<<param->GetName()<<" index "<<i<<" of "<<this);
+        dup[refparam].mother.push_back(this);
+        dup[refparam].index.push_back(i);
+      }
+      continue;
+    }  
+    //Add param to duplication list
+    dup[param]=Duplicate_t();
+    for(auto& ref : dup) {
+      TFCSParametrizationBase* refparam=ref.first;
+      //skip itself, as this just added above
+      if(param==refparam) continue;
+      //skip nullptr reference
+      if(refparam==nullptr) continue;
+      //skip reference that is itself going to get replaced
+      if(ref.second.replace) continue;
+      //Check for objects with identical content
+      if(*param==*refparam) {
+        ATH_MSG_DEBUG("Found duplicate: "<<refparam<<"="<<refparam->GetName()<<", duplicate is "<<param<<"="<<param->GetName()<<" index "<<i<<" of "<<this);
+        //param->Print("  1 ");
+        //ref.first->Print("  2 ");
+        dup[param].replace=refparam;
+        dup[refparam].mother.push_back(this);
+        dup[refparam].index.push_back(i);
+        break;
+      }
+      /*
+      if(param->IsA()==ref.first->IsA()) {
+        std::string name(param->GetName());
+        if(name==ref.first->GetName()) {
+          ATH_MSG_INFO("potential same objects "<<param<<"="<<param->GetName()<<" and "<<ref.first<<"="<<ref.first->GetName());
+          param->setLevel(MSG::DEBUG);
+          param->operator==(*(ref.first));
+          param->setLevel(MSG::INFO);
+          param->Print("  1 ");
+          ref.first->Print("  2 ");
+        }
+      }
+      */
+    }
+    //Continue for child objects in param
+    param->FindDuplicates(dupclasses);
+  }
+}
+
+void TFCSParametrizationBase::RemoveDuplicates()
+{
+  FindDuplicateClasses_t dupclasses;
+  FindDuplicates(dupclasses);
+  
+  std::set< TFCSParametrizationBase* > dellist;
+  for(auto& dupiter : dupclasses) {
+    FindDuplicates_t& dup=dupiter.second;
+    for(auto onedup : dup) {
+      if(onedup.second.mother.size()==0) continue;
+      TFCSParametrizationBase* ref=onedup.first;
+      ATH_MSG_DEBUG("Main object "<<ref<<"="<<ref->GetName());
+      //ref->Print("  + ");
+      for(unsigned int i=0;i<onedup.second.mother.size();++i) {
+        int index=onedup.second.index[i];
+        TFCSParametrizationBase* mother=onedup.second.mother[i];
+        TFCSParametrizationBase* delparam=mother->operator[](index);
+        unsigned int delcount=dup[delparam].mother.size();
+        if(delcount==0) {
+          ATH_MSG_DEBUG("  - Delete object "<<delparam<<"="<<delparam->GetName()<<" index "<<index<<" of "<<mother<<", has "<<delcount<<" other replacements attached. Deleting");
+          mother->set_daughter(index,ref);
+          dellist.insert(delparam);
+        } else {
+          ATH_MSG_WARNING("  - Delete object "<<delparam<<"="<<delparam->GetName()<<" index "<<index<<" of "<<mother<<", has "<<delcount<<" other replacements attached. Skipping");
+        }  
+      }
+    }
+  }  
+
+  ATH_MSG_INFO("RERUNNING DUPLICATE FINDING");
+  FindDuplicateClasses_t dupclasses2;
+  FindDuplicates(dupclasses2);
+
+  std::map<std::string,int> ndel;
+  for(auto delparam : dellist) {
+    FindDuplicates_t& dup2=dupclasses2[delparam->GetName()];
+    bool present=dup2.find(delparam) != dup2.end();
+    if(present) {
+      ATH_MSG_WARNING("- Delete object "<<delparam<<"="<<delparam->GetName()<<" still referenced somewhere!");
+    } else {  
+      ATH_MSG_DEBUG("- Delete object "<<delparam<<"="<<delparam->GetName());
+      ++ndel[delparam->ClassName()];
+      delete delparam;
+    }  
+  }
+  for(auto& del : ndel) ATH_MSG_INFO("Deleted "<<del.second<<" duplicate objects of class "<<del.first);
+}
+
+

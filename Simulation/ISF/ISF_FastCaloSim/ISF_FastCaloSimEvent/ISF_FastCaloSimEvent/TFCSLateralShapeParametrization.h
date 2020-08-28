@@ -26,6 +26,10 @@ public:
   virtual void set_pdgid_Ekin_eta_Ekin_bin_calosample(const TFCSLateralShapeParametrization& ref);
   
   void Print(Option_t *option = "") const override;
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
+
 private:
   int m_Ekin_bin;
   int m_calosample;

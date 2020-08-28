@@ -19,6 +19,8 @@ public:
   /// fills all hits into calorimeter cells
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option) const override;
 
 protected:

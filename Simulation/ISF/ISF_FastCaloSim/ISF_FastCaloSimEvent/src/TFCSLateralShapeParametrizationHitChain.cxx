@@ -7,6 +7,7 @@
 
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "TMath.h"
+#include <TClass.h>
 
 //=============================================
 //======= TFCSLateralShapeParametrizationHitChain =========
@@ -23,11 +24,56 @@ TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain
   m_chain.push_back(hitsim);
 }
 
+unsigned int TFCSLateralShapeParametrizationHitChain::size() const 
+{
+  if(m_number_of_hits_simul) return m_chain.size()+1;
+   else return m_chain.size();
+}
+
+const TFCSParametrizationBase* TFCSLateralShapeParametrizationHitChain::operator[](unsigned int ind) const 
+{
+  if(m_number_of_hits_simul) {
+    if(ind==0) return m_number_of_hits_simul;
+    return m_chain[ind-1];
+  } else {
+    return m_chain[ind];
+  }  
+}
+
+TFCSParametrizationBase* TFCSLateralShapeParametrizationHitChain::operator[](unsigned int ind) {
+  if(m_number_of_hits_simul) {
+    if(ind==0) return m_number_of_hits_simul;
+    return m_chain[ind-1];
+  } else {
+    return m_chain[ind];
+  }  
+}
+
+void TFCSLateralShapeParametrizationHitChain::set_daughter(unsigned int ind,TFCSParametrizationBase* param) 
+{
+  TFCSLateralShapeParametrizationHitBase* param_typed=nullptr;
+  if(param!=nullptr) {
+    if(!param->InheritsFrom(TFCSLateralShapeParametrizationHitBase::Class())) {
+      ATH_MSG_ERROR("Wrong class type "<<param->IsA()->GetName());
+      return;
+    }
+    param_typed=static_cast<TFCSLateralShapeParametrizationHitBase*>(param);
+  }  
+  if(m_number_of_hits_simul) {
+    if(ind==0) m_number_of_hits_simul=param_typed;
+     else m_chain.at(ind-1)=param_typed;
+  } else {
+    m_chain.at(ind)=param_typed;
+  }  
+}
+
+/*
 void TFCSLateralShapeParametrizationHitChain::set_geometry(ICaloGeometry* geo)
 {
   TFCSLateralShapeParametrization::set_geometry(geo);
   if(m_number_of_hits_simul) m_number_of_hits_simul->set_geometry(geo);
 }
+*/
 
 int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {

@@ -16,12 +16,13 @@ public:
 
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
-  virtual void set_geometry(ICaloGeometry* geo) override;
+//  virtual void set_geometry(ICaloGeometry* geo) override;
 
   typedef std::vector< TFCSLateralShapeParametrizationHitBase* > Chain_t;
-  virtual unsigned int size() const override {return m_chain.size();};
-  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override {return m_chain[ind];};
-  virtual TFCSParametrizationBase* operator[](unsigned int ind) override {return m_chain[ind];};
+  virtual unsigned int size() const override;
+  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const override;
+  virtual TFCSParametrizationBase* operator[](unsigned int ind) override;
+  virtual void set_daughter(unsigned int ind,TFCSParametrizationBase* param) override;
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
@@ -48,6 +49,7 @@ public:
 
   void Print(Option_t *option = "") const override;
 
+/*
 #if defined(__FastCaloSimStandAlone__)
   /// Update outputlevel
   virtual void setLevel(int level,bool recursive=false) override {
@@ -55,7 +57,7 @@ public:
     if(recursive) if(m_number_of_hits_simul) m_number_of_hits_simul->setLevel(level,recursive);
   }
 #endif
-
+*/
 
 protected:
   Chain_t m_chain;

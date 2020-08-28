@@ -4,6 +4,7 @@
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+#include <TClass.h>
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
@@ -28,6 +29,25 @@ void TFCSLateralShapeParametrization::set_pdgid_Ekin_eta_Ekin_bin_calosample(con
   set_calosample(ref.calosample());
   set_Ekin_bin(ref.Ekin_bin());
   set_pdgid_Ekin_eta(ref);
+}
+
+bool TFCSLateralShapeParametrization::compare(const TFCSParametrizationBase& ref) const
+{
+  if(IsA()!=ref.IsA()) {
+    ATH_MSG_DEBUG("compare(): different class types "<<IsA()->GetName()<<" != "<<ref.IsA()->GetName());
+    return false;
+  }
+  const TFCSLateralShapeParametrization& ref_typed=static_cast<const TFCSLateralShapeParametrization&>(ref);
+  if(Ekin_bin()!=ref_typed.Ekin_bin()) {
+    ATH_MSG_DEBUG("compare(): different Ekin bin");
+    return false;
+  }
+  if(calosample()!=ref_typed.calosample()) {
+    ATH_MSG_DEBUG("compare(): different calosample");
+    return false;
+  }
+
+  return true;
 }
 
 void TFCSLateralShapeParametrization::Print(Option_t *option) const

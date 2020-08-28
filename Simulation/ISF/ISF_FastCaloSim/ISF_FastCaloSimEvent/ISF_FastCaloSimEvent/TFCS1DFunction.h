@@ -28,6 +28,10 @@ class TFCS1DFunction:public TFCSFunction
     ///Function gets random number rnd in the range [0,1) as argument and returns function value
     virtual double rnd_to_fct(double rnd) const = 0;
 
+    ///The == operator compares the content of instances. 
+    ///The implementation in the base class only returns true for a comparison with itself
+    virtual bool operator==(const TFCS1DFunction& ref) const {return this==&ref;};
+
     static double get_maxdev(TH1* , TH1* );
 
     static double CheckAndIntegrate1DHistogram(const TH1* hist, std::vector<double>& integral_vec,int& first,int& last);
