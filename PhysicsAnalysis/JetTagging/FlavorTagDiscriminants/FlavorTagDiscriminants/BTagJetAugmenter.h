@@ -86,9 +86,6 @@ private:
   AE::Decorator<float> m_max_trk_flightDirRelEta;
   AE::Decorator<float> m_avg_trk_flightDirRelEta;
 
-  AE::ConstAccessor<float> m_smt_mu_pt;
-  AE::Decorator<char> m_smt_isDefaults;
-
   AE::ConstAccessor<char> m_rnnip_pbIsValid;
   AE::Decorator<char> m_rnnip_isDefaults;
 
