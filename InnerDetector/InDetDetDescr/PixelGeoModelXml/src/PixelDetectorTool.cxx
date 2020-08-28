@@ -37,7 +37,7 @@ PixelDetectorTool::PixelDetectorTool(const std::string &type,
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
-    //   ADA   m_lorentzAngleSvc("SCTLorentzAngleSvc", name) 
+
     {
 //
 // Get parameter values from jobOptions file
@@ -49,7 +49,7 @@ PixelDetectorTool::PixelDetectorTool(const std::string &type,
     declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoModelSvc", m_geoModelSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
-    //   ADA   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
+
 }
 
 PixelDetectorTool::~PixelDetectorTool() {
@@ -121,7 +121,7 @@ StatusCode PixelDetectorTool::create() {
         msg(MSG::INFO) << "Building custom ";
     else
         msg(MSG::INFO) << "Building ";
-    msg(MSG::INFO) << "SCT SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
+    msg(MSG::INFO) << "Pixel SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
 //
 //    Get the Database Access Service and from there the pixel version tag
 //
