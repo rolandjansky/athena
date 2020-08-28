@@ -230,7 +230,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
       for prop in props:
          n = prop.name()
          v = prop.toString()
-         jocat[ client ][ n ] = v
+         jocat[ str(client) ][ n ] = v
 
  # take care of some ancient history
    for k in ( 'Go', 'Exit' ):
@@ -273,8 +273,6 @@ def loadJobOptionsCatalogue( cfg_fname ):
    """Load properties from a pickle file, previously dumped by
    storeConfiguration, back into the JobOptionsSvc.
    """
-   import ROOT
-
  # read jobopt catalogue dump and pycomps back in
    cfg = open( cfg_fname, 'rb' )
 
