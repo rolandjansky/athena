@@ -76,12 +76,13 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     algo.L1RoIKey                        = "TAUCaloRoIs"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
-    algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     if "Id" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
+       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
     elif "Track" in step:
        algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_Presel"
+       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_Presel"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_Precision")   
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_Precision")
     return algo
@@ -97,7 +98,7 @@ def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnlyMVA"
     if "EF" in step:
-       algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
+       algo.Key_trigTauJetInputContainer = "HLT_TrigTauRecMerged_CaloOnly"
     algo.Key_trackPartInputContainer     = tracks
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
@@ -353,7 +354,7 @@ def tauFTFTrackTwoSequence(ConfigFlags):
     ftfTrackTwoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFTrackTwo")
     ftfTrackTwoViewsMaker.RoIsLink          = "roi"
     ftfTrackTwoViewsMaker.RoITool           = newRoITool
-    ftfTrackTwoViewsMaker.InViewRoIs        = "RoiForID"
+    ftfTrackTwoViewsMaker.InViewRoIs        = "RoiForTauCore"
     ftfTrackTwoViewsMaker.Views             = "TAUFTFTrackTwoViews"
     ftfTrackTwoViewsMaker.ViewFallThrough   = True
     ftfTrackTwoViewsMaker.RequireParentView = True
@@ -463,7 +464,7 @@ def tauFTFIsoSequence(ConfigFlags):
     ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
     ftfIsoViewsMaker.RoIsLink          = "roi"
     ftfIsoViewsMaker.RoITool           = newRoITool
-    ftfIsoViewsMaker.InViewRoIs        = "RoiForID"
+    ftfIsoViewsMaker.InViewRoIs        = "RoiForTauCore"
     ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
     ftfIsoViewsMaker.ViewFallThrough   = True
     ftfIsoViewsMaker.RequireParentView = True
@@ -485,7 +486,7 @@ def tauEFSequence(ConfigFlags):
     efViewsMaker                   = EventViewCreatorAlgorithm("IMTauEF")
     efViewsMaker.RoIsLink          = "roi"  
     efViewsMaker.RoITool           = newRoITool
-    efViewsMaker.InViewRoIs        = "RoiForID"
+    efViewsMaker.InViewRoIs        = "RoiForTauCore"
     efViewsMaker.Views             = "TAUEFViews"
     efViewsMaker.ViewFallThrough   = True
     efViewsMaker.RequireParentView = True

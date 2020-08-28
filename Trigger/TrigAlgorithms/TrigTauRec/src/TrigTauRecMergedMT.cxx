@@ -184,13 +184,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   if (!m_trigTauJetKey.key().empty() && m_clustersKey.key().empty()) {
     SG::ReadHandle<xAOD::TauJetContainer> tauInputHandle(m_trigTauJetKey, ctx);
     pTauContainer = tauInputHandle.cptr();
-    ATH_MSG_DEBUG("Tau Calo Only Container Size" << pTauContainer->size());
+    ATH_MSG_DEBUG("Input TauJet Container size: " << pTauContainer->size());
   }
 
   if (!m_trigTauTrackInKey.key().empty() && m_clustersKey.key().empty()) {
     SG::ReadHandle<xAOD::TauTrackContainer> tauTrackInputHandle(m_trigTauTrackInKey, ctx);
     pTauTrackContainer = tauTrackInputHandle.cptr();
-    ATH_MSG_DEBUG("Tau Track Container Size" << pTauTrackContainer->size());
+    ATH_MSG_DEBUG("Tau Track Container Size " << pTauTrackContainer->size());
   }
 
 
