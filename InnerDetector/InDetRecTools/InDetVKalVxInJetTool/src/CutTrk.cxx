@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+// Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
@@ -14,7 +15,7 @@ namespace InDet{
 
 
 
-  StatusCode InDetVKalVxInJetTool::CutTrk(double PInvVert,double ThetaVert, 
+  StatusCode InDetVKalVxInJetTool::cutTrk(double PInvVert,double ThetaVert, 
          double A0Vert, double ZVert, double Chi2, 
          long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits)
   const
@@ -22,9 +23,6 @@ namespace InDet{
      double Pt = sin(ThetaVert)/fabs(PInvVert);
 //- Track quality
      if(Pt               < m_cutPt) 			return StatusCode::FAILURE;
-//std::cout<<" ZVert="<<ZVert<<", "<<sin(ThetaVert)<<'\n';
-//std::cout<<" Chi2="<<Chi2<<'\n';
-//std::cout<<" A0Vert="<<A0Vert<<'\n';
      if(!m_multiWithPrimary){           //Must not be used for primary vertex search
        if(fabs(ZVert)      > m_cutZVrt)	                return StatusCode::FAILURE;
      }
@@ -44,7 +42,7 @@ namespace InDet{
 //==============================================================================================================
 //          xAOD based stuff
 //
-   int  InDetVKalVxInJetTool::SelGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
+   int  InDetVKalVxInJetTool::selGoodTrkParticle( const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                                   const xAOD::Vertex                           & PrimVrt,
 	                                          const TLorentzVector                         & JetDir,
                                                         std::vector<const xAOD::TrackParticle*>& SelectedTracks)
@@ -54,7 +52,7 @@ namespace InDet{
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     std::vector<double> Impact,ImpactError;
     std::multimap<double,const xAOD::TrackParticle*> orderedTrk;
-    int NPrimTrk=0;
+    int nPrimTrk=0;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- Perigee in TrackParticle
@@ -74,7 +72,7 @@ namespace InDet{
 
 	  if ( CovTrkMtx11 > m_a0TrkErrorCut*m_a0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    continue;
-	  if ( ConeDist(VectPerig,JetDir) > m_coneForTag )      continue;
+	  if ( coneDist(VectPerig,JetDir) > m_coneForTag )      continue;
           if( (*i_ntrk)->pt() > JetDir.Pt() )                   continue;
 
           double trkP=1./fabs(VectPerig[4]);         
@@ -135,20 +133,19 @@ namespace InDet{
 //            if(SignifZ < 1.-m_AntiPileupSigZCut ) continue;
 //          }
 //----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
+          StatusCode sc = cutTrk( VectPerig[4] , VectPerig[3],
                           ImpactA0 , ImpactZ, trkChi2,
                           PixelHits, SctHits, SharedHits, BLayHits);
           if( sc.isFailure() )                 continue;
-	  double rankBTrk=RankBTrk(0.,0.,ImpactSignif);
-	  if(rankBTrk<0.7)NPrimTrk += 1;
-	  orderedTrk.emplace(rankBTrk,*i_ntrk);
+	  double rnkBTrk=rankBTrk(0.,0.,ImpactSignif);
+	  if(rnkBTrk<0.7)nPrimTrk += 1;
+	  orderedTrk.emplace(rnkBTrk,*i_ntrk);
       }
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();
       SelectedTracks.resize(orderedTrk.size());
       for ( int cntt=0; rt!=orderedTrk.rend(); ++rt,++cntt) {SelectedTracks[cntt]=(*rt).second;}
-      m_NRefPVTrk=std::max(NPrimTrk,1);   // VK set reference multiplicity here
-      return NPrimTrk;
+      return nPrimTrk;
    }
 
 }//end namespace

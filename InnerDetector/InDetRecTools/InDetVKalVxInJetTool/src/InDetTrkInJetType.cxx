@@ -7,7 +7,6 @@
 #include "TLorentzVector.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 
-#include "Particle/TrackParticle.h"
 #include "MVAUtils/BDT.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -91,9 +90,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
     ATH_MSG_DEBUG("InDetTrkInJetType finalize()");
     return StatusCode::SUCCESS; 
    }
-
-   std::vector<float> InDetTrkInJetType::trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const
-   {   return std::vector<float>(3,0.); }
 
    std::vector<float> InDetTrkInJetType::trkTypeWgts(const xAOD::TrackParticle * Trk, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
    {  

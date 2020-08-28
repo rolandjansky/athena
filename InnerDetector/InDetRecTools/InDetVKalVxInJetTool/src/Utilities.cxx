@@ -1,20 +1,22 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+// Author: Vadim Kostyukhin (vadim.kostyukhin@cern.ch)
 
 // Header include
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-//-------------------------------------------------
+#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include "VxVertex/RecVertex.h"
+ //-------------------------------------------------
 // Other stuff
 #include <cmath>
 
 
 namespace InDet{  
 
-  double InDetVKalVxInJetTool::RankBTrk(double TrkPt, double JetPt, double Signif)  const
+  double InDetVKalVxInJetTool::rankBTrk(double TrkPt, double JetPt, double Signif)  const
   {
     double p_prob=0.;
     double s_prob=0.;
@@ -35,7 +37,7 @@ namespace InDet{
   }
 
 
-  TLorentzVector  InDetVKalVxInJetTool::GetBDir( const xAOD::TrackParticle* trk1,
+  TLorentzVector  InDetVKalVxInJetTool::getBDir( const xAOD::TrackParticle* trk1,
                                                  const xAOD::TrackParticle* trk2,
                                                  const xAOD::Vertex    & PrimVrt,
 						 Amg::Vector3D &V1, Amg::Vector3D &V2)
@@ -74,32 +76,32 @@ namespace InDet{
   }
 
   void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string& ) const {
-/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
+/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *wrkVrtSet, const std::string name) const {
     int nGoodV=0;
-    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
+    for(int iv=0; iv<(int)wrkVrtSet->size(); iv++) {
       std::cout<<name
-      <<"= "<<(*WrkVrtSet)[iv].vertex[0]
-      <<", "<<(*WrkVrtSet)[iv].vertex[1]
-      <<", "<<(*WrkVrtSet)[iv].vertex[2]
-      <<" NTrk="<<(*WrkVrtSet)[iv].SelTrk.size()
-      <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good<<std::noboolalpha
-      <<"  Chi2="<<(*WrkVrtSet)[iv].Chi2
-      <<"  Mass="<<(*WrkVrtSet)[iv].vertexMom.M()
-      <<"  detached="<<(*WrkVrtSet)[iv].detachedTrack
-      <<"  proj.dist="<<(*WrkVrtSet)[iv].ProjectedVrt
+      <<"= "<<(*wrkVrtSet)[iv].vertex[0]
+      <<", "<<(*wrkVrtSet)[iv].vertex[1]
+      <<", "<<(*wrkVrtSet)[iv].vertex[2]
+      <<" NTrk="<<(*wrkVrtSet)[iv].selTrk.size()
+      <<" is good="<<std::boolalpha<<(*wrkVrtSet)[iv].Good<<std::noboolalpha
+      <<"  Chi2="<<(*wrkVrtSet)[iv].chi2
+      <<"  Mass="<<(*wrkVrtSet)[iv].vertexMom.M()
+      <<"  detached="<<(*wrkVrtSet)[iv].detachedTrack
+      <<"  proj.dist="<<(*wrkVrtSet)[iv].projectedVrt
       <<" trk=";
-      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-                std::cout<<", "<<(*WrkVrtSet)[iv].SelTrk[kk];}
-      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
+      for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {
+                std::cout<<", "<<(*wrkVrtSet)[iv].selTrk[kk];}
+      //for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {
+      //          std::cout<<", "<<momAtVrt((*wrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
       std::cout<<'\n';
-      if((*WrkVrtSet)[iv].Good)nGoodV++;
+      if((*wrkVrtSet)[iv].Good)nGoodV++;
     }
     std::cout<<name<<" N="<<nGoodV<<'\n';*/
   }
 
                /*  Technicalities */
-  double InDetVKalVxInJetTool::ProjSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
+  double InDetVKalVxInJetTool::projSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
   {  
      TVector3 SV_PV( SV.x()-PV.x(), SV.y()-PV.y(), SV.z()-PV.z() );
      return Jet.Vect().Unit()*SV_PV.Unit();
@@ -126,7 +128,7 @@ namespace InDet{
         return false; 
   }
 
-  double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+  double InDetVKalVxInJetTool::vrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
@@ -158,7 +160,7 @@ namespace InDet{
     return sqrt(distx*distx+disty*disty+distz*distz);
   }
   
-  double InDetVKalVxInJetTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+  double InDetVKalVxInJetTool::vrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
@@ -191,7 +193,7 @@ namespace InDet{
     return sqrt(distx*distx+disty*disty+distz*distz);
   }
 
-  double InDetVKalVxInJetTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+  double InDetVKalVxInJetTool::vrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
@@ -219,7 +221,7 @@ namespace InDet{
 //--------------------------------------------------
 // Significance along jet direction
 //--------------------------------------------------
-  double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+  double InDetVKalVxInJetTool::vrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir)
   const
   {
@@ -257,7 +259,7 @@ namespace InDet{
 //--------------------------------------------------
 // Significance along jet direction
 //--------------------------------------------------
-  double InDetVKalVxInJetTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+  double InDetVKalVxInJetTool::vrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                           const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir)
   const
   {
@@ -292,7 +294,7 @@ namespace InDet{
     return Signif;
   }
 
-  double InDetVKalVxInJetTool::VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,
+  double InDetVKalVxInJetTool::vrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>  & VrtErr1,
                                           const Amg::Vector3D & Vrt2, const std::vector<double>  & VrtErr2)
   const
   {
@@ -328,7 +330,7 @@ namespace InDet{
 //----------------------------
 //   Vertex error along radius
 //----------------------------
-  double InDetVKalVxInJetTool::VrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
+  double InDetVKalVxInJetTool::vrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
   {
     double DirX=SecVrt.x(), DirY=SecVrt.y(); 
     double Covar =    DirX*VrtErr[0]*DirX
@@ -342,7 +344,7 @@ namespace InDet{
 
 
 
-  double InDetVKalVxInJetTool::ConeDist(const AmgVector(5) & VectPerig, const TLorentzVector & JetDir)
+  double InDetVKalVxInJetTool::coneDist(const AmgVector(5) & VectPerig, const TLorentzVector & JetDir)
   const
   {
   
@@ -377,72 +379,20 @@ namespace InDet{
     }
 
 
-
-   int InDetVKalVxInJetTool::FindMax( std::vector<double>& Chi2PerTrk, std::vector<float> & Rank)
+//
+// Search for outliers using track Chi2 and track Ranking
+   int InDetVKalVxInJetTool::findMax( std::vector<double>& chi2PerTrk, std::vector<float> & rank)
    const
    { 
-      double Chi2Ref=0.;
-      int Position=-1;
-      if( Chi2PerTrk.size() < 1 ) return Position ;
-      for (int i=0; i< (int)Chi2PerTrk.size(); i++){
-	if(Chi2PerTrk[i]/std::max(Rank[i],(float)0.1) > Chi2Ref) { Chi2Ref=Chi2PerTrk[i]/std::max(Rank[i],(float)0.1); Position=i;}
+      double chi2Ref=0.;
+      int position=-1;
+      if( chi2PerTrk.size() < 1 ) return position ;
+      for (int i=0; i< (int)chi2PerTrk.size(); i++){
+	if(chi2PerTrk[i]/std::max(rank[i],(float)0.1) > chi2Ref) { chi2Ref=chi2PerTrk[i]/std::max(rank[i],(float)0.1); position=i;}
       }
-      return Position;
+      return position;
    }      
   
- 
-//  Function returns a transverse mass of the track system
-//
-  double InDetVKalVxInJetTool::TotalTMom(const std::vector<const Trk::Perigee*>& InpTrk) 
-  const
-  {
-     TLorentzVector SumP = TotalMom(InpTrk); 
-     double Norm=sqrt(SumP.Px()*SumP.Px() + SumP.Py()*SumP.Py() + SumP.Pz()*SumP.Pz());
-     double sx=SumP.Px()/Norm; double sy=SumP.Py()/Norm; double sz=SumP.Pz()/Norm;
-
-     double px=0.,py=0.,pz=0.,ee=0.; double scale;
-     AmgVector(5) VectPerig; VectPerig.setZero();
-     for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i]== NULL ){ continue; } 
-       VectPerig = InpTrk[i]->parameters(); 
-       px = cos ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       py = sin ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       pz =                       cos(VectPerig[3])/fabs(VectPerig[4]);
-       scale = px*sx + py*sy + pz*sz;
-       px -= sx*scale;
-       py -= sy*scale; 
-       pz -= sz*scale;
-       ee += sqrt( px*px +py*py + pz*pz + m_massPi*m_massPi);
-     }
-     return ee; 
-   }
-
-
-//  Function returns a transverse mass of the track system
-//
-  double InDetVKalVxInJetTool::TotalTVMom(const Amg::Vector3D &Dir, const std::vector<const Trk::Perigee*>& InpTrk) 
-  const
-  {
-   //double Norm=sqrt(pow(Dir.x(),2.) + pow(Dir.y(),2.) + pow(Dir.z(),2.) );
-     double Norm=sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
-     double sx=Dir.x()/Norm; double sy=Dir.y()/Norm; double sz=Dir.z()/Norm;
-
-     double px=0.,py=0.,pz=0.,ee=0.; double scale;
-     AmgVector(5) VectPerig; VectPerig.setZero();
-     for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i] == NULL ){ continue; } 
-       VectPerig = InpTrk[i]->parameters(); 
-       px = cos ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       py = sin ( VectPerig[2]) * sin(VectPerig[3])/fabs(VectPerig[4]);
-       pz =                       cos(VectPerig[3])/fabs(VectPerig[4]);
-       scale = px*sx + py*sy + pz*sz;
-       px -= sx*scale;
-       py -= sy*scale; 
-       pz -= sz*scale;
-       ee += sqrt( px*px +py*py + pz*pz + m_massPi*m_massPi);
-     }
-     return ee; 
-   }
 
 //  Function returns a transverse momentum of track w/r some direction
 //
@@ -463,7 +413,7 @@ namespace InDet{
      return sqrt( px*px +py*py + pz*pz );
    }
 
-  TLorentzVector InDetVKalVxInJetTool::TotalMom(const std::vector<const Trk::Perigee*>& InpTrk) 
+  TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const Trk::Perigee*>& InpTrk) 
   const
   {
      AmgVector(5) VectPerig; VectPerig.setZero();
@@ -479,7 +429,7 @@ namespace InDet{
      return TLorentzVector(px,py,pz,ee); 
    }
 
-  TLorentzVector InDetVKalVxInJetTool::TotalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
+  TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const xAOD::TrackParticle*>& InpTrk) 
   const
   {
      TLorentzVector sum(0.,0.,0.,0.); 
@@ -491,7 +441,7 @@ namespace InDet{
    }
 
 
-  TLorentzVector InDetVKalVxInJetTool::MomAtVrt(const std::vector< double >& InpTrk) 
+  TLorentzVector InDetVKalVxInJetTool::momAtVrt(const std::vector< double >& InpTrk) 
   const
   {
      double px = cos ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
@@ -501,22 +451,17 @@ namespace InDet{
      return TLorentzVector(px,py,pz,ee); 
    }
 //
-//-- Perigee in Rec::TrackParticle, Trk::Track and xAOD::TrackParticle
+//-- Perigee in xAOD::TrackParticle
 //
 
-  const Trk::Perigee* InDetVKalVxInJetTool::GetPerigee( const xAOD::TrackParticle* i_ntrk)
-  const
+  const Trk::Perigee* InDetVKalVxInJetTool::GetPerigee( const xAOD::TrackParticle* i_ntrk) const
   {
        return &(i_ntrk->perigeeParameters());
   }
 
 
 
-//
-//  Needed translation from Rec::TrackParticle to Trk::TrackParticleBase
-//
-  StatusCode
-  InDetVKalVxInJetTool::VKalVrtFitFastBase(
+  StatusCode  InDetVKalVxInJetTool::VKalVrtFitFastBase(
     const std::vector<const xAOD::TrackParticle*>& listTrk,
     Amg::Vector3D& FitVertex,
     Trk::IVKalState& istate) const
@@ -619,31 +564,17 @@ namespace InDet{
 
 /*************************************************************************************************************/
 
-  Amg::MatrixX InDetVKalVxInJetTool::SetFullMatrix(int NTrk, std::vector<double> & Matrix) const
-  {
-    Amg::MatrixX mtx(3+3*NTrk,3+3*NTrk);   // Create identity matrix of needed size
-    long int ij=0;
-    for(int i=0; i<(3+3*NTrk); i++){
-      for(int j=0; j<i; j++){
-                  mtx(i,j)=Matrix[ij];
-         if(i!=j) mtx(j,i)=Matrix[ij];
-         ij++;
-      }
-    }
-    return mtx;
-  }
-
-  Amg::MatrixX InDetVKalVxInJetTool::makeVrtCovMatrix( std::vector<double> & ErrorMatrix )
+  Amg::MatrixX InDetVKalVxInJetTool::makeVrtCovMatrix( std::vector<double> & errorMatrix )
   const
   {
-      Amg::MatrixX VrtCovMtx(3,3);  
-      VrtCovMtx(0,0)                  = ErrorMatrix[0];
-      VrtCovMtx(0,1) = VrtCovMtx(1,0) = ErrorMatrix[1];
-      VrtCovMtx(1,1)                  = ErrorMatrix[2];
-      VrtCovMtx(0,2) = VrtCovMtx(2,0) = ErrorMatrix[3];
-      VrtCovMtx(1,2) = VrtCovMtx(2,1) = ErrorMatrix[4];
-      VrtCovMtx(2,2)                  = ErrorMatrix[5];
-      return VrtCovMtx;
+      Amg::MatrixX vrtCovMtx(3,3);  
+      vrtCovMtx(0,0)                  = errorMatrix[0];
+      vrtCovMtx(0,1) = vrtCovMtx(1,0) = errorMatrix[1];
+      vrtCovMtx(1,1)                  = errorMatrix[2];
+      vrtCovMtx(0,2) = vrtCovMtx(2,0) = errorMatrix[3];
+      vrtCovMtx(1,2) = vrtCovMtx(2,1) = errorMatrix[4];
+      vrtCovMtx(2,2)                  = errorMatrix[5];
+      return vrtCovMtx;
   }
 
   void InDetVKalVxInJetTool::fillVrtNTup( std::vector<Vrt2Tr>  & all2TrVrt)
@@ -652,13 +583,13 @@ namespace InDet{
          int ipnt=0;
          for(auto & vrt : all2TrVrt) {
 	   if(ipnt==DevTuple::maxNTrk)break;
-	   m_curTup->VrtDist2D[ipnt]=vrt.FitVertex.perp();
-	   m_curTup->VrtSig3D[ipnt]=vrt.Signif3D;
-	   m_curTup->VrtSig2D[ipnt]=vrt.Signif2D;
+	   m_curTup->VrtDist2D[ipnt]=vrt.fitVertex.perp();
+	   m_curTup->VrtSig3D[ipnt]=vrt.signif3D;
+	   m_curTup->VrtSig2D[ipnt]=vrt.signif2D;
 	   m_curTup->itrk[ipnt]=vrt.i;
 	   m_curTup->jtrk[ipnt]=vrt.j;
-	   m_curTup->mass[ipnt]=vrt.Momentum.M();
-	   m_curTup->Chi2[ipnt]=vrt.Chi2;
+	   m_curTup->mass[ipnt]=vrt.momentum.M();
+	   m_curTup->Chi2[ipnt]=vrt.chi2;
 	   m_curTup->badVrt[ipnt]=vrt.badVrt;
 	   m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
            ipnt++; m_curTup->nVrt=ipnt;
@@ -674,14 +605,14 @@ namespace InDet{
          for(auto & vrt : VrtSet) {
 	   if(ipnt==DevTuple::maxNVrt)break;
 	   m_curTup->NVrtDist2D[ipnt]=vrt.vertex.perp();
-	   m_curTup->NVrtNT[ipnt]=vrt.SelTrk.size();
-           m_curTup->NVrtTrkI[ipnt]=vrt.SelTrk[0];
+	   m_curTup->NVrtNT[ipnt]=vrt.selTrk.size();
+           m_curTup->NVrtTrkI[ipnt]=vrt.selTrk[0];
 	   m_curTup->NVrtM[ipnt]=vrt.vertexMom.M();
-	   m_curTup->NVrtChi2[ipnt]=vrt.Chi2;
+	   m_curTup->NVrtChi2[ipnt]=vrt.chi2;
            float maxW=0., sumW=0.;
-           for(auto trk : vrt.SelTrk){ sumW+=trkScore[trk][0]; maxW=std::max(trkScore[trk][0], maxW);}
+           for(auto trk : vrt.selTrk){ sumW+=trkScore[trk][0]; maxW=std::max(trkScore[trk][0], maxW);}
 	   m_curTup->NVrtMaxW[ipnt]=maxW;
-	   m_curTup->NVrtAveW[ipnt]=sumW/vrt.SelTrk.size();
+	   m_curTup->NVrtAveW[ipnt]=sumW/vrt.selTrk.size();
            TLorentzVector SVPV(vrt.vertex.x()-PV.x(),vrt.vertex.y()-PV.y(),vrt.vertex.z()-PV.z(),1.);
            m_curTup->NVrtDR[ipnt]=JetDir.DeltaR(SVPV);
            VertexMom += vrt.vertexMom;
@@ -753,8 +684,5 @@ namespace InDet{
       } else { return 1; }
       return 0;
   }
-  int InDetVKalVxInJetTool::getIdHF(const Rec::TrackParticle*) const { return 0; }
-  int InDetVKalVxInJetTool::getG4Inter(const Rec::TrackParticle* ) const { return 0; }
-  int InDetVKalVxInJetTool::getMCPileup(const Rec::TrackParticle* ) const { return 0; }
 
 }  //end namespace
