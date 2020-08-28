@@ -4999,7 +4999,7 @@ dumpspecs = [
     ['InDetRawDataContainer<InDetRawDataCollection<PixelRDORawData> >', dump_PixelRawDataContainer],
     ['InDetRawDataContainer<InDetRawDataCollection<TRT_RDORawData> >', dump_TRT_RawDataContainer],
     ['InDetRawDataContainer<InDetRawDataCollection<SCT_RDORawData> >', dump_SCT_RawDataContainer],
-    ['multimap<const InDet::SiCluster*,const InDet::SiCluster*,InDet::compare_SiCluster>', dump_PixelGangedClusterAmbiguities],
+    ['std::multimap<const InDet::SiCluster*,const InDet::SiCluster*,InDet::compare_SiCluster>', dump_PixelGangedClusterAmbiguities],
     ['TileDigitsContainer',                  dump_TileDigitsContainer],
     ['TileContainer<TileL2>',                dump_TileL2],
     ['TileContainer<TileTTL1>',              dump_TileTTL1],
