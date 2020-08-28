@@ -2238,6 +2238,8 @@
 </subtraction>
 
 <composition name="AFT_BTBrkt">
+  <!-- the following "AFT_BTBrkt_BackPlate" volume creates clashes with other barrel toroid volumes. A quick check showed that
+       removing this volume makes the barrel toroid description clash free, so this should be investigated -->
   <posXYZ  volume="AFT_BTBrkt_BackPlate"            X_Y_Z=" 0.; 2.*AFT_BTBrktInf_BackPlate_Thickness+AFT_BTBrktInf_YSpacerTotal-AFT_BTBrkt_BackPlate_YShort; AFT_BTBrkt_ZLength+AFT_BTBrktInf_BackPlate_Thickness/2."/>
   <posXYZ  volume="AFT_BTBrkt_SideLongX"            X_Y_Z="-(AFT_BTBrkt_CentralPlateXLength+AFT_BTBrkt_SidePlateXLength-AFT_BTBrktInf_BackPlate_Thickness)/2.; 1.5*AFT_BTBrktInf_BackPlate_Thickness+AFT_BTBrktInf_YSpacerTotal+AFT_BTBrktInf_BackPlate_Thickness/2.; AFT_BTBrkt_ZLength/2."/>
   <posXYZ  volume="AFT_BTBrkt_SideLongX"            X_Y_Z=" (AFT_BTBrkt_CentralPlateXLength+AFT_BTBrkt_SidePlateXLength-AFT_BTBrktInf_BackPlate_Thickness)/2.; 1.5*AFT_BTBrktInf_BackPlate_Thickness+AFT_BTBrktInf_YSpacerTotal+AFT_BTBrktInf_BackPlate_Thickness/2.; AFT_BTBrkt_ZLength/2."/>
@@ -9688,14 +9690,48 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 <box   name="support2_BML"        material="Aluminium"  X_Y_Z=" 120.; 590.; 120."   />
 
 <composition name="BML_RailSupport2">
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
-   <mposPhi volume="support2_BML"  ncopy="8"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <!-- the standard BML rail support brackets are in 2 orthogonal directions, but not in sectors 11/13/15,
+        to account for it, just add 7 brackets each (i.e. leave out the bottom sectors),
+        4 by using symmetry and the 3 remaining ones positioned manually -->
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S=" S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S=" S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="-45." S=" S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S="-S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S="-S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="225." S="-S_BML_support2" R_Z="R_BML_support2; Z1_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S=" S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S=" S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="-45." S=" S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S="-S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S="-S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="225." S="-S_BML_support2" R_Z="R_BML_support2;-Z1_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S=" S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S=" S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="-45." S=" S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S="-S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S="-S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="225." S="-S_BML_support2" R_Z="R_BML_support2; Z2_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S=" S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S=" S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S=" S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="-45." S=" S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+
+   <mposPhi volume="support2_BML"  ncopy="4"  Phi0="0." S="-S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="45." S="-S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="135." S="-S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
+   <mposPhi volume="support2_BML"  ncopy="1"  Phi0="225." S="-S_BML_support2" R_Z="R_BML_support2;-Z2_BML_support2" impliedRot="true" />
 </composition>
 
 
