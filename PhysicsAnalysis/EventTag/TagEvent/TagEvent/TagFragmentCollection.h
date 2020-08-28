@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAGEVENT_TAGFRAGMENTCOLLECTION_H
@@ -36,8 +36,8 @@ class TagFragmentCollection {
   TagFragmentCollection& operator=( const TagFragmentCollection& rhs );
 
   /** insert something */
-  void insert(const std::string name, const double val) {
-     m_attrData.push_back( std::make_pair(name, val) );
+  void insert(const std::string& name, const double val) {
+     m_attrData.emplace_back( name, val );
   }
 
   /** return all attributes */
