@@ -23,6 +23,8 @@ def RpcDataPreparatorCfg( flags, roisKey ):
                                                          DecodeBS = False,
                                                          DoDecoding = False )
     acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RpcDataPreparator.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
  
     return acc, RpcDataPreparator
 
@@ -37,7 +39,8 @@ def TgcDataPreparatorCfg( flags, roisKey ):
                                                          TgcRawDataProvider   = None,
                                                          DecodeBS = False,
                                                          DoDecoding = False )
-
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    TgcDataPreparator.RegSel_TGC = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
  
     return acc, TgcDataPreparator
 
@@ -52,6 +55,8 @@ def MdtDataPreparatorCfg( flags, roisKey ):
                                                          MDT_RawDataProvider   = None,
                                                          DecodeBS = False,
                                                          DoDecoding = False )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    MdtDataPreparator.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
  
     return acc, MdtDataPreparator
 
@@ -69,6 +74,8 @@ def CscDataPreparatorCfg( flags, roisKey ):
                                                          DoDecoding = False )
 
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    CscDataPreparator.RegSel_CSC = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
  
     return acc, CscDataPreparator
 

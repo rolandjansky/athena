@@ -6,6 +6,10 @@ from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.DetFlags import DetFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2MuonSAConfig')
@@ -192,6 +196,12 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.StationFitter     = theStationFitter
         self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
         self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
+
+        import MuonCnvExample.MuonCablingConfig # noqa: F401 configuration of Run 2 cabling by import
+        self.DataPreparator.MDTDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
+        self.DataPreparator.RPCDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
+        self.DataPreparator.TGCDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
+        self.DataPreparator.CSCDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400

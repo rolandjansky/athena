@@ -12,7 +12,7 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TgcData.h"
 #include "CscData.h"
 #include "RecMuonRoIUtils.h"
@@ -60,7 +60,7 @@ namespace TrigL2MuonSA {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // Region Selector
-    ServiceHandle<IRegSelSvc>  m_regionSelector;
+    ToolHandle<IRegSelTool> m_regionSelector;
 
     // Tool handles for BS conversion and Rdo to Prep Data conversion
     ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
