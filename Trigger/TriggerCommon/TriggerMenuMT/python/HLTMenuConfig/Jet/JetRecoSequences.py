@@ -56,9 +56,9 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDic
         (basicJetRecoSequence,basicJetsName) = RecoFragmentsPool.retrieve(jetRecoSequence,None,dataSource=dataSource, **basicJetRecoDict)
         recoSeq += basicJetRecoSequence
 
-        rcJetPtMin = 20e3 # 20 GeV minimum pt for jets to be reclustered
+        rcJetPtMin = 15e3 # 15 GeV minimum pt for jets to be reclustered
         from JetRec.JetRecConf import JetViewAlg
-        filteredJetsName = basicJetsName+"_pt20"
+        filteredJetsName = basicJetsName+"_pt15"
         recoSeq += JetViewAlg("jetview_"+filteredJetsName,
                               InputContainer=basicJetsName,
                               OutputContainer=filteredJetsName,

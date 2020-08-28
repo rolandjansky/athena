@@ -222,7 +222,7 @@ TrigSignatureMoniMT                                 INFO -- #1341875780 Events  
 TrigSignatureMoniMT                                 INFO -- #1341875780 Features                             0          0          0          0          0          0          0          0          0          0          0          -
 TrigSignatureMoniMT                                 INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 #4034799151
 TrigSignatureMoniMT                                 INFO -- #4034799151 Events         19         19         0          0          0          0          0          0          0          0          0          0          15         -          15
-TrigSignatureMoniMT                                 INFO -- #4034799151 Features                             0          0          0          0          0          0          0          0          0          0          425        -
+TrigSignatureMoniMT                                 INFO -- #4034799151 Features                             0          0          0          0          0          0          0          0          0          0          402        -
 TrigSignatureMoniMT                                 INFO HLT_j225_ftf_subjesgscIS_bmv2c1040_split_L1J100 #3992507557
 TrigSignatureMoniMT                                 INFO -- #3992507557 Events         3          3          0          0          0          0          0          0          0          0          0          0          0          0          0
 TrigSignatureMoniMT                                 INFO -- #3992507557 Features                             0          0          0          0          0          0          0          0          0          0          0          0
@@ -746,8 +746,8 @@ TrigSignatureMoniMT                                 INFO HLT_timeburner_L1All #8
 TrigSignatureMoniMT                                 INFO -- #819160059 Events          20         20         0          -          -          -          -          -          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                 INFO -- #819160059 Features                              0          -          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_xe100_mht_L1XE50 #532175988
-TrigSignatureMoniMT                                 INFO -- #532175988 Events          10         10         0          0          0          0          0          0          0          0          0          0          6          -          6
-TrigSignatureMoniMT                                 INFO -- #532175988 Features                              0          0          0          0          0          0          0          0          0          0          6          -
+TrigSignatureMoniMT                                 INFO -- #532175988 Events          10         10         0          0          0          0          0          0          0          0          0          0          8          -          8
+TrigSignatureMoniMT                                 INFO -- #532175988 Features                              0          0          0          0          0          0          0          0          0          0          8          -
 TrigSignatureMoniMT                                 INFO HLT_xe100_pfsum_L1XE50 #1890237897
 TrigSignatureMoniMT                                 INFO -- #1890237897 Events         10         10         0          0          0          0          0          0          0          0          0          0          4          -          4
 TrigSignatureMoniMT                                 INFO -- #1890237897 Features                             0          0          0          0          0          0          0          0          0          0          4          -
