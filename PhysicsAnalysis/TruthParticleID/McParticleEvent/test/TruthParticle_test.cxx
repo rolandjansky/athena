@@ -156,7 +156,7 @@ TruthParticleTest* makeTestData()
   rdmStates[0] = 85909879;
   rdmStates[1] = 9707499;
   evt->weights() = weights;
-  evt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(rrdmStates));
+  evt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(rdmStates));
 #else
   evt->set_event_scale( -1 );
   evt->set_alphaQCD( -1 );
