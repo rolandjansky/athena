@@ -14,6 +14,7 @@
 #include "MCUtils/HepMCUtils.h"
 #include "MCUtils/PIDUtils.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace MC {
 
@@ -31,7 +32,7 @@ namespace MC {
   /// G4 are not set to have status = 2 in ATLAS, but simply have more status = 1 children,
   /// with barcodes > 200k.
   inline bool isGenStable(HepMC::ConstGenParticlePtr p) {
-    return isGenStable(p->status(), p->barcode());
+    return isGenStable(p->status(), HepMC::barcode(p));
   }
 
 

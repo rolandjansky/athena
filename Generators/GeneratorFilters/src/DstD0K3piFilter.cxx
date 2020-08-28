@@ -56,7 +56,6 @@ bool DstD0K3piFilter::IsCandidate(std::vector<float>& lundIds, std::vector<HepMC
     // 10323  211   k_1+ CLHEP::pi-
     if ( id0 == 10323 && id1 == 211 ) { // // K_1+ CLHEP::pi-
       if ( CheckChildLundId(genParticles[0], 0, 313) ) { // K*0 pi+
-        int nChild = 0;
         auto DecayVtx = genParticles[0]->end_vertex();
         if ( !DecayVtx) return false;
         auto children=DecayVtx->particles_out();

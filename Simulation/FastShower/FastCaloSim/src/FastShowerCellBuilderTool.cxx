@@ -2269,9 +2269,8 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
           particles.push_back(*istart);
         }
     }
-  particles = MC::filter_keep(particles, FastCaloSimIsGenSimulStable);
-
-
+  auto last_good = std::remove_if(particles.begin(), particles.end(),[](auto & part) { return FastCaloSimIsGenSimulStable(part) == false; });
+  particles.erase(last_good, particles.end());
 
 
   const BarcodeEnergyDepositMap* MuonEnergyMap=0;
