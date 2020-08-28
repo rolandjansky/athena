@@ -98,7 +98,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
 
     SG::ReadHandleKey<IDCInDetBSErrContainer>  m_BSErrContReadKey
-    {this, "PixelByteStreamErrs", "PixBSErr", "PixelByteStreamErrs container key"};
+    {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
 
     const uint64_t m_missingErrorInfo{std::numeric_limits<uint64_t>::max()-3000000000};
 

@@ -83,7 +83,7 @@ namespace InDet{
     declareMonitoredVariable("numPixClusters", m_numPixClusters    );
     declareMonitoredVariable("numPixIds", m_numPixIds    );
     declareMonitoredStdContainer("PixHashId", m_ClusHashId);
-    declareMonitoredStdContainer("PixBSErr", m_PixBSErr);
+    declareMonitoredStdContainer("PixelByteStreamErrs", m_PixBSErr);
   
     m_clusterCollection = NULL;
     
