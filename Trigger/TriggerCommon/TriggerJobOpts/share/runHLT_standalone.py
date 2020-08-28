@@ -485,6 +485,11 @@ if not opt.createHLTMenuExternally:
     # generating the HLT structure requires
     # the L1Decoder to be defined in the topSequence
     menu.generateMT()
+    # Note this will also create the requested HLTPrescale JSON
+    # - the default file (with all prescales set to 1) is not really needed.
+    # - If no file is provided all chains are either enabled or disabled,
+    #   depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
+
 
     if opt.endJobAfterGenerate:
         import sys
@@ -500,14 +505,6 @@ svcMgr.MessageSvc.infoLimit=10000
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
-
-if not opt.createHLTMenuExternally:
-    # the generation of the prescale set file from the menu (with all prescales set to 1)
-    # is not really needed. If no file is provided all chains are either enabled or disabled,
-    # depending on the property L1Decoder.PrescalingTool.KeepUnknownChains being True or False
-    from TrigConfigSvc.TrigConfigSvcCfg import createHLTPrescalesFileFromMenu
-    createHLTPrescalesFileFromMenu(ConfigFlags)
-
 
 
 # ---------------------------------------------------------------

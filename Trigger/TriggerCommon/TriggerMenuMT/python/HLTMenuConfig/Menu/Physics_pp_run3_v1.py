@@ -149,7 +149,7 @@ class Prescales(object):
     L1Prescales = {}
 
     #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Prescale values should be a positive integer (default=1)
+    #   - Chains only need adding if have a Prescale value different from 1 (default)
     #   - If the current pass_through value is non-zero,
     #     the value given here will be used as pass_through rate
     #     Assuming that pass through chains are configured so
