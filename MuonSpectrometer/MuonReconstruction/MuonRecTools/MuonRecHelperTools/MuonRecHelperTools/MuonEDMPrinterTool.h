@@ -141,8 +141,17 @@ class MuonEDMPrinterTool : public AthAlgTool {
         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };
-    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper;
-    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
+
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper{
+        this,
+        "MuonTrackSummaryHelperTool",
+        "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool",
+    };
+    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{
+        this,
+        "ResidualPullCalculator",
+        "Trk::ResidualPullCalculator/ResidualPullCalculator",
+    };
 
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{
         this,

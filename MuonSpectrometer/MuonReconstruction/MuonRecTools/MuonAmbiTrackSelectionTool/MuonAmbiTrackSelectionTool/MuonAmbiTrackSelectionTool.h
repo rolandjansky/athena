@@ -46,9 +46,16 @@ class MuonAmbiTrackSelectionTool : virtual public Trk::IAmbiTrackSelectionTool, 
                                                               Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:
-    ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
 
     /** maximum hit overlap fraction between two track, if higher track will be rejected*/
     double m_maxOverlapFraction;

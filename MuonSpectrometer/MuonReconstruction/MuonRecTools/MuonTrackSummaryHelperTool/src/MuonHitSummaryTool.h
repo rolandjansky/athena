@@ -70,12 +70,28 @@ class MuonHitSummaryTool : public AthAlgTool, virtual public IMuonHitSummaryTool
     /** helper function to calculate MuonTrackSummary from track */
     void getMuonTrackSummary(Trk::MuonTrackSummary& muonSummary, const Trk::Track& track) const;
     void calculateSummaryCounts(CompactSummary& sum) const;
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-                                                    "Handle to the service providing the IMuonEDMHelperSvc interface"};
-    ToolHandle<MuonEDMPrinterTool>        m_printer;
-    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
+        this,
+        "edmHelper",
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        "Handle to the service providing the IMuonEDMHelperSvc interface",
+    };
+
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+    ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelperTool{
+        this,
+        "MuonTrackSummaryHelperTool",
+        "Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool",
+    };
 };
 
 }  // namespace Muon

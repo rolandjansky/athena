@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
@@ -14,8 +16,6 @@
 #include "MuonRecToolInterfaces/IMuonSystemExtensionTool.h"
 #include "MuonStationIndex/MuonStationIndex.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
 
 namespace Trk {
@@ -50,8 +50,16 @@ class MuonSystemExtensionTool : virtual public IMuonSystemExtensionTool, public 
     /** get surfaces to be intersected for a given start parameters */
     SurfaceVec getSurfacesForIntersection(const Trk::TrackParameters& muonEntryPars) const;
 
-    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;
-    ToolHandle<Trk::IExtrapolator>              m_extrapolator;
+    ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool{
+        this,
+        "ParticleCaloExtensionTool",
+        "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool",
+    };
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "Extrapolator",
+        "Trk::Extrapolator/AtlasExtrapolator",
+    };
 
     /** reference surfaces per region and sector */
     std::vector<std::vector<SurfaceVec> > m_referenceSurfaces;

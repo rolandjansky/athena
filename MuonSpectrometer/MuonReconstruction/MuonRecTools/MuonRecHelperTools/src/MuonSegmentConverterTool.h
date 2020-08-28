@@ -53,8 +53,17 @@ class MuonSegmentConverterTool : public AthAlgTool, virtual public xAODMaker::IM
     /** helper function to dress output segment with cluster hit timing information */
     void addClusterTiming(const MuonSegment& seg, xAOD::MuonSegment& xaodSeg) const;
 
-    ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool;
-    ServiceHandle<Muon::IMuonIdHelperSvc>  m_idHelperSvc{
+    ToolHandle<IMuonSegmentHitSummaryTool> m_hitSummaryTool{
+        this,
+        "MuonSegmentHitSummaryTool",
+        "Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool",
+    };
+    ToolHandle<IMuonHitTimingTool> m_hitTimingTool{
+        this,
+        "MuonHitTimingTool",
+        "Muon::MuonHitTimingTool/MuonHitTimingTool",
+    };
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
         this,
         "MuonIdHelperSvc",
         "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
@@ -65,7 +74,6 @@ class MuonSegmentConverterTool : public AthAlgTool, virtual public xAODMaker::IM
         "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
         "Handle to the service providing the IMuonEDMHelperSvc interface",
     };
-    ToolHandle<IMuonHitTimingTool> m_hitTimingTool;
 };
 
 }  // namespace Muon

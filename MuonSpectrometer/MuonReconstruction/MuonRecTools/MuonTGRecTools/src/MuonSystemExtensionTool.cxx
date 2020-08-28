@@ -16,20 +16,14 @@ namespace Muon {
 
 MuonSystemExtensionTool::MuonSystemExtensionTool(const std::string& type, const std::string& name,
                                                  const IInterface* parent)
-    : AthAlgTool(type, name, parent),
-      m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-      m_extrapolator("Trk::Extrapolator/AtlasExtrapolator", this)
+    : AthAlgTool(type, name, parent)
 {
     declareInterface<IMuonSystemExtensionTool>(this);
-
-    declareProperty("Extrapolator", m_extrapolator);
-    declareProperty("ParticleCaloExtensionTool", m_caloExtensionTool);
 }
 
 StatusCode
 MuonSystemExtensionTool::initialize()
 {
-
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
 

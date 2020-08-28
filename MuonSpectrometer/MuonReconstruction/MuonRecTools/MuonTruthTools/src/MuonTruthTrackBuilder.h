@@ -120,16 +120,56 @@ class MuonTruthTrackBuilder : public AthAlgTool, virtual public Trk::ITruthTrack
                              std::vector<const Trk::MeasurementBase*>& hitsOut, int splitSL, int splitNSWEI,
                              bool isEndcap, double phiDist) const;
 
-    ToolHandle<Trk::ITrackFitter>                    m_trackFitter;
-    ToolHandle<Trk::ITrackFitter>                    m_slTrackFitter;
-    ToolHandle<Trk::IExtrapolator>                   m_extrapolator;
-    ToolHandle<IMuonTrackToSegmentTool>              m_trackToSegmentTool;
-    ToolHandle<IMdtDriftCircleOnTrackCreator>        m_mdtCreator;
-    ToolHandle<IMuonClusterOnTrackCreator>           m_muonClusterCreator;
-    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_muonCompRotCreator;
-    ToolHandle<MuonEDMPrinterTool>                   m_printer;
-    ToolHandle<IMuonTrackExtrapolationTool>          m_trackExtrapolationTool;
-    ToolHandle<IMuonTrackCleaner>                    m_trackCleaner;
+    ToolHandle<Trk::ITrackFitter> m_trackFitter{
+        this,
+        "TrackFitter",
+        "Trk::GlobalChi2Fitter/MCTBFitter",
+    };
+    ToolHandle<Trk::ITrackFitter> m_slTrackFitter{
+        this,
+        "MCTBSLFitter",
+        "Trk::GlobalChi2Fitter/MCTBSLFitter",
+    };
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "AtlasExtrapolator",
+        "Trk::Extrapolator/AtlasExtrapolator",
+    };
+    ToolHandle<IMuonTrackToSegmentTool> m_trackToSegmentTool{
+        this,
+        "MuonTrackToSegmentTool",
+        "Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool",
+    };
+    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator{
+        this,
+        "MdtRotCreator",
+        "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator",
+    };
+    ToolHandle<IMuonClusterOnTrackCreator> m_muonClusterCreator{
+        this,
+        "MuonClusterCreator",
+        "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator",
+    };
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_muonCompRotCreator{
+        this,
+        "MuonCompRotCreator",
+        "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator",
+    };
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+    ToolHandle<IMuonTrackExtrapolationTool> m_trackExtrapolationTool{
+        this,
+        "TrackExtrapolationTool",
+        "Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool",
+    };
+    ToolHandle<IMuonTrackCleaner> m_trackCleaner{
+        this,
+        "TrackCleaner",
+        "Muon::MuonTrackCleaner/MuonTrackCleaner",
+    };
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
         this,

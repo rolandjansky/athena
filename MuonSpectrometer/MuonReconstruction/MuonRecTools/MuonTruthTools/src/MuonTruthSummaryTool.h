@@ -85,13 +85,26 @@ class MuonTruthSummaryTool : public AthAlgTool, virtual public IMuonTruthSummary
     std::string printSummary(const std::unordered_set<Identifier, IdentifierHash>& truth,
                              const std::unordered_set<Identifier, IdentifierHash>& found);
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-                                                    "Handle to the service providing the IMuonEDMHelperSvc interface"};
-    ToolHandle<MuonEDMPrinterTool>        m_printer;
-    ServiceHandle<IIncidentSvc>           m_incidentSvc;
-    mutable std::atomic<bool>             m_wasInit;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
+        this,
+        "edmHelper",
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        "Handle to the service providing the IMuonEDMHelperSvc interface",
+    };
+    ServiceHandle<IIncidentSvc> m_incidentSvc;
+
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
+
+    mutable std::atomic<bool> m_wasInit;
 
     SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{
         this, "TruthNames", {"RPC_TruthMap", "TGC_TruthMap", "MDT_TruthMap"}, "truth names"};

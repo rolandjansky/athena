@@ -45,28 +45,12 @@ namespace Muon {
 /** Constructor **/
 MuonTruthTrackBuilder::MuonTruthTrackBuilder(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t, n, p),
-      m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitter"),
-      m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
-      m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-      m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-      m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-      m_muonCompRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
-      m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
       m_minNdof(6),
       m_onlyPrimaries(false),
       m_primaryBarcodeCutOff(100000)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
     // TrackFitter
-    declareProperty("TrackFitter", m_trackFitter);
-    declareProperty("MdtRotCreator", m_mdtCreator);
-    declareProperty("MuonClusterCreator", m_muonClusterCreator);
-    declareProperty("MuonCompRotCreator", m_muonCompRotCreator);
-    declareProperty("TrackExtrapolationTool", m_trackExtrapolationTool);
-    declareProperty("TrackCleaner", m_trackCleaner);
     declareProperty("MinDegreesOfFreedom", m_minNdof);
     declareProperty("OnlyPrimaries", m_onlyPrimaries);
     declareProperty("PrimaryBarcodeCutOff", m_primaryBarcodeCutOff);

@@ -33,22 +33,18 @@ namespace Muon {
 
 
 MuonEDMPrinterTool::MuonEDMPrinterTool(const std::string& ty, const std::string& na, const IInterface* pa)
-    : AthAlgTool(ty, na, pa),
-      m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+    : AthAlgTool(ty, na, pa)
 {
     declareInterface<MuonEDMPrinterTool>(this);
-    declareProperty("MuonTrackSummaryHelperTool", m_summaryHelper);
 }
 
 StatusCode
 MuonEDMPrinterTool::initialize()
 {
-    ATH_CHECK(AthAlgTool::initialize());
-
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_summaryHelper.retrieve());
+    ATH_CHECK(m_pullCalculator.retrieve());
 
     ATH_CHECK(m_DetectorManagerKey.initialize());
     ATH_CHECK(m_mdtKey.initialize());

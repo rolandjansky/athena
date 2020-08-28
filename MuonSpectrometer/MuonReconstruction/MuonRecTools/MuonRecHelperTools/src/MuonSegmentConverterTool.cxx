@@ -11,9 +11,7 @@
 namespace Muon {
 
 MuonSegmentConverterTool::MuonSegmentConverterTool(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t, n, p),
-      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
-      m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool")
+    : AthAlgTool(t, n, p)
 {
     declareInterface<xAODMaker::IMuonSegmentConverterTool>(this);
 }
@@ -21,11 +19,11 @@ MuonSegmentConverterTool::MuonSegmentConverterTool(const std::string& t, const s
 StatusCode
 MuonSegmentConverterTool::initialize()
 {
-
     ATH_CHECK(m_hitSummaryTool.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_edmHelper.retrieve());
-    ATH_CHECK(m_hitSummaryTool.retrieve());
+    ATH_CHECK(m_hitTimingTool.retrieve());
+
     return StatusCode::SUCCESS;
 }
 
@@ -33,7 +31,6 @@ xAOD::MuonSegment*
 MuonSegmentConverterTool::convert(const ElementLink< ::Trk::SegmentCollection>& segLink,
                                   xAOD::MuonSegmentContainer*                   container) const
 {
-
     // sanity checks
     if (!segLink.isValid() || !*segLink) {
         ATH_MSG_WARNING(" Got invalid element link");

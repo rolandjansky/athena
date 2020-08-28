@@ -14,9 +14,7 @@
 namespace Muon {
 
 MuonHitSummaryTool::MuonHitSummaryTool(const std::string& ty, const std::string& na, const IInterface* pa)
-    : AthAlgTool(ty, na, pa),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
+    : AthAlgTool(ty, na, pa)
 {
     declareInterface<IMuonHitSummaryTool>(this);
 }

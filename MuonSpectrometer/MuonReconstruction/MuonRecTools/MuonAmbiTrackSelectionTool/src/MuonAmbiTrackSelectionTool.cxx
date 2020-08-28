@@ -20,7 +20,7 @@
 
 Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string &t, const std::string &n,
                                                              const IInterface *p)
-    : AthAlgTool(t, n, p), m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(t, n, p)
 {
     declareInterface<IAmbiTrackSelectionTool>(this);
 
@@ -34,8 +34,6 @@ Muon::MuonAmbiTrackSelectionTool::MuonAmbiTrackSelectionTool(const std::string &
 StatusCode
 Muon::MuonAmbiTrackSelectionTool::initialize()
 {
-    ATH_CHECK(AthAlgTool::initialize());
-
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
 
