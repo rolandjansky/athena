@@ -753,9 +753,9 @@ def getTauTrackClassifier():
                                      #Threshold      = 0.0005,
                                      InputWeightsPath = tauFlags.tauRecMVATrackClassificationConfig()[2][0],
                                      Threshold = tauFlags.tauRecMVATrackClassificationConfig()[2][1],
-                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
-                                     SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
-                                     BackgroundType = ROOT.xAOD.TauJetParameters.classifiedFake,
+                                     ExpectedFlag   = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation, 
+                                     SignalType     = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedIsolation, 
+                                     BackgroundType = ROOT.xAOD.TauJetParameters.TauTrackFlag.classifiedFake,
                                      calibFolder = tauFlags.tauRecToolsCVMFSPath(),
                                      )
     ToolSvc += _BDT_TTCT_ITFT_0_1
