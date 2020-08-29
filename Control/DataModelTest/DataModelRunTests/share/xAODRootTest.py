@@ -16,7 +16,7 @@ def CHECK(sc):
 reg=ROOT.SG.AuxTypeRegistry.instance()
 
 def _typename(t):
-    return getattr (t, '__cppname__', t.__name__)
+    return getattr (t, '__cpp_name__', t.__name__)
 
 def xAODInit():
     ROOT.xAOD.TEvent
