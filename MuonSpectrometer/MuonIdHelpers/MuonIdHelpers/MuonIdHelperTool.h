@@ -88,6 +88,12 @@ namespace Muon {
     /** @brief returns whether this is a sTGC Identifier or not */
     bool issTgc( const Identifier& id ) const;
 
+    /** @brief returns whether this is a sMDT Identifier or not */
+    bool issMdt( const Identifier& id ) const;
+
+    /** @brief returns whether this Identifier belongs to an MDT with HPTDC or not */
+    bool hasHPTDC( const Identifier& id ) const;
+
     /** @brief returns whether channel measures phi or not */
     bool measuresPhi( const Identifier& id ) const;
     
