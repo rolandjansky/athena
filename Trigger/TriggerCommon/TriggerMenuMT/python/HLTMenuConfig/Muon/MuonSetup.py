@@ -453,13 +453,9 @@ def muCombRecoSequence( RoIs, name ):
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
 
-  # These objects must be loaded from SGIL if not from CondInputLoader
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
     ViewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -527,14 +523,10 @@ def muEFSARecoSequence( RoIs, name ):
 
   # Only load these objects if they aren't available in conddb
   from IOVDbSvc.CondDB import conddb
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   if not conddb.folderRequested( "/MDT/DQMF/DEAD_ELEMENT" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
   if not conddb.folderRequested( "/MDT/TUBE_STATUS/DEAD_TUBE" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
 
   if name != 'FS':
     # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
@@ -661,12 +653,9 @@ def muEFCBRecoSequence( RoIs, name ):
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                       ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     ViewVerifyMS.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
   if not conddb.folderRequested( "/PIXEL/PixdEdx" ):
-    topSequence.SGInputLoader.Load += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
     ViewVerifyMS.DataObjects += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
 
   if not globalflags.InputFormat.is_bytestream():
@@ -919,8 +908,6 @@ def efmuisoRecoSequence( RoIs, Muons ):
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                       ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 

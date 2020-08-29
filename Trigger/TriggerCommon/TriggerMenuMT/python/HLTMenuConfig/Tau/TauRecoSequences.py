@@ -148,11 +148,6 @@ def tauCaloSequence(ConfigFlags):
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloInViewSequence += tauCaloRecoVDV
 
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-
     tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
     return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    
 
@@ -179,11 +174,6 @@ def tauCaloMVASequence(ConfigFlags):
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloMVAInViewSequence += tauCaloMVARecoVDV
-
-    # Make sure the required objects are still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
 
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
@@ -233,8 +223,6 @@ def tauIdTrackSequence( RoIs , name):
 
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
       viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
@@ -325,10 +313,6 @@ def tauCoreTrackSequence( RoIs, name ):
 
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
       viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 

@@ -145,11 +145,6 @@ def HLTRoITopoRecoSequence(RoIs):
                                              ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                              ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
 
-    # Make sure BCID average still available at whole-event level
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
-
     cellMaker = HLTCellMaker(RoIs, algSuffix="RoI")
     topoClusterMaker = _algoHLTTopoCluster(inputEDM = cellMaker.CellsName, algSuffix="RoI")
     RecoSequence = parOR("RoITopoClusterRecoSequence", [HLTRoITopoRecoSequenceVDV, cellMaker, topoClusterMaker])
