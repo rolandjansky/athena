@@ -82,8 +82,8 @@ def get_feature_data_blob(data, index):
 def deserialize_string(lwords):
   """Wrapper for the C++ StringSerializer"""
   
-  v = cppyy.makeClass('std::vector<unsigned int>')()
-  s = cppyy.makeClass('std::string')()
+  v = ROOT.std.vector['unsigned int']()
+  s = ROOT.std.string()
   v.reserve(len(lwords))
   for w in lwords: v.push_back(w)
   stringSerializer.deserialize(v, s)
@@ -99,7 +99,7 @@ def print_ranges(l):
     print ("%-16d%16d" % ( (i+1)*32, i*32))
 
 def print_chain(counter, s):
-  ch = cppyy.makeClass('HLT::Chain')(s)
+  ch = ROOT.HLT.Chain(s)
   ch.deserialize(s)
   print (".... chain %-3d Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
         % ( counter, ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(),\
