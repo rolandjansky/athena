@@ -13,10 +13,9 @@ from CLIDComps.clidGenerator import clidGenerator
 
 clidg = clidGenerator("")
 
-cppyy.makeNamespace('HLT')
-ActualHLTResult = cppyy.makeClass('HLT::HLTResult')
 
-stringSerializer = cppyy.makeClass('StringSerializer')()
+ActualHLTResult=ROOT.HLT.HLTResult
+stringSerializer = ROOT.StringSerializer()
 
 class hltResult(ActualHLTResult):
   def __init__(self):
