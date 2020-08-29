@@ -230,9 +230,9 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		for(int idbz=0; idbz!= 3; idbz++){
           ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
           bool isValid=false;
-          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
           if (!isValid) {
-            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz<<", continuing...");
+            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
             continue;
           }
 		  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
@@ -259,9 +259,9 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  for(int ieta=0; ieta!= 17; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
               bool isValid=false;
-              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, ieta,irpcstationPhi,irpcdoubletR,idbz, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
               if (!isValid) {
-                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz<<", continuing...");
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
                 continue;
               }
 		      const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
