@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LUCID_DetectorFactory_h
-#define LUCID_DetectorFactory_h 1
+#ifndef LUCIDGEOMODEL_LUCIDDETECTORFACTORY_H
+#define LUCIDGEOMODEL_LUCIDDETECTORFACTORY_H
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "GeoModelUtilities/GeoExtendedMaterial.h"
@@ -13,7 +13,7 @@
 #include "LUCID_GeoModel/LUCID_Constants.h"
 
 class StoreGateSvc;
-class AbsMaterialManager;
+class StoredMaterialManager;
 class GeoShape;
 class GeoPhysVol;
 class GeoFullPhysVol;
@@ -46,11 +46,11 @@ class LUCID_DetectorFactory : public GeoVDetectorFactory {
   const LUCID_DetectorFactory& operator=(const LUCID_DetectorFactory &right);
   LUCID_DetectorFactory(const LUCID_DetectorFactory &right);
   
-  LUCID_DetectorManager*    m_detectorManager;   
-  const AbsMaterialManager* m_materialManager;
-  StoreGateSvc*             m_detectorStore;
-  IRDBAccessSvc*            m_access;
-  LUCID_RDBAccess*          m_lp;
+  LUCID_DetectorManager*       m_detectorManager;   
+  const StoredMaterialManager* m_materialManager;
+  StoreGateSvc*                m_detectorStore;
+  IRDBAccessSvc*               m_access;
+  LUCID_RDBAccess*             m_lp;
 
   const GeoMaterial*        m_air;
   const GeoMaterial*        m_alu;

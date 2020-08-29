@@ -29,7 +29,6 @@
 #include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
 

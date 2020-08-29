@@ -508,15 +508,15 @@ void LArMaterialManager::buildMaterials()
 
   // Materials for Barrel and Endcap Signal Feedthroughs
   {
-    GeoMaterial* myIron   = m_storedManager->getMaterial("std::Iron");
-    GeoMaterial* myCopper = m_storedManager->getMaterial("std::Copper");
-    GeoMaterial* myKapton = m_storedManager->getMaterial("std::Kapton");
-    GeoMaterial* myAlu    = m_storedManager->getMaterial("std::Aluminium");
-    GeoMaterial* myLAr    = m_storedManager->getMaterial("std::LiquidArgon");
-    GeoElement* O  = m_storedManager->getElement("Oxygen");
-    GeoElement* Na = m_storedManager->getElement("Potassium");
-    GeoElement* Si = m_storedManager->getElement("Silicon");
-    GeoElement* Ca = m_storedManager->getElement("Calcium");
+    const GeoMaterial* myIron   = m_storedManager->getMaterial("std::Iron");
+    const GeoMaterial* myCopper = m_storedManager->getMaterial("std::Copper");
+    const GeoMaterial* myKapton = m_storedManager->getMaterial("std::Kapton");
+    const GeoMaterial* myAlu    = m_storedManager->getMaterial("std::Aluminium");
+    const GeoMaterial* myLAr    = m_storedManager->getMaterial("std::LiquidArgon");
+    const GeoElement* O  = m_storedManager->getElement("Oxygen");
+    const GeoElement* Na = m_storedManager->getElement("Potassium");
+    const GeoElement* Si = m_storedManager->getElement("Silicon");
+    const GeoElement* Ca = m_storedManager->getElement("Calcium");
 
     GeoMaterial* myGlass = new GeoMaterial("LAr::PinCarrierGlas",2.40*Gaudi::Units::g/Gaudi::Units::cm3);
     myGlass->add(O ,0.459800);
