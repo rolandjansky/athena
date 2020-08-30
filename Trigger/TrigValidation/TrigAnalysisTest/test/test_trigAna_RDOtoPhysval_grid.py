@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD->NTUP_PHYSVAL with serial athena (legacy trigger)
+# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD->NTUP_PHYSVAL with serial athena (legacy trigger) and PHYSVAL_WEB stage
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1 followed by AOD->NTUP_PHYSVAL with serial athena
+# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1 followed by AOD->NTUP_PHYSVAL with serial athena and PHYSVAL_WEB stage
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
