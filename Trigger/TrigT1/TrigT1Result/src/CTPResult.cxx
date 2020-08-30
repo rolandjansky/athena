@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,8 +33,8 @@ namespace ROIB {
       m_useRoIB(false),
       m_l1aBunch(0)
    {
-      m_useRoIB = (head.sourceID() == 0x770001);
-      if (!m_useRoIB) m_l1aBunch = (head.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
+      m_useRoIB = (m_CTPResultHeader.sourceID() == 0x770001);
+      if (!m_useRoIB) m_l1aBunch = (m_CTPResultHeader.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
    }
 
 
@@ -46,10 +46,10 @@ namespace ROIB {
       m_useRoIB(false),
       m_l1aBunch(0)
    {
-      m_useRoIB = (head.sourceID() == 0x770001);
+      m_useRoIB = (m_CTPResultHeader.sourceID() == 0x770001);
 
       std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
-      if (!m_useRoIB) m_l1aBunch = (head.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
+      if (!m_useRoIB) m_l1aBunch = (m_CTPResultHeader.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
    }
 
 
