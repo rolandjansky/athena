@@ -16,8 +16,14 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
+# art-output: PHYSVAL_WEB
+# art-html: PHYSVAL_WEB
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
 import os
 
 # To run single-process transform on MCORE sites
@@ -46,6 +52,14 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [rdo2aod,physval]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Add web display steps
+slice_names = [
+    'JetMon', 'TauMon', 'MuonMon', 'IDMon',
+    'BphysMon', 'HLTCaloESD', 'ResultMon', 'BjetMon',
+    'METMon', 'MinBiasMon', 'Egamma']
+download = CheckSteps.DownloadRefStep()
+add_physvalweb_steps(test, slice_names, download)
 
 import sys
 sys.exit(test.run())
