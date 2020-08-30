@@ -11,7 +11,8 @@
 
 import cppyy
 try :
-    cppyy.load_library('libElectronPhotonSelectorToolsDict')
+    #cppyy.load_library('libElectronPhotonSelectorToolsDict')
+    cppyy.include("ElectronPhotonSelectorTools/LikelihoodEnums.h")
 except :
     pass
 
