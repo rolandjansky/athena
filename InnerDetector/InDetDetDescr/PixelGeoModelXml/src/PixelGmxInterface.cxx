@@ -43,7 +43,7 @@ PixelGmxInterface::~PixelGmxInterface() {
 
 int PixelGmxInterface::moduleId(map<string, int> &index){
   //
-  //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
+  //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
   int hitIdOfWater = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
 							  index["eta_module"], index["phi_module"], index["side"]);
 
@@ -63,7 +63,22 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
 
   *m_log << MSG::DEBUG << "PixelGmxInterface::addModuleType called for class " << clas << " typeName " << typeName <<
                                     endmsg;
-  if (clas == "RD53_20x19_Single") {
-    makeRD53Single(typeName, parameters);
+  if (clas == "SingleChip") {
+    makeSingleChipModule(typeName, parameters);
   }
+  else if (clas == "QuadChip") {
+    makeQuadChipModule(typeName, parameters);
+  }
+  else {
+    *m_log << MSG::ERROR << "PixelGmxInterface::addModuleType: unrecognised module class, " << clas << endmsg;
+    *m_log << MSG::ERROR << "No module design created" << endmsg;
+  }
+}
+
+void PixelGmxInterface::makeSingleChipModule(string typeName, map<string, string> &par){
+
+}
+
+void PixelGmxInterface::makeQuadChipModule(string typeName, map<string, string> &par){
+
 }
