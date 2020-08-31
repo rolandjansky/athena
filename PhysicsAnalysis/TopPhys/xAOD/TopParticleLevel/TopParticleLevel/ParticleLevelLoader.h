@@ -116,6 +116,9 @@ namespace top {
 
     std::unique_ptr<xAOD::TruthParticleContainer> m_goodMuons;
     std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodMuonsAux;
+    
+    std::unique_ptr<xAOD::TruthParticleContainer> m_goodSoftMuons;
+    std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodSoftMuonsAux;
 
     std::unique_ptr<xAOD::TruthParticleContainer> m_goodPhotons;
     std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodPhotonsAux;

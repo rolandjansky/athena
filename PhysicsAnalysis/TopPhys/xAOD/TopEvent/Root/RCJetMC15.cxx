@@ -616,11 +616,6 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
   clusters.clear();
   std::vector<const xAOD::TrackParticle*> jetTracks;
 
-  //The primary vertex z is needed to evaluate delta z0
-  float primary_vertex_z = event.m_info->auxdataConst<float>("AnalysisTop_PRIVTX_z_position");
-
-
-
 
   for (auto subjet : rcjet->getConstituents()) {
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
@@ -629,28 +624,30 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
     
 
     jetTracks.clear();
+    
     jetTracks = subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
     if (haveJetTracks) {
-      for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt = jetTracks.begin(); jetTrIt != jetTracks.end();
-           ++jetTrIt) {
+      
+      for ( const xAOD::TrackParticle* jet: jetTracks ){
         TLorentzVector temp_p4;
-        if (*jetTrIt != nullptr) {
-          //Pileup suppression, using the nominal working point
-          float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
-
-          if (std::abs((*jetTrIt)->d0()) < 2 && std::abs((*jetTrIt)->eta()) < 2.5 &&
-              std::abs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
-            temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
-            clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+      
+        if (jet != nullptr) {
+          
+          // Select on track quality, pt, eta and match to vertex  
+          if(jet->auxdataConst< char >("passPreORSelection") != 1){
+            continue;
           }
+          
+          temp_p4.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
+          clusters.emplace_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+    
         }
       }
     } else {
       ATH_MSG_WARNING(
-        "The link to the ghost matched tracks to the PFlow jets are missing, unable to calculate the substructure");
-      break;
-    }
+        "RCJETMC15::No remaining tracks associated to the PFlow jet");
+          }
   }
 }

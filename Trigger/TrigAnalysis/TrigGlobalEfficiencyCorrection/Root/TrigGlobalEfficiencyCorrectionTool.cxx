@@ -826,6 +826,42 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getRelevantTriggers(std::
 	return m_calculator->getRelevantTriggersForUser(*this, triggers, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::countTriggerLegs(const std::string& trigger, std::size_t& numberOfLegs)
+{
+	numberOfLegs = 0;
+	/// this abuses a little the role of the dictionary to act as a cache: 
+	/// for the key chosen as the trigger name hash XORed with the magic number,
+	/// the mapped value is not the name of the trigger, but a meaningless string whose size equals the number of legs
+	constexpr std::size_t magic = 0xa3bad03e613527c9;
+	const std::size_t name = m_hasher(trigger), key = name^magic;
+	std::string& value = m_dictionary[key];
+	if(!value.length())
+	{
+		ImportData data;
+		if(!data.importTriggers()) return CP::CorrectionCode::Error;
+		auto itr = data.getTriggerDefs().find(name);
+		if(itr == data.getTriggerDefs().end())
+		{
+			m_dictionary.erase(key);
+			ATH_MSG_ERROR("The trigger " << trigger << " is not recognized");
+			return CP::CorrectionCode::Error;
+		}
+		auto type = itr->second.type;
+		using TrigGlobEffCorr::TriggerType;
+		if(type & TriggerType::TT_SINGLELEPTON_FLAG) value = "~";
+		else if(type & TriggerType::TT_DILEPTON_FLAG) value = "~~";
+		else if(type & TriggerType::TT_TRILEPTON_FLAG) value = "~~~";
+		else
+		{
+			m_dictionary.erase(key);
+			ATH_MSG_ERROR("Unrecognized trigger type, implementation must be fixed!");
+			return CP::CorrectionCode::Error;
+		}
+	}
+	numberOfLegs = value.length();
+	return CP::CorrectionCode::Ok;
+}
+
 bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton, std::size_t leg) const
 {
 	bool decision = (lepton.pt() >= m_thresholds.at(leg));

@@ -151,7 +151,7 @@ namespace xAOD {
     inline
     bool hasValidCovZ0(const xAOD::TrackParticle *tp) {
           if (hasValidCov(tp)) {
-             if  ( ! ( tp->definingParametersCovMatrixVec().size() > 2 )
+             if  ( ( tp->definingParametersCovMatrixVec().size() > 2 )
                    && ( tp->definingParametersCovMatrixVec()[2] > 0. ) ) {
                 return true;
              }
@@ -164,7 +164,7 @@ namespace xAOD {
     inline
     bool hasValidCovD0andZ0( const xAOD::TrackParticle *tp) {
           if (hasValidCov(tp)) {
-             if  ( ! ( tp->definingParametersCovMatrixVec().size() > 2 ) 
+             if  ( ( tp->definingParametersCovMatrixVec().size() > 2 ) 
                    && ( tp->definingParametersCovMatrixVec()[0] > 0. )
                    && ( tp->definingParametersCovMatrixVec()[2] > 0. ) ) {
                 return true;

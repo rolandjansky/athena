@@ -42,7 +42,7 @@ class MuonsDxAODStreamConfigurer:
 
     ### samrt slimming containers
     comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles","AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "BTagging_AntiKt4EMPFlow_201810",  "BTagging_AntiKt4EMPFlow_201903"]
-    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets','Electrons','MET_Reference_AntiKt4EMTopo','MET_Reference_AntiKt4EMPFlow'], 'MUON2':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], 'MUON3':['AntiKt4EMTopoJets','Electrons']}
+    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets','Electrons','MET_Reference_AntiKt4EMTopo','MET_Reference_AntiKt4EMPFlow','Photons'], 'MUON2':['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], 'MUON3':['AntiKt4EMTopoJets','Electrons']}
 
     ### all varaible containers
 #     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
@@ -100,6 +100,11 @@ class MuonsDxAODStreamConfigurer:
     extraVariables['MUON1'].append(pvExtra)
     extraVariables['MUON3'].append(pvExtra)
     extraVariables['MUON0'] = [pvExtra]
+
+
+    ## for TrackAssociatedCaloSample
+    extraVariables['MUON1'].append('InDetTrackParticles.trackCaloClusEta.trackCaloClusPhi.trackCaloSampleE.trackCaloSampleNumber')
+
 
     ### get final lists
     for s in Items: Items[s]+=commonItems

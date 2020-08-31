@@ -147,21 +147,6 @@ jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
 
 OutputJets["JETM4"] = []
 
-#==================================================================== 
-# BUILD UFO INPUTS
-#==================================================================== 
-
-from JetRecTools.ConstModHelpers import getConstModSeq
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-    DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction 
-emufoAlg = runUFOReconstruction(jetm4Seq,ToolSvc, PFOPrefix="CHS")
-runUFOReconstruction(jetm4Seq, ToolSvc, PFOPrefix="CSSK")
-
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
@@ -171,14 +156,13 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
                   "AntiKt10LCTopoJets",
-                  "AntiKt10TruthJets",
-                  "AntiKt10UFOCSSKJets",
-                  "AntiKt10UFOCHSJets"]
+                  "AntiKt10TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm4Seq,"JETM4")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm4Seq,"JETM4")
-
+# Ungroomed UFO jets
+addDefaultUFOJets(jetm4Seq,"JETM4",doCHS=True)
 # UFO Trimmed jets
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm4Seq, outputGroup="JETM4", writeUngroomed=False, mods="tcc_groomed")
@@ -240,12 +224,26 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
 from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
 
+# Add the BCID info
+addDistanceInTrain(jetm4Seq)
+
+# Alternative rho definition
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+addCHSPFlowObjects()
+from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
+jetm4Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM4SlimmingHelper = SlimmingHelper("JETM4SlimmingHelper")
+JETM4SlimmingHelper.AppendToDictionary = {
+    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
+}
+
+
 JETM4SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
@@ -278,7 +276,7 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
 
 JETM4SlimmingHelper.ExtraVariables = ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawE.rawEta.rawPhi.rawM","Photons."+NewTrigVars["Photons"],"JetETMissNeutralParticleFlowObjects.m.mEM.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_CENTER_LAMBDA.pt.ptEM.phi.eta",
 "JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks.DFCommonPFlow_z0.DFCommonPFlow_vz.DFCommonPFlow_d0.DFCommonPFlow_theta.DFCommonPFlow_envWeight",

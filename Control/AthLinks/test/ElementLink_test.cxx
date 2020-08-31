@@ -22,6 +22,7 @@
 
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
+#include "TestThinningSvc.icc"
 
 
 using namespace SGTest;
@@ -1166,6 +1167,47 @@ void test13()
   assert (el16.index() == "2");
 }
 
+// Testing if a link's target was removed
+void test14()
+{
+  std::cout << "test14" << std::endl;
+
+  // Make sure that links to objects not in storegate don't register as thinned
+  Foo standaloneFoo(0);
+  ElementLink<FooCont> standaloneLink;
+  standaloneLink.setElement(&standaloneFoo);
+  assert (!standaloneLink.wasTargetRemoved());
+
+  TestThinningSvc svc;
+  TestThinningSvc::instance(&svc, true);
+
+  FooCont* fooCont = new FooCont();
+  fooCont->push_back(new Foo(0));
+  fooCont->push_back(new Foo(1));
+  fooCont->push_back(new Foo(2));
+
+  std::string key = "test14foocont";
+  store.record(fooCont, key);
+
+  ElementLink<FooCont> el0(*fooCont, 0, &store);
+  ElementLink<FooCont> el1(*fooCont, 1, &store);
+  assert (!el0.wasTargetRemoved());
+
+  // Thin an element from the container
+  fooCont->erase(fooCont->begin());
+  // We have to manually do the remapping - the test thinning service acts
+  // globally
+  svc.remap(0, IThinningSvc::RemovedIdx);
+  svc.remap(1, 0);
+  el0.thin();
+  el1.thin();
+  // toTransient removes the cached element
+  el0.toTransient();
+  el1.toTransient();
+  assert (el0.wasTargetRemoved());
+  assert (!el1.wasTargetRemoved());
+}
+
 
 int main()
 {
@@ -1185,5 +1227,6 @@ int main()
   test11();
   test12();
   test13();
+  test14();
   return 0;
 }

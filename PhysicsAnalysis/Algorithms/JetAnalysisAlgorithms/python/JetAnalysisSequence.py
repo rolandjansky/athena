@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -84,7 +84,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
 
     # interpret the jet collection
     collection_pattern = re.compile(
-        r"AntiKt(\d+)(EMTopo|EMPFlow|LCTopo|TrackCaloCluster)(TrimmedPtFrac5SmallR20)?Jets")
+        r"AntiKt(\d+)(EMTopo|EMPFlow|LCTopo|TrackCaloCluster|UFOCSSK)(TrimmedPtFrac5SmallR20|SoftDropBeta100Zcut10)?Jets")
     match = collection_pattern.match(jetCollection)
     if not match:
         raise ValueError(
@@ -108,6 +108,27 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
         alg = createAlgorithm( 'CP::JetGhostMuonAssociationAlg', 
             'JetGhostMuonAssociationAlg'+postfix )
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
+
+    # IsBtag decoration for Jet Flavour Uncertainties
+    # (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR)
+    if dataType != 'data' and radius < 10:
+        # Step 1: pt and eta selection
+        alg = createAlgorithm('CP::AsgSelectionAlg', 'JetIsBtagPtEtaSelectionAlg'+postfix)
+        addPrivateTool(alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool')
+        alg.selectionTool.minPt = 20
+        alg.selectionTool.maxEta = 2.5
+        alg.selectionDecoration = 'kinematicSelectionBtag,as_char'
+        seq.append(alg, inputPropName='particles',
+                stageName='selection')
+        # Step 2: truth selection using HadronConeExclTruthLabelID
+        alg = createAlgorithm('CP::AsgSelectionAlg', 'JetIsBtagTruthSelectionAlg'+postfix)
+        alg.preselection = 'kinematicSelectionBtag,as_char'
+        addPrivateTool(alg, 'selectionTool', 'CP::AsgIntValueSelectionTool')
+        alg.selectionTool.selectionFlag = 'HadronConeExclTruthLabelID'
+        alg.selectionTool.acceptedValues = [5]
+        alg.selectionDecoration = 'IsBjet,as_char'
+        seq.append(alg, inputPropName='particles',
+                stageName='selection')
 
     # record all the selections each subfunction makes
     seq.addMetaConfigDefault ("selectionDecorNames", [])
@@ -348,7 +369,7 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
     if largeRMass not in ["Comb", "Calo", "TCC", "TA"]:
         raise ValueError ("Invalid large-R mass defintion {0}!".format(largeRMass) )
 
-    if jetInput not in ["LCTopo", "TrackCaloCluster"]:
+    if jetInput not in ["LCTopo", "TrackCaloCluster", "UFOCSSK"]:
         raise ValueError (
             "Unsupported input type '{0}' for large-R jets!".format(jetInput) )
     if jetInput == "TrackCaloCluster":
@@ -357,7 +378,7 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
             raise ValueError(
                 "Unsupported large-R TCC jet mass '{0}'!".format(largeRMass) )
         configFile = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"
-    else:
+    elif jetInput == "LCTopo":
         if largeRMass == "Comb":
             configFile = "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config"
         elif largeRMass == "Calo":
@@ -366,6 +387,9 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
             configFile = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"
         else:
             configFile = "JES_MC16recommendation_FatJet_Trimmed_JMS_TA_12Oct2018.config"
+    else:
+        configFile = "JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config"
+
     # Prepare the jet calibration algorithm
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg'+postfix )
     addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
@@ -375,18 +399,20 @@ def makeLargeRJetAnalysisSequence( seq, dataType, jetCollection,
     alg.calibrationTool.IsData = 0
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'calibration' )
 
-    # Jet uncertainties
-    alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesAlg'+postfix )
-    # R=1.0 jets have a validity range 
-    alg.outOfValidity = 2 # SILENT
-    alg.outOfValidityDeco = 'outOfValidity'
-    addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
-    alg.uncertaintiesTool.JetDefinition = jetCollection[:-4]
-    alg.uncertaintiesTool.ConfigFile = \
-        "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
-    alg.uncertaintiesTool.MCType = "MC16a"
-    alg.uncertaintiesTool.IsData = (dataType == "data")
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = largeRSysts, stageName = 'calibration',
-                metaConfig = {'selectionDecorNames' : ['outOfValidity'],
-                              'selectionDecorCount' : [1]} )
+    if jetInput == "LCTopo":
+        # Jet uncertainties
+        alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesAlg'+postfix )
+        # R=1.0 jets have a validity range
+        alg.outOfValidity = 2 # SILENT
+        alg.outOfValidityDeco = 'outOfValidity'
+        addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
+        alg.uncertaintiesTool.JetDefinition = jetCollection[:-4]
+        alg.uncertaintiesTool.ConfigFile = "rel21/Moriond2018/R10_{0}Mass_all.config".format(largeRMass)
+        alg.uncertaintiesTool.MCType = "MC16a"
+        alg.uncertaintiesTool.IsData = (dataType == "data")
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                    affectingSystematics = largeRSysts, stageName = 'calibration',
+                    metaConfig = {'selectionDecorNames' : ['outOfValidity'],
+                                  'selectionDecorCount' : [1]} )
+
+    return seq

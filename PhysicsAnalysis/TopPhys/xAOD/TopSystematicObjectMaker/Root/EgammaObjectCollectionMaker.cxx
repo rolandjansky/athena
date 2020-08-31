@@ -212,7 +212,7 @@ namespace top {
                      "Failed to apply photon isolation leakage correction");
 
           // Only apply shower shape fudging on full simulation MC
-          if (m_config->isMC() && !m_config->isAFII() && m_recomputePhotonFudge) {
+          if (m_config->isMC() && !m_config->isAFII() && m_recomputePhotonFudge && m_config->getDerivationStream() != "PHYS") {
             if (m_photonFudgeTool->applyCorrection(*photon) == 0) { // 0: error, 1: OutOfRange (not possible), 2: OK
               // ElectronPhotonShowerShapeFudgeTool::applyCorrection can return an error for 3 reasons
               // 1) shower shapes not all found, 2) bad cluster, 3) shower shapes not all set.

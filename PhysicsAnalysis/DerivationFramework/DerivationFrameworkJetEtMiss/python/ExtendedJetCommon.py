@@ -50,6 +50,53 @@ def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
     addTrimmedJets('AntiKt', 1.0, 'TrackCaloCluster', rclus=0.2, ptfrac=0.05, mods="tcc_groomed",
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
+
+##################################################################
+# Helpers for UFOs
+##################################################################
+
+def addUFOs(sequence,outputlist,doCHS=False):
+    addCHSPFlowObjects()
+
+    ## Add PFlow constituents
+    from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+    pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+    job = AlgSequence()
+    if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in job.jetalg.Tools]:
+        job.jetalg.Tools += [pflowCSSKSeq]
+
+    # Add UFO constituents
+    from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+    ufocsskAlg = runUFOReconstruction(sequence, ToolSvc, PFOPrefix="CSSK", caloClusterName="LCOriginTopoClusters")
+    if doCHS:
+        ufoAlg = runUFOReconstruction(sequence, ToolSvc, PFOPrefix="CHS", caloClusterName="LCOriginTopoClusters")
+
+##################################################################
+# Ungroomed large-R UFO CSSK jets
+##################################################################
+
+def addDefaultUFOJets(sequence,outputlist,doCHS=False):
+    addUFOs(sequence,outputlist,doCHS=doCHS)
+    addAntiKt10UFOCSSKJets(sequence,outputlist)
+    if doCHS:
+        addAntiKt10UFOCHSJets(sequence,outputlist)
+
+##################################################################
+# Precisionm recommendation large-R jets
+##################################################################
+
+def addDefaultUFOSoftDropJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+
+    if DerivationFrameworkIsMonteCarlo and dotruth:
+        addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed",
+                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    
+    addDefaultUFOJets(sequence,outputlist)
+
+    addSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.1, mods="tcc_groomed", 
+                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+
 ##################################################################
 # Jet helpers for ungroomed jets (removed in xAOD reduction)
 ##################################################################
@@ -795,6 +842,8 @@ def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMPFlow")
+updateJVT_xAODColl("AntiKt4EMPFlow")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")

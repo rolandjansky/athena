@@ -192,6 +192,15 @@ SeqSUSY8 += CfgMgr.DerivationFramework__DerivationKernel(
   AugmentationTools = AugmentationTools,
   ThinningTools = thinningTools)
 
+
+
+## Adding decorations for fJVT PFlow jets                                                                                                                                                                   #re-tag PFlow jets so they have b-tagging info.                                                                                                                                                             
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY8)
+
+
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY8, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY8, algname='JetForwardJvtToolBDTAlg')
+
 #====================================================================
 # CONTENT LIST
 #====================================================================
@@ -205,6 +214,10 @@ SUSY8SlimmingHelper.SmartCollections = [
   "InDetTrackParticles",
   "Photons",
   "MET_Reference_AntiKt4EMTopo",
+  "AntiKt4EMPFlowJets",
+  "MET_Reference_AntiKt4EMPFlow",
+  "AntiKt4EMPFlowJets_BTagging201903",
+  "BTagging_AntiKt4EMPFlow_201903",
   "PrimaryVertices"
 ]
 SUSY8SlimmingHelper.AllVariables = [

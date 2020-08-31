@@ -8,5 +8,5 @@ AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsCPContent = [
 "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJetsAux.R10TruthLabel_R21Consolidated",
 "AntiKt10UFOCSSKJets",
 "AntiKt10UFOCSSKJetsAux.NumTrkPt500",
-"AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostBHadronsFinalCount",
+"AntiKt10TruthRecursiveSoftDropBeta100Zcut5NinfJets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
 ]

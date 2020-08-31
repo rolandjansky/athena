@@ -1,8 +1,10 @@
 <lcgdict>
 
+   <class name="CP::AsgIntValueSelectionTool" />
    <class name="CP::AsgFlagSelectionTool" />
    <class name="CP::AsgPtEtaSelectionTool" />
 
+   <class name="CP::AsgClassificationDecorationAlg" />
    <class name="CP::AsgCutBookkeeperAlg" />
    <class name="CP::AsgEventScaleFactorAlg" />
    <class name="CP::AsgLeptonTrackSelectionAlg" />

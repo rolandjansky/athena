@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from JetRecConf import JetPseudojetRetriever
@@ -117,21 +117,21 @@ def declareDefaultTools():
     GhostScale = 0.0
   )
 
-  # CSSKUFOs.
+  # UFOs with CSSK.
   jtm += PseudoJetGetter(
-    "csskufoget",
-    InputContainer = "CSSKUFO",
+    "ufocsskget",
+    InputContainer = "UFOCSSK",
     Label = "UFO",
-    OutputContainer = "PseudoJetCSSKUFO",
+    OutputContainer = "PseudoJetUFOCSSK",
     SkipNegativeEnergy = True,
     GhostScale = 0.0
   )
 
   jtm += PseudoJetGetter(
-    "chsufoget",
-    InputContainer = "CHSUFO",
+    "ufochsget",
+    InputContainer = "UFOCHS",
     Label = "UFO",
-    OutputContainer = "PseudoJetCHSUFO",
+    OutputContainer = "PseudoJetUFOCHS",
     SkipNegativeEnergy = True,
     GhostScale = 0.0
   )

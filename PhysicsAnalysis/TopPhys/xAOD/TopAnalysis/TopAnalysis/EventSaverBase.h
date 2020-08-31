@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EVENTSAVERBASE_H_
@@ -40,6 +40,12 @@ namespace top {
      */
     virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file,
                             const std::vector<std::string>& extraBranches) = 0;
+
+    /**
+     * @brief Method to execute any calculations common for
+     * reco/particle/parton level.
+     */
+    virtual void execute() {return;}
 
     /**
      * @brief I guess you want to save an event sometimes to.

@@ -189,6 +189,8 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
 	std::string m_name_TagScaleFactor;
+	std::string m_name_EffSF;
+	std::string m_name_Efficiency;
         // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
@@ -261,6 +263,8 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
 	// accessor to taggign efficiency SF
 	SG::AuxElement::Accessor<float> m_accTagScaleFactor;
+	SG::AuxElement::Accessor<float> m_accEffSF;
+	SG::AuxElement::Accessor<float> m_accEfficiency;
 };
     
 

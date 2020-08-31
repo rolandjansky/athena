@@ -371,6 +371,15 @@ FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
 FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
 
 
+#--------LF AUGMENTATION-----------------------------------------------
+for jc in ["AntiKt4EMTopoJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903","AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"]:
+#also add some b-tagging jet-wise information
+    FTAG1Seq += CfgMgr.BTagLFJetAugmenter(
+        "FTAG1LFJetAugmenter_"+jc,
+        OutputLevel=INFO,
+        JetCollectionName=jc
+    )
+
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG1SlimmingHelper.AppendToDictionary = {

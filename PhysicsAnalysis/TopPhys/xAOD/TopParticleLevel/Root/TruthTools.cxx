@@ -30,6 +30,82 @@ using namespace TopParticleLevel;
 namespace top {
   namespace truth {
     
+    
+    void initCommonMuonHistoryInfo(const xAOD::IParticle* muon, bool doPartonHistory)
+    {
+      muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+      muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+      muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+      muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+      muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+      
+      if(doPartonHistory)
+      {
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+      }
+    }
+    
+    void initRecoMuonHistoryInfo(const xAOD::Muon* muon, bool doPartonHistory)
+    {
+      muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+      muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+    initCommonMuonHistoryInfo(muon,doPartonHistory);
+    }
+    void initTruthMuonHistoryInfo(const xAOD::TruthParticle* truthmu, bool doPartonHistory)
+    {
+      truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")=false;
+      if(doPartonHistory) truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")=false;
+      initCommonMuonHistoryInfo(truthmu,doPartonHistory);
+      
+    }
+    
+    void copyRecoMuonHistoryInfo(const xAOD::Muon* m_origin, const xAOD::Muon* m_target)
+    {
+      copyCommonMuonHistoryInfo(m_origin,m_target);
+      m_target->auxdecor<bool>("hasRecoMuonHistoryInfo") = m_origin->auxdecor<bool>("hasRecoMuonHistoryInfo");
+      m_target->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthMuonLink");
+    }
+    
+    void copyTruthMuonHistoryInfo(const xAOD::TruthParticle* tm_origin, const xAOD::TruthParticle* tm_target)
+    {
+      copyCommonMuonHistoryInfo(tm_origin,tm_target);
+      tm_target->auxdecor<bool>("hasTruthMuonHistoryInfo")= tm_origin->auxdecor<bool>("hasTruthMuonHistoryInfo");
+      tm_target->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")= tm_origin->auxdecor<bool>("hasTruthMuonPartonHistoryInfo");
+    }
+    
+    void copyCommonMuonHistoryInfo(const xAOD::IParticle*  m_origin, const xAOD::IParticle* m_target)
+    {
+      if(!m_origin->isAvailable<top::LepParticleOriginFlag>("LepParticleOriginFlag"))
+      {
+        ATH_MSG_ERROR(" top::truth::copyCommonMuonHistoryInfo called with an origin muon which has no truth info!");
+        throw;
+      }
+      m_target->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = m_origin->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag");
+      m_target->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthMotherLink");
+      m_target->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink");
+      m_target->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink");
+      m_target->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink");
+      
+      if(m_origin->isAvailable<top::LepPartonOriginFlag>("LepPartonOriginFlag"))
+      {
+        m_target->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = m_origin->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink");
+        m_target->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = m_origin->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink");
+      }
+    }
+    
     const xAOD::TruthParticle* getTruthMuonAssociatedToRecoMuon(const xAOD::Muon* muon)
     {
       if(!muon) return 0;
@@ -72,25 +148,7 @@ namespace top {
       
       if(!muon->isAvailable<bool>("hasRecoMuonHistoryInfo")) //add default values
       {
-        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
-        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
-        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
-        
-        if(doPartonHistory)
-        {
-          muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
-          muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
-        }
+        initRecoMuonHistoryInfo(muon,doPartonHistory);
       }
       else if(muon->auxdecor<bool>("hasRecoMuonHistoryInfo"))
       {
@@ -118,32 +176,18 @@ namespace top {
       
       getTruthMuonHistory(truthmu, doPartonHistory, shAlgo, verbose);
       //we attach the truth muon to the reco muon
+      copyCommonMuonHistoryInfo(truthmu,muon);
+      
       muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = truthmu;
-      muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag");
-      muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink");
-      muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink");
-      muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink");
-      muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink");
-      
-      if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: written LepParticleOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag")));
-      
-      if(doPartonHistory)
-      {
-        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink");
-        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink");
-        
-        if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: written LepPartonOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag")));
-      }
-      
 
-      if(verbose) ATH_MSG_INFO("getRecoMuonHistory:: exiting function");
+      if(verbose)
+      {
+        ATH_MSG_INFO("getRecoMuonHistory:: written LepParticleOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag")));
+        if(doPartonHistory) ATH_MSG_INFO("getRecoMuonHistory:: written LepPartonOriginFlag decoration = "<<static_cast<int>(muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag")));
+        ATH_MSG_INFO("getRecoMuonHistory:: exiting function");
+      }
       return;
+      
     }
     
     ////getTruthMuonHistory/////
@@ -166,12 +210,7 @@ namespace top {
       
       if(!truthmu->isAvailable<bool>("hasTruthMuonHistoryInfo")) //add default values
       {
-        truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")=false;
-        truthmu->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::Unknown;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0; 
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        initTruthMuonHistoryInfo(truthmu,doPartonHistory);
       }
       else if(truthmu->auxdecor<bool>("hasTruthMuonHistoryInfo")) 
       {
@@ -275,15 +314,7 @@ namespace top {
       
       if(!truthmu->isAvailable<bool>("hasTruthMuonPartonHistoryInfo"))//default values
       {
-        truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")=false;
-        truthmu->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
-        truthmu->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        initTruthMuonHistoryInfo(truthmu,true);
       }
       else if(truthmu->auxdecor<bool>("hasTruthMuonPartonHistoryInfo")) 
       {

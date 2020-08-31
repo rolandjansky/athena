@@ -180,7 +180,7 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow',             EMCPFlow = 'emcpflow', 
                       Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
-                      PV0Track='pv0track', TrackCaloCluster='tcc', UFOCSSK='csskufo')
+                      PV0Track='pv0track', TrackCaloCluster='tcc', UFOCSSK='ufocssk')
 
     getters = getterMap[inputtype]
 
@@ -473,7 +473,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
                           Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
-                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'csskufo', UFOCHS = 'chsufo' )
+                          PV0Track = 'pv0track', TrackCaloCluster = 'tcc', UFOCSSK = 'ufocssk', UFOCHS = 'ufochs' )
 
         # set input pseudojet getter -- allows for custom getters
         if customGetters is None:

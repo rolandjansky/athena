@@ -320,8 +320,6 @@ namespace met {
       if(MC::isNonInteracting(truth->pdgId())) continue;
       float etasize = 0.025/2;
       float phisize = 0.025/2;
-      bool isSuperCluster = false;
-      float Rsize = 0.;
       switch(el->caloCluster()->clusterSize()) {
       case xAOD::CaloCluster::SW_55ele:
 	etasize *= 5; phisize *=5;
@@ -332,10 +330,8 @@ namespace met {
       case xAOD::CaloCluster::SW_37ele:
 	etasize *= 3; phisize *=7;
 	break;
-      case xAOD::CaloCluster::SuperCluster:
-	isSuperCluster = true;
-	Rsize = el->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
-	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+      case xAOD::CaloCluster::SuperCluster:	
+	etasize *= 3; phisize *=5;
 	break;
       default:
 	ATH_MSG_WARNING("Unexpected electron cluster size " << el->caloCluster()->clusterSize() << " received!");
@@ -343,8 +339,7 @@ namespace met {
       }
       float deltaEta(fabs(truth->eta()-el->caloCluster()->eta()));
       float deltaPhi(fabs(truth->p4().DeltaPhi(el->caloCluster()->p4())));
-      if( (isSuperCluster && (deltaEta*deltaEta+deltaPhi*deltaPhi)<Rsize*Rsize ) ||
-	  (deltaEta<etasize && deltaPhi<phisize) ) {
+      if(deltaEta<etasize && deltaPhi<phisize) {
 	bool skip(false);
 	for(const auto& truthobj : truthlist) {
 	  const xAOD::TruthParticle *truth2 = static_cast<const xAOD::TruthParticle*>(truthobj);
@@ -412,8 +407,6 @@ namespace met {
       if(MC::isNonInteracting(truth->pdgId())) continue;
       float etasize(0.025/2);
       float phisize(0.025/2);
-      bool isSuperCluster = false;
-      float Rsize = 0.;
       switch(ph->caloCluster()->clusterSize()) {
       case xAOD::CaloCluster::SW_55gam:
       case xAOD::CaloCluster::SW_55Econv:
@@ -429,9 +422,7 @@ namespace met {
 	etasize *= 3; phisize *=7;
 	break;
       case xAOD::CaloCluster::SuperCluster:
-	isSuperCluster = true;
-	Rsize = ph->caloCluster()->getMomentValue( xAOD::CaloCluster::SECOND_R );
-	if (Rsize<0.) {ATH_MSG_WARNING("Invalid SECOND_R moment retrieved!");}
+	etasize *= 3; phisize *=5;
 	break;
       default:
 	ATH_MSG_WARNING("Unexpected photon cluster size " << ph->caloCluster()->clusterSize() << " received!");
@@ -439,8 +430,7 @@ namespace met {
       }
       float deltaEta(fabs(truth->eta()-ph->caloCluster()->eta()));
       float deltaPhi(fabs(truth->p4().DeltaPhi(ph->caloCluster()->p4())));
-      if( (isSuperCluster && (deltaEta*deltaEta+deltaPhi*deltaPhi)<Rsize*Rsize ) ||
-	  (deltaEta<etasize && deltaPhi<phisize) ) {
+      if (deltaEta<etasize && deltaPhi<phisize) {
 	bool skip(false);
 	for(const auto& truthobj : truthlist) {
 	  const xAOD::TruthParticle *truth2 = static_cast<const xAOD::TruthParticle*>(truthobj);

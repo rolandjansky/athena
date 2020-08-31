@@ -235,15 +235,8 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
           const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 
 
-          const xAOD::TruthParticleContainer* myTruthParticle(nullptr);
-          // The truth collection is needed to determine the charge of the particles
-          if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),
-                                     false).find("AntiKt4EMPFlowJets") != std::string::npos) {
-            top::check(evtStore()->retrieve(myTruthParticle,
-                                            "TruthParticles"), "Failed to retrieve truth particle JetContainer");
-          }
-
           for (auto clus_itr : subjet_raw->getConstituents()) {
+            
             TLorentzVector temp_p4;
             temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
 
@@ -252,22 +245,17 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
             // substructure
             if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),
                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) {
-              bool isCharged = false;
-              bool found = false;
-
-              for (auto truthParticle: *myTruthParticle) {
-                double epsilon = 0.00001;
-                if (std::abs(truthParticle->pt() - clus_itr->pt()) < epsilon &&
-                    std::abs(truthParticle->eta() - clus_itr->eta()) < epsilon &&
-                    std::abs(truthParticle->phi() - clus_itr->phi()) < epsilon &&
-                    std::abs(truthParticle->m() - clus_itr->m()) < epsilon) {
-                  isCharged = truthParticle->isCharged();
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) ATH_MSG_WARNING("Substructure element not in the TruthParticle collection");
-              if (!isCharged) continue;
+              
+              const xAOD::TruthParticle* tp = dynamic_cast<const xAOD::TruthParticle*>(clus_itr->rawConstituent());  
+            
+              if( tp == nullptr) 
+                  continue;
+            
+              // Do not use charged particles
+              if (tp->charge() == 0) continue;
+              
+              //Apply same track selection used at reco-level
+              if ((clus_itr->pt() < m_config->ghostTrackspT()) || ( std::abs(clus_itr->eta()) > 2.5 ) )  continue;
             }
 
             clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));

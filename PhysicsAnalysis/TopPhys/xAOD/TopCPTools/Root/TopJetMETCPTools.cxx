@@ -544,11 +544,15 @@ namespace top {
       m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
     } else {
       met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");
+      
+      std::string METconfigDir = m_config->METUncertaintiesConfigDir();
+      if (METconfigDir == "Latest") METconfigDir = "METUtilities/run2_13TeV/"; //Find calib files here: /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/METUtilities/
+      top::check(metSyst->setProperty("ConfigPrefix", METconfigDir), "Failed to set METsyst calibration area"); //Set calib area explicitly - removes potential for crash when default area is changed in METSyst code
       // TST (Track soft terms)
       if (m_config->useParticleFlowJets()) {
         top::check(metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config"), "Failed to set property");
       } else {
-        if (m_config->isAFII()) {
+        if (m_config->isAFII() && METconfigDir == "METUtilities/data17_13TeV/prerec_Jan16/") {
           top::check(metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config"), "Failed to set property");
         } else {
           top::check(metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property");

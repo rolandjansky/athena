@@ -15,6 +15,63 @@ namespace top {
     m_config(nullptr) {
     declareProperty("config", m_config);
   }
+  
+  StatusCode CalcTopPartonHistory::buildContainerFromMultipleCollections(const std::vector<std::string> &collections, const std::string& out_contName)
+  {
+    ConstDataVector<DataVector<xAOD::TruthParticle_v1> > *out_cont = new ConstDataVector<DataVector<xAOD::TruthParticle_v1> > (SG::VIEW_ELEMENTS);
+    
+    for(const std::string& collection : collections)
+    {
+      const xAOD::TruthParticleContainer* cont=nullptr;
+      ATH_CHECK(evtStore()->retrieve(cont,collection));
+      for(const xAOD::TruthParticle* p : *cont) out_cont->push_back(p);
+    }
+    
+    //we give control of the container to the store, because in this way we are able to retrieve it as a const data vector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector#ConstDataVector
+    xAOD::TReturnCode save = evtStore()->tds()->record(out_cont,out_contName);
+    if (!save) return StatusCode::FAILURE;
+
+    return StatusCode::SUCCESS;
+  }
+  
+  StatusCode CalcTopPartonHistory::linkBosonCollections() 
+  {
+    return decorateCollectionWithLinksToAnotherCollection("TruthBoson","TruthBosonsWithDecayParticles","AT_linkToTruthBosonsWithDecayParticles");
+  }
+  StatusCode CalcTopPartonHistory::decorateCollectionWithLinksToAnotherCollection(const std::string &collectionToDecorate, const std::string &collectionToLink, const std::string &nameOfDecoration)
+  {
+    const xAOD::TruthParticleContainer* cont1(nullptr);
+    const xAOD::TruthParticleContainer* cont2(nullptr);
+    ATH_CHECK(evtStore()->retrieve(cont1,collectionToDecorate));
+    ATH_CHECK(evtStore()->retrieve(cont2,collectionToLink));
+
+    for(const xAOD::TruthParticle *p : *cont1)
+    {
+      
+      const xAOD::TruthParticle* link =0;
+      for(const xAOD::TruthParticle *p2 : *cont2)
+      {
+        if(p->pdgId()==p2->pdgId() && p->barcode()==p2->barcode())
+        {
+          link=p2;
+          break;
+        }
+      } 
+      p->auxdecor<const xAOD::TruthParticle*>(nameOfDecoration)=link;
+      
+    }
+    return StatusCode::SUCCESS;
+  }
+  
+  const xAOD::TruthParticle* CalcTopPartonHistory::getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* part, const std::string &decorationName)
+  {
+    if(!part->isAvailable<const xAOD::TruthParticle*>(decorationName)) return part;
+  
+    const xAOD::TruthParticle* link=part->auxdecor<const xAOD::TruthParticle*>(decorationName);
+    if(link) return link;
+    
+    return part;
+  }
 
   ///Store the four-momentum of the post-FSR top or anti-top found using statusCodes
   ///This would only work if there is at most one "true" top of each charge (i.e. won't work for SS tops or 4 tops)
@@ -148,10 +205,14 @@ namespace top {
         if (abs(topChildren->pdgId()) == 24) {
           W_p4 = topChildren->p4();  // W boson after FSR
           hasW = true;
-
+          
           // demanding the last W after FSR
           topChildren = findAfterFSR(topChildren);
-
+          
+          //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
+          //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
+          if(m_config->getDerivationStream() == "PHYS") topChildren=getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
+          
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
             const xAOD::TruthParticle* WChildren = topChildren->child(q);
             if (abs(WChildren->pdgId()) < 17) {
@@ -173,8 +234,9 @@ namespace top {
       } //for (size_t k=0; k < particle->nChildren(); k++)
 
       if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
+      
     } //for (const xAOD::TruthParticle* particle : *truthParticles)
-
+    
     return false;
   }
 

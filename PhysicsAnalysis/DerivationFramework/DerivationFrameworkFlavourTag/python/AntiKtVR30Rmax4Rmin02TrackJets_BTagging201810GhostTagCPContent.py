@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent = [
-"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag",
-"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagAux.pt.eta.phi.m.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.has_ATLASRECTS_5027_bug.relativeDeltaRToVRJet.HadronGhostTruthLabelID.HadronGhostExtendedTruthLabelID.",
-]
+from VRTrackJetCPContent import getVRTrackJetCPContent as getContent
+
+AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTagCPContent = getContent(
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag")
+

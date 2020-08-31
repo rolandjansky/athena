@@ -471,6 +471,7 @@ namespace ST {
     std::string m_trigMatchingPrefix; /// Prefix for trigger matchiing container name
 
     std::string m_jetUncertaintiesConfig;
+    std::string m_jetUncertaintiesAnalysisFile;
     std::string m_jetUncertaintiesCalibArea;
     bool m_jetUncertaintiesPDsmearing;
 
@@ -712,6 +713,7 @@ namespace ST {
     std::string m_defaultTrackJets;
     std::string m_fatJets;
     std::string m_TCCJets;
+    std::string m_defaultTruthJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
@@ -728,6 +730,7 @@ namespace ST {
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesPDSmearTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TCCjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;

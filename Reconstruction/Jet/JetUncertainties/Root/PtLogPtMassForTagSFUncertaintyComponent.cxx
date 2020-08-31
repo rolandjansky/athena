@@ -112,7 +112,8 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==LargeRJetTruthLabel::tqqb || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
 	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t || jetFlavorLabel==LargeRJetTruthLabel::other_From_t)) ||
 	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==LargeRJetTruthLabel::Wqq || jetFlavorLabel==LargeRJetTruthLabel::Zqq || jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t)) ||
-	   (m_label==CompFlavorLabelVar::W_qq && (jetFlavorLabel==LargeRJetTruthLabel::Wqq || jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t)) ||
+	   (m_label==CompFlavorLabelVar::W_qq_From_t && jetFlavorLabel==LargeRJetTruthLabel::Wqq_From_t) ||
+	   (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel==LargeRJetTruthLabel::Wqq) ||
 	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==LargeRJetTruthLabel::Zqq) ||
 	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==LargeRJetTruthLabel::notruth || jetFlavorLabel==LargeRJetTruthLabel::qcd || jetFlavorLabel==LargeRJetTruthLabel::other_From_V)) ) {
 	isValidLabel=true;

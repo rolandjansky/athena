@@ -123,13 +123,12 @@ namespace CP {
    private:
 
      MuonSelectionTool & operator=(const MuonSelectionTool &right);
-     MuonSelectionTool( const MuonSelectionTool& toCopy );
+
      const std::string m_name;
       /// Maximum pseudorapidity for the selected muons
      double m_maxEta;
      /// xAOD::Muon::Quality m_quality;
      int  m_quality;
-     bool m_isSimulation;
      
      /// Object used to store the last decision
      mutable Root::TAccept m_accept;
@@ -156,13 +155,12 @@ namespace CP {
      std::string m_BMVcutFile;
 
      /// Checks for each histogram  
-     StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
+     StatusCode getHist( TFile* file, const char* histName, std::unique_ptr<TH2D>& hist );
      // 
-     std::string m_tightWP_rootFile;
-     TH2D* m_tightWP_lowPt_rhoCuts;
-     TH2D* m_tightWP_lowPt_qOverPCuts;
-     TH2D* m_tightWP_mediumPt_rhoCuts;
-     TH2D* m_tightWP_highPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_lowPt_qOverPCuts;
+     std::unique_ptr<TH2D> m_tightWP_mediumPt_rhoCuts;
+     std::unique_ptr<TH2D> m_tightWP_highPt_rhoCuts;
      //
      std::unique_ptr<TF1> m_BMVcutFunction_barrel;
      std::unique_ptr<TF1> m_BMVcutFunction_endcap;
@@ -184,10 +182,10 @@ namespace CP {
      bool isBMG(const float eta, const float phi) const;
 
      //TMVA readers for low-pT working point
-     TMVA::Reader* readerE_MUID;
-     TMVA::Reader* readerO_MUID;
-     TMVA::Reader* readerE_MUGIRL;
-     TMVA::Reader* readerO_MUGIRL;
+     std::unique_ptr<TMVA::Reader> readerE_MUID;
+     std::unique_ptr<TMVA::Reader> readerO_MUID;
+     std::unique_ptr<TMVA::Reader> readerE_MUGIRL;
+     std::unique_ptr<TMVA::Reader> readerO_MUGIRL;
 
      //TMVA initialize function
      void PrepareReader(TMVA::Reader* reader);

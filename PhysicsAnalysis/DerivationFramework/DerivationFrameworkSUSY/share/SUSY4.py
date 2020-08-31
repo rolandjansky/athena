@@ -11,8 +11,13 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addBSMAndDownstreamParticles, addHFAndDownstreamParticles, addPVCollection, addTopQuarkAndDownstreamParticles
   addStandardTruthContents()
+  addBSMAndDownstreamParticles()
+  addHFAndDownstreamParticles()
+  addTopQuarkAndDownstreamParticles()
+  addPVCollection()
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY4Stream.StreamName
@@ -63,9 +68,9 @@ thinningTools.append(SUSY4MuonTPThinningTool)
 
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-SUSY4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    	= "SUSY4ElectronTPThinningTool",
+SUSY4ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                     = "SUSY4ElectronTPThinningTool",
                                                                                  ThinningService        = SUSY4ThinningHelper.ThinningSvc(),
-                                                                                 SGKey             	    = "Electrons",
+                                                                                 SGKey                  = "Electrons",
                                                                                  InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY4ElectronTPThinningTool
 thinningTools.append(SUSY4ElectronTPThinningTool)
@@ -138,13 +143,11 @@ if DerivationFrameworkIsMonteCarlo:
 
 muonsRequirements = '(Muons.pt >= 15.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
-#jetRequirements = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 22.*GeV && (abs(AntiKt4EMTopoJets.JetConstitScaleMomentum_eta)<2.2))'
 jetRequirements = '(AntiKt4EMTopoJets.DFCommonJets_Calib_pt >= 40.*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.5)'
 
-# expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) || (HLT_5j.*) || (HLT_6j.*) || (HLT_7j.*) )'
 expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) )'
 
-triggers = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*", "HLT_g45_loose_5j45_0eta240", "HLT_g45_loose_6j45_0eta240"]
+triggers = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*", "HLT_g45_loose_5j45_0eta240", "HLT_g45_loose_6j45_0eta240", "HLT_ht1000_L1J100"]
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__FilterCombinationOR
 SUSY4ObjectSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4ObjectSkimmingTool",
@@ -266,6 +269,13 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY4)
 
 
+
+## Adding decorations for fJVT PFlow jets
+
+                                                                                                                                                                                                            
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY4, algname='JetForwardPFlowJvtToolAlg')
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY4, algname='JetForwardJvtToolBDTAlg')
+
 #SeqSUSY4 += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 # COMMENTED OUT FOR R21
@@ -335,15 +345,45 @@ SUSY4SlimmingHelper.IncludeEtMissTriggerContent = False
 SUSY4SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-SUSY4SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer','AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
-                                          'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                          'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                          'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
-                                          'SUSY4TRUTHSherpaME':'xAOD::TruthParticleContainer','SUSY4TRUTHSherpaMEAux':'xAOD::TruthParticleAuxContainer'}
+if DerivationFrameworkIsMonteCarlo:
+   SUSY4SlimmingHelper.AppendToDictionary = {
+      'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets': 'xAOD::JetContainer', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux': 'xAOD::JetAuxContainer',
+      #'TruthTop':                   'xAOD::TruthParticleContainer', 'TruthTopAux':                   'xAOD::TruthParticleAuxContainer',
+      #'TruthBSM':                   'xAOD::TruthParticleContainer', 'TruthBSMAux':                   'xAOD::TruthParticleAuxContainer',
+      'TruthBoson':                 'xAOD::TruthParticleContainer', 'TruthBosonAux':                 'xAOD::TruthParticleAuxContainer',
+      'SUSY4TRUTHSherpaME':         'xAOD::TruthParticleContainer', 'SUSY4TRUTHSherpaMEAux':         'xAOD::TruthParticleAuxContainer',
+      'TruthBSMWithDecayParticles': 'xAOD::TruthParticleContainer', 'TruthBSMWithDecayParticlesAux': 'xAOD::TruthParticleAuxContainer',
+      'TruthHFWithDecayParticles':  'xAOD::TruthParticleContainer', 'TruthHFWithDecayParticlesAux':  'xAOD::TruthParticleAuxContainer',
+      'TruthBSMWithDecayVertices':  'xAOD::TruthVertexContainer',   'TruthBSMWithDecayVerticesAux':  'xAOD::TruthVertexAuxContainer',
+      'TruthHFWithDecayVertices':   'xAOD::TruthVertexContainer',   'TruthHFWithDecayVerticesAux':   'xAOD::TruthVertexAuxContainer',
+      'TruthPrimaryVertices':       'xAOD::TruthVertexContainer',   'TruthPrimaryVerticesAux':       'xAOD::TruthVertexAuxContainer'
+      }
+else:
+   SUSY4SlimmingHelper.AppendToDictionary = {
+      'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets': 'xAOD::JetContainer', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux': 'xAOD::JetAuxContainer'
+      }
+
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 if DerivationFrameworkIsMonteCarlo:
+  SUSY4SlimmingHelper.AllVariables += [
+                                      "TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", 
+                                      #"TruthTop", # Remove TruthTop as it overlaps with addTopQuarkAndDownstreamParticles()
+                                      #"TruthBSM", # Remove TruthBSM  as it overlaps with TruthBSMWithDecayParticles
+                                      "TruthBoson", "SUSY4TRUTHSherpaME",
+                                      "TruthBSMWithDecayParticles", "TruthHFWithDecayParticles", "TruthBSMWithDecayVertices", "TruthHFWithDecayVertices",
+                                      "TruthPrimaryVertices"
+                                       ]
 
-  SUSY4SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "SUSY4TRUTHSherpaME"]
+
+#==============================================================================
+# Extra info for quark-gluon tagging 
+#==============================================================================
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+	  truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqSUSY4,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+SUSY4SlimmingHelper.ExtraVariables += ['AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta']
 
 SUSY4SlimmingHelper.AppendContentToStream(SUSY4Stream) # AppendContentToStream must always go last

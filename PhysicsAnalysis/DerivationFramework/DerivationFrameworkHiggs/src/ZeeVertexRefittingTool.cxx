@@ -107,6 +107,8 @@ namespace DerivationFramework {
     }
     if (!pv) {
       ATH_MSG_WARNING("Primary vertex not found");
+      CHECK(evtStore()->record( refittedPVContainer.release(), m_refitpvContainerName));
+      CHECK(evtStore()->record( refittedPVAuxContainer.release(), m_refitpvContainerName+"Aux."));
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("Found PV");

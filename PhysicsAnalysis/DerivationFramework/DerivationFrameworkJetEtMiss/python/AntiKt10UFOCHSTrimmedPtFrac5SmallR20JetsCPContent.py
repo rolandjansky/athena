@@ -8,5 +8,5 @@ AntiKt10UFOCHSTrimmedPtFrac5SmallR20JetsCPContent = [
 "AntiKt10UFOCHSTrimmedPtFrac5SmallR20JetsAux.R10TruthLabel_R21Consolidated",
 "AntiKt10UFOCHSJets",
 "AntiKt10UFOCHSJetsAux.NumTrkPt500",
-"AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostBHadronsFinalCount",
+"AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau2_wta.Tau3_wta.Qw.GhostCHadronsFinalCount.GhostBHadronsFinalCount",
 ]

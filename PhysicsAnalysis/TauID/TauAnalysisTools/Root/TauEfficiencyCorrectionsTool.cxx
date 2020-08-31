@@ -663,7 +663,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_2019_summer()
       ATH_CHECK(tTool->setProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck));
       ATH_CHECK(tTool->setProperty("WP", ConvertEleOLRToString(m_iOLRLevel)));
 
-      if (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM )
+      if (m_iOLRLevel == ELEBDTLOOSE || m_iOLRLevel == ELEBDTMEDIUM || (m_iOLRLevel == ELEBDTTIGHT && !m_sAFII) )
       {
         ATH_CHECK(tTool->setProperty("InputFilePath", m_sInputFilePathEleBDTElectron));
         ATH_CHECK(tTool->setProperty("UseTauSubstructure", true));

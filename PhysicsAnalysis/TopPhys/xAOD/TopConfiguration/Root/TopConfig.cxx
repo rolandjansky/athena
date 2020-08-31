@@ -39,7 +39,7 @@ namespace top {
     m_useRCJets(false),
     m_useVarRCJets(false),
     m_useJetGhostTrack(false),
-
+    m_useTracks(false),
     m_useTruthParticles(false),
     m_useTruthElectrons(false),
     m_useTruthMuons(false),
@@ -157,7 +157,6 @@ namespace top {
     m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
-    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
 
     m_sgKeyTruthEvent("TruthEvents"),
     m_sgKeyMCParticle("SetMe"),
@@ -174,6 +173,9 @@ namespace top {
     m_sgKeyTopSystematicEventsLoose("TopSystematicEventsLoose"),
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
+    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
+    m_sgKeyTracks("SetMe"),
+
 
     m_jetResponseMatchingDeltaR(-1),
 
@@ -257,6 +259,14 @@ namespace top {
     m_saveFailForwardJVTJets(false),
     m_fJVTWP("None"),
 
+    // MET configuration
+    m_METUncertaintiesConfigDir("SetMe"),
+    
+    // Ghost Track Configuration
+    m_ghostTrackspT(500.),
+    m_ghostTracksVertexAssociation("nominal"),
+    m_ghostTracksQuality("TightPrimary"),
+
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
     m_largeRJetUncertainties_NPModel("CategoryReduction"),
@@ -284,6 +294,8 @@ namespace top {
     m_useVarRCJetSubstructure(false),
     m_useVarRCJetAdditionalSubstructure(false),
 
+    m_trackQuality("SetMe"),
+
     m_JSF(1.0),
     m_bJSF(1.0),
 
@@ -300,6 +312,7 @@ namespace top {
     // Particle Level / Truth Configuration
     m_truth_electron{25000., 2.5, true, false},
     m_truth_muon{25000., 2.5, true, false},
+    m_truth_softmuon{4000., 2.5},
     m_truth_photon{25000., 2.5, "SET_ME", "SET_ME"},
     m_truth_jet{25000., 2.5},
     // -----------------------------------------------]]]
@@ -355,6 +368,7 @@ namespace top {
     m_systHashJets(nullptr),
     m_systHashLargeRJets(nullptr),
     m_systHashTrackJets(nullptr),
+    m_systHashTracks(nullptr),
     m_systHashMET(nullptr),
 
     m_systHashAll(nullptr),
@@ -372,6 +386,7 @@ namespace top {
     m_systMapJets(nullptr),
     m_systMapLargeRJets(nullptr),
     m_systMapTrackJets(nullptr),
+    m_systMapTracks(nullptr),
     m_systMapMET(nullptr),
 
     m_systSgKeyMapPhotons(nullptr),
@@ -385,6 +400,7 @@ namespace top {
     m_systSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
     m_systSgKeyMapLargeRJets(nullptr),
     m_systSgKeyMapTrackJets(nullptr),
+    m_systSgKeyMapTracks(nullptr),
     m_systSgKeyMapMET(nullptr),
 
     m_systAllSgKeyMapPhotons(nullptr),
@@ -396,6 +412,7 @@ namespace top {
     m_systAllSgKeyMapJets(nullptr),
     m_systAllSgKeyMapLargeRJets(nullptr),
     m_systAllSgKeyMapTrackJets(nullptr),
+    m_systAllSgKeyMapTracks(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
@@ -418,6 +435,8 @@ namespace top {
     m_systAllSgKeyMapLargeRJetsTDSAux(nullptr),
     m_systAllSgKeyMapTrackJetsTDS(nullptr),
     m_systAllSgKeyMapTrackJetsTDSAux(nullptr),
+    m_systAllSgKeyMapTracksTDS(nullptr),
+    m_systAllSgKeyMapTracksTDSAux(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDSAux(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtractionTDS(nullptr),
@@ -447,7 +466,8 @@ namespace top {
     m_useBadBatmanCleaning(true),
     m_badBatmanCleaningMin(276262),
     m_badBatmanCleaningMax(311481),
-    m_useEventLevelJetCleaningTool(false) {
+    m_useEventLevelJetCleaningTool(false),
+    m_year("UNKNOWN") {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string> > (new std::vector<std::string> );
 
     m_systHashPhotons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -459,6 +479,7 @@ namespace top {
     m_systHashJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashLargeRJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashTrackJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
+    m_systHashTracks = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashMET = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
 
     m_systHashAll = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -493,6 +514,12 @@ namespace top {
     m_systMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
+     m_systMapTracks =
+       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
+									     CP::SystematicSet> );
+     
+
+
     m_systMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
@@ -528,6 +555,12 @@ namespace top {
     m_systSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+
+    m_systSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
+
+    
     m_systSgKeyMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -557,6 +590,9 @@ namespace top {
     m_systAllSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+    m_systAllSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
 
     m_systAllSgKeyMapElectrons_electronInJetSubtraction
       = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -607,6 +643,11 @@ namespace top {
       new std::unordered_map<std::size_t, std::string> );
     m_systAllSgKeyMapTrackJetsTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDS = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -648,6 +689,7 @@ namespace top {
       new std::unordered_map<std::size_t, CP::SystematicSet> );
     m_systDecoKeyMapJetGhostTrack = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+
 
     m_systAllTTreeNames =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -699,6 +741,7 @@ namespace top {
     this->sgKeyJets(settings->value("JetCollectionName"));
     this->sgKeyLargeRJets(settings->value("LargeJetCollectionName"));
     this->sgKeyTrackJets(settings->value("TrackJetCollectionName"));
+    this->sgKeyTracks(settings->value("TrackCollectionName"));
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
@@ -836,7 +879,7 @@ namespace top {
       settings->retrieve("ForceNominalWeightFallbackIndex", m_forceWeightIndex);
 
       // Save the Top Parton History
-      if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
+      if (settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
       
       // Perform parton-level selection and save particle level objects
       bool topPartonLevel=true;
@@ -1234,6 +1277,7 @@ namespace top {
 
     //tau configuration
     this->tauPtcut(std::stof(settings->value("TauPt")));
+    this->tauEtaRegions(settings->value("TauEtaRegions"));
     this->tauJetIDWP(settings->value("TauJetIDWP"));
     this->tauJetIDWPLoose(settings->value("TauJetIDWPLoose"));
     this->tauEleBDTWP(settings->value("TauEleBDTWP"));
@@ -1251,7 +1295,10 @@ namespace top {
     // Jet configuration
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
-    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")),std::stof(settings->value("JetPt")));
+    if ( m_jetPtcut <= std::stof(settings->value("JetPtGhostTracks"))+5000){  
+        ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
+    }
     this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
@@ -1268,14 +1315,50 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!!!");
     }
 
+
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
+    
+    
+    // now get all substructure variables from the config file.
+    std::string strSubstructure = settings->value("LargeRJetSubstructureVariables");
+    // Making vector of strings with "," used as separator
+    std::vector<std::string> helpvecStr;
+    tokenize(strSubstructure, helpvecStr, ",");
+
+    std::vector<std::string> vecSubstructure;
+    // Removing empty spaces
+    for (const std::string& x : helpvecStr) {
+      std::istringstream istrSubstructure(x);
+      std::copy(std::istream_iterator<std::string>(istrSubstructure),
+                std::istream_iterator<std::string>(), std::back_inserter(vecSubstructure));
+    }
+    // Making map
+    for (const std::string&  key: vecSubstructure) {
+      std::vector<std::string> pairs;
+      tokenize(key,pairs,":");
+      if(pairs.size() == 1) m_largeRJetSubstructureVariables[pairs[0]]=pairs[0];
+      else if(pairs.size() == 2) m_largeRJetSubstructureVariables[pairs[0]]=pairs[1];
+      else throw std::runtime_error {
+        "TopConfig: Options in LargeRJetSubstructureVariables should be of the form \'x:y\' or \'y\'."
+      };
+    }
+
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
     this->largeRJetUncertaintiesConfigDir(settings->value("AdvancedUsage_LargeRJetUncertaintiesConfigDir"));
     this->largeRJESJMSConfig(settings->value("LargeRJESJMSConfig"));
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
     this->trackJetEtacut(std::stof(settings->value("TrackJetEta")));
+    
+    //Ghost track associated to jets quality
+    this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
+    this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
+    this->ghostTracksQuality(settings->value("GhostTracksQuality"));
+
+    this->trackPtcut(std::stof(settings->value("TrackPt")));
+    this->trackEtacut(std::stof(settings->value("TrackEta")));
+    this->trackQuality(settings->value("TrackQuality"));
 
     // Jet configuration reclustered jets
     this->RCJetPtcut(std::stof(settings->value("RCJetPt")));
@@ -1317,6 +1400,9 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
+
+    // MET Configuration
+    this->METUncertaintiesConfigDir(settings->value("AdvancedUsage_METUncertaintiesConfigDir"));
 
     // for top mass analysis, per default set to 1.0!
     m_JSF = std::stof(settings->value("JSF"));
@@ -1360,6 +1446,29 @@ namespace top {
 
     this->truth_muon_PtCut(std::stof(settings->value("TruthMuonPt")));
     this->truth_muon_EtaCut(std::stof(settings->value("TruthMuonEta")));
+    
+    float truth_softmu_ptcut=4000.;
+    try{
+      truth_softmu_ptcut=std::stof(settings->value("TruthSoftMuonPt"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonPt into float"
+        };
+    }
+    
+    float truth_softmu_etacut=2.5;
+    try{
+      truth_softmu_etacut=std::stof(settings->value("TruthSoftMuonEta"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonEta into float"
+        };
+    }
+    
+    this->truth_softmuon_PtCut(truth_softmu_ptcut);
+    this->truth_softmuon_EtaCut(truth_softmu_etacut);
 
     this->truth_photon_PtCut(std::stof(settings->value("TruthPhotonPt")));
     this->truth_photon_EtaCut(std::stof(settings->value("TruthPhotonEta")));
@@ -1447,41 +1556,20 @@ namespace top {
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
+    parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
+    parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
+    parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
 
-    std::istringstream str_btagging_WP(settings->value("BTaggingWP"));
-
-    std::vector<std::string> all_btagging_WP;
-    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
-              std::istream_iterator<std::string>(),
-              std::back_inserter(all_btagging_WP));
-
-    // loop through all btagging WPs requested
-    for (auto AlgTag : all_btagging_WP) {
-      std::vector<std::string> btagAlg_btagWP;
-      tokenize(AlgTag, btagAlg_btagWP, ":");
-      // DEFAULT algorithm - May remove in future
-      std::string alg = "MV2c10";
-      std::string tag = "";
-      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
-      if (btagAlg_btagWP.size() == 2) {
-        alg = btagAlg_btagWP.at(0);
-        tag = btagAlg_btagWP.at(1);
-      } else if (btagAlg_btagWP.size() == 1) {
-        tag = btagAlg_btagWP.at(0);
+    // check whether user is using the deprecated BTaggingWP option
+    if (m_chosen_btaggingWP.size() > 0) {
+      ATH_MSG_WARNING("You specified b-tagging WPs via BTaggingWP which is obsolete. Please switch to options BTaggingCaloJetWP for specifying EMTopo/EMPFlow b-tagging, and BTaggingTrackJetWP for track-jet b-tagging.");
+      if (m_chosen_btaggingWP_caloJet.size() > 0 || m_chosen_btaggingWP_trkJet.size() > 0) {
+        ATH_MSG_ERROR("You specified b-tagging WPs both via BTaggingWP as well as BTaggingCaloJetWP or BTaggingTrackJetWP. The BTaggingWP option is deprecated and conflicts with the other two options!");
+        throw std::runtime_error("TopConfig: Failed to determine what b-tagging WPs to configure.");
       } else {
-        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
-        continue;
-      }
-
-      ATH_MSG_INFO("BTagging algorithm: " << alg << ", " << tag);
-      std::string formatedWP = FormatedWP(tag);
-      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
-      // take care that no WP is taken twice
-      if (std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end()) {
-        m_chosen_btaggingWP.push_back(alg_tag);
-        ATH_MSG_INFO("Chosen btag alg, WP: " << alg_tag.first << ", " << alg_tag.second);
-      } else {
-        ATH_MSG_INFO("alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen");
+        // if deprecated option used, assume both calo and track jet WPs are the same
+        m_chosen_btaggingWP_caloJet = m_chosen_btaggingWP;
+        m_chosen_btaggingWP_trkJet = m_chosen_btaggingWP;
       }
     }
 
@@ -1892,6 +1980,15 @@ namespace top {
     }
   }
 
+  void TopConfig::sgKeyTracks(const std::string& s) {
+    
+    if (!m_configFixed) {
+      m_useTracks = false;
+      if (s != "None") m_useTracks = true;
+      m_sgKeyTracks = s;
+    }
+  }
+
   void TopConfig::sgKeyTruthElectrons(const std::string& s) {
     if (!m_configFixed) {
       m_useTruthElectrons = false;
@@ -1972,6 +2069,13 @@ namespace top {
     if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
 
+  // setting the run periods for tracks                                                                                                                                                             
+  // even if configuration is fixed - could be changed later                                                                                                                                             
+  void TopConfig::runPeriodTrack(const std::vector<std::uint32_t>& vect) {
+    if (m_useTracks) m_trackRunPeriods = vect;
+  }
+
+
   void TopConfig::setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SF_names, bool isTrackJet) {
     //this avoids code duplication
     std::unordered_map<std::string,
@@ -2013,6 +2117,44 @@ namespace top {
     else return raw_WP;
   }
 
+  void TopConfig::parse_bTagWPs(const std::string& btagWPsettingString,
+      std::vector<std::pair<std::string, std::string>>& btagWPlist,
+      const std::string& jetCollectionName) {
+    std::istringstream str_btagging_WP(btagWPsettingString);
+    std::vector<std::string> all_btagging_WP;
+    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
+              std::istream_iterator<std::string>(),
+              std::back_inserter(all_btagging_WP));
+    // loop through all btagging WPs requested
+    for (const auto& AlgTag : all_btagging_WP) {
+      std::vector<std::string> btagAlg_btagWP;
+      tokenize(AlgTag, btagAlg_btagWP, ":");
+      // DEFAULT algorithm - May remove in future
+      std::string alg = "MV2c10";
+      std::string tag = "";
+      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
+      if (btagAlg_btagWP.size() == 2) {
+        alg = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(1);
+      } else if (btagAlg_btagWP.size() == 1) {
+        tag = btagAlg_btagWP.at(0);
+      } else {
+        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
+        continue;
+      }
+
+      ATH_MSG_INFO("BTagging algorithm: " << alg << "_" << tag << " for collection: " << jetCollectionName);
+      std::string formatedWP = FormatedWP(tag);
+      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
+      // take care that no WP is taken twice
+      if (std::find(btagWPlist.begin(), btagWPlist.end(), alg_tag) == btagWPlist.end()) {
+        btagWPlist.push_back(alg_tag);
+      } else {
+        ATH_MSG_INFO("This b-tag algorithm was already added!");
+      }
+    }
+  }
+
   void TopConfig::setBTagWP_available(std::string btagging_WP) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
@@ -2027,6 +2169,34 @@ namespace top {
 
   void TopConfig::setBTagWP_calibrated_trkJet(std::string btagging_WP) {
     m_calibrated_btaggingWP_trkJet.push_back(btagging_WP);
+  }
+
+  void TopConfig::setBTagAlgo_available(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used = true;
+      else
+        ATH_MSG_WARNING("Encountered b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools[algo] = toolName;
+      }
+    }
+  }
+
+  void TopConfig::setBTagAlgo_available_trkJet(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used_trkJet = true;
+      else
+        ATH_MSG_WARNING("Encountered track-jet b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos_trkJet.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools_trkJet[algo] = toolName;
+      }
+    }
   }
 
   void TopConfig::addLHAPDFResult(const std::string& pdf_name,
@@ -2241,6 +2411,26 @@ namespace top {
     }
   }
 
+  void TopConfig::systematicsTracks(const std::list<CP::SystematicSet>& syst) {
+
+    if (!m_configFixed) {
+
+      for (auto s : syst) {
+        m_systHashTracks->insert(s.hash());
+	m_list_systHashAll->push_back(s.hash());
+        m_systMapTracks->insert(std::make_pair(s.hash(), s));
+
+        m_systSgKeyMapTracks->insert(std::make_pair(s.hash(), m_sgKeyTracks + "_" + s.name()));
+
+      }
+      
+      m_list_systHashAll->sort();
+      m_list_systHashAll->unique();
+    }
+    
+  }
+
+
   void TopConfig::fixConfiguration() {
     ATH_MSG_INFO("TopConfig::fixConfiguration()");
     // Prevent the user from changing anything
@@ -2271,6 +2461,7 @@ namespace top {
     std::string nominalJets("SetMe");
     std::string nominalLargeRJets("SetMe");
     std::string nominalTrackJets("SetMe");
+    std::string nominalTracks("SetMe");
     std::string nominal("nominal");
     std::string tds("TDS");
     std::string tdsAux("TDSAux.");
@@ -2324,6 +2515,11 @@ namespace top {
     if (trackJet != m_systSgKeyMapTrackJets->end()) {
       nominalTrackJets = (*trackJet).second;
     }
+    std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(m_nominalHashValue);
+    if (tracks != m_systSgKeyMapTracks->end()) {
+      nominalTracks = (*tracks).second;
+    }
+
 
     for (std::unordered_set<std::size_t>::const_iterator i = m_systHashAll->begin(); i != m_systHashAll->end(); ++i) {
       std::unordered_map<std::size_t, std::string>::const_iterator ph = m_systSgKeyMapPhotons->find(*i);
@@ -2397,6 +2593,16 @@ namespace top {
       if (trackJet == m_systSgKeyMapTrackJets->end()) {
         m_systAllSgKeyMapTrackJets->insert(std::make_pair((*i), nominalTrackJets));
       }
+
+      std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(*i);
+      if (tracks != m_systSgKeyMapTracks->end()) {
+        m_systAllSgKeyMapTracks->insert(std::make_pair((*i), (*tracks).second));
+      }
+      if (tracks == m_systSgKeyMapTracks->end()) {
+	m_systAllSgKeyMapTracks->insert(std::make_pair((*i), nominalTracks));
+      }
+
+
     } // Loop over all systematic hash values
 
 
@@ -2526,6 +2732,11 @@ namespace top {
       m_systAllSgKeyMapTrackJetsTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
     }
 
+    for (Itr2 i = m_systAllSgKeyMapTracks->begin(); i != m_systAllSgKeyMapTracks->end(); ++i) {
+      m_systAllSgKeyMapTracksTDS->insert(std::make_pair((*i).first, (*i).second + tds));
+      m_systAllSgKeyMapTracksTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
+    }
+
     for (Itr2 i = m_systAllSgKeyMapJets_electronInJetSubtraction->begin();
          i != m_systAllSgKeyMapJets_electronInJetSubtraction->end(); ++i) {
       m_systAllSgKeyMapJets_electronInJetSubtractionTDS->insert(std::make_pair((*i).first, (*i).second + tds));
@@ -2586,6 +2797,11 @@ namespace top {
     }
     if (m_useTrackJets) {
       for (Itr i = m_systMapTrackJets->begin(); i != m_systMapTrackJets->end(); ++i) {
+        m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
+      }
+    }
+    if (m_useTracks) {
+      for (Itr i = m_systMapTracks->begin(); i != m_systMapTracks->end(); ++i) {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
     }
@@ -2995,6 +3211,30 @@ namespace top {
     return m_sgKeyDummy;
   }
 
+  const std::string& TopConfig::sgKeyTracks(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracks->find(hash);
+    if (key != m_systAllSgKeyMapTracks->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDS(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDS->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDS->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDSAux(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDSAux->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDSAux->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
   const std::string& TopConfig::sgKeyMissingEt(const std::size_t hash) const {
     std::unordered_map<std::size_t, std::string>::const_iterator key = m_systSgKeyMapMissingET->find(hash);
     if (key != m_systSgKeyMapMissingET->end()) {
@@ -3202,6 +3442,7 @@ namespace top {
     out->m_sgKeyJets = m_sgKeyJets;
     out->m_sgKeyLargeRJets = m_sgKeyLargeRJets;
     out->m_sgKeyTrackJets = m_sgKeyTrackJets;
+    out->m_sgKeyTracks = m_sgKeyTracks;
     out->m_sgKeyMissingEt = m_sgKeyMissingEt;
     out->m_sgKeyMissingEtLoose = m_sgKeyMissingEtLoose;
 
@@ -3222,6 +3463,8 @@ namespace top {
     out->m_muonIsolationLoose = m_muonIsolationLoose;
 
     out->m_softmuonQuality = m_softmuonQuality;
+
+    out->m_trackQuality = m_trackQuality;
 
     typedef std::unordered_map<std::size_t, std::string>::const_iterator Itr;
 
@@ -3263,6 +3506,9 @@ namespace top {
 
     for (Itr i = m_systSgKeyMapTrackJets->begin(); i != m_systSgKeyMapTrackJets->end(); ++i)
       out->m_systSgKeyMapTrackJets.insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = m_systSgKeyMapTracks->begin(); i != m_systSgKeyMapTracks->end(); ++i)
+      out->m_systSgKeyMapTracks.insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = m_systSgKeyMapMissingET->begin(); i != m_systSgKeyMapMissingET->end(); ++i)
       out->m_systSgKeyMapMissingET.insert(std::make_pair((*i).first, (*i).second));
@@ -3350,6 +3596,7 @@ namespace top {
     sgKeyJets(settings->m_sgKeyJets);
     sgKeyLargeRJets(settings->m_sgKeyLargeRJets);
     sgKeyTrackJets(settings->m_sgKeyTrackJets);
+    sgKeyTracks(settings->m_sgKeyTracks);
     m_sgKeyMissingEt = settings->m_sgKeyMissingEt;
     m_sgKeyMissingEtLoose = settings->m_sgKeyMissingEtLoose;
 
@@ -3411,6 +3658,9 @@ namespace top {
 
     for (Itr i = settings->m_systSgKeyMapTrackJets.begin(); i != settings->m_systSgKeyMapTrackJets.end(); ++i)
       m_systSgKeyMapTrackJets->insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = settings->m_systSgKeyMapTracks.begin(); i != settings->m_systSgKeyMapTracks.end(); ++i)
+      m_systSgKeyMapTracks->insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = settings->m_systSgKeyMapMissingET.begin(); i != settings->m_systSgKeyMapMissingET.end(); ++i)
       m_systSgKeyMapMissingET->insert(std::make_pair((*i).first, (*i).second));
@@ -3545,17 +3795,57 @@ namespace top {
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
-  const std::string TopConfig::getYear(unsigned int runnumber) {
+  std::string TopConfig::getYear(unsigned int runnumber, const bool isMC) {
+
+    if (isMC) {
+      // mc16a - returning only 2015 but is really a mix of 15 + 16
+      if (runnumber == 284500) return "2015";
+      
+      // mc16d
+      if (runnumber == 300000) return "2017";
+      
+      // mc16e
+      if (runnumber == 310000) return "2018";
+
+      return "UNKNOWN";
+    }
+    
+    // Set of runNumbers for data
     // 2015 : 266904 - 284484
     if (runnumber >= 266904 && runnumber <= 284484) return "2015";
 
     // 2016 : 296939 - 311481
     if (runnumber >= 296939 && runnumber <= 311481) return "2016";
 
-    // 2017 : 324320 - 999999
-    if (runnumber >= 324320) return "2017";
+    // 2017 : 324320 - 348835
+    if (runnumber >= 324320 && runnumber <= 348835) return "2017";
 
-    return "ERROR";
+    // 2018 : > 348835 
+    if (runnumber > 348835 && runnumber < 999999) return "2018";
+    
+    return "UNKNOWN";
+  }
+
+  void TopConfig::SetTriggersToYear(const bool isMC) {
+    if (m_year == "UNKNOWN") return;
+
+    std::string year2("");
+    if (isMC && m_year == "2015") year2 = "2016";
+    if (isMC && m_year == "2016") year2 = "2015";
+
+    auto removeYears = [](std::unordered_map<std::string,std::vector<std::string> >& trig, const std::string& year1, const std::string& year2) {
+      auto itr = trig.begin();
+      while (itr != trig.end()) {
+        if ((*itr).first != year1 && (*itr).first != year2) {
+          itr = trig.erase(itr);
+        } else {
+          itr++;
+        }
+      }
+    };
+
+    removeYears(m_trigGlobalConfiguration.trigger, m_year, year2);
+    removeYears(m_trigGlobalConfiguration.trigger_loose, m_year, year2);
   }
 
   void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics,

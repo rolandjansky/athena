@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2157,6 +2157,72 @@ Analysis::CalibrationDataInterfaceROOT::getShiftedScaleFactors (const std::strin
   shifted->Add(hunc, sigmas);
   return shifted;
 }
+//====================== run EigenVectorRecomposition method ===========================
+Analysis::CalibrationStatus
+Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::string& author,
+								     const std::string& label,
+								     const std::string& OP,
+								     unsigned int mapIndex){
+  // run eigen vector recomposition method. If success, stored the retrieved coefficient map
+  // in m_coefficientMap and return success. Otherwise return error and keep m_coefficientMap
+  // untouched.
+  //    author:  jet collection name
+  //    label:   jet flavour label
+  //    OP:      tagger working point
+  //    mapIndex:     index to the MC efficiency map to be used. Should be 0?
+  // Todo: What is mapindex?
+  // Todo: Check the way xAODBTaggingTool initialize CDI. Check if that is the as how we are initialize CDI. 
+  if(!m_runEigenVectorMethod) {
+    cerr << "runEigenVectorRecomposition: Recomposition need to be ran with CalibrationDataInterfaceRoot initialized in eigenvector mode" << endl;
+    return Analysis::kError;
+  }
+  
+  unsigned int indexSF;
+  if (! retrieveCalibrationIndex (label, OP, author, true, indexSF, mapIndex)) {
+    cerr << "runEigenVectorRecomposition: unable to find SF calibration for object "
+	 << fullName(author, OP, label, true) << endl;
+    return Analysis::kError;
+  }
+
+  return runEigenVectorRecomposition (label, indexSF);
+}
+
+Analysis::CalibrationStatus
+Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::string& label,
+								     unsigned int indexSF){
+  // run eigen vector recomposition method. If success, stored the retrieved coefficient map
+  // in m_coefficientMap and return success. Otherwise return error and keep m_coefficientMap
+  // untouched.
+  //    label:   jet flavour label  
+  //    indexSF:       index to scale factor calibration object
+  CalibrationDataContainer* container = m_objects[indexSF];
+  if (! container) {
+    cerr << "runEigenVectorRecomposition: error retrieving container!" << endl;
+    return Analysis::kError;
+  }
+
+  // Retrieve eigenvariation
+  const CalibrationDataEigenVariations* eigenVariation=m_eigenVariationsMap[container];
+  if (! eigenVariation) {
+    cerr << "runEigenVectorRecomposition: Could not retrieve eigenvector variation, while it should have been there." << endl;
+    return Analysis::kError;
+  }
+  // Doing eigenvector recomposition
+  std::map<std::string, std::map<std::string, float>> coefficientMap;
+  if(!eigenVariation->EigenVectorRecomposition(label, coefficientMap))
+    return Analysis::kError;
+
+  m_coefficientMap = coefficientMap;
+  return Analysis::kSuccess;
+}
+
+std::map<std::string, std::map<std::string, float>>
+Analysis::CalibrationDataInterfaceROOT::getEigenVectorRecompositionCoefficientMap(){
+  if(m_coefficientMap.empty())
+    cerr << "getCoefficientMap: Call runEigenVectorRecomposition() before retrieving coefficient map! " <<endl;
+  return m_coefficientMap;
+}
+
 
 //====================== put some utility functions here ===================================
 

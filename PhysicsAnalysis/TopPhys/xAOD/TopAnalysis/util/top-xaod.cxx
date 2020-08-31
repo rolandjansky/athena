@@ -58,6 +58,7 @@
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopPartons/CalcThqPartonHistory.h"
+#include "TopPartons/CalcTzqPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -264,6 +265,24 @@ int main(int argc, char** argv) {
       topConfig->setMapIndex(ShowerIndex);
       topConfig->setShoweringAlgorithm(tdp.getShowering(topConfig->getDSID()));
     }
+    // check year
+    {
+      xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
+      top::check(xaodEvent.readFrom(testFile.get()), "Failed to read file in");
+      const unsigned int entries = xaodEvent.getEntries();
+      if (entries > 0) {
+        xaodEvent.getEntry(0);
+        const xAOD::EventInfo* eventInfo(nullptr);
+        top::check(xaodEvent.retrieve(eventInfo, topConfig->sgKeyEventInfo()), "Failed to retrieve EventInfo");
+        const unsigned int runnumber = eventInfo->runNumber();
+        const std::string thisYear = topConfig->getYear(runnumber, isMC);
+        topConfig->SetYear(thisYear);
+      } else {
+        topConfig->SetYear("UNKNOWN");
+      }
+      topConfig->SetTriggersToYear(isMC);
+    }
+
   } //close and delete the ptr to testFile
 
 
@@ -275,6 +294,7 @@ int main(int argc, char** argv) {
   // Read metadata
   std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
   top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
+
 
   // Setup all asg::AsgTools
   top::TopToolStore topTools("top::TopToolStore");
@@ -370,6 +390,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcThqPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tZq") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcTzqPartonHistory");
   }
 
 
@@ -659,14 +684,17 @@ int main(int argc, char** argv) {
         pileupWeight = topScaleFactors->pileupWeight();
       }
 
+      // perform any operation common to both reco and truth level
+      // currently we load the MC generator weights inside, if requested
+      eventSaver->execute();
+
       ///-- Truth events --///
       if (topConfig->isMC()) {
         // Save, if requested, MC truth block, PDFInfo, TopPartons
         // This will be saved for every event
 
         // Run topPartonHistory
-        if (topConfig->doTopPartonHistory()) top::check(
-            topPartonHistory->execute(), "Failed to execute topPartonHistory");
+        if (topConfig->doTopPartonHistory()) top::check(topPartonHistory->execute(), "Failed to execute topPartonHistory");
 
         // calculate PDF weights
         if (topConfig->doLHAPDF()) top::check(PDF_SF->execute(),

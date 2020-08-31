@@ -17,7 +17,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects
                           GaudiKernel
-                          PhysicsAnalysis/CommonTools/ExpressionEvaluation )
+                          PhysicsAnalysis/CommonTools/ExpressionEvaluation
+			  Reconstruction/Jet/JetInterface
+			  )
 
 # External dependencies:
 find_package( ROOT )
@@ -26,7 +28,7 @@ find_package( ROOT )
 atlas_add_component( DerivationFrameworkHI
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps HIEventUtilsLib GaudiKernel PATCoreLib ExpressionEvaluationLib DerivationFrameworkInterfacesLib)
+                     LINK_LIBRARIES AthenaBaseComps HIEventUtilsLib InDetTrackSelectionToolLib GaudiKernel PATCoreLib ExpressionEvaluationLib DerivationFrameworkInterfacesLib)
 
 # Install files from the package:
 atlas_install_headers( DerivationFrameworkHI )

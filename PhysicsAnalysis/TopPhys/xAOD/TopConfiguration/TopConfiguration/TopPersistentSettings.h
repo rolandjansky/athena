@@ -52,6 +52,7 @@ namespace top {
     std::string m_sgKeyJets;
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
+    std::string m_sgKeyTracks;
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
 
@@ -72,6 +73,8 @@ namespace top {
     std::string m_muonIsolationLoose;
 
     std::string m_softmuonQuality;
+
+    std::string m_trackQuality;
 
     std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP;
 
@@ -95,6 +98,7 @@ namespace top {
     std::map<std::size_t, std::string> m_systPersistantAllTTreeNames;
 
     std::map<std::size_t, std::string> m_systDecoKeyMapJetGhostTrack;
+    std::map<std::size_t, std::string> m_systSgKeyMapTracks;
 
     std::vector<std::size_t> m_list_systHashAll;
     std::vector<std::size_t> m_list_systHash_electronInJetSubtraction;

@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 #ifndef ATHLINKS_ELEMENTLINKBASE_H
 #define ATHLINKS_ELEMENTLINKBASE_H
@@ -22,10 +22,12 @@ extern "C" {
  * $Date: 2013-10-30 10:30:16 +0100 (Wed, 30 Oct 2013) $
  */
 class ElementLinkBase {
-
+private:
+  /// Value to mark a default index
+  static constexpr uint32_t INVALID = static_cast<uint32_t> (-1);
 public:
    /// Default constructor
-   ElementLinkBase( uint32_t key = 0, uint32_t index = 0 );
+   ElementLinkBase( uint32_t key = 0, uint32_t index = INVALID );
    /// Destructor
    virtual ~ElementLinkBase() {}
 
@@ -41,6 +43,13 @@ public:
 
    /// Reset the object's internal cache
    virtual bool toTransient() = 0;
+
+   /**
+    * @brief Is the link in the default state
+    *
+    * A link in the default state was purposefully constructed as a null link
+    */
+   bool isDefault() const;
 
 protected:
    /// Key/identifier of the referenced container

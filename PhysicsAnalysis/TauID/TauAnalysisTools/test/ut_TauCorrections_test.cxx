@@ -234,6 +234,8 @@ int main()
     {"TAUS_TRUEHADTAU_SME_TES_INSITUFIT__1up",        0.        },
     {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1down",      0.        },
     {"TAUS_TRUEHADTAU_SME_TES_INSITUEXP__1up",        0.        },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1down",      -0.0304613 },
+    {"TAUS_TRUEHADTAU_SME_TES_DETECTOR__1up",         0.0304613 },
     {"TAUS_TRUEHADTAU_SME_TES_MODEL_CLOSURE__1down", -0.004188  },
     {"TAUS_TRUEHADTAU_SME_TES_MODEL_CLOSURE__1up",    0.004188  },
     {"TauScaleFactorReconstructionHadTau",            1.        },

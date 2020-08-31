@@ -50,7 +50,8 @@ BPHY11_JpsiFinder = Analysis__JpsiFinder(
     invMassUpper                = 3600.0,
     invMassLower                = 2600.0,
     Chi2Cut                     = 30.0,
-    oppChargesOnly	        = True,
+    oppChargesOnly	        = False,
+    allChargeCombinations	= True,
     combOnly		        = False,
     atLeastOneComb              = True,
     useCombinedMeasurement      = False, # Only takes effect if combOnly=True	

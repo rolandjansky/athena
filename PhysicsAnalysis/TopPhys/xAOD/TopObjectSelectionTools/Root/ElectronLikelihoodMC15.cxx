@@ -5,6 +5,7 @@
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
 #include "TopEvent/EventTools.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 #include <iostream>
 
 #include "TopObjectSelectionTools/MsgCategory.h"
@@ -42,7 +43,7 @@ namespace top {
       egammaNamesAreNotConsistantAnywhere = "DFCommonElectronsLHLoose";
     }
     if (operatingPoint == "LooseAndBLayerLH") {
-      egammaNamesAreNotConsistantAnywhere = "DFCommonElectronsLHLoose";
+      egammaNamesAreNotConsistantAnywhere = "DFCommonElectronsLHLooseBL";
     }
     if (operatingPoint == "MediumLH") {
       egammaNamesAreNotConsistantAnywhere = "DFCommonElectronsLHMedium";
@@ -55,7 +56,7 @@ namespace top {
       egammaNamesAreNotConsistantAnywhereLoose = "DFCommonElectronsLHLoose";
     }
     if (operatingPointLoose == "LooseAndBLayerLH") {
-      egammaNamesAreNotConsistantAnywhereLoose = "DFCommonElectronsLHLoose";
+      egammaNamesAreNotConsistantAnywhereLoose = "DFCommonElectronsLHLooseBL";
     }
     if (operatingPointLoose == "MediumLH") {
       egammaNamesAreNotConsistantAnywhereLoose = "DFCommonElectronsLHMedium";
@@ -166,21 +167,9 @@ namespace top {
   }
 
   bool ElectronLikelihoodMC15::passBLayerCuts(const xAOD::Electron& el) const {
-    // this is taken from ElectronPhotonSelectorTools/Root/AsgElectronLikelihoodTool.cxx
+
     const xAOD::TrackParticle* t = el.trackParticle();
-
-    if (!t) return false;
-
-    uint8_t expectBlayer(true);
-    uint8_t nBlayerHits(0);
-    uint8_t nBlayerOutliers(0);
-
-    t->summaryValue(expectBlayer, xAOD::expectBLayerHit);
-    t->summaryValue(nBlayerHits, xAOD::numberOfBLayerHits);
-    t->summaryValue(nBlayerOutliers, xAOD::numberOfBLayerOutliers);
-
-    if (expectBlayer && (nBlayerHits + nBlayerOutliers) < 1) return false;
-    else return true;
+    return ElectronSelectorHelpers::passBLayerRequirement(t);
   }
 
   bool ElectronLikelihoodMC15::passTTVACuts(const xAOD::Electron& el) const {

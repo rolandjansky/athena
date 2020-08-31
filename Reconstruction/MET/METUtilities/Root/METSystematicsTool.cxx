@@ -43,8 +43,8 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_Jan16");
-    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/run2_13TeV/");
+    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms-pflow.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
     declareProperty( "ConfigSoftCaloFile",m_configSoftCaloFile= ""                                          );
@@ -62,8 +62,8 @@ namespace met {
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
 
     if(!m_configSoftTrkFile.empty()){
-      if( !(addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_ScaleUp  , true /*recommended */ ) &&
-            addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_ScaleDown, true /*recommended */ ) &&
+      if( !(addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_Scale__1up  , true /*recommended */ ) &&
+            addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_Scale__1down, true /*recommended */ ) &&
             addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_ResoPara , true /*recommended */ ) &&
             addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_ResoPerp , true /*recommended */ ) &&
             addAffectingSystematic( softTrkAffSyst::MET_SoftTrk_ResoCorr , false /*not recommended */) ) ) {
@@ -72,16 +72,16 @@ namespace met {
       }
     }
     if(!m_configSoftCaloFile.empty()){
-      if( !(addAffectingSystematic( softCaloAffSyst::MET_SoftCalo_ScaleUp  , true /*recommended */ ) &&
-            addAffectingSystematic( softCaloAffSyst::MET_SoftCalo_ScaleDown, true /*recommended */ ) &&
+      if( !(addAffectingSystematic( softCaloAffSyst::MET_SoftCalo_Scale__1up  , true /*recommended */ ) &&
+            addAffectingSystematic( softCaloAffSyst::MET_SoftCalo_Scale__1down, true /*recommended */ ) &&
             addAffectingSystematic( softCaloAffSyst::MET_SoftCalo_Reso     , true /*recommended */ ) ) ) {
         ATH_MSG_ERROR("failed to properly add softCalo affecting systematics " );
         return StatusCode::FAILURE;
       }
     }
     if(!m_configJetTrkFile.empty()){
-      if( !(addAffectingSystematic( jetTrkAffSyst::MET_JetTrk_ScaleUp  , true /*recommended */ ) &&
-            addAffectingSystematic( jetTrkAffSyst::MET_JetTrk_ScaleDown, true /*recommended */ ) ) ){
+      if( !(addAffectingSystematic( jetTrkAffSyst::MET_JetTrk_Scale__1up  , true /*recommended */ ) &&
+            addAffectingSystematic( jetTrkAffSyst::MET_JetTrk_Scale__1down, true /*recommended */ ) ) ){
         ATH_MSG_ERROR("failed to properly add jetTrk affecting systematics " );
         return StatusCode::FAILURE;
       }
@@ -249,16 +249,16 @@ namespace met {
     }
     CP::SystematicVariation systVar = *systSet.begin();
     if     ( systVar == CP::SystematicVariation("") )           m_appliedSystEnum = NONE                  ;
-    else if( systVar == softTrkAffSyst::MET_SoftTrk_ScaleUp)    m_appliedSystEnum = MET_SOFTTRK_SCALEUP   ;
-    else if( systVar == softTrkAffSyst::MET_SoftTrk_ScaleDown)  m_appliedSystEnum = MET_SOFTTRK_SCALEDOWN ;
+    else if( systVar == softTrkAffSyst::MET_SoftTrk_Scale__1up)    m_appliedSystEnum = MET_SOFTTRK_SCALEUP   ;
+    else if( systVar == softTrkAffSyst::MET_SoftTrk_Scale__1down)  m_appliedSystEnum = MET_SOFTTRK_SCALEDOWN ;
     else if( systVar == softTrkAffSyst::MET_SoftTrk_ResoPara)   m_appliedSystEnum = MET_SOFTTRK_RESOPARA  ;
     else if( systVar == softTrkAffSyst::MET_SoftTrk_ResoPerp)   m_appliedSystEnum = MET_SOFTTRK_RESOPERP  ;
     else if( systVar == softTrkAffSyst::MET_SoftTrk_ResoCorr)   m_appliedSystEnum = MET_SOFTTRK_RESOCORR  ;
-    else if( systVar == softCaloAffSyst::MET_SoftCalo_ScaleUp)   m_appliedSystEnum = MET_SOFTCALO_SCALEUP  ;
-    else if( systVar == softCaloAffSyst::MET_SoftCalo_ScaleDown) m_appliedSystEnum = MET_SOFTCALO_SCALEDOWN;
+    else if( systVar == softCaloAffSyst::MET_SoftCalo_Scale__1up)   m_appliedSystEnum = MET_SOFTCALO_SCALEUP  ;
+    else if( systVar == softCaloAffSyst::MET_SoftCalo_Scale__1down) m_appliedSystEnum = MET_SOFTCALO_SCALEDOWN;
     else if( systVar == softCaloAffSyst::MET_SoftCalo_Reso)      m_appliedSystEnum = MET_SOFTCALO_RESO     ;
-    else if( systVar == jetTrkAffSyst::MET_JetTrk_ScaleUp)     m_appliedSystEnum = MET_JETTRK_SCALEUP    ;
-    else if( systVar == jetTrkAffSyst::MET_JetTrk_ScaleDown)   m_appliedSystEnum = MET_JETTRK_SCALEDOWN  ;
+    else if( systVar == jetTrkAffSyst::MET_JetTrk_Scale__1up)     m_appliedSystEnum = MET_JETTRK_SCALEUP    ;
+    else if( systVar == jetTrkAffSyst::MET_JetTrk_Scale__1down)   m_appliedSystEnum = MET_JETTRK_SCALEDOWN  ;
     else{
       ATH_MSG_WARNING("unsupported systematic applied " );
       return CP::SystematicCode::Unsupported;

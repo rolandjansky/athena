@@ -230,7 +230,10 @@ StatusCode DerivationFramework::HardScatterCollectionMaker::addBranches() const
     // Get the signal process vertex.  Get the incoming particles and outgoing particles and 
     // make a mini truth collection based on those
     // Let's assume a reasonable case...
-    CollectionMakerHelpers::addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
+    if (my_tv->incomingParticle(0)){
+      CollectionMakerHelpers::addTruthParticle( *(my_tv->incomingParticle(0)), newParticleCollection, newVertexCollection, seen_particles, m_generations );
+    }
+
     // Are there any other incoming particles we need to add?
     for (size_t i=1;i<my_tv->nIncomingParticles();++i){
         // Set up the truth particle

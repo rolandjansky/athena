@@ -452,6 +452,8 @@ class TriggerChain:
             elif legcomp == 0 : comp = 0
             elif legcomp == 1 : comp = 1
         if debug: print "DEBUG FINAL:",comp
+        if is2015 and self.name == "HLT_e60_lhmedium" and other.name == "HLT_e24_lhmedium_L1EM20VH": return -1
+        if is2015 and other.name == "HLT_e24_lhmedium_L1EM20VH" and self.name == "HLT_e60_lhmedium": return -1
         return comp
 
 

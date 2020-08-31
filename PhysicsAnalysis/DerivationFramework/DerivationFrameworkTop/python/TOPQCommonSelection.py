@@ -59,15 +59,15 @@ from AthenaCommon.GlobalFlags import globalflags
 #================
 # ELECTRONS
 #================
-EL10 = "(Electrons.pt > 10*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL13 = "(Electrons.pt > 13*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL15 = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL15_tight = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHTight)"
-EL17 = "(Electrons.pt > 17*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL22 = "(Electrons.pt > 22*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL10 = "(Electrons.pt > 10*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL13 = "(Electrons.pt > 13*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL15 = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL15_tight = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHTight)"
+EL17 = "(Electrons.pt > 17*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL22 = "(Electrons.pt > 22*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
 EL23 = "(Electrons.pt > 23*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
-EL25 = "(Electrons.pt > 25*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL25 = "(Electrons.pt > 25*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
 
 #================
 # MUONS

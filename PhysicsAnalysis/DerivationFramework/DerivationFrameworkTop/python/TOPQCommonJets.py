@@ -117,46 +117,32 @@ def addMSVVariables(jetcollection, algseq, ToolSvc):
 # ExKtDoubleTagVariables
 #=======================
 def addExKtDoubleTagVariables(algseq, ToolSvc):
-    from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
-    from DerivationFrameworkFlavourTag.HbbCommon import addExKtCoM
-    jetToolName = "DFReclustertingTool"
-    algoName = "DFJetReclusteringAlgo"
-    if jetToolName not in DFJetAlgs:
-        ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMPFlowJets", OutputJetContainer="AntiKt8EMPFlowJets")
-        getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
-        getattr(ToolSvc,jetToolName).InputJetPtMin = 0
-        getattr(ToolSvc,jetToolName).RCJetPtMin = 1
-        getattr(ToolSvc,jetToolName).TrimPtFrac = 0
-        getattr(ToolSvc,jetToolName).DoArea = False
-        getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
-        getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
-        DFisMC = (globalflags.DataSource()=='geant4')
-        if(DFisMC):
-            getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
-            getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
-        algseq += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
-        DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
-    ExKtTopJetCollection__FatJetConfigs = {
-        "AntiKt8EMPFlowJets"         : {"doTrackSubJet": True},
-    }
+    from DerivationFrameworkFlavourTag.HbbCommon import addExKtDoubleTaggerRCJets
+    addExKtDoubleTaggerRCJets(algseq, ToolSvc)
 
-    # build subjets
-    ExKtTopJetCollection__FatJet = ExKtTopJetCollection__FatJetConfigs.keys()
-    ExKtTopJetCollection__SubJet = []
+    from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import BTagVertexAugmenter
+    from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
 
-    for key, config in ExKtTopJetCollection__FatJetConfigs.items():
-        # N=2 subjets
-        ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=2, **config)
+    algseq += BTagVertexAugmenter("BTagVertexAugmenter")
 
-        # N=3 subjets
-        if "RNNCone" not in key:
-            ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=3, **config)
+    SoftBJetMSVFinderTool = InDetVKalVxInJetFinder("SoftBJetMSVFinder")
 
-    algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
-    from BTagging.BTaggingFlags import BTaggingFlags
-    BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__FatJet ]
-    BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__SubJet ]
+    SoftBJetMSVFinderTool.ConeForTag = 0.8
+    SoftBJetMSVFinderTool.MultiVertex = True
+    SoftBJetMSVFinderTool.MultiWithOneTrkVrt = True    
+
+    ToolSvc += SoftBJetMSVFinderTool
+
+    softTagAlgMSVTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool("SoftBVrtClusterToolMSVTight")
+    softTagAlgMSVTight.SVFinderName = 'SoftBJetMSVFinder'
+    softTagAlgMSVTight.TrackJetCollectionName = 'AntiKt4PV0TrackJets'
+    softTagAlgMSVTight.TrackSelectionTool.CutLevel = "LoosePrimary"
+    softTagAlgMSVTight.OperatingPoint = 'MSVTight'
+
+    algseq += softTagAlgMSVTight
 
     from DerivationFrameworkTop.TOPQAugTools import TOPQExKtCommonTruthKernel
     algseq += TOPQExKtCommonTruthKernel
+
+    

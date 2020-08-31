@@ -8,8 +8,10 @@
 #ifndef ASG_ANALYSIS_ALGORITHMS__ASG_ANALYSIS_ALGORITHMS_DICT_H
 #define ASG_ANALYSIS_ALGORITHMS__ASG_ANALYSIS_ALGORITHMS_DICT_H
 
+#include <AsgAnalysisAlgorithms/AsgIntValueSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgClassificationDecorationAlg.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
 #include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>

@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
 // TruthClassificationDecorator.cxx
 // Author: James Catmore (James.Catmore@cern.ch)
+//MODIFIED: 02/07/2020 
+//AUTHOR: Sukanya Sinha (sukanya.sinha@cern.ch)
 // Removes all truth particles/vertices which do not pass a user-defined cut
 
 #include "DerivationFrameworkMCTruth/TruthClassificationDecorator.h"
@@ -73,22 +75,31 @@ StatusCode DerivationFramework::TruthClassificationDecorator::addBranches() cons
     SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
     SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
 
+    SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
+
+
     for (unsigned int i=0; i<nParticles; ++i) {
 #ifdef MCTRUTHCLASSIFIER_CONST
         IMCTruthClassifier::Info info;
         std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = 
           m_classifier->particleTruthClassifier((*importedTruthParticles)[i], &info);
         unsigned int particleOutCome = info.particleOutCome;
+
+	unsigned int result = 0;
 #else
         std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> classification = 
         m_classifier->particleTruthClassifier((*importedTruthParticles)[i]);
         unsigned int particleOutCome = m_classifier->getParticleOutCome();
+
+     	unsigned int result = (unsigned int)m_classifier->classify((*importedTruthParticles)[i]);
 #endif
         unsigned int particleType = classification.first;
         unsigned int particleOrigin = classification.second;
         typeDecorator(*((*importedTruthParticles)[i])) = particleType;
         originDecorator(*((*importedTruthParticles)[i])) = particleOrigin;
         outcomeDecorator(*((*importedTruthParticles)[i])) = particleOutCome;  
+
+      	classificationDecorator(*((*importedTruthParticles)[i])) = result;
     }
 
     return StatusCode::SUCCESS;

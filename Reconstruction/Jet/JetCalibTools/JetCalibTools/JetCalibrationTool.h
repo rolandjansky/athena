@@ -118,6 +118,7 @@ private:
   std::string m_vertexContainerName;
   bool m_insituCombMassCalib;
   std::vector<TString> m_insituCombMassConfig;
+  std::string m_rhoKey_config;
 
   //TEnv to hold the global text config
   TEnv * m_globalConfig;

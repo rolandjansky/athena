@@ -444,22 +444,6 @@ exot8Seq = CfgMgr.AthSequencer("EXOT8Sequence")
 exot8PreSeq += exot8Seq
 
 #=======================================
-# BUILD UFO INPUTS 
-#=======================================
-
-# Add PFlow constituents
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-    DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Add UFO constituents
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emcsskufoAlg = runUFOReconstruction(exot8Seq, ToolSvc, PFOPrefix="CSSK")
-
-#=======================================
 # JETS
 #=======================================
 
@@ -474,19 +458,14 @@ reducedJetList = [
     "AntiKt4TruthJets",
     "AntiKt4TruthWZJets",
     "AntiKt10TruthJets",
-    "AntiKt10LCTopoJets",
-    "AntiKt10UFOCSSKJets"]
+    "AntiKt10LCTopoJets"]
+
 replaceAODReducedJets(reducedJetList,exot8Seq,"EXOT8")
 
 #AntiKt10*PtFrac5SmallR20Jets must be scheduled *AFTER* the other collections are replaced
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets,addDefaultUFOSoftDropJets
 addDefaultTrimmedJets(exot8Seq,"EXOT8")
-
-# Adds a new jet collection for SoftDrop with constituent modifiers CS and SK applied
-if globalflags.DataSource()=="geant4":
-    addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=False)
-
-addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=False, mods="tcc_groomed")
+addDefaultUFOSoftDropJets(exot8Seq,"EXOT8",dotruth=True)
 
 # Create variable-R trackjets and dress ungroomed large-R jets with ghost VR-trkjet
 
@@ -671,6 +650,7 @@ if globalflags.DataSource()=="geant4":
       "TruthNeutrinos",
       "TruthBottom",
       "TruthBSM",
+      "HardScatterParticles",
       ]:
       EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
       EXOT8SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")

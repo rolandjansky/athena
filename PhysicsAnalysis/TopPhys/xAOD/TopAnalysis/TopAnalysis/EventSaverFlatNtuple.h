@@ -48,10 +48,16 @@ namespace top {
      * passed).
      */
     virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file,
-                            const std::vector<std::string>& extraBranches);
+                            const std::vector<std::string>& extraBranches) override;
+
+    /**
+     * @brief Execute stuff common for reco/particle/parton level,
+     * e.g. loading of weights, PDF sets, etc.
+     */
+    virtual void execute() override;
 
     //Keep the asg::AsgTool happy
-    virtual StatusCode initialize() {return StatusCode::SUCCESS;}
+    virtual StatusCode initialize() override {return StatusCode::SUCCESS;}
 
     /**
      * @brief Run for every event (actually every systematic for every event).
@@ -61,7 +67,7 @@ namespace top {
      * @param event The top::Event which has had object selection and overlap
      * removal (if requested) applied to it.
      */
-    virtual void saveEvent(const top::Event& event); // calls the three next functions
+    virtual void saveEvent(const top::Event& event) override; // calls the three next functions
     virtual void cleanEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateEvent(const top::Event& event); // calculate the relevant variables
     virtual void fillEvent(const top::Event& event); // calls tree->Fill
@@ -74,7 +80,7 @@ namespace top {
      *   PDF info
      *   TopPartons
      */
-    virtual void saveTruthEvent(); // calls the three next functions
+    virtual void saveTruthEvent() override; // calls the three next functions
     virtual void cleanTruthEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateTruthEvent(); // calculate the relevant variables
     virtual void fillTruthEvent(); // calls tree->Fill
@@ -90,7 +96,7 @@ namespace top {
      * @param plEvent The particle level event whose data content will be
      * written to the output.
      */
-    virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+    virtual void saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent) override; // calls the three next functions
     virtual void cleanParticleLevelEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateParticleLevelEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant
                                                                                       // variables
@@ -107,7 +113,7 @@ namespace top {
      * @param upgradeEvent The upgrade event whose data content will be
      * written to the output.
      */
-    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calls the three next functions
+    virtual void saveUpgradeEvent(const top::ParticleLevelEvent& plEvent) override; // calls the three next functions
     virtual void cleanUpgradeEvent(); // (re-)initialise all relevant variables to default (dummy) values
     virtual void calculateUpgradeEvent(const top::ParticleLevelEvent& plEvent); // calculate the relevant variables
     virtual void fillUpgradeEvent(); // calls tree->Fill
@@ -115,7 +121,7 @@ namespace top {
     /**
      * @brief Not used by the flat ntuple code yet, but needed by the xAOD code.
      */
-    virtual void finalize();
+    virtual void finalize() override;
 
     /**
      * @brief shorten name of b-tagging working point (FixedCutBEff_*)
@@ -628,9 +634,7 @@ namespace top {
     std::vector<float> m_jet_eta;
     std::vector<float> m_jet_phi;
     std::vector<float> m_jet_e;
-    std::vector<float> m_jet_mv2c00;
     std::vector<float> m_jet_mv2c10;
-    std::vector<float> m_jet_mv2c20;
     std::vector<float> m_jet_jvt;
     std::vector<float> m_jet_fjvt;
     std::vector<char> m_jet_passfjvt; //Could be useful to check pass/fail when fJVT only used in MET
@@ -652,19 +656,27 @@ namespace top {
     std::vector<std::vector<float> > m_jet_ghostTrack_z0;
     std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
 
+    // tracks
+    std::vector<float> m_track_pt;
+    std::vector<float> m_track_eta;
+    std::vector<float> m_track_phi;
+    std::vector<float> m_track_e;
+    std::vector<float> m_track_d0;
+    std::vector<float> m_track_z0;
+    std::vector<float> m_track_qOverP;
+    std::vector<float> m_track_charge;
+    std::vector<float> m_track_d0_significance;
+    std::vector<float> m_track_z0_significance;
+    std::vector<float> m_track_phi0;
+    std::vector<float> m_track_theta;
+    std::vector<float> m_track_chiSquared;
+    std::vector<uint8_t> m_track_numberDoF;
+
     // R21 b-tagging
-    std::vector<float> m_jet_DL1;
-    std::vector<float> m_jet_DL1r;
-    std::vector<float> m_jet_DL1rmu;
-    std::vector<float> m_jet_DL1_pu;
-    std::vector<float> m_jet_DL1_pc;
-    std::vector<float> m_jet_DL1_pb;
-    std::vector<float> m_jet_DL1r_pu;
-    std::vector<float> m_jet_DL1r_pc;
-    std::vector<float> m_jet_DL1r_pb;
-    std::vector<float> m_jet_DL1rmu_pu;
-    std::vector<float> m_jet_DL1rmu_pc;
-    std::vector<float> m_jet_DL1rmu_pb;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pb;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pc;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pu;
 
     // fail-JVT jets
     std::vector<float> m_failJvt_jet_pt;
@@ -716,9 +728,9 @@ namespace top {
     std::vector<float> m_ljet_phi;
     std::vector<float> m_ljet_e;
     std::vector<float> m_ljet_m;
-    std::vector<float> m_ljet_sd12;
     std::vector<int> m_ljet_truthLabel;
 
+    std::unordered_map<std::string, std::vector<float> > m_ljet_substructure;
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
     std::unordered_map<std::string, std::vector<float> > m_ljet_tagSF;
 
@@ -727,12 +739,12 @@ namespace top {
     std::vector<float> m_tjet_eta;
     std::vector<float> m_tjet_phi;
     std::vector<float> m_tjet_e;
-    std::vector<float> m_tjet_mv2c00;
     std::vector<float> m_tjet_mv2c10;
-    std::vector<float> m_tjet_mv2c20;
-    std::vector<float> m_tjet_DL1;
-    std::vector<float> m_tjet_DL1r;
-    std::vector<float> m_tjet_DL1rmu;
+    std::unordered_map<std::string, SG::AuxElement::ConstAccessor<float>> DLx;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pb;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pc;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pu;
     std::unordered_map<std::string, std::vector<char> >  m_tjet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int> >   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case
                                                                              // Continuous WP is used
@@ -1318,9 +1330,7 @@ namespace top {
     const std::vector<float>& jet_eta() const {return m_jet_eta;}
     const std::vector<float>& jet_phi() const {return m_jet_phi;}
     const std::vector<float>& jet_e() const {return m_jet_e;}
-    const std::vector<float>& jet_mv2c00() const {return m_jet_mv2c00;}
     const std::vector<float>& jet_mv2c10() const {return m_jet_mv2c10;}
-    const std::vector<float>& jet_mv2c20() const {return m_jet_mv2c20;}
     const std::vector<float>& jet_jvt() const {return m_jet_jvt;}
     const std::vector<float>& jet_forwardjvt() const {return m_jet_fjvt;}
     const std::vector<char>& jet_passforwardjvt() const {return m_jet_passfjvt;}
@@ -1380,9 +1390,9 @@ namespace top {
     const std::vector<float>& ljet_phi() const {return m_ljet_phi;}
     const std::vector<float>& ljet_e() const {return m_ljet_e;}
     const std::vector<float>& ljet_m() const {return m_ljet_m;}
-    const std::vector<float>& ljet_sd12() const {return m_ljet_sd12;}
     const std::vector<int>& ljet_truthLabel() const {return m_ljet_truthLabel;}
 
+    const std::unordered_map<std::string, std::vector<float> >& ljet_substructure() const {return m_ljet_substructure;}
     const std::unordered_map<std::string, std::vector<char> >& ljet_isTagged() const {return m_ljet_isTagged;}
     const std::vector<char>& ljet_isTagged(const std::string& taggerName) {return m_ljet_isTagged[taggerName];}
 
@@ -1391,9 +1401,7 @@ namespace top {
     const std::vector<float>& tjet_eta() const {return m_tjet_eta;}
     const std::vector<float>& tjet_phi() const {return m_tjet_phi;}
     const std::vector<float>& tjet_e() const {return m_tjet_e;}
-    const std::vector<float>& tjet_mv2c00() const {return m_tjet_mv2c00;}
     const std::vector<float>& tjet_mv2c10() const {return m_tjet_mv2c10;}
-    const std::vector<float>& tjet_mv2c20() const {return m_tjet_mv2c20;}
     const std::unordered_map<std::string, std::vector<char> >& tjet_isbtagged() const {return m_tjet_isbtagged;}//one
                                                                                                                 // vector
                                                                                                                 // per
@@ -1649,7 +1657,7 @@ namespace top {
 
     int filterBranches(const top::TreeManager*, const std::string& variable);
 
-    ClassDef(top::EventSaverFlatNtuple, 0);
+    ClassDefOverride(top::EventSaverFlatNtuple, 0);
   };
 }
 

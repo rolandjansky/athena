@@ -97,6 +97,7 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     // Go through that list of particles!
     for (auto * part : *importedTruthParticles){
         // If this passes my cuts, keep it
+        if (!part) continue;
         if (id_ok(*part)){
             addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
         }
@@ -110,6 +111,7 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthParticle( const xAOD
     // See if we've seen it - note, could also do this with a unary function on the container itself
     if (std::find(seen_particles.begin(),seen_particles.end(),old_part.barcode())!=seen_particles.end()){
       for (size_t p=0;p<part_cont->size();++p){
+        if (!(*part_cont)[p]) continue;
         // Was it a hit?
         if ((*part_cont)[p]->barcode()==old_part.barcode()) return p;
       } // Look through the old container

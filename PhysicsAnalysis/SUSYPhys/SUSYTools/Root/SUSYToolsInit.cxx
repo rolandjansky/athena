@@ -286,20 +286,46 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
-    // Allowing for IsData = true (pseudo-data smearing) if AllJER or FullJER config is set in m_jetUncertaintiesConfig
-    bool JERUncPDsmearing = isData() ? isData() : m_jetUncertaintiesPDsmearing;
-    if (m_jetUncertaintiesConfig.find("SimpleJER") != std::string::npos) JERUncPDsmearing = isData();
 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", JERUncPDsmearing) );
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", false) ); // Never use the PDSmearing for the nominal tool. 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
+    if(m_jetUncertaintiesAnalysisFile!="default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("AnalysisFile", m_jetUncertaintiesAnalysisFile) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   } else  ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   
+  ATH_MSG_INFO("Set up Jet PD Smear Uncertainty tool...");
+  
+  if (!m_jetUncertaintiesPDSmearTool.isUserConfigured() && m_jetUncertaintiesPDsmearing == true) {
+    std::string jetdef("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
+    
+    if(jetdef != "AntiKt4EMTopo" && jetdef !="AntiKt4EMPFlow"){
+      ATH_MSG_WARNING("Jet Uncertaintes recommendations only exist for EMTopo and PFlow jets, falling back to AntiKt4EMTopo");
+      jetdef = "AntiKt4EMTopo";
+    }
+    toolName = "JetUncertaintiesPDSmearTool_" + jetdef;
+    
+    m_jetUncertaintiesPDSmearTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+    
+    // If, for some reason, you're trying to use the PDSmear, with the reduced set return an error (you shouldn't do this, you're just going to duplicate the SimpleJER results. 
+    bool JERUncPDsmearing = isData() ? isData() : m_jetUncertaintiesPDsmearing;
+    if (m_jetUncertaintiesConfig.find("SimpleJER") != std::string::npos && JERUncPDsmearing){
+      ATH_MSG_ERROR("You are trying to use the SimpleJER set, with PDsmearing. There is no functionality for this. Please fix your config file. Either run with PDSmear set to false, or run with the AllJER or FullJER sets.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("JetDefinition", jetdef) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("IsData", true) ); // Set to True by default for PDSmear-named tool. 
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
+    if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
+  } else  ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
 
+  ATH_MSG_INFO("Set up FatJet Uncertainty tool if using...");
   // Initialise jet uncertainty tool for fat jets
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
   if (!m_fatjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_fatJetUncConfig.empty()) {
@@ -405,6 +431,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt", m_JvtPtMax) );
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName", "jvtscalefact") ); // set decoration name
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile", m_JvtConfig_SFFile) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("TruthJetContainerName", m_defaultTruthJets ) );
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
   } else if (m_jetJvtEfficiencyTool.isUserConfigured()) ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
@@ -417,17 +444,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/FJVTTool_"+toolName);
 
-    // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-    // Tenacious MET --> Medium JVT WP
-    // Tight MET --> Tight JVT WP
-    m_fJvt_useTightOP = (m_fJvtWP=="Tight");
-    if (m_doFwdJVT && ( (m_metJetSelection == "Tight" && m_fJvtWP != "Tight") || ((m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") && m_fJvtWP != "Loose") ) ) {
-       ATH_MSG_ERROR( "Tight (Tenacious) MET WP should be used with Tight (Loose) fJvt WP. Please reconfigure." );
-       return StatusCode::FAILURE;
-    }
-
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fJvt_useTightOP) );
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fJvtWP=="Tight")) );
     ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fJvtPtMax) ); // Max Pt to define fwdJets for JVT
     ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fJvtEtaMin) );   // Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputLevel", this->msg().level()) );

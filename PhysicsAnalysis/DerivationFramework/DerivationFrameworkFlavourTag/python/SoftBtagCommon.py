@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 
@@ -38,7 +38,7 @@ def applySoftBtagging(algname,sequence):
     VrtSecInclusive_SoftB.twoTrVrtMinDistFromPV                  = 0.2
     VrtSecInclusive_SoftB.PassThroughTrackSelection              = True
     VrtSecInclusive_SoftB.ImpactWrtBL                            = False
-    VrtSecInclusive_SoftB.doPVcompatibilityCut                   = False
+    VrtSecInclusive_SoftB.DoPVcompatibility                      = True
     VrtSecInclusive_SoftB.RemoveFake2TrkVrt                      = True
     VrtSecInclusive_SoftB.doReassembleVertices                   = False
     VrtSecInclusive_SoftB.doMergeByShuffling                     = False

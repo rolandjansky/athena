@@ -16,6 +16,9 @@
 #include "BoostedJetTaggers/TagResultEnum.h"
 
 #include "PATCore/TAccept.h"
+#include <TFile.h>
+#include <TH2.h>
+
 
 class JSSTaggerBase :   public asg::AsgTool ,
   virtual public IJetSelector,
@@ -29,6 +32,9 @@ class JSSTaggerBase :   public asg::AsgTool ,
     mutable Root::TAccept m_accept;
 
     // Configurable members
+
+    // path of the configuration root file for SF
+    std::string m_weightConfigPath;
 
     // Configuration file name
     std::string m_configFile;
@@ -66,6 +72,18 @@ class JSSTaggerBase :   public asg::AsgTool ,
     bool m_calcSF;
     bool m_IsMC;
 
+    // string for scale factors
+    std::string m_weightdecorationName;
+    std::string m_weightFileName;
+    std::string m_weightHistogramName;
+    std::string m_efficiencyHistogramName;
+    std::string m_weightFlavors;
+
+    // histograms for scale factors
+    std::unique_ptr<TFile> m_weightConfig;
+    std::map<std::string, std::unique_ptr<TH2D>> m_weightHistograms;
+    std::map<std::string, std::unique_ptr<TH2D>> m_efficiencyHistograms;
+
     // Truth label options
     bool m_truthLabelUseTRUTH3;
     std::string m_truthParticleContainerName;
@@ -75,6 +93,11 @@ class JSSTaggerBase :   public asg::AsgTool ,
 
     // Truth label accessor
     std::unique_ptr< SG::AuxElement::ConstAccessor<int> > m_acc_truthLabel;
+
+    // Decoratorrs for SF
+    SG::AuxElement::Decorator<float>    m_dec_weight;
+    SG::AuxElement::Decorator<float>    m_dec_efficiency;
+    SG::AuxElement::Decorator<float>    m_dec_effSF;
 
     // default constructor - to be used in all derived classes
     JSSTaggerBase(const std::string &name);

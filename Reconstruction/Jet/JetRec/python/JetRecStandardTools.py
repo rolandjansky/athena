@@ -331,22 +331,22 @@ jtm += PseudoJetGetter(
   GhostScale = 0.0
 )
 
-# CSSKUFOs.
+# UFOs with CSSK.
 jtm += PseudoJetGetter(
-  "csskufoget",
-  InputContainer = "CSSKUFO",
+  "ufocsskget",
+  InputContainer = "UFOCSSK",
   Label = "UFO",
-  OutputContainer = "PseudoJetCSSKUFO",
+  OutputContainer = "PseudoJetUFOCSSK",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
 )
 
-# CHSUFOs.
+# UFOs with CHS.
 jtm += PseudoJetGetter(
-  "chsufoget",
-  InputContainer = "CHSUFO",
+  "ufochsget",
+  InputContainer = "UFOCHS",
   Label = "UFO",
-  OutputContainer = "PseudoJetCHSUFO",
+  OutputContainer = "PseudoJetUFOCHS",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
 )

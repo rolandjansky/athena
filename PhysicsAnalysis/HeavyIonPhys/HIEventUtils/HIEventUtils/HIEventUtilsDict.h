@@ -5,5 +5,5 @@
 // dictionaries for.
 
 #include <HIEventUtils/HIPileupTool.h>
-
+#include <HIEventUtils/TopoClusterSelectionTool.h>
 #endif

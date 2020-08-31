@@ -178,15 +178,18 @@ thinningTools.append(PHYSDiTauTPThinningTool)
 # JET/MET   
 #====================================================================
 
-OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
 if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
+   OutputJets["PHYS"].append("AntiKt10TruthSoftDropBeta100Zcut10Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
+add_largeR_truth_SD_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
+addDefaultUFOSoftDropJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_SD_jets)
 
 # Add large-R jet truth labeling
 if (DerivationFrameworkIsMonteCarlo):
@@ -244,8 +247,14 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKern
 # FLAVOUR TAGGING   
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(SeqPHYS)
-addVRJets(SeqPHYS, training='201903')
+
+largeRJetCollections = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"
+]
+
+addVRJets(SeqPHYS, largeRJetCollections)
+addVRJets(SeqPHYS, largeRJetCollections, training='201903')
 #addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
 #             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
 #             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
@@ -287,6 +296,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "DiTauJets",
                                        "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                       "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"
                                       ]
@@ -341,7 +351,8 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'TruthCharm':'xAOD::TruthParticleContainer','TruthCharmAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
+                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
+                                            'AntiKt10TruthSoftDropBeta100Zcut10Jets':'xAOD::JetContainer', 'AntiKt10TruthSoftDropBeta100Zcut10JetsAux':'xAOD::JetAuxContainer'
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
@@ -349,6 +360,7 @@ if DerivationFrameworkIsMonteCarlo:
    PHYSSlimmingHelper.AllVariables += ['TruthHFWithDecayParticles','TruthHFWithDecayVertices','TruthCharm']
 
 PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
+                                      "AntiKt10TruthSoftDropBeta100Zcut10Jets.Tau1_wta.Tau2_wta.Tau3_wta.D2.GhostBHadronsFinalCount",
                                       "Electrons.TruthLink",
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",

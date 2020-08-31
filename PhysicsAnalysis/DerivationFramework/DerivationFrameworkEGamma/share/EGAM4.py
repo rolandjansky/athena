@@ -120,6 +120,17 @@ ToolSvc += EGAM4_MaxCellDecoratorTool
 
 
 #====================================================================
+# TopoCluster moments
+#====================================================================
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGTopoClusterMomentDecorator
+EGAM4_PhotonTopoClusterMomentDecorator = DerivationFramework__EGTopoClusterMomentDecorator(
+	name = "EGAM4_PhotonTopoClusterMomentDecorator",
+	ContainerName = "Photons")
+print EGAM4_PhotonTopoClusterMomentDecorator
+ToolSvc += EGAM4_PhotonTopoClusterMomentDecorator
+
+
+#====================================================================
 # Cell reweighter
 #====================================================================
 if DoCellReweighting:
@@ -413,7 +424,7 @@ DerivationFrameworkJob += egam4Seq
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool,EGAM4_MaxCellDecoratorTool]
+augmentationTools = [EGAM4_MuMuMassTool,EGAM4_GainDecoratorTool,EGAM4_MaxCellDecoratorTool,EGAM4_PhotonTopoClusterMomentDecorator]
 if DoCellReweighting:
     augmentationTools += [EGAM4_NewCellTool, EGAM4_ClusterDecoratorTool, EGAM4_EGammaReweightTool]
     if DoCellReweightingVariations:

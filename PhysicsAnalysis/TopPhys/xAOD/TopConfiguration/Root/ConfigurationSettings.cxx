@@ -25,6 +25,7 @@ namespace top {
     registerParameter("LargeJetCollectionName", "Name of the large-R Jet container");
     registerParameter("LargeJetSubstructure", "Setup to use when applying grooming on the large-R jet", "None");
     registerParameter("TrackJetCollectionName", "Name of the track Jet container", "None");
+    registerParameter("TrackCollectionName", "Name of the track container", "None");
     registerParameter("TauCollectionName", "Name of the Tau container");
     registerParameter("JetGhostTrackDecoName", "Name of the jet decoration that holds the ghost-associated track.", "None");
 
@@ -161,7 +162,7 @@ namespace top {
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
-
+   
     registerParameter("JVTinMETCalculation",
                       "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True");
     registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False");
@@ -173,13 +174,21 @@ namespace top {
     registerParameter("ForwardJVTinMETCalculation",
                       "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'", "False");
     registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
-
+    registerParameter("AdvancedUsage_METUncertaintiesConfigDir", "Path to directory containing MET uncertainties configs (including trailing /) \'Latest\' (default), or previous \'METUtilities/data17_13TeV/prerec_Jan16/\'", "Latest");
+   
     registerParameter("JetPtGhostTracks",
-                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 30 GeV.",
-                      "30000.");
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",
+                      "25000.");
     registerParameter("JetEtaGhostTracks",
                       "Jet eta threshold for ghost track systematic variations calculation. Default 2.5",
                       "2.5");
+    registerParameter("GhostTrackspT",
+                      "PT of the ghost tracks associated small-R jets (in MeV). Default 500 MeV.",
+                      "500.");
+    registerParameter("GhostTracksVertexAssociation",
+                      "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.","nominal");
+    registerParameter("GhostTracksQuality",
+                      "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");
@@ -204,6 +213,7 @@ namespace top {
 
     registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
+    registerParameter("LargeRJetSubstructureVariables", "List of substructure variables stored in the output separated by commas. By default no variable is added to output.", " ");
     registerParameter("LargeRJetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
                       "CategoryReduction");
@@ -220,6 +230,13 @@ namespace top {
 
     registerParameter("TrackJetPt", "Track Jet pT cut for object selection (in MeV). Default 10 GeV.", "10000.");
     registerParameter("TrackJetEta", "Absolute Track Jet eta cut for object selection. Default 2.5.", "2.5");
+
+    registerParameter("TrackPt", "Track pT cut for object selection (in MeV). Default 0.5 GeV.", "0.5");
+    registerParameter("TrackEta", "Absolute Track eta cut for object selection. Default 2.5.", "2.5");
+    registerParameter("TrackQuality",
+		      "Track quality cut for object selection. Options are TightPrimary,...",
+		      "TightPrimary");
+
 
     registerParameter("RCJetPt", "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.",
                       "100000.");
@@ -257,6 +274,10 @@ namespace top {
                       "Pt cut applied to both tight and loose taus (in MeV)."
                       "Default 25 GeV.",
                       "25000");
+    registerParameter("TauEtaRegions",
+					            "Eta regions used for both tight and loose taus."
+					            "Default vetoing crack region [0., 1.37, 1.52, 2.5]",
+					            "[0., 1.37, 1.52, 2.5]");
     registerParameter("TauJetIDWP",
                       "Tau jet IDWP (None, Loose, Medium, Tight, LooseNotMedium, LooseNotTight, MediumNotTight, NotLoose, RNNLoose, RNNMedium, RNNTight)."
                       "Default RNNMedium.",
@@ -418,7 +439,12 @@ namespace top {
                       "Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("TruthMuonEta",
                       "Absolute Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
-
+    
+    registerParameter("TruthSoftMuonPt",
+                      "Soft Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 4 GeV.", "4000");
+    registerParameter("TruthSoftMuonEta",
+                      "Absolute Soft Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
+                      
     registerParameter("TruthPhotonPt",
                       "Photon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.",
                       "25000");
@@ -464,7 +490,19 @@ namespace top {
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
     registerParameter("BTaggingWP",
-                      "b-tagging WPs to use in the analysis, separated by commas."
+                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
+                      " ");
+
+    registerParameter("BTaggingTrackJetWP",
+                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
+                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
+                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
+                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
+                      " By default, no WP is used.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetWP",
+                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
                       " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
                       " The specified WPs which are calibrated for all flavours will have scale-factors computed."

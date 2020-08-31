@@ -14,5 +14,5 @@
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
 #include "xAODBTaggingEfficiency/BTaggingTruthTaggingTool.h"
-
+#include "xAODBTaggingEfficiency/BTaggingEigenVectorRecompositionTool.h"
 #endif // XAODBTAGGINGEFFICIENCY_XAODBTAGGINGEFFICIENCYDICT_H

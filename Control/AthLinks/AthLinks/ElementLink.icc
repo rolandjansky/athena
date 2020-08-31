@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -343,6 +343,18 @@ ElementLink<STORABLE>::cachedElement() const
   if (this->getCachedElement (ret))
     return *ret;
   return ElementType();
+}
+
+
+/**
+ * @brief Is this link invalid because its target was removed (e.g. through
+ * slimming or thinning in the derivation framework)
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::wasTargetRemoved() const
+{
+  return !isValid() && !this->isDefault();
 }
 
 

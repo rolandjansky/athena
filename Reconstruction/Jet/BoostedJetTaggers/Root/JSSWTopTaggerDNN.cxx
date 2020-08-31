@@ -20,17 +20,11 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   m_dec_mcutL("mcutL"),
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
-  m_dec_scoreValue("scoreValue"),
-  m_dec_weight("weightdec")
-{
+  m_dec_scoreValue("scoreValue")
+  {
 
-    declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
+    declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0,      "Eta cut to define fiducial phase space for the tagger");
 
-    // tagging scale factors
-    declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
-    declareProperty( "WeightFile",                m_weightFileName = "");
-    declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
-    declareProperty( "WeightFlavors",             m_weightFlavors = "");
 }
 
 JSSWTopTaggerDNN::~JSSWTopTaggerDNN() {}
@@ -103,6 +97,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
       m_weightdecorationName = configReader.GetValue("WeightDecorationName", "");
       m_weightFileName = configReader.GetValue("WeightFile", "");
       m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
+      m_efficiencyHistogramName = configReader.GetValue("EfficiencyHistogramName", "");
       m_weightFlavors = configReader.GetValue("WeightFlavors", "");
     
       // get truth label name information
@@ -125,6 +120,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
       ATH_MSG_INFO( "weightdecorationName  : " << m_weightdecorationName );
       ATH_MSG_INFO( "weightFile            : " << m_weightFileName );
       ATH_MSG_INFO( "weightHistogramName   : " << m_weightHistogramName );
+      ATH_MSG_INFO( "efficiencyHistogramName : "<<m_efficiencyHistogramName );
       ATH_MSG_INFO( "weightFlavors         : " << m_weightFlavors );
       ATH_MSG_INFO( "TruthLabelName        : " << m_truthLabelName );
     }
@@ -169,6 +165,10 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     dec_name = m_decorationName+"_"+m_weightdecorationName;
     ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_effSF";
+    m_dec_effSF      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_efficiency";
+    m_dec_efficiency = SG::AuxElement::Decorator<float>((dec_name).c_str());
     m_acc_truthLabel = std::make_unique< SG::AuxElement::ConstAccessor<int> >((m_truthLabelName).c_str());
   }
 
@@ -277,6 +277,9 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      if ( !m_efficiencyHistogramName.empty() ){
+	m_efficiencyHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_efficiencyHistogramName+"_"+flavor).c_str()) ) );
+      }
       ATH_MSG_INFO( (m_APP_NAME+"Tagging SF histogram for "+flavor+" is installed.") );
     }
 
@@ -349,10 +352,26 @@ Root::TAccept& JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
       }
     }
   }
-
-  if( (jet_score > cut_score) && m_calcSF) {
+  float effSF=1.0;
+  float efficiency=1.0;
+  if( m_calcSF ) {
     if ( m_IsMC ){
-      jet_weight = getWeight(jet);
+      std::tie(effSF, efficiency) = getWeight(jet);
+
+      if ( jet_score > cut_score ) {
+	// efficiency SF
+	jet_weight = effSF;
+      } else {
+	// inefficiency SF
+	if ( m_efficiencyHistogramName.empty() ){
+	  // If inefficiency SF is not available, SF is always 1.0
+	  jet_weight=1.0;
+	} else if ( efficiency < 1.0 ) {
+	  jet_weight = (1. - effSF*efficiency) / (1. - efficiency);
+	} else {
+	  jet_weight = 1.0;
+	}
+      }
     }else{
       jet_weight = 1.0;
     }
@@ -361,7 +380,13 @@ Root::TAccept& JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   // decorate the cut value if needed;
   if(m_decorate){
     ATH_MSG_DEBUG("Decorating with score");
-    decorateJet(jet, cut_mass_high, cut_mass_low, cut_score, jet_score, jet_weight);
+    m_dec_mcutH(jet)      = cut_mass_high;
+    m_dec_mcutL(jet)      = cut_mass_low;
+    m_dec_scoreCut(jet)   = cut_score;
+    m_dec_scoreValue(jet) = jet_score;
+    m_dec_efficiency(jet) = efficiency;
+    m_dec_effSF(jet)      = effSF;
+    m_dec_weight(jet)     = jet_weight;
   }
 
   // evaluate the cut criteria on mass and score
@@ -411,10 +436,10 @@ double JSSWTopTaggerDNN::getScore(const xAOD::Jet& jet) const{
     return DNNscore;
 }
 
-double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
+std::pair<double, double> JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
     if ( jet.pt()*0.001 < m_jetPtMin ||
 	 jet.pt()*0.001 > m_jetPtMax ||
-	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
+	 fabs(jet.eta())>m_jetEtaMax ) return std::make_pair( 1.0, 1.0 );
 
     std::string truthLabelStr;
     LargeRJetTruthLabel::TypeEnum jetContainment=LargeRJetTruthLabel::intToEnum((*m_acc_truthLabel)(jet));
@@ -435,29 +460,23 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
 	truthLabelStr="q";
       }
     }
-
     double SF=1.0;
+    double eff=1.0;
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
       int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
       SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+      if ( !m_efficiencyHistogramName.empty() ){
+	eff=(m_efficiencyHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+      }
     } else {
       ATH_MSG_DEBUG("SF for truth label for "+truthLabelStr+" is not available. Just return 1.0");
-      return 1.0;      
+      return std::make_pair( 1.0, 1.0 );      
     }
+
     if ( SF < 1e-3 ) {
       ATH_MSG_DEBUG("(pt, m/pt) is out of range for SF calculation. Just return 1.0");
-      return 1.0;
-    } else return SF;
-}
-
-void JSSWTopTaggerDNN::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const{
-    /* decorate jet with attributes */
-
-    m_dec_mcutH(jet)      = mcutH;
-    m_dec_mcutL(jet)      = mcutL;
-    m_dec_scoreCut(jet)   = scoreCut;
-    m_dec_scoreValue(jet) = scoreValue;
-    m_dec_weight(jet)     = weightValue;
+      return std::make_pair( 1.0, 1.0 );
+    } else return std::make_pair( SF, eff );
 }
 
 std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet& jet) const{

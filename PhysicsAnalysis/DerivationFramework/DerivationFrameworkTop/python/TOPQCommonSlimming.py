@@ -46,6 +46,11 @@ def setup(TOPQname, stream):
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtxAux"  : "xAOD::BTagVertexAuxContainer",
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtx"    : "xAOD::VertexContainer"   ,
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtxAux" : "xAOD::VertexAuxContainer",
+        "AntiKt8EMPFlowJets"                                :   "xAOD::JetContainer"        ,
+        "AntiKt8EMPFlowJetsAux"                             :   "xAOD::JetAuxContainer"     ,
+        "AntiKt8EMPFlowExKt2GASubJets"                      :   "xAOD::JetContainer"        ,
+        "AntiKt8EMPFlowExKt2GASubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+
     }
 
     # list of existing containers with a smart list is available here :
@@ -57,7 +62,7 @@ def setup(TOPQname, stream):
         "AntiKt4EMPFlowJets_BTagging201810",
         "AntiKt4EMPFlowJets_BTagging201903",
         "AntiKt4EMTopoJets",
-        "AntiKt4EMTopoJets_BTagging201810",
+        "AntiKt4EMTopoJets_BTagging201810",        
         "AntiKt4TruthDressedWZJets",
         "AntiKt4TruthJets",
         "AntiKt4TruthWZJets",
@@ -75,7 +80,7 @@ def setup(TOPQname, stream):
         "Muons",
         "Photons",
         "PrimaryVertices",
-        "TauJets",
+        "TauJets",        
     ]
 
     print "TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections
@@ -145,8 +150,10 @@ def setup(TOPQname, stream):
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_SplitJet
 
     if TOPQname == 'TOPQ1':
-        # for TOPQDERIV-62
+        # for TOPQDERIV-62 and TOPQDERIV-98
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
@@ -171,9 +178,6 @@ def setup(TOPQname, stream):
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_SplitJet
-    elif TOPQname == 'TOPQ6':
-        # for TOPQDERIV-62
-        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
 
     print "TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables
 

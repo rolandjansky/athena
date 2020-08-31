@@ -1,3 +1,5 @@
+###  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # File for feeding Reco_tf.py vertexing options for the searches 
 # looking for displaced vertices in the SUSY and Exotics groups.
 # The options here are needed both when running on RAW and ESD inputs.
@@ -37,7 +39,7 @@ VrtSecInclusive_InDet.do_z0signifCut                         = False
 VrtSecInclusive_InDet.doTRTPixCut                            = True
 VrtSecInclusive_InDet.DoSAloneTRT                            = False
 VrtSecInclusive_InDet.ImpactWrtBL                            = True
-VrtSecInclusive_InDet.doPVcompatibilityCut                   = False
+VrtSecInclusive_InDet.DoPVcompatibility                      = True
 VrtSecInclusive_InDet.RemoveFake2TrkVrt                      = True
 VrtSecInclusive_InDet.CheckHitPatternStrategy                = 'ExtrapolationAssist' # Either 'Classical', 'Extrapolation' or 'ExtrapolationAssist'
 VrtSecInclusive_InDet.doReassembleVertices                   = True
@@ -68,8 +70,8 @@ VrtSecInclusive_InDet.associatePtCut                         = 1000.
 VrtSecInclusive_InDet.associateMinDistanceToPV               = 2.
 VrtSecInclusive_InDet.associateMaxD0Signif                   = 5.
 VrtSecInclusive_InDet.associateMaxZ0Signif                   = 5.
-VrtSecInclusive_InDet.MergeFinalVerticesDist                 = 1.
-VrtSecInclusive_InDet.MergeFinalVerticesScaling              = 0.
+VrtSecInclusive_InDet.VertexMergeFinalDistCut                = 1.
+VrtSecInclusive_InDet.VertexMergeFinalDistScaling            = 0.
 VrtSecInclusive_InDet.improveChi2ProbThreshold               = 0.0001
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToMuons     = True
 VrtSecInclusive_InDet.doAugmentDVimpactParametersToElectrons = True
@@ -88,7 +90,7 @@ VrtSecInclusive_leptons.do_z0signifCut                         = False
 VrtSecInclusive_leptons.doTRTPixCut                            = False
 VrtSecInclusive_leptons.DoSAloneTRT                            = False
 VrtSecInclusive_leptons.ImpactWrtBL                            = False
-VrtSecInclusive_leptons.doPVcompatibilityCut                   = False
+VrtSecInclusive_leptons.DoPVcompatibility                      = True
 VrtSecInclusive_leptons.RemoveFake2TrkVrt                      = True
 VrtSecInclusive_leptons.CheckHitPatternStrategy                = 'ExtrapolationAssist' # Either 'Classical', 'Extrapolation' or 'ExtrapolationAssist'
 VrtSecInclusive_leptons.doReassembleVertices                   = True
@@ -116,8 +118,8 @@ VrtSecInclusive_leptons.TruthTrkLen                            = 1
 VrtSecInclusive_leptons.SelTrkMaxCutoff                        = 2000
 VrtSecInclusive_leptons.mergeByShufflingAllowance              = 5.
 VrtSecInclusive_leptons.associatePtCut                         = 1000.
-VrtSecInclusive_leptons.MergeFinalVerticesDist                 = 1.
-VrtSecInclusive_leptons.MergeFinalVerticesScaling              = 0.
+VrtSecInclusive_leptons.VertexMergeFinalDistCut                = 1.
+VrtSecInclusive_leptons.VertexMergeFinalDistScaling            = 0.
 VrtSecInclusive_leptons.improveChi2ProbThreshold               = 0.0001
 
 

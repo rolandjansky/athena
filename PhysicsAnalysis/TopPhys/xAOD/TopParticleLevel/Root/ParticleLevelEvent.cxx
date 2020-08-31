@@ -26,6 +26,17 @@ std::ostream & operator << (std::ostream& os, const top::ParticleLevelEvent& plE
   } else {
     os << "ParticleLevelEvent: Cannot find muon truth collection. Did you set the truth collection correctly?\n";
   }
+  
+  if (plEvent.m_softmuons) {
+    os << "Number of soft muons: " << plEvent.m_softmuons->size() << "\n";
+    for (const auto& muPtr : *plEvent.m_softmuons) {
+      if (muPtr) {
+        os << " " << *muPtr << "\n";
+      }
+    }
+  } else {
+    os << "ParticleLevelEvent: Cannot find muon truth collection. Did you set the truth collection correctly?\n";
+  }
 
   if (plEvent.m_jets) {
     os << "Number of jets: " << plEvent.m_jets->size() << "\n";

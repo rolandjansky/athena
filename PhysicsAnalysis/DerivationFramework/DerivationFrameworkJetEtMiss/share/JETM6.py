@@ -252,23 +252,6 @@ jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "JETM6TrigSkimKe
 
 
 #=======================================
-# BUILD UFO INPUTS
-#=======================================
-
-## Add PFlow constituents
-from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
-pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
-
-# add the pflow cssk sequence to the main jetalg if not already there :
-if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
-  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
-
-# Add UFO constituents
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CSSK")
-
-#=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
 
@@ -278,12 +261,12 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt2LCTopoJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10LCTopoJets",
-                  "AntiKt10UFOCSSKJets",
-                  "AntiKt10UFOCHSJets"
-                  ]
+                  "AntiKt10LCTopoJets"]
 
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
+
+#build ungroomed large-R UFO jets
+addDefaultUFOJets(jetm6Seq,"JETM6",doCHS=True)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",
@@ -361,11 +344,25 @@ if DerivationFrameworkIsMonteCarlo:
   import DerivationFrameworkCore.WeightMetadata
   import DerivationFrameworkCore.LHE3WeightMetadata
 
+# Add the BCID info
+addDistanceInTrain(jetm6Seq)
+
+# Alternative rho definition
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+addCHSPFlowObjects()
+from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
+jetm6Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM6SlimmingHelper = SlimmingHelper("JETM6SlimmingHelper")
+JETM6SlimmingHelper.AppendToDictionary = {
+    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
+}
+
 JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
@@ -396,7 +393,7 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
   "TruthEvents",
-  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"
   ]
 
 JETM6SlimmingHelper.ExtraVariables  = ['CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG']
