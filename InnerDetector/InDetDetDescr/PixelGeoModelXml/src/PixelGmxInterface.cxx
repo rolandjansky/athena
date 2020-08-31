@@ -76,9 +76,31 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
 }
 
 void PixelGmxInterface::makeSingleChipModule(string typeName, map<string, string> &par){
-
+  //
+  // Get all parameters.
+  //
+  double chipLength(20.0);
+  double chipWidth(19.2);
+  double pitchEta(0.050);
+  double pitchPhi(0.050);
+  double nCols(400);
+  double nRows(384);
+  
 }
 
 void PixelGmxInterface::makeQuadChipModule(string typeName, map<string, string> &par){
 
+}
+
+string PixelGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
+  map<string, string>::cons_iterator found;
+  if ((found = par.find(name)) != par.end()) {
+    return found->second;
+  }
+  else {
+    *m_log << MSG::FATAL << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " <<
+                                      typeName << endmsg;
+    exit(999);
+  }
+  
 }
