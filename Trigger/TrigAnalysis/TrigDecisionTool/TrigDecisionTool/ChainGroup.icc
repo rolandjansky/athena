@@ -3,7 +3,6 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
 
-
   bool errState = false;
   if ( condition != TrigDefs::Physics && condition != TrigDefs::includeFailedDecisions ) {
     ATH_MSG_ERROR("features may only be called with: "
@@ -62,7 +61,12 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
       TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, fchain->getChainHashId(), true);
 
       ATH_MSG_DEBUG("Added all passed navigation data for chain " << fchain->getChainName() 
-        << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
+        << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
+      if (msg().level() <= MSG::DEBUG && navGraph.finalNodes().size()) {
+        for (const TrigCompositeUtils::NavGraphNode* n : navGraph.finalNodes()) {
+          ATH_MSG_DEBUG("  Final node:" << TrigCompositeUtils::decisionToElementLink(n->node()).dataID() << " #" << n->node()->index());
+        }
+      }
 
       if (condition == TrigDefs::includeFailedDecisions) {
         std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
@@ -77,7 +81,13 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
         }
 
         ATH_MSG_DEBUG("Added all failed navigation data for chain " << fchain->getChainName() 
-          << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
+          << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
+        if (msg().level() <= MSG::DEBUG && navGraph.finalNodes().size()) {
+          for (const TrigCompositeUtils::NavGraphNode* n : navGraph.finalNodes()) {
+            ATH_MSG_DEBUG("  Final node:" << TrigCompositeUtils::decisionToElementLink(n->node()).dataID() << " #" << n->node()->index());
+          }
+        }
+
       }
 
     } else {
@@ -87,7 +97,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
 
   if (navGraph.edges() == 0) {
     ATH_MSG_DEBUG("No navigation path data found for this chain group of " << names().size() << " chains. "
-      << "Total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges());
+      << "Total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
   }
 
   if (msg().level() <= MSG::VERBOSE) {
