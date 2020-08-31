@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+   Copyrightf (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
@@ -745,19 +745,22 @@ namespace top {
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
-    // check that jets use tagged collectio name for new derivations
+    // check that jets use tagged collection name for new derivations
     // this is due to b-tagging breaking changes in derivations
     if (m_aodMetaData->valid()) {
       try {
         std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
+	ATH_MSG_INFO("Checking jet collection name compatibility, reading (MetaData->TagInfo): " << deriv_rel_name);
         size_t pos = deriv_rel_name.find('-');
         if (pos != std::string::npos) {
           deriv_rel_name = deriv_rel_name.substr(pos + 1);
+	  int deriv_rel;
+	  std::sscanf(deriv_rel_name.c_str(), "21.2.%d", &deriv_rel);
           // check for derivation version due to format breakage with calo jet b-tagging
-          if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
+          if (deriv_rel >= 72) { // 21.2.72.0: release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
               throw std::runtime_error(
-                      "TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4EMPFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
+				       "TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4EMPFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
             }
           } else { // release does NOT have tagged jet collection
             if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
@@ -768,7 +771,7 @@ namespace top {
           }
           // check for derivation version due to format breakage with track jet b-tagging
           if (this->useTrackJets()) {
-            if (deriv_rel_name >= "21.2.87.0") { // release where we need tagged track jet collection
+            if (deriv_rel >= 87) { // 21.2.87.0: release where we need tagged track jet collection
               if (this->sgKeyTrackJets() == this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
                 throw std::runtime_error(
                         "TopConfig: You are using derivation with release 21.2.87.0 or newer and did not specify tagged track jet collection, e.g. \"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903\". This is necessary for b-tagging to work!");
@@ -783,7 +786,7 @@ namespace top {
           }
 	  // check derivation version due to fJVT info needed at derivation level for PFlow
 	  if (this->useParticleFlowJets() && (settings->retrieve("ForwardJVTinMETCalculation") || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
-	    if (deriv_rel_name < "21.2.97.0") { 
+	    if (deriv_rel < 97) { //21.2.97.0
 	      throw std::runtime_error(
 			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn off fJVT (ForwardJVTWP = \"None\" && ForwardJVTinMETCalculation = \"False\")");
 	    }
