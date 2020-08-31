@@ -86,6 +86,7 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
+    return Prescales
 
 class Prescales(object):
     #   Item name             | Prescale
