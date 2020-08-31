@@ -8,18 +8,19 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
     def __init__ (self, name, doResMon=False):
-        name = "TrigFastTrackFinder_" + name
+        type = name
+        name = "TrigFastTrackFinder_" + type
         super(TrigFastTrackFinderMonitoring, self).__init__(name)
         self.HistPath = name
-        self.addSPHistograms(name)
+        self.addSPHistograms(type)
         self.addDataErrorHistograms()
-        self.addTimingHistograms(name)
-        self.addTrackHistograms(name)
+        self.addTimingHistograms(type)
+        self.addTrackHistograms(type)
         if doResMon:
             self.addResidualHistograms()
 
-    def addSPHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
+    def addSPHistograms(self, type):
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
             self.defineHistogram('roi_nSPsPIX', path='EXPERT',type='TH1F',title="Number of Pixel SPs", xbins = 500, xmin=-0.5, xmax=49999.5)
             self.defineHistogram('roi_nSPsSCT', path='EXPERT',type='TH1F',title="Number of SCT SPs", xbins = 500, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_phiWidth',path='EXPERT',type='TH1F',title="Phi width of the input RoI",xbins = 100, xmin=0, xmax=6.4)
@@ -39,8 +40,8 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.defineHistogram('roi_lastStageExecuted',path='EXPERT',type='TH1F',title="Last Step Successfully Executed", xbins = 8 , xmin=-0.5, xmax=7.5,
                              xlabels=["Start","GetRoI","GetSPs","ZFinder","Triplets","TrackMaker","TrackFitter","TrackConverter"])
    
-    def addTimingHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
+    def addTimingHistograms(self, type):
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
             self.defineHistogram('roi_nSPs, TIME_PattReco',   path='EXPERT',type='TH2F',title="PattReco time; nSPs",    xbins = 200, xmin=0.0, xmax=200000.0, ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('roi_nTracks, TIME_PattReco',path='EXPERT',type='TH2F',title="PattReco time; nTracks", xbins = 50,  xmin=0.0, xmax=10000.0,  ybins = 100, ymin=0.0, ymax=40000.0)
             self.defineHistogram('TIME_PattReco',             path='EXPERT',type='TH1F',title="Pure PattReco time (ms)",     xbins = 200, xmin=0.0, xmax=40000.0)
@@ -61,8 +62,8 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
 
 
 
-    def addTrackHistograms(self, name):
-        if name=='FS' or name=='JetFS' or name=='FullScan' or name=='fullScan':
+    def addTrackHistograms(self, type):
+        if type=='FS' or type=='JetFS' or type=='FullScan' or type=='fullScan':
             self.defineHistogram('roi_nSeeds',     path='EXPERT',type='TH1F',title="Number of seeds",xbins = 1000, xmin=-0.5, xmax=99999.5)
             self.defineHistogram('roi_nTracks',    path='EXPERT',type='TH1F',title="Number of Tracks",xbins = 100, xmin=-0.5, xmax=9999.5)
         else:
@@ -81,7 +82,7 @@ class TrigFastTrackFinderMonitoring(GenericMonitoringTool):
         self.defineHistogram('trk_eta',        path='EXPERT',type='TH1F',title="eta",xbins = 100, xmin=-5, xmax=5)
         self.defineHistogram('trk_dPhi0',      path='EXPERT',type='TH1F',title="dphi",xbins = 160, xmin=-0.8, xmax=0.8)
         self.defineHistogram('trk_dEta',       path='EXPERT',type='TH1F',title="deta",xbins = 160, xmin=-0.8, xmax=0.8)
-        if name=="Cosmic":
+        if type=="Cosmic":
             self.defineHistogram('trk_a0',     path='EXPERT',type='TH1F',title="a0",xbins = 100, xmin=-300, xmax=300)
             self.defineHistogram('trk_a0beam', path='EXPERT',type='TH1F',title="a0beam",xbins = 100, xmin=-300, xmax=300)
             self.defineHistogram('trk_z0',     path='EXPERT',type='TH1F',title="z0",xbins = 100, xmin=-800, xmax=800)
@@ -211,8 +212,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
 
+        # why is this TrigFastTrackFinderMonitoring() line added twice ???
         # Run3 monitoring
-        self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
+        #        self.MonTool = TrigFastTrackFinderMonitoring(type, self.doResMon)
 
         #Spacepoint conversion
         from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
