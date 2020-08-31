@@ -39,6 +39,8 @@ namespace xAOD {
          kRecoverable = 2
       };
 
+      /// Default constructor
+      TReturnCode() : TReturnCode(kSuccess) {};
       /// Constructor with a return code value
       TReturnCode( EReturnCode code );
       /// Copy constructor
