@@ -159,6 +159,7 @@ public:
   typedef std::map< std::string , FindDuplicates_t > FindDuplicateClasses_t;
   void FindDuplicates(FindDuplicateClasses_t& dup);
   void RemoveDuplicates();
+  void RemoveNameTitle();
 
 protected:
   static constexpr double init_Ekin_nominal=0;//! Do not persistify!

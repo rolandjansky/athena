@@ -203,4 +203,15 @@ void TFCSParametrizationBase::RemoveDuplicates()
   for(auto& del : ndel) ATH_MSG_INFO("Deleted "<<del.second<<" duplicate objects of class "<<del.first);
 }
 
+void TFCSParametrizationBase::RemoveNameTitle()
+{
+  for(unsigned int i=0;i<size();++i) if((*this)[i]) {
+    TFCSParametrizationBase* param=(*this)[i];
+    param->SetName("");
+    param->SetTitle("");
+    
+    //Continue for child objects in param
+    param->RemoveNameTitle();
+  }  
+}
 

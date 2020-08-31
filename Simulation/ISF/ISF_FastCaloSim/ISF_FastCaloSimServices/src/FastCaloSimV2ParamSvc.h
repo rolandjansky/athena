@@ -50,6 +50,7 @@ namespace ISF {
     std::unique_ptr<CaloGeometryFromCaloDDM> m_caloGeo{};
 
     bool m_printParametrization{false};
+    bool m_CompressMemory{true};
   };
 
 }
