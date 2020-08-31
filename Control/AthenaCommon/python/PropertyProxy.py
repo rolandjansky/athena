@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyProxy.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -6,6 +6,7 @@
 
 import os, weakref, copy
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
+from GaudiKernel.DataHandle import DataHandle
 
 # dictionary with configurable class : python module entries
 from AthenaCommon import ConfigurableDb
@@ -398,6 +399,48 @@ class GaudiHandleArrayPropertyProxy(GaudiHandlePropertyProxyBase):
       return newValue
 
 
+class DataHandlePropertyProxy(PropertyProxy):
+    def __init__(self, descr, docString, default):
+        PropertyProxy.__init__(self, descr, docString, default)
+
+    def __get__(self, obj, type=None):
+        try:
+            return self.descr.__get__(obj, type)
+        except AttributeError:
+            # Get default
+            try:
+                default = obj.__class__.getDefaultProperty(self.descr.__name__)
+                default = self.convertValueToBeSet(obj, default)
+                if default:
+                    self.__set__(obj, default)
+            except AttributeError as e:
+                # change type of exception to avoid false error message
+                raise RuntimeError(*e.args)
+
+        return self.descr.__get__(obj, type)
+
+    def __set__(self, obj, value):
+        if not obj._isInSetDefaults() or obj not in self.history:
+            value = self.convertValueToBeSet(obj, value)
+            # assign the value
+            self.descr.__set__(obj, value)
+            log.debug("Setting %s = %r", self.fullPropertyName(obj), value)
+            self.history.setdefault(obj, []).append(value)
+
+    def convertValueToBeSet(self, obj, value):
+        if value is None:
+            value = ''
+
+        mode = obj.__class__.getDefaultProperty(self.descr.__name__).mode()
+        _type = obj.__class__.getDefaultProperty(self.descr.__name__).type()
+        if type(value) == str:
+            return DataHandle(value, mode, _type)
+        elif isinstance(value, DataHandle):
+            return DataHandle(value.__str__(), mode, _type)
+        else:
+            raise ValueError("received an instance of %s, but %s expected" %
+                             (type(value), 'str or DataHandle'))
+
 
 def PropertyProxyFactory( descr, doc, default ):
 #   print "PropertyProxyFactory( %s, %r )" % (descr.__name__,default)
@@ -406,5 +449,8 @@ def PropertyProxyFactory( descr, doc, default ):
 
    if isinstance(default,GaudiHandle):
       return GaudiHandlePropertyProxy( descr, doc, default )
+
+   if isinstance(default,DataHandle):
+      return DataHandlePropertyProxy( descr, doc, default )
 
    return PropertyProxy( descr, doc, default )
