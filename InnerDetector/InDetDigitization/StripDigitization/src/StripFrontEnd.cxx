@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripFrontEnd.h"
@@ -72,9 +72,9 @@ StripFrontEnd::StripFrontEnd(const std::string &type, const std::string &name,
                     "Threshold time");
     declareProperty("PulseAveragingFlag", m_PulseAveragingFlag = false,
                     "Flag to set the Pulse Averaging");
-    declareProperty("DataCompressionMode", m_data_compression_mode = 1,
+    declareProperty("DataCompressionMode", m_data_compression_mode = Edge_01X,
                     "Front End Data Compression Mode");
-    declareProperty("DataReadOutMode", m_data_readout_mode = 0,
+    declareProperty("DataReadOutMode", m_data_readout_mode = Condensed,
                     "Front End Data Read out mode Mode");
     declareProperty("UseCalibData", m_useCalibData = true,
                     "Flag to use Calib Data");
@@ -150,6 +150,29 @@ StatusCode StripFrontEnd::initialize() {
     ATH_MSG_INFO("m_data_readout_mode     (DataReadOutMode)     = " <<
         m_data_readout_mode);
 
+    // Check configuration. If it is invalid, abort this job.
+    if (not (m_data_compression_mode==Level_X1X or
+             m_data_compression_mode==Edge_01X or
+             m_data_compression_mode==AnyHit_1XX_X1X_XX1)) {
+      ATH_MSG_FATAL("m_data_compression_mode = " << m_data_compression_mode
+                    << " is invalid. Abort this job!!!");
+      return StatusCode::FAILURE;
+    }
+    if (not (m_data_readout_mode==Condensed or m_data_readout_mode==Expanded)) {
+      ATH_MSG_FATAL("m_data_readout_mode = " << m_data_readout_mode
+                    << " is invalid. Abort this job!!!");
+      return StatusCode::FAILURE;
+    }
+    if ((m_data_compression_mode==Level_X1X or m_data_compression_mode==AnyHit_1XX_X1X_XX1)
+        and m_data_readout_mode==Condensed) {
+      ATH_MSG_FATAL("m_data_compression_mode = " << m_data_compression_mode
+                    << (m_data_compression_mode==Level_X1X ? " (Level_X1X)" : " (AnyHit_1XX_X1X_XX1)")
+                    << " requires timing information."
+                    << " However, m_data_readout_mode = " << m_data_readout_mode
+                    << " (Condensed) does not keep timing information. Abort this job!!!");
+      return StatusCode::FAILURE;
+    }
+
     return m_sc;
 }
 
@@ -174,21 +197,14 @@ StatusCode StripFrontEnd::initVectors(const int &strips) const {
     m_GainFactor.assign(strips, 0.0);
     m_NoiseFactor.assign(strips, 0.0);
 
-    if (m_data_compression_mode == 1 and m_data_readout_mode == 0) {
-        m_Analogue[0].reserve(1);
-        m_Analogue[1].reserve(strips);
-    }
-    else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) {
+    if (m_data_readout_mode == Condensed) {
         m_Analogue[0].reserve(strips);
         m_Analogue[1].reserve(strips);
     }
-    else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) {
+    else { // Expanded
         m_Analogue[0].reserve(strips);
         m_Analogue[1].reserve(strips);
         m_Analogue[2].reserve(strips);
-    }
-    else {
-        return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -308,14 +324,7 @@ StatusCode StripFrontEnd::prepareGainAndOffset(
                         m_NoiseFactor[i] = Noise * mode;
 
                         // Fill the noise and offset values into the Analogue
-                        if (m_data_compression_mode == 1 and
-                            m_data_readout_mode == 0) { // level mode x1x
-                            m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] *
-                                               CLHEP::RandGaussZiggurat::shoot(
-                                m_rndmEngine);
-                        }
-                        else if (m_data_compression_mode == 2 and
-                                 m_data_readout_mode == 0) { // edge mode 01x
+                        if (m_data_readout_mode == Condensed) {
                             m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] *
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
@@ -323,10 +332,7 @@ StatusCode StripFrontEnd::prepareGainAndOffset(
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
                         }
-                        else if (m_data_compression_mode == 3 or
-                                 m_data_readout_mode == 1) { // any hit mode xxx
-                                                             // or expanded read
-                                                             // out mode
+                        else { // Expanded
                             m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] *
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
@@ -483,14 +489,7 @@ StatusCode StripFrontEnd::prepareGainAndOffset(
                         m_NoiseFactor[i] = noiseByChipVect[chip];
 
                         // Fill the noise and offset values into the Analogue
-                        if (m_data_compression_mode == 1 and
-                            m_data_readout_mode == 0) { // level mode x1x
-                            m_Analogue[1][i] = m_Offset[i] + m_NoiseFactor[i] *
-                                               CLHEP::RandGaussZiggurat::shoot(
-                                m_rndmEngine);
-                        }
-                        else if (m_data_compression_mode == 2 and
-                                 m_data_readout_mode == 0) { // edge mode 01x
+                        if (m_data_readout_mode == Condensed) {
                             m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] *
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
@@ -498,10 +497,7 @@ StatusCode StripFrontEnd::prepareGainAndOffset(
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
                         }
-                        else if (m_data_compression_mode == 3 or
-                                 m_data_readout_mode == 1) { // any hit mode xxx
-                                                             // or expanded read
-                                                             // out mode
+                        else { // Expanded
                             m_Analogue[0][i] = m_Offset[i] + m_NoiseFactor[i] *
                                                CLHEP::RandGaussZiggurat::shoot(
                                 m_rndmEngine);
@@ -534,7 +530,7 @@ StatusCode StripFrontEnd::randomNoise(SiChargedDiodeCollection &collection, cons
     int nNoisyStrips = 0;
     double mode = 1.;
 
-    const bool noise_expanded_mode = (m_data_compression_mode == 3 and m_data_readout_mode == 1);
+    const bool noise_expanded_mode = (m_data_compression_mode == AnyHit_1XX_X1X_XX1 and m_data_readout_mode == Expanded);
 
     // Will give 3 times as much noise occupancy if running in any hit expanded
     // mode
@@ -685,7 +681,7 @@ StatusCode StripFrontEnd::randomNoise(SiChargedDiodeCollection &collection, cons
     std::vector<int> nNoisyStrips(n_chips, 0);
     double mode = 1.;
 
-    const bool noise_expanded_mode = (m_data_compression_mode == 3 and m_data_readout_mode == 1);
+    const bool noise_expanded_mode = (m_data_compression_mode == AnyHit_1XX_X1X_XX1 and m_data_readout_mode == Expanded);
 
     // Will give 3 times as much noise occupancy if running in any hit expanded
     // mode
@@ -844,18 +840,13 @@ void StripFrontEnd::process(SiChargedDiodeCollection &collection) const {
     m_StripHitsOnWafer.assign(m_strip_max, 0);
 
     // Containes the charge for each bin on each hit strip
-    if (m_data_compression_mode == 1 and m_data_readout_mode == 0) {
-        for (int i = 0; i < m_strip_max; ++i) {
-            m_Analogue[1][i] = 0.0;
-        }
-    }
-    else if (m_data_compression_mode == 2 and m_data_readout_mode == 0) {
+    if (m_data_readout_mode == Condensed) {
         for (int i = 0; i < m_strip_max; ++i) {
             m_Analogue[0][i] = 0.0;
             m_Analogue[1][i] = 0.0;
         }
     }
-    else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) {
+    else { // Expanded
         for (int i = 0; i < m_strip_max; ++i) {
             m_Analogue[0][i] = 0.0;
             m_Analogue[1][i] = 0.0;
@@ -929,7 +920,7 @@ StatusCode StripFrontEnd::doSignalChargeForHits(
 
     // set up number of needed bins depending on the compression mode
     short bin_max = 0;
-    if (m_data_readout_mode == 0) {
+    if (m_data_readout_mode == Condensed) {
         bin_max = m_data_compression_mode;
     }
     else {
@@ -966,30 +957,7 @@ StatusCode StripFrontEnd::doSignalChargeForHits(
                     m_sct_amplifier->AccumulateAverages(ChargesOnStrip);
                 }
 
-                if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { //
-                                                                                 // level
-                                                                                 // mode
-                                                                                 // x1x
-                    // Amplifier response
-                    m_Analogue[1][strip] += m_GainFactor[strip] *
-                                            m_sct_amplifier->response(
-                        ChargesOnStrip,
-                        m_timeOfThreshold);
-
-                    // Add Crosstalk signal for neighboring strip
-                    response[0] = m_sct_amplifier->crosstalk(ChargesOnStrip,
-                                                             m_timeOfThreshold);
-                    if (strip + 1 < m_strip_max) {
-                        m_Analogue[1][strip + 1] += m_GainFactor[strip + 1] *
-                                                    response[0];
-                    }
-                    if (strip > 0) {
-                        m_Analogue[1][strip - 1] += m_GainFactor[strip - 1] *
-                                                    response[0];
-                    }
-                }
-                else if (m_data_compression_mode == 2 and m_data_readout_mode ==
-                         0) { // edge mode 01x
+                if (m_data_readout_mode == Condensed) {
                     // Amplifier response
                     m_sct_amplifier->response(ChargesOnStrip, m_timeOfThreshold,
                                               response);
@@ -1013,8 +981,7 @@ StatusCode StripFrontEnd::doSignalChargeForHits(
                         }
                     }
                 }
-                else if (m_data_compression_mode == 3 or m_data_readout_mode ==
-                         1) { // any hit mode xxx or expanded read out mode
+                else { // Expanded
                     // Amplifier response
                     m_sct_amplifier->response(ChargesOnStrip, m_timeOfThreshold,
                                               response);
@@ -1066,30 +1033,7 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
         if (roCell.isValid()) {
             int strip = roCell.strip();
             if (strip > -1 && strip < m_strip_max) {
-                if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { //
-                                                                                 // level
-                                                                                 // mode
-                                                                                 // x1x
-                    if (m_Analogue[1][strip] < m_Threshold) {
-                        SiHelper::belowThreshold(diode, true);   // Below strip
-                                                                 // diode signal
-                                                                 // threshold
-                        m_StripHitsOnWafer[strip] = -1;
-                    }
-                    else if (((0x10 & diode.flag()) == 0x10) || ((0x4 &
-                                                                  diode.flag())
-                                                                 == 0x4)) {
-                        // previously a crazy strip number could have screwed
-                        // things up here.
-                        m_StripHitsOnWafer[strip] = -1;
-                    }
-                    else {
-                        m_StripHitsOnWafer[strip] = 1;
-                        SiHelper::SetTimeBin(diode, 2); // set timebin info
-                    }
-                }
-                else if (m_data_compression_mode == 2 and m_data_readout_mode ==
-                         0) { // edge mode 01x
+                if (m_data_readout_mode == Condensed) {
                     if ((m_Analogue[0][strip] >= m_Threshold ||
                          m_Analogue[1][strip] < m_Threshold)) {
                         SiHelper::belowThreshold(diode, true);   // Below strip
@@ -1109,8 +1053,7 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
                         SiHelper::SetTimeBin(diode, 2); // set timebin info
                     }
                 }
-                else if (m_data_compression_mode == 3 or m_data_readout_mode ==
-                         1) {
+                else { // Expanded
                     // Check hit pattern
                     int have_hit_bin = 0;
                     if (m_Analogue[0][strip] >= m_Threshold) {
@@ -1129,8 +1072,7 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
                         // things up here.
                         m_StripHitsOnWafer[strip] = -1;
                     }
-                    else if (m_data_compression_mode == 1) { // !< level and
-                                                             // expanded mode
+                    else if (m_data_compression_mode == Level_X1X) {
                         if (have_hit_bin == 2 or have_hit_bin == 3 or
                             have_hit_bin == 6 or have_hit_bin == 7) {
                             m_StripHitsOnWafer[strip] = 1;
@@ -1145,8 +1087,7 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
                             m_StripHitsOnWafer[strip] = -1;
                         }
                     }
-                    else if (m_data_compression_mode == 2) { // !< edge and
-                                                             // expanded mode
+                    else if (m_data_compression_mode == Edge_01X) {
                         if (have_hit_bin == 2 or have_hit_bin == 3) {
                             m_StripHitsOnWafer[strip] = 1;
                             SiHelper::SetTimeBin(diode, have_hit_bin);
@@ -1160,7 +1101,7 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
                             m_StripHitsOnWafer[strip] = -1;
                         }
                     }
-                    else if (m_data_compression_mode == 3) { // !< any hit mode
+                    else if (m_data_compression_mode == AnyHit_1XX_X1X_XX1) {
                         if (have_hit_bin == 0) {
                             SiHelper::belowThreshold(diode, true); // Below
                                                                    // strip
@@ -1171,12 +1112,12 @@ StatusCode StripFrontEnd::doThresholdCheckForRealHits(
                         }
                         else {
                             m_StripHitsOnWafer[strip] = 1;
-                            if (m_data_readout_mode == 1) {    // !< check for
+                            if (m_data_readout_mode == Expanded) { // !< check for
                                                                // exp mode or
                                                                // not
                                 SiHelper::SetTimeBin(diode, have_hit_bin);
                             }
-                            else {
+                            else { // Condensed
                                 SiHelper::SetTimeBin(diode, 2);
                             }
                         }
@@ -1207,24 +1148,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
         if (m_Analogue[1][strip] > 0) { // Better way of doing this?! set
                                         // m_StripHitsOnWafer to x in
                                         // prepareGainAndOffset
-            if (m_data_compression_mode == 1 and m_data_readout_mode == 0) { // level
-                                                                             // mode
-                                                                             // x1x
-                if (m_Analogue[1][strip] < m_Threshold) {
-                    m_StripHitsOnWafer[strip] = -2;           // Below threshold
-                }
-                else {
-                    m_StripHitsOnWafer[strip] = 2;            // Crosstalk+Noise
-                                                              // hit
-                    if (StatusCode::SUCCESS != addNoiseDiode(collection, strip,
-                                                             2)) {
-                        ATH_MSG_ERROR(
-                            "Can't add noise hit diode to collection");
-                    }
-                }
-            }
-            else if (m_data_compression_mode == 2 and m_data_readout_mode ==
-                     0) { // edge mode 01x
+            if (m_data_readout_mode == Condensed) {
                 if ((m_Analogue[0][strip] >= m_Threshold ||
                      m_Analogue[1][strip] < m_Threshold)) {
                     m_StripHitsOnWafer[strip] = -2;           // Below threshold
@@ -1239,7 +1163,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
                     }
                 }
             }
-            else if (m_data_compression_mode == 3 or m_data_readout_mode == 1) {
+            else { // Expanded
                 int have_hit_bin = 0;
                 if (m_Analogue[0][strip] >= m_Threshold) {
                     have_hit_bin = 4;
@@ -1250,8 +1174,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
                 if (m_Analogue[2][strip] >= m_Threshold) {
                     have_hit_bin += 1;
                 }
-                if (m_data_compression_mode == 1) { // !< level and expanded
-                                                    // mode
+                if (m_data_compression_mode == Level_X1X) {
                     if (have_hit_bin == 2 or have_hit_bin == 3 or
                         have_hit_bin == 6 or have_hit_bin == 7) {
                         m_StripHitsOnWafer[strip] = 2;          // Crosstalk+Noise
@@ -1269,8 +1192,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
                                                                 // threshold
                     }
                 }
-                else if (m_data_compression_mode == 2) {// !< edge and expanded
-                                                        // mode
+                else if (m_data_compression_mode == Edge_01X) {
                     if (have_hit_bin == 2 or have_hit_bin == 3) {
                         m_StripHitsOnWafer[strip] = 2; // Noise hit
                         if (StatusCode::SUCCESS != addNoiseDiode(collection,
@@ -1295,7 +1217,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
                         m_StripHitsOnWafer[strip] = 2;          // !<
                                                                 // Crosstalk+Noise
                                                                 // hit
-                        if (m_data_readout_mode == 1) {       // !< check for
+                        if (m_data_readout_mode == Expanded) { // !< check for
                                                               // exp mode or not
                             if (StatusCode::SUCCESS != addNoiseDiode(collection,
                                                                      strip,
@@ -1305,7 +1227,7 @@ StatusCode StripFrontEnd::doThresholdCheckForCrosstalkHits(
                                     "Can't add noise hit diode to collection");
                             }
                         }
-                        else {
+                        else { // Condensed
                             if (StatusCode::SUCCESS != addNoiseDiode(collection,
                                                                      strip,
                                                                      2)) {
@@ -1335,7 +1257,7 @@ StatusCode StripFrontEnd::doClustering(SiChargedDiodeCollection &collection)
     
     SiCellId hitStrip;        
 
-    if (m_data_readout_mode == 0) {
+    if (m_data_readout_mode == Condensed) {
         do {
             if (m_StripHitsOnWafer[strip] > 0) {
                 // ====== First step: Get the cluster size
