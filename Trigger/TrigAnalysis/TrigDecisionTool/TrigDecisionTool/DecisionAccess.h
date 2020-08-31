@@ -157,7 +157,7 @@ namespace Trig {
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
     associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
-                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+                         const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
@@ -171,7 +171,7 @@ namespace Trig {
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
     associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::Decision* decisionObject,
-                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+                         const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
