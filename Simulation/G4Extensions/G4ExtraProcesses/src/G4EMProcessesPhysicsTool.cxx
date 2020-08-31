@@ -12,6 +12,7 @@
 #include "G4ProcessManager.hh"
 #include "G4hIonisation.hh"
 #include "G4hMultipleScattering.hh"
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 // Implementation file for class : G4EMProcessesPhysicsTool
@@ -64,7 +65,7 @@ void G4EMProcessesPhysicsTool::ConstructProcess()
     while ((*particleIterator)())
     {
         G4ParticleDefinition *particle = particleIterator->value();
-        if (std::find(m_particleList.begin(), m_particleList.end(), fabs(particle->GetPDGEncoding())) != m_particleList.end())
+        if (std::find(m_particleList.begin(), m_particleList.end(), std::abs(particle->GetPDGEncoding())) != m_particleList.end())
         {
             ATH_MSG_INFO("Adding EM processes for "
                          << particle->GetParticleName());
