@@ -270,7 +270,7 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
          // previously been set to something non-null.
          // So we need to create the temp object ourselves.
          dsc.branch->SetAddress( dsc.dummyAddr() );
-         // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
+         // cout << "   aaa Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
          if( isBranchContainer() && !m_treeFillMode ) {
             size_t bytes_out = dsc.branch->Fill();
             num_bytes += bytes_out;
