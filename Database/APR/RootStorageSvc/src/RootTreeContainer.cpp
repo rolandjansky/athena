@@ -206,7 +206,11 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
                    if( dsc.rows_written ) {
                       // catch up with the rows written by other branches
                       newBrDsc.object = nullptr;
-                      newBrDsc.branch->SetAddress( nullptr );
+                      // As of root 6.22, calling SetAddress with nullptr
+                      // may not work as expected if the address had
+                      // previously been set to something non-null.
+                      // So we need to create the temp object ourselves.
+                      newBrDsc.branch->SetAddress( newBrDsc.dummyAddr() );
                       for( size_t r=0; r<dsc.rows_written; ++r ) {
                          num_bytes += newBrDsc.branch->BackFill();
                       }
@@ -261,7 +265,11 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
       BranchDesc& dsc = descMapElem.second;
       if( !dsc.written ) {
          dsc.object = nullptr;
-         dsc.branch->SetAddress( nullptr );
+         // As of root 6.22, calling SetAddress with nullptr
+         // may not work as expected if the address had
+         // previously been set to something non-null.
+         // So we need to create the temp object ourselves.
+         dsc.branch->SetAddress( dsc.dummyAddr() );
          // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
          if( isBranchContainer() && !m_treeFillMode ) {
             size_t bytes_out = dsc.branch->Fill();
