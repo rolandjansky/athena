@@ -1,19 +1,7 @@
-################################################################################
-# Package: CollectionUtilities
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CollectionUtilities )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Database/APR/CollectionBase
-  Database/PersistentDataModel
-  PRIVATE
-  Database/APR/FileCatalog
-  Database/APR/POOLCore
-  Database/APR/PersistencySvc )
 
 # External dependencies:
 find_package( Boost )
@@ -42,14 +30,14 @@ atlas_add_library( CollectionUtilities
   PRIVATE_INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
   LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase PersistentDataModel
   PRIVATE_LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES}
-  FileCatalog POOLCore PersistencySvc )
+  FileCatalog POOLCore )
 
 # Helper macro declaring the utilities of the package:
 macro( collection_utility name )
   atlas_add_executable( ${name} utilities/${name}.cpp
     INCLUDE_DIRS $${CORAL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
     LINK_LIBRARIES ${CORAL_LIBRARIES} ${XERCESC_LIBRARIES} CollectionBase
-    PersistentDataModel FileCatalog POOLCore CollectionUtilities )
+    PersistentDataModel PersistencySvc FileCatalog POOLCore CollectionUtilities )
 endmacro( collection_utility )
 
 # Declare the utilities of the package:
