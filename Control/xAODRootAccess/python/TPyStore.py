@@ -40,8 +40,8 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     def contains( self, key, type ):
         # Determine the class name:
         clname = type.__name__
-        if hasattr( type, "___cpp_name__" ):
-            clname = type.___cpp_name__
+        if hasattr( type, "__cpp_name__" ):
+            clname = type.__cpp_name__
             pass
         # Call the parent class's function:
         return super( TPyStore, self ).contains( key, clname )
@@ -63,8 +63,8 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     def isConst( self, key, type ):
         # Determine the class name:
         clname = type.__name__
-        if hasattr( type, "___cpp_name__" ):
-            clname = type.___cpp_name__
+        if hasattr( type, "__cpp_name__" ):
+            clname = type.__cpp_name__
             pass
         # Call the parent class's function:
         return super( TPyStore, self ).isConst( key, clname )
@@ -87,8 +87,9 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     def record( self, obj, key ):
         # Determine the class name:
         clname = obj.__class__.__name__
-        if hasattr( obj.__class__, "___cpp_name__" ):
-            clname = obj.__class__.___cpp_name__
+        if hasattr( obj.__class__, "__cpp_name__" ):
+            clname = obj.__class__.__cpp_name__
             pass
         # Call the parent class's function:
+        print("Recording",key,clname)
         return super( TPyStore, self ).record( obj, key, clname )
