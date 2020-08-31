@@ -1,0 +1,84 @@
+// emacs: this is -*- c++ -*- 
+
+panels = { eff_panel, res_panel, diff_panel, spoff_panel, sp_panel, dist_panel };
+
+
+eff_panel = { 
+
+   "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]",       
+   "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",  "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]",       
+   "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]",       
+   "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]"       
+
+};     
+
+
+res_panel = { 
+
+   "eta_res",    "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries",        
+   "ipT_res",    "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries",       
+   "phi_res",    "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries",
+   "z0_res",     "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" 
+
+};
+
+
+diff_panel = { 
+
+     "reta_vs_eta/sigma",        "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "#eta resolution",            
+     "reta_vs_pt/sigma",         "Residual #eta p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution",            
+
+     "ript_vs_eta/sigma",        "Residual 1/p_{T} vs #eta",     "xaxis:lin:auto",     "Offline #eta",         "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]",
+     "ript_vs_pt/sigma",         "Residual 1/p_{T} vs p_{T}",    "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto", "1/p_{T} resolution [GeV^{-1}]",
+
+     "rzed_vs_eta/sigma",        "Residual z vs #eta",           "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto", "z_{0} resolution [mm]",
+     "rzed_vs_pt/sigma",         "Residual z vs p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]",
+
+     "rd0_vs_eta/sigma",         "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d_{0} resolution [mm]",                    
+     "rd0_vs_pt/sigma",          "Residual d vs p_{T}",          "xaxis:log:auto",      "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]",
+
+     "rd0_vs_signed_pt/sigma",   "Residual d vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]",    
+     "rzed_vs_signed_pt/sigma",  "Residual z vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "z_{0} resolution [mm]"    
+
+};
+
+
+dist_panel = { 
+ /// distributions - 4
+     "ntracks",        "number of offline tracks",       "xaxis:lin:auto",   "Offline track multiplicity",     "yaxis:log:autow",  "Normalised entries"  ,
+     "ntracks_rec",    "number of reconstructed tracks", "xaxis:lin:auto",   "Trigger track multiplicity",     "yaxis:log:autonw", "Normalised entries"  ,
+
+     //     "pT",      "p_{T}",        "xaxis:log:auto:1:100:offset0.45",   "Offline p_{T} [GeV]", "yaxis:log:autow:offset0.85",  "Normalised entries",
+     //     "pT_rec",  "p_{T} rec",    "xaxis:log:auto:1:100:0ffset0.45",   "Trigger p_{T} [GeV]", "yaxis:log:autow:offset0.85",  "Normalised entries",
+
+     "pT",      "p_{T}",        "xaxis:log:auto:1:100",   "Offline p_{T} [GeV]", "yaxis:log:autow",  "Normalised entries",
+     "pT_rec",  "p_{T} rec",    "xaxis:log:auto:1:100",   "Trigger p_{T} [GeV]", "yaxis:log:autow",  "Normalised entries",
+
+     "eta",      "eta",         "xaxis:lin:auto:1:100",   "Offline #eta",        "yaxis:lin:auton",  "Normalised entries",
+     "eta_rec",  "eta rec",     "xaxis:lin:auto:1:100",   "Trigger #eta",        "yaxis:lin:auton",  "Normalised entries",
+
+     "a0",      "a0",           "xaxis:lin:-3:3",         "Offline a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+     "a0_rec",  "a0 rec",       "xaxis:lin:-3:3",         "Trigger a_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+
+     "z0",      "z0",           "xaxis:lin:-200:200",     "Offline z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries",
+     "z0_rec",  "z0_rec",       "xaxis:lin:-200:200",     "Trigger z_{0} [mm]",  "yaxis:log:auton",  "Normalised entries"
+};
+
+
+spoff_panel = { 
+   "npix_eta/mean",           "mean number of pixel hits",  "xaxis:lin",   "Offline #eta",   "yaxis:lin:3:6",  "Offline Pixel hits",
+   "nsct_eta/mean",           "mean number of SCT hits",    "xaxis:lin",   "Offline #eta",   "yaxis:lin:7:10", "Offline SCT clusters",
+
+   "npix_pt/mean",           "mean number of pixel hits",  "xaxis:log:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Offline Pixel hits",
+   "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:log:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "Offline SCT clusters",
+};
+
+
+sp_panel = { 
+   "npix_eta_rec/mean",           "mean number of pixel hits",  "xaxis:lin",   "Offline #eta",   "yaxis:lin:3:6",  "Trigger Pixel hits",
+   "nsct_eta_rec/mean",           "mean number of SCT hits",    "xaxis:lin",   "Offline #eta",   "yaxis:lin:7:10", "Trigger SCT clusters",
+
+   "npix_pt_rec/mean",           "mean number of pixel hits",  "xaxis:log:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Trigger Pixel hits",
+   "nsct_pt_rec/mean",           "mean number of SCT hits",    "xaxis:log:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "Trigger SCT clusters",
+};
+

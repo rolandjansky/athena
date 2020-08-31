@@ -1,0 +1,24 @@
+pT     = 1000;
+eta    = 2.5;
+#if defined(LARGED0)
+	a0=10;
+#elif defined(LARGED0_EL)
+	a0=4.;
+#else	
+	a0=3.;
+#endif
+// npix   = 1;
+// nsct   = 2;
+npix   = 1;
+nsct   = 2;
+
+expectIBL = 1;
+
+pT_rec  = 0;
+eta_rec = 5;
+Rmatch = 0.05;
+
+dumpflag = 1;
+
+a0v = 10.5;
+z0v = 10.5;
