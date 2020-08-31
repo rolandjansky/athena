@@ -211,10 +211,10 @@ class PFOPufitConfig(AlgConfig):
         # through to the underlying alg config class parameter
         prepAlg = RecoFragmentsPool.retrieve(
             HLT__MET__PFOPrepAlg,
-            f"{pfoPrefix}PFOPufitPrepAlg",
-            InputNeutralKey=f"{pfoPrefix}CHSNeutralParticleFlowObjects",
-            InputChargedKey=f"{pfoPrefix}CHSChargedParticleFlowObjects",
-            OutputKey=f"{pfoPrefix}METTrigCombinedParticleFlowObjects",
+            "{}PFOPufitPrepAlg".format(pfoPrefix),
+            InputNeutralKey="{}CHSNeutralParticleFlowObjects".format(pfoPrefix),
+            InputChargedKey="{}CHSChargedParticleFlowObjects".format(pfoPrefix),
+            OutputKey="{}METTrigCombinedParticleFlowObjects".format(pfoPrefix),
             OutputCategoryKey="PUClassification",
         )
         self.inputs = pfoInputs + [prepAlg]
@@ -248,7 +248,7 @@ class CVFPufitConfig(AlgConfig):
 
         prepAlg = RecoFragmentsPool.retrieve(
             HLT__MET__CVFPrepAlg,
-            f"{calib}ClusterCVFPrepAlg",
+            "{}ClusterCVFPrepAlg".format(calib),
             InputClusterKey=clusterName,
             InputCVFKey=cvfName,
             OutputCategoryKey="PUClassification",

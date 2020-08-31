@@ -96,7 +96,7 @@ def cvfClusterSequence(dummyFlags, RoIs, **recoDict):
 
     cvfAlg = RecoFragmentsPool.retrieve(
         HLT__MET__CVFAlg,
-        f"{calib}{trkopt}ClusterCVFAlg",
+        "{}{}ClusterCVFAlg".format(calib, trkopt),
         InputClusterKey=clusterName,
         InputTrackKey=tracks,
         InputVertexKey=vertices,
