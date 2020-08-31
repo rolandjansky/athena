@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitChain_h
@@ -15,8 +15,6 @@ public:
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
-
-//  virtual void set_geometry(ICaloGeometry* geo) override;
 
   typedef std::vector< TFCSLateralShapeParametrizationHitBase* > Chain_t;
   virtual unsigned int size() const override;
@@ -48,16 +46,6 @@ public:
   static constexpr float s_max_sigma2_fluctuation=1000;//! Do not persistify!
 
   void Print(Option_t *option = "") const override;
-
-/*
-#if defined(__FastCaloSimStandAlone__)
-  /// Update outputlevel
-  virtual void setLevel(int level,bool recursive=false) override {
-    TFCSLateralShapeParametrization::setLevel(level,recursive);
-    if(recursive) if(m_number_of_hits_simul) m_number_of_hits_simul->setLevel(level,recursive);
-  }
-#endif
-*/
 
 protected:
   Chain_t m_chain;

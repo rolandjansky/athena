@@ -67,14 +67,6 @@ void TFCSLateralShapeParametrizationHitChain::set_daughter(unsigned int ind,TFCS
   }  
 }
 
-/*
-void TFCSLateralShapeParametrizationHitChain::set_geometry(ICaloGeometry* geo)
-{
-  TFCSLateralShapeParametrization::set_geometry(geo);
-  if(m_number_of_hits_simul) m_number_of_hits_simul->set_geometry(geo);
-}
-*/
-
 int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   // TODO: should we still do it?
