@@ -97,9 +97,11 @@ if __name__=='__main__':
     #ConfigFlags.Input.Files = [nightly+file]
     #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_6/aod0.pool.root']
     #ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1']
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
+    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
+    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000001.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000002.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput48-Automatic-200k.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput52-212k-337371-Aut.root'
     
     ConfigFlags.lock()
 
@@ -115,6 +117,6 @@ if __name__=='__main__':
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run(200000)
+    cfg.run()
 
 

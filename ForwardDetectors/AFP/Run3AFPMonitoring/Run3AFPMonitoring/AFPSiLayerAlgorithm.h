@@ -8,13 +8,9 @@
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
-//#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
-// 4
 #include "LumiBlockData/BunchCrossingCondData.h"
-// 2
-//#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 #include "TRandom3.h"
 
@@ -26,20 +22,12 @@ public:
 	virtual ~AFPSiLayerAlgorithm();
 	virtual StatusCode initialize() override;
 	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
-	//virtual StatusCode execute(const EventContext& ctx) const override;
 	
 private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
-	// 2
-	//ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
-	// 4
 	SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
-	
-	
-
-
 
 protected:
 	std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};
