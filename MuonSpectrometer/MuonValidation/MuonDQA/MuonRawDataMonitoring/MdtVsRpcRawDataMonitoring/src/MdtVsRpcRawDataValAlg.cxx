@@ -225,17 +225,14 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 		layerSector_name  = sector_name + layer_name  ;
 
-		int stname_index = irpcstationName;
-		if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-	        else stname_index = irpcstationName-2;
 		int NetaStrips = 0 ;
-                int ShiftEtaStripsDoubletZ[4];
+        int ShiftEtaStripsDoubletZ[4];
 		for(int idbz=0; idbz!= 3; idbz++){
           ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
           bool isValid=false;
-          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(stname_index, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
           if (!isValid) {
-            ATH_MSG_WARNING("Could not find valid Identifier for station="<<stname_index<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz<<", continuing...");
+            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
             continue;
           }
 		  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
@@ -257,17 +254,14 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  /////// NB !!!!!
 		  // the eta strip number increases going far away from IP
 		  // the phi strip numeber increases going from HV side to RO side
-		  int stname_index = irpcstationName;
-		  if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-		  else stname_index = irpcstationName-2;
 		  float stripzmin   =      0 ;
 		  float stripzmax   = -10000 ;
 		  for(int ieta=0; ieta!= 17; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
               bool isValid=false;
-              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(stname_index, ieta,irpcstationPhi,irpcdoubletR,idbz, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
               if (!isValid) {
-                ATH_MSG_WARNING("Could not find valid Identifier for station="<<stname_index<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz<<", continuing...");
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
                 continue;
               }
 		      const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
@@ -291,7 +285,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  float wirezmax     = -10000. ;
 		  float wirezmin     = +10000. ;
 		  float foundmin     =      0  ;	
-				  
+		  int stname_index = irpcstationName;  
 		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
 		  else stname_index = irpcstationName;
 		  for(int eta=0; eta!=17; eta++){ 
