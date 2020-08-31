@@ -59,6 +59,11 @@ int PixelGmxInterface::moduleId(map<string, int> &index){
 }
 
 
-void PixelGmxInterface::addModuleType(string clas, string typeName, map){
+void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, string> parameters){
 
+  *m_log << MSG::DEBUG << "PixelGmxInterface::addModuleType called for class " << clas << " typeName " << typeName <<
+                                    endmsg;
+  if (clas == "RD53_20x19_Single") {
+    makeRD53Single(typeName, parameters);
+  }
 }
