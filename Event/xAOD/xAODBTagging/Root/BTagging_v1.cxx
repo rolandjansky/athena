@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BTagging_v1.cxx 797330 2017-02-15 14:25:13Z guirriec $
@@ -539,123 +539,25 @@ namespace xAOD {
    /////////////////////////////////////////////////////////////////////////////
  
  
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> > DynTPELVec;
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> > DynVxELVec;
-  static std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> > DynBTagVxELVec;
-
-   void BTagging_v1::toPersistent ATLAS_NOT_REENTRANT () {
-
-      TPELVec_t::iterator itr;
-      TPELVec_t::iterator end;
-
-      if( sv0TPAcc2.isAvailableWritable( *this ) ) {
-         itr = sv0TPAcc2( *this ).begin();
-         end = sv0TPAcc2( *this ).end();
-         for( ; itr != end; ++itr ) {
-            itr->toPersistent();
-         }
-      }
-
-      if( sv1TPAcc2.isAvailableWritable( *this ) ) {
-         itr = sv1TPAcc2( *this ).begin();
-         end = sv1TPAcc2( *this ).end();
-         for( ; itr != end; ++itr ) {
-            itr->toPersistent();
-         }
-      }
-
-      if( ip2dTPAcc2.isAvailableWritable( *this ) ) {
-         itr = ip2dTPAcc2( *this ).begin();
-         end = ip2dTPAcc2( *this ).end();
-         for( ; itr != end; ++itr ) {
-            itr->toPersistent();
-         }
-      }
-
-      if( ip3dTPAcc2.isAvailableWritable( *this ) ) {
-         itr = ip3dTPAcc2( *this ).begin();
-         end = ip3dTPAcc2( *this ).end();
-         for( ; itr != end; ++itr ) {
-            itr->toPersistent();
-         }
-      }
-
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::TPELVec_t> >::iterator dyniter = DynTPELVec.begin();
-
-      for(; dyniter != DynTPELVec.end(); ++dyniter){
-
-        if( dyniter->second.isAvailableWritable( *this ) ) {
-          itr = dyniter->second( *this ).begin();
-          end = dyniter->second( *this ).end();
-          for( ; itr != end; ++itr ) {
-            itr->toPersistent();
-          }
-        }
-      }
-
-
-      VxELVec_t::iterator vxitr;
-      VxELVec_t::iterator vxend;
-
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::VxELVec_t> >::iterator dynvxiter = DynVxELVec.begin();
-
-      for(; dynvxiter != DynVxELVec.end(); ++dynvxiter){
-
-        if( dynvxiter->second.isAvailableWritable( *this ) ) {
-          vxitr = dynvxiter->second( *this ).begin();
-          vxend = dynvxiter->second( *this ).end();
-          for( ; vxitr != vxend; ++vxitr ) {
-            vxitr->toPersistent();
-          }
-        }
-      }
-
-      BTagVxELVec_t::iterator btagvxitr;
-      BTagVxELVec_t::iterator btagvxend;
-
-      std::map<std::string, SG::AuxElement::Accessor<BTagging_v1::BTagVxELVec_t> >::iterator dynbtagvxiter = DynBTagVxELVec.begin();
-
-      for(; dynbtagvxiter != DynBTagVxELVec.end(); ++dynbtagvxiter){
-
-        if( dynbtagvxiter->second.isAvailableWritable( *this ) ) {
-          btagvxitr = dynbtagvxiter->second( *this ).begin();
-          btagvxend = dynbtagvxiter->second( *this ).end();
-          for( ; btagvxitr != btagvxend; ++btagvxitr ) {
-            btagvxitr->toPersistent();
-          }
-        }
-      }
-
-      return;
-   }
+  void BTagging_v1::toPersistent ()
+  {
+  }
 
   
-  void BTagging_v1::setDynTPELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
-				   const std::string &variablename) {
-    
-    std::string varname = taggername+ "_" + variablename;
-    const Accessor< TPELVec_t > acc( varname );
-    DynTPELVec.insert(std::make_pair(varname,acc));
-    return;
+  void BTagging_v1::setDynTPELName ( const std::string &/*taggername*/,
+                                     const std::string &/*variablename*/)
+  {
   }
 
-  void BTagging_v1::setDynVxELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
-				    const std::string &variablename) {
-    
-    std::string varname = taggername+ "_" + variablename;
-    const Accessor< VxELVec_t > acc( varname );
-    DynVxELVec.insert(std::make_pair(varname,acc));
-    return;
+  void BTagging_v1::setDynVxELName ( const std::string &/*taggername*/,
+                                     const std::string &/*variablename*/)
+  {
   }
 
 
-  void BTagging_v1::setDynBTagVxELName ATLAS_NOT_REENTRANT ( const std::string &taggername,
-					const std::string &variablename) {
-    
-    std::string varname = taggername+ "_" + variablename;
-    const Accessor< BTagVxELVec_t > acc( varname );
-    DynBTagVxELVec.insert(std::make_pair(varname,acc));
-    return;
+  void BTagging_v1::setDynBTagVxELName ( const std::string &/*taggername*/,
+                                         const std::string &/*variablename*/)
+  {
   }
 
 
