@@ -12,8 +12,10 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkGaussianSumFilter/IGsfSmoother.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
+#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -26,8 +28,6 @@
 namespace Trk {
 class IMultiStateMeasurementUpdator;
 class MultiComponentStateOnSurface;
-class IForwardGsfFitter;
-class IGsfSmoother;
 class FitQuality;
 class Track;
 
@@ -118,6 +118,33 @@ private:
   //* Calculate the fit quality */
   const Trk::FitQuality* buildFitQuality(const Trk::SmoothedTrajectory&) const;
 
+  /** Forward GSF fit using PrepRawData */
+  std::unique_ptr<ForwardTrajectory> fitPRD(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    const PrepRawDataSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
+  /** Forward GSF fit using MeasurementSet */
+  std::unique_ptr<ForwardTrajectory> fitMeasurements(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    const MeasurementSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
+  /** Progress one step along the fit */
+  bool stepForwardFit(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    ForwardTrajectory*,
+    const PrepRawData*,
+    const MeasurementBase*,
+    const Surface&,
+    MultiComponentState&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
 private:
   ToolHandle<IMultiStateExtrapolator> m_extrapolator{
     this,
@@ -131,12 +158,7 @@ private:
     "Trk::RioOnTrackCreator/RIO_OnTrackCreator",
     ""
   };
-  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter{
-    this,
-    "ForwardGsfFitter",
-    "Trk::ForwardGsfFitter/ForwardGsfFitter",
-    ""
-  };
+
   ToolHandle<IGsfSmoother> m_gsfSmoother{ this,
                                           "GsfSmoother",
                                           "Trk::GsfSmoother/GsfSmoother",
@@ -173,8 +195,18 @@ private:
   PropDirection m_directionToPerigee;
   std::unique_ptr<TrkParametersComparisonFunction>
     m_trkParametersComparisonFunction;
+
   std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;
+
+  // Measurement updator
+  GsfMeasurementUpdator m_updator;
+
+  // For the forward fit part
+  double m_cutChiSquaredPerNumberDOF;
+  int m_overideMaterialEffects;
+  ParticleHypothesis m_overideParticleHypothesis;
+  bool m_overideMaterialEffectsSwitch;
 
   // Number of Fit PrepRawData Calls
   mutable std::atomic<int> m_FitPRD;
