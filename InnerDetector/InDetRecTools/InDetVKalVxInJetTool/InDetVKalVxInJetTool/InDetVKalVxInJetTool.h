@@ -186,9 +186,7 @@ namespace InDet {
       double m_trkSigCut{};
       double m_a0TrkErrorCut{};
       double m_zTrkErrorCut{};
-      double m_cutHFClass{};
-      double m_antiGarbageCut{};
-      double m_antiFragmentCut{};
+      double m_cutBVrtScore{};
       double m_Vrt2TrMassLimit{};
 
       bool m_fillHist{};

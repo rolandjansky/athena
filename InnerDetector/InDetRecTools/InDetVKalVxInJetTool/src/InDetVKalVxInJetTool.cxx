@@ -45,9 +45,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_trkSigCut(2.0),
     m_a0TrkErrorCut(1.0),
     m_zTrkErrorCut(5.0),
-    m_cutHFClass(0.15),
-    m_antiGarbageCut(0.75),
-    m_antiFragmentCut(0.70),
+    m_cutBVrtScore(0.015),
     m_Vrt2TrMassLimit(4000.),
     m_fillHist(false),
     m_existIBL(true),
@@ -101,9 +99,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("A0TrkErrorCut",  m_a0TrkErrorCut, "Track A0 error cut" );
     declareProperty("ZTrkErrorCut",   m_zTrkErrorCut,  "Track Z impact error cut" );
-    declareProperty("CutHFClass",     m_cutHFClass,  "Cut on HF classification weight" );
-    declareProperty("AntiGarbageCut", m_antiGarbageCut,   "Cut on Garbage classification weight for track removal" );
-    declareProperty("AntiFragmentCut",m_antiFragmentCut,  "Cut on Fragmentation classification weight for track removal" );
+    declareProperty("CutBVrtScore",   m_cutBVrtScore,  "B vertex selection cut on 2track vertex score (probability-like) based on track classification" );
     declareProperty("Vrt2TrMassLimit",m_Vrt2TrMassLimit,  "Maximal allowed mass for 2-track vertices" );
 
     declareProperty("Sel2VrtChi2Cut",    m_sel2VrtChi2Cut, "Cut on Chi2 of 2-track vertex for initial selection"  );

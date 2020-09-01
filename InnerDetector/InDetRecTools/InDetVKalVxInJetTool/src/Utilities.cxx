@@ -52,7 +52,7 @@ namespace InDet{
     Amg::Vector3D   mom2((trk2->p4()).Px(),(trk2->p4()).Py(),(trk2->p4()).Pz());
     pnt1.normalize(); pnt2.normalize(); mom1.normalize(); mom2.normalize();
 //------------------------------------------------------------------------
-    const float dRLim=0.4;
+    const double dRLim=m_coneForTag;
     Amg::Vector3D norm1=pnt1.cross(mom1);
     Amg::Vector3D norm2=pnt2.cross(mom2);
     Amg::Vector3D t=norm1.cross(norm2); t.normalize(); if(t.dot(mom1+mom2)<0.) t*=-1.;
