@@ -207,6 +207,35 @@ namespace Muon {
     return m_stgcIdHelper->is_stgc(id);
   }
 
+  bool MuonIdHelperTool::issMdt( const Identifier& id ) const {
+    if (!isMdt(id)) return false;
+    else if (m_mdtIdHelper->isEndcap(id)) return false; // there are no sMDTs in the endcaps
+    else if (m_mdtIdHelper->isBME(id)) return true; // all BME chambers are sMDTs
+    else if (m_mdtIdHelper->isBMG(id)) return true; // all BMG chambers are sMDTs
+    else if (!m_rpcIdHelper) return false; // there must be RPCs in any layout
+    bool sMdt = false;
+    // now, let's check if we are in the inner barrel layer, and if there are RPCs installed
+    // if yes, the MDT chambers must be sMDTs
+    if (m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id)).find("BI")!=std::string::npos) {
+      // now try to retrieve RPC identifier with the same station name/eta/phi and check if it is valid
+      bool isValid = false;
+      m_rpcIdHelper->elementID(m_mdtIdHelper->stationName(id), m_mdtIdHelper->stationEta(id), m_mdtIdHelper->stationPhi(id), 1, true, &isValid, true); // last 4 arguments are: doubletR, check, isValid, noPrint
+      if (isValid) sMdt = true; // there is a BI RPC in the same station, thus, this station was already upgraded and sMDTs are present
+    }
+    return sMdt;
+  }
+
+  bool MuonIdHelperTool::hasHPTDC( const Identifier& id ) const {
+    /** NOTE that in Run4, no HPTDCs at all are planned to be present any more,
+        so this function should be obsolete from Run4 onwards */
+    if (!isMdt(id)) return false; // only sMDT chambers can have HPTDCs
+    else if (m_mdtIdHelper->isEndcap(id)) return false; // there are no HPTDCs in the endcaps
+    else if (m_mdtIdHelper->isBME(id)) return false; // all BME sMDTs have no HPTDC
+    else if (m_mdtIdHelper->isBMG(id)) return true; // all BMG sMDTs have an HPTDC
+    // the remaining sMDTs (installed in BI in LS1) all have an HPTDC in Run3
+    else if (issMdt(id)) return true;
+    return false;
+  }
 
   bool MuonIdHelperTool::measuresPhi( const Identifier& id ) const {
     if( isRpc(id) ) {
