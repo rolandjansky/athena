@@ -20,12 +20,9 @@ CTPUnpackingTool::CTPUnpackingTool( const std::string& type,
 
 StatusCode CTPUnpackingTool::initialize()
 {
-  ATH_CHECK( m_L1MenuKey.initialize( m_useNewConfig ) );
-  if( !m_useNewConfig ) {
-    ATH_CHECK( m_lvl1ConfigSvc.retrieve() );
-  }
-  ATH_CHECK( m_hltConfigSvc.retrieve() );
+  ATH_CHECK( m_L1MenuKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
+
 
   ATH_CHECK( CTPUnpackingToolBase::initialize() );
 
@@ -40,21 +37,15 @@ StatusCode CTPUnpackingTool::start() {
   ATH_MSG_INFO( "Updating CTP bits decoding configuration");
   // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   std::map<std::string, size_t> toCTPID;
-  if( m_useNewConfig ) {
-    ATH_MSG_INFO( "start(): use new L1 trigger menu" );
-    auto l1menu = SG::makeHandle( m_L1MenuKey );
-    if( l1menu.isValid() ) {
-      for ( const TrigConf::L1Item & item:   *l1menu ) {
-        toCTPID[item.name()] = item.ctpId();
-      }
-    } else {
-      ATH_MSG_ERROR( "TrigConf::L1Menu does not exist" );
+
+  ATH_MSG_INFO( "start(): use new L1 trigger menu" );
+  auto l1menu = SG::makeHandle( m_L1MenuKey );
+  if( l1menu.isValid() ) {
+    for ( const TrigConf::L1Item & item:   *l1menu ) {
+      toCTPID[item.name()] = item.ctpId();
     }
   } else {
-    ATH_MSG_INFO( "start(): use old L1 trigger menu from L1ConfigSvc" );
-    for ( const TrigConf::TriggerItem* item:   m_lvl1ConfigSvc->ctpConfig()->menu().itemVector() ) {
-      toCTPID[item->name()] = item->ctpId();
-    }
+    ATH_MSG_ERROR( "TrigConf::L1Menu does not exist" );
   }
   m_ctpToChain.clear();
   auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id, bool warningOnly = false ) -> StatusCode {
