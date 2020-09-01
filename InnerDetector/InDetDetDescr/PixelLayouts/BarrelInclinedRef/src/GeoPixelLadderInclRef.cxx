@@ -280,13 +280,13 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
       HepGeom::Point3D<double> vDirPerp_transition(sin(m_transitionTiltAngle), cos(m_transitionTiltAngle), 0.);
       
       double EcModThick_chip= m_endcapModule->getModuleSensorThick()*.5;
-      double EcModHalfLen = m_endcapModule->getModuleSensorLength()*.5;
+      double EcModHalfLen = m_endcapModule->getModuleChipLength()*.5;
 
       double zOffset = (m_sector%2==0) ? -0.5*m_endcapModuleZoffset : 0.5*m_endcapModuleZoffset;
 
       for(int iPos=0; iPos<m_endcapModuleNumber; iPos++)
 	{
-	  double xPos=m_barrelModule->ThicknessP();
+	  double xPos=0.;
 	  double yPos=m_endcapModPos[iPos].y();
 	  double zPos=m_endcapModPos[iPos].z() + zOffset;
 	  
@@ -517,7 +517,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     std::ostringstream nameTag; 
 	     nameTag << "EndcapFoam_L" <<m_layer<<"M"<<iModuleCmpt;
 	     GeoNameTag * tag = new GeoNameTag(nameTag.str());
-	     const HepGeom::Transform3D foamTrf = HepGeom::TranslateX3D(m_barrelModule->ThicknessP()+xEndcapFoamShift)*HepGeom::TranslateZ3D(zPos-zEndcapFoamShift)*trfFoam;
+	     const HepGeom::Transform3D foamTrf = HepGeom::TranslateX3D(xEndcapFoamShift)*HepGeom::TranslateZ3D(zPos-zEndcapFoamShift)*trfFoam;
 	     GeoAlignableTransform* xformFoam = new GeoAlignableTransform(foamTrf);
 	     ladderPhys->add(tag);
 	     ladderPhys->add(xformFoam);
@@ -527,7 +527,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     std::ostringstream nameTag; 
 	     nameTag << "EndcapFoam_L" <<m_layer<<"M"<<iModuleCmpt;
 	     GeoNameTag * tag = new GeoNameTag(nameTag.str());
-	     const HepGeom::Transform3D foamTrf = HepGeom::TranslateY3D(yPos)*HepGeom::TranslateX3D(m_barrelModule->ThicknessP()+xTransFoamShift)*HepGeom::TranslateZ3D(zPos-zTransFoamShift)*trfFoam;
+	     const HepGeom::Transform3D foamTrf = HepGeom::TranslateY3D(yPos)*HepGeom::TranslateX3D(xTransFoamShift)*HepGeom::TranslateZ3D(zPos-zTransFoamShift)*trfFoam;
 	     GeoAlignableTransform* xformFoam = new GeoAlignableTransform(foamTrf);
 	     ladderPhys->add(tag);
 	     ladderPhys->add(xformFoam);
@@ -972,7 +972,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    std::ostringstream nameTag; 
 	    nameTag << "EndcapFoam_L" <<m_layer<<"M"<<iModuleCmpt;
 	    GeoNameTag * tag = new GeoNameTag(nameTag.str());
-	    const HepGeom::Transform3D foamTrf = HepGeom::TranslateX3D(m_barrelModule->ThicknessP()+xEndcapFoamShift)*HepGeom::TranslateZ3D(zPos+zEndcapFoamShift)*trfFoam;
+	    const HepGeom::Transform3D foamTrf = HepGeom::TranslateX3D(xEndcapFoamShift)*HepGeom::TranslateZ3D(zPos+zEndcapFoamShift)*trfFoam;
 	    GeoAlignableTransform* xformFoam = new GeoAlignableTransform(foamTrf);
 	    ladderPhys->add(tag);
 	    ladderPhys->add(xformFoam);
@@ -982,7 +982,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    std::ostringstream nameTag; 
 	    nameTag << "EndcapFoam_L" <<m_layer<<"M"<<iModuleCmpt;
 	    GeoNameTag * tag = new GeoNameTag(nameTag.str());
-	    const HepGeom::Transform3D foamTrf = HepGeom::TranslateY3D(yPos)*HepGeom::TranslateX3D(m_barrelModule->ThicknessP()+xTransFoamShift)*HepGeom::TranslateZ3D(zPos+zTransFoamShift)*trfFoam;
+	    const HepGeom::Transform3D foamTrf = HepGeom::TranslateY3D(yPos)*HepGeom::TranslateX3D(xTransFoamShift)*HepGeom::TranslateZ3D(zPos+zTransFoamShift)*trfFoam;
 	    GeoAlignableTransform* xformFoam = new GeoAlignableTransform(foamTrf);
 	    ladderPhys->add(tag);
 	    ladderPhys->add(xformFoam);

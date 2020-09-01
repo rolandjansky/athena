@@ -40,7 +40,7 @@
 
 GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringRadius, double ringOuterRadius,
 					     double zOffset, double rOffset, double phiOffset,
-					     int ringSide, int numModules, const std::string &moduleType, 
+					     int ringSide, int numModules, const std::string & moduleType, 
 					   int diskId, int back_front, SplitMode mode, double inclination)
   : m_layer(iLayer),
     m_ring(iRing),
@@ -97,15 +97,15 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 
   m_halfLength = ringModule->Thickness()/2.;
 
-  m_ringRMin = rmin-0.001;
-  m_ringRMax = rmax+0.001;
+  double edge = fabs(  ringModule->Length()-ringModule->getModuleChipLength() );
+  m_ringRMin = rmin- 0.5*edge*cos(m_inclination)- 0.001;
+  m_ringRMax = rmax+0.5*edge*cos(m_inclination)+0.001;
   
   m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - ringModule->getModuleSensorLength()*.5*sin(m_inclination);
   m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + ringModule->getModuleSensorLength()*.5*sin(m_inclination);
 
-  // In case the sensor length is smaller than the module length...
-  // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination);
+ // This is the radius of the center of the active sensor 
+  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5*cos(m_inclination);
   double moduleHalfLength = ringModule->Length()*.5;
   rmin = moduleRadius-moduleHalfLength*cos(m_inclination);
 
@@ -142,10 +142,12 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   double zModuleShift = m_ringZShift;
   double halflength = m_halfLength+.001;
   if(m_front_back==1) zModuleShift*=-1;
-  zModuleShift += zshift + ringModule->getModuleSensorLength()*.5*sin(m_inclination); 
+  zModuleShift += zshift + ringModule->getModuleChipLength()*.5*sin(m_inclination);
+  if (m_inclination!=0) zModuleShift+= -ringModule->getModuleSensorThick()*.5*cos(m_inclination); 
  
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination) + rshift;
+  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5*cos(m_inclination) + rshift
+    - ringModule->getModuleSensorThick()*.5*sin(m_inclination);
 
   // build ring envelope if needed
   GeoFullPhysVol* ringPhys = envelope;
@@ -235,6 +237,7 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   // Start angle could eventually come from the database...
   // double startAngle = gmt_mgr->PixelECStartPhi();
   double startAngle = m_phiOffset;
+  if (endcapSide<0) startAngle +=deltaPhi;     //  to match staggering
   int endcapId = (endcapSide>0)? 2 : -2;
  
   // loop over modules
@@ -318,7 +321,7 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
   double halflength = m_halfLength+.001;
 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5;
+  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5;
 
   int nmodules = m_numModules;
 
