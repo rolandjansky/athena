@@ -79,8 +79,8 @@ namespace G4UA
     std::vector<std::string> m_trajectory;      //!< Used to store volume names which the current track has entered
 
     void BuildHists (           //!< Function to generate TH1-type histograms
-                     std::string vol_tag,               //!< Tag to identify object by volume
-                     std::string part_tag,              //!< Tag to identify object by particle
+                     const std::string& vol_tag,               //!< Tag to identify object by volume
+                     const std::string& part_tag,              //!< Tag to identify object by particle
                      int& hLeft,                        //!< Amount of histogram space remaining, set by maxhists
                      double xfill = -1,         //!< Parameter to fill histogram along x
                      double yfill = -1,         //!< Paramteter to fill histogram along y
@@ -88,8 +88,8 @@ namespace G4UA
                      const int binsize = 1);    //!< Size of bins in histogram, in MeV
 
     bool BuildDirs (            //!< Function to generate TDirectory objects
-                    std::string vol_tag,                //!< Tag to identify object by volume
-                    std::string dirTitle,               //!< Directory title
+                    const std::string& vol_tag,                //!< Tag to identify object by volume
+                    const std::string& dirTitle,               //!< Directory title
                     int& dLeft);                        //!< Remaining directories to create
 
 
