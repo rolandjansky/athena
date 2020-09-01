@@ -133,7 +133,7 @@ public:
     bool                 hasUniqueIOV() const;
 
     /// Adding in chan/attrList pairs
-    bool                 add(ChanNum chanNum, const AttributeList& attributeList);
+    bool                 add ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
     /// Adding in chan/attrList pairs with shared data
     void                 addShared ATLAS_NOT_THREAD_SAFE (ChanNum chanNum, const AttributeList& attributeList);
 
