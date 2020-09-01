@@ -192,6 +192,10 @@ int PixelCalibSvc::PixelType(const Identifier wafer_id, int row, int col) const 
       // corner big pixels 
       if(  row > nrpc-3 && row < nrpc+2 && col > ncpc-3 && col < ncpc+2) return 2;
     }
+    else if(ncirc != 1){
+      ATH_MSG_WARNING("Module with a number of circuits which is not 1 or 4.");
+      ATH_MSG_WARNING("Long/pixel identification not implemented");
+    }
 
     return 0;
   }
@@ -219,11 +223,8 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
   int phi_index = m_pixid->phi_index(pix_id);
   int eta_index = m_pixid->eta_index(pix_id);
   int barrel_ec = m_pixid->barrel_ec(wafer_id);
-//  int layer_disk = m_pixid->layer_disk(wafer_id);
   int phi_module = m_pixid->phi_module(wafer_id);
 
-//  int FEIXsPerHalfModule = getNFE(wafer_id)/2;
-// int FEIXsPerHalfModule = p_design->numberOfCircuits();   // can be...
   int col;
   int row;
   circ = -1;
