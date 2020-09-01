@@ -39,7 +39,7 @@ if TriggerFlags.doCalo():
 else:
     DetFlags.Calo_setOff()
 
-# Always enable AtlasFieldSvc
+# Always enable magnetic field
 if hasattr(DetFlags,'BField_on'):
     DetFlags.BField_setOn()
 
@@ -64,10 +64,15 @@ if TriggerFlags.MuonSlice.doEFRoIDrivenAccess():
 # ----------------------------------------------------------------
 # Setup magnetic field
 # ----------------------------------------------------------------
-svcMgr.AtlasFieldSvc.UseDCS = False         # no DCS
-svcMgr.AtlasFieldSvc.LockMapCurrents = True  # no field scaling
-svcMgr.AtlasFieldSvc.SoleMinCurrent = 160  # Standby current is 150A
-svcMgr.AtlasFieldSvc.ToroMinCurrent = 210  # Standby current is 200A
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq.AtlasFieldMapCondAlg.LoadMapOnStart = True
+condSeq.AtlasFieldMapCondAlg.UseMapsFromCOOL = False  # not possible with LoadMapOnStart (ATLASRECTS-5604)
+condSeq.AtlasFieldMapCondAlg.SoleMinCurrent = 160     # Standby current is 150A
+condSeq.AtlasFieldMapCondAlg.ToroMinCurrent = 210     # Standby current is 200A
+condSeq.AtlasFieldCacheCondAlg.UseDCS = False         # no DCS
+condSeq.AtlasFieldCacheCondAlg.LockMapCurrents = True # no field scaling
+
 # Read currents from IS if available
 if onlEventLoopMgr:
     onlEventLoopMgr.setMagFieldFromPtree = True
