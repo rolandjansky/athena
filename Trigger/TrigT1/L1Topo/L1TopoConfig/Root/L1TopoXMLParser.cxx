@@ -87,7 +87,7 @@ void TXC::L1TopoXMLParser::parseConfiguration() {
          setAlgoParameters( menuElement, algo );
          algo.setAlgOutput( getAttribute(menuElement,"output") );
          algo.setAlgoID( getUIntAttribute(menuElement, "algoId") );
-         m_menu.addAlgorithm(algo);
+         m_menu.addAlgorithm(std::move(algo));
 
       }
 
@@ -97,7 +97,7 @@ void TXC::L1TopoXMLParser::parseConfiguration() {
          algo.setAlgKind( L1TopoConfigAlg::DECISION );
          setAlgoParameters(menuElement, algo);
          algo.setAlgoID( getUIntAttribute(menuElement, "algoId") );
-         m_menu.addAlgorithm(algo);
+         m_menu.addAlgorithm(std::move(algo));
 
       } else {
          TRG_MSG_FATAL("Unknown element" << menuElementName);
