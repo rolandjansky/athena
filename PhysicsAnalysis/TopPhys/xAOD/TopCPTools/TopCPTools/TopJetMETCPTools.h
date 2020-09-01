@@ -42,6 +42,7 @@ namespace top {
     std::shared_ptr<top::TopConfig> m_config;
 
     std::string m_jetJVT_ConfigFile;
+    std::string m_truthJetCollForHS;
 
     std::string m_jetAntiKt4_Data_ConfigFile;
     std::string m_jetAntiKt4_Data_CalibSequence;
