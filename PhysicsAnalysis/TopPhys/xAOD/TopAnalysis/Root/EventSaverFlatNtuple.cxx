@@ -9,6 +9,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopEventSelectionTools/TreeManager.h"
 #include "TopParticleLevel/TruthTools.h"
+#include "xAODMissingET/MissingETContainer.h"
 
 #include "AthContainers/AuxTypeRegistry.h"
 
@@ -158,7 +159,9 @@ namespace top {
     m_useVarRCAdditionalJSS(false),
     m_useElectronChargeIDSelection(false),
     m_met_met(0.),
-    m_met_phi(0.) {
+    m_met_phi(0.),
+    m_met_met_withLooseObjects(0.),
+    m_met_phi_withLooseObjects(0.) {
     m_weight_leptonSF_EL_SF_CorrModel_Reco_UP = std::vector<float>();
     m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN = std::vector<float>();
     m_weight_leptonSF_EL_SF_CorrModel_ID_UP = std::vector<float>();
@@ -1263,6 +1266,12 @@ namespace top {
       //met
       systematicTree->makeOutputVariable(m_met_met, "met_met");
       systematicTree->makeOutputVariable(m_met_phi, "met_phi");
+      //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
+      if(m_config->writeMETBuiltWithLooseObjects())
+      {
+        systematicTree->makeOutputVariable(m_met_met_withLooseObjects, "met_met_withLooseObjects");
+        systematicTree->makeOutputVariable(m_met_phi_withLooseObjects, "met_phi_withLooseObjects");
+      }
 
       if (m_config->doKLFitter()) {
         /// Global result
@@ -3733,6 +3742,16 @@ namespace top {
     //met
     m_met_met = event.m_met->met();
     m_met_phi = event.m_met->phi();
+    
+    if(m_config->writeMETBuiltWithLooseObjects())
+    {
+      const xAOD::MissingETContainer* mets(nullptr);
+      if(event.m_isLoose) top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEtLoose(event.m_hashValue)+"WithLooseObjects"), "Failed to retrieve MET");
+      else top::check(evtStore()->retrieve(mets, m_config->sgKeyMissingEt(event.m_hashValue)+"WithLooseObjects"), "Failed to retrieve MET");
+      
+      m_met_met_withLooseObjects=(*mets)["FinalTrk"]->met();
+      m_met_phi_withLooseObjects=(*mets)["FinalTrk"]->phi();
+    }
 
     //KLFitter
     if (m_config->doKLFitter()) {

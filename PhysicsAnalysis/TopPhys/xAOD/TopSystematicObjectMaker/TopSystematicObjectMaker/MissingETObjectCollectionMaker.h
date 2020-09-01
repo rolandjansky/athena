@@ -63,7 +63,9 @@ namespace top {
   private:
     StatusCode recalculateEventMET(xAOD::SystematicEvent* event,
                                    const xAOD::MissingETContainer* met_core,
-                                   const xAOD::MissingETAssociationMap* met_map);
+                                   const xAOD::MissingETAssociationMap* met_map,
+                                   bool forceUseLooseObjects=false,
+                                   std::string outputContainerSuffix="");
 
     std::shared_ptr<top::TopConfig> m_config;
 

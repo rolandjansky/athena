@@ -84,6 +84,8 @@ namespace top {
     if (m_config->doOverlapRemovalOnLooseLeptonDef()) m_doLooseCuts = true;
 
     if (m_config->doLooseEvents()) m_doLooseCuts = true;
+    
+    if(m_config->useLooseObjectsInMETInLooseTree() || m_config->useLooseObjectsInMETInNominalTree() || m_config->writeMETBuiltWithLooseObjects()) m_doLooseCuts = true;
 
     if (m_config->applyElectronInJetSubtraction()) {
       m_electronInJetSubtractor = std::unique_ptr<top::ElectronInJetSubtractionCollectionMaker>

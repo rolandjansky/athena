@@ -393,6 +393,11 @@ namespace top {
     registerParameter("DoLoose", "Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False",
                       "Data");
     registerParameter("DoSysts", "Run systematics on given selection: Both (default), Tight, Loose", "Both");
+    
+    registerParameter("UseLooseObjectsInMETInLooseTree","Experimental: use loose objects when rebuilding the MET for the loose tree : True or False (default = False)","False");
+    registerParameter("UseLooseObjectsInMETInNominalTree","Experimental: use loose objects when rebuilding the MET for the nominal tree : True or False (default = False)","False");
+    
+    registerParameter("WriteMETBuiltWithLooseObjects","Write a separate branch with the met built with loose objects in the output for tests: True or False (default = False)","False");
 
     registerParameter("OverlapRemovalLeptonDef",
                       "Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions",

@@ -247,6 +247,15 @@ namespace top {
     {m_FakesMMConfigIFF = configIFF;}
     inline void setFakesMMIFFDebug()
     {m_doFakesMMIFFDebug = true;}
+    
+    //by default AT uses always tight objects in MET re-building; these options allow for using loose objects instead in the loose analysis and/or in the nominal analysis
+    inline void setUseLooseObjectsInMETInLooseTree() {if (!m_configFixed) m_useLooseObjectsInMETInLooseTree = true;}
+    inline bool useLooseObjectsInMETInLooseTree() const {return m_useLooseObjectsInMETInLooseTree;}
+    inline void setUseLooseObjectsInMETInNominalTree() {if (!m_configFixed) m_useLooseObjectsInMETInNominalTree = true;}
+    inline bool useLooseObjectsInMETInNominalTree() const {return m_useLooseObjectsInMETInNominalTree;}
+    //this will write a separate branch with the met built using loose objects
+    inline void setWriteMETBuiltWithLooseObjects() {if (!m_configFixed) m_writeMETBuiltWithLooseObjects=true;}
+    inline bool writeMETBuiltWithLooseObjects() {return m_writeMETBuiltWithLooseObjects;}
 
     // By default the top group does overlap removal on the tight lepton definitions
     // If you use this you are going off piste and need to report
@@ -2051,6 +2060,12 @@ namespace top {
     std::string m_FakesMMConfigIFF;
     // Debug mode?
     bool m_doFakesMMIFFDebug;
+    
+    //options to select if you want to use loose objects for MET rebuilding instead of the tight ones
+    bool m_useLooseObjectsInMETInLooseTree;
+    bool m_useLooseObjectsInMETInNominalTree;
+    //this will write a separate branch with the met built using loose objects
+    bool m_writeMETBuiltWithLooseObjects;
 
     // By default the top group does overlap removal on
     // the tight lepton definitions.

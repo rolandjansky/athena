@@ -85,6 +85,11 @@ namespace top {
     m_FakesMMConfigIFF("$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]"),
     // Debug level for MM fake estimate using FakeBkgTools from IFF
     m_doFakesMMIFFDebug(false),
+    //options to select if you want to use loose objects for MET rebuilding instead of the tight ones
+    m_useLooseObjectsInMETInLooseTree(false),
+    m_useLooseObjectsInMETInNominalTree(false),
+    //this will write a separate branch with the met built using loose objects
+    m_writeMETBuiltWithLooseObjects(false),
     // Apply overlap removal on loose lepton definitons - not the top recommendation, for studies only
     m_doOverlapRemovalOnLooseLeptonDef(false),
     // do overlap removal also with large-R jets
@@ -893,6 +898,10 @@ namespace top {
       bool topParticleLevel=true;
       settings->retrieve("TopParticleLevel",topParticleLevel);
       this->setTopParticleLevel(topParticleLevel);
+      
+      settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
+      settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
+      settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {

@@ -100,6 +100,7 @@ namespace top {
         if (!executeNominal && m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
         if (executeNominal && !m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
         top::check(recalculateEventMET(x, xaod_met_core, xaod_met_map), "Failed to recalculate MET for event");
+        if(m_config->writeMETBuiltWithLooseObjects()) top::check(recalculateEventMET(x, xaod_met_core, xaod_met_map, true, "WithLooseObjects"), "Failed to recalculate MET using loose leptons for event");
       }
     } // tight events
     if (m_config->doLooseEvents()) {
@@ -120,6 +121,7 @@ namespace top {
         if (!executeNominal && m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
         if (executeNominal && !m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
         top::check(recalculateEventMET(x, xaod_met_core, xaod_met_map), "Failed to recalculate MET for loose event");
+        if(m_config->writeMETBuiltWithLooseObjects()) top::check(recalculateEventMET(x, xaod_met_core, xaod_met_map, true, "WithLooseObjects"), "Failed to recalculate MET using loose leptons for event");
       }
     } // Loose events
 
@@ -128,7 +130,9 @@ namespace top {
 
   StatusCode MissingETObjectCollectionMaker::recalculateEventMET(xAOD::SystematicEvent* event,
                                                                  const xAOD::MissingETContainer* xaod_met_core,
-                                                                 const xAOD::MissingETAssociationMap* xaod_met_map) {
+                                                                 const xAOD::MissingETAssociationMap* xaod_met_map,
+                                                                 bool forceUseLooseObjects,
+                                                                 std::string outputContainerSuffix) {
     // decoration for objects that pass pre OR selection
     std::string passPreORSelection = "passPreORSelection";
 
@@ -136,7 +140,7 @@ namespace top {
 
     // default behaviour for top analysis - use the "Tight" definitions
     bool looseLeptonOR(is_loose_event);
-    if (m_config->doOverlapRemovalOnLooseLeptonDef()) {
+    if (m_config->doOverlapRemovalOnLooseLeptonDef() || (is_loose_event && m_config->useLooseObjectsInMETInLooseTree()) || (!is_loose_event && m_config->useLooseObjectsInMETInNominalTree()) || forceUseLooseObjects) {
       looseLeptonOR = true;
       // change decoration we check
       passPreORSelection = "passPreORSelectionLoose";
@@ -301,6 +305,8 @@ namespace top {
     // Save corrected xAOD Container to StoreGate / TStore
     std::string outputSGKey = m_config->sgKeyMissingEt(hash);
     if (is_loose_event) outputSGKey = m_config->sgKeyMissingEtLoose(hash);
+    
+    outputSGKey+=outputContainerSuffix;
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
     xAOD::TReturnCode save = evtStore()->tds()->record(new_met_container, outputSGKey);
