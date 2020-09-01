@@ -10,52 +10,51 @@
 //
 // Tool to select muons for physics analysis.
 
-#include "CscClusterization/ICscClusterFitter.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CscClusterization/ICscAlignmentTool.h"
+#include "CscClusterization/ICscClusterFitter.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
-#include "CscClusterization/ICscAlignmentTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 namespace Muon {
-  class CscPrepData;
+class CscPrepData;
 }
 
 class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
-  
-public:
 
-  SimpleCscClusterFitter(std::string, std::string, const IInterface*);
-        
-  ~SimpleCscClusterFitter()=default;
-        
-  StatusCode initialize();
+  public:
+    SimpleCscClusterFitter(std::string, std::string, const IInterface*);
 
-  // Inherited methods.
-  using ICscClusterFitter::fit;
-  Results fit(const StripFitList& sfits) const;
-  Results fit(const StripFitList& sfits, double dposdz) const;
-  double getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
-private:
+    ~SimpleCscClusterFitter() = default;
 
-  // Properties
-  std::string m_option;                // Fitting option: MEAN, PEAK, ...
-  double m_intrinsic_cluster_width;    // Intrinsic widh for error calculation
-  bool m_use_peakthreshold;
-  double m_defaultErrorScaler_eta;
-  double m_defaultErrorScaler_phi;
+    StatusCode initialize();
 
-  const MuonGM::MuonDetectorManager* m_detMgr;
+    // Inherited methods.
+    using ICscClusterFitter::fit;
+    Results fit(const StripFitList& sfits) const;
+    Results fit(const StripFitList& sfits, double dposdz) const;
+    double  getCorrectedError(const Muon::CscPrepData* pclu, double slope) const;
 
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  private:
+    // Properties
+    std::string m_option;                   // Fitting option: MEAN, PEAK, ...
+    double      m_intrinsic_cluster_width;  // Intrinsic widh for error calculation
+    bool        m_use_peakthreshold;
+    double      m_defaultErrorScaler_eta;
+    double      m_defaultErrorScaler_phi;
 
-  /** retrieve MuonDetectorManager from the conditions store */     
-  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
-      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
+    const MuonGM::MuonDetectorManager* m_detMgr;
 
-  ToolHandle<ICscAlignmentTool> m_alignmentTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
+                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+    /** retrieve MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{
+        this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"};
+
+    ToolHandle<ICscAlignmentTool> m_alignmentTool;
 };
 #endif

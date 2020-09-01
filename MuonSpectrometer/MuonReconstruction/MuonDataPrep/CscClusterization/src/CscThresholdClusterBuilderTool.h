@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscThresholdClusterBuilderTool.h
@@ -55,98 +55,102 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "CscClusterization/ICscClusterBuilder.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class ICscCalibTool;
 class ICscStripFitter;
 class ICscClusterFitter;
 
 namespace Muon {
-  class CscPrepData;
-  class CscStripPrepData;
-}
+class CscPrepData;
+class CscStripPrepData;
+}  // namespace Muon
 typedef Muon::CscPrepData MyCscDigit;
 class CscDigit;
 
 
 class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public AthAlgTool {
-  
-public:  // methods
-  
-  enum NoiseOption {
-    rms = 0, sigma, f001
-  };
+
+  public:  // methods
+    enum NoiseOption { rms = 0, sigma, f001 };
 
 
-  // Constructor.
-  CscThresholdClusterBuilderTool(const std::string &type, const std::string &aname, const IInterface* );
+    // Constructor.
+    CscThresholdClusterBuilderTool(const std::string& type, const std::string& aname, const IInterface*);
 
-  // Destructor.
-  ~CscThresholdClusterBuilderTool();
+    // Destructor.
+    ~CscThresholdClusterBuilderTool();
 
-  /** AlgTool InterfaceID
-   */
-  //  static const InterfaceID& interfaceID( ) ;
-  
-  
-  // Initialization.
-  StatusCode initialize();
-  
-  // Event processing.
-  StatusCode getClusters(std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect);
+    /** AlgTool InterfaceID
+     */
+    //  static const InterfaceID& interfaceID( ) ;
 
-  // Finalization.
-  StatusCode finalize();
 
-private:  // Private methods.
+    // Initialization.
+    StatusCode initialize();
 
-  // Cluster a cathode plane.
-  //  int make_clusters(bool dump, int maxstrip, double pitch,
-  //                    const std::vector<MyCscDigit*>& idstrip, const std::vector<double>& qstrip);
-  //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
-  int make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,Muon::CscPrepDataCollection *&collection);
-  StatusCode getClusters(IdentifierHash idVect,  std::vector<IdentifierHash>& selectedIdVect);
-  StatusCode getClusters(IdentifierHash idVect,  std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
-  StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
-private:  // data
+    // Event processing.
+    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect);
 
-  // Properties.
-  double m_threshold;             // Charge threshold to include strip in cluster
-  float m_kFactor;
-  std::string m_noiseOptionStr;
-  NoiseOption m_noiseOption;
-  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;        // SG key for input digits
-  SG::WriteHandleKey<Muon::CscPrepDataContainer> m_pclusters;      // SG key for output clusters
+    // Finalization.
+    StatusCode finalize();
 
-  // Calibration tool.
-  ToolHandle<ICscCalibTool> m_cscCalibTool;
+  private:  // Private methods.
+    // Cluster a cathode plane.
+    //  int make_clusters(bool dump, int maxstrip, double pitch,
+    //                    const std::vector<MyCscDigit*>& idstrip, const std::vector<double>& qstrip);
+    //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
+    int        make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,
+                             Muon::CscPrepDataCollection*& collection);
+    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect);
+    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect,
+                           Muon::CscPrepDataContainer* pclusters);
+    StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer* pclusters);
 
-  // Strip fitter.
-  ToolHandle<ICscStripFitter> m_pstrip_fitter;
+  private:  // data
+    // Properties.
+    double                                             m_threshold;  // Charge threshold to include strip in cluster
+    float                                              m_kFactor;
+    std::string                                        m_noiseOptionStr;
+    NoiseOption                                        m_noiseOption;
+    SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;  // SG key for input digits
+    SG::WriteHandleKey<Muon::CscPrepDataContainer>     m_pclusters;  // SG key for output clusters
 
-  // Cluster fitters.
-  ToolHandle<ICscClusterFitter> m_pfitter_def;
-  ToolHandle<ICscClusterFitter> m_pfitter_prec;
-  ToolHandle<ICscClusterFitter> m_pfitter_split;
+    // Calibration tool.
+    ToolHandle<ICscCalibTool> m_cscCalibTool;
 
-  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    // Strip fitter.
+    ToolHandle<ICscStripFitter> m_pstrip_fitter;
 
-  /** retrieve MuonDetectorManager from the conditions store */     
-  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
-      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
+    // Cluster fitters.
+    ToolHandle<ICscClusterFitter> m_pfitter_def;
+    ToolHandle<ICscClusterFitter> m_pfitter_prec;
+    ToolHandle<ICscClusterFitter> m_pfitter_split;
 
-  // keep track of full event being already processed
-  bool m_fullEventDone;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
 
-  bool m_makeNarrowClusterThreeStrips;
-  
+    /** retrieve MuonDetectorManager from the conditions store */
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{
+        this,
+        "DetectorManagerKey",
+        "MuonDetectorManager",
+        "Key of input MuonDetectorManager condition data",
+    };
+
+    // keep track of full event being already processed
+    bool m_fullEventDone;
+
+    bool m_makeNarrowClusterThreeStrips;
 };
 
 #endif
