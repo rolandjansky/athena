@@ -218,8 +218,12 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
       << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  { // First try
-      ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) ); // Second try
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() ) { // First try
+      if ( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid).isFailure() ) { // Second try
+        ATH_MSG_ERROR("Unable to obtain CLID for either typeName:" << typeName << " or fullTypeName:" << fullTypeName);
+        ATH_MSG_ERROR("Please check if this is something which should obtain a CLID via TriggerEDMCLIDs.h");
+        return StatusCode::FAILURE;
+      }
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 
