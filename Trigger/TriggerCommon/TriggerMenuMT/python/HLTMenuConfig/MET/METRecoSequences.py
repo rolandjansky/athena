@@ -82,7 +82,7 @@ def cvfClusterSequence(dummyFlags, RoIs, **recoDict):
             LCCaloClusterRecoSequence, flags=None, RoIs=RoIs
         )
     else:
-        raise ValueError(f"Unsupported calib state {calib} requested!")
+        raise ValueError("Unsupported calib state {} requested!".format(calib))
 
     trkopt = "ftf"
     trackSeq, trackColls = RecoFragmentsPool.retrieve(
