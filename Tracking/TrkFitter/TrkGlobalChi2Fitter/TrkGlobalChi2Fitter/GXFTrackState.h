@@ -14,6 +14,7 @@
 #define TRK_GXFTRACKSTATE_H
 
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -38,16 +39,13 @@ namespace Trk {
     GXFTrackState(GXFTrackState &);
 
     GXFTrackState(std::unique_ptr<const MeasurementBase>, std::unique_ptr<const TrackParameters>);
-    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackState::TrackStateType = TrackState::Hole);
+    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackStateOnSurface::TrackStateOnSurfaceType);
     GXFTrackState(std::unique_ptr<GXFMaterialEffects>, std::unique_ptr<const TrackParameters>);
     GXFTrackState & operator=(GXFTrackState &) = delete;
 
     void setMeasurement(std::unique_ptr<const MeasurementBase>);
     const MeasurementBase *measurement(void);
 
-    TrackState::TrackStateType trackStateType();
-    void setTrackStateType(TrackState::TrackStateType);
-    
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
     const TrackParameters *trackParameters(void);
     
@@ -86,9 +84,13 @@ namespace Trk {
     bool measuresPhi();
     void setMeasuresPhi(bool);
 
+    void resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType, bool v=true);
+    void setStateType(TrackStateOnSurface::TrackStateOnSurfaceType, bool v=true);
+    bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType);
+
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
-    TrackState::TrackStateType m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
+    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
     std::unique_ptr<const TrackParameters> m_trackpar;  //!< track parameters
     std::unique_ptr<GXFMaterialEffects> m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
     Eigen::Matrix<double, 5, 5> m_jacobian;    //!< Transport jacobian wrt previous state
@@ -132,10 +134,6 @@ namespace Trk {
 
   inline TrackState::MeasurementType GXFTrackState::measurementType() {
     return m_mType;
-  }
-
-  inline TrackState::TrackStateType GXFTrackState::trackStateType() {
-    return m_tsType;
   }
 
   inline void GXFTrackState::setMeasurementType(TrackState::MeasurementType mt) {
