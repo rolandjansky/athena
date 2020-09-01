@@ -51,6 +51,8 @@ namespace Trk {
     void setChi2(double);
     void setMass(double);
 
+    void conditionalSetCalorimeterEnergyLossState(GXFTrackState *);
+
     std::pair<GXFTrackState *, GXFTrackState *> findFirstLastMeasurement(void);
     bool hasKink(void);
 
