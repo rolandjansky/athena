@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Primary include
@@ -58,6 +58,19 @@ StatusCode MaterialDescriptionTool::preGeometryConfigure() const
   material_concrete->AddElement(Ca,0.049860);
   material_concrete->AddElement(Al,0.014245);
   material_concrete->AddElement(Fe,0.002850);
+
+  if (m_isTestBeam) {
+    G4Element* C   = man->FindOrBuildElement("C");
+    G4Material *material_scintillator = new G4Material("Scintillator",1.032*CLHEP::g/CLHEP::cm3,2); // Used in TileTB_S1,
+                                                                                                    // TileTB_S2 and TileTB_S3
+    material_scintillator->AddElement(C,1);
+    material_scintillator->AddElement(H,1);
+
+    G4Material *material_mylar = new G4Material("Mylar",1.39*CLHEP::g/CLHEP::cm3,3);// Used in TileTB_MYLAREQUIV
+    material_mylar->AddElement(H,4);
+    material_mylar->AddElement(C,5);
+    material_mylar->AddElement(O,2);
+  }
 
   G4Material *material_rock = new G4Material("Rock",2.33*CLHEP::g/CLHEP::cm3,1);
   material_rock->AddElement(Si,1);
