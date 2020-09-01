@@ -9,13 +9,12 @@
 using namespace Muon;
 
 MuonClusterizationAlg::MuonClusterizationAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator), m_clusterTool("Muon::MuonClusterizationTool/MuonClusterizationTool")
+    : AthAlgorithm(name, pSvcLocator)
 {
     declareProperty("TgcPrepDataContainer", m_tgcPrdLocationInput = "TGC_Measurements");
     declareProperty("TgcPrepDataContainerOutput", m_tgcPrdLocationOutput = "TGC_Clusters");
     declareProperty("RpcPrepDataContainer", m_rpcPrdLocationInput = "RPC_Measurements");
     declareProperty("RpcPrepDataContainerOutput", m_rpcPrdLocationOutput = "RPC_Clusters");
-    declareProperty("ClusterTool", m_clusterTool);
 }
 
 StatusCode

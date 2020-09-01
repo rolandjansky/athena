@@ -27,13 +27,9 @@ enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 //******************************************************************************
 
 CscSplitClusterFitter::CscSplitClusterFitter(std::string type, std::string aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent),
-      m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
-      m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter")
+    : AthAlgTool(type, aname, parent)
 {
     declareInterface<ICscClusterFitter>(this);
-    declareProperty("default_fitter", m_pfitter_def);
-    declareProperty("precision_fitter", m_pfitter_prec);
     declareProperty("min_dist", m_min_dist = 2);         // Minimum distance between peaks and valley
     declareProperty("max_qratio", m_max_qratio = 0.15);  // Maximum charge ratio between peak strip and valley strip
 }
@@ -48,19 +44,13 @@ CscSplitClusterFitter::initialize()
     ATH_CHECK(m_idHelperSvc.retrieve());
 
     // Retrieve the default cluster fitting tool.
-    if (m_pfitter_def.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve Csc default cluster fitting tool "
-                      << name() << ": unable to retrieve cluster fitter " << m_pfitter_def);
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pfitter_def.retrieve());
+
     ATH_MSG_DEBUG("CscClusterization " << name() << ": retrieved " << m_pfitter_def);
 
     // Retrieve the precision cluster fitting tool.
-    if (m_pfitter_prec.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve Csc default cluster fitting tool "
-                      << name() << ": unable to retrieve cluster fitter " << m_pfitter_prec);
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pfitter_prec.retrieve());
+
     ATH_MSG_DEBUG("CscClusterization " << name() << ": retrieved " << m_pfitter_prec);
 
     ATH_MSG_DEBUG("Properties for " << name() << ":");
@@ -76,7 +66,6 @@ CscSplitClusterFitter::initialize()
 Results
 CscSplitClusterFitter::fit(const StripFitList& sfits) const
 {
-
     Results results;
     // Check input has at least three strips.
     unsigned int nstrip = sfits.size();

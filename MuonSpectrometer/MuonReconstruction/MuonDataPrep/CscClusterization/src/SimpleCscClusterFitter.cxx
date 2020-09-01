@@ -24,7 +24,7 @@ enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
 SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent), m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
+    : AthAlgTool(type, aname, parent)
 {
     declareInterface<ICscClusterFitter>(this);
     declareProperty("position_option", m_option = "MEAN", "Cluster fitting option: MEAN, PEAK, CENTROID");
@@ -32,8 +32,6 @@ SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string ana
     declareProperty("use_peakthreshold", m_use_peakthreshold = false);
     declareProperty("defaultErrorScaler_eta", m_defaultErrorScaler_eta = 1.0);
     declareProperty("defaultErrorScaler_phi", m_defaultErrorScaler_phi = 1.0);
-
-    declareProperty("CscAlignmentTool", m_alignmentTool);
 }
 
 //**********************************************************************

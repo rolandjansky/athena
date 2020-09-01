@@ -88,7 +88,16 @@ class MuonTGMeasAssocAlg : public AthAlgorithm {
     mutable const Trk::TrackingGeometry* m_trackingGeometry;
     std::string                          m_trackingGeometryName;
 
-    ToolHandle<Muon::IMuonTGMeasTool> m_muonTgTool;
+    ToolHandle<Muon::IMuonTGMeasTool> m_muonTgTool{
+        this,
+        "MuonTGMeasurementTool",
+        "Muon::MuonTGMeasurementTool/MuonTGMeasurementTool",
+    };
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{
+        this,
+        "Extrapolator",
+        "Trk::Extrapolator/Extrapolator",
+    };
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
                                                         "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -112,7 +121,6 @@ class MuonTGMeasAssocAlg : public AthAlgorithm {
     mutable std::vector<PairOfLayerPrd*>* m_tgcHits;
     mutable MuonTGHits*                   m_allHits;
     mutable MuonTGSegments*               m_allSegments;
-    ToolHandle<Trk::IExtrapolator>        m_extrapolator;
     mutable std::map<Identifier, std::pair<const MuonGM::MuonStation*, const Trk::DetachedTrackingVolume*> >
         m_stationMap;
     mutable std::vector<std::pair<Identifier, Amg::Transform3D> >

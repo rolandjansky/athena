@@ -60,7 +60,11 @@ class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool 
     const CscIdHelper *                m_phelper;
 
     // Calibration tool.
-    ToolHandle<ICscCalibTool> m_cscCalibTool;
+    ToolHandle<ICscCalibTool> m_cscCalibTool{
+        this,
+        "cscCalibTool",
+        "",
+    };
 
     double FindInitValues(double *x, double *initValues, int *maxsample) const;
     double FindPow(double z) const;

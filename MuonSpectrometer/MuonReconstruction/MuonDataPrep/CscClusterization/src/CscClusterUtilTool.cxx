@@ -29,13 +29,9 @@ CscClusterUtilTool::CscClusterUtilTool(string type, string aname, const IInterfa
     : AthAlgTool(type, aname, parent),
       m_pmuon_detmgr(0),
       m_phelper(0),
-      m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
-      m_precClusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
       m_cscStripLocation("CSC_Measurements")
 {
     declareInterface<ICscClusterUtilTool>(this);
-    declareProperty("strip_fitter", m_stripFitter);
-    declareProperty("precision_fitter", m_precClusterFitter);
     declareProperty("CscStripPrepDataLocation", m_cscStripLocation);
 }
 
@@ -55,27 +51,17 @@ CscClusterUtilTool::initialize()
     ATH_MSG_DEBUG("  CscStripPrepDataLocation is " << m_cscStripLocation.key());
 
     // Retrieve the strip fitting tool.
-    if (m_stripFitter.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve strip fitting tool " << m_stripFitter);
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_stripFitter.retrieve());
     ATH_MSG_DEBUG("Retrieved strip fitting tool " << m_stripFitter);
 
     // Retrieve the precision cluster fitting tool.
-    if (m_precClusterFitter.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve CSC precision cluster fitting tool " << m_precClusterFitter->name());
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_precClusterFitter.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC precision cluster fitting tool");
 
     // Retrieve the detector descriptor.
-    if (detStore()->retrieve(m_pmuon_detmgr).isFailure()) {
-        ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(detStore()->retrieve(m_pmuon_detmgr));
     ATH_MSG_DEBUG("Retrieved geometry.");
     m_phelper = m_pmuon_detmgr->cscIdHelper();
-
 
     return StatusCode::SUCCESS;
 }

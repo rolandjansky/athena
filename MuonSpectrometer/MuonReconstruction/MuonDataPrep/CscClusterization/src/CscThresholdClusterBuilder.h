@@ -55,11 +55,11 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "CscClusterization/ICscClusterBuilder.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "CscClusterization/ICscClusterBuilder.h"
 
 namespace MuonGM {
 class MuonDetectorManager;
@@ -92,7 +92,11 @@ class CscThresholdClusterBuilder : public AthAlgorithm {
 
   private:  // data
     // Strip fitter.
-    ToolHandle<ICscClusterBuilder> m_cluster_builder;
+    ToolHandle<ICscClusterBuilder> m_cluster_builder{
+        this,
+        "cluster_builder",
+        "CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool",
+    };
 };
 
 #endif

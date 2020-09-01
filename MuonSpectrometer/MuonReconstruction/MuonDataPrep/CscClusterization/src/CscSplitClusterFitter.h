@@ -49,8 +49,16 @@ class CscSplitClusterFitter : virtual public ICscClusterFitter, public AthAlgToo
     };
 
     // Cluster fitters.
-    ToolHandle<ICscClusterFitter> m_pfitter_def;
-    ToolHandle<ICscClusterFitter> m_pfitter_prec;
+    ToolHandle<ICscClusterFitter> m_pfitter_def{
+        this,
+        "default_fitter",
+        "SimpleCscClusterFitter/SimpleCscClusterFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_pfitter_prec{
+        this,
+        "precision_fitter",
+        "QratCscClusterFitter/QratCscClusterFitter",
+    };
 };
 
 #endif

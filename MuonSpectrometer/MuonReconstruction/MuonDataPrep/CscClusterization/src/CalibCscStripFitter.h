@@ -61,7 +61,11 @@ class CalibCscStripFitter : virtual public ICscStripFitter, public AthAlgTool {
         "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
     };
 
-    ToolHandle<ICscCalibTool> m_cscCalibTool;
+    ToolHandle<ICscCalibTool> m_cscCalibTool{
+        this,
+        "cscCalibTool",
+        "CscCalibTool/CscCalibTool",
+    };
 };
 
 #endif

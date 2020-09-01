@@ -74,10 +74,6 @@ CscPeakThresholdClusterBuilderTool::CscPeakThresholdClusterBuilderTool(const std
     : AthAlgTool(type, aname, parent),
       m_digit_key("CSC_Measurements"),
       m_cluster_handle("CSC_Clusters"),
-      m_pstrip_fitter("CalibCscStripFitter/CalibCscStripFitter"),
-      m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
-      m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
-      m_pfitter_split("CscSplitClusterFitter/CscSplitClusterFitter"),
       m_fullEventDone(false)
 {
 
@@ -89,10 +85,6 @@ CscPeakThresholdClusterBuilderTool::CscPeakThresholdClusterBuilderTool(const std
     declareProperty("q3sum_threshold_phi", m_q3sum_threshold_phi = 33000.0);
     declareProperty("digit_key", m_digit_key);
     declareProperty("cluster_key", m_cluster_handle);
-    declareProperty("strip_fitter", m_pstrip_fitter);
-    declareProperty("default_fitter", m_pfitter_def);
-    declareProperty("precision_fitter", m_pfitter_prec);
-    declareProperty("split_fitter", m_pfitter_split);
 }
 
 //******************************************************************************
@@ -120,31 +112,19 @@ CscPeakThresholdClusterBuilderTool::initialize()
     ATH_MSG_DEBUG("  Output cluster key is " << m_cluster_handle.key());
 
     // Retrieve the strip fitting tool.
-    if (m_pstrip_fitter.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve strip fitting tool " << m_pstrip_fitter);
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_pstrip_fitter.retrieve());
     ATH_MSG_DEBUG("Retrieved strip fitting tool " << m_pstrip_fitter);
 
     // Retrieve the default cluster fitting tool.
-    if (m_pfitter_def.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve CSC default cluster fitting tool " << m_pfitter_def->name());
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_pfitter_def.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC default cluster fitting tool");
 
     // Retrieve the precision cluster fitting tool.
-    if (m_pfitter_prec.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve CSC precision cluster fitting tool " << m_pfitter_prec->name());
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_pfitter_prec.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC precision cluster fitting tool");
 
     // Retrieve the split cluster fitting tool.
-    if (m_pfitter_split.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Unable to retrieve CSC split cluster fitting tool " << m_pfitter_split->name());
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_pfitter_split.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC split cluster fitting tool");
 
     // retrieve MuonDetectorManager from the conditions store

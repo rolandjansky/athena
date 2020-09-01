@@ -15,11 +15,8 @@ using std::vector;
 
 //******************************************************************************
 CscThresholdClusterBuilder::CscThresholdClusterBuilder(const std::string& aname, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(aname, pSvcLocator),
-      m_cluster_builder("CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool")
+    : AthAlgorithm(aname, pSvcLocator)
 {
-
-    declareProperty("cluster_builder", m_cluster_builder);
 }
 
 //******************************************************************************
@@ -37,10 +34,7 @@ CscThresholdClusterBuilder::initialize()
     ATH_MSG_DEBUG("Initializing " << name());
 
     // Retrieve the strip fitting tool.
-    if (m_cluster_builder.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve strip fitting tool " << m_cluster_builder);
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_cluster_builder.retrieve());
 
     ATH_MSG_DEBUG("Retrieved strip fitting tool " << m_cluster_builder);
     return StatusCode::SUCCESS;

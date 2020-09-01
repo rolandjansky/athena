@@ -62,8 +62,17 @@ class CscClusterUtilTool : virtual public ICscClusterUtilTool, public AthAlgTool
     const CscIdHelper*                 m_phelper;
 
     // Strip fitter.
-    ToolHandle<ICscStripFitter>                        m_stripFitter;
-    ToolHandle<ICscClusterFitter>                      m_precClusterFitter;
+    ToolHandle<ICscStripFitter> m_stripFitter{
+        this,
+        "strip_fitter",
+        "CalibCscStripFitter/CalibCscStripFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_precClusterFitter{
+        this,
+        "precision_fitter",
+        "QratCscClusterFitter/QratCscClusterFitter",
+    };
+
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscStripLocation;
 };
 

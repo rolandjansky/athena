@@ -16,13 +16,12 @@ typedef ICscStripFitter::ChargeList ChargeList;
 //**********************************************************************
 
 CalibCscStripFitter::CalibCscStripFitter(std::string type, std::string aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent), m_noiseOption(rms), m_cscCalibTool("CscCalibTool/CscCalibTool", this)
+    : AthAlgTool(type, aname, parent), m_noiseOption(rms)
 {
     declareInterface<ICscStripFitter>(this);
     declareProperty("timeError", m_terr = 5.0);
     declareProperty("failTimeError", m_terr_fail = 50.0);
     declareProperty("chargeCalibrationError", m_qerrprop = 0.000);
-    declareProperty("cscCalibTool", m_cscCalibTool);
     declareProperty("noiseOption", m_noiseOptionStr = "f001");
     declareProperty("doCorrection", m_doCorrection = true);
     declareProperty("chargeErrorScaler", m_chargeErrorScaler = 1.0);
@@ -57,10 +56,7 @@ CalibCscStripFitter::initialize()
 
     //  ATH_MSG_DEBUG ( " (failed) Charge error is noise(DB)*1.03588 = 4300 " << m_errorScaler );
     /** CSC calibratin tool for the Condtiions Data base access */
-    if (m_cscCalibTool.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Can't get handle on CSC calibration tools");
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
 
     // Retrieve the detector descriptor.
     ATH_CHECK(m_idHelperSvc.retrieve());

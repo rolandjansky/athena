@@ -55,6 +55,10 @@ class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTo
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey{
         this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"};
 
-    ToolHandle<ICscAlignmentTool> m_alignmentTool;
+    ToolHandle<ICscAlignmentTool> m_alignmentTool{
+        this,
+        "CscAlignmentTool",
+        "CscAlignmentTool/CscAlignmentTool",
+    };
 };
 #endif

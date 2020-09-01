@@ -86,6 +86,10 @@ class QratCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool
         "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
     };
 
-    ToolHandle<ICscAlignmentTool> m_alignmentTool;
+    ToolHandle<ICscAlignmentTool> m_alignmentTool{
+        this,
+        "CscAlignmentTool",
+        "CscAlignmentTool/CscAlignmentTool",
+    };
 };
 #endif

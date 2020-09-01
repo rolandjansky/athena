@@ -226,7 +226,7 @@ qrat_atanh(const double a, const double b, double c, const double x0, double qra
 //****************************************************************************
 
 QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, const IInterface* parent)
-    : AthAlgTool(type, aname, parent), m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
+    : AthAlgTool(type, aname, parent)
 {
     declareInterface<ICscClusterFitter>(this);
     m_max_width.push_back(5);                   // CSS eta
@@ -266,8 +266,6 @@ QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, 
     declareProperty("atanh_x0_csl_eta", m_atanh_x0_csl_eta = 0.6615);
 
     declareProperty("dposmin", m_dposmin = 0.082);
-
-    declareProperty("CscAlignmentTool", m_alignmentTool);
 }
 
 //**********************************************************************
@@ -288,7 +286,6 @@ QratCscClusterFitter::initialize()
     } else {
         ATH_MSG_DEBUG(name() << ": retrieved " << m_alignmentTool);
     }
-
 
     ATH_MSG_DEBUG("Properties for " << name() << ":");
     ATH_MSG_DEBUG("       Eta position option: " << m_posopt_eta);

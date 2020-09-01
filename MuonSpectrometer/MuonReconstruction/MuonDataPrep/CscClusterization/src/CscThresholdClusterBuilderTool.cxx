@@ -78,14 +78,8 @@ CscThresholdClusterBuilderTool::CscThresholdClusterBuilderTool(const std::string
       m_noiseOption(rms),
       m_digit_key("CSC_Measurements"),
       m_pclusters("CSC_Clusters"),
-      m_cscCalibTool("CscCalibTool/CscCalibTool"),
-      m_pstrip_fitter("CalibCscStripFitter/CalibCscStripFitter"),
-      m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
-      m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter"),
-      m_pfitter_split("CscSplitClusterFitter/CscSplitClusterFitter"),
       m_fullEventDone(false)
 {
-
     declareInterface<ICscClusterBuilder>(this);
 
     declareProperty("threshold", m_threshold = 20000.0);
@@ -93,11 +87,6 @@ CscThresholdClusterBuilderTool::CscThresholdClusterBuilderTool(const std::string
     declareProperty("noiseOption", m_noiseOptionStr = "f001");
     declareProperty("digit_key", m_digit_key);
     declareProperty("cluster_key", m_pclusters);
-    declareProperty("cscCalibTool", m_cscCalibTool);
-    declareProperty("strip_fitter", m_pstrip_fitter);
-    declareProperty("default_fitter", m_pfitter_def);
-    declareProperty("precision_fitter", m_pfitter_prec);
-    declareProperty("split_fitter", m_pfitter_split);
     declareProperty("makeNarrowClusterThreeStrips", m_makeNarrowClusterThreeStrips = true);
 }
 
@@ -112,7 +101,6 @@ CscThresholdClusterBuilderTool::~CscThresholdClusterBuilderTool() {}
 StatusCode
 CscThresholdClusterBuilderTool::initialize()
 {
-
     // Display algorithm properties.
     ATH_MSG_DEBUG("Properties for " << name() << ":");
     ATH_MSG_DEBUG("  Strip threshold is Max( " << m_threshold << ", " << m_kFactor
@@ -139,37 +127,22 @@ CscThresholdClusterBuilderTool::initialize()
     ATH_MSG_DEBUG("  Output cluster key is " << m_pclusters.key());
 
     // CSC calibratin tool for the Condtiions Data base access //
-    if (m_cscCalibTool.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Can't get handle on CSC calibration tools");
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
 
     // Retrieve the strip fitting tool.
-    if (m_pstrip_fitter.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve strip fitting tool " << m_pstrip_fitter);
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pstrip_fitter.retrieve());
     ATH_MSG_DEBUG("Retrieved strip fitting tool " << m_pstrip_fitter);
 
     // Retrieve the default cluster fitting tool.
-    if (m_pfitter_def.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve CSC default cluster fitting tool " << m_pfitter_def->name());
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pfitter_def.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC default cluster fitting tool");
 
     // Retrieve the precision cluster fitting tool.
-    if (m_pfitter_prec.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve CSC precision cluster fitting tool " << m_pfitter_prec->name());
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pfitter_prec.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC precision cluster fitting tool");
 
     // Retrieve the split cluster fitting tool.
-    if (m_pfitter_split.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve CSC split cluster fitting tool " << m_pfitter_split->name());
-        return StatusCode::RECOVERABLE;
-    }
+    ATH_CHECK_RECOVERABLE(m_pfitter_split.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC split cluster fitting tool");
 
     // retrieve MuonDetectorManager from the conditions store

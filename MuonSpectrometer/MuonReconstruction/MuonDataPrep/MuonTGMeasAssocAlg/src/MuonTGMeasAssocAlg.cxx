@@ -42,7 +42,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string& name, ISvcLocato
       m_allowGeomAssoc(true),
       m_trackingGeometry(0),
       m_trackingGeometryName("AtlasTrackingGeometry"),
-      m_muonTgTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
       m_inputSegmentCollectionMoore("MooreSegments"),
       m_inputSegmentCollectionMoMu("MuonSegments_MoMu"),
       m_inputSegmentCollectionMBoy("ConvertedMBoySegments"),
@@ -56,11 +55,9 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string& name, ISvcLocato
       m_cscHits(0),
       m_tgcHits(0),
       m_allHits(0),
-      m_allSegments(0),
-      m_extrapolator("Trk::Extrapolator/Extrapolator")
+      m_allSegments(0)
 {
     declareProperty("TrackingGeometry", m_trackingGeometryName);
-    declareProperty("Extrapolator", m_extrapolator);
     declareProperty("ProcessMdtHits", m_mdtIn);
     declareProperty("ProcessRpcHits", m_rpcIn);
     declareProperty("ProcessCscHits", m_cscIn);

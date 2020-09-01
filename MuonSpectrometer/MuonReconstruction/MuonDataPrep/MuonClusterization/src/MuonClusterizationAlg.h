@@ -28,7 +28,11 @@ class MuonClusterizationAlg : public AthAlgorithm {
     std::string m_rpcPrdLocationInput;   //!< Location of input RpcPrepData
     std::string m_rpcPrdLocationOutput;  //!< Location of output RpcPrepData
 
-    ToolHandle<Muon::IMuonClusterizationTool> m_clusterTool;  //!< clustering Tool
+    ToolHandle<Muon::IMuonClusterizationTool> m_clusterTool{
+        this,
+        "ClusterTool",
+        "Muon::MuonClusterizationTool/MuonClusterizationTool",
+    };  //!< clustering Tool
 };
 
 #endif

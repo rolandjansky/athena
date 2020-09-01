@@ -55,13 +55,13 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CscClusterization/ICscClusterBuilder.h"
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscStripFitter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "CscClusterization/ICscClusterBuilder.h"
 
 namespace Muon {
 class CscPrepData;
@@ -114,12 +114,28 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
     SG::WriteHandle<Muon::CscPrepDataContainer>        m_cluster_handle;  // SG key for output clusters
 
     // Strip fitter.
-    ToolHandle<ICscStripFitter> m_pstrip_fitter;
+    ToolHandle<ICscStripFitter> m_pstrip_fitter{
+        this,
+        "strip_fitter",
+        "CalibCscStripFitter/CalibCscStripFitter",
+    };
 
     // Cluster fitters.
-    ToolHandle<ICscClusterFitter> m_pfitter_def;
-    ToolHandle<ICscClusterFitter> m_pfitter_prec;
-    ToolHandle<ICscClusterFitter> m_pfitter_split;
+    ToolHandle<ICscClusterFitter> m_pfitter_def{
+        this,
+        "default_fitter",
+        "SimpleCscClusterFitter/SimpleCscClusterFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_pfitter_prec{
+        this,
+        "precision_fitter",
+        "QratCscClusterFitter/QratCscClusterFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_pfitter_split{
+        this,
+        "split_fitter",
+        "CscSplitClusterFitter/CscSplitClusterFitter",
+    };
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
         this,

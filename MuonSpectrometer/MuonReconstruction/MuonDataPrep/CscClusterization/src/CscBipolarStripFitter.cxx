@@ -31,7 +31,6 @@ CscBipolarStripFitter::CscBipolarStripFitter(string type, string aname, const II
     : AthAlgTool(type, aname, parent),
       m_pmuon_detmgr(0),
       m_phelper(0),
-      m_cscCalibTool(""),
       m_n(0),
       m_n2(0),
       m_zmax(0),
@@ -47,7 +46,6 @@ CscBipolarStripFitter::CscBipolarStripFitter(string type, string aname, const II
     declareProperty("failChargeError", m_qerr_fail = 5000.0);
     declareProperty("failTimeError", m_terr_fail = 50.0);
     declareProperty("chargeCalibrationError", m_qerrprop = 0.002);
-    declareProperty("cscCalibTool", m_cscCalibTool);
 }
 
 //**********************************************************************
@@ -70,18 +68,13 @@ CscBipolarStripFitter::initialize()
     ATH_MSG_DEBUG("  Charge calibration error: " << m_qerrprop);
 
     /** CSC calibratin tool for the Condtiions Data base access */
-    if (m_cscCalibTool.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Can't get handle on CSC calibration tools");
-        return StatusCode::RECOVERABLE;
-    }
-    // Retrieve the detector descriptor.
-    if (detStore()->retrieve(m_pmuon_detmgr).isFailure()) {
-        ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
-        return StatusCode::RECOVERABLE;
-    }
-    ATH_MSG_DEBUG("Retrieved geometry.");
-    m_phelper = m_pmuon_detmgr->cscIdHelper();
+    ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
 
+    // Retrieve the detector descriptor.
+    ATH_CHECK_RECOVERABLE(detStore()->retrieve(m_pmuon_detmgr));
+    ATH_MSG_DEBUG("Retrieved geometry.");
+
+    m_phelper = m_pmuon_detmgr->cscIdHelper();
 
     m_n          = m_cscCalibTool->getNumberOfIntegration();   // 12.;
     m_n2         = m_cscCalibTool->getNumberOfIntegration2();  // 11.66;
