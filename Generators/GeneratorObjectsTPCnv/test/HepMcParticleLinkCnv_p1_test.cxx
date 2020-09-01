@@ -76,6 +76,19 @@ void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenPartic
     HepMC::FourVector pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
+#ifdef HEPMC3
+    auto itrp =hScatVx->particles_in().cbegin();
+    if (hScatVx->particles_in().size()==2){
+      HepMC::FourVector mom1=(*itrp)->momentum();
+      HepMC::FourVector mom2=(*(++itrp))->momentum();
+      HepMC::FourVector vxmom;
+      vxmom.setPx(mom1.e()+mom2.e());
+      vxmom.setPy(0.);
+      vxmom.setPz(0.);
+      vxmom.setE(mom1.e()+mom2.e());
+      genPart->set_momentum(vxmom);
+    }
+#else
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
     if (hScatVx->particles_in_size()==2){
       HepMC::FourVector mom1=(*itrp)->momentum();
@@ -88,8 +101,20 @@ void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenPartic
 
       genPart->set_momentum(vxmom);
     }
+#endif
   }
 
+#ifdef HEPMC3
+  if(!ge.vertices().empty()){
+    std::vector<HepMC::GenVertexPtr> vtxvec;
+    for (auto vtx: ge.vertices()) {
+      vtxvec.push_back(vtx);
+      ge.remove_vertex(vtx);
+      
+    }
+    vtxvec.clear();
+  }
+#else
   if(!ge.vertices_empty()){
     std::vector<HepMC::GenVertexPtr> vtxvec;
     HepMC::GenEvent::vertex_iterator itvtx = ge.vertices_begin();
@@ -101,6 +126,7 @@ void populateFilteredGenEvent(HepMC::GenEvent & ge, std::vector<HepMC::GenPartic
     }
     for(unsigned int i=0;i<vtxvec.size();i++)  delete vtxvec[i];
   }
+#endif
 
   //.....add new vertex with geantino
   ge.add_vertex(genVertex);

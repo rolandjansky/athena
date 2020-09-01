@@ -91,6 +91,13 @@ make_map_t_pair(const HepMC::GenParticlePtr &p,
   HepMcParticleLink link(HepMC::barcode(p), genEventIdx);
   return Map_t::value_type(link.compress(), &tp);
 }
+bool operator==(TruthParticle a, HepMC::GenParticlePtr b)
+{
+if (!a.genParticle() && !b) return true;
+if (a.genParticle() && !b) return false;
+if (!a.genParticle() && b) return false;
+return (a.genParticle().get() == b.get());
+}
 #else
 Map_t::value_type 
 make_map_t_pair(const HepMC::GenParticle &p,
