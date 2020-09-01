@@ -750,10 +750,10 @@ else:
                            (runArgs.jobConfig, str(gennames)))
 
 ## Check conf files, as above but for a different command line arg, and with omission allowed
-if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
-    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
-        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
-                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
+#if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
+#    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
+#        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
+#                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
 
 ## Do the aux-file copying
 if evgenConfig.auxfiles:
