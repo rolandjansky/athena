@@ -129,26 +129,11 @@ void TFCSParametrizationBase::FindDuplicates(FindDuplicateClasses_t& dupclasses)
       //Check for objects with identical content
       if(*param==*refparam) {
         ATH_MSG_DEBUG("Found duplicate: "<<refparam<<"="<<refparam->GetName()<<", duplicate is "<<param<<"="<<param->GetName()<<" index "<<i<<" of "<<this);
-        //param->Print("  1 ");
-        //ref.first->Print("  2 ");
         dup[param].replace=refparam;
         dup[refparam].mother.push_back(this);
         dup[refparam].index.push_back(i);
         break;
       }
-      /*
-      if(param->IsA()==ref.first->IsA()) {
-        std::string name(param->GetName());
-        if(name==ref.first->GetName()) {
-          ATH_MSG_INFO("potential same objects "<<param<<"="<<param->GetName()<<" and "<<ref.first<<"="<<ref.first->GetName());
-          param->setLevel(MSG::DEBUG);
-          param->operator==(*(ref.first));
-          param->setLevel(MSG::INFO);
-          param->Print("  1 ");
-          ref.first->Print("  2 ");
-        }
-      }
-      */
     }
     //Continue for child objects in param
     param->FindDuplicates(dupclasses);
@@ -167,7 +152,6 @@ void TFCSParametrizationBase::RemoveDuplicates()
       if(onedup.second.mother.size()==0) continue;
       TFCSParametrizationBase* ref=onedup.first;
       ATH_MSG_DEBUG("Main object "<<ref<<"="<<ref->GetName());
-      //ref->Print("  + ");
       for(unsigned int i=0;i<onedup.second.mother.size();++i) {
         int index=onedup.second.index[i];
         TFCSParametrizationBase* mother=onedup.second.mother[i];
