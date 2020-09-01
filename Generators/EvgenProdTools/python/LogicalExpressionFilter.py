@@ -36,7 +36,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         self.nEventsProcessedPosWeighted=0
         self.nEventsProcessedNegWeighted=0
         self.nEventsProcessedWeighted=0
+        self.nEventsProcessedWeighted2=0
         self.nEventsPassedWeighted=0
+        self.nEventsPassedWeighted2=0
         self.nEventsPassedPosWeighted=0
         self.nEventsPassedNegWeighted=0
         self.Expression = kw.get('Expression', '')
@@ -207,6 +209,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
         self.nEventsProcessed+=1
         self.nEventsProcessedWeighted+=event_weight
+        self.nEventsProcessedWeighted2+=event_weight*event_weight
         if event_weight > 0 :
             self.nEventsProcessedPosWeighted+=event_weight
         else :
@@ -215,6 +218,7 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         if response:
             self.nEventsPassed+=1
             self.nEventsPassedWeighted+=event_weight
+            self.nEventsPassedWeighted2+=event_weight*event_weight
             if event_weight > 0 :
                 self.nEventsPassedPosWeighted+=event_weight
             else :
@@ -238,8 +242,10 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
         print("MetaData: sumOfPosWeights = %e" % (self.nEventsPassedPosWeighted if self.UseEventWeight else self.nEventsPassed))
         print("MetaData: sumOfNegWeights = %e" % (self.nEventsPassedNegWeighted if self.UseEventWeight else self.nEventsPassed))
+        print("MetaData: sumOfSqrWeights = %e" % (self.nEventsPassedWeighted2 if self.UseEventWeight else self.nEventsPassed))
         print("MetaData: sumOfPosWeightsNoFilter = %e" % (self.nEventsProcessedPosWeighted if self.UseEventWeight else self.nEventsProcessed))
         print("MetaData: sumOfNegWeightsNoFilter = %e" % (self.nEventsProcessedNegWeighted if self.UseEventWeight else self.nEventsProcessed))
+        print("MetaData: sumOfSqrWeightsNoFilter = %e" % (self.nEventsProcessedWeighted2 if self.UseEventWeight else self.nEventsProcessed))
         return StatusCode.Success
 
 
