@@ -108,6 +108,8 @@ class MuFastSteering : public HLT::FexAlgo,
                            const TrigL2MuonSA::TgcFitResult&              tgcFitResult,
                            const TrigL2MuonSA::MdtHits&                   mdtHits,
                            const TrigL2MuonSA::CscHits&                   cscHits,
+			   const TrigL2MuonSA::StgcHits&                  stgcHits,
+			   const TrigL2MuonSA::MmHits&                    mmHits,
                            const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
 			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
 			   TrigRoiDescriptorCollection&  	          outputID,
@@ -123,6 +125,8 @@ class MuFastSteering : public HLT::FexAlgo,
                	   const TrigL2MuonSA::TgcFitResult&   tgcFitResult,
                	   const TrigL2MuonSA::MdtHits&        mdtHits,
                	   const TrigL2MuonSA::CscHits&        cscHits,
+		   const TrigL2MuonSA::StgcHits&       stgcHits,
+		   const TrigL2MuonSA::MmHits&         mmHits,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
                    DataVector<xAOD::L2StandAloneMuon>& outputTracks);
 
@@ -191,35 +195,41 @@ class MuFastSteering : public HLT::FexAlgo,
   TrigL2MuonSA::MdtHits      m_mdtHits_normal;
   TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
   TrigL2MuonSA::CscHits      m_cscHits;
+  TrigL2MuonSA::StgcHits     m_stgcHits;
+  TrigL2MuonSA::MmHits       m_mmHits;
   
   // Property
-  Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1, "" };
-  Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1, "" };
-  Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1, "" };
+  Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1 };
+  Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1 };
+  Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1 };
   
-  Gaudi::Property< bool > m_use_timer { this, "Timing", false, "" };
-  Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true, ""};
-  Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true, ""};
-  Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true, ""};
-  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false, ""};
-  Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT { this, "USE_ROIBASEDACCESS_MDT", true, ""};
-  Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC { this, "USE_ROIBASEDACCESS_RPC", true, ""};
-  Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC { this, "USE_ROIBASEDACCESS_TGC", true, ""};
-  Gaudi::Property< bool > m_use_RoIBasedDataAccess_CSC { this, "USE_ROIBASEDACCESS_CSC", true, ""};
-  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", false, ""};
-  Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false, ""};
-  Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false, ""};
-  Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false, ""};
+  Gaudi::Property< bool > m_use_timer { this, "Timing", false };
+  Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true};
+  Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true};
+  Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true};
+  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT  { this, "USE_ROIBASEDACCESS_MDT",  true};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC  { this, "USE_ROIBASEDACCESS_RPC",  true};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC  { this, "USE_ROIBASEDACCESS_TGC",  true};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_CSC  { this, "USE_ROIBASEDACCESS_CSC",  true};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_STGC { this, "USE_ROIBASEDACCESS_STGC", true};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_MM   { this, "USE_ROIBASEDACCESS_MM",   true};
+  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", false};
+  Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false};
+  Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false};
+  Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false};
   
-  Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100, "" };
-  Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50, "" };
-  Gaudi::Property< int > m_esd_mdt_size { this, "ESD_MDT_size", 100, "" };
-  Gaudi::Property< int > m_esd_csc_size { this, "ESD_CSC_size", 100, "" };
-  
-  Gaudi::Property< double > m_rWidth_RPC_Failed { this, "R_WIDTH_RPC_FAILED", 400, "" };
-  Gaudi::Property< double > m_rWidth_TGC_Failed { this, "R_WIDTH_TGC_FAILED", 200, "" };
+  Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100 };
+  Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50 };
+  Gaudi::Property< int > m_esd_mdt_size { this, "ESD_MDT_size", 100 };
+  Gaudi::Property< int > m_esd_csc_size { this, "ESD_CSC_size", 100 };
+  Gaudi::Property< int > m_esd_stgc_size { this, "ESD_STGC_size", 100 };
+  Gaudi::Property< int > m_esd_mm_size { this, "ESD_MM_size", 100 };
 
-  Gaudi::Property< double > m_winPt { this, "WinPt", 4.0, "" };
+  Gaudi::Property< double > m_rWidth_RPC_Failed { this, "R_WIDTH_RPC_FAILED", 400 };
+  Gaudi::Property< double > m_rWidth_TGC_Failed { this, "R_WIDTH_TGC_FAILED", 200 };
+
+  Gaudi::Property< double > m_winPt { this, "WinPt", 4.0 };
 
   Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
@@ -227,9 +237,9 @@ class MuFastSteering : public HLT::FexAlgo,
 
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
-  Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
-  Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
-  Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
+  Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true};
+  Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput"};
+  Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024};
 
   // Enable to fill FS RoI for ID (cosmic run)
   Gaudi::Property< bool > m_fill_FSIDRoI { this, "FILL_FSIDRoI", false, "Fill FS RoI for ID (will be used in cosmic run)"};
