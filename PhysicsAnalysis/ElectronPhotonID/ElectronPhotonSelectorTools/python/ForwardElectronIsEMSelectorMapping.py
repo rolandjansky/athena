@@ -9,11 +9,8 @@
 ## Description: Find mapping of mask and function for ID quality
 ##=============================================================================
 
-import cppyy
-try :
-    cppyy.load_library('libElectronPhotonSelectorToolsDict')
-except :
-    pass
+import ROOT,cppyy
+cppy.include("ElectronPhotonSelectorTools/egammaPIDdefs.h")
 
 from ROOT import egammaPID
 
