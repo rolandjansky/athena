@@ -40,7 +40,7 @@ namespace xAOD {
       };
 
       /// Default constructor
-      TReturnCode() : TReturnCode(kSuccess) {};
+      TReturnCode() : TReturnCode(kSuccess) {}
       /// Constructor with a return code value
       TReturnCode( EReturnCode code );
       /// Copy constructor
