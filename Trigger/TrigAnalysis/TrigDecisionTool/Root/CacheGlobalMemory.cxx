@@ -346,7 +346,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     //so we could in the future use the ones set by the python configuration
     //we're hardcoding in order not to require python configuration changes
 
-    const EventContext context = Gaudi::Hive::currentContext();
+    const EventContext& context = Gaudi::Hive::currentContext();
     if (!m_decisionKeyPtr->empty()) {
        SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_decisionKeyPtr, context);
       contains_xAOD_decision = decisionReadHandle.isValid();

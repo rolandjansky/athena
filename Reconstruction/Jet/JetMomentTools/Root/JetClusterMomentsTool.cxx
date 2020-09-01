@@ -3,12 +3,11 @@
 */
 
 #include "JetMomentTools/JetClusterMomentsTool.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 JetClusterMomentsTool::JetClusterMomentsTool(const std::string& name)
     : asg::AsgTool(name)
 {
-  declareInterface<IJetDecorator>(this);
 }
 
 StatusCode JetClusterMomentsTool::initialize(){

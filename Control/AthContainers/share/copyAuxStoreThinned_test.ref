@@ -1,1 +1,49 @@
 test1
+
+Testing lossy float compression...
+
+Iteration [0]
+
+Original value           0.512345 (binary : 0 01111110 00000110010100100001011)
+Compressed value         0.511719 (binary : 0 01111110 00000110000000000000000)
+Original value at [0]    0.512345 (binary : 0 01111110 00000110010100100001011)
+Compressed value at [0]  0.511719 (binary : 0 01111110 00000110000000000000000)
+Original value at [1]    0.123456 (binary : 0 01111011 11111001101011010000000)
+Compressed value at [1]  0.123535 (binary : 0 01111011 11111010000000000000000)
+
+Iteration [1]
+
+Original value            1.51234 (binary : 0 01111111 10000011001010010000101)
+Compressed value          1.51562 (binary : 0 01111111 10000100000000000000000)
+Original value at [0]     1.51234 (binary : 0 01111111 10000011001010010000101)
+Compressed value at [0]   1.51562 (binary : 0 01111111 10000100000000000000000)
+Original value at [1]     2.12346 (binary : 0 10000000 00001111110011010110100)
+Compressed value at [1]     2.125 (binary : 0 10000000 00010000000000000000000)
+
+Iteration [2]
+
+Original value            2.51235 (binary : 0 10000000 01000001100101001000011)
+Compressed value          2.51562 (binary : 0 10000000 01000010000000000000000)
+Original value at [0]     2.51235 (binary : 0 10000000 01000001100101001000011)
+Compressed value at [0]   2.51562 (binary : 0 10000000 01000010000000000000000)
+Original value at [1]     4.12346 (binary : 0 10000001 00000111111001101011010)
+Compressed value at [1]     4.125 (binary : 0 10000001 00001000000000000000000)
+
+Iteration [3]
+
+Original value            3.51235 (binary : 0 10000000 11000001100101001000011)
+Compressed value          3.51562 (binary : 0 10000000 11000010000000000000000)
+Original value at [0]     3.51235 (binary : 0 10000000 11000001100101001000011)
+Compressed value at [0]   3.51562 (binary : 0 10000000 11000010000000000000000)
+Original value at [1]     6.12346 (binary : 0 10000001 10000111111001101011010)
+Compressed value at [1]     6.125 (binary : 0 10000001 10001000000000000000000)
+
+Iteration [4]
+
+Original value            4.51234 (binary : 0 10000001 00100000110010100100001)
+Compressed value              4.5 (binary : 0 10000001 00100000000000000000000)
+Original value at [0]     4.51234 (binary : 0 10000001 00100000110010100100001)
+Compressed value at [0]       4.5 (binary : 0 10000001 00100000000000000000000)
+Original value at [1]     8.12346 (binary : 0 10000010 00000011111100110101101)
+Compressed value at [1]     8.125 (binary : 0 10000010 00000100000000000000000)
+

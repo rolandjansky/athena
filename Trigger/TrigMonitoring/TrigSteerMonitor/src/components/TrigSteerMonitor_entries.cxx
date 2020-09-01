@@ -11,6 +11,7 @@
 #include "../TrigMemAuditor.h"
 #include "../TrigSignatureMoniMT.h"
 #include "../DecisionCollectorTool.h"
+#include "../SchedulerMonSvc.h"
 
 DECLARE_COMPONENT( TrigSteerMoni )
 DECLARE_COMPONENT( TrigChainMoni )
@@ -25,3 +26,4 @@ DECLARE_COMPONENT( TrigCorMoni )
 DECLARE_COMPONENT( TrigMemAuditor )
 DECLARE_COMPONENT( TrigSignatureMoniMT )
 DECLARE_COMPONENT( DecisionCollectorTool )
+DECLARE_COMPONENT( SchedulerMonSvc )

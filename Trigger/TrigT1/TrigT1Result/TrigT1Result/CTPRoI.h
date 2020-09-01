@@ -37,7 +37,7 @@ namespace ROIB {
       : m_roIWord( 0 ) {}
 
     //! empty default destructor
-    ~CTPRoI() {}
+    ~CTPRoI() = default;
 
     /* Methods: */
 

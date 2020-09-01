@@ -89,7 +89,7 @@ private:
     bool straightTrackModel(const Trk::TrackParameters& ) const;
 
     //! internal method printing the current state (debugging)
-    void printGlobalParams(int istate, std::string ptype,
+    void printGlobalParams(int istate, const std::string& ptype,
                            const TrackParameters*,
                            const DNA_MaterialEffects* = nullptr) const;
 

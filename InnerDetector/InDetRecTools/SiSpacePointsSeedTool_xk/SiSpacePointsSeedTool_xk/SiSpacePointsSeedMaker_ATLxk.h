@@ -167,11 +167,13 @@ namespace InDet {
     /// maximum number of seeds to keep per central space point. 
     /// the top N seeds sorted by quality are preserved if more candidates
     /// than the limit exist 
-    IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
+    IntegerProperty m_maxOneSizeSSS{this, "maxSeedsForSpacePointStrips", 5};
+    IntegerProperty m_maxOneSizePPP{this, "maxSeedsForSpacePointPixels", 5};
     /// This flag will lead to all confirmed seeds (seeds where a second compatible seed
     /// with a different top spacepoint is found) being kept, even in excess of 
     /// maxSeedsForSpacePoint above 
-    BooleanProperty m_alwaysKeepConfirmedSeeds{this, "alwaysKeepConfirmedSeeds", false};
+    BooleanProperty m_alwaysKeepConfirmedPixelSeeds{this, "alwaysKeepConfirmedPixelSeeds", false};
+    BooleanProperty m_alwaysKeepConfirmedStripSeeds{this, "alwaysKeepConfirmedStripSeeds", false};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};
     FloatProperty m_r1maxv{this, "maxVRadius1", 60.};

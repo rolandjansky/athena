@@ -71,4 +71,3 @@ def TrigTopoEgammaElectronCfg(name='topoEgammaBuilder_TrigElectrons'):
             #MonTool = monTool
             )
     return TrigTopoEgammaElectron()
-

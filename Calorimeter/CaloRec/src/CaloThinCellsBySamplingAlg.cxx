@@ -71,7 +71,7 @@ StatusCode CaloThinCellsBySamplingAlg::decodeSamplings()
   size_t hashMax = m_caloID->calo_cell_hash_max();
   for (size_t cellHash = 0; cellHash < hashMax; ++cellHash) {
     if (acceptedSamplings[m_caloID->calo_sample (cellHash)]) {
-      m_cellHashes.push_back (cellHash);
+      m_cellHashes.emplace_back(cellHash);
     }
   }
 

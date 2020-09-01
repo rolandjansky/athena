@@ -17,9 +17,7 @@
 #include "TrigBphysElectronCounter.h"
 
 #include "xAODEgamma/ElectronContainer.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h" 
-#include "FourMomUtils/P4Helpers.h"
-
+#include "TrigTimeAlgs/TrigTimer.h"                  // for TrigTimer
 
 // Define the bins for acceptance-monitoring histogram
 #define ACCEPT_hltExecute         0
@@ -202,7 +200,7 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
   xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
   outputTrackColl->setStore( &outputTrackCollAuxCont );
   outputTrackColl->reserve(m_nEfElectron);
-    for( auto elec : efelectrons ){
+    for( const auto& elec : efelectrons ){
       xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
       trk1->makePrivateStore( (*elec)->trackParticle());
       outputTrackColl->push_back(trk1);

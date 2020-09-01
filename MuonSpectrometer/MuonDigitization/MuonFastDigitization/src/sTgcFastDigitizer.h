@@ -12,19 +12,21 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-
-class TTree;
-class TFile;
+#include "AthenaKernel/IAthRNGSvc.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
 }
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class MuonSimDataCollection;
+class TTree;
+class TFile;
 
 class sTgcFastDigitizer : public AthAlgorithm {
 
@@ -37,10 +39,8 @@ class sTgcFastDigitizer : public AthAlgorithm {
   StatusCode execute();
   StatusCode finalize();
 
-  ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
-  CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used
-
  private:
+  CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
   const MuonGM::MuonDetectorManager* m_detManager;
 
   int m_channelTypes; // 1 -> strips, 2 -> strips+wires, 3 -> strips/wires/pads
@@ -105,7 +105,6 @@ class sTgcFastDigitizer : public AthAlgorithm {
 
   double getResolution(float inAngle_space) const;
   uint16_t bcTagging(float digittime, int channelType) const;
-  float timeJitter(float inAngle_time) const;
 
   /**
      Reads parameters for intrinsic time response from timejitter.dat.
@@ -115,9 +114,9 @@ class sTgcFastDigitizer : public AthAlgorithm {
 
  protected:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  ToolHandle <Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator;
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_muonClusterCreator{this,"ClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service used in Muon digitization"};
+
   std::string m_rndmEngineName;// name of random engine
   std::string m_inputObjectName; // name of the input objects
   SG::WriteHandleKey<MuonSimDataCollection> m_sdoName; // name of the output SDO collection

@@ -43,8 +43,8 @@ namespace Muon {
 		    "Cut on the angular difference between the extrapolated segment angle and reference");
     declareProperty("StraightLineMatchPositionCut",m_straightLineMatchPositionCut = 200.,
 		    "Cut on the distance of extrapolated segment position and reference");
-    declareProperty("MaxDistanceBetweenSegments",m_maxDistSegments = 3000.,
-		    "If the two segments are further appart than this distance, they are always considered to match");
+    declareProperty("MaxDistanceBetweenSegments",m_maxDistSegments = 5000.,
+		    "If the two segments are further apart than this distance, they are considered to not match");
 
     declareProperty("OnlySameSectorIfTight",m_onlySameSectorIfTight = true, "Accept only segments that are in the same sector for tight matching");
     declareProperty("TightSegmentMatching",m_useTightCuts = false, "Use tight selection for busy event to suppress combinatorics and improve CPU");

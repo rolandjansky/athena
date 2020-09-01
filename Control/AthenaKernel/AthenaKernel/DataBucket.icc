@@ -55,7 +55,7 @@ void db_free_ptr (T* ptr, std::true_type)
 ///////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTORS
 ///////////////////////////////////////////////////////////////////////////////
-template <typename T> 
+template <typename T>
 SG::DataBucket<T>::DataBucket(T* data)
   : m_ptr(data)
 {
@@ -77,7 +77,7 @@ SG::DataBucket<T>::DataBucket(std::unique_ptr<U> data)
 {
 }
 
-template <typename T> 
+template <typename T>
 SG::DataBucket<T>::DataBucket(SG::DataObjectSharedPtr<T> data)
   : m_ptr(data.detach())
 {
@@ -86,11 +86,11 @@ SG::DataBucket<T>::DataBucket(SG::DataObjectSharedPtr<T> data)
 ///////////////////////////////////////////////////////////////////////////////
 // DATAOBJECT
 ///////////////////////////////////////////////////////////////////////////////
-template <typename T> 
-const CLID& SG::DataBucket<T>::clID() const {return classID();}  
+template <typename T>
+const CLID& SG::DataBucket<T>::clID() const {return classID();}
 
-template <typename T> 
-const CLID& SG::DataBucket<T>::classID() { 
+template <typename T>
+const CLID& SG::DataBucket<T>::classID() {
   typedef typename std::remove_pointer<T>::type BareTp;
   typedef typename std::remove_const<BareTp>::type BareT;
   return ClassID_traits<BareT>::ID();
@@ -105,7 +105,7 @@ const CLID& SG::DataBucket<T>::classID() {
  * @param irt To be called if we make a new instance.
  * @param isConst True if the object being converted is regarded as const.
  */
-template <typename T> 
+template <typename T>
 void*
 SG::DataBucket<T>::cast (CLID clid,
                          IRegisterTransient* irt /*= 0*/,
@@ -146,11 +146,11 @@ SG::DataBucket<T>::cast (CLID clid,
  * @brief Return the contents of the @c DataBucket,
  *        converted to type given by @a std::type_info.  Note that only
  *        derived->base conversions are allowed here.
- * @param clid The @a std::type_info of the type to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
  * @param irt To be called if we make a new instance.
  * @param isConst True if the object being converted is regarded as const.
  */
-template <typename T> 
+template <typename T>
 void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
                                IRegisterTransient* irt /*= 0*/,
                                bool isConst /*= true*/)
@@ -182,8 +182,38 @@ void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
   return 0;
 }
 
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param tinfo The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ *
+ * This allows the callee to choose whether to use clid or tinfo.
+ * Here we use clid.
+ */
 template <typename T> 
-SG::DataBucket<T>::~DataBucket()
+inline
+void* SG::DataBucket<T>::cast (CLID clid,
+                               const std::type_info& /*tinfo*/,
+                               SG::IRegisterTransient* irt /*= 0*/,
+                               bool isConst /*= true*/) 
+{
+  // Don't use virtual dispatch for this call.
+  return DataBucket::cast (clid, irt, isConst);
+}
+
+
+// The DataBucket destructor is put into an explicit namespace scope to get rid
+// of a pesky warning from DPC++. Unfortunately Clang has an issue with the
+// class name having a scope declaration on the destructor for some reason.
+namespace SG {
+
+template <typename T>
+DataBucket<T>::~DataBucket()
 {
   // Delete any copies.
   vec_t::iterator end = m_cnvcopies.end();
@@ -197,6 +227,8 @@ SG::DataBucket<T>::~DataBucket()
   if (m_ptr)
     SG::db_free_ptr(m_ptr, tag());
 }
+
+} // namespace SG
 
 
 namespace {
@@ -228,4 +260,3 @@ void SG::DataBucket<T>::lock()
 {
   call_lock (m_ptr, typename std::is_polymorphic<T>::type());
 }
-

@@ -921,6 +921,17 @@ def getTauIDVarCalculator():
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
 
+def getTauDecayModeNNClassifier():
+    _name = sPrefix + 'TauDecayModeNNClassifier'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import TauDecayModeNNClassifier
+    TauDecayModeNNClassifier = TauDecayModeNNClassifier(name=_name, WeightFile=tauFlags.tauRecDecayModeNNClassifierConfig())
+    cached_instances[_name] = TauDecayModeNNClassifier
+    return TauDecayModeNNClassifier
+
 def getTauEleOLRDecorator():
     _name = sPrefix + 'TauEleOLRDecorator'
     from tauRecTools.tauRecToolsConf import TauEleOLRDecorator

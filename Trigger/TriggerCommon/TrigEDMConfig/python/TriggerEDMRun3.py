@@ -62,19 +62,18 @@ JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'Active
                  'JetPileupScaleMomentum_eta', 'JetPileupScaleMomentum_m', 'JetPileupScaleMomentum_phi', 'JetPileupScaleMomentum_pt',
                  'JetEtaJESScaleMomentum_eta', 'JetEtaJESScaleMomentum_m', 'JetEtaJESScaleMomentum_phi', 'JetEtaJESScaleMomentum_pt',
                  'JetGSCScaleMomentum_eta', 'JetGSCScaleMomentum_m', 'JetGSCScaleMomentum_phi', 'JetGSCScaleMomentum_pt',
-                 'Jvt', 'JVFCorr', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtTrkPt500', 'SumPtTrkPt1000', 'TrackWidthPt1000',]
+                 'Jvt', 'JVFCorr', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtTrkPt500', 'SumPtTrkPt1000', 'TrackWidthPt1000', 'SumPtChargedPFOPt500',]
 JetVars = '.'.join(JetVarsToKeep)
 
-BTagOutput = ['SV1_TrackParticleLinks','IP2D_TrackParticleLinks','IP3D_TrackParticleLinks','BTagTrackToJetAssociator','Muons',
-              'JetFitter_N2Tpair','JetFitter_JFvertices','JetFitter_fittedPosition','JetFitter_fittedCov','JetFitter_tracksAtPVchi2',
-              'JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',
-              'JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_nTracksAtVtx','JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d',
-              'JetFitter_deltaeta','JetFitter_deltaphi','SV1_vertices','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_masssvx','SV1_efracsvx','SV1_N2Tpair',
-              'SV1_NGTinSvx','SV1_badTracksIP','IP2D_sigD0wrtPVofTracks','IP2D_weightBofTracks','IP2D_weightUofTracks','IP2D_weightCofTracks',
-              'IP2D_flagfromV0ofTracks','IP2D_gradeOfTracks','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','IP3D_valD0wrtPVofTracks',
-              'IP3D_valZ0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_weightBofTracks','IP3D_weightUofTracks',
-              'IP3D_weightCofTracks','IP3D_flagfromV0ofTracks','IP3D_gradeOfTracks','SV1_normdist','SV1_significance3d','SV1_deltaR','SV1_Lxy','SV1_L3d',
-              'MV2c10_discriminant','MV2c100_discriminant','jetLink',]
+BTagOutput = ['jetLink','BTagTrackToJetAssociator','minimumTrackRelativeEta','maximumTrackRelativeEta','averageTrackRelativeEta','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','Muons',]
+BTagOutput_IP2D = ['IP2D_TrackParticleLinks','IP2D_gradeOfTracks','IP2D_weightBofTracks','IP2D_weightCofTracks','IP2D_weightUofTracks','IP2D_sigD0wrtPVofTracks','IP2D_flagFromV0ofTracks','IP2D_nTrks','IP2D_isDefaults','IP2D_cu','IP2D_bu','IP2D_bc',]
+BTagOutput_IP3D = ['IP3D_TrackParticleLinks','IP3D_gradeOfTracks','IP3D_weightBofTracks','IP3D_weightCofTracks','IP3D_weightUofTracks','IP3D_valD0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_valZ0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_flagFromV0ofTracks','IP3D_nTrks','IP3D_isDefaults','IP3D_cu','IP3D_bu','IP3D_bc',]
+BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair','SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
+BTagOutput_JetFitter = ['JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR','JetFitterSecondaryVertex_isDefaults','JetFitterSecondaryVertex_nTracks','JetFitterSecondaryVertex_mass','JetFitterSecondaryVertex_energy','JetFitterSecondaryVertex_energyFraction','JetFitterSecondaryVertex_displacement3d','JetFitterSecondaryVertex_displacement2d','JetFitterSecondaryVertex_minimumTrackRelativeEta','JetFitterSecondaryVertex_maximumTrackRelativeEta','JetFitterSecondaryVertex_averageTrackRelativeEta','JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
+BTagOutput_rnnip = ['rnnip_isDefaults','rnnip_pu','rnnip_pc','rnnip_pb','rnnip_ptau',]
+BTagOutput_highLevelTaggers = ['MV2c10_discriminant','DL1_pu','DL1_pc','DL1_pb','DL1r_pu','DL1r_pc','DL1r_pb',]
+
+BTagOutput += BTagOutput_IP2D + BTagOutput_IP3D + BTagOutput_SV1 + BTagOutput_JetFitter + BTagOutput_rnnip + BTagOutput_highLevelTaggers
 BTagVars = '.'.join(BTagOutput)
 
 
@@ -93,7 +92,7 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_FSRoI',                    'BS ESD AODFULL AODSLIM',  'Steer'),
 
     ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'CostMonDS ESD', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop', 'CostMonDS ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.thash.slot.roi.start.stop', 'CostMonDS ESD', 'Steer'),
 
     # Run-2 L1 (temporary)
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -352,6 +351,18 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigMissingETContainer#HLT_MET_pfsum',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_pfsumAux.',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
+    ('xAOD::TrigMissingETContainer#HLT_MET_pfopufit',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_pfopufitAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_cvfpufit',                      'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_cvfpufitAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_mhtpufit_pf_subjesgscIS',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtpufit_pf_subjesgscISAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
+    ('xAOD::TrigMissingETContainer#HLT_MET_mhtpufit_em_subjesgscIS',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtpufit_em_subjesgscISAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
@@ -403,12 +414,12 @@ TriggerHLTListRun3 = [
 
 
     # secvertex for b-jets
-    ('xAOD::VertexContainer#HLT_BTagging_SecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::VertexAuxContainer#HLT_BTagging_SecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+    ('xAOD::VertexContainer#HLT_BTaggingSecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::VertexAuxContainer#HLT_BTaggingSecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
 
     # btagvertex for b-jets
-    ('xAOD::BTagVertexContainer#HLT_BTagging_JFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::BTagVertexAuxContainer#HLT_BTagging_JFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::BTagVertexContainer#HLT_BTaggingJFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::BTagVertexAuxContainer#HLT_BTaggingJFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
     
     # bjet b-tagging
     ('xAOD::BTaggingContainer#HLT_BTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),

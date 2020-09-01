@@ -153,7 +153,7 @@ def main():
     nmax = args.numEvents or -1
     for event in input_stream:
         ievt+=1
-        if ievt > nmax:
+        if nmax >= 0 and ievt > nmax:
             break
         logging.debug('Writing event %d', ievt)
         output_stream.write(event)

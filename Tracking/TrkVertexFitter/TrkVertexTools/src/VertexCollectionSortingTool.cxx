@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexTools/VertexCollectionSortingTool.h"
@@ -71,12 +71,12 @@ namespace Trk{
         if ((*i)->vertexType() != xAOD::VxType::NoVtx)
           {
             double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
-            MyVertex_pairs.push_back(Vertex_pair(Weight,(*i)));
+            MyVertex_pairs.emplace_back(Weight,(*i));
             ATH_MSG_DEBUG("Weight before sorting: " << Weight);
           } 
       }
 
-    if (MyVertex_pairs.size()>0)
+    if (!MyVertex_pairs.empty())
       {
         std::sort (MyVertex_pairs.begin(), MyVertex_pairs.end());
       }

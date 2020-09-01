@@ -139,7 +139,7 @@ namespace NSWL1{
         const static std::vector<int> vertexordering={0,1,3,2};
         //project each pad polygon onto the first plane of the wedge
         float Zproj=pads[0]->m_cornerXyz[1][2];//second index x:0 y:1 z:2
-        for(auto pad : pads){
+        for(const auto& pad : pads){
             Vertices vts;
             for(unsigned int i=0;i<4;i++){
                 int icorner=vertexordering[i];

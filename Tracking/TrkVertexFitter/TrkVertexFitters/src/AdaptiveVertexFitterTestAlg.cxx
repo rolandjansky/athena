@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexFitters/src/AdaptiveVertexFitterTestAlg.cxx
@@ -72,7 +72,7 @@ std::unique_ptr<AmgSymMatrix(5)> cov5()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Perigee> > PerigeeUVec_t;
+using PerigeeUVec_t = std::vector<std::unique_ptr<Trk::Perigee> >;
 PerigeeUVec_t makePerigees1()
 {
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -94,7 +94,7 @@ PerigeeUVec_t makePerigees1()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::NeutralPerigee> > NeutralUVec_t;
+using NeutralUVec_t = std::vector<std::unique_ptr<Trk::NeutralPerigee> >;
 NeutralUVec_t makeNeutrals1()
 {
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -116,7 +116,7 @@ NeutralUVec_t makeNeutrals1()
 }
 
 
-typedef std::vector<std::unique_ptr<Trk::Track> > TrackUVec_t;
+using TrackUVec_t = std::vector<std::unique_ptr<Trk::Track> >;
 TrackUVec_t makeTracks (PerigeeUVec_t&& perigees)
 {
   TrackUVec_t tracks;
@@ -178,7 +178,7 @@ void setDefiningParameters( xAOD::NeutralParticle& tp,
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::TrackParticle> > xAODTPUVec_t;
+using xAODTPUVec_t = std::vector<std::unique_ptr<xAOD::TrackParticle> >;
 xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 {
   xAODTPUVec_t tracks;
@@ -194,7 +194,7 @@ xAODTPUVec_t makexAODTP (PerigeeUVec_t&& perigees)
 }
 
 
-typedef std::vector<std::unique_ptr<xAOD::NeutralParticle> > xAODNPUVec_t;
+using xAODNPUVec_t = std::vector<std::unique_ptr<xAOD::NeutralParticle> >;
 xAODNPUVec_t makexAODNP (NeutralUVec_t&& perigees)
 {
   xAODNPUVec_t tracks;

@@ -95,7 +95,7 @@ std::size_t TruthEtIsolations::genEventIdx() const
 }
 
 bool 
-TruthEtIsolations::hasEtIsol( const HepMC::GenParticle* p ) const
+TruthEtIsolations::hasEtIsol( HepMC::ConstGenParticlePtr p ) const
 {
   return ( 0 == p ) 
     ? false
@@ -103,7 +103,7 @@ TruthEtIsolations::hasEtIsol( const HepMC::GenParticle* p ) const
 }
 
 const TruthEtIsolations::EtIsol_t* 
-TruthEtIsolations::etIsolations( const HepMC::GenParticle* p ) const
+TruthEtIsolations::etIsolations( HepMC::ConstGenParticlePtr p ) const
 {
   return ( 0 == p ) 
     ? 0
@@ -111,7 +111,7 @@ TruthEtIsolations::etIsolations( const HepMC::GenParticle* p ) const
 }
   
 double 
-TruthEtIsolations::etIsol( const HepMC::GenParticle* p,
+TruthEtIsolations::etIsol( HepMC::ConstGenParticlePtr p,
 			   const TruthParticleParameters::ConeSize idx ) const
 {
   return ( 0 == p ) 
@@ -124,7 +124,7 @@ TruthEtIsolations::etIsol( const HepMC::GenParticle* p,
 /////////////////////////////////////////////////////////////////// 
 
 void 
-TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
+TruthEtIsolations::setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 			      const TruthParticleParameters::ConeSize coneIdx,
 			      const double etIsol )
 {
@@ -132,7 +132,7 @@ TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
 }
 
 void 
-TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
+TruthEtIsolations::setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 			      const std::vector<double>& etIsols )
 {
   EtIsol_t& et = m_etIsolations[HepMC::barcode(genParticle)];
@@ -149,7 +149,7 @@ TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
 }
   
 void 
-TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
+TruthEtIsolations::setEtIsol( HepMC::ConstGenParticlePtr genParticle,
 			      const EtIsol_t& etIsols )
 {
   m_etIsolations[HepMC::barcode(genParticle)] = etIsols;

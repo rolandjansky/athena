@@ -52,7 +52,6 @@ void CaloEnergyCnv_p2::persToTrans( const CaloEnergy_p2* pers,
 
   trans->set_energyLossType   (static_cast<CaloEnergy::EnergyLossType>(pers->m_energyLossType));
   trans->set_caloLRLikelihood  (pers->m_caloLRLikelihood);
-  trans->set_caloMuonScore     (pers->m_caloMuonScore);
   trans->set_caloMuonIdTag     (pers->m_caloMuonIdTag);
   trans->set_fsrCandidateEnergy(pers->m_fsrCandidateEnergy);
 
@@ -84,7 +83,6 @@ void CaloEnergyCnv_p2::transToPers( const CaloEnergy* trans,
 
   pers->m_energyLossType     = trans->energyLossType();
   pers->m_caloLRLikelihood   = trans->caloLRLikelihood();
-  pers->m_caloMuonScore      = trans->caloMuonScore();
   pers->m_caloMuonIdTag      = trans->caloMuonIdTag();
   pers->m_fsrCandidateEnergy = trans->fsrCandidateEnergy();
   

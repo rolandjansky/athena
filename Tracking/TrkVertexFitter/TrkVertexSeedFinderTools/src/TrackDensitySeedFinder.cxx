@@ -70,7 +70,7 @@ namespace Trk
 						 const xAOD::Vertex * constraint) const
   {
     double zResult {0.};
-    if ( perigeeList.size()>0 ) 
+    if ( !perigeeList.empty() ) 
     {
       zResult = m_densityEstimator->globalMaximum (perigeeList);
       ATH_MSG_DEBUG("Highest density Z position found: " << zResult);
@@ -93,7 +93,7 @@ namespace Trk
     // testing find seed with width
   std::pair<Amg::Vector3D,Amg::MatrixX> TrackDensitySeedFinder::findAnalyticSeed(const std::vector<const Trk::TrackParameters*>& perigeeList, const xAOD::Vertex * constraint ) const{
       std::pair<double,double> zResult {0.,0.};
-    if ( perigeeList.size()>0 ) 
+    if ( !perigeeList.empty() ) 
     {
       zResult = m_densityEstimator->globalMaximumWithWidth (perigeeList);
       ATH_MSG_DEBUG("Highest density Z position found: " << zResult.first << "with width: " << zResult.second);

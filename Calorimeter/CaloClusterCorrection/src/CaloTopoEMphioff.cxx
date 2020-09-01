@@ -18,10 +18,10 @@ Updated:  March 12, 2005   (MB)
 ********************************************************************/
 
 #include "CaloTopoEMphioff.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include <math.h> 
+#include <cmath> 
 
 using CLHEP::GeV;
 

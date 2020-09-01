@@ -21,6 +21,8 @@ from ..Base.Thresholds import TopoThreshold
 from ..Base.CTPCondition import ThrCondition, InternalTrigger  # noqa: F401
 from .TriggerTypeDef import TT
 
+from future.utils import with_metaclass
+
 
 
 class ItemDef:
@@ -44,7 +46,7 @@ class ItemDef:
         isHIV5 = 'HI_v5' in menuName
         isPhaseII = '_PhaseII' in menuName
 
-        class d(metaclass=meta_d): pass
+        class d(with_metaclass(meta_d)): pass
 
         # ... and make them accessible by their name
         for thr in tc.getDefinedThresholds():
@@ -1557,14 +1559,14 @@ class ItemDef:
 
             # HT
             #MenuItem('L1_HT0-J0.ETA49'     ).setLogic( d.TOPO_HT0_AJ0allETA49    & physcond)
-            MenuItem('L1_HT190-J15.ETA21'  ).setLogic( d.R2TOPO_HT190_AJ15allETA21 & physcond)
-            MenuItem('L1_HT190-J15s5.ETA21').setLogic( d.TOPO_HT190_J15s5ETA21   & physcond)
-            MenuItem('L1_HT150-J20.ETA31'  ).setLogic( d.R2TOPO_HT150_AJ20allETA31 & physcond)
-            MenuItem('L1_HT150-J20s5.ETA31').setLogic( d.TOPO_HT150_J20s5ETA31   & physcond)
+            MenuItem('L1_HT190-J15.ETA21'  ).setLogic( d.R2TOPO_HT190_AJ15allpETA21 & physcond)
+            MenuItem('L1_HT190-J15s5.ETA21').setLogic( d.TOPO_HT190_J15s5pETA21   & physcond)
+            MenuItem('L1_HT150-J20.ETA31'  ).setLogic( d.R2TOPO_HT150_AJ20allpETA31 & physcond)
+            MenuItem('L1_HT150-J20s5.ETA31').setLogic( d.TOPO_HT150_J20s5pETA31   & physcond)
 
 
-            MenuItem('L1_HT150-J20s5.ETA31_MJJ-400').setLogic( d.R2TOPO_HT150_J20s5ETA31 & d.R2TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
-            MenuItem('L1_HT150-J20s5.ETA31_MJJ-400-CF').setLogic( d.TOPO_HT150_J20s5ETA31 & d.TOPO_400INVM9999_AJ30s6ETA31_AJ20s631ETA49 & physcond)
+            MenuItem('L1_HT150-J20s5.ETA31_MJJ-400').setLogic( d.R2TOPO_HT150_J20s5pETA31 & d.R2TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            MenuItem('L1_HT150-J20s5.ETA31_MJJ-400-CF').setLogic( d.TOPO_HT150_J20s5pETA31 & d.TOPO_400INVM9999_AJ30s6pETA31_AJ20s6p31ETA49 & physcond)
             # Jpsi T&P
             MenuItem("L1_JPSI-1M5"     ).setLogic( d.R2TOPO_1INVM5_EMs1_EMs6   & physcond)
             MenuItem("L1_JPSI-1M5-EM7" ).setLogic( d.TOPO_1INVM5_EM7s1_EMs6  & physcond)
@@ -1578,10 +1580,10 @@ class ItemDef:
             #MenuItem("L1_W-15DPHI-EM15XE-1").setLogic( d.TOPO_15MINDPHI_EM15s6_XE0  & physcond)
             #MenuItem("L1_W-15DPHI-EMXE-1"  ).setLogic( d.TOPO_15MINDPHI_EM12s6_XE0  & physcond)
 
-            MenuItem("L1_W-05RO-XEHT-0"    ).setLogic( d.R2TOPO_05RATIO_XE0_HT0_AJj15allETA49   & physcond)
-            MenuItem("L1_W-90RO2-XEHT-0"   ).setLogic( d.R2TOPO_90RATIO2_XE0_HT0_AJj15allETA49  & physcond)
-            MenuItem("L1_W-250RO2-XEHT-0"  ).setLogic( d.R2TOPO_250RATIO2_XE0_HT0_AJj15allETA49 & physcond)
-            MenuItem("L1_W-HT20-JJ15.ETA49").setLogic( d.R2TOPO_HT20_AJj15allETA49 & physcond)
+            MenuItem("L1_W-05RO-XEHT-0"    ).setLogic( d.R2TOPO_05RATIO_XE0_HT0_AJj15allpETA49   & physcond)
+            MenuItem("L1_W-90RO2-XEHT-0"   ).setLogic( d.R2TOPO_90RATIO2_XE0_HT0_AJj15allpETA49  & physcond)
+            MenuItem("L1_W-250RO2-XEHT-0"  ).setLogic( d.R2TOPO_250RATIO2_XE0_HT0_AJj15allpETA49 & physcond)
+            MenuItem("L1_W-HT20-JJ15.ETA49").setLogic( d.R2TOPO_HT20_AJj15allpETA49 & physcond)
 
             #MenuItem("L1_W-NOMATCH").setLogic( d.TOPO_NOT_02MATCH_EM10s1_AJj15allETA49 & physcond)
 
@@ -1682,11 +1684,11 @@ class ItemDef:
             MenuItem('L1_DPHI-2EM3_VTE10').setLogic( d.TOPO_27DPHI32_EMs1_EMs6 & Not(d.TE10) & physcond).setTriggerType(TT.calo)
             MenuItem('L1_DPHI-2EM7_VTE50').setLogic( d.EM7.x(2) & d.TOPO_27DPHI32_EMs1_EMs6 & Not(d.TE50) & physcond).setTriggerType(TT.calo)
             
-            MenuItem('L1_HT150-JJ15.ETA49').setLogic( d.R2TOPO_HT150_AJj15allETA49 & physcond)
-            MenuItem('L1_HT150-JJ15.ETA49_MJJ-400').setLogic( d.R2TOPO_HT150_AJj15allETA49 & d.R2TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
+            MenuItem('L1_HT150-JJ15.ETA49').setLogic( d.R2TOPO_HT150_AJj15allpETA49 & physcond)
+            MenuItem('L1_HT150-JJ15.ETA49_MJJ-400').setLogic( d.R2TOPO_HT150_AJj15allpETA49 & d.R2TOPO_400INVM9999_AJ30s6_AJ20s6 & physcond)
 
 
-            MenuItem('L1_J4-MATCH').setLogic( d.R2TOPO_0MATCH_4AJ20ETA31_4AJj15ETA31 & physcond)
+            MenuItem('L1_J4-MATCH').setLogic( d.R2TOPO_0MATCH_4AJ20pETA31_4AJj15pETA31 & physcond)
 
             MenuItem('L1_LLP-RO').setLogic( d.TOPO_100RATIO_0MATCH_TAU30si2_EMall & physcond)
 
@@ -1701,7 +1703,7 @@ class ItemDef:
             MenuItem('L1_DR25-TAU20ITAU12I').setLogic( d.TOPO_0DR25_TAU20abi_TAU12abi & physcond)
 
             MenuItem('L1_30M-EM20ITAU12').setLogic( d.TOPO_DISAMB_30INVM_EM20his2_TAU12ab & physcond)
-            MenuItem('L1_MJJ-400-CF').setLogic( d.TOPO_400INVM9999_AJ30s6ETA31_AJ20s631ETA49 & physcond)
+            MenuItem('L1_MJJ-400-CF').setLogic( d.TOPO_400INVM9999_AJ30s6pETA31_AJ20s6p31ETA49 & physcond)
             MenuItem('L1_DR-TAU20ITAU12I').setLogic( d.TOPO_0DR28_TAU20abi_TAU12abi & physcond)
             MenuItem('L1_BOX-TAU20ITAU12I').setLogic( d.R2TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
 
@@ -1772,14 +1774,14 @@ class ItemDef:
             MenuItem('L1_LATE-MU10_XE40').setLogic( d.TOPO_LATE_MU10s1 & d.XE40 & physcond)
             MenuItem('L1_LATE-MU10_J50').setLogic(  d.TOPO_LATE_MU10s1 & d.J50 & physcond)
 
-            MenuItem('L1_SC111-CJ15').setLogic(  d.TOPO_SC111_CJ15abETA26 & physcond)
-            MenuItem('L1_SC85-CJ15').setLogic(  d.R2TOPO_SC85_CJ15abETA26 & physcond)
+            MenuItem('L1_SC111-CJ15').setLogic(  d.TOPO_SC111_CJ15abpETA26 & physcond)
+            MenuItem('L1_SC85-CJ15').setLogic(  d.R2TOPO_SC85_CJ15abpETA26 & physcond)
 
             MenuItem('L1_TAU60_DR-TAU20ITAU12I' ).setLogic( d.HA60 & d.TOPO_0DR28_TAU20abi_TAU12abi & physcond)
 
             MenuItem('L1_CEP-CJ60').setLogic( d.TOPO_CEP_CJ60s6 & physcond )
             MenuItem('L1_CEP-CJ50').setLogic( d.TOPO_CEP_CJ50s6 & physcond )
-            MenuItem('L1_CEP-CJ50.ETA21').setLogic( d.TOPO_CEP_CJ50s6ETA21 & physcond )
+            MenuItem('L1_CEP-CJ50.ETA21').setLogic( d.TOPO_CEP_CJ50s6pETA21 & physcond )
 
         except NameError as ex:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -1802,7 +1804,7 @@ class ItemDef:
 
 
         except Exception as ex:
-            log.error( "Creation of L1Topo item failed, will abort! Exception is a %s: '%s'" , type(ex), ex)
+            log.error( "Creation of L1Topo item failed, will abort!: %s" , ex)
             raise
 
 

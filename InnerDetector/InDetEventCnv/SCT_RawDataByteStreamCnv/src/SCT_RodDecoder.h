@@ -11,8 +11,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "Identifier/IdContext.h"
 
@@ -21,12 +23,48 @@
 #include <atomic>
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 class IdentifierHash;
-class SCT_ID;
-class SCT_RodDecoderErrorsHelper;
+
+
+/**
+ * @brief allows to accumulate errors in one fillColection call
+ *
+ * Errors information is scattered across this code.
+ * To be sure that all of the errors are saved this helper class provides add method allowing to update/accumulate erorr.
+ * The IDC, for a very good reasons (MT safety) do not allow for that.
+ **/
+class SCT_RodDecoderErrorsHelper {
+public:
+  SCT_RodDecoderErrorsHelper(IDCInDetBSErrContainer& idcContainer)
+    : errorsIDC{ idcContainer } {}
+  ~SCT_RodDecoderErrorsHelper() {
+    for (auto [id, err]: accumulatedErrors) {
+      errorsIDC.setOrDrop(id, err);
+    }
+  }
+  void noerror(const IdentifierHash id) {
+    accumulatedErrors[id]; // this adds 0 (no error) for an ID
+  }
+
+  void add(const IdentifierHash id, SCT_ByteStreamErrors::ErrorType etype) {
+    SCT_ByteStreamErrors::addError(accumulatedErrors[id], etype);
+  }
+
+  void removeIfEmpty(const IdentifierHash id) {
+    if (accumulatedErrors[id]==0) {
+      accumulatedErrors.erase(id);
+    } 
+  }
+
+  std::map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> accumulatedErrors;
+  IDCInDetBSErrContainer& errorsIDC;
+};
+
+
 /** 
  * @class SCT_RodDecoder
  *
@@ -68,7 +106,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param vecHash Vector of hashes.
    */
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-                                    ISCT_RDO_Container& rdoIDCont,
+                                    SCT_RDO_Container& rdoIDCont,
                                     IDCInDetBSErrContainer& errs,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const override;
 
@@ -92,7 +130,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     int strip{0};
     int groupSize{0};
     int timeBin{0};
-    IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy
+    IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy (waferHash)
+    Identifier collID; // Determined from linkIDHash (waferID)
     int errors{0}; // Encodes the errors on the header (bit 4: error in condensed mode 1st hit, bit 5: error in condensed mode 2nd hit)
     CacheHelper cache; // For the trigger
     std::vector<int> errorHit;
@@ -107,6 +146,9 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
     // For MissingLinkHeaderError
     bool foundMissingLinkHeaderError{false};
     std::unordered_set<IdentifierHash> foundHashes;
+
+    std::unordered_map<IdentifierHash, std::unique_ptr<SCT_RDO_Collection>> rdoCollMap; // If SCT_RDO_Collection* is nullptr, it means the collection is already present in the container.
+    std::unordered_map<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle> writeHandleMap;
 
     bool foundHeader{false};
 
@@ -140,6 +182,27 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
         return saved[   side*N_STRIPS_PER_SIDE +    strip];
       }
     }
+    void setCollection(const SCT_ID* sctID,
+                       const IdentifierHash& waferHash,
+                       SCT_RDO_Container& rdoIDCont,
+                       SCT_RodDecoderErrorsHelper& errs) {
+      linkIDHash = waferHash;
+      collID = sctID->wafer_id(linkIDHash);
+      foundHashes.insert(linkIDHash);
+      if (rdoCollMap.count(linkIDHash)==0) { // The collection is not in the local map.
+        writeHandleMap.insert(std::pair<IdentifierHash, SCT_RDO_Container::IDC_WriteHandle>(linkIDHash, rdoIDCont.getWriteHandle(linkIDHash)));
+        if (writeHandleMap[linkIDHash].alreadyPresent()) { // The collection is already in the container.
+          rdoCollMap[linkIDHash] = nullptr;
+          writeHandleMap.erase(linkIDHash); // lock is released
+        }
+        else { // Create a new collection for linkIDHash
+          std::unique_ptr<SCT_RDO_Collection> rdoColl{std::make_unique<SCT_RDO_Collection>(linkIDHash)};
+          rdoColl->setIdentifier(collID);
+          rdoCollMap[linkIDHash] = std::move(rdoColl);
+          errs.noerror(linkIDHash); // make sure the error information is filled for this hash
+        }
+      }
+    }
   };
 
   /**
@@ -154,15 +217,11 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    *
    * @param isOld if true use data.oldStrip, otherwise use data.strip.
    * @param data Struct to hold data shared in methods used in fillCollection method
-   * @param rdoIDCont RDO ID Container to be filled.
    * @param cache Cache.
-   * @param errorsCache - the cache to be filled for a given ID
    */
   int makeRDO(const bool isOld,
-              const SharedData& data,
-              ISCT_RDO_Container& rdoIDCont,
-              CacheHelper& cache,
-	      SCT_RodDecoderErrorsHelper& errorsCache) const;
+              SharedData& data,
+              CacheHelper& cache) const;
 
   /**
    * @brief Add an error for each wafer in the problematic ROD
@@ -212,7 +271,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   StatusCode processHeader(const uint16_t inData,
                            const uint32_t robID,
                            SharedData& data,
-                           ISCT_RDO_Container& rdoIDCont,
+                           SCT_RDO_Container& rdoIDCont,
                            CacheHelper& cache,
                            SCT_RodDecoderErrorsHelper& errs,
                            bool& hasError,
@@ -232,7 +291,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   StatusCode processSuperCondensedHit(const uint16_t inData,
                                       const uint32_t robID,
                                       SharedData& data,
-                                      ISCT_RDO_Container& rdoIDCont,
+                                      SCT_RDO_Container& rdoIDCont,
                                       CacheHelper& cache,
                                       SCT_RodDecoderErrorsHelper& errs,
                                       bool& hasError) const;
@@ -251,7 +310,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   StatusCode processCondensedHit(const uint16_t inData,
                                  const uint32_t robID,
                                  SharedData& data,
-                                 ISCT_RDO_Container& rdoIDCont,
+                                 SCT_RDO_Container& rdoIDCont,
                                  CacheHelper& cache,
                                  SCT_RodDecoderErrorsHelper& errs,
                                  bool& hasError) const;
@@ -270,7 +329,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   StatusCode processExpandedHit(const uint16_t inData,
                                 const uint32_t robID,
                                 SharedData& data,
-                                ISCT_RDO_Container& rdoIDCont,
+                                SCT_RDO_Container& rdoIDCont,
                                 CacheHelper& cache,
                                 SCT_RodDecoderErrorsHelper& errs,
                                 bool& hasError) const;

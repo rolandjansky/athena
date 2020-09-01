@@ -981,7 +981,11 @@ StatusCode ISF_HitAnalysis::execute()
          loopEnd = (*mcEvent->begin())->particles_size(); //is this the correct thing?
        }
        //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
+#ifdef HEPMC3
+       for (auto part: *(*mcEvent->begin())) {
+#else
        for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it) {
+#endif
          ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
          particleIndex++;
 

@@ -34,11 +34,11 @@ using CLHEP::MeV;
 /////////////////////////////////////////////////////////////////////
 
 CaloCellContainerCheckerTool::CaloCellContainerCheckerTool(
-			     const std::string& type, 
-			     const std::string& name, 
+			     const std::string& type,
+			     const std::string& name,
 			     const IInterface* parent)
   :base_class(type, name, parent)
-{ 
+{
   declareProperty ("EventsToCheck",m_eventsToCheck = 5);
 }
 
@@ -92,8 +92,6 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
     nCellCalos.push_back(0);
   }
 
-  CaloPhiRange aCaloPhiRange;
-  
 
   for (const CaloCell* aCell : *theCont) {
     const CaloDetDescrElement * theDDE=aCell->caloDDE();
@@ -107,17 +105,17 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
     const double aPphi=aP.phi() ;
 
     // not needed anymore : now implemented in FOurMom
-    //    if (aCell->e()<0) { 
+    //    if (aCell->e()<0) {
     //   aPeta=-aPeta;
     //  aPphi=aCaloPhiRange.fix(aPphi+aCaloPhiRange.twopi()/2.);
     //}
 
     if (aCell->e()!=0 && std::abs(aCell->eta()-aPeta)>0.0001) {
-      msg(MSG::WARNING) << "Cell " << index << " eta inconsistency : " << aCell->eta() 
+      msg(MSG::WARNING) << "Cell " << index << " eta inconsistency : " << aCell->eta()
 	  << " vs recalculated " << aPeta << endmsg ;
     }
-    if (aCell->e()!=0 && std::abs(aCaloPhiRange.diff(aCell->phi(),aPphi))>0.0001) {
-      msg(MSG::WARNING) << "Cell " << index << " phi inconsistency : " << aCell->phi() 
+    if (aCell->e()!=0 && std::abs(CaloPhiRange::diff(aCell->phi(),aPphi))>0.0001) {
+      msg(MSG::WARNING) << "Cell " << index << " phi inconsistency : " << aCell->phi()
 	  << " vs recalculated " << aPphi << endmsg ;
     }
   }
@@ -136,16 +134,16 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
 
   //check hasCalo() flags
   for (int iCalo=CaloCell_ID::LAREM; iCalo<CaloCell_ID::NSUBCALO ; ++iCalo) {
-    if (nCellCalos[iCalo]>0 && !theCont->hasCalo(static_cast<CaloCell_ID::SUBCALO>(iCalo) ) ) 
+    if (nCellCalos[iCalo]>0 && !theCont->hasCalo(static_cast<CaloCell_ID::SUBCALO>(iCalo) ) )
     {
-      msg(MSG::WARNING) << " There are cells for calo " 
+      msg(MSG::WARNING) << " There are cells for calo "
 			<< iCalo << " but hasCalo is not set. " << endmsg ;
     }
   }
-    
+
   ATH_MSG_DEBUG(" eSum " << eSum);
-  
-  //check now the sub calo  iterators 
+
+  //check now the sub calo  iterators
   for (int iCalo=CaloCell_ID::LAREM; iCalo<CaloCell_ID::NSUBCALO ; ++iCalo) {
     CaloCell_ID::SUBCALO enumCalo=static_cast<CaloCell_ID::SUBCALO>(iCalo);
     double theESumCalo=0;
@@ -158,23 +156,23 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
       ++theNCellCalo;
     }
 
-  
+
     ATH_MSG_DEBUG(" theNCellCalo="<<theNCellCalo
-		  <<" nCellCalos[iCalo]=" <<nCellCalos[iCalo] 
+		  <<" nCellCalos[iCalo]=" <<nCellCalos[iCalo]
 		  <<" theCont->nCellsCalo(enumCalo)=" << theCont->nCellsCalo(enumCalo) );
 
     if (theNCellCalo!=nCellCalos[iCalo] ||
         static_cast<int>(theNCellCalo)!=theCont->nCellsCalo(enumCalo)  ) {
       msg(MSG::ERROR) <<  " Iterators: ncell do not match"
 		      << " theNCellCalo="<<theNCellCalo
-		      <<" nCellCalos[iCalo]=" <<nCellCalos[iCalo] 
-		      <<" theCont->nCellsCalo(enumCalo)=" << theCont->nCellsCalo(enumCalo) 
+		      <<" nCellCalos[iCalo]=" <<nCellCalos[iCalo]
+		      <<" theCont->nCellsCalo(enumCalo)=" << theCont->nCellsCalo(enumCalo)
 		      << endmsg;
       returnSc = StatusCode::FAILURE;
     }
-      
 
-      
+
+
     ATH_MSG_DEBUG("theESumCalo eSumCalos[iCalo] "<< theESumCalo << " " << eSumCalos[iCalo]);
     const double epsilon=1e-5;
     if (fabs(theESumCalo-eSumCalos[iCalo])>epsilon) {
@@ -182,10 +180,10 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
 		      << " subcalo " <<  iCalo
 		      << " should be " << eSumCalos[iCalo]
 		      << " is " << theESumCalo <<" (" << theESumCalo-eSumCalos[iCalo] << ")" << endmsg ;
-      returnSc = StatusCode::FAILURE;      
+      returnSc = StatusCode::FAILURE;
     }
 
-      
+
   }
 
   // check find methods
@@ -193,11 +191,11 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
   // count number of holes
   const unsigned int hashMax=m_theCaloCCIDM->calo_cell_hash_max();
   unsigned int nHoles =0;
-  
+
   ATH_MSG_DEBUG("Now check all hashes give meaningful answer");
   for (unsigned int theHash=0;theHash<hashMax;++theHash){
     const CaloCell * theCell = theCont->findCell(theHash) ;
-    if (theCell==0) {
+    if (theCell==nullptr) {
       ++nHoles;
       if (msgLvl(MSG::VERBOSE)) {
 	//const  CaloDetDescrElement* theCaloDDM->dde=get_element(theHash);
@@ -207,20 +205,20 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
 	const int pos_neg=m_theCaloCCIDM->pos_neg(id);
 	const int region=m_theCaloCCIDM->region(id);
 	const int sample=m_theCaloCCIDM->sample(id);
-	msg(MSG::VERBOSE) << "Cell not found: id=0x" << std::hex << id << std::dec 
-			  << ", SubCalo=" <<subcalo <<", sampling="<< sampling << ", pos_neg=" 
+	msg(MSG::VERBOSE) << "Cell not found: id=0x" << std::hex << id << std::dec
+			  << ", SubCalo=" <<subcalo <<", sampling="<< sampling << ", pos_neg="
 			  << pos_neg << ", region=" << region << ", sample=" << sample << endmsg;
       }//end if verbose
     }//end if cell==0
   }//end loop over hashes
   ATH_MSG_DEBUG("Number of hash with no cells: " << nHoles << " out of " << hashMax);
-  
+
   std::vector<IdentifierHash> hashes ;
   hashes.clear();
   double eSumFound=0;
 
   index =0;
-  
+
   for (  CaloCellContainer::const_iterator itrCell=theCont->begin();itrCell!=theCont->end();++itrCell){
     IdentifierHash theHash = (*itrCell)->caloDDE()->calo_hash();
     if ((*itrCell)->et()>2000 * MeV ) {
@@ -230,16 +228,16 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
     const CaloCell * reCell=theCont->findCell(theHash);
     if (reCell!=*itrCell){
 
-      const CaloDetDescrElement * reCaloDDE=0 ;
+      const CaloDetDescrElement * reCaloDDE=nullptr ;
       unsigned int reHash=0 ;
-      
 
-      if (reCell!=0) reCaloDDE=reCell->caloDDE();
-      if (reCaloDDE!=0) reHash = reCaloDDE->calo_hash();
-      
-      
+
+      if (reCell!=nullptr) reCaloDDE=reCell->caloDDE();
+      if (reCaloDDE!=nullptr) reHash = reCaloDDE->calo_hash();
+
+
       msg(MSG::ERROR) << index << "Cell " << theHash << " " << *itrCell
-		      << " not found back " << reCell 
+		      << " not found back " << reCell
 		      << " reCaloDDE " << reCaloDDE
 		      << " rehash " << reHash << endmsg ;
       returnSc = StatusCode::FAILURE;
@@ -248,25 +246,25 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
   }
 
   ATH_MSG_DEBUG("number of cells to be refound " << hashes.size() << " total energy " << eSumFound);
-    
+
   CaloCellContainer::CellVector foundCells;
   foundCells.clear();
-  
+
   theCont->findCellVector(hashes,foundCells);
-  
+
   if (hashes.size()!=foundCells.size()){
-    msg(MSG::ERROR) << "number of cells to be found " << hashes.size() << "number found: " << foundCells.size() << endmsg ; 
+    msg(MSG::ERROR) << "number of cells to be found " << hashes.size() << "number found: " << foundCells.size() << endmsg ;
     returnSc = StatusCode::FAILURE;
   }
 
-  
+
   double reSumFound=0;
-  
-  for (CaloCellContainer::CellVector::const_iterator itrCell=foundCells.begin();itrCell!=foundCells.end(); ++itrCell) 
+
+  for (CaloCellContainer::CellVector::const_iterator itrCell=foundCells.begin();itrCell!=foundCells.end(); ++itrCell)
     if (*itrCell!=0) reSumFound+=(*itrCell)->e();
-  
- 
-  if (std::abs(reSumFound-eSumFound)>10 * MeV ){ 
+
+
+  if (std::abs(reSumFound-eSumFound)>10 * MeV ){
     msg(MSG::ERROR) << "Found cells wrong E sum " << reSumFound << " instead of " << eSumFound << endmsg ;
     returnSc = StatusCode::FAILURE;
   }

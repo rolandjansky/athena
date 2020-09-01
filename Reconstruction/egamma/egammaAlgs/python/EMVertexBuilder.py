@@ -4,35 +4,15 @@ __doc__ = """ToolFactory to instantiate EMVertexBuilder
 with default configuration"""
 __author__ = "Bruno Lenzi"
 
-import InDetRecExample.TrackingCommon as TrackingCommon
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import FcnWrapper, AlgFactory
 from egammaRec import egammaKeys
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-from egammaTools.egammaExtrapolators import AtlasPublicExtrapolator
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 
 
 class VertexFinderToolInstance(FcnWrapper):
     def __call__(self):
-
-        # In reality we do NOT need a summary tool
-        # but the confgured Secondary vertex
-        # still asks for one (TODO)
-        egammaVtxInDetTrackSummaryHelperTool = (
-            TrackingCommon.getInDetSummaryHelper(
-                name="egammaVtxInDetSummaryHelper",
-                AssoTool=None,
-                HoleSearch=None,
-                DoSharedHits=False,
-                private=True))
-
-        egammaVtxInDetTrackSummaryTool = (
-            TrackingCommon.getInDetTrackSummaryTool(
-                name="egammaVtxInDetTrackSummaryTool",
-                InDetSummaryHelperTool=egammaVtxInDetTrackSummaryHelperTool,
-                doSharedHits=False,
-                doHolesInDet=False))
-
         #
         # Configured conversion vertex reconstruction cuts
         #
@@ -50,8 +30,7 @@ class VertexFinderToolInstance(FcnWrapper):
             VertexCuts=egammaConversionVertexCuts,
             TrackParticles=egammaKeys.outputTrackParticleKey(),
             SecVertices=egammaKeys.outputConversionKey(),
-            Extrapolator=AtlasPublicExtrapolator(),
-            TrackSummaryTool=egammaVtxInDetTrackSummaryTool,
+            Extrapolator=egammaExtrapolator(),
             printConfig=False)
 
         return theemvertexfindertool.toolInstance()

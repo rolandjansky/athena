@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileClusterMonitorAlgorithm.h"
@@ -37,13 +37,18 @@ StatusCode TileClusterMonitorAlgorithm::initialize() {
   m_clusterTimeDiffGroups = buildToolMap<int>(m_tools, "TileClusterTimeDiff", nL1Triggers);
   m_clusterEneDiffGroups = buildToolMap<int>(m_tools, "TileClusterEneDiff", nL1Triggers);
   m_clusterEtaPhiDiffGroups = buildToolMap<int>(m_tools, "TileClusterEtaPhiDiff", nL1Triggers);
-
   m_clusterEnergyGroups = buildToolMap<std::vector<int>>(m_tools, "TileClusterEnergy",
                                                          Tile::MAX_ROS, nL1Triggers);
 
+  if (m_fillTimingHistograms) {
+    m_partitionTimeLBGroups = buildToolMap<int>(m_tools, "TilePartitionTimeLB", MAX_PART);
+  }
 
   //=== TileID
   ATH_CHECK( detStore()->retrieve(m_tileID) );
+
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
   return TileMonitorAlgorithm::initialize();
 }
@@ -213,6 +218,53 @@ StatusCode TileClusterMonitorAlgorithm::fillHistograms( const EventContext& ctx 
 
   }
 
+
+  if (m_fillTimingHistograms
+      && (eventInfo->errorState(xAOD::EventInfo::Tile) != xAOD::EventInfo::Error)) {
+
+    std::set<Identifier> usedCells;
+    std::vector<float> partitionTime[MAX_PART];
+
+    for (const xAOD::CaloCluster* cluster : *caloClusterContainer) {
+      if (cluster->getCellLinks()) {
+        for (const CaloCell* cell : *cluster) {
+
+          Identifier id = cell->ID();
+
+          if (cell->badcell()
+              || cell->energy() < m_cellEnergyThresholdForTiming
+              || usedCells.find(id) != usedCells.end() ) continue;
+
+          usedCells.insert(id);
+
+          int sample = m_tileID->sample(id);
+          bool single_PMT_scin = (sample == TileID::SAMP_E);
+          bool single_PMT_C10 = (m_tileID->section(id) == TileID::GAPDET
+                                 && sample == TileID::SAMP_C
+                                 && (!m_cabling->C10_connected(m_tileID->module(id))) );
+
+          // distinguish cells with one or two PMTs
+          bool single_PMT = single_PMT_C10 || single_PMT_scin;
+
+          if (!single_PMT && !(sample == TileID::SAMP_D && m_tileID->tower(id) == 0)) {
+            int partition = getPartition(id, m_tileID);
+            if (partition < MAX_PART) {
+              partitionTime[partition].push_back(cell->time());
+            }
+          }
+        }
+      }
+    }
+
+    auto lumiBlock = Monitored::Scalar<int>("lumiBlock", eventInfo->lumiBlock());
+    for (int partition = 0; partition < MAX_PART; ++partition) {
+      if (!partitionTime[partition].empty()) {
+        auto monTime = Monitored::Collection("time", partitionTime[partition]);
+        fill(m_tools[m_partitionTimeLBGroups[partition]], lumiBlock, monTime);
+        fill(m_tools[m_partitionTimeLBGroups[PART_ALL]], lumiBlock, monTime);
+      }
+    }
+  }
 
 
   fill("TileClusterMonExecuteTime", timer);

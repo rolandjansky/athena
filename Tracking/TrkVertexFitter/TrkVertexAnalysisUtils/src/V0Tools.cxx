@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -57,7 +57,7 @@ namespace Trk
 
   const xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::Vertex* v0(0);
+    const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
     if ((acc(*vxCandidate)).isValid()) {
       v0 = *(acc(*vxCandidate));
@@ -67,7 +67,7 @@ namespace Trk
 
   const xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::Vertex* v0(0);
+    const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
     if ((acc(*vxCandidate)).isValid()) {
       v0 = *(acc(*vxCandidate));
@@ -77,7 +77,7 @@ namespace Trk
 
   const xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::Vertex* v0(0);
+    const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
     if ((acc(*vxCandidate)).isValid()) {
       v0 = *(acc(*vxCandidate));
@@ -87,7 +87,7 @@ namespace Trk
 
   const xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::Vertex* v0(0);
+    const xAOD::Vertex* v0(nullptr);
     const static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
     if ((acc(*vxCandidate)).isValid()) {
       v0 = *(acc(*vxCandidate));
@@ -141,7 +141,7 @@ namespace Trk
     }
     double error = -999999.;
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == 0) {
+    if (fullCov == nullptr) {
       ATH_MSG_DEBUG("0 pointer for full covariance. Making-up one from the vertex and tracks covariances");
       error = massErrorVxCandidate(vxCandidate,masses);
     } else {
@@ -173,7 +173,7 @@ namespace Trk
       return -999999.;
     }
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == 0) return -999999.;
+    if (fullCov == nullptr) return -999999.;
     unsigned int ndim = fullCov->rows();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
@@ -243,7 +243,7 @@ namespace Trk
     xAOD::TrackParticle::FourMom_t totalMom;
     Amg::MatrixX tmpDeriv(3,3); tmpDeriv.setZero();
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
-    if (fullCov == 0) return -999999.;
+    if (fullCov == nullptr) return -999999.;
  
     for( unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
@@ -651,7 +651,7 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov == 0) {
+    if (fullCov == nullptr) {
       ndim = 5*NTrk+3;
     } else {
       ndim = fullCov->rows();
@@ -668,7 +668,7 @@ namespace Trk
         D_vec(5*it+3,0)  = dPTdtheta[it];
         D_vec(5*it+4,0)  = dPTdqOverP[it];
       }
-      if (fullCov == 0) {
+      if (fullCov == nullptr) {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         PtErrSq = D_vec.transpose() * V0_cov * D_vec;
       } else {
@@ -693,11 +693,11 @@ namespace Trk
   Amg::Vector3D V0Tools::pca(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
   {
     assert(vxCandidate!=0);
-    if(0 == vxCandidate) {
+    if(nullptr == vxCandidate) {
       Amg::Vector3D p; p.setZero();
       return p;
     }
-    Amg::Vector3D pv = vertex->position();
+    const Amg::Vector3D& pv = vertex->position();
     Amg::Vector3D sv = vtx(vxCandidate);
     Amg::Vector3D P = V0Momentum(vxCandidate);
     double p2 = P.mag2();
@@ -814,7 +814,7 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -838,7 +838,7 @@ namespace Trk
       D_vec(5*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -941,7 +941,7 @@ namespace Trk
     }
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -965,7 +965,7 @@ namespace Trk
       D_vec(5*NTrk+5) = da0dz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1057,7 +1057,7 @@ namespace Trk
     double dLxydy0 = -dLxydy;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1081,7 +1081,7 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1180,7 +1180,7 @@ namespace Trk
     double dLxyzdz0 = -dLxyzdz;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1204,7 +1204,7 @@ namespace Trk
       D_vec(5*NTrk+5) = dLxyzdz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1369,7 +1369,7 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1393,7 +1393,7 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1503,7 +1503,7 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1527,7 +1527,7 @@ namespace Trk
       D_vec(5*NTrk+5) = 0.;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1657,7 +1657,7 @@ namespace Trk
     double dTaudz0 = -dTaudz;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1681,7 +1681,7 @@ namespace Trk
       D_vec(5*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1775,7 +1775,7 @@ namespace Trk
     double dTaudz0 = -dTaudz;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -1799,7 +1799,7 @@ namespace Trk
       D_vec(5*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -1957,7 +1957,7 @@ namespace Trk
 
   const xAOD::TrackParticle* V0Tools::positiveOrigTrack(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::TrackParticle* origTrk(0);
+    const xAOD::TrackParticle* origTrk(nullptr);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (NTrk != 2) return origTrk;
     for( unsigned int it=0; it<NTrk; it++) {
@@ -1968,7 +1968,7 @@ namespace Trk
 
   const xAOD::TrackParticle* V0Tools::negativeOrigTrack(const xAOD::Vertex * vxCandidate) const
   {
-    const xAOD::TrackParticle* origTrk(0);
+    const xAOD::TrackParticle* origTrk(nullptr);
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     if (NTrk != 2) return origTrk;
     for( unsigned int it=0; it<NTrk; it++) {
@@ -2235,7 +2235,7 @@ namespace Trk
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-        if (TP == 0) return -999999.;
+        if (TP == nullptr) return -999999.;
         px += TP->p4().Px();
         py += TP->p4().Py();
         pz += TP->p4().Pz();
@@ -2266,9 +2266,9 @@ namespace Trk
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-        if (TP == 0) return -999999.;
+        if (TP == nullptr) return -999999.;
         const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == 0) return -999999.;
+        if (extrPer == nullptr) return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
         pz += extrPer->momentum().z();
@@ -2300,9 +2300,9 @@ namespace Trk
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-        if (TP == 0) return -999999.;
+        if (TP == nullptr) return -999999.;
         const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == 0) return -999999.;
+        if (extrPer == nullptr) return -999999.;
         px += extrPer->momentum().x();
         py += extrPer->momentum().y();
         pz += extrPer->momentum().z();
@@ -2338,7 +2338,7 @@ namespace Trk
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-        if (TP == 0) return -999999.;
+        if (TP == nullptr) return -999999.;
         const xAOD::ParametersCovMatrix_t cov_tmp = TP->definingParametersCovMatrix();
         V0_cor(5*it+2,5*it+2) = cov_tmp(2,2);
         V0_cor(5*it+2,5*it+3) = cov_tmp(2,3);
@@ -2428,9 +2428,9 @@ namespace Trk
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
         const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-        if (TP == 0) return -999999.;
+        if (TP == nullptr) return -999999.;
         const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-        if (extrPer == 0) return -999999.;
+        if (extrPer == nullptr) return -999999.;
         const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
         V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
         V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
@@ -2558,7 +2558,7 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -2586,7 +2586,7 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -2708,7 +2708,7 @@ namespace Trk
     double dTaudy0 = -dTaudy;
 
     unsigned int ndim = 0;
-    if (fullCov != 0) {
+    if (fullCov != nullptr) {
       ndim = fullCov->rows();
     } else {
       ndim = 5*NTrk+3;
@@ -2735,7 +2735,7 @@ namespace Trk
       D_mat(5*NTrk+4,0) = CONST*dTaudy0;
       D_mat(5*NTrk+5,0) = 0.;
       Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
-      if (fullCov != 0) {
+      if (fullCov != nullptr) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
         Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
@@ -2781,7 +2781,7 @@ namespace Trk
     } else if (matrix.size() == (5*NTrk+3)*(5*NTrk+3+1)/2) {
       ndim = 5*NTrk+3;
     } else {
-      return NULL;
+      return nullptr;
     }
 
     Amg::MatrixX* mtx = new Amg::MatrixX(ndim,ndim);

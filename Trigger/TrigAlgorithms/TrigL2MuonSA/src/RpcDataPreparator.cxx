@@ -20,8 +20,9 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name )
+   m_regionSelector("RegSelTool/RegSelTool_RPC",this)
 {
+  declareProperty("RegSel_RPC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -32,7 +33,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
    ATH_CHECK( m_recRPCRoiSvc.retrieve() );
    ATH_MSG_DEBUG( "Retrieved Service " << m_recRPCRoiSvc );
@@ -127,12 +127,15 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
      ATH_MSG_DEBUG("Use RoI based data access");
      
-     if (iroi) m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
-     else m_regionSelector->DetHashIDList(RPC, rpcHashList);
+     if (iroi) m_regionSelector->HashIDList(*iroi, rpcHashList);
+     else {
+       TrigRoiDescriptor fullscan_roi( true );
+       m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
+     }
      ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
-     m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
+     m_regionSelector->ROBIDList(*iroi, rpcRobList);
      if(m_doDecoding) {
        if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
@@ -148,11 +151,12 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      ATH_MSG_DEBUG("Use full data access");
      
-     m_regionSelector->DetHashIDList(RPC, rpcHashList);
+     TrigRoiDescriptor fullscan_roi( true );
+     m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
      ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
-     m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
+     m_regionSelector->ROBIDList(fullscan_roi, rpcRobList);
      if(m_doDecoding) {
        if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {

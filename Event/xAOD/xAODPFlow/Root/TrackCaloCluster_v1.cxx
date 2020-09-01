@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: TrackCaloCluster_v1.cxx $
 
@@ -56,10 +56,10 @@ namespace xAOD {
     // The accessor:       
     static const SG::AuxElement::Accessor< ElementLink< xAOD::TrackParticleContainer > >  acc( "trackPartcleLink" );
     if( !acc.isAvailable( *this ) ) {
-      return 0;       
+      return nullptr;       
     }
     if( !acc( *this ).isValid() ) {
-      return 0;
+      return nullptr;
     }
     return *(acc( *this ));
   }
@@ -70,8 +70,8 @@ namespace xAOD {
 				     setCaloClusterLinks)
   
   void TrackCaloCluster_v1::setParameters(float pt, float eta, float phi, float m, TrackCaloCluster_v1::Taste taste,
-					  const ElementLink<xAOD::TrackParticleContainer> particle, 
-					  const std::vector< ElementLink< xAOD::CaloClusterContainer > > clusters) {
+					  const ElementLink<xAOD::TrackParticleContainer>& particle, 
+					  const std::vector< ElementLink< xAOD::CaloClusterContainer > >& clusters) {
 
     static const Accessor< float > acc1( "pt" );     
     acc1( *this ) = pt;     

@@ -213,7 +213,7 @@ setModifiers = ['noLArCalibFolders',
                 'enableHotIDMasking',
 ]
 
-if globalflags.DataSource.is_geant4():  # MC modifiers
+if ConfigFlags.Input.isMC:  # MC modifiers
     setModifiers += ['BFieldFromDCS']
 else:           # More data modifiers
     setModifiers += ['allowCOOLUpdates',
@@ -268,8 +268,14 @@ if setModifiers:
     log.error('Unknown modifier(s): '+str(setModifiers))
 
 
+
+#--------------------------------------------------------------
+# Conditions setup.
+#--------------------------------------------------------------
 # never include this
 include.block("RecExCond/RecExCommon_flags.py")
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
+CAtoGlobalWrapper(IOVDbSvcCfg, ConfigFlags)
 
 #-------------------------------------------------------------
 # Setting DetFlags
@@ -316,11 +322,6 @@ rec.doTruth = False
 for mod in modifierList:
     mod.preSetup()
 
-#--------------------------------------------------------------
-# Conditions setup.
-#--------------------------------------------------------------
-from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
-conddb.setGlobalTag(globalflags.ConditionsTag())
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -347,7 +348,7 @@ topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
 # Event Info setup
 #--------------------------------------------------------------
 # If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if globalflags.InputFormat.is_pool():
+if ConfigFlags.Input.Format == 'POOL':
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
@@ -415,11 +416,7 @@ if ConfigFlags.Input.Format == 'POOL':
 # ----------------------------------------------------------------
 # ByteStream input
 # ----------------------------------------------------------------
-elif globalflags.InputFormat.is_bytestream() and not ConfigFlags.Trigger.Online.isPartition:
-    if hasattr(svcMgr, "MetaDataSvc"):
-        # Need to set this property to ensure correct merging with MetaDataSvc from AthenaPoolCnvSvc/AthenaPool.py
-        # May be removed when the merging is fixed (or AthenaPool.py sets this property)
-        svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
+elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isPartition:
     # Set up ByteStream reading services
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     CAtoGlobalWrapper(ByteStreamReadCfg, ConfigFlags)
@@ -526,7 +523,8 @@ if hasattr(svcMgr.THistSvc, "Output"):
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
         log.warning('Overriding folder %s with tag %s', folder, tag)
-        conddb.addOverride(folder,tag)
+        from IOVDbSvc.IOVDbSvcConfig import addOverride
+        addOverride(ConfigFlags,folder,tag)
 
 if svcMgr.MessageSvc.OutputLevel < Constants.INFO:
     from AthenaCommon.JobProperties import jobproperties
@@ -559,10 +557,12 @@ CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq"
 
 
 # B-jet output
-if opt.doBjetSlice or opt.forceEnableAllChains:
+if opt.doBjetSlice:
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
+    condSeq += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.Run2TrigTaggers+ConfigFlags.BTagging.Run3NewTrigTaggers, NewChannel = alias)
 
 #-------------------------------------------------------------
 # Output configuration

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellNoiseAlg.h"
@@ -30,7 +30,7 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
   m_lumiblock(0),
   m_lumiblockOld(0),
   m_first(false),
-  m_tree(NULL),
+  m_tree(nullptr),
   m_doMC(false),
   m_readNtuple(false),
   m_doFit(true),
@@ -164,13 +164,13 @@ StatusCode CaloCellNoiseAlg::execute()
   if (m_readNtuple) return StatusCode::SUCCESS;
 
 // check trigger
-  if ( (m_triggerChainProp != "")  && (!m_trigDecTool.empty()) ) {
+  if ( (!m_triggerChainProp.empty())  && (!m_trigDecTool.empty()) ) {
 
     if (m_first) {
       ATH_MSG_INFO ( " L1 items : " << m_trigDecTool->getChainGroup("L1_.*")->getListOfTriggers() );
     }
     bool passTrig = false;
-    if (m_triggerChainProp != "") passTrig = m_trigDecTool->isPassed(m_triggerChainProp);
+    if (!m_triggerChainProp.empty()) passTrig = m_trigDecTool->isPassed(m_triggerChainProp);
 
     if (!passTrig) {
       ATH_MSG_DEBUG ( " Failed trigger selection " );
@@ -330,7 +330,7 @@ float  CaloCellNoiseAlg::getLuminosity()
   ATH_MSG_INFO ( " in getLuminosity() " );
 
   float luminosity = 0.;
-  const CondAttrListCollection* attrListColl = 0;
+  const CondAttrListCollection* attrListColl = nullptr;
   StatusCode sc = evtStore()->retrieve(attrListColl, m_lumiFolderName);
   if (sc.isFailure() || !attrListColl) {
     ATH_MSG_WARNING  ( "attrrListColl not found for " << m_lumiFolderName );

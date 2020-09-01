@@ -831,7 +831,7 @@ collection_merger_alg = CfgGetter.getAlgorithm('ISF_CollectionMerger')
 
 SimKernel = CfgGetter.getAlgorithm(ISF_Flags.Simulator.KernelName())
 
-if ISF_Flags.HITSMergingRequired():
+if ISF_Flags.HITSMergingRequired.anyOn():
     topSequence += collection_merger_alg
 
 #--------------------------------------------------------------
@@ -1112,6 +1112,10 @@ if jobproperties.Beam.beamType == "cosmics" :
     comTimeRec = ComTimeRec("ComTimeRec")
     topSequence += comTimeRec
 
+# Beam spot
+include( "Digitization/BeamSpot.py" )
+
+# Configure main digi algorithm
 topSequence += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
     printfunc ("WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf.")

@@ -21,34 +21,37 @@
  #include <vector>
 
  // Athena/Gaudi
- #include "AthenaBaseComps/AthAlgorithm.h"
+ #include "AthenaBaseComps/AthReentrantAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
- 
  #include "AthContainers/DataVector.h"
- #include "GaudiKernel/DataSvc.h"
+ #include "StoreGate/ReadHandleKey.h"
+ #include "StoreGate/WriteHandleKey.h"
 
  // Include for the configuration service:
  #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
- // Outputs to CTP
+ // Input/output types
  #include "TrigT1Interfaces/JetCTP.h"
+ #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+ #include "TrigT1CaloEvent/CMXJetHits_ClassDEF.h"
+ #include "TrigT1CaloEvent/CMXJetTob_ClassDEF.h"
+ #include "TrigT1CaloEvent/JetCMXData_ClassDEF.h"
+ #include "TrigT1CaloEvent/JetCMXTopoData_ClassDEF.h"
 
  namespace LVL1 {
-
-   //using namespace TrigConf;
-
- class JetCMXData;
- class JetCTP;
 
    //Doxygen Class definition below:
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class JetCMX : public AthAlgorithm
+ class JetCMX : public AthReentrantAlgorithm
  {
 
-  typedef DataVector<LVL1::JetCMXData> t_jemDataContainer;
+  typedef DataVector<CMXJetHits> CMXJetHitsCollection;
+  typedef DataVector<CMXJetTob> CMXJetTobCollection;
+  typedef DataVector<JetCMXTopoData> JetCMXTopoDataCollection;
+  typedef DataVector<LVL1::JetCMXData> JetCMXDataCollection;
 
   public:
 
@@ -65,38 +68,37 @@
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------
 
-   StatusCode initialize() ;
-   StatusCode execute() ;
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute(const EventContext& ctx) const override;
 
  private: // Private methods
-   /** Store CTP SLink data objects in the TES. */
-//   void storeCTPData();
-   /** Store L1Topo inputs in the TES */
-//   void storeTopoTOBs();
-   /** Store DAQ objects in the TES */
-//   void storeReadoutObjects();
 
   /** Debug routine: dump trigger menu at start of run */
-  void printTriggerMenu();
+  void printTriggerMenu() const;
   
  private: // Private attributes
+   /* Service and tool handles */
+   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc {
+     this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", "Service providing L1 menu thresholds"};
 
-   /** Where to store the CMXCPHits (for CMX readout simulation) */
-   std::string   m_CMXJetHitLocation;
-   /** Where to store the CMXCPTobs (for CMX readout simulation) */
-   std::string   m_CMXJetTobLocation;
-   /** Locations of real-time outputs in StoreGate */
-   std::string m_TopoOutputLocation ;
-   std::string m_CTPOutputLocation ;
-   /** Location of input data in StoreGate */
-   std::string   m_JetCMXDataLocation;
-   
-   /** CTP Results */
-   JetCTP* m_jetCTP;
-   
-   /** The essentials - data access, configuration, tools */
-   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-   
+   /* Input handles */
+   SG::ReadHandleKey<JetCMXDataCollection> m_JetCMXDataLocation {
+     this, "JetCMXDataLocation", TrigT1CaloDefs::JetCMXDataLocation,
+     "Read handle key for JetCMXData collection"};
+
+   /* Output handles */
+   SG::WriteHandleKey<CMXJetHitsCollection> m_CMXJetHitsLocation {
+     this, "CMXJetHitsLocation", TrigT1CaloDefs::CMXJetHitsLocation,
+     "Write handle key for CMXJetHits collection"};
+   SG::WriteHandleKey<CMXJetTobCollection> m_CMXJetTobLocation {
+     this, "CMXJetTobLocation", TrigT1CaloDefs::CMXJetTobLocation,
+     "Write handle key for CMXJetTob collection"};
+   SG::WriteHandleKey<JetCMXTopoDataCollection> m_TopoOutputLocation {
+     this, "TopoOutputLocation", TrigT1CaloDefs::JetTopoTobLocation,
+     "Write handle key for JetCMXTopoData collection"};
+   SG::WriteHandleKey<JetCTP> m_CTPOutputLocation {
+     this, "CTPOutputLocation", TrigT1CaloDefs::JetCTPLocation,
+     "Write handle key for JetCTP object"};
 };
 
  } // end of namespace bracket

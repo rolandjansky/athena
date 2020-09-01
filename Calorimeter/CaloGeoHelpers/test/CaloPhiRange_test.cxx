@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -33,7 +33,7 @@ void test1()
   assert (r.diff (0.5, 0.3) == 0.2);
   assert (std::abs(r.diff (M_PI - 0.1, -M_PI+0.1) + 0.2) < 1e-12);
 
-  r.print();
+  CaloPhiRange::print();
 }
 
 

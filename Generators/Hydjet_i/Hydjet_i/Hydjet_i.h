@@ -36,7 +36,6 @@
 #include "Hydjet_i/PySubs.h"
 #include "Hydjet_i/PyqPar.h"
 
-using std::string;
 typedef std::vector<std::string> CommandVector;
 
 // new to store hydjet event parameters

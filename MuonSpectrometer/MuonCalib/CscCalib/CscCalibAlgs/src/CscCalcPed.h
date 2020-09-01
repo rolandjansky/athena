@@ -4,37 +4,28 @@
 
 #ifndef CSCCALCPED_H
 #define CSCCALCPED_H
+
 /**CscCalcPed - algorithm that finds the Cathode Strip Chamber pedestals from 
 an RDO
 */
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/DataHandle.h"
 
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "AthContainers/DataVector.h"
+#include "CscCalibData/CscCalibResultCollection.h"
+#include "MuonCondData/CscCondDbData.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 
+#include <string>
 #include <vector>
 #include <bitset>
 
-#include "CscCalibData/CscCalibResultCollection.h"
-#include "TH1.h"
-#include "TH2.h"
+#include "TH1I.h"
+#include "TH1F.h"
 #include "TH2F.h"
-#include "MuonCondData/CscCondDbData.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-class cscIdHelper;
-class TFile;
-class IdentifierHash;
-class CscCondDbData;
-
-namespace Muon {
-  class ICSC_RDO_Decoder;
-}
 
 namespace MuonCalib{
   /** 
@@ -101,11 +92,9 @@ namespace MuonCalib{
 
       /*********Private member variables*/
       /**Services and tools*/
-      // ITHistSvc * m_thistSvc;
-    //      ICscCalibTool * m_cscCalibTool;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
-      ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
+      ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"CscRdoDecoderTool","Muon::CscRDO_Decoder"};
       SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
  
 
@@ -153,9 +142,6 @@ namespace MuonCalib{
 
       //String for interface to patch changes
       std::string m_cmt_parameter;
-
-      //debug level
-      bool m_debug, m_verbose;
 
       bool m_doOnlineDbFile;
 

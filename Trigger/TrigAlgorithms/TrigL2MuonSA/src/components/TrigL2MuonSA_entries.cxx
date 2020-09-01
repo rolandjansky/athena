@@ -27,6 +27,10 @@
 #include "../MuCalStreamerTool.h"
 #include "../CscSegmentMaker.h"
 #include "../CscRegUtils.h"
+#include "../StgcDataPreparator.h"
+#include "../MmDataPreparator.h"
+#include "../NswPatternFinder.h"
+#include "../NswStationFitter.h"
 
 using namespace TrigL2MuonSA;
 
@@ -55,6 +59,10 @@ DECLARE_COMPONENT( PtEndcapLUT )
 DECLARE_COMPONENT( AlignmentBarrelLUT )
 DECLARE_COMPONENT( CscSegmentMaker )
 DECLARE_COMPONENT( CscRegDict )
+DECLARE_COMPONENT( StgcDataPreparator )
+DECLARE_COMPONENT( MmDataPreparator )
+DECLARE_COMPONENT( NswPatternFinder )
+DECLARE_COMPONENT( NswStationFitter )
 
 DECLARE_COMPONENT( PtBarrelLUTSvc )
 DECLARE_COMPONENT( PtEndcapLUTSvc )

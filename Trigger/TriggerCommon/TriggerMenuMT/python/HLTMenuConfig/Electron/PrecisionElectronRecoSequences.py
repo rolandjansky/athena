@@ -35,7 +35,7 @@ def precisionElectronRecoSequence(RoIs):
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] # the load below doesn't always work
 
@@ -46,8 +46,6 @@ def precisionElectronRecoSequence(RoIs):
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                     ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -65,7 +63,6 @@ def precisionElectronRecoSequence(RoIs):
 
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking("electron", ViewVerifyTrk, inputFTFtracks= TrackCollection, rois= RoIs)
     PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
-    #electronPrecisionTrack += PTSeq
     trackParticles = PTTrackParticles[-1]
     
     electronPrecisionTrack = parOR("electronPrecisionTrack")
@@ -99,8 +96,9 @@ def precisionElectronRecoSequence(RoIs):
     trigTopoEgammaAlgo.SuperElectronRecCollectionName = trigElectronAlgo.SuperElectronRecCollectionName
     collectionOut = trigTopoEgammaAlgo.ElectronOutputName
     thesequence += trigTopoEgammaAlgo
-
     
-    return (thesequence, electronPrecisionTrack, collectionOut)    
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigElectronIsoBuilderCfg
+    isoBuilder = TrigElectronIsoBuilderCfg()
+    thesequence += isoBuilder
 
-
+    return (thesequence, electronPrecisionTrack, collectionOut)

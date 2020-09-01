@@ -89,7 +89,7 @@ namespace LVL1MUCTPI {
       /// Update the data word for the RDO object
       StatusCode updateMuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord);
       /// Save the MuCTPI RDO object
-      StatusCode saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord);
+      StatusCode saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >&& dataWord);
       /// Save the outputs of the simulation into StoreGate
       StatusCode saveOutput(int bcidOffset = 0);
 

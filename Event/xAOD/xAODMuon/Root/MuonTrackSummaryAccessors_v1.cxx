@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -150,7 +150,7 @@ namespace xAOD {
       default:                  
          std::cerr << "xAOD::MuonTrackParticle_v1 ERROR Unknown MuonSummaryType ("
                    << type << ") requested" << std::endl;
-         return 0;
+         return nullptr;
       }
    }
    

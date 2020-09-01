@@ -158,7 +158,7 @@ class CaloCluster :  public CaloCompositeKineBase,
     /*! \brief Default constructor builds unusable iterator */
     MomentStoreIter();
     /*! \brief Standard constructor for a useable iterator */
-    MomentStoreIter(moment_iterator_i iter,
+    MomentStoreIter(const moment_iterator_i& iter,
 		    const moment_store* firstStore, 
 		    const moment_store* secndStore=0) ;
     /*! Destructor */

@@ -132,6 +132,11 @@ namespace xAOD {
             CaloCorrection corrlist, 
             const CaloCellContainer* container) const {
 #ifdef XAOD_ANALYSIS
+   (void) result;
+   (void) particle;
+   (void) cones;
+   (void) corrlist;
+   (void) container;
     return false;
 #else // XAOD_ANALYSIS
     derefMap_t derefMap;

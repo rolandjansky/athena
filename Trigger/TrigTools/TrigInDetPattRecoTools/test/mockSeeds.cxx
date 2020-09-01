@@ -229,7 +229,7 @@ int main()
 
     std::unique_ptr<TrigRoiDescriptor> tmpRoi = std::make_unique<TrigRoiDescriptor>(true);
     seedGen.createSeeds(tmpRoi.get());
-    std::vector<TrigInDetTriplet*> triplets;
+    std::vector<TrigInDetTriplet> triplets;
     seedGen.getSeeds(triplets);
     if (triplets.size() != 24511) {
       std::cout << "ERROR: change in number of triplets created" << std::endl;

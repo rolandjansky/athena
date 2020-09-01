@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -74,7 +74,7 @@ void testPtErr() {
    pt_err2.push_back( 0. );
    valid.push_back( false );
 
-   tpc.push_back( NULL );
+   tpc.push_back( nullptr );
    pt_err2.push_back( 0. );
    valid.push_back( false );
 
@@ -163,31 +163,31 @@ void test_d0significance() {
   phi_list.push_back(toRad(210)) ;
   phi_list.push_back(M_PI+acos(1/sqrt(2))) ;
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 * 0.) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, 0.015*0.01 * 0. );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 ) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, 0.015*0.01 );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01 *.6) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, 0.015*0.01 *.6 );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.01, 0.015, -0.015*0.01 *.6) );
+  beamspot_sigma_list.emplace_back(0.01, 0.015, -0.015*0.01 *.6 );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -0.015*0.01) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, -0.015*0.01 );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.+1e-6)) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.+1e-6) );
   valid.push_back(false);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.+1e-6)) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.+1e-6) );
   valid.push_back(false);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.-1e-5)) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.-1e-5) );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.-1e-5)) );
+  beamspot_sigma_list.emplace_back(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.-1e-5) );
   valid.push_back(true);
 
   float ref_d0=1;
@@ -287,7 +287,7 @@ int main() {
    valid.push_back(false);
 
 
-   tpc.push_back( NULL );
+   tpc.push_back( nullptr );
    d0_expected.push_back(0.);
    z0_expected.push_back(0.);
    valid.push_back(false);
@@ -365,7 +365,7 @@ int main() {
    vxc.back()->setZ( 50 );
    passes_vx_check.push_back(false);
 
-   vxc.push_back(NULL);
+   vxc.push_back(nullptr);
    passes_vx_check.push_back(false);
 
    std::vector<bool>::const_iterator passes_vx_check_iter=passes_vx_check.begin();

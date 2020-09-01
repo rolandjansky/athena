@@ -1,13 +1,12 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
 /**
  * @file AthenaKernel/TopBase.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2018
- * @brief Calculate topmost accessible base accessible via SG_BASE.
+ * @brief Calculate topmost accessible base accessible via SG_BASES.
  */
 
 
@@ -23,13 +22,13 @@ namespace SG {
 
 
 /**
- * @brief Calculate topmost base accessible via SG_BASE.
+ * @brief Calculate topmost base accessible via SG_BASES.
  *
  * For example, if we have
  *
  *@code
- *   SG_BASE(C2, C1);
- *   SG_BASE(C3, C2);
+ *   SG_BASES(C2, C1);
+ *   SG_BASES(C3, C2);
  @endcode
  *
  * then TopBase<C1>::type, TopBase<C2>::type, and TopBase<C3>::type all yield @c C1.
@@ -37,7 +36,7 @@ namespace SG {
 template <class T>
 struct TopBase
 {
-  typedef typename SG::Bases<T>::Base1 Base1;
+  typedef typename SG::Bases<T>::bases::Base1 Base1;
   static const bool has_base = !std::is_same<Base1, SG::NoBase>::value;
   typedef typename std::conditional<has_base,
                                     typename TopBase<Base1>::type,

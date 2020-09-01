@@ -177,7 +177,7 @@ namespace ROIB {
       } else {
 
          // prepare header
-         ctp_rdo_header = ctp_slink->getHeader();
+         ctp_rdo_header = Header(std::vector<uint32_t>(ctp_slink->getHeader()));
 
          // get the data elements
          ctp_rdo_data = ctp_slink->getDataElements();
@@ -191,11 +191,12 @@ namespace ROIB {
          }
 
          // prepare trailer
-         ctp_rdo_trailer = ctp_slink->getTrailer();
+         ctp_rdo_trailer = Trailer(std::vector<uint32_t>(ctp_slink->getTrailer()));
       }
 
       // build result
-      CTPResult ctp_rdo_result( ctp_slink->getCTPVersionNumber(), ctp_rdo_header, ctp_rdo_trailer, ctp_rdo_data );
+      CTPResult ctp_rdo_result( ctp_slink->getCTPVersionNumber(), std::move(ctp_rdo_header),
+              std::move(ctp_rdo_trailer), ctp_rdo_data ); //ctp_rdo_data is not moved because it needs to be converted
       ATH_MSG_VERBOSE( "Dump CTPResult object:\n" + ctp_rdo_result.dump() );
 
       //
@@ -261,8 +262,8 @@ namespace ROIB {
             emtau_rdo_trailer.setSimulationError();
          }
 
-         EMTauResult emtau_rdo_result( emtau_rdo_header, emtau_rdo_trailer,
-                                       emtau_rdo_data );
+         EMTauResult emtau_rdo_result( std::move(emtau_rdo_header), std::move(emtau_rdo_trailer),
+                                       std::move(emtau_rdo_data) );
 
          emtau_rdo_result_vector.push_back( emtau_rdo_result );
       }
@@ -324,9 +325,9 @@ namespace ROIB {
             jetenergy_rdo_trailer.setSimulationError();
          }
 
-         JetEnergyResult jetenergy_rdo_result( jetenergy_rdo_header,
-                                               jetenergy_rdo_trailer,
-                                               jetenergy_rdo_data );
+         JetEnergyResult jetenergy_rdo_result( std::move(jetenergy_rdo_header),
+                                               std::move(jetenergy_rdo_trailer),
+                                               std::move(jetenergy_rdo_data) );
 
          jetenergy_rdo_result_vector.push_back( jetenergy_rdo_result );
       }
@@ -383,15 +384,17 @@ namespace ROIB {
          muctpi_rdo_trailer.setSimulationError();
       }
 
-      MuCTPIResult muctpi_rdo_result( muctpi_rdo_header, muctpi_rdo_trailer,
-                                      muctpi_rdo_data );
+      MuCTPIResult muctpi_rdo_result( std::move(muctpi_rdo_header), std::move(muctpi_rdo_trailer),
+                                      std::move(muctpi_rdo_data) );
 
       //
       // Finally create RoIB RDO object:
       //
-      std::unique_ptr<RoIBResult> roib_rdo_result = std::make_unique< RoIBResult>( muctpi_rdo_result, ctp_rdo_result,
-										   jetenergy_rdo_result_vector,
-										   emtau_rdo_result_vector );
+      std::unique_ptr<RoIBResult> roib_rdo_result = std::make_unique< RoIBResult>( 
+                                 std::move(muctpi_rdo_result),
+                                 std::move(ctp_rdo_result),
+										   std::move(jetenergy_rdo_result_vector),
+										   std::move(emtau_rdo_result_vector) );
       if( msgLvl( MSG::DEBUG ) ) {
          ATH_MSG_DEBUG( "RoIB Results:" );
          roib_rdo_result->muCTPIResult().dumpData( msg( MSG::DEBUG ) );

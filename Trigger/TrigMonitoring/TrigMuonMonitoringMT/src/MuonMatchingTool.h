@@ -122,6 +122,16 @@ class MuonMatchingTool : public AthAlgTool {
    */
   const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFCBLinkInfo( const xAOD::Muon *mu, std::string trig) const;
 
+  /**
+   * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given offline muon.
+   * @param mu Offline muon around which EFIso candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param pass True if the matched candidate passed the hypothesis step.
+   * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const xAOD::Muon* matchEFIso(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
 
   /**
    * @brief Function that searches for an offline muon matched to L2SA muon
@@ -192,6 +202,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const TrigCompositeUtils::LinkInfo<DataVector<T> > matchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
+                                   const std::string containerSGKey = "",
 				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**
@@ -207,6 +218,7 @@ class MuonMatchingTool : public AthAlgTool {
    * @todo Consider improving the argument list.
    */
   template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
+                                   const std::string containerSGKey = "",
 				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
 
   /**

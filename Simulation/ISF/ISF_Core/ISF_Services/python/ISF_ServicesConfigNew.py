@@ -64,7 +64,7 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
     ]
     kwargs.setdefault("GenParticleFilters", gpfilt)
     kwargs.setdefault("QuasiStableParticlesIncluded", True)
-    return InputConverterCfg(name, **kwargs)
+    return InputConverterCfg(ConfigFlags, name, **kwargs)
 
 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
@@ -78,11 +78,11 @@ def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrd
     kwargs.setdefault("ValidateGeoIDs", ConfigFlags.ISF.ValidationMode)
     kwargs.setdefault("ValidationOutput", ConfigFlags.ISF.ValidationMode)
     kwargs.setdefault("ValidationStreamName", "ParticleBroker")
-    
+
     baracc = BarcodeSvcCfg(ConfigFlags)
     kwargs.setdefault("BarcodeService", baracc.getPrimary())
     result.merge(baracc)
-    
+
     result.addService(CompFactory.ISF.ParticleBrokerDynamicOnReadIn(name, **kwargs))
     return result
 
@@ -92,7 +92,7 @@ def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
     #kwargs.setdefault("ParticleOrderingTool", "ISF_InToOutSubDetOrderingTool")
     result = ParticleOrderingToolCfg(ConfigFlags)
     kwargs.setdefault("ParticleOrderingTool", result.popPrivateTools())
-    result.merge(ParticleBrokerSvcNoOrderingCfg(name, **kwargs))
+    result.merge(ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name, **kwargs))
     return result
 
 
@@ -100,7 +100,7 @@ def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kw
     result = AFIIEntryLayerToolCfg(ConfigFlags)
     kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
-    result.merge(ParticleBrokerSvcCfg(name, **kwargs))
+    result.merge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
     return result
 
 
@@ -150,7 +150,7 @@ def ValidationTruthServiceCfg(ConfigFlags, name="ISF_ValidationTruthService", **
     kwargs.setdefault("TruthStrategies", ["ISF_ValidationTruthStrategy"] )
     kwargs.setdefault("IgnoreUndefinedBarcodes", True)
     kwargs.setdefault("PassWholeVertices", True)
-    return GenericTruthServiceCfg(name, **kwargs)
+    return GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 # MC12 Truth Service Configurations
@@ -182,15 +182,17 @@ def MC12TruthServiceCfg(ConfigFlags, name="ISF_MC12TruthService", **kwargs):
         kwargs.setdefault("TruthStrategies", truthStrats)
     kwargs.setdefault("IgnoreUndefinedBarcodes", False)
     kwargs.setdefault("PassWholeVertices", True)
-    result.merge(GenericTruthServiceCfg(name, **kwargs))
+    truthService = GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
+    result.addService(truthService.getPrimary(), primary=True)
+    result.merge(truthService)
     return result
 
 
 def BlankTruthServiceCfg(ConfigFlags, name="ISF_TruthService", **kwargs):
     if ConfigFlags.ISF.ValidationMode:
-        return ValidationTruthServiceCfg(name, **kwargs)
+        return ValidationTruthServiceCfg(ConfigFlags, name, **kwargs)
     else:
-        return MC12TruthServiceCfg(name, **kwargs)
+        return MC12TruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs):
@@ -203,7 +205,7 @@ def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs
     ]
     truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
     kwargs.setdefault("TruthStrategies", truthStrats)
-    result.merge(MC12TruthServiceCfg(name, **kwargs))
+    result.merge(MC12TruthServiceCfg(ConfigFlags, name, **kwargs))
     return result
 
 
@@ -213,7 +215,7 @@ def MC12PlusTruthServiceCfg(ConfigFlags, name="ISF_MC12PlusTruthService", **kwar
     cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID] )
-    return MC12TruthServiceCfg(name, **kwargs)
+    return MC12TruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 # MC15 Truth Service Configurations
@@ -252,14 +254,15 @@ def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     kwargs.setdefault("IgnoreUndefinedBarcodes", False)
     kwargs.setdefault("PassWholeVertices", False) # new for MC15 - can write out partial vertices.
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
-    accTruthService = GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
-    result.merge(accTruthService)
+    truthService = GenericTruthServiceCfg(ConfigFlags, name, **kwargs)
+    result.addService(truthService.getPrimary(), primary=True)
+    result.merge(truthService)
     return result
 
 
 def MC15aTruthServiceCfg(ConfigFlags, name="ISF_MC15aTruthService", **kwargs):
     kwargs.setdefault("ForceEndVtxInRegions", [])
-    return MC15TruthServiceCfg(name, **kwargs)
+    return MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kwargs):
@@ -285,22 +288,22 @@ def MC15aPlusLLPTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusLLPTruthService"
     ]
     truthStrats = [result.popToolsAndMerge(cfg(ConfigFlags)) for cfg in truthCfgs]
     kwargs.setdefault("TruthStrategies", truthStrats)
-    return MC15aPlusTruthServiceCfg(name, **kwargs)
+    return MC15aPlusTruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 # MC16 Truth Service Configurations
 def MC16TruthServiceCfg(ConfigFlags, name="ISF_MC16TruthService", **kwargs):
-    return MC15aPlusTruthServiceCfg(name, **kwargs)
+    return MC15aPlusTruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC16LLPTruthServiceCfg(ConfigFlags, name="ISF_MC16LLPTruthService", **kwargs):
-    return MC15aPlusLLPTruthServiceCfg(name, **kwargs)
+    return MC15aPlusLLPTruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 # MC18 Truth Service Configurations
 def MC18TruthServiceCfg(ConfigFlags, name="ISF_MC18TruthService", **kwargs):
-    return MC15aPlusTruthServiceCfg(name, **kwargs)
+    return MC15aPlusTruthServiceCfg(ConfigFlags, name, **kwargs)
 
 
 def MC18LLPTruthServiceCfg(ConfigFlags, name="ISF_MC18LLPTruthService", **kwargs):
-    return MC15aPlusLLPTruthServiceCfg(name, **kwargs)
+    return MC15aPlusLLPTruthServiceCfg(ConfigFlags, name, **kwargs)

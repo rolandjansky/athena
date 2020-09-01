@@ -29,7 +29,7 @@ MdtCalibHitBase::MdtCalibHitBase()
     m_signedDistanceToTrack(kNoValue),m_sigma2DistanceToTrack(kNoValue),
     m_wiresagTime(kNoValue), m_temperatureTime(kNoValue),m_backgroundTime(kNoValue), m_bFieldPerp(kNoValue), 
     m_bFieldPara(kNoValue), m_temperature(kNoValue), m_projSag(0), m_tube_t0(kNoValue), 
-    m_tube_adccal(kNoValue), m_xtwin(kNoValue), m_sigmaXTwin(kNoValue), m_segmentT0Applied(false)
+    m_tube_adccal(kNoValue), m_xtwin(kNoValue), m_sigmaXTwin(kNoValue), m_segmentT0Applied(false), m_tubeRadius(kNoValue)
 {}
 
 MdtCalibHitBase::MdtCalibHitBase( int tdc, int adc, const Amg::Vector3D &globalPos, const Amg::Vector3D &localPos )  
@@ -43,7 +43,7 @@ MdtCalibHitBase::MdtCalibHitBase( int tdc, int adc, const Amg::Vector3D &globalP
      m_signedDistanceToTrack(kNoValue),m_sigma2DistanceToTrack(kNoValue),
      m_wiresagTime(kNoValue), m_temperatureTime(kNoValue),m_backgroundTime(kNoValue), m_bFieldPerp(kNoValue), 
      m_bFieldPara(kNoValue), m_temperature(kNoValue), m_projSag(0),m_tube_t0(kNoValue), 
-     m_tube_adccal(kNoValue), m_xtwin(kNoValue), m_sigmaXTwin(kNoValue), m_segmentT0Applied(false)
+     m_tube_adccal(kNoValue), m_xtwin(kNoValue), m_sigmaXTwin(kNoValue), m_segmentT0Applied(false), m_tubeRadius(kNoValue)
 {} 
 
 //static members

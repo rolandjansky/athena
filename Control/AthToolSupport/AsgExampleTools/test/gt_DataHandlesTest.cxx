@@ -117,12 +117,35 @@ namespace asg
 
 
 
+  // test that the read-key-array works
+  TEST_F (DataHandlesTest, read_array)
+  {
+    config.setPropertyFromString ("readKeyArray", "['Muons']");
+    config.setPropertyFromString ("readArray", "1");
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
   // do a write handle test
   TEST_F (DataHandlesTest, write_handle)
   {
     std::string writeKey = "Muons" + makeUniqueName();
     config.setPropertyFromString ("writeKey", writeKey);
     config.setPropertyFromString ("doWriteName", writeKey);
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
+  // do a write decor handle test
+  TEST_F (DataHandlesTest, write_decor_handle)
+  {
+    std::string writeDecorKey = "deco_" + makeUniqueName();
+    config.setPropertyFromString ("writeDecorKey", "Muons." + writeDecorKey);
+    config.setPropertyFromString ("doWriteDecorName", writeDecorKey);
     ASSERT_SUCCESS (config.makeTool (tool, cleanup));
     tool->runTest ();
   }

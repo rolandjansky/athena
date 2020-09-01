@@ -7,6 +7,7 @@
 # art-input-nfiles: 16
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -82,21 +83,17 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2ele')
-comp.flag = 'L2ele'
+comp=TrigInDetCompStep('Comp_L2ele','L2','ele')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFele')
-comp2.flag = 'EFele'
+comp2=TrigInDetCompStep('Comp_EFele','EF','ele')
 test.check_steps.append(comp2)
 
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
- 
+
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 import sys

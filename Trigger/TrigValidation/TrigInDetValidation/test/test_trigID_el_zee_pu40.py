@@ -7,6 +7,7 @@
 # art-input-nfiles: 8
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -54,7 +55,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['electron']
-rdo2aod.max_events = 5000 # TODO increase to 16k 
+rdo2aod.max_events = 16000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
@@ -82,21 +83,23 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2ele')
-comp.flag = 'L2ele'
+comp=TrigInDetCompStep('Comp_L2ele','L2','ele')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFele')
-comp2.flag = 'EFele'
+comp2=TrigInDetCompStep('Comp_EFele','EF','ele')
 test.check_steps.append(comp2)
 
+comp3=TrigInDetCompStep('Comp_L2eleLowpt','L2','ele',lowpt=True)
+test.check_steps.append(comp3)
+
+comp4=TrigInDetCompStep('Comp_EFeleLowpt','EF','ele',lowpt=True)
+test.check_steps.append(comp4)
+
 # CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
- 
+
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 import sys

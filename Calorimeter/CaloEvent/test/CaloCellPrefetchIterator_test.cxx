@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloCellPrefetchIterator_test.cxx,v 1.2 2008-08-02 14:57:07 ssnyder Exp $
 /**
  * @file  CaloCellPrefetchIterator_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -27,15 +25,11 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/random.h"
+#include <map>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 #include <cassert>
-
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-
-using Athena_test::randf;
-
 
 CaloCell_ID* make_helper (TileID* tile_id)
 {
@@ -68,10 +62,11 @@ CaloCell_ID* make_helper (TileID* tile_id)
 }
 
 
-std::map<Identifier, CaloDetDescriptor*> ddmap;
+using DDMap_t = std::unordered_map<Identifier, std::unique_ptr<CaloDetDescriptor> >;
 CaloDetDescriptor* find_dd (int hashid,
                             const CaloCell_ID* helper,
-                            const TileID* tile_helper)
+                            const TileID* tile_helper,
+                            DDMap_t& ddmap)
 {
   Identifier id = helper->cell_id (hashid);
   Identifier reg_id;
@@ -87,20 +82,20 @@ CaloDetDescriptor* find_dd (int hashid,
     int region = helper->region (id);
     reg_id = helper->region_id (subcalo, posneg, sampling, region);
   }
-  CaloDetDescriptor* dd = ddmap[reg_id];
-  if (!dd) {
-    dd = new CaloDetDescriptor (reg_id, tile_helper, helper);
-    ddmap[reg_id] = dd;
+  DDMap_t::mapped_type& ptr = ddmap[reg_id];
+  if (!ptr) {
+    ptr = std::make_unique<CaloDetDescriptor> (reg_id, tile_helper, helper);
   }
-  return dd;
+  return ptr.get();
 }
 
 
 CaloCell* make_cell (int hashid,
                      const CaloCell_ID* helper,
-                     const TileID* tile_helper)
+                     const TileID* tile_helper,
+                     DDMap_t& ddmap)
 {
-  CaloDetDescriptor* descr = find_dd (hashid, helper, tile_helper);
+  CaloDetDescriptor* descr = find_dd (hashid, helper, tile_helper, ddmap);
   CaloDetDescrElement* dde = new DummyDetDescrElement (hashid -
                                                         descr->caloCellMin(),
                                                        0,
@@ -111,13 +106,13 @@ CaloCell* make_cell (int hashid,
 
 
 std::vector<const CaloCell*>
-make_cells (CaloCell_ID* helper, TileID* tile_helper)
+make_cells (CaloCell_ID* helper, TileID* tile_helper, DDMap_t& ddmap)
 {
   size_t hashmax = helper->calo_cell_hash_max();
   std::vector<const CaloCell*> v;
   v.reserve (hashmax);
   for (size_t i = 0; i < hashmax; i++)
-    v.push_back (make_cell (i, helper, tile_helper));
+    v.push_back (make_cell (i, helper, tile_helper, ddmap));
   return v;
 }
 
@@ -278,8 +273,9 @@ void test3 (const std::vector<const CaloCell*>& cells)
 {
   std::cout << "test3\n";
   NavigationToken<CaloCell, double> token;
+  uint32_t seed = 1;
   for (size_t i=0; i<cells.size(); i++)
-    token.setObject (cells[i], randf(2));
+    token.setObject (cells[i], Athena_test::randf_seed(seed, 2));
   check3a (token, 0);
   check3a (token, 1);
   check3a (token, 2);
@@ -292,14 +288,15 @@ void test3 (const std::vector<const CaloCell*>& cells)
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("CaloCellContainer_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("CaloEvent/CaloCellContainer_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  
 
   TileID* tile_helper = new TileID;
   CaloCell_ID* helper = make_helper (tile_helper);
-  std::vector<const CaloCell*> cells = make_cells (helper, tile_helper);
+  DDMap_t ddmap;
+  std::vector<const CaloCell*> cells = make_cells (helper, tile_helper, ddmap);
 
   test1 (cells);
   test2 (cells);

@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  GenericArrayCreator.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 12/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoCoreSimulation__GenericArrayCreator__
-#define __L1TopoCoreSimulation__GenericArrayCreator__
+#ifndef L1TOPOALGORITHMS_GENERICARRAYCREATOR
+#define L1TOPOALGORITHMS_GENERICARRAYCREATOR
 
 #include <iostream>
 
@@ -29,4 +24,4 @@ namespace TCS {
    };
 }
 
-#endif /* defined(__L1TopoCoreSimulation__GenericArrayCreator__) */
+#endif

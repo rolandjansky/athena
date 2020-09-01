@@ -20,9 +20,10 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name ), 
+   m_regionSelector("RegSelTool/RegSelTool_TGC",this),
    m_robDataProvider( "ROBDataProviderSvc", name )
 {
+  declareProperty("RegSel_TGC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -35,7 +36,6 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
    ATH_CHECK(m_idHelperSvc.retrieve());
 
@@ -98,8 +98,11 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    
    if(m_doDecoding) {
      std::vector<IdentifierHash> tgcHashList;
-     if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, tgcHashList);
-     else m_regionSelector->DetHashIDList(TGC, tgcHashList);
+     if (iroi) m_regionSelector->HashIDList(*iroi, tgcHashList);
+     else {
+       TrigRoiDescriptor fullscan_roi( true );
+       m_regionSelector->HashIDList(fullscan_roi, tgcHashList);
+     }
      if(roi) delete roi;
 
      // Decode BS

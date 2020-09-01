@@ -61,12 +61,12 @@ using CLHEP::MeV;
 **************************************************************************** */
 GetLCSinglePionsPerf::GetLCSinglePionsPerf(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_id_helper(0),
-    m_calo_dd_man(0),
-    m_calo_id(0),
-    m_caloDmDescrManager(0),
+    m_id_helper(nullptr),
+    m_calo_dd_man(nullptr),
+    m_calo_id(nullptr),
+    m_caloDmDescrManager(nullptr),
     m_outputFileName("CheckSinglePionsReco.root"),
-    m_outputFile(0),
+    m_outputFile(nullptr),
     m_distance_cut(1.5),
     m_netabin(25), m_etamin(0.0), m_etamax(5.0),
     m_deta(0),
@@ -219,7 +219,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     // as a function of pion eta for several energy bins
     m_engTag_vs_eta.resize(m_ntagcases);
     for(int i_tag=0; i_tag<m_ntagcases; i_tag++) {
-      m_engTag_vs_eta[i_tag].resize(m_nlogenerbin, 0);
+      m_engTag_vs_eta[i_tag].resize(m_nlogenerbin, nullptr);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
         sprintf(hname, "hp_engTag_vs_eta_tag%d_ener%d",i_tag, i_ener);
         TProfile *hp = new TProfile(hname, hname, h_nch_eta, h_eta_min, h_eta_max);
@@ -231,7 +231,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     // as a function of pion energy for several eta bins
     m_engTag_vs_ebeam.resize(m_ntagcases);
     for(int i_tag=0; i_tag<m_ntagcases; i_tag++){
-      m_engTag_vs_ebeam[i_tag].resize(m_netabin, 0);
+      m_engTag_vs_ebeam[i_tag].resize(m_netabin, nullptr);
       for(int i_eta=0; i_eta<m_netabin; i_eta++) {
         sprintf(hname, "hp_engTag_vs_ebeam_tag%d_eta%d",i_tag, i_eta);
         TProfile *hp = new TProfile(hname, hname, n_logener_bins, xbins);
@@ -254,7 +254,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     for(int i_coll=0; i_coll<m_ncluscoll; i_coll++){
       m_engRecOverTruth_vs_eta[i_coll].resize(m_nnormtype);
       for(int i_norm=0; i_norm<m_nnormtype; i_norm++){
-        m_engRecOverTruth_vs_eta[i_coll][i_norm].resize(m_nlogenerbin, 0);
+        m_engRecOverTruth_vs_eta[i_coll][i_norm].resize(m_nlogenerbin, nullptr);
         for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
           double ylow(0), yup(0);
           if(i_norm != kLEVEL_PARTICLE) {
@@ -278,7 +278,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     for(int i_coll=0; i_coll<m_ncluscoll; i_coll++){
       m_engRecOverTruth_vs_ebeam[i_coll].resize(m_nnormtype);
       for(int i_norm=0; i_norm<m_nnormtype; i_norm++){
-        m_engRecOverTruth_vs_ebeam[i_coll][i_norm].resize(m_netabin, 0);
+        m_engRecOverTruth_vs_ebeam[i_coll][i_norm].resize(m_netabin, nullptr);
         for(int i_eta=0; i_eta<m_netabin; i_eta++) {
           double ylow(0), yup(0);
           if(i_norm != kLEVEL_PARTICLE) {
@@ -308,7 +308,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     for(int i_coll=0; i_coll<m_ncluscoll; i_coll++){
       m_engRecSpect[i_coll].resize(m_nlogenerbin);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
-        m_engRecSpect[i_coll][i_ener].resize(m_netabin, 0);
+        m_engRecSpect[i_coll][i_ener].resize(m_netabin, nullptr);
         for(int i_eta=0; i_eta<m_netabin; i_eta++){
           sprintf(hname, "hp_engRecSpect_coll%d_ener%d_eta%d",i_coll, i_ener, i_eta);
           TH1F *h1 = new TH1F(hname, hname, 110, -0.2, 2.0);
@@ -320,7 +320,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     // energy spectra of incident pions
     m_engPionSpect.resize(m_nlogenerbin);
     for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
-      m_engPionSpect[i_ener].resize(m_netabin, 0);
+      m_engPionSpect[i_ener].resize(m_netabin, nullptr);
       for(int i_eta=0; i_eta<m_netabin; i_eta++){
         sprintf(hname, "hp_engPionSpect_ener%d_eta%d",i_ener, i_eta);
         double x1 = pow(10,m_logenermin+i_ener*m_dlogener);
@@ -339,7 +339,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     // noise clusters spectras
     m_engNoiseClusSpect.resize(m_ncluscoll);
     for(int i_coll=0; i_coll<m_ncluscoll; i_coll++){
-      m_engNoiseClusSpect[i_coll].resize(m_netabin, 0);
+      m_engNoiseClusSpect[i_coll].resize(m_netabin, nullptr);
       for(int i_eta=0; i_eta<m_netabin; i_eta++){
         sprintf(hname, "hp_engNoiseClusSpect_coll%d_eta%d",i_coll, i_eta);
         TH1F *h1 = new TH1F(hname, hname, 100, -2000., 2000.);
@@ -348,7 +348,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
       } // i_eta
     } // i_coll
     // average
-    m_engNoiseClus_vs_eta.resize(m_ncluscoll, 0);
+    m_engNoiseClus_vs_eta.resize(m_ncluscoll, nullptr);
     for(int i_coll=0; i_coll<m_ncluscoll; i_coll++){
       sprintf(hname, "hp_engNoiseClus_vs_eta_coll%d",i_coll);
       TProfile *hp = new TProfile(hname, hname, h_nch_eta, h_eta_min, h_eta_max);
@@ -367,7 +367,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     for(int i_mom=0; i_mom<m_nmoments; i_mom++){
       m_clusMoment_vs_eta[i_mom].resize(m_nmomsums);
       for(int i_sum=0; i_sum<m_nmomsums; i_sum++){
-        m_clusMoment_vs_eta[i_mom][i_sum].resize(m_nlogenerbin, 0);
+        m_clusMoment_vs_eta[i_mom][i_sum].resize(m_nlogenerbin, nullptr);
         for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
           sprintf(hname, "hp_clusMoment_vs_eta_mom%d_sum%d_ener%d",i_mom, i_sum, i_ener);
           TProfile *hp = new TProfile(hname, hname, h_nch_eta, h_eta_min, h_eta_max);
@@ -383,7 +383,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     for(int i_mom=0; i_mom<m_nmoments; i_mom++){
       m_clusMoment_vs_ebeam[i_mom].resize(m_nmomsums);
       for(int i_sum=0; i_sum<m_nmomsums; i_sum++){
-        m_clusMoment_vs_ebeam[i_mom][i_sum].resize(m_netabin, 0);
+        m_clusMoment_vs_ebeam[i_mom][i_sum].resize(m_netabin, nullptr);
         for(int i_eta=0; i_eta<m_netabin; i_eta++){
           sprintf(hname, "hp_clusMoment_vs_ebeam_mom%d_sum%d_eta%d",i_mom, i_sum, i_eta);
           TProfile *hp = new TProfile(hname, hname, n_logener_bins, xbins);
@@ -404,7 +404,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
   if(m_doRecoEfficiency) {
     // as a function of eta for several energy bins
     for(int i_eff=0; i_eff<2; i_eff++){ // 0-reconstructed, 1-all events
-      m_RecoEfficiency_vs_eta[i_eff].resize(m_nlogenerbin, 0);
+      m_RecoEfficiency_vs_eta[i_eff].resize(m_nlogenerbin, nullptr);
       for(int i_ener=0; i_ener<m_nlogenerbin; i_ener++){
         sprintf(hname, "hp_m_RecoEfficiency_eff%d_ener%d", i_eff, i_ener);
         TH1F *h1 = new TH1F(hname, hname,  h_nch_eta, h_eta_min, h_eta_max);
@@ -415,7 +415,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
     } // i_eff
     // as a function of energy for several eta bins
     for(int i_eff=0; i_eff<2; i_eff++){ // 0-reconstructed, 1-all events
-      m_RecoEfficiency_vs_ebeam[i_eff].resize(m_netabin, 0);
+      m_RecoEfficiency_vs_ebeam[i_eff].resize(m_netabin, nullptr);
       for(int i_eta=0; i_eta<m_netabin; i_eta++){
         sprintf(hname, "hp_m_RecoEfficiency_eff%d_eta%d", i_eff, i_eta);
         TH1F *h1 = new TH1F(hname, hname, n_logener_bins, xbins);
@@ -430,10 +430,10 @@ StatusCode GetLCSinglePionsPerf::initialize()
   histograms to check calibration hits machinery
   *************************************************************************** */
   if(m_doCalibHitsValidation) {
-    m_SumCalibHitOverEbeam_vs_eta.resize(m_nlogenerbin2, 0);
-    m_DefaultCalculatorOverEbeam_vs_eta.resize(m_nlogenerbin2, 0);
-    m_SumCalibHitAssignedOverEbeam_vs_eta.resize(m_nlogenerbin2, 0);
-    m_SumCalibHitAssignedOverEbeam_vs_etaphi.resize(m_nlogenerbin2, 0);
+    m_SumCalibHitOverEbeam_vs_eta.resize(m_nlogenerbin2, nullptr);
+    m_DefaultCalculatorOverEbeam_vs_eta.resize(m_nlogenerbin2, nullptr);
+    m_SumCalibHitAssignedOverEbeam_vs_eta.resize(m_nlogenerbin2, nullptr);
+    m_SumCalibHitAssignedOverEbeam_vs_etaphi.resize(m_nlogenerbin2, nullptr);
     for(int i_ener=0; i_ener<m_nlogenerbin2; i_ener++){
       sprintf(hname, "hp_SumCalibHitOverEbeam_vs_eta_ener%d", i_ener);
       TProfile *hp = new TProfile(hname, hname, h_nch_eta, h_eta_min, h_eta_max);
@@ -669,7 +669,7 @@ StatusCode GetLCSinglePionsPerf::execute()
   /* ********************************************
   reading TBEventInfo
   ******************************************** */
-  const TBEventInfo* theTBEventInfo = 0;
+  const TBEventInfo* theTBEventInfo = nullptr;
   if(m_isTestbeam) {
     ATH_CHECK( evtStore()->retrieve(theTBEventInfo,"TBEventInfo") );
   }
@@ -677,7 +677,7 @@ StatusCode GetLCSinglePionsPerf::execute()
   /* ********************************************
   reading particles
   ******************************************** */
-  const McEventCollection* truthEvent=0;
+  const McEventCollection* truthEvent=nullptr;
   ATH_CHECK( evtStore()->retrieve(truthEvent, "TruthEvent") );
   if( truthEvent->at(0)->particles_empty() ){
     ATH_MSG_ERROR( "No particles in McEventCollection" );
@@ -710,7 +710,7 @@ StatusCode GetLCSinglePionsPerf::execute()
   if(m_mc_etabin <0 || m_mc_etabin >= m_netabin || m_mc_enerbin <0 || m_mc_enerbin >= m_nlogenerbin || m_mc_phibin !=0) return StatusCode::SUCCESS;
 
   SG::ReadHandle<xAOD::CaloClusterContainer> clusColl (m_clusterBasicCollName, ctx);
-  if(clusColl->size() == 0)  {
+  if(clusColl->empty())  {
     ATH_MSG_WARNING( "Empty ClusterContainer "  <<  m_clusterBasicCollName  );
     return StatusCode::SUCCESS;
   }
@@ -1036,7 +1036,7 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
       }
       engCalibDeadTot += (*chIter)->energyTotal();
       //
-      CaloDmDescrElement* myCDDE(0);
+      CaloDmDescrElement* myCDDE(nullptr);
       myCDDE = m_caloDmDescrManager->get_element(myId);
       if( !myCDDE ) {
         std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Absent DM description element!" << std::endl;
@@ -1257,7 +1257,7 @@ int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clus
       }
       engCalibDeadTot += (*chIter)->energyTotal();
       //
-      CaloDmDescrElement* myCDDE(0);
+      CaloDmDescrElement* myCDDE(nullptr);
       myCDDE = m_caloDmDescrManager->get_element(myId);
       if( !myCDDE ) {
         std::cout << "GetLCSinglePionsPerf::fill_moments() -> Error! Absent DM description element!" << std::endl;

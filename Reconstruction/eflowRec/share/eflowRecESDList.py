@@ -21,3 +21,12 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     eflowRecESDList += [ "xAOD::CaloClusterContainer#PFCaloCluster"]
     eflowRecESDList += [ "xAOD::CaloClusterAuxContainer#PFCaloClusterAux."]
 
+#Add new flow elements
+eflowRecESDList += [ "xAOD::FlowElementContainer#JetETMissChargedFlowElements"]
+eflowRecESDList += [ "xAOD::FlowElementAuxContainer#JetETMissChargedFlowElementsAux."]
+
+eflowRecESDList += [ "xAOD::FlowElementContainer#JetETMissNeutralFlowElements"]
+eflowRecESDList += [ "xAOD::FlowElementAuxContainer#JetETMissNeutralFlowElementsAux."+FlowElementNeutralExcludeList]
+
+eflowRecESDList += [ "xAOD::FlowElementContainer#JetETMissLCNeutralFlowElements"]
+eflowRecESDList += [ "xAOD::ShallowAuxContainer#JetETMissLCNeutralFlowElementsAux."]

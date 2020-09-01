@@ -155,7 +155,7 @@ namespace HLT {
       // methods :
       bool resetChains(std::vector<HLT::SteeringChain*>& chains); //!< reset the given vector of Chains
 
-      HLT::Algo* getAlgo(std::string name);               //!< create/retrieve algorithm corresponding to given name
+      HLT::Algo* getAlgo(const std::string& name);               //!< create/retrieve algorithm corresponding to given name
 
       bool canContinueEvent(HLT::ErrorCode ec); //!< decides if event processing should be aborted or continued
       bool canContinueJob();                    //!< decides if whole processing should be aborted or continued

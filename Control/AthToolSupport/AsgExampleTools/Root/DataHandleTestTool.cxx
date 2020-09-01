@@ -14,6 +14,7 @@
 
 #include <AsgDataHandles/ReadHandle.h>
 #include <AsgDataHandles/ReadDecorHandle.h>
+#include <AsgDataHandles/WriteDecorHandle.h>
 #include <AsgDataHandles/WriteHandle.h>
 #include <AsgTesting/UnitTest.h>
 #include <gtest/gtest.h>
@@ -35,7 +36,9 @@ namespace asg
   {
     declareProperty ("readFailure", m_readFailure, "whether to expect a read failure");
     declareProperty ("readDecorFailure", m_readDecorFailure, "whether to expect a read decoration failure");
+    declareProperty ("readArray", m_readArray, "whether to read from the array");
     declareProperty ("doWriteName", m_doWriteName, "if we should write, the name we expect to write to");
+    declareProperty ("doWriteDecorName", m_doWriteDecorName, "if we should write a decoration, the name we expect to write to");
   }
 
 
@@ -55,6 +58,9 @@ namespace asg
     ANA_CHECK (m_readDecorKey.initialize ());
     if (!m_writeKey.empty())
       ANA_CHECK (m_writeKey.initialize ());
+    ANA_CHECK (m_readKeyArray.initialize());
+    if (!m_writeDecorKey.empty())
+      ANA_CHECK (m_writeDecorKey.initialize ());
 #endif
     return StatusCode::SUCCESS;
   }
@@ -73,10 +79,12 @@ namespace asg
     auto readHandle = makeHandle (m_readKey);
     if (m_readFailure == true)
     {
+      EXPECT_FALSE (readHandle.isPresent());
       EXPECT_EQ (nullptr, readHandle.get());
       EXPECT_FALSE (readHandle.isValid());
     } else
     {
+      EXPECT_TRUE (readHandle.isPresent());
       EXPECT_EQ (muonsStore, readHandle.get());
       EXPECT_TRUE (readHandle.isValid());
     }
@@ -89,6 +97,16 @@ namespace asg
     {
       SG::AuxElement::ConstAccessor<float> acc ("pt");
       EXPECT_EQ (acc (*testMuon), readDecorHandle (*testMuon));
+    }
+
+    if (m_readArray)
+    {
+      EXPECT_EQ (1u, m_readKeyArray.size());
+      auto handles = m_readKeyArray.makeHandles();
+      EXPECT_EQ (muonsStore, handles[0].get());
+    } else
+    {
+      EXPECT_EQ (0u, m_readKeyArray.size());
     }
 
     if (!m_doWriteName.empty())
@@ -105,6 +123,14 @@ namespace asg
       xAOD::MuonAuxContainer *retrieveAux {nullptr};
       EXPECT_SUCCESS (evtStore()->retrieve (retrieveAux, m_doWriteName + "Aux."));
       EXPECT_EQ (recordAux, retrieveAux);
+    }
+
+    if (!m_doWriteDecorName.empty())
+    {
+      auto writeDecorHandle = SG::makeHandle<unsigned> (m_writeDecorKey);
+      writeDecorHandle (*(*muonsStore)[0]) = 42u;
+      SG::AuxElement::ConstAccessor<unsigned> acc (m_doWriteDecorName);
+      EXPECT_EQ (42u, acc (*(*muonsStore)[0]));
     }
 #endif
   }

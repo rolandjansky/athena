@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -39,6 +39,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
@@ -46,7 +47,7 @@
 // 03-Jan-2002 WGS: For 'copysign'.
 #include <cmath>
 #include <limits.h>
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #undef DEBUG_FCAL_IO
 // Forward declaractions:
 class G4Step;
@@ -84,7 +85,8 @@ namespace LArG4 {
       ////m_deltaX=7.5;
       ////m_deltaY=7.5*sin(60.0);
 
-      StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+      ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArFCALCalibCalculatorBase");
+      ATH_CHECK(detStore.retrieve() );
       if (detStore->retrieve(m_ChannelMap)==StatusCode::FAILURE)
         throw std::runtime_error ("LArFCALCalibCalculatorBase ERROR: Cannot retrieve FCAL Channel Map!");
 

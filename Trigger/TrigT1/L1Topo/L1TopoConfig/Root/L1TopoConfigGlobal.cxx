@@ -8,7 +8,7 @@
 
 using namespace std;
 
-TXC::L1TopoConfigGlobal::L1TopoConfigGlobal() {}
+
 
 TXC::L1TopoConfigGlobal::~L1TopoConfigGlobal() {}
 

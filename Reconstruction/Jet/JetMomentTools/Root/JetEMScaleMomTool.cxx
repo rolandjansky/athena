@@ -5,6 +5,7 @@
 #include <functional>
 #include "JetMomentTools/JetEMScaleMomTool.h"
 
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "xAODJet/JetAccessorMap.h"
 
 struct p4Decorator {

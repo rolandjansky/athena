@@ -4,7 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, Chai
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
@@ -103,6 +103,13 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
     result.addEventAlgo( trackcnv, primary=True )
     return result
+
+def efMuMSHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+    TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
+    efMSHypo = TrigMuonEFHypoAlg(name)
+    efMSHypo.MuonDecisions = inputMuons
+    return efMSHypo
+
 
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
@@ -225,7 +232,24 @@ def generateChains( flags, chainDict ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     recoMS = InViewReco("EFMuMSReco")
     recoMS.inputMaker().RequireParentView = True
-
+    
+    #Probably this block will eventually need to move somewhere more central
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    accMS.merge( BeamPipeGeometryCfg(flags) ) 
+    
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    accMS.merge(PixelGeometryCfg(flags))
+    
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    accMS.merge(SCT_GeometryCfg(flags))
+    
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    accMS.merge(TRT_GeometryCfg(flags))
+    
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    accMS.merge(TrackingGeometrySvcCfg(flags))
+    ###################
+    
     EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
     recoMS.mergeReco(EFMuonViewDataVerifier)
 
@@ -250,18 +274,16 @@ def generateChains( flags, chainDict ):
 
     accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
 
-    # TODO remove once full step is in place
-    HLTTest__TestHypoTool=CompFactory.HLTTest.TestHypoTool
-    fakeHypoAlg = fakeHypoAlgCfg(muonflags, name='FakeHypoForMuon')
-    def makeFakeHypoTool(chainDict, cfg=None):
-        return HLTTest__TestHypoTool(chainDict['chainName'])
+    efmuMSHypo = efMuMSHypoCfg( muonflags,
+                                name = 'TrigMuonEFMSonlyHypo',
+                                inputMuons = "Muons" )
 
-    accMS.addEventAlgo(fakeHypoAlg, sequenceName=stepEFMSView.getName())
+    accMS.addEventAlgo(efmuMSHypo, sequenceName=stepEFMSView.getName())
 
     efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
                                      Maker = recoMS.inputMaker(),
-                                     Hypo = fakeHypoAlg, 
-                                     HypoToolGen = makeFakeHypoTool,
+                                     Hypo = efmuMSHypo, 
+                                     HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict,
                                      CA = accMS )
 
     efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )

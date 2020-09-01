@@ -35,7 +35,7 @@ class CTP_RDO {
   CTP_RDO(unsigned int ctpVersionNumber, const uint32_t nBCs = 1, uint32_t nExtraWords=0);
 
   /// Normal constructor taking the data words of one or several BCs as argument
-  CTP_RDO(unsigned int ctpVersionNumber, const std::vector<uint32_t>& data, uint32_t nExtraWords=0);
+  CTP_RDO(unsigned int ctpVersionNumber, std::vector<uint32_t>&& data, uint32_t nExtraWords=0);
 
   /// empty default destructor
   ~CTP_RDO();
@@ -91,7 +91,7 @@ class CTP_RDO {
 
   // constants
 
-  static const unsigned int SIZEOF_WORDS = 32;  //!< number of bits in one data word (32)
+  static constexpr unsigned int SIZEOF_WORDS = 32;  //!< number of bits in one data word (32)
 
  private:
 

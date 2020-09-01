@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "Identifier/IdentifierHash.h"
-#include "IdDict/IdDictDefs.h"
 #include "CxxUtils/StrFormat.h"
 #include "GaudiKernel/MsgStream.h"
+#include "IdDict/IdDictDefs.h"
+#include "Identifier/IdentifierHash.h"
 #include <algorithm>
-#include <string>
-#include <set>
-#include <stdio.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
 #include <iostream>
-#include <math.h>
-#include <assert.h>
+#include <set>
+#include <string>
 
 
 using CxxUtils::strformat;
@@ -29,7 +29,7 @@ CaloLVL1_ID::CaloLVL1_ID(void) :
   , m_ETA_INDEX(999)
   , m_PHI_INDEX(999)
   , m_LAYER_INDEX(999)
-  , m_dict(0)
+  , m_dict(nullptr)
   , m_tower_hash_max(0) 
   , m_layer_hash_max(0) 
   , m_region_hash_max(0) 

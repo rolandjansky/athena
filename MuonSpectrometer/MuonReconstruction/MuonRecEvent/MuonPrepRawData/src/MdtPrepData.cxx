@@ -96,7 +96,7 @@ MdtPrepData::MdtPrepData(const MdtPrepData & RIO)
 {}
 
 //Move constructor:
-MdtPrepData::MdtPrepData(MdtPrepData && RIO)
+MdtPrepData::MdtPrepData(MdtPrepData && RIO) noexcept
     :
     PrepRawData( std::move(RIO) ),
     m_detEl(RIO.m_detEl),
@@ -122,7 +122,7 @@ MdtPrepData& MdtPrepData::operator=(const MdtPrepData& RIO)
 }
 
 //assignment operator
-MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO)
+MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO) noexcept
 {
     if (&RIO !=this)
     {

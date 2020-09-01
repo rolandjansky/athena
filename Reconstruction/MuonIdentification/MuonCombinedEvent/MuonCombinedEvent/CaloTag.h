@@ -143,7 +143,7 @@ namespace MuonCombined {
     float          m_fsrCandidateEnergy;
     std::vector<DepositInCalo> m_deposits;
     float          m_etCore;  // summed cell ET in core DeltaR 
-    Author	   m_author2; // in case of tag by both Algorithms
+    Author	   m_author2; // in case of tag by more than one algorithm
     Author	   m_author3; // in case of tag by all three algorithms
 
 

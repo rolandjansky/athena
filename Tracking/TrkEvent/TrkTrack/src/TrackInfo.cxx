@@ -36,7 +36,10 @@ Trk::TrackInfo::TrackInfo(const TrackFitter fitter,
                           const std::bitset<NumberOfTrackRecoInfo>& patternRecognition)
   : TrackInfo(fitter, partHyp)
 {
+  // Can't put these in initializer list due to the use of delegation.
+  // cppcheck-suppress useInitializationList
   m_properties = properties;
+  // cppcheck-suppress useInitializationList
   m_patternRecognition = patternRecognition;
 }
 

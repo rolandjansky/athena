@@ -56,7 +56,7 @@ TrackStateOnSurface::TrackStateOnSurface(
     const TrackParameters          *trackParameter,
     const FitQualityOnSurface      *fitQoS,
     const MaterialEffectsBase      *materialEffects,
-    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
+    const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& typePattern,
     const AlignmentEffectsOnTrack       *alignmentEffectsOnTrack
     ):
     m_fitQualityOnSurface(fitQoS),

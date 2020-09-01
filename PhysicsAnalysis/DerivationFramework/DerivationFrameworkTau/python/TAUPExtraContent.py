@@ -88,6 +88,8 @@ ExtraContentTaus                                 = [   "TauJets.pt.eta.phi.m.cha
                                                        "TauPi0Clusters"   ]
 ExtraContentTausTruth                            = []
 
+ExtraContentJetsTruth                            = ["AntiKt4TruthJets.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID"]
+
 # ==========================================================================================================================
 
 ExtraContentTAUP1                                =   ExtraContentPhotons                                                    \
@@ -102,6 +104,10 @@ ExtraContentTAUP3                                =   ExtraContentPhotons        
                                                    + ExtraContentMuons                                                      \
                                                    + ExtraContentTaus
 
+ExtraContentTAUP5                                =   ExtraContentPhotons                  \
+                                                     + ExtraContentElectrons                \
+                                                     + ExtraContentMuons
+
 ExtraContentTruthTAUP1                           =   ExtraContentPhotonsTruth                                               \
                                                    + ExtraContentElectronsTruth                                             \
                                                    + ExtraContentMuonsTruth                                                 \
@@ -115,6 +121,13 @@ ExtraContentTruthTAUP3                           =   ExtraContentPhotonsTruth   
                                                    + ExtraContentElectronsTruth                                             \
                                                    + ExtraContentMuonsTruth                                                 \
                                                    + ExtraContentTausTruth
+
+
+ExtraContentTruthTAUP5                           =   ExtraContentPhotonsTruth             \
+                                                     + ExtraContentElectronsTruth           \
+                                                     + ExtraContentMuonsTruth               \
+                                                     + ExtraContentTausTruth                \
+                                                     + ExtraContentJetsTruth
 
 # ==========================================================================================================================
 # Extra containers
@@ -179,6 +192,8 @@ ExtraContainersTAUP3                             =   ExtraContainersElectrons   
                                                       "HLT_xAOD__VertexContainer_PrimVertexFTKRaw",
                                                       "HLT_xAOD__VertexContainer_PrimVertexFTKRefit"]
 
+ExtraContainersTAUP5                             =   ExtraContainersElectrons
+
 ExtraContainersTruthTAUP1                        = ["TruthEvents",
                                                     "TruthParticles",
                                                     "TruthVertices",
@@ -199,3 +214,12 @@ ExtraContainersTruthTAUP3                        = ["TruthEvents",
                                                     "AntiKt4TruthJets",
                                                     #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
                                                     "AntiKt4TruthWZJets"]
+
+ExtraContainersTruthTAUP5                        = ["TruthEvents",
+                                                    "TruthParticles",
+                                                    "TruthVertices",
+                                                    "AntiKt4TruthJets",
+                                                    #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
+                                                    "AntiKt4TruthWZJets"
+                                                ]
+

@@ -11,7 +11,6 @@ atlas_subdir( TrigInDetAccelerationTool )
 
 atlas_add_library( TrigInDetAccelerationToolLib
 		     src/*.cxx
- 		     INTERFACE
  		     PUBLIC_HEADERS TrigInDetAccelerationTool
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier TrigInDetEvent TrigSteeringEvent TrigInDetPattRecoTools AthenaBaseComps InDetIdentifier TrigInDetPattRecoEvent TrigAccelEvent TrigInDetAccelerationServiceLib)
 

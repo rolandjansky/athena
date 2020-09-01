@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -28,7 +28,7 @@ CaloCell_Base_ID::CaloCell_Base_ID(const LArEM_Base_ID*   em_id,
     m_tileHelper(tile_id),
     m_cell_hash_max(0),
     m_region_hash_max(0),
-    m_caloNeighbours (0),
+    m_caloNeighbours (nullptr),
     m_supercell(supercell ? 1 : 0)
 {
   m_helpers[LAREM] = em_id;
@@ -129,7 +129,7 @@ int CaloCell_Base_ID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       // use this file name for Super Cells - should be replaced by db tag ...
       neighbourFile = "SuperCaloNeighborsSuperCells-April2014.dat";
     }
-    if (!neighbourFile.size()) throw std::runtime_error("CaloCell_ID: Cannot find the CaloNeighbour file name");
+    if (neighbourFile.empty()) throw std::runtime_error("CaloCell_ID: Cannot find the CaloNeighbour file name");
     if(m_msgSvc)log << MSG::DEBUG << "Initializing Super3D Neighbors from file " << neighbourFile << endmsg;
     m_caloNeighbours->initialize(this, neighbourFile);
   }
