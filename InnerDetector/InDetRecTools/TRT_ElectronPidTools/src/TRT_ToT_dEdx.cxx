@@ -120,7 +120,6 @@ StatusCode TRT_ToT_dEdx::initialize()
   // Initialize ReadHandleKey and ReadCondHandleKey
   ATH_CHECK(m_rdhkEvtInfo.initialize());
   ATH_CHECK(m_ReadKey.initialize());
-  ATH_CHECK(m_trtDetEleContKey.initialize());
   //Get AssoTool
   ATH_CHECK(m_assoTool.retrieve());
   //Get LocalOccupancyTool
@@ -184,39 +183,16 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool us
   const Trk::TrackParameters* trkP = trackState->trackParameters();
   if(trkP==nullptr)return false; 
 
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
-  const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
-  if (not trtDetEleHandle.isValid() or elements==nullptr) {
-    ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");
-    return false;
-  }
-
   double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  double Trt_HitTheta = trkP->parameters()[Trk::theta];
-  double Trt_HitPhi = trkP->parameters()[Trk::phi];
   double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
   Identifier DCId = driftcircle->identify();
-  int HitPart =  m_trtId->barrel_ec(DCId);
-  //IdentifierHash hashId = m_trtId->straw_layer_hash(DCId);
-  Identifier strawLayerId = m_trtId->layer_id(DCId);                                                                                            
-  IdentifierHash hashId = m_trtId->straw_layer_hash(strawLayerId);                                                                            
-  const InDetDD::TRT_BaseElement* element = elements->getDetectorElement(hashId);
-  double strawphi = element->center(DCId).phi();
 
   if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return false; //Outliers
   if (m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only
   if ((Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack)) return false; // drift radius close to wire or wall
 
-  length=0;
-  if (std::abs(HitPart)==1) { //Barrel
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
-  } else if (std::abs(HitPart)==2) { //EndCap
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
-  } else {
-    ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
-    throw std::exception();
-  }
+  length = calculateTrackLengthInStraw(trackState, m_trtId);
 
   if (m_divideByL and length < 1.7) return false; // Length in the straw
 
@@ -1127,4 +1103,51 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
   }
 
   return corr;
+}
+
+double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier) {
+  if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return 0.; //Outliers
+  
+  const Trk::MeasurementBase* trkM = trackState->measurementOnTrack();
+  if (!trkM)  {
+    return 0.;
+  }
+
+  // Check if this is RIO on track
+  // and if yes check if is TRT Drift Circle
+  // then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+
+  if (!driftcircle) {
+    return 0.;
+  }
+
+  const Trk::TrackParameters* trkP = trackState->trackParameters();
+  if(trkP==nullptr) return 0.;
+
+  double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
+  double Trt_HitTheta = trkP->parameters()[Trk::theta];
+  double Trt_HitPhi = trkP->parameters()[Trk::phi];
+  Identifier DCId = driftcircle->identify();
+  int HitPart =  identifier->barrel_ec(DCId);
+  const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
+  double strawphi = element->center(DCId).phi();
+
+  double length=0;
+  if (std::abs(HitPart)==1) { //Barrel
+    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
+  } else if (std::abs(HitPart)==2) { //EndCap
+    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+  } else {
+    //ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
+    throw std::exception();
+  }
+
+  return length;
 }
