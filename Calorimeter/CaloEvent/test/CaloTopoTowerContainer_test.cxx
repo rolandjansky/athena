@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloTopoTowerContainer_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -282,7 +280,7 @@ void test2 (StoreGateSvc* sg)
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("CaloTopoTowerContainer_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("CaloEvent/CaloTopoTowerContainer_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  

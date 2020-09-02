@@ -61,6 +61,10 @@ std::ostream & operator<<(std::ostream &, const TXC::L1TopoConfigAlg &);
       // default constructor
       L1TopoConfigAlg(const std::string & name, const std::string & type); 
 
+      // move constructor
+      L1TopoConfigAlg(L1TopoConfigAlg&&) noexcept = default;
+      L1TopoConfigAlg& operator=(L1TopoConfigAlg&&) noexcept = default;
+
       // destructor
       virtual ~L1TopoConfigAlg();
     

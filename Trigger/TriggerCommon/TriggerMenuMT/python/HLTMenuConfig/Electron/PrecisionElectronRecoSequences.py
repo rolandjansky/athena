@@ -47,8 +47,6 @@ def precisionElectronRecoSequence(RoIs):
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                     ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),

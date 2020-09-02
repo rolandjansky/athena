@@ -1,159 +1,47 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigSteerMonitor.TrigSteerMonitorConf import *
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
+def SchedulerMonSvcCfg(flags, name='SchedulerMonSvc'):
+    monsvc = CompFactory.SchedulerMonSvc(name)
+    monsvc.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
 
-class TrigErrorMonConfigValidation(TrigErrorMon):
-    """ HLT Error Code monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigErrorMonValidation"):
-        super(TrigErrorMonConfigValidation, self).__init__(name)
-        self.LBNHistoryDepth=0
+    # From GaudiHive AlgsExecutionStates::State enum
+    stateNames = ['INITIAL', 'CONTROLREADY', 'DATAREADY', 'RESOURCELESS',
+                  'SCHEDULED', 'EVTACCEPTED', 'EVTREJECTED', 'ERROR']
 
-    def target(self):
-        return [ "Validation" ]
+    monsvc.MonTool.defineHistogram('SnapNumber,AlgStates', weight='StateTotalCounts', path='EXPERT', type='TH2D',
+                            title='Scheduler algorithm states vs time (snap number);Snap number;Algorithm state',
+                            xbins=1000, xmin=0, xmax=1000,
+                            ybins=8, ymin=-0.5, ymax=7.5, ylabels=stateNames,
+                            opt='kCanRebin')
+    monsvc.MonTool.defineHistogram('WallTimeSeconds,AlgStates', weight='StateTotalCounts', path='EXPERT', type='TH2D',
+                            title='Scheduler algorithm states vs time;Time [s];Algorithm state',
+                            xbins=600, xmin=0, xmax=60,
+                            ybins=8, ymin=-0.5, ymax=7.5, ylabels=stateNames,
+                            opt='kCanRebin')
+    monsvc.MonTool.defineHistogram('SnapNumber,FreeSlots', path='EXPERT', type='TProfile',
+                            title='Number of free slots vs time (snap number);Snap number;Number of free slots',
+                            xbins=1000, xmin=0, xmax=1000,
+                            ybins=10, ymin=0, ymax=10,
+                            opt='kCanRebin')
+    monsvc.MonTool.defineHistogram('WallTimeSeconds,FreeSlots', path='EXPERT', type='TProfile',
+                            title='Number of free slots vs time ;Time [s];Number of free slots',
+                            xbins=600, xmin=0, xmax=60,
+                            ybins=10, ymin=0, ymax=10,
+                            opt='kCanRebin')
+    monsvc.MonTool.defineHistogram('AlgStates', weight='StateTotalCounts', path='EXPERT', type='TH1D',
+                            title='Scheduler algorithm states;Algorithm states;Snapshots',
+                            xbins=8, xmin=-0.5, xmax=7.5, xlabels=stateNames)
+    monsvc.MonTool.defineHistogram('FreeSlots', path='EXPERT', type='TH1D',
+                            title='Number of free slots;Free slots;Snapshots',
+                            xbins=10, xmin=0, xmax=10, opt='kCanRebin')
+    monsvc.MonTool.defineHistogram('TIME_monCallback', path='EXPERT', type='TH1D',
+                            title='Time of callback calls;Time [us];Calls',
+                            xbins=500, xmin=0, xmax=5000)
 
-class TrigRoIMoniConfigValidation(TrigRoIMoni):
-    """ RoI monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigRoIMoniValidation"):
-        super(TrigRoIMoniConfigValidation, self).__init__(name)
-        self.LBNHistoryDepth=0
-        self.ThreshMultiMax=18
-
-    def target(self):
-        return [ "Validation" ]
-
-class TrigSignatureMoniConfigValidation(TrigSignatureMoni):
-    """ Signature monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigSignatureMoniValidation"):
-        super(TrigSignatureMoniConfigValidation, self).__init__(name)
-        self.LBNHistoryDepth=0
-
-    def target(self):
-        return [ "Validation" ]
-
-class TrigTEMoniConfig(TrigTEMoni):
-    """ TriggerElement monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigTEMoni"):
-        super(TrigTEMoniConfig, self).__init__(name)
-        self.LBNHistoryDepth=0
-
-    def target(self):
-        return [ "Validation" ]
-
-
-class TrigChainMoniConfig(TrigChainMoni):
-    """ Chains monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigChainMoni"):
-        super(TrigChainMoniConfig, self).__init__(name)
-        self.LBNHistoryDepth=0
-
-    def target(self):
-        return [ "Online", "Validation" ]
-
-class TrigErrorMonitor(TrigErrorMon):
-    """ HLT Error Code monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigErrorMonitor"):
-        super(TrigErrorMonitor, self).__init__(name)
-        self.LBNHistoryGroup=10
-        self.expertMode=False
-        
-    def target(self):
-        return [ "Online", "Validation" ]
-
-class TrigErrorExpertMonitor(TrigErrorMon):
-    """ HLT Error Code monitoring for experts (all errorcodes) """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigErrorExpertMonitor"):
-        super(TrigErrorExpertMonitor, self).__init__(name)
-        self.LBNHistoryGroup=10
-        self.expertMode=True
-        
-    def target(self):
-        return [ "Online", "Validation" ]    
-
-class TrigRoIMoniConfigOnline(TrigRoIMoni):
-    """ RoI monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigRoIMoniOnline"):
-        super(TrigRoIMoniConfigOnline, self).__init__(name)
-        self.LBNHistoryDepth=2
-        self.ThreshMultiMax=30
-
-    def target(self):
-        return [ "Online" ]
-
-class TrigSignatureMoniConfigOnline(TrigSignatureMoni):
-    """ Signature monitoring """
-    __slots__ =  [ ]
-    def __init__(self,name="TrigSignatureMoniOnline"):
-        super(TrigSignatureMoniConfigOnline, self).__init__(name)
-        self.LBNHistoryDepth=5
-
-    def target(self):
-        return [ "Online" ]
-
-class TrigRateMoniConfig20s(TrigRateMoni):
-    """ Rates monitor for online use only """
-    def __init__(self,name="TrigRate20s"):
-        super(TrigRateMoniConfig20s, self).__init__(name)
-        self.IntervalDuration = 20
-        self.NumberOfIntervals = 3 
-        self.doChains=True
-        self.doStreams=True
-        self.StreamSets = [
-            'recording_physics_prompt:Main',
-            'recording_physics_delayed:BphysDelayed,ExoDelayed',
-            'recording_physics_other:'
-            ]
-        
-    def target(self):
-        return [ "Online" ]    
-
-class TrigMemMonitor(TrigMemMoni):
-    """ Memory monitor """
-    def __init__(self,name="TrigMemMonitor"):
-        super(TrigMemMonitor, self).__init__(name)
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr,theApp
-        if not hasattr(svcMgr.AuditorSvc,"TrigMemAuditor"):
-            from TrigSteerMonitor.TrigSteerMonitorConf import TrigMemAuditor
-            svcMgr.AuditorSvc += TrigMemAuditor()            
-            theApp.AuditAlgorithms = True
-        
-    def target(self):
-        return [ "Online" ]
-
-class TrigROBMoniConfig(TrigROBMoni):
-    """ ROB request monitor for online use """
-    def __init__(self,name="TrigROBMoni"):
-        super(TrigROBMoniConfig, self).__init__(name)
-        
-    def target(self):
-        return [ "OnlineDetail" ]
-
-class TrigCorMonitor(TrigCorMoni):
-    """ Trigger L1 and HLT correlation monitor """
-    def __init__(self,name="TrigCorMonitor"):
-        super(TrigCorMonitor, self).__init__(name)
-        
-    def target(self):
-        return [ "Online", "Validation" ]
-    
-TrigSteerMonitorToolList = [  TrigRateMoniConfig20s(),   # leave first(!) so it gets finalized first (ATDSUPPORT-223)
-                              TrigErrorMonitor(),
-                              TrigErrorExpertMonitor(),
-                              TrigRoIMoniConfigValidation(), TrigRoIMoniConfigOnline(),
-                              TrigSignatureMoniConfigValidation(), TrigSignatureMoniConfigOnline(),
-                              TrigTEMoniConfig(), 
-                              TrigChainMoniConfig(),                                                            
-                              TrigMemMonitor(),
-                              TrigROBMoniConfig(),
-                              TrigCorMonitor() ]
-
-
+    acc = ComponentAccumulator()
+    acc.addService(monsvc)
+    return acc

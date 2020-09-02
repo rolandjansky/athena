@@ -186,6 +186,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
   ATH_CHECK(m_ioCompMgr.retrieve());
+  if (m_monitorScheduler) {
+    ATH_CHECK(m_schedulerMonSvc.retrieve());
+  }
 
   //----------------------------------------------------------------------------
   // Initialise tools
@@ -250,7 +253,8 @@ StatusCode HltEventLoopMgr::finalize()
                  m_detectorStore,
                  m_inputMetaDataStore,
                  m_evtSelector,
-                 m_outputCnvSvc);
+                 m_outputCnvSvc,
+                 m_schedulerMonSvc);
 
   releaseTool(m_coolHelper,
               m_hltResultMaker,
@@ -440,6 +444,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->startMonitoring());
+
   StatusCode sc = StatusCode::SUCCESS;
   try {
     sc = nextEvent(maxevt);
@@ -453,6 +460,8 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
     ATH_MSG_FATAL("Event loop failed, unknown exception caught");
     sc = StatusCode::FAILURE;
   }
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->stopMonitoring());
 
   // Stop the timer thread
   {

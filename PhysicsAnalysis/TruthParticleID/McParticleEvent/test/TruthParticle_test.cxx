@@ -91,6 +91,13 @@ make_map_t_pair(const HepMC::GenParticlePtr &p,
   HepMcParticleLink link(HepMC::barcode(p), genEventIdx);
   return Map_t::value_type(link.compress(), &tp);
 }
+bool operator==(TruthParticle a, HepMC::GenParticlePtr b)
+{
+if (!a.genParticle() && !b) return true;
+if (a.genParticle() && !b) return false;
+if (!a.genParticle() && b) return false;
+return (a.genParticle().get() == b.get());
+}
 #else
 Map_t::value_type 
 make_map_t_pair(const HepMC::GenParticle &p,
@@ -156,7 +163,7 @@ TruthParticleTest* makeTestData()
   rdmStates[0] = 85909879;
   rdmStates[1] = 9707499;
   evt->weights() = weights;
-  evt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(rrdmStates));
+  evt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(rdmStates));
 #else
   evt->set_event_scale( -1 );
   evt->set_alphaQCD( -1 );

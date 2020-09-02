@@ -1,12 +1,11 @@
 #!/bin/sh
 #
-# art-description: Generate SQL files for muon spectrometer description, just AMDB part from amdc_simrec
+# art-description: Generate SQL files for muon spectrometer description, just AMDB part from amdb_simrec
 #
 # art-type: grid
 # art-include: master/Athena
-# art-include: 21.3/Athena
 #
-# art-output: *.txt
+# art-output: *.data
 
 art.py createpoolfile
 

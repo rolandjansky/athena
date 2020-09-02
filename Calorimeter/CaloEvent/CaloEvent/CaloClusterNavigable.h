@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCLUSTERNAVIGABLE_H 
@@ -140,9 +140,6 @@ class CaloClusterNavigable : virtual public INavigable
   virtual void fillToken(INavigationToken& iToken,
 			 const boost::any& rPar) const;
 
-  /** \brief replace container for all cells*/
-  virtual bool replaceCellContainer ATLAS_NOT_CONST_THREAD_SAFE(const CaloCellContainer* newCont) const;
-
   virtual bool isCellLinkValid() const ; 
 
   typedef 
@@ -168,7 +165,7 @@ protected:
   friend class CaloClusterContainerCnv_p7;
   friend class CaloClusterContainerCnvTestMakeCluster;
 
-  CaloCellLink*        getCellLink ATLAS_NOT_CONST_THREAD_SAFE();
+  CaloCellLink*        getCellLink();
   const CaloCellLink*  getCellLink() const;
 
   bool setCellLink(CaloCellLinkContainer* pLink);

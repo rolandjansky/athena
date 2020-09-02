@@ -91,10 +91,10 @@ StatusCode CaloLCClassificationTool::initialize()
 
 CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* thisCluster) const
 {
-  const CaloLocalHadCoeff* condObject(0);
+  const CaloLocalHadCoeff* condObject(nullptr);
   SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
   condObject = *rch;
-  if(condObject==0) {
+  if(condObject==nullptr) {
     ATH_MSG_ERROR("Unable to access conditions object");
     return CaloRecoStatus::TAGGEDUNKNOWN;
   }

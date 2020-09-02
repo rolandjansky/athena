@@ -1127,6 +1127,22 @@ class perfmon(_modifier):
         jobproperties.PerfMonFlags.doMonitoring = True
         jobproperties.PerfMonFlags.doPersistencyMonitoring = False
 
+class enableSchedulerMon(_modifier):
+    """
+    Enable SchedulerMonSvc
+    """
+    def preSetup(self):
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        from TrigSteerMonitor.TrigSteerMonitorConfig import SchedulerMonSvcCfg
+        CAtoGlobalWrapper(SchedulerMonSvcCfg, flags)
+    
+    def postSetup(self):
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        if flags.Trigger.Online.isPartition:
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            svcMgr.HltEventLoopMgr.MonitorScheduler = True
+
 class memMon(_modifier):
     """
     Enable TrigMemMonitor printout

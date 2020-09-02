@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloCellCalcEnergyCorr.cxx 
@@ -140,7 +140,7 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 
   //Blob Defintion Vector
   std::vector<std::vector<float> > defVec;
-  defVec.push_back(std::vector<float>(1,1));
+  defVec.emplace_back(1,1);
   flt->init(defVec,hashMax,1);
 
   CHECK(detStore()->record(attrList,m_folder));
@@ -157,7 +157,7 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 	value=m_value[idx];
 	++nSet;
         // check if we have also HVLine for this cell
-        if(m_hvlines.size()>=1 && m_hvlines[0]>0) {
+        if(!m_hvlines.empty() && m_hvlines[0]>0) {
            Identifier offId=calocell_id->cell_id(h);
            std::vector<int> hvlineId = GetHVLines(offId);
            //std::cout<<offId.getString()<<" : ";

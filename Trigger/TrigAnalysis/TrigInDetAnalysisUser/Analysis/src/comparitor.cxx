@@ -20,6 +20,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <regex>
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
@@ -1864,13 +1865,21 @@ int main(int argc, char** argv) {
 	std::cout << "track collection: " << collection   << std::endl;
 	std::cout << "actual chain:     " << actual_chain << std::endl;
 
-
+	std::regex rx("_HLT_[^_]*RoI.*");
+	std::regex rx1("_HLT_[^_]*_RoI.*");
+	
+        actual_chain = std::regex_replace( actual_chain, std::regex( "_HLT_IDTrack.*" ), "" );
+	
+        collection = std::regex_replace(  collection, std::regex(".*HLT_IDTrack_"), "IDTrack " );
+	collection = std::regex_replace(  std::regex_replace( collection, rx, "" ), rx1, "" );
+	
 	if ( actual_chain.find("HLT_IDTrack_")!=std::string::npos )    actual_chain.erase( actual_chain.find("HLT_IDTrack_"), 12 );
 	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
 	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
 	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
 	if ( actual_chain.find("_HLT_")!=std::string::npos )      actual_chain.replace( actual_chain.find("_HLT_"), 5, " " );
 	if ( actual_chain.find("HLT_")!=std::string::npos )       actual_chain.erase( actual_chain.find("HLT_"), 4 );
+
 	if ( collection.find("_IDTrkNoCut")!=std::string::npos )  collection.erase( collection.find("_IDTrkNoCut"), 11 );
 	if ( collection.find("xAODCnv")!=std::string::npos )      collection.erase( collection.find("xAODCnv"), 7 );
 	if ( collection.find("HLT_IDTrack_")!=std::string::npos ) collection.erase( collection.find("HLT_IDTrack_"), 12 );

@@ -14,6 +14,10 @@
 
 #include "G4Material.hh"
 
+
+matList  Geo2G4MaterialFactory::m_geoMaterialToG4Material;
+matNames Geo2G4MaterialFactory::m_geoMaterialNameToObject;
+
 Geo2G4MaterialFactory::Geo2G4MaterialFactory(): m_msg("Geo2G4MaterialFactory")
 {
 }

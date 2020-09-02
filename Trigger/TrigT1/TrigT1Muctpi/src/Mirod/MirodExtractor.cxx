@@ -38,7 +38,7 @@ namespace LVL1MUCTPI {
    // alternative constructor of class MirodExtractor with setting
    // the output by hand - to use analysis methods
    MirodExtractor::MirodExtractor( std::list< unsigned int > extractorOut )
-      : m_logger( "MirodExtractor" ), m_extractorData( extractorOut ),
+      : m_logger( "MirodExtractor" ), m_extractorData( std::move(extractorOut) ),
         m_threshold1Candidate( 0 ),  m_threshold2Candidate( 0 ), m_suppressionMode( 0 ) {
 
    }

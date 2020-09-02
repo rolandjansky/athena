@@ -348,18 +348,9 @@ class EmptyMenuSequence(object):
     def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
 
-    def addToSequencer(self, stepReco, seqAndView, already_connected):
-        log.debug("This sequence is empty. Adding Maker node only to athena sequencer")
-        ath_sequence = self.sequence.Alg
-        name = ath_sequence.getName()
-        if name in already_connected:
-            log.debug("AthSequencer %s already in the Tree, not added again",name)
-            return stepReco, seqAndView, already_connected
-        else:
-            already_connected.append(name)
-            stepReco += ath_sequence
-        return stepReco, seqAndView, already_connected        
-
+    def addToSequencer(self, recoSeq_list, hypo_list):
+        recoSeq_list.add(self.sequence.Alg)                    
+        
     def buildDFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
         cfseq_algs.append(self._maker)
         cfseq_algs.append(self.sequence )
@@ -536,22 +527,10 @@ class MenuSequence(object):
             self._hypo.addHypoTool(self._hypoToolConf) #this creates the HypoTools  
 
 
-    def addToSequencer(self, stepReco, seqAndView, already_connected):
-        ath_sequence = self.sequence.Alg
-        name = ath_sequence.getName()
-        if name in already_connected:
-            log.debug("AthSequencer %s already in the Tree, not added again",name)
-            return stepReco, seqAndView, already_connected        
-        else:
-            already_connected.append(name)
-            stepReco += ath_sequence
-        if type(self._hypo) is list:
-           for hp in self._hypo:
-              seqAndView += hp.Alg
-        else:
-           seqAndView += self._hypo.Alg
-        return stepReco, seqAndView, already_connected        
-
+    def addToSequencer(self, recoSeq_list, hypo_list):
+        recoSeq_list.add(self.sequence.Alg)
+        hypo_list.add(self._hypo.Alg)
+            
 
     def buildDFDot(self, cfseq_algs, all_hypos, isCombo, last_step_hypo_nodes, file):
         cfseq_algs.append(self._maker)

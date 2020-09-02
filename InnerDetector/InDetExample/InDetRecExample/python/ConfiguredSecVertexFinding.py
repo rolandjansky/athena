@@ -189,6 +189,9 @@ class ConfiguredSecVertexFinding:
         #
         from InDetConversionFinder.InDetConversionFinderConf import (
             InDet__ConversionFinder)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += self.__InDetSecVtxFinderTool
+
         InDetSecVtxFinder = InDet__ConversionFinder(
             name=self.__prefix+"Finder",
             VertexFinderTool=self.__InDetSecVtxFinderTool,

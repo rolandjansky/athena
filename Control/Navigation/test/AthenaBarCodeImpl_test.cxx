@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -64,8 +64,8 @@ void test0() {
   //test creating lots of Particles to reach the limit of the counter
   MyParticle<AthenaBarCodeImpl> *p;
 
-  static AthenaBarCode_t tmp2=0;
-  static AthenaBarCode_t tmp=((~tmp2) >> (AthenaBarCodeImpl::TotalBits - AthenaBarCodeImpl::CounterBits));
+  static const AthenaBarCode_t tmp2=0;
+  static const AthenaBarCode_t tmp=((~tmp2) >> (AthenaBarCodeImpl::TotalBits - AthenaBarCodeImpl::CounterBits));
 
   for(int i=0;i<tmp*1.1;i++) {
     p=new MyParticle<AthenaBarCodeImpl>();

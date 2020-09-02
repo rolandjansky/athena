@@ -126,7 +126,7 @@ namespace Calo {
                                              int side = 1 ) const;
 
       /** method to build enclosed beam pipe volumes */
-      std::pair<const Trk::TrackingVolume*, const Trk::TrackingVolume*> createBeamPipeVolumes(float ,float, std::string, float&) const;      
+      std::pair<const Trk::TrackingVolume*, const Trk::TrackingVolume*> createBeamPipeVolumes(float ,float, const std::string&, float&) const;      
 
       /** cleanup of material */
       mutable std::map<const Trk::Material*, bool> m_materialGarbage;

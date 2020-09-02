@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -33,13 +33,13 @@ def setupMenu():
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ATR-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),        
-        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),        
-
+        ChainProp(name='HLT_mu24_idperf_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_mu6noL1_L1MU6', l1SeedThresholds=['MU6','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+    
         #test chains
         ChainProp(name='HLT_mu6fast_L1MU6', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6Comb_L1MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),  
+        ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu20_ivar_L1MU6',      groups=SingleMuonGroup),
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
@@ -54,11 +54,11 @@ def setupMenu():
 
         # this is for test only
         ChainProp(name='HLT_2mu6_Dr_L12MU4',  groups=MultiMuonGroup),
-         #  ChainProp(name='HLT_mu6_Dr_mu4_Dr_L12MU4', l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
+        #  ChainProp(name='HLT_mu6_Dr_mu4_Dr_L12MU4', l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
         # ATR-20049
         ChainProp(name='HLT_mu6_mu4_L12MU4',  l1SeedThresholds=['MU4']*2, groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
-
+        
         # in planned primary as an option
         ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
 
@@ -71,18 +71,18 @@ def setupMenu():
         ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20', 'FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
-       # ATR-19452
+        # ATR-19452
         ChainProp(name='HLT_2mu4_muonqual_L12MU4',  groups=MultiMuonGroup),
         ChainProp(name='HLT_2mu6_muonqual_L12MU6',  groups=MultiMuonGroup),
 
-       # ATR-20650
+        # ATR-20650
         ChainProp(name='HLT_mu0_muoncalib_L1MU4_EMPTY', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu0_muoncalib_L1MU20',      groups=SingleMuonGroup),
 
@@ -93,7 +93,7 @@ def setupMenu():
         ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
 
 
-     ]
+    ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
         # ElectronChains----------
@@ -133,7 +133,7 @@ def setupMenu():
         ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),    
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
-
+   
         # PhotonChains------------
         # these are to debug photon working points should be removed in production
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),
@@ -152,7 +152,7 @@ def setupMenu():
 
         # ATR-19360
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
-
+    
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
     ]
@@ -163,12 +163,15 @@ def setupMenu():
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_trkmht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_pfsum_L1XE10', groups=SingleMETGroup),
-
+        ChainProp(name='HLT_xe30_pfopufit_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_cvfpufit_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_tc_em_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_mht_L1XE50', groups=SingleMETGroup),
         ChainProp(name='HLT_xe110_tcpufit_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
-        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
+        ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
     ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
@@ -268,15 +271,15 @@ def setupMenu():
         ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         # Test photon-muon chain (isolation is there to have different number of steps)
         ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-
+    
         # electron + photon stay in the same step - these need to be parallel merged!
         ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
-
+  
         # Test chains for muon + jet/MET merging/aligning
         ChainProp(name='HLT_mu6fast_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
         ChainProp(name='HLT_mu6fast_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
-
-
+    
+    
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
@@ -304,9 +307,26 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
+    # --------------------------------------------------
+    # ---- Defining specific prescales to this menu ----
+    # --------------------------------------------------
+
+    Prescales = mc_menu.Prescales
+
+    ## Cosmics
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
+    ## Trigger Validation (disabling high CPU chains)
 
-Prescales = mc_menu.Prescales
+    Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
+
+    Prescales.HLTPrescales_trigvalid_mc_prescale = {}
+
+    disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
+    
+    # --------------------------------------------------
+
+    return Prescales
+
 

@@ -1,21 +1,7 @@
-################################################################################
-# Package: Tests
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
-atlas_subdir( Tests )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Database/APR/POOLCore
-   Database/APR/FileCatalog
-   Database/APR/PersistencySvc
-   Database/APR/StorageSvc
-   Database/PersistentDataModel
-   Control/AthContainers
-   Control/AthContainersInterfaces
-   AtlasTest/TestTools )
+atlas_subdir( APRTests )
 
 # External dependencies:
 find_package( CppUnit )
@@ -65,26 +51,26 @@ _add_test( FileCatalog_Functionality )
 _add_test( StorageSvc_BasicFunctionality )
 _add_test( StorageSvc_AuxStore
   DICTHEADER StorageSvc_AuxStore/AuxStoreTest.h
-  DEPENDS Tests_StorageSvc_BasicFunctionality_test_ctest )
+  DEPENDS APRTests_StorageSvc_BasicFunctionality_test_ctest )
 _add_test( StorageSvc_MultipleIterators
-  DEPENDS Tests_StorageSvc_AuxStore_test_ctest )
+  DEPENDS APRTests_StorageSvc_AuxStore_test_ctest )
 _add_test( StorageSvc_ParallelReadWrite
-  DEPENDS Tests_StorageSvc_MultipleIterators_test_ctest )
+  DEPENDS APRTests_StorageSvc_MultipleIterators_test_ctest )
 _add_test( StorageSvc_TransientMembers
   DICTHEADER StorageSvc_TransientMembers/TestClassWithTransients.h
-  DEPENDS Tests_StorageSvc_ParallelReadWrite_test_ctest )
+  DEPENDS APRTests_StorageSvc_ParallelReadWrite_test_ctest )
 
 _add_test( PersistencySvc_Functionality
-  DEPENDS Tests_StorageSvc_TransientMembers_test_ctest )
+  DEPENDS APRTests_StorageSvc_TransientMembers_test_ctest )
 _add_test( PersistencySvc_FileCatalogOperations
-  DEPENDS Tests_PersistencySvc_Functionality_test_ctest )
+  DEPENDS APRTests_PersistencySvc_Functionality_test_ctest )
 _add_test( PersistencySvc_FileOpenWithoutCatalog
-  DEPENDS Tests_PersistencySvc_FileCatalogOperations_test_ctest )
+  DEPENDS APRTests_PersistencySvc_FileCatalogOperations_test_ctest )
 _add_test( PersistencySvc_Parameters
-  DEPENDS Tests_PersistencySvc_FileOpenWithoutCatalog_test_ctest )
+  DEPENDS APRTests_PersistencySvc_FileOpenWithoutCatalog_test_ctest )
 _add_test( PersistencySvc_NoClassID
   DICTHEADER PersistencySvc_NoClassID/MyTestClass.h
-  DEPENDS Tests_PersistencySvc_Parameters_test_ctest )
+  DEPENDS APRTests_PersistencySvc_Parameters_test_ctest )
 
 # Clean up:
 unset( _add_test )

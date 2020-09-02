@@ -31,14 +31,14 @@
 
 
 #include "CaloSwGap_v2.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/StatusCode.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 
 using xAOD::CaloCluster;

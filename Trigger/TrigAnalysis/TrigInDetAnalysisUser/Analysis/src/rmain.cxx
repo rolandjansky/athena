@@ -541,10 +541,10 @@ int main(int argc, char** argv)
 
   double chi2prob = 0;
 
-  //int npix_rec = 1; // JK removed (unused)
-  //int nsct_rec = -1;  // JK removed (unused)
+  int npix_rec = -2; 
+  int nsct_rec = -2;
 
-  //double pT_rec = 0;  // JK removed (unused)
+  double pT_rec = 0;  
   double eta_rec = 5;
 
   double Rmatch = 0.1;
@@ -612,10 +612,10 @@ int main(int argc, char** argv)
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
   
 
-  //if ( inputdata.isTagDefined("npix_rec") ) npix_rec = inputdata.GetValue("npix_rec");  // JK removed (unused)
-  //if ( inputdata.isTagDefined("nsct_rec") ) nsct_rec = inputdata.GetValue("nsct_rec");  // JK removed (unused)
+  if ( inputdata.isTagDefined("npix_rec") ) npix_rec = inputdata.GetValue("npix_rec");
+  if ( inputdata.isTagDefined("nsct_rec") ) nsct_rec = inputdata.GetValue("nsct_rec");
 
-  //if ( inputdata.isTagDefined("pT_rec") )  pT_rec  = inputdata.GetValue("pT_rec");  // JK removed (unused)
+  if ( inputdata.isTagDefined("pT_rec") )  pT_rec  = inputdata.GetValue("pT_rec");
   if ( inputdata.isTagDefined("eta_rec") ) eta_rec = inputdata.GetValue("eta_rec");
 
   if ( inputdata.isTagDefined("a0") )           a0     = inputdata.GetValue("a0");
@@ -1025,7 +1025,7 @@ int main(int argc, char** argv)
 
   std::cout << "filter_passthrough" << std::endl;
 
-  Filter_Track filter_passthrough( 10, 1000,  2000, 0, -2, -2, 1, -2,  -2, -2);
+  Filter_Track filter_passthrough( 10, 1000,  2000, pT_rec, npix_rec, nsct_rec, 1, -2,  -2, -2);
 
   TrackFilter* testFilter = &filter_passthrough;
 

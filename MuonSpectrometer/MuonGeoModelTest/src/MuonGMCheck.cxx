@@ -279,11 +279,11 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
                                   <<std::endl;
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
                          
                          if (!rpc) continue;
                          fout<<" ///////////////////// Found a RpcReadoutElement for indices = "
@@ -3008,36 +3008,26 @@ void MuonGMCheck::testRpcCache_here()
      std::string fileName = "testRpcCache_"+gVersion;
 
      int nre = 0;
-     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
-     {
-         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
-         {
-             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
-             {
-                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
-                 {
-                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
-                     {
-                         RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
-
-			 if (!rpc) {
-			   continue;			 
-			 }
-                         nre++;
-                         
-
-                         Identifier idr = rpc->identify();
-
-			 ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr) );
-			 rpc->fillCache();
-		     }
-		 }
-	     }
-	 }
+     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++sname_index) {
+         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index) {
+             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index) {
+                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index) {
+                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index) {
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                        const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
+                        if (!rpc) {
+                          continue;			 
+                        }
+                        nre++;
+                        Identifier idr = rpc->identify();
+                        ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr) );
+                     }
+                 }
+             }
+         }
      }
      ATH_MSG_INFO(" Rpc cache built !" );
 }

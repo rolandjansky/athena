@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+import re
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
@@ -631,7 +632,7 @@ class outputLVL1configFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
@@ -699,12 +700,22 @@ class inputLVL1configFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "LVL1config_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
-        
+
 _flags.append(inputLVL1configFile)
 
+# remove prescale suffixes
+def _getMenuBaseName( menuName):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    pattern = re.compile(r'_v\d+|DC14')
+    patternPos = pattern.search(menuName)
+    if patternPos:
+        menuName=menuName[:patternPos.end()]
+    else:
+        log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+    return menuName
 
 
 class inputHLTconfigFile(JobProperty):
@@ -828,6 +839,7 @@ class triggerMenuSetup(JobProperty):
         'Dev_HI_run3_v1', # Dev_HI_run3 for AthenaMT
         'MC_pp_v8', 'Physics_pp_v8', 'MC_pp_v8_no_prescale', 'MC_pp_v8_tight_mc_prescale', 'MC_pp_v8_tightperf_mc_prescale', 'MC_pp_v8_loose_mc_prescale','Physics_pp_v8_tight_physics_prescale',
         'Cosmic_run3_v1',
+        'LS2_v1_TriggerValidation_mc_prescale'
         ]
 
     _default_menu='Physics_pp_v7_primaries'
@@ -852,7 +864,7 @@ class triggerMenuSetup(JobProperty):
             
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
-            TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
+            TriggerFlags.inputLVL1configFile = "LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
         if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile is None):
             TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 

@@ -254,7 +254,7 @@ private:
   StatusCode retrieveCellDatabase(const IdentifierHash & idCaloHash,
 				  const Identifier & id,int igain,
 				  const float &Nminbias,
-				  std::string function_name);
+				  const std::string& function_name);
   StatusCode checkCellDatabase(const Identifier & id, int igain,
 			       const std::string& function_name);
   void updateDiagnostic(int reason,const std::string& reason_name,int igain);
