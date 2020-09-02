@@ -162,8 +162,10 @@ if ( True ) :
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_IDTrig",
 
-    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
-    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
+#    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
+#    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
+    "HLT_e.*:HLT_IDTrack_Electron_FTF",
+    "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
@@ -175,7 +177,7 @@ if ( True ) :
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
 
-    "HLT_mb.*:HLT_IDTrack_Minbias_FTF",
+    "HLT_mb.*:HLT_IDTrack_MinBias_FTF",
     
 
     ]
