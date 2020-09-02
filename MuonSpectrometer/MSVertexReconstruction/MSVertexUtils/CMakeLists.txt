@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MSVertexUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          PRIVATE
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
