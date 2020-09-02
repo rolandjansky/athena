@@ -1827,7 +1827,7 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	  if(isec==12&&std::abs(ieta-8)==6&&ir==2)irc=1;
 
   isValid=false;
-  rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+  rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
   if (!isValid) continue;			   
     	  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);  
     	  if(!rpc) continue;   
