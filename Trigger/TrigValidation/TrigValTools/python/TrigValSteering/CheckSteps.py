@@ -169,6 +169,8 @@ class LogMergeStep(Step):
 
     def run(self, dry_run=False):
         self.process_extra_regex()
+        # Sort log files by modification time
+        self.log_files.sort(key=lambda f : os.path.getmtime(f) if os.path.isfile(f) else 0)
         self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
