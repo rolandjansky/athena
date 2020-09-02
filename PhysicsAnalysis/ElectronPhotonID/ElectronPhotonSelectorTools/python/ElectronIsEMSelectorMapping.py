@@ -11,7 +11,7 @@
 
 import ROOT,cppyy
 
-cppy.include("ElectronPhotonSelectorTools/egammaPIDdefs.h")
+cppyy.include("ElectronPhotonSelectorTools/egammaPIDdefs.h")
 
 from ROOT import egammaPID
 
