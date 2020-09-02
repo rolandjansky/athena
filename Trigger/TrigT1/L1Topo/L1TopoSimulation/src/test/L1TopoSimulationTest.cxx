@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./L1TopoSimulationTest.h"
@@ -18,43 +18,47 @@ using namespace std;
 
 
 LVL1::L1TopoSimulationTest::L1TopoSimulationTest(const std::string &name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_OffhistSvc( "THistSvc/THistSvc", name),
-  m_OfftopoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
+   AthAlgorithm(name, pSvcLocator),
+   m_OffhistSvc( "THistSvc/THistSvc", name),
+   m_OfftopoSteering( unique_ptr<TCS::TopoSteering>(new TCS::TopoSteering()) )
 {
-  declareProperty( "InputXMLFile", m_OffinputXMLFile, "File name for menu XML");
-  declareProperty( "InputASCIIFile", m_OffinputASCIIFile, "File name for ASCII TOB vector");
-  declareProperty( "HistSvc", m_OffhistSvc, "Histogramming service for L1Topo algorithms");
-  declareProperty( "MonHistBaseDir", m_OffhistBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
-  declareProperty( "TopoOutputLevel", m_OfftopoOutputLevel, "OutputLevel for L1Topo algorithms" );
-  declareProperty( "TopoSteeringOutputLevel", m_OfftopoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
+   declareProperty( "InputXMLFile", m_OffinputXMLFile, "File name for menu XML");
+   declareProperty( "InputASCIIFile", m_OffinputASCIIFile, "File name for ASCII TOB vector");
+   declareProperty( "HistSvc", m_OffhistSvc, "Histogramming service for L1Topo algorithms");
+   declareProperty( "MonHistBaseDir", m_OffhistBaseDir = "L1TopoAlgorithms", "Base directory for monitoring histograms will be /EXPERT/<MonHistBaseDir>" );
+   declareProperty( "TopoOutputLevel", m_OfftopoOutputLevel, "OutputLevel for L1Topo algorithms" );
+   declareProperty( "TopoSteeringOutputLevel", m_OfftopoSteeringOutputLevel, "OutputLevel for L1Topo steering" );
 }
 
 
 LVL1::L1TopoSimulationTest::~L1TopoSimulationTest()
 {}
 
+bool
+LVL1::L1TopoSimulationTest::isClonable() const
+{
+   return true;
+}
+
 
 StatusCode
 LVL1::L1TopoSimulationTest::initialize() {
-  ATH_MSG_INFO("initialize");
+   m_OfftopoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_OfftopoSteeringOutputLevel) );
 
-  m_OfftopoSteering->setMsgLevel( TrigConf::MSGTC::Level(m_OfftopoSteeringOutputLevel) );
+   if (m_OffinputXMLFile.empty()){
+      ATH_MSG_FATAL("No L1 Topo menu from XML " << m_OffinputXMLFile);
+      return StatusCode::FAILURE;
+   }
+   TXC::L1TopoXMLParser XMLParser;
+   XMLParser.msg().setLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
+   XMLParser.readConfiguration(m_OffinputXMLFile);
+   XMLParser.parseConfiguration();
 
-  if (m_OffinputXMLFile.empty()){
-    ATH_MSG_FATAL("No L1 Topo menu from XML " << m_OffinputXMLFile);
-    return StatusCode::FAILURE;
-  }
-  TXC::L1TopoXMLParser XMLParser;
-  XMLParser.msg().setLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
-  XMLParser.readConfiguration(m_OffinputXMLFile);
-  XMLParser.parseConfiguration();
-
-  m_OfftopoSteering->setupFromConfiguration(XMLParser.takeMenu());
-  m_OfftopoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
+   m_OfftopoSteering->setupFromConfiguration(XMLParser.takeMenu());
+   m_OfftopoSteering->setAlgMsgLevel( TrigConf::MSGTC::Level(m_OfftopoOutputLevel) );
 
   
-  std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_OffhistSvc) );
+   std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new AthenaL1TopoHistSvc(m_OffhistSvc) );
    topoHistSvc->setBaseDir("/EXPERT/" + m_OffhistBaseDir.value());
   
    

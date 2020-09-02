@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  MuonTOB.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__MuonTOB__
-#define __TopoCore__MuonTOB__
+#ifndef L1TopoEvent_MuonTOB
+#define L1TopoEvent_MuonTOB
 
 #include <iostream>
 
@@ -63,8 +58,6 @@ namespace TCS {
       static void clearHeap();
       static const Heap<TCS::MuonTOB>& heap() { return fg_heap; }
 
-      static unsigned int instances() { return fg_instances; }
-
       virtual void print(std::ostream &o) const;
 
    private:
@@ -73,20 +66,17 @@ namespace TCS {
       static const unsigned int g_nBitsEta;
       static const unsigned int g_nBitsPhi;
       
-      unsigned int m_Et;
-      unsigned int m_isolation;
-      int m_eta;
-      int m_phi;
+      unsigned int m_Et{0};
+      unsigned int m_isolation{0};
+      int m_eta{0};
+      int m_phi{0};
 
-      double m_EtDouble;
-      double m_etaDouble;
-      double m_phiDouble;
+      double m_EtDouble{0};
+      double m_etaDouble{0};
+      double m_phiDouble{0};
 
-      static unsigned int fg_instances;
-
-      static Heap<TCS::MuonTOB> fg_heap;
+      static thread_local Heap<TCS::MuonTOB> fg_heap;
    };
-   
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__MuonTOB__) */
+#endif

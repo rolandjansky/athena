@@ -1,9 +1,4 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  BaseTOB.cxx
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoCommon/Exception.h"
@@ -16,6 +11,8 @@ using namespace std;
 TCS::BaseTOB::BaseTOB(int roiWord) :
    m_roiWord(roiWord)
 {}
+
+TCS::BaseTOB::~BaseTOB() = default;
 
 int
 TCS::BaseTOB::sizeCheckM(int value, unsigned int size) const
