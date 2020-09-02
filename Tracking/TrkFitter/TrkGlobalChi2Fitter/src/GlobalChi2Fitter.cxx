@@ -6895,6 +6895,8 @@ namespace Trk {
         }
       } else if (state.getStateType(TrackStateOnSurface::Outlier)) {
         typePattern.set(TrackStateOnSurface::Outlier);
+      } else if (state.getStateType(TrackStateOnSurface::Perigee)) {
+        typePattern.set(TrackStateOnSurface::Perigee);
       }
     }
 
@@ -7110,7 +7112,7 @@ namespace Trk {
     return per;
   }
 
-  std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
+  std::unique_ptr<GXFTrackState> GlobalChi2Fitter::makeTrackFindPerigee(
     const EventContext & ctx,
     Cache &cache,
     GXFTrajectory &oldtrajectory,
@@ -7122,12 +7124,9 @@ namespace Trk {
       return nullptr;
     }
 
-    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-    typePattern.set(TrackStateOnSurface::Perigee);
-
     ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
 
-    return std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
+    return std::make_unique<GXFTrackState>(std::move(per), TrackStateOnSurface::Perigee);
   }
 
   std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
@@ -7142,8 +7141,18 @@ namespace Trk {
     if (m_fillderivmatrix) {
       makeTrackFillDerivativeMatrix(cache, oldtrajectory);
     }
-        
-    for (auto & hit : oldtrajectory.trackStates()) {
+
+    GXFTrajectory tmptrajectory(oldtrajectory);
+
+    std::unique_ptr<GXFTrackState> perigee_ts = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
+
+    if (perigee_ts == nullptr) {
+      return nullptr;
+    }
+
+    tmptrajectory.addBasicState(std::move(perigee_ts), cache.m_acceleration ? 0 : tmptrajectory.numberOfUpstreamStates());
+
+    for (auto & hit : tmptrajectory.trackStates()) {
       if (
         hit->measurementType() == TrackState::Pseudo &&
         hit->getStateType(TrackStateOnSurface::Outlier)
@@ -7158,7 +7167,7 @@ namespace Trk {
       trajectory->push_back(trackState.release());
     }
 
-    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(oldtrajectory.chi2(), oldtrajectory.nDOF());
+    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(tmptrajectory.chi2(), tmptrajectory.nDOF());
 
     ATH_MSG_VERBOSE("making Trk::Track...");
     
@@ -7170,25 +7179,13 @@ namespace Trk {
       info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
       info.setTrackProperties(TrackInfo::BremFit);
 
-      if (matEffects == electron && oldtrajectory.hasKink()) {
+      if (matEffects == electron && tmptrajectory.hasKink()) {
         info.setTrackProperties(TrackInfo::BremFitSuccessful);
       }
     }
     
-    if (oldtrajectory.m_straightline) {
+    if (tmptrajectory.m_straightline) {
       info.setTrackProperties(TrackInfo::StraightTrack);
-    }
-    
-    std::unique_ptr<const TrackStateOnSurface> pertsos = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
-
-    if (pertsos == nullptr) {
-      return nullptr;
-    }
-        
-    if (!cache.m_acceleration) {
-      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos.release());
-    } else {
-      trajectory->insert(trajectory->begin(), pertsos.release());
     }
 
     return std::make_unique<Track>(info, trajectory.release(), qual.release());
