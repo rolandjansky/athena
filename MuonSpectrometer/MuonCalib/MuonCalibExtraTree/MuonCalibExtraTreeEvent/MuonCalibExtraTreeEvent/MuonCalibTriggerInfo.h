@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBTRIGGERINFO_H
 #define MUONCALIBTRIGGERINFO_H
+
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +31,7 @@ namespace MuonCalib{
   };
 
   /** helper class to for MuonCalibTriggerType which provides a mapping to the actual bit number */
-  class MuonCalibTriggerTypeHelper {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibTriggerTypeHelper {
   public:
     /** get trigger bit for a given type */
     static std::vector<int> triggerBits( MuonCalibTriggerType type );
@@ -69,7 +71,7 @@ namespace MuonCalib{
      
      @author Niels van Eldik
   */
-  class MuonCalibTriggerInfo{
+  class ATLAS_NOT_THREAD_SAFE MuonCalibTriggerInfo{
   public:
     MuonCalibTriggerInfo();                                                                               //!< default constructor
     MuonCalibTriggerInfo( MuonCalibTriggerType type, double bcOffset );
