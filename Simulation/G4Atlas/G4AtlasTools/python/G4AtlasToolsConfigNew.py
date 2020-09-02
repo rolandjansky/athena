@@ -49,7 +49,7 @@ def generateFastSimulationListCfg(ConfigFlags):
             FastSimulationList += [result.popToolsAndMerge(FCAL2FastShowerCfg(ConfigFlags))]
             if ConfigFlags.Sim.LArParameterization > 1:
                  FastSimulationList += [ result.popToolsAndMerge(DeadMaterialShowerCfg(ConfigFlags)) ]
-        elif ConfigFlags.Sim.LArParameterization() == 0:
+        elif ConfigFlags.Sim.LArParameterization == 0:
             print( "getFastSimulationMasterTool INFO No Frozen Showers" )
     #if ConfigFlags.Detector.GeometryMuon:
     #    if hasattr(simFlags, 'CavernBG') and simFlags.CavernBG.statusOn and simFlags.CavernBG.get_Value() != 'Read' and\

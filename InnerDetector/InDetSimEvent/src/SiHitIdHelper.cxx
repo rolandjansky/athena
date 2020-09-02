@@ -1,23 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
 
 #include "InDetSimEvent/SiHitIdHelper.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "G4Types.hh"
 #ifdef G4MULTITHREADED
 #  include "GaudiKernel/ContextSpecificPtr.h"
 #endif
-
-static std::mutex sgMutex;
-
-// This class is singleton and static method and variable are used.
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 //
 // private constructor
@@ -25,28 +20,25 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
   Initialize();
 }
 
-SiHitIdHelper* SiHitIdHelper::GetHelper() {
-#ifdef G4MULTITHREADED
+const SiHitIdHelper* SiHitIdHelper::GetHelper ATLAS_NOT_THREAD_SAFE () { // static variable helperPtr is used.
+  #ifdef G4MULTITHREADED
   // Context-specific singleton
-  static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
-  if(!helperPtr) helperPtr = new SiHitIdHelper();
+  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr;
+  if (!helperPtr) helperPtr = new SiHitIdHelper();
   return helperPtr.get();
-#else
-  static SiHitIdHelper helper;
+  #else
+  static const SiHitIdHelper helper;
   return &helper;
-#endif
+  #endif
 }
 
 void SiHitIdHelper::Initialize() {
 
   // determine whether hits were created with an SLHC dictionary
   // in which case eta module field is expanded.
-  // Need to lock this thread-unsafe retrieval
-  const PixelID* pix;
-  StoreGateSvc* detStore(nullptr);
-  {
-    std::lock_guard<std::mutex> lock(sgMutex);
-    detStore = StoreGate::pointer("DetectorStore");
+  const PixelID* pix = nullptr;
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "SiHitIdHelper");
+  if (detStore.retrieve().isSuccess()) {
     if (detStore->retrieve(pix, "PixelID").isFailure()) { pix = 0; }
   }
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");

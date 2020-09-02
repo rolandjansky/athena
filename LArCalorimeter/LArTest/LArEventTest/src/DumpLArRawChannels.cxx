@@ -20,6 +20,7 @@ DumpLArRawChannels::DumpLArRawChannels(const std::string& name, ISvcLocator* pSv
  declareProperty("LArRawChannelContainerName",m_key=""); 
  declareProperty("OutputFileName",m_FileName="LArRawChannels.txt");
  declareProperty("NtupStream",m_ntup);
+ declareProperty("ToLog",m_toLog=true);
 }
 
 DumpLArRawChannels::~DumpLArRawChannels() 
@@ -43,7 +44,12 @@ StatusCode DumpLArRawChannels::initialize()
 
   ATH_CHECK( m_cablingKey.initialize() );
 
-  m_outfile.open(m_FileName.c_str(),std::ios::out);
+  if (!m_FileName.empty()) {
+    m_outfile.open(m_FileName.c_str(),std::ios::out);
+    m_toFile=true;
+  }
+  else 
+    m_toFile=false;
 
   if (m_ntup.size()) {
     m_tree= new TTree("RC","LArRawChannels");
@@ -75,7 +81,7 @@ StatusCode DumpLArRawChannels::execute()
    ATH_MSG_WARNING ( "No EventInfo object found!" );
  else
    {
-     std::cout << "*** Event #" << std::dec << thisEventInfo->runNumber() << "/" << thisEventInfo->eventNumber() << std::endl;
+     if (m_toLog) std::cout << "*** Event #" << std::dec << thisEventInfo->runNumber() << "/" << thisEventInfo->eventNumber() << std::endl;
      m_evt=thisEventInfo->eventNumber();
    }
 
@@ -107,8 +113,8 @@ StatusCode DumpLArRawChannels::execute()
    m_chan++;
    channelVector.push_back(&(*it_chan_coll));
  }
- m_outfile << "Event " << m_count << " contains " << m_chan << " channels\n";
- std::cout << "Event " << m_count << " contains " << m_chan << " channels\n";
+ if (m_toFile) m_outfile << "Event " << m_count << " contains " << m_chan << " channels\n";
+ if (m_toLog) std::cout << "Event " << m_count << " contains " << m_chan << " channels\n";
  
  mySort aSort;
  std::sort(channelVector.begin(),channelVector.end(),aSort);
@@ -119,12 +125,12 @@ StatusCode DumpLArRawChannels::execute()
      //if ((*vec_it)->energy()==0)
      //continue;
     const HWIdentifier chid=(*vec_it)->channelID();//hardwareID();
-    std::cout << "Channel: " << m_onlineHelper->channel_name(chid);
-    m_outfile << "Channel: " << m_onlineHelper->channel_name(chid);
+    if (m_toLog) std::cout << "Channel: " << m_onlineHelper->channel_name(chid);
+    if (m_toFile) m_outfile << "Channel: " << m_onlineHelper->channel_name(chid);
 
     if (!cabling->isOnlineConnected(chid)) {
-      std::cout << " disconnected" << std::endl;
-      m_outfile << " disconnected" << std::endl;
+      if (m_toLog) std::cout << " disconnected" << std::endl;
+      if (m_toFile) m_outfile << " disconnected" << std::endl;
       continue;
     }
     const Identifier id=cabling->cnvToIdentifier(chid);
@@ -134,17 +140,17 @@ StatusCode DumpLArRawChannels::execute()
       phi=m_emId->phi(id);
       layer=m_emId->sampling(id);      
       if (m_emId->is_em_endcap(id)) {
-	std::cout << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
-	m_outfile << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	if (m_toLog) std::cout << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	if (m_toFile) m_outfile << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
       }
       else {
-	std::cout << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
-	m_outfile << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	if (m_toLog) std::cout << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	if (m_toFile) m_outfile << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
       }
     }
     else {
-      std::cout << " (is not EM)";
-      m_outfile << " (is not EM)";
+      if (m_toLog) std::cout << " (is not EM)";
+      if (m_toFile) m_outfile << " (is not EM)";
     }
 
 
@@ -157,10 +163,10 @@ StatusCode DumpLArRawChannels::execute()
     */
     //if (abs(Time)>24000)
     //Time=0;
-    std::cout << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x" 
+    if (m_toLog) std::cout << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x" 
 	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
     
-    m_outfile << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x"
+    if (m_toFile) m_outfile << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x"
 	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
 
     if (m_tree) {
@@ -179,7 +185,7 @@ StatusCode DumpLArRawChannels::execute()
 
 StatusCode DumpLArRawChannels::finalize()
 {
-  m_outfile.close(); 
+  if (m_toFile) m_outfile.close(); 
   ATH_MSG_INFO ( "======== finalize DumpLArRawChannel ========" );
   return StatusCode::SUCCESS;
 }

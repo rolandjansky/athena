@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -9,15 +9,8 @@
 #include <iostream>
 
 JetCaloCellQualityTool::JetCaloCellQualityTool(const std::string& name)
-  : JetCaloQualityTool(name)
-  , m_attSuffix("FromCells")
-    
-{
-  declareProperty("CellSuffix", m_attSuffix);
-
-  declareProperty("LArQualityCut", m_LArQualityCut=4000);
-  declareProperty("TileQualityCut", m_TileQualityCut=254);
-
+  : JetCaloQualityTool(name) {
+  declareInterface<IJetDecorator>(this);
 }
 
 StatusCode JetCaloCellQualityTool::initialize(){

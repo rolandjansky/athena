@@ -151,9 +151,9 @@ TCS::MinDeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const 
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
           if(fillAccept and not alreadyFilled){
-              m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
+              fillHist1D(m_histAcceptMinDPhi2[i]->GetName(),(float)mindphi*0.10);
           } else if(fillReject){
-              m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);
+              fillHist1D(m_histRejectMinDPhi2[i]->GetName(),(float)mindphi*0.10);
           }
           TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       } // for(i)
@@ -223,9 +223,9 @@ TCS::MinDeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input
               output[i]->push_back(TCS::CompositeTOB(*tobmin1, *tobmin2));
           }
           if(fillAccept and not alreadyFilled){
-              m_histAcceptMinDPhi2[i]->Fill((float)mindphi*0.10);
+              fillHist1D(m_histAcceptMinDPhi2[i]->GetName(),(float)mindphi*0.10);
           } else if(fillReject) {
-              m_histRejectMinDPhi2[i]->Fill((float)mindphi*0.10);
+              fillHist1D(m_histRejectMinDPhi2[i]->GetName(),(float)mindphi*0.10);
           }
           TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail"));
       }

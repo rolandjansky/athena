@@ -19,7 +19,7 @@
 // Athena only includes
 #include "AthenaKernel/Units.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"

@@ -38,7 +38,6 @@ myMonGroup = helper.addGroup(
     "SCT/GENERAL/"
 )
 
-### STEP 5 ###
 # Configure histograms
 regionNames = ["EndCapC", "Barrel", "EndCapA"]
 s_triggerNames = ["RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"]

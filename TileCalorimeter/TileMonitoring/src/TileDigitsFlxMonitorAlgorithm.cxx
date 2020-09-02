@@ -47,8 +47,7 @@ StatusCode TileDigitsFlxMonitorAlgorithm::fillHistograms( const EventContext& ct
   SG::ReadHandle<TileDigitsContainer> digitsContainer(m_digitsContainerKey, ctx);
   ATH_CHECK( digitsContainer.isValid() );
 
-  for (IdentifierHash hash : digitsContainer->GetAllCurrentHashes()) {
-    const TileDigitsCollection* digitsCollection = digitsContainer->indexFindPtr (hash);
+  for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
  
     int fragId = digitsCollection->identify();
     unsigned int drawer = (fragId & 0x3F);

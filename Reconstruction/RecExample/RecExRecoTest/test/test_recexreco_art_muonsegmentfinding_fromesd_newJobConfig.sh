@@ -7,7 +7,7 @@
 
 python $Athena_DIR/python/MuonConfig/MuonSegmentFindingConfig.py | tee temp1.log
 echo "art-result: ${PIPESTATUS[0]}"
-athena MuonSegmentFinding.pkl | tee temp2.log
+CARunner.py MuonSegmentFinding.pkl | tee temp2.log
 echo "art-result: ${PIPESTATUS[0]}"
 
 test_postProcessing_Errors.sh temp1.log

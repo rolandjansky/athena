@@ -44,9 +44,6 @@ if do_grl and sample == 'data':
     # add LumiBlockMetaDataTool to ToolSvc and configure
     from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
     theLumiBlockMetaDataTool = LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-    theLumiBlockMetaDataTool.calcLumi = False # False by default
-    theLumiBlockMetaDataTool.storeXMLFiles = True
-    theLumiBlockMetaDataTool.applyDQCuts = True
     theLumiBlockMetaDataTool.OutputLevel = INFO
     ToolSvc += theLumiBlockMetaDataTool
     
@@ -168,8 +165,6 @@ InDetFlags.doNewTracking          = True
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-#InDetFlags.doxKalman              = True
-#InDetFlags.doiPatRec              = True
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 InDetFlags.doTRTStandalone        = False
@@ -196,7 +191,7 @@ InDetFlags.doMonitoringAlignment = False
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 # --- active storegate delection
 #InDetFlags.doSGDeletion  = True
 

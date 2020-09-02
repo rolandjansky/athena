@@ -24,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=97 -DLCG_VERSION_POSTFIX="")
+EXTRACMAKE=()
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -87,11 +87,22 @@ if [ "$FORCE" = "1" ]; then
     rm -fr ${BUILDDIR}/build/AthSimulationExternals ${BUILDDIR}/build/GAUDI
 fi
 
-# Create some directories:
-mkdir -p ${BUILDDIR}/{src,install}
-
 # Get the version of AthSimulation for the build.
 version=`cat ${thisdir}/version.txt`
+
+# Check if previous externals build can be reused:
+externals_stamp=${BUILDDIR}/build/AthSimulationExternals/externals-${version}.stamp
+if [ -f ${externals_stamp} ]; then
+    if diff -q ${externals_stamp} ${thisdir}/externals.txt; then
+        echo "Correct version of externals already available in ${BUILDDIR}"
+        exit 0
+    else
+        rm ${externals_stamp}
+    fi
+fi
+
+# Create some directories:
+mkdir -p ${BUILDDIR}/{src,install}
 
 # The directory holding the helper scripts:
 scriptsdir=${thisdir}/../../Build/AtlasBuildScripts
@@ -147,5 +158,7 @@ ${scriptsdir}/build_Gaudi.sh \
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
     echo "AthSimulation externals build encountered ${ERROR_COUNT} error(s)"
+else
+    cp ${thisdir}/externals.txt ${externals_stamp}
 fi
 exit ${ERROR_COUNT}

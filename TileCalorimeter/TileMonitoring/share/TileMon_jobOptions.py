@@ -265,5 +265,6 @@ if  tileRawMon:
     from TileMonitoring.TileDQFragMonitorAlgorithm import TileDQFragMonitoringConfigOld
     topSequence += TileDQFragMonitoringConfigOld(DQMonFlags)
 
-topSequence += ManagedAthenaTileMon
-printfunc (ManagedAthenaTileMon)
+if jp.ConcurrencyFlags.NumThreads() == 0:
+    topSequence += ManagedAthenaTileMon
+    printfunc (ManagedAthenaTileMon)

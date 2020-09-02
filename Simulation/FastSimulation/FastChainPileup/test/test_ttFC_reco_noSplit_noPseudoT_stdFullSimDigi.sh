@@ -2,18 +2,16 @@
 
 # art-description: Job ttFC_stdFullSim + ttFC_stdFullSimMerge + ttFC_stdFullSimDigi + ttFC_reco_noSplit_noPseudoT_stdFullSimDigi
 # art-type: grid
-# art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: *.root
 # art-output: dcube-truth
 # art-output: dcube-id
+# art-html: dcube-id
 
 inputRefDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-refs/${AtlasBuildBranch}/test_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi"
 inputXmlDir="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/DCube-configs/${AtlasBuildBranch}"
-art_dcube="/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube"
-dcubeName="ttFC_reco_noSplit_noPseudoT_stdFullSimDigi"
-dcubeXmlID="${inputXmlDir}/dcube_ID.xml"
-dcubeRefID="${inputRefDir}/InDetStandardPlots.root"
+dcubeXmlID="${inputXmlDir}/physval-noSplit_noPseudoT_stdFullSimDigi.xml"
+dcubeRefID="${inputRefDir}/physval-noSplit_noPseudoT_stdFullSimDigi.root"
 dcubeXmlTruth="${inputXmlDir}/dcube_truth.xml"
 dcubeRefTruth="${inputRefDir}/truth.root"
 
@@ -30,18 +28,17 @@ Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
     --outputHITSFile "HITS.pool.root" \
     --maxEvents 50 \
     --imf False
-
 rc1=$?
 echo "art-result: ${rc1} EVNTtoHITS"
+
 rc2=-9999
 if [ ${rc1} -eq 0 ]
 then
-    bash ${art_dcube} ${dcubeName} truth.root ${dcubeXmlTruth} ${dcubeRefTruth}
+    # Histogram comparison with DCube
+    $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+    -p -x dcube-truth \
+    -c ${dcubeXmlTruth} -r ${dcubeRefTruth} truth.root
     rc2=$?
-    if [ -d "dcube" ]
-    then
-       mv "dcube" "dcube-truth"
-    fi
 fi
 echo "art-result: ${rc2} dcubeTruth"
 
@@ -77,28 +74,30 @@ FastChain_tf.py --maxEvents 50 \
     --conditionsTag OFLCOND-RUN12-SDR-31 \
     --inputRDOFile RDO.pool.root \
     --outputAODFile AOD_Split_stdFullSimDigi.pool.root \
-    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);" \
+    --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);" \
+    --outputNTUP_PHYSVALFile 'physval-noSplit_noPseudoT_stdFullSimDigi.root' \
+    --validationFlags 'doInDet' \
+    --valid 'True' \
     --imf False
-
 rc3=$?
+
 rc4=-9999
 rc5=-9999
-if [ ${rc3} -eq 0 ]
+if [ ${rc1} -eq 0 ]
 then
     # Regression test
     ArtPackage=$1
     ArtJobName=$2
     art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
     rc4=$?
-
-    # Histogram comparison with DCube
-    bash ${art_dcube} ${dcubeName} InDetStandardPlots.root ${dcubeXmlID} ${dcubeRefID}
-    rc5=$?
-    if [ -d "dcube" ]
-    then
-       mv "dcube" "dcube-id"
-    fi
 fi
+
+# Histogram comparison with DCube
+$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
+-p -x dcube-id \
+-c ${dcubeXmlID} -r ${dcubeRefID} physval-noSplit_noPseudoT_stdFullSimDigi.root
+rc5=$?
+
 echo  "art-result: ${rc3} RDOtoAOD"
 echo  "art-result: ${rc4} regression"
 echo  "art-result: ${rc5} dcubeID"

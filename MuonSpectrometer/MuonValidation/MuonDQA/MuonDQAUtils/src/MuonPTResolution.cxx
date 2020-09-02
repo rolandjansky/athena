@@ -81,19 +81,19 @@ void	getMuonPTResolution(	TH1F *hist,
       hist->Fit(&gaussian,"R");
       gaussian.GetParameters(&par[0]);
       mean	= par[1];
-      sigma	= fabs(par[2]);
+      sigma	= std::abs(par[2]);
       gaussian.SetRange(mean-sigma*2.,mean+sigma*2.);
 
       // Check if converged, if yes then quit
-      if (fabs(1.0-old_sigma/sigma)<0.0001) break;
+      if (std::abs(1.0-old_sigma/sigma)<0.0001) break;
       old_sigma=sigma;
     }
 
 
   PTResMean = mean;
-  PTSigma = fabs(sigma);
+  PTSigma = std::abs(sigma);
   ErrMean = (gaussian.GetParError(1));
-  ErrSigma = fabs((gaussian.GetParError(2)));
+  ErrSigma = std::abs((gaussian.GetParError(2)));
   int i=0;
   double TailContent=0;
 

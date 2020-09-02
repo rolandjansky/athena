@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 muCombMT Fex Algorithm Configuration:
@@ -10,10 +10,6 @@ from TrigmuComb.TrigmuCombConf import muCombMT
 from AthenaCommon.SystemOfUnits import GeV
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 from TrigmuComb.TrigmuCombMonitoring import TrigMuCombMonitoring
 
 class TrigmuCombMTConfig (muCombMT):

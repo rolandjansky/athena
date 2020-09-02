@@ -20,7 +20,6 @@ theApp.EvtMax = 200
 #--------------------------------------------------------------
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 2
-##include "$ATHENASEALSVCROOT/share/AthenaSealSvc_joboptions.txt" 
 ##include "$DETDESCRDICTIONARYROOT/dict/DetDescrDictionary_joboptions.txt"
 ##include "$LARSIMEVENTROOT/dict/LArSimEvent_joboptions.txt"
 ##include "$EVENTINFOROOT/dict/EventInfo_joboptions.txt"

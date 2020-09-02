@@ -41,9 +41,6 @@
 #include <cmath>
 #include <cstdlib> //Always include this when including cmath!
 
-// For magneticfield
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 // Logging
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -52,7 +49,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const InDetDD::TRT_DetectorManager* detmgr,
                                            ITRT_PAITool* paitoolXe,
                                            ITRT_SimDriftTimeTool* simdrifttool,
-                                           MagField::IMagFieldSvc * magfieldsvc,
                                            TRTElectronicsProcessing * ep,
                                            TRTNoise * noise,
                                            TRTDigCondBase* digcond,
@@ -76,7 +72,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
   m_pDigConditions(digcond),
   m_pParticleTable(pdt),
   m_alreadywarnedagainstpdg0(false),
-  m_magneticfieldsvc(magfieldsvc),
   m_msg("TRTProcessingOfStraw"),
   m_id_helper(trt_id)
 
@@ -609,11 +604,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
       globalPosition[1]=TRThitGlobalPos[1]*CLHEP::mm;
       globalPosition[2]=TRThitGlobalPos[2]*CLHEP::mm;
 
-    // MT Field cache is stored in cache
-
-    // MT version uses cache, temporarily keep old version
-      if (fieldCache.useNewBfieldCache()) fieldCache.getField         (globalPosition.data(), mField.data());
-      else                                m_magneticfieldsvc->getField(&globalPosition, &mField);
+      // MT Field cache is stored in cache
+      fieldCache.getField         (globalPosition.data(), mField.data());
 
       map_x2 = mField.x()*mField.x(); // would be zero for a uniform field
       map_y2 = mField.y()*mField.y(); // would be zero for a uniform field
@@ -787,8 +779,6 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
 
 //________________________________________________________________________________
 Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit ) {
-
-  Identifier IdStraw;
 
   const int mask(0x0000001F);
   int word_shift(5);

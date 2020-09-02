@@ -49,31 +49,12 @@ TgcPrepData::TgcPrepData(const TgcPrepData& RIO):
   m_bcBitMap(RIO.m_bcBitMap)
 { }
 
-//move constructor:
-TgcPrepData::TgcPrepData(TgcPrepData&& RIO):
-  MuonCluster(std::move(RIO)),
-  m_detEl( RIO.m_detEl ),
-  m_bcBitMap(RIO.m_bcBitMap)
-{ }
-
 //assignment operator
 TgcPrepData& TgcPrepData::operator=(const TgcPrepData& RIO)
 {
     if (&RIO !=this)
     {
       MuonCluster::operator=(RIO);
-      m_detEl =  RIO.m_detEl ;
-      m_bcBitMap = RIO.m_bcBitMap;
-    }
-    return *this;
-}
-
-//move operator
-TgcPrepData& TgcPrepData::operator=(TgcPrepData&& RIO)
-{
-    if (&RIO !=this)
-    {
-      MuonCluster::operator=(std::move(RIO));
       m_detEl =  RIO.m_detEl ;
       m_bcBitMap = RIO.m_bcBitMap;
     }

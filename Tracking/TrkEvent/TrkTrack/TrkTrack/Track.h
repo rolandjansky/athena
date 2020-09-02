@@ -119,9 +119,14 @@ namespace Trk
               DataVector<const TrackStateOnSurface>* trackStateOnSurfaces,	            
               const FitQuality* fitQuality);  		            
 
-       Track( const Track& ); //!< copy constructor				            
+       Track( const Track& rhs); //!< copy constructor				            
 
-       Track &operator= (const Track &); //!< assignment operator		            
+       Track &operator= (const Track & rhs); //!< assignment operator		            
+
+       Track( Track&& rhs) noexcept; //!< move constructor				            
+
+       Track &operator= (Track && rhs) noexcept; //!< move assignment operator		            
+
 
        virtual ~Track (); //!< destructor					            
 
@@ -256,6 +261,20 @@ namespace Trk
         */									      									     
        void findPerigee() const;
 
+       /**
+        * Helper method to factor common
+        * part of copy ctor and copy assignment
+        */
+       void copyHelper(const Track& rhs);
+
+       /**									   
+        * TrackStateOnSurface							   
+        *									   
+        * These objects link the various parameters related to a surface,	   
+        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
+        */									   
+       DataVector<const TrackStateOnSurface>* m_trackStateVector;		   
+ 
         /**									   
         * A vector of TrackParameters: these can be any of the classes that	   
         * derive from Trk::TrackParameters, for example, Perigee, MeasuredPerigee, 
@@ -285,14 +304,7 @@ namespace Trk
         */									   
        CxxUtils::CachedValue<DataVector<const MeasurementBase>> m_cachedOutlierVector;	   
         									     
-       /**									   
-        * TrackStateOnSurface							   
-        *									   
-        * These objects link the various parameters related to a surface,	   
-        * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
-        */									   
-       DataVector<const TrackStateOnSurface>* m_trackStateVector;		   
-    
+   
        /**									   
         * A pointer to the Track's Perigee parameters.  			   
         *									   

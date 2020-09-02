@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloDummyCorrection.cxx,v 1.1 2009-04-19 03:58:47 ssnyder Exp $
@@ -16,21 +16,6 @@
 
 
 /**
- * @brief Constructor.
- * @param type The type of this tool.
- * @param name The name of this tool.
- * @param parent The parent of this tool.
- */
-using xAOD::CaloCluster;
-CaloDummyCorrection::CaloDummyCorrection(const std::string& type,
-                                         const std::string& name,
-                                         const IInterface* parent)
-  : CaloClusterCorrection (type, name, parent)
-{
-}
-
-
-/**
  * @brief Standard initialization method.
  */
 StatusCode CaloDummyCorrection::initialize()
@@ -44,26 +29,7 @@ StatusCode CaloDummyCorrection::initialize()
 
 // derived class implement the real correction.
 // (Does nothing here.)
-void CaloDummyCorrection::makeCorrection(const EventContext& /*ctx*/,
-                                         CaloCluster*) const
+void CaloDummyCorrection::makeCorrection (const Context& /*myctx*/,
+                                          xAOD::CaloCluster*) const
 {
 }
-
-
-/**
- * @brief Method to set a property value.
- * @param p The property name/value to set.
- *
- * Defined here as required by @c ToolWithConstantsMixin.
- */
-StatusCode
-CaloDummyCorrection::setProperty (const Property& p)
-{
-  // Ignore non-existing properties.
-  std::string v;
-  if (getProperty (p.name(), v).isSuccess())
-    CHECK( CaloClusterCorrection::setProperty (p) );
-  return StatusCode::SUCCESS;
-}
-
-

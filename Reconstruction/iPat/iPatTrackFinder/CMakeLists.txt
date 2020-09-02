@@ -7,6 +7,7 @@ atlas_subdir( iPatTrackFinder )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/StoreGate
                           Control/AthenaBaseComps
                           DetectorDescription/Identifier
                           Event/EventPrimitives
@@ -16,11 +17,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/iPat/iPatTrack
                           Event/EventContainers
                           InnerDetector/InDetConditions/BeamSpotConditionsData
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
                           PRIVATE
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          MagneticField/MagFieldInterfaces
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           Reconstruction/iPat/iPatGeometry
                           Reconstruction/iPat/iPatTrackParameters
                           Reconstruction/iPat/iPatUtility
@@ -42,7 +44,7 @@ atlas_add_component( iPatTrackFinder
                      src/TrackFinder.cxx
                      src/TrackManager.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldInterfaces iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers)
+                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers StoreGateLib BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( iPatTrackFinder )

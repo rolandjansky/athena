@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MonitoredRange.h"
 #include "MonitorBase.h"
 #include "CounterBase.h"
 #include "TH1F.h"
@@ -29,7 +30,7 @@ void CounterBase::regHistogram(const std::string& name,
   const float max,
   const size_t bins) 
 {
-  std::string hisSvcName = getName() + "_" + name;
+  std::string hisSvcName = getParent()->getParent()->getName() + "_" + getParent()->getName() + "_" + getName() + "_" + name;
   std::unique_ptr<TH1F> hist;
 
   if (max <= min || bins == 0) {
@@ -97,7 +98,7 @@ StatusCode CounterBase::increment(const std::string& name, float weight) {
 }
 
 
-StatusCode CounterBase::endEvent() {
+StatusCode CounterBase::endEvent(float) {
   for (auto& nameVariablePair : m_variables) {
     ATH_CHECK( nameVariablePair.second.endEvent() );
   }
@@ -116,6 +117,9 @@ TH1* CounterBase::bookGetPointer(TH1* hist, const std::string& tDir) const {
 
 
 float CounterBase::timeToMilliSec(const uint64_t start, const uint64_t stop) const {
+  if (stop < start) {
+    throw std::runtime_error("Asked for a stop time " + std::to_string(stop) + " which is before the start time " + std::to_string(start));
+  }
   const uint64_t difference = stop - start;
   return (difference * 1e-3); // micro to ms
 }

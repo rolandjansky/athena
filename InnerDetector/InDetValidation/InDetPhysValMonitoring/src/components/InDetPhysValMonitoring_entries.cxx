@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
 #include "../InDetPhysValTruthDecoratorAlg.h"
 #include "../InDetPhysHitDecoratorAlg.h"
@@ -7,12 +10,10 @@
 #include "../dRMatchingTool.h"
 #include "../TrackSelectionTool.h"
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
-#include "InDetPhysValMonitoring/AlgTestHistoDefSvc.h"
 #include "../AthTruthSelectionTool.h"
 
 #include "../DummyTrackSlimmingTool.h"
 
-DECLARE_COMPONENT( AlgTestHistoDefSvc )
 DECLARE_COMPONENT( HistogramDefinitionSvc )
 DECLARE_COMPONENT( InDetPhysValMonitoringTool )
 DECLARE_COMPONENT( InDetPhysValTruthDecoratorAlg )

@@ -65,7 +65,7 @@
 
 #include "InDetRecStatistics/InDetRecStatisticsAlg.h"
 #include "InDetRecStatistics/TrackStatHelper.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TruthHelper/PileUpType.h"
 
 #include "IdDictDetDescr/IdDictManager.h" 

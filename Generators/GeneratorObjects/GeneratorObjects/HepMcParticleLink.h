@@ -22,6 +22,7 @@
 #include <iostream>
 #include <limits>  /* numeric_limits */
 #include <string>
+#include <vector>
 
 #include "AtlasHepMC/GenEvent_fwd.h"
 #include "AtlasHepMC/GenParticle_fwd.h"
@@ -82,7 +83,7 @@ enum EBC_EVCOLL{
 class HepMcParticleLink {
 public:
   typedef uint32_t barcode_type;
-  typedef uint16_t index_type;
+  typedef uint32_t index_type;
 
 
   enum PositionFlag {
@@ -388,6 +389,13 @@ public:
                      EBC_EVCOLL evColl=EBC_MAINEVCOLL,
                      PositionFlag positionFlag = IS_INDEX,
                      IProxyDict* sg = SG::CurrentEventStore::store());
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr p,
+                     uint32_t eventIndex = 0,
+                     EBC_EVCOLL evColl=EBC_MAINEVCOLL,
+                     PositionFlag positionFlag = IS_INDEX,
+                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(p.get(), eventIndex, evColl, positionFlag, sg) {};
+#endif
 
 
  /**
@@ -407,6 +415,13 @@ public:
                      const std::string& evCollName,
                      PositionFlag positionFlag = IS_INDEX,
                      IProxyDict* sg = SG::CurrentEventStore::store());
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr part,
+                     uint32_t eventIndex,
+                     const std::string& evCollName,
+                     PositionFlag positionFlag = IS_INDEX,
+                     IProxyDict* sg = SG::CurrentEventStore::store()): HepMcParticleLink(part.get(), eventIndex, evCollName, positionFlag, sg) {};
+#endif
 
 
  /**
@@ -426,6 +441,13 @@ public:
                      EBC_EVCOLL evColl,
                      PositionFlag positionFlag,
                      const EventContext& ctx);
+#ifdef HEPMC3
+  HepMcParticleLink (HepMC::ConstGenParticlePtr part,
+                     uint32_t eventIndex,
+                     EBC_EVCOLL evColl,
+                     PositionFlag positionFlag,
+                     const EventContext& ctx): HepMcParticleLink(part.get(),eventIndex, evColl, positionFlag, ctx) {};
+#endif
 
 
   /**
@@ -523,6 +545,34 @@ public:
   index_type eventIndex() const;
 
 
+  /**
+   * @brief Return the event number of the GenEvent at the specified
+   *        position in the McEventCollection.
+   * @param position in the McEventCollection
+   * @param evColl McEventCollection type
+   * @param sg Target event store.
+   * Returns -999 when position is larger than the McEventCollection size
+   */
+  static int getEventNumberAtPosition (index_type position, EBC_EVCOLL evColl, const IProxyDict* sg);
+
+
+  /**
+   * @brief Return a vector of the positions in the McEventCollection of the
+   *        GenEvent(s) with a given event number.
+   * @param index the event number of the required GenEvent
+   * @param evColl McEventCollection type
+   * @param sg Target event store.
+   * Returns a vector containing only ExtendedBarCode::UNDEFINED FIXME when no event with the appropriate event_number was found.
+   * (Multiple entries in the vector is technically a bug, but can't be fixed until the HepMC3 migration.)
+   */
+  static std::vector<index_type> getEventPositionInCollection (index_type index, EBC_EVCOLL evColl, const IProxyDict* sg);
+
+  /**
+   * @brief Return the position in the McEventCollection of the
+   *        GenEvent pointed to by this HepMcParticleLink
+   * @param sg Target event store.
+   * FIXME - need to be able to flag when no event with the appropriate event_number was found.
+   */
   index_type getEventPositionInCollection (const IProxyDict* sg) const;
 
 
@@ -567,6 +617,16 @@ public:
   /**
    * @brief Look up the event collection we're targeting.
    * @param sg Target event store.
+   * @param evColl McEventCollection type
+   * May return nullptr if the collection is not found.
+   */
+  static const McEventCollection*
+  retrieveMcEventCollection (EBC_EVCOLL evColl, const IProxyDict* sg);
+
+
+  /**
+   * @brief Look up the event collection we're targeting.
+   * @param sg Target event store.
    * May return nullptr if the collection is not found.
    */
   const McEventCollection*
@@ -575,10 +635,11 @@ public:
 
   /**
    * @brief Find the proxy for the target event collection.
+   * @param evColl McEventCollection type
    * @param sg Target event store.
    * May return nullptr if the collection is not found.
    */
-  SG::DataProxy* find_proxy (const IProxyDict* sg) const;
+  static SG::DataProxy* find_proxy (EBC_EVCOLL evColl, const IProxyDict* sg);
 
 
   /**

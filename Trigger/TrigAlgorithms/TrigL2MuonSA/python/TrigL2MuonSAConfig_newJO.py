@@ -16,18 +16,6 @@ def RpcDataPreparatorCfg( flags, roisKey ):
 
     acc = ComponentAccumulator()
 
-    # Get BS decoder 
-    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-    rpcAcc = RpcBytestreamDecodeCfg( flags, forTrigger=True )
-    #rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = roisKey
-    acc.merge( rpcAcc )
-
-    # Get BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg    
-    rpcAcc = RpcRDODecodeCfg( flags, forTrigger=True )
-    #rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = roisKey
-    acc.merge( rpcAcc )
-
     # Set Rpc data preparator for MuFast data preparator
     TrigL2MuonSA__RpcDataPreparator=CompFactory.getComp("TrigL2MuonSA::RpcDataPreparator")
     RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator( RpcPrepDataProvider  = None,
@@ -35,6 +23,8 @@ def RpcDataPreparatorCfg( flags, roisKey ):
                                                          DecodeBS = False,
                                                          DoDecoding = False )
     acc.addPublicTool( RpcDataPreparator, primary=True ) # Now this is needed, but should be removed
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RpcDataPreparator.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
  
     return acc, RpcDataPreparator
 
@@ -43,25 +33,14 @@ def TgcDataPreparatorCfg( flags, roisKey ):
 
     acc = ComponentAccumulator()
 
-    # Get BS decoder 
-    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcAcc = TgcBytestreamDecodeCfg( flags, forTrigger=True )
-    #TgcRawDataProvider.RoIs = roisKey
-    acc.merge( tgcAcc )
-
-    # Get BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg    
-    tgcAcc = TgcRDODecodeCfg( flags, forTrigger=True )
-    #tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = roisKey
-    acc.merge( tgcAcc )
-
     # Set Tgc data preparator for MuFast data preparator
     TrigL2MuonSA__TgcDataPreparator=CompFactory.getComp("TrigL2MuonSA::TgcDataPreparator")
     TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator( TgcPrepDataProvider  = None,
                                                          TgcRawDataProvider   = None,
                                                          DecodeBS = False,
                                                          DoDecoding = False )
-
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    TgcDataPreparator.RegSel_TGC = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
  
     return acc, TgcDataPreparator
 
@@ -70,24 +49,14 @@ def MdtDataPreparatorCfg( flags, roisKey ):
 
     acc = ComponentAccumulator()
 
-    # Get BS decoder 
-    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtAcc = MdtBytestreamDecodeCfg( flags, forTrigger=True )
-    #MdtRawDataProvider.RoIs = roisKey
-    acc.merge( mdtAcc )
-
-    # Get BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg    
-    mdtAcc = MdtRDODecodeCfg( flags, forTrigger=True )
-    #mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = roisKey
-    acc.merge( mdtAcc )
-
     # Set Mdt data preparator for MuFast data preparator
     TrigL2MuonSA__MdtDataPreparator=CompFactory.getComp("TrigL2MuonSA::MdtDataPreparator")
     MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator( MdtPrepDataProvider  = None,
                                                          MDT_RawDataProvider   = None,
                                                          DecodeBS = False,
                                                          DoDecoding = False )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    MdtDataPreparator.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
  
     return acc, MdtDataPreparator
 
@@ -95,23 +64,6 @@ def MdtDataPreparatorCfg( flags, roisKey ):
 def CscDataPreparatorCfg( flags, roisKey ):
 
     acc = ComponentAccumulator()
-
-    # Get BS decoder 
-    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscAcc = CscBytestreamDecodeCfg( flags, forTrigger=True )
-    #CscRawDataProvider.RoIs = roisKey
-    acc.merge( cscAcc )
-
-    # Get BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg    
-    cscAcc = CscRDODecodeCfg( flags, forTrigger=True )
-    #cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = roisKey
-    acc.merge( cscAcc )
-
-    # Get cluster builder
-    from MuonConfig.MuonRdoDecodeConfig import CscClusterBuildCfg
-    cscAcc = CscClusterBuildCfg( flags, forTrigger=True )
-    acc.merge( cscAcc )
 
     # Set Csc data preparator for MuFast data preparator
     TrigL2MuonSA__CscDataPreparator=CompFactory.getComp("TrigL2MuonSA::CscDataPreparator")
@@ -122,6 +74,8 @@ def CscDataPreparatorCfg( flags, roisKey ):
                                                          DoDecoding = False )
 
     acc.addPublicTool( CscDataPreparator, primary=True ) # This should be removed
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    CscDataPreparator.RegSel_CSC = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
  
     return acc, CscDataPreparator
 
@@ -307,20 +261,6 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
 
     return acc, muFastFex
 
-
-def l2MuFastRecoCfg( flags ):
-
-    # Set EventViews for muFast step
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
-    reco = InViewReco("L2MuFastReco")
-
-    # Get Reco alg of muFast Step in order to set into the view
-    algAcc, alg = l2MuFastAlgCfg( flags, roisKey=reco.name+"RoIs")
-
-    reco.addRecoAlg( alg )
-    reco.merge( algAcc )
-
-    return reco
 
 
 def l2MuFastHypoCfg( flags, name="UNSPECIFIED", muFastInfo="UNSPECIFIED" ):

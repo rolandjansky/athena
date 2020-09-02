@@ -1,35 +1,7 @@
-# $Id: CMakeLists.txt 783840 2016-11-12 17:28:04Z ssnyder $
-################################################################################
-# Package: TrigNavigation
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigNavigation )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/AthContainers
-   Control/AthLinks
-   Control/AthToolSupport/AsgTools
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/SGTools
-   Control/StoreGate
-   GaudiKernel
-   Trigger/TrigEvent/TrigNavStructure
-   Trigger/TrigEvent/TrigStorageDefinitions
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthContainersInterfaces
-   Control/AthContainersRoot
-   Control/RootUtils
-   Control/CxxUtils
-   Event/xAOD/xAODCore
-   Trigger/TrigConfiguration/TrigConfHLTData
-   Trigger/TrigDataAccess/TrigSerializeCnvSvc
-   Trigger/TrigDataAccess/TrigSerializeResult )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex )

@@ -12,6 +12,8 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRawConditions/LArDSPThresholdsComplete.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
+#include "LArRawEvent/LArFebErrorSummary.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -22,7 +24,6 @@
 
 #include<mutex>
 
-class LArFebErrorSummary;
 class TTree;
 
 class LArFEBMonAlg : public AthMonitorAlgorithm {
@@ -43,6 +44,8 @@ private:
   {this, "Run1DSPThresholdsKey", "", "SG key for DSP thresholds, run1"};
   SG::ReadCondHandleKey<AthenaAttributeList> m_run2DSPThresholdsKey
   {this, "Run2DSPThresholdsKey", "", "SG key for DSP thresholds, run2"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_hdrContKey{this, "LArFebHeaderKey", "LArFebHeader"};
+  SG::ReadHandleKey<LArFebErrorSummary> m_lArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
   Gaudi::Property<bool> m_ignoreMissingHeaderEMB{this, "IgnoreMissingHeaderEMB", false};
   Gaudi::Property<bool> m_ignoreMissingHeaderPS{this, "IgnoreMissingHeaderPS", false};
   Gaudi::Property<int> m_nFEBnominal{this,"NominalFEBNumber",1524};

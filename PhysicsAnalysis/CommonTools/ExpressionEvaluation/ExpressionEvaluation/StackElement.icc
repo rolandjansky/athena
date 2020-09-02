@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,86 +13,81 @@
 #include <stdexcept>
 
 namespace ExpressionParsing {
+   inline StackElement::StackElement(const StackElement &a)
+      : m_type(a.m_type),
+        m_intVal(a.m_intVal),
+        m_doubleVal(a.m_doubleVal),
+        m_vecIntVal(a.m_vecIntVal),
+        m_vecDoubleVal(a.m_vecDoubleVal),
+        m_varName(a.m_varName),
+        m_proxyLoader(a.m_proxyLoader),
+        m_variableType(static_cast<IProxyLoader::VariableType>(a.m_variableType)),
+        m_determinedVariableType(a.m_determinedVariableType ? true : false)
+   {
+      if (a.m_moved) throw std::logic_error("Content already moved"); \
+   }
+   inline StackElement::StackElement(StackElement &&a)
+      : m_type(a.m_type),
+        m_intVal(a.m_intVal),
+        m_doubleVal(a.m_doubleVal),
+        m_vecIntVal(std::move(a.m_vecIntVal)),
+        m_vecDoubleVal(std::move(a.m_vecDoubleVal)),
+        m_varName(std::move(a.m_varName)),
+        m_proxyLoader(a.m_proxyLoader),
+        m_variableType(static_cast<IProxyLoader::VariableType>(a.m_variableType)),
+        m_determinedVariableType(a.m_determinedVariableType ? true : false)
+   {
+      if (a.m_moved) throw std::logic_error("Content already moved");
+   }
+
+   inline StackElement &StackElement::operator=(StackElement &&a) {
+      if (&a != this) {
+         if (a.m_moved) throw std::logic_error("Content already moved");
+         m_type                   = a.m_type;
+         m_intVal                 = a.m_intVal;
+         m_doubleVal              = a.m_doubleVal;
+         m_vecIntVal              = std::move(a.m_vecIntVal);
+         m_vecDoubleVal           = std::move(a.m_vecDoubleVal);
+         m_varName                = std::move(a.m_varName);
+         m_proxyLoader            = a.m_proxyLoader;
+         m_variableType           = static_cast<IProxyLoader::VariableType>(a.m_variableType);
+         m_determinedVariableType = a.m_determinedVariableType ? true : false;
+         m_moved                  = false;
+      }
+      return *this;
+   }
+
+   inline size_t StackElement::size() const {
+       switch( m_type ) {
+
+      case SE_VECINT:
+         return m_vecIntVal.size();
+         break;
+
+      case SE_VECDOUBLE:
+         return m_vecDoubleVal.size();
+         break;
+
+      case SE_INT:  [[fallthrough]] ;
+      case SE_DOUBLE:
+         return 1; // @TOOD 0?
+         break;
+
+      default:
+         throw std::runtime_error( "size(): Unsupported StackElement" );
+         break;
+      }
+   }
 
    /// Declare specialisations required in subsequent code
    template<>
-   const std::vector< int >&
-   StackElement::vectorValue( std::size_t sizeIfScalar ) const;
+   std::vector< int >
+   StackElement::vectorValue( std::size_t sizeIfScalar ) ;
    template<>
-   const std::vector< double >&
-   StackElement::vectorValue( std::size_t sizeIfScalar ) const;
+   std::vector< double >
+   StackElement::vectorValue( std::size_t sizeIfScalar ) ;
 
-   template< typename T >
-   bool StackElement::operator!=( const T& other ) const  {
 
-      return !( *this == other );
-   }
-
-#define BINARY_COMPARISON_OP_BASIC( OP, ADVOP )                         \
-   template< typename T >                                               \
-   bool StackElement::operator OP( const T& other ) const {             \
-      StackElement temp( this->ADVOP( other ) );                        \
-      if( temp.isScalar() ) {                                           \
-         return ( temp.asBool() );                                      \
-      } else {                                                          \
-         bool result = true;                                            \
-         for( int value : temp.vectorValue< int >() ) {                 \
-            if( ! value ) {                                             \
-               result = false;                                          \
-               break;                                                   \
-            }                                                           \
-         }                                                              \
-         return result;                                                 \
-      }                                                                 \
-   }
-
-   BINARY_COMPARISON_OP_BASIC( ==, _eq )
-   BINARY_COMPARISON_OP_BASIC( &&, _and )
-   BINARY_COMPARISON_OP_BASIC( ||, _or )
-   BINARY_COMPARISON_OP_BASIC( >, _gt )
-   BINARY_COMPARISON_OP_BASIC( >=, _gte )
-   BINARY_COMPARISON_OP_BASIC( <, _lt )
-   BINARY_COMPARISON_OP_BASIC( <=, _lte )
-
-#undef BINARY_COMPARISON_OP_BASIC
-
-#define BINARY_COMPARISON_OP( OP, BASEOP )                              \
-   template< typename T >                                               \
-   StackElement StackElement::OP( const T& other ) const {              \
-      return ( this->OP( StackElement( other ) ) );                     \
-   }                                                                    \
-   template< typename T >                                               \
-   StackElement                                                         \
-   StackElement::OP( const std::vector< T >& other ) const {            \
-      StackElement temp( *this );                                       \
-      temp.makeVectorIfNecessary( other );                              \
-      temp.ensureCompatibleVectors( other );                            \
-      StackElement original( temp );                                    \
-      temp.makeInt();                                                   \
-      for( std::size_t i = 0; i < temp.vectorValue< T >().size();       \
-           ++i ) {                                                      \
-         temp.m_vecIntVal[ i ] = original.vectorValue< T >()[ i ]       \
-            BASEOP other[ i ];                                          \
-      }                                                                 \
-      temp.m_vecDoubleHelper.clear();                                   \
-      for( int value : temp.m_vecIntVal ) {                             \
-         temp.m_vecDoubleHelper.push_back( value );                     \
-      }                                                                 \
-      return temp;                                                      \
-   }                                                                    \
-   template<>                                                           \
-   StackElement StackElement::OP( const StackElement& other ) const
-
-   BINARY_COMPARISON_OP( _eq, == );
-   BINARY_COMPARISON_OP( _neq, != );
-   BINARY_COMPARISON_OP( _and, && );
-   BINARY_COMPARISON_OP( _or, || );
-   BINARY_COMPARISON_OP( _gt, > );
-   BINARY_COMPARISON_OP( _gte, >= );
-   BINARY_COMPARISON_OP( _lt, < );
-   BINARY_COMPARISON_OP( _lte, <= );
-
-#undef BINARY_COMPARISON_OP
 
 #define ASSIGN_OP( OP )                                                 \
    template< typename T >                                               \
@@ -132,13 +127,11 @@ namespace ExpressionParsing {
       case SE_VECINT:                                                   \
          for( std::size_t i = 0; i < rhs.size(); ++i ) {                \
             m_vecIntVal[ i ] OP rhs[ i ];                               \
-            m_vecDoubleHelper[ i ] = m_vecIntVal[ i ];                  \
          }                                                              \
          break;                                                         \
       case SE_VECDOUBLE:                                                \
          for( std::size_t i = 0; i < rhs.size(); ++i ) {                \
             m_vecDoubleVal[i] OP rhs[ i ];                              \
-            m_vecIntHelper[ i ] = m_vecDoubleVal[ i ];                  \
          }                                                              \
          break;                                                         \
       default:                                                          \
@@ -148,20 +141,20 @@ namespace ExpressionParsing {
       }                                                                 \
       return *this;                                                     \
    }                                                                    \
-   template<>                                                           \
-   StackElement& StackElement::operator OP( const StackElement& rhs )
 
-   ASSIGN_OP( -= );
-   ASSIGN_OP( += );
-   ASSIGN_OP( *= );
-   ASSIGN_OP( /= );
+   ASSIGN_OP( -= )
+   ASSIGN_OP( += )
+   ASSIGN_OP( *= )
+   ASSIGN_OP( /= )
 
 #undef ASSIGN_OP
 
 #define BINARY_MUTING_OP( OP )                                          \
    template< typename T >                                               \
-   StackElement StackElement::operator OP( const T& rhs ) const {       \
-      StackElement temp( *this );                                       \
+   StackElement StackElement::operator OP( const T& rhs ) {             \
+      if (this->m_moved) throw std::logic_error("Content already moved");\
+      StackElement temp( std::move(*this) );                            \
+      this->m_moved=true;                                               \
       temp OP ## = rhs;                                                 \
       return temp;                                                      \
    }
@@ -174,15 +167,17 @@ namespace ExpressionParsing {
 #undef BINARY_MUTING_OP
 
    template< typename T >
-   const std::vector< T >& StackElement::vectorValue( std::size_t ) const {
+   std::vector< T > StackElement::vectorValue( std::size_t ) {
 
       throw std::runtime_error( "Unsupported vector type requested" );
    }
 
    template< typename T >
-   StackElement StackElement::_pow( const T& n ) const {
+   StackElement StackElement::_pow( const T& n ) {
 
-      StackElement temp( *this );
+      if (this->m_moved) throw std::logic_error("Content already moved");
+      StackElement temp( std::move(*this) );
+      this->m_moved=true;
       temp.makeDouble();
 
       switch( temp.m_type ) {
@@ -195,7 +190,6 @@ namespace ExpressionParsing {
       case SE_VECDOUBLE:
          for( std::size_t i = 0; i < temp.m_vecDoubleVal.size(); ++i ) {
             temp.m_vecDoubleVal[ i ] = std::pow( temp.m_vecDoubleVal[ i ], n );
-            temp.m_vecIntHelper[ i ] = temp.m_vecDoubleVal[ i ];
          }
          return temp;
          break;
@@ -207,7 +201,7 @@ namespace ExpressionParsing {
    }
 
    template<>
-   StackElement StackElement::_pow( const StackElement& n ) const;
+   StackElement StackElement::_pow( const StackElement& n );
 
    template< typename T >
    T StackElement::scalarValue() const {
@@ -245,7 +239,7 @@ namespace ExpressionParsing {
          return;
       }
 
-      const std::size_t ourlen = vectorValue< int >().size();
+      const std::size_t ourlen = this->size();
       if( ourlen != other.size() ) {
          throw std::runtime_error( "Incompatible vectors - different length" );
       }

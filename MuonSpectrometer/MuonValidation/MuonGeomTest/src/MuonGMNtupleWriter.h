@@ -1,21 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGM_MUONGMNTUPLEWRITER_H
 #define MUONGM_MUONGMNTUPLEWRITER_H
 
-// Athena & Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "TrkValidationUtils/SurfaceNtupleBranch.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TTree;
-
-namespace Muon {
-  class MuonIdHelperTool;
-}
 
 namespace MuonGM {
   
@@ -30,25 +25,15 @@ namespace MuonGM {
 
   public:
 
-    /** Standard Athena-Algorithm Constructor */
     MuonGMNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator);
 
-    /** Default Destructor */
-    virtual ~MuonGMNtupleWriter();
+    virtual ~MuonGMNtupleWriter()=default;
 
-    /** standard Athena-Algorithm method */
     StatusCode          initialize();
-
-    /** standard Athena-Algorithm method */
     StatusCode          execute();
-       
-    /** standard Athena-Algorithm method */
-    StatusCode          finalize();
        
   protected:
     void fillNtuple();
-
-    //ToolHandle<Trk::MuonIdHelperTool>  m_idHelper;  
 
     std::string m_ntupleTreeName;       /** jobOption: Ntuple tree name*/
     std::string m_ntupleFileName;       /** jobOption: Ntuple file name*/    

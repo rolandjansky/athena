@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////
@@ -341,7 +341,7 @@ void JobConfig::PrintCompleteSetup(std::ostream & log) {
 
 typedef std::pair<std::string,std::string> Key_t;
 typedef std::map< Key_t, std::vector<std::string> > ExcMap_t;
-typedef std::pair< Key_t, std::vector<std::string> > ExcMapPair_t;
+typedef std::pair< const Key_t, std::vector<std::string> > ExcMapPair_t;
 
 namespace {
    void parseExceptionsFile( const std::string& filename, std::map< Key_t, std::vector<std::string> >& exc, std::ostream & log ) {

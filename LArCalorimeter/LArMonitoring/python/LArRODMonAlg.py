@@ -62,8 +62,8 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #from AthenaCommon.Constants import VERBOSE
     #larRODMonAlg.OutputLevel=VERBOSE
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior :
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg() :
         # adding BadChan masker private tool
         from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
         acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys","almostDead","short","sporadicBurstNoise"],ToolName="BadLArChannelMask")
@@ -133,7 +133,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
     #Infos histos (vs. LB)
     info_hist_path='Infos/'
     cut = "#delta ADC>"+str(larRODMonAlg.ADCthreshold)+" and |t_offline| < "+str(larRODMonAlg.peakTimeCut)+" ns"
-    Group.defineHistogram('LBN,partition:EErrorsPerLB',
+    Group.defineHistogram('LBN,partitionI;EErrorsPerLB',
                                   title='Nb of errors in E per LB - ' +cut+':Luminosity Block:Partition',
                                   type='TH2I',
                                   weight='numE',
@@ -142,7 +142,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels = lArDQGlobals.Partitions
           )
-    Group.defineHistogram('LBN,partition:TErrorsPerLB',
+    Group.defineHistogram('LBN,partitionI;TErrorsPerLB',
                                   title='Nb of errors in T per LB - ' +cut+':Luminosity Block:Partition',
                                   type='TH2I',
                                   weight='numT',
@@ -151,7 +151,7 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   ylabels = lArDQGlobals.Partitions
           )
-    Group.defineHistogram('LBN,partition:QErrorsPerLB',
+    Group.defineHistogram('LBN,partitionI;QErrorsPerLB',
                                   title='Nb of errors in Q per LB - ' +cut+':Luminosity Block:Partition',
                                   type='TH2I',
                                   weight='numQ',
@@ -163,21 +163,20 @@ def LArRODMonConfigCore(helper, algoinstance,inputFlags, cellDebug=False, dspDeb
 
     #DQMD histos
     dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
-    darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
+    darray = helper.addArray([lArDQGlobals.Partitions],larRODMonAlg,"RODMon")
     darray.defineHistogram('Ediff,Erange;DE_ranges', title='EOnline - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',#'E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
                            type='TH2F', path=dqmd_hist_path,
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
                            ylabels=lArDQGlobals.DSPRanges 
           )
-    dqmd_hist_path='/LAr/DSPMonitoringNewAlg/DQMD/'
-    darray = helper.addArray([lArDQGlobals.Partitions+['all']],larRODMonAlg,"RODMon")
-    darray.defineHistogram('Ediff,Erange;DE_ranges', title='E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
+    Group.defineHistogram('Ediff,Erange;E_ranges_all', title='E_online - E_offline for all ranges : E_offline - E_online (MeV) : Energy range',
                            type='TH2F', path=dqmd_hist_path,
                            xbins=lArDQGlobals.DSP1Energy_Bins, xmin=lArDQGlobals.DSP1Energy_Min, xmax=lArDQGlobals.DSP1Energy_Max,
                            ybins=lArDQGlobals.DSPRanges_Bins, ymin=lArDQGlobals.DSPRanges_Min, ymax=lArDQGlobals.DSPRanges_Max,
                            ylabels=lArDQGlobals.DSPRanges
           )
+
 
     #per partition, currently in one dir only
     part_hist_path='/LAr/DSPMonitoringNewAlg/perPartition/'

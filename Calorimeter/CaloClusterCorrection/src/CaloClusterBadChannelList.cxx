@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -28,10 +28,6 @@ CaloClusterBadChannelList::CaloClusterBadChannelList(const std::string& type,
  declareProperty("badChannelTool",m_badChannelTool,"Tool handle for bad channel");
 }
 
-CaloClusterBadChannelList::~CaloClusterBadChannelList()
-{ }
-
-
 StatusCode CaloClusterBadChannelList::initialize()
 {
   CHECK( m_badChannelTool.retrieve() );
@@ -39,8 +35,8 @@ StatusCode CaloClusterBadChannelList::initialize()
 }
 
 
-void CaloClusterBadChannelList::makeCorrection(const EventContext& /*ctx*/,
-                                               CaloCluster* cluster) const
+void CaloClusterBadChannelList::makeCorrection (const Context& /*myctx*/,
+                                                CaloCluster* cluster) const
 {
   xAOD::CaloClusterBadChannelList badChanList;
 
@@ -58,7 +54,7 @@ void CaloClusterBadChannelList::makeCorrection(const EventContext& /*ctx*/,
          // in case cell is bad, add explicitly the dead bit to the status
          CaloBadChannel::BitWord myword = status.packedData();
          if (isBad && !status.dead()) {
-            status.setBit(CaloBadChannel::deadBit,myword,true);
+            CaloBadChannel::setBit(CaloBadChannel::deadBit,myword,true);
          }
          ATH_MSG_DEBUG(" bad channel found eta,phi,layer,status " << eta << " " << phi << " " << layer << " " << myword);
 	 badChanList.emplace_back(eta,phi,layer,myword);

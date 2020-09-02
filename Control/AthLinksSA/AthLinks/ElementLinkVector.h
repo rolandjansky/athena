@@ -194,30 +194,15 @@ private:
  */
 ENTER_ROOT_SELECTION_NS
 template< class CONTAINER >
-class ElementLinkVector
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 0, 2 )
-   : public SelectNoInstance
-#endif // ROOT_VERSION
+class ElementLinkVector : public SelectNoInstance
 {
 
 public:
    /// Helper definition
    typedef ElementLinkVector< CONTAINER > self;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-   /// Don't generate such dictionaries automatically
-   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dummy;
-
-   /// Mark all transient members:
-   ROOT_SELECTION_NS::TRANSIENT m_elVec;
-
-#else
-
    /// Mark all transient members:
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_elVec;
-
-#endif // ROOT_VERSION
 
 };
 EXIT_ROOT_SELECTION_NS

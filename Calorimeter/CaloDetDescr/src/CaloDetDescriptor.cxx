@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Identifier/Identifier.h"
@@ -55,7 +55,7 @@ CaloDetDescriptor::CaloDetDescriptor(const Identifier& id,
     } 
     else 
     {        
-      Tile_Base_ID* tileid = (Tile_Base_ID*)m_helper;
+      const Tile_Base_ID* tileid = static_cast<const Tile_Base_ID*>(m_helper);
       if(tileid->is_tile_barrel(id))
 	m_calo_sampl = CaloCell_ID::TileBar0;
       else if(tileid->is_tile_extbarrel(id))

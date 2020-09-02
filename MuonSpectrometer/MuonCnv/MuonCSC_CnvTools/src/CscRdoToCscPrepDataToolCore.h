@@ -1,26 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLCORE_H
 #define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLCORE_H 
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "CSCcabling/CSCcablingSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CscCalibTools/ICscCalibTool.h"
+#include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
+#include <vector>
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-class ICscCalibTool;
 class CscRawDataContainer;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 /// Author: Ketevi A. Assamagan
 /// BNL, April 03, 2005
@@ -34,19 +36,16 @@ class CscRawDataContainer;
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
-  class IMuonRawDataProviderTool;
-  class ICSC_RDO_Decoder;
+
+  /// This class is only used in a single-thread mode as CscRdoToCscPrepDataToolMT has the 
+  /// equivalent functions defined for a thread-safe setup
   class CscRdoToCscPrepDataToolCore : public AthAlgTool, virtual public IMuonRdoToPrepDataTool {
 
   public:
     
-    CscRdoToCscPrepDataToolCore(const std::string& type, const std::string& name,
-                            const IInterface* parent);
-    
-    
-    /** destructor 
-     */ 
-    virtual ~CscRdoToCscPrepDataToolCore();
+    CscRdoToCscPrepDataToolCore(const std::string& type, const std::string& name, const IInterface* parent);
+
+    virtual ~CscRdoToCscPrepDataToolCore()=default;
     
     /** AlgTool InterfaceID
      */
@@ -54,7 +53,6 @@ namespace Muon {
     
     
     StatusCode initialize();
-    StatusCode finalize();
     virtual StatusCode decode(std::vector<IdentifierHash>& givenIdhs, std::vector<IdentifierHash>& decodedIdhs);
     //debugging
     void printPrepData();
@@ -68,13 +66,10 @@ namespace Muon {
     virtual StatusCode decode(const CscRawDataContainer* rdo, 
 		      std::vector<IdentifierHash>& decodedIdhs);
     virtual StatusCode decode( const std::vector<uint32_t>& ) {return StatusCode::FAILURE;}
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
     
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager * m_muonMgr;
-    
-    /// CSC identifier helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
     /// CscStripPrepRawData containers
     Muon::CscStripPrepDataContainer* m_outputCollection;

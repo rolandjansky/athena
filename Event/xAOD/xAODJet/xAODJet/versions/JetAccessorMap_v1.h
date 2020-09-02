@@ -118,6 +118,7 @@ namespace xAOD {
           JET_DEFINE_ATT_ACCESSOR( TrackWidthPt500 );
           JET_DEFINE_ATT_ACCESSOR( EMFrac );
           JET_DEFINE_ATT_ACCESSOR( HECFrac );
+          JET_DEFINE_ATT_ACCESSOR( PSFrac );
           JET_DEFINE_ATT_ACCESSOR( EnergyPerSampling );
           JET_DEFINE_ATT_ACCESSOR( FracSamplingMax );
           JET_DEFINE_ATT_ACCESSOR( FracSamplingMaxIndex );

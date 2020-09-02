@@ -145,8 +145,6 @@ InDetFlags.doSpacePointFormation = redoPatternRecoAndTracking  # preProcessing i
 InDetFlags.doNewTracking     = redoPatternRecoAndTracking
 
 if readESD:
-    InDetFlags.doiPatRec         = False
-    InDetFlags.doxKalman         = False
     InDetFlags.doLowPt           = False
     InDetFlags.doCTBTracking      = False
     

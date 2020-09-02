@@ -12,13 +12,12 @@
 
 //_____________________________________________________________________________
 MvaTESEvaluator::MvaTESEvaluator(const std::string& name)
-  : TauRecToolBase(name)
-{
+  : TauRecToolBase(name) {
+  declareProperty("WeightFileName", m_sWeightFileName = "");
 }
 
 //_____________________________________________________________________________
-MvaTESEvaluator::~MvaTESEvaluator()
-{
+MvaTESEvaluator::~MvaTESEvaluator() {
 }
 
 //_____________________________________________________________________________

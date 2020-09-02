@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file TrkExSolenoidalIntersector/test/SolenoidalIntersector_test.cxx
@@ -10,7 +10,6 @@
 
 #undef NDEBUG
 #include "TrkExInterfaces/IIntersector.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
 #include "AthenaKernel/Units.h"
@@ -23,6 +22,20 @@
 #include <cassert>
 #include <cmath>
 
+// for the field map
+#include "PathResolver/PathResolver.h"
+#include "TFile.h"
+#include "TTree.h"
+
+// for populating conditions store
+#include "SGTools/TestStore.h"
+#include "StoreGate/WriteCondHandleKey.h"
+#include "StoreGate/WriteCondHandle.h"
+
+// for the conditions data
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
+#include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
 
 using Athena::Units::meter;
 using Athena::Units::GeV;
@@ -282,18 +295,80 @@ void test_perigee (Trk::IIntersector& tool)
 }
 
 
+std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string mapFile, double sol_current, double tor_current) {
+       // find the path to the map file
+    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
+    assert ( !resolvedMapFile.empty() );
+    // Do checks and extract root file to initialize the map
+    assert ( resolvedMapFile.find(".root") != std::string::npos );
+
+    std::unique_ptr<TFile> rootfile( std::make_unique<TFile>(resolvedMapFile.c_str(), "OLD") );
+    assert ( rootfile );
+    assert ( rootfile->cd() );
+    // open the tree
+    TTree* tree = (TTree*)rootfile->Get("BFieldMap");
+    assert(tree);
+
+    // create map
+    std::unique_ptr<MagField::AtlasFieldMap> field_map=std::make_unique<MagField::AtlasFieldMap>();
+
+    // initialize map
+    assert (field_map->initializeMap( rootfile.get(), sol_current, tor_current ));
+    return field_map;
+
+}
+
+void createSolenoidParametrizationCondData(SGTest::TestStore &store) {
+   SG::WriteCondHandleKey<AtlasFieldCacheCondObj> fieldKey {"fieldCondObj"};
+   SG::WriteCondHandleKey<Trk::SolenoidParametrization> parmKey {"SolenoidParametrization"};
+   assert( fieldKey.initialize().isSuccess());
+   assert( parmKey.initialize().isSuccess());
+
+   // from StoreGate/test/WriteCondHandle_test.cxx
+   EventIDBase now(0, EventIDBase::UNDEFEVT, 1);
+   EventContext ctx(1, 1);
+   ctx.setEventID( now );
+   ctx.setExtension( Atlas::ExtendedEventContext(&store) );
+   Gaudi::Hive::setCurrentContext(ctx);
+
+   EventIDBase s1_1(0, EventIDBase::UNDEFEVT, 0);
+   EventIDBase e1_1(0, EventIDBase::UNDEFEVT, 3);
+   EventIDRange r1_1 (s1_1,e1_1);
+
+
+   SG::WriteCondHandle<AtlasFieldCacheCondObj> fieldHandle {fieldKey};
+   std::unique_ptr<Trk::SolenoidParametrization> parm_ptr;
+   {
+      std::unique_ptr<MagField::AtlasFieldMap> fieldMap=getFieldMap("MagneticFieldMaps/bfieldmap_7730_20400_14m.root",7730,20400);
+      auto fieldCondObj = std::make_unique<AtlasFieldCacheCondObj>();
+      fieldCondObj->initialize(1. /*solenoid current scale factor*/, 1. /*toroid current scale factor*/, fieldMap.release());
+
+      parm_ptr = std::make_unique<Trk::SolenoidParametrization>(*fieldCondObj);
+      assert( fieldHandle.record(r1_1, std::move(fieldCondObj)).isSuccess());
+   }
+   assert( parm_ptr.get());
+
+   SG::WriteCondHandle<Trk::SolenoidParametrization> parmHandle {parmKey};
+   assert( parmHandle.record(r1_1,std::move(parm_ptr) ).isSuccess());
+}
+
 int main()
 {
   std::cout << "SolenoidalIntersector_test\n";
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   ISvcLocator* svcloc = nullptr;
   Athena_test::initGaudi ("SolenoidalIntersector_test.txt", svcloc);
+
+  StoreGateSvc *cs=nullptr;
+  assert (svcloc->service("StoreGateSvc/ConditionStore",cs).isSuccess());
+
+  SGTest::TestStore dumstore;
+  createSolenoidParametrizationCondData(dumstore);
+  // initialize cond obj with current scale factors and the field svc (needed to setup cache)
+
   ToolHandle<Trk::IIntersector> tool ("Trk::SolenoidalIntersector");
   assert( tool.retrieve().isSuccess() );
-  ServiceHandle<MagField::IMagFieldSvc> field ("MagField::AtlasFieldSvc/AtlasFieldSvc", "test");
-  Incident inc_br ("test", IncidentType::BeginRun);
-  dynamic_cast<IIncidentListener*>(&*field)->handle (inc_br);
-  
+
   test_plane (*tool);
   test_line (*tool);
   test_cylinder (*tool);

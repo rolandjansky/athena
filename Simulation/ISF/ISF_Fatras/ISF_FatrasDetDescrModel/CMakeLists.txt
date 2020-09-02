@@ -5,25 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasDetDescrModel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasDetDescrInterfaces
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          PRIVATE
-                          Control/StoreGate
-                          GaudiKernel )
-
 # External dependencies:
 find_package( Eigen )
 find_package( CLHEP )

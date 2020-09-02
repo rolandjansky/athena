@@ -701,7 +701,7 @@ def ConfigureInputType():
         rec.doESD=False
         logAutoConfiguration.info ("setting rec.readESD=%s "%rec.readESD() )
         logAutoConfiguration.info ("setting rec.doAOD=%s "%rec.doAOD() )
-    elif ItemInListStartsWith ("Stream1", streamsName)  or ItemInListStartsWith ("StreamRDO", streamsName) or OverlapLists(streamsName,listRAWtoDPD):
+    elif ItemInListStartsWith ("Stream1", streamsName) or ItemInListStartsWith ("StreamRDO", streamsName) or ItemInListStartsWith ("OutputStreamRDO", streamsName) or OverlapLists(streamsName,listRAWtoDPD):
         logAutoConfiguration.info("Input RDO detected")   
         rec.readRDO=True
         rec.readESD=False

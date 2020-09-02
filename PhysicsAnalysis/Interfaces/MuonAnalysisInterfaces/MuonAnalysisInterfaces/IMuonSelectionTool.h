@@ -74,7 +74,7 @@ namespace CP {
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const =0;
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const =0;
      
-      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error   
+      /// Returns true if a CB muon passes a pt- and eta-dependent cut on the relative CB q/p error   
       virtual bool passedErrorCutCB(const xAOD::Muon&) const=0;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks 

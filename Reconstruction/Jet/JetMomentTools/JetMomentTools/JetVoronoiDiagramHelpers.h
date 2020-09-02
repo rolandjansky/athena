@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetVoronoiDiagramHelpers.h
@@ -98,7 +98,7 @@ namespace JetVoronoiDiagramHelpers {
         void FillVoroPolygon(VoronoiPolygonBoost & out) const {
             if (empty()) return;
             // add all
-            for ( const Point p : *this ) out.outer().push_back(VoronoiPointBoost(p.x,p.y));
+            for ( const Point& p : *this ) out.outer().push_back(VoronoiPointBoost(p.x,p.y));
             // add first again to close shape if necessary
             if ( front() != back() ) out.outer().push_back(VoronoiPointBoost(front().x,front().y));
             // correct geometry

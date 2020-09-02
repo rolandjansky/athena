@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSSERVICES_PIXMAPDBWRITER_H
@@ -61,7 +61,7 @@ class PixMapDBWriter : public AthAlgorithm{
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
-  std::vector<int> getPositionFromDCSID (std::string DCSID);
+  std::vector<int> getPositionFromDCSID (const std::string& DCSID);
   std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 
   std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {

@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETCONTAINERHISTOFILLER_H
@@ -19,6 +19,7 @@
 #include "AsgTools/AsgTool.h"
 
 #include "JetMonitoring/JetHistoBase.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 // temporary, we should define a proper interface
@@ -57,7 +58,8 @@ protected:
   /// The list of histogramming tools
   ToolHandleArray<JetHistoBase> m_histoTools;
   /// the jet container to build histos from
-  std::string m_jetContainerName;
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this, "JetContainer", ""};
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
 
 };
 #endif

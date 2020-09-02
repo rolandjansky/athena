@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 
 //Random Numbers
 #include "AthenaKernel/RNGWrapper.h"
@@ -152,6 +152,9 @@ StatusCode MdtDigitizationTool::initialize() {
 
   if ( m_t0_from_DB ) {
     ATH_CHECK(m_calibrationDbTool.retrieve());
+  }
+  else {
+    m_calibrationDbTool.disable();
   }
 
   //Gather masked stations
@@ -503,8 +506,8 @@ bool MdtDigitizationTool::handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit, CL
   if(m_DoQballCharge == true ) {
     // chargeCalculator returns the value of electric charge for Qball particle.
     // particleGamma returns the value of gamma for Qball particle.
-    qgamma=particleGamma(hit);
-    qcharge=chargeCalculator(hit); 
+    qgamma=particleGamma(hit, phit.eventId());
+    qcharge=chargeCalculator(hit, phit.eventId()); 
     
     MdtDigiToolInput digiInput1(fabs(driftRadius),distRO,0.,0.,qcharge,qgamma); 
     digiInput = digiInput1;
@@ -821,8 +824,8 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
       //-ForCosmics
     }
-    if(digitCollection==NULL) {
-      ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
+    if(!digitCollection) {
+      ATH_MSG_ERROR( "Trying to use nullptr digitCollection" );
       return false;
     }
       
@@ -903,7 +906,9 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
 
       //Create the Deposit for MuonSimData
-      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
+      const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+      const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId(),evColl,idxFlag), MuonMCData((float)driftRadius,localZPos));
 
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
@@ -939,8 +944,8 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   
   StatusCode status;
   // Get the messaging service, print where you are
-  MdtDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
-  if (digitContainer->end() ==  it_coll) {
+  const MdtDigitCollection *coll = digitContainer->indexFindPtr(coll_hash);
+  if (nullptr ==  coll) {
     digitCollection = new MdtDigitCollection(elementId, coll_hash);
     status = digitContainer->addCollection(digitCollection, coll_hash);
     if (status.isFailure())
@@ -949,7 +954,7 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
       ATH_MSG_DEBUG ( "New MdtDigitCollection with key=" << coll_hash << " recorded in StoreGate." );
   } 
   else { 
-    digitCollection = const_cast<MdtDigitCollection*>( *it_coll );
+    digitCollection = const_cast<MdtDigitCollection*>( coll );
   }
   return digitCollection;
 }

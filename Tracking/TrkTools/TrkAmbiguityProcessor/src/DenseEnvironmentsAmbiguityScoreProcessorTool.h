@@ -21,13 +21,10 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-
+#include "AmbiCounter.icc"
 #include <map>
 #include <set>
 #include <vector>
-#include <functional>
-#include <ostream>
-
 
 namespace InDet{
   class IPixelClusterSplitProbTool;
@@ -41,12 +38,19 @@ namespace Trk {
 
   class DenseEnvironmentsAmbiguityScoreProcessorTool: public AthAlgTool, 
                                                       virtual public ITrackAmbiguityScoreProcessorTool
-    {
-    public:
-      
+  {
+  public:
+    enum class EStatType {
+      kNtracks,
+      kNcandidates,
+      kNcandScoreZero,
+      kNcandDouble,
+      kNCounter
+    };
+    using TrackStat3 = AmbiCounter<EStatType>;
       // public types
       typedef std::multimap< TrackScore, const Track* > TrackScoreMap;
-      typedef std::set<const PrepRawData*> PrdSignature;
+      typedef std::vector<const PrepRawData*> PrdSignature;
       typedef std::set<PrdSignature> PrdSignatureSet;
       
       // default methods
@@ -60,69 +64,9 @@ namespace Trk {
 
       /** statistics output to be called by algorithm during finalize. */
       void statistics() override;
+      void dumpStat(MsgStream &out) const;
     private:
-      class TrackStat {
-      public:
-         TrackStat(const std::vector<float> &eta_bounds) : m_etabounds(&eta_bounds){}
 
-         enum EStatType {
-            kNtracks,
-            kNcandidates,
-            kNcandScoreZero,
-            kNcandDouble,
-            kNStatTypes
-         };
-         enum EGlobalStatType {
-            kNevents,
-            kNInvalidTracks,
-            kNTracksWithoutParam,
-            kNGlobalStatTypes,
-         };
-         /** internal monitoring: categories for counting different types of extension results*/
-         enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iForwrd = 4, kNStatRegions=5};
-
-         class Counter {
-         public:
-            Counter &operator+=(const Counter &a) {
-               m_counter += a.m_counter;
-               return *this;
-            }
-            Counter &operator++()   { ++m_counter; return *this;}
-            operator int() const    { return m_counter; }
-            int value()    const    { return m_counter; }
-         private:
-            unsigned int m_counter=0;
-         };
-
-         void newEvent() {
-            ++m_globalCounter[kNevents];
-         }
-
-         TrackStat &operator+=(const TrackStat &a) {
-            for (unsigned int i=0; i<kNGlobalStatTypes; ++i) {
-               m_globalCounter[i]+= a.m_globalCounter[i];
-            }
-            for (unsigned int i=0; i<kNStatTypes; ++i) {
-               for (unsigned int region_i=0; region_i< kNStatRegions; ++region_i) {
-                  m_counter[i][region_i] += a.m_counter[i][region_i];
-               }
-            }
-            return *this;
-         }
-
-         /** helper for monitoring and validation: does success/failure counting */
-         void increment_by_eta(EStatType type, const Track* track, bool updateAll=true);
-         void dumpStatType(MsgStream &out, const std::string &head, EStatType type, unsigned short iw=9) const;
-         void dump(MsgStream &out) const;
-
-         const std::vector<float>  &etaBounds() const { return *m_etabounds; }  //!< eta intervals for internal monitoring
-
-      private:
-         std::array<Counter,kNGlobalStatTypes>                      m_globalCounter;
-         std::array<std::array<Counter, kNStatRegions>,kNStatTypes> m_counter;
-
-         const std::vector<float>  *m_etabounds;           //!< eta intervals for internal monitoring
-      };
       
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
          @param tracks the TrackCollection is looped over, 
@@ -176,46 +120,11 @@ namespace Trk {
       /**NN split sprob cut for 3 particle clusters */      
       float m_sharedProbCut2;
 
-      std::vector<float>     m_etabounds;           //!< eta intervals for internal monitoring
+      std::vector<float>     m_etaBounds;           //!< eta intervals for internal monitoring
       mutable std::mutex m_statMutex;
-      mutable TrackStat  m_stat ATLAS_THREAD_SAFE;
+      mutable TrackStat3  m_stat ATLAS_THREAD_SAFE;
   };
 } //end ns
 
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::increment_by_eta(EStatType type,
-                                                                               const Track* track,
-                                                                               bool updateAll) {
-   std::array<Counter,kNStatRegions> &Ntracks = m_counter[type];
-   if (updateAll) ++Ntracks[iAll];
-
-   // test
-   if (!track) {
-      ++m_globalCounter[kNInvalidTracks];
-   }
-   // use first parameter
-   if (!track->trackParameters()) {
-      ++m_globalCounter[kNTracksWithoutParam];
-   }
-   else {
-      double eta = track->trackParameters()->front()->eta();
-      for (unsigned int region_i=1; region_i< kNStatRegions; ++region_i) {
-         if (std::abs(eta)      < (*m_etabounds)[region_i-1]) {
-            ++Ntracks[region_i];
-            break;
-         }
-      }
-   }
-}
-
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dumpStatType(MsgStream &out,
-                                                                           const std::string &head,
-                                                                           EStatType type,
-                                                                           unsigned short iw) const {
-   out << head << std::setiosflags(std::ios::dec);
-   for (unsigned region_i=0; region_i<kNStatRegions; ++region_i) {
-      out << std::setw(iw) << m_counter[type][region_i].value();
-   }
-   out << std::endl;
-}
 
 #endif // TrackAmbiguityProcessorTool_H

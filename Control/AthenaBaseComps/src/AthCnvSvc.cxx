@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthCnvSvc.cxx 
@@ -12,7 +12,7 @@
 // STL includes
 
 // Framework includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/IConverter.h"
@@ -194,7 +194,7 @@ AthCnvSvc::setDataProvider(IDataProviderSvc* pDataSvc)
   m_dataSvc->addRef();
   Workers::iterator stop  = m_workers.end();
   Workers::iterator start = m_workers.begin();
-  for(Workers::iterator i=start; i != stop; i++ )    {
+  for(Workers::iterator i=start; i != stop; ++i )    {
     IConverter* cnv = i->second.converter();
     if ( 0 != cnv )   {
       if (cnv->setDataProvider(m_dataSvc).isFailure()) {
@@ -245,7 +245,7 @@ AthCnvSvc::setAddressCreator(IAddressCreator* creator)
   m_addressCreator = creator;
   Workers::iterator stop  = m_workers.end();
   Workers::iterator start = m_workers.begin();
-  for(Workers::iterator i=start; i != stop; i++ )    {
+  for(Workers::iterator i=start; i != stop; ++i )    {
     IConverter* cnv = i->second.converter();
     if ( 0 != cnv )   {
       if (cnv->setAddressCreator(m_addressCreator).isFailure()) {

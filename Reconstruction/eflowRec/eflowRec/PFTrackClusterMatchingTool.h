@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -14,6 +14,7 @@
 #ifndef PFMATCHINGTOOL_H_
 #define PFMATCHINGTOOL_H_
 
+#include <utility>
 #include "eflowRec/PFMatcher.h"
 
 class eflowRecCluster;
@@ -38,8 +39,8 @@ public:
   StatusCode finalize();
 
   /** Get n clusters that matches best to a given track */
-  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int n);
-  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n);
+  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int n) const;
+  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n) const;
 
 private:
 
@@ -54,11 +55,6 @@ private:
 
   /** The track cluster matcher to perform the actual matching */
   std::unique_ptr<PFMatch::TrackClusterMatcher> m_matcher;
-  
-  /** Count the number of tracks processed -- for the summary in finalize() */
-  unsigned int m_tracksProcessed;
-  /** Count the number of matches created -- for the summary in finalize() */
-  unsigned int m_tracksMatched;
 };
 
 inline const InterfaceID& PFTrackClusterMatchingTool::interfaceID() { return IID_PFTrackClusterMatchingTool; }

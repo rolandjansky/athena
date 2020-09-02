@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_G4FieldManagerToolBase_H
@@ -15,7 +15,11 @@
 #include "G4AtlasInterfaces/IFieldManagerTool.h"
 #include "G4AtlasInterfaces/IG4FieldSvc.h"
 
+// Geant4 includes
+#include "G4Version.hh"
+
 // Forward declarations
+class G4VIntegrationDriver;
 class G4MagIntegratorStepper;
 
 
@@ -42,34 +46,43 @@ class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
 
   protected:
 
+#if G4VERSION_NUMBER >= 1040
+    /// Common method to construct a driver with a stepper of requested type.
+    G4VIntegrationDriver*
+    createDriverAndStepper(std::string stepperType, G4MagneticField* field) const;
+#endif
+
+#if G4VERSION_NUMBER < 1040
     /// Common method to construct a stepper of requested type.
     G4MagIntegratorStepper*
     getStepper(std::string stepperType, G4MagneticField* field) const;
+#endif
 
     /// Common method to apply configuredfield parameters
     StatusCode setFieldParameters(G4FieldManager* fieldMgr) const;
 
     /// Handle to the G4 field service
-    ServiceHandle<IG4FieldSvc> m_fieldSvc;
+    ServiceHandle<IG4FieldSvc> m_fieldSvc{this, "FieldSvc", "G4FieldSvc", "Service providing a G4MagneticField"};
 
     /// @todo TODO why is this duplicated in the g4 field svc?
-    bool m_fieldOn;
+    Gaudi::Property<bool> m_fieldOn{this, "FieldOn", true, "Toggles field on/off"};
 
     /// The type of stepper to use
-    std::string m_integratorStepper;
+    Gaudi::Property<std::string> m_integratorStepper{this, "IntegratorStepper", "AtlasRK4", "Integrator stepper name"};
 
     /// The type of equation of motion to use
-    ToolHandle<IEquationOfMotionTool> m_equationOfMotion;
+    ToolHandle<IEquationOfMotionTool> m_equationOfMotion{this, "EquationOfMotion", "", ""};
     //std::string m_equationOfMotion;
 
     /// @name Field parameters
     /// @{
-    double m_minEps;
-    double m_maxEps;
-    double m_deltaChord;
-    double m_deltaOneStep;
-    double m_deltaIntersection;
-    double m_maxStep;
+    Gaudi::Property<double> m_minEps{this, "MinimumEpsilonStep", -1.0, "Minimum epsilon (see G4 documentation)"};
+    Gaudi::Property<double> m_maxEps{this, "MaximumEpsilonStep", -1.0, "Maximum epsilon (see G4 documentation)"};
+    Gaudi::Property<double> m_deltaChord{this, "DeltaChord", -1.0, "Missing distance for the chord finder"};
+    Gaudi::Property<double> m_deltaOneStep{this, "DeltaOneStep", -1.0, "Delta(one-step)"};
+    Gaudi::Property<double> m_deltaIntersection{this, "DeltaIntersection", -1.0, "Accuracy for boundary intersection"};
+    Gaudi::Property<double> m_maxStep{this, "MaximumStep", -1.0, "Maximum step length in field (see G4 documentation)"};
+    Gaudi::Property<double> m_minStep{this, "MinimumStep",1e-2, "Minimum step length in field (see G4 documentation)"};
     /// @}
 
 };

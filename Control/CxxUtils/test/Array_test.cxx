@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: Array_test.cxx,v 1.2 2009-04-08 21:12:45 ssnyder Exp $
 /**
  * @file  Array_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -16,6 +14,8 @@
 
 #include "CxxUtils/Array.h"
 #include <cassert>
+#include <iostream>
+#include <sstream>
 
 
 using namespace CxxUtils;
@@ -223,6 +223,52 @@ void test5()
 }
 
 
+// Test fromArrayrep
+void test6()
+{
+  Arrayrep rep;
+  rep.m_shape.assign ({3});
+  rep.m_data.assign ({1.5, 2.5, 3.5});
+  rep.init_sizes();
+  float f;
+  fromArrayrep (rep, f);
+  assert (f == 1.5);
+  int i;
+  fromArrayrep (rep, i);
+  assert (i == 1);
+  bool b;
+  fromArrayrep (rep, b);
+  assert (b == true);
+  Array<1> a;
+  fromArrayrep (rep, a);
+  assert (a.size() == 3);
+  assert (a[0] == 1.5);
+  assert (a[1] == 2.5);
+  assert (a[2] == 3.5);
+}
+
+
+// Test operator<<
+void test7()
+{
+  Arrayrep ar1 (" [[ 1.5, 2.5], [3.5, 4.5]] ");
+  Array<2> a1 (ar1);
+  std::ostringstream ss1;
+  ss1 << a1;
+  assert (ss1.str() == "[\n"
+          "    [1.5, 2.5],\n"
+          "    [3.5, 4.5]\n"
+          "    ]\n");
+
+  Arrayrep rep0;
+  rep0.m_data.push_back (101);
+  Array<0> a0a (rep0);
+  std::ostringstream ss2;
+  ss2 << a0a;
+  assert (ss2.str() == "101");
+}
+
+
 int main()
 {
   test1();
@@ -230,5 +276,7 @@ int main()
   test3();
   test4();
   test5();
+  test6();
+  test7();
   return 0;
 }

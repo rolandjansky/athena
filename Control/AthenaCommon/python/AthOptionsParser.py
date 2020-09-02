@@ -46,7 +46,7 @@ _allowed_values = {
                     'execute', 'finalize', 'endrun', 'stop',
                     'full', 'full-athena' ],
 
-    'pmon': ('perfmon', 'fastmon', 'fullmon', 'sdmon', 'sdmonfp',
+    'pmon': ('perfmon', 'fastmon', 'fullmon', 'sdmon', 'sdmonfp', 'perfmonmt', 'fastmonmt', 'fullmonmt',
              'malloc-mon', 'heph-mon', 'dso-mon', 'pers-mon', 'dp-mon',
              'post-proc',),
     }

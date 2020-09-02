@@ -8,15 +8,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "MuonSimData/MuonSimData.h" // cannot fw declare typedef MuonSimData::Deposit
 
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
-class IIncidentSvc;
-class IAtRndmGenSvc;
 class sTgcDigit;
 class TTree;
 class MuonSimDataCollection;

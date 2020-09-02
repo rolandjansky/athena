@@ -3,8 +3,8 @@
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
+
 #include "TObjArray.h"
-#include <memory>
 
 TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
@@ -12,10 +12,9 @@ TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name,
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::initialize() {
-
-  ATH_CHECK(m_MuonIdHelperTool.retrieve());
+  ATH_CHECK(AthMonitorAlgorithm::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_extrapolator.retrieve()); 
-
   ATH_CHECK(m_MuonContainerKey.initialize());
   ATH_CHECK(m_MuonRoIContainerKey.initialize());
   ATH_CHECK(m_TgcPrepDataContainerKey.initialize());
@@ -49,7 +48,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     m_trigTagDefs.push_back(def);
   }
   
-  return AthMonitorAlgorithm::initialize();
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
@@ -183,7 +182,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   for(auto mymuon : mymuons){
     mymuon.probeOK_any = false;
     mymuon.probeOK_Z = false;
-    for(const auto mu2 : mymuons){
+    for(const auto& mu2 : mymuons){
       if( mymuon.muon == mu2.muon )continue;
       if( !mu2.tagged )continue;
       mymuon.probeOK_any = true;
@@ -230,7 +229,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     ATH_MSG_ERROR("evtStore() does not contain TgcPrepDataContainer with name "<< m_TgcPrepDataContainerKey);
     return StatusCode::FAILURE;
   }
-  const TgcIdHelper& tgcIdHelper = m_MuonIdHelperTool->tgcIdHelper();
+  const TgcIdHelper& tgcIdHelper = m_idHelperSvc->tgcIdHelper();
   std::vector<TgcHit> tgcHits;
   for(auto tgccnt : *tgcPrd){
     for(auto data : *tgccnt){
@@ -470,7 +469,7 @@ TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface* tso
   }
   double targetZ = pos.z();
   double trackZ = track->position().z();
-  if (fabs(trackZ)<fabs(targetZ)-2000. || fabs(trackZ)>fabs(targetZ)+2000.){
+  if (std::abs(trackZ)<std::abs(targetZ)-2000. || std::abs(trackZ)>std::abs(targetZ)+2000.){
     return 0;
   }
   Amg::Transform3D* matrix = new Amg::Transform3D;
@@ -485,7 +484,7 @@ TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface* tso
     return 0;
   }
   distance[0] = trackZ;
-  distance[1] = fabs(trackZ - targetZ);
+  distance[1] = std::abs(trackZ - targetZ);
   const bool boundaryCheck = true;
   const Trk::Surface* surface = disc;
   const Trk::TrackParameters* param = m_extrapolator->extrapolate(*track,
@@ -560,9 +559,9 @@ TgcRawDataMonitorAlgorithm::getError(const std::vector<double>& inputVec) const
   }
   const double mean = sum/nSize;
   for(int jj = 0; jj < nSize; jj++){
-    sum2 = sum2 + pow((inputVec.at(jj)-mean),2);
+    sum2 = sum2 + std::pow((inputVec.at(jj)-mean),2);
   }
-  const double stdDev = sqrt(sum2/nSize);
+  const double stdDev = std::sqrt(sum2/nSize);
   return stdDev;
 }
 

@@ -12,7 +12,6 @@
 61020,	TRF_MOD_EP,		DllClassManager Entry point failure in module
 61100,	TRF_ALGOINIT,		EventLoopMgr Unable to initialize Algorithm
 61200,	TRF_SVRINIT,		ServiceManager Unable to initialize Service
-62000,	TRF_SEALSVC,		ServiceManager Finalization of service AthenaSealSvc failed
 62100,	TRF_DETSTORE,		pixelRoI service_i: can not locate service DetectorStore
 62200,	TRF_POOLCONF,		pool::PersistencySvc::UserDatabase::connectForRead: PFN is not existing in the catalog
 62300,	TRF_EVNTSEL,		ServiceManager: unable to initialize Service: EventSelector

@@ -99,8 +99,6 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.
 
 
 #from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-## --- check dictionary
-#ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 ## --- commit interval (test)
 #ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 #MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )

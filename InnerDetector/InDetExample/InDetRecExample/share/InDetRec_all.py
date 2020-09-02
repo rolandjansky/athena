@@ -56,7 +56,7 @@ if globalflags.InputFormat() == 'bytestream':
   # configure converters, including cabling
   include("InDetRecExample/InDetReadBS_jobOptions.py")
   if 'athenaCommonFlags' in dir() and athenaCommonFlags.FilesInput():
-    ServiceMgr.ByteStreamInputSvc.FullFileName  = athenaCommonFlags.FilesInput()
+    ServiceMgr.EventSelector.Input  = athenaCommonFlags.FilesInput()
 else:
   # set up pool reading
   import AthenaPoolCnvSvc.ReadAthenaPool
@@ -79,7 +79,7 @@ if InDetFlags.doTruth():
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
-print alg
+print (alg)
 topSequence += alg
 
 #------------------------------------------------------------
@@ -91,7 +91,7 @@ if doEdmMonitor:
   InDetEdmMonitor = Trk__EventDataModelMonitor (name = 'InDetEdmMonitor')
   topSequence += InDetEdmMonitor
   if (InDetFlags.doPrintConfigurables()):
-    print          InDetEdmMonitor
+    print          (InDetEdmMonitor)
 ## DBM TruthLinks
 if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()) and InDetFlags.doTruth():
   from AthenaCommon.Resilience import protectedInclude
@@ -128,12 +128,6 @@ if InDetFlags.doMonitoring():
 
 ServiceMgr.StoreGateSvc.ActivateHistory = False
 ServiceMgr.StoreGateSvc.Dump            = False
-
-# ------------------------------------------------------------
-# get stack dump
-# ------------------------------------------------------------
-
-ServiceMgr.CoreDumpSvc.FatalHandler = 438
 
 #--------------------------------------------------------------
 # run JiveXML for Atlantis event display
@@ -187,7 +181,7 @@ if InDetFlags.doSplitReco() :
   )
   builder.DoFiltering = False
   topSequence += builder
-  print builder
+  print (builder)
 
 # ------------------------------------------------------------
 # write BS 
@@ -204,8 +198,6 @@ if 'doWriteBS' in dir() and doWriteBS:
 if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
   # --- load setup
   from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-  # --- check dictionary
-  ServiceMgr.AthenaSealSvc.CheckDictionary = True
 
 # MC truth information
   if doWriteESD or doWriteAOD:

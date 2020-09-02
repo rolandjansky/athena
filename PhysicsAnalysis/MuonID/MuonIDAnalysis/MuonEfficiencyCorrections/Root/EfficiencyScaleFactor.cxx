@@ -20,7 +20,7 @@ namespace CP {
             m_is_up(syst_type_bitmap & EffiCollection::UpVariation),
             m_is_lowpt(syst_type_bitmap & EffiCollection::JPsiAnalysis),
             m_respond_to_kineDepSyst(syst_type_bitmap & EffiCollection::PtDependent),
-            m_seperateBinSyst(syst_type_bitmap & EffiCollection::UnCorrelated),
+            m_separateBinSyst(syst_type_bitmap & EffiCollection::UnCorrelated),
             m_sf(),
             m_eff(),
             m_mc_eff(),
@@ -44,7 +44,9 @@ namespace CP {
             m_firstRun(1),
             m_lastRun(999999){
     
-            
+        if (ref_tool.measurement() == CP::MuonEfficiencyType::Iso){
+            dRJetAxisHandler::set_close_jet_decorator(ref_tool.close_by_jet_decoration());
+        }    
         // open the file
         std::unique_ptr<TFile> f (TFile::Open(file.c_str(), "READ"));
         if (!f || !f->IsOpen()) {
@@ -175,8 +177,8 @@ namespace CP {
     std::string EfficiencyScaleFactor::sysname(bool with_direction) const {
         return m_syst_name.empty() ? "" : EfficiencyTypeName(m_measurement) +  "_" + m_syst_name +(m_is_lowpt ? "_LOWPT" : "") + (with_direction ? (m_is_up ?"__1UP" : "__1DN") :"");  
     }
-    bool EfficiencyScaleFactor::SeperateSystBins() const {
-        return m_seperateBinSyst;
+    bool EfficiencyScaleFactor::separateBinSyst() const {
+        return m_separateBinSyst;
     }
     bool EfficiencyScaleFactor::IsUpVariation() const{
         return m_is_up;
@@ -286,7 +288,7 @@ namespace CP {
         return m_sf ? m_sf->isOverFlowBin(b) : true;
     }
     CorrectionCode EfficiencyScaleFactor::ScaleFactor(const xAOD::Muon& mu, float & SF) const {
-        if (m_seperateBinSyst && m_NominalFallBack) {
+        if (m_separateBinSyst && m_NominalFallBack) {
             int bin = -1;
             CorrectionCode cc = m_sf->FindBin(mu, bin);
             if (cc == CP::CorrectionCode::Error) {
@@ -302,7 +304,7 @@ namespace CP {
     }   
 
     CorrectionCode EfficiencyScaleFactor::DataEfficiency(const xAOD::Muon& mu, float & Eff) const {
-        if (m_seperateBinSyst && m_NominalFallBack && m_eff) {
+        if (m_separateBinSyst && m_NominalFallBack && m_eff) {
             int bin = -1;
             CorrectionCode cc = m_eff->FindBin(mu, bin);
             if (cc == CP::CorrectionCode::Error) {
@@ -317,7 +319,7 @@ namespace CP {
         return cc;
     }
     CorrectionCode EfficiencyScaleFactor::MCEfficiency(const xAOD::Muon& mu, float & Eff) const {
-        if (m_seperateBinSyst && m_NominalFallBack && m_mc_eff) {
+        if (m_separateBinSyst && m_NominalFallBack && m_mc_eff) {
             int bin = -1;
             CorrectionCode cc = m_mc_eff->FindBin(mu, bin);
             if (cc == CP::CorrectionCode::Error) {
@@ -442,7 +444,7 @@ namespace CP {
         if (!h) return;
         TRandom3 Rndm(seed);
         replicas.clear();
-        replicas.resize(nrep);
+        replicas.reserve(nrep);
         int nBins = h->nBins();
         for (int t = 0; t < nrep; t++) {
             replicas.push_back(package_histo(h->GetHist()));
@@ -459,7 +461,7 @@ namespace CP {
             Error("EfficiencyScaleFactor::SetSystematicBin()", "No fallback has been given for %s", sysname().c_str());
             return false;
         }
-        if (!m_seperateBinSyst || bin < 1 || bin > nBins()) {
+        if (!m_separateBinSyst || bin < 1 || bin > nBins()) {
             Error("EfficiencyScaleFactor::SetSystematicBin()", "The current bin %i is out of the maximum range %u ", bin, nBins());
             return false;
         }

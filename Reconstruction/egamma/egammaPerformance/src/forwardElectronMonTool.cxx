@@ -69,7 +69,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "egammaPerformance/forwardElectronMonTool.h"
+#include "forwardElectronMonTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -97,9 +97,6 @@ forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const s
      m_hLB_N(nullptr),
      m_nForwardElectrons(0)
 {
-  // Name of the electron collection
-  declareProperty("ForwardElectronContainer", m_ForwardElectronContainer = "egammaForwardCollection", "Name of the forward electron collection" );
-
   m_lumiBlockNumber = 0;
   m_nForwardElectronsInCurrentLB = 0;
   m_nForwardElectronsPerLumiBlock.clear();
@@ -108,6 +105,13 @@ forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const s
 
 forwardElectronMonTool::~forwardElectronMonTool()
 {
+}
+
+StatusCode forwardElectronMonTool::initialize()
+{
+  ATH_CHECK( egammaMonToolBase::initialize() );
+  ATH_CHECK( m_ForwardElectronContainer.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode forwardElectronMonTool::bookHistograms()
@@ -197,15 +201,8 @@ StatusCode forwardElectronMonTool::fillHistograms()
   //--------------------
   //figure out current LB
   //--------------------
-  const DataHandle<xAOD::EventInfo> evtInfo;
-  StatusCode sc = m_storeGate->retrieve(evtInfo); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("couldn't retrieve event info");
-    return StatusCode::FAILURE;
-  }
-
   unsigned int previousLB = m_currentLB;
-  m_currentLB = evtInfo->lumiBlock();
+  m_currentLB = getCurrentLB();
 
   //deal with the change of LB
   if (m_currentLB>previousLB) {
@@ -216,9 +213,8 @@ StatusCode forwardElectronMonTool::fillHistograms()
   }
 
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=nullptr;
-  sc = m_storeGate->retrieve(electron_container, m_ForwardElectronContainer);
-  if(sc.isFailure() || !electron_container){
+  SG::ReadHandle<xAOD::ElectronContainer> electron_container{m_ForwardElectronContainer};
+  if(!electron_container.isValid()){
     ATH_MSG_VERBOSE("no electron container found in TDS");
     return StatusCode::FAILURE;
   } 
@@ -363,5 +359,5 @@ StatusCode forwardElectronMonTool::fillHistograms()
     //}
   }
   
-  return sc;
+  return StatusCode::SUCCESS;
 }

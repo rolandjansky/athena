@@ -18,8 +18,6 @@ class ConfiguredInDetFlags :
     self.__AODall        = False
     
     if self.__AODall:
-      InDetJobProperties.iPatRec     = False
-      InDetJobProperties.xKalman     = False
       InDetJobProperties.newTracking = False
     #
     # --------------------------------------------------------------------
@@ -99,10 +97,6 @@ class ConfiguredInDetFlags :
     # ---- legacy pattern algorithms plus conversions
     # --------------------------------------------------------------------
     #
-    # control whether to run xKalman (default=true)
-    self.__doxKalman               = False
-    # control whether to run iPatRec (default=true)
-    self.__doiPatRec               = False
     # control if legacy conversion is needed
     self.__doLegacyConversion      = False
     #
@@ -250,8 +244,8 @@ class ConfiguredInDetFlags :
 
   def setAODall (self) :
     self.__AODall = True
-    if not self.__doxKalman or not self.__doiPatRec or not self.__doNewTracking:
-      print "ERROR - inconsistent AOD all setup - xkal+ipat+NT needed"
+    if not self.__doNewTracking:
+      print "ERROR - inconsistent AOD all setup - NT needed"
       raise None
     
 # ----------------------------------------------------------------------------
@@ -385,13 +379,6 @@ class ConfiguredInDetFlags :
   def doSpacePointFormation(self) : 
     return self.__doSpacePointFormation
 
-  # return
-  def doxKalman(self) :
-    return self.__doxKalman
-
-  # return
-  def doiPatRec(self) :
-    return self.__doiPatRec
 
   # return
   def doLegacyConversion(self) :
@@ -622,10 +609,6 @@ class ConfiguredInDetFlags :
     print '* TrackFinding:'
     print '* ============='
     print '*'
-    if self.__doxKalman :
-      print '* - run xKalman'
-    if self.__doiPatRec :
-      print '* - run iPatRec'
     if self.__doLegacyConversion :
       print '* - convert output to new EDM (TrkTrack)'
     print '*'

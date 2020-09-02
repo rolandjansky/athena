@@ -15,7 +15,7 @@
 // #include "VP1TrackSystems/TrackHandle_FatrasTruthTrack.h"
 // #include "FatrasEvent/TrackParticleState.h"
 // #include "FatrasEvent/TruthAssociation.h"
-// #include "HepMC/GenParticle.h"
+// #include "AtlasHepMC/GenParticle.h"
 // 
 // //____________________________________________________________________
 // class TrackHandle_FatrasTruthTrack::Imp {

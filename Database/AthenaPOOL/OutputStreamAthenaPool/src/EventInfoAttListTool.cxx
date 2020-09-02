@@ -14,7 +14,7 @@ Purpose : create a EventInfoAttList - The Tag information associated to the even
 #include "EventInfoAttListTool.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventInfo.h"

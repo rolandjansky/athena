@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,8 @@
 #define ROBDATAMONITOR_H
 
 #include "eformat/SourceIdentifier.h"
-#include <sys/time.h>
+#include <time.h>
+#include <chrono>
 #include <map>
 #include <iostream>
 #include <iomanip>
@@ -168,14 +169,17 @@ namespace robmonitor {
        << std::hex << rhs.lvl1ID << " (hex)" << std::dec;  
     os << "\n" << prefix << "Requestor name = " << rhs.requestor_name;
 
-    std::string s_time(ctime(&(rhs.start_time_of_ROB_request.tv_sec)));
+    const std::time_t s_time(rhs.start_time_of_ROB_request.tv_sec);
+    struct tm buf;
+    localtime_r(&s_time, &buf);
     os << "\n" << prefix << "Start time of ROB request         = " 
-       << s_time.substr(0,s_time.size()-1)
+       << std::put_time(&buf, "%c")
        << " + " << static_cast<float>(rhs.start_time_of_ROB_request.tv_usec)/1000 << " [ms]";
 
-    std::string e_time(ctime(&(rhs.end_time_of_ROB_request.tv_sec)));
+    const std::time_t e_time(rhs.end_time_of_ROB_request.tv_sec);
+    localtime_r(&e_time, &buf);
     os << "\n" << prefix << "Stop  time of ROB request         = "
-       << e_time.substr(0,e_time.size()-1)   
+       << std::put_time(&buf, "%c")
        << " + " << static_cast<float>(rhs.end_time_of_ROB_request.tv_usec)/1000 << " [ms]";
     os << "\n" << prefix << "Elapsed time for ROB request [ms] = " << rhs.elapsedTime();
     os << "\n" << prefix << "Requested ROBs:";

@@ -7,7 +7,7 @@ import MagFieldServices.SetupField
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doBremRecovery.set_Value_and_Lock(False)
-InDetFlags.doStandardPlots.set_Value_and_Lock(True)
+InDetFlags.doPhysValMon.set_Value_and_Lock(True)
 
 #from GaudiSvc.GaudiSvcConf import THistSvc
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -24,6 +24,7 @@
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 
 //Gaudi includes
 #include "AthenaKernel/Timeout.h"
@@ -36,10 +37,13 @@
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
+#include <cmath>
+#include <limits>
+#include <unordered_map>
+
 namespace InDet{
 
   using namespace InDet;
-  static const std::string maxRDOsReached("SCT_TrgClusterization: Exceeds max RDOs");
 
   //----------------------------------  
   //           Constructor:
@@ -91,7 +95,7 @@ namespace InDet{
     declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
     
 
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
 
     // error strategy
     //
@@ -231,7 +235,7 @@ namespace InDet{
     //initialisation of monitored quantities
     m_numSctIds = 0;
     m_numSctClusters = 0;
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
     m_listOfSctIds.clear();
     m_ClusHashId.clear();
     m_SctBSErr.clear();
@@ -266,9 +270,10 @@ namespace InDet{
     }
     
     // Prepare SCT_FlaggedCondData
-    SCT_FlaggedCondData* flaggedCondData{nullptr};
-    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
-      flaggedCondData = new SCT_FlaggedCondData{};
+    IDCInDetBSErrContainer* flaggedCondData{nullptr};
+    std::unordered_map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> flaggedCondMap;
+    if (!store()->transientContains<IDCInDetBSErrContainer>(m_flaggedCondDataName)) {
+      flaggedCondData = new IDCInDetBSErrContainer {m_idHelper->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min()};
 
       if (store()->record(flaggedCondData, m_flaggedCondDataName, true, true).isFailure()) {
         ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
@@ -307,7 +312,7 @@ namespace InDet{
     }
     
     if (!roi){
-      ATH_MSG_WARNING( "Received NULL RoI" );
+      ATH_MSG_WARNING( "Received nullptr RoI" );
       return HLT::NAV_ERROR;
     }
     
@@ -321,7 +326,7 @@ namespace InDet{
     if ( RoiPhiWidth<-M_PI ) RoiPhiWidth += 1e-7;
 
     if (!roi->isFullscan()){
-      if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
+      if( std::abs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
 	ATH_MSG_DEBUG( "ROI range is different from configuration: " );
 	ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
 	ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );
@@ -400,18 +405,13 @@ namespace InDet{
 
       for (unsigned int i=0; i<m_listOfSctIds.size(); i++) {
 
-	SCT_RDO_Container::const_iterator 
-	  RDO_collection_iter = p_sctRDOContainer->indexFind(m_listOfSctIds[i]); 
-	
-	if (RDO_collection_iter == p_sctRDOContainer->end()) continue;
-
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
 	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
     
-	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (*RDO_collection_iter);
+	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (p_sctRDOContainer->indexFindPtr(m_listOfSctIds[i]));
                
 	if (!RDO_Collection) continue;
 
@@ -428,7 +428,12 @@ namespace InDet{
 	const size_t rdosize = RDO_Collection->size();
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = RDO_Collection->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -503,7 +508,12 @@ namespace InDet{
 	
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = rd->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -552,6 +562,11 @@ namespace InDet{
       m_timerCluster->stop();
     }
 
+    // Fill flaggedCondData
+    for (auto [hash, error] : flaggedCondMap) {
+      flaggedCondData->setOrDrop(hash, error);
+    }
+    
     ATH_MSG_DEBUG( "REGTEST: Number of reconstructed clusters = " << m_numSctClusters );
 
     return HLT::OK;

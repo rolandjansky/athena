@@ -9,6 +9,7 @@
 
 
 #include "TrigInDetAnalysis/Track.h"
+#include <cmath>
 
 ClassImp(TIDA::Track)
 
@@ -59,3 +60,10 @@ TIDA::Track::Track(double  eta, double  phi, double  z0, double  a0, double  pT,
 
 TIDA::Track::~Track() { } 
 
+
+void TIDA::Track::rotate() { 
+    m_pT *= -1;
+    m_a0 *= -1;
+    m_phi -= M_PI;
+    m_eta *= -1;
+  } 

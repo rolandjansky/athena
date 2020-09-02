@@ -22,7 +22,12 @@ public:
   DeclareInterfaceID(ITrigEventLoopMgr, 21, 0);
 
   /**
-   * prepareForRun method invoked by framework
+   * invoked py the PSC before calling start() on all components
+   */
+  virtual StatusCode prepareForStart (const boost::property_tree::ptree &) = 0;
+
+  /**
+   * invoked by the PSC before event loop (before forking)
    */
   virtual StatusCode prepareForRun  ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree &) = 0;
 

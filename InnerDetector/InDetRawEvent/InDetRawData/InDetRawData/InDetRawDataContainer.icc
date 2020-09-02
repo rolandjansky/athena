@@ -21,6 +21,13 @@ InDetRawDataContainer< CollectionT>::InDetRawDataContainer(unsigned int max) :
 }
 
 template< class CollectionT>
+// Constructor with parameters:
+InDetRawDataContainer< CollectionT>::InDetRawDataContainer(unsigned int max, EventContainers::Mode mode) :
+  IdentifiableContainer<CollectionT>(max, mode)
+{
+}
+
+template< class CollectionT>
 InDetRawDataContainer< CollectionT>::InDetRawDataContainer(EventContainers::IdentifiableCache<CollectionT> *cache) :
   IdentifiableContainer<CollectionT>(cache)
 {

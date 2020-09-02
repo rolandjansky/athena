@@ -5,17 +5,19 @@
 #ifndef MuonCalib_SegmentOnTrackSelector_h
 #define MuonCalib_SegmentOnTrackSelector_h
 
+#include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonCalibITools/IIdToFixedIdTool.h"
 
 #include <string>
 #include <set>
 #include <map>
 #include <vector>
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Trk {
   class Track;
@@ -23,7 +25,6 @@ namespace Trk {
 
 namespace MuonCalib {
 
-class IIdToFixedIdTool;
 class MuonFixedId;
 class MuonCalibSegment;
 
@@ -33,7 +34,6 @@ class SegmentOnTrackSelector: public AthAlgTool, virtual public ISegmentOnTrackS
   SegmentOnTrackSelector(const std::string &type,const std::string &name,const IInterface* parent);	
   //tool interface functions
   StatusCode initialize();
-  StatusCode finalize();
 		
   //call once at begining of event	
   StatusCode beginEvent();
@@ -48,7 +48,7 @@ class SegmentOnTrackSelector: public AthAlgTool, virtual public ISegmentOnTrackS
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool;
+  ToolHandle<IIdToFixedIdTool> m_idToFixedIdTool{this,"IdToFixedIdTool","MuonCalib::IdToFixedIdTool"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 		
   //internal data structures

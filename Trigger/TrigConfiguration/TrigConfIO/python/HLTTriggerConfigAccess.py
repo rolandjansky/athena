@@ -14,26 +14,37 @@ class HLTMenuAccess(TriggerConfigAccess):
         super(HLTMenuAccess,self).__init__( ConfigType.HLTMENU, mainkey = "chains",
                                             filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT HTM_DATA FROM {schema}.HLT_MENU WHERE HTM_ID={dbkey}", # for new db schema
-            "SELECT HMT.HMT_MENU FROM {schema}.HLT_MASTER_TABLE HMT WHERE HMT.HMT_ID={dbkey}"  # for current db schema
+            "SELECT HMT.HTM_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MENU HMT WHERE HMT.HTM_ID=SMT.SMT_HLT_MENU_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT HMT.HMT_MENU FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_MASTER_TABLE HMT WHERE HMT.HMT_ID=SMT.SMT_HLT_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
 
     def chainNames(self):
-        return (x["name"] for x in self)
+        return self["chains"].keys()
 
     def chains(self):
         return iter(self)
+
+    def streams(self):
+        return self["streams"]
 
     def sequencers(self):
         return self["sequencers"]
 
     def printSummary(self):
         print("HLT menu %s" % self.name())
-        print("Number of chains: %i" % len(self) )
+        print("Number of chains: %i" % len(self.chains()) )
+        print("Number of streams: %i" % len(self.streams()) )
         print("Number of sequencers: %i" % len(self.sequencers()) )
 
-
+    def printDetails(self):
+        import pprint
+        print("Chains:")
+        pprint.pprint(list(self.chains()))
+        print("Streams:")
+        pprint.pprint(list(self.streams()))
+        print("Sequencers:")
+        pprint.pprint(list(self.sequencers()))
 
 class HLTPrescalesSetAccess(TriggerConfigAccess):
     """
@@ -83,8 +94,8 @@ class HLTJobOptionsAccess(TriggerConfigAccess):
         super(HLTJobOptionsAccess,self).__init__( ConfigType.HLTJO, mainkey = "properties",
                                                   filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT HST_DATA FROM {schema}.HLT_SETUP WHERE HST_ID={dbkey}", # for new db schema
-            "SELECT JO.JO_CONTENT FROM {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID={dbkey}"  # for current db schema
+            "SELECT JO.HJO_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_JOBOPTIONS JO WHERE JO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT JO.JO_CONTENT FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID=SMT.SMT_JO_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()
 

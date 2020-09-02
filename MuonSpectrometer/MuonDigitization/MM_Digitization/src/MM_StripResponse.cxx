@@ -6,7 +6,7 @@
 
 MM_StripResponse::MM_StripResponse() {}
 
-MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_maxstripID(maxstripID) {
+MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int minstripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_minstripID(minstripID), m_maxstripID(maxstripID) {
 
 	for (auto& IonizationCluster : IonizationClusters)
 		for (auto& Electron : IonizationCluster.getElectrons())
@@ -16,6 +16,14 @@ MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationC
 
 int MM_StripResponse::getNElectrons(){
 	return m_Electrons.size();
+}
+
+float MM_StripResponse::getTotalCharge(){
+	float qtot = 0;
+	for(const MM_Electron* electron : m_Electrons) {
+		qtot += electron->getCharge();
+	}
+	return qtot;
 }
 
 std::vector<MM_Electron*> MM_StripResponse::getElectrons(){
@@ -35,7 +43,7 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 // m_stripID defines the initial strip where the muon entered the gas gap
 
 		int stripVal = 0;
-		if(fabs(Electron->getX())>m_stripPitch/2){
+		if(std::abs(Electron->getX())>m_stripPitch/2){
 			if(Electron->getX()>0.0)
 				stripVal = m_stripID + int( (Electron->getX()-m_stripPitch/2)/m_stripPitch ) + 1 ;
 			else
@@ -43,8 +51,10 @@ void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
 		}
 		else stripVal = m_stripID;
 
-		if (stripVal < 0 || stripVal > m_maxstripID) stripVal = -1;
-		(m_stripCharges[timeBin])[stripVal] += Electron->getCharge();
+		// Only add the strips that are either read out, or can cross talk to the read out strips
+    if (stripVal < m_minstripID-2 || stripVal > m_maxstripID+1) stripVal = -1;
+    if (stripVal > 0)
+      (m_stripCharges[timeBin])[stripVal] += Electron->getCharge();
 
 	}
 }
@@ -68,14 +78,16 @@ void MM_StripResponse::simulateCrossTalk(float crossTalk1, float crossTalk2) {
 
 				if (stripChargeVal==0.) continue;
 
-				if (stripVal-1 > -1) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
-				if (stripVal+1 > -1) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
-				(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk1 * ( (stripVal-1 > -1) + (stripVal+1 > -1) );
+        // Allow crosstalk between strips that exist.
+        // Will check for read out strips in calculateSummaries function
+				if (stripVal-1 > 0) (m_stripCharges[timeBin])[stripVal-1] += stripChargeVal * crossTalk1;
+				if (stripVal+1 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+1] += stripChargeVal * crossTalk1;
+				(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk1 * ( (stripVal-1 > 0) + (stripVal+1 < m_maxstripID) );
 
 				if (crossTalk2 > 0.){
-					if (stripVal-2 > -1) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
-					if (stripVal+2 > -1) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
-					(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk2 * ( (stripVal-2 > -1) + (stripVal+2 > -1) );
+					if (stripVal-2 > 0) (m_stripCharges[timeBin])[stripVal-2] += stripChargeVal * crossTalk2;
+					if (stripVal+2 < m_maxstripID) (m_stripCharges[timeBin])[stripVal+2] += stripChargeVal * crossTalk2;
+					(m_stripCharges[timeBin])[stripVal] -= stripChargeVal * crossTalk2 * ( (stripVal-2 > 0) + (stripVal+2 < m_maxstripID) );
 				}
 			}
 		}
@@ -90,6 +102,12 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 		int timeBin = stripTimeSeries.first;
 		for (auto & stripCharge : stripTimeSeries.second ){
 			int stripVal = stripCharge.first;
+      // remove dead (missing) strips
+      // First active strip starts at m_minstripID
+      // Last active strip numbrer is maxStripID-1
+      if (stripVal < m_minstripID || stripVal > m_maxstripID-1) continue;
+      // remove PCB gap strips
+      if (stripVal == 1023 || stripVal == 1024 || stripVal == 2047 || stripVal == 2048 || stripVal == 3071 || stripVal == 3072 || stripVal == 4095 || stripVal == 4096) continue;
 			float stripChargeVal = stripCharge.second;
 			if(stripChargeVal < chargeThreshold) continue;
 			
@@ -103,13 +121,13 @@ void MM_StripResponse::calculateSummaries(float chargeThreshold) {
 				}
 			}
 			if(!found){ // 	// strip not in vector, add new entry
-				m_v_strip.push_back(stripVal);
-				std::vector<float> qTemp;
-				qTemp.push_back(stripChargeVal);
-				m_v_stripTotalCharge.push_back(qTemp);
-				std::vector<float> tTemp;
-				tTemp.push_back(timeBin*m_timeResolution);
-				m_v_stripTimeThreshold.push_back(tTemp);
+        m_v_strip.push_back(stripVal);
+        std::vector<float> qTemp;
+        qTemp.push_back(stripChargeVal);
+        m_v_stripTotalCharge.push_back(qTemp);
+        std::vector<float> tTemp;
+        tTemp.push_back(timeBin*m_timeResolution);
+        m_v_stripTimeThreshold.push_back(tTemp);
 			}
 		}
 	}

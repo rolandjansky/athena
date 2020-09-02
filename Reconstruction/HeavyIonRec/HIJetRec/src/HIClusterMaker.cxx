@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HIClusterMaker.h"
@@ -13,15 +13,21 @@
 #include <cmath>
 #include <TVector2.h>
 
-HIClusterMaker::HIClusterMaker(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
+HIClusterMaker::HIClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
+	: AthAlgorithm(name,pSvcLocator)
 {
-  declareProperty("InputTowerKey",m_tower_container_key="CombinedTower");
-  declareProperty("CaloCellContainerKey",m_cell_container_key="AllCalo");
-  declareProperty("OutputContainerKey",m_output_key="PseudoJet");
-  declareProperty("MinimumEnergyForMoments",m_E_min_moment=50.,"> E, cluster given tower coordinates");
 }
+
 StatusCode HIClusterMaker::initialize()
 {
+	//First we initialize keys - after initialization they are frozen
+	ATH_CHECK( m_towerContainerKey.initialize() );
+	ATH_CHECK( m_cellContainerKey.initialize() );
+	ATH_CHECK( m_outputKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -30,36 +36,17 @@ StatusCode HIClusterMaker::execute()
 
   //retrieve the tower container from store
   const INavigable4MomentumCollection* navInColl = 0;
-  if(evtStore()->retrieve(navInColl,m_tower_container_key).isFailure())
-  {
-    msg(MSG::WARNING) << " Could not retrieve tower container with key "
-		      << m_tower_container_key
-		      << endmsg;
-    return StatusCode::FAILURE;
-  }
+  SG::ReadHandle<INavigable4MomentumCollection>  readHandleTower ( m_towerContainerKey );
+	navInColl = readHandleTower.cptr();
 
   const CaloCellContainer * cellColl ;
-  if(evtStore()->retrieve(cellColl,m_cell_container_key).isFailure())
-  {
-    msg(MSG::WARNING) << " Could not retrieve cell container with key "
-		      << m_cell_container_key
-		      << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-
-  //HIPseudoJetContainer cl_container=new HIPseudoJetContainer();
-  // if(evtStore()->record(shape,m_output_key).isFailure())
-  // {
-  //   msg(MSG::ERROR) << "Could not record PseudoJet " << m_output_key << endmsg;
-  //   return StatusCode::FAILURE;
-  // }
+	SG::ReadHandle<CaloCellContainer>  readHandleCell ( m_cellContainerKey );
+  cellColl = readHandleCell.cptr();
 
   //make the container
-  xAOD::CaloClusterContainer* cl_container=CaloClusterStoreHelper::makeContainer(&(*evtStore()),m_output_key,msg());
-  if (!cl_container) return StatusCode::FAILURE;
-
-
+  //Tricky migration: here we don't have to migrate our methods but what we use from CaloClusterStoreHelper
+  SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleContainer ( m_outputKey );
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()), writeHandleContainer, msg()));
 
   //loop on towers
   for(INavigable4MomentumCollection::const_iterator towerItr=navInColl->begin();
@@ -73,9 +60,6 @@ StatusCode HIClusterMaker::execute()
     float time_cl=0;
     float E2_cl=0;
     uint32_t samplingPattern=0;
-    // std::vector<float> E_sampling(NUMSAMPLES,0);
-    // std::vector<float> eta_sampling(NUMSAMPLES,0);
-    // std::vector<float> phi_sampling(NUMSAMPLES,0);
 
     //navigate back to cells
     //Default is to sort the cells by either pointer values leading to irreproducible output
@@ -90,13 +74,13 @@ StatusCode HIClusterMaker::execute()
     for(NavigationToken<CaloCell,double,CaloCellIDFcn>::const_iterator cellItr = cellToken.begin();
 	cellItr != cellToken.end(); cellItr++ )
     {
-      //Bad cell policy
+      //Bad cell policy - to be kept
       //if(m_bad_cell_tool->SkipCell(*cellItr))
       //{
       //if(m_skipBadCells && (*cellItr)->badcell()) continue;
       //}
-      
-      double geoWeight = cellToken.getParameter(*cellItr); 
+
+      double geoWeight = cellToken.getParameter(*cellItr);
       double cell_E_w=(*cellItr)->energy()*geoWeight;
 
       IdentifierHash hashid =(*cellItr)->caloDDE()->calo_hash();
@@ -109,19 +93,15 @@ StatusCode HIClusterMaker::execute()
       E2_cl+=cell_E_w*cell_E_w;
       time_cl+=cell_E_w*cell_E_w*(*cellItr)->time();
 
-      // unsigned int isample=0;
-      // E_sampling[isample]+=cell_E_w;
-      // eta_sampling[isample] =cell_E_w*(*cellItr)->eta();
-      // phi_sampling[isample]+=cell_E_w*(*cellItr)->phi();
       unsigned int sample = (CaloSampling::CaloSample) (*cellItr)->caloDDE()->getSampling();
       samplingPattern |= (0x1U<<sample);
-    
+
     }//end cell loop
 
     float eta0=(*towerItr)->eta();
     float phi0=(*towerItr)->phi();
 
-    if(E_cl < m_E_min_moment)
+    if(E_cl < m_EminMoment)
     {
       eta_cl=eta0;
       phi_cl=phi0;
@@ -173,7 +153,7 @@ StatusCode HIClusterMaker::execute()
 		      << std::setw(15) << cl->phi()
 		      << endmsg;
 
-    cl_container->push_back(std::move(cl));
+    writeHandleContainer->push_back(std::move(cl));
   }//end tower loop
   return StatusCode::SUCCESS;
 }
@@ -184,20 +164,20 @@ StatusCode HIClusterMaker::finalize()
 }
 
 
-StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
+StatusCode HIClusterMaker::dumpClusters(xAOD::CaloClusterContainer* clusColl)
 {
   msg(MSG::INFO) << "Dumping PseudoJets" << endmsg;
   for(xAOD::CaloClusterContainer::iterator clusCollIter= clusColl->begin();
       clusCollIter!= clusColl->end(); clusCollIter++)
   {
     xAOD::CaloCluster* cl = (*clusCollIter);
-    
+
     float E_cl=0;
     float eta_cl=0;
     float phi_cl=0;
-    
+
     CaloClusterCellLink* cellLinks=cl->getOwnCellLinks();
-    
+
     if (!cellLinks)
     {
       msg(MSG::ERROR) << "Can't get valid links to CaloCells (CaloClusterCellLink)!" << endmsg;
@@ -218,19 +198,19 @@ StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
       const CaloCell* pCell=(*cellIter);
       //double geoWeight =cellIter.weight(); //weird synatx, "." on iterator
       double cell_E_w=pCell->energy();//*geoWeight;
-      
+
       E_cl+=cell_E_w;
       eta_cl+=cell_E_w*pCell->eta();
       phi_cl+=cell_E_w*pCell->phi();
       //sumw+=geoWeight;
     }
-    if(E_cl!=0.) 
+    if(E_cl!=0.)
     {
       eta_cl/=E_cl;
       phi_cl/=E_cl;
     }
-    
-    msg(MSG::INFO) << std::setw(10) << "DUMPING CLUSTER"
+
+    ATH_MSG_INFO( std::setw(10) << "DUMPING CLUSTER"
 		   << std::setw(15) << cl->e()
 		   << std::setw(15) << cl->eta()
 		   << std::setw(15) << cl->phi()
@@ -238,9 +218,7 @@ StatusCode HIClusterMaker::DumpClusters(xAOD::CaloClusterContainer* clusColl)
 		   << std::setw(15) << eta_cl
 		   << std::setw(15) << phi_cl
 		   << std::setw(15) << ncells
-		   << std::setw(15) << sumw
-		   << endmsg;
-    
+		   << std::setw(15) << sumw );
 
   }
   return StatusCode::SUCCESS;

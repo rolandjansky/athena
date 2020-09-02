@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTLorentzMonAlg.py
@@ -52,8 +52,10 @@ def SCTLorentzMonAlgConfig(inputFlags):
 
 
     # set up geometry / conditions
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(AtlasGeometryCfg(inputFlags))
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    result.merge(BeamPipeGeometryCfg(inputFlags))
+    from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
+    result.merge(InDetGeometryCfg(inputFlags))
 
     # # Then, add a tool that doesn't have its own configuration function. In
     # # this example, no accumulator is returned, so no merge is necessary.
@@ -118,21 +120,17 @@ if __name__ == "__main__":
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'SCTLorentzMonOutput.root'
     ConfigFlags.GeoModel.Align.Dynamic = False
-    ConfigFlags.Detector.GeometryID = True
     ConfigFlags.Detector.GeometryPixel = True
     ConfigFlags.Detector.GeometrySCT = True
     ConfigFlags.Detector.GeometryTRT = True
+    ConfigFlags.Detector.GeometryMuon = False
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    geoCfg=AtlasGeometryCfg(ConfigFlags)
-    cfg.merge(geoCfg)
 
     sctLorentzMonAcc = SCTLorentzMonAlgConfig(ConfigFlags)
     cfg.merge(sctLorentzMonAcc)

@@ -11,12 +11,10 @@
 '''
 
 import ROOT
-from RatesAnalysis.RatesTrigger import RatesTrigger
 from RatesAnalysis.Util import getMetadata, populateTriggers, getGlobalGroup, toJson
 from AthenaCommon.Logging import logging
 
 def main():
-  import sys
   from argparse import ArgumentParser
   parser = ArgumentParser()
   parser.add_argument('--file', default='RatesHistograms.root', 
@@ -43,7 +41,6 @@ def main():
   metadata['n_evts'] = normHist.GetBinContent(2)
 
   HLTGlobalGroup = getGlobalGroup(inputFile, 'Main')
-  HLTExpressGroup = getGlobalGroup(inputFile, 'Express')
   L1GlobalGroup = getGlobalGroup(inputFile, 'L1')
 
   L1Triggers = populateTriggers(inputFile, metadata, L1GlobalGroup, 'L1_')

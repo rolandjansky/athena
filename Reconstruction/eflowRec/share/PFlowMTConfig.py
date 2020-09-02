@@ -98,13 +98,6 @@ if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
 if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
 
-MatchingTool_Recover = PFTrackClusterMatchingTool()
-MatchingTool_Recover.TrackPositionType   = 'EM2EtaPhi' # str
-MatchingTool_Recover.ClusterPositionType = 'PlainEtaPhi' # str
-MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
-MatchingTool_Recover.MatchCut = 0.2*0.2 # float
-PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
-
 if jobproperties.eflowRecFlags.eflowAlgType != "EOverP":
    PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
 
@@ -256,3 +249,17 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
+
+#Add new FlowElement creators
+if jobproperties.eflowRecFlags.useFlowElements:
+  from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
+  PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
+  topSequence += PFChargedFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFNeutralFlowElementCreatorAlgorithm
+  PFNeutralFlowElementCreatorAlgorithm = PFNeutralFlowElementCreatorAlgorithm("PFNeutralFlowElementCreatorAlgorithm")
+  topSequence += PFNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
+  PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
+  topSequence += PFLCNeutralFlowElementCreatorAlgorithm 

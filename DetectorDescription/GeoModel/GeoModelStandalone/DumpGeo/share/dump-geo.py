@@ -327,8 +327,6 @@ if (vp1InputFiles != []):
         InDetFlags.doPRDFormation          = False
         InDetFlags.doSpacePointFormation   = vp1SpacePoints
         InDetFlags.doNewTracking           = False
-        InDetFlags.doiPatRec               = False
-        InDetFlags.doxKalman               = False
         InDetFlags.doLowPt                 = False
         InDetFlags.doLowBetaFinder         = False
         InDetFlags.doBackTracking          = False
@@ -389,7 +387,6 @@ else:
 #watch LAr HV:
 if ( vp1LarHvData ):
     from time import time
-    svcMgr.AthenaSealSvc.CheckDictionary = TRUE
     svcMgr.EventSelector.InitialTimeStamp  = int (time())
     svcMgr.EventSelector.TimeStampInterval = 1
     from IOVDbSvc.CondDB import conddb

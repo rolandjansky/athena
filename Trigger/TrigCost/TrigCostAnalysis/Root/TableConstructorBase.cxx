@@ -76,8 +76,9 @@ void TableConstructorBase::getHistograms(const std::string& name) {
     if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
       bool found = false;
       for (const TString exp : m_expectedHistograms) {
+        const TString objName( obj->GetName() );
         const TString expName = TString(name) + "_" + exp;
-        if (obj->GetName() == expName) {
+        if (objName.EndsWith(expName)) {
           m_histogramMap.insert( std::make_pair(std::string(exp), dynamic_cast<TH1*>(obj)) );
           found = true;
           break;
@@ -85,6 +86,10 @@ void TableConstructorBase::getHistograms(const std::string& name) {
       }
       if (!found) {
         msg() << MSG::ERROR << "Was not expecting histogram " << obj->GetName() << endmsg;
+        for (const TString exp : m_expectedHistograms) {
+          const TString expName = TString(name) + "_" + exp;
+          msg() << MSG::ERROR << "  -- Expected " << expName << endmsg;
+        }
       }
     } else {
       msg() << MSG::ERROR << "Expecting only Histograms, found " << obj->GetName() << endmsg;

@@ -1,4 +1,4 @@
-﻿/*
+/*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -13,6 +13,7 @@
 #include "MuonDigitContainer/sTgcDigitCollection.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -71,10 +72,9 @@ StatusCode sTGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
                          << " Station PhiMax ["  << stationPhiMax      << "]");
 
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
-
+      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCDigitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
       int channelNumber = 0;
-      const Identifier phiId, etaId;
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
 

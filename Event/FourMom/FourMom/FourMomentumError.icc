@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMom/ErrorMatrixBase.h"
@@ -65,19 +65,19 @@ FourMomentumError< FourMom>::FourMomentumError( const CLHEP::HepSymMatrix& m,
   m_PtCotThPhiM(nullptr)
 {
   if ( t == PxPyPzE) {
-    m_PxPyPzE = std::make_unique<ErrorMatrixPxPyPzE>( m);
+    m_PxPyPzE.store (std::make_unique<ErrorMatrixPxPyPzE>( m));
     m_originalType = PxPyPzE;
   }
   if ( t == EEtaPhiM) {
-    m_EEtaPhiM = std::make_unique<ErrorMatrixEEtaPhiM>( m);
+    m_EEtaPhiM.store (std::make_unique<ErrorMatrixEEtaPhiM>( m));
     m_originalType = EEtaPhiM;
   }
   if ( t == PtEtaPhiM) {
-    m_PtEtaPhiM = std::make_unique<ErrorMatrixPtEtaPhiM>( m);
+    m_PtEtaPhiM.store (std::make_unique<ErrorMatrixPtEtaPhiM>( m));
     m_originalType = PtEtaPhiM;
   }
   if ( t == PtCotThPhiM) {
-    m_PtCotThPhiM = std::make_unique<ErrorMatrixPtCotThPhiM>( m);
+    m_PtCotThPhiM.store (std::make_unique<ErrorMatrixPtCotThPhiM>( m));
     m_originalType = PtCotThPhiM;
   }
 }
@@ -93,16 +93,16 @@ FourMomentumError< FourMom>::FourMomentumError( const FourMomentumError& other) 
   m_originalType( other.originalType())
 {
   if (other.originalType() == PxPyPzE) {
-    m_PxPyPzE = new ErrorMatrixPxPyPzE( *other.pxPyPzEMatrix());
+    m_PxPyPzE.store (std::make_unique<ErrorMatrixPxPyPzE>( *other.pxPyPzEMatrix()));
   }
   else if (other.originalType() == EEtaPhiM) {
-    m_EEtaPhiM = new ErrorMatrixEEtaPhiM(*other.eEtaPhiMMatrix());
+    m_EEtaPhiM.store (std::make_unique<ErrorMatrixEEtaPhiM>(*other.eEtaPhiMMatrix()));
   }
   else if (other.originalType() == PtEtaPhiM) {
-    m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( *other.ptEtaPhiMMatrix());
+    m_PtEtaPhiM.store (std::make_unique<ErrorMatrixPtEtaPhiM>( *other.ptEtaPhiMMatrix()));
   }
   else if (other.originalType() == PtCotThPhiM) {
-    m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( *other.ptCotThPhiMMatrix());
+    m_PtCotThPhiM.store (std::make_unique<ErrorMatrixPtCotThPhiM>( *other.ptCotThPhiMMatrix()));
   }
 }
 
@@ -112,23 +112,23 @@ FourMomentumError< FourMom> &FourMomentumError<FourMom>::operator=( const FourMo
 {
   if (this!=&other){
     m_p4( other.m_p4);
-    m_PxPyPzE = std::make_unique<ErrorMatrixPxPyPzE>();
-    m_EEtaPhiM = std::make_unique<ErrorMatrixEEtaPhiM>();
-    m_PtEtaPhiM = std::make_unique<ErrorMatrixPtEtaPhiM>();
-    m_PtCotThPhiM = std::make_unique<ErrorMatrixPtCotThPhiM>();
+    m_PxPyPzE.store (std::make_unique<ErrorMatrixPxPyPzE>());
+    m_EEtaPhiM.store (std::make_unique<ErrorMatrixEEtaPhiM>());
+    m_PtEtaPhiM.store (std::make_unique<ErrorMatrixPtEtaPhiM>());
+    m_PtCotThPhiM.store (std::make_unique<ErrorMatrixPtCotThPhiM>());
     m_originalType = other.originalType();
 
     if (other.originalType() == PxPyPzE) {
-      m_PxPyPzE = new ErrorMatrixPxPyPzE( *other.pxPyPzEMatrix());
+      m_PxPyPzE.store (std::make_unique<ErrorMatrixPxPyPzE>( *other.pxPyPzEMatrix()));
     }
     else if (other.originalType() == EEtaPhiM) {
-      m_EEtaPhiM = new ErrorMatrixEEtaPhiM(*other.eEtaPhiMMatrix());
+      m_EEtaPhiM.store (std::make_unique<ErrorMatrixEEtaPhiM>(*other.eEtaPhiMMatrix()));
     }
     else if (other.originalType() == PtEtaPhiM) {
-      m_PtEtaPhiM = new ErrorMatrixPtEtaPhiM( *other.ptEtaPhiMMatrix());
+      m_PtEtaPhiM.store (std::make_unique<ErrorMatrixPtEtaPhiM>( *other.ptEtaPhiMMatrix()));
     }
     else if (other.originalType() == PtCotThPhiM) {
-      m_PtCotThPhiM = new ErrorMatrixPtCotThPhiM( *other.ptCotThPhiMMatrix());
+      m_PtCotThPhiM.store (std::make_unique<ErrorMatrixPtCotThPhiM>( *other.ptCotThPhiMMatrix()));
     }
   }
   return *this;

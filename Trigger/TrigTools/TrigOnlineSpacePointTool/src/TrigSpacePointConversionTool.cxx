@@ -13,7 +13,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
 #include "SpacePointConversionUtils.h"
-#include "IRegionSelector/IRegSelSvc.h"
 
 #include "IRegionSelector/IRegSelTool.h"
 
@@ -103,14 +102,14 @@ StatusCode TrigSpacePointConversionTool::finalize() {
 
 
 StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& internalRoI, 
-							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) const {
+							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct, const EventContext& ctx) const {
 
   output.clear();
   
 
-  SG::ReadHandle<SpacePointContainer> pixelSpacePointsContainer(m_pixelSpacePointsContainerKey);
+  SG::ReadHandle<SpacePointContainer> pixelSpacePointsContainer(m_pixelSpacePointsContainerKey, ctx);
   ATH_CHECK(pixelSpacePointsContainer.isValid());
-  SG::ReadHandle<SpacePointContainer> sctSpacePointsContainer(m_sctSpacePointsContainerKey);
+  SG::ReadHandle<SpacePointContainer> sctSpacePointsContainer(m_sctSpacePointsContainerKey, ctx);
   ATH_CHECK(sctSpacePointsContainer.isValid());
 
   std::vector<IdentifierHash> listOfPixIds;
@@ -147,16 +146,16 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
     nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds);
     nSct=selector.select(*sctSpacePointsContainer,listOfSctIds);
   }
-  if(!m_useBeamTilt) shiftSpacePoints(output);
-  else transformSpacePoints(output);
+  if(!m_useBeamTilt) shiftSpacePoints(output, ctx);
+  else transformSpacePoints(output, ctx);
 
   return StatusCode::SUCCESS;
 }
 
 
-void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
+void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output, const EventContext& ctx) const {
 
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };  
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };  
   const Amg::Vector3D &vertex = beamSpotHandle->beamPos();
   double shift_x = vertex.x() - beamSpotHandle->beamTilt(0)*vertex.z();
   double shift_y = vertex.y() - beamSpotHandle->beamTilt(1)*vertex.z();
@@ -166,9 +165,9 @@ void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePoint
 }
 
 
-void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output) const {
+void TrigSpacePointConversionTool::transformSpacePoints(std::vector<TrigSiSpacePointBase>& output, const EventContext& ctx) const {
 
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   const Amg::Vector3D &origin = beamSpotHandle->beamPos();
   double tx = tan(beamSpotHandle->beamTilt(0));
   double ty = tan(beamSpotHandle->beamTilt(1));

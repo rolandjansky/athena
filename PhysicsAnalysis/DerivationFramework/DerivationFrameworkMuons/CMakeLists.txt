@@ -1,54 +1,19 @@
-################################################################################
-# Package: DerivationFrameworkMuons
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkMuons )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloGeoHelpers
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODMuon
-                          GaudiKernel
-                          PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigAnalysis/TrigMuonMatching
-                          Reconstruction/MuonIdentification/ICaloTrkMuIdTools
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
-                          PRIVATE
-                          Control/AthenaKernel
-			  Control/AthenaBaseComps
-                          PhysicsAnalysis/MCTruthClassifier 
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth )
-
 # External dependencies:
 find_package( CLHEP )
+find_package( ROOT COMPONENTS Core MathCore )
 
 # Component(s) in the package:
-atlas_add_library( DerivationFrameworkMuonsLib
-   DerivationFrameworkMuons/*.h src/*.cxx
-   PUBLIC_HEADERS DerivationFrameworkMuons
-   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent
-   xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib
-   TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools
-   TrkExInterfaces InDetTrackSelectionToolLib
-   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo
-   xAODTracking xAODTruth MCTruthClassifierLib FourMomUtils)
-
 atlas_add_component( DerivationFrameworkMuons
-   src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel DerivationFrameworkMuonsLib )
+   DerivationFrameworkMuons/*.h src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers DerivationFrameworkInterfaces ExpressionEvaluationLib FourMomUtils GaudiKernel ICaloTrkMuIdTools InDetTrackSelectionToolLib MCTruthClassifierLib RecoToolInterfaces TrigDecisionToolLib TrigMuonMatchingLib TrkExInterfaces TrkParameters TrkSurfaces muonEvent xAODBase xAODCaloEvent xAODEventInfo xAODJet xAODMuon xAODPrimitives xAODTracking xAODTruth )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+

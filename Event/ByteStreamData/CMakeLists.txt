@@ -1,19 +1,10 @@
-# $Id: CMakeLists.txt 782284 2016-11-04 08:07:16Z krasznaa $
-################################################################################
-# Package: ByteStreamData
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ByteStreamData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaKernel
-   Control/AthContainers )
-
 # External dependencies:
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS DataReader )
 
 # Treat tdaq-common as an optional dependency:
 set( extra_inc )

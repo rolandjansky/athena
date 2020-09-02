@@ -10,7 +10,7 @@
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-namespace HepMC { class GenVertex; }
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 namespace Trk {
   

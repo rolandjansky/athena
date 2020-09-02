@@ -39,13 +39,13 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
         # make default Atlas
         # *TODO* How do we handle the case of old CSC data? Is new DetDescrVersion CSC too? EJWM
         self.Atlas = True
-        if ( globalflags.DetDescrVersion().startswith('DC1') or \
-             globalflags.DetDescrVersion().startswith('DC2') or \
+        if ( globalflags.DetDescrVersion().startswith('DC1') or
+             globalflags.DetDescrVersion().startswith('DC2') or
              globalflags.DetDescrVersion().startswith('DC3')) :
             self.Atlas = False
             print ("DC")
 
-        if (muonByteStreamFlags.TgcDataType()=='m3' or \
+        if (muonByteStreamFlags.TgcDataType()=='m3' or
             muonByteStreamFlags.TgcDataType()=='oldSimulation') :
             self.Atlas = False
             if (muonByteStreamFlags.TgcDataType()=='m3'):
@@ -65,14 +65,14 @@ class TgcCablingServerConfig (TGCcablingServerSvc):
         self.forcedUse = True
 
         # if we run from RDO (overlay or other jobs) we must use the call-back, 
-	# even if we have hits to digitize
+        # even if we have hits to digitize
         if DetFlags.haveRDO.TGC_on() and not DetFlags.digitize.TGC_on():
             self.forcedUse = False
-	    
+
         #use the call-back in the overlay job that has no bytestream data as input
         if globalflags.isOverlay():
             self.forcedUse = False
-	    
+
         # superseed the previos configuration if we run from Atlas data 
         if globalflags.DataSource.is_data():
             self.forcedUse = True

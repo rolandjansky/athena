@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 import sys
 import eformat
-from eformat import helper
 from collections import defaultdict
 
 filename = sys.argv[1]
 bsfile = eformat.istream(filename)
-print "Read file %s with %i events" % (filename,bsfile.total_events)
+print("Read file %s with %i events" % (filename,bsfile.total_events))
 
 event = bsfile[0]
 
@@ -67,8 +66,8 @@ for rob in event:
 
 width = max([len(s) for s in rob_by_subdet.keys()]+[15]) + 5
 
-print "Detector%sROD version%s#ROBs" % (' ' * (width-8), ' ' * (14) )
-print "--------%s-----------%s-----" % ('-' * (width-8), '-' * (14) )
+print("Detector%sROD version%s#ROBs" % (' ' * (width-8), ' ' * (14) ))
+print("--------%s-----------%s-----" % ('-' * (width-8), '-' * (14) ))
 
 for subdet in sorted(rob_by_subdet.keys()):
 
@@ -76,10 +75,10 @@ for subdet in sorted(rob_by_subdet.keys()):
 
     robset = set(["%s" % rob.rod_version() for rob in roblist])
 
-    print "%-*s%-*s%i" % (width, subdet, 25, ", ".join(robset), len(roblist) )
+    print("%-*s%-*s%i" % (width, subdet, 25, ", ".join(robset), len(roblist) ))
 
 subdet_missing = set(subdetsData) - subdets
 if subdet_missing:
-    print "Missing the following sub detectors in the file:"
+    print("Missing the following sub detectors in the file:")
     for sd in sorted(subdet_missing):
-        print "    ",sd
+        print("    ",sd)

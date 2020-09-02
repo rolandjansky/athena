@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthEvent_v1.h 761796 2016-07-14 08:06:02Z krasznaa $
@@ -209,5 +209,9 @@ namespace xAOD {
 // Declare the base class of TruthEvent_v1 to StoreGate:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TruthEvent_v1, xAOD::TruthEventBase_v1 );
+
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::TruthEvent_v1, xAOD::TruthEventBase_v1 );
+
 
 #endif // XAODTRUTH_VERSIONS_TRUTHEVENT_V1_H

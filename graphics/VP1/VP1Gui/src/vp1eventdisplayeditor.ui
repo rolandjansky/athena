@@ -116,9 +116,9 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_8">
                  <item>
-                  <widget class="QRadioButton" name="radioButton_gray">
+                  <widget class="QRadioButton" name="radioButton_logo_white">
                    <property name="text">
-                    <string>Gray</string>
+                    <string>White (for black background)</string>
                    </property>
                    <property name="checked">
                     <bool>true</bool>
@@ -126,12 +126,12 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QRadioButton" name="radioButton_blue">
+                  <widget class="QRadioButton" name="radioButton_logo_main">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="text">
-                    <string>Blue</string>
+                    <string>Blue (for transparent background)</string>
                    </property>
                   </widget>
                  </item>

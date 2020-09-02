@@ -15,6 +15,7 @@
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 
+#include "CxxUtils/checker_macros.h"
 
 class CaloCellCalcEnergyCorr: public AthAlgorithm
 { 
@@ -36,7 +37,7 @@ class CaloCellCalcEnergyCorr: public AthAlgorithm
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  stop();
+  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE /* calls ctor of AthenaAttributeList*/();
 
 private:
   // Properties

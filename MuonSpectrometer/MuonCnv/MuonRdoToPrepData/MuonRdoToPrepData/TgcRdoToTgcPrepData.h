@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRDOTOTGCPREPDATA_H
@@ -13,7 +13,7 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 /** Algorithm to decode RDO into TgcPrepData, using the Muon::TgcRdoToTgcPrepDataTool 
@@ -44,7 +44,7 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+  ToolHandle<IRegSelTool> m_regsel_tgc; //<! pointer to RegionSelectionTool
   SG::WriteHandleKey<Muon::TgcPrepDataContainer> m_tgcCollection;
 };
 

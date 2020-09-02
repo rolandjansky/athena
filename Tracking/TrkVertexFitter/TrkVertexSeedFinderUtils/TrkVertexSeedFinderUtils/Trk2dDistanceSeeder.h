@@ -10,10 +10,7 @@
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-
-namespace MagField { 
-  class IMagFieldSvc;
-}
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk
 {
@@ -55,17 +52,18 @@ namespace Trk
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
-    const TwoPointOnTrack GetSeed (const TwoTracks& mytracks,
+    TwoPointOnTrack GetSeed (const TwoTracks& mytracks,
                                    TwoPoints* twopoints = nullptr) const;
 
 
   private:
-    double getBField (const Perigee& p) const;
+    double getBField (const Perigee& p, MagField::AtlasFieldCache& cache) const;
     
     //option
     bool m_solveAmbiguityUsingZ;
 
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey 
+          {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   };
 }
 #endif

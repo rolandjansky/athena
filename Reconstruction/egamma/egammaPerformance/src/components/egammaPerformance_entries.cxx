@@ -4,23 +4,26 @@
 
 
 // New Run 3 algorithms
-#include "egammaPerformance/MonitorElectronAlgorithm.h"
-#include "egammaPerformance/MonitorPhotonAlgorithm.h"
+#include "../MonitorElectronAlgorithm.h"
+#include "../MonitorPhotonAlgorithm.h"
+#include "../MonitorFwdElectronAlgorithm.h"
+#include "../MonitorTnPAlgorithm.h"
 // Run 2 algorithms
-#include "egammaPerformance/photonMonTool.h"
-#include "egammaPerformance/electronMonTool.h"
-#include "egammaPerformance/forwardElectronMonTool.h"
-#include "egammaPerformance/ZeeTaPMonTool.h"
+#include "../photonMonTool.h"
+#include "../electronMonTool.h"
+#include "../forwardElectronMonTool.h"
+#include "../ZeeTaPMonTool.h"
 
 // Run 2 Algorithms
 
-DECLARE_COMPONENT( photonMonTool ) 
+DECLARE_COMPONENT( photonMonTool )
 DECLARE_COMPONENT( electronMonTool )
-DECLARE_COMPONENT( forwardElectronMonTool )  
-DECLARE_COMPONENT( ZeeTaPMonTool )  
+DECLARE_COMPONENT( forwardElectronMonTool )
+DECLARE_COMPONENT( ZeeTaPMonTool )
 
 // RUN 3 algorithms
 
-DECLARE_COMPONENT( MonitorElectronAlgorithm ) 
-DECLARE_COMPONENT( MonitorPhotonAlgorithm ) 
-
+DECLARE_COMPONENT( MonitorElectronAlgorithm )
+DECLARE_COMPONENT( MonitorPhotonAlgorithm )
+DECLARE_COMPONENT( MonitorFwdElectronAlgorithm )
+DECLARE_COMPONENT( MonitorTnPAlgorithm )

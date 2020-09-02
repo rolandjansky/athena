@@ -16,32 +16,10 @@
 namespace MuonCombined {
 
   MuonInsideOutRecoTool::MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_segmentFinder("Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"),
-    m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_ambiguityResolver("Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"),
-    m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
-    m_recoValidationTool(""),
-    m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool"),
-    m_trackSummaryTool("MuonTrackSummaryTool")
+    AthAlgTool(type,name,parent)
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonLayerSegmentFinderTool",m_segmentFinder );    
-    declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
-    declareProperty("MuonLayerAmbiguitySolverTool",m_ambiguityResolver );    
-    declareProperty("MuonCandidateTrackBuilderTool",m_candidateTrackBuilder );    
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
-    declareProperty("MuonTrackBuilder",           m_trackFitter );    
-    declareProperty("TrackAmbiguityProcessor",m_trackAmbiguityResolver );    
-    declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
-    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
-    declareProperty("TrackSummaryTool", m_trackSummaryTool );
   }
 
   StatusCode MuonInsideOutRecoTool::initialize() {
@@ -62,14 +40,14 @@ namespace MuonCombined {
   }
 
   void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				      Trk::SegmentCollection* segments) {
+				      Trk::SegmentCollection* segments) const {
     ATH_MSG_WARNING("This version is deprecated, please use extendWithPRDs for MuGirl");
     IMuonCombinedInDetExtensionTool::MuonPrdData prdData;
     extendWithPRDs(inDetCandidates,tagMap,prdData,combTracks,meTracks,segments);
   }
 
   void MuonInsideOutRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					      TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
+					      TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
@@ -80,7 +58,7 @@ namespace MuonCombined {
   }
 
   void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segColl) {
+					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segColl) const {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -163,7 +141,7 @@ namespace MuonCombined {
 
 
   std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*>
-  MuonInsideOutRecoTool::findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) {
+  MuonInsideOutRecoTool::findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const {
 
     // resolve ambiguities 
     std::vector< Muon::MuonCandidate > resolvedCandidates;
@@ -298,7 +276,7 @@ namespace MuonCombined {
   }
 
   bool MuonInsideOutRecoTool::getLayerData( int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
-					    Muon::MuonStationIndex::LayerIndex layerIndex, Muon::MuonLayerPrepRawData& layerPrepRawData, IMuonCombinedInDetExtensionTool::MuonPrdData prdData){
+					    Muon::MuonStationIndex::LayerIndex layerIndex, Muon::MuonLayerPrepRawData& layerPrepRawData, IMuonCombinedInDetExtensionTool::MuonPrdData prdData) const {
 
     // get technologies in the given layer
     Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex( regionIndex, layerIndex );
@@ -337,10 +315,9 @@ namespace MuonCombined {
 
   template<class COL>
   bool MuonInsideOutRecoTool::getLayerDataTech( int sector, Muon::MuonStationIndex::TechnologyIndex technology, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
-						Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) {
+						Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) const {
 
     if(!input || input->size()==0) return true;
-    typedef Muon::MuonPrepDataContainer< COL > ContainerType;
     // get technologies in the given layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );
 
@@ -354,14 +331,13 @@ namespace MuonCombined {
     for( Muon::MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
 
       // skip if not found
-      typename ContainerType::const_iterator colIt;
-      colIt=input->indexFind(*it);
-      if( colIt == input->end() ) {
+      auto colIt =input->indexFindPtr(*it);
+      if( colIt == nullptr ) {
 	continue;
       }
-      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(colIt->identify()) << " size " << colIt->size());
       // else add
-      output.push_back(*colIt);
+      output.push_back(colIt);
     }
     return true;
   }

@@ -123,15 +123,6 @@ StoreGateSvc = Service( "StoreGateSvc" )
 #StoreGateSvc.Dump = True;
 StoreGateSvc.OutputLevel=3
 
-checkDict = False
-if 'CHECKDICT' in dir() :
-    checkDict = CHECKDICT
-    pass
-
-AthenaSealSvc.CheckDictionary = checkDict
-AthenaSealSvc.IgnoreNames     += ["Trk"]
-AthenaSealSvc.OutputLevel     = DEBUG
-
 #==============================================================
 #
 # End of job options file

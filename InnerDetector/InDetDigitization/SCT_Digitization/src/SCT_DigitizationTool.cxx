@@ -29,6 +29,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 // C++ Standard Library
+#include <cmath>
 #include <memory>
 #include <sstream>
 
@@ -44,12 +45,6 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
 }
 
 SCT_DigitizationTool::~SCT_DigitizationTool() {
-  delete m_thpcsi;
-  for (SiHitCollection* hit: m_hitCollPtrs) {
-    hit->Clear();
-    delete hit;
-  }
-  m_hitCollPtrs.clear();
 }
 
 // ----------------------------------------------------------------------
@@ -198,7 +193,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   ATH_MSG_VERBOSE("Begin digitizeAllHits");
   if (m_enableHits and (not getNextEvent(ctx).isFailure())) {
-    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
+    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi.get(), rndmEngine);
   } else {
     ATH_MSG_DEBUG("no hits found in event!");
   }
@@ -210,8 +205,7 @@ StatusCode SCT_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
     ATH_MSG_DEBUG("Digitized Elements without Hits");
   }
 
-  delete m_thpcsi;
-  m_thpcsi = nullptr;
+  m_thpcsi.reset(nullptr);
 
   ATH_MSG_VERBOSE("Digitize success!");
   return StatusCode::SUCCESS;
@@ -234,7 +228,7 @@ StatusCode SCT_DigitizationTool::prepareEvent(const EventContext& ctx, unsigned 
   m_processedElements.clear();
   m_processedElements.resize(m_detID->wafer_hash_max(), false);
 
-  m_thpcsi = new TimedHitCollection<SiHit>();
+  m_thpcsi = std::make_unique<TimedHitCollection<SiHit>>();
   m_HardScatterSplittingSkipper = false;
   return StatusCode::SUCCESS;
 }
@@ -251,21 +245,16 @@ StatusCode SCT_DigitizationTool::mergeEvent(const EventContext& ctx) {
   CLHEP::HepRandomEngine *rndmEngine = rngWrapper->getEngine(ctx);
 
   if (m_enableHits) {
-    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi, rndmEngine);
+    digitizeAllHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, m_thpcsi.get(), rndmEngine);
   }
 
   if (not m_onlyHitElements) {
     digitizeNonHits(ctx, &m_rdoContainer, &m_simDataCollMap, &m_processedElements, rndmEngine);
   }
 
-  for (SiHitCollection* hit: m_hitCollPtrs) {
-    hit->Clear();
-    delete hit;
-  }
   m_hitCollPtrs.clear();
 
-  delete m_thpcsi;
-  m_thpcsi = nullptr;
+  m_thpcsi.reset(nullptr);
 
   ATH_MSG_DEBUG("Digitize success!");
   return StatusCode::SUCCESS;
@@ -420,7 +409,7 @@ bool SCT_DigitizationTool::digitizeElement(const EventContext& ctx, SiChargedDio
     TimedHitPtr<SiHit> phit{*i++};
 
     // skip hits which are more than 10us away
-    if (fabs(phit->meanTime()) < 10000. * CLHEP::ns) {
+    if (std::abs(phit->meanTime()) < 10000. * CLHEP::ns) {
       ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(phit->getBarrelEndcap(),
                                                                        phit->getLayerDisk(),
                                                                        phit->getPhiModule(),
@@ -483,15 +472,15 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
 
     TimedHitCollList::iterator endColl{hitCollList.end()};
     for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; iColl++) {
-      SiHitCollection *hitCollPtr{new SiHitCollection(*iColl->second)};
+      std::unique_ptr<SiHitCollection> hitCollPtr{std::make_unique<SiHitCollection>(*iColl->second)};
       PileUpTimeEventIndex timeIndex{iColl->first};
       ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
                     " hits");
       ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
 		      << " index: " << timeIndex.index()
 		      << " type: " << timeIndex.type());
-      m_thpcsi->insert(timeIndex, hitCollPtr);
-      m_hitCollPtrs.push_back(hitCollPtr);
+      m_thpcsi->insert(timeIndex, hitCollPtr.get());
+      m_hitCollPtrs.push_back(std::move(hitCollPtr));
     }
 
     return StatusCode::SUCCESS;
@@ -501,7 +490,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
 // =========================================================================
 // property handlers
 // =========================================================================
-void SCT_DigitizationTool::SetupRdoOutputType(Property &) {
+void SCT_DigitizationTool::SetupRdoOutputType(Gaudi::Details::PropertyBase &) {
 }
 
 // Does nothing, but required by Gaudi
@@ -541,23 +530,20 @@ private:
 StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chDiodeCollection, SG::WriteHandle<SCT_RDO_Container>* rdoContainer) const {
 
   // Create the RDO collection
-  SCT_RDO_Collection* RDOColl{createRDO(chDiodeCollection)};
+  std::unique_ptr<SCT_RDO_Collection> RDOColl{createRDO(chDiodeCollection)};
+  const IdentifierHash identifyHash{RDOColl->identifyHash()};
 
   // Add it to storegate
   Identifier id_coll{RDOColl->identify()};
   int barrelec{m_detID->barrel_ec(id_coll)};
 
   if ((not m_barrelonly) or (std::abs(barrelec) <= 1)) {
-    if ((*rdoContainer)->addCollection(RDOColl, RDOColl->identifyHash()).isFailure()) {
+    if ((*rdoContainer)->addCollection(RDOColl.release(), identifyHash).isFailure()) {
       ATH_MSG_FATAL("SCT RDO collection could not be added to container!");
-      delete RDOColl;
-      RDOColl = nullptr;
       return StatusCode::FAILURE;
     }
   } else {
     ATH_MSG_VERBOSE("Not saving SCT_RDO_Collection: " << m_detID->show_to_string(RDOColl->identify()) << " to container!");
-    delete RDOColl;
-    RDOColl = nullptr;
   }
   return StatusCode::SUCCESS;
 } // SCT_Digitization::createAndStoreRDO()
@@ -565,16 +551,16 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(SiChargedDiodeCollection* chD
 // ----------------------------------------------------------------------
 // createRDO
 // ----------------------------------------------------------------------
-SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* collection) const {
+std::unique_ptr<SCT_RDO_Collection> SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* collection) const {
 
   // create a new SCT RDO collection
-  SCT_RDO_Collection* p_rdocoll{nullptr};
+  std::unique_ptr<SCT_RDO_Collection> p_rdocoll;
 
   // need the DE identifier
   const Identifier id_de{collection->identify()};
   IdentifierHash idHash_de{collection->identifyHash()};
   try {
-    p_rdocoll = new SCT_RDO_Collection(idHash_de);
+    p_rdocoll = std::make_unique<SCT_RDO_Collection>(idHash_de);
   } catch (const std::bad_alloc&) {
     ATH_MSG_FATAL("Could not create a new SCT_RDORawDataCollection !");
   }
@@ -730,7 +716,7 @@ StatusCode SCT_DigitizationTool::getNextEvent(const EventContext& ctx) {
     }
 
     // create a new hits collection
-    m_thpcsi = new TimedHitCollection<SiHit>{1};
+    m_thpcsi = std::make_unique<TimedHitCollection<SiHit>>(1);
     m_thpcsi->insert(0, hitCollection.cptr());
     ATH_MSG_DEBUG("SiHitCollection found with " << hitCollection->size() << " hits");
 
@@ -746,7 +732,7 @@ StatusCode SCT_DigitizationTool::getNextEvent(const EventContext& ctx) {
     ATH_MSG_DEBUG(hitCollList.size() << " SiHitCollections with key " << m_inputObjectName << " found");
   }
   // create a new hits collection
-  m_thpcsi = new TimedHitCollection<SiHit>{numberOfSiHits};
+  m_thpcsi = std::make_unique<TimedHitCollection<SiHit>>(numberOfSiHits);
   // now merge all collections into one
   TimedHitCollList::iterator endColl{hitCollList.end()};
   for (TimedHitCollList::iterator iColl{hitCollList.begin()}; iColl != endColl; ++iColl) {

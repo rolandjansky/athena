@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO2G4_Geo2G4Svc_H
@@ -11,14 +11,14 @@
 #include "GaudiKernel/IIncidentListener.h"
 
 #include "Geo2G4AssemblyFactory.h"
-#include "Geo2G4AssemblyVolume.h"
+
+#include "VolumeBuilder.h"
 
 #include <string>
 #include <map>
 #include <memory>
 
-class VolumeBuilder;
-typedef std::map< std::string, VolumeBuilder*,std::less<std::string> > BuilderMap;
+typedef std::unordered_map<std::string, std::unique_ptr<VolumeBuilder>> BuilderMap;
 
 /// @todo NEEDS DOCUMENTATION
 class Geo2G4Svc: public extends<AthService, IGeo2G4Svc, IIncidentListener>
@@ -32,17 +32,14 @@ public:
   /// IIncidentListener methods -  FIXME does this service actually need to listen for Incidents?
   virtual void handle(const Incident&) override final;
   /// Geo2G4SvcBase methods
-  virtual void RegisterVolumeBuilder(VolumeBuilder* vb) override final;
-  virtual void UnregisterVolumeBuilder(VolumeBuilder* vb) override final;
-  virtual void SetDefaultBuilder(VolumeBuilder *vb) override final {m_defaultBuilder=vb;}
-  virtual void SetDefaultBuilder(std::string n) override final {this->SetDefaultBuilder(this->GetVolumeBuilder(n));}
+  virtual void SetDefaultBuilder(std::string n) override final {m_defaultBuilder=n;}
   virtual VolumeBuilder* GetVolumeBuilder(std::string s) const override final;
-  virtual VolumeBuilder* GetDefaultBuilder() const override final {return m_defaultBuilder;}
+  virtual VolumeBuilder* GetDefaultBuilder() const override final {return m_builders.at(m_defaultBuilder).get();}
   virtual bool UseTopTransforms() const override final {return m_getTopTransform;}
   virtual void ListVolumeBuilders() const override final;
 private:
-  VolumeBuilder *m_defaultBuilder;
-  BuilderMap m_builders ;
+  std::string m_defaultBuilder;
+  BuilderMap m_builders;
   bool m_getTopTransform;
   std::unique_ptr<Geo2G4AssemblyFactory> m_G4AssemblyFactory;
 };

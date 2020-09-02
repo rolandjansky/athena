@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecUtils
                           LArCalorimeter/LArTools
+                          LArCalorimeter/LArRawConditions
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Calorimeter/CaloConditions
@@ -31,7 +32,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArGeoModel/LArHV
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          LArCalorimeter/LArSimEvent )
+                          LArCalorimeter/LArSimEvent 
+			  Control/CxxUtils)
 
 # External dependencies:
 find_package( CLHEP )
@@ -44,17 +46,11 @@ atlas_add_component( CaloCondPhysAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers 
+		     CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib LArRawConditions
+		     CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent CxxUtils)
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_joboptions( share/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F401,F821 )
 atlas_install_scripts( share/CaloRescaleNoiseHV.sh share/CaloNoise_fillDB.py share/CaloPedestalShift.sh share/CaloPedestal_fillDB.py share/CaloScaleNoise_jobOptions.py )
-
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( flake8_share
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --ignore=F401,F821,ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/share
-                POST_EXEC_SCRIPT nopost.sh )

@@ -24,6 +24,8 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
+  double signed_log(double e, double epsilon) const;
+
   SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
 
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;
@@ -33,6 +35,7 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tc_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_tcpufit_met_key;
   SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_trkmht_met_key;
+  SG::ReadHandleKey<xAOD::TrigMissingETContainer> m_hlt_pfsum_met_key;
 
   std::string m_L1Chain1;
   std::string m_HLTChain1;

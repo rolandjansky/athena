@@ -1,29 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/***************************************************************************
- global stuff
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: GlobalUtilities.cxx,v 1.2 2009-02-24 16:47:48 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
 #include <cmath>
 
-  
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"  
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "RpcRawDataMonitoring/RpcGlobalUtilities.h"
-
  
 namespace RpcGM 
 {
@@ -39,16 +27,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   int irpcgasGap	 =   int(rpcIdHelper.gasGap(prdcoll_id))	  ;
   int irpcmeasuresPhi	 =   int(rpcIdHelper.measuresPhi(prdcoll_id))  ;
   int irpcstrip		 =   int(rpcIdHelper.strip(prdcoll_id))	  ;
-
-  //std::cout << "prd irpcstationName " << irpcstationName<<" irpcstationEta " << irpcstationEta<< " irpcstationPhi " << irpcstationPhi<<" irpcdoubletR " << irpcdoubletR<< " irpcdoubletZ " << irpcdoubletZ <<std::endl;
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
   const MuonGM::RpcReadoutElement* descriptor = muonMgr->getRpcReadoutElement(prdcoll_id);
-  //const MuonGM::RpcReadoutSet*     chamberset = 
-  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
-  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
- 		      
+
   std::vector<int>  rpcstriptot  ;
   
   int NphiStrips	    = descriptor -> NphiStrips()* 2		     ;
@@ -104,7 +87,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   //Extension feet Pivot
   if(irpcdoubletR==2)PlaneTipo=1;
   //BML7 assigned to pivot 
-  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;
+  if( irpcstationName==2 && ( (std::abs(irpcstationEta)==7)||(irpcstationPhi==7&&std::abs(irpcstationEta)==6) ) )PlaneTipo=1;
   
   //evaluate strip shift
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
@@ -143,13 +126,13 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         int krpcdoubletR=irpcdoubletR;
 	
 	if(PlaneTipo==0){
-	 if(krpcstationName==2&&abs(ieta)==7         )continue;
-	 if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7)continue;
+	 if(krpcstationName==2&&std::abs(ieta)==7         )continue;
+	 if(krpcstationName==2&&std::abs(ieta)==6&&irpcstationPhi==7)continue;
 	 if(krpcstationName==4||krpcstationName==5||krpcstationName==9||krpcstationName==10)continue;  
         }
 	else if(PlaneTipo==1){
-	 if(krpcstationName==2&&abs(ieta)==7         ){krpcdoubletR=1;}
-	 else if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7){krpcdoubletR=1;}
+	 if(krpcstationName==2&&std::abs(ieta)==7         ){krpcdoubletR=1;}
+	 else if(krpcstationName==2&&std::abs(ieta)==6&&irpcstationPhi==7){krpcdoubletR=1;}
 	 else{ krpcdoubletR=2;}
         }
 	else if(PlaneTipo==2){
@@ -157,11 +140,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         }
         
 	for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1 );
-    	if(rpc != NULL ){
-	
-	//std::cout << "loop krpcstationName " << krpcstationName<<" ieta " << ieta<< " irpcstationPhi " << irpcstationPhi<<" krpcdoubletR " << krpcdoubletR<< " idbz " << idbz <<std::endl;
-	
+      bool isValid=false;
+      Identifier rpcId = rpcIdHelper.channelID(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      if (!isValid) continue;
+    	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
+    	if(rpc){	
 		
 	  if ( idbz != rpc->getDoubletZ() ) continue ;
 	  
@@ -176,7 +159,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	     else{ 
 	      ShiftEtaStripsTot = NetaStripsTotSideA  ;  
 	      ShiftPhiTot_db    = NphiStripsTotSideA  ;
-	      //std::cout << "ShiftPhiTot_db  " <<ShiftPhiTot_db <<std::endl; 
 	      ShiftEtaPanelsTot = NetaPanelsTotSideA  ;
 	     }
 	    }
@@ -188,19 +170,17 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	  if(irpcstationEta<0){
 	   NetaStripsTotSideC  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideC  +=  rpc->NphiStrips()  ;
-	   //std::cout << "-- NphiStripsTotSideC  " <<NphiStripsTotSideC  <<std::endl; 
     	   NetaPanelsTotSideC  ++                     ;
 	  }
 	  else{ 
 	   NetaStripsTotSideA  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideA  +=  rpc->NphiStrips()  ;
-	   //std::cout << "** NphiStripsTotSideA  " <<NphiStripsTotSideA  <<std::endl; 
     	   NetaPanelsTotSideA  ++                     ;	
 
 	  }
     	
 	  
-        } //check if rpc!=NULL
+        } //check if rpc is nullptr
       } //for loop in idbz
      } //for loop in krpcstationName
     } // for loop in etastation     
@@ -223,11 +203,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
    else if(irpcstationName==4		           ){ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 )	     ;}
    else{ShiftStripPhiAtlas = (2*64+80*2) * ( irpcstationPhi -1 ) + 2*80 ;} 
    //BML7 assigned to pivot 
-   if( irpcstationName==2 && abs(irpcstationEta)==7){
+   if( irpcstationName==2 && std::abs(irpcstationEta)==7){
     ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 );
     if(irpcstationPhi==8)ShiftStripPhiAtlas +=4*16;
    }
-   if( irpcstationName==2 && irpcstationPhi==7&&abs(irpcstationEta)==6 ){
+   if( irpcstationName==2 && irpcstationPhi==7&&std::abs(irpcstationEta)==6 ){
     ShiftStripPhiAtlas = (2*48+64*2) * ( irpcstationPhi -1 ) +2*16      ;
    }
   } 		
@@ -267,7 +247,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   
 
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24 
-    + ( ( abs(irpcstationEta) ) )*72 ;
+    + ( ( std::abs(irpcstationEta) ) )*72 ;
   // exception station name=53, assume irpcstationEta = 0 ;
   if(irpcstationName ==53)
   PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + (irpcdoubletZ-1)*8 + (irpcstationName_index)*24;
@@ -275,7 +255,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   if ( irpcstationName==10 ) { 
     // convention: BOG <-> doubletZ=3 <-> (3-1)*8=16
     PanelIndex = irpcmeasuresPhi + (irpcgasGap-1)*2 + (irpcdoubletPhi-1)*4 + 16 + (irpcstationName_index)*24 
-      + ( ( abs(irpcstationEta) ) )*72 ;
+      + ( ( std::abs(irpcstationEta) ) )*72 ;
   }
   if ( (irpcdoubletR==2) && (irpcstationName==9 || irpcstationName==10) ) {
     // convention: chambers of RPC upgrade -> eta = eta + 7
@@ -314,13 +294,10 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
       if (iname>10 && iname!=53) continue; 
       if( iname==6 || iname==7 ) continue; 
        ;  
-      //if((iname==4||iname==5||iname==9||iname==10)&&!(irpcstationName==4||irpcstationName==5||irpcstationName==9||irpcstationName==10))continue; 
-       
-      //if((iname==2||iname==3||iname==8||iname==53)&&!(irpcstationName==2||irpcstationName==3||irpcstationName==8||irpcstationName==53))continue;    
-      
+
       laststationEta =  8;   
       if(iname==irpcstationName&&iphi==irpcstationPhi){
-	laststationEta    = abs(irpcstationEta) ;
+	laststationEta    = std::abs(irpcstationEta) ;
       }
    
       for(int ieta = 0; ieta != laststationEta+1; ieta++ ){
@@ -341,8 +318,8 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	 if(iname==4||iname==5||iname==9||iname==10)continue;  
         }
 	else if(PlaneTipo==1){
-	 if(irpcstationName==2&&abs(irpcstationEta)==7  	         )ir=2;
-	 if(irpcstationName==2&&abs(irpcstationEta)==6&&irpcstationPhi==7)ir=2;
+	 if(irpcstationName==2&&std::abs(irpcstationEta)==7  	         )ir=2;
+	 if(irpcstationName==2&&std::abs(irpcstationEta)==6&&irpcstationPhi==7)ir=2;
 	 if(iname==2&&ieta==7         )ir=1;
 	 if(iname==2&&ieta==6&&iphi==7)ir=1;
         }
@@ -358,22 +335,18 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	}    
  
 	for(int iz   =      1; iz   !=   lastdoubletZ+1; iz++	){ 
-	  
-	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(iname, keta, iphi, ir, iz, 1);
-	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
+    bool isValid=false;
+    Identifier rpcId = rpcIdHelper.channelID(iname, keta, iphi, ir, iz, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+    if (!isValid) continue;
+	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
     
-	  if(rpc == NULL )continue;
+	  if(!rpc)continue;
 	  
 	  panel_dbindex++;
 	  
 	  if(iz==1)tower_dbindex++;
-	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
 	  
 	}}}}
-        //if(irpcstationName>8&&irpcstationName<11)std::cout <<ShiftEtaPanelsTot<< " ShiftEtaPanelsTot "<< EtaStripSign<< " PlaneTipo "<<PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
-  
-
-
 				    	  
   rpcstriptot.push_back(NphiStrips	      );  // 0
   rpcstriptot.push_back(ShiftPhiStrips	      );  // 1
@@ -468,7 +441,7 @@ std::vector<std::string>    RpcLayerSectorSideName(const RpcIdHelper& rpcIdHelpe
   else {layer_name="HighPt";}
   if(irpcdoubletR==2)layer_name="Pivot";
   //BML7 assigned to pivot 
-  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )layer_name="Pivot";
+  if( irpcstationName==2 && ( (std::abs(irpcstationEta)==7)||(irpcstationPhi==7&&std::abs(irpcstationEta)==6) ) )layer_name="Pivot";
 	    
   if(irpcstationName==3||irpcstationName==5||irpcstationName==8||irpcstationName==9||irpcstationName==10){
     HVorROsideleft  = "RO side" ;

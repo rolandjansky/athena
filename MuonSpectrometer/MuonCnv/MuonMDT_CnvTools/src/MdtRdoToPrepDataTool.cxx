@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+           
+#include "CxxUtils/checker_macros.h"
 
 #include "MdtRdoToPrepDataTool.h"
 
@@ -12,10 +10,6 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t, const std
   :
   AthAlgTool(t,n,p),
   MdtRdoToPrepDataToolCore(t,n,p)
-{
-}
-
-Muon::MdtRdoToPrepDataTool::~MdtRdoToPrepDataTool()
 {
 }
 
@@ -27,18 +21,13 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MdtRdoToPrepDataTool::finalize()
-{
-  return MdtRdoToPrepDataToolCore::finalize();
-}
-
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer ATLAS_NOT_THREAD_SAFE()
 {
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
 
     SG::WriteHandle< Muon::MdtPrepDataContainer >handle(m_mdtPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(m_muonIdHelperTool->mdtIdHelper().module_hash_max()));
+    StatusCode status = handle.record(std::make_unique<Muon::MdtPrepDataContainer>(m_idHelperSvc->mdtIdHelper().module_hash_max()));
 
     if (status.isFailure() || !handle.isValid() ) 	{
       ATH_MSG_FATAL("Could not record container of MDT PrepData Container at " << m_mdtPrepDataContainerKey.key());	

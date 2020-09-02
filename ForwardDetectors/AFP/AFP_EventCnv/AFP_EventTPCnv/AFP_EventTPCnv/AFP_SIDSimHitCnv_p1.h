@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_SIDSimHitCnv_p1_h
@@ -15,8 +15,10 @@ class MsgStream;
 class AFP_SIDSimHitCnv_p1 : public T_AthenaPoolTPCnvConstBase< AFP_SIDSimHit, AFP_SIDSimHit_p1> 
 {
 public:
+
        using base_class::transToPers;
        using base_class::persToTrans;
+
 
 
 	AFP_SIDSimHitCnv_p1() {}

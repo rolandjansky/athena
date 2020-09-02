@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_SENSITIVEDETECTORBASE_H
@@ -79,12 +79,12 @@ class SensitiveDetectorBase : public extends<AthAlgTool, ISensitiveDetector>
   G4VSensitiveDetector* getSD();
 
   /// All the volumes to which this SD is assigned
-  std::vector<std::string> m_volumeNames;
+  Gaudi::Property<std::vector<std::string> > m_volumeNames{this, "LogicalVolumeNames", {}};
   /// Names of all output collections written out by this SD.
-  std::vector<std::string> m_outputCollectionNames;
+  Gaudi::Property<std::vector<std::string> > m_outputCollectionNames{this, "OutputCollectionNames", {}};
 
   /// This SensitiveDetector has no volumes associated with it.
-  bool m_noVolumes;
+  Gaudi::Property<bool> m_noVolumes{this, "NoVolumes", false};
 
   /// Method stolen from G4VUserDetectorConstruction in G4 10.2
   void SetSensitiveDetector(G4LogicalVolume*, G4VSensitiveDetector*) const;
@@ -103,7 +103,7 @@ class SensitiveDetectorBase : public extends<AthAlgTool, ISensitiveDetector>
   SDThreadMap_t m_sdThreadMap;
 #else
   /// The sensitive detector to which this thing corresponds
-  G4VSensitiveDetector* m_SD;
+  G4VSensitiveDetector* m_SD{};
 #endif
 
 }; // class SensitiveDetectorBase

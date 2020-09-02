@@ -53,8 +53,8 @@ namespace Muon {
 	hmass->SetBinError(i+1,mass_error); 
 	hwidth->SetBinContent(i+1,width);
 	hwidth->SetBinError(i+1,width_error); 
-	if( (std::fabs(mass)+mass_error)>maxmass ) maxmass=std::fabs(mass)+mass_error;
-	if( (std::fabs(width)+width_error)>maxwidth ) maxwidth=std::fabs(width)+width_error;
+	if( (std::abs(mass)+mass_error)>maxmass ) maxmass=std::abs(mass)+mass_error;
+	if( (std::abs(width)+width_error)>maxwidth ) maxwidth=std::abs(width)+width_error;
       }
     }
     if (maxmass>0.1) maxmass=0.1;
@@ -232,11 +232,7 @@ namespace Muon {
       //calculating the RMS from the above quantities
       float rms = (float)binerr*(std::sqrt(binentries));
      
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
       hRms_char->SetCanExtend(TH1::kAllAxes);
-#else
-      hRms_char->SetBit(TH1::kCanRebin);
-#endif    
       hRms_char->Fill(BinLabel_char,rms);
 
     } // Loop over bins

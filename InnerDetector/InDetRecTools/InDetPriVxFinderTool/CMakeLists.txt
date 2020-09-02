@@ -8,7 +8,7 @@ atlas_subdir( InDetPriVxFinderTool )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-			  Control/StoreGate
+                          Control/StoreGate
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
-			  InnerDetector/InDetConditions/BeamSpotConditionsData
+                          InnerDetector/InDetConditions/BeamSpotConditionsData
+                          Control/CxxUtils
                           PRIVATE
                           Control/AthContainers
                           DetectorDescription/GeoPrimitives
@@ -42,7 +43,11 @@ atlas_add_component( InDetPriVxFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces PATCoreLib TrkParameters TrkParticleBase TrkTrack AthContainers GeoPrimitives EventPrimitives TrkSurfaces TrkEventPrimitives TrkLinks TrkTrackSummary VxMultiVertex VxVertex TrkVertexFitterInterfaces TrkVertexFittersLib BeamSpotConditionsData StoreGateLib)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking 
+                     GaudiKernel InDetRecToolInterfaces PATCoreLib TrkParameters TrkParticleBase TrkTrack CxxUtils AthContainers GeoPrimitives 
+                     EventPrimitives TrkSurfaces TrkEventPrimitives TrkLinks TrkTrackSummary VxMultiVertex VxVertex 
+                     TrkVertexFitterInterfaces TrkVertexFittersLib BeamSpotConditionsData StoreGateLib
+                     InDetTrackSelectionToolLib )
 
 # Install files from the package:
 atlas_install_headers( InDetPriVxFinderTool )

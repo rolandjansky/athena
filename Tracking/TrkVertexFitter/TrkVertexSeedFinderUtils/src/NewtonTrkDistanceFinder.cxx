@@ -8,13 +8,15 @@
 
 //#define TrkDistance_DEBUG
 
+#include "GaudiKernel/EventContext.h"
+
 #include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
 #include "TrkVertexSeedFinderUtils/SeedFinderParamDefs.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
-#include <math.h>
+#include <cmath>
 
 
 
@@ -29,21 +31,19 @@ namespace Trk
   NewtonTrkDistanceFinder::NewtonTrkDistanceFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
     m_precision(1e-8),
-    m_maxloopnumber(20),
-    m_magFieldSvc("AtlasFieldSvc", n)
+    m_maxloopnumber(20)
   {   
-    declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("Precision",m_precision);
     declareProperty("MaxLoops",m_maxloopnumber);
     declareInterface<NewtonTrkDistanceFinder>(this);
   }
 
-  NewtonTrkDistanceFinder::~NewtonTrkDistanceFinder() {}
+  NewtonTrkDistanceFinder::~NewtonTrkDistanceFinder() = default;
 
   StatusCode NewtonTrkDistanceFinder::initialize() 
   { 
     ATH_CHECK( AlgTool::initialize() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     ATH_MSG_DEBUG( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
@@ -53,7 +53,7 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-const TwoPoints
+TwoPoints
 NewtonTrkDistanceFinder::GetClosestPoints (const PointOnTrack & firsttrack,
                                            const PointOnTrack & secondtrack) const
 {
@@ -75,12 +75,19 @@ NewtonTrkDistanceFinder::GetClosestPoints (const PointOnTrack & firsttrack,
   ATH_MSG_DEBUG( "m_a_phi0 " << a_phi0 );
 #endif
 
+  // Setup magnetic field retrieval
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
   double magnFieldVect[3];
   double posXYZ[3];
   posXYZ[0] = firsttrack.getPerigee().associatedSurface().center().x();
   posXYZ[1] = firsttrack.getPerigee().associatedSurface().center().y();
   posXYZ[2] = firsttrack.getPerigee().associatedSurface().center().z();
-  m_magFieldSvc->getField(posXYZ,magnFieldVect);
+  fieldCache.getField(posXYZ,magnFieldVect);
 
   
   //Magnetic field at (x0,y0,z0)
@@ -117,7 +124,7 @@ NewtonTrkDistanceFinder::GetClosestPoints (const PointOnTrack & firsttrack,
   posXYZ[0] = secondtrack.getPerigee().associatedSurface().center().x();
   posXYZ[1] = secondtrack.getPerigee().associatedSurface().center().y();
   posXYZ[2] = secondtrack.getPerigee().associatedSurface().center().z();  
-  m_magFieldSvc->getField(posXYZ,magnFieldVect);
+  fieldCache.getField(posXYZ,magnFieldVect);
   
   //Magnetic field at (x0,y0,z0)
   const double b_Bz = magnFieldVect[2]*299.792;//B field in Gev/mm - for the moment use a constant field offline

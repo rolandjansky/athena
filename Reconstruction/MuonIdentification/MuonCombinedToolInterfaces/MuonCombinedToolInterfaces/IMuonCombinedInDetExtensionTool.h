@@ -1,10 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// IMuonCombinedInDetExtensionTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 #ifndef IRECMUONCOMBINEDINDETEXTENSIONTOOL_H
 #define IRECMUONCOMBINEDINDETEXTENSIONTOOL_H
 
@@ -44,11 +41,11 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: build combined muons from ID candidates */    
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks, 
-			 Trk::SegmentCollection* segments) = 0;
+			 Trk::SegmentCollection* segments) const = 0;
     
     /*New interface including PRDs for MuGirl segment-finding*/
     virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) =0;
+				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const = 0;
 
   };
 

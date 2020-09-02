@@ -31,9 +31,9 @@
 #include "GaudiKernel/GaudiException.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // EventKernel includes
 #include "EventKernel/PdtPdg.h"

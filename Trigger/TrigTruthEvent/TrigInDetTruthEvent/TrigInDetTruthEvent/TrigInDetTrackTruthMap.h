@@ -30,7 +30,7 @@
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetTruthEvent/TrigInDetTrackTruth.h"
-#include "HepMC/GenParticle.h" 
+#include "AtlasHepMC/GenParticle.h" 
 
 #include <iostream>
 

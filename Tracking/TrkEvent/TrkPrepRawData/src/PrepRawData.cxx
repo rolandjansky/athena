@@ -112,7 +112,7 @@ namespace Trk{
 // move constructor:
     PrepRawData::PrepRawData(
         PrepRawData && RIO
-        ):
+        ) noexcept:
         m_clusId(RIO.m_clusId), 
         m_localPos( RIO.m_localPos ),
         m_rdoList(std::move(RIO.m_rdoList)),  
@@ -138,9 +138,9 @@ namespace Trk{
         return *this;
     }
 
-    PrepRawData& PrepRawData::operator=(PrepRawData&& RIO){
+    PrepRawData& PrepRawData::operator=(PrepRawData&& RIO) noexcept{
         if (&RIO !=this) {
-            m_clusId = std::move(RIO.m_clusId);
+            m_clusId = RIO.m_clusId;
             m_rdoList = std::move(RIO.m_rdoList);
             m_localPos = std::move(RIO.m_localPos);
             delete m_localCovariance;
@@ -195,7 +195,7 @@ namespace Trk{
         }
         stream << "Collection Hash: " << m_indexAndHash.collHash() << "\tIndex in collection: " << m_indexAndHash.objIndex() << std::endl;
         stream << "RDO List = [";
-        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); it++) {  stream << *it << std::endl;
+        for (std::vector<Identifier>::const_iterator it=m_rdoList.begin(); it != m_rdoList.end(); ++it) {  stream << *it << std::endl;
 }
         stream << "], ";
         return stream;

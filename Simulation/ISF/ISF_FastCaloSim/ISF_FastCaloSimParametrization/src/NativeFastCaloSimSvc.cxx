@@ -18,9 +18,9 @@
 #include "ISF_Event/ISFParticleContainer.h"
 
 // HepMC include needed for FastCaloSim
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 // McEventCollection
 #include "GeneratorObjects/McEventCollection.h"

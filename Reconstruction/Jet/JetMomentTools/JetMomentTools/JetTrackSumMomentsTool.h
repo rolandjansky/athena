@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetTrackSumMomentsTool.h 
@@ -22,10 +22,14 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetInterface/IJetTrackSelector.h"
-#include "JetRec/JetModifierBase.h"
 #include "JetEDM/TrackVertexAssociation.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
+#include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h" 
@@ -35,8 +39,9 @@
 #include <string>
 
 
-class JetTrackSumMomentsTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetTrackSumMomentsTool,IJetModifier)
+class JetTrackSumMomentsTool : public asg::AsgTool,
+                               virtual public IJetDecorator {
+  ASG_TOOL_CLASS(JetTrackSumMomentsTool,IJetDecorator)
     
 public:
 
@@ -44,11 +49,11 @@ public:
   JetTrackSumMomentsTool(const std::string& name);
 
   // Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Inherited methods to modify a jet
   // Calls moment and puts the results in the jet
-  virtual int modifyJet(xAOD::Jet& jet) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
   // Local method to return the vector track sums
   std::pair<float,float>
@@ -61,13 +66,17 @@ public:
 
 private:
 
-  std::string m_assocTracksName;
-  bool m_requireTrackPV;
-  ToolHandle<IJetTrackSelector> m_htsel;
+  Gaudi::Property<std::string> m_assocTracksName{this, "AssociatedTracks", "", "SG key for associated tracks container"};
+  Gaudi::Property<bool> m_requireTrackPV{this, "RequireTrackPV", true, "Require track to be from the primary vertex?"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
+  ToolHandle<IJetTrackSelector> m_htsel{this, "TrackSelector", "", "Track selector"};
 
 
-  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key;
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key;
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "", "Vertex container key"};
+  SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key{this, "TrackVertexAssociation", "", "Track vertex association key"};
+  
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumPtKey{this, "SumPtName", "SumPt", "SG key for output track SumPt decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumMassKey{this, "SumMassName", "SumMass", "SG key for output track SumMass decoration"};
 };
 
 #endif

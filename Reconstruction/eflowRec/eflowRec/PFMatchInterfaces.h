@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -84,15 +84,11 @@ template <class ObjectType, class PositionType>
 class PositionProvider: public IPositionProvider {
 protected:
   PositionProvider() {}
-  PositionProvider(const PositionProvider& originalPositionProvider) { m_position = std::make_unique<PositionType>(*originalPositionProvider.getPosition()); }
-  PositionProvider& operator = (const PositionProvider& originalPositionProvider) { if (this == &originalPositionProvider) return *this; else {m_position = std::make_unique<PositionType>(*originalPositionProvider.getPosition()); return *this;} }
   
 public:
   virtual ~PositionProvider() {}
-  virtual PositionType* getPosition(const ObjectType* cluster) = 0;
+  virtual PositionType getPosition(const ObjectType* cluster) const = 0;
 
-protected:
-  std::unique_ptr<PositionType> m_position;
 };
 
 template <class PositionType>
@@ -110,7 +106,7 @@ protected:
 public:
   virtual ~DistanceCalculator() { }
 
-  virtual double distanceBetween(TrackPositionType* position1, ClusterPositionType* position2) = 0;
+  virtual double distanceBetween(const TrackPositionType& position1, const ClusterPositionType& position2) const = 0;
 };
 
 
@@ -122,7 +118,7 @@ protected:
 public:
   virtual ~IDistanceProvider() { }
 
-  virtual double distanceBetween(const ITrack* track, const ICluster* cluster) = 0;
+  virtual double distanceBetween(const ITrack* track, const ICluster* cluster) const = 0;
 };
 
 template<class TrackPositionType, class ClusterPositionType>
@@ -131,42 +127,26 @@ public:
   DistanceProvider(std::unique_ptr<IPositionProvider> trackPosition,
                    std::unique_ptr<IPositionProvider> clusterPosition,
                    std::unique_ptr<DistanceCalculator<TrackPositionType, ClusterPositionType> > distanceCalculator):
-    m_trackPosition(std::move(trackPosition)), m_clusterPosition(std::move(clusterPosition)), m_distanceCalculator(std::move(distanceCalculator)) {
-    //in debug builds we check the pointer validity here to catch a problem early on
+    // dynamic_cast to ensure that the right distance provider classes are received
+    m_trackPosition(dynamic_cast<TrackPositionProvider<TrackPositionType>*>(trackPosition.release())),
+    m_clusterPosition(dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(clusterPosition.release())),
+    m_distanceCalculator(std::move(distanceCalculator)) {
+    // in debug builds we check the pointer validity here to catch a problem early on
     assert(m_trackPosition.get());
     assert(m_clusterPosition.get());
     assert(m_distanceCalculator.get());
   }
   virtual ~DistanceProvider() {}
 
-  double distanceBetween(const ITrack* track, const ICluster* cluster) {
-    //if anything is not valid we return 10000 to indicate no match, in addition to error messages.
-    if (m_trackPosition.get()){
-      TrackPositionProvider<TrackPositionType>* trackPositionProvider = dynamic_cast<TrackPositionProvider<TrackPositionType>*>(m_trackPosition.get());
-      if (m_clusterPosition.get()){
-	ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(m_clusterPosition.get());
-	if (m_distanceCalculator.get()){
-	  return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));
-	}
-	else{
-	  std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<DistanceCalculator>" << std::endl;
-	return 10000;
-	}
-      }
-      else{
-	std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<IPositionProvider> clusters" << std::endl;
-	return 10000;
-      }
-    }
-    else{
-      std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<IPositionProvider> for tracks" << std::endl;
-      return 10000;
-    }
+  double distanceBetween(const ITrack* track, const ICluster* cluster) const {
+    TrackPositionProvider<TrackPositionType>* trackPositionProvider = m_trackPosition.get();
+    ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = m_clusterPosition.get();
+    return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));
   }
 
 private:
-  std::unique_ptr<IPositionProvider> m_trackPosition;
-  std::unique_ptr<IPositionProvider> m_clusterPosition;
+  std::unique_ptr<TrackPositionProvider<TrackPositionType> > m_trackPosition;
+  std::unique_ptr<ClusterPositionProvider<ClusterPositionType> > m_clusterPosition;
   std::unique_ptr<DistanceCalculator<TrackPositionType, ClusterPositionType> > m_distanceCalculator;
 };
 

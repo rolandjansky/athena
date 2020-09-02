@@ -7,8 +7,6 @@
 from __future__ import with_statement, print_function
 import six
 
-
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 ### --- data ------------------------------------------------------------------
@@ -29,8 +27,8 @@ __all__ = [
 import sys
 import os
 import shelve
+from builtins import range
 
-import six
 if six.PY2:
     from whichdb import whichdb
 else:
@@ -68,10 +66,10 @@ class PoolFileCatalog(object):
             # chase poolfilecatalog location
             catalog = os.environ.get("POOL_CATALOG", self.DefaultCatalog)
 
-        if isinstance(catalog, basestring):
+        if isinstance(catalog, str):
             catalog = [catalog]
             
-        if not isinstance (catalog, (basestring, list)):
+        if not isinstance (catalog, (str, list)):
             raise TypeError(
                 "catalog contact string should be a string or a list thereof! (got %r)"%
                 type(catalog))
@@ -83,7 +81,7 @@ class PoolFileCatalog(object):
         def _handle_apcfile_old(x):
             """ return $ATLAS_POOLCOND_PATH/poolcond/x
             """
-            if not 'ATLAS_POOLCOND_PATH' in os.environ:
+            if 'ATLAS_POOLCOND_PATH' not in os.environ:
                 return osp_exp(x)
             pcp = os.environ["ATLAS_POOLCOND_PATH"]
             if x.startswith("apcfile:"):
@@ -93,7 +91,7 @@ class PoolFileCatalog(object):
         def _handle_apcfile(x):
             """ return $ATLAS_POOLCOND_PATH/x
             """
-            if not 'ATLAS_POOLCOND_PATH' in os.environ:
+            if 'ATLAS_POOLCOND_PATH' not in os.environ:
                 return osp_exp(x)
             pcp = os.environ["ATLAS_POOLCOND_PATH"]
             if x.startswith("apcfile:"):
@@ -302,7 +300,6 @@ def extract_streams_from_tag (fname,
      ['aod.pool']
     """
     
-    import sys
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
 
@@ -345,7 +342,7 @@ def extract_streams_from_tag (fname,
         _streams = stream_refs[:]
         stream_refs = []
         for ref in _streams:
-            if not ref in branches:
+            if ref not in branches:
                 print("::: discarding [%s] from file chasing..."%ref)
             else:
                 stream_refs.append (ref)
@@ -371,12 +368,12 @@ def extract_streams_from_tag (fname,
     #  [CLID=72FBBC6F-C8BE-4122-8790-DC627696C176]\
     #  [TECH=00000202]\
     #  [OID=0000008C-000002BA]'
-    token = re.compile (r'[[]DB=(?P<FID>.*?)[]]'\
-                        r'[[]CNT=(?P<CNT>.*?)[]]'\
-                        r'[[]CLID=(?P<CLID>.*?)[]]'\
-                        r'[[]TECH=(?P<TECH>.*?)[]]'\
+    token = re.compile (r'[[]DB=(?P<FID>.*?)[]]'
+                        r'[[]CNT=(?P<CNT>.*?)[]]'
+                        r'[[]CLID=(?P<CLID>.*?)[]]'
+                        r'[[]TECH=(?P<TECH>.*?)[]]'
                         r'[[]OID=(?P<OID>.*?)[]]')
-    for i in xrange(nentries):
+    for i in range(nentries):
         t.GetEntry (i)
         for ref in stream_refs:
             try:
@@ -484,7 +481,7 @@ def extract_items(pool_file, verbose=True, items_type='eventdata'):
     """
     _allowed_values = ('eventdata',
                        'metadata',)
-    if not items_type in _allowed_values:
+    if items_type not in _allowed_values:
         err = "".join([
             "invalid argument for 'items_type'. ",
             "got: [%s] " % items_type,
@@ -557,23 +554,21 @@ class PoolFile(object):
         
         self.poolFile = None
         dbFileName = whichdb( fileName )
-        if not dbFileName in ( None, '' ):
-            if self.verbose==True:
+        if dbFileName not in ( None, '' ):
+            if self.verbose is True:
                 print("## opening file [%s]..." % str(fileName))
             db = shelve.open( fileName, 'r' )
-            if self.verbose==True:
+            if self.verbose is True:
                 print("## opening file [OK]")
             report = db['report']
             self._fileInfos = report['fileInfos']
             self.dataHeader = report['dataHeader']
             self.data       = report['data']
         else:
-            import PyUtils.Helpers as _H
-            projects = 'AtlasCore' if PoolOpts.FAST_MODE else None
-            if self.verbose==True:
+            if self.verbose is True:
                 print("## opening file [%s]..." % str(fileName))
             self.__openPoolFile( fileName )
-            if self.verbose==True:
+            if self.verbose is True:
                 print("## opening file [OK]")
             self.__processFile()
             
@@ -582,11 +577,11 @@ class PoolFile(object):
     def __openPoolFile(self, fileName):
         # hack to prevent ROOT from loading graphic libraries and hence bother
         # our fellow Mac users
-        if self.verbose==True:
+        if self.verbose is True:
             print("## importing ROOT...")
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
-        if self.verbose==True:
+        if self.verbose is True:
             print("## importing ROOT... [DONE]")
         # prevent ROOT from being too verbose
         rootMsg = ShutUp()
@@ -606,7 +601,7 @@ class PoolFile(object):
 
         rootMsg.unMute()
 
-        if poolFile == None:
+        if poolFile is None:
             print("## Failed to open file [%s] !!" % fileName)
             msg = "Could not open file [%s]" % fileName
             raise IOError(msg)
@@ -725,7 +720,7 @@ class PoolFile(object):
 
     
     def checkFile(self, sorting = PoolRecord.Sorter.DiskSize):
-        if self.verbose==True:
+        if self.verbose is True:
             print(self.fileInfos())
 
         ## sorting data
@@ -747,7 +742,7 @@ class PoolFile(object):
                 return 0.
             return num/den   
                  
-        if self.verbose==True:
+        if self.verbose is True:
             print("")
             print("="*80)
             print(PoolOpts.HDR_FORMAT % ( "Mem Size", "Disk Size","Size/Evt",
@@ -770,7 +765,7 @@ class PoolFile(object):
             totMemSize  += 0. if PoolOpts.FAST_MODE else d.memSize
             totDiskSize += d.diskSize
             memSizeNoZip = d.memSizeNoZip/d.memSize if d.memSize != 0. else 0.
-            if self.verbose==True:
+            if self.verbose is True:
                 print(PoolOpts.ROW_FORMAT % (
                     _get_val (d.memSize),
                     d.diskSize,
@@ -780,7 +775,7 @@ class PoolFile(object):
                     "("+d.dirType+") "+d.name
                     ))
 
-        if self.verbose==True:
+        if self.verbose is True:
             print("="*80)
             print(PoolOpts.ROW_FORMAT % (
                 totMemSize,
@@ -797,8 +792,8 @@ class PoolFile(object):
         return
 
     def detailedDump(self, bufferName = sys.stdout.name ):
-        if self.poolFile == None or \
-           self.keys     == None:
+        if self.poolFile is None or \
+           self.keys is None:
             print("Can't perform a detailedDump with a shelve file as input !")
             return
                   
@@ -898,7 +893,6 @@ class PoolFile(object):
         args = {} if six.PY2 else {'newline' : ''}
         f = open (fileName, 'w', **args)
         o = csv.writer (f)
-        nentries = self.dataHeader.nEntries
         o.writerow (['file name', self._fileInfos['name']])
         o.writerow (['file size', self._fileInfos['size']])
         o.writerow (['nbr evts',  self.dataHeader.nEntries])
@@ -909,45 +903,6 @@ class PoolFile(object):
             o.writerow ([d.memSize, d.diskSize, d.memSizeNoZip,
                          d.nEntries, d.name, d.dirType])
         f.close()
-        return
-
-    def printBreakDown(self, categories=None):
-        """
-        Print out the sizes of containers broken-down by categories.
-        Categories is supposed to be a list of item-lists, an item list being
-        a list of pairs (class-name, storegate-key)
-        """
-
-        def parse( data, klass, key ):
-            import re
-            # pattern to match 'CppClassName_pX_MyKey'
-            # eg: EventInfo_p2_McEventInfo
-            #     TauDetailsContainer_tlp1
-            tp_pattern = re.compile(r'(?P<ClassName>.*?)_(?P<Vers>(tlp|p)[0-9])((?P<SgKey>_.*)|)')
-
-            hint_pattern = re.compile(
-                r'%s(_(tlp|p)[0-9]|)_%s' % ( klass, key )
-                )
-            return re.match( hint_pattern, data )
-            
-            className = None
-            sgKey     = None
-            pat = re.match(tp_pattern, data)
-            if pat:
-                className = pat.group("ClassName")
-                sgKey     = pat.group("SgKey")
-                if sgKey == str(None): sgKey = '*'
-                if len(sgKey)>0 and sgKey[0] == '_': sgKey = sgKey[1:]
-                return (className, sgKey)
-            else:
-                return (data,'')
-
-        for cat in categories:
-            for d in self.data:
-                item = parse( d.name, cat.className, cat.key )
-                #print (": [%s/%s]" % (className, sgKey), end='')
-            #for cat in categories:
-                
         return
 
     def __del__(self):
@@ -988,7 +943,7 @@ class DiffFiles(object):
             print(sys.exc_info()[0])
             print(sys.exc_info()[1])
             raise(err)
-        except :
+        except Exception:
             print("## Caught something !! (don't know what)")
             print(sys.exc_info()[0])
             print(sys.exc_info()[1])

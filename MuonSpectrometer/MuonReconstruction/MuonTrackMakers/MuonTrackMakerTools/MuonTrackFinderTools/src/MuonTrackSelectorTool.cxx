@@ -4,27 +4,21 @@
 
 #include "MuonTrackSelectorTool.h"
 
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+
 #include <map>
 
 namespace Muon {
 
   MuonTrackSelectorTool::MuonTrackSelectorTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_ntotalTracks(0),
       m_failedChi2NDofCut(0),
       m_failedSingleStationCut(0),

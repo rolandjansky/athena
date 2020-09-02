@@ -224,11 +224,6 @@ namespace D3PD {
                                         //double py = (*child)->momentum().py();
 					double pz = (*child)->momentum().pz();
 
-					//LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endmsg;
-					//LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endmsg;
-					//LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endmsg;
-					//LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz =" << pz << endmsg;
-					//LogStream << MSG::DEBUG << " " << endmsg;
 
 					//if ((*child == genEvt->beam_particles().first) || (*child == genEvt->beam_particles().second))
 					//{

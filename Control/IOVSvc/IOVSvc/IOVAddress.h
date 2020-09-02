@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_IOVADDRESS_H
@@ -60,7 +60,7 @@ public:
              const std::string& p2,
              unsigned long ip1,
              unsigned long ip2,
-             IOVRange range)  
+             const IOVRange& range)  
     : m_refCount(0),
       m_svcType(svc),
       m_clID(clid),

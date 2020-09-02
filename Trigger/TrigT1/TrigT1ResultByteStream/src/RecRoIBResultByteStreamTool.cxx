@@ -49,7 +49,7 @@ StatusCode RecRoIBResultByteStreamTool::initialize() {
   // ---------------------------------------------------------------------------
   // Load the threshold vectors
   // ---------------------------------------------------------------------------
-  std::vector<TrigConf::TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+  const std::vector<TrigConf::TriggerThreshold*> &thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   for (TrigConf::TriggerThreshold* threshold : thresholds) {
     switch (threshold->ttype()) {
       case TrigConf::L1DataDef::TriggerType::MUON:
@@ -193,6 +193,6 @@ StatusCode RecRoIBResultByteStreamTool::convert(const std::vector<const ROBFragm
   }
   ATH_MSG_DEBUG("Building RecRoIBResult with " << emTauContent.size() << " EM/Tau RoIs, "
                 << muonContent.size() << " Muon RoIs, " << jetContent.size() << " Jet/Energy RoIs");
-  resultToFill = ROIB::RecRoIBResult(emTauContent, muonContent, jetContent);
+  resultToFill = ROIB::RecRoIBResult(std::move(emTauContent), std::move(muonContent), std::move(jetContent));
   return StatusCode::SUCCESS;
 }

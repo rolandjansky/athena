@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -12,8 +12,8 @@ CREATED:  May 2005
 
 PURPOSE:  Intermediate store for cell/tower maps
 
-Updated:  Ilija Vukotic August 2008. 
-		  basically rewrote it completely.	
+Updated:  Ilija Vukotic August 2008.
+		  basically rewrote it completely.
 		  add reverse lookup in order to speed things up
 		  When I see how many linebreaks some people use I think of two things:
 		  	1. they programm on their mobile phone
@@ -110,7 +110,7 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
   ttcmatrix.resize (ntowers);
   m_weights.reserve (10);
   m_weights.push_back (1);
-  
+
   for ( unsigned int iCalo=0; iCalo<sizeCalos; iCalo++ ){  // Loop over calos    //
 
       // find numerical ranges
@@ -118,16 +118,13 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
       cellIdHelper.calo_cell_hash_range((int)theCalos[iCalo], firstIndex, lastIndex);
       msg << MSG::DEBUG << " firstInder,lastIndex " << firstIndex << " " << lastIndex << endmsg;
 
-      
-      // consistent phi convention
-      CaloPhiRange correctPhi;
-      
+
 	  for( size_t cellIndex = firstIndex; cellIndex < lastIndex;   cellIndex++){     // Cell Loop  //
 
-		  
+
 	  const CaloDetDescrElement* theDDE = theManager.get_element(cellIndex);
 
-	  if(theDDE==0) {
+	  if(theDDE==nullptr) {
 	    msg << MSG::ERROR<< " CellIndex =  "<< cellIndex<< " has a DDE pointer NULL " << endmsg;
 	    continue;
 	  }
@@ -136,12 +133,12 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
 	  double cellDeta = theDDE->deta();
 	  double cellDphi = theDDE->dphi();
 	  double etaRaw   = theDDE->eta_raw();
-	  double phiRaw   = correctPhi.fix(theDDE->phi_raw());
-	  
+	  double phiRaw   = CaloPhiRange::fix(theDDE->phi_raw());
+
 	  //////////////////////////////
 	  // Calculate Cell Fragments //
 	  //////////////////////////////
-	  
+
 	  // calculate cell/tower size ratio (integer,[1..n])
 	  // DR : round rather than truncate
 	  size_t ke = (size_t) (cellDeta/theTowerSeg.deta()+0.5);
@@ -155,20 +152,20 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
 	  double cellDdphi = cellDphi / (double) kp;
 	  double etaMin    = etaRaw - cellDeta / 2.;
 	  double phiMin    = phiRaw - cellDphi / 2.;
-	  
+
 	  //////////////////////////
 	  // Loop Cell Fragments  //
 	  //////////////////////////
-	  
+
 
 	  for ( size_t ie=1; ie<=ke; ie++ ){	  							// outer (eta) fragment loop
 	      double cellEta  = etaMin + ((double)ie - 0.5) * cellDdeta; 	// eta of fragment
 	      for ( size_t ip=1; ip<=kp; ip++ ){ 							// inner (phi) fragement loop
                 double cellPhi = phiMin + ((double)ip - 0.5) * cellDdphi;  	// phi of fragment
-		  	   
+
                 CaloTowerSeg::index_t etaIndex = theTowerSeg.etaIndex(cellEta);
                 CaloTowerSeg::index_t phiIndex = theTowerSeg.phiIndex(cellPhi);
-		 
+
                 if ( etaIndex != CaloTowerSeg::outOfRange &&
                      phiIndex != CaloTowerSeg::outOfRange )
                 {
@@ -184,12 +181,12 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
                     ttcmatrix[towerIndex].push_back(Entry(cellIndex,iw));
                   }
                 } // index retrieval check
-		 
+
               } // cell y loop
 	    } // cell x loop
 
 	} // cell index loop
-      
+
 
     }
 
@@ -232,7 +229,7 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
     //m_towers.push_back (Tower (m_entries.size() - last_nentries, v.size()));
   }
 
-#if 0  
+#if 0
   {
     printf ("zzztowers calos: ");
     for (size_t z = 0; z < theCalos.size(); z++) printf ("%d ", theCalos[z]);
@@ -262,7 +259,7 @@ bool CaloTowerStore::buildLookUp(const CaloDetDescrManager& theManager,
     }
   }
 #endif
-    
+
 
   return 1;
 }
@@ -342,12 +339,12 @@ void CaloTowerStore::pushTower (unsigned int nentries,
       //m_towers.back().nentries = 0;
       assert (!m_towers.empty());
       m_towers.back().backref_next = true;
-      m_towers.push_back (Tower (nentries, ncells, n1, offs1, offs2));
+      m_towers.emplace_back(nentries, ncells, n1, offs1, offs2);
       m_entries.resize (m_entries.size() - nentries);
       return;
     }
   }
-  m_towers.push_back (Tower (nentries, ncells));
+  m_towers.emplace_back(nentries, ncells);
 }
 
 

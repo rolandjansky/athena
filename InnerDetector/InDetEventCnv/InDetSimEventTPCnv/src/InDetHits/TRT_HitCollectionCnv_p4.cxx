@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
@@ -15,8 +15,10 @@
 
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Transient(Geant) to Persistent(Disk)
@@ -50,6 +52,8 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
 
   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In TRT_HitCollectionCnv_p4::transToPers()" << endmsg;
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* proxy = Atlas::getExtendedEventContext(ctx).proxy();
   const HepMcParticleLink * lastLink=NULL;
   int lastId = -1;
   double lastT = 0.0*CLHEP::ns;
@@ -67,7 +71,18 @@ void TRT_HitCollectionCnv_p4::transToPers(const TRTUncompressedHitCollection* tr
       // store barcode once for set of consecutive hits with same barcode
       lastLink = &(trtHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
-      persCont->m_mcEvtIndex.push_back(lastLink->eventIndex());
+      unsigned short index{0};
+      const HepMcParticleLink::index_type position =
+        HepMcParticleLink::getEventPositionInCollection(lastLink->eventIndex(),
+                                                        lastLink->getEventCollection(),
+                                                        proxy).at(0);
+      if (position!=0) {
+        index = lastLink->eventIndex();
+        if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+          log << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+        }
+      }
+      persCont->m_mcEvtIndex.push_back(index);
       persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());
 
       if ( idx > 0 ) {
@@ -481,7 +496,11 @@ void TRT_HitCollectionCnv_p4::persToTrans(const TRT_HitCollection_p4* persCont, 
         // - For charged particles kinEne is *zero*!
         //
 
-        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), HepMcParticleLink::IS_INDEX );
+        HepMcParticleLink::PositionFlag flag = HepMcParticleLink::IS_INDEX;
+        if (persCont->m_mcEvtIndex[idxBC] == 0) {
+          flag = HepMcParticleLink::IS_POSITION;
+        }
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::eventCollectionFromChar(persCont->m_evtColl[idxBC]), flag );
         transCont->Emplace( strawId, partLink, persCont->m_id[idxId],
                             kinEne, hitEne, startX, startY, startZ,
                             endX, endY, endZ, meanTime );

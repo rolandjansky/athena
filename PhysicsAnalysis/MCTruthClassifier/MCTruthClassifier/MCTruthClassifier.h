@@ -12,6 +12,7 @@ CREATED:  Sep 2007
  ********************************************************************/
 
 // INCLUDE HEADER FILES:
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/AsgTool.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
@@ -24,7 +25,7 @@ CREATED:  Sep 2007
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
 #include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #endif
 
 #ifndef GENERATIONBASE
@@ -84,9 +85,9 @@ public:
 
 #ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
-    const HepMC::GenParticle*,
+    HepMC::ConstGenParticlePtr,
     Info* info = nullptr) const override;
-  bool compareTruthParticles(const HepMC::GenParticle* genPart, const xAOD::TruthParticle* truthPart) const;
+  bool compareTruthParticles(HepMC::ConstGenParticlePtr genPart, const xAOD::TruthParticle* truthPart) const;
 #endif
 
 #ifndef GENERATIONBASE /*These can not run in Generation only release*/

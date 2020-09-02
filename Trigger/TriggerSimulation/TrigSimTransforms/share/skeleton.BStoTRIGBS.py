@@ -465,7 +465,7 @@ print '######################## End of Storegate dump ########################'
 
 print svcMgr
 
-svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
 
 #svcMgr.ByteStreamCnvSvc.OutputLevel = DEBUG
 

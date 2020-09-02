@@ -10,7 +10,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "TRT_RawDataByteStreamCnv/ITRTRawDataProviderTool.h"
-
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -28,6 +28,7 @@ namespace InDet {
     m_robDataProvider ("ROBDataProviderSvc", name),
     m_rawDataTool     ("TRTRawDataProviderTool/InDetTrigTRTRawDataProviderTool"),
     m_IdMapping       ("TRT_CablingSvc",name),
+    m_bsErrorSvc("TRT_ByteStream_ConditionsSvc",name),
     m_id(0),
     m_container(0)
   {
@@ -79,8 +80,14 @@ namespace InDet {
       return StatusCode::FAILURE;
     } else 
       msg(MSG::INFO) << "Retrieved service " << m_IdMapping << endmsg;
+    
+    if (m_bsErrorSvc.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Could not retrieve " << m_bsErrorSvc );
+      return StatusCode::FAILURE;
+    }
 
-    m_container = new TRT_RDO_Container(m_id->straw_layer_hash_max()); 
+
+    m_container = new TRT_RDO_Container(m_id->straw_layer_hash_max(), EventContainers::Mode::OfflineFast); 
     m_container ->addRef();     // make sure it is never deleted
 
     return StatusCode::SUCCESS;
@@ -144,11 +151,42 @@ namespace InDet {
     m_robDataProvider->getROBData(robIDlist , listOfRobf);
     // ask TRTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
+    std::unique_ptr<TRT_BSErrContainer> bsErrCnt=std::make_unique<TRT_BSErrContainer>();
     if (m_container){
-      scon = m_rawDataTool->convert(listOfRobf,m_container);
+      scon = m_rawDataTool->convert(listOfRobf,m_container,bsErrCnt.get());
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }
+
+    //Backward compatiblity hack: convert TRT_BSErrContainer into thread-unsafe
+    //TRTByteStream_ConditionsSvc
+    
+     m_bsErrorSvc->resetCounts();
+     for (const auto& id_bcid : bsErrCnt->getBCIDErrorSet()) {
+       m_bsErrorSvc->add_bcid_error(id_bcid.first,id_bcid.second);
+     }
+
+     for (const auto& id_l1id : bsErrCnt->getL1ErrorSet()) {
+       m_bsErrorSvc->add_l1id_error(id_l1id.first,id_l1id.second);
+     }
+
+    for (const auto& id_missing : bsErrCnt->getMissingErrorSet()) {
+       m_bsErrorSvc->add_missing_error(id_missing);
+     } 
+
+    for (const auto& id : bsErrCnt->getErrorErrorSet()) {
+       m_bsErrorSvc->add_error_error(id);
+     } 
+    
+    for (const auto& id : bsErrCnt->getSidErrorSet()) {
+      m_bsErrorSvc->add_sid_error(id);
+     }
+
+    for (const auto& id_stat : bsErrCnt->getRobErrorSet()) {
+       m_bsErrorSvc->add_rob_error(id_stat.first,id_stat.second);
+     }
+
+
     return scon;
 
   }

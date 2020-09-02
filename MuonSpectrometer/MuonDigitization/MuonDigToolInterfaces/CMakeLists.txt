@@ -9,6 +9,8 @@ atlas_subdir( MuonDigToolInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( MuonDigToolInterfaces )
-
+atlas_add_library( MuonDigToolInterfacesLib
+                   MuonDigToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonDigToolInterfaces
+                   LINK_LIBRARIES GaudiKernel )

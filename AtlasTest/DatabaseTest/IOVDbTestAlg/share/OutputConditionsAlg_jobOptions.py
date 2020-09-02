@@ -129,10 +129,6 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 # AthenaPool details
 #--------------------------------------------------------------
 
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
-
 #==================== Configure OutputConditionAlgs
 # 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg

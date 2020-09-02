@@ -13,16 +13,16 @@
 #include <sstream>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
 
 // CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // McParticleKernel includes
 #include "McParticleKernel/IIOHepMcTool.h"

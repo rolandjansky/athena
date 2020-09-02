@@ -25,8 +25,8 @@ namespace Trk {
  @class SlidingCylinderSurface
  Class for a Calo CylinderSurface with variable depth in the ATLAS detector.
  The variable depth is stored as a binned vector of radial corrections.
- Local eta bin is defined by base curvature and z position in base transform ( corrected for misalignement ).
- It inherits from CylinderSurface.
+ Local eta bin is defined by base curvature and z position in base transform (
+ corrected for misalignement ). It inherits from CylinderSurface.
 
  @author Sarka.Todorova@cern.ch
  */
@@ -41,7 +41,8 @@ public:
   SlidingCylinderSurface(const SlidingCylinderSurface& psf);
 
   /** Copy Constructor with shift*/
-  SlidingCylinderSurface(const SlidingCylinderSurface& psf, const Amg::Transform3D& transf);
+  SlidingCylinderSurface(const SlidingCylinderSurface& psf,
+                         const Amg::Transform3D& transf);
 
   /**Constructor */
   SlidingCylinderSurface(const CylinderSurface& surf,
@@ -56,24 +57,39 @@ public:
   SlidingCylinderSurface& operator=(const SlidingCylinderSurface& psf);
 
   /**Equality operator*/
-  bool operator==(const Surface& sf) const;
+  virtual bool operator==(const Surface& sf) const override;
 
-  /** This method returns true if the GlobalPosition is on the Surface for both, within
-    or without check of whether the local position is inside boundaries or not */
-  bool isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk = true, double tol1 = 0., double tol2 = 0.) const;
+  /** This method returns true if the GlobalPosition is on the Surface for both,
+    within or without check of whether the local position is inside boundaries
+    or not */
+  virtual bool isOnSurface(const Amg::Vector3D& glopo,
+                           BoundaryCheck bchk = true,
+                           double tol1 = 0.,
+                           double tol2 = 0.) const override;
 
-  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory allocation */
-  void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory
+   * allocation */
+  virtual void localToGlobal(const Amg::Vector2D& locp,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector3D& glob) const override;
 
-  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory allocation - boolean checks if on surface
+  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory
+   * allocation - boolean checks if on surface
    */
-  bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+  virtual bool globalToLocal(const Amg::Vector3D& glob,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector2D& loc) const override;
 
   /** fast straight line distance evaluation to Surface */
-  DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir) const override;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
-  DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool Bound) const;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir,
+    bool Bound) const override;
 
   /**This method allows access to the bin utility*/
   const Trk::BinUtility* binUtility() const { return m_etaBin; }
@@ -82,7 +98,10 @@ public:
   const std::vector<float>* offset() const { return m_depth; }
 
   /** Return properly formatted class name for screen output */
-  std::string name() const { return "Trk::SlidingCylinderSurface"; }
+  virtual std::string name() const override
+  {
+    return "Trk::SlidingCylinderSurface";
+  }
 
 protected:
   const std::vector<float>* m_depth;

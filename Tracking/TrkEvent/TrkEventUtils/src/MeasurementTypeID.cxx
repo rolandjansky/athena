@@ -28,7 +28,7 @@ Trk::MeasurementTypeID::defineType (const Trk::MeasurementBase* meas) const {
 }
     if (m_idHelper->is_pixel(testROT->identify())) { 
       return Trk::TrackState::Pixel;
-    } else if (m_idHelper->is_sct(testROT->identify())) { 
+    } if (m_idHelper->is_sct(testROT->identify())) { 
       return Trk::TrackState::SCT;
     } else if (m_idHelper->is_trt(testROT->identify())) {
       return Trk::TrackState::TRT;

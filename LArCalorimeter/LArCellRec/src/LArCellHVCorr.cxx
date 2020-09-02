@@ -30,6 +30,7 @@ StatusCode LArCellHVCorr::initialize() {
 
 float LArCellHVCorr::getCorrection(const Identifier id)
 {
+  //Here we ADD const-ness so const_cast is fine
   return const_cast<const LArCellHVCorr*>(this)->getCorrection (id);
 }
 

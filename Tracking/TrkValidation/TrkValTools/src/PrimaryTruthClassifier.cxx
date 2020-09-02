@@ -12,7 +12,7 @@
 #include "TrkValTools/PrimaryTruthClassifier.h"
 #include "TrkValEvent/TruthClassificationDefs.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 
 Trk::PrimaryTruthClassifier::PrimaryTruthClassifier(const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool                    (type,name,parent),

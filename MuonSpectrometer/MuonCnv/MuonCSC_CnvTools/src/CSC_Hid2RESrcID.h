@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSC_HID2RESRCID
@@ -7,9 +7,9 @@
 
 #include <inttypes.h> 
 #include "CSCcabling/CSCcablingSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class Identifier;
+class CscIdHelper;
 class CscRawDataCollection;
 
 /* this class provides conversion between CSC RDO Id and RESrcID.
@@ -27,11 +27,11 @@ public:
   /** default constrcutor
       you must then use the set method to set the cabling service and the id helper 
   */ 
-  CSC_Hid2RESrcID () { m_cabling = 0;  m_muonIdHelperTool = 0; m_isCosmic=false; m_isOldCosmic = false; m_robIDs.clear(); } 
+  CSC_Hid2RESrcID () { m_cabling = nullptr;  m_cscIdHelper = nullptr; m_isCosmic=false; m_isOldCosmic = false; m_robIDs.clear(); } 
 
   /** the full constructor
   */
-  CSC_Hid2RESrcID (CSCcablingSvc * p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool) { this->set(p_cabling, muonIdHelperTool); }
+  CSC_Hid2RESrcID (CSCcablingSvc * p_cabling, const CscIdHelper* cscId) { this->set(p_cabling, cscId); }
 
   /** destructor 
   */ 
@@ -40,9 +40,9 @@ public:
   /** initialize the identifier helper
   */
 
-  void set(CSCcablingSvc * p_cabling, const Muon::MuonIdHelperTool* muonIdHelperTool) { 
+  void set(CSCcablingSvc * p_cabling, const CscIdHelper* cscId) { 
     m_cabling = p_cabling; 
-    m_muonIdHelperTool = muonIdHelperTool; 
+    m_cscIdHelper = cscId; 
     m_isCosmic=false; 
     m_isOldCosmic = false; 
     this->fillAllRobIds();
@@ -85,11 +85,10 @@ private:
   void fillAllRobIds();
 
 private:
-
-  const Muon::MuonIdHelperTool * m_muonIdHelperTool; 
   bool m_isCosmic;
   bool m_isOldCosmic;
   CSCcablingSvc * m_cabling;
+  const CscIdHelper* m_cscIdHelper; 
   std::vector<uint32_t> m_robIDs;
 };
 

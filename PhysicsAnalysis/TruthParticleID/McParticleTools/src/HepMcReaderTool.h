@@ -22,8 +22,8 @@
 #include "McParticleKernel/IIOHepMcTool.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
-namespace HepMC { class IO_BaseClass; }
+#include "AtlasHepMC/GenEvent_fwd.h"
+#include "AtlasHepMC/IO_BaseClass_fwd.h"
 
 class HepMcReaderTool : virtual public IIOHepMcTool,
 			        public AthAlgTool
@@ -73,7 +73,7 @@ class HepMcReaderTool : virtual public IIOHepMcTool,
   /** @brief Method to configure the front-end to read out the
    *  @c HepMC::GenEvent.
    */
-  void setupFrontend( Property& ioFrontendURL );
+  void setupFrontend( Gaudi::Details::PropertyBase& ioFrontendURL );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

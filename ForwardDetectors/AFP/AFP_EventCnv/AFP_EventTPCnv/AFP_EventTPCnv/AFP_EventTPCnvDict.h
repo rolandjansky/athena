@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_EventTPCnvDict_h
@@ -10,10 +10,6 @@
 
 #include "AFP_EventTPCnv/AFP_TDDigiCollection_p1.h"
 #include "AFP_EventTPCnv/AFP_TDDigi_p1.h"
-
-#include "AFP_EventTPCnv/AFP_RawData_p1.h"
-#include "AFP_EventTPCnv/AFP_RawDataCollection_p1.h"
-#include "AFP_EventTPCnv/AFP_RawDataContainer_p1.h"
 
 #include "AFP_EventTPCnv/AFP_SIDSimHitCollection_p1.h"
 #include "AFP_EventTPCnv/AFP_SIDSimHit_p1.h"

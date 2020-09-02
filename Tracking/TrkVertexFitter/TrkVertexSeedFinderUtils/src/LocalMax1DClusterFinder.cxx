@@ -64,7 +64,7 @@ namespace Trk
       // Check if bin is a local max
       if( zproj[i] > m_weightThreshold && zproj[i] > zproj[i-1] && zproj[i] > zproj[i+1] ) {
         //bin i is a local max
-        vmax.push_back(std::make_pair(i,zproj[i]));
+        vmax.emplace_back(i,zproj[i]);
       }
     }
 
@@ -115,7 +115,7 @@ namespace Trk
     float y = image.getRelPosY( ((float) image.getNBinsY())/2. );
     for(auto & m : vmax) {
       if (!m_refineZ || zproj[m.first] <= 0) {
-          vertices.push_back( Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) );
+          vertices.emplace_back( x, y, image.getRelPosZ(m.first) );
       } else {
 	  float z;
 	  float z2 = image.getRelPosZ(m.first);
@@ -167,7 +167,7 @@ namespace Trk
 	      z = image.getRelPosZ(m.first);
 	    }
 	  }
-	  vertices.push_back( Amg::Vector3D( x, y, z ) );
+	  vertices.emplace_back( x, y, z );
       }
     }
 

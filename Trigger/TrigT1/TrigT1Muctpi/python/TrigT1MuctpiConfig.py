@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1MuctpiConfig.py 794528 2017-01-30 12:36:33Z fwinkl $
 
 # Local (generated) configurable(s):
 from TrigT1Muctpi.TrigT1MuctpiConf import LVL1MUCTPI__L1Muctpi
@@ -32,14 +31,14 @@ class DefaultL1Muctpi( LVL1MUCTPI__L1Muctpi ):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                               ( geoFlags.isIBL() == False ) ):
+                                               ( geoFlags.isIBL() is False ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
       self.RunPeriod = "RUN1"
       logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
       logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
       logger.info( "  with a RunPeriod=RUN1" )
     elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                                 ( geoFlags.isIBL() == True ) ):
+                                                 ( geoFlags.isIBL() is True ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
       self.RunPeriod = "RUN2"
       logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
@@ -87,10 +86,6 @@ class L1Muctpi( DefaultL1Muctpi ):
     DefaultL1Muctpi.__init__( self, name )
 
     self.InputSource = "DIGITIZATION"
-
-    from AthenaCommon.GlobalFlags import globalflags
-    from RecExConfig.RecFlags import rec
-    pass
 
 class L1Muctpi_on_RDO( DefaultL1Muctpi ):
 
@@ -178,14 +173,14 @@ class DefaultL1MuctpiTool( LVL1MUCTPI__L1MuctpiTool ):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     if ( commonGeoFlags.Run() == "RUN1" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                               ( geoFlags.isIBL() == False ) ):
+                                               ( geoFlags.isIBL() is False ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml"
       self.RunPeriod = "RUN1"
       logger.info( "Configuring MuCTPI simulation with Run 1 configuration file:" )
       logger.info( "  TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002.xml" )
       logger.info( "  with a RunPeriod=RUN1" )
     elif ( commonGeoFlags.Run() == "RUN2" ) or ( ( commonGeoFlags.Run() == "UNDEFINED" ) and
-                                                 ( geoFlags.isIBL() == True ) ):
+                                                 ( geoFlags.isIBL() is True ) ):
       self.LUTXMLFile = "TrigConfMuctpi/data10_7TeV.periodI.physics_Muons.MuCTPI_LUT.NoBEOverlaps_composedEF.v002_modifiedBB.xml"
       self.RunPeriod = "RUN2"
       logger.info( "Configuring MuCTPI simulation with Run 2 configuration file:" )
@@ -233,10 +228,6 @@ class L1MuctpiTool( DefaultL1MuctpiTool ):
     DefaultL1MuctpiTool.__init__( self, name )
 
     self.InputSource = "DIGITIZATION"
-
-    from AthenaCommon.GlobalFlags import globalflags
-    from RecExConfig.RecFlags import rec
-    pass
 
 class L1MuctpiTool_on_RDO( DefaultL1MuctpiTool ):
 

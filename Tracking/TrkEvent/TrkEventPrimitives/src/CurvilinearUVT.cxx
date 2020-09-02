@@ -11,9 +11,6 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 
-Trk::CurvilinearUVT::~CurvilinearUVT()
-{}
-
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::CurvilinearUVT& uvt)
 { 

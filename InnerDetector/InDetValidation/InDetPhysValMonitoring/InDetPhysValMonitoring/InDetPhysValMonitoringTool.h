@@ -36,6 +36,7 @@
 
 //Athena
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -71,14 +72,15 @@ public:
     virtual StatusCode procHistograms();
     //@}
 private:
+
     ///prevent default construction
     InDetPhysValMonitoringTool();
     // Private utility methods
     void fillTrackCutFlow(const asg::AcceptData& accept);
     void fillCutFlow(const asg::AcceptData& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
     // Get truth particles into a vector, possibly using the pileup from the event
-    const std::vector<const xAOD::TruthParticle *> getTruthParticles();
-    const std::vector<const xAOD::TruthVertex*> getTruthVertices();
+    const std::vector<const xAOD::TruthParticle *> getTruthParticles() const;
+    std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>> getTruthVertices() const;
 
     //
     const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
@@ -123,6 +125,7 @@ private:
     std::vector<SG::ReadDecorHandleKey<xAOD::TrackParticleContainer> > m_intTrkDecor;
     std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_floatTruthDecor;
     std::vector<SG::ReadDecorHandleKey<xAOD::TruthParticleContainer> > m_intTruthDecor;
+    std::vector<SG::ReadDecorHandleKey<xAOD::JetContainer> > m_intJetDecor;
 
     ///Directory name
     std::string m_dirName;
@@ -137,10 +140,11 @@ private:
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
     ToolHandle<IAthSelectionTool> m_truthSelectionTool;
     mutable std::mutex  m_mutex;
-    mutable CutFlow     m_truthCutFlow;
+    mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
     float m_lowProb;
     float m_highProb;
+    int m_detailLevel;
     int m_truthCounter;
 
     std::vector<std::string> m_trackCutflowNames;
@@ -150,6 +154,7 @@ private:
 
     float m_maxTrkJetDR;
     bool m_doTrackInJetPlots;
+    bool m_doBjetPlots; 
 
     std::string m_folder;
 };

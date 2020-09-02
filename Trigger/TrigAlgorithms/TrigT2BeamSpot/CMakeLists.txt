@@ -1,40 +1,19 @@
-################################################################################
-# Package: TrigT2BeamSpot
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT2BeamSpot )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          PRIVATE
-                          Control/AthContainers
-                          Event/EventInfo
-                          Event/EventPrimitives
-                          GaudiKernel
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigNavigation
-                          Trigger/TrigTools/TrigInDetToolInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS MathCore )
 
 # Component(s) in the package:
 atlas_add_component( TrigT2BeamSpot
                      src/*.cxx
                      src/components/TrigT2*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringKernelLib TrigSteeringEvent TrigInterfacesLib AthContainers EventInfo EventPrimitives GaudiKernel TrkParameters TrkTrack TrkTrackSummary TrigInDetEvent TrigNavigationLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData EventPrimitives GaudiKernel StoreGateLib TrigInDetEvent TrigInDetToolInterfacesLib TrigInterfacesLib TrigNavigationLib TrigSteeringEvent TrigTimeAlgsLib TrkParameters TrkTrack TrkTrackSummary xAODEventInfo )
 
 # Install files from the package:
-atlas_install_headers( TrigT2BeamSpot )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

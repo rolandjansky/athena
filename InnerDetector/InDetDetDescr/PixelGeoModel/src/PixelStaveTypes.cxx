@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelStaveTypes.h"
@@ -13,7 +13,7 @@
 // Class to store information from PixelStaveTypes and allow easy retrieval.
 
 
-PixelStaveTypes::Datum PixelStaveTypes::s_defaultDatum;
+const PixelStaveTypes::Datum PixelStaveTypes::s_defaultDatum;
 
 PixelStaveTypes::Datum::Datum(int fluidType_in, int biStaveType_in)
 : fluidType(fluidType_in),

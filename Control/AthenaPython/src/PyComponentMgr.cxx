@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PyComponentMgr.cxx 
@@ -15,8 +15,6 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF (PyObject, 72785480, 1)
-#include "AthenaKernel/BaseInfo.h"
-SG_BASES1(PyObject, SG::NoBase);
 
 // AthenaPython includes
 #include "PyComponentMgr.h"
@@ -25,7 +23,7 @@ SG_BASES1(PyObject, SG::NoBase);
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaPython/IPyComponent.h"
 
 // PyROOT includes

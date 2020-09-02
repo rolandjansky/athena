@@ -34,8 +34,7 @@ topSequence.VrtSecInclusive.SelTrkMaxCutoff = 300
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
 InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
                                               Extrapolator        = ToolSvc.AtlasExtrapolator,
-                                              IterationNumber     = 30,
-                                              AtlasMagFieldSvc    = "AtlasFieldSvc"
+                                              IterationNumber     = 30
                                              )
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO

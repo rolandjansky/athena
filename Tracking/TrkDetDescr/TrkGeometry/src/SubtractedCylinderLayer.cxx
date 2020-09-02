@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,10 +24,9 @@ Trk::SubtractedCylinderLayer::SubtractedCylinderLayer(const Trk::SubtractedCylin
   Layer(laymatprop, thickness, olap, laytyp)
 {}
 
-Trk::SubtractedCylinderLayer::SubtractedCylinderLayer(const Trk::SubtractedCylinderLayer& clay):
-  SubtractedCylinderSurface(clay),
-  Layer(clay)
-{}
+Trk::SubtractedCylinderLayer::SubtractedCylinderLayer(const Trk::SubtractedCylinderLayer& clay)
+  
+= default;
 
 Trk::SubtractedCylinderLayer::SubtractedCylinderLayer(const Trk::SubtractedCylinderLayer& clay, const Amg::Transform3D& transf):
   SubtractedCylinderSurface(clay, transf),

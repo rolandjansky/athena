@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwPhioff_v2.cxx,v 1.4 2008-01-25 04:14:22 ssnyder Exp $
 /**
  * @file  CaloSwPhioff_v2.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -52,29 +50,8 @@ using CaloClusterCorr::interpolate;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwPhioff_v2::CaloSwPhioff_v2 (const std::string& type,
-                                  const std::string& name,
-                                  const IInterface* parent)
-  : CaloClusterCorrectionCommon (type, name, parent)
-{
-  declareConstant ("interp_barriers",   m_interp_barriers);
-  declareConstant ("degree",            m_degree);
-  declareConstant ("correction",        m_correction);
-  declareConstant ("correction_coef",   m_correction_coef);
-  declareConstant ("flip_phi",          m_flip_phi);
-  declareConstant ("energies",          m_energies);
-  declareConstant ("energy_degree",     m_energy_degree);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -92,7 +69,7 @@ CaloSwPhioff_v2::CaloSwPhioff_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwPhioff_v2::makeTheCorrection (const EventContext& /*ctx*/,
+void CaloSwPhioff_v2::makeTheCorrection (const Context& myctx,
                                          CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float /*eta*/,
@@ -102,14 +79,17 @@ void CaloSwPhioff_v2::makeTheCorrection (const EventContext& /*ctx*/,
                                          CaloSampling::CaloSample samp) const
 {
   // Calculate the correction.
-  float offs = m_correction_coef * energy_interpolation
+  float offs = m_correction_coef(myctx) * energy_interpolation
     (cluster->e(),
-     Builder (*this, std::abs (adj_eta)),
-     m_energies,
-     m_energy_degree);
+     Builder (m_correction (myctx),
+              m_interp_barriers (myctx),
+              m_degree (myctx),
+              std::abs (adj_eta)),
+     m_energies(myctx),
+     m_energy_degree(myctx));
 
   // Flip the sign, if needed.
-  if (m_flip_phi && elt->eta_raw() < 0)
+  if (m_flip_phi(myctx) && elt->eta_raw() < 0)
     offs = -offs;
 
   // Apply the correction.
@@ -119,12 +99,19 @@ void CaloSwPhioff_v2::makeTheCorrection (const EventContext& /*ctx*/,
 
 /**
  * @brief Constructor for energy interpolation table helper class.
- * @param corr The parent correction object.
+ * @param correction Tabulated arrays of function parameters.
+ * @param interp_barriers Allow breaking up the interpolation into independent regions.
+ * @param degree Degree of the polynomial interpolation.
  * @param aeta The absolute value of @f$\eta@f$ at which the correction
  *             is being evaluated (in cal-local coordinates).
  */
-CaloSwPhioff_v2::Builder::Builder (const CaloSwPhioff_v2& corr, float aeta)
-  : m_corr (corr),
+CaloSwPhioff_v2::Builder::Builder (const CxxUtils::Array<3>& correction,
+                                   const CxxUtils::Array<1>& interp_barriers,
+                                   int degree,
+                                   float aeta)
+  : m_correction (correction),
+    m_interp_barriers (interp_barriers),
+    m_degree (degree),
     m_aeta (aeta)
 {
 }
@@ -139,9 +126,9 @@ CaloSwPhioff_v2::Builder::Builder (const CaloSwPhioff_v2& corr, float aeta)
 float CaloSwPhioff_v2::Builder::calculate (int energy_ndx, bool& good) const
 {
   good = true;
-  return interpolate (m_corr.m_correction[energy_ndx],
+  return interpolate (m_correction[energy_ndx],
                       m_aeta,
-                      m_corr.m_degree,
+                      m_degree,
                       1,
-                      m_corr.m_interp_barriers);
+                      m_interp_barriers);
 }

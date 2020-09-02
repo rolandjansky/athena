@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_SubDetectorFactoryBase_H
 #define InDetGeoModelUtils_SubDetectorFactoryBase_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+
+#include <memory>
 
 class StoreGateSvc;
 class IGeoDbTagSvc;
@@ -34,15 +37,15 @@ public:
       m_materialManager(matManager)
   {}
 
-  StoreGateSvc * detStore() const {return m_athenaComps->detStore();}
+  StoreGateSvc * detStore ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->detStore();} // const method returns non-const pointer
 
-  IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
+  const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
-  IRDBAccessSvc * rdbAccessSvc() const {return m_athenaComps->rdbAccessSvc();}
+  IRDBAccessSvc * rdbAccessSvc ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->rdbAccessSvc();} // const method returns non-const pointer
   
-  IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
+  const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 
-  InDetMaterialManager * materialManager() const {return m_materialManager;}
+  InDetMaterialManager * materialManager ATLAS_NOT_THREAD_SAFE () const {return m_materialManager;} // const method returns non-const pointer
 
  //Declaring the Message method for further use
   MsgStream& msg (MSG::Level lvl) const { return m_athenaComps->msg(lvl); }
@@ -57,6 +60,8 @@ private:
   
 protected:
   InDetMaterialManager * m_materialManager;
+  // Use this std::unique_ptr when this class owns InDetMaterialManager
+  std::unique_ptr<InDetMaterialManager> m_materialManagerUnique;
 };
 
 } // end namespace

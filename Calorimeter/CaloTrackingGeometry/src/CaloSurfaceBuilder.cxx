@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -121,18 +121,10 @@ CaloSurfaceBuilder::initialize()
         ATH_MSG_DEBUG("Sucessfully retrieved "<< m_tileVolumeBuilder << ".");
   */
 
-  if (detStore()->retrieve(m_calo_dd).isFailure()) {
-     ATH_MSG_WARNING("Could not find CaloDetDescriptorManager in DetStore, calling CaloDetDescrManager::instance() instead");
-     m_calo_dd = CaloDetDescrManager::instance();
-     if (!m_calo_dd) return StatusCode::FAILURE;
-  }
-
   if (detStore()->retrieve(m_tile_dd).isFailure()){
     ATH_MSG_FATAL("Could not find TileDetDescrManager in DetStore" );
     return StatusCode::FAILURE;
   }
-
-  fill_tg_surfaces(); 
 
   return StatusCode::SUCCESS;
 }
@@ -146,16 +138,18 @@ CaloSurfaceBuilder::finalize()
     delete m_layerEntries[i].second;
   }
 
-  delete m_layerExits[CaloCell_ID::TileBar2].first;
-  delete m_layerExits[CaloCell_ID::TileBar2].second;
-  delete m_layerExits[CaloCell_ID::TileExt2].first;
-  delete m_layerExits[CaloCell_ID::TileExt2].second;
-  delete m_layerExits[CaloCell_ID::TileGap2].first;
-  delete m_layerExits[CaloCell_ID::TileGap2].second;
-  delete m_layerExits[CaloCell_ID::TileGap3].first;
-  delete m_layerExits[CaloCell_ID::TileGap3].second;
-  delete m_layerExits[CaloCell_ID::HEC3].first;
-  delete m_layerExits[CaloCell_ID::HEC3].second;
+  if ( !m_layerExits.empty() ) {
+    delete m_layerExits[CaloCell_ID::TileBar2].first;
+    delete m_layerExits[CaloCell_ID::TileBar2].second;
+    delete m_layerExits[CaloCell_ID::TileExt2].first;
+    delete m_layerExits[CaloCell_ID::TileExt2].second;
+    delete m_layerExits[CaloCell_ID::TileGap2].first;
+    delete m_layerExits[CaloCell_ID::TileGap2].second;
+    delete m_layerExits[CaloCell_ID::TileGap3].first;
+    delete m_layerExits[CaloCell_ID::TileGap3].second;
+    delete m_layerExits[CaloCell_ID::HEC3].first;
+    delete m_layerExits[CaloCell_ID::HEC3].second;
+  }
   
   StatusCode sc = StatusCode::SUCCESS;
   return sc;
@@ -192,7 +186,7 @@ CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  con
     result = this->get_cylinder_surface (sample,side, pos, radius, hphi, hlen, depth);
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
     ATH_MSG_VERBOSE("got -flat- cylinder for Sample " << (int) sample << " radius, hlen are " << radius
        << " " << hlen );
@@ -210,7 +204,7 @@ CaloSurfaceBuilder:: CreateDDSurface (const CaloCell_ID::CaloSample sample,  con
     bool result = this->get_disk_surface (sample,side,pos,z,rmin, rmax, hphi, depth);
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
 
 
@@ -236,14 +230,17 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
 					                                   const double offset,
 					                                   const double etaCaloLocal) const
 {
+  if (sample == CaloCell_ID::Unknown) return nullptr;
 
- if (sample == CaloCell_ID::Unknown) return 0;
- if (!m_calo_dd) return 0;
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if (!m_calo_dd) {
+    if ( detStore()->retrieve(m_calo_dd).isFailure() ) return nullptr;
+  }
 
   // NB: the Transform3D created here belong to the surface,
   //     and will be deleted by it
  Amg::Transform3D* pos = new Amg::Transform3D(Trk::s_idTransform);
-  Trk::Surface* surf =0;
+  Trk::Surface* surf =nullptr;
 
   bool result = false;
   double rmin = 0.;
@@ -300,7 +297,7 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
     }
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
 
     //this correction will only work for LAr
@@ -328,7 +325,7 @@ Trk::Surface*  CaloSurfaceBuilder:: CreateUserSurface (const CaloCell_ID::CaloSa
     bool result = this->get_disk_surface (sample,side, pos, z,rmin, rmax, hphi, depth);
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
 
     double betterz =0;
@@ -369,9 +366,12 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
 {
   ATH_MSG_DEBUG( "In CreateLastSurface()" );
 
-  if (!m_calo_dd) return 0;
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if (!m_calo_dd) {
+    if ( detStore()->retrieve(m_calo_dd).isFailure() ) return nullptr;
+  }
 
-  Trk::Surface* surf =0;
+  Trk::Surface* surf =nullptr;
 
   bool tile = false;
   if ( sample == CaloCell_ID::TileBar0 || sample == CaloCell_ID::TileBar1 || sample == CaloCell_ID::TileBar2 ||
@@ -412,7 +412,7 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
     }
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
 
 
@@ -449,7 +449,7 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
     bool result = this->get_disk_surface (sample,side, pos, z,rmin, rmax, hphi, depth);
     if (!result){
       delete pos;
-      return 0;
+      return nullptr;
     }
     double zend=0;
     if (sample == CaloCell_ID::TileGap3){
@@ -494,14 +494,14 @@ CaloSurfaceBuilder::CreateLastSurface (const CaloCell_ID::CaloSample sample,
     return surf;
   }
 
-  return 0;
+  return nullptr;
 }
 
 
 Trk::Surface*
 CaloSurfaceBuilder::CreateGirderSurface() const {
   ATH_MSG_FATAL("CaloSufraceBuilder::CreateGirderSurface not implemented in mig5!");
-  return NULL;
+  return nullptr;
 
   /*
   log <<MSG::DEBUG << "In CreateGirderSurface()"<<endmsg;
@@ -640,7 +640,10 @@ CaloSurfaceBuilder::get_cylinder_surface (CaloCell_ID::CaloSample sample, int si
 
   bool result = false;
 
-  if (!m_calo_dd) return result;
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if (!m_calo_dd) {
+    if ( detStore()->retrieve(m_calo_dd).isFailure() ) return result;
+  }
 
   // strips are spread on several descriptor, which all have the same
   // htrans, radius, hphi, but not the same hlength
@@ -731,7 +734,10 @@ CaloSurfaceBuilder::get_disk_surface (CaloCell_ID::CaloSample sample, int side,
   rmin = 999999.;
   rmax = 0.;
 
-  if (!m_calo_dd) return result;
+  // Cannot do this in initialize: see ATLASRECTS-5012
+  if (!m_calo_dd) {
+    if ( detStore()->retrieve(m_calo_dd).isFailure() ) return result;
+  }
 
   // strips are spread on several descriptor, which all have the same
   // htrans, hphisec, but not the same rmin and rmax
@@ -1037,7 +1043,7 @@ std::vector<const Trk::Surface*> CaloSurfaceBuilder::allHECSurfaces() const
 }
 
 //store all the surfaces into a vector 
-void CaloSurfaceBuilder::fill_tg_surfaces()
+void CaloSurfaceBuilder::fill_tg_surfaces() const
 {
   //for (float eta=1.4; eta<3.2; eta+=0.1 ) {
   //  const Trk::Surface* surf = CreateUserSurface(CaloCell_ID::EME2,0.,eta);
@@ -1052,7 +1058,7 @@ void CaloSurfaceBuilder::fill_tg_surfaces()
     const Trk::Surface* sneg = CreateUserSurface(sample,0.,-etaRef);
     if (spos) spos->setOwner(Trk::TGOwn);
     if (sneg) sneg->setOwner(Trk::TGOwn);
-    m_layerEntries.push_back(std::pair<const Trk::Surface*,const Trk::Surface*>(spos,sneg));
+    m_layerEntries.emplace_back(spos,sneg);
 
     // if (spos && sneg) std::cout<<"CaloSurf:translation:"<<sample<<","<<spos->transform().translation()<<","<<sneg->transform().translation()<< std::endl; 
     //if (spos && sneg) std::cout<<"CaloSurf:rotation:"<<sample<<","<<spos->transform().rotation()<<","<<sneg->transform().rotation()<< std::endl; 

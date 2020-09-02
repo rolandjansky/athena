@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMonEoverP_H
@@ -52,6 +52,8 @@ CREATED:  July 2011
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <map>
 #include <vector>
 
@@ -78,7 +80,7 @@ namespace Trk{
 typedef std::pair<const xAOD::Vertex* , int> VxPos;
 
 
-class IDPerfMonEoverP : public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutable member variables are used without protection.
 {
  public:
 
@@ -161,7 +163,8 @@ class IDPerfMonEoverP : public AthAlgorithm
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
   /** @brief jet selector tool */
-  ToolHandle< IJetSelector > m_jetCleaningTool;
+  ToolHandle< IJetSelector > m_jetCleaningTool
+     {this,"JetCleaningTool","JetCleaningTool/JetCleaningTool",""};
 
   /* Flag for refitting*/
   bool                            m_refitEverything;

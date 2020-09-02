@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSlaveBoard.hh"
+#include "TrigT1TGC/TGCSlaveBoard.h"
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
@@ -10,7 +10,7 @@
 
 namespace LVL1TGCTrigger {
 
-TGCSlaveBoard::TGCSlaveBoard( TGCArguments* tgcargs )
+TGCSlaveBoard::TGCSlaveBoard( const TGCArguments* tgcargs )
   :m_lengthOfCoincidenceOut(0),m_coincidenceOut(0), 
    m_slaveBoardOut(0), 
    m_id(0), m_bid(-1),m_idHighPtBoard(0),
@@ -223,11 +223,6 @@ void TGCSlaveBoard::doDecluster()
     m_coincidenceOut=out;
     out=0;
   }
-}
-
-TGCSlaveBoardOut*  TGCSlaveBoard::getOutput() const
-{
-  return m_slaveBoardOut;
 }
 
 void  TGCSlaveBoard::eraseOutput()

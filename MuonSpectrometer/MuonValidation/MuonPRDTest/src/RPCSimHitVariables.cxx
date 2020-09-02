@@ -9,9 +9,10 @@
 #include "MuonSimEvent/RpcHitIdHelper.h"
 
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -59,11 +60,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     }
 
     const MuonGM::RpcReadoutElement* rpcdet = MuonDetMgr->getRpcReadoutElement(offid);
-    if (rpcdet == nullptr)
-    {
-       ATH_MSG_WARNING("RPC readout element not found for Id = " << m_RpcIdHelper->show_to_string(offid) << " skipping.");
-       continue;
-    }
+    if (!rpcdet) throw std::runtime_error(Form("File: %s, Line: %d\nRPCSimHitVariables::fillVariables() - Failed to retrieve RpcReadoutElement for %s", __FILE__, __LINE__, m_RpcIdHelper->print_to_string(offid).c_str()));
 
     m_RPC_Sim_stationName   ->push_back(stname);
     m_RPC_stationName   ->push_back(m_RpcIdHelper->stationName(offid));

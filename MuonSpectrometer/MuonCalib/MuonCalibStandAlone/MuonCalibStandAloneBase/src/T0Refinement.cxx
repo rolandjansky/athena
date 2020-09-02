@@ -262,11 +262,6 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 		return 0.0;
 	}
 
-//	std::cout<<"XXxxXX";
-	
-	
-	
-	
 	double direction=-0.5;
 	double min_chi2=9e9;
 	double best_t0=delta_t0_opt;
@@ -310,51 +305,11 @@ my_points[2].set_x1(-2.0*m_delta_t0);
 		mchi2.push_back(min_chi2);
 		if (t0s.size()>100)
 			{
-//			std::cout<<"Endless scan: "<<delta_t0_opt;
-//			for(unsigned int i=0; i<t0s.size(); i++)
-//				{
-//				std::cout<<" "<<t0s[i]<<","<<chi2[i]<<","<<mchi2[i];
-//				}
-//			std::cout<<std::endl;
 			failed=true;
 			return 0.0;
 			}
 		}	
-	
-/*	
-	double min_chi2=9e9;
-	double best_t0=delta_t0_opt;
-	
-	for(int i=-10; i<=10; i++)
-		{
-		double test_t0=delta_t0_opt + 0.5 * static_cast<double>(i);
-		
-		for (unsigned int k=0; k<seg.mdtHitsOnTrack(); k++) {
-			time = (seg.mdtHOT())[k]->driftTime() + test_t0;
-			sigma = (seg.mdtHOT())[k]->sigmaDriftRadius();
-			(seg.mdtHOT())[k]->setDriftRadius(rt->radius(time),
-									sigma);
-		}
-		if (!segment_fitter->fit(seg, r_selection)) {
-			
-			continue;
-		}
-		double chisq(0.0);
-		if (curved) {
-			chisq = m_cfitter->chi2();
-		} else {
-			chisq = m_qfitter->chi2PerDegreesOfFreedom();
-		}
-		
-		if (chisq<min_chi2)
-			{
-			min_chi2=chisq;
-			best_t0 = test_t0;
-			}
-		
-//		std::cout<<" "<<test_t0<<","<<chisq;
-		}
-//	std::cout<<std::endl;*/
+
 /////////////////////////////////////////
 // OVERWRITE THE SEGMENT, IF REQUESTED //
 /////////////////////////////////////////

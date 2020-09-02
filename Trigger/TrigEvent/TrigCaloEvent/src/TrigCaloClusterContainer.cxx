@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -26,7 +26,7 @@ void
 TrigCaloClusterContainer::print ( void ) const {
 	std::cout << "TrigCaloClusterContainer with ";
 	std::cout << size() << " TrigCaloClusters" << std::endl;
-	for ( TrigCaloClusterContainer::const_iterator i = begin(); i!=end();i++)
+	for ( TrigCaloClusterContainer::const_iterator i = begin(); i!=end();++i)
 		(*i)->print();
 }
 
@@ -35,7 +35,7 @@ void
 TrigCaloClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigCaloClusterContainer with ";
 	log <<MSG::DEBUG<< size() << " TrigCaloClusters" << endmsg;
-	for ( TrigCaloClusterContainer::const_iterator i = begin(); i!=end();i++)
+	for ( TrigCaloClusterContainer::const_iterator i = begin(); i!=end();++i)
 		(*i)->print(log);
 }
 

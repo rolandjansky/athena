@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -9,8 +9,6 @@
 // Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 //Muon software includes
 #include "MuonDigitContainer/MmDigit.h"
@@ -65,7 +63,7 @@ namespace NSWL1 {
 
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-    std::string algo_name = pnamed->name();
+    const std::string& algo_name = pnamed->name();
     if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
       ITHistSvc* tHistSvc;
       ATH_CHECK( service("THistSvc", tHistSvc) );
@@ -375,7 +373,7 @@ namespace NSWL1 {
         Identifier Id = digit->identify();
 
           std::string stName   = m_MmIdHelper->stationNameString(m_MmIdHelper->stationName(Id));
-          string sname(stName);
+          const string& sname(stName);
           if (sname.compare("MML")==0)isLargeWedge.push_back(true);
           else isLargeWedge.push_back(false);
       }

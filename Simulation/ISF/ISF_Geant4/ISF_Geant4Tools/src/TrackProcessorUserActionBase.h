@@ -16,7 +16,7 @@
 #include "ISF_Event/ISFParticleContainer.h"
 
 // forward declarations
-class EventInformation;
+class AtlasG4EventUserInfo;
 
 #include "AtlasHepMC/GenParticle_fwd.h"
 
@@ -47,7 +47,7 @@ public:
   ISF::ISFParticleContainer ReturnSecondaries(ISF::ISFParticle const* parent);
 
 protected:
-  EventInformation* m_eventInfo;   //!< event-global G4 UserInformation
+  AtlasG4EventUserInfo* m_atlasG4EvtUserInfo;   //!< event-global G4 UserInformation
 
   ISF::ISFParticleContainer m_storedSecondaries;
 
@@ -64,13 +64,13 @@ private:
 
   /// Set the following information as the currently traced particle
   void setCurrentParticle(ISF::ISFParticle* baseISFParticle,
-                          HepMC::GenParticle* truthPrimary,
-                          HepMC::GenParticle* truthCurrentlyTraced);
+                          HepMC::GenParticlePtr truthPrimary,
+                          HepMC::GenParticlePtr truthCurrentlyTraced);
 
   /// Classify the particle represented by the given set of truth links
-  TrackClassification classify(const HepMC::GenParticle* primaryTruthParticle,
-                               const HepMC::GenParticle* generationZeroTruthParticle,
-                               const HepMC::GenParticle* currentlyTracedHepPart,
+  TrackClassification classify(HepMC::ConstGenParticlePtr primaryTruthParticle,
+                               HepMC::ConstGenParticlePtr generationZeroTruthParticle,
+                               HepMC::ConstGenParticlePtr currentlyTracedHepPart,
                                int regenerationNumber) const;
 
   /// The most recent ISFParticle ancestor that triggers the currently processed G4Track

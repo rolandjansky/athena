@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -49,8 +49,7 @@ public:
     const std::vector<int>&	reconstructableSecondaries(double minPt);
 
 private:
-    bool			selectParticle (const HepMC::GenParticle& particle, double minPt);
-    
+    bool			selectParticle (HepMC::ConstGenParticlePtr particle, double minPt);
     std::vector<int>			m_barcodes;
     std::map<int,int>			m_indetKineMap;
     double				m_maxEta;

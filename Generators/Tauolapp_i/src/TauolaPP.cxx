@@ -7,7 +7,16 @@
 // Tauola header files
 #include "Tauola/Log.h"
 #include "Tauola/Tauola.h"
+#ifdef HEPMC3
+#include "Tauola/TauolaHepMC3Event.h"
+namespace Tauolapp
+{
+using TauolaHepMCEvent=TauolaHepMC3Event;
+using TauolaHepMCParticle=TauolaHepMC3Particle;
+}
+#else
 #include "Tauola/TauolaHepMCEvent.h"
+#endif
 
 #include "Tauola/f_Variables.h"
 

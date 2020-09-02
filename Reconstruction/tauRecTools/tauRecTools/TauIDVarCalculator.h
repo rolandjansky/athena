@@ -13,9 +13,7 @@
 #define TAUIDVARCALCULATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "xAODTau/TauJet.h"
-#include "xAODEventInfo/EventInfo.h"
-#include <string>
+#include "AsgDataHandles/ReadHandleKey.h"
 
 class TauIDVarCalculator: public TauRecToolBase
 {
@@ -28,7 +26,7 @@ class TauIDVarCalculator: public TauRecToolBase
   virtual ~TauIDVarCalculator() {}
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(xAOD::TauJet&) override;
+  virtual StatusCode execute(xAOD::TauJet&) const override;
   virtual StatusCode finalize() override;
 
   static const float LOW_NUMBER;
@@ -36,6 +34,8 @@ class TauIDVarCalculator: public TauRecToolBase
  private:
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
+  bool m_incShowerSubtr;
 };
 
 #endif

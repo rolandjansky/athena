@@ -22,17 +22,7 @@
 // standard stuff
 #include <string>
 // general athena stuff
-//#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IToolSvc.h"
-//#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
-
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigInDetEvent/TrigVertexCollection.h"
-//#include "TrigParticle/TrigL2Bphys.h"
-//#include "TrigParticle/TrigL2BphysContainer.h"
-
-#include "Constants.h"
 
 class TrigBphysHelperUtilsTool;
 
@@ -74,9 +64,6 @@ class TrigL2BMuMuHypo: public HLT::HypoAlgo  {
   unsigned int m_countPassedRoIs;
   unsigned int m_countPassedBsMass;
   unsigned int m_countPassedChi2Cut;
-
-    //  TrigL2BphysContainer* m_trigBphysColl;
-    //  TrigVertexCollection* m_VertexColl;
 
   /* monitored variables */
   int m_mon_cutCounter;

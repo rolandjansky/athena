@@ -32,20 +32,21 @@ calo_exceptions = set([])
 # obtain the l1 items according to the the trigger type
 # function taken originally from TriggerPythonConfig
 #######################################################
-def Lvl1ItemByTriggerType(l1object, triggertypebit, triggertypebitmask):
-    """For a triggertypebit between 0 and 7, returns a list of names of
-    those Lvl1 items that have that bit set in the triggertype"""
-    if triggertypebit<0 or triggertypebit>0xFF:
-        raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertypebit,triggertypebitmask) needs to be called with 0<=triggertypebit<=0xFF, ' + \
-                               + 'but is called with triggertypebit=%i' % triggertypebit)
-    if triggertypebitmask<0 or triggertypebitmask>0xFF:
-        raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertypebit,triggertypebitmask) needs to be called with 0<=triggertypebitmask<=0xFF, ' + \
-                               + 'but is called with triggertypebitmask=%i' % triggertypebitmask)
-    
-    itemsForMenu = [item for item in l1object if item.ctpid != -1]    
+def Lvl1ItemByTriggerType(l1object, triggertype_pattern, triggertype_bitmask):
+    """
+    The function returns those items where the items triggertype, after applying the mask, matches the pattern.
+    With this one can also select items where a certain bit is disabled
+    """
+    if triggertype_pattern<0 or triggertype_pattern>0xFF:
+        raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertype_pattern,triggertype_bitmask) needs to be called with 0<=triggertype_pattern<=0xFF, ' + \
+                               + 'but is called with triggertype_pattern=%i' % triggertype_pattern)
+    if triggertype_bitmask<0 or triggertype_bitmask>0xFF:
+        raise RuntimeError('TriggerPythonConfig.Lvl1ItemByTriggerType(triggertype_pattern,triggertype_bitmask) needs to be called with 0<=triggertype_bitmask<=0xFF, ' + \
+                               + 'but is called with triggertype_bitmask=%i' % triggertype_bitmask)
+    itemsForMenu = [item for item in l1object if l1object[item]['ctpid'] != -1]
     if not itemsForMenu:
         log.error('No item defined for the L1 Menu, the TriggerConfL1 object does not contain items')
-    res = [item.name for item in itemsForMenu if (triggertypebitmask & item.trigger_type)==triggertypebit ]
+    res = [item for item in itemsForMenu if ( (triggertype_bitmask & int(l1object[item]['triggerType'],2)) == triggertype_pattern)]
     return res
 
 ##############################
@@ -303,7 +304,7 @@ def getL1LowLumi(l1seed):
 # assigned the seeds to the L1 names
 #####################################
 def getSpecificL1Seeds(l1seedname, l1itemobject):
-    l1items = [i.name for i in l1itemobject]
+    l1items = l1itemobject.keys()
     L1Seed = ''
     if l1seedname == 'L1_J':
         L1Seed = getL1JetBS()
@@ -406,7 +407,7 @@ def getInputTEfromL1Item(l1item):
         'L1_TAU8_FIRSTEMPTY': ['HA8'],
         'L1_TAU8_UNPAIRED_ISO': ['HA8'],
         'L1_TAU8_UNPAIRED_NONISO': ['HA8'],
-	'L1_TAU12_EMPTY':      ['HA12'],
+        'L1_TAU12_EMPTY':      ['HA12'],
         'L1_TAU12_FIRSTEMPTY': ['HA12'],
         'L1_TAU12_UNPAIRED_ISO': ['HA12'],
         'L1_RD0_FIRSTEMPTY':  [''],

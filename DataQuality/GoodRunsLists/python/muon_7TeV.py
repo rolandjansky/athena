@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from GoodRunsLists.GoodRunsListConfig import GoodRunsListConfig
@@ -30,10 +30,10 @@ class muon_7TeV(GoodRunsListConfig):
                      'pix        SHIFTOFL#HEAD  g',
                      'sct        SHIFTOFL#HEAD  g',
                      'trtb,trte  SHIFTOFL#HEAD  y+',
-		     'mdt        SHIFTOFL#HEAD  g',
-		     'rpc        SHIFTOFL#HEAD  g',
-		     'tgc        SHIFTOFL#HEAD  g',
-		     'csc        SHIFTOFL#HEAD  g',
+                     'mdt        SHIFTOFL#HEAD  g',
+                     'rpc        SHIFTOFL#HEAD  g',
+                     'tgc        SHIFTOFL#HEAD  g',
+                     'csc        SHIFTOFL#HEAD  g',
                    ]
 
     ## Set the dqflags query

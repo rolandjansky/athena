@@ -44,7 +44,7 @@ class CastorDataset(object):
         athenaCommonFlags.FilesInput = copy.deepcopy(self.filePaths)
 
         #ServiceMgr.EventSelector.InputCollections = copy.deepcopy(self.filePaths)
-        #ServiceMgr.ByteStreamInputSvc.FullFileName = copy.deepcopy(self.filePaths)
+        #ServiceMgr.EventSelector.Input = copy.deepcopy(self.filePaths)
 
         if (shuffle):
             import random
@@ -192,7 +192,7 @@ class EOSDataset(object):
         athenaCommonFlags.FilesInput = copy.deepcopy(self.filePaths)
 
         #ServiceMgr.EventSelector.InputCollections = copy.deepcopy(self.filePaths)
-        #ServiceMgr.ByteStreamInputSvc.FullFileName = copy.deepcopy(self.filePaths)
+        #ServiceMgr.EventSelector.Input = copy.deepcopy(self.filePaths)
 
         if (shuffle):
             import random

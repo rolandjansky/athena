@@ -14,9 +14,7 @@
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
 
 
-namespace HepMC {
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
  

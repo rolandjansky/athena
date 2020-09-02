@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRT_DIGITIZATION_TRTFASTDIGITIZATION_H
@@ -8,7 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class ITRTFastDigitizationTool;
+class IPileUpTool;
 
 /** Top algorithm class for TRT digitization */
 class TRTFastDigitization : public AthAlgorithm {
@@ -19,12 +19,11 @@ class TRTFastDigitization : public AthAlgorithm {
   TRTFastDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-   ToolHandle<ITRTFastDigitizationTool> m_digTool;
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "TRTFastDigitizationTool", "AthAlgTool which performs the TRT digitization"};
 };
 
 #endif // FASTTRT_DIGITIZATION_TRTFASTDIGITIZATION_H

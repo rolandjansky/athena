@@ -194,10 +194,6 @@ else:
     #  InputTrackCollection = InDetKeys.UnslimmedTracks()
     #elif InDetFlags.doCTBTracking():
       #InputTrackCollection = InDetKeys.UnslimmedTracks_CTB()
-    #elif InDetFlags.doiPatRec():
-      #InputTrackCollection = InDetKeys.IPatConvertedTracks()
-    #elif InDetFlags.doxKalman():
-      #InputTrackCollection = InDetKeys.XKalConvertedTracks()
     #else:
       # --- in case of reading from ESD, so we just set the Collection and truth
       #InputTrackCollection      = InDetKeys.Tracks()
@@ -246,7 +242,7 @@ else:
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()):
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

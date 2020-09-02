@@ -19,8 +19,8 @@ InDetPerfPlot_HitResidual::InDetPerfPlot_HitResidual(InDetPlotBase* pParent, con
   m_residualy_1hit{},
   m_residualy_2ormorehits{},
   m_residualy{},
-  m_residualpullx{},
-  m_residualpully{},
+  m_pullx{},
+  m_pully{},
   m_phiWidth{},
   m_etaWidth{} {
 //
@@ -65,45 +65,31 @@ InDetPerfPlot_HitResidual::initializePlots() {
   book(m_residualy_2ormorehits[PIXEL][BARREL], "residualy_pixel_barrel_2ormorehits");
   //
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[SCT][BARREL],"residualy_sct_barrel");
-  // book(m_residualy_1hit[SCT][BARREL],"residualy_sct_barrel_1hit");
-  // book(m_residualy_2ormorehits[SCT][BARREL],"residualy_sct_barrel_2ormorehits");
-  //
-  // book(m_residualy[TRT][BARREL],"residualy_trt_barrel");
   // ..now endcaps
   book(m_residualy[PIXEL][ENDCAP], "residualy_pixel_endcap");
   book(m_residualy_1hit[PIXEL][ENDCAP], "residualy_pixel_endcap_1hit");
   book(m_residualy_2ormorehits[PIXEL][ENDCAP], "residualy_pixel_endcap_2ormorehits");
   //
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[SCT][ENDCAP],"residualy_sct_endcap");
-  // book(m_residualy_1hit[SCT][ENDCAP],"residualy_sct_endcap_1hit");
-  // book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
-  // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[TRT][ENDCAP],"residualy_trt_endcap");
   // pulls
   // barrel
-  book(m_residualpullx[L0PIXBARR][BARREL], "residualpullx_l0pix_barrel");
-  book(m_residualpullx[PIXEL][BARREL], "residualpullx_pixel_barrel");
-  book(m_residualpullx[SCT][BARREL], "residualpullx_sct_barrel");
-  book(m_residualpullx[TRT][BARREL], "residualpullx_trt_barrel");
+  book(m_pullx[L0PIXBARR][BARREL], "pullx_l0pix_barrel");
+  book(m_pullx[PIXEL][BARREL], "pullx_pixel_barrel");
+  book(m_pullx[SCT][BARREL], "pullx_sct_barrel");
+  book(m_pullx[TRT][BARREL], "pullx_trt_barrel");
   //
-  book(m_residualpullx[PIXEL][ENDCAP], "residualpullx_pixel_endcap");
-  book(m_residualpullx[SCT][ENDCAP], "residualpullx_sct_endcap");
-  book(m_residualpullx[TRT][ENDCAP], "residualpullx_trt_endcap");
+  book(m_pullx[PIXEL][ENDCAP], "pullx_pixel_endcap");
+  book(m_pullx[SCT][ENDCAP], "pullx_sct_endcap");
+  book(m_pullx[TRT][ENDCAP], "pullx_trt_endcap");
   //
   // barrel
-  book(m_residualpully[L0PIXBARR][BARREL], "residualpully_l0pix_barrel");
-  book(m_residualpully[PIXEL][BARREL], "residualpully_pixel_barrel");
+  book(m_pully[L0PIXBARR][BARREL], "pully_l0pix_barrel");
+  book(m_pully[PIXEL][BARREL], "pully_pixel_barrel");
   //
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
-  // book(m_residualpully[TRT][BARREL],"residualpully_trt_barrel");
-  book(m_residualpully[PIXEL][ENDCAP], "residualpully_pixel_endcap");
+  book(m_pully[PIXEL][ENDCAP], "pully_pixel_endcap");
   //
   ////SCT and TRT do not have y-residuals/pulls
-  // book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
-  // book(m_residualpully[TRT][ENDCAP],"residualpully_trt_endcap");
   // introduce cluster width histograms
   book(m_phiWidth[PIXEL][BARREL], "clusterPhiWidth_pixel_barrel");
   book(m_phiWidth[PIXEL][ENDCAP], "clusterPhiWidth_pixel_endcap");
@@ -112,17 +98,14 @@ InDetPerfPlot_HitResidual::initializePlots() {
   //
   book(m_phiWidth[SCT][BARREL], "clusterPhiWidth_sct_barrel");
   book(m_phiWidth[SCT][ENDCAP], "clusterPhiWidth_sct_endcap");
-  // book(m_etaWidth[SCT][BARREL],"clusterEtaWidth_sct_barrel");
-  // book(m_etaWidth[SCT][ENDCAP],"clusterEtaWidth_sct_endcap");
 }
 
 void
 InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt) {
   const static bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
-  static int warnCount(0);
 
   if (!hitDetailsAvailable) {
-    if (warnCount++ < 10) {
+    if (m_warnCount++ < 10) {
       ATH_MSG_WARNING("The hit res plots dont see any data (note:only 10 warnings issued)");
     }
   } else {
@@ -170,11 +153,11 @@ InDetPerfPlot_HitResidual::fill(const xAOD::TrackParticle& trkprt) {
           if (hasYCoordinate) {
             fillHisto(m_residualy[det][region], residualLocY);
           }
-          fillHisto(m_residualpullx[det][region], pullLocX);
+          fillHisto(m_pullx[det][region], pullLocX);
           if (hasYCoordinate) { // SCT & TRT do not have LocY
-            fillHisto(m_residualpully[det][region], pullLocY);
+            fillHisto(m_pully[det][region], pullLocY);
           }
-          if ((det == TRT)or(det == DBM) or(width < 0)) {
+          if ((det == TRT) or (width < 0)) {
             continue;
           }
           if (width == 1) {

@@ -33,52 +33,12 @@
 #include "boost/thread/thread.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
-
-// Setup HepMC traits definition for ThePEG's converter to work
-#include "ThePEG/Vectors/HepMCConverter.h"
-#ifdef HWVER_IS_72
-namespace ThePEG {
-  template<>
-  struct HepMCTraits<HepMC::GenEvent>
-    : public HepMCTraitsBase<HepMC::GenEvent,
-                             HepMC::GenParticle,
-                             HepMC::GenParticle *,
-                             HepMC::GenVertex,
-                             HepMC::GenVertex *,
-                             HepMC::Polarization,
-                             HepMC::PdfInfo>
-  {
-    static bool hasUnits() {
-      return true;
-    }
-  };
-}
-#else
-namespace ThePEG {
-  template<>
-  struct HepMCTraits<HepMC::GenEvent>
-    : public HepMCTraitsBase<HepMC::GenEvent,
-                             HepMC::GenParticle,
-                             HepMC::GenVertex,
-                             HepMC::Polarization,
-                             HepMC::PdfInfo>
-  {
-    static bool hasUnits() {
-      return true;
-    }
-  };
-}
-#endif
-
-
-using namespace std;
+void   convert_to_HepMC(const ThePEG::Event & m_event, HepMC::GenEvent & evt, bool nocopies,ThePEG::Energy eunit, ThePEG::Length lunit);
 
 
 // Constructor
-Herwig7::Herwig7(const string& name, ISvcLocator* pSvcLocator) :
+Herwig7::Herwig7(const std::string& name, ISvcLocator* pSvcLocator) :
   GenModule(name, pSvcLocator),
   m_use_seed_from_generatetf(false),
   m_seed_from_generatetf(0),
@@ -99,8 +59,6 @@ Herwig7::Herwig7(const string& name, ISvcLocator* pSvcLocator) :
   declareProperty("CleanupHerwigScratch", m_cleanup_herwig_scratch);
 }
 
-
-
 /*!
  *  \todo Higher-level API to be provided by the Herwig authors to allow for
  *        slimmer interface and for usage of more advanced features such as
@@ -117,13 +75,13 @@ StatusCode Herwig7::genInitialize() {
   // where varying one seed has no effect (this already stung us in pre-production
   // job transform tests), we multiply the two seeds and let them wrap around the long
   // type MAX_SIZE:
-  int32_t combined_seed = abs(seeds[0] * seeds[1]);
+  int32_t combined_seed = std::abs(seeds[0] * seeds[1]);
   // Represent the combined seed as a string, so the config system can parse it back to a long ;)
-  ostringstream ss_seed;
+  std::ostringstream ss_seed;
   ss_seed << combined_seed;
   // Configure the API and print the seed to the log
   if (m_use_seed_from_generatetf){
-    ATH_MSG_INFO("Using the random number seed " + to_string(m_seed_from_generatetf) + " provided via Generate_tf.py");
+    ATH_MSG_INFO("Using the random number seed " + std::to_string(m_seed_from_generatetf) + " provided via Generate_tf.py");
     m_api.seed(m_seed_from_generatetf);
   } else {
     ATH_MSG_INFO("Using the random number seed " + ss_seed.str() + " provided by athena");
@@ -137,8 +95,8 @@ StatusCode Herwig7::genInitialize() {
   // Horrid runtime ATLAS env variable and CMT path mangling to work out ThePEG module search paths
   char* env1 = getenv("CMTPATH");
   char* env2 = getenv("CMTCONFIG");
-  string reposearchpaths;
-  if (env1 == 0 || env2 == 0) {
+  std::string reposearchpaths;
+  if (env1 == nullptr || env2 == nullptr) {
      // Use everything from $DATAPATH and $LD_LIBRARY_PATH:
      const char* datapath = getenv( "DATAPATH" );
      reposearchpaths = datapath;
@@ -155,18 +113,18 @@ StatusCode Herwig7::genInitialize() {
         ThePEG::DynamicLoader::appendPath( p );
      }
   } else {
-    vector<string> cmtpaths;
-    boost::split(cmtpaths, env1, boost::is_any_of(string(":")));
-    const string cmtconfig = env2;
-    const string sharepath = "/InstallArea/" + cmtconfig + "/share";
-    const string libpath = "/InstallArea/" + cmtconfig + "/lib";
+    std::vector<std::string> cmtpaths;
+    boost::split(cmtpaths, env1, boost::is_any_of(std::string(":")));
+    const std::string cmtconfig = env2;
+    const std::string sharepath = "/InstallArea/" + cmtconfig + "/share";
+    const std::string libpath = "/InstallArea/" + cmtconfig + "/lib";
     // Prepend to the repository and loader command file search paths
-    foreach (const string& p, cmtpaths) {
-      const string cmtsharepath = p + sharepath;
+    for(const std::string& p: cmtpaths) {
+      const std::string cmtsharepath = p + sharepath;
       ATH_MSG_DEBUG("Appending " + cmtsharepath + " to ThePEG repository and command file search paths");
       reposearchpaths = reposearchpaths + (reposearchpaths.length() == 0 ? "" : ":") + cmtsharepath;
       ThePEG::Repository::appendReadDir(cmtsharepath);
-      const string cmtlibpath = p + libpath;
+      const std::string cmtlibpath = p + libpath;
       ATH_MSG_DEBUG("Appending " + cmtlibpath + " to ThePEG loader search path");
       ThePEG::DynamicLoader::appendPath(cmtlibpath);
     }
@@ -174,7 +132,7 @@ StatusCode Herwig7::genInitialize() {
   ATH_MSG_DEBUG("Num of library search paths = " << ThePEG::DynamicLoader::allPaths().size());
 
   // Use PathResolver to find default Hw7 ThePEG repository file.
-  const string repopath = PathResolver::find_file_from_list("HerwigDefaults.rpo", reposearchpaths);
+  const std::string repopath = PathResolver::find_file_from_list("HerwigDefaults.rpo", reposearchpaths);
   ATH_MSG_DEBUG("Loading Herwig default repo from " << repopath);
   ThePEG::Repository::load(repopath);
   ATH_MSG_DEBUG("Successfully loaded Herwig default repository");
@@ -214,7 +172,7 @@ StatusCode Herwig7::callGenerator() {
 StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   // Convert the Herwig event into the HepMC GenEvent
   ATH_MSG_DEBUG("Converting ThePEG::Event to HepMC::GenEvent");
-  ThePEG::HepMCConverter<HepMC::GenEvent>::convert(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
+  convert_to_HepMC(*m_event, *evt, false, ThePEG::MeV, ThePEG::millimeter);
   ATH_MSG_DEBUG("Converted ThePEG::Event to HepMC::GenEvent");
 
   // Fill the event number into HepMC event record
@@ -226,9 +184,9 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
 
   // Fill event with random seeds from Atlas RNG service
   const long* s = atRndmGenSvc().GetEngine("Herwig7")->getSeeds();
-  vector<long> seeds(s, s+2);
+  std::vector<long> seeds(s, s+2);
   ATH_MSG_DEBUG("Random seeds: " << seeds[0] << ", " << seeds[1]);
-  evt->set_random_states(seeds);
+  HepMC::set_random_states(evt,seeds);
 
   // Add a unit entry to the event weight vector if it's currently empty
   if (evt->weights().empty()) {
@@ -247,7 +205,7 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   double x1 = eh->lastX1();
   double x2 = eh->lastX2();
   // Get the pdfs
-  pair<ThePEG::PDF,ThePEG::PDF> pdfs;
+  std::pair<ThePEG::PDF,ThePEG::PDF> pdfs;
   pdfs.first  = eh->pdf<ThePEG::PDF>(sub->incoming().first);
   pdfs.second = eh->pdf<ThePEG::PDF>(sub->incoming().second);
   // Get the scale
@@ -257,7 +215,12 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   double pdf1 = pdfs.first.xfx(sub->incoming().first ->dataPtr(), scale, x1);
   double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(), scale, x2);
   // Create the PDFinfo object
+#ifdef HEPMC3
+  HepMC3::GenPdfInfoPtr pdfi = std::shared_ptr<HepMC3::GenPdfInfo>();
+  pdfi->set(id1, id2, x1, x2, Q, pdf1, pdf2);
+#else
   HepMC::PdfInfo pdfi(id1, id2, x1, x2, Q, pdf1, pdf2);
+#endif
   evt->set_pdf_info(pdfi);
   ATH_MSG_DEBUG("Added PDF info to HepMC");
 
@@ -272,10 +235,10 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
 StatusCode Herwig7::genFinalize() {
   ATH_MSG_INFO("Herwig7 finalizing.");
   assert(m_gen);
-  cout << "MetaData: generator = Herwig7 " << HWVERSION << endl;
-  cout << std::scientific << std::setprecision(5) << "MetaData: cross-section (nb) = " << m_gen->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn << endl;
-  // cout << "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_ps << " (shower); " << m_pdfname_mpi << " (MPI)" << endl;
-  cout << "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_mpi << " (shower/MPI)" << endl;
+  ATH_MSG_INFO( "MetaData: generator = Herwig7 " << HWVERSION ); 
+  ATH_MSG_INFO( std::scientific << std::setprecision(5) << "MetaData: cross-section (nb) = " << m_gen->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn); 
+  // ATH_MSG_INFO( "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_ps << " (shower); " << m_pdfname_mpi << " (MPI)" ); 
+  ATH_MSG_INFO("MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_mpi << " (shower/MPI)");
   m_gen->finalize();
   ThePEG::Repository::cleanup();
 
@@ -290,8 +253,8 @@ StatusCode Herwig7::genFinalize() {
     // in case the folder can't be deleted continue with warning
     try {
       boost::filesystem::remove_all("Herwig-scratch");
-    } catch (const exception& e) {
-      ATH_MSG_WARNING("Failed to delete the folder 'Herwig-scratch': "+string(e.what()));
+    } catch (const std::exception& e) {
+      ATH_MSG_WARNING("Failed to delete the folder 'Herwig-scratch': "+std::string(e.what()));
     }
 
   }

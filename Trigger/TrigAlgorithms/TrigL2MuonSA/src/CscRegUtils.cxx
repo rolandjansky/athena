@@ -1,55 +1,37 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#include "TrigL2MuonSA/CscRegUtils.h"
+#include "CscRegUtils.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include <cmath>
 
 
-static const InterfaceID IID_CscRegDict("IID_CscRegDict", 1, 0);
-
 namespace TrigL2MuonSA{
-
-
-const InterfaceID& CscRegDict :: interfaceID(){ return IID_CscRegDict; }
 
 
 CscRegDict :: CscRegDict(const std::string &type, const std::string &name, const IInterface *parent)
   : AthAlgTool(type,name,parent),
-    m_util(0)
+    m_util()
 {
-  declareInterface<TrigL2MuonSA::CscRegDict>(this);
 }
-
-
-CscRegDict :: ~CscRegDict(){  }
 
 
 StatusCode CscRegDict :: initialize(){
 
-  ATH_MSG_DEBUG("Initializing TrigL2MuonSA::CscRegDict - package version " << PACKAGE_VERSION );
-  
-  StatusCode sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not initialize the AthAlgTool base class." );
-    return sc;
-  }
-  
-  if (!m_util) m_util = new UtilTools();
   int i=0;
-  
-    //small sector
+
+  //small sector
   const double SPwid = 0.32369;
   const double Setamin = 1.97667;
   const double Setamax = 2.76781;
   const double SDisplace = (7441.+7518.)/2.;//7428.3;
   const double SAtanNormal = 0.20223129856437;
-  
-    //Cside Small
+
+  //Cside Small
   for (int phi=0; phi<8; ++phi) {
     m_reg_dict[i].etaMin=(-1)*Setamax;
     m_reg_dict[i].etaMax=(-1)*Setamin;
@@ -63,10 +45,10 @@ StatusCode CscRegDict :: initialize(){
     ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
 		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
 		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
-		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
+		   << " theta:[" << m_util.calc_theta(m_reg_dict[i].etaMin) << "," << m_util.calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
-    //Aside Small
+  //Aside Small
   for (int phi=0; phi<8; ++phi) {
     m_reg_dict[i].etaMin=Setamin;
     m_reg_dict[i].etaMax=Setamax;
@@ -80,20 +62,19 @@ StatusCode CscRegDict :: initialize(){
     ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
 		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
 		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
-		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
+		   << " theta:[" << m_util.calc_theta(m_reg_dict[i].etaMin) << "," << m_util.calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
-  
-  
-  
-    //large sector
+
+
+  //large sector
   const double LPwid = 0.514507;
   const double Letamin = 2.01471;
   const double Letamax = 2.75914;
   const double LDisplace = (7800.+7880.)/2.;//7789.6;
   const double LAtanNormal = 0.20223129856437;
-  
-    //Cside Large
+
+  //Cside Large
   for (int phi=0; phi<8; ++phi) {
     m_reg_dict[i].etaMin=(-1)*Letamax;
     m_reg_dict[i].etaMax=(-1)*Letamin;
@@ -107,7 +88,7 @@ StatusCode CscRegDict :: initialize(){
     ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
 		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
 		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
-		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
+		   << " theta:[" << m_util.calc_theta(m_reg_dict[i].etaMin) << "," << m_util.calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
     //Aside Large
@@ -124,36 +105,25 @@ StatusCode CscRegDict :: initialize(){
     ATH_MSG_DEBUG( "CscRegDict: hash= " << i << " StationName=" << stationName(i) << " StationEta=" << stationEta(i) << " StationPhi=" << stationPhi(i)
 		   << " eta:["  << m_reg_dict[i].etaMin << "," << m_reg_dict[i].etaMax << "]"
 		   << " phi:[" << m_reg_dict[i].phiMin << "," << m_reg_dict[i].phiMax << "]"
-		   << " theta:[" << m_util->calc_theta(m_reg_dict[i].etaMin) << "," << m_util->calc_theta(m_reg_dict[i].etaMax) << "]");
+		   << " theta:[" << m_util.calc_theta(m_reg_dict[i].etaMin) << "," << m_util.calc_theta(m_reg_dict[i].etaMax) << "]");
     ++i;
   }
   /*
-  ATH_MSG_DEBUG( "m_isMC=" << m_isMC );  
+  ATH_MSG_DEBUG( "m_isMC=" << m_isMC );
   if (!m_isMC){
     initializePosCorrectionParameters();
     initializeDictionaryForData();
   }
   */  
   initializeHashDictionary();
- 
-  
+
+
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode CscRegDict :: finalize(){
-  ATH_MSG_DEBUG("Finalizing CscRegDict - package version " << PACKAGE_VERSION);
-  
-  delete m_util; m_util=0;
-  
-  return StatusCode::SUCCESS;
-}
-
 
 
 int CscRegDict :: get_hash(int stationname, int stationeta, int stationphi){
-  
-  
+
   int sname, seta, sphi;
   if (stationname == 50 || stationname == 51)  sname = stationname-50;
   else {  ATH_MSG_DEBUG( "stationname is out of [50,51]");
@@ -169,10 +139,7 @@ int CscRegDict :: get_hash(int stationname, int stationeta, int stationphi){
   }
   
   return m_module_hashes[sname][seta][sphi];
-  
 }
-
-
 
 
 

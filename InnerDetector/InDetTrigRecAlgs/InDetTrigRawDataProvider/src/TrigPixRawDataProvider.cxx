@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigPixRawDataProvider.h"
@@ -77,7 +77,7 @@ namespace InDet {
     } 
 
     //RDO container
-    m_container = new PixelRDO_Container(m_id->wafer_hash_max()); 
+    m_container = new PixelRDO_Container(m_id->wafer_hash_max(), EventContainers::Mode::OfflineFast); 
     m_container ->addRef();       // make sure it is never deleted
 
 
@@ -112,7 +112,7 @@ namespace InDet {
     }
 
     if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
-      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<int>::min());
+      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min());
       ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
     } else {
       ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));

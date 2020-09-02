@@ -19,14 +19,14 @@ conddb.blockFolder("/TRT/Cond/DigVers")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
 
 ###################################################
-print "RT OVERRIDE, for CONDBR2-BLKPA-2015-12"
+printfunc ("RT OVERRIDE, for CONDBR2-BLKPA-2015-12")
 #See https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=CONDBR2-BLKPA-2015-15#INDET
 
 conddb.blockFolder("/MDT/T0BLOB")
 conddb.addFolderWithTag("MDT_OFL","/MDT/T0BLOB","MDTT0-UPD4-13",force=True,forceData=True)
 
 if not "EOJT_alignMC" in globals():
-    print "EOJT_alignMC not found in globals(), so aligning ID to data conditions"
+    printfunc ("EOJT_alignMC not found in globals(), so aligning ID to data conditions")
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign-BLK-UPD4-08",force=True,forceData=True)
     conddb.blockFolder("/LAR/Align")
@@ -34,7 +34,7 @@ if not "EOJT_alignMC" in globals():
     conddb.blockFolder("/Indet/Align")
     conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-BLK-UPD4-09",force=True,forceData=True)
 else:
-    print "EOJT_alignMC found in globals(), so aligning ID to MC conditions"
+    printfunc ("EOJT_alignMC found in globals(), so aligning ID to MC conditions")
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign_Nominal2",force=True,forceMC=True)
     conddb.blockFolder("/LAR/Align")
@@ -48,7 +48,7 @@ else:
 
 #to run overlay chain with trigger                                                            
 if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (hasattr(recAlgs,'doTrigger') and recAlgs.doTrigger() and DetFlags.LVL1_on()):
-    print "running with trigger" 
+    printfunc ("running with trigger" )
     conddb.blockFolder("/PIXEL/HLT/DCS/HV")
     conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-RUN2-UPD1-00",force=True,forceData=True)
     conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
@@ -56,7 +56,7 @@ if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (has
     conddb.addOverride("/GLOBAL/Onl/TrigBTagCalib/RUN12","TrigBTagCalibRUN12Onl-08-10")
     conddb.addOverride("/GLOBAL/Onl/BTagCalib/RUN12","BTagCalibRUN12Onl-08-15")
 else:
-    print "running wint no trig  "
+    printfunc ("running wint no trig  ")
     conddb.blockFolder("/PIXEL/DCS/HV")
     conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/HV","PixDCSHV-SIM-RUN1-000-00",force=True,forceMC=True)
     conddb.blockFolder("/PIXEL/PixReco")                                                                         

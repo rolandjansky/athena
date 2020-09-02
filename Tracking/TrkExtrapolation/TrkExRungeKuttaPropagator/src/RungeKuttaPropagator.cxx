@@ -19,20 +19,23 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 
+
+/// enables -ftree-vectorize in gcc 
+#include "CxxUtils/vectorize.h"
+ATH_ENABLE_VECTORIZATION;
+
 /////////////////////////////////////////////////////////////////////////////////
 // Constructor
 /////////////////////////////////////////////////////////////////////////////////
 
 Trk::RungeKuttaPropagator::RungeKuttaPropagator
 (const std::string& p,const std::string& n,const IInterface* t) :  
-  AthAlgTool(p,n,t),
-  m_fieldServiceHandle("AtlasFieldSvc",n) 
+  AthAlgTool(p,n,t)
 {
   m_dlt               = .000200;
   m_helixStep         = 1.     ; 
   m_straightStep      = .01    ;
   m_usegradient       = false  ;
-  m_fieldService      = nullptr      ;
  
   declareInterface<Trk::IPropagator>(this);   
   declareInterface<Trk::IPatternParametersPropagator>(this);
@@ -40,7 +43,6 @@ Trk::RungeKuttaPropagator::RungeKuttaPropagator
   declareProperty("MaxHelixStep"       ,m_helixStep    );
   declareProperty("MaxStraightLineStep", m_straightStep);
   declareProperty("IncludeBgradients"  , m_usegradient );
-  declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -54,20 +56,9 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
   // temporarily protect the use of the field cond object/field cache for clients with IOV callbacks
       
   // Read handle for AtlasFieldCacheCondObj
-  ATH_CHECK( m_fieldCondObjInputKey.initialize(m_useCondObj) );
-  if (m_useCondObj) ATH_MSG_INFO("initialize() init key: " << m_fieldCondObjInputKey.key());
-  else              ATH_MSG_INFO("initialize() DID NOT init key: " << m_fieldCondObjInputKey.key());
-  
+  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
+  ATH_MSG_DEBUG("initialize() init key: " << m_fieldCondObjInputKey.key());
 
-  
-  if( !m_fieldServiceHandle.retrieve() ){
-    ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-    return StatusCode::FAILURE;
-  }    
-  ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-  m_fieldService = &*m_fieldServiceHandle;
-
-//  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -77,7 +68,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
 
 StatusCode  Trk::RungeKuttaPropagator::finalize()
 {
-  ATH_MSG_INFO(name() <<" finalize() successful");
+  ATH_MSG_VERBOSE(name() <<" finalize() successful");
   return StatusCode::SUCCESS;
 }
 
@@ -203,11 +194,10 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 
   // Transform to global presentation
   //
-  Trk::RungeKuttaUtils utils;
 
   double Po[45];
   double Pn[45]; 
-  if(!utils.transformLocalToGlobal(useJac,Tp,Po)) return nullptr;
+  if(!Trk::RungeKuttaUtils::transformLocalToGlobal(useJac,Tp,Po)) return nullptr;
   Po[42]=Po[43]=Po[44]=0.;
 
   // Straight line track propagation for small step
@@ -225,7 +215,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   if(usePathLim) Wmax = fabs(Path);
 
   std::multimap<double,int> DN; double Scut[3];
-  int Nveto = utils.fillDistancesMap(DS,DN,Po,W,&Tp.associatedSurface(),Scut);
+  int Nveto = Trk::RungeKuttaUtils::fillDistancesMap(DS,DN,Po,W,&Tp.associatedSurface(),Scut);
 
   // Test conditions tor start propagation and chocse direction if D == 0
   //
@@ -288,7 +278,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
     reverted_P=false;
     //----------------------------------
 
-    bool next; SN=utils.stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next); 
+    bool next; SN=Trk::RungeKuttaUtils::stepEstimator(DS,DN,Po,Pn,W,m_straightStep,Nveto,next); 
 
     if(next) {for(int i=0; i!=45; ++i) Po[i]=Pn[i]; W+=S; Nveto=-1; }
     else     {for(int i=0; i!=45; ++i) Pn[i]=Po[i]; reverted_P=true; cache.m_newfield= true;}
@@ -392,10 +382,8 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
   cache.m_mcondition              = false;
 
 
-  Trk::RungeKuttaUtils utils;
-
   double P[64];
-  double Step = 0; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return nullptr;
+  double Step = 0; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(useJac,Tp,P)) return nullptr;
 
   const Amg::Transform3D&  T = Su.transform();  
   int ty = Su.type(); 
@@ -463,14 +451,14 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 
   bool uJ = useJac; if(returnCurv) uJ = false;
 
-  double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
+  double p[5]; Trk::RungeKuttaUtils::transformGlobalToLocal(su,uJ,P,p,Jac);
 
   if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return nullptr;}
 
 
   // Transformation to curvilinear presentation
   //
-  if(returnCurv)  utils.transformGlobalToCurvilinear(useJac,P,p,Jac);
+  if(returnCurv)  Trk::RungeKuttaUtils::transformGlobalToCurvilinear(useJac,P,p,Jac);
 
 
   if(!useJac || !Tp.covariance()) {
@@ -484,7 +472,7 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
     }
   }
 
-  AmgSymMatrix(5)* e  = utils.newCovarianceMatrix(Jac,*Tp.covariance());
+  AmgSymMatrix(5)* e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
   AmgSymMatrix(5)& cv = *e;
   
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
@@ -525,10 +513,9 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
 
   if(su == &Tp.associatedSurface()) return buildTrackParametersWithoutPropagation(Tp,Jac);
 
-  Trk::RungeKuttaUtils utils;
 
   double P[64];
-  double Step = 0.; if(!utils.transformLocalToGlobal(useJac,Tp,P)) return nullptr;
+  double Step = 0.; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(useJac,Tp,P)) return nullptr;
 
   const Amg::Transform3D&  T = Su.transform();  
   int ty = Su.type(); 
@@ -594,13 +581,13 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   if(cache.m_maxPathLimit)  returnCurv = true;
 
   bool uJ = useJac; if(returnCurv) uJ = false;
-  double p[5]; utils.transformGlobalToLocal(su,uJ,P,p,Jac);
+  double p[5]; Trk::RungeKuttaUtils::transformGlobalToLocal(su,uJ,P,p,Jac);
 
   if(B) {Amg::Vector2D L(p[0],p[1]); if(!Su.insideBounds(L,0.)) return nullptr;}
 
   // Transformation to curvilinear presentation
   //
-  if(returnCurv)  utils.transformGlobalToCurvilinear(useJac,P,p,Jac);
+  if(returnCurv)  Trk::RungeKuttaUtils::transformGlobalToCurvilinear(useJac,P,p,Jac);
 
   if(!useJac || !Tp.covariance()) {
 
@@ -613,7 +600,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
     }
   }
 
-  AmgSymMatrix(5)* e  = utils.newCovarianceMatrix(Jac,*Tp.covariance());
+  AmgSymMatrix(5)* e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
   AmgSymMatrix(5)& cv = *e;
   
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
@@ -645,8 +632,7 @@ void Trk::RungeKuttaPropagator::globalPositions
  ParticleHypothesis                ,
  const TrackingVolume*             ) const
 {
-  Trk::RungeKuttaUtils utils;
-  double P[45]; if(!utils.transformLocalToGlobal(false,Tp,P)) return;
+  double P[45]; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(false,Tp,P)) return;
   Cache cache{};
 
   // Get field cache object
@@ -682,9 +668,7 @@ const Trk::IntersectionSolution* Trk::RungeKuttaPropagator::intersect
   M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
   M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
-  Trk::RungeKuttaUtils utils;
-
-  double P[64]; if(!utils.transformLocalToGlobal(false,Tp,P)) return nullptr;
+  double P[64]; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(false,Tp,P)) return nullptr;
   double Step = 0.;
 
   const Amg::Transform3D&  T = Su.transform();  
@@ -774,9 +758,8 @@ bool Trk::RungeKuttaPropagator::propagateWithJacobian
 
   // Step estimation until surface
   //
-  Trk::RungeKuttaUtils utils;
   bool Q; double S;
-  double Step=utils.stepEstimator(kind,Su,P,Q); if(!Q) return false;
+  double Step=Trk::RungeKuttaUtils::stepEstimator(kind,Su,P,Q); if(!Q) return false;
 
   bool dir = true;
   if(cache.m_mcondition && cache.m_direction && cache.m_direction*Step < 0.)  {
@@ -1390,8 +1373,7 @@ void Trk::RungeKuttaPropagator::globalPositions
  double                             mS,
  ParticleHypothesis                   ) const
 {
-  Trk::RungeKuttaUtils utils;
-  double P[45]; if(!utils.transformLocalToGlobal(false,Tp,P)) return;
+  double P[45]; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(false,Tp,P)) return;
 
   Cache cache{};
 
@@ -1428,10 +1410,9 @@ void Trk::RungeKuttaPropagator::globalPositions
   M.magneticFieldMode() == Trk::FastField ? cache.m_solenoid     = true : cache.m_solenoid     = false;  
   M.magneticFieldMode() != Trk::NoField   ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
-  Trk::RungeKuttaUtils utils;
 
   double Step = 0.;
-  double P[64]; if(!utils.transformLocalToGlobal(false,Tp,P)) return;
+  double P[64]; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(false,Tp,P)) return;
 
 
   std::list<const Trk::Surface*>::iterator su = SU.begin();
@@ -1525,9 +1506,8 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   (useJac && m_usegradient) ? cache.m_needgradient = true : cache.m_needgradient = false; 
   M.magneticFieldMode() != Trk::NoField    ? cache.m_mcondition   = true : cache.m_mcondition   = false;
 
-  Trk::RungeKuttaUtils utils;
 
-  double P[45]; if(!utils.transformLocalToGlobal(useJac,Ta,P)) return false; Step = 0.;
+  double P[45]; if(!Trk::RungeKuttaUtils::transformLocalToGlobal(useJac,Ta,P)) return false; Step = 0.;
 
   const Amg::Transform3D&  T = Su.transform();  
   int ty = Su.type(); 
@@ -1592,7 +1572,7 @@ bool Trk::RungeKuttaPropagator::propagateRungeKutta
   }
 
   double p[5];
-  double Jac[21]; utils.transformGlobalToLocal(su,useJac,P,p,Jac);
+  double Jac[21]; Trk::RungeKuttaUtils::transformGlobalToLocal(su,useJac,P,p,Jac);
 
   // New simple track parameters production
   //
@@ -1673,8 +1653,7 @@ double Trk::RungeKuttaPropagator::stepEstimatorWithCurvature
 {
   // Straight step estimation
   //
-  Trk::RungeKuttaUtils utils;
-  double  Step = utils.stepEstimator(kind,Su,P,Q); if(!Q) return 0.; 
+  double  Step = Trk::RungeKuttaUtils::stepEstimator(kind,Su,P,Q); if(!Q) return 0.; 
   double AStep = fabs(Step);
   if( kind || AStep < m_straightStep || !cache.m_mcondition ) return Step;
 
@@ -1687,7 +1666,7 @@ double Trk::RungeKuttaPropagator::stepEstimatorWithCurvature
   double As    = 1./sqrt(Ax*Ax+Ay*Ay+Az*Az);
 
   double PN[6] = {P[0],P[1],P[2],Ax*As,Ay*As,Az*As};
-  double StepN = utils.stepEstimator(kind,Su,PN,Q); if(!Q) {Q = true; return Step;}
+  double StepN = Trk::RungeKuttaUtils::stepEstimator(kind,Su,PN,Q); if(!Q) {Q = true; return Step;}
   if(fabs(StepN) < AStep) return StepN;
   return Step;
 } 
@@ -1917,7 +1896,6 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
 
   // Transformation track parameters
   //
-  Trk::RungeKuttaUtils utils;
   bool useJac; Tp.covariance() ? useJac = true : useJac = false;
 
   if(useJac) {
@@ -1925,11 +1903,11 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::crossPoint
   }
   double p[5];
   double Jac[25]; 
-  utils.transformGlobalToLocal(SU[N].first,useJac,P,p,Jac);
+  Trk::RungeKuttaUtils::transformGlobalToLocal(SU[N].first,useJac,P,p,Jac);
 
   if(!useJac) return SU[N].first->createTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr); 
 
-  AmgSymMatrix(5)* e  = utils.newCovarianceMatrix(Jac,*Tp.covariance());
+  AmgSymMatrix(5)* e  = Trk::RungeKuttaUtils::newCovarianceMatrix(Jac,*Tp.covariance());
   AmgSymMatrix(5)& cv = *e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
@@ -2010,21 +1988,18 @@ void Trk::RungeKuttaPropagator::propagateStep(const EventContext& ctx,
 void Trk::RungeKuttaPropagator::getFieldCacheObject( Cache& cache,const EventContext& ctx) const
 {
 
-    if (m_useCondObj) {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
 
-        SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
-        const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-        if (fieldCondObj == nullptr) {
+        // temporarily protect for when cache a cannot be retrieved in an IOV callback
+        ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
+                      << ". Skipping use of field cache!");
 
-            // temporarily protect for when cache a cannot be retrieved in an IOV callback
-            ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key()
-                          << ". Skipping use of field cache!");
-
-            // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
-            // return;
-        }
-        fieldCondObj->getInitializedCache (cache.m_fieldCache);
+        // ATH_MSG_ERROR("extrapolate: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+        // return;
     }
+    fieldCondObj->getInitializedCache (cache.m_fieldCache);
 
 }
 

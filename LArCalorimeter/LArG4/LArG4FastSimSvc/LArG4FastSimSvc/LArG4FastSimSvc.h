@@ -11,7 +11,7 @@
 // Minimal service includes
 #include "GaudiKernel/StatusCode.h"
 //#include "GaudiKernel/Service.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "G4Electron.hh"
 #include "G4Positron.hh"
@@ -26,9 +26,7 @@
 
 template <class TYPE> class SvcFactory;
 
-namespace HepMC {
-	class IO_GenEvent;
-}
+#include "AtlasHepMC/IO_GenEvent_fwd.h"
 
 
  /**

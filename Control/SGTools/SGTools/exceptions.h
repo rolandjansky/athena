@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file SGTools/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -17,6 +15,7 @@
 #define SGTOOLS_EXCEPTIONS_H
 
 
+#include "AthenaKernel/sgkey_t.h"
 #include "GaudiKernel/ClassID.h"
 #include <typeinfo>
 #include <stdexcept>
@@ -64,6 +63,7 @@ private:
  * @param id CLID of the DataProxy.
  * @param tid Type to which we're trying to convert the object.
  */
+[[noreturn]]
 void throwExcBadDataProxyCast (CLID id, const std::type_info& tid);
 
 
@@ -88,6 +88,30 @@ public:
    */
   ExcProxyCollision (CLID id, const std::string& key,
                      CLID primary_id, const std::string& primary_key);
+};
+
+
+/**
+ * @brief Exception --- sgkey hash collision
+ *
+ * We're trying to add a new non-transient key to a store, but the
+ * key+clid hashes to a sgkey_t value that's already used.
+ */
+class ExcSgkeyCollision
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor.
+   * @param new_key String SG key of the new item we're trying to add.
+   * @param new_clid CLID for the new item we're trying to add.
+   * @param old_key String SG key of the existing item.
+   * @param old_clid CLID for the existing item.
+   * @param sgkey Hashed key of both.
+   */
+  ExcSgkeyCollision (const std::string& new_key, CLID new_clid,
+                     const std::string& old_key, CLID old_clid,
+                     sgkey_t sgkey);
 };
 
 

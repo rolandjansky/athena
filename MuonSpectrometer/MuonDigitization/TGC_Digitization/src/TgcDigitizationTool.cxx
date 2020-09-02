@@ -329,8 +329,8 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
   
 	// record the digit container in StoreGate
 	bool duplicate = false;
-	TgcDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
-	if(digitContainer->end() ==  it_coll) {
+	auto coll = digitContainer->indexFindPtr(coll_hash);
+	if(nullptr ==  coll) {
 	  digitCollection = new TgcDigitCollection(elemId, coll_hash);
 	  ATH_MSG_DEBUG("Digit Id(1st) = " << m_idHelper->show_to_string(newDigiId)
 			<< " BC tag = " << newBcTag << " Coll. key = " << coll_hash); 
@@ -342,7 +342,7 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 	    ATH_MSG_DEBUG("New TgcHitCollection with key=" << coll_hash << " recorded in StoreGate."); 
 	  }
 	} else {
-	  digitCollection = const_cast<TgcDigitCollection*>(*it_coll);
+	  digitCollection = const_cast<TgcDigitCollection*>(coll);
 
 	  // to avoid to store digits with identical id
 	  TgcDigitCollection::const_iterator it_tgcDigit;
@@ -383,7 +383,9 @@ StatusCode TgcDigitizationTool::digitizeCore(const EventContext& ctx) const {
 	  // link to MC info
 	  //const HepMcParticleLink & particleLink = hit.particleLink();
 	  // create here deposit for MuonSimData, link and tof
-	  MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId()), MuonMCData(tof, 0));
+          const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+          const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
+	  MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag), MuonMCData(tof, 0));
 
 	  std::vector<MuonSimData::Deposit> deposits;
 	  deposits.push_back(deposit);

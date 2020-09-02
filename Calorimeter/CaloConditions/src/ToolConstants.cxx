@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ToolConstants.cxx,v 1.5 2009-04-09 14:41:17 ssnyder Exp $
 /**
  * @file  ToolConstants.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +11,7 @@
 
 #include "CaloConditions/ToolConstants.h"
 #include "GaudiKernel/GaudiException.h"
+#include <sstream>
 
 
 namespace CaloRec {
@@ -61,8 +60,13 @@ ToolConstants::getrep (const std::string& context,
                        const std::string& key) const
 {
   Maptype::const_iterator i = m_map.find (key);
-  if (i == m_map.end())
-    error (context, key, "Can't find key");
+  if (i == m_map.end()) {
+    std::ostringstream ss;
+    for (const auto& p : m_map) {
+      ss << " " << p.first;
+    }
+    error (context, key, "Can't find key in" + ss.str());
+  }
   return i->second;
 }
 
@@ -76,6 +80,18 @@ void ToolConstants::setrep (const std::string& key,
                             const CxxUtils::Arrayrep& rep)
 {
   m_map[key] = rep;
+}
+
+
+/**
+ * @brief Set an entry.
+ * @param key The key of the entry to set.
+ * @param rep The value of the new entry.
+ */
+void ToolConstants::setrep (const std::string& key,
+                            CxxUtils::Arrayrep&& rep)
+{
+  m_map[key] = std::move (rep);
 }
 
 
@@ -116,6 +132,18 @@ void ToolConstants::writeConstants(std::ostream& stream,
     it->second.write_array(stream);
   }
   stream << std::endl;
+}
+
+
+/**
+ * @brief Return the data as a formatted string.
+ * @param name Name of the Maker-Algorithm.
+ */
+std::string ToolConstants::toString (const std::string& name) const
+{
+  std::ostringstream ss;
+  writeConstants (ss, name);
+  return ss.str();
 }
 
 

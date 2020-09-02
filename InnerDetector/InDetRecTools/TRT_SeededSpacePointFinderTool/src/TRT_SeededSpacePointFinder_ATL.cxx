@@ -14,7 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "TrkSpacePoint/SpacePointCLASS_DEF.h" 
+#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 #include "TRT_SeededSpacePointFinderTool/TRT_SeededSpacePointFinder_ATL.h"
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
 
@@ -43,8 +43,6 @@ using namespace std;
 InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_fieldServiceHandle("AtlasFieldSvc",n),
-    m_fieldService(nullptr),
     m_sctId(nullptr)
 {
   m_fieldmode = "MapSolenoid"              ;
@@ -67,10 +65,9 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
   m_loadFull  = true    ;  //Load all the Si space points, otherwise only from the last 3 SCT layers
   m_doCosmics = false   ;  //Disable seed selection cuts when reconstructing cosmics tracks
 
-  
+
   declareInterface<ITRT_SeededSpacePointFinder>(this);
 
-  declareProperty("MagneticTool"          ,m_fieldServiceHandle    );
   declareProperty("MagneticFieldMode"     ,m_fieldmode             );
   declareProperty("pTmin"                 ,m_ptmin                 );
   declareProperty("NeighborSearch"        ,m_search                );
@@ -83,7 +80,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::TRT_SeededSpacePointFinder_ATL
 }
 
 ///////////////////////////////////////////////////////////////////
-// Destructor  
+// Destructor
 ///////////////////////////////////////////////////////////////////
 
 InDet::TRT_SeededSpacePointFinder_ATL::~TRT_SeededSpacePointFinder_ATL()
@@ -96,27 +93,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::~TRT_SeededSpacePointFinder_ATL()
 
 StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 {
- 
-  
-  // Get magnetic field service
-  if(m_fieldmode != "NoField" ) {
-    
-    if( !m_fieldServiceHandle.retrieve() ){
-      ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
-      return StatusCode::FAILURE;
-    }   
-    ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
-    m_fieldService = &*m_fieldServiceHandle;
-  }
-
-  magneticFieldInit(); 
+  magneticFieldInit();
 
   // PRD-to-track association (optional)
   ATH_CHECK( m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty()));
-
-  ////////////////////////////////////////////////////////////////////////////////
   ATH_CHECK( m_fieldCondObjInputKey.initialize());
-  ////////////////////////////////////////////////////////////////////////////////
   StatusCode sc = detStore()->retrieve(m_sctId, "SCT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get SCT_ID helper !" << endmsg;
@@ -132,7 +113,7 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 
   ATH_CHECK(m_spacepointsPixname.initialize());
   ATH_CHECK(m_spacepointsSCTname.initialize());
-  ATH_CHECK(m_spacepointsOverlapname.initialize()); 
+  ATH_CHECK(m_spacepointsOverlapname.initialize());
 
   return sc;
 }
@@ -148,7 +129,7 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::finalize()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Initialize tool for new event 
+// Initialize tool for new event
 ///////////////////////////////////////////////////////////////////
 
 std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData>
@@ -164,11 +145,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
   r_Sorted.resize(event_data_p->m_r_size);
 
   if(m_loadFull){
-    // Get pixel space points containers from store gate 
+    // Get pixel space points containers from store gate
     //
     SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
     if (spacepointsPix.isValid()) {
-     SpacePointContainer::const_iterator spc =  spacepointsPix->begin  (); 
+     SpacePointContainer::const_iterator spc =  spacepointsPix->begin  ();
       SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
 
       for(; spc != spce; ++spc) {
@@ -178,8 +159,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
         for(; sp != spe; ++sp) {
 
 	  double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
-	  int   ir = int(r*irstep); 
-	  const Trk::SpacePoint* sps = (*sp); 
+	  int   ir = int(r*irstep);
+	  const Trk::SpacePoint* sps = (*sp);
           r_Sorted[ir].push_back(sps);
           ++event_data_p->m_r_map[ir];
 	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
@@ -219,8 +200,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
         }
 
         double r = (*sp)->r(); if(r<r_rmin || r>=m_r_rmax) continue;
-	int   ir = int(r*irstep); 
-	const Trk::SpacePoint* sps = (*sp); 
+	int   ir = int(r*irstep);
+	const Trk::SpacePoint* sps = (*sp);
         r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
 	if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
 	++event_data_p->m_ns;
@@ -228,7 +209,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
     }
   }
 
-  // Get sct overlap space points containers from store gate 
+  // Get sct overlap space points containers from store gate
   //
   SG::ReadHandle<SpacePointOverlapCollection> spacepointsOverlap(m_spacepointsOverlapname);
   if (spacepointsOverlap.isValid()) {
@@ -245,8 +226,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::newEvent () const
       }
 
       double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
-      int   ir = int(r*irstep); 
-      const Trk::SpacePoint* sps = (*sp); 
+      int   ir = int(r*irstep);
+      const Trk::SpacePoint* sps = (*sp);
       r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
       if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
       ++event_data_p->m_ns;
@@ -273,29 +254,25 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
   double irstep = 1./m_r_rstep;
 
   if(m_loadFull && vPixel.size()){
-    // Get pixel space points containers from store gate 
+    // Get pixel space points containers from store gate
     //
     SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
     if (spacepointsPix.isValid()) {
-      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
-
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
       // Loop through all trigger collections
       //
       for(; l!=le; ++l) {
-	
-	SpacePointContainer::const_iterator  w =  spacepointsPix->indexFind((*l));
-	if(w==spce) continue;
 
-
-        SpacePointCollection::const_iterator sp  = (*w)->begin();
-        SpacePointCollection::const_iterator spe = (*w)->end  ();
+	const SpacePointCollection  *w =  spacepointsPix->indexFindPtr(*l);
+	if(w==nullptr) continue;
+        SpacePointCollection::const_iterator sp  = w->begin();
+        SpacePointCollection::const_iterator spe = w->end  ();
         for(; sp != spe; ++sp) {
 
 	  double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
-	  int   ir = int(r*irstep); 
-	  const Trk::SpacePoint* sps = (*sp); 
+	  int   ir = int(r*irstep);
+	  const Trk::SpacePoint* sps = (*sp);
           r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
 	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
 	  ++event_data_p->m_ns;
@@ -304,7 +281,7 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
     }
   }
 
-  // Get sct space points containers from store gate 
+  // Get sct space points containers from store gate
   //
   if(vSCT.size()) {
 
@@ -318,9 +295,6 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
           ATH_MSG_ERROR("Failed to read PRD to track association map.");
         }
       }
-      //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
-
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
       // Loop through all trigger collections
@@ -328,11 +302,10 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
       double r_rmin = (!m_loadFull) ? m_r2min : m_r_rmin;
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
-	if(w==spce) continue;
-
-        SpacePointCollection::const_iterator sp  = (*w)->begin();
-        SpacePointCollection::const_iterator spe = (*w)->end  ();
+	const SpacePointCollection  *w =  spacepointsSCT->indexFindPtr(*l);
+	if(w==nullptr) continue;
+        SpacePointCollection::const_iterator sp  = w->begin();
+        SpacePointCollection::const_iterator spe = w->end  ();
         for(; sp != spe; ++sp) {
 
           if(prd_to_track_map.cptr()){
@@ -343,8 +316,8 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
           }
 
           double r = (*sp)->r(); if(r<r_rmin || r>=m_r_rmax) continue;
-	  int   ir = int(r*irstep); 
-	  const Trk::SpacePoint* sps = (*sp); 
+	  int   ir = int(r*irstep);
+	  const Trk::SpacePoint* sps = (*sp);
           r_Sorted[ir].push_back(sps); ++event_data_p->m_r_map[ir];
 	  if(event_data_p->m_r_map[ir]==1) event_data_p->m_r_index[event_data_p->m_nr++] = ir;
 	  ++event_data_p->m_ns;
@@ -405,7 +378,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const EventContext& ctx,
 
 MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_fieldServiceHandle.type().size();
+  int n = 42-m_fieldCondObjInputKey.key().size();
   std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
   n     = 42-m_spacepointsSCTname.key().size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
@@ -416,15 +389,15 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
 			     "ToroidalField" ,"Grid3DField"  ,"RealisticField" ,
 			     "UndefinedField","AthenaField"  , "?????"         };
 
-  int mode = m_fieldprop.magneticFieldMode(); 
-  if(mode<0 || mode>8 ) mode = 8; 
+  int mode = m_fieldprop.magneticFieldMode();
+  if(mode<0 || mode>8 ) mode = 8;
 
   n     = 62-fieldmode[mode].size();
   std::string s5; for(int i=0; i<n; ++i) s5.append(" "); s5.append("|");
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Tool for magentic field | "<<m_fieldServiceHandle.type()<<s1
+  out<<"| Key of magentic field condition Object | "<<m_fieldCondObjInputKey.key()<<s1
      <<std::endl;
   out<<"| SCT      space points   | "<<m_spacepointsSCTname.key()<<s3
      <<std::endl;
@@ -436,7 +409,7 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpConditions( MsgStream& out
      <<std::setw(12)<<std::setprecision(5)<<m_ptmin
      <<"                              |"<<std::endl;
   out<<"| max radius SP           | "
-     <<std::setw(12)<<std::setprecision(5)<<m_r_rmax 
+     <<std::setw(12)<<std::setprecision(5)<<m_r_rmax
      <<"                              |"<<std::endl;
   out<<"| radius step             | "
      <<std::setw(12)<<std::setprecision(5)<<m_r_rstep
@@ -504,7 +477,7 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out, InD
   out<<"|---------------------------------------------------------------------|"
      <<"\n";
 
-  if(msgLvl(MSG::DEBUG)) return out; 
+  if(msgLvl(MSG::DEBUG)) return out;
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
@@ -516,9 +489,9 @@ MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dumpEvent( MsgStream& out, InD
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
   out<<"-------|-------|-------|-------|-------|-------|"
      <<"\n";
-  
+
   double sF1 = pi2/double(event_data.m_fNmax+1);
-  
+
   //StreamState restore_precision(out);
   auto prec(out.precision());
   for(int f=0; f<=event_data.m_fNmax; ++f) {
@@ -562,7 +535,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::EventData::buildFrameWork(double r_r
   //
   m_r_size = int((r_rmax+.1)/r_rstep);
   m_r_index  = new int[m_r_size];
-  m_r_map    = new int[m_r_size];  
+  m_r_map    = new int[m_r_size];
   m_nr   = 0; for(int i=0; i!=m_r_size; ++i) {m_r_index[i]=0; m_r_map[i]=0;}
 
   // Build radius-azimuthal sorted containers
@@ -594,12 +567,12 @@ void InDet::TRT_SeededSpacePointFinder_ATL::fillLists(std::vector< std::vector<c
       //
       double F = space_point->phi(); if(F<0.) F+=pi2;
       int   f = int(F*event_data.m_sF);
-      if (f < 0) 
+      if (f < 0)
         f += event_data.m_fNmax;
       else if (f > event_data.m_fNmax)
         f -= event_data.m_fNmax;
       int isBRL = 1000; int isLYR = 1000; int DD = 1000;
- 
+
       geoInfo(space_point,isBRL,isLYR);
 
       // Use 4 lower bits (Mask ==  ((2^4 -1) == 15)) for isLYR
@@ -664,9 +637,9 @@ rollrating(double angle) {
 // checks for the angle to be within a specified region,
 // only the upper and the lower boundaries have to calculated,
 // once again, not in the inner loop but just once
-// The logic is: 
+// The logic is:
 // {lower <= angle <= upper_} necessary and sufficient for
-// {rollrating(lower) <= rollrating(angle) <= rollrating(upper)}  
+// {rollrating(lower) <= rollrating(angle) <= rollrating(upper)}
 void
 bracket_angle(double angle, double delta,
 	      double *min, double *max) {
@@ -702,18 +675,18 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
                                                       int phi,
                                                       std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> > &outputListBuffer,
                                                       InDet::TRT_SeededSpacePointFinder_ATL::EventData &event_data) const
-{ 
+{
   uint64_t spcount = 0;
   // // // // // // <Fill the invar_bypass // // // // // // //
 
-  //const Trk::MeasuredAtaStraightLine &ntP = 
+  //const Trk::MeasuredAtaStraightLine &ntP =
   //dynamic_cast<const Trk::MeasuredAtaStraightLine&>(tP);
   const AmgVector(5)& pTS=tP.parameters();
   double xiC = m_xiC; double xiTC = m_xiTC; double xiFC = m_xiFC;
 
 
   const AmgSymMatrix(5)* vCM = tP.covariance();
-  
+
   double sPhi = (*vCM)(2,2)  ; //Sigma on TRT segment azimuthal angle
   double sTheta = (*vCM)(3,3); //Sigma on TRT segment polar angle
   double sp = (*vCM)(4,4)    ; //Sigma on TRT segment inverse momentum estimate
@@ -740,26 +713,22 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 
   // // // // // // Fill the invar_bypass> // // // // // // //
 
-  ///Get the momentum information from the track parameters 
-  double x0=tP.position().x()  ; 
+  ///Get the momentum information from the track parameters
+  double x0=tP.position().x()  ;
   double y0=tP.position().y()  ;
   double z0=tP.position().z()  ;
   double H[3]; double gP[3] = {x0,y0,z0};
-
-  MagField::AtlasFieldCache    fieldCache;
 
   // Get field cache object
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
-    ATH_MSG_ERROR("production2Spb: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    ATH_MSG_ERROR("TRT_SeededSpacePointFinder_ATL: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
     return;
   }
+  MagField::AtlasFieldCache    fieldCache;
   fieldCondObj->getInitializedCache (fieldCache);
-
-  //   MT version uses cache, temporarily keep old version
-  if (fieldCache.useNewBfieldCache()) fieldCache.getField     (gP, H);
-  else                                m_fieldService->getField(gP, H);
+  fieldCache.getField (gP, H);
 
   //need conversion kilotesla -> kilogauss - Previously used getMagneticFiledKiloGauss, whereas new function returns value in kiloTesla...
   H[0] *= 10000;
@@ -785,12 +754,12 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 
     ///Fill a list with the SP in the azimouthal region indicated by the TRT track segment
     for(; r0!=r0e; ++r0){
-      if((((*r0).first)->r() > m_r1max) || 
+      if((((*r0).first)->r() > m_r1max) ||
 	 (((*r0).first)->r() < m_r2min)) {
 	continue; //Fill only the SCT SPs
       }
       event_data.m_newRfi_Sorted.push_back(*r0);
-      nri++;      
+      nri++;
     }
   }
 
@@ -804,14 +773,14 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
       }
       r0 = event_data.m_rf_Sorted[j].begin();
       r0e = event_data.m_rf_Sorted[j].end();
-      
+
       ///Fill a list with the SP in the azimouthal region indicated by the TRT track segment
       for(; r0!=r0e; ++r0){
 	if((((*r0).first)->r()>m_r1max) || (((*r0).first)->r()<m_r2min)) {
 	  continue; //Fill only the SCT SPs
 	}
 	event_data.m_newRfi_Sorted.push_back(*r0);
-	nri++;      
+	nri++;
       }
     }
   }
@@ -845,7 +814,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 	  geo_info.push_back((*r).second);
 	  vrp.push_back(vrpi);
 	  rk.push_back(vrpi->r());
-      
+
 	  double X = vrpi->globalPosition().x() - x0;
 	  double Y = vrpi->globalPosition().y() - y0;
 	  double zSPi = vrpi->globalPosition().z();
@@ -859,11 +828,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 	  double a = X*invR;
 	  double b = Y*invR;
 
-	  tmp_prod_bypass.push_back(bypass_struct()); 
+	  tmp_prod_bypass.push_back(bypass_struct());
 	  tmp_prod_bypass.back().X = X;
 	  tmp_prod_bypass.back().Y = Y;
 	  tmp_prod_bypass.back().Z = Z;
-      
+
 	  tmp_prod_bypass.back().R = R;
 	  tmp_prod_bypass.back().invR = invR;
 
@@ -872,7 +841,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
   }
 
   // // // // // // Fill m_prod_bypass and the local array> // // // //
-    
+
   ///////////////////////////////////////////////////////
 
   if (m_doCosmics) { // no need to check this every time in the loop
@@ -896,12 +865,12 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 		  double R = rk[i];
 		  if(R<m_r12min) {
 			  continue;
-		  }   
+		  }
 		  double Z = zSP[i];
 		  long geoi = geo_info[i];
 		  int isBU = (geoi >> 4)-3;
 		  int eleU = geoi & 15;
-    
+
 		  for (long j = i + 1; j < (long)spcount; j++) {
 			  const Trk::SpacePoint *bp = vrp[j];
 			  double Zb = zSP[j];
@@ -910,12 +879,12 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 			  int isBB = (geoj >> 4)-3;
 			  int eleB = geoj & 15;
 			  // // // // // // // // // // // // // // // // // // // // // //
-	
+
 			  // Equivalent to  {
 			  // if ((isBU == 0) && (isBB != isBU)) continue;
 			  // if((isBU == isBB) && (eleU <= eleB)) continue;
 			  // }
-			  // Rather cryptic but 2 to 3 times faster 
+			  // Rather cryptic but 2 to 3 times faster
 			  // than the 4 branches above...
 
 			  int Bd = (isBU - isBB) | (isBB - isBU);
@@ -924,8 +893,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 			  if (((BUzero | ~Bd) & (Bd | Ed) & (((unsigned)(-1) >> 1) + 1))
 			      == 0) {
 				  continue;
-			  }	
-	  
+			  }
+
 			  // // // // // // // // // // // // // // // // // // // // // //
 			  double dR = R - Rb;
 			  double dZ = Z - Zb;
@@ -934,7 +903,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const EventContext& ctx,
 			  if (dZ < dz_min || dZ > dz_max) {
 				  continue;//Should be within the +-2.5 pseudorapidity range
 			  }
-			  if(m_fieldServiceHandle->solenoidOn()) {
+			  if(fieldCache.solenoidOn()) {
 				  if(!cutTPb(tmp_invar_bypass, tmp_prod_bypass,i, j, H[2])) {
 					  continue;
 				  }
@@ -984,7 +953,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
   double T = -z1/(r1*(1.0 + 0.04*rcrc));
 
   if(H==0.) return false;
-  
+
   double invpSignature = B*H;
 
   double invP2 = CC/(0.03*0.03*H*H*(1.0 + T*T));
@@ -998,7 +967,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
 
   double invp_min2 = tmp_invar_bypass.invp_min2;
   double invp_max2 = tmp_invar_bypass.invp_max2;
-  
+
   if (invp_min >= 0) {
     if (invpSignature < 0 || invP2 < invp_min2) {
       return false;
@@ -1019,7 +988,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
       return false;
     }
   }
-  
+
   //Estimate the seed polar angle. Make a chi2 cut based on that suggested by the TRT segment
 
   double theta_rating = rotrating(1.0, T);
@@ -1030,14 +999,14 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
 #ifndef ANGLE_DISCO_COMPAT
   // correct math but incompatible with old version
     if (theta_rating >= 0) {
-      tmax += 4.0; 
+      tmax += 4.0;
     }
     else {
       tmin -= 4.0;
     }
 #else
   // compatibility mode
-    if (tmin + tmax <= 0) { 
+    if (tmin + tmax <= 0) {
       // center in "+" (YES, "+") range; any negative theta_rating => false
       tmax = 2.0; // forcing range into all positive
     }
@@ -1063,11 +1032,11 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
       pmax += 4.0;
     }
     else {
-      pmin -= 4.0; 
+      pmin -= 4.0;
     }
 #else
     // compatibility mode
-    if (pmin + pmax <= 0) { 
+    if (pmin + pmax <= 0) {
       // center in "+" (YES, "+") range; any negative phi_rating => false
       pmax = 2.0; // forcing range into all positive
     }
@@ -1092,9 +1061,9 @@ InDet::TRT_SeededSpacePointFinder_ATL::cutTPb(const invar_bypass_struct  &tmp_in
 // Check whether the SP belongs to a barrel or an endcap element
 ///////////////////////////////////////////////////////////////////
 
-void 
+void
 InDet::TRT_SeededSpacePointFinder_ATL::geoInfo(const Trk::SpacePoint* SP,int& isB,int& ld) const
-{  
+{
   const Trk::PrepRawData* p1;
   const InDet::SCT_Cluster* c1;
   Identifier id;

@@ -12,22 +12,21 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibEvent_E.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedTrack.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedSegment.h"
-
 #include "MuonCalibEventBase/MuonCalibTruthCollection.h"
 #include "MuonCalibEventBase/MuonCalibTruth.h"
 #include "MuonCalibEventBase/MuonCalibMdtTruthHit.h"
 #include "MuonCalibEventBase/MuonCalibRpcTruthHit.h"
 #include "MuonCalibEventBase/MuonCalibTgcTruthHit.h"
 #include "MuonCalibEventBase/MuonCalibCscTruthHit.h"
-
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibEventBase/MuonCalibEvent.h"
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
 #include "MuonCalibEventBase/MuonCalibTruthCollection.h"
-
 #include "MuonCalibStl/DeleteObject.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 #include <sstream>
@@ -208,18 +207,13 @@ namespace MuonCalib{
 
       // store previous moore track so we can add the back extrapolated ones if any
       if( author == 0 ){
-// 	std::cout << " new moore track " << extendedTrack->dump() << std::endl;
 	previousMooreTrack = extendedTrack;
       }else if ( (author == 1 || author == 2 ) && previousMooreTrack ){
-// 	std::cout << "   adding track " << extendedTrack->dump() << std::endl;
 	previousMooreTrack->addAssociatedTrack(extendedTrack);
 	extendedTrack->addAssociatedTrack(previousMooreTrack);
       } else if (author == 10 &&(*track_it)->nrHits()==0) {
-// 	std::cout << " new muidSA track " << extendedTrack->dump() << std::endl;
 // Associate MuidSA/MooreExtrapolate to IP to author 0 if no hits on track
         TrackVec& trackVec0 = m_extendedTracks[0];
-//        std::cout << " author 10 track " << std::endl; 
-        bool foundAssociatedMooreTrack = false;
         double dotprodmax = -1.;
         if(trackVec0.size()>0) {
           int trackcount10 = trackVec.size();
@@ -229,10 +223,8 @@ namespace MuonCalib{
           const MuonCalibExtendedTrack* associatedMooreTrack = 0;
           for( ;it0!=it0_end; ++it0 ) {
             trackcount0++;
-//            std::cout << " trackcount0 " << trackcount0 << " trackcount10 " << trackcount10 << std::endl; 
             if(trackcount10>trackcount0) continue; 
             double dotprod =  extendedTrack->direction().dot((*it0)->direction());
-//            std::cout << " author 10 and 0 dot product " << dotprod << std::endl; 
             if(extendedTrack->isAssociated(*it0)) continue; 
             if((*it0)->isAssociated(extendedTrack)) continue; 
             if(dotprod>dotprodmax) {
@@ -244,32 +236,12 @@ namespace MuonCalib{
 	  if(dotprodmax>0.8 && associatedMooreTrack) {
             extendedTrack->addAssociatedTrack(associatedMooreTrack);
             associatedMooreTrack->addAssociatedTrack(extendedTrack);
-            foundAssociatedMooreTrack = true;
-          } else /*if (associatedMooreTrack)*/ {
-//            extendedTrack->addAssociatedTrack(associatedMooreTrack);
-//            associatedMooreTrack->addAssociatedTrack(extendedTrack);
-            foundAssociatedMooreTrack = false;
           }
         }
-        if(foundAssociatedMooreTrack) {
-//           if(dotprodmax<0.8) std::cout << " Lousy match Moore tracks size " << trackVec0.size() << std::endl;
-//           std::cout << " author 10 track associated to Moore Track " << dotprodmax << std::endl; 
-        }  
-//        if(!foundAssociatedMooreTrack) std::cout << " author 10 track NOT associated to Moore Track " << std::endl; 
       }
       
       trackVec.push_back(extendedTrack);
     }
-
-//     // only print if there is some activity in the muon system
-//     if( !m_extendedTracks.empty() && 
-// 	( (m_extendedTracks.size() > 1) ||
-// 	  m_extendedTracks.size() == 1 && !m_extendedTracks.count(1000) ) ){
-//       std::cout << " Created Extended tracks, authors: " << m_extendedTracks.size() << std::endl;
-//       AuthorTrackVecIt it = m_extendedTracks.begin();
-//       AuthorTrackVecIt it_end = m_extendedTracks.end();
-//       for( ;it!=it_end; ++it ) std::cout << "  author " << std::setw(6) << it->first << " ntracks " << it->second.size() << std::endl;
-//     }
   }
 
   void EventHandler::createExtendedTruthTracks() {
@@ -298,11 +270,11 @@ namespace MuonCalib{
     std::map <int, std::set <MuonCalibRpcTruthHit*> > truthTrkRpcHitMap;
     std::map <int, std::set <MuonCalibTgcTruthHit*> > truthTrkTgcHitMap;
 
-
+    MsgStream log(Athena::getMessageSvc(),"EventHandler");
     for ( ; truth_it!=truth_it_end; truth_it++) {
         int barcode = ((*truth_it)->barCode());
         if(barcode<=0) continue;
-        if(m_debug) std::cout << " truth track barcode " << barcode << std::endl;
+        if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"createExtendedTruthTracks() truth track barcode " << barcode << endmsg;
         if ((*truth_it)->position().perp()< 4000 && std::abs((*truth_it)->position().z())<6000.) {
           if ((*truth_it)->position().perp()< 100 && std::abs((*truth_it)->position().z())<500.)  {
 // Close to IP
@@ -341,10 +313,10 @@ namespace MuonCalib{
           if( itt== truthTrkME.end() ) {
             itt = truthTrkRest.find(barcode);
             if( itt== truthTrkRest.end() ) {
-              if(m_debug) std::cout << " Mdt Truth hit not found with barcode: " << barcode << std::endl; 
-            } else { if(m_debug) std::cout << " Mdt Truth hit at Rest " << barcode << std::endl; }
-          } else { if(m_debug) std::cout << " Mdt Truth hit at ME " << barcode << std::endl; }
-        } else { if(m_debug) std::cout << " Mdt Truth hit at IP " << barcode << std::endl; }
+              if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Mdt Truth hit not found with barcode: " << barcode<<endmsg; 
+            } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Mdt Truth hit at Rest " << barcode<<endmsg; }
+          } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Mdt Truth hit at ME " << barcode<<endmsg; }
+        } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Mdt Truth hit at IP " << barcode<<endmsg; }
     } 
 
     if(truthTrkMdtHitMap.size()==0) return;
@@ -374,10 +346,10 @@ namespace MuonCalib{
           if( itt== truthTrkME.end() ) {
             itt = truthTrkRest.find(barcode);
             if( itt== truthTrkRest.end() ) {
-              if(m_debug) std::cout << " Csc Truth hit not found with barcode: " << barcode << std::endl; 
-            } else { if(m_debug) std::cout << " Csc Truth hit at Rest " << barcode << std::endl; }
-          } else { if(m_debug) std::cout << " Csc Truth hit at ME " << barcode << std::endl; }
-        } else { if(m_debug) std::cout << " Csc Truth hit at IP " << barcode << std::endl; }
+              if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Csc Truth hit not found with barcode: " << barcode<<endmsg; 
+            } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Csc Truth hit at Rest " << barcode<<endmsg; }
+          } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Csc Truth hit at ME " << barcode<<endmsg; }
+        } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Csc Truth hit at IP " << barcode<<endmsg; }
     } 
 
 //
@@ -404,10 +376,10 @@ namespace MuonCalib{
           if( itt== truthTrkME.end() ) {
             itt = truthTrkRest.find(barcode);
             if( itt== truthTrkRest.end() ) {
-              if(m_debug) std::cout << " Rpc Truth hit not found with barcode: " << barcode << std::endl; 
-            } else { if(m_debug) std::cout << " Rpc Truth hit at Rest " << barcode << std::endl; }
-          } else { if(m_debug) std::cout << " Rpc Truth hit at ME " << barcode << std::endl; }
-        } else { if(m_debug) std::cout << " Rpc Truth hit at IP " << barcode << std::endl; }
+              if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Rpc Truth hit not found with barcode: " << barcode<<endmsg; 
+            } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Rpc Truth hit at Rest " << barcode<<endmsg; }
+          } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Rpc Truth hit at ME " << barcode<<endmsg; }
+        } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Rpc Truth hit at IP " << barcode<<endmsg; }
     } 
 
 //
@@ -434,10 +406,10 @@ namespace MuonCalib{
           if( itt== truthTrkME.end() ) {
             itt = truthTrkRest.find(barcode);
             if( itt== truthTrkRest.end() ) {
-              if(m_debug) std::cout << " Tgc Truth hit not found with barcode: " << barcode << std::endl; 
-            } else { if(m_debug) std::cout << " Tgc Truth hit at Rest " << barcode << std::endl; }
-          } else { if(m_debug) std::cout << " Tgc Truth hit at ME " << barcode << std::endl; }
-        } else { if(m_debug) std::cout << " Tgc Truth hit at IP " << barcode << std::endl; }
+              if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Tgc Truth hit not found with barcode: " << barcode<<endmsg; 
+            } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Tgc Truth hit at Rest " << barcode<<endmsg; }
+          } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Tgc Truth hit at ME " << barcode<<endmsg; }
+        } else { if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Tgc Truth hit at IP " << barcode<<endmsg; }
     } 
 
 
@@ -449,7 +421,7 @@ namespace MuonCalib{
        int pdgcode = itIP->second->PDGCode();
        std::map <int, std::set <MuonCalibMdtTruthHit*> >::iterator its = truthTrkMdtHitMap.find(barcode);
        if (its!=truthTrkMdtHitMap.end()) {
-          if(m_debug) std::cout << " Truth track at IP " << barcode << " with Mdt hits " << its->second.size() << " pdg " << pdgcode << std::endl; 
+          if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track at IP " << barcode << " with Mdt hits " << its->second.size() << " pdg " << pdgcode<<endmsg; 
          double posx = itIP->second->position().x();  
          double posy = itIP->second->position().y();  
          double posz = itIP->second->position().z();  
@@ -459,7 +431,7 @@ namespace MuonCalib{
          if(pdgcode<0) qOverP = - qOverP; 
          int author = -13;
          if(std::abs(pdgcode)!=13) author = -113;
-         if(m_debug) std::cout << " pdgcode " << pdgcode << " author " << author << std::endl;
+         if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" pdgcode " << pdgcode << " author " << author<<endmsg;
          int ndof = 0;
          double cov00 = -999.;
          double cov01 = -999.;
@@ -490,7 +462,7 @@ namespace MuonCalib{
            Amg::Vector3D pos(0.,(*ith)->positionAlongTube(),0.);
            MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
            truthTrack->addHit(muonHit);   
-           if(m_debug) std::cout << " Truth track Add Mdt hit " << std::endl;     
+           if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Mdt hit "<<endmsg;     
          }
 
 	 std::map <int, std::set <MuonCalibCscTruthHit*> >::iterator itcs = truthTrkCscHitMap.find(barcode);
@@ -506,7 +478,7 @@ namespace MuonCalib{
 	     Amg::Vector3D pos(0.,0.,0.);
 	     MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	     truthTrack->addHit(muonHit);   
-	     if(m_debug) std::cout << " Truth track Add Csc hit " << std::endl;     
+	     if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Csc hit "<<endmsg;     
 	   }
          }
 
@@ -523,7 +495,7 @@ namespace MuonCalib{
 	     Amg::Vector3D pos(0.,0.,0.);
 	     MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	     truthTrack->addHit(muonHit);   
-	     if(m_debug) std::cout << " Truth track Add Rpc hit " << std::endl;     
+	     if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Rpc hit "<<endmsg;     
 	   }
          }
 
@@ -540,7 +512,7 @@ namespace MuonCalib{
 	       Amg::Vector3D pos(0.,0.,0.);
 	       MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	       truthTrack->addHit(muonHit);   
-	       if(m_debug) std::cout << " Truth track Add Tgc hit " << std::endl;     
+	       if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Tgc hit "<<endmsg;     
 	     }
          }
 
@@ -563,7 +535,7 @@ namespace MuonCalib{
        int pdgcode = itME->second->PDGCode();
        std::map <int, std::set <MuonCalibMdtTruthHit*> >::iterator its = truthTrkMdtHitMap.find(barcode);
        if (its!=truthTrkMdtHitMap.end()) {
-          if(m_debug) std::cout << " Truth track at ME " << barcode << " with Mdt hits " << its->second.size() << " pdg " << pdgcode << std::endl; 
+          if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track at ME " << barcode << " with Mdt hits " << its->second.size() << " pdg " << pdgcode<<endmsg; 
          double posx = itME->second->position().x();  
          double posy = itME->second->position().y();  
          double posz = itME->second->position().z();  
@@ -573,7 +545,7 @@ namespace MuonCalib{
          if(pdgcode<0) qOverP = - qOverP; 
          int author = -1013;
          if(std::abs(pdgcode)!=13) author = -1113;
-         if(m_debug) std::cout << " pdgcode " << pdgcode << " author " << author << std::endl;
+         if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" pdgcode " << pdgcode << " author " << author<<endmsg;
          int ndof = 0;
          double cov00 = -999.;
          double cov01 = -999.;
@@ -604,7 +576,7 @@ namespace MuonCalib{
            Amg::Vector3D pos(0.,(*ith)->positionAlongTube(),0.);
            MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
            truthTrack->addHit(muonHit);   
-           if(m_debug) std::cout << " Truth track Add Mdt hit " << std::endl;     
+           if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Mdt hit "<<endmsg;     
          }
 
 
@@ -621,7 +593,7 @@ namespace MuonCalib{
 	     Amg::Vector3D pos(0.,0.,0.);
 	     MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	     truthTrack->addHit(muonHit);   
-	     if(m_debug) std::cout << " Truth track Add Csc hit " << std::endl;     
+	     if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Csc hit "<<endmsg;     
 	   }
          }
 	 std::map <int, std::set <MuonCalibRpcTruthHit*> >::iterator itrs = truthTrkRpcHitMap.find(barcode);
@@ -637,7 +609,7 @@ namespace MuonCalib{
 	     Amg::Vector3D pos(0.,0.,0.);
 	     MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	     truthTrack->addHit(muonHit);   
-	     if(m_debug) std::cout << " Truth track Add Rpc hit " << std::endl;     
+	     if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Rpc hit "<<endmsg;     
 	   }
 	 }
 
@@ -654,7 +626,7 @@ namespace MuonCalib{
 	     Amg::Vector3D pos(0.,0.,0.);
 	     MuonCalibHit_E* muonHit = new MuonCalibHit_E(id, pos, driftRadius, error, residual, pull, 1 );
 	     truthTrack->addHit(muonHit);   
-	     if(m_debug) std::cout << " Truth track Add Tgc hit " << std::endl;     
+	     if(log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<" Truth track Add Tgc hit "<<endmsg;     
 	   }
          }
 
@@ -669,18 +641,6 @@ namespace MuonCalib{
 
        }
     } 
-//    MuonCalibEvent_E::TrackVec::const_iterator track_it = m_event->beginTrack();
-//    MuonCalibEvent_E::TrackVec::const_iterator track_it_end = m_event->endTrack();
-//    for ( ; track_it!=track_it_end; track_it++) {
-//      // reference to current track
-//      const MuonCalibTrack_E& track = **track_it;
-//      int author = track.author();
-//      TrackVec& trackVec = m_extendedTracks[author];
-//      // create new extended track and add it to TrackVec
-//      MuonCalibExtendedTrack* extendedTrack = new MuonCalibExtendedTrack(track,0,0);
-//      trackVec.push_back(extendedTrack);
-//    }
-
   }
 
   void EventHandler::createExtendedSegments() {
@@ -699,7 +659,6 @@ namespace MuonCalib{
 	
 	// get author 
 	int author = seg.author();
-	//if( !m_extendedSegments.count(author) ) std::cout << " new author " << author << std::endl;
 	SegmentVec& segVec = m_extendedSegments[author];
 
 	// create new extended segment
@@ -765,8 +724,9 @@ namespace MuonCalib{
         const MdtCalibHitBase& hit = **mdtIt;
         MuonFixedId id = hit.identify();
         if( !id.isValid() ) {
-  	  std::cout << " MuonCalibExtendedSegment(), invalid MDT id! " << std::endl;
-	  continue;
+          MsgStream log(Athena::getMessageSvc(),"EventHandler");
+          log<<MSG::WARNING<<"segmentOverlap(), invalid MDT id! "<<endmsg;
+          continue;
         }
         segmentIds.push_back(id);
       }
@@ -776,8 +736,9 @@ namespace MuonCalib{
         const MdtCalibHitBase& hit = **mdtIt;
         MuonFixedId id = hit.identify();
         if( !id.isValid() ) {
-  	  std::cout << " MuonCalibExtendedSegment(), invalid MDT id! " << std::endl;
-	  continue;
+          MsgStream log(Athena::getMessageSvc(),"EventHandler");
+          log<<MSG::WARNING<<"segmentOverlap(), invalid MDT id! "<<endmsg;
+          continue;
         }
         std::vector <MuonFixedId> ::iterator it = std::find( segmentIds.begin(), segmentIds.end(), id );
         if( it == segmentIds.end() ) {
@@ -794,7 +755,8 @@ namespace MuonCalib{
         const CscCalibHitBase& hit = **cscIt;
         MuonFixedId id = hit.identify();
         if( !id.isValid() ) {
-          std::cout << " MuonCalibExtendedSegment(), invalid CSC id! " << std::endl;
+          MsgStream log(Athena::getMessageSvc(),"EventHandler");
+          log<<MSG::WARNING<<"segmentOverlap(), invalid CSC id! "<<endmsg;
           continue;
         }
         segmentIds.push_back(id);
@@ -806,7 +768,8 @@ namespace MuonCalib{
         const CscCalibHitBase& hit = **cscIt;
         MuonFixedId id = hit.identify();
         if( !id.isValid() ) {
-          std::cout << " MuonCalibExtendedSegment(), invalid CSC id! " << std::endl;
+          MsgStream log(Athena::getMessageSvc(),"EventHandler");
+          log<<MSG::WARNING<<"segmentOverlap(), invalid CSC id! "<<endmsg;
           continue;
         }
         std::vector <MuonFixedId> ::iterator it = std::find( segmentIds.begin(), segmentIds.end(), id );
@@ -832,8 +795,9 @@ namespace MuonCalib{
       const MdtCalibHitBase& hit = **mdtIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-	std::cout << " MuonCalibExtendedSegment(), invalid MDT id! " << std::endl;
-	continue;
+        MsgStream log(Athena::getMessageSvc(),"EventHandler");
+        log<<MSG::WARNING<<"associateSegmentWithTrack(), invalid MDT id! "<<endmsg;
+        continue;
       }
       // look up hit on track
       IdHitMap::const_iterator trkHit = track.idHitMap().find(id);
@@ -854,7 +818,8 @@ namespace MuonCalib{
       const CscCalibHitBase& hit = **cscIt;
       MuonFixedId id = hit.identify();
       if( !id.isValid() ) {
-        std::cout << " MuonCalibExtendedSegment(), invalid CSC id! " << std::endl;
+        MsgStream log(Athena::getMessageSvc(),"EventHandler");
+        log<<MSG::WARNING<<"associateSegmentWithTrack(), invalid CSC id! "<<endmsg;
         continue;
       }
       // look up hit on track
@@ -869,24 +834,6 @@ namespace MuonCalib{
 
     return nnotOnTrack+10*noppositeSign+100*nsameSign;
 
-
-//    unsigned int nhits = nsameSign + noppositeSign + nnotOnTrack;
-//    double matchFraction = (double)nsameSign/(double)nhits;
-
-    // match if all hits have same sign
-//    if( nhits == nsameSign ) return true;
-    
-
-    // allow one opposite sign hit if the number of hits on the segment is larger than four */
-//    if( nhits > 4 && matchFraction > 0.7 && nhits == noppositeSign + nsameSign ) return true;
-
-    // allow one opposite sign hit if the number of hits on the segment is larger than four */
-//    if( nhits > 4 && matchFraction > 0.85 ) return true;
-
-//    if( nsameSign > 3 ){
-//      std::cout << " segment with large overlap but no match: nhits " << nhits << " nsame " << nsameSign << " nopp " << noppositeSign << std::endl;
-//    }
-//    return false;
   }
 
   void EventHandler::linkTracks( int referenceIndex ) {
@@ -896,8 +843,6 @@ namespace MuonCalib{
     if( pos == m_extendedTracks.end() ) return;
     
     TrackVec& refTracks = pos->second;
-
-//    std::cout << " linking tracks, reference " << referenceIndex << " number of tracks " << refTracks.size() << std::endl;
 
     // loop over reference tracks and associate other authors
     TrkIt rit = refTracks.begin();
@@ -913,8 +858,6 @@ namespace MuonCalib{
 	if( ait->first == referenceIndex ) continue;
 
 	TrackVec& tracks = ait->second;
-
-	//std::cout << " comparing to " << ait->first << " number of tracks " << tracks.size() << std::endl;
 	
 	match( **rit, tracks );
 	
@@ -935,7 +878,6 @@ namespace MuonCalib{
       if( reference.isAssociated(*it) ) continue;
 
       MuonCalibExtendedTrackOverlap overlap = reference.calculateHitOverlap(**it);
-//      std::cout << " match overlap " << overlap.sharedPrecisionHits() << std::endl;
       if(  overlap.sharedPrecisionHits() > 0 ){
 	if( overlap.sharedPrecisionHits() > bestOverlap.sharedPrecisionHits() ) {
 	  bestMatch = *it;
@@ -945,11 +887,6 @@ namespace MuonCalib{
     }
     
     if( bestMatch ){
-      
-//       std::cout << " found best overlap: precicion " << bestOverlap.sharedPrecisionHits()
-// 		<< " Trigger: eta " << bestOverlap.sharedEtaTriggerHits()
-// 		<< " phi " << bestOverlap.sharedPhiHits() << std::endl;
-
       reference.addAssociatedTrack(bestMatch);
       bestMatch->addAssociatedTrack(&reference);
     }

@@ -36,6 +36,3 @@ class DummyServiceMgr  :
 ServiceMgr=DummyServiceMgr()
 
 #hack ends here
-
-from __main__ import AtlasTrackingGeometrySvc
-AtlasTrackingGeometrySvc.AssignMaterialFromCOOL = False

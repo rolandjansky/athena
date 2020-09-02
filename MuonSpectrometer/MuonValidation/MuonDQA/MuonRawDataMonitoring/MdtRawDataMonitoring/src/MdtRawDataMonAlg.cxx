@@ -123,7 +123,6 @@ MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLo
  :AthMonitorAlgorithm(name,pSvcLocator),
  m_masked_tubes(NULL),
  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
- m_DQFilterTools(this),
  m_atlas_ready(0),
  m_hist_hash_list(0),
  m_BMGpresent(false),
@@ -131,47 +130,34 @@ MdtRawDataMonAlg::MdtRawDataMonAlg( const std::string& name, ISvcLocator* pSvcLo
 {
   //  Declare the properties
   declareProperty("DoMdtEsd",                m_doMdtESD=false);
-  declareProperty("DoChamber2DHist",         m_chamber_2D=true);
   declareProperty("DoChamberHist",           m_doChamberHists=true);
-  declareProperty("DoOnlineMonitoring",      m_isOnline=false);
   declareProperty("maskNoisyTubes",          m_maskNoisyTubes=true);
   declareProperty("ADCCut",                  m_ADCCut=50.);
-  declareProperty("ADCCutForBackground",     m_ADCCut_Bkgrd=80.);
   declareProperty("Eff_nHits",               m_nb_hits=5.);
   declareProperty("Eff_chi2Cut",             m_chi2_cut=10.);
-  declareProperty("AtlasFilterTool",         m_DQFilterTools);
-  declareProperty("Title",                   m_title);
+
   //Global Histogram controls
   declareProperty("do_mdtChamberHits",       m_do_mdtChamberHits = true);
   declareProperty("do_mdttdccut_sector",     m_do_mdttdccut_sector = true);
-  declareProperty("do_mdtchamberstatphislice", m_do_mdtchamberstatphislice = true);
+  declareProperty("do_mdtchamberstatphislice", m_do_mdtchamberstatphislice = true);//
   //Chamber wise histogram control
-  declareProperty("do_mdttdc",               m_do_mdttdc = true);
-  declareProperty("do_mdttdccut_ML1",        m_do_mdttdccut_ML1 = true);
-  declareProperty("do_mdttdccut_ML2",        m_do_mdttdccut_ML2 = true);
-  declareProperty("do_mdtadc_onSegm_ML1",        m_do_mdtadc_onSegm_ML1 = true);
-  declareProperty("do_mdtadc_onSegm_ML2",        m_do_mdtadc_onSegm_ML2 = true);
-  declareProperty("do_mdttdccut_RPCtrig_ML1", m_do_mdttdccut_RPCtrig_ML1 = true);
-  declareProperty("do_mdttdccut_TGCtrig_ML1", m_do_mdttdccut_TGCtrig_ML1 = true);
-  declareProperty("do_mdttdccut_RPCtrig_ML2", m_do_mdttdccut_RPCtrig_ML2 = true);
-  declareProperty("do_mdttdccut_TGCtrig_ML2", m_do_mdttdccut_TGCtrig_ML2 = true);
-  declareProperty("do_mdtadc",               m_do_mdtadc = true);
-  declareProperty("do_mdttdcadc",            m_do_mdttdcadc = true);
-  declareProperty("do_mdtmultil",            m_do_mdtmultil = true);
-  declareProperty("do_mdtlayer",             m_do_mdtlayer = true);
-  declareProperty("do_mdttube",              m_do_mdttube = true);
-  declareProperty("do_mdttube_masked",       m_do_mdttube_masked = true);
-  declareProperty("do_mdttube_fornoise",     m_do_mdttube_fornoise = true);
-  declareProperty("do_mdttube_bkgrd",        m_do_mdttube_bkgrd = true);
-  declareProperty("do_mdtmezz",              m_do_mdtmezz = true);
-  declareProperty("do_mdt_effEntries",       m_do_mdt_effEntries = true);
-  declareProperty("do_mdt_effCounts",        m_do_mdt_effCounts = true);
-  declareProperty("do_mdt_effPerTube",       m_do_mdt_effPerTube = false);
-  declareProperty("do_mdt_DRvsDT",           m_do_mdt_DRvsDT = true);
-  declareProperty("do_mdt_DRvsDRerr",        m_do_mdt_DRvsDRerr = false);
-  declareProperty("do_mdt_DRvsSegD",         m_do_mdt_DRvsSegD = true);
-  //declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 16000.);
- declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 400.);//DEV to-be-fixed
+  //  declareProperty("do_mdttdc",               m_do_mdttdc = true);
+  //  declareProperty("do_mdttdccut_ML1",        m_do_mdttdccut_ML1 = true);
+  //  declareProperty("do_mdttdccut_ML2",        m_do_mdttdccut_ML2 = true);
+  //  declareProperty("do_mdtadc_onSegm_ML1",        m_do_mdtadc_onSegm_ML1 = true);
+  //  declareProperty("do_mdtadc_onSegm_ML2",        m_do_mdtadc_onSegm_ML2 = true);
+  //  declareProperty("do_mdtadc",               m_do_mdtadc = true);
+  //  declareProperty("do_mdttdcadc",            m_do_mdttdcadc = true);
+  //  declareProperty("do_mdtlayer",             m_do_mdtlayer = true);
+  //  declareProperty("do_mdttube",              m_do_mdttube = true);
+  //  declareProperty("do_mdtmezz",              m_do_mdtmezz = true);
+  //  declareProperty("do_mdt_effEntries",       m_do_mdt_effEntries = true);
+  //  declareProperty("do_mdt_effCounts",        m_do_mdt_effCounts = true);
+  //  declareProperty("do_mdt_effPerTube",       m_do_mdt_effPerTube = false);
+  //  declareProperty("do_mdt_DRvsDT",           m_do_mdt_DRvsDT = true);
+  //  declareProperty("do_mdt_DRvsDRerr",        m_do_mdt_DRvsDRerr = false);
+  //  declareProperty("do_mdt_DRvsSegD",         m_do_mdt_DRvsSegD = true);
+  declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 16000.);
 }
 
 MdtRawDataMonAlg::~MdtRawDataMonAlg()
@@ -199,15 +185,12 @@ StatusCode MdtRawDataMonAlg::initialize()
   //If Online ensure that lowStat histograms are made at the runLevel and that _lowStat suffix is suppressed
 
   //If online monitoring turn off chamber by chamber hists
-  if(m_isOnline) m_doChamberHists = false;
 
   // MuonDetectorManager from the conditions store
   ATH_CHECK(m_DetectorManagerKey.initialize());
 
   ATH_CHECK(m_idHelperSvc.retrieve());
   
-  ATH_CHECK(m_DQFilterTools.retrieve());
-
   ATH_CHECK(m_muonSelectionTool.retrieve());
 
   if(m_maskNoisyTubes) m_masked_tubes = new MDTNoisyTubes();
@@ -377,13 +360,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
     for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*MdtcontainerIt)->begin(); mdtCollection!=(*MdtcontainerIt)->end(); ++mdtCollection )
     {
       ++Nhitsmdt ;
-    }}
+    }
+  }
 
   if(Nhitsmdt > m_HighOccThreshold) isNoiseBurstCandidate = true;
   std::string type="MDT";
   std::string hardware_name;
 
-  std::map<std::string,float> evnt_hitsperchamber_map;
+  std::map<std::string,int> evnt_hitsperchamber_map;
   std::set<std::string>  chambers_from_tracks;
 
   if (m_doMdtESD==true) { 
@@ -416,7 +400,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	  if(ntri_eta+n_phi==0) continue;
 	}
       }
-      
+
       MDTOverviewHistogramStruct overviewPlots;
       MDTSummaryHistogramStruct summaryPlots[4][4][16][4][4]; // [region][layer][phi][crate_region][crate]
       //loop in MdtPrepDataContainer
@@ -430,13 +414,19 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
         {
           nPrd++;
 
-	  hardware_name = getChamberName(*mdtCollection);
+
           float adc = (*mdtCollection)->adc();
+	  hardware_name = getChamberName(*mdtCollection);
           if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
           if( adc > m_ADCCut ) 
           {
             nPrdcut++;
             isHit_above_ADCCut = true;
+	    std::string phi=hardware_name.substr( hardware_name.length() - 2); 
+	    auto hit_in_chamber = Monitored::Scalar<std::string>("hits_phi_"+phi,hardware_name); 
+	    if(m_do_mdtchamberstatphislice)    fill("MdtMonitor",hit_in_chamber);    
+	    auto hit_in_chamber_allphi = Monitored::Scalar<std::string>("hits_allphi",hardware_name); 
+	    fill("MdtMonitor",hit_in_chamber_allphi);                                                                                   
           }
           fillMDTOverviewVects(*mdtCollection, isNoiseBurstCandidate, overviewPlots);
 	  //=======================================================================
@@ -451,25 +441,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	  if(m_doChamberHists){
 	    ATH_CHECK(fillMDTHistograms(*mdtCollection));
 	  }      
- 
-          std::map<std::string,float>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
+
+          std::map<std::string,int>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
           if ( iter_hitsperchamber == evnt_hitsperchamber_map.end() ) { 
             evnt_hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
           } 
           else {
             iter_hitsperchamber->second += 1;
           }     
-
-	  std::map<std::string,float> hitsperchamber_map;
-	  if( adc >m_ADCCut) {
-	    std::map<std::string,float>::iterator iter_hitsperchamber = hitsperchamber_map.find(hardware_name);
-            if ( iter_hitsperchamber == hitsperchamber_map.end() ) { 
-              hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
-            } 
-            else {
-             iter_hitsperchamber->second += 1;
-            }                
-          }       
 
         } // for loop over hits mdtcollection
         if( isHit_above_ADCCut ) 
@@ -480,22 +459,20 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
       ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
       
-      
       int nHighOccChambers = 0;
-      for(const auto iterstat: evnt_hitsperchamber_map) {
-          const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
-          if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
-            ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
-            continue;
-          }
-          float nTubes = iter_tubesperchamber->second;
-          float hits = iterstat.second;
-          float occ = hits/nTubes;
-          if ( occ > 0.1 ) nHighOccChambers++;
+      for(const auto& iterstat: evnt_hitsperchamber_map) {
+	const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
+	if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
+	  ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
+	  continue;
+	}
+	float nTubes = iter_tubesperchamber->second;
+	float hits = iterstat.second;
+	float occ = hits/nTubes;
+	if ( occ > 0.1 ) nHighOccChambers++;
       }
-
+      
       auto nHighOccChambers_mon = Monitored::Scalar<float>("nHighOccChambers_mon", nHighOccChambers);
-           
 
       auto nPrd_mon = Monitored::Scalar<int>("nPrd_mon", nPrd);
       auto nPrdcut_mon = Monitored::Scalar<int>("nPrdcut_mon", nPrdcut);
@@ -552,21 +529,21 @@ void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollect
 
   if( adc>m_ADCCut ) {
     //barrel
-    if(fabs(mdt_tube_eta)>0. && fabs(mdt_tube_eta)<0.9) {
+    if(std::abs(mdt_tube_eta)>0. && std::abs(mdt_tube_eta)<0.9) {
       vects.mdt_tube_x_barrel.push_back(mdtgPos.x());
       vects.mdt_tube_y_barrel.push_back(mdtgPos.y());
       vects.mdt_tube_z_barrel.push_back(mdtgPos.z());
       vects.mdt_tube_perp_barrel.push_back(mdtgPos.perp());
     }   
     //OverLap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>0.9 && fabs(mdt_tube_eta)<1.2) {
+    if(std::abs(mdt_tube_eta)>0.9 && std::abs(mdt_tube_eta)<1.2) {
       vects.mdt_tube_x_ovl.push_back(mdtgPos.x());
       vects.mdt_tube_y_ovl.push_back(mdtgPos.y());
       vects.mdt_tube_z_ovl.push_back(mdtgPos.z());
       vects.mdt_tube_perp_ovl.push_back(mdtgPos.perp());
     }
     //EndCap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>1.2 && fabs(mdt_tube_eta)<2.7){
+    if(std::abs(mdt_tube_eta)>1.2 && std::abs(mdt_tube_eta)<2.7){
       vects.mdt_tube_x_endcap.push_back(mdtgPos.x());
       vects.mdt_tube_y_endcap.push_back(mdtgPos.y());
       vects.mdt_tube_z_endcap.push_back(mdtgPos.z());
@@ -841,9 +818,15 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	  for (int icrate = 0; icrate < 4; ++icrate) {
 	    auto& thisVects = vects[iregion][ilayer][stationPhi][crate_region][icrate];
 	    auto sector = Monitored::Collection("sector",thisVects.sector);
+
+	    fill("MdtMonitor", lb_mon, sector);
+
 	    auto stationEta = Monitored::Collection("stEta_"+region[iregion]+"_"+layer[ilayer]+"_phi"+std::to_string(stationPhi+1), thisVects.stationEta); 
 	    
-	    fill("MdtMonitor", lb_mon, sector);
+	    if(m_do_mdtChamberHits){	    
+	      fill(MDT_regionGroup, stationEta);
+	    }
+
 	    
 	    auto adc_mon =  Monitored::Collection("adc_mon", thisVects.adc_mon); 
 	    auto tdc_mon =  Monitored::Collection("tdc_mon", thisVects.tdc_mon); 
@@ -859,7 +842,8 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	    
 	    auto adc_mon_adccut =  Monitored::Collection("adc_mon_adccut", thisVects.adc_mon_adccut);
 	    auto tdc_mon_adccut =  Monitored::Collection("tdc_mon_adccut", thisVects.tdc_mon_adccut);
-	    fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
+	    //	    fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
+	    fill(MDT_regionGroup, tdc_mon_adccut, adc_mon_adccut);
 	    
 	    std::string varx = iregion < 2 ? "x_mon_barrel" : "x_mon_endcap";
 	    std::string vary = iregion < 2 ? "y_mon_barrel" : "y_mon_endcap";
@@ -1176,8 +1160,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
       std::vector<float> traversed_distance;    
       for( unsigned i_chamber=0; i_chamber<unique_chambers.size(); i_chamber++) {
         Identifier station_id = unique_chambers.at(i_chamber);
-        if( !m_idHelperSvc->mdtIdHelper().is_mdt( station_id ) ) {
-          ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
+        if( !m_idHelperSvc->isMdt( station_id ) ) {
+          ATH_MSG_DEBUG("Non-MDT station Identifier in segm-based mdt eff calc" );
         }
         std::string hardware_name = getChamberName(station_id); 
 
@@ -1323,10 +1307,12 @@ StatusCode MdtRawDataMonAlg::fillMDTSegmentHistograms( const MDTSegmentHistogram
 	auto adc_segs_overall_mon =  Monitored::Collection("adc_segs_overall_mon", thisVects.adc_segs_mon); 
 	std::string tdc_var="tdc_segs_"+region[iregion]+"_"+layer[ilayer]+"_phi"+std::to_string(stationPhi+1);
 	auto tdc_segs_mon =  Monitored::Collection(tdc_var, thisVects.tdc_segs_mon); 
+	if(m_do_mdttdccut_sector) fill(MDT_regionGroup, tdc_segs_mon);
+
 	auto tdc_segs_overall_mon =  Monitored::Collection("tdc_segs_overall_mon", thisVects.tdc_segs_mon); 
 	auto tdc_segs_region_mon =  Monitored::Collection("tdc_segs_region_mon", thisVects.tdc_segs_mon); 
     
-	fill(MDT_regionGroup, adc_segs_mon, tdc_segs_mon, tdc_segs_region_mon);
+	fill(MDT_regionGroup, adc_segs_mon, tdc_segs_region_mon);
 
 	std::string varx = iregion < 2 ? "x_segs_mon_barrel" : "x_segs_mon_endcap";
 	std::string vary = iregion < 2 ? "y_segs_mon_barrel" : "y_segs_mon_endcap";

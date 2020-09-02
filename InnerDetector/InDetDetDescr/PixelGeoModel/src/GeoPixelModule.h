@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELMODULE_H
@@ -9,7 +9,7 @@
 class GeoLogVol;
 class GeoPixelSiCrystal;
 
-class GeoPixelModule : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelModule : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 
  public:
   GeoPixelModule(GeoPixelSiCrystal &theSensor);

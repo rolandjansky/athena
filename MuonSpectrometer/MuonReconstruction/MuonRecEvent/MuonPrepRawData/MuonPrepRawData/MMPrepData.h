@@ -15,17 +15,17 @@
 class MMPrepDataContainerCnv;
 class IdentifierHash;
 
-namespace Muon 
+namespace Muon
 {
 
   class MMRdoToPrepDataTool;
-    
+
   /** @brief Class to represent MM measurements. */
   class MMPrepData :   public MuonCluster
   {
 
     friend class Muon::MMRdoToPrepDataTool;
-    
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@ namespace Muon
 
     MMPrepData();
     MMPrepData(const MMPrepData &);
-    MMPrepData(MMPrepData &&);
+    MMPrepData(MMPrepData &&) noexcept = default;
     MMPrepData &operator=(const MMPrepData &);
-    MMPrepData &operator=(MMPrepData &&);
+    MMPrepData &operator=(MMPrepData &&) noexcept = default;
 
 
     /** @brief Constructor.
@@ -45,7 +45,7 @@ namespace Muon
 	@param locpos The local coords of the measurement (this object will now own the LocalPostion)
 	@param rdoList Vector of all the Identifiers of the strips used in this cluster
 	@param locErrMat The error of the measurement (this object will now own the ErrorMatrix)
-	@param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken 
+	@param detEl The pointer to the Detector Element on which this measurement was made (must NOT be zero). Ownership is NOT taken
 	(the pointer is assumed to belong to GeoModel and will not be deleted)
     */
 
@@ -55,12 +55,12 @@ namespace Muon
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
 		const Amg::MatrixX* locErrMat,
-		const MuonGM::MMReadoutElement* detEl, 
+		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
-		const int charge, 
+		const int charge,
 		const float driftDist,
-		const std::vector<uint16_t>& stripNumbers, 
-		const std::vector<short int>& stripTimes, 
+		const std::vector<uint16_t>& stripNumbers,
+		const std::vector<short int>& stripTimes,
 		const std::vector<int>& stripCharges );
 
     /** @brief constructor including time and charge and drift distance */
@@ -69,7 +69,7 @@ namespace Muon
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
 		const Amg::MatrixX* locErrMat,
-		const MuonGM::MMReadoutElement* detEl, 
+		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
 		const int charge,
 		const float driftDist );
@@ -80,7 +80,7 @@ namespace Muon
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
 		const Amg::MatrixX* locErrMat,
-		const MuonGM::MMReadoutElement* detEl, 
+		const MuonGM::MMReadoutElement* detEl,
 		const short int time,
 		const int charge );
 
@@ -100,12 +100,21 @@ namespace Muon
     /** @brief set drift distances and uncertainties */
     void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
 
+    // setter functions for the EventTPConverters
+    void setDriftDist(const std::vector<float>& driftDist, const std::vector<float>& stripDriftErrors_0_0, const std::vector<float>& stripDriftErrors_1_1);
+
     /** @brief Returns the global position*/
-    const Amg::Vector3D& globalPosition() const;
+    virtual const Amg::Vector3D& globalPosition() const override;
 
     /** @brief Returns the detector element corresponding to this PRD.
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
-    const MuonGM::MMReadoutElement* detectorElement() const;
+    virtual const MuonGM::MMReadoutElement* detectorElement() const override final;
+
+    /** Interface method checking the type*/
+    virtual bool type(Trk::PrepRawDataType::Type type) const override final
+    {
+      return type == Trk::PrepRawDataType::MMPrepData;
+    }
 
     /** @brief Returns the time (in ns) */
     short int time() const;
@@ -136,12 +145,29 @@ namespace Muon
 
     /** @brief returns the list of drift distances */
     const std::vector<Amg::MatrixX>& stripDriftErrors() const;
-    
-    /** @brief Dumps information about the PRD*/
-    MsgStream&    dump( MsgStream&    stream) const;
+
+    // getter functions for the EventTPConverters
+    const std::vector<float> stripDriftErrors_0_0() const;
+    const std::vector<float> stripDriftErrors_1_1() const;
 
     /** @brief Dumps information about the PRD*/
-    std::ostream& dump( std::ostream& stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override;
+
+    /** @brief Dumps information about the PRD*/
+    virtual std::ostream& dump( std::ostream& stream) const override;
+
+
+    enum Author{
+      RDOTOPRDConverter = -1,
+      SimpleClusterBuilder,
+      ProjectionClusterBuilder,
+      ClusterTimeProjectionClusterBuilder,
+      ConstraintuTPCClusterBuilder,
+      uTPCClusterBuilder,
+    };
+
+    Author author() const;
+    void setAuthor(Author author);
 
   private:
 
@@ -170,6 +196,8 @@ namespace Muon
     std::vector<float> m_stripDriftDist;
     std::vector<Amg::MatrixX>  m_stripDriftErrors;
 
+    Author m_author;
+
   };
 
   inline const MuonGM::MMReadoutElement* MMPrepData::detectorElement() const
@@ -185,27 +213,27 @@ namespace Muon
     return *m_globalPosition;
   }
 
-  inline short int MMPrepData::time() const 
+  inline short int MMPrepData::time() const
   {
     return m_time;
   }
-  
-  inline int MMPrepData::charge() const 
+
+  inline int MMPrepData::charge() const
   {
     return m_charge;
   }
 
-  inline float MMPrepData::driftDist() const 
+  inline float MMPrepData::driftDist() const
   {
     return m_driftDist;
   }
 
-  inline float MMPrepData::angle() const 
+  inline float MMPrepData::angle() const
   {
     return m_angle;
   }
 
-  inline float MMPrepData::chisqProb() const 
+  inline float MMPrepData::chisqProb() const
   {
     return m_chisqProb;
   }
@@ -233,6 +261,10 @@ namespace Muon
   inline const std::vector<Amg::MatrixX>& MMPrepData::stripDriftErrors() const
   {
     return m_stripDriftErrors;
+  }
+
+  inline MMPrepData::Author MMPrepData::author() const {
+    return m_author;
   }
 
 }

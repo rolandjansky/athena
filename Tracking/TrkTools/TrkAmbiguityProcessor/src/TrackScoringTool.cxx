@@ -12,8 +12,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include <cassert>
-#include <vector>
+#include <cmath> //for log10
 
 Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 					const std::string& n,
@@ -55,35 +54,23 @@ Trk::TrackScoringTool::TrackScoringTool(const std::string& t,
 	m_summaryTypeScore[Trk::numberOfRpcEtaHits]	= 10;
 }
 
-Trk::TrackScoringTool::~TrackScoringTool()
-{
+Trk::TrackScoringTool::~TrackScoringTool(){
 }
 
-StatusCode Trk::TrackScoringTool::initialize()
-{
-	StatusCode sc = AlgTool::initialize();
-	if (sc.isFailure()) return sc;
-
-	sc = m_trkSummaryTool.retrieve();
-	if (sc.isFailure()) 
-	  {
-	    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
-	    return sc;
-	  } 
-	else 
-	  msg(MSG::INFO)<< "Retrieved tool " << m_trkSummaryTool << endmsg;
-
+StatusCode 
+Trk::TrackScoringTool::initialize(){
+	ATH_CHECK( AlgTool::initialize());
+	ATH_CHECK( m_trkSummaryTool.retrieve());
+	ATH_MSG_VERBOSE("Retrieved tool " << m_trkSummaryTool );
 	return StatusCode::SUCCESS;
 }
 
-StatusCode Trk::TrackScoringTool::finalize()
-{
-	StatusCode sc = AlgTool::finalize();
-	return sc;
+StatusCode Trk::TrackScoringTool::finalize(){
+	return AlgTool::finalize();
 }
 
-Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const
-{
+Trk::TrackScore 
+Trk::TrackScoringTool::score( const Track& track, const bool suppressHoleSearch ) const{
 	const TrackSummary* summary = nullptr;
 	if (suppressHoleSearch)
 	  summary = m_trkSummaryTool->createSummaryNoHoleSearch(track);
@@ -95,32 +82,28 @@ Trk::TrackScore Trk::TrackScoringTool::score( const Track& track, const bool sup
 	return score;
 }
 
-Trk::TrackScore Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const
-{
-	
-	
+Trk::TrackScore 
+Trk::TrackScoringTool::simpleScore( const Track& track, const TrackSummary& trackSummary ) const{
 	// --- reject bad tracks
 	if (track.fitQuality() && track.fitQuality()->numberDoF() < 0) {
-	  msg(MSG::VERBOSE)<<"numberDoF < 0, reject it"<<endmsg;
+	  ATH_MSG_VERBOSE("numberDoF < 0, reject it");
 	  return TrackScore(0);
 	}
-	 
 	// --- now start scoring
 	TrackScore score(100); // score of 100 per track
 
 	// --- prob(chi2,NDF), protect for chi2<0
 	if (track.fitQuality()!=nullptr && track.fitQuality()->chiSquared() > 0 && track.fitQuality()->numberDoF() > 0) {
-	  score+= log10(1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared()));
+	  score+= std::log10(1.0-Genfun::CumulativeChiSquare(track.fitQuality()->numberDoF())(track.fitQuality()->chiSquared()));
 	}
 
 	// --- summary score analysis
-	for (int i=0; i<Trk::numberOfTrackSummaryTypes; ++i) 
-	{
+	for (int i=0; i<Trk::numberOfTrackSummaryTypes; ++i) {
 		int value = trackSummary.get(static_cast<Trk::SummaryType>(i));
 		//value is -1 if undefined.
 		if (value>0) { 
 		  score+=m_summaryTypeScore[i]*value; 
-		  msg(MSG::VERBOSE)<<"\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score<<endmsg;
+		  ATH_MSG_VERBOSE("\tType ["<<i<<"], value \t= "<<value<<"], score \t="<<score);
 		}
 	}
 	return score;

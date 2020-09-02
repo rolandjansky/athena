@@ -6,8 +6,8 @@
 #include <cmath>
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "RpcData.h"
+#include "RecMuonRoIUtils.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -20,8 +20,9 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name )
+   m_regionSelector("RegSelTool/RegSelTool_RPC",this)
 {
+  declareProperty("RegSel_RPC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -32,7 +33,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
    ATH_CHECK( m_recRPCRoiSvc.retrieve() );
    ATH_MSG_DEBUG( "Retrieved Service " << m_recRPCRoiSvc );
@@ -127,12 +127,15 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
      ATH_MSG_DEBUG("Use RoI based data access");
      
-     if (iroi) m_regionSelector->DetHashIDList(RPC, *iroi, rpcHashList);
-     else m_regionSelector->DetHashIDList(RPC, rpcHashList);
+     if (iroi) m_regionSelector->HashIDList(*iroi, rpcHashList);
+     else {
+       TrigRoiDescriptor fullscan_roi( true );
+       m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
+     }
      ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
-     m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
+     m_regionSelector->ROBIDList(*iroi, rpcRobList);
      if(m_doDecoding) {
        if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
@@ -148,11 +151,12 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      ATH_MSG_DEBUG("Use full data access");
      
-     m_regionSelector->DetHashIDList(RPC, rpcHashList);
+     TrigRoiDescriptor fullscan_roi( true );
+     m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
      ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
      
      std::vector<uint32_t> rpcRobList;
-     m_regionSelector->DetROBIDListUint(RPC, rpcRobList);
+     m_regionSelector->ROBIDList(fullscan_roi, rpcRobList);
      if(m_doDecoding) {
        if(m_decodeBS) {
          if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
@@ -182,19 +186,19 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      // Get RPC collections
      for(const IdentifierHash& id : rpcHashList) {
 
-       Muon::RpcPrepDataContainer::const_iterator RPCcoll = rpcPrds->indexFind(id);
+       auto RPCcoll = rpcPrds->indexFindPtr(id);
 
-       if( RPCcoll == rpcPrds->end() ) {
+       if( RPCcoll == nullptr ) {
          continue;
        }
 
-       if( (*RPCcoll)->size() == 0) {
+       if( RPCcoll->size() == 0) {
          ATH_MSG_DEBUG("Empty RPC list");
          continue;
        }
 
        rpcHashList_cache.push_back(id);
-       rpcCols.push_back(*RPCcoll);
+       rpcCols.push_back(RPCcoll);
      }
    }
 
@@ -256,9 +260,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.layer       = layer;
        
        const float r2 = hitx*hitx+hity*hity;
-       float phi = atan(hity/hitx);
-       if (hitx<0 && hity>0) phi += M_PI;
-       if (hitx<0 && hity<0) phi -= M_PI;
+       float phi = atan2(hity,hitx);
        const float l = sqrt(hitz*hitz+r2);
        const float tan = sqrt( (l-hitz)/(l+hitz) );
        const float eta = -log(tan);

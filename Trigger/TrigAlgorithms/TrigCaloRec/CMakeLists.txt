@@ -1,53 +1,18 @@
-################################################################################
-# Package: TrigCaloRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigCaloRec )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthenaMonitoringKernel
-                          DetectorDescription/IRegionSelector
-                          Event/xAOD/xAODCaloEvent
-                          GaudiKernel
-                          Trigger/TrigAlgorithms/TrigT2CaloCommon
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
-                          PRIVATE
-                          Control/CxxUtils
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloRec
-                          Calorimeter/CaloUtils
-                          Event/EventKernel
-                          Event/NavFourMom
-                          Event/xAOD/xAODTrigCalo
-                          Event/xAOD/xAODHIEvent
-                          Event/xAOD/xAODTrigL1Calo
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArCabling
-                          Trigger/TrigT1/TrigT1CaloByteStream
-                          Trigger/TrigT1/TrigT1Interfaces )
 
 # Component(s) in the package:
 atlas_add_library( TrigCaloRecLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloRec
-                   LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel IRegionSelector xAODCaloEvent GaudiKernel TrigCaloEvent TrigSteeringEvent AthenaMonitoringKernelLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloRecLib CaloUtilsLib LArCablingLib
-                   PRIVATE_LINK_LIBRARIES CaloGeoHelpers CaloIdentifier EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier TrigT1Interfaces )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaMonitoringLib CaloEvent CaloInterfaceLib CaloRecLib CxxUtils GaudiKernel IRegionSelector LArCablingLib StoreGateLib TrigCaloEvent TrigInterfacesLib TrigT2CaloCommonLib TrigTimeAlgsLib xAODCaloEvent
+                   PRIVATE_LINK_LIBRARIES AthContainers AthenaMonitoringKernelLib CaloDetDescrLib CaloGeoHelpers CaloIdentifier CaloUtilsLib EventKernel Identifier LArIdentifier NavFourMom TileConditionsLib TrigSteeringEvent TrigT1CaloByteStreamLib TrigT1Interfaces xAODHIEvent xAODTrigCalo xAODTrigL1Calo )
 
 atlas_add_component( TrigCaloRec
                      src/components/*.cxx
                      LINK_LIBRARIES TrigCaloRecLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

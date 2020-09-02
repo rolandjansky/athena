@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// SimpleCscClusterFitter.cxx
 #include "SimpleCscClusterFitter.h"
-#include "CscClusterization/ICscClusterFitter.h"
-#include "CscClusterization/ICscAlignmentTool.h"
+
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+
 #include <sstream>
 #include <iomanip>
 
-using std::string;
-using std::vector;
 using Muon::CscClusterStatus;
 using Muon::CscPrepData;
 using Muon::CscStripPrepData;
@@ -28,57 +23,9 @@ typedef std::vector<Result> Results;
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_R, CSL_R, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
-#if 0
-namespace {
-  string splane(CscPlane plane) {
-    switch(plane) {
-    case CSS_R: return "CSS r";
-    case CSL_R: return "CSL r";
-    case CSS_PHI: return "CSS phi";
-    case CSL_PHI: return "CSL phi";
-    case UNKNOWN_PLANE: return "no such plane";
-    }
-    return "no such plane";
-  }
-
-  CscStation findStation(double pitch){
-    CscStation station = UNKNOWN_STATION;
-    if ( pitch > 5.5 && pitch < 5.6 ) {
-      station = CSS;
-    } else if ( pitch > 5.3 && pitch < 5.4 ) {
-      station = CSL;
-    } else if ( pitch > 12.0 && pitch < 14.0 ) {
-      station = CSS;
-    } else if ( pitch > 20.0 && pitch < 22.0 ) {
-      station = CSL;
-    }
-    return station;
-  }
-  
-  CscPlane findPlane(double pitch){
-    CscPlane   plane = UNKNOWN_PLANE;
-    if ( pitch > 5.5 && pitch < 5.6 ) {
-      plane = CSS_R;
-    } else if ( pitch > 5.3 && pitch < 5.4 ) {
-      plane = CSL_R;
-    } else if ( pitch > 12.0 && pitch < 14.0 ) {
-      plane = CSS_PHI;
-    } else if ( pitch > 20.0 && pitch < 22.0 ) {
-      plane = CSL_PHI;
-    }
-    return plane;
-  }
-}
-#endif
-
-//**********************************************************************
-// Member functions.
-//**********************************************************************
-
-SimpleCscClusterFitter::
-SimpleCscClusterFitter(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent), m_detMgr(nullptr)
-  , m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
+SimpleCscClusterFitter::SimpleCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent),
+    m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
   declareInterface<ICscClusterFitter>(this);
   declareProperty("position_option", m_option = "MEAN",
@@ -94,10 +41,6 @@ SimpleCscClusterFitter(string type, string aname, const IInterface* parent)
 
 //**********************************************************************
 
-SimpleCscClusterFitter::~SimpleCscClusterFitter() { }
-
-//**********************************************************************
-
 StatusCode SimpleCscClusterFitter::initialize() {
 
   ATH_MSG_VERBOSE ( "Initializing " << name() );
@@ -106,19 +49,16 @@ StatusCode SimpleCscClusterFitter::initialize() {
   ATH_MSG_DEBUG ( "  Position option: " << m_option );
   ATH_MSG_DEBUG ( "  Intrinsic width: " << m_intrinsic_cluster_width << " mm" );
   
-  // Retrieve muon geometry.
-  if ( detStore()->retrieve(m_detMgr,"Muon").isFailure() ) {
-    ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
-    return StatusCode::FAILURE;
-  }
-  // Fetch ID helper.
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(detStore()->retrieve(m_detMgr,"Muon"));
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   if ( m_alignmentTool.retrieve().isFailure() )   {
     ATH_MSG_WARNING ( name() << ": unable to retrieve cluster fitter " << m_alignmentTool );
   } else {
     ATH_MSG_DEBUG ( name() << ": retrieved " << m_alignmentTool );
   }
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
   return StatusCode::SUCCESS;
 }
 
@@ -153,23 +93,31 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
      return results;
   }
   Identifier idStrip0 = pstrip->identify();
-  const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
-  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
+
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return results;     
+  }
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
+
+  bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   int maxstrip = pro->maxNumberOfStrips(measphi);
-  int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
+  int strip0 = m_idHelperSvc->cscIdHelper().strip(idStrip0) - 1;
 
-  int zsec    = m_muonIdHelperTool->cscIdHelper().stationEta(idStrip0);
-  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
-  int phisec  = m_muonIdHelperTool->cscIdHelper().stationPhi(idStrip0);
+  int zsec    = m_idHelperSvc->cscIdHelper().stationEta(idStrip0);
+  int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  int phisec  = m_idHelperSvc->cscIdHelper().stationPhi(idStrip0);
 
   int sector  = zsec*(2*phisec - station + 1);
-  int wlay    = m_muonIdHelperTool->cscIdHelper().wireLayer(idStrip0);
+  int wlay    = m_idHelperSvc->cscIdHelper().wireLayer(idStrip0);
   
   // In SimpleCscClusterFitter  istrip_peak = strip0;
   int peak_count = 0;                  // # peaks in the cluster
   bool edge = strip0 == 0;             // is cluster on the edge of the chamber?
-  //  int istrip_peak = strip0;            // Strip with the most charge and initialized as the first strip idx.
   int stripidx =0;                     // actual strip position [0-191] or [0-47]
   int countstrip =0;                   // counting strip in for loop
   double qsum=0;                       // charge sum of strips in cluster
@@ -382,13 +330,6 @@ Results SimpleCscClusterFitter::fit(const StripFitList& sfits) const {
 
 Results SimpleCscClusterFitter::fit(const StripFitList& sfits, double) const {
   return fit(sfits);
-}
-
-//**********************************************************************
-
-StatusCode SimpleCscClusterFitter::finalize(){
-  ATH_MSG_VERBOSE ( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

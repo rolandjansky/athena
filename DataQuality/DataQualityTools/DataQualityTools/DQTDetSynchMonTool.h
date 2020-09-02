@@ -8,16 +8,17 @@
 // PACKAGE:  DataQualityTools
 //
 // AUTHOR:   Luca Fiorini <Luca.Fiorini@cern.ch>
-//	     
+//
 //
 // ********************************************************************
 #ifndef DQTDetSynchMonTool_H
 #define DQTDetSynchMonTool_H
 
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GaudiKernel/EventContext.h"
 #include <set>
 #include "GaudiKernel/ToolHandle.h"
 #include <stdint.h>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "DataQualityTools/DataQualityFatherMonTool.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -28,18 +29,9 @@
 #include "TileEvent/TileDigitsContainer.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "MuonRDO/RpcPadContainer.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-namespace Trk {
-   //REL18 class IMagneticFieldTool; 
-   //REL19 
-   class IMagFieldSvc;
-}
 
 class TProfile;
 
@@ -47,18 +39,16 @@ class DQTDetSynchMonTool: public DataQualityFatherMonTool
 {
 
  public:
-  
+
   DQTDetSynchMonTool(const std::string & type, const std::string & name, const IInterface* parent);
 
   ~DQTDetSynchMonTool();
 
   StatusCode initialize();
-    
+
   StatusCode bookHistograms( );
-  //StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
   StatusCode fillHistograms( );
   StatusCode procHistograms( );
-  //StatusCode procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun );
   StatusCode checkHists(bool fromFinalize);
   uint32_t findid(std::multiset<uint32_t>& mset);
   float findfrac(std::multiset<uint32_t>& mset, uint16_t ctpid);
@@ -71,7 +61,6 @@ class DQTDetSynchMonTool: public DataQualityFatherMonTool
 
 private:
 
-  ServiceHandle<MagField::IMagFieldSvc> m_field;
   Int_t m_solenoidPositionX;
   Int_t m_solenoidPositionY;
   Int_t m_solenoidPositionZ;
@@ -194,7 +183,7 @@ private:
   TH1I* m_diff_CTP_LAR_BCID_Rebin;
   TH1I* m_diff_CTP_Tile_BCID_Rebin;
   TH1I* m_diff_CTP_RPC_BCID_Rebin;
-      
+
   TH1I* m_diff_CTP_SCT_L1ID_Rebin;
   TH1I* m_diff_CTP_TRT_L1ID_Rebin;
   TH1I* m_diff_CTP_LAR_L1ID_Rebin;
@@ -216,8 +205,8 @@ private:
   TH1I_LW* m_Bfield_solenoid;
   TH1I_LW* m_Bfield_toroid;
 
-  TProfile_LW* m_Bfield_solenoid_vsLB;    
-  TProfile_LW* m_Bfield_toroid_vsLB;    
+  TProfile_LW* m_Bfield_solenoid_vsLB;
+  TProfile_LW* m_Bfield_toroid_vsLB;
 
   TH2I_LW* m_diff_BCID;
   TH2I_LW* m_diff_BCID_rate;
@@ -237,23 +226,6 @@ private:
   std::multiset<uint32_t> m_rpcl1idset;
   std::multiset<uint32_t> m_pixell1idset;
 
-  //int m_nevents;
-
-  //int m_n_sct_nrobs;
-  //int m_n_trt_nrobs;
-  //int m_n_lar_nrobs;
-  //int m_n_tile_nrobs;
-  //int m_n_pixel_nrobs;
-  
-
-  //int m_n_sct_bcid_nrobs;
-  //int m_n_trt_bcid_nrobs;
-  //int m_n_sct_lvl1_nrobs;
-  //int m_n_trt_lvl1_nrobs;
-  //int m_n_pixel_bcid_nrobs;
-  //int m_n_pixel_lvl1_nrobs;
-  
-  // Use these so we don't print out endless messages!
   bool m_printedErrorCTP_RIO;
   bool m_printedErrorTRT_BCID;
   bool m_printedErrorSCT_BCID;
@@ -268,9 +240,7 @@ private:
   bool m_printedErrorTileCtr;
   bool m_printedErrorRPC;
 
-  // detector indices
-  //std::map<int, std::string>
-  
+
   // storegate keys
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
     { "EventInfo" };
@@ -282,11 +252,8 @@ private:
     { "TileDigitsFlt" };
   SG::ReadHandleKey<RpcPadContainer> m_RpcPadContainerKey
     { "RPCPAD" };
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
-                                                                       "Name of the Magnetic Field conditions object key"};
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this,
+    "AtlasFieldCacheCondObj", "fieldCondObj","Name of the Magnetic Field conditions object key"};
 };
 
 #endif

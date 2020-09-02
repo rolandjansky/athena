@@ -44,30 +44,11 @@ DataBucketBranch::cast(CLID clid, SG::IRegisterTransient* /*itr*/,
 }
 
 void*
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-DataBucketBranch::cast(const std::type_info& tinfo,
-#else
 DataBucketBranch::cast(const std::type_info& /*tinfo*/,
-#endif
                        SG::IRegisterTransient* /*itr*/,
                        bool /*isConst*/)
 {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  // no conversion needed
-  if (tinfo == m_type.TypeInfo()) {
-    return m_ptr;
-  } else {
-    std::ostringstream err;
-    err << "cannot convert from type-info [" 
-        << System::typeinfoName(m_type.TypeInfo())
-        << "] to requested ["
-        << System::typeinfoName(tinfo)
-        << "]";
-    throw std::runtime_error(err.str());
-  }
-#else
   return m_ptr;
-#endif
 }
 
 } //> namespace Athena

@@ -16,7 +16,7 @@
 #include "D3PDMakerInterfaces/ICollectionGetterTool.h"
 #include "D3PDMakerInterfaces/ICollectionGetterRegistryTool.h"
 #include "McParticleEvent/TruthParticleContainer.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 

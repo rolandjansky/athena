@@ -4,7 +4,7 @@
 
 
 //$Id: TGCRPhiCoincidenceOut.cxx,v 1.3 2003-12-13 16:01:32 mishino Exp $
-#include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
 #include <iostream>
 #include <assert.h>
 

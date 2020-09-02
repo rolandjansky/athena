@@ -23,7 +23,7 @@ namespace Muon
     
   private:
     /** ITgcPrepDataReplicationTool.h */
-    ToolHandle<ITgcPrepDataReplicationTool> m_tool;
+    ToolHandle<ITgcPrepDataReplicationTool> m_tool{this, "Tool", "Muon::TgcPrepDataReplicationTool"};
   };
 } // end of namespace 
 

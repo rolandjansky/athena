@@ -127,13 +127,13 @@ CutFlowSvc::setFilterDescription( CutIdentifier cutID,
 void
 CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 {
-  ATH_MSG_INFO("Adding event with weight "<< weight << "to cut " << cutID);
+  ATH_MSG_VERBOSE("Adding event with weight "<< weight << "to cut " << cutID);
 
   std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
 
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
   if (cbk == nullptr) {
-    ATH_MSG_INFO("Could not find CutBookkeeper, creating a new one");
+    ATH_MSG_DEBUG("Could not find CutBookkeeper, creating a new one");
 
     // Iterate over the complete bookkeepers and update the cutID-to-bookkeeper map
     ATH_MSG_DEBUG( "addEvent: Going to re-populate the map. Have "

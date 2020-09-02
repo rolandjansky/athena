@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "iLumiCalc.h"
@@ -320,7 +320,7 @@ int main(int argc, char * argv[]){
     std::list<std::pair<unsigned int, unsigned int> >::iterator itr = runList.begin();
 
     // Decode run IOV pairs
-    for (; itr != runList.end(); itr++) {
+    for (; itr != runList.end(); ++itr) {
       // Dont allow open-ended IOVs
       if ((itr->first == minrunnum) || (itr->second == maxrunnum)) {
 	logger << Root::kERROR << "Can't use open-ended run ranges to specify sample!" << Root::GEndl;
@@ -663,7 +663,7 @@ int main(int argc, char * argv[]){
     // ===========================================================================
     if (runtype != 0 && runList.size() > 0) {
       std::vector<xAOD::LumiBlockRangeContainer*>::iterator iovIt = iovcVec.begin();
-      for (;iovIt != iovcVec.end(); iovIt++) {
+      for (;iovIt != iovcVec.end(); ++iovIt) {
 
 	xAOD::LumiBlockRangeContainer::iterator it = (*iovIt)->begin();
 	while (it != (*iovIt)->end()) {
@@ -672,7 +672,7 @@ int main(int argc, char * argv[]){
 
 	  bool found = false;
 	  std::list<std::pair<unsigned int, unsigned int> >::iterator runIt = runList.begin();
-	  for (; runIt != runList.end(); runIt++) {
+	  for (; runIt != runList.end(); ++runIt) {
 	    if (runnum < runIt->first) continue;
 	    if (runnum > runIt->second) continue;
 	    found = true;
@@ -687,7 +687,7 @@ int main(int argc, char * argv[]){
 
 	  } else {
 	    // logger << Root::kDEBUG << "Keeping run  " << runnum << " due to command-line run range" << Root::GEndl;
-	    it++;
+	    ++it;
 	  }
 	}
 

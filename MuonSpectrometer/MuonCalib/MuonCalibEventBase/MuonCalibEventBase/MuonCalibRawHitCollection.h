@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
@@ -202,35 +202,30 @@ namespace MuonCalib {
     if(rawHit){
       m_rawMdtHitVec.push_back(rawHit); 
     }
-    //    else std::cout << "!!!!Refuse to put an empty MuonCalibRawMdtHit in MuonCalibRawHitCollection" << std::endl;
   }  
 
   inline void MuonCalibRawHitCollection::addMuonCalibRawHit( MuonCalibRawRpcHit *rawHit ) { 
     if(rawHit){
       m_rawRpcHitVec.push_back(rawHit); 
     }
-    //    else std::cout << "!!!!Refuse to put an empty MuonCalibRawRpcHit in MuonCalibRawHitCollection" << std::endl;
   }  
 
   inline void MuonCalibRawHitCollection::addMuonCalibRawHit( MuonCalibRawTgcHit *rawHit ) { 
     if(rawHit){
       m_rawTgcHitVec.push_back(rawHit); 
     }
-    //    else std::cout << "!!!!Refuse to put an empty MuonCalibRawTgcHit in MuonCalibRawHitCollection" << std::endl;
   }  
 
   inline void MuonCalibRawHitCollection::addMuonCalibRawHit( MuonCalibRawTgcCoin *rawHit ) { 
     if(rawHit){
       m_rawTgcCoinVec.push_back(rawHit); 
     }
-    //    else std::cout << "!!!!Refuse to put an empty MuonCalibRawTgcCoin in MuonCalibRawCoinCollection" << std::endl;
   }  
 
   inline void MuonCalibRawHitCollection::addMuonCalibRawHit( MuonCalibRawCscHit *rawHit ) { 
     if(rawHit){
       m_rawCscHitVec.push_back(rawHit); 
     }
-    //    else std::cout << "!!!!Refuse to put an empty MuonCalibRawCscHit in MuonCalibRawHitCollection" << std::endl;
   }
 
 }  //namespace MuonCalib

@@ -35,7 +35,7 @@ atlas_add_component( Herwig7_i
    -DHWVER_IS_72=\"${HW3_VER_IS_72}\"
    LINK_LIBRARIES ${HERWIG3_LIBRARIES}  ${Boost_LIBRARIES} 
    ${THEPEG_LIBRARIES} ${GSL_LIBRARIES} ${VBFNLO_LIBRARIES}
-   GeneratorModulesLib EventInfo GaudiKernel PathResolver )
+   GeneratorModulesLib EventInfo GaudiKernel PathResolver AtlasHepMCLib )
 # ${OPENLOOPS_INCLUDE_DIRS} ${OPENLOOPS_LIBRARIES}
 
 # Install files from the package:

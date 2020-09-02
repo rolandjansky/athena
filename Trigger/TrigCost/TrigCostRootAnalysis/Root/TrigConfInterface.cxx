@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -147,10 +147,10 @@ namespace TrigCostRootAnalysis {
    * Look at which LB each keyset was being used in
    */
   void TrigConfInterface::populateLBPerKeysetStrings() {
-    for (const auto keyset : m_seenKeys) {
+    for (const auto& keyset : m_seenKeys) {
       // Set of my LB
       std::set<UInt_t> myLB;
-      for (const auto it : m_lumiToKeyMap) {
+      for (const auto& it : m_lumiToKeyMap) {
         if (it.second == keyset) {
           myLB.insert(it.first);
         }

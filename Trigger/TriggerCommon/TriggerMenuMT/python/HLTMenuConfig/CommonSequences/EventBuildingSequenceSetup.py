@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
@@ -74,6 +74,25 @@ def pebInfoWriterTool(name, eventBuildType):
                          SubDetector.SCT_ENDCAP_A_SIDE,
                          SubDetector.SCT_ENDCAP_C_SIDE
         ])
+    elif 'TilePEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.TILECAL_LASER_CRATE,
+                         SubDetector.TILECAL_BARREL_A_SIDE,
+                         SubDetector.TILECAL_BARREL_C_SIDE,
+                         SubDetector.TILECAL_EXT_A_SIDE,
+                         SubDetector.TILECAL_EXT_C_SIDE,
+                         SubDetector.TDAQ_CTP,
+                         SubDetector.TDAQ_CALO_PREPROC, # = 0x71
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_DAQ, # = 0x72
+                         SubDetector.TDAQ_CALO_CLUSTER_PROC_ROI, # = 0x73
+                         SubDetector.TDAQ_CALO_JET_PROC_DAQ, # = 0x74
+                         SubDetector.TDAQ_CALO_JET_PROC_ROI # = 0x75
+        ])
+    elif 'AlfaPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_ALPHA,
+                         SubDetector.TDAQ_CTP
+        ])
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)
@@ -90,6 +109,7 @@ def pebInfoWriterTool(name, eventBuildType):
 
 def pebInputMaker(eventBuildType):
     maker = InputMakerForRoI("IMpeb_"+eventBuildType)
+    maker.RoITool = ViewCreatorInitialROITool()
     maker.RoIs = "pebInputRoI_" + eventBuildType
     return maker
 

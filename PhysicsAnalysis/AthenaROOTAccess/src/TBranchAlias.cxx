@@ -27,11 +27,6 @@
 #include "TLeafObject.h"
 
 
-#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
-R__EXTERN TTree* gTree;
-#endif
-
-
 namespace AthenaROOTAccess {
 
 
@@ -184,11 +179,6 @@ TBranchAlias* TBranchAlias::addToTree (TTreeTrans* tree,
                                        const char* targ_branchname,
                                        const char* aux_branchname /*= ""*/)
 {
-#if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
-  // Needed by the Root code...
-  gTree = tree;
-#endif
-
   // May be needed by constructors.
   TTreeTrans::Push save_tree (tree);
 

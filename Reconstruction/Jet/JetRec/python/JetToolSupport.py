@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetToolSupport.py
 #
@@ -168,12 +168,13 @@ class JetToolManager:
 
   # Build the list of modifiers, replacing the string "calib:XXX:CALIB" with
   # the appropriate calibration tool.
-  def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt):
+  def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt, constmods=[]):
     from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
     from JetRec.JetRecConf import JetFinder
     outmods = []
     inmods = self.getModifiers(modifiersin, altname)
     ncalib = 0
+    constmodstr = "".join(constmods)
     for mod in inmods:
       jetlog.info( self.prefix + "Adding modifier " + str(mod) )
       mod0 = ""
@@ -234,7 +235,7 @@ class JetToolManager:
         sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Truth")
+        cname = output.replace(sinp, "Truth").replace(constmodstr, "")
         if cname == output:
             jetlog.info( sinp, cname, output )
             raise TypeError
@@ -252,7 +253,7 @@ class JetToolManager:
         sinp = getters[0].Label.split("Origin")[0]
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "PV0Track")
+        cname = output.replace(sinp, "PV0Track").replace(constmodstr, "")
         if cname == output:
             jetlog.info( sinp, cname, output )
             raise TypeError
@@ -324,7 +325,7 @@ class JetToolManager:
   #         is the highest.
   def addJetFinderTool(self, toolname, alg, radius, ivtx =None,
                        ghostArea =0.0, ptmin =0.0, rndseed =1,
-                       variableRMinRadius =-1.0, variableRMassScale =-1.0):
+                       variableRMinRadius =-1.0, variableRMassScale =-1.0, constmods=[]):
     myname = "JetToolManager:addJetFinderTool: "
     if toolname in self.tools:
       m = "Tool " + myname + " is already registered"
@@ -396,7 +397,7 @@ class JetToolManager:
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
-                   calibOpt ="", jetPseudojetCopier =""):
+                   calibOpt ="", jetPseudojetCopier ="", constmods=[]):
     self.msg(2, "Adding finder")
     from JetRec.JetRecConf import JetRecTool
     if type(gettersin) == str:
@@ -414,14 +415,14 @@ class JetToolManager:
       elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
     # Retrieve/build the jet finder.
     lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                            variableRMinRadius, variableRMassScale)
+                                              variableRMinRadius, variableRMassScale, constmods=constmods)
     jetrec = JetRecTool(output)
     jetrec.InputPseudoJets = [getter.OutputContainer for getter in getters]
     jetrec.JetFinder = hifinder
     jetrec.OutputContainer = output
     ptminSave = self.ptminFilter
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt, constmods=constmods)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     if consumers != None:
       jetrec.JetConsumers = consumers
@@ -564,6 +565,117 @@ class JetToolManager:
     self.jetcons += [output]
     return jetrec
 
+  # Create a SoftDrop and rectool.
+  #   output = name for output container (and JetRecTool)
+  #   beta = Beta used in SoftDrop
+  #   zcut = ZCut used in SoftDrop
+  #   r0   = R0   used in RecursiveSoftDrop
+  #   input = name of the input jet container
+  #   modifiersin = list of modifier tools (or name of such in modifiersMap)
+  def addJetSoftDrop(self, output, beta, zcut, r0, input, modifiersin ="groomed",
+                     isTrigger =False, useTriggerStore =False, doArea =True):
+    from JetRec.JetRecConf import JetSoftDrop
+    from JetRec.JetRecConf import JetRecTool
+    groomer = JetSoftDrop(output + "Groomer")
+    groomer.ZCut = zcut
+    groomer.Beta = beta
+    groomer.R0   = r0
+    if doArea:
+      groomer.JetBuilder = self.jetBuilderWithArea
+    else:
+      groomer.JetBuilder = self.jetBuilderWithoutArea
+    self += groomer
+    jetrec = JetRecTool(output)
+    jetrec.JetGroomer = groomer
+    jetrec.InputContainer = input
+    jetrec.OutputContainer = output
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.autoconfigureModifiers(jetrec.JetModifiers, output)
+    jetrec.Trigger = isTrigger or useTriggerStore
+    jetrec.Timer = jetFlags.timeJetRecTool()
+    self += jetrec
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
+    self.jetcons += [output]
+    return jetrec
+
+  # Create a BottomUpSoftDrop and rectool.
+  #   output = name for output container (and JetRecTool)
+  #   beta = Beta used in BottomUpSoftDrop
+  #   zcut = ZCut used in BottomUpSoftDrop
+  #   r0   = R0   used in BottomUpSoftDrop
+  #   input = name of the input jet container
+  #   modifiersin = list of modifier tools (or name of such in modifiersMap)
+  def addJetBottomUpSoftDrop(self, output, beta, zcut, r0, input, modifiersin ="groomed",
+                     isTrigger =False, useTriggerStore =False, doArea =True):
+    from JetRec.JetRecConf import JetBottomUpSoftDrop
+    from JetRec.JetRecConf import JetRecTool
+
+    groomer = JetBottomUpSoftDrop(output + "Groomer")
+    groomer.ZCut = zcut
+    groomer.Beta = beta
+    groomer.R0   = r0
+    if doArea:
+      groomer.JetBuilder = self.jetBuilderWithArea
+    else:
+      groomer.JetBuilder = self.jetBuilderWithoutArea
+    self += groomer
+    jetrec = JetRecTool(output)
+    jetrec.JetGroomer = groomer
+    jetrec.InputContainer = input
+    jetrec.OutputContainer = output
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.autoconfigureModifiers(jetrec.JetModifiers, output)
+    jetrec.Trigger = isTrigger or useTriggerStore
+    jetrec.Timer = jetFlags.timeJetRecTool()
+    self += jetrec
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
+    self.jetcons += [output]
+    return jetrec
+
+  # Create a RecursiveSoftDrop and rectool.
+  #   output = name for output container (and JetRecTool)
+  #   beta = Beta used in RecursiveSoftDrop
+  #   zcut = ZCut used in RecursiveSoftDrop
+  #   r0   = R0   used in RecursiveSoftDrop
+  #   input = name of the input jet container
+  #   modifiersin = list of modifier tools (or name of such in modifiersMap)
+  def addJetRecursiveSoftDrop(self, output, beta, zcut, N, r0, input, modifiersin ="groomed",
+                     isTrigger =False, useTriggerStore =False, doArea =True):
+    from JetRec.JetRecConf import JetRecursiveSoftDrop
+    from JetRec.JetRecConf import JetRecTool
+
+    groomer = JetRecursiveSoftDrop(output + "Groomer")
+    groomer.ZCut = zcut
+    groomer.Beta = beta
+    groomer.N    = N
+    groomer.R0   = r0
+    if doArea:
+      groomer.JetBuilder = self.jetBuilderWithArea
+    else:
+      groomer.JetBuilder = self.jetBuilderWithoutArea
+    self += groomer
+    jetrec = JetRecTool(output)
+    jetrec.JetGroomer = groomer
+    jetrec.InputContainer = input
+    jetrec.OutputContainer = output
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
+    self.autoconfigureModifiers(jetrec.JetModifiers, output)
+    jetrec.Trigger = isTrigger or useTriggerStore
+    jetrec.Timer = jetFlags.timeJetRecTool()
+    self += jetrec
+    if isTrigger:
+      self.trigjetrecs += [jetrec]
+    else:
+      self.jetrecs += [jetrec]
+    self.jetcons += [output]
+    return jetrec
+
   # Create a jet reclusterer and rectool.
   #   output = name for output container (and JetRecTool)
   #   alg = akgorithm name (Kt, CamKt, AntiKt)
@@ -593,13 +705,13 @@ class JetToolManager:
                         ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                         isTrigger =False, useTriggerStore =False,
                         variableRMinRadius =-1.0, variableRMassScale =-1.0,
-                        calibOpt ="", jetPseudojetCopier =""):
+                        calibOpt ="", jetPseudojetCopier ="", constmods=[]):
     self.msg(2, "Adding reclusterer")
     from JetRec.JetRecConf import JetRecTool
     from JetRec.JetRecConf import JetReclusterer
     # Retrieve/build the jet finder.
     lofinder,hifinder = self.addJetFinderTool(output+"Finder", alg, radius, ivtx, ghostArea, ptmin, rndseed, 
-                                              variableRMinRadius, variableRMassScale)
+                                              variableRMinRadius, variableRMassScale, constmods=constmods)
     reclname = output + "Reclusterer"
     groomer = JetReclusterer(
       reclname,
@@ -630,7 +742,7 @@ class JetToolManager:
   #   output = name for input container
   #   modifiersin = list of modifier tools (or name of such in modifiersMap)
   def addJetCopier(self, output, input, modifiersin, ptminFilter =0.0, radius =0.0, alg ="", inp ="",
-                   isTrigger=False, useTriggerStore=False, calibOpt ="", shallow =True):
+                   isTrigger=False, useTriggerStore=False, calibOpt ="", shallow =True, constmods=[]):
     from JetRec.JetRecConf import JetRecTool
     jetrec = JetRecTool(output)
     jetrec.InputContainer = input
@@ -643,12 +755,12 @@ class JetToolManager:
     class get:
       Label = inp
     getters = [get]
-    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
+    jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt, constmods=constmods)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
-    jetrec.ShallowCopy = shallow
+###    jetrec.ShallowCopy = shallow
     self += jetrec
     self.jetrecs += [jetrec]
     self.jetcons += [output]

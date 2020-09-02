@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "MissingETPerformance/MuonTool.h"
 
@@ -22,9 +22,9 @@
 
 //HEPMC stuff
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenNonInteracting.h"
 #include "TruthHelper/GenAccessIO.h"

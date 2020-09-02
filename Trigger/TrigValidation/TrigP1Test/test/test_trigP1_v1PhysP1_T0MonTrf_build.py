@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: transform test of BSRDOtoRAW + T0Reco + T0Mon, using v1PhysP1 menu
 # art-type: build
@@ -23,9 +24,10 @@ hlt.input = 'data'
 #====================================================================================================
 # Tier-0 reco step BS->ESD->AOD
 tzrecoPreExec = ' '.join([
+ "from AthenaConfiguration.AllConfigFlags import ConfigFlags;",
+ "ConfigFlags.Trigger.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
  "from TriggerJobOpts.TriggerFlags import TriggerFlags;",
  "TriggerFlags.configForStartup=\'HLToffline\';",
- "TriggerFlags.triggerMenuSetup=\'PhysicsP1_pp_run3_v1\';",
  "TriggerFlags.inputHLTconfigFile.set_Value_and_Lock(\'NONE\');",
  "TriggerFlags.AODEDMSet.set_Value_and_Lock(\'AODFULL\')",
 ])

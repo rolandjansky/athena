@@ -18,7 +18,7 @@ if InDetFlags.doTRTPhaseCalculation() and jobproperties.Beam.beamType()=="collis
 #
 # ------------------------------------------------------------
 
-# fix 
+# fix
 if not InDetFlags.doTruth():
   InputTrackCollectionTruth = None
 
@@ -46,35 +46,7 @@ if InDetFlags.doForwardTracks():
                                                              TrackParticles            = InDetKeys.ResolvedForwardTrackParticles(),
                                                              TrackParticlesTruth       = InDetKeys.ResolvedForwardTrackParticlesTruth())
 
-# ------------------------------------------------------------
-#
-# --- do we write Vertices and TrackParticles for all?
-#
-# ------------------------------------------------------------
-if InDetFlags.AODall():
 
-  if InDetFlags.doiPatRec():
-    #
-    # --- IPatRec post processing
-    #
-    InDetPriVtxPartCreation = ConfiguredPriVtxAndPartCreation (extension                 = "IPat",
-                                                               InputTrackCollection      = InDetKeys.IPatConvertedTracks(),
-                                                               InputTrackCollectionTruth = InDetKeys.IPatConvertedTracksTruth(),
-                                                               VxCandidates              = InDetKeys.IPatPrimaryVertices(),
-                                                               TrackParticles            = InDetKeys.IPatParticles(),
-                                                               TrackParticlesTruth       = InDetKeys.IPatParticlesTruth())
-
-  if InDetFlags.doxKalman():
-    #
-    # --- IPatRec post processing
-    #
-    InDetPriVtxPartCreation = ConfiguredPriVtxAndPartCreation (extension                 = "XKal",
-                                                               InputTrackCollection      = InDetKeys.XKalConvertedTracks(),
-                                                               InputTrackCollectionTruth = InDetKeys.XKalConvertedTracksTruth(),
-                                                               VxCandidates              = InDetKeys.XKalPrimaryVertices(),
-                                                               TrackParticles            = InDetKeys.XKalParticles(),
-                                                               TrackParticlesTruth       = InDetKeys.XKalParticlesTruth())
-          
 # ------------------------------------------------------------
 #
 #  --- now load primary vertex setup with no beamconstraint and in split mode for enhanced monitoring
@@ -150,17 +122,17 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
   if InDetFlags.doPrintConfigurables():
     printfunc (InDetPriVxFinderSplit)
 
-# ---------------------------------------------------------------------------- 
+# ----------------------------------------------------------------------------
 #
-# --- TRT low beta finder (sources unslimmed tracks via TrackParticle objects) 
+# --- TRT low beta finder (sources unslimmed tracks via TrackParticle objects)
 #
-# ----------------------------------------------------------------------------     
+# ----------------------------------------------------------------------------
 
 if InDetFlags.doLowBetaFinder():
   include ("InDetRecExample/ConfiguredLowBetaFinder.py")
   from AthenaCommon.GlobalFlags import globalflags
   InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.xAODTrackParticleContainer(),
-                                                     True if (globalflags.DataSource is not "data") else False,
+                                                     True if (globalflags.DataSource != "data") else False,
                                                      InDetKeys.UnslimmedTracks())
 
 # -------------------------------------------------------------------------
@@ -188,7 +160,7 @@ if InDetFlags.doV0Finder():
     InDetLambdabarFitter = None
   else:
     InDetV0Fitter   = None
-    #    
+    #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetVKVertexFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKVFitter",
                                                 Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
@@ -254,11 +226,10 @@ if InDetFlags.doV0Finder():
 
   # Track selector tool
   #
-  if InDetFlags.doV0Finder() :  
-    if InDetFlags.doSimpleV0Finder() :  
+  if InDetFlags.doV0Finder() :
+    if InDetFlags.doSimpleV0Finder() :
       from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
       InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
-                                                                       TrackSummaryTool    = InDetTrackSummaryTool,
                                                                        Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                                        maxTrtD0            = 50.,
                                                                        maxSiZ0             = 250.,
@@ -270,7 +241,6 @@ if InDetFlags.doV0Finder():
     else:
       from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
       InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
-                                                                       TrackSummaryTool    = InDetTrackSummaryTool,
                                                                        Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
                                                                        maxTrtD0            = 50.,
                                                                        maxSiZ0             = 250.,
@@ -284,7 +254,7 @@ if InDetFlags.doV0Finder():
       printfunc (InDetV0VxTrackSelector)
       pass
     pass
-  
+
   #
   # Vertex point estimator
   #
@@ -306,7 +276,7 @@ if InDetFlags.doV0Finder():
   #
   # InDetV0FinderTool
   #
-  if InDetFlags.doSimpleV0Finder() :  
+  if InDetFlags.doSimpleV0Finder() :
     from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
     V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
                                             TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
@@ -329,8 +299,8 @@ if InDetFlags.doV0Finder():
                                             ulamax                  = 2000.,
                                             ksmin                   = 350,
                                             ksmax                   = 650,
-                                            lamin                   = 900, 
-                                            lamax                   = 1300,    
+                                            lamin                   = 900,
+                                            lamax                   = 1300,
                                             d0_cut                  = 0.,
                                             Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
   else:
@@ -358,9 +328,9 @@ if InDetFlags.doV0Finder():
     printfunc (V0FinderTool)
 
   #
-  # --- now configure the algorithm 
-  # 
-  if InDetFlags.doV0Finder() :  
+  # --- now configure the algorithm
+  #
+  if InDetFlags.doV0Finder() :
     from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0Finder
     InDetV0Finder = InDet__InDetV0Finder(name                    = 'InDetV0Finder',
                                          #decorateV0              = False,
@@ -369,13 +339,13 @@ if InDetFlags.doV0Finder():
                                          KshortContainerName     = InDetKeys.xAODKshortVertexContainer(),
                                          LambdaContainerName     = InDetKeys.xAODLambdaVertexContainer(),
                                          LambdabarContainerName  = InDetKeys.xAODLambdabarVertexContainer())
-    
+
     topSequence += InDetV0Finder
     if (InDetFlags.doPrintConfigurables()):
       printfunc (InDetV0Finder)
       pass
     pass
-  
+
   pass # end if (doV0Finder)
 
 # ----------------------------------------------------------------------
@@ -386,7 +356,7 @@ if InDetFlags.doV0Finder():
 
 if InDetFlags.doSecVertexFinder():
   #
-  # --- setup of cut values for  Secondary vertexing  
+  # --- setup of cut values for  Secondary vertexing
   #
   if (not 'InDetSecondaryVertexCuts' in dir()):
     printfunc ("InDetRecPostProcessing: InDetSecondaryVertexCuts not set before - import them now")
@@ -406,7 +376,6 @@ if InDetFlags.doSecVertexFinder():
                                                       TrackParticles   = InDetKeys.TrackParticles(),
                                                       SecVertices      = InDetKeys.SecVertices(),
                                                       Extrapolator     = InDetExtrapolator,
-                                                      TrackSummaryTool = InDetTrackSummaryTool,
                                                       printConfig      = InDetFlags.doPrintConfigurables())
   # --- we need the driving algorithm
   InDetSecVertexFinding.addAlgorithm()
@@ -419,7 +388,7 @@ if InDetFlags.doSecVertexFinder():
 
 if InDetFlags.doConversions():
   #
-  # --- setup of cut values for  Conversion vertexing  
+  # --- setup of cut values for  Conversion vertexing
   #
   if (not 'InDetConversionVertexCuts' in dir()):
     printfunc ("InDetRecPostProcessing: InDetConversionVertexCuts not set before - import them now")
@@ -439,7 +408,7 @@ if InDetFlags.doConversions():
   convUtils = Trk__NeutralParticleParameterCalculator(
       name                   = "convUtils",
       LinearizedTrackFactory = None)
-  ToolSvc+= convUtils 
+  ToolSvc+= convUtils
 
   from InDetRecExample.ConfiguredSecVertexFinding import ConfiguredSecVertexFinding
   InDetConversionFinding = ConfiguredSecVertexFinding (prefix           = "InDetConversion",
@@ -447,7 +416,6 @@ if InDetFlags.doConversions():
                                                        TrackParticles   = InDetKeys.xAODTrackParticleContainer(),
                                                        SecVertices      = InDetKeys.Conversions(),
                                                        Extrapolator     = InDetExtrapolator,
-                                                       TrackSummaryTool = InDetTrackSummaryTool,
                                                        printConfig      = InDetFlags.doPrintConfigurables())
   # --- we need the driving algorithm
   InDetConversionFinding.addAlgorithm()
@@ -485,7 +453,7 @@ if rec.doPhysicsValidationAugmentation() :
                ' versions of InDetPhysValMonitoring')
     import traceback
     log.info (traceback.format_exc())
-    import sys 
+    import sys
     sys.exit(1)
     pass
 

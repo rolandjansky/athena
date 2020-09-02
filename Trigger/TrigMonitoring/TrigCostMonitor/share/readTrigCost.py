@@ -59,10 +59,10 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/HLTResult_L2"
 # Set input files
 #
 if ('BSRDOInput' in dir()):
-    svcMgr.ByteStreamInputSvc.FullFileName = BSRDOInput
+    svcMgr.EventSelector.Input = BSRDOInput
 
-if len(svcMgr.ByteStreamInputSvc.FullFileName) == 0:
-    print 'ERROR! svcMgr.ByteStreamInputSvc.FullFileName is empty'
+if len(svcMgr.EventSelector.Input) == 0:
+    print 'ERROR! svcMgr.EventSelector.Input is empty'
     sys.exit(1)
 
 #----------------------------------------------------------------------

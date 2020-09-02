@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
        if (takeIt) (layerSurfaces[currentlayer]).push_back(surfaceOrder);
      
      } else if (!(*sidetIter)) // barrel chek and screen output
-        ATH_MSG_WARNING("NULL pointer to Barrel module given by SiDetectorManager! Please check db & dict.xml");
+        ATH_MSG_WARNING("nullptr to Barrel module given by SiDetectorManager! Please check db & dict.xml");
   
   } // SiDet Loop
 
@@ -541,7 +541,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::discLayers() 
 std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(std::vector<const Trk::DiscLayer*>* dLayers) const {
  
   // this is the DBM flag
-  bool isDBM = (dLayers!=NULL);
+  bool isDBM = (dLayers!=nullptr);
   
   // get general layout
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = m_siMgr->getDetectorElementBegin();
@@ -671,7 +671,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
             takeBigger(discRingMaxR[currentlayer][currentring],currentRmax);
         }
      } else if (!(*sidetIter))
-        ATH_MSG_WARNING("NULL pointer to Endcap module given by SCT_DetectorManager! Please check db & dict.xml");
+        ATH_MSG_WARNING("nullptr to Endcap module given by SCT_DetectorManager! Please check db & dict.xml");
   } // DetElement loop 
 
   double minRmin = 10e10;
@@ -1010,6 +1010,12 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
     sortIter = discLayers->begin();
     sortEnd   = discLayers->end(); 
     std::sort(sortIter, sortEnd, zSorter);
+  }
+
+  ATH_MSG_DEBUG("Returning: " << discLayers->size() << " disk-like layers to the volume builder");
+  for (const auto& dl : (*discLayers)){
+ 	ATH_MSG_VERBOSE(" ----> Pointer location : " << dl);
+        ATH_MSG_VERBOSE(" ----> Disk layer located at : " << dl->surfaceRepresentation().center().z());
   }
  
   return discLayers;

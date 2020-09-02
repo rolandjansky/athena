@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.12] [x86_64-centos7-gcc8-opt] [GaudiConfig2_CA/b8a12fd] -- built on [2020-04-01T1621]
+Py:Athena            INFO using release [WorkDir-22.0.13] [x86_64-centos7-gcc8-opt] [atlas-work3g/4a25c3a12f4d] -- built on [2020-05-01T0612]
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
 Py:MetaReader        INFO Current mode used: peeker
 Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
@@ -8,4 +8,4 @@ Py:TileInfoLoaderCfg    INFO Adjusting TileInfo to return cell noise for Opt.Fil
 Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
 Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
 Py:ComponentAccumulator    INFO Condition Algorithms
-ComponentAccumulator: CaloEstimatedGainTool('CaloEstimatedGainTool', TileCondIdTransforms=TileCondIdTransforms('TileCondIdTransforms'), TileCondToolNoiseSample=TileCondToolNoiseSample('TileCondToolNoiseSample', TileOnlineSampleNoise='', TileSampleNoise='TileSampleNoise'), ADC2MeVKey='LArADC2MeV', TileCondToolEmscale=TileCondToolEmscale('TileCondToolEmscale', TileEMScale='TileEMScale'))
+ComponentAccumulator: CaloEstimatedGainTool(CaloEstimatedGainTool, ADC2MeVKey='LArADC2MeV', TileCondIdTransforms='TileCondIdTransforms(TileCondIdTransforms)', TileCondToolEmscale="TileCondToolEmscale(TileCondToolEmscale, TileEMScale='TileEMScale')", TileCondToolNoiseSample="TileCondToolNoiseSample(TileCondToolNoiseSample, TileOnlineSampleNoise='', TileSampleNoise='TileSampleNoise')")

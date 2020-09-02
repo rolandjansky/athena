@@ -92,7 +92,7 @@ class ImagingSeedTuningAlg
 
   void analyzeTracks(const std::vector<Trk::ITrackLink*> & trackVector, std::vector<const Trk::TrackParameters*>& perigeeList);
 
-  void analyzeSeeds(std::string conditions, const std::vector<Amg::Vector3D>& seeds, const std::vector<Amg::Vector3D>& truth);
+  void analyzeSeeds(const std::string& conditions, const std::vector<Amg::Vector3D>& seeds, const std::vector<Amg::Vector3D>& truth);
 
   StatusCode initializeConditions(std::string& conditions);
 

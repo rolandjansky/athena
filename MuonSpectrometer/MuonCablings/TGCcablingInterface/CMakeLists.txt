@@ -17,6 +17,3 @@ atlas_add_library( TGCcablingInterfaceLib
                    PUBLIC_HEADERS TGCcablingInterface
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel )
 
-# Install files from the package:
-atlas_install_python_modules( python/__init__.py )
-

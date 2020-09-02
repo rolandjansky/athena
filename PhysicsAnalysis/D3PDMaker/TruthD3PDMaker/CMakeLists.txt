@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTruth
                           GaudiKernel
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           Generators/GenInterfaces
                           Generators/TruthUtils
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
@@ -28,15 +29,14 @@ atlas_depends_on_subdirs( PRIVATE
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
-find_package( HepMC )
 find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_component( TruthD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel Navigation EventInfo xAODTruth GaudiKernel GeneratorObjects TruthUtils D3PDMakerUtils TruthD3PDAnalysisLib MCTruthClassifierLib McParticleEvent McParticleKernel JetEvent TrkToolInterfaces )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel Navigation EventInfo xAODTruth GaudiKernel GeneratorObjects TruthUtils D3PDMakerUtils TruthD3PDAnalysisLib MCTruthClassifierLib McParticleEvent McParticleKernel JetEvent TrkToolInterfaces GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

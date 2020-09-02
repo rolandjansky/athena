@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPruner.cxx
@@ -78,8 +78,8 @@ int JetPruner::groom(const xAOD::Jet& jin,
   ATH_MSG_VERBOSE(" Pruned cluster sequence: " << pjprun.associated_cluster_sequence());
   // Add jet to collection.
   xAOD::Jet* pjet = m_bld->add(pjprun, pjContainer, jets, &jin);
-  pjet->setAttribute("RCut", m_rcut);
-  pjet->setAttribute("ZCut", m_zcut);
+  pjet->setAttribute<float>("RCut", m_rcut);
+  pjet->setAttribute<float>("ZCut", m_zcut);
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Prune);
   ATH_MSG_DEBUG("Properties after pruning:");
   ATH_MSG_DEBUG("   ncon: " << pjprun.constituents().size() << "/"

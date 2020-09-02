@@ -115,7 +115,7 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
 
   // Set the timeout value (cast float to int)
-  m_softTimeoutValue = static_cast<int>(m_hardTimeout.value() * m_softTimeoutFraction.value());
+  m_softTimeoutValue = std::chrono::milliseconds(static_cast<int>(m_hardTimeout.value() * m_softTimeoutFraction.value()));
 
   // Read DataFlow configuration properties
   updateDFProps();
@@ -124,7 +124,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> ApplicationName           = " << m_applicationName);
   ATH_MSG_INFO(" ---> HardTimeout               = " << m_hardTimeout.value());
   ATH_MSG_INFO(" ---> SoftTimeoutFraction       = " << m_softTimeoutFraction.value());
-  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue);
+  ATH_MSG_INFO(" ---> SoftTimeoutValue          = " << m_softTimeoutValue.count());
   ATH_MSG_INFO(" ---> MaxFrameworkErrors        = " << m_maxFrameworkErrors.value());
   ATH_MSG_INFO(" ---> FwkErrorDebugStreamName   = " << m_fwkErrorDebugStreamName.value());
   ATH_MSG_INFO(" ---> AlgErrorDebugStreamName   = " << m_algErrorDebugStreamName.value());
@@ -186,6 +186,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
   ATH_CHECK(m_ioCompMgr.retrieve());
+  if (m_monitorScheduler) {
+    ATH_CHECK(m_schedulerMonSvc.retrieve());
+  }
 
   //----------------------------------------------------------------------------
   // Initialise tools
@@ -250,7 +253,8 @@ StatusCode HltEventLoopMgr::finalize()
                  m_detectorStore,
                  m_inputMetaDataStore,
                  m_evtSelector,
-                 m_outputCnvSvc);
+                 m_outputCnvSvc,
+                 m_schedulerMonSvc);
 
   releaseTool(m_coolHelper,
               m_hltResultMaker,
@@ -265,6 +269,43 @@ StatusCode HltEventLoopMgr::finalize()
 }
 
 // =============================================================================
+// Implementation of ITrigEventLoopMgr::prepareForStart
+// =============================================================================
+StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
+{
+  try {
+    const auto& rparams = pt.get_child("RunParams");
+    m_sorHelper = std::make_unique<TrigSORFromPtreeHelper>(msgSvc(), m_detectorStore, m_sorPath, rparams);
+  }
+  catch(ptree_bad_path& e) {
+    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  // Override run/timestamp if needed
+  if (m_forceRunNumber > 0) {
+    m_sorHelper->setRunNumber(m_forceRunNumber);
+    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
+  }
+  if (m_forceSOR_ns > 0) {
+    m_sorHelper->setSORtime_ns(m_forceSOR_ns);
+    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
+  }
+
+  // Set our "run context" (invalid event/slot)
+  m_currentRunCtx.setEventID( m_sorHelper->eventID() );
+  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                           m_currentRunCtx.eventID().run_number()));
+
+  // Some algorithms expect a valid context during start()
+  ATH_MSG_DEBUG("Setting context for start transition: " << m_currentRunCtx.eventID());
+  Gaudi::Hive::setCurrentContext(m_currentRunCtx);
+
+  return StatusCode::SUCCESS;
+}
+
+
+// =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
@@ -276,9 +317,9 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
-    ATH_CHECK(clearTemporaryStores());  // do the necessary resets
-    ATH_CHECK( processRunParams(pt) );  // update SOR in det store
-    ATH_CHECK( updateMagField(pt) );    // update magnetic field
+    ATH_CHECK( clearTemporaryStores() );                 // do the necessary resets
+    ATH_CHECK( m_sorHelper->fillSOR(m_currentRunCtx) );  // update SOR in det store
+    ATH_CHECK( updateMagField(pt) );                     // update magnetic field
 
     auto& soral = getSorAttrList();
 
@@ -305,14 +346,6 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
-  }
-  catch(const ptree_bad_path & e)
-  {
-    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
-  }
-  catch(const ptree_bad_data & e)
-  {
-    ATH_MSG_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - " << e.what());
   }
   catch(const std::runtime_error& e)
   {
@@ -389,10 +422,14 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
   {
     std::unique_lock<std::mutex> lock(m_timeoutMutex);
     m_eventTimerStartPoint.clear();
-    m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::time_point());
+    m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::now());
     m_isSlotProcessing.resize(m_whiteboard->getNumberOfStores(), false);
   }
   m_timeoutCond.notify_all();
+
+  // Initialise vector of time points for free slots monitoring
+  m_freeSlotStartPoint.clear();
+  m_freeSlotStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::now());
 
   // Fire incident to update listeners after forking
   m_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_workerID, m_workerPID, name(), m_currentRunCtx));
@@ -407,11 +444,24 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  StatusCode sc = nextEvent(maxevt);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Event loop failed");
-    // Extra clean-up may be needed here after the failure
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->startMonitoring());
+
+  StatusCode sc = StatusCode::SUCCESS;
+  try {
+    sc = nextEvent(maxevt);
+    if (sc.isFailure()) ATH_MSG_FATAL("Event loop failed");
   }
+  catch (const std::exception& e) {
+    ATH_MSG_FATAL("Event loop failed, std::exception caught: " << e.what());
+    sc = StatusCode::FAILURE;
+  }
+  catch (...) {
+    ATH_MSG_FATAL("Event loop failed, unknown exception caught");
+    sc = StatusCode::FAILURE;
+  }
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->stopMonitoring());
 
   // Stop the timer thread
   {
@@ -680,6 +730,12 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
 
   resetTimeout(Athena::Timeout::instance(ctx));
 
+  // Monitor slot idle time (between scheduler popFinishedEvent and pushNewEvent)
+  // Note this is time of a scheduler slot being free, not equal to the time of a whiteboard slot being free
+  const auto slotIdleTime = std::chrono::steady_clock::now() - m_freeSlotStartPoint[ctx.slot()];
+  Monitored::Scalar<int64_t> monSlotIdleTime("SlotIdleTime", std::chrono::duration_cast<std::chrono::milliseconds>(slotIdleTime).count());
+  auto mon = Monitored::Group(m_monTool, monSlotIdleTime);
+
   // Now add event to the scheduler
   ATH_MSG_DEBUG("Adding event " <<  ctx.evt() << ", slot " << ctx.slot() << " to the scheduler");
   StatusCode addEventStatus = m_schedulerSvc->pushNewEvent( new EventContext{std::move(ctx)} );
@@ -714,36 +770,6 @@ void HltEventLoopMgr::updateDFProps()
   getDFProp( "DF_Pid", wpid, false );
   if (!wid.empty()) m_workerID = std::stoi(wid);
   if (!wpid.empty()) m_workerPID = std::stoi(wpid);
-}
-
-// =============================================================================
-StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  const auto& rparams = pt.get_child("RunParams");
-  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath, rparams);
-
-  // Override run/timestamp if needed
-  if (m_forceRunNumber > 0) {
-    sorhelp.setRunNumber(m_forceRunNumber);
-    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
-  }
-  if (m_forceSOR_ns > 0) {
-    sorhelp.setSORtime_ns(m_forceSOR_ns);
-    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
-  }
-
-  // Set our "run context" (invalid event/slot)
-  m_currentRunCtx.setEventID( sorhelp.eventID() );
-  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
-                                                           m_currentRunCtx.eventID().run_number()));
-
-  // Fill SOR parameters from ptree and inform IOVDbSvc
-  ATH_CHECK( sorhelp.fillSOR(m_currentRunCtx) );
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -943,13 +969,12 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
 
   auto drainAllAndProceed = [&]() -> StatusCode {
     ATH_CHECK(drainAllSlots()); // break the event loop on failure
-    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)<=m_maxFrameworkErrors.value()) )
-      return StatusCode::SUCCESS; // continue the event loop
-    else {
+    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("The number of tolerable framework errors for this HltEventLoopMgr instance, which is "
                     << m_maxFrameworkErrors.value() << ", was exceeded. Exiting the event loop.");
       return StatusCode::FAILURE; // break the event loop
     }
+    else return StatusCode::SUCCESS; // continue the event loop
   };
 
   //----------------------------------------------------------------------------
@@ -1125,7 +1150,7 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
   if (errorCode != HLT::OnlineErrorCode::TIMEOUT
       && errorCode != HLT::OnlineErrorCode::RESULT_TRUNCATION
       && errorCode != HLT::OnlineErrorCode::PROCESSING_FAILURE) {
-    if ( (++m_nFrameworkErrors)>m_maxFrameworkErrors.value() ) {
+    if ( m_maxFrameworkErrors.value()>=0 && ((++m_nFrameworkErrors)>m_maxFrameworkErrors.value()) ) {
       ATH_MSG_ERROR("Failure with OnlineErrorCode=" << errorCode
         << " was successfully handled, but the number of tolerable framework errors for this HltEventLoopMgr instance,"
         << " which is " << m_maxFrameworkErrors.value() << ", was exceeded. Current local event number is "
@@ -1148,7 +1173,6 @@ StatusCode HltEventLoopMgr::failedEvent(HLT::OnlineErrorCode errorCode, const Ev
 void HltEventLoopMgr::runEventTimer()
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  auto softDuration = std::chrono::milliseconds(m_softTimeoutValue);
   std::unique_lock<std::mutex> lock(m_timeoutMutex);
   while (m_runEventTimer) {
     m_timeoutCond.wait_for(lock,std::chrono::seconds(1));
@@ -1156,7 +1180,7 @@ void HltEventLoopMgr::runEventTimer()
     for (size_t i=0; i<m_eventTimerStartPoint.size(); ++i) {
       // iterate over all slots and check for timeout
       if (!m_isSlotProcessing.at(i)) continue;
-      if (now > m_eventTimerStartPoint.at(i) + softDuration) {
+      if (now > m_eventTimerStartPoint.at(i) + m_softTimeoutValue) {
         EventContext ctx(0,i); // we only need the slot number for Athena::Timeout instance
         // don't duplicate the actions if the timeout was already reached
         if (!Athena::Timeout::instance(ctx).reached()) {
@@ -1236,6 +1260,9 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     if (!thisFinishedEvtContext) markFailed();
     HLT_DRAINSCHED_CHECK(sc, "Detected nullptr EventContext while finalising a processed event",
                          HLT::OnlineErrorCode::CANNOT_ACCESS_SLOT, thisFinishedEvtContext);
+
+    // Reset free slot timer for monitoring
+    m_freeSlotStartPoint[thisFinishedEvtContext->slot()] = std::chrono::steady_clock::now();
 
     // Set ThreadLocalContext to the currently processed finished context
     Gaudi::Hive::setCurrentContext(thisFinishedEvtContext);

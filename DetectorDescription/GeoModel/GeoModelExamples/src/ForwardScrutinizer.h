@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ForwardScrutinizer_h
@@ -10,7 +10,7 @@
     #include "Identifier/Identifier.h"
 #endif
 
-class ForwardScrutinizer : public GeoVDetectorElement
+class ForwardScrutinizer final : public GeoVDetectorElement
 {
  public:
   ForwardScrutinizer(const GeoVFullPhysVol *fullPhysVol);

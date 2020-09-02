@@ -1,0 +1,88 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// @author Nils Krumnack
+
+
+//
+// includes
+//
+
+#include <AsgTools/MessageCheck.h>
+#include <AsgTools/StatusCode.h>
+#include <SystematicsHandles/Helpers.h>
+
+//
+// method implementations
+//
+
+namespace CP
+{
+  template<typename T> template<typename T2> SysReadHandle<T> ::
+  SysReadHandle (T2 *owner, const std::string& propertyName,
+                 const std::string& propertyValue,
+                 const std::string& propertyDescription)
+    : AsgMessagingForward (owner), m_inputName (propertyValue)
+    , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+  {
+    owner->declareProperty (propertyName, m_inputName, propertyDescription);
+    owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
+  }
+
+
+
+  template<typename T> bool SysReadHandle<T> ::
+  empty () const noexcept
+  {
+    return m_inputName.empty();
+  }
+
+
+
+  template<typename T> SysReadHandle<T> ::
+  operator bool () const noexcept
+  {
+    return !m_inputName.empty();
+  }
+
+
+
+  template<typename T> const std::string& SysReadHandle<T> ::
+  getName (const CP::SystematicSet& sys) const
+  {
+    auto cache = m_inputNameCache.find (sys);
+    if (cache == m_inputNameCache.end())
+    {
+      std::string newName = makeSystematicsName
+        (m_inputName, m_affectingRegex, sys);
+      ANA_MSG_DEBUG ("SysReadHandle: " << newName << " (" << sys.name() << ")");
+      m_inputNameCache.insert (std::make_pair (sys, newName));
+      cache = m_inputNameCache.find (sys);
+      assert (cache != m_inputNameCache.end());
+
+      // retrieving this here, just so it exists
+      if (!m_evtStore)
+        m_evtStore = m_evtStoreGetter();
+    }
+    return cache->second;
+  }
+
+
+
+  template<typename T> ::StatusCode SysReadHandle<T> ::
+  retrieve (const T*& object, const CP::SystematicSet& sys) const
+  {
+    const std::string& name = getName (sys);
+    assert (m_evtStore);
+    return m_evtStore->retrieve (object, name);
+  }
+
+
+
+  template<typename T> std::string SysReadHandle<T> ::
+  getInputAffecting () const
+  {
+    return m_affectingRegex;
+  }
+}

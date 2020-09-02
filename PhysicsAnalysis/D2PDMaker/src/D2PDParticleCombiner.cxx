@@ -48,8 +48,8 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // The AthenaBarCode, used to check if two particles are identical
 #include "Navigation/IAthenaBarCode.h"

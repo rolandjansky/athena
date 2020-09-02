@@ -1,14 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHitSummaryTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegment/MuonSegment.h"
-#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
@@ -17,50 +13,21 @@
 
 namespace Muon {
 
-  MuonHitSummaryTool::MuonHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+  MuonHitSummaryTool::MuonHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa) :
+    AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
     declareInterface<IMuonHitSummaryTool>(this);
   }
 
-
-  MuonHitSummaryTool::~MuonHitSummaryTool(){}
-
-
-  StatusCode MuonHitSummaryTool::initialize()  {
-
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
-    if( m_idHelper.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("could no initialize " << m_idHelper);
-      return StatusCode::FAILURE;
-    }
-
-    if( !m_summaryHelperTool.empty() && m_summaryHelperTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("could no initialize " << m_summaryHelperTool);
-      return StatusCode::FAILURE;
-    }
-
-    if( !m_printer.empty() && m_printer.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("could no initialize " << m_printer);
-      return StatusCode::FAILURE;
-    }
-
-    if( m_edmHelperSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("could no initialize " << m_edmHelperSvc);
-      return StatusCode::FAILURE;
-    }
-
+  StatusCode MuonHitSummaryTool::initialize() {
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    if(!m_summaryHelperTool.empty()) ATH_CHECK(m_summaryHelperTool.retrieve());
+    if(!m_printer.empty()) ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     return StatusCode::SUCCESS;
   }
-
-  StatusCode MuonHitSummaryTool::finalize()  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS; 
-  } 
 
   void MuonHitSummaryTool::getMuonTrackSummary( Trk::MuonTrackSummary& muonSummary, const Trk::Track& track ) const {
 
@@ -78,8 +45,7 @@ namespace Muon {
 
   IMuonHitSummaryTool::CompactSummary MuonHitSummaryTool::summary( const Trk::Track& track ) const {
 
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << m_printer->print(track) 
-      << std::endl << m_printer->printStations(track) << endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(m_printer->print(track) << std::endl << m_printer->printStations(track));
 
     // check if the track already has a MuonTrackSummary, if so use it
     if ( track.trackSummary() && track.trackSummary()->muonTrackSummary() ) return summary(*track.trackSummary()->muonTrackSummary());
@@ -107,15 +73,15 @@ namespace Muon {
     std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit_end = s.chamberHitSummary().end();
     for( ;chit!=chit_end;++chit ) {
       const Identifier& chId = chit->chamberId();
-      bool isMdt = m_idHelper->isMdt(chId);
-      bool isCsc = m_idHelper->isCsc(chId);
-      bool isMM   = m_idHelper->isMM(chId);
-      bool issTgc = m_idHelper->issTgc(chId);
+      bool isMdt = m_idHelperSvc->isMdt(chId);
+      bool isCsc = m_idHelperSvc->isCsc(chId);
+      bool isMM   = m_idHelperSvc->isMM(chId);
+      bool issTgc = m_idHelperSvc->issTgc(chId);
       bool isEIPrec = isCsc||isMM||issTgc;
 
       // only account for sectors if chamber has eta hits 
       if( (isMdt && chit->nhits() > 0) || ( isEIPrec && chit->netaHits() > 0) ) {
-        int sector = m_idHelper->sector(chId);
+        int sector = m_idHelperSvc->sector(chId);
         if( isMdt ) sectorLayerCounts[sector] += chit->nhits();
         else        sectorLayerCounts[sector] += chit->netaHits();
         sum.sectors.insert(sector);
@@ -123,14 +89,14 @@ namespace Muon {
 
       // only account for phi layers if not an MDT and has phi hits
       if( !isMdt && chit->nphiHits() > 0 ) {
-	MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(chId);
+	MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(chId);
         sum.phiLayers.insert(index);
       }
 
-      MuonStationIndex::StIndex index = m_idHelper->stationIndex(chId);
+      MuonStationIndex::StIndex index = m_idHelperSvc->stationIndex(chId);
       HitSummary& hitSummary = sum.stationLayers[index];
-      hitSummary.isEndcap=m_idHelper->isEndcap(chId);
-      hitSummary.isSmall=m_idHelper->isSmallChamber(chId);
+      hitSummary.isEndcap=m_idHelperSvc->isEndcap(chId);
+      hitSummary.isSmall=m_idHelperSvc->isSmallChamber(chId);
       if( isMdt ){
         hitSummary.nprecisionHits  += chit->nhits();
         hitSummary.nprecisionHoles += chit->nholes();
@@ -153,11 +119,6 @@ namespace Muon {
 
         if( !isEIPrec && chit->etaProjection().nholes > 0 && chit->etaProjection().nhits == 0 ) ++hitSummary.netaTriggerHoleLayers;
         if( chit->phiProjection().nholes > 0 && chit->phiProjection().nhits == 0 )              ++hitSummary.nphiHoleLayers;
-
-// 	if( chit->etaProjection().nholes > 0 || chit->phiProjection().nholes > 0 ) 
-// 	  ATH_MSG_INFO("found hole in layer " << m_idHelper->toStringChamber(chId) 
-// 		       << " nphi " << chit->phiProjection().nhits << " holes " << chit->phiProjection().nholes 
-// 		       << " neta " << chit->etaProjection().nhits << " holes " << chit->etaProjection().nholes );
       }
     }
 
@@ -175,7 +136,7 @@ namespace Muon {
 
     calculateSummaryCounts(sum);
 
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << sum.dump() << endmsg;
+    if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG(sum.dump());
 
     return sum;
 
@@ -235,15 +196,15 @@ namespace Muon {
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = rioVec.end();
     for( ;it!=it_end; ++it ){
       Identifier id = m_edmHelperSvc->getIdentifier(**it);
-      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
+      if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
 
-      bool isMdt = m_idHelper->isMdt(id);
-      bool isCsc = m_idHelper->isCsc(id);
-      bool measuresPhi = m_idHelper->measuresPhi(id);
+      bool isMdt = m_idHelperSvc->isMdt(id);
+      bool isCsc = m_idHelperSvc->isCsc(id);
+      bool measuresPhi = m_idHelperSvc->measuresPhi(id);
 
       // only account for sectors if chamber has eta hits 
       if( isMdt || (isCsc && !measuresPhi) ) {
-        int sector = m_idHelper->sector(id);
+        int sector = m_idHelperSvc->sector(id);
         if( isMdt ) ++sectorLayerCounts[sector];
         if( isCsc ) ++sectorLayerCounts[sector];
         sum.sectors.insert(sector);
@@ -251,16 +212,16 @@ namespace Muon {
 
       // only account for phi layers if not an MDT and has phi hits
       if( !isMdt && measuresPhi ) {
-        MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
+        MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(id);
         sum.phiLayers.insert(index);
       }
 
-      MuonStationIndex::StIndex index = m_idHelper->stationIndex(id);
+      MuonStationIndex::StIndex index = m_idHelperSvc->stationIndex(id);
       HitSummary& hitSummary = sum.stationLayers[index];
       if( isMdt || (isCsc && !measuresPhi) ) ++hitSummary.nprecisionHits;
 
       if( !isMdt ){
-        MuonStationIndex::PhiIndex pindex = m_idHelper->phiIndex(id);
+        MuonStationIndex::PhiIndex pindex = m_idHelperSvc->phiIndex(id);
         std::pair<int,int> etaPhiCount = countLayersPerStation[index][pindex];
         if( measuresPhi ) ++etaPhiCount.first;
         else              ++etaPhiCount.second;

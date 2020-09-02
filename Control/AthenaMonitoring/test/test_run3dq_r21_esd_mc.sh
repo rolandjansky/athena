@@ -12,5 +12,6 @@ echo "art-result: $? HIST_Creation"
 ArtPackage=$1
 ArtJobName=$2
 art.py download ${ArtPackage} ${ArtJobName}
-hist_diff.sh ExampleMonitorOutput.root ./ref-*/ExampleMonitorOutput.root -x TIME_execute -i > log.HIST_Diff 2>&1
+REFFILE=(./ref-*/ExampleMonitorOutput.root)
+hist_diff.sh ExampleMonitorOutput.root $REFFILE -x TIME_execute -i > log.HIST_Diff 2>&1
 echo "art-result: $? HIST_Diff"

@@ -5,7 +5,7 @@
 // L1EmTauTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1EmTauTools.h"
+#include "L1EmTauTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"

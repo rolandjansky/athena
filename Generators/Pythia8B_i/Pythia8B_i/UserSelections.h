@@ -65,18 +65,18 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
   double A[10], B1[10], B2[10], C[10];
 	
   // Define A cells
-  double sinphiS = sin(phiS);
-  double cosphiS = cos(phiS);
+  double sinphiS = std::sin(phiS);
+  double cosphiS = std::cos(phiS);
 	
   A[0] = 0.5 * A0*A0;
   A[1] = 0.5 * Al*Al;
   A[2] = 0.5 * Ap*Ap;
-  A[3] = 0.5 * A0*Al * cos(delta_l);
+  A[3] = 0.5 * A0*Al * std::cos(delta_l);
   A[4] = Al*Ap;
   A[5] = A0*Ap;
   A[6] = 0.5 * As*As;
   A[7] = As*Al;
-  A[8] = 0.5 * As*Ap * sin(delta_p - delta_s);
+  A[8] = 0.5 * As*Ap * std::sin(delta_p - delta_s);
   A[9] = As*A0;
 
 
@@ -96,44 +96,44 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
  
 
     // Calculate convolution of exp(-gammaL * time) with a gaussian. Not convoluted if sigma == 0.
-    double ExpGL = exp(-time * gammaL);
+    double ExpGL = std::exp(-time * gammaL);
 
     // Calculate convolution of exp(-gammaH * time) with a gaussian. Not convoluted if sigma == 0.		
-    double ExpGH = exp(-time * gammaH);	
+    double ExpGH = std::exp(-time * gammaH);	
 
     B1[0] = ( (1. + cosphiS) * ExpGL + (1. - cosphiS) * ExpGH ) * norm1;
     B1[1] = B1[0];
     B1[2] = ( (1. - cosphiS) * ExpGL + (1. + cosphiS) * ExpGH ) * norm2;
     B1[3] = B1[0];
-    B1[4] = 0.5 * cos(delta_p - delta_l) * sinphiS * (ExpGL - ExpGH) * norm3;
-    B1[5] = 0.5 * cos(delta_p) * sinphiS * (ExpGL - ExpGH) * norm3;
+    B1[4] = 0.5 * std::cos(delta_p - delta_l) * sinphiS * (ExpGL - ExpGH) * norm3;
+    B1[5] = 0.5 * std::cos(delta_p) * sinphiS * (ExpGL - ExpGH) * norm3;
     B1[6] = B1[2];
-    B1[7] = 0.5 * sinphiS * sin(delta_l - delta_s) * (ExpGL - ExpGH) * norm3;
+    B1[7] = 0.5 * sinphiS * std::sin(delta_l - delta_s) * (ExpGL - ExpGH) * norm3;
     B1[8] = B1[2];
-    B1[9] = 0.5 * sinphiS * sin(delta_s) * (ExpGH - ExpGL) * norm3;
+    B1[9] = 0.5 * sinphiS * std::sin(delta_s) * (ExpGH - ExpGL) * norm3;
 
   
 
 
 
   // Tagged analysis
-  if( fabs(tagprob - 0.5) > 1e-6 ){   
+  if( std::abs(tagprob - 0.5) > 1e-6 ){   
 
 
-    ExpGSSinMT = exp(-time * GammaS) * sin(DeltaM * time);
-    ExpGSCosMT = exp(-time * GammaS) * cos(DeltaM * time);
+    ExpGSSinMT = std::exp(-time * GammaS) * sin(DeltaM * time);
+    ExpGSCosMT = std::exp(-time * GammaS) * cos(DeltaM * time);
 
 
     B2[0] = 2. * ExpGSSinMT * sinphiS * norm1;
     B2[1] = B2[0];
     B2[2] = -2. * ExpGSSinMT * sinphiS * norm2;
     B2[3] = B2[0];
-    B2[4] = ( ExpGSCosMT * sin(delta_p - delta_l) - cosphiS * cos(delta_p - delta_l) * ExpGSSinMT ) * norm3;
-    B2[5] = ( ExpGSCosMT * sin(delta_p) - cosphiS * cos(delta_p) * ExpGSSinMT ) * norm3;
+    B2[4] = ( ExpGSCosMT * std::sin(delta_p - delta_l) - cosphiS * cos(delta_p - delta_l) * ExpGSSinMT ) * norm3;
+    B2[5] = ( ExpGSCosMT * std::sin(delta_p) - cosphiS * std::cos(delta_p) * ExpGSSinMT ) * norm3;
     B2[6] = B2[2];
-    B2[7] = ( ExpGSCosMT * cos(delta_l - delta_s) - cosphiS * sin(delta_l - delta_s) * ExpGSSinMT ) * norm3;
+    B2[7] = ( ExpGSCosMT * std::cos(delta_l - delta_s) - cosphiS * sin(delta_l - delta_s) * ExpGSSinMT ) * norm3;
     B2[8] = B2[2];
-    B2[9] = ( ExpGSCosMT * cos(delta_s) + cosphiS * sin(delta_s) * ExpGSSinMT ) * norm3;
+    B2[9] = ( ExpGSCosMT * std::cos(delta_s) + cosphiS * std::sin(delta_s) * ExpGSSinMT ) * norm3;
 
   } // End of tagged terms
   else{
@@ -153,13 +153,13 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
       double sinsqthetal = 1. - (costhetal * costhetal);
       double sinsqthetak = 1. - (costhetak * costhetak);
       double cossqthetak = costhetak * costhetak;
-      double coschi = cos(chi);
+      double coschi = std::cos(chi);
       double cossqchi = coschi * coschi;
-      double sinchi = sin(chi);
+      double sinchi = std::sin(chi);
       double sinsqchi = sinchi * sinchi;
-      double sin2thetak = 2. * sqrt(1. - costhetak * costhetak) * costhetak;
-      double sin2thetal = 2. * sqrt(1. - costhetal * costhetal) * costhetal;
-      double sin2chi = sin(2. * chi);
+      double sin2thetak = 2. * std::sqrt(1. - costhetak * costhetak) * costhetak;
+      double sin2thetal = 2. * std::sqrt(1. - costhetal * costhetal) * costhetal;
+      double sin2chi = std::sin(2. * chi);
       double sinthetak = sqrt(sinsqthetak);
 
       C[0] = 2. * cossqthetak * sinsqthetal; //cossqpsi * (1. - sinsqtheta * cossqphi);
@@ -184,14 +184,14 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
       double sinsqtheta   = 1. - (costheta * costheta);
       double sinsqpsi     = 1. - (cospsi * cospsi);
       double cossqpsi     = cospsi * cospsi;
-      double sin2theta    = 2. * sqrt(1. - costheta * costheta) * costheta;
-      double sin2psi      = 2. * sqrt(1. - cospsi * cospsi) * cospsi;
-      double cosphi       = cos(phi);
+      double sin2theta    = 2. * std::sqrt(1. - costheta * costheta) * costheta;
+      double sin2psi      = 2. * std::sqrt(1. - cospsi * cospsi) * cospsi;
+      double cosphi       = std::cos(phi);
       double cossqphi     = cosphi * cosphi;
-      double sinphi       = sin(phi);
+      double sinphi       = std::sin(phi);
       double sinsqphi     = sinphi * sinphi;
-      double sin2phi      = sin(2. * phi);
-      double sinpsi       = sqrt(1. - cospsi*cospsi);
+      double sin2phi      = std::sin(2. * phi);
+      double sinpsi       = std::sqrt(1. - cospsi*cospsi);
   		
       C[0] = 2. * cossqpsi * (1. - sinsqtheta * cossqphi);
       C[1] = sinsqpsi * (1.-sinsqtheta * sinsqphi);
@@ -380,7 +380,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		for (int i = 0; i < eventSize; i++) {
 
 			int pID = event[i].id();
-			if (abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
+			if (std::abs(pID) == 531) { //NOTE THIS WILL FIND BS AND ANTIBS
 				i_Bs = i;
 				std::vector<int> daughterlist = event.daughterList(i);
 
@@ -564,7 +564,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 		for (int i = 0; i < eventSize; i++) {
 
 			const int pID = event[i].id();
-			if (abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
+			if (std::abs(pID) == 511) { //NOTE THIS FIND BD and Anti-Bd
 				i_Bd = i;
 				std::vector<int> daughterlist = event.daughterList(i);
 
@@ -580,11 +580,11 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 					isjpsi = true;
 					i_Jpsi = daughterlist[1];
 				}
-				if (abs(event[daughterlist[0]].id()) == 313) { //This will find kstar or KstarBar
+				if (std::abs(event[daughterlist[0]].id()) == 313) { //This will find kstar or KstarBar
 					iskstar = true;
 					i_Kstar = daughterlist[0];
 				}
-				if (abs(event[daughterlist[1]].id()) == 313) { //This will find kstar or KstarBar
+				if (std::abs(event[daughterlist[1]].id()) == 313) { //This will find kstar or KstarBar
 					iskstar = true;
 					i_Kstar = daughterlist[1];
 				}
@@ -610,9 +610,9 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				else
 					i_Muplus = 0;
 
-				if (abs(event[daughterlistKstar[0]].id()) == 321)
+				if (std::abs(event[daughterlistKstar[0]].id()) == 321)
 					i_Kplus = daughterlistKstar[0];
-				else if (abs(event[daughterlistKstar[1]].id()) == 321)
+				else if (std::abs(event[daughterlistKstar[1]].id()) == 321)
 					i_Kplus = daughterlistKstar[1];
 				else
 					i_Kplus = 0;

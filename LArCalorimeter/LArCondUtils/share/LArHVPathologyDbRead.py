@@ -115,11 +115,3 @@ svcMgr.EventSelector.FirstLB           = 1
 svcMgr.EventSelector.InitialTimeStamp  = int(TimeStamp/1e9)
 svcMgr.EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 1
-
-#--------------------------------------------------------------
-# Load POOL support
-#--------------------------------------------------------------
-#import AthenaPoolCnvSvc.WriteAthenaPool
-
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE

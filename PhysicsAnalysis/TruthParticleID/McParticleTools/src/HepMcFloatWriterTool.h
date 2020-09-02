@@ -23,7 +23,7 @@
 #include "McParticleKernel/IIOHepMcTool.h"
 
 // Forward declaration
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 //namespace McAod { class IO_BaseClass; }
 
 class HepMcFloatWriterTool : virtual public IIOHepMcTool,
@@ -74,7 +74,7 @@ class HepMcFloatWriterTool : virtual public IIOHepMcTool,
   /** @brief Method to configure the back-end to write out the
    *  @c HepMC::GenEvent.
    */
-  void setupBackend( Property& ioBackendURL );
+  void setupBackend( Gaudi::Details::PropertyBase& ioBackendURL );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtEndcapLUT.h"
+#include "PtEndcapLUT.h"
 #include "CLHEP/Vector/TwoVector.h"
 #include <fstream>
 #include <sstream>
@@ -12,19 +12,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_PtEndcapLUT("IID_PtEndcapLUT", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtEndcapLUT::interfaceID() { return IID_PtEndcapLUT; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::PtEndcapLUT::PtEndcapLUT(const std::string& type,
                                        const std::string& name,
                                        const IInterface*  parent):
   AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::PtEndcapLUT>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -35,24 +27,6 @@ TrigL2MuonSA::PtEndcapLUT::~PtEndcapLUT()
   for (TableMap::iterator it = m_tables.begin(); it != m_tables.end(); it++) {
     delete it->second;
   }
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtEndcapLUT::initialize()
-{
-  ATH_MSG_DEBUG("Initializing PtEndcapLUT - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -330,31 +304,21 @@ const char* TrigL2MuonSA::PtEndcapLUT::dt2s(TrigL2MuonSA::PtEndcapLUT::DataType 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtEndcapLUT::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, double BpT, double &CApT, \
 					     double &CBpT) const
 {
-  msg() << MSG::DEBUG << "pTcombined("
+  ATH_MSG_DEBUG("pTcombined("
 	<< "iEta="      << iEta
 	<< "iPhi="      << iPhi
 	<< "Alpha pT="  << ApT
 	<< "Beta pT="   << BpT
-	<< ")" << endmsg;
+	<< ")" );
 
   if (iEta == -1) iEta =  0;
   if (iEta == 30) iEta = 29;
 
   if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHIS) {
-    msg() << MSG::WARNING << "pTcombined("<< iEta << ", " << iPhi << ") Invalid indices" << endmsg;
+    ATH_MSG_WARNING("pTcombined("<< iEta << ", " << iPhi << ") Invalid indices");
     return 0.0;
   }
 
@@ -420,11 +384,11 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
   std::ifstream ifsmean(lut_mean.c_str());
   std::ifstream ifssigma(lut_sigma.c_str());
   if (!ifsmean.is_open()) {
-    msg() << MSG::ERROR << "Cannot open EndcapLUT Mean file " << lut_mean << endmsg;
+    ATH_MSG_ERROR("Cannot open EndcapLUT Mean file " << lut_mean);
     return StatusCode::FAILURE;
   }
   if (!ifssigma.is_open()) {
-    msg() << MSG::ERROR << "Cannot open EndcapLUT Sigma file " << lut_sigma << endmsg;
+    ATH_MSG_ERROR("Cannot open EndcapLUT Sigma file " << lut_sigma);
     return StatusCode::FAILURE;
   }
 
@@ -450,7 +414,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
     int iEta, iPhi, iNP;
     double tmp_par1, tmp_par2, tmp_par3;
     if (sscanf(line.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
-      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
+      ATH_MSG_ERROR(" Invalid data in mean EndcapLUT file " << lut_mean);
       return StatusCode::FAILURE;
     }
 
@@ -467,7 +431,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
     int iEta, iPhi, iNP;
     double tmp_par1, tmp_par2, tmp_par3;
     if (sscanf(line2.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
-      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
+      ATH_MSG_ERROR(" Invalid data in mean EndcapLUT file " << lut_mean);
       return StatusCode::FAILURE;
     }
 

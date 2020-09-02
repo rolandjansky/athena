@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /** @file EventStreamInfo.cxx
@@ -87,28 +87,37 @@ EventStreamInfo::insertEventType(const EventType& event) {
 //______________________________________________________________________________
 void 
 EventStreamInfo::print(MsgStream& log) const {
-  log << MSG::DEBUG << "EventStreamInfo number of events: " << m_numberOfEvents << endmsg;
-  log << MSG::DEBUG << "EventStreamInfo Run Numbers: ";
-  for (unsigned int rn : m_runNumbers) {
-    log << MSG::DEBUG << rn << ", ";
-  }
-  log << MSG::DEBUG << endmsg;
-  log << MSG::DEBUG << "EventStreamInfo LumiBlock Numbers: ";
-  for (unsigned int lbn : m_lumiBlockNumbers) {
-    log << MSG::DEBUG << lbn << ", ";
-  }
-  log << MSG::DEBUG << endmsg;
-  log << MSG::DEBUG << "EventStreamInfo Processing Tags: ";
-  for (const std::string tag : m_processingTags) {
-    log << MSG::DEBUG << tag << ", ";
-  }
-  log << MSG::DEBUG << endmsg;
-  log << MSG::DEBUG << "EventStreamInfo Event Types: ";
-  for (const EventType& typ : m_eventTypes) {
-    log << MSG::DEBUG << typ.typeToString() << ", ";
-  }
-  log << MSG::DEBUG << endmsg;
+  log << MSG::DEBUG << (*this) << endmsg;
   return;
 }
 
 //______________________________________________________________________________
+std::ostream&
+operator<<(std::ostream& os, const EventStreamInfo& esi){
+  os << "EventStreamInfo number of events: " << esi.getNumberOfEvents() << '\n';
+
+  os << "EventStreamInfo Run Numbers: ";
+  for (unsigned int rn : esi.getRunNumbers()) {
+    os << rn << ", ";
+  }
+  os << '\n';
+
+  os << "EventStreamInfo LumiBlock Numbers: ";
+  for (unsigned int lbn : esi.getLumiBlockNumbers()) {
+    os << lbn << ", ";
+  }
+  os << '\n';
+
+  os << "EventStreamInfo Processing Tags: ";
+  for (const std::string& tag : esi.getProcessingTags()) {
+    os << tag << ", ";
+  }
+  os << '\n';
+
+  os << "EventStreamInfo Event Types: ";
+  for (const EventType& typ : esi.getEventTypes()) {
+    os << typ.typeToString() << ", ";
+  }
+
+  return os;
+}

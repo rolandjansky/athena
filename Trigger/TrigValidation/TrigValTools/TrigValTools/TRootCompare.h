@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGVALTOOLS_TROOTCOMPARE_H
@@ -10,7 +10,6 @@
  * @brief  TRootCompare class
  * @author Frank Winklmeier
  *
- * $Id: TRootCompare.h 702373 2015-10-22 13:55:56Z fwinkl $
  */
 
 #include "TFileLooper.h"
@@ -46,13 +45,15 @@ class TRootCompare : public TFileLooper {
   }
   void drawNormalized(Bool_t norm = kTRUE) { m_drawNormalized = norm; }
   void drawDiff(Bool_t diff = kTRUE) { m_drawDiff = diff; }
+  void sortLabels(Bool_t sort = kTRUE) { m_sortLabels = sort; }
   
   Int_t matchingHist() const { return m_histMatch; }
   Int_t totalHist() const { return m_histTotal; }
   Int_t missingHist() const { return m_histMissing; }
   
  private:
-  Bool_t compareHist(TH1& h, TH1& href);
+  Bool_t compareHist(const TH1& h, const TH1& href);
+  void sortAndDeflate(TH1& h);
   void createDirectory(TFile* f, const char* dirpath);
   void printCanvas(const char* filename);
   
@@ -70,6 +71,7 @@ class TRootCompare : public TFileLooper {
   Int_t m_histMissing;
   Bool_t m_drawNormalized;
   Bool_t m_drawDiff;
+  Bool_t m_sortLabels;
   
   std::vector<std::string> m_noMatch;
  

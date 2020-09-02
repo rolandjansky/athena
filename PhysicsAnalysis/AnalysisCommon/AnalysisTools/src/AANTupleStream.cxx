@@ -31,7 +31,7 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -285,18 +285,35 @@ StatusCode AANTupleStream::execute()
   // AthenaAttributeList  newAttr(*m_attribSpec);
   coral::AttributeList newAttr(*m_attribSpec);
 
+  unsigned int runNumber   = 0;
+  unsigned int eventNumber = 0;
+
   // retrieve event info
   const EventInfo* eventInfo;
-  sc = evtStore()->retrieve( eventInfo );
-  if (sc.isFailure())
+  eventInfo = evtStore()->tryConstRetrieve<EventInfo>();
+  if ( !eventInfo )
     {
-      ATH_MSG_ERROR ("Cannot get event info.");
-      return sc;
+      // Try to get the xAOD::EventInfo
+      const xAOD::EventInfo* eventInfoX{nullptr};
+      sc = evtStore()->retrieve(eventInfoX);
+      if (sc.isFailure())
+        {
+          ATH_MSG_ERROR ("Cannot get event info.");
+          return sc;
+        }
+      else
+        {
+          runNumber   = eventInfoX->runNumber();
+          eventNumber = eventInfoX->eventNumber();
+        }
+    }
+  else
+    {
+      runNumber   = eventInfo->event_ID()->run_number();
+      eventNumber = eventInfo->event_ID()->event_number();
     }
 
   // add global event tag data
-  unsigned int runNumber   = eventInfo->event_ID()->run_number();
-  unsigned int eventNumber = eventInfo->event_ID()->event_number();
   newAttr[ name_RunNumber   ].setValue( runNumber );
   newAttr[ name_EventNumber ].setValue( eventNumber );
 
@@ -344,11 +361,7 @@ StatusCode AANTupleStream::execute()
 void AANTupleStream::writeAttributeListSpecification()
 {
   // go to the root dir of output file
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   TDirectory::TContext save;
-#else
-  TDirectory::TContext save(0);
-#endif
   gDirectory->cd((m_fileName+":/").c_str());
 
   AttributeListLayout all;
@@ -384,11 +397,7 @@ void AANTupleStream::setupTree()
     }
 
   // go to the root dir of output file
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,0)
   TDirectory::TContext save;
-#else
-  TDirectory::TContext save(0);
-#endif
   gDirectory->cd((m_fileName+":/").c_str());
   
   // instantiate TTree

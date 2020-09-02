@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -144,8 +144,6 @@ const {
     if (m_debug) debugMissingMeasurements(track);
   }
 
-
-//  print(track_ptr, time); // result testing function
 
   if (newtrack) delete newtrack;
 
@@ -317,58 +315,6 @@ void InDet::TRT_TrackTimingTool::debugMissingMeasurements(const Trk::Track& trac
                                                           << ", missing TRT_DriftCircleOnTrack: " << noTRT_DriftCircle << ", missingPrepRawData: " << missingPrepRawData
                                                           << ", invalid LE or TE: " << invalidHits << ", missing track parameters: " <<
     missingTrackPar);
-
-  return;
-}
-
-//===============================================================================
-
-void InDet::TRT_TrackTimingTool::print(const Trk::Track* track, float time) const {
-  const Trk::Perigee* trackPar = track->perigeeParameters();
-
-  if (!trackPar) {
-    ATH_MSG_WARNING("missing perigee parameters, can not print results");
-    return;
-  }
-
-  double eta = trackPar->eta();
-  double pT = trackPar->pT() / GeV;
-
-  int nHits = 0;
-  float time_check = getTrackTimeFromDriftRadius(track, nHits);
-
-  const float correctionLargeEta = -0.31; // ns
-  float correction = (1.3 * eta * eta - 1.9) * eta * eta;
-  if (fabs(eta) > 1. && correction > correctionLargeEta) correction = correctionLargeEta;
-  if (m_doEtaCorrection && time_check != 0.) time_check -= correction;
-
-  static int last_event = 0; // code to remove duplicates - do not print if this track was already called
-  if (last_event == 0) {
-    FILE* f = fopen("tmp.txt", "w");
-    fclose(f);
-  } // first call, reset file
-  static std::vector<double> pT_list;
-
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_EventInfoKey);
-  if (not eventInfo.isValid()) {
-    (msg(MSG::ERROR) << "Could not get event info" << endmsg);
-    return;
-  }
-
-  int event = (int) eventInfo->eventNumber();
-  if (event != last_event) {
-    last_event = event;
-    pT_list.clear();
-  } else {
-    for (unsigned int i = 0; i < pT_list.size(); i++)
-      if (fabs(pT_list[i] - pT) < 0.0001) return; // skip this track, and the track is already on the list anyway
-  }
-  pT_list.push_back(pT);
-
-
-  FILE* f = fopen("tmp.txt", "a");
-  fprintf(f, "%d %f %f %f %f %f\n", nHits, pT, eta, time, time_check, correction);
-  fclose(f);
 
   return;
 }

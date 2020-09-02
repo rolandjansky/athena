@@ -20,7 +20,7 @@ namespace Rec {
 
 
 MuonMatchQuality::MuonMatchQuality(const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent), m_alignmentUncertainty(0)
+    : AthAlgTool(type, name, parent), m_alignmentUncertainty(nullptr)
 {
     declareInterface<IMuonMatchQuality>(this);
 }

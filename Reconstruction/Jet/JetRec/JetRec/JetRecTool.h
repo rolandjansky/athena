@@ -58,9 +58,13 @@
 #include "JetInterface/IJetPseudojetRetriever.h"
 #include "JetInterface/IJetConsumer.h"
 #include "TStopwatch.h"
-#include "StoreGate/ReadHandleKeyArray.h"
+#include "AsgDataHandles/ReadHandleKeyArray.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "JetEDM/PseudoJetVector.h"
 #include "JetRec/PseudoJetContainer.h"
+#if !defined(GENERATIONBASE) && !defined(XAOD_STANDALONE)
+  #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#endif
 
 class JetRecTool
 : public asg::AsgTool,
@@ -75,8 +79,17 @@ public:
   /// Initialization. Check all tools here.
   StatusCode initialize() override;
 
+  // FIX ME: This method is removed in AnalysisBase, because tools
+  // don't finalize in AnalysisBase.  In AnalysisBase tools are
+  // generally meant to be stateless, so it makes less sense for them
+  // to be finalized, and that aside there is nobody around that can
+  // guarantee that `finalize` does get called anyways.  If this does
+  // anything more than print out accounting-info this tool should
+  // probably be turned into a service (or an algorithm).
+#ifndef XAOD_STANDALONE
   /// Finalization. Write summary report.
   StatusCode finalize() override;
+#endif
 
   /// Retrieve inputs with tools and construct new
   /// jet collection.
@@ -118,17 +131,17 @@ private:
 
   
   // Properties.
-  SG::WriteHandleKey<xAOD::JetContainer> m_outcoll;
-  SG::ReadHandleKey<xAOD::JetContainer> m_incoll;
+  SG::WriteHandleKey<xAOD::JetContainer> m_outcoll {this, "OutputContainer", ""};
+  SG::ReadHandleKey<xAOD::JetContainer> m_incoll {this, "InputContainer", ""};
   // The template argument should become PseudoJetContainer
-  SG::ReadHandleKeyArray<PseudoJetContainer> m_psjsin;
+  SG::ReadHandleKeyArray<PseudoJetContainer> m_psjsin {this, "InputPseudoJets", {}};
 
   ToolHandle<IJetExecuteTool> m_intool;
   ToolHandle<IJetPseudojetRetriever> m_hpjr;
   ToolHandle<IJetFinder> m_finder;
   ToolHandle<IJetGroomer> m_groomer;
-  ToolHandleArray<IJetModifier> m_modifiers;
-  ToolHandleArray<IJetConsumer> m_consumers;
+  ToolHandleArray<IJetModifier> m_modifiers {this, "JetModifiers", {}};
+  ToolHandleArray<IJetConsumer> m_consumers {this, "JetConsumers", {}};
   bool m_trigger;
   int m_timer;
 
@@ -156,6 +169,12 @@ private:
   mutable TStopwatch m_pjcclock;
   mutable std::vector<TStopwatch> m_modclocks;
   mutable std::vector<TStopwatch> m_conclocks;
+
+#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+#endif
+
+  const double m_mevtogev = 0.001;
 
 };
 

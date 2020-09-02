@@ -93,12 +93,21 @@ bool TrigEFTauMVHypoTool::decide(const ITrigEFTauMVHypoTool::TauJetInfo& input )
   // general reset
   PassedCuts = 0;
 
+  if ( m_acceptAll ) {
+    pass = true;
+    ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
+  } else {
+    pass = false;
+    ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
+  }
+
   //get RoI descriptor
   auto roiDescriptor = input.roi;
+  float roIZ   = roiDescriptor->zed();
   float roIEta = roiDescriptor->eta();
   float roIPhi = roiDescriptor->phi();
 
-  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi );
+  ATH_MSG_DEBUG( "Input RoI eta: " << roIEta << " Input RoI phi: " << roIPhi << " Input RoI z: " << roIZ);
 
   auto TauContainer = input.taujetcontainer;
   ninputTaus = TauContainer->size();

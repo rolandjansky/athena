@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ParabolaCscClusterFitter.h
@@ -12,26 +12,19 @@ May 2009
 #ifndef ParabolaCscClusterFitter_H
 #define ParabolaCscClusterFitter_H
 
-
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "CscClusterization/ICscClusterFitter.h"
-#include "MuonPrepRawData/CscClusterStatus.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
   class CscPrepData;
 }
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
 
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
-
-
-
 
 class ParabolaCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTool {
   
@@ -44,14 +37,9 @@ public:
    */
   ParabolaCscClusterFitter(std::string type, std::string aname, const IInterface* parent);
         
-  /** Destructor. */
-  ~ParabolaCscClusterFitter();
+  ~ParabolaCscClusterFitter()=default;
         
-  /** Initialization. */
   StatusCode initialize();
-
-  /** Finalization. */
-  StatusCode finalize();
 
   /** Correction of raw parabola positions.
       @param plane The csc plane enum for small or large chamber, X or Y plane
@@ -89,9 +77,11 @@ private:
   /** threshold multiplier  for cluster peak finding */
   double m_multi;
 
-  const MuonGM::MuonDetectorManager* m_detMgr;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+
+  /** retrieve MuonDetectorManager from the conditions store */     
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 	
+      "MuonDetectorManager", 	"Key of input MuonDetectorManager condition data"};    
 
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloRampMaker.h"
@@ -37,8 +37,8 @@
 
 // define Accessors
 namespace {
-xAOD::TriggerTower::ConstAccessor<float> ttCellsEnergy("CaloCellEnergy");
-xAOD::TriggerTower::ConstAccessor<float> ttCellsET("CaloCellET");
+  const xAOD::TriggerTower::ConstAccessor<float> ttCellsEnergy("CaloCellEnergy");
+  const xAOD::TriggerTower::ConstAccessor<float> ttCellsET("CaloCellET");
 }
 
 L1CaloRampMaker::L1CaloRampMaker(const std::string& name, ISvcLocator* pSvcLocator)

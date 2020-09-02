@@ -55,7 +55,7 @@ namespace Trk {
                                                                       Trk::ParticleHypothesis particle,
                                                                       std::vector<HitInfo>*& hitVector, 
                                                                       Trk::GeometrySignature& nextGeoId,
-								      const Trk::TrackingVolume* boundaryVol=0) const = 0;
+								      const Trk::TrackingVolume* boundaryVol=nullptr) const = 0;
 
        /** Transport method for neutral and/or unstable particles. Search of intersections with active surfaces/layers on demand.  
            The extrapolation is interrupted at subdetector boundary for surviving/stable particles.
@@ -67,7 +67,7 @@ namespace Trk {
 									    Trk::ParticleHypothesis particle,
 									    std::vector<HitInfo>*& hitVector, 
 									    Trk::GeometrySignature& nextGeoId,
-									    const Trk::TrackingVolume* boundaryVol=0) const = 0;
+									    const Trk::TrackingVolume* boundaryVol=nullptr) const = 0;
 
 
         /** Return the TrackingGeometry used by the Extrapolator (forwards information from Navigator) */

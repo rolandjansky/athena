@@ -4,9 +4,7 @@
 atlas_subdir( xAODJet )
 
 # Optional dependencies:
-set( extra_deps )
 set( extra_libs )
-set( extra_private_deps )
 set( extra_test_libs )
 
 # Extra dependencies, when we are not in a standalone build:
@@ -16,17 +14,15 @@ else()
    set( extra_test_libs xAODRootAccess )
 endif()
 
+set( extra_srcs )
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_srcs Root/JetTrigAuxContainer*.cxx )
    set( extra_libs xAODBTagging xAODPFlow xAODTrigger )
 endif()
 
-if( BUILDVP1LIGHT AND ( BUILDVP1LIGHT_DIST STREQUAL "ubuntu" ) )
-   list( APPEND extra_libs GenVector )
-endif()
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODJet
@@ -39,10 +35,15 @@ atlas_add_library( xAODJet
    xAODBase xAODCore ${extra_libs}
    PRIVATE_LINK_LIBRARIES CxxUtils xAODCaloEvent )
 
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODJet/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::JetContainer_v1" )
+
 atlas_add_dictionary( xAODJetDict
    xAODJet/xAODJetDict.h
-   xAODJet/selection.xml
-   LINK_LIBRARIES xAODJet ${extra_libs}
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODJet
    EXTRA_FILES Root/dict/*.cxx )
 
 # Test(s) in the package:

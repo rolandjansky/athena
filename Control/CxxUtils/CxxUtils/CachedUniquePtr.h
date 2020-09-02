@@ -62,11 +62,11 @@ public:
 
 
   /// Move constructor.
-  CachedUniquePtrT (CachedUniquePtrT&& other);
+  CachedUniquePtrT (CachedUniquePtrT&& other) noexcept;
 
 
   /// Move.
-  CachedUniquePtrT& operator= (CachedUniquePtrT&& other);
+  CachedUniquePtrT& operator= (CachedUniquePtrT&& other) noexcept;
 
 
   // Destructor.
@@ -80,7 +80,7 @@ public:
 
   /// Store a new value to the element.
   /// Not compatible with other concurrent access.
-  void store (std::unique_ptr<T> elt);
+  void store (std::unique_ptr<T> elt) noexcept;
 
 
   /// Return the current value of the element.
@@ -101,7 +101,7 @@ public:
 
   /// Transfer ownership from the element: return the current value as a
   /// unique_ptr, leaving the element null.
-  std::unique_ptr<T> release();
+  std::unique_ptr<T> release() noexcept;
 
 
 private:

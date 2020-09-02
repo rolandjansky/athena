@@ -11,7 +11,7 @@ WORKDIR /root
 RUN yum -y install which sclo-git25 wget tar atlas-devel libuuid-devel texinfo \
            python2-pip redhat-lsb-core libX11-devel libXpm-devel libXft-devel  \
            libXext-devel openssl-devel glibc-devel rpm-build libcurl-devel     \
-           mesa-libGL-devel && \
+           mesa-libGL-devel libaio && \
     yum clean all
 
 # Set up the ATLAS user, and give it super user rights.

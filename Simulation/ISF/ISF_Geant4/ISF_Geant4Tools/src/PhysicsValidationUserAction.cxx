@@ -21,7 +21,7 @@
 
 //Athena includes
 #include "AtlasDetDescr/AtlasRegion.h"
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/VTrackInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
 
@@ -239,14 +239,14 @@ namespace G4UA{
 	m_scIn = creation? creation->GetProcessSubType() : -1;
 	
 	VTrackInformation * trackInfo= static_cast<VTrackInformation*>(track->GetUserInformation());
-	HepMC::GenParticle* genpart= trackInfo ? const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle()):0;
+	HepMC::GenParticlePtr genpart= trackInfo ? const_cast<HepMC::GenParticlePtr>(trackInfo->GetHepMCParticle()):0;
 	HepMC::GenVertex* vtx = genpart ? genpart->production_vertex() : 0;
 	m_gen = genpart? 0 : -1;
 	
 	if (genpart)  { // mc truth known
 	  while (genpart && vtx ) {
 	    int pdgID=genpart->pdg_id();
-	    HepMC::GenParticle* genmom = vtx->particles_in_size()>0 ? *(vtx->particles_in_const_begin()) : 0;
+	    HepMC::GenParticlePtr genmom = vtx->particles_in_size()>0 ? *(vtx->particles_in_const_begin()) : 0;
 	    if ( genmom && pdgID!=genmom->pdg_id() ) m_gen++;
 	    else if (vtx->particles_out_size()>0 && genpart!=*(vtx->particles_out_const_begin())) m_gen++;
 	    vtx = genmom ? genmom->production_vertex() : 0;
@@ -318,10 +318,10 @@ namespace G4UA{
 	if (process->GetProcessSubType()==2 ) m_ionloss+=eloss;
 	if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 	
-	EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+	AtlasG4EventUserInfo* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 	VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
 	const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
+	::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, atlasG4EvtUserInfo);
 	unsigned int nSec = truth.numberOfChildren();
 	if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
 	  //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;

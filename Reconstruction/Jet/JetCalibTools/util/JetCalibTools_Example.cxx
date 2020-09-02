@@ -25,6 +25,7 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
+#include <AsgTools/MessageCheck.h>
 #else
 #include "POOLRootAccess/TEvent.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -60,6 +61,9 @@ void usage() {
 //---------------
 
 int main(int argc, char* argv[]){
+
+  using namespace asg::msgUserCode;
+  ANA_CHECK_SET_TYPE (int);
 
   //---------------------------------------------
   // Declaring input variables with default values
@@ -125,9 +129,6 @@ int main(int argc, char* argv[]){
   }
   else if(isData=="TRUE") isCollision = true;
 
-  // Set up the job for xAOD access:
-  static const char* APP_NAME = "JetCalibTools_Example";
- 
   //--------------------
   // Opening input file
   //--------------------
@@ -135,12 +136,12 @@ int main(int argc, char* argv[]){
 
   // Create a TEvent object.
 #ifdef XAOD_STANDALONE
-  RETURN_CHECK( APP_NAME, xAOD::Init() );
+  ANA_CHECK( xAOD::Init() );
   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
-  RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+  ANA_CHECK( event.readFrom( ifile.get() ) );
 #else // Athena "Store" is the same StoreGate used by the TEvent
   POOL::TEvent event( POOL::TEvent::kClassAccess );
-  CHECK_WITH_CONTEXT( event.readFrom( ifile.get() ), APP_NAME, 1 );
+  ANA_CHECK( event.readFrom( ifile.get() ) );
 #endif
 
   //----------------------------------
@@ -150,17 +151,13 @@ int main(int argc, char* argv[]){
 
   // Call the constructor
   JetCalibrationTool jetCalibrationTool(name_JetCalibTools.c_str());
-  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("JetCollection",jetColl.c_str()),
-                      APP_NAME, 1 );
+  ANA_CHECK( jetCalibrationTool.setProperty("JetCollection",jetColl.c_str()) );
 
-  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("CalibSequence",calibSeq.c_str()),
-                      APP_NAME, 1 );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence",calibSeq.c_str()) );
 
-  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("ConfigFile",jetCalibConfig.c_str()),
-                      APP_NAME, 1 );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile",jetCalibConfig.c_str()) );
 
-  CHECK_WITH_CONTEXT( jetCalibrationTool.setProperty("IsData",isCollision),
-                      APP_NAME, 1 );
+  ANA_CHECK( jetCalibrationTool.setProperty("IsData",isCollision) );
 
   // Initialize the tool
   if(!(jetCalibrationTool.initialize().isSuccess())){
@@ -186,13 +183,13 @@ int main(int argc, char* argv[]){
 
     // Retrieve jet container
     const xAOD::JetContainer* jets = 0;
-    CHECK_WITH_CONTEXT( event.retrieve( jets, jetColl + "Jets" ), APP_NAME, 1 );
+    ANA_CHECK( event.retrieve( jets, jetColl + "Jets" ) );
 
     // Shallow copy 
     auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
 
     // Calibrate the shallow copy
-    CHECK_WITH_CONTEXT( jetCalibrationTool.applyCalibration( *(jets_shallowCopy.first) ), APP_NAME, 1 );
+    ANA_CHECK( jetCalibrationTool.applyCalibration( *(jets_shallowCopy.first) ) );
 
     delete jets_shallowCopy.first;
     delete jets_shallowCopy.second;

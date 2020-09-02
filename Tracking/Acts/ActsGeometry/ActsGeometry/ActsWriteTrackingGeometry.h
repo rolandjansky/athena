@@ -8,9 +8,8 @@
 // ATHENA
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
 // PACKAGE
@@ -27,6 +26,7 @@ namespace Acts {
 }
 
 class IActsTrackingGeometrySvc;
+class IActsMaterialJsonWriterTool;
 
 class ActsWriteTrackingGeometry : public AthReentrantAlgorithm {
 public:
@@ -40,6 +40,7 @@ private:
   ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   ToolHandle<ActsObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "ActsObjWriterTool"};
+  ToolHandle<IActsMaterialJsonWriterTool> m_materialJsonWriterTool{this, "MaterialJsonWriterTool", "ActsMaterialJsonWriterTool"};
 
 };
 

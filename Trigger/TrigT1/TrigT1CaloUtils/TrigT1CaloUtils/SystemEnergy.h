@@ -41,24 +41,24 @@ public:
 
 public:
   /** return global et, ex, ey sums */
-  int et();
-  int ex();
-  int ey();
+  int et() const;
+  int ex() const;
+  int ey() const;
   /** 15 bit twos-complement format */
-  unsigned int exTC();
-  unsigned int eyTC();
+  unsigned int exTC() const;
+  unsigned int eyTC() const;
   /** Overflow bits */
-  unsigned int exOverflow();
-  unsigned int eyOverflow();
-  unsigned int etOverflow();
+  unsigned int exOverflow() const;
+  unsigned int eyOverflow() const;
+  unsigned int etOverflow() const;
   /** Trigger Results */
-  unsigned int etMissHits();
-  unsigned int etSumHits();
-  unsigned int metSigHits();
+  unsigned int etMissHits() const;
+  unsigned int etSumHits() const;
+  unsigned int metSigHits() const;
   /** RoI words */
-  unsigned int roiWord0();
-  unsigned int roiWord1();
-  unsigned int roiWord2();
+  unsigned int roiWord0() const;
+  unsigned int roiWord1() const;
+  unsigned int roiWord2() const;
   
 private:
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
@@ -83,8 +83,8 @@ private:
   void etMissTrigger();
   void etSumTrigger();
   void metSigTrigger();
-  unsigned int encodeTC(int input);
-  int decodeTC(unsigned int input);
+  unsigned int encodeTC(int input) const;
+  int decodeTC(unsigned int input) const;
 
 };
 

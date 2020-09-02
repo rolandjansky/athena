@@ -20,7 +20,7 @@
 // FIXME: namespace Trk { TrackParameters; }
 #include "TrkParameters/TrackParameters.h"
 
-namespace HepMC { class GenParticle; }
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 #include "xAODTruth/TruthParticle.h"
 //namespace xAOD { class TruthParticle; }

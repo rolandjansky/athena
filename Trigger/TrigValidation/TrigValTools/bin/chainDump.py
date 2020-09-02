@@ -45,11 +45,13 @@ def get_parser():
                         help='Save outputs also to a json file with the given name or %(const)s if no name is given')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
+                        type=float,
                         default=0.001,
                         help='Tolerance as a fraction, default = %(default)s. '
                              'Flagged diffs must exceed all tolerances')
     parser.add_argument('--intTolerance',
                         metavar='NUM',
+                        type=int,
                         default=2,
                         help='Tolerance as a number of counts, default = %(default)s. '
                              'Flagged diffs must exceed all tolerances')
@@ -197,7 +199,7 @@ def compare_ref(json_dict, thr_frac, thr_num):
     results = []
     in_total = json_dict[total_events_key]['count']
     ref_total = json_dict[total_events_key]['ref_count']
-    for text_name in json_dict.keys():
+    for text_name in sorted(json_dict.keys()):
         if text_name == total_events_key:
             continue
         diff_val = []  # different counts in input and reference
@@ -258,13 +260,14 @@ def print_counts(json_dict):
         dump_lines = []
         for item_name, item_counts in counts.items():
             v = item_counts['count']
-            line = '  {name:{nw}s} {val:>{w}d}'.format(name=item_name, val=v, nw=name_width, w=column_width)
+            line = '  {name:{nw}s} {val:>{w}s}'.format(name=item_name, val=str(v), nw=name_width, w=column_width)
             if not no_ref:
                 ref_v = item_counts['ref_count']
                 diff = item_counts['ref_diff']
-                line += ' {val:>{w}d}'.format(val=ref_v, w=column_width)
+                line += ' {val:>{w}s}'.format(val=str(ref_v), w=column_width)
                 if diff:
                     line += ' <<<<<<<<<<'
+            dump_lines.append(line)
         logging.info('Writing %s counts from histogram %s:\n%s', text_name, hist_name, '\n'.join(dump_lines))
 
 
@@ -280,7 +283,7 @@ def format_txt_count(count):
 
 
 def write_txt_output(json_dict, diff_only=False):
-    for text_name in json_dict.keys():
+    for text_name in sorted(json_dict.keys()):
         if text_name == total_events_key:
             logging.info('Writing total event count to file %s.txt', text_name)
             with open('{:s}.txt'.format(text_name), 'w') as outfile:
@@ -343,7 +346,7 @@ def main():
     if len(in_hists) == 0:
         logging.error('No count histograms could be loaded.')
         return 1
-    logging.info('Loaded count histograms: %s', in_hists.keys())
+    logging.info('Loaded count histograms: %s', sorted(in_hists.keys()))
 
     in_total_hists = load_histograms(in_file, args.totalHists)
     if len(in_total_hists) == 0:
@@ -359,7 +362,7 @@ def main():
     ref_total = None
     if args.referenceFile:
         ref_hists = load_histograms(ref_file, args.countHists)
-        logging.info('Loaded reference count histograms: %s', ref_hists.keys())
+        logging.info('Loaded reference count histograms: %s', sorted(ref_hists.keys()))
         missing_refs = [k for k in in_hists.keys() if k not in ref_hists.keys()]
         if len(missing_refs) > 0:
             logging.error('Count histogram(s) %s missing in the reference', missing_refs)
@@ -368,9 +371,9 @@ def main():
         if len(ref_total_hists) == 0:
             logging.error('No total-events reference histogram could be loaded')
             return 1
-        ref_total = ref_total_hists.values()[0].GetEntries()
+        ref_total = list(ref_total_hists.values())[0].GetEntries()
         logging.info('Loaded total-events reference histogram %s, number of events: %d',
-                     ref_total_hists.keys()[0], ref_total)
+                     list(ref_total_hists.keys())[0], ref_total)
 
     ##################################################
     # Extract counts from histograms
@@ -420,7 +423,7 @@ def main():
     if args.json:
         logging.info('Writing results to %s', args.json)
         with open(args.json, 'w') as outfile:
-            json.dump(json_dict, outfile)
+            json.dump(json_dict, outfile, sort_keys=True)
 
     return retcode
 

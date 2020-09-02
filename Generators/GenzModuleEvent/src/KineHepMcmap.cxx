@@ -10,9 +10,9 @@ KineHepMcmap::KineHepMcmap ( const HepMC::GenEvent* evt )
 {}
 
 int
-KineHepMcmap::giveParticle_getkine	( const HepMC::GenParticle* p ) const
+KineHepMcmap::giveParticle_getkine	(HepMC::ConstGenParticlePtr p ) const
 {
-    int barcode	= p->barcode();
+    int barcode	= HepMC::barcode(p);
     if (barcode < m_kine_offset)
     {
 	if (p->status() > 1000) return p->status() / 1000;
@@ -24,25 +24,15 @@ KineHepMcmap::giveParticle_getkine	( const HepMC::GenParticle* p ) const
     }
 }
 
-HepMC::GenParticle*
+HepMC::ConstGenParticlePtr
 KineHepMcmap::givekine_getParticle	( const int kine ) const
 {
-    if (kine <= 0) return 0;
-    HepMC::GenParticle*	part =	0;
-    bool not_found = true;
-    HepMC::GenEvent::particle_const_iterator p = m_evt->particles_begin();
-    do
+    if (kine <= 0) return nullptr;
+    for (auto  part: *m_evt)
     {
-	int pkine = giveParticle_getkine(*p);
-	if (pkine == kine)
-	{
-	    not_found = false;
-	    part = *p;
-	}
-	++p;
-    } while (p != m_evt->particles_end() && not_found);
-
-    return part;
+         if (giveParticle_getkine(part) == kine )  return part;
+    }
+    return  nullptr;
 }
 
 
@@ -57,7 +47,7 @@ KineHepMcmap::givekine_getParticle	( const int kine ) const
 //         int kine = 120;
 	 
 //	 HepMC::KineHepMcmap  kinm(evt )   ;
-//	 HepMC::GenParticle* myparticle = kinm.givekine_getParticle( kine);
+//	 HepMC::GenParticlePtr myparticle = kinm.givekine_getParticle( kine);
 //	 int mykine = kinm.giveParticle_getkine(  myparticle);
 //	 cout << "KineHepMcmap geant particle 120 =  " << mykine << endl; 
 //	 if (myparticle) myparticle->print();

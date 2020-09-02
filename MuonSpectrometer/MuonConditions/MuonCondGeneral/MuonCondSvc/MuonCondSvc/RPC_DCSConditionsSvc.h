@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPC_DCSCONDITIONSSVC_H
@@ -10,25 +10,20 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "MuonCondInterface/IRPC_DCSConditionsSvc.h"
 #include "MuonCondInterface/IRPC_DCSConditionsTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include <vector>
-#include <list>
-#include <string>
-#include <map>
-//
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-
 #include "MuonCondSvc/MuonHierarchy.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
+#include <vector>
+#include <list>
+#include <string>
+#include <map>
 
 template <class TYPE> class SvcFactory;
 class ISvcLocator;

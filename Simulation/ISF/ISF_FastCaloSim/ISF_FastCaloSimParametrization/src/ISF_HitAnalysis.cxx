@@ -981,7 +981,11 @@ StatusCode ISF_HitAnalysis::execute()
          loopEnd = (*mcEvent->begin())->particles_size(); //is this the correct thing?
        }
        //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
+#ifdef HEPMC3
+       for (auto part: *(*mcEvent->begin())) {
+#else
        for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it) {
+#endif
          ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
          particleIndex++;
 
@@ -1137,7 +1141,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  //Retrieve and save MuonEntryLayer information 
  const TrackRecordCollection *MuonEntry = nullptr;
- ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
  if (sc.isFailure())
  {
  ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
@@ -1200,7 +1204,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
    LArHitContainer::const_iterator hi;
    int hitnumber = 0;
-   for (hi=(*iter).begin();hi!=(*iter).end();hi++)
+   for (hi=(*iter).begin();hi!=(*iter).end();++hi)
    {
           hitnumber++;
           GeoLArHit ghit(**hi);
@@ -1629,7 +1633,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
  // geantinos not handled by PdgToParticleHypothesis - fix there
  if( pdgId == 999 ) pHypothesis = Trk::geantino;
 
- HepMC::GenVertex *vtx = part.production_vertex();
+ auto  vtx = part.production_vertex();
  Amg::Vector3D pos(0.,0.,0.);    // default
 
  if (vtx)
@@ -1745,7 +1749,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
    int sample=(*it).detID;
    Amg::Vector3D hitPos = (*it).trackParms->position();
    ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag());
-   it++;
+   ++it;
   }
  }
 

@@ -187,7 +187,7 @@ public:
 
   /// \name vector constructors (no Allocators)
   //@{
-  ElementLinkVector() : ElementLinkVectorBase() { }
+  ElementLinkVector();
  
   ElementLinkVector(size_type n, const ElemLink& link) :
     ElementLinkVectorBase(), m_shortRefs(n, ElemLinkRef(link))
@@ -217,7 +217,7 @@ public:
     ElementLinkVectorBase( vec ),
     m_shortRefs(vec.m_shortRefs), m_hostDObjs(vec.m_hostDObjs) { }
 
-  ElementLinkVector(ElemLinkVec&& vec) :
+  ElementLinkVector(ElemLinkVec&& vec) noexcept :
     ElementLinkVectorBase( std::move(vec) ),
     m_shortRefs(std::move(vec.m_shortRefs)),
     m_hostDObjs(std::move(vec.m_hostDObjs)) { }
@@ -233,7 +233,7 @@ public:
     return *this;
   }
 
-  ElementLinkVector& operator= (ElemLinkVec&& vec)
+  ElementLinkVector& operator= (ElemLinkVec&& vec) noexcept
   {
     if (this != &vec) {
       m_persKeys    = std::move(vec.m_persKeys);
@@ -416,6 +416,10 @@ private:
 
 }; // class ElementLinkVector
 
+template <typename DOBJ>
+  ElementLinkVector<DOBJ>::ElementLinkVector() : ElementLinkVectorBase() { 
+}
+
 /*
  * The following piece of code makes the Reflex dictionary think of
  * "ElementLinkVector< T, DataProxyStorage< T >,
@@ -426,39 +430,14 @@ private:
  */
 ENTER_ROOT_SELECTION_NS
 
-
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-
 template< class STORABLE >
-struct ElementLinkVector {
-   typedef ElementLinkVector< STORABLE> self;
-   /// Do not generate such dictionaries automatically
-   ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dummy;
-   /// Mark all transient members:
-   ROOT_SELECTION_NS::TRANSIENT m_shortRefs;
-   ROOT_SELECTION_NS::TRANSIENT m_hostDObjs;
-};
-
-
-#else
-
-
-template< class STORABLE >
-struct ElementLinkVector
-#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
-  : public SelectNoInstance
-#endif
+struct ElementLinkVector : public SelectNoInstance
 {
   typedef ElementLinkVector< STORABLE> self;
   /// Mark all transient members:
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_shortRefs;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_hostDObjs;
 };
-
-
-#endif
-
 
 EXIT_ROOT_SELECTION_NS
 

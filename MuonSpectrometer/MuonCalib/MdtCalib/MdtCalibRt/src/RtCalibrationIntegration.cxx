@@ -37,7 +37,7 @@ inline Double_t slope_function_C(Double_t *x, Double_t *par) {
     &b(par[1]),
     &t_0(par[2]),
     &back(par[3]);
-  return back + exp(a+b*(t-t_0));
+  return back + std::exp(a+b*(t-t_0));
 }
 
 inline void update_parameter_on_mttmax(TH1 * h, TF1 *f, const float &b, const float & T, const T0MTSettingsTMax &tmax_settings) {

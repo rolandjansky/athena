@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,13 +11,13 @@
  */
 
 #include "CaloTopoEMGap.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "StoreGate/ReadHandle.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 
 using xAOD::CaloCluster;
@@ -37,28 +37,6 @@ const double dphi = twopi / 64. ;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloTopoEMGap::CaloTopoEMGap (const std::string& type,
-                              const std::string& name,
-                              const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent),
-    m_cells ("AllCalo")
-{
-  declareProperty ("Cells", m_cells);
-
-  declareConstant ("etamin_crack", m_etamin_crack);
-  declareConstant ("etamax_crack", m_etamax_crack);
-  declareConstant ("degree",       m_degree);
-  declareConstant ("correction",   m_correction);
-  declareConstant ("use_raw_eta",  m_use_raw_eta);
-}
-
-
-/**
  * @brief Standard Gaudi initialize method.
  */
 StatusCode CaloTopoEMGap::initialize()
@@ -71,7 +49,7 @@ StatusCode CaloTopoEMGap::initialize()
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -89,7 +67,7 @@ StatusCode CaloTopoEMGap::initialize()
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloTopoEMGap::makeTheCorrection (const EventContext& ctx,
+void CaloTopoEMGap::makeTheCorrection (const Context& myctx,
                                        CaloCluster* cluster,
                                        const CaloDetDescrElement*/*elt*/,
                                        float eta,
@@ -102,15 +80,15 @@ void CaloTopoEMGap::makeTheCorrection (const EventContext& ctx,
   //     and range checks.  However, the v2 corrections were derived
   //     using regular eta instead.
   float the_aeta;
-  if (m_use_raw_eta)
+  if (m_use_raw_eta(myctx))
     the_aeta = std::abs (adj_eta);
   else
     the_aeta = std::abs (eta);
 
-  if (the_aeta < m_etamin_crack || the_aeta > m_etamax_crack) 
+  if (the_aeta < m_etamin_crack(myctx) || the_aeta > m_etamax_crack(myctx)) 
     return; // no correction required
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells, ctx);
+  SG::ReadHandle<CaloCellContainer> cc (m_cells, myctx.ctx());
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
@@ -139,11 +117,14 @@ void CaloTopoEMGap::makeTheCorrection (const EventContext& ctx,
     }
   }
 
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+  const int degree = m_degree (myctx);
+
   // Find the correction weights.
-  float par0 = interpolate (m_correction, the_aeta, m_degree, 1);
-  float par1 = interpolate (m_correction, the_aeta, m_degree, 2);
-  float par2 = interpolate (m_correction, the_aeta, m_degree, 3);
-  float par3 = interpolate (m_correction, the_aeta, m_degree, 4);
+  float par0 = interpolate (correction, the_aeta, degree, 1);
+  float par1 = interpolate (correction, the_aeta, degree, 2);
+  float par2 = interpolate (correction, the_aeta, degree, 3);
+  float par3 = interpolate (correction, the_aeta, degree, 4);
 
   // The correction is a weighted sum of calorimeter and scintillator energies.
   float ec = cluster->e();

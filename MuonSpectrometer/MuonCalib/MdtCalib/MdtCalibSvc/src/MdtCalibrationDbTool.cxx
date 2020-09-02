@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
@@ -54,7 +54,7 @@ StatusCode MdtCalibrationDbTool::initialize() {
 
   ATH_CHECK(m_readKeyRt.initialize());
   ATH_CHECK(m_readKeyTube.initialize());
-  ATH_CHECK(m_readKeyCor.initialize());
+  ATH_CHECK(m_readKeyCor.initialize (m_createSlewingFunction || m_createWireSagFunction || m_create_b_field_function));
 
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbTool::initialize

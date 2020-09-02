@@ -7,7 +7,7 @@
 #include <string>
 #include <set>
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -44,7 +44,7 @@
  **/
 
 class RoRSeqFilter
-  : public ::AthAlgorithm
+  : public ::AthReentrantAlgorithm
 { 
  public: 
   RoRSeqFilter( const std::string& name, ISvcLocator* pSvcLocator );
@@ -58,7 +58,7 @@ class RoRSeqFilter
  * @brief Apply this filter in-between Steps of trigger execution. Fully implicit inputs, requires Control Flow to unlock.
  * will signal a negative filter result to the Scheduler if zero chains remain active upon termination.
  **/
-  virtual StatusCode  execute() override;
+  virtual StatusCode  execute(const EventContext& ctx) const override;
 
  private:
   RoRSeqFilter();

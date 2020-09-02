@@ -52,8 +52,8 @@ bool ConstantContentBinMaker::binDataPoints(const unsigned int & bin_content,
 ///////////////
 
     unsigned int n_bins(static_cast<unsigned int>(
-                        log(m_points.size()/static_cast<double>(bin_content))
-																	/log(2.0)));
+                        std::log(m_points.size()/static_cast<double>(bin_content))
+																	/std::log(2.0)));
     std::vector<unsigned int> splitting_axis(ref_coord);
     unsigned int axis_counter(0);
 

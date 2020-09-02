@@ -39,7 +39,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib
+  LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib AsgDataHandlesLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} FourMomUtils
   xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils )
 
@@ -70,26 +70,18 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma AsgTools
       xAODRootAccess ElectronPhotonSelectorToolsLib )
 
-   atlas_add_executable( EGIdentification_testEGChargeIDSelector
-      util/testEGChargeIDSelector.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess 
-      ElectronPhotonSelectorToolsLib )
+   # Disabling this because the underlying tool no longer seems to
+   # exist.  Whoever is the expert should either make this work or
+   # remove it completely.
 
-   atlas_add_executable( EGIdentification_testEGChargeIDSelector
-      util/testEGChargeIDSelector.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess 
-      ElectronPhotonSelectorToolsLib )
+   # atlas_add_executable( EGIdentification_testEGChargeIDSelector
+   #    util/testEGChargeIDSelector.cxx
+   #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   #    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
+   #    ElectronPhotonSelectorToolsLib )
 
 endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-atlas_install_data( data/*.root data/*.conf )
-
-# Check python syntax on Config files
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*Config.py
-                POST_EXEC_SCRIPT nopost.sh )
+atlas_install_data( data/*.conf )

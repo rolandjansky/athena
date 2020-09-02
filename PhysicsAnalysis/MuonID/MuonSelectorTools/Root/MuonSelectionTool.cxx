@@ -2,9 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "PathResolver/PathResolver.h"
+
+namespace {
+  static constexpr double const MeVtoGeV = 1./1000.;
+}
 
 namespace CP {
   
@@ -41,6 +46,12 @@ namespace CP {
     declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
 
+    //switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the high-pT selection
+    declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
+
+    //file for bad muon veto mimic cut functions
+    declareProperty( "BMVcutFile", m_BMVcutFile = "MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root");
+
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
     declareProperty( "ExpertDevelopMode", m_developMode = false );
@@ -52,90 +63,16 @@ namespace CP {
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
     declareProperty( "UseAllAuthors", m_useAllAuthors = true );
     //
-    m_tightWP_lowPt_rhoCuts = 0;
-    m_tightWP_lowPt_qOverPCuts = 0;
-    m_tightWP_mediumPt_rhoCuts = 0;
-    m_tightWP_highPt_rhoCuts = 0;
-    //
     m_lowPTmva_middleHoles = new Float_t; m_lowPTmva_muonSeg1ChamberIdx = new Float_t;
     m_lowPTmva_muonSeg2ChamberIdx = new Float_t; m_lowPTmva_momentumBalanceSig = new Float_t;
     m_lowPTmva_scatteringCurvatureSig = new Float_t; m_lowPTmva_scatteringNeighbourSig = new Float_t;
     m_lowPTmva_energyLoss = new Float_t; m_lowPTmva_muonSegmentDeltaEta = new Float_t;
-
 
     ATH_MSG_DEBUG("Creating MuonSelectionTool named "<<m_name);
-  }
-    
-  MuonSelectionTool::MuonSelectionTool( const MuonSelectionTool& toCopy  )
-    : asg::AsgTool(toCopy.m_name+"_copy"),
-      m_name(toCopy.m_name+"_copy"),
-      m_maxEta( toCopy.m_maxEta ),
-      m_quality( toCopy.m_quality ),
-      m_acceptInfo( toCopy.m_acceptInfo ),
-      m_toroidOff( toCopy.m_toroidOff ),
-      m_developMode( toCopy.m_developMode ),
-      m_TrtCutOff( toCopy.m_TrtCutOff ),
-      m_SctCutOff( toCopy.m_SctCutOff ),
-      m_PixCutOff( toCopy.m_PixCutOff ),
-      m_SiHolesCutOff( toCopy.m_SiHolesCutOff ),
-      m_TurnOffMomCorr(  toCopy.m_TurnOffMomCorr ),
-      m_calibration_version( toCopy.m_calibration_version ),
-      m_custom_dir( toCopy.m_custom_dir ),
-      m_readerE_MUID(nullptr),
-      m_readerO_MUID(nullptr),
-      m_readerE_MUGIRL(nullptr),
-      m_readerO_MUGIRL(nullptr)
-  {
-    //
-    m_tightWP_lowPt_rhoCuts = 0;
-    m_tightWP_lowPt_qOverPCuts = 0;
-    m_tightWP_mediumPt_rhoCuts = 0;
-    m_tightWP_highPt_rhoCuts = 0;
-    //
-    m_lowPTmva_middleHoles = new Float_t; m_lowPTmva_muonSeg1ChamberIdx = new Float_t;
-    m_lowPTmva_muonSeg2ChamberIdx = new Float_t; m_lowPTmva_momentumBalanceSig = new Float_t;
-    m_lowPTmva_scatteringCurvatureSig = new Float_t; m_lowPTmva_scatteringNeighbourSig = new Float_t;
-    m_lowPTmva_energyLoss = new Float_t; m_lowPTmva_muonSegmentDeltaEta = new Float_t;
-
-    ATH_MSG_DEBUG("Creating copy of MuonSelectionTool named "<<m_name);
   }
   
   MuonSelectionTool::~MuonSelectionTool(){
     ATH_MSG_DEBUG(Form("Deleting MuonSelectionTool named %s",m_name.c_str()));
-    //
-    if( m_tightWP_lowPt_rhoCuts ){
-      delete m_tightWP_lowPt_rhoCuts;
-      m_tightWP_lowPt_rhoCuts = 0;
-    }
-    if( m_tightWP_lowPt_qOverPCuts ){
-      delete m_tightWP_lowPt_qOverPCuts;
-      m_tightWP_lowPt_qOverPCuts = 0;
-    }
-    if( m_tightWP_mediumPt_rhoCuts ){
-      delete m_tightWP_mediumPt_rhoCuts;
-      m_tightWP_mediumPt_rhoCuts = 0;
-    }
-    if( m_tightWP_highPt_rhoCuts ){
-      delete m_tightWP_highPt_rhoCuts;
-      m_tightWP_highPt_rhoCuts = 0;
-    }
-    //
-    if( m_readerE_MUID ){
-      delete m_readerE_MUID;
-      m_readerE_MUID = nullptr;
-    }
-    if( m_readerO_MUID ){
-      delete m_readerO_MUID;
-      m_readerO_MUID = nullptr;
-    }
-    if( m_readerE_MUGIRL ){
-      delete m_readerE_MUGIRL;
-      m_readerE_MUGIRL = nullptr;
-    }
-    if( m_readerO_MUGIRL ){
-      delete m_readerO_MUGIRL;
-      m_readerO_MUGIRL = nullptr;
-    }
     //
     delete m_lowPTmva_middleHoles; delete m_lowPTmva_muonSeg1ChamberIdx; delete m_lowPTmva_muonSeg2ChamberIdx; delete m_lowPTmva_momentumBalanceSig;
     delete m_lowPTmva_scatteringCurvatureSig; delete m_lowPTmva_scatteringNeighbourSig; delete m_lowPTmva_energyLoss; delete m_lowPTmva_muonSegmentDeltaEta;
@@ -154,9 +91,9 @@ namespace CP {
     if (m_custom_dir!="") ATH_MSG_WARNING("!! SETTING UP WITH USER SPECIFIED INPUT LOCATION \""<<m_custom_dir<<"\"!! FOR DEVELOPMENT USE ONLY !! ");
     if (!m_useAllAuthors) ATH_MSG_WARNING("Not using allAuthors variable as currently missing in many derivations; LowPtEfficiency working point will always return false, but this is expected at the moment. Have a look here: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionToolR21#New_LowPtEfficiency_working_poin");
 
-    //Print warning to ensure that users including 2-station muons in the high-pT selection are aware of this
-    if (!m_use2stationMuonsHighPt) ATH_MSG_INFO("You have opted select 3-station muons in the high-pT selection! "<<
-        "Please feed 'HighPt3Layers' to the 'WorkingPoint'  property to retrieve the appropiate scale-factors");
+    //Print message to ensure that users excluding 2-station muons in the high-pT selection are aware of this
+    if (!m_use2stationMuonsHighPt) ATH_MSG_INFO("You have opted to select only 3-station muons in the high-pT selection! "<<
+        "Please feed 'HighPt3Layers' to the 'WorkingPoint' property to retrieve the appropriate scale-factors");
 
 
     // Set up the TAccept object:
@@ -205,7 +142,30 @@ namespace CP {
     ATH_CHECK( getHist( file.get(),"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
     // 
     file->Close();
-  
+
+    
+    //Read bad muon veto efficiency histograms
+    std::string BMVcutFile_fullPath = PathResolverFindCalibFile(m_BMVcutFile);
+
+    ATH_MSG_INFO( "Reading bad muon veto cut functions from " << BMVcutFile_fullPath  );
+    // 
+    std::unique_ptr<TFile> BMVfile ( TFile::Open( BMVcutFile_fullPath.c_str() ,"READ"));
+
+    if( !BMVfile->IsOpen() ){
+      ATH_MSG_ERROR( "Cannot read bad muon veto cut function file from " << BMVcutFile_fullPath );
+      return StatusCode::FAILURE;
+    }
+
+    m_BMVcutFunction_barrel = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_barrel") );
+    m_BMVcutFunction_endcap = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_endcap") );
+
+    BMVfile->Close();
+
+    if (!m_BMVcutFunction_barrel || !m_BMVcutFunction_endcap) {
+      ATH_MSG_ERROR( "Cannot read bad muon veto cut functions");
+      return StatusCode::FAILURE;
+    }
+
 
     //Set up TMVA readers for MVA-based low-pT working point
     //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
@@ -214,36 +174,36 @@ namespace CP {
     TString weightPath_EVEN_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_EVEN_MuGirl);
     TString weightPath_ODD_MuGirl = PathResolverFindCalibFile(m_MVAreaderFile_ODD_MuGirl);
 
-    m_readerE_MUID = new TMVA::Reader();
-    PrepareReader( m_readerE_MUID );
+    m_readerE_MUID = std::make_unique<TMVA::Reader>();
+    PrepareReader( m_readerE_MUID.get() );
     m_readerE_MUID->BookMVA("BDTG", weightPath_EVEN_MuidCB);
 
-    m_readerO_MUID = new TMVA::Reader();
-    PrepareReader( m_readerO_MUID );
+    m_readerO_MUID = std::make_unique<TMVA::Reader>();
+    PrepareReader( m_readerO_MUID.get() );
     m_readerO_MUID->BookMVA("BDTG", weightPath_ODD_MuidCB);
 
-    m_readerE_MUGIRL = new TMVA::Reader();
-    PrepareReader( m_readerE_MUGIRL );
+    m_readerE_MUGIRL = std::make_unique<TMVA::Reader>();
+    PrepareReader( m_readerE_MUGIRL.get() );
     m_readerE_MUGIRL->BookMVA("BDTG", weightPath_EVEN_MuGirl);
 
-    m_readerO_MUGIRL = new TMVA::Reader();
-    PrepareReader( m_readerO_MUGIRL );
+    m_readerO_MUGIRL = std::make_unique<TMVA::Reader>();
+    PrepareReader( m_readerO_MUGIRL.get() );
     m_readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
 
     ATH_CHECK( m_eventInfo.initialize() );
-    
+
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonSelectionTool::getHist( TFile* file, const char* histName, TH2D*& hist ){
+  StatusCode MuonSelectionTool::getHist( TFile* file, const char* histName, std::unique_ptr<TH2D>& hist ){
     //
     if( !file ) {
       ATH_MSG_ERROR(" getHist(...) TFile is nullptr! Check that the Tight cut map is loaded correctly");
       return StatusCode::FAILURE;
     }
     //
-    hist = dynamic_cast<TH2D*>( file->Get( histName ) );
+    hist = std::unique_ptr<TH2D>( (TH2D*)file->Get( histName ) );
     //
     if( !hist ){
       ATH_MSG_ERROR( "Cannot retrieve histogram " << histName  );
@@ -311,7 +271,7 @@ namespace CP {
       ATH_MSG_VERBOSE( "Muon type: calorimeter-tagged" );
     else if(mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon)
       ATH_MSG_VERBOSE( "Muon type: silicon-associated forward" );
-    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()/1000. );
+    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()*MeVtoGeV );
     ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     ATH_MSG_VERBOSE( "Muon phi: " << mu.phi() );
 
@@ -496,7 +456,7 @@ namespace CP {
       }
 
       // Improvement for Loose targeting low-pT muons (pt<7 GeV)
-      if ( mu.pt()/1000.<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
+      if ( mu.pt()*MeVtoGeV<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
 	ATH_MSG_VERBOSE( "Muon passed selection for loose working point at low pT" );
 	return xAOD::Muon::Loose;
       }
@@ -631,6 +591,7 @@ namespace CP {
   }
   
   bool MuonSelectionTool::passedIDCuts( const xAOD::Muon& mu ) const {
+
     //do not apply the ID hit requirements for SA muons for |eta| > 2.5
     if ( mu.author()==xAOD::Muon::MuidSA && std::abs(mu.eta())>2.5 ) {
       return true;
@@ -724,7 +685,7 @@ namespace CP {
     }
 
     // applying Medium selection above pT = 18 GeV 
-    if( mu.pt()/1000.>18. ) {
+    if( mu.pt()*MeVtoGeV>18. ) {
       ATH_MSG_VERBOSE( "pT > 18 GeV - apply medium selection" );
       if( thisMu_quality <= xAOD::Muon::Medium ) {
 	ATH_MSG_VERBOSE( "Muon passed low-pT selection" );
@@ -839,12 +800,12 @@ namespace CP {
     //use different trainings for even/odd numbered events
     TMVA::Reader *reader_MUID, *reader_MUGIRL;
     if( eventInfo->eventNumber() % 2 == 1) {
-      reader_MUID = m_readerE_MUID;
-      reader_MUGIRL = m_readerE_MUGIRL;
+      reader_MUID = m_readerE_MUID.get();
+      reader_MUGIRL = m_readerE_MUGIRL.get();
     } 
     else {
-      reader_MUID = m_readerO_MUID;
-      reader_MUGIRL = m_readerO_MUGIRL;
+      reader_MUID = m_readerO_MUID.get();
+      reader_MUGIRL = m_readerO_MUGIRL.get();
     }
 
     // get the BDT discriminant response
@@ -1091,7 +1052,7 @@ namespace CP {
   bool MuonSelectionTool::passedErrorCutCB( const xAOD::Muon& mu ) const {
     // ::
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
-    // :: 
+    // ::
     double start_cut = 2.5;
     double abs_eta = std::abs(mu.eta());
 
@@ -1140,7 +1101,7 @@ namespace CP {
     const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     if( cbtrack ) {
       // ::
-      double pt_CB = (cbtrack->pt() / 1000. < 5000.) ? cbtrack->pt() / 1000. : 5000.; // GeV
+      double pt_CB = (cbtrack->pt()*MeVtoGeV < 5000.) ? cbtrack->pt()*MeVtoGeV : 5000.; // GeV
       double qOverP_CB = cbtrack->qOverP();
       double qOverPerr_CB = std::sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
       // sigma represents the average expected error at the muon's pt/eta 
@@ -1158,8 +1119,48 @@ namespace CP {
       }
     }
     // :: 
+    if( m_use2stationMuonsHighPt && m_doBadMuonVetoMimic && nprecisionLayers == 2) {
+      
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+      
+      if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+	ATH_MSG_DEBUG("The current event is a MC event. Use bad muon veto mimic.");
+	return passErrorCutCB && passedBMVmimicCut(mu);
+      }
+    }
+
+    // :: 
     return passErrorCutCB;
   }
+
+
+  bool MuonSelectionTool::passedBMVmimicCut( const xAOD::Muon& mu ) const {
+
+    TF1* cutFunction;
+    double p1,p2;
+    if (std::abs(mu.eta()) < 1.05) {
+      cutFunction = m_BMVcutFunction_barrel.get();
+      p1 = 0.066265;
+      p2 = 0.000210047;
+    }
+    else {
+      cutFunction = m_BMVcutFunction_endcap.get();
+      p1 = 0.0629747;
+      p2 = 0.000196466;
+    }
+
+    double qOpRelResolution = std::hypot(p1,p2*mu.primaryTrackParticle()->pt()*MeVtoGeV);
+
+    double qOverPabs_unsmeared = std::abs(mu.primaryTrackParticle()->definingParameters()[4]);
+    double qOverPabs_smeared = 1.0 / (mu.pt() * std::cosh(mu.eta()));
+
+    if ( (qOverPabs_smeared - qOverPabs_unsmeared) / (qOpRelResolution*qOverPabs_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()*MeVtoGeV) )
+      return false;
+    else
+      return true;
+  }
+
+
 
   bool MuonSelectionTool::passedMuonCuts( const xAOD::Muon& mu ) const {
     // ::
@@ -1185,6 +1186,7 @@ namespace CP {
   }
   
   bool MuonSelectionTool::passedIDCuts( const xAOD::TrackParticle & track ) const {
+
     uint8_t value1=0;
     uint8_t value2=0;
 
@@ -1259,13 +1261,14 @@ namespace CP {
   bool MuonSelectionTool::passTight( const xAOD::Muon& mu, float rho, float oneOverPSig ) const
   {
     float symmetric_eta = std::abs( mu.eta() );
-    float pt = mu.pt() / 1000.0; // GeV                                                                                                                                                                                                                                                                                                                                     
+    float pt = mu.pt()*MeVtoGeV; // GeV
+
     // Impose pT and eta cuts; the bounds of the cut maps  
-    if( pt < 4.0 || symmetric_eta>2.5 ) return false;
+    if( pt < 4.0 || symmetric_eta >= 2.5 ) return false;
     ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
 
     // ** Low pT specific cuts ** //  
-    if( pt > 4.0 && pt <= 20.0 ){
+    if( pt < 20.0 ){
 
       double rhoCut    = m_tightWP_lowPt_rhoCuts->Interpolate( pt, symmetric_eta );
       double qOverPCut = m_tightWP_lowPt_qOverPCuts->Interpolate( pt , symmetric_eta );
@@ -1286,7 +1289,7 @@ namespace CP {
     }
 
     // ** Medium pT specific cuts ** //  
-    else if ( pt > 20.0 && pt <= 100.0 ) {
+    else if ( pt < 100.0 ) {
       double rhoCut = m_tightWP_mediumPt_rhoCuts->Interpolate( pt , symmetric_eta );
       // 
       ATH_MSG_VERBOSE( "Applying tight WP cuts to a medium pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
@@ -1301,7 +1304,7 @@ namespace CP {
     }
 
     // ** High pT specific cuts  
-    else if ( pt > 100.0 && pt <= 500.0 ){
+    else if ( pt < 500.0 ){
       // 
       ATH_MSG_VERBOSE( "Applying tight WP cuts to a high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
       // No interpolation, since bins with -1 mean we should cut really loose       

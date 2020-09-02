@@ -2,6 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "TH1.h"
@@ -12,7 +13,8 @@
 
 namespace{
   template <class HistoArrayType>
-  void registerHistogramType(const HistoArrayType & h, const std::string &sampleName, const std::string & suffix){
+  void registerHistogramType ATLAS_NOT_THREAD_SAFE // Thread unsafe PerfMonServices class is used.
+    (const HistoArrayType & h, const std::string &sampleName, const std::string & suffix){
     unsigned int u = 1;
     const std::string titleRoot{"/ESD/" + sampleName + suffix};
     for ( auto & thisHisto:h ){
@@ -38,7 +40,7 @@ EventAnalysis::~EventAnalysis()
 //=============================================================================
 // Public Accessors
 //=============================================================================
-void EventAnalysis::Init()
+void EventAnalysis::Init ATLAS_NOT_THREAD_SAFE () // Thread unsafe Register method is used.
 {
   // This must be called by an inheriting class in order to book
   //  & register histograms.
@@ -63,7 +65,7 @@ void EventAnalysis::BookHistograms()
 //=============================================================================
 // Private Accessors
 //=============================================================================
-void EventAnalysis::Register()
+void EventAnalysis::Register ATLAS_NOT_THREAD_SAFE () // Thread unsafe registerHistogramType fuction is used.
 {
   // Register histograms in monitoring tool
   registerHistogramType(m_x1DHistograms, m_xSampleName, "/1dhisto_");

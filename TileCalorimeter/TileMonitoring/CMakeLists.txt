@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 767269 2016-08-10 15:10:39Z aryzhov $
 ################################################################################
 # Package: TileMonitoring
 ################################################################################
@@ -6,64 +5,35 @@
 # Declare the package name:
 atlas_subdir( TileMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Control/AthenaMonitoring
-  Event/xAOD/xAODJet
-  GaudiKernel
-  Reconstruction/Jet/JetInterface
-  TileCalorimeter/TileIdentifier
-  PRIVATE
-  Calorimeter/CaloEvent
-  Calorimeter/CaloGeoHelpers
-  Calorimeter/CaloIdentifier
-  Control/AthenaKernel
-  Event/ByteStreamCnvSvcBase
-  Event/xAOD/xAODCaloEvent
-  Event/xAOD/xAODEventInfo
-  Event/xAOD/xAODTrigger
-  Event/xAOD/xAODMuon
-  PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-  Reconstruction/Jet/JetMomentTools
-  Reconstruction/Jet/JetUtils
-  TileCalorimeter/TileCalib/TileCalibBlobObjs
-  TileCalorimeter/TileConditions
-  TileCalorimeter/TileEvent
-  TileCalorimeter/TileRecUtils
-  Tools/LWHists
-  Trigger/TrigAnalysis/TrigDecisionTool
-  Trigger/TrigConfiguration/TrigConfInterfaces
-  Trigger/TrigConfiguration/TrigConfL1Data
-  Trigger/TrigT1/TrigT1Result )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Graf Gpad Hist Spectrum Core Tree MathCore
   RIO pthread Graf3d Html Postscript Gui GX11TTF GX11 HistPainter )
 
+atlas_add_library( TileMonitoringLib
+                   TileMonitoring/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TileMonitoring
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+                   LINK_LIBRARIES GaudiKernel TileEvent StoreGateLib TileConditionsLib xAODJet AsgTools JetInterface JetSelectorToolsLib AthenaMonitoringLib TileIdentifier )
+
 # Component(s) in the package:
 atlas_add_component( TileMonitoring
   TileMonitoring/*.h src/*.cxx src/components/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AsgTools
-  AthenaMonitoringLib xAODJet GaudiKernel JetInterface TileIdentifier
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} 
+  TileMonitoringLib
   CaloEvent CaloGeoHelpers CaloIdentifier AthenaKernel
   ByteStreamCnvSvcBaseLib xAODCaloEvent xAODEventInfo xAODTrigger xAODMuon JetUtils
-  TileCalibBlobObjs TileConditionsLib TileEvent TileRecUtilsLib LWHists
-  TrigDecisionToolLib TrigConfL1Data TrigT1Result )
+  TileCalibBlobObjs TileRecUtilsLib LWHists
+  TrigDecisionToolLib TrigConfL1Data TrigT1Result JetMomentToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TileMonitoring )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
-# Check python syntax:
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
-                POST_EXEC_SCRIPT nopost.sh )
-
+# Tests:
 atlas_add_test( TileCellMonitorAlgorithm_test
                 SCRIPT python -m TileMonitoring.TileCellMonitorAlgorithm
                 PROPERTIES TIMEOUT 300

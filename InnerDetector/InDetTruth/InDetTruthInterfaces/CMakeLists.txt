@@ -9,6 +9,8 @@ atlas_subdir( InDetTruthInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( InDetTruthInterfaces )
-
+atlas_add_library( InDetTruthInterfaces
+                   InDetTruthInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS InDetTruthInterfaces
+                   LINK_LIBRARIES GaudiKernel )

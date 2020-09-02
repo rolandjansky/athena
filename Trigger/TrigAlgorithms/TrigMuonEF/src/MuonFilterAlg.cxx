@@ -7,7 +7,7 @@
 #include "MuonFilterAlg.h"
 
 MuonFilterAlg::MuonFilterAlg(const std::string& name, ISvcLocator* pSvcLocator )
-:AthAlgorithm(name, pSvcLocator)
+:AthReentrantAlgorithm(name, pSvcLocator)
 {
 
 
@@ -26,12 +26,12 @@ StatusCode MuonFilterAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonFilterAlg::execute()
+StatusCode MuonFilterAlg::execute(const EventContext& ctx) const
 {
 
   bool pass = false;
   //Get muon container
-  SG::ReadHandle<xAOD::MuonContainer> rh_muons(m_muonContainerKey);
+  SG::ReadHandle<xAOD::MuonContainer> rh_muons(m_muonContainerKey, ctx);
   if(!rh_muons.isValid()){
     ATH_MSG_ERROR("Could not find muons with name: "<<m_muonContainerKey.key());
     return StatusCode::FAILURE;
@@ -45,8 +45,8 @@ StatusCode MuonFilterAlg::execute()
   }
   if(nCBmuons==0) pass = true;
 
-  ATH_MSG_DEBUG("Found: "<<muons->size()<<" muons; pass="<<pass);
-  setFilterPassed(pass);
+  ATH_MSG_DEBUG("Found: "<<nCBmuons<<" muons; pass="<<pass);
+  setFilterPassed(pass, ctx);
 
   return StatusCode::SUCCESS;
 }

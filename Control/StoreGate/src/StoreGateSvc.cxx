@@ -123,17 +123,17 @@ StatusCode StoreGateSvc::initialize()    {
   IProperty* appmgrprop = 0;
   appmgr->queryInterface( IProperty::interfaceID(), (void**)&appmgrprop ).ignore();
   //all of the above to get the jo svc type
-  const Property& prop = appmgrprop->getProperty( "JobOptionsSvcType" );
+  const Gaudi::Details::PropertyBase& prop = appmgrprop->getProperty( "JobOptionsSvcType" );
   IJobOptionsSvc* pJOSvc(0);
   if ( serviceLocator()->service( prop.toString(), "JobOptionsSvc", pJOSvc ).isFailure() ) {
     error() << "Failed to retrieve JobOptionsSvc" << endmsg;
   }
   //copy our properties to the prototype (default) SGImplSvc
   std::string implStoreName = name() + "_Impl";
-  const std::vector<const Property*>* props = pJOSvc->getProperties( name() );
+  const std::vector<const Gaudi::Details::PropertyBase*>* props = pJOSvc->getProperties( name() );
   if ( props ) {
-    std::vector<const Property*>::const_iterator prop(props->begin());
-    std::vector<const Property*>::const_iterator pEnd(props->end());
+    std::vector<const Gaudi::Details::PropertyBase*>::const_iterator prop(props->begin());
+    std::vector<const Gaudi::Details::PropertyBase*>::const_iterator pEnd(props->end());
     while (prop != pEnd) {
       pJOSvc->addPropertyToCatalogue( implStoreName, **prop ).ignore();
       ++prop;

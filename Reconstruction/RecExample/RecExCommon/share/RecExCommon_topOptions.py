@@ -4,7 +4,6 @@ include.block ("RecExCommon/RecExCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
-svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -139,7 +138,7 @@ if rec.doFileMetaData():
 #Output file TagInfo and metadata
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": jobproperties.Beam.beamType(),
-                                            "beam_energy": str(jobproperties.Beam.energy()),
+                                            "beam_energy": str(int(jobproperties.Beam.energy())),
                                             "triggerStreamOfFile": str(rec.triggerStream()),
                                             "project_name": str(rec.projectName()),
                                             "AtlasRelease_" + rec.OutputFileNameForRecoStep(): rec.AtlasReleaseVersion()
@@ -152,11 +151,13 @@ try:
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
-# append new if previous exists otherwise take the new alone 
-if amitag != "":
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : metadata['AMITag'] + "_" + rec.AMITag()})
+# append new tag if previous exists and is not the same otherwise take the new alone 
+if amitag != "" and amitag != rec.AMITag():
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : amitag + "_" + rec.AMITag()})
+    printfunc ("Adding AMITag ", amitag, " _ ", rec.AMITag())
 else:
-  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : rec.AMITag()})
+    printfunc ("Adding AMITag ", rec.AMITag())
 
 
 
@@ -464,9 +465,9 @@ if globalflags.InputFormat.is_bytestream():
 
             # Specify input file
             if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
             elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
@@ -474,9 +475,9 @@ if globalflags.InputFormat.is_bytestream():
 
         # Specify input file
         if len(athenaCommonFlags.FilesInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
         elif len(athenaCommonFlags.BSRDOInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")
@@ -592,8 +593,22 @@ if globalflags.InputFormat.is_bytestream():
         pass
     pass
 
-### Writing of mu values to xAOD::EventInfo is done in the converter step;
-### It's no longer necessary to write it in the old EventInfo
+### write mu values into xAOD::EventInfo
+if rec.doESD() and rec.readRDO():
+    if globalflags.DataSource()=='geant4':
+        include_muwriter = (globalflags.InputFormat.is_bytestream() or
+                            hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
+                            objKeyStore.isInInput( "xAOD::EventInfo"))
+    else:
+        include_muwriter = not athenaCommonFlags.isOnline()
+
+    if include_muwriter:
+        try:
+            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+        except Exception:
+            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
+            pass
+        pass
 
 if rec.doMonitoring():
     try:
@@ -780,14 +795,6 @@ pdr.flag_domain('output')
 if rec.doCBNT():
     protectedInclude( "RecExCommon/CBNT_config.py" )
 
-# trigger extension to the TrkValNtuple (it needs to be included after TrkValNtuple) from Jiri Masik and Clemencia Mora
-# test if ID is on also (might not be sufficient)
-if recAlgs.doTrigger() and DetFlags.detdescr.ID_on() :
-    if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-        if InDetFlags.doTrkNtuple() and InDetTrigFlags.doTrkNtuple():
-            protectedInclude("InDetTrigRecExample/InDetTrigRecNtupleCreation.py")
 
 #-----------------------------------------------------------------------------
 # Virtual Point1 Display
@@ -828,17 +835,6 @@ if rec.doPersint()  :
 # gathering info from all the reco algorithms
 #
 
-
-
-
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-
-
-
-#
 #
 #now write out Transient Event Store content in POOL
 #
@@ -1311,10 +1307,6 @@ if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags
     # Particle Builders
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaServices.Configurables import ThinningSvc
-    if not hasattr(svcMgr, 'ThinningSvc'):
-       svcMgr += ThinningSvc(OutputLevel=INFO)
-    svcMgr.ThinningSvc.Streams += ['StreamAOD']
 
 
     # cannot redo the slimming if readAOD and writeAOD
@@ -1349,13 +1341,6 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
-       # Doens't exist in xAOD world:
-       # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
-       #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
-       #     topSequence += SlimTrackInfo( "SlimTrackParticles",
-       #                                   thinSvc             = 'ThinningSvc/ThinningSvc',
-       #                                   TrackPartContName   = 'TrackParticleCandidate',
-       #                                   SlimPerigee=AODFlags.TrackParticleLastHitAndPerigeeSlimmer() )
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1402,9 +1387,6 @@ if rec.doWriteAOD():
 
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-        if not hasattr(svcMgr, 'ThinningSvc'):
-            svcMgr += createThinningSvc( svcName="ThinningSvc", outStreams=[StreamAOD] )
 
     # this is AOD->AOD copy
     if rec.readAOD():

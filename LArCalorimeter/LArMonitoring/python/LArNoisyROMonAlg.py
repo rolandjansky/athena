@@ -49,8 +49,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               MNBLooseFEBDefStr=""):
 
     # first configure known bad FEBs
-    from AthenaCommon.Configurable import Configurable
-    if Configurable.configurableRun3Behavior:
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
        cfg=ComponentAccumulator()
        from LArBadChannelTool.LArBadFebsConfig import LArKnownBadFebCfg, LArKnownMNBFebCfg
@@ -67,8 +67,8 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
     larNoisyROMonAlg.SubDetNames=lArDQGlobals.SubDet[0:2]
     larNoisyROMonAlg.PartitionNames=lArDQGlobals.Partitions[0:4]
 
-    #FIXME: only for testing
-    larNoisyROMonAlg.storeLooseMNBFEBs=True
+    #FIXME: True only for testing
+    larNoisyROMonAlg.storeLooseMNBFEBs=False
     if inKey != "":
        larNoisyROMonAlg.inputKey=inKey 
 
@@ -105,7 +105,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
          "L1_XE70"
     ]
     doTrigger=False
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
       if inputFlags.Trigger.doHLT or LArNoisyROMonForceTrigger:
         doTrigger=True
     else:    
@@ -163,7 +163,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
 
-       darray.defineHistogram('slotMNB,FTMNB;KnownMNBFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
+       darray.defineHistogram('slotMNB,FTMNB;MNBKnownFEB', title='Known MNB FEBs {0} ; Slot ; FT', 
                               type='TH2I', 
                               xbins=slot_n,xmin=slot_low,xmax=slot_up,
                               ybins=ft_n, ymin=ft_low, ymax=ft_up)
@@ -262,7 +262,7 @@ def LArNoisyROMonConfigCore(helper,algoinstance,inputFlags,
 
     pass
 
-    if Configurable.configurableRun3Behavior:
+    if isRun3Cfg():
        cfg.merge(helper.result())
        return cfg
     
@@ -294,9 +294,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
     # try NoisyRO algo 

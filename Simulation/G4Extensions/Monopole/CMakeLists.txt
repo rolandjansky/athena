@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( Monopole )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Simulation/G4Atlas/G4AtlasInterfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -25,5 +18,5 @@ atlas_add_component( Monopole
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps G4AtlasInterfaces )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

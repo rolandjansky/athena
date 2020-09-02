@@ -1,60 +1,16 @@
-################################################################################
-# Package: TrigTauHypo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigTauHypo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/StoreGate
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Reconstruction/MuonIdentification/MuidEvent
-                          Reconstruction/Particle
-                          Reconstruction/RecoTools/ITrackToVertex
-                          Reconstruction/egamma/egammaEvent
-                          Reconstruction/tauEvent
-                          Tracking/TrkEvent/VxVertex
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigEvent/TrigTopoEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Event/xAOD/xAODTrigger
-                          Calorimeter/CaloEvent
-                          Control/AthViews
-                          Control/AthContainers
-                          Control/CxxUtils
-                          Event/EventInfo
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODTau
-                          Event/xAOD/xAODTracking
-                          Tools/PathResolver
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigNavStructure 
-                          Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigSteer/TrigCompositeUtils )
-
 # External dependencies:
-find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( TrigTauHypo
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib SGtests GaudiKernel MuidEvent Particle ITrackToVertex egammaEvent tauEvent VxVertex TrigInDetEvent TrigMuonEvent TrigParticle TrigSteeringEvent TrigTopoEvent TrigInterfacesLib CaloEvent AthContainers AthenaBaseComps EventInfo xAODCaloEvent xAODJet xAODTau xAODEgamma xAODTracking PathResolver TrkTrack TrkTrackSummary TrigCaloEvent TrigNavStructure DecisionHandlingLib AthViews TrigCompositeUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthViews AthenaBaseComps AthenaMonitoringKernelLib CaloEvent CxxUtils DecisionHandlingLib EventInfo GaudiKernel ITrackToVertex MuidEvent Particle PathResolver StoreGateLib TrigCaloEvent TrigCompositeUtilsLib TrigInDetEvent TrigInterfacesLib TrigMuonEvent TrigNavStructure TrigParticle TrigSteeringEvent TrigTopoEvent TrkTrack TrkTrackSummary VxVertex egammaEvent tauEvent xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTau xAODTracking xAODTrigger )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
-# Check python syntax:
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
-   POST_EXEC_SCRIPT nopost.sh )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

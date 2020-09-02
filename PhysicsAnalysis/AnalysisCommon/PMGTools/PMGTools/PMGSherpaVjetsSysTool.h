@@ -21,7 +21,7 @@
 #include "AsgTools/AsgTool.h"
 
 // Interface include(s):
-#include "PMGTools/IPMGSherpaVjetsSysTool.h"
+#include "PMGAnalysisInterfaces/IPMGSherpaVjetsSysTool.h"
 
 // System include(s):
 #include <map>
@@ -29,8 +29,10 @@
 #include <memory>
 
 // ROOT include(s):
-#include <TH2F.h>
-#include <TFile.h>
+#include "TFile.h"
+
+// Forward declaration
+class TH2F;
 
 namespace PMGTools {
 

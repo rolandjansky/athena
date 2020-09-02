@@ -1,34 +1,24 @@
-################################################################################
-# Package: xAODTrigBphys
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTrigBphys )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Control/AthLinks )
+# Pull in the helper CMake code.
+find_package( xAODUtilities )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTrigBphys
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODTrigBphys
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers xAODCore xAODTracking
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
+   xAODTrigBphys/*.h xAODTrigBphys/versions/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODTrigBphys
+   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODTracking )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTrigBphys/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TrigBphysContainer_v1" )
 
 atlas_add_dictionary( xAODTrigBphysDict
-                      xAODTrigBphys/xAODTrigBphysDict.h
-                      xAODTrigBphys/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODTracking AthLinks xAODTrigBphys
-                      EXTRA_FILES Root/dict/*.cxx )
-
-
+   xAODTrigBphys/xAODTrigBphysDict.h
+   ${_selectionFile}
+   LINK_LIBRARIES xAODTrigBphys
+   EXTRA_FILES Root/dict/*.cxx )

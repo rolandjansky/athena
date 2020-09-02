@@ -17,8 +17,6 @@ def createOverlayConfigFlags():
     flags.addFlag("Overlay.SigPrefix", "Sig_")
     # Overlay extra input dependencies
     flags.addFlag("Overlay.ExtraInputs", [("McEventCollection", "TruthEvent")])
-    # Name of MC EvtStore to overlay
-    flags.addFlag("Overlay.Legacy.EventStore", "BkgEvent_0_SG")
     return flags
 
 

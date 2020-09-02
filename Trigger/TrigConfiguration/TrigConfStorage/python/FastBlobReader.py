@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 
 import cppyy
 cppyy.gbl.cool.IDatabase # force the load of the dictionary (to stay on the safe side)
-from cppyy import gbl, getAllClasses
+from cppyy import gbl
 
 def blob_read(self, size = -1):
     if size < 0:

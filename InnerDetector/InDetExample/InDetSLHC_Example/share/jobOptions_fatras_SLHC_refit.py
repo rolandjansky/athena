@@ -138,8 +138,6 @@ InDetFlags.doTrackSegmentsTRT   = False
 
 InDetFlags.doNewTracking  =         False
 InDetFlags.doLowPt        =         False
-InDetFlags.doxKalman      =         False
-InDetFlags.doiPatRec      =         False
 InDetFlags.doBackTracking =         False
 InDetFlags.doTRTStandalone =        False
 #InDetFlags.doSingleSpBackTracking = False
@@ -319,7 +317,7 @@ InDetFlags.doTrkNtuple      = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
-#InDetFlags.doStandardPlots   = True
+#InDetFlags.doPhysValMon   = True
 InDetFlags.doSGDeletion      = False
 
 from InDetRecExample.InDetKeys import InDetKeys

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Main header
@@ -9,13 +9,13 @@
 #include "TightMuonElseNoFieldManager.h"
 
 // Geant4 includes
-#include "G4MagneticField.hh"
-#include "G4FieldManager.hh"
 #include "G4ChordFinder.hh"
-#include "G4LogicalVolume.hh"
+#include "G4FieldManager.hh"
 #include "G4LogicalVolumeStore.hh"
+#include "G4MagIntegratorStepper.hh"
+#include "G4MagneticField.hh"
 #include "G4Version.hh"
-#include "G4MagIntegratorDriver.hh"
+#include "G4VIntegrationDriver.hh"
 
 //-----------------------------------------------------------------------------
 // Tool constructor
@@ -25,10 +25,6 @@ DetectorFieldManagerTool::DetectorFieldManagerTool(const std::string& type,
                                                    const IInterface* parent)
   : G4FieldManagerToolBase(type, name, parent)
 {
-  declareProperty("LogicalVolumes", m_volumeList,
-                  "List of volumes to which the field will be applied");
-  declareProperty("MuonOnlyField", m_muonOnlyField,
-                  "Only muons experience the magnetic field");
 }
 
 //-----------------------------------------------------------------------------
@@ -67,21 +63,19 @@ StatusCode DetectorFieldManagerTool::initializeField()
     fieldMgr->CreateChordFinder(field);
     ATH_CHECK( setFieldParameters(fieldMgr) );
 
-    // Construct the stepper
-    G4MagIntegratorStepper* stepper = getStepper(m_integratorStepper, field);
-    G4MagInt_Driver* magDriver = nullptr;
+    // Create and configure the ChordFinder
+    fieldMgr->CreateChordFinder(field);
 
 #if G4VERSION_NUMBER < 1040
-
-    magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
+    ATH_MSG_DEBUG("Old style stepper setting");
+    G4MagIntegratorStepper* stepper = getStepper(m_integratorStepper, field);
+    G4MagInt_Driver* magDriver = fieldMgr->GetChordFinder()->GetIntegrationDriver();
     magDriver->RenewStepperAndAdjust(stepper);
-
 #else
-
-    auto chordFinder = fieldMgr->GetChordFinder();
-    magDriver = new G4MagInt_Driver(1.0e-2, stepper, stepper->GetNumberOfVariables());
-    chordFinder->SetIntegrationDriver(magDriver);
-
+    ATH_MSG_DEBUG("New style stepper setting");
+    G4VIntegrationDriver* driver = createDriverAndStepper(m_integratorStepper, field);
+    G4ChordFinder* chordFinder = fieldMgr->GetChordFinder();
+    chordFinder->SetIntegrationDriver(driver);
 #endif
 
     // Assign the field manager to volumes

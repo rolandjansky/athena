@@ -6,6 +6,7 @@
 ##  creation: David Cote (May 2008)                   ##
 ########################################################
 from __future__ import print_function
+import os
 
 class AugmentedStreamBase:
     """This class manages common methods of AugmentedPoolStream and AugmentedByteStream."""
@@ -272,9 +273,7 @@ class AugmentedByteStream( AugmentedStreamBase ):
         svcMgr.ToolSvc += self.bsCopyTool
 
         #default output directory
-        import commands
-        cmd='pwd'
-        (statusCode,outDir) = commands.getstatusoutput(cmd)
+        outDir = os.getcwd()
         outDir+="/"
 
         # BS output Svc

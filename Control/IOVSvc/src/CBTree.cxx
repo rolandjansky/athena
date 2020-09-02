@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -329,7 +329,7 @@ void CBTree::_printTree( CBNode* current, CBNode* parent ) {
 
 int CBTree::maxLevel() const {
   nodeSet::const_iterator itr = m_allNodes.end();
-  itr --;
+  --itr;
   return (*itr)->level();
 }
 

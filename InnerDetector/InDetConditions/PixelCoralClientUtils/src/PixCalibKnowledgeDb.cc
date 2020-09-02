@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCoralClientUtils/PixCalibKnowledgeDb.h"
+
+#include "CxxUtils/checker_macros.h"
 
 // CORAL API
 #include "CoralKernel/Context.h"
@@ -67,7 +69,8 @@ void PixCalibKnowledgeDb::init(coral::AccessMode access_mode)
   if (m_verbose) cout << "Connection established" << endl;
 }
 
-void PixCalibKnowledgeDb::saveCorrespondingConfig(long int UNIXTimeInSeconds, long int RunNumber, std::string calibtags_in_string, std::string idTag, std::string connTag, std::string cfgTag, std::string cfgModTag )
+void PixCalibKnowledgeDb::saveCorrespondingConfig ATLAS_NOT_THREAD_SAFE // Thread unsafe coral::AttributeList class and createTable method are used.
+(long int UNIXTimeInSeconds, long int RunNumber, std::string calibtags_in_string, std::string idTag, std::string connTag, std::string cfgTag, std::string cfgModTag )
 {
 
    // create tables if needed
@@ -116,7 +119,7 @@ void PixCalibKnowledgeDb::saveCorrespondingConfig(long int UNIXTimeInSeconds, lo
 }
 
 //for reading back calibrationTags corresponding to a given time, not sure if this is needed
-void PixCalibKnowledgeDb::readCorrespondingCalibTag(long int Utime){
+void PixCalibKnowledgeDb::readCorrespondingCalibTag ATLAS_NOT_THREAD_SAFE (long int Utime){ // Thread unsafe coral::AttributeList class is used.
 
   transactionStartReadOnly();
   //build a query
@@ -169,7 +172,7 @@ void PixCalibKnowledgeDb::readCorrespondingCalibTag(long int Utime){
 
 /** part of save(): create new tables
  */
-void PixCalibKnowledgeDb::createTable()
+void PixCalibKnowledgeDb::createTable ATLAS_NOT_THREAD_SAFE () // Thread unsafe createAuxTables method is used.
 {
   createConfigurationTable();
   createAuxTables();
@@ -201,7 +204,7 @@ void PixCalibKnowledgeDb::createConfigurationTable()
 
 /** part of save(): create key table
  */
-void PixCalibKnowledgeDb::createAuxTables()
+void PixCalibKnowledgeDb::createAuxTables ATLAS_NOT_THREAD_SAFE () // Thread unsafe coral::AttributeList class is used.
 {
   transactionStartUpdate();
   string FK_TABLE = "CALIB_KEYGEN";
@@ -224,7 +227,7 @@ void PixCalibKnowledgeDb::createAuxTables()
 
 /** part of save(): update the key
  */
-long long PixCalibKnowledgeDb::updateKey()
+long long PixCalibKnowledgeDb::updateKey ATLAS_NOT_THREAD_SAFE () // Thread unsafe coral::AttributeList class is used.
 {
   std::string FK_TABLE = "CALIB_KEYGEN";
   transactionStartUpdate();

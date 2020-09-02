@@ -6,7 +6,6 @@ KG Tan, 17/06/2012
 """
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import MeV, mm
 
 #--------------------------------------------------------------------------------------------------
@@ -132,7 +131,7 @@ def getTruthStrategyGroupID_MC15(name="ISF_MCTruthStrategyGroupID_MC15", **kwarg
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [1,2]) # Could import AtlasDetDescr::AtlasRegion enum as in TruthService CfgGetter methods here
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 
 def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
@@ -142,7 +141,7 @@ def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [1,2])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 
 def getTruthStrategyGroupIDHadInt_MC15(name="ISF_MCTruthStrategyGroupIDHadInt_MC15", **kwargs):
@@ -151,7 +150,7 @@ def getTruthStrategyGroupIDHadInt_MC15(name="ISF_MCTruthStrategyGroupIDHadInt_MC
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
     kwargs.setdefault('Regions', [1])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 
 def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwargs):
@@ -160,7 +159,7 @@ def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwa
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
     kwargs.setdefault('Regions', [1])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 
 def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBrem_MC15", **kwargs):
@@ -169,7 +168,7 @@ def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBre
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
     kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
     kwargs.setdefault('ParentMinEkin'       , 500.*MeV)
@@ -177,7 +176,7 @@ def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", *
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
     kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
     kwargs.setdefault('ParentMinEkin'       , 1000.*MeV)
@@ -186,7 +185,7 @@ def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
     kwargs.setdefault('ParentMinPt'         , 1000.*MeV)
@@ -195,12 +194,12 @@ def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **k
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
     kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs)
 
 def getValidationTruthStrategy(name="ISF_ValidationTruthStrategy", **kwargs):
     kwargs.setdefault('ParentMinP'          , 50.*MeV)
     kwargs.setdefault('Regions', [1,3])
-    return CfgMgr.ISF__ValidationTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__ValidationTruthStrategy(name, **kwargs)
 
 def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     kwargs.setdefault('PassProcessCodeRangeLow',  200 )
@@ -209,7 +208,7 @@ def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
     kwargs.setdefault('PassProcessCategory',      9   ) # ==
     kwargs.setdefault('Regions', [1,2,3,4])
-    return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs)
 
 def getKeepLLPDecayChildrenStrategy(name="ISF_KeepLLPDecayChildrenStrategy", **kwargs):
     # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
@@ -218,12 +217,12 @@ def getKeepLLPDecayChildrenStrategy(name="ISF_KeepLLPDecayChildrenStrategy", **k
     kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
     kwargs.setdefault('BSMParent'           , True)
-    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs)
 
 def getKeepLLPHadronicInteractionChildrenStrategy(name="ISF_KeepLLPHadronicInteractionChildrenStrategy", **kwargs):
     kwargs.setdefault('VertexTypes'          , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('BSMParent'            , True)
-    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs)
 
 def getKeepAllDecayChildrenStrategy(name="ISF_KeepAllDecayChildrenStrategy", **kwargs):
     # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
@@ -231,8 +230,8 @@ def getKeepAllDecayChildrenStrategy(name="ISF_KeepAllDecayChildrenStrategy", **k
     kwargs.setdefault('PassProcessCategory' , 9  ) # ==
     kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
-    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs)
 
 def getKeepHadronicInteractionChildrenStrategy(name="ISF_KeepHadronicInteractionChildrenStrategy", **kwargs):
     kwargs.setdefault('VertexTypes'          , [ 111, 121, 131, 141, 151, 161, 210 ])
-    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs)

@@ -4,12 +4,9 @@
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
+
 #include <sstream>
-
 #include <cmath>
-
-using std::ostringstream;
-using std::setw;
 
 CscCalibTool::CscCalibTool
 ( const std::string& t, const std::string& n, const IInterface*  p )
@@ -66,15 +63,6 @@ Double_t dualbipfunc(const Double_t *x, const Double_t *par){
   return ( bipfunc(x,par) + bipfunc(x,&par[5]) );
 }
 
-StatusCode CscCalibTool::finalize() {
-  delete m_addedfunc;
-  delete m_bipolarFunc;
-  m_addedfunc = nullptr;
-  m_bipolarFunc = nullptr;
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode CscCalibTool::initialize() {
 
   ATH_MSG_DEBUG ( "Initializing Initializing CscCalibTool");
@@ -103,8 +91,12 @@ StatusCode CscCalibTool::initialize() {
   m_messageCnt_t0phase=0;
 
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
-  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
+  if (m_addedfunc == nullptr) {
+    m_addedfunc   = std::make_unique<TF1>("addedfunc", dualbipfunc,    0, 500, 10, 1, TF1::EAddToList::kNo);
+  }
+  if (m_bipolarFunc == nullptr) {
+    m_bipolarFunc = std::make_unique<TF1>("bipolarFunc",   bipfunc, -500, 500,  5, 1, TF1::EAddToList::kNo);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -620,7 +612,7 @@ double CscCalibTool::getZ0() const{
 double CscCalibTool::signal( const double z ) const{
   double amplitude = (1.0 - z / (1 + m_integrationNumber2))
     * std::pow(z, 1.0 * m_integrationNumber)
-    * exp(-z);
+    * std::exp(-z);
   return amplitude;
 }
 

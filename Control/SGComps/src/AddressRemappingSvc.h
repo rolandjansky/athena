@@ -15,7 +15,7 @@
 
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  // no forward decl: typedef
+#include "Gaudi/Property.h"  // no forward decl: typedef
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/RCUObject.h"
@@ -88,7 +88,7 @@ private: // Data
       "Algorithm resource pool service."};
 
   /// TypeKeyOverwriteMaps, map for type#key overwrites.
-  StringArrayProperty m_overwriteMaps{this,"TypeKeyOverwriteMaps",{},"","Set<std::string>"};
+  StringArrayProperty m_overwriteMaps{this,"TypeKeyOverwriteMaps",{},"","OrderedSet<std::string>"};
   std::vector<SG::TransientAddress> m_oldTads;
   std::vector<SG::TransientAddress> m_newTads;
 
@@ -99,7 +99,7 @@ private: // Data
 	"TypeKeyOverwriteMaps are accessible by both the old and new names; "
 	"while for TypeKeyRenameMaps, only the new names are visible (so the old names "
 	"may be rewritten).  Overwriting may also change the visible type of an object, "
-	"while renaming may not.  Format of list elements is OLDNAME#TYPE->NEWNAME.","Set<std::string>"};
+	"while renaming may not.  Format of list elements is OLDNAME#TYPE->NEWNAME.","OrderedSet<std::string>"};
 
    /// Map of sgkey->sgkey for input renames.
    /// This object is exported via inputRenameMap and is synchronized

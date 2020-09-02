@@ -144,7 +144,7 @@ namespace TauShotVariableHelpers {
     }
 
 
-    float mean_eta(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float mean_eta(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float sumEta=0.;
         float sumWeight=0.;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -160,7 +160,7 @@ namespace TauShotVariableHelpers {
         return sumEta/sumWeight;
     }
 
-    float mean_pt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float mean_pt(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float sumPt=0.;
         int nCells = 0;
         vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
@@ -176,7 +176,7 @@ namespace TauShotVariableHelpers {
         return sumPt/nCells;
     }
 
-    float ptWindow(vector<vector<const CaloCell*> > shotCells, int windowSize, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float ptWindow(vector<vector<const CaloCell*> > shotCells, int windowSize, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window size should be odd and noti be larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -191,7 +191,7 @@ namespace TauShotVariableHelpers {
         return ptWindow;
     }
 
-    float ws5(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float ws5(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         float sumWeight=0.;
@@ -208,7 +208,7 @@ namespace TauShotVariableHelpers {
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevEta_WRTmean(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float sdevEta_WRTmean(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float mean = mean_eta(shotCells, caloWeightTool); 
         float sumWeight=0.;
         float sumDev2=0.;
@@ -225,7 +225,7 @@ namespace TauShotVariableHelpers {
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevEta_WRTmode(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float sdevEta_WRTmode(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         float mode = shotCells.at(0).at(seedIndex)->eta();
@@ -244,7 +244,7 @@ namespace TauShotVariableHelpers {
         return sqrt( sumDev2 / sumWeight );
     }
 
-    float sdevPt(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float sdevPt(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         float mean = mean_pt(shotCells, caloWeightTool);
         float sumWeight=0.;
         float sumDev2=0.;
@@ -261,7 +261,7 @@ namespace TauShotVariableHelpers {
         return sqrt(sumDev2)/sumWeight;
     }
 
-    float deltaPt12_min(vector<vector<const CaloCell*> > shotCells, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float deltaPt12_min(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
         bool haveLeft  = false;
@@ -293,7 +293,7 @@ namespace TauShotVariableHelpers {
     }
 
 
-    float Fside(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float Fside(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -314,7 +314,7 @@ namespace TauShotVariableHelpers {
         return (pt_largerWindow-pt_smallerWindow)/pt_smallerWindow;
     }
 
-    float fracSide(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float fracSide(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;
@@ -335,7 +335,7 @@ namespace TauShotVariableHelpers {
         return (pt_largerWindow-pt_smallerWindow)/pt_largerWindow;
     }
 
-    float ptWindowFrac(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
+    float ptWindowFrac(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
         // window sizes should be odd and windows should be not larger than eta window of shotCells
         int nCells_eta = shotCells.at(0).size();
         int seedIndex = nCells_eta/2;

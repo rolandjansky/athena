@@ -12,7 +12,7 @@
 #include "TrigGenericAlgs/L1CorrelationAlgo.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <math.h>
@@ -285,7 +285,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltInitialize()
 }
 
 
-void L1CorrelationAlgo::updateHandler(Property&)
+void L1CorrelationAlgo::updateHandler(Gaudi::Details::PropertyBase&)
 {
   //  parseROBRequest();
 }
@@ -500,7 +500,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_see
 
       bool hasValidOutOfTime_ROI=false;
       //loop over out of time RoIs
-      for(auto it : *(roiVectors->outOfTimeRois)){
+      for(const auto& it : *(roiVectors->outOfTimeRois)){
 
 	// only look at the highest pt thresholds..
 	
@@ -525,7 +525,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_see
 	// loop over in time muon rois and veto event if the same muon roi is present in both BCIDs
 	bool overlapsInTime=false;
 	//loop over in time RoIs
-	for(auto it_intime : *(roiVectors->inTimeRois)){
+	for(const auto& it_intime : *(roiVectors->inTimeRois)){
 	  
 	  if( ((it).first).getSectorID() == (it_intime).getSectorID() &&
 	      ((it).first).getSectorAddress() == (it_intime).getSectorAddress() //&&

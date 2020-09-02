@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -98,7 +98,7 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   void SetTH1Style(TH1I_LW* h);
 
   // Properties
-  std::string m_channelKey;
+  SG::ReadHandleKey<LArRawChannelContainer> m_channelKey{this, "LArRawChannelKey", "LArRawChannels"};
   float m_threshold;
   float m_delta_eta;
   float m_delta_phi;

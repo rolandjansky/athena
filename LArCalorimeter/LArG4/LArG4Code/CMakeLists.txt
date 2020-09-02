@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4Code )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloG4Sim
-                          Calorimeter/CaloSimEvent
-                          DetectorDescription/AtlasDetDescr
-                          LArCalorimeter/LArGeoModel/LArGeoCode
-                          LArCalorimeter/LArSimEvent
-                          Simulation/G4Atlas/G4AtlasTools
-                          Control/StoreGate
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          Control/CxxUtils
-                          AtlasTest/TestTools
-                          Simulation/G4Sim/MCTruth )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -15,9 +15,9 @@
 // CLHEP/HepMC includes
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenInteracting.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -309,13 +309,13 @@ TruthIsolationTool::computeIso( const GenParticles_t& particles,
 }
 
 void 
-TruthIsolationTool::setupTruthEtIsolationsPrefix( Property& /*truthEtIsolationsPrefix*/ )
+TruthIsolationTool::setupTruthEtIsolationsPrefix( Gaudi::Details::PropertyBase& /*truthEtIsolationsPrefix*/ )
 {
   // no-op for now
 }
 
 void 
-TruthIsolationTool::setupMcEventsOutput( Property& /*mcEventsOutputName*/ )
+TruthIsolationTool::setupMcEventsOutput( Gaudi::Details::PropertyBase& /*mcEventsOutputName*/ )
 {
   // no-op for now
 }

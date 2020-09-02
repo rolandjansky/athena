@@ -1,18 +1,15 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## *****************************************************************************
-VERSION = '$Id: DQHistogramPrintStatistics.py 354890 2011-03-28 16:30:59Z kama $'
-## *****************************************************************************
-
+from __future__ import print_function
 import os
 ## Needed to correct ROOT behavior; see below
-CWD = os.getcwd()
+CWD = os.getcwd()  # noqa: E402
 
 import sys
 
-import ROOT
+import ROOT  # noqa: F401
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
@@ -33,7 +30,7 @@ def DQHistogramPrintStatistics( inputFileName ):
 def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
-  print "Usage: ", cmd, "<input_file_name>"
+  print("Usage: ", cmd, "<input_file_name>")
 
 
 
@@ -48,4 +45,3 @@ if __name__ == "__main__":
     sys.exit(0)
   
   DQHistogramPrintStatistics( sys.argv[1] )
-  

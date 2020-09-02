@@ -129,7 +129,6 @@ InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
 InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 InDetFlags.doBackTracking=False
 InDetFlags.doTRTStandalone=False
-InDetFlags.doiPatRec=False
 InDetFlags.doTruth=False
 InDetFlags.doPRDFormation=doIDNewTracking
 InDetFlags.doSpacePointFormation=doIDNewTracking

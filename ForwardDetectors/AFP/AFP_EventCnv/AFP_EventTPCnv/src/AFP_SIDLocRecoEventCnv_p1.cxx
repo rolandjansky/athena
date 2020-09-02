@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_LocRecoEv/AFP_SIDLocRecoEvent.h"
+
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEvent_p1.h"
 #include "AFP_EventTPCnv/AFP_SIDLocRecoEventCnv_p1.h"
 
-void AFP_SIDLocRecoEventCnv_p1::persToTrans(const AFP_SIDLocRecoEvent_p1* persObj, AFP_SIDLocRecoEvent* transObj, MsgStream &log) const
-{
+void AFP_SIDLocRecoEventCnv_p1::persToTrans(const AFP_SIDLocRecoEvent_p1* persObj, AFP_SIDLocRecoEvent* transObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::persToTrans called " << endmsg;
 
         *transObj = AFP_SIDLocRecoEvent (persObj->m_iAlgoNum,
@@ -22,14 +23,17 @@ void AFP_SIDLocRecoEventCnv_p1::persToTrans(const AFP_SIDLocRecoEvent_p1* persOb
                                          persObj->m_nHoles,
                                          persObj->m_fChi2);
 
+
+
+
 }
  
  
-void AFP_SIDLocRecoEventCnv_p1::transToPers(const AFP_SIDLocRecoEvent* transObj, AFP_SIDLocRecoEvent_p1* persObj, MsgStream &log) const
-{
+void AFP_SIDLocRecoEventCnv_p1::transToPers(const AFP_SIDLocRecoEvent* transObj, AFP_SIDLocRecoEvent_p1* persObj, MsgStream &log)
+const {
 	log << MSG::DEBUG << "AFP_SIDLocRecoEventCnv_p1::transToPers called " << endmsg;
 
-	persObj->m_iAlgoNum	= transObj->getAlgoNum();
+        persObj->m_iAlgoNum	= transObj->getAlgoNum();
 	persObj->m_nStationID	= transObj->getStationID();
 	
 	persObj->m_x		= transObj->getXposition();
@@ -42,5 +46,6 @@ void AFP_SIDLocRecoEventCnv_p1::transToPers(const AFP_SIDLocRecoEvent* transObj,
 	persObj->m_nHits	= transObj->getNHits();
 	persObj->m_nHoles	= transObj->getNHoles();
 	persObj->m_fChi2	= transObj->getChi2();
+
 	
 }

@@ -10,8 +10,8 @@
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 
 namespace D3PD {
 

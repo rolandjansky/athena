@@ -23,9 +23,6 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IPropagator.h"
-
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h" //TrackParameters typedef
@@ -139,8 +136,17 @@ namespace Trk {
     // Public methods:
     /////////////////////////////////////////////////////////////////////////////////
   public:
+
+    /** This following "using" statements can be removed after the methods in IPropagator.h for the
+     * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+     * used throughout the sw */
     using IPropagator::propagate;
     using IPropagator::propagateT;
+    using Trk::IPropagator::propagateM;
+    using Trk::IPropagator::propagateParameters;
+    using Trk::IPropagator::intersect;
+    using Trk::IPropagator::intersectSurface;
+    using Trk::IPropagator::globalPositions;
 
     STEP_Propagator(const std::string&,const std::string&,const IInterface*);
 
@@ -220,7 +226,6 @@ namespace Trk {
                    std::vector<Trk::HitInfo>*& hitVector) const override final;
 
     /** Propagate parameters and covariance with search of closest surface and material collection */
-    using Trk::IPropagator::propagateM;
     virtual Trk::TrackParameters*    
       propagateM  (const EventContext&                ctx,
                    const Trk::TrackParameters&        trackParameters,
@@ -253,7 +258,6 @@ namespace Trk {
 
 
     /** Propagate parameters only */
-    using Trk::IPropagator::propagateParameters;
     virtual Trk::TrackParameters*
       propagateParameters (const EventContext&                 ctx,
                            const Trk::TrackParameters&         trackParameters,
@@ -281,7 +285,6 @@ namespace Trk {
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
-    using Trk::IPropagator::intersect;
     virtual const IntersectionSolution*
       intersect (const EventContext&                 ctx,
                  const Trk::TrackParameters&         trackParameters,
@@ -292,7 +295,6 @@ namespace Trk {
 
     /** Intersection and propagation:
      */
-    using Trk::IPropagator::intersectSurface;
     virtual const TrackSurfaceIntersection* intersectSurface(const EventContext&              ctx,
                                                              const Surface&                   surface,
                                                              const TrackSurfaceIntersection*  trackIntersection,
@@ -301,7 +303,6 @@ namespace Trk {
                                                              ParticleHypothesis               particle) const override final; 
 
     /** Return a list of positions along the track */
-    using Trk::IPropagator::globalPositions;
     virtual void
     globalPositions (const EventContext&            ctx,
                      std::list<Amg::Vector3D>&      positionsList,
@@ -572,9 +573,6 @@ namespace Trk {
     /** Random engine */
     CLHEP::HepRandomEngine*               m_randomEngine; 
     std::string                           m_randomEngineName;
-    //
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-    MagField::IMagFieldSvc*                m_fieldService;
 
       // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
@@ -587,22 +585,15 @@ namespace Trk {
   inline void STEP_Propagator::getField        (Cache& cache, double* R, double* H) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H);
-
-      // MT version uses cache, temporarily keep old version
-      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H);
-      else                                        m_fieldService->getField  (R, H);
+      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H);
+      cache.m_fieldCache.getField  (R, H);
   }
 
   inline void STEP_Propagator::getFieldGradient(Cache& cache, double* R, double* H, double* dH) const
   {
 
-      // getFieldZR has been turned off for Step: if(m_solenoid) return m_fieldService->getFieldZR(R,H,dH);
-      
-      // MT version uses cache, temporarily keep old version
-      if (cache.m_fieldCache.useNewBfieldCache()) cache.m_fieldCache.getField  (R, H, dH);
-      else                                        m_fieldService->getField  (R, H, dH);
-
+      // getFieldZR has been turned off for Step: if(m_solenoid) return cache.m_fieldCache.getFieldZR(R,H,dH);
+      cache.m_fieldCache.getField  (R, H, dH);
       
   }
 }

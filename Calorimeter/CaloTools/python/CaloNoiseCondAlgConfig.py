@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -34,7 +34,7 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
     if configFlags.Common.isOnline:
         log.info("Configuring CaloNoiseCondAlg for online case")
         #online mode:
-        result.merge(addFolders(configFlags,"/CALO/Noise/CellNoise",'CALO_ONL'))
+        result.merge(addFolders(configFlags,"/CALO/Noise/CellNoise",'CALO_ONL',className="CondAttrListCollection"))
         theCaloNoiseAlg.CaloNoiseFolder="/CALO/Noise/CellNoise"
         theCaloNoiseAlg.LArNoiseFolder=""
         theCaloNoiseAlg.TileNoiseFolder=""
@@ -139,8 +139,8 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    acc=MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    acc=MainServicesCfg(ConfigFlags)
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
 

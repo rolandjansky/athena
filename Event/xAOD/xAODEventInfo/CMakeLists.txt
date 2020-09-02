@@ -1,35 +1,31 @@
-################################################################################
-# Package: xAODEventInfo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODEventInfo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   AtlasTest/TestTools
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODCore )
-
-# External dependencies:
+# External dependencies.
 find_package( ROOT COMPONENTS Core Tree RIO )
+find_package( xAODUtilities )
 
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODEventInfo
-   xAODEventInfo/*.h Root/*.cxx
+   xAODEventInfo/versions/*.h xAODEventInfo/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEventInfo
    LINK_LIBRARIES AthContainers AthLinks xAODCore )
 
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODEventInfo/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::EventInfoContainer_v1"
+   OBJECTS "xAOD::EventInfo_v1" )
+
 atlas_add_dictionary( xAODEventInfoDict
    xAODEventInfo/xAODEventInfoDict.h
-   xAODEventInfo/selection.xml
-   LINK_LIBRARIES xAODEventInfo
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODEventInfo
    EXTRA_FILES Root/dict/*.cxx )
 
-# Test(s) in the package:
+# Test(s) in the package.
 atlas_add_test( ut_xaodeventinfo_evtstore_test
    SOURCES test/ut_xaodeventinfo_evtstore_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
@@ -47,12 +43,12 @@ atlas_add_test( ut_xaodeventinfo_subevent_test
 
 atlas_add_test( ut_xaodeventinfo_eventauxinfo_test
    SOURCES test/ut_xaodeventinfo_eventauxinfo_test.cxx
-   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+   LINK_LIBRARIES AthContainers TestTools xAODEventInfo )
 
 atlas_add_test( ut_xaodeventinfo_eventinfoauxcontainer_v1_test
    SOURCES test/ut_xaodeventinfo_eventinfoauxcontainer_v1_test.cxx
-   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+   LINK_LIBRARIES AthContainers TestTools xAODEventInfo )
 
 atlas_add_test( ut_xaodeventinfo_eventinfo_v1_test
    SOURCES test/ut_xaodeventinfo_eventinfo_v1_test.cxx
-   LINK_LIBRARIES AthLinks xAODCore xAODEventInfo )
+   LINK_LIBRARIES xAODEventInfo )

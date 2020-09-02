@@ -6,8 +6,8 @@
 #include "AthenaKernel/errorcheck.h"
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "TTree.h"
 

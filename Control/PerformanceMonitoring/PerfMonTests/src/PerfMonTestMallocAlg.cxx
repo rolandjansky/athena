@@ -14,7 +14,7 @@
 #include <vector>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // CLHEP includes

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file Trigger/TrigAlgorithms/TrigMinBias/python/TrigMinBiasProperties.py
@@ -19,7 +19,6 @@ __all__    = [ "trigMinBiasProperties" ]
 ## Import
  
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.JobProperties import jobproperties
 
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
@@ -102,8 +101,8 @@ log = logging.getLogger( 'TrigMinBiasProperties.py' )
 try:
     from TriggerMenu import useNewTriggerMenu
     useNewTM = useNewTriggerMenu()
-    log.info("Using new TriggerMenu: %r" % useNewTM)
-except:
+    log.info("Using new TriggerMenu: %r", useNewTM)
+except Exception:
     useNewTM = False
     log.info("Using old TriggerMenuPython since TriggerMenu.useNewTriggerMenu can't be imported")
 

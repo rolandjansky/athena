@@ -40,11 +40,6 @@ include( "LArCondCnv/LArCondCnv_IdMapAtlas_jobOptions.py" )
 include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-#--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 #load relevant libraries

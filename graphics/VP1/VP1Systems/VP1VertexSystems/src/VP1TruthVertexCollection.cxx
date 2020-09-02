@@ -31,8 +31,8 @@
 #include <QStringList>
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 //#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/SystemOfUnits.h"

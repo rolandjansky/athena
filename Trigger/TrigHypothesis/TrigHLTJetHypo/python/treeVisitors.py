@@ -34,8 +34,8 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'momwidthhi': 'inf',
                 'smclo': '0',
                 'smchi': 'inf',                
-		'jvtlo': '0',
-		'jvthi': 'inf',
+                'jvtlo': '0',
+                'jvthi': 'inf',
     }
 
     if parameter not in  defaults:
@@ -52,6 +52,7 @@ def scaleFactors(parameter):
         'neta': -0.01,
         'peta': 0.01,
         'et': 1000.,
+        'ht': 1000.,
         'smc': 1000.,
         'djdeta': 0.1,
         'djmass': 1000.,
@@ -403,6 +404,7 @@ class TreeParameterExpander(object):
         'z': TreeParameterExpander_null,
         'simple': TreeParameterExpander_simple,
         'simplepartition': TreeParameterExpander_simple,
+        'ht': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'qjet': TreeParameterExpander_simple,
         'not': TreeParameterExpander_null,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ Trk::StraightLineSurface* Trk::SaggedLineSurface::correctedSurface(const Amg::Ve
   }else{
     throw std::logic_error("Condition not implemented ( Trk::SaggedLineSurface::correctedSurface (2) ).");
   }
-  return (newHepTransform) ? new Trk::StraightLineSurface(newHepTransform,bounds().r(),10e3) : 0;
+  return (newHepTransform) ? new Trk::StraightLineSurface(newHepTransform,bounds().r(),10e3) : nullptr;
 }
 
 

@@ -5,38 +5,10 @@
 # Declare the package name:
 atlas_subdir( MM_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MagneticField/MagFieldInterfaces
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-                          MuonSpectrometer/MuonSimEvent
-                          Simulation/HitManagement
-                          PRIVATE
-                          Control/StoreGate
-                          Generators/GeneratorObjects
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonSimData
-                          MuonSpectrometer/MuonCalib/NSWCalib/NSWCalibTools
-                          Simulation/Tools/AtlasCLHEP_RandomGenerators
-                          Tools/PathResolver
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives )
-
 # External dependencies:
 find_package( AIDA )
 find_package( CLHEP )
 find_package( Eigen )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
@@ -48,17 +20,15 @@ atlas_add_library( MM_DigitizationLib
                    src/*.cxx
                    PUBLIC_HEADERS MM_Digitization
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${AIDA_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib NSWCalibToolsLib
-                   PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement PileUpToolsLib StoreGateLib SGtests MuonIdHelpersLib NSWCalibToolsLib MagFieldElements MagFieldConditions MuonReadoutGeometry MuonSimData MuonDigitContainer MuonDigToolInterfacesLib
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib GeneratorObjects MuonAGDDDescription AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives )
 
 atlas_add_component( MM_Digitization
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier GaudiKernel MagFieldInterfaces MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects MuonAGDDDescription MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData AtlasCLHEP_RandomGenerators PathResolver TrkDetDescrUtils TrkSurfaces TrkEventPrimitives MM_DigitizationLib NSWCalibToolsLib )
+                     LINK_LIBRARIES MM_DigitizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.gas )

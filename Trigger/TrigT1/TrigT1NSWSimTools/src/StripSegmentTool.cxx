@@ -1,48 +1,39 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Athena/Gaudi includes
+#include "TrigT1NSWSimTools/StripSegmentTool.h"
+
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-
-// local includes
-#include "TrigT1NSWSimTools/StripSegmentTool.h"
 #include "TrigT1NSWSimTools/StripOfflineData.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
-
-// Muon software includes
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 #include "MuonRegionSelector/sTGC_RegionSelectorTable.h"
-
-// random numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-// local includes
 #include "TTree.h"
-
 #include <functional>
 #include <algorithm>
 #include <map>
 #include <utility>
-#include <math.h>      
+#include <cmath>
 
 namespace NSWL1 {
 
     StripSegmentTool::StripSegmentTool( const std::string& type, const std::string& name, const IInterface* parent) :
       AthAlgTool(type,name,parent),
       m_incidentSvc("IncidentSvc",name),
-      m_tree(0),
+      m_tree(nullptr),
       m_rIndexBits(0),
       m_dThetaBits(0),
       m_zbounds({-1,1}),
@@ -63,17 +54,13 @@ namespace NSWL1 {
       declareProperty("rIndexScheme", m_ridxScheme = 1, "rIndex slicing scheme/ 0-->R / 1-->eta");
 
     }
-
-    StripSegmentTool::~StripSegmentTool() {
-
-    }
   
   StatusCode StripSegmentTool::initialize() {
       ATH_MSG_INFO("initializing " << name() );
       ATH_MSG_INFO(name() << " configuration:");       
       const IInterface* parent = this->parent();
       const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
-      std::string algo_name = pnamed->name();
+      const std::string& algo_name = pnamed->name();
       if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
         ITHistSvc* tHistSvc;
         ATH_CHECK(service("THistSvc", tHistSvc));
@@ -87,6 +74,7 @@ namespace NSWL1 {
       m_incidentSvc->addListener(this,IncidentType::BeginEvent);
       ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
       ATH_CHECK( FetchDetectorEnvelope());
+      ATH_CHECK(m_idHelperSvc.retrieve());
       return StatusCode::SUCCESS;
     }
 
@@ -99,12 +87,11 @@ namespace NSWL1 {
     StatusCode StripSegmentTool::FetchDetectorEnvelope(){
         const MuonGM::MuonDetectorManager* p_det;
         ATH_CHECK(detStore()->retrieve(p_det));
-        const auto  p_IdHelper =p_det->stgcIdHelper();
         const auto regSelector = m_lutCreatorToolsTGC->getLUT();
         std::vector<const RegSelModule*>  moduleList;
-        for(const auto& i : p_IdHelper->idVector()){// all modules
+        for(const auto& i : m_idHelperSvc->stgcIdHelper().idVector()){// all modules
             IdentifierHash moduleHashId;            
-            p_IdHelper->get_module_hash( i, moduleHashId);
+            m_idHelperSvc->stgcIdHelper().get_module_hash( i, moduleHashId);
             moduleList.push_back(regSelector->Module(moduleHashId));
         }
         float etamin=-1;

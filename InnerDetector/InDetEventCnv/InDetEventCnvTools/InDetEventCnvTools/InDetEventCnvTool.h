@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETEVENTCNVTOOL_H
@@ -37,7 +37,8 @@ namespace InDet {
 
      See "mainpage" for discussion of jobOpts.
   */
-  class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTool   {
+class InDetEventCnvTool :  public extends<AthAlgTool, Trk::ITrkEventCnvTool>
+{
   public:
   
     enum InDetConcreteType { SCT, Pixel, TRT, Unknown };
@@ -46,27 +47,33 @@ namespace InDet {
   
     virtual ~InDetEventCnvTool() = default;
   
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
   
-    virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const;
+    virtual void checkRoT( const Trk::RIO_OnTrack& rioOnTrack ) const override;
   
     /** use the passed identifier to recreate the detector element and PRD links on the passed RIO_OnTrack
         @param[in] rioOnTrack The RIO_OnTrack we're interested in
         @return  std::pair of the pointers to the two corresponding objects*/
     virtual std::pair<const Trk::TrkDetElementBase*, const Trk::PrepRawData*>
-      getLinks( Trk::RIO_OnTrack& rioOnTrack ) const;
+      getLinks( Trk::RIO_OnTrack& rioOnTrack ) const override;
       
     /** @copydoc Trk::ITrkEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
-    virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const;
+    virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* rot) const override;
   
+    /** Similar, but just return the EL components rather then
+        changing ROT. */
+    virtual void prepareRIO_OnTrackLink( const Trk::RIO_OnTrack* rot,
+                                         ELKey_t& key,
+                                         ELIndex_t& index ) const override;
+
     /** @copydoc Trk::ITrkEventCnvTool::recreateRIO_OnTrack( Trk::RIO_OnTrack* rot)*/
-    virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const;
+    virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const override;
   
     /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const;
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id, const IdentifierHash& idHash) const override;
 
     /** Return the detectorElement associated with this Identifier*/
-    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const;
+    virtual const Trk::TrkDetElementBase* getDetectorElement(const Identifier& id) const override;
 
   
   private:

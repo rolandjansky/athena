@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  Connector.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/20/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoCoreSimulation_Connector
-#define L1TopoCoreSimulation_Connector
+#ifndef L1TopoCoreSim_Connector
+#define L1TopoCoreSim_Connector
 
 #include <iostream>
 #include <vector>

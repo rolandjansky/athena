@@ -8,8 +8,8 @@
 #define INDETD3PDMAKER_TRUTHVERTEXGETTERTOOL_H
 
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 namespace D3PD {

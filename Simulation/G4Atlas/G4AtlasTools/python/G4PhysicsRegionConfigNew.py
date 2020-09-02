@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -66,6 +66,27 @@ def PixelPhysicsRegionToolCfg(ConfigFlags, name='PixelPhysicsRegionTool', **kwar
 
 def SCTPhysicsRegionToolCfg(ConfigFlags, name='SCTPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'SCT')
+    volumeList = ['SCT::BRLSensor', 'SCT::BRLSensorSS', 'SCT::BRLSensorMS',
+                   'SCT::ECSensor0', 'SCT::ECSensor1', 'SCT::ECSensor2',
+                   'SCT::ECSensor3', 'SCT::ECSensor4', 'SCT::ECSensor5']
+    kwargs.setdefault("VolumeList",  volumeList)
+    kwargs.setdefault("ElectronCut", 0.05)
+    kwargs.setdefault("PositronCut", 0.05)
+    kwargs.setdefault("GammaCut",    0.05)
+    return RegionCreator(name, **kwargs)
+
+def ITkPixelPhysicsRegionToolCfg(ConfigFlags, name='ITkPixelPhysicsRegionTool', **kwargs):
+    kwargs.setdefault("RegionName", 'ITkPixel')
+    volumeList = ['ITkPixel::siLog']
+    kwargs.setdefault("VolumeList",  volumeList)
+    kwargs.setdefault("ElectronCut", 0.05)
+    kwargs.setdefault("PositronCut", 0.05)
+    kwargs.setdefault("GammaCut",    0.05)
+    return RegionCreator(name, **kwargs)
+
+def ITkStripPhysicsRegionToolCfg(ConfigFlags, name='ITkStripPhysicsRegionTool', **kwargs):
+    kwargs.setdefault("RegionName", 'ITkStrip')
+    #Need to find what these should be set to for ITk...
     volumeList = ['SCT::BRLSensor', 'SCT::BRLSensorSS', 'SCT::BRLSensorMS',
                    'SCT::ECSensor0', 'SCT::ECSensor1', 'SCT::ECSensor2',
                    'SCT::ECSensor3', 'SCT::ECSensor4', 'SCT::ECSensor5']

@@ -142,6 +142,9 @@ InDetNewTrackingCuts.printInfo()
 include ("InDetRecExample/InDetRecConditionsAccess.py")
 include ("InDetRecExample/InDetRecLoadTools.py")
 
+if not hasattr( topSequence, "LumiBlockMuWriter" ):
+    include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+
 # ToolSvc.InDetBroadInDetRotCreator.OutputLevel=VERBOSE
 
 from InDetRecExample.TrackingCommon import getInDetPRDtoTrackMapToolGangedPixels

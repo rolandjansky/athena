@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_MonitorCondAlg.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -62,12 +60,8 @@ StatusCode SCT_MonitorCondAlg::execute(const EventContext& ctx) const
   }
   ATH_MSG_INFO("Size of CondAttrListCollection readCdo->size()= " << readCdo->size());
 
-  // Define validity of the output cond obbject
-  EventIDRange rangeW;
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_MonitorCondData> writeCdo{std::make_unique<SCT_MonitorCondData>()};
@@ -86,13 +80,13 @@ StatusCode SCT_MonitorCondAlg::execute(const EventContext& ctx) const
   }
 
   // Record validity of the output cond obbject
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_MonitorCondData " << writeHandle.key()
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

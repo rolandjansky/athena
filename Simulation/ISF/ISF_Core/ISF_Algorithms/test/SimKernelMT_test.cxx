@@ -61,8 +61,8 @@ namespace ISFTesting {
     MOCK_CONST_METHOD3(convertHepMCToG4Event, StatusCode(McEventCollection&,
                                                          G4Event*&,
                                                          EBC_EVCOLL kindOfCollection));
-    MOCK_CONST_METHOD2(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
-                                                HepMC::GenEvent*));
+    MOCK_CONST_METHOD3(ISF_to_G4Event, G4Event*(const std::vector<const ISF::ISFParticle*>&,
+                                                HepMC::GenEvent*,bool));
 
   }; // MockInputConverter class
 
@@ -514,9 +514,9 @@ protected:
 
   TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
     auto* genEvent = new HepMC::GenEvent{};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{};
+    HepMC::GenParticlePtr  genPart = new HepMC::GenParticle{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
-    HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart2 = new HepMC::GenParticle{mom,
                                                           11,  // pdg id (e-)
                                                           1  // status
     };
@@ -731,7 +731,7 @@ protected:
   TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationTools_expectConvertedParticleSentToParticleKiller) {
     auto* genEvent = new HepMC::GenEvent{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 1234.5};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart = new HepMC::GenParticle{mom,
                                                          11,  // pdg id (e-)
                                                          1  // status
     };

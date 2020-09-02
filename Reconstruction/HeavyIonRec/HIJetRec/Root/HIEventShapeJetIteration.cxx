@@ -1,15 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIEventShapeJetIteration.h"
+#include "HIEventShapeJetIteration.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/HIEventShapeSummaryUtils.h"
 #include "xAODCore/ShallowCopy.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 namespace
 {
@@ -27,41 +30,57 @@ namespace
 } //annonymous namespace
 
 
-HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(name),
-								       m_isInit(false)
+HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(name)
 {
-  declareProperty("InputEventShapeKey",m_input_event_shape_key="HIEventShape");
-  declareProperty("OutputEventShapeKey",m_output_event_shape_key="HIEventShape_iter");
-  declareProperty("CaloJetSeedContainerKey",m_calo_jet_seed_key,"Names of seed collections");
-  declareProperty("TrackJetSeedContainerKey",m_track_jet_seed_key,"Names of seed collections");
-  declareProperty("ExclusionRadius",m_exclude_DR=0.4,"Exclude all calo regions w/in this DR to jet");
-  declareProperty("ExcludeConstituents",m_exclude_constituents=false,"Only exclude constituents of jets");
-  declareProperty("AssociationKey",m_association_key,"Name of jet attribute containing jet-cluster association");
-  declareProperty("Subtractor",m_subtractor_tool);
-  declareProperty("Modulator",m_modulator_tool);
-  declareProperty("RemodulateUE",m_do_remodulation=false,"Correct UE for incomplete cancellation of flow harmonics when iterating");
-  declareProperty("ModulationScheme",m_modulation_scheme=0,"Scheme to build separate ES object for flow modulation");
-  declareProperty("ModulationEventShapeKey",m_modulation_key="HIEventShape_itr_mod");
+}
 
+StatusCode HIEventShapeJetIteration::initialize()
+{
+   ATH_MSG_VERBOSE("HIEventShapeJetIteration initialize");
+   ATH_CHECK( m_inputEventShapeKey.initialize( !m_inputEventShapeKey.key().empty()) );
+   ATH_CHECK( m_outputEventShapeKey.initialize( !m_outputEventShapeKey.key().empty()) );
+   ATH_CHECK( m_caloJetSeedKey.initialize( SG::AllowEmpty ) );
+   ATH_CHECK( m_trackJetSeedKey.initialize( SG::AllowEmpty ) );
+   ATH_CHECK( m_modulationKey.initialize( m_modulationScheme ));
+
+   return StatusCode::SUCCESS;
 }
 
 int HIEventShapeJetIteration::execute() const
 {
   ///
+  ATH_MSG_INFO( "Starting HIEventShapeJetIteration execution" );
   const xAOD::HIEventShapeContainer* input_shape=nullptr;
   xAOD::HIEventShapeContainer* output_shape=nullptr;
   getShapes(input_shape,output_shape,true).ignore();
 
+  const HIEventShapeIndex* es_index = m_eventShapeMapTool->getIndexFromShape(input_shape);
+  //New implementation after moving away from mutable
+  ATH_MSG_INFO("HIEventShapeJetIteration: found index for  " << m_inputEventShapeKey.key());
+  if(es_index==nullptr)
+  {
+    ATH_MSG_FATAL("No HIEventShapeIndex w/ name " << m_inputEventShapeKey.key() << ". Shape not TOWER nor COMPACT");
+  }
 
-  const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(m_input_event_shape_key);
-  
+  const HIEventShapeIndex* other_index = m_eventShapeMapTool->getIndexFromShape(output_shape);
+  if(!other_index) {
+   ATH_MSG_FATAL("No HIEventShapeIndex w/ name " << m_outputEventShapeKey.key() << ". Shape not TOWER nor COMPACT");
+  }
+  //End of new implementation
+
   const xAOD::JetContainer* theCaloJets=0;
   const xAOD::JetContainer* theTrackJets=0;
 
-  if(m_calo_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theCaloJets,m_calo_jet_seed_key), 1);
-  if(m_track_jet_seed_key.compare("")!=0) ATH_CHECK(evtStore()->retrieve(theTrackJets,m_track_jet_seed_key), 1);
+  if(!m_caloJetSeedKey.empty()){
+    SG::ReadHandle<xAOD::JetContainer>  readHandleCaloJets  ( m_caloJetSeedKey );
+    theCaloJets = readHandleCaloJets.cptr();
+  }
+  if(!m_trackJetSeedKey.empty()){
+    SG::ReadHandle<xAOD::JetContainer>  readHandleTrackJets ( m_trackJetSeedKey );
+    theTrackJets = readHandleTrackJets.cptr();
+  }
 
-  if(theTrackJets && m_exclude_constituents) 
+  if(theTrackJets && m_excludeConstituents)
   {
     ATH_MSG_ERROR("Incompatible options. Cannot track jets and constituents together.");
     return 1;
@@ -74,23 +93,31 @@ int HIEventShapeJetIteration::execute() const
   assoc_clusters.reserve(6400);
   if(theCaloJets) ATH_CHECK(makeClusterList(assoc_clusters,theCaloJets,used_indices,used_eta_bins), 1);
   if(theTrackJets) ATH_CHECK(makeClusterList(assoc_clusters,theTrackJets,used_indices,used_eta_bins), 1);
-  
   updateShape(output_shape,assoc_clusters,es_index);
-  
+
+  ATH_MSG_INFO( "Checking Modulation Scheme" );
+
   //compute ES for modulation
-  if(m_modulation_scheme)
+  if(m_modulationScheme)
   {
-    xAOD::HIEventShapeContainer* modShape=new xAOD::HIEventShapeContainer;
-    xAOD::HIEventShapeAuxContainer *modShapeAux = new xAOD::HIEventShapeAuxContainer;
-    modShape->setStore( modShapeAux );
-    ATH_CHECK( evtStore()->record(modShape,m_modulation_key), 1 );
-    ATH_CHECK( evtStore()->record(modShapeAux,m_modulation_key+std::string("Aux.")), 1 );
-    
+    SG::WriteHandle<xAOD::HIEventShapeContainer> write_handle_modShape ( m_modulationKey );
+    ATH_MSG_DEBUG( "Key HIEventShapeJetIteration: " << m_modulationKey.key() );
+
+    auto modShape = std::make_unique<xAOD::HIEventShapeContainer> ();
+    auto modShapeAux = std::make_unique<xAOD::HIEventShapeAuxContainer> ();
+    modShape->setStore( modShapeAux.get() );
+
     xAOD::HIEventShape* ms=new xAOD::HIEventShape();
     modShape->push_back(ms);
-    ATH_CHECK( fillModulatorShape(ms,output_shape,used_indices,m_modulation_scheme), 1 );
-    if(m_do_remodulation) ATH_CHECK( remodulate(output_shape,ms,used_indices), 1 );
+    ATH_CHECK( fillModulatorShape(ms, output_shape, used_eta_bins, m_modulationScheme), 1 );
+    if(m_doRemodulation) ATH_CHECK( remodulate(output_shape, ms, used_indices), 1 );
+
+    if(write_handle_modShape.record ( std::move(modShape), std::move(modShapeAux)).isFailure() ){
+      ATH_MSG_ERROR("Unable to write newHIEventShapeContainer for modulated shape with key: " << m_modulationKey.key());
+      return 0;
+    }
   }
+
   return 0;
 }
 
@@ -103,15 +130,15 @@ StatusCode HIEventShapeJetIteration::makeClusterList(std::vector<const xAOD::Cal
     xAOD::IParticle::FourMom_t jet4mom=theJet->p4();
     std::vector<const xAOD::IParticle*> assoc_clusters;
     //only use jet constituents
-    if(m_exclude_constituents) assoc_clusters=theJet->getConstituents().asIParticleVector();
+    if(m_excludeConstituents) assoc_clusters=theJet->getConstituents().asIParticleVector();
     else
     {
-      if(! (theJet->getAssociatedObjects<xAOD::IParticle>(m_association_key,assoc_clusters)) )
+      if(! (theJet->getAssociatedObjects<xAOD::IParticle>(m_associationKey, assoc_clusters)) )
       {
-	//this should only happen if SOME of the jets in the collection are missing the association
-	//technically possible, but should NOT happen
-	ATH_MSG_ERROR("Individual jet missing association " << m_association_key);
-	return StatusCode::FAILURE;
+      	//this should only happen if SOME of the jets in the collection are missing the association
+      	//technically possible, but should NOT happen
+      	ATH_MSG_ERROR("Individual jet missing association " << m_associationKey);
+      	return StatusCode::FAILURE;
       }
     }
     ATH_MSG_DEBUG( "Jet " << std::setw(10) << jet4mom.Pt()*1e-3
@@ -119,17 +146,17 @@ StatusCode HIEventShapeJetIteration::makeClusterList(std::vector<const xAOD::Cal
 		   << std::setw(10) << jet4mom.Phi()
 		   << std::setw(10) << jet4mom.E()*1e-3
 		   << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters");
-    
+
     for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++)
     {
-      if( jet4mom.DeltaR( (*pItr)->p4() ) >  m_exclude_DR ) continue;
+      if( jet4mom.DeltaR( (*pItr)->p4() ) >  m_excludeDR ) continue;
       const xAOD::CaloCluster* cl_ptr=static_cast<const xAOD::CaloCluster*>(*pItr);
       unsigned int tower_index=HI::TowerBins::findEtaPhiBin(cl_ptr->eta0(),cl_ptr->phi0());
-      
+
       if(used_indices.insert(tower_index).second)
       {
-	particleList.push_back(cl_ptr);
-	used_eta_bins.insert(HI::TowerBins::findBinEta(cl_ptr->eta0()));
+      	particleList.push_back(cl_ptr);
+      	used_eta_bins.insert(HI::TowerBins::findBinEta(cl_ptr->eta0()));
       }
     }
   }
@@ -147,7 +174,7 @@ StatusCode HIEventShapeJetIteration::makeClusterList(std::vector<const xAOD::Cal
 {
   std::set<unsigned int> used_indices;
   std::set<unsigned int> used_eta_bins;
-  for(auto theJets : theJets_vector) 
+  for(auto theJets : theJets_vector)
   {
     ATH_CHECK(makeClusterList(particleList,theJets,used_indices,used_eta_bins));
   }
@@ -158,20 +185,21 @@ void HIEventShapeJetIteration::updateShape(xAOD::HIEventShapeContainer* output_s
 {
   if(es_index==nullptr)
   {
-    es_index=HIEventShapeMap::getIndex(m_input_event_shape_key);
+    ATH_MSG_INFO("Problem, null pointer");
+
+    es_index=m_eventShapeMapTool->getIndexFromShape(output_shape);
     if(es_index==nullptr)
     {
-      ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_input_event_shape_key << " adding it to the map");
-      HIEventShapeIndex* h=new HIEventShapeIndex();
-      h->setBinning(output_shape);
-      es_index=HIEventShapeMap::insert(m_input_event_shape_key,*h);
-      
+      ATH_MSG_FATAL("Can't find correspondent index for map " << m_inputEventShapeKey.key() << " in the HIEventShapeMapTool");
     }
   }
-  for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++) 
-    m_subtractor_tool->UpdateUsingCluster(output_shape,es_index,(*pItr));
 
-  if(!m_subtractor_tool->usesCells())
+  for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++)
+  {
+     m_subtractorTool->updateUsingCluster(output_shape,es_index,(*pItr));
+  }
+
+  if(!m_subtractorTool->usesCells())
   {
     for(auto s : *output_shape)
     {
@@ -195,14 +223,21 @@ StatusCode HIEventShapeJetIteration::fillModulatorShape(xAOD::HIEventShape* ms, 
   if(scheme > 1)
   {
     const xAOD::HIEventShapeContainer* summary_container=0;
-    ATH_CHECK(evtStore()->retrieve(summary_container,"CaloSums"));
+
+    SG::ReadHandle<xAOD::HIEventShapeContainer>  read_handle_cont ( "CaloSums" );
+    if (!read_handle_cont.isValid()) {
+       ATH_MSG_FATAL( "Could not find HI event shape! CaloSums" );
+       return(StatusCode::FAILURE);
+    }
+    summary_container = read_handle_cont.cptr();
+
     const xAOD::HIEventShape* s_fcal=0;
     for(unsigned int i=0; i<summary_container->size(); i++)
     {
       const xAOD::HIEventShape* sh=(*summary_container)[i];
       std::string summary;
       if(sh->isAvailable<std::string>("Summary")) summary=sh->auxdata<std::string>("Summary");
-      if(summary.compare("FCal")==0) 
+      if(summary.compare("FCal")==0)
       {
 	s_fcal=sh;
 	break;
@@ -219,10 +254,10 @@ StatusCode HIEventShapeJetIteration::fillModulatorShape(xAOD::HIEventShape* ms, 
       {
 	float qx=ms->etCos().at(ih);
 	float qy=ms->etSin().at(ih);
-	
+
 	float qx_fcal=s_fcal->etCos().at(ih);
 	float qy_fcal=s_fcal->etSin().at(ih);
-	
+
 	ms->etCos()[ih]=(qx*qx_fcal+qy*qy_fcal)*et_fcal_recip;
 	ms->etSin()[ih]=(qy*qx_fcal-qx*qy_fcal)*et_fcal_recip;
       } //end loop on harmonics
@@ -236,13 +271,13 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
 {
   std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
   std::vector<float> mod_counts(HI::TowerBins::numEtaBins(),0);
-  
+
   for(std::set<unsigned int>::const_iterator sItr=used_indices.begin(); sItr!=used_indices.end(); sItr++)
   {
-    unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
+    unsigned int phi_bin=(*sItr) % HI::TowerBins::numPhiBins();
     unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
     mod_counts[eta_bin]++;
-    mod_factors[eta_bin]+=m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin), ms);
+    mod_factors[eta_bin]+=(m_modulatorTool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin),ms)-1.);
   }
   double nphibins=HI::TowerBins::numPhiBins();
   //now loop on shape and correct;
@@ -251,47 +286,65 @@ StatusCode HIEventShapeJetIteration::remodulate(xAOD::HIEventShapeContainer* out
     xAOD::HIEventShape* s=output_shape->at(i);
     float eta0=0.5*(s->etaMin()+s->etaMax());
     unsigned int eb=HI::TowerBins::findBinEta(eta0);
-    double cf=(nphibins-mod_counts[eb])/(nphibins-mod_factors[eb]);
+    double neff=nphibins-mod_counts[eb];
+    double cf=neff/(neff-mod_factors[eb]);
     //check on value of cf;
-    if(cf < 0) cf =1;
+    if(cf < 0.) cf =1;
     if(cf > 2.) cf=2;
-     
+
     s->setEt(s->et()*cf);
     s->setRho(s->rho()*cf);
   }
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode HIEventShapeJetIteration::getShapes(const xAOD::HIEventShapeContainer*& input_shape, xAOD::HIEventShapeContainer*& output_shape, bool record) const
 {
-  ATH_CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key));
-  auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
-  output_shape=shape_copy.first;
+  SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_inputEventShapeKey );
+  SG::WriteHandle<xAOD::HIEventShapeContainer> writeHandleEvtShape ( m_outputEventShapeKey );
 
-  if(record)
-  {
-    ATH_CHECK(evtStore()->record(output_shape,m_output_event_shape_key));
-    ATH_CHECK(evtStore()->record(shape_copy.second,m_output_event_shape_key + "Aux."));
-  }
+  input_shape = readHandleEvtShape.ptr();
 
-  const HIEventShapeIndex* es_index=HIEventShapeMap::getIndex(m_input_event_shape_key);
-  if(es_index==nullptr)
+  if(m_shallowCopy)
   {
-    if(m_isInit)
+    auto shape_copy=xAOD::shallowCopyContainer(*input_shape);
+    auto unique_first_copy = xAOD::prepareElementForShallowCopy(shape_copy.first);
+    auto unique_second_copy = xAOD::prepareElementForShallowCopy(shape_copy.second);
+    output_shape=shape_copy.first;
+    if(record)
     {
-      ATH_MSG_ERROR("No HIEventShapeIndex w/ name " << m_input_event_shape_key);
-      return StatusCode::FAILURE;
+      ATH_MSG_DEBUG( "Write Handle current key is : " <<  m_outputEventShapeKey.key() );
+      if(writeHandleEvtShape.record ( std::move(unique_first_copy), std::move(unique_second_copy)).isFailure() ){
+        ATH_MSG_ERROR("Unable to write Shallow Copy containers for event shape with key: " << m_outputEventShapeKey.key());
+        return(StatusCode::FAILURE);
+      }
     }
-    ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_input_event_shape_key << " adding it to the map");
-    HIEventShapeIndex* h=new HIEventShapeIndex();
-    h->setBinning(input_shape);
-    es_index=HIEventShapeMap::insert(m_input_event_shape_key,*h);
-    m_isInit=true;
+
   }
-  if(!m_isInit)
+  else
   {
-    HIEventShapeMap::getMap()->insert(m_output_event_shape_key,*es_index);
-    m_isInit=true;
+    auto output_shapex=std::make_unique<xAOD::HIEventShapeContainer> ();
+    auto output_Aux=std::make_unique<xAOD::HIEventShapeAuxContainer> ();
+    output_shapex->setStore( output_Aux.get() );
+    output_shapex->reserve( input_shape->size() );
+
+    for(auto s=input_shape->begin(); s!=input_shape->end(); s++)
+    {
+      xAOD::HIEventShape* s_copy=new xAOD::HIEventShape();
+      output_shapex->push_back(s_copy);
+      *s_copy=**s;
+    }
+    if(record)
+    {
+        if(writeHandleEvtShape.record ( std::move(output_shapex), std::move(output_Aux)).isFailure() ){
+        ATH_MSG_ERROR("Unable to write Output Shape containers for event shape with key: " << m_outputEventShapeKey.key());
+        return(StatusCode::FAILURE);
+      }
+      output_shape = writeHandleEvtShape.ptr();
+    }
+
   }
+
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,12 +20,9 @@
 
 #include "VP1TrackSystems/AssociatedObjectHandleBase.h"
 #include "VP1TrackSystems/TrackCommonFlags.h"
-#include "VP1TrackSystems/MeasurementToSoNode.h"
 #include "VP1TrackSystems/TrkObjToString.h"
 #include "TrkParameters/TrackParameters.h"
 
-// Eigen migration
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <QTreeWidgetItem>
@@ -110,7 +107,6 @@ private:
   void ensureInitSeps( SoSeparator*&shape_simple, SoSeparator*&shape_detailed);
   SoTranslation* getZTranslationTube( const Trk::Surface *, const double& maxTrans ) const;
 
-  Trk::MeasurementToSoNode m_measCnv; 
   TrkObjToString m_objToType; 
   HitToSoNode m_hitToSoNode;
 };

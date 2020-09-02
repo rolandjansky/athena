@@ -79,6 +79,17 @@ def setupMenu():
 
         ['2mu4',                    'L1_2MU4',  [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
 
+        # ATR-21242 - with L1 in the name, for validation with MT
+        ['mu26_ivarmedium_L1MU20',        'L1_MU20',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu50_L1MU20',                   'L1_MU20',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu60_0eta105_msonly_L1MU20',    'L1_MU20',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['mu80_msonly_3layersEC_L1MU20',  'L1_MU20',            [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
+        ['2mu14_L12MU10',                 'L1_2MU10',           [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['3mu6_L13MU6',                   'L1_3MU6',            [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['4mu4_L14MU4',                   'L1_4MU4',            [], [PhysicsStream], ['RATE:MultiMuon', 'BW:Muon'], -1],
+        ['mu6_idperf_L1MU6',              'L1_MU6',             [], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
+        ['mu24_idperf_L1MU20',            'L1_MU20',   ['L1_MU20'], [PhysicsStream], ['RATE:IDMonitoring', 'BW:Muon', 'BW:ID'], -1],
+
         ]
 
 
@@ -159,6 +170,15 @@ def setupMenu():
         ['j460_a10t_lcw_jes_L1J100',        'L1_J100', [], [PhysicsStream], ['Primary:17000','RATE:SingleJet', 'BW:Jet'], -1],
         ['2j330_a10t_lcw_jes_35smcINF_L1J100',              'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
+        # ATR-21242 - with L1 in the name, for validation with MT
+        ['j420_L1J100',                   'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j260_320eta490_L1J75_31ETA49',  'L1_J75.31ETA49', [], [PhysicsStream], ['RATE:SingleJet',  'BW:Jet'], -1],
+        ['5j70_0eta240_L14J20',           'L1_4J20', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['3j200_L1J100',                  'L1_J100', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['j45_L1RD0FILLED',               'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j45_L1J15',                     'L1_J15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j460_a10t_lcw_jes_30smcINF_L1J100',        'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j80_j60_L1J15',                 'L1_J15', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         
     ]
 
@@ -212,7 +232,11 @@ def setupMenu():
         ['xe30_trkmht_L1XE10',                        'L1_XE10',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe30_pufit_xe30_L1XE10', 'L1_XE10', ['L1_XE10','L1_XE10'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe30_pufit','xe30_L1XE10'] ]],
 
-			 ]
+        # ATR-21242 - with L1 in the name, for validation with MT
+        ['xe65_xe110_pufit_L1XE50',                'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe110_tcpufit_L1XE50',                   'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+
+    ]
 
     if TriggerFlags.doFTK():
         TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
@@ -326,7 +350,19 @@ def setupMenu():
 
         ['e9_lhvloose_nod0_L1EM7',                    'L1_EM7',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
-			 ]
+        # ATR-21242 - with L1 in the name, for validation with MT
+        ['g140_loose_L1EM22VHI',                  'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g20_tight_L12EM20VH',                  'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1],
+        ['e5_lhtight_nod0_L1EM3',                 'L1_EM3',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e5_lhtight_noringer_nod0_L1EM3',        'L1_EM3',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e17_lhvloose_nod0_L1EM15VH',            'L1_EM15VH',  [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_nod0_L1EM22VHI',            'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e26_lhtight_nod0_ivarloose_L1EM22VHI',  'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_nod0_L1EM22VHI',           'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e140_lhloose_nod0_L1EM22VHI',           'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['2e17_lhvloose_nod0_L12EM15VH',          'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
+
+    ]
 
     TriggerFlags.BphysicsSlice.signatures = [
         # ATR-19062
@@ -337,6 +373,11 @@ def setupMenu():
         ['mu6_2mu4_bJpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream, 'express'], [RATE_BphysTag, BW_BphysTag], -1],
         ['mu11_mu6_bDimu',                 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+
+        # ATR-21242 - with L1 in the name, for validation with MT
+        ['2mu4_bJpsimumu_L12MU4',     'L1_2MU4',     ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1],
+        ['2mu4_bUpsimumu_L12MU4',     'L1_2MU4',     ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1],
+        ['2mu4_bDimu_L12MU4',         'L1_2MU4',     ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1],
 
     ]
 
@@ -439,7 +480,7 @@ def setupMenu():
  #Beamspot chanis first try ATR-9847                                                                                                               
     TriggerFlags.BeamspotSlice.signatures = [
 
-        ['beamspot_allTE_trkfast_peb_L13J15', 'L1_3J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_L13J15', 'L1_3J15', [], ["BeamSpot"], ['RATE:BeamSpot', 'BW:BeamSpot'], -1],
 
 ]   
 

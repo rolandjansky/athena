@@ -69,20 +69,23 @@ namespace FlavorTagDiscriminants {
     // build the standard inputs
     //
 
+    // the ftagfloat_t is defined in this library (in ftagfloat_t.h)
+    EDMType floattype = EDMTypeEnum<ftagfloat_t>::type;
+
     // type and default value-finding regexes are hardcoded for now
     TypeRegexes type_regexes = {
       {".*_isDefaults"_r, EDMType::UCHAR},
       // TODO: in the future we should migrate RNN and IPxD
       // variables to floats. This is outside the scope of the
       // current flavor tagging developments and AFT-438.
-      {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
-      {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, EDMType::DOUBLE},
-      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, EDMType::DOUBLE},
+      {"IP[23]D(Neg)?_[pbc](b|c|u|tau)"_r, floattype},
+      {"SV1(Flip)?_[pbc](b|c|u|tau)"_r, floattype},
+      {"(rnnip|iprnn)(flip)?_p(b|c|u|tau)"_r, floattype},
       {"(minimum|maximum|average)TrackRelativeEta(Flip)?"_r, EDMType::FLOAT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex)(Flip)?_[Nn].*"_r, EDMType::INT},
       {"(JetFitter|SV1|JetFitterSecondaryVertex).*"_r, EDMType::FLOAT},
       {"pt|abs_eta|eta"_r, EDMType::CUSTOM_GETTER},
-      {"softMuon_p[bcu]"_r, EDMType::DOUBLE},
+      {"softMuon_p[bcu]"_r, floattype},
       {"softMuon_.*"_r, EDMType::FLOAT},
     };
 
@@ -97,7 +100,8 @@ namespace FlavorTagDiscriminants {
       {"JetFitterFlip_.*"_r, "JetFitterFlip_isDefaults"},
       {"JetFitterSecondaryVertex_.*"_r, "JetFitterSecondaryVertex_isDefaults"},
       {"JetFitterSecondaryVertexFlip_.*"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
-      {".*TrackRelativeEta(Flip)?"_r, ""},
+      {".*TrackRelativeEta"_r, "JetFitterSecondaryVertex_isDefaults"},
+      {".*TrackRelativeEtaFlip"_r, "JetFitterSecondaryVertexFlip_isDefaults"},
       {"rnnip_.*"_r, "rnnip_isDefaults"},
       {"rnnipflip_.*"_r, "rnnipflip_isDefaults"},
       {"iprnn_.*"_r, ""},
@@ -154,8 +158,16 @@ namespace FlavorTagDiscriminants {
     std::vector<DL2TrackSequenceConfig> trk_config = get_track_input_config(
       trk_names, trk_type_regexes, trk_sort_regexes, trk_select_regexes);
 
+    OutputType outtype = OutputTypeEnum<ftagfloat_t>::type;
     m_dl2.reset(
-      new DL2(config, input_config, trk_config, flip_config, var_map));
+      new DL2(
+        config,                 // lwtnn config
+        input_config,           // EDM input config
+        trk_config,             // edm track input config
+        flip_config,            // flip tagger configuration
+        var_map,                // variable remapping
+        outtype                 // output type
+        ));
   }
 
   DL2HighLevel::~DL2HighLevel() = default;
@@ -163,6 +175,11 @@ namespace FlavorTagDiscriminants {
 
   void DL2HighLevel::decorate(const xAOD::Jet& jet) const {
     m_dl2->decorate(jet);
+  }
+
+  DL2DataDependencyNames DL2HighLevel::getDataDependencyNames() const
+  {
+    return m_dl2->getDataDependencyNames();
   }
 
 }

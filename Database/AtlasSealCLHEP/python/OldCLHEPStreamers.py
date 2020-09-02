@@ -13,14 +13,6 @@ def loadOldCLHEPStreamers():
     msg = logging.getLogger( 'loadOldCLHEPStreamers' )
     msg.debug( "Loading Old CLHEP streamers..." )
     
-    # Seal services: for loading dictionaries
-    if not hasattr (svcMgr, 'AthenaSealSvc'):
-        svcMgr += CfgMgr.AthenaSealSvc()
-
-    # Reguest loading CLHEP dictionary
-    svcMgr.AthenaSealSvc.DictNames += [ "AtlasSealCLHEPDict" ]
-
-
     # ROOT streaming service
     if not hasattr (svcMgr, 'AthenaRootStreamerSvc'):
         svcMgr += CfgMgr.AthenaRootStreamerSvc()

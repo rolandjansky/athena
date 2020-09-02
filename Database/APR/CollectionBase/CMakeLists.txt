@@ -1,33 +1,19 @@
-################################################################################
-# Package: CollectionBase
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CollectionBase )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/APR/POOLCore
-                          PRIVATE
-                          Database/APR/FileCatalog
-                          AtlasTest/TestTools
-                          Database/APR/PersistencySvc
-                          Database/PersistentDataModel
-                          GaudiKernel )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Boost )
+find_package( CORAL COMPONENTS CoralBase )
 
 # Component(s) in the package:
 atlas_add_library( CollectionBase
                    src/*.cpp
                    PUBLIC_HEADERS CollectionBase
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES}
-                   ${CORAL_LIBRARIES} FileCatalog POOLCore GaudiKernel
-                   PersistencySvc PersistentDataModel 
-                   PRIVATE_LINK_LIBRARIES TestTools )
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} FileCatalog
+                   PRIVATE_LINK_LIBRARIES POOLCore PersistentDataModel )
 
 atlas_add_dictionary( CollectionDict
                       CollectionBase/CollectionDict.h
@@ -38,6 +24,6 @@ atlas_add_dictionary( CollectionDict
 if( NOT GENERATIONBASE )
   atlas_add_test( Factory_test
                   SOURCES test/Factory_test.cxx
-                  LINK_LIBRARIES CollectionBase
+                  LINK_LIBRARIES CollectionBase POOLCore PersistentDataModel
                   PROPERTIES TIMEOUT 300 )
 endif()

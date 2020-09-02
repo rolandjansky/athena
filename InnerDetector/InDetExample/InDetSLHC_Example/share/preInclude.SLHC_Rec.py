@@ -47,9 +47,6 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
         InDetFlags.doTRTStandalone = False
         InDetFlags.loadTRTSeededSPFinder = False
         #InDetFlags.doSingleSpBackTracking.set_Value_and_Lock(False)
-        # --- turn off alternatives
-        InDetFlags.doxKalman = False
-        InDetFlags.doiPatRec = False
         # --- no special tracking
         InDetFlags.doBeamGas = False
         InDetFlags.doBeamHalo = False
@@ -80,7 +77,7 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
         # InDetFlags.doPerfMon.set_Value_and_Lock(True)
 
         # --- activate creation of standard plots
-        InDetFlags.doStandardPlots = False
+        InDetFlags.doPhysValMon = False
         # --- do tracking ntuple
         #InDetFlags.doTrkNtuple.set_Value_and_Lock(False)
         # --- set properties of ntuple

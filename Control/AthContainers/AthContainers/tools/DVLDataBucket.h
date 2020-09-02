@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DVLDataBucket.h,v 1.2 2008-06-17 00:44:17 ssnyder Exp $
-
 /**
  * @file  AthContainers/tools/DVLDataBucket.h
  * @author scott snyder
@@ -111,6 +107,24 @@ public:
    */
   virtual void* cast (const std::type_info& tinfo,
                       IRegisterTransient* irt = 0,
+                      bool isConst = true) override;
+
+
+  /**
+   * @brief Return the contents of the @c DataBucket,
+   *        converted to type given by @a clid.  Note that only
+   *        derived->base conversions are allowed here.
+   * @param clid The class ID to which to convert.
+   * @param tinfo The @a std::type_info of the type to which to convert.
+   * @param irt To be called if we make a new instance.
+   * @param isConst True if the object being converted is regarded as const.
+   *
+   * This allows the callee to choose whether to use clid or tinfo.
+   * Here we use clid.
+   */
+  virtual void* cast (CLID clid,
+                      const std::type_info& tinfo,
+                      SG::IRegisterTransient* irt = 0,
                       bool isConst = true) override;
 
 

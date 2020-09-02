@@ -26,14 +26,6 @@
 #include <dqm_core/AlgorithmManager.h>
 #include <dqm_core/LibraryManager.h>
 
-// MN: ROOT6 is more const-correct
-#if ROOT_VERSION_CODE > ROOT_VERSION(6,0,0)
-#  define ROOT6_CONST const
-#else
-#  define ROOT6_CONST
-#endif
-
-
 std::map<std::string, double > 
 dqm_algorithms::tools::GetFitParams(const TF1 * func )
 {
@@ -367,8 +359,8 @@ double dqm_algorithms::tools::GetFirstFromMap(const std::string &paramName, cons
 std::vector<int> dqm_algorithms::tools::GetBinRange(const TH1 *h, const std::map<std::string, double > &params)
 {
   std::vector<int> range;
-  ROOT6_CONST TAxis *xAxis = h->GetXaxis();
-  ROOT6_CONST TAxis *yAxis = h->GetYaxis();
+  const TAxis *xAxis = h->GetXaxis();
+  const TAxis *yAxis = h->GetYaxis();
 
   if (h->GetDimension() > 2) {
     throw dqm_core::BadConfig(ERS_HERE, h->GetName(), "histogram has more than 2 dimensions");
@@ -466,11 +458,11 @@ dqm_algorithms::tools::DivideByHistogram(const TH1* hNumerator, const TH1* hDeno
     //Handle division for case where denominator has lower dimension than numerator:
     //There are only a few possibilities, hNdimension = 2 or 3, hDdimension = 1 or 2.
       
-    ROOT6_CONST TAxis* xax = hNumerator->GetXaxis();
+    const TAxis* xax = hNumerator->GetXaxis();
     int nbinsx = xax->GetNbins();
-    ROOT6_CONST TAxis* yax = hNumerator->GetYaxis();
+    const TAxis* yax = hNumerator->GetYaxis();
     int nbinsy = yax->GetNbins();
-    ROOT6_CONST TAxis* zax = hNumerator->GetZaxis();
+    const TAxis* zax = hNumerator->GetZaxis();
     int nbinsz = zax->GetNbins();
 
     if( nbinsx != hDenominator->GetNbinsX() ) {
@@ -532,11 +524,11 @@ dqm_algorithms::tools::DivideByHistogram(const TH1* hNumerator, const TH1* hDeno
     //Handle division for case where the numerator has lower dimension than the denominator
     //There are only a few possibilities, hNdimension = 1 or 2, hDdimension = 2 or 3.
     
-    ROOT6_CONST TAxis* xax = hDenominator->GetXaxis();
+    const TAxis* xax = hDenominator->GetXaxis();
     int nbinsx = xax->GetNbins();
-    ROOT6_CONST TAxis* yax = hDenominator->GetYaxis();
+    const TAxis* yax = hDenominator->GetYaxis();
     int nbinsy = yax->GetNbins();
-    ROOT6_CONST TAxis* zax = hDenominator->GetZaxis();
+    const TAxis* zax = hDenominator->GetZaxis();
     int nbinsz = zax->GetNbins();
     
     if( nbinsx != hNumerator->GetNbinsX() ) {

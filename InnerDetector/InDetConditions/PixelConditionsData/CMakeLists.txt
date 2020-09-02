@@ -8,6 +8,7 @@ atlas_subdir( PixelConditionsData )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( 
   PUBLIC
+  Control/CxxUtils
   DetectorDescription/Identifier
   DetectorDescription/GeoPrimitives
   Database/AthenaPOOL/AthenaPoolUtilities
@@ -26,6 +27,6 @@ atlas_add_library( PixelConditionsData
                    PUBLIC_HEADERS PixelConditionsData
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES Identifier GeoPrimitives PixelCoralClientUtils
+                   LINK_LIBRARIES CxxUtils Identifier GeoPrimitives PixelCoralClientUtils
                    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel AthenaPoolUtilities GaudiKernel )
 

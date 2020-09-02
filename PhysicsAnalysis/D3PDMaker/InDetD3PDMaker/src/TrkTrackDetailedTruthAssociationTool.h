@@ -12,7 +12,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <vector>
 
 namespace Trk {

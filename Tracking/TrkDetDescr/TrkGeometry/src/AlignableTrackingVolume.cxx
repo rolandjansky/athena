@@ -45,5 +45,5 @@ Trk::AlignableTrackingVolume::~AlignableTrackingVolume()
 const Trk::TrackingVolume* Trk::AlignableTrackingVolume::alignedTrackingVolume() const
 {
   if ( m_alignedTV ) return m_alignedTV; 
-  else return this;  
+  return this;  
 }

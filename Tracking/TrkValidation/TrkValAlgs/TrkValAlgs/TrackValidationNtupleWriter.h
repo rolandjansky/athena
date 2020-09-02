@@ -20,11 +20,7 @@
 class TrackTruth;
 class TTree;
 
-namespace HepMC {
-
-class GenParticle; //!< Truth information
-
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
 

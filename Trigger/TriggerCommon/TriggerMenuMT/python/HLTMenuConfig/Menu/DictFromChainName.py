@@ -23,6 +23,11 @@ def getOverallL1item(chainName):
     There are though more complicated names like ...._L1...._L1..._L1... in such cases the L1 seed item is the last one
     """
     assert '_L1' in chainName, 'ERROR IN CHAIN {}, missing L1 seed at the end i.e. _L1...' .format(chainName)
+
+    from TriggerMenuMT.LVL1MenuConfig.LVL1Menu.L1Seeds import getSpecificL1Seeds
+    from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
+
     # this assumes that the last string of a chain name is the overall L1 item
     cNameParts = chainName.split("_L1")
     l1seed = 'L1_' + cNameParts[-1]
@@ -32,6 +37,29 @@ def getOverallL1item(chainName):
         return ''
     if l1seed == 'L1_test': #Multiseeded chains are build like this
         return 'L1_EM24VHI,L1_MU20'
+    if l1seed == 'L1_Bkg' or l1seed == 'L1_Standby' or l1seed == 'L1_Calo' or l1seed == 'L1_Calo_EMPTY':
+        # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
+        # During the transition period to the new menu format it is important to pick the correct kind based
+        # on the temporary TriggerFlag readLVL1FromJSON.
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        if TriggerFlags.readLVL1FromJSON():
+            lvl1name = getL1MenuFileName()
+            lvl1access = L1MenuAccess(lvl1name)
+            itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
+        else:
+            from TriggerMenuMT.LVL1MenuConfig.LVL1.XMLReader import L1MenuXMLReader
+            fileName = TriggerFlags.inputLVL1configFile()
+            l1menu = L1MenuXMLReader(fileName)
+            l1items = l1menu.getL1Items()
+            itemsDict = {}
+            for item in l1items:
+                itemsDict[item['name']] = {
+                    'name' : item['name'],
+                    'ctpid' : item['ctpid'],
+                    'triggerType' : item['trigger_type'],
+                }
+        l1seedlist = getSpecificL1Seeds(l1seed, itemsDict)
+        return l1seedlist
 
     return l1seed
 
@@ -361,6 +389,23 @@ def analyseChainName(chainName, L1thresholds, L1item):
                     else:
                         chainProperties[prop] = part
                     matchedparts.append(part)
+
+        # ----- at this point we can figure out if the chain is a bJet chain and update defaults accordingly
+        if chainProperties['signature']=='Jet' and chainProperties['bTag'] != '':
+            log.debug('Setting b-jet chain defaults')
+            # b-jet chain, so we now use the bJet defaults if they have not already been overriden
+            bJetDefaultValues, allowedbJetPropertiesAndValues = getSignatureInformation('Bjet')
+            for prop, value in bJetDefaultValues.items():
+                propSet=False
+                for value in allowedbJetPropertiesAndValues[prop]:
+                    if value in matchedparts:
+                        propSet=True
+                        break
+
+                # if the property was not set already, then set if according to the b-jet defaults
+                if propSet is False:
+                    log.debug('Changing %s from %s to %s', prop, str(chainProperties[prop]), str(bJetDefaultValues[prop]))
+                    chainProperties[prop] = bJetDefaultValues[prop]
 
         log.debug("matched parts %s", matchedparts)
         leftoverparts = set(parts)-set(matchedparts)

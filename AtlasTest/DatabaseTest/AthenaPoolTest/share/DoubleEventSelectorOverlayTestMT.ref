@@ -911,7 +911,7 @@ DoubleEventSelector                               DEBUG SourceID: 9553B87B-1832-
 DoubleEventSelector                               DEBUG **  MN Incident handler EndProcessing Event source ID=9553B87B-1832-3346-A65E-916E6C1DEAB5
 DoubleEventSelector                               DEBUG SourceID: 8BCD9728-EB56-6042-AFDF-61C0C379D70E active events: 0
 DoubleEventSelector                               DEBUG SourceID: 9553B87B-1832-3346-A65E-916E6C1DEAB5 active events: 0
-Stream1                                            INFO Records written: 11
+Stream1                                            INFO Metadata records written: 11
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 AvalancheSchedulerSvc                              INFO Joining Scheduler thread
 ApplicationMgr                                     INFO Application Manager Finalized successfully

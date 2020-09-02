@@ -22,8 +22,16 @@ atlas_add_component( TrigServices
                      ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ${CORAL_LIBRARIES}
                      AthenaBaseComps AthenaInterprocess AthenaKernel AthenaMonitoringKernelLib AthenaPoolUtilities
                      ByteStreamCnvSvcBaseLib ByteStreamData EventInfoUtils GaudiKernel RDBAccessSvcLib StoreGateLib TrigKernel
-                     TrigOutputHandlingLib TrigSteeringEvent xAODEventInfo xAODTrigger )
+                     TrigOutputHandlingLib TrigSteeringEvent TrigSteerMonitorLib xAODEventInfo xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+atlas_add_test( test_TrigMessageSvc
+                SOURCES test/test_TrigMessageSvc.cxx src/TrigMessageSvc.cxx
+                INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
+                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} GaudiKernel TestTools
+                AthenaKernel AthenaInterprocess AthenaMonitoringKernelLib
+                POST_EXEC_SCRIPT nopost.sh
+)

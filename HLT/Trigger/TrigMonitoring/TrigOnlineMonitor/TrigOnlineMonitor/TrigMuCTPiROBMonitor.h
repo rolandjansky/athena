@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -19,7 +19,6 @@ namespace ROIB {
 }
 class MuCTPI_RDO;
 class IROBDataProviderSvc;
-class ITrigROBDataProviderSvc;
 class TH1F;       /// for monitoring purposes
 class TH2F;       /// for monitoring purposes
 class TProfile2D; /// for monitoring purposes
@@ -37,8 +36,6 @@ private:
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   /// Reference to the ROBDataProviderSvc service
   IIROBDataProviderSvc_t           m_robDataProviderSvc;
-  /// Reference to a ROBDataProviderSvc which implements also the trigger additions
-  SmartIF<ITrigROBDataProviderSvc> m_trigROBDataProviderSvc;
 
   /// Source identifiers for ROB fragments
   IntegerProperty                  m_lvl1CTPROBid ;

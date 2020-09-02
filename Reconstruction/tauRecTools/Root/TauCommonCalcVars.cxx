@@ -23,6 +23,8 @@
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
+    //if TauTrackClassifier is not run, wide&passTrkSelector==classifiedIsolation==modifiedIsolationTrack
+    declareProperty("isolationTrackType", m_isolationTrackType=xAOD::TauJetParameters::modifiedIsolationTrack);
 }
 
 //-----------------------------------------------------------------------------
@@ -54,7 +56,7 @@ StatusCode TauCommonCalcVars::finalize() {
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
-StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
+StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
 
     /////////////////////////////////////////////////
     // Calculate variables that are always valid   
@@ -87,7 +89,7 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
 
     // invariant mass of track system
     std::vector<const xAOD::TauTrack*> tauTracks = pTau.tracks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged);
-    for( const xAOD::TauTrack* trk : pTau.tracks((xAOD::TauJetParameters::TauTrackFlag) m_isolationTrackType.value()) ) tauTracks.push_back(trk);
+    for( const xAOD::TauTrack* trk : pTau.tracks((xAOD::TauJetParameters::TauTrackFlag) m_isolationTrackType) ) tauTracks.push_back(trk);
     if (tauTracks.size()> 0) {
 
         TLorentzVector sumOfTrackVector;

@@ -5,12 +5,15 @@
 #include "TrigConfIO/TrigDBLoader.h"
 
 #include "CoralBase/Exception.h"
+#include "CoralBase/Blob.h"
 
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "RelationalAccess/ISessionProxy.h"
 
 #include "boost/property_tree/ptree.hpp"
+
+#include <fstream>
 
 using ptree = boost::property_tree::ptree;
 
@@ -22,6 +25,21 @@ TrigConf::TrigDBLoader::TrigDBLoader(const std::string & loaderName, const std::
 
 TrigConf::TrigDBLoader::~TrigDBLoader()
 {}
+
+
+bool
+TrigConf::TrigDBLoader::writeRawFile(const coral::Blob & data, const std::string & outFileName) const
+{
+   if( outFileName.empty() ) {
+      return true;
+   }
+   std::ofstream outFile;
+   outFile.open( outFileName, std::ofstream::binary );
+   outFile.write( static_cast<const char*> ( data.startingAddress()), data.size() );
+   outFile.close();
+   return true;
+}
+
 
 
 std::unique_ptr<coral::ISessionProxy>

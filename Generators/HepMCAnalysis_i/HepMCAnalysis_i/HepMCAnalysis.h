@@ -19,7 +19,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "TH1.h"
-#include "AtlasHepMC/GenEvent.h"
 
 // forward declarations
 class ITHistSvc;
@@ -66,8 +65,6 @@ class HepMCAnalysis
   std::string m_key; 
   std::string m_infokey;
   
-  //convert unit MeV to GeV for energy and momenta
-  void MeVToGeV (HepMC::GenEvent* evt);
 
   bool m_JetFinder;
   bool m_JetAnalysis;

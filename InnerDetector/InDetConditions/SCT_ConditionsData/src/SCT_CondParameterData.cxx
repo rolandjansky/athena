@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
 
-#include <limits>
 #include <cmath>
+#include <limits>
 
 // constructor
 SCT_CondParameterData::SCT_CondParameterData() {
@@ -39,7 +39,7 @@ void SCT_CondParameterData::setValue(const IdentifierHash& idHash, const SCT_Con
 bool SCT_CondParameterData::insert(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam, const float theValue) {
   // theValue must be valid
   if (not isValid(theValue, iparam)) return false;
-  boost::array<float,N_PARAMETERS>& paramArray = m_values[idHash];
+  std::array<float,N_PARAMETERS>& paramArray = m_values[idHash];
   // initial value should be invalid, only insert if this is the case
   if (not isValid(paramArray[iparam], iparam)) {
     paramArray[iparam] = theValue;
@@ -93,7 +93,7 @@ unsigned int SCT_CondParameterData::n(const SCT_CondParameterData::ParameterInde
 
 // Clear all data members
 void SCT_CondParameterData::clear() {
-  boost::array<float, N_PARAMETERS> init;
+  std::array<float, N_PARAMETERS> init;
   for (unsigned int i{0}; i!=N_PARAMETERS; ++i) {
     m_min[i] = std::numeric_limits<float>::max();
     m_max[i] = std::numeric_limits<float>::min();
@@ -103,8 +103,6 @@ void SCT_CondParameterData::clear() {
     init[i] = invalid(i);
   }
   
-  //initialize boost array
-  for (unsigned int i{0}; i!=N_ELEMENTS; ++i) {
-    m_values[i] = init;
-  }
+  //initialize array
+  m_values.fill(init);
 }

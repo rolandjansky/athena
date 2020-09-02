@@ -25,7 +25,6 @@ StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
 ClassIDSvc           INFO  getRegistryEntries: read 7341 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 xAODMaker::Even...   INFO Initialising - Package version: xAODEventFormatCnv-00-00-00
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
@@ -1723,7 +1722,7 @@ xAODTestReadHVec     INFO hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5
 xAODTestReadHVec     INFO hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 ClassIDSvc           INFO  getRegistryEntries: read 6 CLIDRegistry entries for module ALL
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 08312C01-E986-CD48-BFB5-512B5E9FED1A
 xaoddata2.root       INFO Database being retired...

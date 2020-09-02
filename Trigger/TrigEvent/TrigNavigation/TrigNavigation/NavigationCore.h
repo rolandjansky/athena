@@ -1,7 +1,7 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -40,9 +40,12 @@ class TrigEDMSizes;
 namespace HLTNavDetails { class TypeMapDeleter; }
 
 class TrigBStoxAODTool;
+class TrigNavigationThinningSvc;
 
 namespace HLT {
-  class TrigNavigationSlimmingTool;
+  namespace TrigNavTools {
+    struct SlimmingHelper;
+  }
   /**
    * @brief The NavigationCore class, adds on top of the TrigNavStructure the EDM read-only handling
    *
@@ -94,7 +97,8 @@ namespace HLT {
 
 
   class NavigationCore : public HLT::TrigNavStructure {
-    friend class HLT::TrigNavigationSlimmingTool;
+    friend class ::TrigNavigationThinningSvc;
+    friend struct HLT::TrigNavTools::SlimmingHelper;
     friend class HLTNavDetails::TypeMapDeleter;
     friend class ::TrigBStoxAODTool;
   public:

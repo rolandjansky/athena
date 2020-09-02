@@ -46,9 +46,7 @@ public:
 
 private:
   ID3PDSvc& operator= (const ID3PDSvc&);
-#if !defined(__REFLEX__) && __cplusplus >= 201103
   ID3PDSvc& operator= (ID3PDSvc&&);
-#endif
 };
 
 

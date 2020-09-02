@@ -77,7 +77,7 @@ namespace ISF {
                                              EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const override final;
 
     /** Converts vector of ISF::ISFParticles to G4Event */
-    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const override final;
+    G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent, bool useHepMC=false) const override final;
 
   private:
 
@@ -85,9 +85,9 @@ namespace ISF {
 
     G4PrimaryParticle* getG4PrimaryParticle(const HepMC::GenParticle& gp) const;
 
-    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getG4PrimaryParticle(const ISF::ISFParticle& isp, bool useHepMC) const;
 
-    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
+    void addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp, bool useHepMC) const;
 
     /** Tests whether the given ISFParticle is within the Geant4 world volume */
     bool isInsideG4WorldVolume(const ISF::ISFParticle& isp, const G4VSolid* worldSolid) const;
@@ -96,13 +96,13 @@ namespace ISF {
     double getParticleMass(const HepMC::GenParticle& p) const;
 
     /** get all generator particles which pass filters */
-    std::vector<HepMC::GenParticle*> getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
+    std::vector<HepMC::GenParticlePtr > getSelectedParticles(const HepMC::GenEvent& evnt, bool legacyOrdering=false) const;
 
     /** check if the given particle passes all filters */
     bool passesFilters(const HepMC::GenParticle& p) const;
 
     /** convert GenParticle to ISFParticle */
-    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
+    ISF::ISFParticle* convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
 
     /** ParticlePropertyService and ParticleDataTable */
     ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT

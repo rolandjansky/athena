@@ -116,6 +116,68 @@ class doFullMon(JobProperty):
         # and dataproxy-size monitoring (for evtstore)
         jobproperties.PerfMonFlags.doDataProxySizeMonitoring = False
         return
+
+#
+class doMonitoringMT(JobProperty):
+    """Flag to active the MT-safe monitoring framework and service(s)
+       It of course deactives serial monitoring
+    """
+    statusOn     = False
+    allowedTypes = ['bool']
+    StoredValue  = False
+    def _do_action(seld):
+        # Deactive serial monitoring
+        jobproperties.PerfMonFlags.doMonitoring = False
+        # Setup PerfMonMTSvc
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        if not hasattr(svcMgr, 'PerfMonMTSvc'):
+            from PerfMonComps.MTJobOptCfg import PerfMonMTSvc
+            svcMgr += PerfMonMTSvc("PerfMonMTSvc")
+        # Setup PerfMonAlg
+        from AthenaCommon.AlgSequence import AthSequencer
+        topSequence = AthSequencer("AthAlgSeq")
+        if not hasattr(topSequence, "PerfMonMTAlg"):
+            from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
+            topSequence += PerfMonMTAlg("PerfMonMTAlg")
+        return
+
+    def _undo_action(self):
+        # Uninstall the service and the algorithm
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.AlgSequence import AthSequencer
+        topSequence = AthSequencer("AthAlgSeq")
+
+        if hasattr(svcMgr, 'PerfMonMTSvc'):
+            del svcMgr.PerfMonMTSvc
+        if hasattr(topSequence, 'PerfMonMTAlg'):
+            del topSequence.PerfMonMTAlg
+        return
+#
+class doFastMonMT(JobProperty):
+    """ Flag to active fast MT-safe monitoring framework and service(s)
+        It also activates the doMonitoringMT flag
+    """
+    statusOn     = False
+    allowedTypes = ['bool']
+    StoredValue  = False
+    def _do_action(self):
+        jobproperties.PerfMonFlags.doMonitoringMT = True
+        return
+
+#
+class doFullMonMT(JobProperty):
+    """ Flag to activate full MT-safe monitoring framework and service(s)
+        It also activate the doMonitoringMT flag
+        Note that due to locks this functionality might negatively impact
+        concurrency
+    """
+    statusOn     = False
+    allowedTypes = ['bool']
+    StoredValue  = False
+    def  _do_action(self):
+        jobproperties.PerfMonFlags.doMonitoringMT = True
+        return
+
 # 
 class doSemiDetailedMonitoring(JobProperty):
     """ Flag to activate the semi-detailed monitoring framework and service(s)
@@ -277,6 +339,9 @@ list_jobproperties = [
     doDetailedMonitoring,
     doFastMon,
     doFullMon,
+    doMonitoringMT,
+    doFastMonMT,
+    doFullMonMT,
     doSemiDetailedMonitoring,
     doSemiDetailedMonitoringFullPrint,
     doExtraPrintouts,
@@ -317,6 +382,9 @@ def _decode_pmon_opts(opts):
         'sdmon':      pmf.doSemiDetailedMonitoring,
         'sdmonfp':    pmf.doSemiDetailedMonitoringFullPrint,
         'fullmon':    pmf.doFullMon,
+        'perfmonmt':  pmf.doMonitoringMT,
+        'fastmonmt':  pmf.doFastMonMT,
+        'fullmonmt':  pmf.doFullMonMT,
         'malloc-mon': pmf.doMallocMonitoring,
         'extraprint': pmf.doExtraPrintouts,
         'heph-mon':   pmf.doHephaestusMon,

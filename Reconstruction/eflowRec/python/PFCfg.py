@@ -65,7 +65,6 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
 
-    PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_015 = getPFTrackClusterMatchingTool(inputFlags,0.15,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_015")
     PFCellLevelSubtractionTool.PFTrackClusterMatchingTool_02 = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingTool_Pull_02")            
     
     return PFCellLevelSubtractionTool
@@ -80,8 +79,6 @@ def getPFRecoverSplitShowersTool(inputFlags,toolName):
     PFRecoverSplitShowersTool.RecoverIsolatedTracks = inputFlags.PF.recoverIsolatedTracks
 
     PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = inputFlags.PF.useUpdated2015ChargedShowerSubtraction
-
-    PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","MatchingToolRecover")
 
     return PFRecoverSplitShowersTool
 

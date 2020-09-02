@@ -112,7 +112,12 @@ def tauMonitoringConfig(inputFlags):
 
     def namer(variables,histogramName, folder, algorithm):
         if folder != "":
-            return variables+";"+naming[algorithm]+folder+"_"+histogramName
+            #This wouldn't have been necessary except the calo folder in the naming convention:
+            #This adds the Tau prefix to the histograms in the calo folder
+            if postfix == "Global" and (folder =="Calo" or folder=="Track"):
+                return variables+";"+"Tau_"+naming[algorithm]+folder+"_"+histogramName
+            else:
+                return variables+";"+naming[algorithm]+folder+"_"+histogramName
         else:
             return variables+";"+naming[algorithm]+folder+histogramName
 
@@ -140,11 +145,8 @@ def tauMonitoringConfig(inputFlags):
 
         if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix == "Global" or postfix=="TauTrig" or postfix=="EleTrig" or postfix =="JetTrig"):
 
-            igroup.defineHistogram(namer('lumiPerBCID', 'lumiPerBCID',"",postfix), title='Luminosity per Bunch Crossing ID; Luminosity', 
-                                   xbins=200, xmin=0., xmax=200.,path=folder)
-
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
-                                   xbins=40, xmin=0., xmax=40.,path=folder)
+                                   xbins=30, xmin=-0.5, xmax=30.5,path=folder)
 
 
             igroup.defineHistogram(namer('tauCharge','tauCharge','',postfix), title='Charge of tau candidates;Charge;Number of Candidates',
@@ -171,45 +173,31 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('LB,tauPhi','tauPhiVsLB','',postfix), type='TH2F', title='Tau Phi vs Lumiblock;Lumiblock;Phi', 
                                    xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=PHIMIN,ymax=PHIMAX,path=folder)
 
-        
         if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig"):
-            igroup.defineHistogram(namer('centFrac',"CentFrac","Identification_tauJetBDTinputs",postfix), title='Centrality Fraction;Centrality Fraction;Number Of Candidates',
-                xbins=70, xmin=0., xmax=1.4, path=folder+"Identification/tauJetBDTinputs")
 
-            igroup.defineHistogram(namer('dRmax',"dRmax","Identification_tauJetBDTinputs",postfix), title='Maximum delta R;delta R;Number of Candidates',
-                xbins=42, xmin=0., xmax=0.21, path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('tauPhiBDTLoose','phi','Identification_BDTLoose',postfix), title='Phi of tau candidates ( BDTLoose) ;Phi;Number of Candidates',
+                xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/BDTLoose" )
 
+            igroup.defineHistogram(namer('tauEtaBDTLoose','eta','Identification_BDTLoose',postfix), title='Eta of tau candidates ( BDTLoose) ;Eta;Number of Candidates',
+                xbins=51, xmin=-2.55, xmax=2.55, path=folder+"Identification/BDTLoose")
 
-            igroup.defineHistogram(namer('EMPOverTrkSysP','EMPOverTrkSysP','Identification_tauJetBDTinputs',postfix), title='Momenta EM over tracks;;',
-                xbins=50, xmin=0., xmax=10., path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('tauEtBDTLoose','et','Identification_BDTLoose',postfix), title='Et of tau candidates;Transverse Energy (GeV);Number of Candidates',
+                xbins=60, xmin=0., xmax=300.,path=folder+"Identification/BDTLoose")
 
-            igroup.defineHistogram(namer('SumPtTrkFracCorrected','SumPtTrkFracCorrected','Identification_tauJetBDTinputs',postfix), title='Track PtSum Fraction;;',
-                xbins=10, xmin=0., xmax=1, path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('NumTracksBDTLoose','NumTracks','Identification_BDTLoose',postfix), title='Number Of Tracks for Tau Candidates (BDTLoose);Number Of Tracks;Number Of Candidates',
+                xbins=21, xmin=-0.5, xmax=20.5,path=folder+"Identification/BDTLoose")
 
-            igroup.defineHistogram(namer('mEflowApprox','mEflowApprox','Identification_tauJetBDTinputs',postfix), title='Approx Energy Flow;;',
-                xbins=50, xmin=0., xmax=20, path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('tauPhiBDTMedium','phi','Identification_BDTMedium',postfix), title='Phi of tau candidates ( BDTMedium) ;Phi;Number of Candidates',
+                xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/BDTMedium" )
 
-            igroup.defineHistogram(namer('ptIntermediateAxis','ptIntermediateAxis','Identification_tauJetBDTinputs',postfix), title='Pt of tau candidates in IntermediateAxis;;',
-                xbins=60, xmin=0, xmax=150, path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('tauEtaBDTMedium','eta','Identification_BDTMedium',postfix), title='Eta of tau candidates ( BDTMedium) ;Eta;Number of Candidates',
+                xbins=51, xmin=-2.55, xmax=2.55, path=folder+"Identification/BDTMedium")
 
-            igroup.defineHistogram(namer('absipSigLeadTrk','absipSigLeadTrk','Identification_tauJetBDTinputs',postfix), title='Impact Parameter Significance of Leading Track;Transverse Impact Parameter Significance',
-                xbins=50, xmin=0., xmax=5., path=folder+"Identification/tauJetBDTinputs" )
+            igroup.defineHistogram(namer('tauEtBDTMedium','et','Identification_BDTMedium',postfix), title='Et of tau candidates;Transverse Energy (GeV);Number of Candidates',
+                xbins=60, xmin=0., xmax=300.,path=folder+"Identification/BDTMedium")
 
-            igroup.defineHistogram(namer('etOverPtLeadTrk','etOverPtLeadTrk','Identification_tauJetBDTinputs',postfix), title='Et over Pt of lead track of tau candidates;Et/Pt;Number of Candidates',
-                xbins=50, xmin=0., xmax=12., path=folder+"Identification/tauJetBDTinputs" )
-
-            igroup.defineHistogram(namer('massTrkSys','massTrkSys','Identification_tauJetBDTinputs',postfix), title='Mass of the Track System;Invariant Mass (GeV)',
-                xbins=30, xmin=-1., xmax=5., path=folder+"Identification/tauJetBDTinputs" )
-
-            igroup.defineHistogram(namer('ptRatioEflowApprox','ptRatioEflowApprox','Identification_tauJetBDTinputs',postfix), title='Ratio of pt to shot total energy for associated tracks; track pt ratio',
-                xbins=20, xmin=0., xmax=2., path=folder+"Identification/tauJetBDTinputs" )
-
-            igroup.defineHistogram(namer('trFlightPathSig','trFlightPathSig','Identification_tauJetBDTinputs',postfix),title='Track Transverse Flight Path Significance;Transverse Flight Path Significance',
-                xbins=125, xmin=-4.5, xmax=8., path=folder+"Identification/tauJetBDTinputs" )
-
-            igroup.defineHistogram(namer('trkAvgDist','trkAvgDist','Identification_tauJetBDTinputs',postfix), title='Average Track Distance from Calorimeter Seed;Distance (mm);Number of Candidates',
-                xbins=20, xmin=0., xmax=1., path=folder+"Identification/tauJetBDTinputs" )
-
+            igroup.defineHistogram(namer('NumTracksBDTMedium','NumTracks','Identification_BDTMedium',postfix), title='Number Of Tracks for Tau Candidates (BDTMedium);Number Of Tracks;Number Of Candidates',
+                xbins=21, xmin=-0.5, xmax=20.5,path=folder+"Identification/BDTMedium")
             igroup.defineHistogram(namer('tauPhiEt15BDTLoose','phi','Identification_BDTLoose15GeV',postfix), title='Phi of tau candidates (Et>15, BDTLoose) ;Phi;Number of Candidates',
                 xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/BDTLoose15GeV" )
 
@@ -279,6 +267,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('BDTJetScoreSigTrans','BDTJetScoreSigTrans','Identification',postfix), title='Flattened signal Transformed BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=48, xmin=0, xmax=1.1 )
 
+
             igroup.defineHistogram(namer('eleBDTMedium','eleBDTMedium','Identification',postfix), title='Medium EleBDT',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
@@ -297,17 +286,6 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('tauBDTTight','tauBDTTight','Identification',postfix), title='Identification Flag: tauBDTTight',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
-            igroup.defineHistogram(namer('etHotShotWinOverPtLeadTrk','etHotShotWinOverPtLeadTrk','Identification_EleVetoBDTinputs',postfix), title='etHotShotWinOverPtLeadTrk',path=folder+"Identification/EleVetoBDTinputs",
-            xbins=20, xmin=0, xmax=12 )
-
-            igroup.defineHistogram(namer('hadLeakFracFixed','hadLeakFracFixed','Identification_EleVetoBDTinputs',postfix), title='hadLeakFracFixed',path=folder+"Identification/EleVetoBDTinputs",
-            xbins=20, xmin=0, xmax=2. )
-
-            igroup.defineHistogram(namer('PSSFrac','PSSFrac','Identification_EleVetoBDTinputs',postfix), title='Energy fraction for PreSampling and sampling layers in effective clusters in shot;Sampling Energy Fraction',path=folder+"Identification/EleVetoBDTinputs",
-            xbins=10, xmin=0, xmax=1. )
-            
-            igroup.defineHistogram(namer('EMFrac','EMFrac','Identification_EleVetoBDTinputs',postfix), title='EMFracFixed',path=folder+"Identification/EleVetoBDTinputs",
-            xbins=20, xmin=0., xmax=2. )
 
             #Substructure Histograms
             igroup.defineHistogram(namer('panModeSubstructure','panMode','SubStructure',postfix), title='tau decay mode from PanTau upon JetBDTSigMedium;mode',
@@ -346,31 +324,67 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('pt3','shots_pt3','SubStructure',postfix), title='weighted cell pt in 3x3 window in shots; pt3 (GeV) ',path=folder+"SubStructure",
             xbins=24, xmin=0, xmax=12 )
 
+            igroup.defineHistogram(namer('PSSFrac','PSSFracEffCluster','SubStructure',postfix), title='Energy fraction for PreSampling and sampling layers in effective clusters in shot;Sampling Energy Fraction',path=folder+"SubStructure",
+            xbins=10, xmin=0, xmax=1. )
+
+            igroup.defineHistogram(namer('ptRatioEflowApprox','ptRatioApprox','SubStructure',postfix), title='Ratio of pt to shot total energy for associated tracks; track pt ratio',
+                xbins=20, xmin=0., xmax=2., path=folder+"SubStructure" )
+
+
+
+
+
+        
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
+            #Calo Histograms
+            igroup.defineHistogram(namer('EMRadius','EMRadius','Calo',postfix), title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=1.2 )
+
+            igroup.defineHistogram(namer('hadRadius','hadRadius','Calo',postfix), title='Hadronic Radius of tau candidates;Hadronic Radius; Number Of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=1. )
+
+            igroup.defineHistogram(namer('stripWidth2','stripWidth2','Calo',postfix), title='Strip Width of tau candidates;Strip Width;Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=-0.1, xmax=0.12 )
+
+            igroup.defineHistogram(namer('isolFrac','isolFrac','Calo',postfix), title='Isolation Fraction;Et Isolation Fraction;Number of Candidates',path=folder+"Calo",
+            xbins=51, xmin=0.0, xmax=1.02 )
+
+            igroup.defineHistogram(namer('nStrip','nStrip','Calo',postfix), title='Number of strip cells of tau candidates;Number of Strip Cells;Number of Candidates',path=folder+"Calo",
+            xbins=56, xmin=-0.5, xmax=55.5 )
+
+            igroup.defineHistogram(namer('etEMAtEMScale','etEMAtEMScale','Calo',postfix), title='EM energy at the EM scale;EM Et (GeV) );Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=200. )
+
+            igroup.defineHistogram(namer('etHadAtEMScale','etHadAtEMScale','Calo',postfix), title='Hadronic Energy at the EM Scale;Had Et (GeV) );Number of Candidates',path=folder+"Calo",
+            xbins=50, xmin=0., xmax=200. )
+            
+            igroup.defineHistogram(namer('centFrac,LB','centFracVsLB','Calo',postfix), type='TH2F', title='Centrality Fraction vs Lumiblock;Centrality Fraction;Lumiblock', path=folder+"Calo", 
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
+
+            igroup.defineHistogram(namer('isolFrac,LB','isolFracVsLB','Calo',postfix), type='TH2F', title='Isolation Fraction vs Lumiblock;Isolation Fraction;Lumiblock', path=folder+"Calo", 
+            xbins=51,xmin=0,xmax=1.02,ybins=1200,ymin=0.,ymax=1200.)
+
+            igroup.defineHistogram(namer('centFrac',"centralityFraction","Calo",postfix), title='Centrality Fraction;Centrality Fraction;Number Of Candidates',
+                xbins=70, xmin=0., xmax=1.4, path=folder+"Calo")
+
+            igroup.defineHistogram(namer('dRmax',"dRmax","Calo",postfix), title='Maximum delta R;delta R;Number of Candidates',
+                xbins=42, xmin=0., xmax=0.21, path=folder+"Calo" )
+
+            igroup.defineHistogram(namer('tauEta','eta','Calo',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
+                xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Calo")
+
+            igroup.defineHistogram(namer('tauPhi','phi','Calo',postfix), title='Phi of tau candidates;Phi;Number of Candidates',
+                                   xbins=65, xmin=PHIMIN, xmax=PHIMAX,path=folder+"Calo")
+
+            igroup.defineHistogram(namer('trkAvgDist','trkAvgDist','Calo',postfix), title='Average Track Distance from Calorimeter Seed;Distance (mm);Number of Candidates',
+                xbins=20, xmin=0., xmax=1., path=folder+"Calo" )
+
             #Track Histograms!
             igroup.defineHistogram(namer('d0','d0','Track',postfix), title='Track d0;Transverse Impact Parameter (mm)',path=folder+"Track",
             xbins=50, xmin=-5.0, xmax=5.0 )
 
-            igroup.defineHistogram(namer('eProbabilityHT','eProbabilityHT','Track',postfix), title='Probability of High Threshold ;Probability of TRT High Threshold',path=folder+"Track",
-            xbins=12, xmin=-0.1, xmax=1.1 )
-
-            igroup.defineHistogram(namer('leadTrackDeltaEta','leadTrackDeltaEta','Track',postfix), title='Leading Track Delta Eta; Leading track Delta Eta from jetSeed, EleVeto BDT input',path=folder+"Track",
-            xbins=30, xmin=-1.5, xmax=1.5 )
-
-            igroup.defineHistogram(namer('leadTrackDeltaPhi','leadTrackDeltaPhi','Track',postfix), title='Leading Track Delta Phi; Leading track Delta Phi from jetSeed, EleVeto BDT input',path=folder+"Track",
-            xbins=30, xmin=-1.5, xmax=1.5 )
-
-            igroup.defineHistogram(namer('dRJetSeedAxis','dRJetSeedAxis','Track',postfix), title='DeltaR from Track to JetSeedAxis; dR ',path=folder+"Track",
-            xbins=30, xmin=0.0, xmax=1.5 )
-
-            igroup.defineHistogram(namer('z0TJVA','z0TJVA','Track',postfix), title='z0 respected to Tau vertex , Z0SinTheta (mm)',path=folder+"Track",
-            xbins=50, xmin=-35.0, xmax=35.0 )
-
             igroup.defineHistogram(namer('z0PriVtx','z0PriVtx','Track',postfix), title=' z0 respected to primary vertex ; Z0 SinTheta (mm)',path=folder+"Track",
             xbins=50, xmin=-35.0, xmax=35.0 )
-
-            igroup.defineHistogram(namer('LB2,z0PriVtx','z0VsLB','Calo',postfix), type='TH2F', title='Track z0 vs Lumiblock;Longitudinal Impact Parameter (mm) );Lumiblock', path=folder+"Track", 
-            xbins=1200,xmin=0,xmax=1200,ybins=50,ymin=-35.,ymax=35)
-
 
             igroup.defineHistogram(namer('etaTrack','eta','Track',postfix), title='Track Eta;Eta',path=folder+"Track",
             xbins=51, xmin=-2.55, xmax=2.55 )
@@ -381,7 +395,6 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('nHighPtTaus','nHighPtTaus','Track',postfix), title='Number of High Pt tau candidates;Number of Taus per Event', 
                     xbins=15, xmin=-0.5, xmax=14.5,path=folder+"Track")
 
-            
             igroup.defineHistogram(namer('numberOfTRTHighThresholdHits','numberOfTRTHighThresholdHits','Track',postfix), title='Number of TRT High Threshold Hits;Number of High Threshold TRT Hits',path=folder+"Track",
             xbins=15, xmin=-0.5, xmax=14.5 )
 
@@ -400,12 +413,6 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('phiTrack','phi','Track',postfix), title='Track Phi;Phi',path=folder+"Track",
             xbins=64, xmin=PHIMIN, xmax=PHIMAX )
 
-            igroup.defineHistogram(namer('rConv','rConv','Track',postfix), title='rConv;rConv',path=folder+"Track",
-            xbins=40, xmin=0, xmax=80 )
-
-            igroup.defineHistogram(namer('rConvII','rConvII','Track',postfix), title='rConvII;rConvII',path=folder+"Track",
-            xbins=40, xmin=0, xmax=80 )
-
             igroup.defineHistogram(namer('trkWidth2','trkWidth2','Track',postfix), title='Weighted Track Width;Momentum-Weighted Width of Track System',path=folder+"Track",
             xbins=50, xmin=0.0, xmax=0.1 )
 
@@ -413,38 +420,34 @@ def tauMonitoringConfig(inputFlags):
             xbins=50, xmin=-10.0, xmax=10.0 )
 
             igroup.defineHistogram(namer('numberOfPixelHits','numberOfPixelHits','Track',postfix), title='Number of Pixel Hits;Number of Pixel Hits',path=folder+"Track",
-            xbins=33, xmin=-0.5, xmax=15.5 )
-
-            igroup.defineHistogram(namer('numberOfInnermostPixelLayerHits','numberOfInnermostPixelLayerHits','Track',postfix), title='Number of Innermost Pixel layer Hits;Number of Innermost Pixel layer Hits',path=folder+"Track",
-            xbins=11, xmin=-0.5, xmax=10.5 )
-
-            igroup.defineHistogram(namer('numberOfPixelSharedHits','numberOfPixelSharedHits','Track',postfix), title='Number of Pixel shared Hits;Number of Pixel shared Hits',path=folder+"Track",
-            xbins=11, xmin=-0.5, xmax=10.5 )
+            xbins=25, xmin=-0.5, xmax=25.5 )
 
             igroup.defineHistogram(namer('numberOfSCTHits','numberOfSCTHits','Track',postfix), title='Number of SCT Hits;Number of SCT Hits',path=folder+"Track",
             xbins=26, xmin=0, xmax=26 )
 
-            igroup.defineHistogram(namer('numberOfSCTSharedHits','numberOfSCTSharedHits','Track',postfix), title='Number of SCT shared Hits;Number of SCT shared Hits',path=folder+"Track",
-            xbins=21, xmin=-0.5, xmax=20.5 )
+            igroup.defineHistogram(namer('etOverPtLeadTrack','etOverPtLeadTrack','Track',postfix), title='Et over Pt of lead track of tau candidates;Et/Pt;Number of Candidates',
+            xbins=50, xmin=0., xmax=12., path=folder+"Track" )
 
+            igroup.defineHistogram(namer('ipSigLeadTrk','ipSigLeadTrk','Track',postfix), title='Impact Parameter Significance of Leading Track;Transverse Impact Parameter Significance',
+            xbins=100, xmin=-5., xmax=5., path=folder+"Track" )
+
+            igroup.defineHistogram(namer('massTrkSys','massTrkSys','Track',postfix), title='Mass of the Track System;Invariant Mass (GeV)',
+                xbins=30, xmin=-1., xmax=5., path=folder+"Track" )
+
+            igroup.defineHistogram(namer('trFlightPathSig','trFlightPathSig','Track',postfix),title='Track Transverse Flight Path Significance;Transverse Flight Path Significance',
+                xbins=125, xmin=-4.5, xmax=8., path=folder+"Track" )
+
+            igroup.defineHistogram(namer('z0','z0','Track',postfix), title='Track z0;Longitudinal Impact Parameter (mm)',path=folder+"Track",
+            xbins=50, xmin=-35.0, xmax=35.0 )
 
         if postfix == 'Global' or postfix == "TauTrig" or postfix == "EleTrig" or postfix=="JetTrig":
-            igroup.defineHistogram(namer('PtCombined','Ptcombined','',postfix), title='combined pT of tau candidates);Transverse Energy (GeV) );Number of Candidates', 
-                    xbins=60, xmin=0., xmax=300. ,path=folder)
-
-            igroup.defineHistogram(namer('PtTESMVA','PtTESMVA','',postfix), title='TES pT (MVA) of tau candidates);Transverse Energy (GeV) );Number of Candidates', 
-                    xbins=60, xmin=0., xmax=300. ,path=folder)
-
-            igroup.defineHistogram(namer('LB,coreTrk','NumCoreTrkVsLB','',postfix), type='TH2F', title='Tau Core tracks vs Lumiblock); LumiBlock ; NumCoreTrk', 
-                                   xbins=1200,xmin=0,xmax=1200,ybins=400,ymin=0,ymax=40,path=folder)
-
             igroup.defineHistogram(namer('LB','nTauPerLB','',postfix), title='Total number of tau candidates per LB);Luminosity Block);Number of Candidates', 
                     xbins=1000, xmin=0., xmax=1000. ,path=folder)
 
             igroup.defineHistogram(namer('nHighPtTauCandidates','nHightPtTauCandidates','',postfix), title='Number of High Pt tau candidates;Number of Taus per Event', 
                     xbins=15, xmin=-0.5, xmax=14.5,path=folder)
 
-            igroup.defineHistogram(namer('NumTracks','NumTracks','',postfix), title='Number Of Tracks for Tau Candidates;Number Of Tracks;Number Of Candidates',
+            igroup.defineHistogram(namer('NumTracks','tauNumTracks','',postfix), title='Number Of Tracks for Tau Candidates;Number Of Tracks;Number Of Candidates',
                       xbins=21, xmin=-0.5, xmax=20.5,path=folder)
 
             igroup.defineHistogram(namer('nClusters','nCluster','',postfix), title='Number Of CaloTopoClusters;Number Of Clusters;Number Of Candidates',
@@ -456,24 +459,33 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('tauPhi,tauEt','tauEtVsPhi','',postfix), type='TH2F', title='EtVsPhi;Phi;Transverse Energy (GeV);',
                       xbins=80,xmin=PHIMIN,xmax=PHIMAX,ybins=300,ymin=-0.,ymax=300.,path=folder)
 
-            igroup.defineHistogram(namer('LB,tauEt','tauEtVsLB','',postfix), type='TH2F', title='Tau Et Vs Lumiblock ;Lumiblock;Transverse Energy (GeV)', 
-                                   xbins=1200,xmin=0,xmax=1200,ybins=300,ymin=0.,ymax=300.,path=folder)
+            if postfix == 'Global':
+                #Physics Histograms - I suspect these should be doing some kind of selection, not obvious in the old code.
+                igroup.defineHistogram(namer('tauEta','tau_eta','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
+                                       xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+                igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                          xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/Z")
+
+                
+                #will use different variable when not a placeholder
+                igroup.defineHistogram(namer('tauEta','lepton_pTVsEta','',postfix), title='Placeholder for empty histogram;Eta;Number of Candidates',
+                                       xbins=51, xmin=-2.55, xmax=2.55,path=folder+"Physics/Z")
+
+
+                igroup.defineHistogram(namer('tauEta,tauEt','tau_pTVsEta','',postfix), type='TH2F', title='Tau Et Vs Eta;#eta;Transverse Energy (Gev)',
+                          xbins=40,xmin=-2.55,xmax=2.55 ,ybins=300,ymin=0,ymax=300,path=folder+"Physics/W")
 
         if postfix == 'HighPt':
-
-            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEtaEt15','',postfix), type='TH2F', title='EtaVsEtTitle;Eta;Phi', 
+            igroup.defineHistogram(namer('tauEtaEt15,tauPhiEt15','tauPhiVsEta_et15','',postfix), type='TH2F', title='EtaVsEtTitle;Eta;Phi', 
                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
         if postfix == 'HighPtBDTLoose':
 
-            igroup.defineHistogram(namer('LB,tauPhiEt15BDTLoose','tauPhiVsLBet15BDTLoose','',postfix), type='TH2F', title='Tau Eta Vs Lumiblock (Et>15, BDTLoose) ;Lumiblock;Phi', 
-                xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=PHIMIN,ymax=PHIMAX)
-
-            igroup.defineHistogram(namer('tauEtaEt15BDTLoose,tauPhiEt15BDTLoose','tauPhiVsEtaEt15BDTLoose','',postfix), type='TH2F', title='Phi vs Eta (Et>15, BDTLoose) ;Eta;Phi', 
+            igroup.defineHistogram(namer('tauEtaEt15BDTLoose,tauPhiEt15BDTLoose','tauPhiVsEta_et15_BDTLoose','',postfix), type='TH2F', title='Phi vs Eta (Et>15, BDTLoose) ;Eta;Phi', 
                xbins=30,xmin=-2.55,xmax=2.55,ybins=32,ymin=PHIMIN,ymax=PHIMAX)
 
-            igroup.defineHistogram(namer('LB,tauEtaEt15BDTLoose','tauEtaVsLBet15BDTLoose','',postfix), type='TH2F', title='Tau Eta VsLumiblock (Et>15, BDTLoose) ;Lumiblock;Eta', 
-                xbins=1200,xmin=0,xmax=1200,ybins=51,ymin=-2.55,ymax=2.55)
+
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -512,9 +524,9 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     exampleMonitorAcc = tauMonitoringConfig(ConfigFlags)   # calls the main function above

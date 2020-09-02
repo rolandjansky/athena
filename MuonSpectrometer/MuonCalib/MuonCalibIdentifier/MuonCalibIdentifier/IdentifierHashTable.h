@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef MUONCALIBIDENTIFIER_IDENTIFIERHASHTABLE_H
+#define MUONCALIBIDENTIFIER_IDENTIFIERHASHTABLE_H
 
 /***************************************************************************
  * Identifier utility
@@ -11,15 +14,13 @@
  * Last Update  : 07 May 2004
  ***************************************************************************/
 
-#ifndef MUONCALIBIDENTIFIER_IDENTIFIERHASHTABLE_H
-# define MUONCALIBIDENTIFIER_IDENTIFIERHASHTABLE_H
-// std
+#include "MuonCalibIdentifier/IdentifierToHash.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 #include <sstream>
 #include <limits.h>
-// other packages
-// this package
-#include "MuonCalibIdentifier/IdentifierToHash.h"
 
 /** @class IdentifierHashTable<T>
  * it uses a multi-dimensional array and identifier fields for fast access of
@@ -88,27 +89,28 @@ template <class T>
 typename IdentifierHashTable<T>::HashType
 IdentifierHashTable<T>::addEntry( const typename IdentifierHashTable<T>::IdType& id ) {
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-   std::cout << "IdentifierHashTable<T>::addEntry(0x" << std::hex << id << std::dec << ")";
+   MsgStream log(Athena::getMessageSvc(),"IdentifierHashTable");
+   log<<MSG::DEBUG<<"IdentifierHashTable<T>::addEntry(0x" << std::hex << id << std::dec << ")"<<endmsg;
 #endif
    if ( !T::isValid( id ) ) {
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-      std::cout << ": id is invalid. Nothing added." << std::endl;    
+   log<<MSG::DEBUG<<": id is invalid. Nothing added."<<endmsg;
 #endif
       return defaultHashValue();
    }
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-   std::cout << "::IdToHashTable";
+   log<<MSG::DEBUG<<"::IdToHashTable"<<endmsg;
 #endif
    HashType theHash( m_hashToId.size() );
    if ( !m_idToHash.addEntry( id, theHash ) ) {
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-      std::cout << " WARNING: could not add to table" << std::endl;
+   log<<MSG::DEBUG<<" WARNING: could not add to table"<<endmsg;
 #endif
       return defaultHashValue();
    } else {
       m_hashToId.push_back( id );
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-      std::cout << " ADDED at hash=" << theHash << std::endl;
+   log<<MSG::DEBUG<<" ADDED at hash=" << theHash<<endmsg;
 #endif
    }
    
@@ -145,16 +147,19 @@ bool IdentifierHashTable<T>::checkValidity() const {
    // check that both tables are same size
    unsigned int idToHashSize = m_idToHash.size();
    if ( idToHashSize != m_hashToId.size() ) {
-      std::cout << "IdentifierHashTable<T>::checkValidity() ERROR: idToHash size ("
-		<< idToHashSize << ") not equal to hashToId size ("
-		<< m_hashToId.size() << ")" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"IdentifierHashTable");
+      log<<MSG::WARNING<<"IdentifierHashTable<T>::checkValidity() idToHash size (" << idToHashSize << ") not equal to hashToId size (" << m_hashToId.size() << ")"<<endmsg;
       return false;
    }
    // check that table is non-empty
    if ( !m_hashToId.size() ) {
-      std::cout << "IdentifierHashTable<T>::checkValidity() WARNING: Table is empty." << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"IdentifierHashTable");
+      log<<MSG::WARNING<<"IdentifierHashTable<T>::checkValidity() Table is empty."<<endmsg;
       return false;
    }
+#ifdef IDENTIFIERHASHTABLE_DEBUG
+   MsgStream log(Athena::getMessageSvc(),"IdentifierHashTable");
+#endif
    // check that tables are each other's inverse
    unsigned int nErrors = 0;
    for ( unsigned int i = 0; i < m_hashToId.size(); ++i ) {
@@ -162,24 +167,22 @@ bool IdentifierHashTable<T>::checkValidity() const {
       IdType id = getIdentifier( tryHash );
       HashType gotHash = getHash( id );
       if ( gotHash != tryHash ) {
-	 std::cout << "IdentifierHashTable<T>::checkValidity() ERROR: getIdentifier("
-		   << tryHash << ")=0x" << std::hex << id << std::dec
-		   << " whereas getHash(" << std::hex << id << std::dec << ")=" << gotHash
-		   << std::endl;
+#ifndef IDENTIFIERHASHTABLE_DEBUG
+         MsgStream log(Athena::getMessageSvc(),"IdentifierHashTable");
+#endif
+         log<<MSG::WARNING<<"IdentifierHashTable<T>::checkValidity() getIdentifier(" << tryHash << ")=0x" << std::hex << id << std::dec << " whereas getHash(" << std::hex << id << std::dec << ")=" << gotHash<<endmsg;
 	 ++nErrors;
       } else {
 #ifdef IDENTIFIERHASHTABLE_DEBUG
-	 std::cout << "hash=" << i
-		   << " <--> id=0x" << std::hex << id << std::dec << ": OK" << std::endl;
+      log<<MSG::DEBUG<<"hash=" << i << " <--> id=0x" << std::hex << id << std::dec << ": OK" <<endmsg;
 #endif
       }
    }
 #ifdef IDENTIFIERHASHTABLE_DEBUG
    if ( nErrors ) {
-      std::cout << "IdentifierHashTable<T>::checkValidity() ERROR: table contains "
-		<< nErrors << " errors." << std::endl;
+      log<<MSG::WARNING<<"IdentifierHashTable<T>::checkValidity() table contains " << nErrors << " errors." << endmsg;
    } else {
-      std::cout << "IdentifierHashTable<T>::checkValidity(): table OK" << std::endl;
+      log<<MSG::DEBUG<<"IdentifierHashTable<T>::checkValidity(): table OK" << endmsg;
    }
 #endif
    

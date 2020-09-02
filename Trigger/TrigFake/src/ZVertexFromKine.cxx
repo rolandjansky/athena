@@ -18,14 +18,14 @@ Modified :
                                
 ********************************************************************/                               
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetEvent/TrigVertex.h"
 
-#include "TrigFake/ZVertexFromKine.h"                               
+#include "ZVertexFromKine.h"                               
 
 
 

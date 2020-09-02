@@ -26,4 +26,4 @@ def ELG_jediState(sample) :
         print ("Problem checking status of task %s with id %s" % (sample.name(), jediTaskID))
         return ''
 
-    return ret[1]['status']
+    return ret[1]['status'].encode("ascii")

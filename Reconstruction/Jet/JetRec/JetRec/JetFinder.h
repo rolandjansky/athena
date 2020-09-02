@@ -20,6 +20,8 @@
 #include "AsgTools/ToolHandle.h"
 #include "JetRec/PseudoJetContainer.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 
 namespace fastjet {
   class ClusterSequence;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HISubtractedCellMakerTool.h"
@@ -10,6 +10,9 @@
 #include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HICaloRange.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 #include <algorithm>
 
 //**********************************************************************
@@ -17,14 +20,13 @@
 HISubtractedCellMakerTool::HISubtractedCellMakerTool(const std::string& type, const std::string& name, const IInterface* parent)  : AthAlgTool(type, name, parent)
 {
   declareInterface<ICaloCellMakerTool>(this);
-  declareProperty("EventShapeKey",m_event_shape_key);
-  declareProperty("Modulator",m_modulator_tool);
 }
 
 //**********************************************************************
 
 StatusCode HISubtractedCellMakerTool::initialize()
 {
+  ATH_CHECK( m_eventShapeKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -33,30 +35,28 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
 {
   if (ctx.slot() > 1) {
     ATH_MSG_ERROR("This tool hasn't been converted for MT.");
-    return StatusCode::FAILURE;    
+    return StatusCode::FAILURE;
   }
 
   const xAOD::HIEventShapeContainer* shape=0;
-  CHECK(evtStore()->retrieve(shape,m_event_shape_key));
-  const HIEventShapeIndex* index=HIEventShapeMap::getIndex(m_event_shape_key);
-  if(index==nullptr) 
+
+  SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey , ctx);
+  shape = readHandleEvtShape.cptr();
+
+  const HIEventShapeIndex* index=m_eventShapeMapTool->getIndexFromShape( shape );
+  if(index==nullptr)
   {
-    ATH_MSG_ERROR("Could not retrieve HIEventShapeIndex for key " << m_event_shape_key);
-    return StatusCode::FAILURE;    
+    ATH_MSG_ERROR("Could not retrieve HIEventShapeIndex for key " << m_eventShapeKey.key());
+    return StatusCode::FAILURE;
   }
 
   if(shape->size()==0)
   {
-    ATH_MSG_WARNING("HIEventShapeContainer " << m_event_shape_key << " exists but has zero size");
+    ATH_MSG_WARNING("HIEventShapeContainer " << m_eventShapeKey.key() << " exists but has zero size");
     return StatusCode::SUCCESS;
   }
 
-  // FIXME: m_modulator_tool->retrieveShape() is non-const.
-  // It should be made const in order to be able to safely call it from here.
-  // However, this method already needs updating to work in MT (and is checked
-  // above), so just use a const_cast for now to allow this to compile
-  // when ToolHandle restrictions are enabled.
-  IHIUEModulatorTool* modtool_nc = const_cast<IHIUEModulatorTool*> (m_modulator_tool.get());
+  auto modtool_nc = m_modulatorTool.get();
   CHECK(modtool_nc->retrieveShape());
 
   for(auto pCell : *theCells)
@@ -70,25 +70,18 @@ StatusCode HISubtractedCellMakerTool::process (CaloCellContainer* theCells,
     {
       if( std::abs(eta) - HICaloRange::getRange().getRangeMax(sample) )
       {
-	double fp_round=(eta > 0.) ? -5e-3 : 5e-3;
-	bin=index->getIndex(eta+fp_round,sample);
+      	double fp_round=(eta > 0.) ? -5e-3 : 5e-3;
+      	bin=index->getIndex(eta+fp_round,sample);
       }
     }
 
-    // if( bin >= shape->size() ) 
-    // {
-    //   ATH_MSG_ERROR("Requested bin for cell " << bin << " is out of range " shape->size());
-    //   return StatusCode::ERROR;
-    // }
-
-    const xAOD::HIEventShape* s=shape->at(bin);    
+    const xAOD::HIEventShape* s=shape->at(bin);
     float nCells=s->nCells();
     float rho=0;
     if(nCells!=0.) rho=s->rho()/nCells;
-    rho*=m_modulator_tool->getModulation(phi);
-    float ue=rho*HICaloCellHelper::GetAreaEtaPhi(pCell)*std::cosh(eta);
+    rho*=m_modulatorTool->getModulation(phi);
+    float ue=rho*HICaloCellHelper::getAreaEtaPhi(pCell)*std::cosh(eta);
     pCell->setEnergy(pCell->energy()-ue);
   }
   return StatusCode::SUCCESS;
 }
-

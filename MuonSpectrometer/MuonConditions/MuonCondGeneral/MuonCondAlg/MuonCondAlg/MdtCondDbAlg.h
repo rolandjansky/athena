@@ -44,8 +44,7 @@ private:
     StatusCode loadDataPsLv           (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
     StatusCode loadDataHv             (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
     StatusCode loadDataLv             (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadDataDroppedChambers(writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
-    StatusCode loadMcDroppedChambers  (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
+    StatusCode loadDroppedChambers    (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx, bool isMC) const;
     StatusCode loadMcDeadElements     (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
     StatusCode loadMcDeadTubes        (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;
     StatusCode loadMcNoisyChannels    (writeHandle_t& wh, MdtCondDbData* dataOut, const EventContext& ctx) const;

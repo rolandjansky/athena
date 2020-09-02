@@ -36,7 +36,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/CONDBR2'
@@ -81,12 +81,12 @@ if schema=='COOLONL_TILE/COMP200':
     if '/TILE/ONL01' not in folderPath and '/TILE/OFL01' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
         sys.exit(2)
-        
+
 if schema=='COOLONL_TILE/CONDBR2':
     if '/TILE/ONL01' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
         sys.exit(2)
-        
+
 if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
     if '/TILE/OFL02' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
@@ -128,4 +128,3 @@ print (msg)
 
 #=== close DB
 db.closeDatabase()
-

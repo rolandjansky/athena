@@ -1,34 +1,29 @@
-Sun Jul  8 10:45:18 EDT 2018
-WARNING: TCMALLOCDIR not defined, will use libc malloc
+Fri Jun 19 15:20:48 CEST 2020
+Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.15] [x86_64-centos7-gcc8-opt] [master/b9ffea6f446] -- built on [2020-06-18T1816]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaServices/AthTPCnvSvc_test.py"
-Py:ConfigurableDb    INFO Read module info for 502 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5534 configurables from 58 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sun Jul  8 10:45:20 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on aibuild20-040.cern.ch on Fri Jun 19 15:21:02 2020
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2826 CLIDRegistry entries for module ALL
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
+ClassIDSvc           INFO  getRegistryEntries: read 3361 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1136 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1276 CLIDRegistry entries for module ALL
 AthTPCnvSvc       WARNING Could not load converter for transient class [AthenaServicesTestConverters::TBTRIG]
 AthTPCnvSvc       WARNING Could not load converter for transient class [AthenaServicesTestConverters::TBTRIG]
 AthTPCnvSvc       WARNING could not load converter for transient CLID [20394825] (AthenaServicesTestConverters::TBTRIG)
@@ -47,10 +42,8 @@ Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthAllAlgSeq)
 Py:Configurable     ERROR attempt to add a duplicate (AthAlgEvtSeq.AthEndSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthAlgEvtSeq) ... dupe ignored
 Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthOutSeq) ... dupe ignored
-Py:Configurable     ERROR attempt to add a duplicate (AthMasterSeq.AthRegSeq) ... dupe ignored
-StatusCodeSvc        INFO reinitialize
 ClassIDSvc           INFO RE-initializing ClassIDSvc
-HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Reinitialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
@@ -60,12 +53,6 @@ IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
-*****Chrono*****     INFO ****************************************************************************************************
-*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
-*****Chrono*****     INFO ****************************************************************************************************
-ChronoStatSvc        INFO Time User   : Tot= 1.54  [s]                                             #=  1
-*****Chrono*****     INFO ****************************************************************************************************
-ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
 Py:Athena            INFO leaving with code 0: "successful run"

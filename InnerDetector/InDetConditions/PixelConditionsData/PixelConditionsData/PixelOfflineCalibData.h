@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,9 +51,12 @@ class PixelOfflineCalibData{
   int size() const;
   
   // get the pointer to pixel cluster error data
-  PixelClusterErrorData* getPixelClusterErrorData() const; 
-  PixelChargeInterpolationParameters* getPixelChargeInterpolationParameters() const; 
-  PixelClusterOnTrackErrorData* getPixelClusterOnTrackErrorData() const;
+  PixelClusterErrorData* getPixelClusterErrorData();
+  PixelChargeInterpolationParameters* getPixelChargeInterpolationParameters();
+  PixelClusterOnTrackErrorData* getPixelClusterOnTrackErrorData();
+  const PixelClusterErrorData* getPixelClusterErrorData() const; 
+  const PixelChargeInterpolationParameters* getPixelChargeInterpolationParameters() const; 
+  const PixelClusterOnTrackErrorData* getPixelClusterOnTrackErrorData() const;
 
   // Get/Set the numerical constants 
   int GetNumberOfConstants() const;
@@ -109,15 +112,28 @@ inline bool PixelOfflineCalibData::update(const PixelClusterOnTrackErrorData& id
   return true;
 }
 
-inline PixelClusterErrorData* PixelOfflineCalibData::getPixelClusterErrorData() const {
+inline PixelClusterErrorData* PixelOfflineCalibData::getPixelClusterErrorData() {
   return m_clustererrordata;
 }
 
-inline PixelChargeInterpolationParameters* PixelOfflineCalibData::getPixelChargeInterpolationParameters() const {
+inline PixelChargeInterpolationParameters* PixelOfflineCalibData::getPixelChargeInterpolationParameters() {
   return m_chargeinterpolationparameters;
 }
 
 inline PixelClusterOnTrackErrorData* 
+    PixelOfflineCalibData::getPixelClusterOnTrackErrorData() {
+  return m_clusterontrackerrordata;
+}
+
+inline const PixelClusterErrorData* PixelOfflineCalibData::getPixelClusterErrorData() const {
+  return m_clustererrordata;
+}
+
+inline const PixelChargeInterpolationParameters* PixelOfflineCalibData::getPixelChargeInterpolationParameters() const {
+  return m_chargeinterpolationparameters;
+}
+
+inline const PixelClusterOnTrackErrorData* 
     PixelOfflineCalibData::getPixelClusterOnTrackErrorData() const {
   return m_clusterontrackerrordata;
 }

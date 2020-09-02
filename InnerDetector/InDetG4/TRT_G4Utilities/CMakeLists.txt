@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( TRT_G4Utilities )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          PRIVATE
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -23,7 +17,7 @@ atlas_add_library( TRT_G4Utilities
                    PUBLIC_HEADERS TRT_G4Utilities
                    PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaKernel
+                   LINK_LIBRARIES AthenaKernel CxxUtils
                    PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} PathResolver )
 
 # Install files from the package:
@@ -34,5 +28,4 @@ atlas_add_test( ut_TRT_G4UtilitiesTest
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} TRT_G4Utilities )
-
 

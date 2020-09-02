@@ -16,6 +16,7 @@
 #include "MagFieldElements/BFieldVectorZR.h"
 #include <cmath>
 #include <vector>
+#include <array>
 
 class BFieldMeshZR
 {
@@ -23,10 +24,8 @@ public:
   // constructor
   BFieldMeshZR(double zmin, double zmax, double rmin, double rmax)
   {
-    m_min[0] = zmin;
-    m_max[0] = zmax;
-    m_min[1] = rmin;
-    m_max[1] = rmax;
+    m_min = { zmin, rmin };
+    m_max = { zmax, rmax };
   }
   // allocate space to vectors
   void reserve(int nz, int nr)
@@ -51,60 +50,28 @@ public:
                        BFieldCacheZR& cache,
                        double scaleFactor = 1.0) const;
   // accessors
-  double min(int i) const { return m_min[i]; }
-  double max(int i) const { return m_max[i]; }
+  double min(size_t i) const { return m_min[i]; }
+  double max(size_t i) const { return m_max[i]; }
   double zmin() const { return m_min[0]; }
   double zmax() const { return m_max[0]; }
   double rmin() const { return m_min[1]; }
   double rmax() const { return m_max[1]; }
-  unsigned nmesh(int i) const { return m_mesh[i].size(); }
-  double mesh(int i, int j) const { return m_mesh[i][j]; }
+  unsigned nmesh(size_t i) const { return m_mesh[i].size(); }
+  double mesh(size_t i, size_t j) const { return m_mesh[i][j]; }
   unsigned nfield() const { return m_field.size(); }
-  const BFieldVectorZR& field(int i) const { return m_field[i]; }
+  const BFieldVectorZR& field(size_t i) const { return m_field[i]; }
   int memSize() const;
 
 private:
-  double m_min[2], m_max[2];
-  std::vector<double> m_mesh[2];
+  std::array<double,2> m_min;
+  std::array<double,2> m_max;
+  std::array<std::vector<double>,2> m_mesh;
   std::vector<BFieldVectorZR> m_field;
   // look-up table and related variables
-  std::vector<int> m_LUT[2];
-  double m_invUnit[2]; // inverse unit size in the LUT
+  std::array<std::vector<int>,2> m_LUT;
+  std::array<double, 2> m_invUnit; // inverse unit size in the LUT
   int m_zoff;
 };
 
-//
-// Find and return the cache of the bin containing (z,r)
-//
-inline void
-BFieldMeshZR::getCache(double z,
-                       double r,
-                       BFieldCacheZR& cache,
-                       double scaleFactor) const
-{
-  // find the mesh, and relative location in the mesh
-  // z
-  const std::vector<double>& mz(m_mesh[0]);
-  int iz = int((z - zmin()) * m_invUnit[0]); // index to LUT
-  iz = m_LUT[0][iz];                         // tentative mesh index from LUT
-  if (z > mz[iz + 1]) {
-    iz++;
-  }
-  // r
-  const std::vector<double>& mr(m_mesh[1]);
-  int ir = int((r - rmin()) * m_invUnit[1]); // index to LUT
-  ir = m_LUT[1][ir];                         // tentative mesh index from LUT
-  if (r > mr[ir + 1]) {
-    ir++;
-  }
-  // store the bin edges
-  cache.setRange(mz[iz], mz[iz + 1], mr[ir], mr[ir + 1]);
-  // store the B field at the 8 corners
-  int im0 = iz * m_zoff + ir; // index of the first corner
-  cache.setField(0, m_field[im0], scaleFactor);
-  cache.setField(1, m_field[im0 + 1], scaleFactor);
-  cache.setField(2, m_field[im0 + m_zoff], scaleFactor);
-  cache.setField(3, m_field[im0 + m_zoff + 1], scaleFactor);
-}
-
+#include "MagFieldElements/BFieldMeshZR.icc"
 #endif

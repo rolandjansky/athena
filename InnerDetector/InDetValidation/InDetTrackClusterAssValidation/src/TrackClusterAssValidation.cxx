@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
@@ -12,7 +12,7 @@
 #include "InDetTrackClusterAssValidation/TrackClusterAssValidation.h"
 #include "StoreGate/ReadHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <cmath>
 
 ///////////////////////////////////////////////////////////////////
@@ -756,6 +756,8 @@ MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const In
 
 void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
+  std::lock_guard<std::mutex> lock(m_statMutex);
+
   // Get pixel clusters container
   //
   std::unique_ptr<SG::ReadHandle<SiClusterContainer> >       pixelcontainer;

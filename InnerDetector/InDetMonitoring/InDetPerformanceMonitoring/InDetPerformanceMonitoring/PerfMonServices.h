@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,9 +13,11 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class IAtRndmGenSvc;
 
-class PerfMonServices
+class ATLAS_NOT_THREAD_SAFE PerfMonServices // static variables are used.
 {
  public:
   // Constructors and Destructors.

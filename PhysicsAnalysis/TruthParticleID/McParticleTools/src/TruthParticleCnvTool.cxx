@@ -20,10 +20,10 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // CLHEP/HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/Polarization.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/Polarization.h"
 #include "HepPDT/ParticleData.hh"
 
 // McParticleKernel includes

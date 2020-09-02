@@ -1,99 +1,58 @@
-<!-- $Id: selection.xml 789134 2016-12-11 02:15:53Z christos $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- Egamma_v1 dictionaries: -->
-  <class name="xAOD::Egamma_v1" />
+   <!-- xAOD::Egamma interface type(s). -->
+   <class name="xAOD::Egamma_v1" />
+   <class name="xAOD::EgammaContainer_v1"
+          id="CE53CD7A-0B8E-44F5-9AB1-997E87713BC5" />
+   <typedef name="xAOD::Egamma" />
+   <typedef name="xAOD::EgammaContainer" />
 
-  <class name="xAOD::EgammaContainer_v1"
-         id="CE53CD7A-0B8E-44F5-9AB1-997E87713BC5" />
+   <!-- xAOD::Egamma auxiliary type(s). -->
+   <class name="xAOD::EgammaAuxContainer_v1"
+          id="01A7F3AA-D5CA-4FCF-A314-20F822FF6CA0" />
+   <typedef name="xAOD::EgammaAuxContainer" />
 
-  <class name="xAOD::EgammaAuxContainer_v1"
-         id="01A7F3AA-D5CA-4FCF-A314-20F822FF6CA0" />
+   <!-- xAOD::Electron interface type(s). -->
+   <class name="xAOD::Electron_v1" />
+   <class name="xAOD::ElectronContainer_v1"
+          id="9CA52CF4-E219-45B8-9971-6DAA89125952" />
+   <typedef name="xAOD::Electron" />
+   <typedef name="xAOD::ElectronContainer" />
 
-  <!-- Smart pointers to Egamma_v1: -->
-  <class name="DataLink<xAOD::EgammaContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::EgammaContainer_v1> >" />
-  <class name="ElementLink<xAOD::EgammaContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::EgammaContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::EgammaContainer_v1> > >" />
-  <class name="SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > >"/>  
+   <!-- xAOD::Electron auxiliary type(s). -->
+   <class name="xAOD::ElectronAuxContainer_v1"
+          id="85A46300-3F57-454C-8B7E-94B653AA70CF" />
+   <class name="xAOD::ElectronAuxContainer_v2"
+          id="7160FC1C-937D-474C-909B-2C0FCE1DD755" />
+   <class name="xAOD::ElectronAuxContainer_v3"
+          id="5435686E-4B00-11E4-AEAA-02163E00A5BB" />
+   <typedef name="xAOD::ElectronAuxContainer" />
 
-  <!-- Electron_v1 dictionaries: -->
-  <class name="xAOD::Electron_v1" >
-  </class>
-  <class name="xAOD::ElectronContainer_v1"
-         id="9CA52CF4-E219-45B8-9971-6DAA89125952" />
-  <class name="xAOD::ElectronAuxContainer_v1"
-         id="85A46300-3F57-454C-8B7E-94B653AA70CF" />
+   <!-- xAOD::Photon interface type(s). -->
+   <class name="xAOD::Photon_v1" />
+   <class name="xAOD::PhotonContainer_v1"
+          id="5F045AAE-DBD8-47E4-90AC-9162530A9565" />
+   <typedef name="xAOD::Photon" />
+   <typedef name="xAOD::PhotonContainer" />
 
-  <!-- Electron_v2 dictionaries: -->
-  <class name="xAOD::ElectronAuxContainer_v2"
-         id="7160FC1C-937D-474C-909B-2C0FCE1DD755" />
+   <!-- xAOD::Photon auxiliary type(s). -->
+   <class name="xAOD::PhotonAuxContainer_v1"
+          id="67A1818E-4591-4100-B8BD-9A3C9E0D4EBB" />
+   <class name="xAOD::PhotonAuxContainer_v2"
+          id="CAE4C9A6-B3D0-429B-9A4F-1F174D892CA5" />
+   <class name="xAOD::PhotonAuxContainer_v3"
+          id="5C389DEC-4B00-11E4-B9F0-02163E00A5BB" />
+   <typedef name="xAOD::PhotonAuxContainer" />
 
-  <!-- Electron_v3 dictionaries: -->
-  <class name="xAOD::ElectronAuxContainer_v3"
-         id="5435686E-4B00-11E4-AEAA-02163E00A5BB" />
+   <!-- Helper Function(s). -->
+   <function pattern="xAOD::EgammaHelpers::*" />
 
-  <!-- Smart pointers to Electron_v1: -->
-  <class name="DataLink<xAOD::ElectronContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::ElectronContainer_v1> >" />
-  <class name="ElementLink<xAOD::ElectronContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::ElectronContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::ElectronContainer_v1> > >" />
+   <!-- Type returned by helper function(s). -->
+   <class name="std::set<const xAOD::TrackParticle*>" />
 
-  <!-- Photon_v1 dictionaries: -->
-  <class name="xAOD::Photon_v1" >
-  </class>
-  <class name="xAOD::PhotonContainer_v1"
-         id="5F045AAE-DBD8-47E4-90AC-9162530A9565" />
-  <class name="xAOD::PhotonAuxContainer_v1"
-         id="67A1818E-4591-4100-B8BD-9A3C9E0D4EBB" />
-
-  <!-- Photon_v2 dictionaries: -->
-  <class name="xAOD::PhotonAuxContainer_v2"
-         id="CAE4C9A6-B3D0-429B-9A4F-1F174D892CA5" />
-
-  <!-- Photon_v3 dictionaries: -->
-  <class name="xAOD::PhotonAuxContainer_v3"
-         id="5C389DEC-4B00-11E4-B9F0-02163E00A5BB" />
-
-
-  <!-- Smart pointers to Photon_v1: -->
-  <class name="DataLink<xAOD::PhotonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::PhotonContainer_v1> >" />
-  <class name="ElementLink<xAOD::PhotonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::PhotonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::PhotonContainer_v1> > >" />
-
-  <!-- Objects from the namespace -->
-  <variable pattern="xAOD::EgammaParameters::*" />
-  <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />   
-
-  <!-- Enums -->
-  <enum pattern="xAOD::EgammaParameters::*" />
-  
-  <!--Add Helper Functions -->
-  <function pattern="xAOD::EgammaHelpers::*" />
-  
-  <!--Returned by helper functions -->
-  <class name="std::set<const xAOD::TrackParticle*>" />
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <class pattern="xAOD::TrackParticle*" />
-    <class pattern="DataVector<xAOD::TrackParticle*" />
-    <class pattern="ElementLink<DataVector<xAOD::TrackParticle*" />
-    <class pattern="xAOD::Vertex*" />
-    <class pattern="DataVector<xAOD::Vertex*" />
-    <class pattern="ElementLink<DataVector<xAOD::Vertex*" />
-    <class pattern="xAOD::CaloCluster*" />
-    <class pattern="DataVector<xAOD::CaloCluster*" />
-    <class pattern="ElementLink<DataVector<xAOD::CaloCluster*" />
-    <function pattern="xAOD::EgammaHelpers::getLink*" />  
-  </exclusion>
-
+   <!-- Suppress the unwanted classes/symbols. -->
+   <exclusion>
+      <function pattern="xAOD::EgammaHelpers::getLink*" />
+   </exclusion>
 </lcgdict>

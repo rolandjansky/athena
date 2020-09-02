@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSlaveBoardOut.hh"
-#include "TrigT1TGC/TGCSlaveBoard.hh"
+#include "TrigT1TGC/TGCSlaveBoardOut.h"
+#include "TrigT1TGC/TGCSlaveBoard.h"
 
 namespace LVL1TGCTrigger {
 

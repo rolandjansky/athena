@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,8 +14,8 @@
 #include <sstream>
 #include <math.h>
 
-#include "TrigmuComb/muCombMT.h"
-#include "TrigmuComb/muCombUtil.h"
+#include "muCombMT.h"
+#include "muCombUtil.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
@@ -23,15 +23,14 @@
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/L2CombinedMuonAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "TrigSiSpacePointTool/ISpacePointProvider.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 class ISvcLocator;
 
 muCombMT::muCombMT(const std::string& name, ISvcLocator* pSvcLocator):
-   AthAlgorithm(name, pSvcLocator),
-   m_MagFieldSvc(0)
+   AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -40,13 +39,7 @@ StatusCode muCombMT::initialize()
    ATH_MSG_DEBUG("Initialization:");
 
    //Filed service
-   if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
-   if (m_MagFieldSvc) {
-      ATH_MSG_DEBUG( "Retrieved AtlasFieldSvc" );
-   } else {
-      ATH_MSG_ERROR( "Could not retrieve AtlasFieldSvc --> Abort" );
-      return StatusCode::FAILURE; 
-   }
+   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
    if (!m_monTool.empty()) {
       ATH_MSG_DEBUG("Retrieving monTool");
@@ -79,7 +72,7 @@ StatusCode muCombMT::finalize()
 int muCombMT::drptMatch(const xAOD::L2StandAloneMuon* feature, double id_pt, double id_eta, double id_phi, int algo,
                       double& combPtInv, double& combPtRes, double& deta, double& dphi, double& dr)
 {
-   double pt     = feature->pt() * CLHEP::GeV;
+   double pt     = feature->pt() * Gaudi::Units::GeV;
    double phi    = feature->phiMS();
    double eta    = feature->etaMS();
    return muCombMT::drptMatch(pt, eta, phi, id_pt, id_eta, id_phi, algo, combPtInv, combPtRes, deta, dphi, dr);
@@ -127,7 +120,7 @@ int muCombMT::drptMatch(double pt, double eta, double phi, double id_pt, double 
          << " / " << (passDR ? "true" : "false"));
 
    if (algo == 1 && winPt > 0) {
-      double tmp_dpt = fabs(fabs(pt) - fabs(id_pt)) / CLHEP::GeV; //don't use charge info
+      double tmp_dpt = fabs(fabs(pt) - fabs(id_pt)) / Gaudi::Units::GeV; //don't use charge info
       if (tmp_dpt > winPt) passPt = false;
       ATH_MSG_DEBUG( " REGTEST MU-ID match / dpt (GeV) / threshold (GeV) / result:"
             << " / " << tmp_dpt
@@ -155,7 +148,7 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    double theta  = 2.*atan(exp(-feature->etaMS()));
    double p      = 0.0;
    if (sin(theta) != 0) {
-      p = (feature->pt() * CLHEP::GeV) / sin(theta);
+      p = (feature->pt() * Gaudi::Units::GeV) / sin(theta);
    } else {
       return 2; //No match if muon angle is zero
    }
@@ -167,9 +160,9 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
    } else {
       return 1; //No match if muon Pt is zero
    }
-   double pt = feature->pt() * CLHEP::GeV;
+   double pt = feature->pt() * Gaudi::Units::GeV;
    //double ptinv  = 1/pt;
-   double eptinv = feature->deltaPt() * CLHEP::GeV / pt / pt;
+   double eptinv = feature->deltaPt() * Gaudi::Units::GeV / pt / pt;
 
    bool   isBarrel = ((feature->sAddress() != -1) ? true : false);
    double etaShift = (isBarrel ? 0 : charge * 0.01);
@@ -293,15 +286,15 @@ int muCombMT::g4Match(const xAOD::L2StandAloneMuon* feature,
 
 
    ATH_MSG_DEBUG(" REGTEST Resolution / OLDIdRes / IdRes / muFastRes / combRes:"
-         << " / " << std::setw(11) << id_eptinv_OLD / CLHEP::GeV
-         << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
-         << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
-         << " / " << std::setw(11) << combPtRes / CLHEP::GeV );
+         << " / " << std::setw(11) << id_eptinv_OLD / Gaudi::Units::GeV
+         << " / " << std::setw(11) << id_eptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << extr_eptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << combPtRes / Gaudi::Units::GeV );
 
    ATH_MSG_DEBUG(" REGTEST Momentum / IdPt / muFastPt  / CombPt :"
-         << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / extr_ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV );
+         << " / " << std::setw(11) << 1. / id_ptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << 1. / extr_ptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << 1. / combPtInv / Gaudi::Units::GeV );
 
    ATH_MSG_DEBUG(" REGTEST Chi2 / ndof // Chi2OLD / ndofOLD :"
          << " / " << std::setw(11) << chi2
@@ -349,7 +342,7 @@ int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
    ndof = 0;
    //muFast parameters
 
-   double    pt = feature->pt() * CLHEP::GeV;
+   double    pt = feature->pt() * Gaudi::Units::GeV;
    if (pt == 0.)  {
       return 1; //No match if muFast Pt is zero
    }
@@ -359,7 +352,7 @@ int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
 
    double charge = pt / fabs(pt);
    double ptinv  = 1. / pt;
-   double eptinv = feature->deltaPt() * CLHEP::GeV / pt / pt;
+   double eptinv = feature->deltaPt() * Gaudi::Units::GeV / pt / pt;
 
    //ID parameters
    double id_eptinv    = muCombUtil::getIDSCANRes(m_IDSCANRes_barrel, m_IDSCANRes_endcap1, m_IDSCANRes_endcap2,
@@ -405,14 +398,14 @@ int muCombMT::mfMatch(const xAOD::L2StandAloneMuon* feature,
 
 
    ATH_MSG_DEBUG(" REGTEST Resolution / IdRes / muFastRes / combRes:"
-         << " / " << std::setw(11) << id_eptinv / CLHEP::GeV
-         << " / " << std::setw(11) << extr_eptinv / CLHEP::GeV
-         << " / " << std::setw(11) << combPtRes / CLHEP::GeV );
+         << " / " << std::setw(11) << id_eptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << extr_eptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << combPtRes / Gaudi::Units::GeV );
 
    ATH_MSG_DEBUG(" REGTEST Momentum / IdPt / muFastPt  / CombPt :"
-         << " / " << std::setw(11) << 1. / id_ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / ptinv / CLHEP::GeV
-         << " / " << std::setw(11) << 1. / combPtInv / CLHEP::GeV );
+         << " / " << std::setw(11) << 1. / id_ptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << 1. / ptinv / Gaudi::Units::GeV
+         << " / " << std::setw(11) << 1. / combPtInv / Gaudi::Units::GeV );
 
    ATH_MSG_DEBUG(" REGTEST Chi2 / ndof :"
          << " / " << std::setw(11) << chi2
@@ -514,10 +507,18 @@ StatusCode muCombMT::execute()
    //Magnetic field status
    bool toroidOn   = !m_assumeToroidOff;
    bool solenoidOn = !m_assumeSolenoidOff;
-   if (m_MagFieldSvc) {
-      toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
-      solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
+
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   if (fieldCondObj == nullptr) {
+       ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+       return StatusCode::FAILURE;
    }
+   MagField::AtlasFieldCache fieldCache;
+   fieldCondObj->getInitializedCache (fieldCache);
+
+   toroidOn   = fieldCache.toroidOn() && !m_assumeToroidOff;
+   solenoidOn = fieldCache.solenoidOn() && !m_assumeSolenoidOff;
    ATH_MSG_DEBUG( "=========== Magnetic Field Status ========== " );
    ATH_MSG_DEBUG( " Assuming Toroid OFF is:                  " << (m_assumeToroidOff ? "TRUE" : "FALSE") );
    ATH_MSG_DEBUG( " Assuming Solenoid OFF is:                " << (m_assumeSolenoidOff ? "TRUE" : "FALSE") );
@@ -712,7 +713,7 @@ StatusCode muCombMT::execute()
       if (sin(theta_id) != 0) e_qoverpt_id /= fabs(sin(theta_id)); //approximate
 
       ATH_MSG_DEBUG( " Found track: "
-               << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+               << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
                << ", q    = " << q_id
                << ", eta  = " << eta_id
                << ", phi  = " << phi_id
@@ -725,7 +726,7 @@ StatusCode muCombMT::execute()
                << ", eipt = " << e_qoverpt_id );
 
       if (usealgo != 3) {
-         if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
+         if ((fabs(pt_id) / Gaudi::Units::GeV) < m_PtMinTrk)       continue;
       }
       if (fabs(eta_id)  > m_EtaMaxTrk)      continue;
 
@@ -816,11 +817,11 @@ StatusCode muCombMT::execute()
    phiFL       = -9999.;
    if (usealgo == 0 && fabs(pt) >= 6.) {
       efficiency = 1;
-      ptID       = pt_id / CLHEP::GeV; //in GeV/c
+      ptID       = pt_id / Gaudi::Units::GeV; //in GeV/c
       etaID      = eta_id;
       phiID      = phi_id;
       zetaID     = zPos_id;
-      ptMC       = 1. / (ptinv_comb * CLHEP::GeV); //in GeV/c
+      ptMC       = 1. / (ptinv_comb * Gaudi::Units::GeV); //in GeV/c
       dZeta      = zeta_ms - zPos_id;
       dPhi       = best_dphi;
       dEta       = best_deta;
@@ -837,7 +838,7 @@ StatusCode muCombMT::execute()
    //if (useL1) prt_pt = ptL1;
    ATH_MSG_DEBUG( " REGTEST Combination chosen: "
          << " usealgo / IdPt (GeV) / muonPt (GeV) / CombPt (GeV) / chi2 / ndof: "
-         << " / " << usealgo << " / " << pt_id*q_id / CLHEP::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / CLHEP::GeV << " / " << chi2_comb << " / " << ndof_comb );
+         << " / " << usealgo << " / " << pt_id*q_id / Gaudi::Units::GeV << " / " << prt_pt << " / " << 1. / ptinv_comb / Gaudi::Units::GeV << " / " << chi2_comb << " / " << ndof_comb );
 
    muonCB->setPt(fabs(1. / ptinv_comb));
    muonCB->setEta(eta_id);
@@ -849,7 +850,7 @@ StatusCode muCombMT::execute()
    muonCB->setCharge(mcq);
 
    float mcresu = fabs(ptres_comb / (ptinv_comb * ptinv_comb));
-   ATH_MSG_DEBUG( " SigmaPt (GeV) is: " << mcresu / CLHEP::GeV );
+   ATH_MSG_DEBUG( " SigmaPt (GeV) is: " << mcresu / Gaudi::Units::GeV );
    muonCB->setSigmaPt(mcresu);
 
    muonCB->setErrorFlag(ErrorFlagMC);

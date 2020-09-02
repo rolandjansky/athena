@@ -28,7 +28,7 @@ class LArFEBConfigCondAlg: public AthReentrantAlgorithm {
  private:
 
   const LArOnlineID* m_onlineID;
-  SG::ReadCondHandleKeyArray<CondAttrListCollection> m_listOfFolders;
+  SG::ReadCondHandleKeyArray<CondAttrListCollection> m_listOfFolders{this,"ListOfFolders",{},"List of input folders"};
   SG::WriteCondHandleKey<LArFebConfig> m_configKey{this, "keyOutput", "LArFebConfig", "Output key for LArFebConfig"};   
 };
 

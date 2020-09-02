@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_DataBase_H
 #define SCT_GeoModel_SCT_DataBase_H
 
 #include "SCT_GeoModel/SCT_GeoModelAthenaComps.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -18,7 +19,7 @@ class SCT_DataBase
   
 public:
 
-  SCT_DataBase(const SCT_GeoModelAthenaComps* athenaComps);
+  SCT_DataBase(const SCT_GeoModelAthenaComps* athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe AthenaComps::rdbAccessSvc const method is used.
 
   const SCT_GeoModelAthenaComps* athenaComps() const;
 

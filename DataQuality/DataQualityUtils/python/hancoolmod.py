@@ -136,7 +136,7 @@ intervalType = {
 def getLimits(name):
     try:
         import re
-        import detmaskmod
+        from . import detmaskmod
         runNumber = re.match(r'run_(\d+)_.*han.root', name).group(1)
         max_hi_limit = detmaskmod.getNumLumiBlocks(int(runNumber))+1
         if (name.find('minutes10_') > -1):
@@ -287,7 +287,7 @@ def hancool(runNumber=3070,
 
 
 def detmask_defects(runNumber, ddb):
-    import detmaskmod
+    from . import detmaskmod
     blacks = detmaskmod.decodeBlack(detmaskmod.getRunMask(runNumber),
                                     defects=True)
     nlbs = detmaskmod.getNumLumiBlocks(runNumber)
@@ -340,7 +340,7 @@ def ctp_defects(d, i, runNumber):
             rv.append(defect_iov(mapping[defect], message, False, lb, lb+1))
         if overflow_bad_lbs[defect]:
             message += '; defect occurred past end of monitoring histogram, marking end of run as bad'
-            import detmaskmod  # ugly: could happen for more than one defect - should be cheap though
+            from . import detmaskmod  # ugly: could happen for more than one defect - should be cheap though
             nlbs = detmaskmod.getNumLumiBlocks(runNumber)
             rv.append(defect_iov(defect, message,
                                  False, when.GetNbinsX(), nlbs+1))
@@ -413,7 +413,7 @@ def sct_perlb_defects(d, i, runNumber):
             rv.append(defect_iov(dname, message, False, lb, lb+1))
         if overflow_bad_lbs[dname]:
             message += '; defect occurred past end of monitoring histogram, marking end of run as bad'
-            import detmaskmod  # ugly: could happen for more than one defect - should be cheap though
+            from . import detmaskmod  # ugly: could happen for more than one defect - should be cheap though
             nlbs = detmaskmod.getNumLumiBlocks(runNumber)
             rv.append(defect_iov(dname, message,
                                  False, when.GetNbinsX(), nlbs+1))
@@ -452,7 +452,7 @@ def sct_eff_defect(d, i, runNumber):
     h2 = d.Get('InnerDetector/SCT/Summary/SctTotalEff_/Results/Status')
     if not h1 or not h2:
         return None
-    badstatuses = set(['Yellow', 'Red'])
+    badstatuses = {'Yellow', 'Red'}
     statuscheck = []
     for h in h1, h2:
         status = set(x.GetName() for x in h.GetListOfKeys())
@@ -486,7 +486,7 @@ def dqmf_node_defect(node, defect, badstatuses=['Red']):
 
 
 def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', isESn=True):
-    import pix_defect
+    from . import pix_defect
     analyzers = []
     if isESn:
         # CTP

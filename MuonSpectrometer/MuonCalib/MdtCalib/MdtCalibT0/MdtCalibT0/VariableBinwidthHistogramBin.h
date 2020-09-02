@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//   VariableBinwidthHistogramBin.h
-//   Header file for class VariableBinwidthHistogram
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// 
-///////////////////////////////////////////////////////////////////
-
 
 #ifndef VARIABLEBINWIDTHHISTOGRAMBIN_H
 #define VARIABLEBINWIDTHHISTOGRAMBIN_H
 
-// c - c++
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <TString.h> // for Form
 
 namespace MuonCalib {
 
@@ -82,11 +73,9 @@ class VariableBinwidthHistogramBin {
 	void MoveRight(double new_right)
 		{
 		double left=Left();
-		if(new_right< left)
-			{
-			std::cerr<<"new right is too small!"<<std::endl;
-			exit(1);
-			}
+		if(new_right< left) {
+			throw std::runtime_error(Form("File: %s, Line: %d\nVariableBinwidthHistogramBin::MoveRight() - new right is too small!", __FILE__, __LINE__));
+		}
 		m_width = new_right - left;
 		m_center = 0.5 * (left + new_right);
 		}
@@ -98,11 +87,9 @@ class VariableBinwidthHistogramBin {
 	void MoveLeft(double new_left)
 		{
 		double right=Right();
-		if(new_left>right)
-			{
-			std::cerr<<"new right is too small!"<<std::endl;
-			exit(1);
-			}
+		if(new_left>right) {
+			throw std::runtime_error(Form("File: %s, Line: %d\nVariableBinwidthHistogramBin::MoveRight() - new left is too small!", __FILE__, __LINE__));
+		}
 		m_width = right - new_left;
 		m_center = 0.5 * (new_left + right);
 		}

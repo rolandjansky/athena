@@ -16,7 +16,7 @@
 
 // Forard declarations
 class TruthTrajectory;
-namespace HepMC { class GenParticle; } 
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
   

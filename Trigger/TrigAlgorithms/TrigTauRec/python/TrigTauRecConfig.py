@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 """ TrigTauRec """
@@ -47,17 +47,16 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
             tools.append(taualgs.getTauCommonCalcVars())
             tools.append(taualgs.getTauSubstructure())
             #tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-	    
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-	    
+
             self.Tools = tools
 
             ## add beam type flag
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
-		    
+
 
 class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
         __slots__ = [ '_mytools']

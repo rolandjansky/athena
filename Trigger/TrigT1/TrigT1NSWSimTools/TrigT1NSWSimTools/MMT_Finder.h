@@ -1,18 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMT_FINDER_H
 #define MMT_FINDER_H
 
-
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "MMT_struct.h"
 
 
-class MMT_Finder{
+class MMT_Finder : public AthMessaging {
  public:
   MMT_Finder(MMT_Parameters *par, int nUVRoads = 1);
   ~MMT_Finder(){}
@@ -21,12 +19,6 @@ class MMT_Finder{
   int get_roads() const {return m_nRoads;}
   void fillHitBuffer(std::map<std::pair<int,int>,finder_entry>& hitBuffer, const Hit& hit) const;
   void checkBufferForHits(std::vector<bool>& plane_is_hit, std::vector<Hit>& track, int road, std::map<std::pair<int,int>,finder_entry> hitBuffer) const;
-
-
-  // / Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  // / Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  private:
   std::vector<int> q_planes(const std::string& type) const;
@@ -40,8 +32,5 @@ class MMT_Finder{
   MMT_Parameters* m_par;
 
   int m_nUVRoads;
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
 };
 #endif

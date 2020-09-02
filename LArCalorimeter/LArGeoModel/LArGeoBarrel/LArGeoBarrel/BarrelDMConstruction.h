@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,7 +26,7 @@ namespace LArGeo {
   public:
 
     // Constructor;
-    BarrelDMConstruction();
+    BarrelDMConstruction(bool activateFT = false);
 
     // Destructor:
     virtual ~BarrelDMConstruction();
@@ -34,13 +34,15 @@ namespace LArGeo {
     // Add passive materials to the barrel envelope
     void create(GeoFullPhysVol* envelope);
 
-  private: 
+  private:
     // It is illegal to copy/assign a BarrelDMConstruction:
     BarrelDMConstruction (const BarrelDMConstruction &) = delete;
     BarrelDMConstruction & operator= (const BarrelDMConstruction &) = delete;
+
+    bool m_activateFT;
   };
 
- 
+
 
 }  // namespace LArGeo
 

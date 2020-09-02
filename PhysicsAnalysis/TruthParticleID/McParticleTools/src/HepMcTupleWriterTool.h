@@ -27,7 +27,7 @@
 // Forward declaration
 class ITHistSvc;
 class TTree;
-namespace HepMC { class GenEvent; }
+#include "AtlasHepMC/GenEvent_fwd.h"
 
 class HepMcTupleWriterTool : virtual public IIOHepMcTool,
 			             public AthAlgTool
@@ -77,7 +77,7 @@ class HepMcTupleWriterTool : virtual public IIOHepMcTool,
   /** @brief Method to configure the back-end to write out the
    *  @c HepMC::GenEvent.
    */
-  void setupBackend( Property& outputFileName );
+  void setupBackend( Gaudi::Details::PropertyBase& outputFileName );
 
   /**
    * @brief book the tuple

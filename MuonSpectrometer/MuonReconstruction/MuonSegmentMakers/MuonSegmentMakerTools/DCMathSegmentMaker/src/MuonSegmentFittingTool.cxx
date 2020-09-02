@@ -1,29 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFittingTool.h"
-
-#include "GaudiKernel/MsgStream.h"
 
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkEventPrimitives/DefinedParameter.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/FitQuality.h"
-
 #include "TrkTrack/Track.h"
-
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkSurfaces/PlaneSurface.h"
-
-#include "TrkFitterInterfaces/ITrackFitter.h"
-#include "TrkExInterfaces/IPropagator.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
-
 #include "MuonSegment/MuonSegment.h"
 
 namespace Muon {
@@ -34,37 +22,22 @@ namespace Muon {
     m_magFieldProperties(Trk::NoField),
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
     m_curvedTrackFitter("Trk::GlobalChi2Fitter/MCTBFitter", this),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this)
   {
     declareInterface<IMuonSegmentFittingTool>(this);
-
     declareProperty("SLPropagator",   m_slPropagator);
     declareProperty("SLFitter",       m_slTrackFitter);
     declareProperty("CurvedFitter",   m_curvedTrackFitter);
     declareProperty("TrackCleaner",   m_trackCleaner);
-    declareProperty("IdHelper",       m_idHelperTool);
     declareProperty("UpdatePrecisionCoordinate", m_updatePrecisionCoordinate = false );
-  }
-
-  MuonSegmentFittingTool::~MuonSegmentFittingTool()
-  {
   }
 
   StatusCode MuonSegmentFittingTool::initialize()
   {
-    
     ATH_CHECK( m_slPropagator.retrieve() );
-    ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
     ATH_CHECK( m_curvedTrackFitter.retrieve() );
     ATH_CHECK( m_trackCleaner.retrieve() );
-
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentFittingTool::finalize()
-  {
     return StatusCode::SUCCESS;
   }
 
@@ -162,20 +135,19 @@ namespace Muon {
     }
 	
     if( msgLvl(MSG::DEBUG) ){
-      msg(MSG::DEBUG) << MSG::DEBUG << std::setprecision(5) << " chi2 " << fq->chiSquared() << " ndof " << fq->numberDoF();
+      ATH_MSG_DEBUG(std::setprecision(5) << " chi2 " << fq->chiSquared() << " ndof " << fq->numberDoF());
       const Trk::Perigee* pp = newtrack->perigeeParameters();
       if( pp ){
-	msg(MSG::DEBUG) << " pos " << std::setprecision(5) << pp->position() 
+	ATH_MSG_DEBUG(" pos " << std::setprecision(5) << pp->position() 
 			<< " phi " << pp->momentum().phi() << " theta " << pp->momentum().theta() 
 			<< " q*mom " << pp->momentum().mag()*pp->charge() 
-			<< " pt " << pp->momentum().perp()<< endmsg;
+			<< " pt " << pp->momentum().perp());
       }else{
-	msg(MSG::DEBUG) << " no perigee " << endmsg;
+	ATH_MSG_DEBUG(" no perigee ");
       }
     }
     return newtrack;
   }
-
 
   void MuonSegmentFittingTool::updateSegmentParameters( const Trk::Track& track, const Trk::PlaneSurface& surf, Amg::Vector2D& segLocPos, 
 							Trk::LocalDirection& segLocDir, Amg::MatrixX& locerr ) const

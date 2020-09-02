@@ -27,4 +27,3 @@ for var in variables:
             folder, chanNum = dg.info.get_folder_and_channel(var, drawer)
             iovSince = dg.getEntry(drawer, var, now)[1]
             print (folder, drawer," (",chanNum,")", " ---> ", time.ctime(iovSince/dg.unix2cool)," (",iovSince,")")
-

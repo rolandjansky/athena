@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCablingCondAlg.h"
 #include "GaudiKernel/EventIDRange.h"
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 #include <iostream>
 #include <fstream>
@@ -13,6 +14,7 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdContext.h"
 #include "CoralBase/Blob.h"
+
 
 PixelCablingCondAlg::PixelCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -51,7 +53,7 @@ StatusCode PixelCablingCondAlg::initialize() {
   const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
   const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
   EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                       EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
+                       EventIDBase (1, UNDEFEVT, UNDEFNUM, 0, 0));
 
   // Signed values
   int barrel_ec, eta_module;
@@ -134,11 +136,6 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
 
-  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-  EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                       EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
-
   // Signed values
   int barrel_ec, eta_module;
 
@@ -171,13 +168,10 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    // Get the validitiy range
-    if (not readHandle.range(rangeW)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of input is " << rangeW);
+    writeHandle.addDependency(readHandle);
+
+    ATH_MSG_DEBUG("Size of AthenaAttributeList " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_DEBUG("Range of input is " << readHandle.getRange());
 
     const coral::Blob& blob_cabling=(*readCdo)["CablingMapData"].data<coral::Blob>();
     const char* p_cabling = static_cast<const char*>(blob_cabling.startingAddress());
@@ -188,7 +182,7 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
     instr.str(std::string(p_cabling,blob_cabling.size())); 
   }
   else {
-    std::string filename = PathResolverFindCalibFile(moduleData->getCablingMapFileName());
+    const std::string filename = PathResolverFindCalibFile(moduleData->getCablingMapFileName());
     if (filename.size()==0) {
       ATH_MSG_FATAL("Mapping File: " << moduleData->getCablingMapFileName() << " not found!");
       return StatusCode::FAILURE;
@@ -196,6 +190,8 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
     std::ifstream fin(filename.c_str());
     if (!fin) { return StatusCode::FAILURE; }
     instr << fin.rdbuf();
+
+    writeHandle.addDependency(IOVInfiniteRange::infiniteRunLB()); //When reading from file, use infinite IOV
     ATH_MSG_DEBUG("Refilled pixel cabling from file \"" << moduleData->getCablingMapFileName() << "\"");
   }
 
@@ -300,11 +296,11 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("Size of ROD readoutspeed map: " << rodReadoutMap.size());
   writeCdo->set_readout_map(rodReadoutMap);
 
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelCablingCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record PixelCablingCondData " << writeHandle.key() << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

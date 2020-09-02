@@ -167,7 +167,7 @@ namespace CP {
             
             bool isNominal() const;
             bool isUpVariation() const;
-            bool seperateBinSyst() const;
+            bool separateBinSyst() const;
             
         private:
             std::map<std::string, std::pair<unsigned int, unsigned int>> findPeriods(const MuonEfficiencyScaleFactors& ref_tool) const;

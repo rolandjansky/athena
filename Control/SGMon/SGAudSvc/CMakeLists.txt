@@ -1,29 +1,13 @@
-################################################################################
-# Package: SGAudSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SGAudSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/SGMon/SGAudCore
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate )
 
 # Component(s) in the package:
 atlas_add_component( SGAudSvc
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGAudCore GaudiKernel StoreGateLib SGtests )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel SGAudCore GaudiKernel StoreGateLib )
 
 # Install files from the package:
-atlas_install_headers( SGAudSvc )
 atlas_install_scripts( share/SGout2dot.py )
-
-# Aliases:
-atlas_add_alias( SGout2dot "SGout2dot.py" )
-

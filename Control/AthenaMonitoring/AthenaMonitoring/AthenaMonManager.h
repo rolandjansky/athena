@@ -125,8 +125,6 @@ class AthenaMonManager : public AthAlgorithm {
    protected:
       ToolHandleArray<IMonitorToolBase> m_monTools;
 
-      virtual void setEventInfo();
-
       ITHistSvc*  m_THistSvc;
 
    private:

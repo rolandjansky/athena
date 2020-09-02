@@ -33,7 +33,7 @@
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 
 #include <sstream>
@@ -43,6 +43,8 @@
 #include <codecvt>
 
 #include <boost/property_tree/xml_parser.hpp>
+
+#include "CxxUtils/checker_macros.h"
 
 using namespace boost::property_tree;
 
@@ -504,14 +506,18 @@ bool psc::Psc::prepareForRun (const ptree& args)
   {
     ERS_PSC_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump()
                   << "\" - " << e.what())
-
     return false;
   }
   catch(const ptree_bad_data & e)
   {
     ERS_PSC_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - "
                   << e.what())
+    return false;
+  }
 
+  // Initializations needed for start()
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>([&args](ITrigEventLoopMgr* mgr) {return mgr->prepareForStart(args);},
+                                            "prepareForStart").isSuccess()) {
     return false;
   }
 
@@ -523,10 +529,21 @@ bool psc::Psc::prepareForRun (const ptree& args)
   }
 
   // bind args to prepareForRun
-  auto prep = [&args](ITrigEventLoopMgr* mgr){return mgr->prepareForRun(args);};
-  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
-  {
-    ERS_PSC_ERROR("Error preparing the EventLoopMgr");
+  auto prep = [&args](ITrigEventLoopMgr* mgr) {
+    // FIXME: ITrigEventLookMgr::prepareForRun is declared NOT_THREAD_SAFE.
+    // Probably this method shoud also be NOT_THREAD_SAFE, but that's
+    // awkward because it implements a tdaq interface from hltinterface.
+    StatusCode ret ATLAS_THREAD_SAFE = mgr->prepareForRun (args);
+
+    // This dance is needed to prevent RV optimization.
+    // Otherwise, the optimizer loses the ATLAS_THREAD_SAFE attribute
+    // on RET before the thread-safety checker gets to see the code.
+    if (ret.isSuccess()) {
+      return StatusCode (StatusCode::SUCCESS);
+    }
+    return ret;
+  };
+  if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess()) {
     return false;
   }
 
@@ -544,7 +561,6 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
 
   if(!callOnEventLoopMgr<IService>(&IService::sysStop, "sysStop").isSuccess())
   {
-    ERS_PSC_ERROR("Error stopping the EventLoopManager");
     return false;
   }
 
@@ -555,6 +571,19 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
     ERS_PSC_ERROR("Error executing stop(void) for ApplicationMgr");
     return false;
   }
+
+  // Workers: store histograms at the end of stop as the children may not
+  // go through finalize with SkipFinalizeWorker=1.
+  if (m_workerID != 0) {
+    SmartIF<IService> histsvc = m_svcLoc->service("THistSvc", /*createIf=*/ false);
+    if (histsvc.isValid()) {
+      ERS_LOG("Finalize THistSvc to save histograms");
+      if (histsvc->finalize().isFailure()) {
+        ERS_PSC_ERROR("Error executing finalize for THistSvc");
+      }
+    }
+  }
+
 
   return true;
 }
@@ -676,7 +705,11 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 
   if ( Py_IsInitialized() ) {
     ERS_DEBUG(1, "Post-fork initialization of Python interpreter");
+#if PY_VERSION_HEX >= 0x03070000
+    PyOS_AfterFork_Child();
+#else
     PyOS_AfterFork();
+#endif
 
     /* Release the Python GIL (which we inherited from the mother)
        to avoid dead-locking on the first call to Python. Only relevant
@@ -686,6 +719,8 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
       PyEval_SaveThread();
     }
   }
+
+  m_workerID = args.get<int>("workerId");
 
   ERS_LOG("Individualizing DF properties");
   m_config->prepareWorker(args);
@@ -703,7 +738,6 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
              {return mgr->hltUpdateAfterFork(args);};
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(upd, "hltUpdateAfterFork").isSuccess())
   {
-    ERS_PSC_ERROR("Error updating EventLoopMgr after fork");
     return false;
   }
 

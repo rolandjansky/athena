@@ -12,15 +12,12 @@
 // PathResolver
 #include "PathResolver/PathResolver.h"
 
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
-
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
 
 /** Constructor **/
-MagField::AtlasFieldMap::AtlasFieldMap() {}
+MagField::AtlasFieldMap::AtlasFieldMap() = default;
 
 MagField::AtlasFieldMap::~AtlasFieldMap()
 {

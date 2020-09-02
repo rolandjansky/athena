@@ -6,7 +6,7 @@ JobOptionsSvc        INFO
 //
 //==============================================================
 //no EventSelector
-ApplicationMgr.DLLs   += { "AthenaServices" };
+ApplicationMgr.Dlls   += { "AthenaServices" };
 ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
 //--------------------------------------------------------------
 // StoreGate services configuration
@@ -14,7 +14,7 @@ ApplicationMgr.EventLoop = "AthenaEventLoopMgr";
 // --> Including file StoreGate/StoreGate_jobOptions.txt
 
 
-ApplicationMgr.DLLs   += { "StoreGate", "CLIDSvc" };
+ApplicationMgr.Dlls   += { "StoreGate", "CLIDSvc" };
 ApplicationMgr.ExtSvc += { "ClassIDSvc" };
 ApplicationMgr.ExtSvc += { "StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore" };
 ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
@@ -29,7 +29,7 @@ ApplicationMgr.ExtSvc += { "ActiveStoreSvc" };
 // Load the Interval of Validity Service
 //
 //------------------------------------------------------------------------
-ApplicationMgr.DLLs += { "IOVSvc" };
+ApplicationMgr.Dlls += { "IOVSvc" };
 ApplicationMgr.ExtSvc += { "IOVSvc" };
 
 
@@ -46,7 +46,7 @@ ApplicationMgr.ExtSvc += { "EvtPersistencySvc/EventPersistencySvc",
 // Private Application Configuration options
 //--------------------------------------------------------------
 //load relevant libraries
-ApplicationMgr.DLLs += { "AthExSubAlg" };
+ApplicationMgr.Dlls += { "AthExSubAlg" };
 
 //top algorithms to be run
 ApplicationMgr.TopAlg = { "MainAlg" };

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # flake8: noqa
 # ... because this file is hopeless ...
@@ -99,6 +99,7 @@ class EgammaSshapeCalibrationBarrelConfig(CompFactory.EgammaSshapeCalibration):
         self.correction=str(ele_layer2_etaoffv4_1_37_b)
         self.regions=str(layer2_etaoffv4_1_regions_b)
         self.energies=str(ele_etaoffv4_1_energies)
+        self.forms="[[]]"
         self.energy_degree=3
         self.rangeBarrel=True
     
@@ -109,6 +110,7 @@ class EgammaSshapeCalibrationEndcapConfig(CompFactory.EgammaSshapeCalibration):
         self.correction=str(ele_layer2_etaoffv4_1_55_e)
         self.regions=str(layer2_etaoffv4_1_regions_e)
         self.energies=str(ele_etaoffv4_1_energies)
+        self.forms="[[]]"
         self.energy_degree=3
         self.rangeBarrel=False
 

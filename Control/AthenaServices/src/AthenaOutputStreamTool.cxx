@@ -47,7 +47,7 @@ AthenaOutputStreamTool::AthenaOutputStreamTool(const std::string& type,
 	m_conversionSvc("AthenaPoolCnvSvc", name),
 	m_clidSvc("ClassIDSvc", name),
 	m_decSvc("DecisionSvc/DecisionSvc", name),
-	m_dataHeader(0),
+	m_dataHeader(nullptr),
 	m_dataHeaderKey(name),
 	m_connectionOpen(false),
 	m_extendProvenanceRecord(false) {
@@ -122,7 +122,7 @@ StatusCode AthenaOutputStreamTool::connectServices(const std::string& dataStore,
    // Release old data store
    if (m_store.isValid()) {
       if (m_store.release().isFailure()) {
-         ATH_MSG_ERROR("Could not release " << m_store.type() << " store");
+         ATH_MSG_ERROR("Could not release " << m_store.typeAndName() << " store");
       }
    }
    m_store = ServiceHandle<StoreGateSvc>(dataStore, this->name());
@@ -143,7 +143,7 @@ StatusCode AthenaOutputStreamTool::connectServices(const std::string& dataStore,
 StatusCode AthenaOutputStreamTool::connectServices() {
    // Find the data store
    if (m_store.retrieve().isFailure() || m_store == 0) {
-      ATH_MSG_ERROR("Could not locate " << m_store.type() << " store");
+      ATH_MSG_ERROR("Could not locate " << m_store.typeAndName() << " store");
       return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
@@ -292,7 +292,8 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    }          // list property check
 
    // Record DataHeader in StoreGate
-   if (m_store->record(m_dataHeader, m_dataHeaderKey).isFailure()) {
+   SG::WriteHandle<DataHeader> wh(m_dataHeaderKey, m_store->name());
+   if (wh.record(std::unique_ptr<DataHeader>(m_dataHeader)).isFailure()) {
       ATH_MSG_ERROR("Unable to record DataHeader with key " << m_dataHeaderKey);
       return(StatusCode::FAILURE);
    } else {
@@ -304,11 +305,10 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode AthenaOutputStreamTool::commitOutput() {
+StatusCode AthenaOutputStreamTool::commitOutput(bool doCommit) {
    ATH_MSG_DEBUG("In commitOutput");
-   m_outputName.setValue(m_outputName.value().substr(0, m_outputName.value().find("[")));
    // Connect the output file to the service
-   if (m_conversionSvc->commitOutput(m_outputName.value(), false).isFailure()) {
+   if (m_conversionSvc->commitOutput(m_outputName.value(), doCommit).isFailure()) {
       ATH_MSG_ERROR("Unable to commit output " << m_outputName.value());
       return(StatusCode::FAILURE);
    }
@@ -434,7 +434,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
       }
    }
    // End of loop over DataObjects, write DataHeader
-   if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
+   if (m_conversionSvc.type() == "AthenaPoolCnvSvc" && dataHeaderObj != nullptr) {
       IOpaqueAddress* addr = new TokenAddress(0, dataHeaderObj->clID(), outputConnectionString);
       if (m_conversionSvc->createRep(dataHeaderObj, addr).isSuccess()) {
          written.insert(std::pair<DataObject*, IOpaqueAddress*>(dataHeaderObj, addr));
@@ -470,7 +470,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
       }
    }
    m_dataHeader->addHash(&*m_store);
-   if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
+   if (m_conversionSvc.type() == "AthenaPoolCnvSvc" && dataHeaderObj != nullptr) {
       // End of DataObjects, fill refs for DataHeader
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
       if (proxy != nullptr && written.find(dataHeaderObj) != written.end()) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -80,7 +80,7 @@
 #include "xAODTau/TauJet.h"
 
 
-#include "TrigValAlgs/TrigEDMChecker.h"
+#include "TrigEDMChecker.h"
 
 #include "xAODTrigMinBias/TrigSpacePointCountsContainer.h"
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
@@ -988,7 +988,7 @@ StatusCode TrigEDMChecker::dumpTrigMissingET() {
   }
 
   for( ; trigMETfirst != trigMETlast ; ++trigMETfirst ){ // loop over TrigMissingET objects
-    std::string name(trigMETfirst.key());
+    const std::string& name(trigMETfirst.key());
     ATH_MSG_INFO("Got TrigMissingET object with key \"" << name << "\"");
 
     std::string s;
@@ -1121,8 +1121,8 @@ StatusCode TrigEDMChecker::dumpTrackParticleContainer() {
 			/// track vertex position
 			const Trk::VxCandidate * vertex = trackParticle->reconstructedVertex();
 			if ( vertex ) {
-				const Trk::RecVertex vtx = vertex->recVertex();
-				const Amg::Vector3D position = vtx.position();
+				const Trk::RecVertex& vtx = vertex->recVertex();
+				const Amg::Vector3D& position = vtx.position();
 				ATH_MSG_INFO(" vertex position (" << position[0] << ", " <<
                              position[1] << ", " << position[2] << ") ");
 			} else {
@@ -4016,7 +4016,13 @@ StatusCode TrigEDMChecker::dumpTDT() {
   using namespace TrigCompositeUtils; // LinkInfo
   ATH_MSG_INFO( "REGTEST ==========START of TDT DUMP===========" );
   // Note: This minimal TDT dumper is for use during run-3 dev
-  std::vector<std::string> confChains = m_trigDec->getListOfTriggers("HLT_.*");
+  std::string chain = m_dumpNavForChain;
+  if (chain.empty()) {
+    chain = "HLT_.*";
+  }
+  if (msgLvl(MSG::VERBOSE)) m_trigDec->setLevel( MSG::VERBOSE );
+  else if (msgLvl(MSG::DEBUG)) m_trigDec->setLevel( MSG::DEBUG );
+  std::vector<std::string> confChains = m_trigDec->getListOfTriggers(chain);
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item);
     ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
@@ -4032,7 +4038,10 @@ StatusCode TrigEDMChecker::dumpTDT() {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
           try {
-            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+            std::string state = "ACTIVE";
+            if (li.state == ActiveState::INACTIVE) state = "INACTIVE";
+            else if (li.state == ActiveState::UNSET) state = "UNSET";
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
           } catch (const std::exception& e) {
             ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
           }
@@ -4047,7 +4056,10 @@ StatusCode TrigEDMChecker::dumpTDT() {
           ATH_MSG_WARNING("      Unable to access feature - link invalid.");
         } else {
           try {
-            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+            std::string state = "ACTIVE";
+            if (li.state == ActiveState::INACTIVE) state = "INACTIVE";
+            else if (li.state == ActiveState::UNSET) state = "UNSET";
+            ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi() << " state:" << state);
           } catch (const std::exception& e) {
             ATH_MSG_WARNING("      Unable to dereference feature {" << e.what() << "}");
           }
@@ -4058,11 +4070,11 @@ StatusCode TrigEDMChecker::dumpTDT() {
 
   if (m_trigDec->getNavigationFormat() == "TrigComposite") {
     // Check associateToEventView helper function
-    std::vector< LinkInfo<xAOD::MuonContainer> > muons = m_trigDec->features<xAOD::MuonContainer>("HLT_mu6_idperf_L1MU6", TrigDefs::Physics, "HLT_MuonsCB_RoI");
+    std::vector< LinkInfo<xAOD::IParticleContainer> > muons = m_trigDec->features<xAOD::IParticleContainer>("HLT_mu24_idperf_L1MU20", TrigDefs::Physics, "HLT_MuonL2CBInfo");
     SG::ReadHandle<xAOD::TrackParticleContainer> muonTracksReadHandle(m_muonTracksKey, Gaudi::Hive::currentContext());
-    for (const LinkInfo<xAOD::MuonContainer>& mu : muons) {
-      // Note: auto here referes to type std::pair< xAOD::TrackParticleContainer::const_iterator, xAOD::TrackParticleContainer::const_iterator>
-      const auto roiTrackItPair = m_trigDec->associateToEventView<xAOD::TrackParticleContainer>(muonTracksReadHandle, mu);
+    for (const LinkInfo<xAOD::IParticleContainer>& mu : muons) {
+      // Note: auto here refers to type std::pair< xAOD::TrackParticleContainer::const_iterator, xAOD::TrackParticleContainer::const_iterator>
+      const auto roiTrackItPair = m_trigDec->associateToEventView<xAOD::TrackParticleContainer>(muonTracksReadHandle, mu, "roi");
       const xAOD::TrackParticleContainer::const_iterator startIt = roiTrackItPair.first;
       const xAOD::TrackParticleContainer::const_iterator stopIt  = roiTrackItPair.second;
       ATH_MSG_INFO("Muon pT: " << (*mu.link)->pt() << " is from the same ROI as tracks with index " 
@@ -4188,7 +4200,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   // This constexpr is evaluated at compile time
   const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
   std::vector<std::string> keys;
-  if ( m_doDumpAllTrigComposite ) {
+  if ( m_dumpTrigCompositeContainers.size() == 0 ) {
     evtStore()->keys(TrigCompositeCLID, keys);
   }
   else {
@@ -4198,9 +4210,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
   ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
 
+  HLT::Identifier chainID(m_dumpNavForChain);
+
   // First retrieve them all (this should not be needed in future)
   const DecisionContainer* container = nullptr;
-  for (const std::string key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
+  for (const std::string& key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
 
   std::stringstream ss;
   ss << "digraph {" << std::endl;
@@ -4223,32 +4237,76 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
     }
     if (veto) continue;
     ATH_CHECK( evtStore()->retrieve( container, key ) );
-    ss << "  subgraph " << key << " {" << std::endl;
-    ss << "    label=\"" << key << "\"" << std::endl;
     // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
+    bool writtenHeader = false;
     for (const Decision* tc : *container ) {
       // Output my ID in the graph. 
       const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( tc->container() );
       const ElementLink<DecisionContainer> selfEL = ElementLink<DecisionContainer>(*container, tc->index());
+      ElementLinkVector<DecisionContainer> seedELs = tc->objectCollectionLinks<DecisionContainer>("seed");
+      const std::vector<DecisionID>& decisions = tc->decisions();
       const uint32_t selfKey = selfEL.key();
       const uint32_t selfIndex = selfEL.index();
+      if (m_dumpNavForChain != "") {
+        bool doDump = false;
+        const auto it = std::find(decisions.begin(), decisions.end(), chainID.numeric());
+        // Check me
+        if (it != decisions.end()) {
+          doDump = true;
+        }
+        // Check my seeds
+        if (!doDump) {
+          for (const ElementLink<DecisionContainer>& s : seedELs) {
+            const std::vector<DecisionID>& seedDecisions = (*s)->decisions();
+            const auto it2 = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
+            if (it2 != seedDecisions.end()) {
+              doDump = true;
+              break;
+            }
+          }
+        }
+        if (!doDump) {
+          continue;
+        }
+      }
+      if (!writtenHeader) {
+        writtenHeader = true;
+        ss << "  subgraph " << key << " {" << std::endl;
+        ss << "    label=\"" << key << "\"" << std::endl;
+      }
       ss << "    \"" << selfKey << "_" << selfIndex << "\" [label=\"Container=" << typeNameTC; 
       if (tc->name() != "") ss << "\\nName=" << tc->name();
       ss << "\\nKey=" << key << "\\nIndex=" << selfIndex << " linksRemapped=" << (tc->isRemapped() ? "Y" : "N");
-      const std::vector<DecisionID> decisions = tc->decisions();
       if (decisions.size() > 0) {
         ss << "\\nPass=";
+        size_t c = 0;
         for (unsigned decisionID : decisions) {
-          ss << std::hex << decisionID << std::dec << "," ;
+          std::string highlight = (decisionID == chainID.numeric() ? "*****" : "");
+          ss << std::hex << highlight << decisionID << highlight << std::dec << ",";
+          if (c++ == 5) {
+            ss << std::endl;
+            c = 0;
+          }
         }
       }
       ss << "\"]" << std::endl;
       // Output all the things I link to
+      size_t seedCount = 0;
       for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
         const std::string link = tc->linkColNames().at(i);
         if (link == "seed" || link == "seed__COLL") {
+          ElementLink<DecisionContainer> seedEL = seedELs.at(seedCount++);
           const uint32_t seedKey = tc->linkColKeys().at(i);
           const uint32_t seedIndex = tc->linkColIndices().at(i);
+          ATH_CHECK( seedKey == seedEL.key() );
+          ATH_CHECK( seedIndex == seedEL.index() );
+          if (m_dumpNavForChain != "") { // Only print "seed" link to nodes we include in our search
+            const std::vector<DecisionID> seedDecisions = (*seedEL)->decisions();
+            const auto it = std::find(seedDecisions.begin(), seedDecisions.end(), chainID.numeric());
+            if (it == seedDecisions.end()) {
+              continue;
+            }
+          }
           ss << "    \"" << selfKey << "_" << selfIndex << "\" -> \"" << seedKey << "_" << seedIndex << "\" [label=\"seed\"]" << std::endl;
         } else {
           // Start with my class ID
@@ -4277,7 +4335,9 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
         }
       }
     }
-    ss << "  }" << std::endl;
+    if (writtenHeader) {
+      ss << "  }" << std::endl;
+    }
   }
 
   ss << "}" << std::endl;
@@ -4391,7 +4451,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Find unique chains associated with a feature
   std::map< HLT::TriggerElement const*, std::vector< int > > element2decisions;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get the feature info
     std::string featureName = testNav->label( pair.first.getCLID(), pair.first.getIndex().subTypeIndex() );
@@ -4427,7 +4487,7 @@ StatusCode TrigEDMChecker::dumpNavigation()
 
   // Store decision ancestry (had to go through once before to ensure indices populated)
   unsigned int decisionCounter = 0;
-  for ( auto pair : feature2element ) {
+  for ( const auto& pair : feature2element ) {
 
     // Get current decision
     auto decision = decisionOutput->at( decisionCounter );

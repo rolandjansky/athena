@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict as odict
 from itertools import groupby
 
 from AthenaCommon.Logging import logging
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from .Limits import Limits
 from .L1MenuFlags import L1MenuFlags
@@ -12,7 +11,7 @@ from .L1MenuFlags import L1MenuFlags
 
 log = logging.getLogger("Menu.L1.Base.BunchGroupSet")
 
-def createMCDefaultBunchGroupSet():
+def createDefaultBunchGroupSetMC():
     """
     create BunchGroupSet for simulation
 
@@ -24,14 +23,13 @@ def createMCDefaultBunchGroupSet():
     return bgs
 
 
-def setDefaultBunchGroupDefinition(bgs):
+def createDefaultBunchGroupSet():
     """
     sets default bunchgroups for all menus, needed for simulation.
     """
-
     if L1MenuFlags.BunchGroupNames.statusOn: # if flag has been set
         # if menu defines bunchgroup names, then we generate a bunchgroup set from that
-        name = TriggerFlags.triggerMenuSetup().partition('_')[0]
+        name = L1MenuFlags.MenuSetup().partition('_')[0]
         bgs = BunchGroupSet(name)
         bgs.addBunchGroup( BunchGroupSet.BunchGroup(name = 'BCRVeto', internalNumber = 0).addRange(0,3539).addRange(3561,3563).normalize() )\
            .addBunchGroup( BunchGroupSet.BunchGroup(name = 'Paired', internalNumber = 1).addTrain(0,3564).normalize() )
@@ -41,7 +39,9 @@ def setDefaultBunchGroupDefinition(bgs):
         for i,bgname in enumerate(bunchgroupnames):
             bgs.bunchGroups[i].name = bgname
     else:
-        bgs = createMCDefaultBunchGroupSet()
+        bgs = createDefaultBunchGroupSetMC()
+
+    return bgs
 
 
 class BunchGroupSet(object):
@@ -99,16 +99,13 @@ class BunchGroupSet(object):
     def __len__(self):
         return len(self.bunchGroups)
 
+
     @classmethod
     def partitioning(cls):
         first = L1MenuFlags.BunchGroupPartitioning()
         last = first[1:] + [ Limits.NumBunchgroups ]
         partitioning = dict( zip([1,2,3],zip(first,last)) )
         return partitioning
-
-
-    def setDefaultBunchGroupDefinition(self):
-        setDefaultBunchGroupDefinition(self)
 
 
     def resize(self, newsize):
@@ -136,11 +133,7 @@ class BunchGroupSet(object):
     def json(self):
         confObj = odict()
         for bg in self.bunchGroups:
-            if bg:
-                confObj["BGRP%i" % bg.internalNumber] = bg.json()
-            else:
-                confObj["BGRP%i" % bg.internalNumber] = bg.json()
-
+            confObj["BGRP%i" % bg.internalNumber] = bg.json()
         return confObj
 
     def writeJSON(self, outputFile, destdir="./", pretty=True):

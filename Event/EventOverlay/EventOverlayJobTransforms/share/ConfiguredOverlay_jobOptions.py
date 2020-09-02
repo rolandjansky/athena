@@ -13,6 +13,9 @@ topSequence = job
 if not overlayFlags.isDataOverlay():
     job += CfgGetter.getAlgorithm("CopyTimings")
 
+# Always schedule beam spot conditions for overlay
+include( "Digitization/BeamSpot.py" )
+
 #=======================================================================
 from AthenaCommon.AppMgr import ServiceMgr
 from PileUpComps.PileUpCompsConf import PileUpEventLoopMgr
@@ -25,17 +28,17 @@ from StoreGate.StoreGateConf import StoreGateSvc
 from Digitization.DigitizationFlags import digitizationFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
-pileUpEventLoopMgr = PileUpEventLoopMgr()
+pileUpEventLoopMgr = PileUpEventLoopMgr(EventInfoName="Input_EventInfo")
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
-print "================  DetFlags  ================ "
+printfunc ("================  DetFlags  ================ ")
 DetFlags.Print()
 
 if overlayFlags.isDataOverlay():
     from InDetRecExample.InDetJobProperties import InDetFlags
     from ByteStreamCnvSvc import ReadByteStream
     include("RecExCommon/BSRead_config.py")
-    ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
+    ServiceMgr.EventSelector.Input = DataInputCollections
     ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/"+overlayFlags.dataStore()
     from AthenaKernel import StoreID
     ServiceMgr.ByteStreamAddressProviderSvc.StoreID=StoreID.UNKNOWN

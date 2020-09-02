@@ -15,8 +15,8 @@
 #include "VP1TrackSystems/AscObj_TruthPoint.h"
 #include "VP1TrackSystems/SimHitHandleBase.h"
 #include "VP1Base/VP1Msg.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // Eigen migration
 //#include "TrkEventPrimitives/GlobalPosition.h"

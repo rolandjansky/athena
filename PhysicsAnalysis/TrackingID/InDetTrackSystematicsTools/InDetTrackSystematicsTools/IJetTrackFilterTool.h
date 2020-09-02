@@ -28,7 +28,6 @@ namespace InDet {
 	
     virtual StatusCode initialize() = 0;
     virtual void prepare() = 0; // not sure if/why this function is necessary - felix
-    virtual StatusCode finalize() = 0;
 
     virtual bool accept( const xAOD::TrackParticle*, const xAOD::Jet* ) const = 0;
     virtual bool accept( const xAOD::TrackParticle*, const xAOD::JetContainer* ) const = 0;

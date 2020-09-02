@@ -1,42 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibExtraTreeAlg.h"
-#include "MuonCalibExtraTreeAlg/IExtraTreeFillerTool.h"
-#include "MuonCalibExtraTreeAlg/ISegmentOnTrackSelector.h"
 
-// Extra Tree
 #include "MuonCalibExtraTreeEvent/MuonCalibHit_E.h"
-
 #include "AthContainers/DataVector.h"
-#include "GaudiKernel/MsgStream.h"
-
 #include "MuonCalibNtuple/RootFileManager.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPattern.h"
 #include "TrkPrepRawData/PrepRawData.h"
-/*#include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
-
-#include "TrkDetElementBase/TrkDetElementBase.h"
-
-#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkTrack/Track.h"
-#include "TrkParameters/Perigee.h"
-#include "TrkParameters/MeasuredPerigee.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkEventPrimitives/ParamDefs.h"
-#include "TrkEventPrimitives/LocalParameters.h"
-#include "TrkSurfaces/Surface.h"*/
-
 #include "CxxUtils/sincos.h"
 
-
-#include "TFile.h"
 #include "TTree.h"
 #include "TDirectory.h"
 #include <vector>
@@ -44,31 +21,12 @@
 namespace MuonCalib{
   
 MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator), 
+  AthAlgorithm(name, pSvcLocator),
   m_patterns(0),
-  m_doPhi(false),
-  m_ntupleName(""), m_patternLocation(""),m_delayFinish(false),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool/MuonCalib_IdToFixedIdTool"),
-  m_segmentOnTrackSelector(""),
-  m_dir(0), m_tree(0),
+  m_dir(nullptr),
+  m_tree(nullptr),
   m_init(false) {
-  m_ntupleName = "PatternNtupleMaker";
-  declareProperty("doPhi",m_doPhi);
-    
-  declareProperty("NtupleName",m_ntupleName);
-  declareProperty("PatternLocation",m_patternLocation);
-//  Run TrackAnalysis in RTT 
-  declareProperty("DelayFinish",m_delayFinish);
-  //  Properties for TrackAnalysis passed
-  //  flip hit truth radius of MDT drift radius 
-  //  needed for truth matching in e.g. rel 12 RDO data sets 
-  declareProperty("TrackFillerTools", m_track_fillers);
-  declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
-  declareProperty("SegmentOnTrackSelector", m_segmentOnTrackSelector);
 }  //end MuonCalibExtraTreeAlg::MuonCalibExtraTreeAlg
-  
-MuonCalibExtraTreeAlg::~MuonCalibExtraTreeAlg() {
-}
 
 StatusCode MuonCalibExtraTreeAlg::initialize() {
     
@@ -77,7 +35,7 @@ StatusCode MuonCalibExtraTreeAlg::initialize() {
 
 StatusCode MuonCalibExtraTreeAlg::execute() {
   if(!m_init) {
-    m_dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
+    m_dir = RootFileManager::getInstance()->getDirectory(m_ntupleName);
     m_dir->cd();
       
     //    m_tree = new TTree("Segments", "my first Tree");  
@@ -138,8 +96,6 @@ StatusCode MuonCalibExtraTreeAlg::finalize() {
     m_hitBranch.reset();
     m_trackBranch.reset();
   }
-
-//    m_tree->Write();      
   return StatusCode::SUCCESS;
 }  // end MuonCalibExtraTreeAlg::finalize
 
@@ -176,42 +132,23 @@ bool MuonCalibExtraTreeAlg::handlePatterns() {
   //loop over pattern combination
   if( !m_patterns ) return false; 
 
-//    bool m_debug = false;
   MuonPatternCombinationCollection::const_iterator it = m_patterns->begin();
   MuonPatternCombinationCollection::const_iterator it_end = m_patterns->end();
   unsigned int index = 0;
   for ( ; it!=it_end; ++it) {
     const std::vector< Muon::MuonPatternChamberIntersect > mpcivec = (*it)->chamberData();
     std::vector< Muon::MuonPatternChamberIntersect >::const_iterator pat_it = mpcivec.begin();
-//     if (m_debug) std::cout << " Pattern nr " << index << std::endl;
-//     int nhit = -1;
     for (;pat_it!=mpcivec.end();++pat_it) {
       const std::vector< const Trk::PrepRawData* > prdvec = (*pat_it).prepRawDataVec();
       std::vector< const Trk::PrepRawData* >::const_iterator prd_it = prdvec.begin();
       for( ; prd_it!= prdvec.end() ;++prd_it ) {
 
-//    for( unsigned int index = 0; index < m_patterns->size()  ; ++index){
-//      const Muon::MuonPattern* pattern = (*m_patterns)[index] ;
-//      for( unsigned int hitNr=0; hitNr < pattern->numberOfContainedPrds(); ++hitNr ){
-//      const Trk::PrepRawData* hit = pattern->prd(hitNr);
-//        nhit++;
-//        if(m_debug) std::cout << " Pattern hit with PrepData " << nhit << std::endl;
 	const Trk::PrepRawData* hit = *prd_it;
 	MuonFixedId fId = m_idToFixedIdTool->idToFixedId( hit->identify() );
 
-	//is this hit a phi hit??
-// 	if( fId.is_tgc() ) {
-// 	  if( fId.tgcIsStrip() != 1 ) continue ;
-// 	} else if ( fId.is_rpc() ) {
-// 	  if( fId.rpcMeasuresPhi() != 1) continue ;
-// 	} else if( fId.is_csc() ) {
-// 	  if( fId.cscMeasuresPhi() != 1) continue ;
-// 	}
 	const Trk::TrkDetElementBase* detEl = hit->detectorElement() ;
 	Amg::Vector3D gPos = detEl->center( hit->identify() );
 	double error = std::sqrt(hit->localCovariance()(0,0));
-//        double error = hit->localErrorMatrix().error(Trk::loc1); 
-//        double errorY = hit->localErrorMatrix().error(Trk::locY); 
 	  
 	ATH_MSG_DEBUG("writing phiHit with index " << index << " error " << error);
 	const MuonCalibHit_E phiHit( fId, gPos , 0., error);
@@ -231,11 +168,6 @@ void MuonCalibExtraTreeAlg::finishEvent() {
     m_tree->Fill();
     ATH_MSG_DEBUG("tree Filled ");
   }
-//    if(m_doPhi) m_phiHitBranch.reset();
-//    if(m_doTracks) {
-//      m_hitBranch.reset();
-//      m_trackBranch.reset();
-//    }
   ATH_MSG_DEBUG("finish eventready... ");
 }  //end MuonCalibExtraTreeAlg::finishEvent
 

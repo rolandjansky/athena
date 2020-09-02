@@ -1,46 +1,35 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWAGDDTool_H
 #define NSWAGDDTool_H
 
 #include "AGDDControl/AGDDToolBase.h"
-#include "GaudiKernel/StatusCode.h"
-
-namespace MuonGM
-{
-	class MuonDetectorManager;
-}
-
 
 class NSWAGDDTool: public AGDDToolBase
 {
 public:
-	NSWAGDDTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent);
-	virtual StatusCode construct();
-	
-	virtual StatusCode initialize();
+    NSWAGDDTool(const std::string& type, const std::string& name, const IInterface* parent);
+    ~NSWAGDDTool()=default;
+    virtual StatusCode construct() override;
+    virtual StatusCode initialize() override;
 
 private:
-	
-	int m_outFileActV;
-	std::string m_outFileActN;
-	int m_outFileAlgV;
-	std::string m_outFileAlgN;
-	int m_outFilePasV;
-	std::string m_outFilePasN;
-	std::string m_outFileForm;
-	std::string m_outFileInName;
+    Gaudi::Property<int> m_outFileActV{this,"OutputFileACTVERS",0,"active version number"};
+    Gaudi::Property<int> m_outFileAlgV{this,"OutputFileALGVERS",0,"alignment version number"};
+    Gaudi::Property<int> m_outFilePasV{this,"OutputFilePASVERS",0,"passive structure version number"};
 
-	std::string m_outFileType;
-	std::string m_outPREsqlName;
+    Gaudi::Property<std::string> m_outFileActN{this,"OutputFileACTVNAME","","active version string"};
+    Gaudi::Property<std::string> m_outFileAlgN{this,"OutputFileALGVNAME","","alignment version string"};
+    Gaudi::Property<std::string> m_outFilePasN{this,"OutputFilePASVNAME","","passive structure version string"};
+    Gaudi::Property<std::string> m_outFileForm{this,"OutputFileFORMAT","AGDDXML","format of output file"};
+    Gaudi::Property<std::string> m_outFileType{this,"OutputFileType","NSWD","name for database table"};
 
-	bool m_readAGDD;
-	bool m_dumpAGDD;
+    std::string m_outFileInName;
+    std::string m_outPREsqlName;
 
-	bool WritePREsqlFile() const;
+    bool WritePREsqlFile() const;
 };
 
 #endif

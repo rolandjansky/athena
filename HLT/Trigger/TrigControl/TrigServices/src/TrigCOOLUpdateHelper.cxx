@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -206,7 +206,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const EventContext& ctx)
                    << ". Current event: "  << ctx.eventID());
               
       if ( hltCoolUpdate(folderName, ctx).isFailure() ) {
-        ATH_MSG_FATAL("COOL update failed for " << folderName << ". Aborting.");
+        ATH_MSG_ERROR("COOL update failed for " << folderName << ". Aborting.");
         return StatusCode::FAILURE;
       }
       // All OK
@@ -231,6 +231,7 @@ StatusCode TrigCOOLUpdateHelper::hltCoolUpdate(const std::string& folderName, co
   }
 
   auto mon_t = Monitored::Timer("TIME_CoolFolderUpdate");
+  Monitored::Group mon(m_monTool, mon_t);
 
   // Reset folder and make IOVDbSvc drop objects
   if (resetFolder(folderName, ctx.eventID().run_number(), true).isFailure()) {
@@ -271,11 +272,17 @@ StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
   // Fetch CTP fragment ROB
   const std::vector<uint32_t> robs{m_ctpRobId};
   IROBDataProviderSvc::VROBFRAG ctpRobs;
-  m_robDataProviderSvc->addROBData(ctx, robs, name());
-  m_robDataProviderSvc->getROBData(ctx, robs, ctpRobs, name());
+  try {
+    m_robDataProviderSvc->addROBData(ctx, robs, name());
+    m_robDataProviderSvc->getROBData(ctx, robs, ctpRobs, name());
+  }
+  catch (const std::exception& ex) {
+    ATH_MSG_ERROR("Cannot retrieve CTP ROB 0x" << MSG::hex << m_ctpRobId.value() << MSG::dec << " due to exception: " << ex.what());
+    return StatusCode::FAILURE;
+  }
 
   if ( ctpRobs.empty() ) {
-    ATH_MSG_FATAL("Cannot retrieve CTP ROB " << m_ctpRobId.value());
+    ATH_MSG_ERROR("Cannot retrieve CTP ROB 0x" << MSG::hex << m_ctpRobId.value() << MSG::dec);
     return StatusCode::FAILURE;
   }
 
@@ -286,7 +293,7 @@ StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
     ctp_payload = CTPfragment::ExtraPayload(l1_extraPayload);
   }
   catch (CTPfragment::ExtraPayloadTooLong& ex) {
-    ATH_MSG_FATAL("Invalid CTP fragment. Exception = " << ex.what());
+    ATH_MSG_ERROR("Invalid CTP fragment. Exception = " << ex.what());
     return StatusCode::FAILURE;
   }
 

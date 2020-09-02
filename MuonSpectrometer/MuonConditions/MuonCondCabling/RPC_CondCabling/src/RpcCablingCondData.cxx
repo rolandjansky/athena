@@ -107,7 +107,7 @@ bool RpcCablingCondData::give_PADid(const unsigned int hashID, unsigned short in
 
 const std::vector<uint32_t>& RpcCablingCondData::giveFullListOfRobIds() const {return m_fullListOfRobIds;}
 
-RpcCablingCondData::ID RpcCablingCondData::identifier(int index) const 
+Identifier RpcCablingCondData::identifier(int index) const 
 {
   int size = m_int2id.size();
   if(index>=0 && index < size) { return m_int2id[index] ; }
@@ -116,9 +116,9 @@ RpcCablingCondData::ID RpcCablingCondData::identifier(int index) const
   return id; 
 }
 
-int RpcCablingCondData::operator() (const  ID& id) const 
+int RpcCablingCondData::operator() (const Identifier& id) const 
 {
-  std::map<ID,int>::const_iterator it = m_lookup.find(id); 
+  std::map<Identifier,int>::const_iterator it = m_lookup.find(id); 
   if(it!=m_lookup.end()){
     return (*it).second; 
   }
@@ -420,6 +420,56 @@ StatusCode RpcCablingCondData::giveRDO_fromPRD(const IdentifierHash prdHashId, s
   for (IdentifierHash rdoId : (*it).second)
     rdoHashVec.push_back(rdoId);
 
+  return sc;
+}
+
+StatusCode RpcCablingCondData::giveRDO_fromPRD(const std::vector<IdentifierHash>& prdHashVec, std::vector<IdentifierHash>& rdoHashVec) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  std::set<IdentifierHash> requestedRdoHashSet;
+  
+  for (IdentifierHash prdHashId : prdHashVec) {
+    //find the requested PRD HashId in the map
+    PRD_RDO_Map::const_iterator it = m_PRD_RDO_map.find(prdHashId);
+    if (it == m_PRD_RDO_map.cend()) {
+      continue;
+    }
+    //if the PRD was found in the map, add the corresponding set of RDO HashIds to the set of requested RDO HashIds
+    requestedRdoHashSet.insert((*it).second.begin(), (*it).second.end());
+  }
+  
+  //convert set to vector
+  for (IdentifierHash rdoHashId : requestedRdoHashSet) {
+    rdoHashVec.push_back(rdoHashId);
+  }
+  
+  return sc;
+}
+
+StatusCode RpcCablingCondData::giveRDO_fromROB(const std::vector<uint32_t>& robIdVec, std::vector<IdentifierHash>& rdoHashVec) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  std::set<IdentifierHash> requestedRdoHashSet;
+  
+  for (uint32_t robId : robIdVec) {
+    //find the requested ROB Id in the map
+    ROB_RDO_Map::const_iterator it = m_ROB_RDO_map.find(robId);
+    if (it == m_ROB_RDO_map.cend()) {
+      continue;
+    }
+    //if the ROB Id was found in the map, add the corresponding set of RDO HashIds to the set of requested RDO HashIds
+    requestedRdoHashSet.insert((*it).second.begin(), (*it).second.end());
+  }
+  
+  //convert set to vector
+  for (IdentifierHash rdoHashId : requestedRdoHashSet) {
+    rdoHashVec.push_back(rdoHashId);
+  }
+  
   return sc;
 }
 
@@ -786,5 +836,13 @@ RpcCablingCondData::strip_OffId_fromCode (unsigned long int strip_code, const Rp
            rpc_strip.strip);
 }
 
-
+bool RpcCablingCondData::giveOfflineId(const unsigned short int side, const unsigned short int sector, const unsigned short int padId, Identifier& id) const
+{
+  if (side>=2) return false;
+  if (sector>=32) return false;
+  if (padId>=10) return false;
+  id = m_offline_id[side][sector][padId];
+  if (!id.is_valid()) return false;
+  return true;
+}
 

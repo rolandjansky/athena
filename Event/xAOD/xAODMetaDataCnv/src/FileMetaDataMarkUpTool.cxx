@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaDataMarkUpTool.cxx 685407 2015-07-24 16:15:06Z cranshaw $
@@ -45,6 +45,10 @@ namespace xAODMaker {
    }
 
    StatusCode FileMetaDataMarkUpTool::preExecute() {
+      return(StatusCode::SUCCESS);
+   }
+
+   StatusCode FileMetaDataMarkUpTool::preStream() {
       return(StatusCode::SUCCESS);
    }
 

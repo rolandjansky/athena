@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigDecisionCnvAlg.h 578517 2014-01-15 13:48:04Z krasznaa $
@@ -12,8 +12,16 @@
 #include <string>
 
 // Gaudi/Athena include(s):
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+
+// EDM include(s):
+#include "TrigDecisionEvent/TrigDecision.h"
+#include "xAODTrigger/TrigDecision.h"
+#include "xAODTrigger/TrigDecisionAuxInfo.h"
+
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/TriggerInfo.h"
 
 // Local include(s):
 #include "xAODTriggerCnv/ITrigDecisionCnvTool.h"
@@ -31,25 +39,25 @@ namespace xAODMaker {
     * $Revision: 578517 $
     * $Date: 2014-01-15 14:48:04 +0100 (Wed, 15 Jan 2014) $
     */
-   class TrigDecisionCnvAlg : public AthAlgorithm {
+   class TrigDecisionCnvAlg : public AthReentrantAlgorithm {
 
    public:
       /// Regular Algorithm constructor
       TrigDecisionCnvAlg( const std::string& name, ISvcLocator* svcLoc );
+      virtual ~TrigDecisionCnvAlg();
 
       /// Function initialising the algorithm
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       /// Function executing the algorithm
-      virtual StatusCode execute();
+      virtual StatusCode execute(const EventContext& ctx) const override;
 
    private:
-      /// StoreGate key of the input object
-      std::string m_aodKey;
-      /// StoreGate key for the output object
-      std::string m_xaodKey;
 
-      /// Handle to the converter tool
-      ToolHandle< ITrigDecisionCnvTool > m_cnvTool;
+      SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfoKey", "EventInfo", "StoreGate key of the legacy event info object"};
+      SG::ReadHandleKey<TrigDec::TrigDecision> m_aodKey{this, "AODKey", "TrigDecision", "StoreGate key of the input object"};
+      SG::WriteHandleKey<xAOD::TrigDecision> m_xaodKey{this, "xAODKey", "xTrigDecision", "StoreGate key for the output object"};
+
+      ToolHandle< ITrigDecisionCnvTool > m_cnvTool{this, "CnvTool", "xAODMaker::TrigDecisionCnvTool/TrigDecisionCnvTool", "Handle to the converter tool"};
 
    }; // class TrigDecisionCnvAlg
 

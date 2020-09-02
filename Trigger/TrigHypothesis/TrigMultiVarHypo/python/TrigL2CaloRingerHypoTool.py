@@ -1,21 +1,21 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 import re
 
-_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
+_pattern = r"(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
 _cpattern = re.compile( _pattern )
 _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                   'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
  
 from AthenaCommon.SystemOfUnits import GeV
+#from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+# Just because the TriggerFlags Online and doValidation doen't work
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
 
 
-
-
-
-def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20170221_v6' ):
+def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
   
   from AthenaCommon.Logging import logging
   logger = logging.getLogger("TrigMultiVarHypo.GetPath")
@@ -23,7 +23,7 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20170221_v6' ):
   if EgammaSliceFlags.ringerVersion():
     basepath = EgammaSliceFlags.ringerVersion()
   logger.info('TrigMultiVarHypo version: %s', basepath)
-  if not sel in _possibleSel.keys():
+  if sel not in _possibleSel.keys():
     raise RuntimeError( "Bad selection name: %s" % sel )
   if 'e' in cand:
     constant = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Constants.root'.format(SEL=_possibleSel[sel])
@@ -36,24 +36,20 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20170221_v6' ):
   return constant, threshold
 
 
-
-
-
-
-
-
-
-
-def _HypoTool(name, cand, threshold, sel):
+def _IncTool(name, cand, threshold, sel):
 
   from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigL2CaloRingerHypoToolMT
+  
   tool = TrigL2CaloRingerHypoToolMT( name ) 
   tool.AcceptAll = False
   tool.MonTool = ""
   tool.EtCut = (float(threshold)-3.)*GeV
-  
+
+  # monitoring part  
   from TriggerJobOpts.TriggerFlags import TriggerFlags
-  if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
+  if (('Validation' in TriggerFlags.enableMonitoring()) or
+      ('Online' in  TriggerFlags.enableMonitoring())    or 
+      (athenaCommonFlags.isOnline)):
   
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
     monTool = GenericMonitoringTool('MonTool'+name)
@@ -64,14 +60,11 @@ def _HypoTool(name, cand, threshold, sel):
       defineHistogram('Eta', type='TH1F', path='EXPERT',title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5),
       defineHistogram('Phi',type='TH1F', path='EXPERT',title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2),
       defineHistogram('Et',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4),
-      defineHistogram('RnnOut',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=100,xmin=-10,xmax=10),
+      defineHistogram('RnnOut',type='TH1F', path='EXPERT',title="Neural Network output; NN output; number of RoIs", xbins=100,xmin=-10,xmax=10),
     ]
     
     monTool.HistPath='L2CaloHypo_Ringer/'+monTool.name()
     tool.MonTool=monTool
-
-
-
 
   if sel == 'nocut':
     tool.AcceptAll = True
@@ -85,62 +78,47 @@ def _HypoTool(name, cand, threshold, sel):
   return tool
 
 
-def _AlgTool(name):
-    from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigL2CaloRingerHypoAlgMT
-    return TrigL2CaloRingerHypoAlgMT( name )
 
 
-def decodeThreshold( threshold ):
-    """ decodes the thresholds of the form e10, 2e10, e10e15, ... """
-    print ("TrigL2CaloHypoToolFromName: decoding threshold ", threshold)
-    if threshold[0].isdigit(): # is if the from NeX, return as list [X,X,X...N times...]
-        assert threshold[1] == 'e', "Two digit multiplicity not supported"
-        return [ threshold[2:] ] * int( threshold[0] )
-    if threshold.count('e') > 1: # is of the form eXeYeZ, return as [X, Y, Z]
-        return threshold.strip('e').split('e')
-    if threshold.count('g') > 1: # us of the form gXgYgZ, return as [X, Y, Z]
-        return threshold.strip('g').split('g')
-    # inclusive, return as 1 element list
-    return [ threshold[1:] ] ,  threshold[0]
+
+# Just need to modify the in order to construct the hypo
+def _MultTool(name):
+  from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigL2CaloRingerHypoToolMTMult
+  return TrigL2CaloRingerHypoToolMTMult( name )
 
 
 
 
 
-def createRingerDecisions( name, chains, ClustersKey="CaloClusters",RingerKey="CaloRings" ):
-
-    # set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
-    from AthenaCommon.Constants import INFO
-    tool = _AlgTool(name) 
-    from AthenaCommon.AppMgr import ToolSvc
-    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
-    LuminosityCondAlgOnlineDefault()
+def TrigL2CaloRingerHypoToolFromDict( d ):
+  """ Use menu decoded chain dictionary to configure the tool """
+  cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
     
-    if not type(chains) is list:
-      chains=[chains]
+  from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+  LuminosityCondAlgOnlineDefault()
+    
+  def __mult(cpart):
+    return int( cpart['multiplicity'] )
 
-    hypotools = []
-    for c in chains:
-      #print ("Configuring ", name)
-      bname = c.split('_')
-      threshold = bname[1]
-      sel = bname[2]
-      dt, cand = decodeThreshold( threshold )
-      hypotools.append(_HypoTool( c, cand, dt[0], sel ))
+  def __th(cpart):
+    return cpart['threshold']
     
-    for t in tool.HypoTools:
-       t.OutputLevel=INFO
+  def __sel(cpart):
+    return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     
-    tool.HypoTools = hypotools
-    tool.ClustersKey = ClustersKey
-    tool.RingerKey = RingerKey
+  def __cand(cpart):
+    return cpart['trigType']
+
+  name = d['chainName']
+
+  # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
+  if len(cparts) > 1 or __mult(cparts[0]) > 1:
+    tool = _MultTool(name)
+    for cpart in cparts:
+      for cutNumber in range( __mult( cpart ) ):
+        tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th(cpart), __sel(cpart) ) ]
+    # return the tool with all subtools
     return tool
-
-
-
-
-
-
-
-
+  else:        
+    return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )
 

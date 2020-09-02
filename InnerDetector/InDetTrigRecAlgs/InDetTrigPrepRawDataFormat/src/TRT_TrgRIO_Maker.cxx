@@ -370,12 +370,7 @@ namespace InDet{
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
-	TRT_RDO_Container::const_iterator 
-	  RDO_collection_iter = p_trtRDOContainer->indexFind(m_listOfTrtIds[i]); 
-
-	if (RDO_collection_iter == p_trtRDOContainer->end()) continue;
-    
-	const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
+	const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection( p_trtRDOContainer->indexFindPtr(m_listOfTrtIds[i]));
       
 	if (!RDO_Collection) continue;
       
@@ -387,7 +382,7 @@ namespace InDet{
 	if (RDO_Collection->size() != 0){
 
 	  const InDet::TRT_DriftCircleCollection* p_rio = 
-	    m_driftcircle_tool->convert (m_mode_rio_production, RDO_Collection, true);
+	    m_driftcircle_tool->convert (m_mode_rio_production, RDO_Collection, getContext(), true);
       
 	  m_numTrtDriftCircles += p_rio->size();
 	  // -me- fix test
@@ -429,7 +424,7 @@ namespace InDet{
 	const InDetRawDataCollection<TRT_RDORawData>* currentCollection(*rdoCollections);
 	
         const InDet::TRT_DriftCircleCollection* p_rio=
-          m_driftcircle_tool->convert(m_mode_rio_production, currentCollection , true);
+          m_driftcircle_tool->convert(m_mode_rio_production, currentCollection, getContext(), true);
         
 	if(p_rio) {
 	  if (p_rio->size() != 0) {

@@ -117,8 +117,6 @@ InDetFlags.doTruth       = (globalflags.InputFormat() == 'pool' and globalflags.
 #InDetFlags.doLowPt        = False
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 
@@ -144,7 +142,7 @@ InDetFlags.doMonitoringAlignment = True
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 #InDetFlags.doTrkNtuple      = True

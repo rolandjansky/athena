@@ -566,13 +566,6 @@ StatusCode MuonHitRelocation::execute() {
   //-------------------------------------------------------------------------------------------------------
   return StatusCode::SUCCESS;
 }
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode MuonHitRelocation::finalize() {
-
-  ATH_MSG_INFO( "GOODBYE from MuonHitRelocation"  );
-  return StatusCode::SUCCESS;
-}
 
 long MuonHitRelocation::getIntStName(std::string stName) const
 {

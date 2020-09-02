@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiDetElementsRoadCondAlg_xk.h"
@@ -74,7 +74,6 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
 
   std::vector<const InDetDD::SiDetectorElement*> pW[3];
 
-  EventIDRange rangePixel;
   if (m_usePIX) {
     // Loop over each wafer of pixels
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey, ctx);
@@ -89,13 +88,9 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
       else                           pW[0].push_back(s); // Left  endcap
     }
 
-    if (not pixelDetEleHandle.range(rangePixel)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << pixelDetEleHandle.key());
-      return StatusCode::FAILURE;
-    }
+    writeHandle.addDependency(pixelDetEleHandle);
   }
 
-  EventIDRange rangeSct;
   if (m_useSCT) {
     // Loop over each wafer of sct
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey, ctx);
@@ -110,10 +105,7 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
       else                           pW[0].push_back(s); // Left  endcap
     }
 
-    if (not sctDetEleHandle.range(rangeSct)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << sctDetEleHandle.key());
-      return StatusCode::FAILURE;
-    }
+    writeHandle.addDependency(sctDetEleHandle);
   }
 
   int nel = pW[0].size()+pW[1].size()+pW[2].size();
@@ -206,14 +198,13 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
     }
   }
 
-  EventIDRange rangeW{EventIDRange::intersect(rangePixel, rangeSct)};
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record " << writeHandle.key()
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

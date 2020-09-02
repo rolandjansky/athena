@@ -17,14 +17,14 @@
 #include "VP1Base/VP1Msg.h"
 
 #include "TrkTrack/Track.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TrkTrack/Track.h"
 #include "AthContainers/DataVector.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //____________________________________________________________________
 class TrackHandle_SimulationTrack::Imp {

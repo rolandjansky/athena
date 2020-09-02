@@ -15,7 +15,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/BaseInfo.h"
 
@@ -148,14 +148,14 @@ AthDictLoaderSvc::has_type (CLID clid)
  *         by any necessary means.
  */
 const RootType
-AthDictLoaderSvc::load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name)
+AthDictLoaderSvc::load_type (const std::string& type_name)
 {
   ATH_MSG_DEBUG ("loading [" << type_name << "]...");
 
   // MN: short-cutting all the dance with type names done in DSODB...
   // may need verification
   // return RootType::ByName (m_dsodb->load_type(type_name));
-  return RootType::ByName(type_name);
+  return RootType::ByNameNoQuiet(type_name);
 }
 
 /** @brief retrieve a @c Reflex::Type by @c std::type_info (auto)loading the
@@ -210,25 +210,3 @@ AthDictLoaderSvc::load_type (CLID clid)
   }
   return type;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-

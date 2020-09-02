@@ -1,9 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging import logging
-log = logging.getLogger('Menu.L1.Config.ThresholdDef')
-
 from ..Base.Thresholds import Threshold, MuonThreshold, EMThreshold, TauThreshold, JetThreshold, XEThreshold, MBTSThreshold, MBTSSIThreshold, NimThreshold, ThresholdValue
 
 class ThresholdDef:
@@ -11,7 +7,9 @@ class ThresholdDef:
     alreadyExecuted = False
 
     @staticmethod
-    def registerThresholds(tc):
+    def registerThresholds(tc, menuName):
+
+        isV6 = '_v6' in menuName
 
         if ThresholdDef.alreadyExecuted:
             raise RuntimeError("Calling ThresholdDef.registerThresholds twice")
@@ -46,86 +44,86 @@ class ThresholdDef:
         EMThreshold( 'eEM8VH', 'eEM').setIsolation( rhad = "Tight" )\
             .addThrValue(9, priority=1)\
             .addThrValue(9, -8, 8, priority=2)\
-            .addThrValue(7, -11, -8, priority=2).addThrValue(7, 8, 11, priority=2)\
-            .addThrValue(6, -14, -11, priority=2).addThrValue(6, 11, 14, priority=2)\
-            .addThrValue(5, -15, -14, priority=2).addThrValue(5, 14, 15, priority=2)\
-            .addThrValue(7, -18, -15, priority=2).addThrValue(7, 15, 18, priority=2)\
-            .addThrValue(8, -25, -18, priority=2).addThrValue(8, 18, 25, priority=2)
+            .addThrValue(7, -11, -9, priority=2).addThrValue(7, 9, 11, priority=2)\
+            .addThrValue(6, -14, -12, priority=2).addThrValue(6, 12, 14, priority=2)\
+            .addThrValue(5, -15, -15, priority=2).addThrValue(5, 15, 15, priority=2)\
+            .addThrValue(7, -18, -16, priority=2).addThrValue(7, 16, 18, priority=2)\
+            .addThrValue(8, -25, -19, priority=2).addThrValue(8, 19, 25, priority=2)
         
         EMThreshold( 'eEM10VH', 'eEM' ).setIsolation( rhad = "Medium" )\
             .addThrValue(11, priority=1)\
-            .addThrValue(11, -8, 7, priority=2)\
-            .addThrValue(9, -11, -8, priority=2).addThrValue(9, 8, 11, priority=2)\
-            .addThrValue(8, -14, -11, priority=2).addThrValue(8, 11, 14, priority=2)\
-            .addThrValue(7, -15, -14, priority=2).addThrValue(7, 14, 15, priority=2)\
-            .addThrValue(9, -18, -15, priority=2).addThrValue(9, 15, 18, priority=2)\
-            .addThrValue(10, -25, -18, priority=2).addThrValue(10, 18, 25, priority=2)
+            .addThrValue(11, -8, 8, priority=2)\
+            .addThrValue(9, -11, -9, priority=2).addThrValue(9, 9, 11, priority=2)\
+            .addThrValue(8, -14, -12, priority=2).addThrValue(8, 12, 14, priority=2)\
+            .addThrValue(7, -15, -15, priority=2).addThrValue(7, 15, 15, priority=2)\
+            .addThrValue(9, -18, -16, priority=2).addThrValue(9, 16, 18, priority=2)\
+            .addThrValue(10, -25, -19, priority=2).addThrValue(10, 19, 25, priority=2)
 
         EMThreshold( 'eEM15VH', 'eEM').setIsolation( rhad = "Loose" )\
             .addThrValue(17, priority=1)\
             .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
-            .addThrValue(15, -12, -9, priority=2).addThrValue(15, 9, 12, priority=2)\
-            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
-            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
-            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
-            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)  
+            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
+            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
+            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
+            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
+            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
+            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)  
       
         EMThreshold( 'eEM20VH', 'eEM').setIsolation( rhad = "Loose" )\
             .addThrValue(22, priority=1)\
             .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -7, priority=2).addThrValue(21, 7, 8, priority=2)\
-            .addThrValue(20, -11, -8, priority=2).addThrValue(20, 8, 11, priority=2)\
-            .addThrValue(19, -13, -11, priority=2).addThrValue(19, 11, 13, priority=2)\
-            .addThrValue(18, -14, -13, priority=2).addThrValue(18, 13, 14, priority=2)\
-            .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
-            .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
-            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)       
+            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
+            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
+            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
+            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
+            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
+            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
+            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)       
 
         # (V)HI section
 
         EMThreshold( 'eEM15VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
             .addThrValue(17, priority=1)\
             .addThrValue(17, -7, 7, priority=2)\
-            .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
-            .addThrValue(15, -12, -9, priority=2).addThrValue(15, 9, 12, priority=2)\
-            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
-            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
-            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
-            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)
+            .addThrValue(16, -9, -8, priority=2).addThrValue(16, 8, 9, priority=2)\
+            .addThrValue(15, -12, -10, priority=2).addThrValue(15, 10, 12, priority=2)\
+            .addThrValue(14, -14, -13, priority=2).addThrValue(14, 13, 14, priority=2)\
+            .addThrValue(13, -15, -15, priority=2).addThrValue(13, 15, 15, priority=2)\
+            .addThrValue(15, -17, -16, priority=2).addThrValue(15, 16, 17, priority=2)\
+            .addThrValue(16, -25, -18, priority=2).addThrValue(16, 18, 25, priority=2)
 
         EMThreshold( 'eEM18VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
             .addThrValue(20, priority=1)\
             .addThrValue(20, -7, 7, priority=2)\
-            .addThrValue(19, -8, -7, priority=2).addThrValue(19, 7, 8, priority=2)\
-            .addThrValue(18, -11, -8, priority=2).addThrValue(18, 8, 11, priority=2)\
-            .addThrValue(17, -13, -11, priority=2).addThrValue(17, 11, 13, priority=2)\
-            .addThrValue(16, -14, -13, priority=2).addThrValue(16, 13, 14, priority=2)\
-            .addThrValue(15, -15, -14, priority=2).addThrValue(15, 14, 15, priority=2)\
-            .addThrValue(17, -17, -15, priority=2).addThrValue(17, 15, 17, priority=2)\
-            .addThrValue(19, -25, -17, priority=2).addThrValue(19, 17, 25, priority=2)
+            .addThrValue(19, -8, -8, priority=2).addThrValue(19, 8, 8, priority=2)\
+            .addThrValue(18, -11, -9, priority=2).addThrValue(18, 9, 11, priority=2)\
+            .addThrValue(17, -13, -12, priority=2).addThrValue(17, 12, 13, priority=2)\
+            .addThrValue(16, -14, -14, priority=2).addThrValue(16, 14, 14, priority=2)\
+            .addThrValue(15, -15, -15, priority=2).addThrValue(15, 15, 15, priority=2)\
+            .addThrValue(17, -17, -16, priority=2).addThrValue(17, 16, 17, priority=2)\
+            .addThrValue(19, -25, -18, priority=2).addThrValue(19, 18, 25, priority=2)
 
         EMThreshold( 'eEM20VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
             .addThrValue(22, priority=1)\
             .addThrValue(22, -7, 7, priority=2)\
-            .addThrValue(21, -8, -7, priority=2).addThrValue(21, 7, 8, priority=2)\
-            .addThrValue(20, -11, -8, priority=2).addThrValue(20, 8, 11, priority=2)\
-            .addThrValue(19, -13, -11, priority=2).addThrValue(19, 11, 13, priority=2)\
-            .addThrValue(18, -14, -13, priority=2).addThrValue(18, 13, 14, priority=2)\
-            .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
-            .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
-            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
+            .addThrValue(21, -8, -8, priority=2).addThrValue(21, 8, 8, priority=2)\
+            .addThrValue(20, -11, -9, priority=2).addThrValue(20, 9, 11, priority=2)\
+            .addThrValue(19, -13, -12, priority=2).addThrValue(19, 12, 13, priority=2)\
+            .addThrValue(18, -14, -14, priority=2).addThrValue(18, 14, 14, priority=2)\
+            .addThrValue(17, -15, -15, priority=2).addThrValue(17, 15, 15, priority=2)\
+            .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
+            .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)
 
         EMThreshold( 'eEM22VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
             .addThrValue(24, priority=1)\
             .addThrValue(24, -7, 7, priority=2)\
-            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
-            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
-            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
-            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
-            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
-            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
-            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+            .addThrValue(23, -8, -8, priority=2).addThrValue(23, 8, 8, priority=2)\
+            .addThrValue(22, -11, -9, priority=2).addThrValue(22, 9, 11, priority=2)\
+            .addThrValue(21, -13, -12, priority=2).addThrValue(21, 12, 13, priority=2)\
+            .addThrValue(20, -14, -14, priority=2).addThrValue(20, 14, 14, priority=2)\
+            .addThrValue(19, -15, -15, priority=2).addThrValue(19, 15, 15, priority=2)\
+            .addThrValue(21, -17, -16, priority=2).addThrValue(21, 16, 17, priority=2)\
+            .addThrValue(23, -25, -18, priority=2).addThrValue(23, 18, 25, priority=2)
         
 
 
@@ -228,7 +226,7 @@ class ThresholdDef:
 
         ## AFP
 
-        if '_v6' in TriggerFlags.triggerMenuSetup():
+        if isV6:
             NimThreshold('AFP_NSC', 'NIM', mapping=2)
             NimThreshold('AFP_FSC', 'NIM', mapping=3)
             NimThreshold('AFP_NSA', 'NIM', mapping=4)

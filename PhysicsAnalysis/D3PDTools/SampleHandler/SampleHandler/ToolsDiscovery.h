@@ -24,7 +24,6 @@
 //protect
 #include <SampleHandler/Global.h>
 
-#include <RootCoreUtils/Deprecated.h>
 #include <string>
 #include <vector>
 
@@ -42,14 +41,14 @@ namespace SH
   /// rationale: the prefix option is for the Tier 3 prototype, where
   ///   you scan the local directory, but then access the files
   ///   through xrootd
-  RCU_DEPRECATED ("please use new ScanDir() mechanism instead")
+  [[deprecated("please use new ScanDir() mechanism instead")]]
   void scanDir (SampleHandler& sh, DiskList& list,
 		const std::string& pattern = "*.root*",
 		const std::string& samplePattern = "*",
 		const std::string& samplePostfix = "");
-  RCU_DEPRECATED ("please use new ScanDir() mechanism instead")
+  [[deprecated("please use new ScanDir() mechanism instead")]]
   void scanDir (SampleHandler& sh, const std::string& dir);
-  RCU_DEPRECATED ("please use new ScanDir() mechanism instead")
+  [[deprecated("please use new ScanDir() mechanism instead")]]
   void scanDir (SampleHandler& sh, const std::string& dir,
 		const std::string& prefix);
 
@@ -58,7 +57,7 @@ namespace SH
   ///   sample of the given name
   /// guarantee: strong
   /// failures: out of memory III
-  RCU_DEPRECATED ("please use new ScanDir() mechanism instead")
+  [[deprecated("please use new ScanDir() mechanism instead")]]
   void scanSingleDir (SampleHandler& sh, const std::string& name,
 		      DiskList& list, const std::string& pattern = "*.root*");
 
@@ -70,7 +69,7 @@ namespace SH
   /// failures: out of memory III
   /// failures: i/o errors
   /// failures: duplicate samples
-  RCU_DEPRECATED ("please use new ScanDir() mechanism instead")
+  [[deprecated("please use new ScanDir() mechanism instead")]]
   void scanFiles (SampleHandler& sh, DiskList& list,
 		  const std::string& pattern = "*.root*");
 
@@ -86,7 +85,7 @@ namespace SH
   /// guarantee: basic, may add partially
   /// failures: out of memory III
   /// failures: dq2-ls errors
-  RCU_DEPRECATED ("please use scanRucio instead")
+  [[deprecated("please use scanRucio instead")]]
   void scanDQ2 (SampleHandler& sh, const std::string& pattern);
 
 

@@ -129,7 +129,7 @@ int main()
 {
   ISvcLocator* svcloc;
   //need MessageSvc
-  if (!Athena_test::initGaudi("CondHandleKeyArray_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("StoreGate/CondHandleKeyArray_test.txt", svcloc)) {
     return 1;
   }
 

@@ -4,8 +4,6 @@
 
 #include "MuonTrackSummaryHelperTool.h"
 
-#include "Identifier/Identifier.h"
-
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
@@ -17,57 +15,33 @@
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
-#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
-
 #include "StoreGate/ReadHandle.h"
 
-#include <vector>
 #include <cassert>
 #include <set>
 #include <cmath>
 
-Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(
-							     const std::string& t,
-							     const std::string& n,
-							     const IInterface*  p )
-  : base_class(t,n,p)
+Muon::MuonTrackSummaryHelperTool::MuonTrackSummaryHelperTool(const std::string& t, const std::string& n, const IInterface* p) :
+    base_class(t,n,p)
 {
   declareInterface<ITrackSummaryHelperTool>(this);
 }
 
-Muon::MuonTrackSummaryHelperTool::~MuonTrackSummaryHelperTool()
-{
-}
-
 StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
 {
-
   ATH_CHECK(m_DetectorManagerKey.initialize());
-
-  if( m_calculateCloseHits && !m_extrapolator.empty() ){
-    if (m_extrapolator.retrieve().isSuccess()){
-      ATH_MSG_DEBUG("Retrieved " << m_extrapolator);
-    }else{
-      ATH_MSG_ERROR("Could not get " << m_extrapolator);
-      return StatusCode::FAILURE;
-    }
+  if(m_calculateCloseHits && !m_extrapolator.empty()) {
+    ATH_CHECK(m_extrapolator.retrieve());
   }
   else{
     m_extrapolator.disable();
   }
-
-  if( m_idHelperTool.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not get " << m_idHelperTool);      
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_mdtKey.initialize());
-  
   return StatusCode::SUCCESS;
 }
 
@@ -83,29 +57,28 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   if (tsos->type(Trk::TrackStateOnSurface::Outlier)) return; //ignore outliers
 
   Identifier id = rot->identify();
-  ATH_MSG_DEBUG("Processing rot: "<<m_idHelperTool->toString(id));
-  if(m_idHelperTool->isRpc(id)){
-    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
+  ATH_MSG_DEBUG("Processing rot: "<<m_idHelperSvc->toString(id));
+  if(m_idHelperSvc->isRpc(id)){
+    if( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
     else                           increment(information[numberOfRpcEtaHits]);
-  }else if(m_idHelperTool->isCsc(id)) {
-    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
+  }else if(m_idHelperSvc->isCsc(id)) {
+    if( m_idHelperSvc->cscIdHelper().measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
     else  {                         
       increment(information[numberOfCscEtaHits]);
       const CscClusterOnTrack* clus = dynamic_cast<const CscClusterOnTrack*>(rot);
       if (clus && ((clus->status()==Muon::CscStatusUnspoiled) || (clus->status()==Muon::CscStatusSplitUnspoiled))) 
         increment(information[numberOfCscUnspoiltEtaHits]);
     }
-  }else if(m_idHelperTool->isTgc(id)){
-    if( m_idHelperTool->tgcIdHelper().isStrip(id) )     increment(information[numberOfTgcPhiHits]);
+  }else if(m_idHelperSvc->isTgc(id)){
+    if( m_idHelperSvc->tgcIdHelper().isStrip(id) )     increment(information[numberOfTgcPhiHits]);
     else                           increment(information[numberOfTgcEtaHits]);
-  }else if(m_idHelperTool->isMdt(id)){  
+  }else if(m_idHelperSvc->isMdt(id)){  
     increment(information[numberOfMdtHits]);
-  }else if(m_idHelperTool->issTgc(id) ){
-    // strip = measuresPhi
-    if( m_idHelperTool->stgcIdHelper().measuresPhi(id) )    increment(information[numberOfStgcPhiHits]);
+  }else if(m_idHelperSvc->issTgc(id) ){
+    if( m_idHelperSvc->stgcIdHelper().measuresPhi(id) )    increment(information[numberOfStgcPhiHits]);
     // we do not discriminate between pads or wires
     else                               increment(information[numberOfStgcEtaHits]);
-  }else if(m_idHelperTool->isMM(id)){  
+  }else if(m_idHelperSvc->isMM(id)){  
     increment(information[numberOfMmHits]); 
   }else{
     msg (MSG::ERROR) << "Unknown muon detector type " << endmsg;
@@ -125,8 +98,8 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   std::set<Identifier> layIds;
   for (unsigned int i=0;i<crot->numberOfContainedROTs();i++){
     const Trk::RIO_OnTrack* rot = &crot->rioOnTrack(i);
-    Identifier layId =  m_idHelperTool->layerId( rot->identify() );  
-    ATH_MSG_DEBUG("ROT "<<i<<"\t LayerId="<<m_idHelperTool->toString(layId));
+    Identifier layId =  m_idHelperSvc->layerId( rot->identify() );  
+    ATH_MSG_DEBUG("ROT "<<i<<"\t LayerId="<<m_idHelperSvc->toString(layId));
     std::pair< std::set<Identifier>::iterator, bool > pr = layIds.insert(layId); 
     if(pr.second == true) {
       // layer not seen before
@@ -202,21 +175,20 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       }	
       if( pars->associatedSurface().associatedDetectorElement() ){
         Identifier id = pars->associatedSurface().associatedDetectorElement()->identify();
-        bool issTgc = m_idHelperTool->issTgc(id);
+        bool issTgc = m_idHelperSvc->issTgc(id);
         if(issTgc) {
 	  // get the identifier for phi or eta holes 
           Identifier idh = pars->associatedSurface().associatedDetectorElementIdentifier();
           if(idh.is_valid()) {
             id = idh;
-	    // ATH_MSG_VERBOSE(" For sTGC hole use associatedDetectorElementIdentifier ");
           }
         }
-        if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
-        Identifier chId = m_idHelperTool->chamberId(id);
+        if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
+        Identifier chId = m_idHelperSvc->chamberId(id);
 	// for is summary sTGC split STGC1 and STGC2 
-        if(issTgc) chId = m_idHelperTool->detElId(id);
+        if(issTgc) chId = m_idHelperSvc->detElId(id);
         bool isFirst =  isFirstProjection(id);
-        bool isMdt = m_idHelperTool->isMdt(id);
+        bool isMdt = m_idHelperSvc->isMdt(id);
 
 	// check whether first chamber or new chamber
         if( !currentChamberSummary || currentChamberSummary->m_chId != chId ){
@@ -235,7 +207,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	    updateHoleContent(*currentChamberSummary);
 	  }
 
-	  ATH_MSG_VERBOSE(" Adding new chamber (holes) " << m_idHelperTool->toString(id) << " " << *pars);
+	  ATH_MSG_VERBOSE(" Adding new chamber (holes) " << m_idHelperSvc->toString(id) << " " << *pars);
 	  trackSummary.m_chamberHitSummary.push_back( Trk::MuonTrackSummary::ChamberHitSummary(chId,isMdt) );
 	  currentChamberSummary = &trackSummary.m_chamberHitSummary.back();
 	  currentChamberPars = pars;
@@ -246,7 +218,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
  	    ++proj.nholes;
         } else {
 // sTgc holes keep track of phi and eta
-          if( m_idHelperTool->measuresPhi(id) ) {
+          if( m_idHelperSvc->measuresPhi(id) ) {
             ATH_MSG_VERBOSE(" counting sTGC phi hole ");
             Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = currentChamberSummary->m_second; 
              ++proj.nholes;
@@ -293,12 +265,12 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
     if( rot ){
       id = rot->identify();
-      if( !m_idHelperTool->isMuon(id) ) continue;
+      if( !m_idHelperSvc->isMuon(id) ) continue;
 
       // bound checks
       double tol1 = 100.;
       double tol2 = 2*tol1;
-      if( !pseudo && m_idHelperTool->isMdt(id) ) tol1 = 5.;
+      if( !pseudo && m_idHelperSvc->isMdt(id) ) tol1 = 5.;
       // we need a special bound check for MDTs so we cast to SL surface
       const Trk::StraightLineSurface* slSurf = dynamic_cast<const Trk::StraightLineSurface*>(&meas->associatedSurface());
       if( slSurf ) {
@@ -308,7 +280,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
         inBounds = meas->associatedSurface().insideBounds(locPos,tol1,tol2);
       }
 
-      Identifier layId =  m_idHelperTool->layerId( id );
+      Identifier layId =  m_idHelperSvc->layerId( id );
       layIds.insert(layId);
       const MdtDriftCircleOnTrack* mdtdc = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
       if(mdtdc){
@@ -317,15 +289,15 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
           goodLayIds.insert(layId);
         }
       }
-      else if(m_idHelperTool->isCsc(id)){
+      else if(m_idHelperSvc->isCsc(id)){
         const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
         if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
       }
-      else if(m_idHelperTool->isMM(id)) {
+      else if(m_idHelperSvc->isMM(id)) {
         // MM quality requirements to be inserted here if needed
         goodLayIds.insert(layId);
       }
-      else if(m_idHelperTool->issTgc(id)) {
+      else if(m_idHelperSvc->issTgc(id)) {
         // sTGC quality requirements to be inserted here if needed
         goodLayIds.insert(layId);
       }
@@ -338,13 +310,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
         id = crot->containedROTs().front()->identify();
 
         // count layers in competing rot
-        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit = crot->containedROTs().begin();
-        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator clit_end = crot->containedROTs().end();
-        for( ;clit!=clit_end;++clit ){
+        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cl_it = crot->containedROTs().begin();
+        std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cl_it_end = crot->containedROTs().end();
+        for( ;cl_it!=cl_it_end;++cl_it ){
           // get layer Identifier and insert it into set
-          Identifier layId =  m_idHelperTool->layerId( (*clit)->identify() );
+          Identifier layId =  m_idHelperSvc->layerId( (*cl_it)->identify() );
           layIds.insert(layId);
-          if(m_idHelperTool->isCsc(id)){
+          if(m_idHelperSvc->isCsc(id)){
             const Muon::CscClusterOnTrack* cscClus = dynamic_cast<const Muon::CscClusterOnTrack*>(rot);
             if(cscClus->status()==0 || cscClus->status()==10) goodLayIds.insert(layId);
           }
@@ -354,13 +326,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       }
     }
 
-    Identifier chId = m_idHelperTool->chamberId(id);
+    Identifier chId = m_idHelperSvc->chamberId(id);
     // for is summary sTGC split STGC1 and STGC2 
-    bool issTgc = m_idHelperTool->issTgc(id);
-    if(issTgc) chId = m_idHelperTool->detElId(id);
+    bool issTgc = m_idHelperSvc->issTgc(id);
+    if(issTgc) chId = m_idHelperSvc->detElId(id);
     bool isFirst =  isFirstProjection(id);
-    bool isMdt = m_idHelperTool->isMdt(id);
-    ATH_MSG_VERBOSE(" Adding hit " << m_idHelperTool->toString(id));
+    bool isMdt = m_idHelperSvc->isMdt(id);
+    ATH_MSG_VERBOSE(" Adding hit " << m_idHelperSvc->toString(id));
 
     /** check whether first chamber or new chamber */
     if( !currentChamberSummary || currentChamberSummary->m_chId != chId ){
@@ -376,7 +348,7 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       }
 
 
-      ATH_MSG_VERBOSE(" Adding new chamber " << m_idHelperTool->toString(id) << " " << *pars);
+      ATH_MSG_VERBOSE(" Adding new chamber " << m_idHelperSvc->toString(id) << " " << *pars);
       trackSummary.m_chamberHitSummary.push_back( Trk::MuonTrackSummary::ChamberHitSummary(chId,isMdt) );
       currentChamberSummary = &trackSummary.m_chamberHitSummary.back();
       currentChamberPars = pars;
@@ -390,8 +362,8 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
       // MDTs: count outlier as delta electron if rDrift < rTrack < innerTubeRadius
       if( isMdt && pars ) {
-        double rDrift = fabs(meas->localParameters()[Trk::locR]);
-        double rTrack = fabs(pars->parameters()[Trk::locR]);
+        double rDrift = std::abs(meas->localParameters()[Trk::locR]);
+        double rTrack = std::abs(pars->parameters()[Trk::locR]);
         double innerRadius = MuonDetMgr->getMdtReadoutElement(id)->innerTubeRadius();
         if( rTrack > rDrift && rTrack < innerRadius ) {
           ++proj.ndeltas;
@@ -424,17 +396,13 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 }
 
 void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary ) const {
-//   ATH_MSG_DEBUG("updateHoleContent " << m_idHelperTool->toString(chamberHitSummary.chamberId())
-// 	       << " nphi " << chamberHitSummary.phiProjection().nhits << " holes " << chamberHitSummary.phiProjection().nholes 
-// 	       << " neta " << chamberHitSummary.etaProjection().nhits << " holes " << chamberHitSummary.etaProjection().nholes );
-
-  if( m_idHelperTool->issTgc(chamberHitSummary.chamberId()) ){
+  if( m_idHelperSvc->issTgc(chamberHitSummary.chamberId()) ){
     ATH_MSG_DEBUG(" holes eta " << chamberHitSummary.etaProjection().nholes
       << " phi " << chamberHitSummary.phiProjection().nholes );
   }
 
-  if( m_idHelperTool->issTgc(chamberHitSummary.chamberId())
-      || m_idHelperTool->isMM(chamberHitSummary.chamberId()) ){
+  if( m_idHelperSvc->issTgc(chamberHitSummary.chamberId())
+      || m_idHelperSvc->isMM(chamberHitSummary.chamberId()) ){
     return;
   }
 
@@ -445,14 +413,14 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
     return; 
   } 
 
-  bool isCsc = m_idHelperTool->isCsc(chamberHitSummary.chamberId());
+  bool isCsc = m_idHelperSvc->isCsc(chamberHitSummary.chamberId());
   int neta = isCsc ? 4 : 2;
   int nphi = isCsc ? 4 : 2;
-  if( m_idHelperTool->isTgc(chamberHitSummary.chamberId()) ){
+  if( m_idHelperSvc->isTgc(chamberHitSummary.chamberId()) ){
 
     const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(chamberHitSummary.chamberId());
     if( !detEl ){
-      ATH_MSG_WARNING(" No detector element found for " << m_idHelperTool->toStringChamber(chamberHitSummary.chamberId()) );      
+      ATH_MSG_WARNING(" No detector element found for " << m_idHelperSvc->toStringChamber(chamberHitSummary.chamberId()) );      
       return;
     }
 
@@ -513,7 +481,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   }
   if ( !extrapolator ) return;
 
-  ATH_MSG_DEBUG("road hits for chamber "<<m_idHelperTool->toString(chamberHitSummary.chamberId()));
+  ATH_MSG_DEBUG("road hits for chamber "<<m_idHelperSvc->toString(chamberHitSummary.chamberId()));
 
   //currently treating MDTs only
   if(!chamberHitSummary.isMdt()) return;
@@ -552,9 +520,9 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
       exPars = extrapolator->extrapolateDirectly(pars,surf,Trk::anyDirection,false,Trk::muon);
       if( !exPars ) {
         if ( isStraightLine ) {
-          ATH_MSG_WARNING(" Straight line propagation to prd " << m_idHelperTool->toString(id) << " failed");
+          ATH_MSG_WARNING(" Straight line propagation to prd " << m_idHelperSvc->toString(id) << " failed");
         } else {
-          ATH_MSG_WARNING(" Curved track propagation to prd " << m_idHelperTool->toString(id) << " failed");
+          ATH_MSG_WARNING(" Curved track propagation to prd " << m_idHelperSvc->toString(id) << " failed");
         }
         continue;
       }
@@ -569,20 +537,14 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
       ATH_MSG_DEBUG(" same tube hit, not adding to close hits in road" );
     }else {
       //add all hits within the road width (defined in job options)
-      if(fabs(distance) < m_roadWidth){
-        ATH_MSG_VERBOSE( "Hit ID  within road: " << m_idHelperTool->toString(id) << " distance " << distance << " < " << m_roadWidth );
+      if(std::abs(distance) < m_roadWidth){
+        ATH_MSG_VERBOSE( "Hit ID  within road: " << m_idHelperSvc->toString(id) << " distance " << distance << " < " << m_roadWidth );
         ++proj.ncloseHits;
         addedIds.insert(id);
       } else {
-        ATH_MSG_VERBOSE( "Hit ID outside road: " << m_idHelperTool->toString(id) << " distance " << distance << " >= " << m_roadWidth );
+        ATH_MSG_VERBOSE( "Hit ID outside road: " << m_idHelperSvc->toString(id) << " distance " << distance << " >= " << m_roadWidth );
       }
     }
-
-
-    /*    //add all hits within the road width (defined in job options)
-	  if(fabs(distance) < m_roadWidth) ++proj.ncloseHits;
-    */
-
     // to avoid double deleting when track is deleted, only delete
     //exPars when it's not the TrackParameters which was passed (pars)
     if(exPars != &pars) delete exPars;
@@ -611,10 +573,10 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
 }
 
 bool Muon::MuonTrackSummaryHelperTool::isFirstProjection( const Identifier& id ) const {
-  if( !m_idHelperTool->isMdt(id) ) {
-    return !m_idHelperTool->measuresPhi(id);
+  if( !m_idHelperSvc->isMdt(id) ) {
+    return !m_idHelperSvc->measuresPhi(id);
   }
-  return m_idHelperTool->mdtIdHelper().multilayer(id) == 1;
+  return m_idHelperSvc->mdtIdHelper().multilayer(id) == 1;
 }
 
 const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdCollection( const Identifier& chId ) const {
@@ -631,13 +593,13 @@ const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdC
   }
 
   IdentifierHash hash_id;
-  m_idHelperTool->mdtIdHelper().get_module_hash(chId,hash_id );
+  m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
 
-  Muon::MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-  if( colIt == mdtPrdContainer->end() ){
-    ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperTool->toStringChamber(chId) 
+  auto coll = mdtPrdContainer->indexFindPtr(hash_id);
+  if( coll == nullptr ){
+    ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) 
 		  << "  not found in container ");
     return 0;
   }
-  return *colIt;
+  return coll;
 }

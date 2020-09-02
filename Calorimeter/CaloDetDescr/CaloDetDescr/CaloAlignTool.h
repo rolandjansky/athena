@@ -21,6 +21,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class CaloDetDescrManager;
 
 /**
@@ -32,7 +34,7 @@ class CaloDetDescrManager;
  * which is registered as a callback by CaloAlignTool::initialize()
  */
 
-class CaloAlignTool : public AthAlgTool, virtual public IGeoAlignTool
+class ATLAS_NOT_THREAD_SAFE CaloAlignTool : public AthAlgTool, virtual public IGeoAlignTool
 {
  public:
 

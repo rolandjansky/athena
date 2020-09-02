@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -35,7 +35,7 @@ class TriggerAPI:
         cls.pickleread = True
         if cls.centralPickleFile:
             try:
-                with open(cls.centralPickleFile, 'r') as f:
+                with open(cls.centralPickleFile, 'rb') as f:
                     cls.log.info("Reading cached information from: "+cls.centralPickleFile)
                     cls.dbQueries = pickle.load(f)
             except (pickle.PickleError, ValueError):
@@ -44,7 +44,7 @@ class TriggerAPI:
         else:
             cls.dbQueries = {}
         try:
-            with open(cls.privatePickleFile, 'r') as f:
+            with open(cls.privatePickleFile, 'rb') as f:
                 cls.privatedbQueries = pickle.load(f)
                 cls.dbQueries.update(cls.privatedbQueries)
         except (pickle.PickleError, ValueError):
@@ -170,7 +170,7 @@ class TriggerAPI:
                 cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
                 if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
                     #Don't pickle TM information since it can change, very cheap to retrieve anyway
-                    with open(cls.privatePickleFile, 'w') as f:
+                    with open(cls.privatePickleFile, 'wb') as f:
                         pickle.dump( cls.privatedbQueries , f)
             else:
                 basePeriods = [tp for tp in TriggerPeriod.basePeriods() if tp & period]
@@ -185,7 +185,7 @@ class TriggerAPI:
         for period,grl in cls.dbQueries.keys():
             if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()): continue
             del cls.dbQueries[(period,grl)]
-        with open(cls.privatePickleFile, 'w') as f:
+        with open(cls.privatePickleFile, 'wb') as f:
             pickle.dump( cls.dbQueries , f)
         print (sorted(cls.dbQueries.keys()))
 

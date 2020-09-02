@@ -15,7 +15,7 @@
 #define TRK_IMCEVENTNTUPLETOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace Trk {
 static const InterfaceID IID_IMcEventNtupleTool("IMcEventNtupleTool",1,0);

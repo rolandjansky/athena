@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TrigDB modifier
 # Usage: athenaMT/PT -C 'include("TriggerJobOpts/dbmod_chronoAuditor.py")' ...
 #

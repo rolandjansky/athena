@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAEVENT_EMTRACKFIT_H
@@ -242,7 +242,7 @@ private:
  
  std::vector< std::pair<egammaParameters::ParamDef,double> > m_parameters; 
  std::vector< std::pair<egammaParameters::ParamDef,int> > m_parametersInt; 
- static std::string s_className;
+ static const std::string s_className;
    
 };
 

@@ -11,6 +11,10 @@
 **********************************/
 
 #include <cmath>
+#include <string>
+#include <sstream>
+#include <vector>
+#include "TH1F.h"
 
 #include "L1TopoAlgorithms/TransverseMassInclusive1.h"
 #include "L1TopoCommon/Exception.h"
@@ -19,6 +23,7 @@
 #include "L1TopoSimulationUtils/L1TopoDataTypes.h"
 #include "L1TopoSimulationUtils/Trigo.h"
 #include "L1TopoSimulationUtils/Hyperbolic.h"
+#include "L1TopoSimulationUtils/Kinematics.h"
 
 //
 REGISTER_ALG_TCS(TransverseMassInclusive1)
@@ -107,6 +112,18 @@ TCS::TransverseMassInclusive1::initialize() {
    }
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);   
    TRG_MSG_INFO("number output : " << numberOutputBits());
+
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+       const int buf_len = 512;
+       char hname_accept[buf_len], hname_reject[buf_len];
+       int Tmass_min = p_TMassMin[i];
+       int Tmass_max = 1000;
+       // Tmass
+       snprintf(hname_accept, buf_len, "Accept_TransverseMassInclusive1_bit%d_%dM%d_Mass", i, Tmass_min, Tmass_max);
+       snprintf(hname_reject, buf_len, "Reject_TransverseMassInclusive1_bit%d_%dM%d_Mass", i, Tmass_min, Tmass_max);
+       registerHist(m_histAcceptM[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*Tmass_max));
+       registerHist(m_histRejectM[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*Tmass_max));
+  }
  
    return StatusCode::SUCCESS;
 }
@@ -116,7 +133,7 @@ TCS::TransverseMassInclusive1::initialize() {
 TCS::StatusCode
 TCS::TransverseMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 2) { // 2 lists because one is always MET
@@ -143,9 +160,17 @@ TCS::TransverseMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArra
                    if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                    if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                    accept = tmass2 >= p_TMassMin[i] ; // 
-                   if(accept) {
-                       decison.setBit(i, true);  
+                   const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                   const bool fillReject = fillHistos() and not fillAccept;
+                   const bool alreadyFilled = decision.bit(i);
+		   if(accept) {
+                       decision.setBit(i, true);  
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                   }
+                   if(fillAccept and not alreadyFilled) {
+		     fillHist1D(m_histAcceptM[i]->GetName(),(float)tmass2);
+                   } else if(fillReject) {
+		     fillHist1D(m_histRejectM[i]->GetName(),(float)tmass2);
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " tmass2 = " << tmass2);
                }
@@ -163,7 +188,7 @@ TCS::TransverseMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArra
 TCS::StatusCode
 TCS::TransverseMassInclusive1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 2) { // 2 lists because one is always MET
@@ -184,20 +209,26 @@ TCS::TransverseMassInclusive1::process( const std::vector<TCS::TOBArray const *>
              
 	       unsigned int tmass2 = calcTMass( *tob1, *tob2 );
 
-
-               bool accept[6];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-
+		  bool accept = false;
 		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
 
                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
 
-                  accept[i] = tmass2 >= p_TMassMin[i] ; // 
-                  if( accept[i] ) {
-                     decison.setBit(i, true);  
+                  accept = tmass2 >= p_TMassMin[i] ; // 
+                  const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+                  const bool fillReject = fillHistos() and not fillAccept;
+                  const bool alreadyFilled = decision.bit(i);
+                  if( accept ) {
+                     decision.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                   }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " tmass2 = " << tmass2);
+                   if(fillAccept and not alreadyFilled) {
+		     fillHist1D(m_histAcceptM[i]->GetName(),(float)tmass2);
+                   } else if(fillReject) {
+		     fillHist1D(m_histRejectM[i]->GetName(),(float)tmass2);
+                   }
+                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " tmass2 = " << tmass2);
 
                }
             }

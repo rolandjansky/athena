@@ -13,7 +13,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "JetEvent/Jet.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
 

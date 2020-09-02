@@ -40,11 +40,11 @@ CscCondDbAlg::initialize(){
     ATH_CHECK(m_readKey_folder_da_f001   .initialize());
     ATH_CHECK(m_readKey_folder_da_noise  .initialize());
     ATH_CHECK(m_readKey_folder_da_ped    .initialize());
-    if (m_pslopeFromDB) ATH_CHECK(m_readKey_folder_da_pslope .initialize());
+    ATH_CHECK(m_readKey_folder_da_pslope .initialize(m_pslopeFromDB));
     ATH_CHECK(m_readKey_folder_da_rms    .initialize());
     ATH_CHECK(m_readKey_folder_da_status .initialize());
-    ATH_CHECK(m_readKey_folder_da_t0base .initialize());
-    ATH_CHECK(m_readKey_folder_da_t0phase.initialize());
+    ATH_CHECK(m_readKey_folder_da_t0base .initialize(!m_readKey_folder_da_t0base.empty()));
+    ATH_CHECK(m_readKey_folder_da_t0phase.initialize(!m_readKey_folder_da_t0phase.empty()));
 
     if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -75,33 +75,31 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
     writeCdo->loadParameters(&m_idHelperSvc->cscIdHelper());
     writeCdo->setParameters(m_onlineOfflinePhiFlip);
 
-    //Start with an infinite range and narrow it down as needed
-    EventIDRange rangeW=IOVInfiniteRange::infiniteMixed();
     // data only
     if(m_isData) {
-        //ATH_CHECK(loadDataHv(rangeW, writeCdo.get(), ctx)); // keep for future development
+        //ATH_CHECK(loadDataHv(writeHandle, writeCdo.get(), ctx)); // keep for future development
     }
 
     // both data and MC
-    ATH_CHECK(loadDataF001   (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataNoise  (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataPed    (rangeW, writeCdo.get(), ctx)); 
-    if (m_pslopeFromDB) ATH_CHECK(loadDataPSlope (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataRMS    (rangeW, writeCdo.get(), ctx)); 
-    ATH_CHECK(loadDataStatus (rangeW, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataF001   (writeHandle, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataNoise  (writeHandle, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataPed    (writeHandle, writeCdo.get(), ctx)); 
+    if (m_pslopeFromDB) ATH_CHECK(loadDataPSlope (writeHandle, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataRMS    (writeHandle, writeCdo.get(), ctx)); 
+    ATH_CHECK(loadDataStatus (writeHandle, writeCdo.get(), ctx)); 
 
 	if(!m_isOnline) {
-        ATH_CHECK(loadDataT0Base (rangeW, writeCdo.get(), ctx));
-        ATH_CHECK(loadDataT0Phase(rangeW, writeCdo.get(), ctx));
+        ATH_CHECK(loadDataT0Base (writeHandle, writeCdo.get(), ctx));
+        ATH_CHECK(loadDataT0Phase(writeHandle, writeCdo.get(), ctx));
     }
 
-    if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+    if (writeHandle.record(std::move(writeCdo)).isFailure()) {
       ATH_MSG_FATAL("Could not record CscCondDbData " << writeHandle.key() 
-  		  << " with EventRange " << rangeW
-  		  << " into Conditions Store");
+		    << " with EventRange " << writeHandle.getRange()
+		    << " into Conditions Store");
       return StatusCode::FAILURE;
     }		  
-    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+    ATH_MSG_DEBUG("Recorded new " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
     return StatusCode::SUCCESS;
 }
@@ -109,7 +107,7 @@ CscCondDbAlg::execute(const EventContext& ctx) const {
 
 // loadDataHv
 StatusCode
-CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataHv(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_hv, ctx};
     const CondAttrListCollection* readCdo{*readHandle}; 
@@ -117,18 +115,10 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const E
       ATH_MSG_ERROR("Null pointer to the read conditions object");
       return StatusCode::FAILURE; 
     } 
-
-    EventIDRange range; 
-    if ( !readHandle.range(range) ) {
-      ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    }
-
-    //intersect validity range of this obj with the validity of already-loaded objs
-    rangeW = EventIDRange::intersect(range, rangeW);
-  
+    writeHandle.addDependency(readHandle);
+ 
     ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
+    ATH_MSG_DEBUG("Range of input is " << readHandle.getRange() << ", range of output is " << writeHandle.getRange());
 
     CondAttrListCollection::const_iterator itr;
 	std::map<Identifier, int> layerMap;
@@ -199,84 +189,73 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, CscCondDbData* writeCdo, const E
 
 // loadDataF001
 StatusCode
-CscCondDbAlg::loadDataF001(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataF001(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_f001, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "f001");
+    writeHandle.addDependency(readHandle);
+    return loadData(writeCdo, *readHandle, "f001");
 }
 
 // loadDataNoise
 StatusCode
-CscCondDbAlg::loadDataNoise(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataNoise(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_noise, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "noise");
+    writeHandle.addDependency(readHandle);
+    return loadData(writeCdo, *readHandle, "noise");
 }
 
 // loadDataPed
 StatusCode
-CscCondDbAlg::loadDataPed(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_ped, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "ped");
+CscCondDbAlg::loadDataPed(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_ped, ctx};
+  writeHandle.addDependency(readHandle);
+  return loadData(writeCdo, *readHandle, "ped");
 }
 
 // loadDataPSlope
 StatusCode
-CscCondDbAlg::loadDataPSlope(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataPSlope(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pslope, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "pslope");
+    writeHandle.addDependency(readHandle);
+    return loadData(writeCdo, *readHandle, "pslope");
 }
 
 // loadDataRMS
 StatusCode
-CscCondDbAlg::loadDataRMS(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataRMS(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_rms, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "rms");
+    writeHandle.addDependency(readHandle);
+    return loadData(writeCdo, *readHandle, "rms");
 }
 
 // loadDataStatus
 StatusCode
-CscCondDbAlg::loadDataStatus(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataStatus(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_status, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "status");
+    writeHandle.addDependency(readHandle);
+    return loadData(writeCdo, *readHandle, "status");
 }
 
 // loadDataT0Base
 StatusCode
-CscCondDbAlg::loadDataT0Base(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0base, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "t0base");
+CscCondDbAlg::loadDataT0Base(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0base, ctx};
+  writeHandle.addDependency(readHandle);
+  return loadData(writeCdo, *readHandle, "t0base");
 }
 
 // loadDataT0Phase
 StatusCode
-CscCondDbAlg::loadDataT0Phase(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0phase, ctx};
-	return loadData(rangeW, writeCdo, readHandle, "t0phase", true);
+CscCondDbAlg::loadDataT0Phase(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
+  SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0phase, ctx};
+  writeHandle.addDependency(readHandle);
+  return loadData(writeCdo, *readHandle, "t0phase", true);
 }
 
 
 // loadData
 StatusCode
-CscCondDbAlg::loadData(EventIDRange & rangeW, CscCondDbData* writeCdo, SG::ReadCondHandle<CondAttrListCollection> readHandle, const std::string parName, bool parAsm) const {
+CscCondDbAlg::loadData(CscCondDbData* writeCdo, const CondAttrListCollection* readCdo, const std::string parName, bool parAsm) const {
 
-    const CondAttrListCollection* readCdo{*readHandle}; 
-
-    if(readCdo==0){
-      ATH_MSG_ERROR("Null pointer to the read conditions object");
-       return StatusCode::FAILURE; 
-    } 
-  
-    EventIDRange range; 
-    if ( !readHandle.range(range) ) {
-       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-      return StatusCode::FAILURE;
-    } 
-
-    // intersect validity range of thsi obj with the validity of already-loaded objs
-    rangeW = EventIDRange::intersect(range, rangeW);
-  
-    ATH_MSG_DEBUG("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_DEBUG("Range of input is " << range << ", range of output is " << rangeW);
- 
     CondAttrListCollection::const_iterator itr;
 
     for(itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
@@ -678,7 +657,7 @@ keep for future development:
 
 // loadDataDeadChambers
 StatusCode
-CscCondDbAlg::loadDataDeadChambers(EventIDRange & rangeW, CscCondDbData* writeCdo, const EventContext& ctx) const {
+CscCondDbAlg::loadDataDeadChambers(writeHandle_t & writeHandle, CscCondDbData* writeCdo, const EventContext& ctx) const {
   
     ATH_CHECK(m_readKey_folder_da_chambers.initialize());
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_chambers, ctx};

@@ -17,7 +17,7 @@
 /// \author Aaron Angerami <angerami@cern.ch>
 /// \date Aug, 2015
 ///
-/// \brief Abstract interface for tools that can provide UE modulation given 
+/// \brief Abstract interface for tools that can provide UE modulation given
 /// an HIEventShape
 ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,10 +35,10 @@ class IHIUEModulatorTool : virtual public asg::IAsgTool {
 
   virtual void setHarmonics(const std::vector<unsigned int>&) = 0;
 
-  virtual StatusCode retrieveShape() = 0;
+  virtual StatusCode retrieveShape() const = 0;
   virtual StatusCode getShape(const xAOD::HIEventShape* & shape) const = 0;
-  
-  
+
+
 };
 
 #endif

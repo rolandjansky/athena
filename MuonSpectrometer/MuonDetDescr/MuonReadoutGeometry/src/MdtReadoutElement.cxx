@@ -233,7 +233,7 @@ double MdtReadoutElement::distanceFromRO(Amg::Vector3D x, Identifier id) const
   double scalprod = c_ro.x()*x_ro.x()+c_ro.y()*x_ro.y()+c_ro.z()*x_ro.z();
   double wlen = getWireLength(tubelayer, tube);
   if (wlen > 10.*CLHEP::mm) 
-    scalprod = fabs(2.*scalprod/getWireLength(tubelayer, tube));
+    scalprod = std::abs(2.*scalprod/getWireLength(tubelayer, tube));
   else {
     double xx = x.x();
     double xy = x.y();
@@ -882,6 +882,14 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 }
 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 Amg::Transform3D
 MdtReadoutElement::deformedTransform (int multilayer, int tubelayer, int tube) const
 {
@@ -1097,11 +1105,11 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 #endif
 
   double s0mdt = s0; // always I think ! 
-  if (fabs(fixedPoint.x())>0.01) s0mdt = s0-fixedPoint.x();
+  if (std::abs(fixedPoint.x())>0.01) s0mdt = s0-fixedPoint.x();
   double z0mdt = z0; // unless in the D section of this station there's a dy diff. from 0 for the innermost MDT multilayer (sometimes in the barrel)
-  if (fabs(fixedPoint.y())>0.01) z0mdt = z0-fixedPoint.y();
+  if (std::abs(fixedPoint.y())>0.01) z0mdt = z0-fixedPoint.y();
   double t0mdt = t0; // unless in the D section of this station there's a dz diff. from 0 for the innermost MDT multilayer (often in barrel) 
-  if (fabs(fixedPoint.z())>0.01) t0mdt = t0-fixedPoint.z();
+  if (std::abs(fixedPoint.z())>0.01) t0mdt = t0-fixedPoint.z();
   if (z0mdt<0 || t0mdt<0) {
 #ifndef TESTBLINES
     MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
@@ -1181,6 +1189,14 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 // Function to apply AsBuilt parameter correction to wire center and end position
 // For definitions of AsBuilt parameters see Florian Bauer's talk:
 // http://atlas-muon-align.web.cern.ch/atlas-muon-align/endplug/asbuilt.pdf
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const
 {
   const MdtAsBuiltPar* params = parentMuonStation()->getMdtAsBuiltParams();

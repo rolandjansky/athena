@@ -157,7 +157,7 @@ namespace Trig {
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
     associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
-                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+                         const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
@@ -171,7 +171,7 @@ namespace Trig {
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
     associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::Decision* decisionObject,
-                         const std::string& roiName = TrigCompositeUtils::initialRoIString()) const;
+                         const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
     /**
      * @brief Runs 3+. Returns a range over a container which are associated with a particular EventView instance from online.
@@ -190,14 +190,20 @@ namespace Trig {
      * Instance mapping done via matchIndex and optional matchKey (leave matchKey = 0 to not cut on this).
      * @param[in] inViewContainer The ReadHandle of the collection which was produced online inside an EventView.
      * @param[in] matchIndex The index of the desired EventView.
-     * @param[in] matchKey Optional SGKey of the index of the desired EventView (collection hosting the ROI used to span the Event View)
+     * @param[in] matchKey Optional. SGKey of the index of the desired EventView (collection hosting the ROI used to span the Event View)
+     * @param[in] isFullscan Optional. If true, and inViewContainer has no viewIndex decorations, then return iterators over the full
+     *                       span of the inViewContainer instead of throwing an exception.
+     *                       This allows the associateToEventView interface to be used also for non-EventView containers, 
+     *                       with the FS ROI used to indicate that the lack of decorations is expected rather than being
+     *                       indicative of a configuration problem.
      * @return Pair of iterators spanning a range of indices over the collection accessed through the ReadHandleKey
      **/
     template<class CONTAINER>
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
     associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
                          const uint32_t matchIndex,
-                         const uint32_t matchKey = 0) const;
+                         const uint32_t matchKey = 0,
+                         const bool isFullscan = false) const;
 
     /// @}
 

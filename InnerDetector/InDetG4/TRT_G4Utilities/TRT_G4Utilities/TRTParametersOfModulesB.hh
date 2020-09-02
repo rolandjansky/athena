@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,11 +8,12 @@
 
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 
 
-class TRTParametersOfModulesB
+class ATLAS_NOT_THREAD_SAFE TRTParametersOfModulesB // Thread unsafe TRTParameters class is used.
 {
   friend class TRTConstructionOfModulesB;
 
@@ -76,7 +77,7 @@ class TRTParametersOfModulesB
 
     TRTParameters* m_pParameters;
 
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

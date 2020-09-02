@@ -61,8 +61,12 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   }
 
   if jetFlags.useTracks():
-    evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
-    evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget)
+    if jetFlags.useVertices():
+      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emoriginget)
+      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcoriginget)
+    else:
+      evsDict["emtopo"] = ("EMTopoOriginEventShape",   jtm.emget)
+      evsDict["lctopo"] = ("LCTopoOriginEventShape",   jtm.lcget)
   jetlog.info( myname + "Event shape tools: " + str(eventShapeTools) )
 
   from RecExConfig.AutoConfiguration import IsInInputFile
@@ -94,10 +98,9 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   ## if jetFlags.useCells():
   ##   ctools += [jtm.missingcells] commented out : incompatible with trigger : ATR-9696
   if jetFlags.useTracks:
-    ctools += [jtm.tracksel,
-               jtm.tvassoc,
-               jtm.trackselloose_trackjets,
-               ]
+    ctools += [jtm.tracksel, jtm.trackselloose_trackjets]
+    if jetFlags.useVertices:
+      ctools += [jtm.tvassoc]
    
   # LCOriginTopoClusters and EMOriginTopoClusters are shallow copies
   # of CaloCalTopoClusters.  This means that if CaloCalTopoClusters gets
@@ -112,7 +115,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     if AODFlags.ThinNegativeEnergyCaloClusters:
       thinneg = True
   
-  if jetFlags.useTracks:
+  if jetFlags.useTracks and jetFlags.useVertices:
     if not IsInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_LCOrigin]
       if thinneg:
@@ -155,9 +158,11 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                         Tools=[jtm.jetconstit])
 
   # Add all the PseudoJetAlgorithms now
-  from JetRec.JetRecConf import PseudoJetAlgorithm
+  # To avoid massive refactoring and to preserve familiarity,
+  # kept calling things "getters", but these are already
+  # PseudoJetAlgorithms as we eliminated the wrappers
   for getter in jtm.allGetters:
-    job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
+    job += getter
 
   # Then, add all event shape tools in separate algs
   for evstool in jtm.allEDTools:

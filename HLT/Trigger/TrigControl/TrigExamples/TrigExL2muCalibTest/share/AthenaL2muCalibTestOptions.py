@@ -77,7 +77,7 @@ svcMgr.ByteStreamAddressProviderSvc.OutputLevel = DEBUG
 #
 #==============================================================
 
-svcMgr.ByteStreamInputSvc.FullFileName = [ "bla-muon-calib._0001.data"]
+svcMgr.EventSelector.Input = [ "bla-muon-calib._0001.data"]
 
 #**************************************************************
 #

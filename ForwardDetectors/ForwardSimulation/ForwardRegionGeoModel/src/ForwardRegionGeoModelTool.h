@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ForwardRegionGeoModel_ForwardRegionGeoModelTool_H
@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "ForwardRegionGeoModelFactory.h"
 
-class ForwardRegionGeoModelTool : public GeoModelTool {
+class ForwardRegionGeoModelTool final : public GeoModelTool {
 
 public:
 

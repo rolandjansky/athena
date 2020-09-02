@@ -54,6 +54,14 @@ namespace G4UA
 	double phiMinZoom = -180.; // degrees
 	double phiMaxZoom =  180.; // degrees
 
+	// theta x dphi bins are used in the theta-spectra
+	
+	int nBinsdphi =  18; // 0 degrees <= dphi < 360 degrees
+	int nBinstheta =  9;
+
+	double thetaMin =  0.; // degrees
+	double thetaMax = 90.; // degrees
+
 	// neutron spectra
 	int nBinslogEn  =  90;   
 	double logEMinn = -11.; // min log10(E_kin/MeV) 
@@ -146,13 +154,17 @@ namespace G4UA
 	std::vector<double> m_rz_neut_spec;
         /// vector of neutron spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_neut_spec;
+        /// vector of neutron spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_neut_spec;
 
 	// gamma
 	
         /// vector of gamma spectra in log10(E/MeV) bins and the zoom 2d grid
 	std::vector<double> m_rz_gamm_spec;
-        /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
+        /// vector of gamma spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_gamm_spec;
+        /// vector of gamma spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_gamm_spec;
 
 	// e^+/-
 	
@@ -160,6 +172,8 @@ namespace G4UA
 	std::vector<double> m_rz_elec_spec;
         /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_elec_spec;
+        /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_elec_spec;
 
 	// mu^+/-
 	
@@ -167,6 +181,8 @@ namespace G4UA
 	std::vector<double> m_rz_muon_spec;
         /// vector of mu^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_muon_spec;
+        /// vector of mu^+/- spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_muon_spec;
 
 	// pi^+/-
 	
@@ -174,6 +190,8 @@ namespace G4UA
 	std::vector<double> m_rz_pion_spec;
         /// vector of pi^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_pion_spec;
+        /// vector of pi^+/- spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_pion_spec;
 
 	// proton
 	
@@ -181,6 +199,8 @@ namespace G4UA
 	std::vector<double> m_rz_prot_spec;
         /// vector of proton spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_prot_spec;
+        /// vector of proton spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_prot_spec;
 
 	// rest
 	
@@ -188,6 +208,10 @@ namespace G4UA
 	std::vector<double> m_rz_rest_spec;
         /// vector of e^+/- spectra in log10(E/MeV) bins and the full 2d grid
 	std::vector<double> m_full_rz_rest_spec;
+        /// vector of rest charged spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_rchgd_spec;
+        /// vector of rest neutral spectra in log10(E/MeV) bins and the full 2d grid x theta bins
+	std::vector<double> m_theta_full_rz_rneut_spec;
 
 	// time dependent maps
 

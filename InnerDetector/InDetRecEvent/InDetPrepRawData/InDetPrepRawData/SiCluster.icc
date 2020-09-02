@@ -1,0 +1,54 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace InDet {
+// return width:
+inline const InDet::SiWidth&
+SiCluster::width() const
+{
+  return m_width;
+}
+// return globalPosition:
+inline const Amg::Vector3D&
+SiCluster::globalPosition() const
+{
+  return m_globalPosition;
+}
+// set gangedPixel:
+inline void
+SiCluster::setGangedPixel(bool ganged)
+{
+  m_gangedPixel = ganged;
+}
+// get gangedPixel:
+inline bool
+SiCluster::gangedPixel() const
+{
+  return m_gangedPixel;
+}
+
+inline bool
+SiCluster::type(Trk::PrepRawDataType::Type type) const
+{
+  return type == Trk::PrepRawDataType::SiCluster;
+}
+
+inline const InDetDD::SiDetectorElement*
+SiCluster::detectorElement() const
+{
+  return m_detEl;
+}
+
+inline void
+SiCluster::setDetectorElement(const InDetDD::SiDetectorElement* detEl)
+{
+  m_detEl = detEl;
+  if (m_detEl) {
+    m_globalPosition =
+      m_detEl->surface(identify()).localToGlobalPos(localPosition());
+  }
+}
+
+
+}

@@ -131,7 +131,7 @@ Trk::CylinderLayer::CylinderLayer(const Trk::CylinderLayer& clay):
   m_approachDescriptor(nullptr)
 {
     CylinderSurface::associateLayer(*this);
-    delete m_approachDescriptor;
+    m_approachDescriptor.reset();
     if (m_surfaceArray) buildApproachDescriptor(); //!< TODO use clone when exists
 }
 
@@ -155,11 +155,6 @@ Trk::CylinderLayer& Trk::CylinderLayer::operator=(const CylinderLayer& clay)
   return(*this);
 }
 
-Trk::CylinderLayer::~CylinderLayer()
-{
-    delete m_approachDescriptor;
-}
- 
     
 const Trk::CylinderSurface& Trk::CylinderLayer::surfaceRepresentation() const
 {
@@ -287,9 +282,8 @@ const Trk::Surface& Trk::CylinderLayer::surfaceOnApproach(const Amg::Vector3D& p
 /** build approach surfaces */
 void Trk::CylinderLayer::buildApproachDescriptor(){
     // delete it
-    delete m_approachDescriptor;
     // delete the surfaces    
-    Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
+    auto  aSurfaces = std::make_unique<Trk::ApproachSurfaces>();
     // create new surfaces
     Amg::Transform3D* asTransform = m_transform ? new Amg::Transform3D(*m_transform) : nullptr;
     // create the new surfaces
@@ -300,7 +294,7 @@ void Trk::CylinderLayer::buildApproachDescriptor(){
         sIter->associateLayer(*this);
         sIter->setOwner(Trk::TGOwn);
     }
-    m_approachDescriptor = new Trk::ApproachDescriptor(aSurfaces);
+    m_approachDescriptor = std::make_unique<Trk::ApproachDescriptor>(std::move(aSurfaces));
     
 }
 

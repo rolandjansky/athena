@@ -14,8 +14,8 @@
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 //================ Constructor =================================================
 

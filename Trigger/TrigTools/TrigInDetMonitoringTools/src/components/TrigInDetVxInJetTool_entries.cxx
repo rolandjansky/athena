@@ -1,3 +1,3 @@
-#include "TrigInDetMonitoringTools/TrigInDetTrackMonitoringTool.h"
+#include "../TrigInDetTrackMonitoringTool.h"
 
 DECLARE_COMPONENT( TrigInDetTrackMonitoringTool )

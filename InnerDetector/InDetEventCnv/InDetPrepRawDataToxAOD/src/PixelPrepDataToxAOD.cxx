@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@
 
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -528,7 +528,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     else
     {
 	bool foundHit = false;
-	for ( const auto barcodeSDOColl : trkBCs )
+	for ( const auto& barcodeSDOColl : trkBCs )
 	{
 	    for ( const auto barcode : barcodeSDOColl )
 	    {

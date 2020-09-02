@@ -61,7 +61,7 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
    m_inputCollectionsProp.declareUpdateHandler(&EventSelectorAthenaPool::inputCollectionsHandler, this);
 }
 //________________________________________________________________________________
-void EventSelectorAthenaPool::inputCollectionsHandler(Property&) {
+void EventSelectorAthenaPool::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
    if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
       this->reinit().ignore();
    }
@@ -341,8 +341,6 @@ StatusCode EventSelectorAthenaPool::start() {
    } else {
       m_headerIterator = &m_poolCollectionConverter->executeQuery(/*m_query.value()*/);
    }
-   delete m_beginIter; m_beginIter = nullptr;
-   m_beginIter = new EventContextAthenaPool(this);
    delete m_endIter;   m_endIter   = nullptr;
    m_endIter = new EventContextAthenaPool(nullptr);
    return(StatusCode::SUCCESS);
@@ -388,7 +386,6 @@ StatusCode EventSelectorAthenaPool::finalize() {
          }
       }
    }
-   delete m_beginIter; m_beginIter = nullptr;
    delete m_endIter;   m_endIter   = nullptr;
    m_headerIterator = nullptr;
    if (m_poolCollectionConverter != nullptr) {
@@ -576,20 +573,13 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
    if (m_headerIterator == nullptr || m_headerIterator->next() == 0) {
       m_headerIterator = nullptr;
       // Close previous collection.
-      if (!m_keepInputFilesOpen.value() && m_poolCollectionConverter != nullptr) {
-         m_poolCollectionConverter->disconnectDb().ignore();
-      }
       delete m_poolCollectionConverter; m_poolCollectionConverter = nullptr;
-      // Assume that the end of collection file indicates the end of payload file.
-      if (m_processMetadata.value()) {
-         // Fire EndInputFile incident
-         FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
-         m_incidentSvc->fireIncident(endInputFileIncident);
-      }
+
       // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
-      auto old_guid = m_guid;
+      const SG::SourceID old_guid = m_guid.toString();
       m_guid = Guid::null();
-      disconnectIfFinished( old_guid.toString() );
+      disconnectIfFinished( old_guid );
+
       // Open next file from inputCollections list.
       m_inputCollectionsIterator++;
       // Create PoolCollectionConverter for input file
@@ -619,16 +609,12 @@ StatusCode EventSelectorAthenaPool::nextHandleFileTransition(IEvtSelector::Conte
       tech = token.technology();
    }
    if (guid != m_guid) {
+      // we are starting reading from a new DB. Check if the old one needs to be retired
       if (m_guid != Guid::null()) {
-         if (m_processMetadata.value()) {
-            // Fire EndInputFile incident
-            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString(), m_guid.toString());
-            m_incidentSvc->fireIncident(endInputFileIncident);
-         }
-         // zero the current DB ID (m_guid) before disconnect() to indicate it is no longer in use
-         auto old_guid = m_guid;
+         // zero the current DB ID (m_guid) before trying disconnect() to indicate it is no longer in use
+         const SG::SourceID old_guid = m_guid.toString();
          m_guid = Guid::null();
-         disconnectIfFinished(old_guid.toString());
+         disconnectIfFinished( old_guid );
       }
       m_guid = guid;
       // Fire BeginInputFile incident if current InputCollection is a payload file;
@@ -753,9 +739,8 @@ StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
          }
          // Create DataHeader iterators
          m_headerIterator = &m_poolCollectionConverter->executeQuery();
-         delete m_beginIter; m_beginIter = nullptr;
-         m_beginIter = new EventContextAthenaPool(this);
-         next(*m_beginIter).ignore();
+         EventContextAthenaPool* beginIter = new EventContextAthenaPool(this);
+         next(*beginIter).ignore();
          ATH_MSG_DEBUG("Token " << m_headerIterator->eventRef().toString());
       } catch (std::exception &e) {
          m_headerIterator = nullptr;
@@ -883,6 +868,10 @@ StatusCode EventSelectorAthenaPool::share(int evtnum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
+   if (m_eventStreamingTool.empty()) {
+      ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
+      return(StatusCode::FAILURE);
+   }
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    IEvtSelector::Context* ctxt = new EventContextAthenaPool(this);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
@@ -905,11 +894,12 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       while (m_athenaPoolCnvSvc->readData().isSuccess()) {
          ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
       }
-// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
+      usleep(1000);
       sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
    }
    if (!sc.isSuccess()) {
       ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
    } else {
       sc = m_athenaPoolCnvSvc->readData();
       while (sc.isSuccess() || sc.isRecoverable()) {
@@ -1115,11 +1105,16 @@ void EventSelectorAthenaPool::handle(const Incident& inc)
    m_guid is not pointing to it and there are no events from it being processed
    (if the EventLoopMgr was not firing Begin/End incidents, this will just close the DB)
 */
-bool EventSelectorAthenaPool::disconnectIfFinished( SG::SourceID fid ) const
+bool EventSelectorAthenaPool::disconnectIfFinished( const SG::SourceID &fid ) const
 {
    if( m_activeEventsPerSource[fid] <= 0 && m_guid != fid ) {
       // Explicitly disconnect file corresponding to old FID to release memory
       if( !m_keepInputFilesOpen.value() ) {
+         // Assume that the end of collection file indicates the end of payload file.
+         if (m_processMetadata.value()) {
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + fid, fid);
+            m_incidentSvc->fireIncident(endInputFileIncident);
+         }
          ATH_MSG_INFO("Disconnecting input sourceID: " << fid );
          m_athenaPoolCnvSvc->getPoolSvc()->disconnectDb("FID:" + fid, IPoolSvc::kInputStream).ignore();
          m_activeEventsPerSource.erase( fid );

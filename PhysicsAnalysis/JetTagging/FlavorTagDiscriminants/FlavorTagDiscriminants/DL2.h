@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DL2_H
@@ -8,6 +8,8 @@
 // local includes
 #include "FlavorTagDiscriminants/customGetter.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
+#include "FlavorTagDiscriminants/DL2DataDependencyNames.h"
+#include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -20,6 +22,7 @@
 #include <vector>
 #include <functional>
 #include <exception>
+#include <type_traits>
 
 // forward declarations
 namespace lwt {
@@ -34,6 +37,26 @@ namespace FlavorTagDiscriminants {
     ABS_D0_SIGNIFICANCE_DESCENDING, D0_SIGNIFICANCE_DESCENDING, PT_DESCENDING};
   enum class TrackSelection {ALL, IP3D_2018};
   enum class OutputType {FLOAT, DOUBLE};
+
+  // classes to deal with typedefs
+  //
+  template <typename T>
+  struct EDMTypeEnum;
+  template <> struct EDMTypeEnum<float> {
+    const static EDMType type = EDMType::FLOAT;
+  };
+  template <> struct EDMTypeEnum<double> {
+    const static EDMType type = EDMType::DOUBLE;
+  };
+  template<typename T>
+  struct OutputTypeEnum;
+  template<> struct OutputTypeEnum<float> {
+    const static OutputType type = OutputType::FLOAT;
+  };
+  template<> struct OutputTypeEnum<double> {
+    const static OutputType type = OutputType::DOUBLE;
+  };
+
 
   // Structures to define DL2 input.
   //
@@ -72,7 +95,7 @@ namespace FlavorTagDiscriminants {
                                  const xAOD::Jet&)> TrackSequenceFilter;
 
     // getter functions
-    typedef std::function<NamedVar(const Jet&)> VarFromJet;
+    typedef std::function<NamedVar(const Jet&)> VarFromBTag;
     typedef std::function<NamedSeq(const Jet&, const Tracks&)> SeqFromTracks;
 
     // ___________________________________________________________________
@@ -100,7 +123,17 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_default_flag(*btag) ? NAN : m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        bool is_default = m_default_flag(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value) && !is_default) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name
+              + "'. This is only allowed when using a default"
+              " value for this input");
+          }
+        }
+        return {m_name, is_default ? NAN : ret_value};
       }
     };
 
@@ -120,7 +153,14 @@ namespace FlavorTagDiscriminants {
       NamedVar operator()(const xAOD::Jet& jet) const {
         const xAOD::BTagging* btag = jet.btagging();
         if (!btag) throw std::runtime_error("can't find btagging object");
-        return {m_name, m_getter(*btag)};
+        T ret_value = m_getter(*btag);
+        if constexpr (std::is_floating_point<T>::value) {
+          if (std::isnan(ret_value)) {
+            throw std::runtime_error(
+              "Found NAN value for '" + m_name + "'.");
+          }
+        }
+        return {m_name, ret_value};
       }
     };
 
@@ -172,6 +212,10 @@ namespace FlavorTagDiscriminants {
         std::map<std::string, std::string> out_remap = {},
         OutputType = OutputType::DOUBLE);
     void decorate(const xAOD::Jet& jet) const;
+
+    // functions to report data depdedencies
+    DL2DataDependencyNames getDataDependencyNames() const;
+
   private:
     struct TrackSequenceBuilder {
       TrackSequenceBuilder(SortOrder, TrackSelection, FlipTagConfig);
@@ -185,23 +229,30 @@ namespace FlavorTagDiscriminants {
     std::string m_input_node_name;
     std::unique_ptr<lwt::LightweightGraph> m_graph;
     std::unique_ptr<lwt::NanReplacer> m_variable_cleaner;
-    std::vector<internal::VarFromJet> m_varsFromJet;
+    std::vector<internal::VarFromBTag> m_varsFromBTag;
     std::vector<TrackSequenceBuilder> m_trackSequenceBuilders;
     std::map<std::string, OutNode> m_decorators;
+
+    DL2DataDependencyNames m_dataDependencyNames;
+
   };
+
 
   //
   // Filler functions
   namespace internal {
     // factory functions to produce callable objects that build inputs
     namespace get {
-      VarFromJet varFromJet(const std::string& name,
+      VarFromBTag varFromBTag(const std::string& name,
                             EDMType,
                             const std::string& defaultflag);
       TrackSortVar trackSortVar(SortOrder);
-      TrackFilter trackFilter(TrackSelection);
-      SeqFromTracks seqFromTracks(const DL2TrackInputConfig&);
-      TrackSequenceFilter flipFilter(FlipTagConfig);
+      std::pair<TrackFilter,std::set<std::string>> trackFilter(
+        TrackSelection);
+      std::pair<SeqFromTracks,std::set<std::string>> seqFromTracks(
+        const DL2TrackInputConfig&);
+      std::pair<TrackSequenceFilter,std::set<std::string>> flipFilter(
+        FlipTagConfig);
     }
   }
 }

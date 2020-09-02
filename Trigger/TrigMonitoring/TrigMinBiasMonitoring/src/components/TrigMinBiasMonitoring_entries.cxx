@@ -1,4 +1,4 @@
-#include "TrigMinBiasMonitoring/HLTMinBiasMonTool.h"
+#include "../HLTMinBiasMonTool.h"
 #include "../HLTMinBiasMonAlgMT.h"
 
 

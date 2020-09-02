@@ -81,7 +81,10 @@ StatusCode NominalAlignmentCondAlg::execute() {
     EventIDBase start(1, EventIDBase::UNDEFEVT);
     EventIDBase end(1, EventIDBase::UNDEFEVT);
     start.set_lumi_block(0);
-    end.set_lumi_block(9999); // this is not actually forever
+    end.set_lumi_block(std::numeric_limits<EventIDBase::number_type>::max());
+
+    start.set_time_stamp(0);
+    end.set_time_stamp(std::numeric_limits<EventIDBase::number_type>::max());
 
     EventIDRange r(start, end);
 

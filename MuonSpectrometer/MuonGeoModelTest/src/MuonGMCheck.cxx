@@ -7,11 +7,6 @@
  -----------------------------------------
  ***************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "MuonGeoModelTest/PerfUtils.h"
-
 #include "MuonGeoModelTest/MuonGMCheck.h"
 
 #include "MuonDigitContainer/RpcDigitContainer.h"
@@ -20,15 +15,6 @@
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
-
-#include "MuonIdHelpers/MuonIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -39,16 +25,13 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-
+#include "MuonReadoutGeometry/TgcReadoutParams.h"
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
-
-#include "MuonReadoutGeometry/TgcReadoutParams.h"
-
 #include "TrkSurfaces/Surface.h"
 #include "RegionSelector/IRegSelSvc.h"
-
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "MuonGeoModelTest/PerfUtils.h"
 
 #include <boost/format.hpp>
 
@@ -57,13 +40,15 @@
 
 typedef std::istringstream mystream;
 
+namespace {
+  static constexpr double const& invRad = 180/M_PI;
+}
+
 using namespace MuonGM;
 
-
-MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm            ( name, pSvcLocator ),
-    p_MuonMgr		    ( 0 ),
-    m_fixedIdTool("MuonCalib::IdToFixedIdTool")
+MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthAlgorithm(name, pSvcLocator),
+    p_MuonMgr(nullptr)
 {
     m_mem = 0;
     m_cpu[0] = 0;
@@ -119,9 +104,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
     declareProperty("testTgcDetectorElementHash",m_testTgcDetectorElementHash=0);
     declareProperty("testCscDetectorElementHash",m_testCscDetectorElementHash=0);
     
-        
-    declareProperty("idTool", m_fixedIdTool);
-    
     m_print_level	   =	0;
     declareProperty("print_level",     m_print_level);
     m_mdtgood = 0;
@@ -133,9 +115,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
         
 }
 
-MuonGMCheck::~MuonGMCheck()
-{ }
-
 StatusCode
 MuonGMCheck::initialize()
 {
@@ -145,7 +124,8 @@ MuonGMCheck::initialize()
   // first get helpers 
   ATH_MSG_DEBUG("Get Muon Id Helpers from the det store (through their converters)" );
 	
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_fixedIdTool.retrieve());
 
   ATH_MSG_DEBUG( " Muon Id Helper retrieved from handle "  );
   showVmemCpu("initialize (IDHELPER retrieved from handle)");
@@ -234,14 +214,6 @@ void MuonGMCheck::clearCache() const
     if (p_MuonMgr->cachingFlag() == 0) p_MuonMgr->clearCache();
 }
 
-
-StatusCode
-MuonGMCheck::finalize()
-{
-  ATH_MSG_DEBUG( "Finalizing"  );
-  return StatusCode::SUCCESS;
-}
-
 void MuonGMCheck::checkreadoutrpcgeo()
 {
     ATH_MSG_INFO( " *************************** Global Check for Rpc"  );
@@ -307,13 +279,13 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
                                   <<std::endl;
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
                          
-                         if (rpc == NULL) continue;
+                         if (!rpc) continue;
                          fout<<" ///////////////////// Found a RpcReadoutElement for indices = "
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
@@ -321,27 +293,27 @@ void MuonGMCheck::checkreadoutrpcgeo()
                          Identifier idr = rpc->identify();
                          int ndbphi = rpc->NphiStripPanels();
                          fout<<" its offline hash Id = "<<rpc->identifyHash()<<std::endl;
-                         fout<<" its offline Id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
+                         fout<<" its offline Id = "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr)
                                   <<" ////////////////// belongs to module "
                                   <<rpc->getTechnologyName()<<"/"
                                   <<rpc->getStationName()<<" # doubletPhi = "<<ndbphi<<std::endl;
-                         Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(idr);
-                         fout<<"      parent Id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idp)<<std::endl;
+                         Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(idr);
+                         fout<<"      parent Id = "<<m_idHelperSvc->rpcIdHelper().show_to_string(idp)<<std::endl;
                          fout<<" Center of the RpcReadoutElement at "<<rpc->center()<<std::endl;
-                         int doubletR = m_muonIdHelperTool->rpcIdHelper().doubletR(idr);
-                         int doubletZ = m_muonIdHelperTool->rpcIdHelper().doubletZ(idr);
+                         int doubletR = m_idHelperSvc->rpcIdHelper().doubletR(idr);
+                         int doubletZ = m_idHelperSvc->rpcIdHelper().doubletZ(idr);
 			 int stEta = rpc->getStationEta();
 			 int stPhi = rpc->getStationPhi();
-			 int stNameInt = m_muonIdHelperTool->rpcIdHelper().stationName(idr);
-			 std::string stNameString = m_muonIdHelperTool->rpcIdHelper().stationNameString(stNameInt);
+			 int stNameInt = m_idHelperSvc->rpcIdHelper().stationName(idr);
+			 std::string stNameString = m_idHelperSvc->rpcIdHelper().stationNameString(stNameInt);
 
 			 RpcReadoutSet Set(p_MuonMgr, idr);
 			 int ndbz = Set.NdoubletZ();			     
-                         fout1<<" its offline Id = "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)<<" means "<<stNameString<<" eta "<<stEta<<" phi "<<stPhi<<" doubletR "<<doubletR<<" dbZ "<<doubletZ<<"(out of "<<ndbz<<" in the set); n. of dbPhi in this chamber = "<< ndbphi<<std::endl;
+                         fout1<<" its offline Id = "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr)<<" means "<<stNameString<<" eta "<<stEta<<" phi "<<stPhi<<" doubletR "<<doubletR<<" dbZ "<<doubletZ<<"(out of "<<ndbz<<" in the set); n. of dbPhi in this chamber = "<< ndbphi<<std::endl;
 
                          const MuonStation* ms  = rpc->parentMuonStation();
                          if (ms) fout<<"Parent MuonStation found "<<std::endl;
-                         else  fout<<"Parent MuonStation NOT found for element "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)<<std::endl;
+                         else  fout<<"Parent MuonStation NOT found for element "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr)<<std::endl;
 
                          fout<<" For this Module,  gasGapSsize() "<<rpc->gasGapSsize()
                              <<" and stripPanelSsize() "<<rpc->stripPanelSsize(1)
@@ -354,20 +326,20 @@ void MuonGMCheck::checkreadoutrpcgeo()
 
                          for (int idbphi = 1; idbphi<=ndbphi; ++idbphi)
                          {
-                             int dbp = m_muonIdHelperTool->rpcIdHelper().doubletPhi(idr);
+                             int dbp = m_idHelperSvc->rpcIdHelper().doubletPhi(idr);
                              if (ndbphi>1 && idbphi>1) dbp = idbphi;
-                             fout<<" Changing doubletPhi for  "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
+                             fout<<" Changing doubletPhi for  "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr)
                                       <<" "<<rpc->getTechnologyName()<<"/"
                                       <<rpc->getStationName()<<" dbr, dbz, dbp "<<doubletR<<" "
-                                      <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" "<<dbp<<std::endl;
+                                      <<m_idHelperSvc->rpcIdHelper().doubletZ(idr)<<" "<<dbp<<std::endl;
 
                              for ( int igg=1; igg<3; igg++) 
                              {
                                  //
-                                 fout<<" Changing gas-gap  "<<igg<<" for  "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr)
+                                 fout<<" Changing gas-gap  "<<igg<<" for  "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr)
                                           <<" "<<rpc->getTechnologyName()<<"/"
                                           <<rpc->getStationName()<<" dbr, dbz, dbp "<<doubletR<<" "
-                                          <<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" "<< dbp<<std::endl;
+                                          <<m_idHelperSvc->rpcIdHelper().doubletZ(idr)<<" "<< dbp<<std::endl;
                                  int measphi = 1;
                                  fout<<" Gas Gap "<<igg<<" measphi = "<<measphi<<" phi strip pitch = "<<rpc->StripPitch(measphi)<<" n. phi strips = "<<rpc->NphiStrips()<<std::endl;
                                  phistr_pitch += rpc->StripPitch(measphi) * rpc->NphiStrips();
@@ -381,8 +353,8 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      //here (gasgap-level) perform checks on local to global transform
                                      // BMF1 at stEta = 3 stPhi = 6, dbR=1,dbZ=1,dbPhi=1->should be 2 gg=1 or 2
 				     Amg::Vector3D aLocalPoint = Amg::Vector3D(-1.,62.882732,-47.88338);
-                                     Identifier idgg = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                     Identifier idgg = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                 dbp, igg, measphi, 1);
                                      Amg::Vector3D aGlobalPoint = rpc->localToGlobalCoords(aLocalPoint, idgg);
                                      fout<<" Global point = "<<aGlobalPoint<<std::endl;
@@ -401,13 +373,13 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                  if (m_check_first_last) stripStep = rpc->NphiStrips()-1;
                                  for (int strip = 1; strip<=rpc->NphiStrips();)
                                  {
-                                     Identifier chid = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                     Identifier chid = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                 dbp, igg, measphi, strip);
 				     if (strip==1)
 				       {
-					 fpanelidh<<"IdCodes "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
-						  <<m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(chid))<<" "
+					 fpanelidh<<"IdCodes "<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "
+						  <<m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(chid))<<" "
 						  <<chid<<" "
 						  <<chid.get_identifier32().get_compact()<<" "
 						  <<chid.get_compact()<<" n phi strips = "<<rpc->NphiStrips()<<std::endl;
@@ -416,10 +388,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 					 int layerType=0;
 					 if (  doubletR==2 ) layerType=1;
 					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
-					 layerType = layerType*2+m_muonIdHelperTool->rpcIdHelper().gasGap(chid);
+					 layerType = layerType*2+m_idHelperSvc->rpcIdHelper().gasGap(chid);
 					 fpanelid<<layerType<<" "
 					 	 <<stNameString<<" phi "
-					 	 <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
+					 	 <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "
 					 	 <<chid.get_identifier32().get_compact()<<" "
 					 	 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
 					 bool anyPad=true;
@@ -441,10 +413,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						   if (ndbz==1 || (stNameString.substr(0,3)=="BMS" && abs(stEta)==4 && dbz_index==0)){
 						     fpanelid<<"Pad box position "
 							     <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							     <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+							     <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fout1<<"Pad box position "
 							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							  <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+							  <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 
 						   }
@@ -460,10 +432,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						     else {xC = 0.5*(keepxLS + xC);  yC = 0.5*(keepyLS + yC);  zC = 0.5*(keepzLS + zC);}
 						     fpanelid<<"Pad box position "
 							     <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							     <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+							     <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fout1<<"Pad box position "
 							  <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							  <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
+							  <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						     fpad<<stNameString.substr(0,3)<<" "<<xC<<" "<<yC<<" "<<zC<<std::endl; 
 						   }
 						 }
@@ -478,19 +450,19 @@ void MuonGMCheck::checkreadoutrpcgeo()
 						     if (dbp==1) {
 						       fpanelid<<"Pad box position "
 							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+							       <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 						       fout1<<"Pad box position "
 							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+							       <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 						       fpad<<stNameString.substr(0,3)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 						     }
 						     else {
 						       fpanelid<<"Pad box position "
 							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+							       <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
 						       fout1<<"Pad box position "
 							       <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							       <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
+							       <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;
 						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
 						       xC = rpc->center().x(); yC = rpc->center().y();zC = rpc->center().z();
 						     }
@@ -511,11 +483,11 @@ void MuonGMCheck::checkreadoutrpcgeo()
 							zFirstPhiS = 0.5*(keepzFS + zFirstPhiS);  
 							fpanelid<<"Pad box position "
 								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-								<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+								<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 							fpad<<stNameString.substr(0,3)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 							fout1<<"Pad box position "
 							    <<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-							    <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
+							    <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xFirstPhiS<<" "<<yFirstPhiS<<" "<<zFirstPhiS<<std::endl; 
 						      }
 						      else {
 							xLastPhiS = 0.5*(keepxLS + xLastPhiS);  
@@ -523,10 +495,10 @@ void MuonGMCheck::checkreadoutrpcgeo()
 							zLastPhiS = 0.5*(keepzLS + zLastPhiS);  
 							fpanelid<<"Pad box position "
 								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-								<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
+								<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
 							fout1<<"Pad box position "
 								<<stNameString.substr(0,3)<<" eta/phi "<<stEta<<"/"<<stPhi<<" "<<planeString
-								<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
+								<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl; 
 						       fpad<<stNameString.substr(0,3)<<" "<<xLastPhiS<<" "<<yLastPhiS<<" "<<zLastPhiS<<std::endl;  
 						       xC = 0.5*(keepxC + rpc->center().x()); yC = 0.5*(keepyC + rpc->center().y()); zC = 0.5*(keepzC + rpc->center().z());
 						      }
@@ -538,7 +510,7 @@ void MuonGMCheck::checkreadoutrpcgeo()
 				       }
 
 
-                                     fout<<" StripGlobalPosition "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" pos "
+                                     fout<<" StripGlobalPosition "<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid) <<std::endl;
                                      Amg::Vector3D xxSD = rpc->globalToLocalCoords(rpc->stripPos(chid), chid);
                                      Amg::Vector3D xxMod = rpc->SDtoModuleCoords(xxSD, chid);
@@ -551,32 +523,32 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      if (strip == 1 && m_check_rpc_distToReadout > 0)
                                      {
                                          
-                                         Identifier chtest0 = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                       m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chtest0 = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                       m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                        dbp, igg, measphi, 1);
-                                         Identifier chtest1 = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                       m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chtest1 = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                       m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                        dbp, igg, measphi, rpc->NphiStrips());
-                                         Identifier chtest2 = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                       m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chtest2 = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                       m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                        dbp, igg, 0, 1);
-                                         Identifier chtest3 = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                       m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chtest3 = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                       m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                        dbp, igg, 0, rpc->NetaStrips());
                                          fout<<"distance to Phi/Eta RO for center of strip "
-                                             <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest0)<<" are "
+                                             <<m_idHelperSvc->rpcIdHelper().show_to_string(chtest0)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest0),chtest0)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest0),chtest0)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
-                                             <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest1)<<" are "
+                                             <<m_idHelperSvc->rpcIdHelper().show_to_string(chtest1)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest1),chtest1)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest1),chtest1)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
-                                             <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest2)<<" are "
+                                             <<m_idHelperSvc->rpcIdHelper().show_to_string(chtest2)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest2),chtest2)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest2),chtest2)<<std::endl;
                                          fout<<"distance to Phi/Eta RO for center of strip "
-                                             <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chtest3)<<" are "
+                                             <<m_idHelperSvc->rpcIdHelper().show_to_string(chtest3)<<" are "
                                              <<rpc->distanceToPhiReadout(rpc->stripPos(chtest3),chtest3)<<" "
                                              <<rpc->distanceToEtaReadout(rpc->stripPos(chtest3),chtest3)<<std::endl;
                                      }
@@ -616,13 +588,13 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                  if (m_check_first_last) stripStep = rpc->NetaStrips()-1;
                                  for (int strip = 1; strip<=rpc->NetaStrips();)
                                  {
-                                     Identifier chid = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                     Identifier chid = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                 dbp, igg, measphi, strip);
 				     if (strip==1)
 				       {
-					 fpanelidh<<"IdCodes "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
-						  <<m_muonIdHelperTool->rpcIdHelper().stationNameString(m_muonIdHelperTool->rpcIdHelper().stationName(chid))<<" "
+					 fpanelidh<<"IdCodes "<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "
+						  <<m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(chid))<<" "
 						  <<chid<<" "
 						  <<chid.get_identifier32().get_compact()<<" "
 						  <<chid.get_compact()<<" n eta strips = "<<rpc->NetaStrips()<<std::endl;
@@ -630,17 +602,17 @@ void MuonGMCheck::checkreadoutrpcgeo()
 					 int layerType=0;
 					 if (  doubletR==2 ) layerType=1;
 					 if ( (stNameInt>3&&(stNameInt!=53 && stNameInt!=8)) && doubletR==1 ) layerType=2;
-					 layerType = layerType*2+m_muonIdHelperTool->rpcIdHelper().gasGap(chid);
+					 layerType = layerType*2+m_idHelperSvc->rpcIdHelper().gasGap(chid);
 					 
 					 fpanelid<<layerType<<" "
 						 <<stNameString<<" eta "
-						 <<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" "
+						 <<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" "
 						 <<chid.get_identifier32().get_compact()<<" "
 						 <<etamin<<" "<<etamax<<" "<<phimin<<" "<<phimax<<" "<<zmin<<" "<<zmax<<std::endl;
 				       }
 
 				     
-                                     fout<<" StripGlobalPosition "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(chid)<<" pos "
+                                     fout<<" StripGlobalPosition "<<m_idHelperSvc->rpcIdHelper().show_to_string(chid)<<" pos "
                                          <<rpc->stripPos(chid)<<" Local Position = "<<rpc->localStripPos(chid)<<std::endl;
 
 
@@ -672,12 +644,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                  if (m_check_surfaces_details){
                                      for (int strip = 1; strip<=rpc->NphiStrips(); strip++)
                                      {
-                                         Identifier chid = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                    m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chid = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                    m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                     dbp, igg, 1, strip);
                                          // Global position
                                          Amg::Vector3D tempGlobalPosition = rpc->stripPos(chid);
-                                         fout<<"GG: "<<igg<<" dbZ: "<<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Phi strip: "<<strip
+                                         fout<<"GG: "<<igg<<" dbZ: "<<m_idHelperSvc->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Phi strip: "<<strip
                                              <<" glob.pos. "
                                              <<tempGlobalPosition.x()<<", "
                                              <<tempGlobalPosition.y()<<", "
@@ -692,12 +664,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                      }
                                      for (int strip = 1; strip<=rpc->NetaStrips(); strip++)
                                      {
-                                         Identifier chid = m_muonIdHelperTool->rpcIdHelper().channelID(idp,
-                                                                                    m_muonIdHelperTool->rpcIdHelper().doubletZ(idr),
+                                         Identifier chid = m_idHelperSvc->rpcIdHelper().channelID(idp,
+                                                                                    m_idHelperSvc->rpcIdHelper().doubletZ(idr),
                                                                                     dbp, igg, 0, strip);
                                          // Global position
                                          Amg::Vector3D tempGlobalPosition = rpc->stripPos(chid);
-                                         fout<<"GG: "<<igg<<" dbZ: "<<m_muonIdHelperTool->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Eta strip: "<<strip
+                                         fout<<"GG: "<<igg<<" dbZ: "<<m_idHelperSvc->rpcIdHelper().doubletZ(idr)<<" dbP: "<<dbp<<" Eta strip: "<<strip
                                              <<" glob.pos. "
                                              <<tempGlobalPosition.x()<<", "
                                              <<tempGlobalPosition.y()<<", "
@@ -782,7 +754,7 @@ void MuonGMCheck::getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Ident
 {
   int n_strips = 0; // in phi or eta dir. depening on measphi-field of chid
   int view =-1;
-  if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(chid))
+  if (m_idHelperSvc->rpcIdHelper().measuresPhi(chid))
     {
       // phi panel
       view = 1;
@@ -794,17 +766,17 @@ void MuonGMCheck::getPanelEdgeCenter(const MuonGM::RpcReadoutElement* rpc, Ident
       view = 0;
       n_strips = rpc->NetaStrips();
     }
-  Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(chid);
-  Identifier chidFirst = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(chid);
+  Identifier chidFirst = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  1);
-  Identifier chidLast  = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidLast  = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  n_strips);
 
@@ -845,7 +817,7 @@ void MuonGMCheck::getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Ident
   int n_stripsOtherView = 0;
   int view =-1;
   int otherview =-1;
-  if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(chid))
+  if (m_idHelperSvc->rpcIdHelper().measuresPhi(chid))
     {
       // phi panel
       view = 1;
@@ -861,29 +833,29 @@ void MuonGMCheck::getPanelBoundaries(const MuonGM::RpcReadoutElement* rpc, Ident
       n_strips = rpc->NetaStrips();
       n_stripsOtherView = rpc->NphiStrips();
     }
-  Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(chid);
-  Identifier chidFirst = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(chid);
+  Identifier chidFirst = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  1);
-  Identifier chidLast  = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidLast  = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  n_strips);
-  Identifier chidFirstOtherView = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidFirstOtherView = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  otherview,
 						  1);
-  Identifier chidLastOtherView  = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidLastOtherView  = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  otherview,
 						  n_stripsOtherView);
 
@@ -945,7 +917,7 @@ void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc,
   int n_stripsOtherView = 0;
   int view =-1;
   int otherview =-1;
-  if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(chid))
+  if (m_idHelperSvc->rpcIdHelper().measuresPhi(chid))
     {
       // phi panel
       view      = 1;
@@ -961,29 +933,29 @@ void MuonGMCheck::getActivePanelBoundaries(const MuonGM::RpcReadoutElement* rpc,
       n_strips          = rpc->NetaStrips();
       n_stripsOtherView = rpc->NphiStrips();
     }
-  Identifier idp = m_muonIdHelperTool->rpcIdHelper().parentID(chid);
-  Identifier chidFirst = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier idp = m_idHelperSvc->rpcIdHelper().parentID(chid);
+  Identifier chidFirst = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  1);
-  Identifier chidLast  = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidLast  = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  view,
 						  n_strips);
-  Identifier chidFirstOtherView = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidFirstOtherView = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  otherview,
 						  1);
-  Identifier chidLastOtherView  = m_muonIdHelperTool->rpcIdHelper().channelID(idp, 
-						  m_muonIdHelperTool->rpcIdHelper().doubletZ(chid),
-						  m_muonIdHelperTool->rpcIdHelper().doubletPhi(chid),
-						  m_muonIdHelperTool->rpcIdHelper().gasGap(chid),
+  Identifier chidLastOtherView  = m_idHelperSvc->rpcIdHelper().channelID(idp, 
+						  m_idHelperSvc->rpcIdHelper().doubletZ(chid),
+						  m_idHelperSvc->rpcIdHelper().doubletPhi(chid),
+						  m_idHelperSvc->rpcIdHelper().gasGap(chid),
 						  otherview,
 						  n_stripsOtherView);
 
@@ -1065,32 +1037,31 @@ void MuonGMCheck::checkParentStation()
                                                                               seta_index,
                                                                               sphi_index,
                                                                               dbr_index);
-                     if (mdt == NULL) continue;
-                     std::cout<<" ///////////////////// Found a MdtReadoutElement for indices = "
+                     if (!mdt) continue;
+                     ATH_MSG_INFO(" ///////////////////// Found a MdtReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                               <<dbr_index
-                              <<std::endl;
+                              );
                      Identifier idr = mdt->identify();
-                     std::cout<<" its offline Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)
+                     ATH_MSG_INFO(" its offline Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(idr)
                               <<" ////////////////// belongs to module "
                               <<mdt->getTechnologyName()<<"/"
-                              <<mdt->getStationName()<<std::endl;
-                     Identifier idp = m_muonIdHelperTool->mdtIdHelper().parentID(idr);
-                     std::cout<<"      parent Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idp)<<std::endl;
-                     std::cerr<<" now the positions "<<std::endl;
+                              <<mdt->getStationName());
+                     Identifier idp = m_idHelperSvc->mdtIdHelper().parentID(idr);
+                     ATH_MSG_INFO("      parent Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(idp));
+                     ATH_MSG_ERROR(" now the positions ");
 		     Amg::Vector3D stc = mdt->parentMuonStationPos();
-                     //HepGeom::Point3D<double> stcm = mdt->parentMuonStationPos();
-                     std::cout<<"     Station centre is at "<<stc
-                              <<" cyl. coords R,phi,Z "<<stc.perp()<<" "<<stc.phi()<<" "<<stc.z()<<std::endl;
-                     std::cout<<" New Station centre is at " //<<stcm
+                     ATH_MSG_INFO("     Station centre is at "<<stc
+                              <<" cyl. coords R,phi,Z "<<stc.perp()<<" "<<stc.phi()<<" "<<stc.z());
+                     ATH_MSG_INFO(" New Station centre is at " //<<stcm
                               <<" s_amdb  "<<mdt->parentStation_s_amdb()<<" S,Z,R sizes "
                               <<mdt->parentStationSsize()<<" "
                               <<mdt->parentStationZsize()<<" "
                               <<mdt->parentStationRsize()<<" "
-                              <<std::endl;
+                              );
                      Amg::Vector3D elc = mdt->globalPosition();
-                     std::cout<<" Element centre is at "<<elc
-                              <<" cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
+                     ATH_MSG_INFO(" Element centre is at "<<elc
+                              <<" cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z());
                      
                  }
              }
@@ -1109,7 +1080,7 @@ void MuonGMCheck::checkreadoutmmgeo()
          return;
      }
      else ATH_MSG_INFO(p_MuonMgr->nMMRE() << " MMReadoutElements found " );
-     const MmIdHelper& helper = m_muonIdHelperTool->mmIdHelper();
+     const MmIdHelper& helper = m_idHelperSvc->mmIdHelper();
 
 
      std::string gVersion = p_MuonMgr->geometryVersion();
@@ -1146,9 +1117,9 @@ void MuonGMCheck::checkreadoutmmgeo()
 		 fout<<"------------------------------------- ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1<<std::endl;
 		 const MMReadoutElement* mmA=p_MuonMgr->getMMRElement_fromIdFields(iSL, etaA, iphi8, iml+1);
 		 
-		 if (mmC==NULL) std::cout<<" Something not found on the C side - ISL, etaC, iphi8, ml "<<iSL<<" "<<etaC<<" "<<iphi8<<" "<<iml+1<<std::endl;
-		 if (mmA==NULL) std::cout<<" Something not found in the A side - ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1<<std::endl;
-		 if (mmC!=NULL && mmA!=NULL) 
+		 if (!mmC) ATH_MSG_INFO(" Something not found on the C side - ISL, etaC, iphi8, ml "<<iSL<<" "<<etaC<<" "<<iphi8<<" "<<iml+1);
+		 if (!mmA) ATH_MSG_INFO(" Something not found in the A side - ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1);
+		 if (mmC && mmA) 
 		   {
 		     Identifier idA = mmA->identify();
 		     Identifier idC = mmC->identify();
@@ -1163,8 +1134,8 @@ void MuonGMCheck::checkreadoutmmgeo()
 		     fout<<helper.show_to_string(idC)<<" # of gas gaps = "<<helper.gasGapMax(idC)-helper.gasGapMin(idC)+1<<" ggMax = "<<helper.gasGapMax(idC)<<" number of layers(from geo)= "<<mmC->numberOfLayers(true)<<" nStrips = "<<mmC->numberOfStrips(idC)<<std::endl;
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*invRad<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*invRad<<std::endl;
 		     Amg::Vector2D lpos(0.,0.);
 		     for (int igg=1;igg<mmA->numberOfLayers(true)+1;++igg)
 		       {
@@ -1177,9 +1148,9 @@ void MuonGMCheck::checkreadoutmmgeo()
 			 const Amg::Vector3D *chCenter_fC = mmC->surface(idgg_fC).Trk::Surface::localToGlobal(lpos);
 			 const Amg::Vector3D *chCenter_lC = mmC->surface(idgg_lC).Trk::Surface::localToGlobal(lpos);
 			 fout<<"A-side: center of surface for gg "<<igg<<" 1st ch, "<<mmA->numberOfStrips(idA)<<"-th ch: r "<<chCenter_fA->perp()<<" "<<chCenter_lA->perp()
-			     <<" phi "<<chCenter_fA->phi()*180./M_PI<<" "<<chCenter_lA->phi()*180./M_PI<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
+			     <<" phi "<<chCenter_fA->phi()*invRad<<" "<<chCenter_lA->phi()*invRad<<" z "<<chCenter_fA->z()<<" "<<chCenter_lA->z()<<" "<<helper.show_to_string(idgg_fA)<<std::endl;
 			 fout<<"C-side: center of surface for gg "<<igg<<" 1st ch, "<<mmC->numberOfStrips(idC)<<"-th ch: r "<<chCenter_fC->perp()<<" "<<chCenter_lC->perp()
-			     <<" phi "<<chCenter_fC->phi()*180./M_PI<<" "<<chCenter_lC->phi()*180./M_PI<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
+			     <<" phi "<<chCenter_fC->phi()*invRad<<" "<<chCenter_lC->phi()*invRad<<" z "<<chCenter_fC->z()<<" "<<chCenter_lC->z()<<" "<<helper.show_to_string(idgg_fC)<<std::endl;
 		       }
 
 		   }
@@ -1203,7 +1174,7 @@ void MuonGMCheck::checkreadoutstgcgeo()
      std::string fileName = "sTgc_current_"+gVersion;
      std::ofstream fout(fileName.c_str());
      ATH_MSG_INFO( " ***** Writing file "<< fileName  );
-     const sTgcIdHelper& helper = m_muonIdHelperTool->stgcIdHelper();
+     const sTgcIdHelper& helper = m_idHelperSvc->stgcIdHelper();
 
 
      for (int ieta=0; ieta<MuonDetectorManager::NsTgStatEta/2; ++ieta)
@@ -1233,9 +1204,9 @@ void MuonGMCheck::checkreadoutstgcgeo()
 		 fout<<"------------------------------------- ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1<<std::endl;
 		 const sTgcReadoutElement* mmA=p_MuonMgr->getsTgcRElement_fromIdFields(iSL, etaA, iphi8, iml+1);
 		 
-		 if (mmC==NULL) std::cout<<" Something not found on the C side - ISL, etaC, iphi8, ml "<<iSL<<" "<<etaC<<" "<<iphi8<<" "<<iml+1<<std::endl;
-		 if (mmA==NULL) std::cout<<" Something not found in the A side - ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1<<std::endl;
-		 if (mmC!=NULL && mmA!=NULL) 
+		 if (!mmC) ATH_MSG_INFO(" Something not found on the C side - ISL, etaC, iphi8, ml "<<iSL<<" "<<etaC<<" "<<iphi8<<" "<<iml+1);
+		 if (!mmA) ATH_MSG_INFO(" Something not found in the A side - ISL, etaA, iphi8, ml "<<iSL<<" "<<etaA<<" "<<iphi8<<" "<<iml+1);
+		 if (mmC && mmA) 
 		   {
 		     Identifier idA = mmA->identify();
 		     Identifier idC = mmC->identify();
@@ -1245,13 +1216,13 @@ void MuonGMCheck::checkreadoutstgcgeo()
 		     fout<<"Found MMRE in C side; identified with: "<< helper.show_to_string(idC)
 			 <<" From Id: StName/Eta/Phi/ML = <"<<helper.stationNameString(helper.stationName(idA))<<">="<<helper.stationName(idC)<<"/"<<helper.stationEta(idC)<<"/"<<helper.stationPhi(idC)<<"/"<<helper.multilayer(idC)<<" CollHash = "<<mmC->collectionHash()<<" REhash = "/*<<mmC->detectorElementHash()<<" number of layers= "<<mmC->numberOfLayers()*/
 			 <<std::endl;
-		     fout<<"# of gas gaps = "<<helper.gasGapMax(idA)-helper.gasGapMin(idA)+1/*<<" isLargeSector = "<<helper.LargeSector(helper.stationName(idA))*/<<std::endl;
+		     fout<<"# of gas gaps = "<<helper.gasGapMax(idA)-helper.gasGapMin(idA)+1<<std::endl;
 
 
 		     Amg::Vector3D chCenterC = (mmC->absTransform())*Amg::Vector3D(0.,0.,0.);
 		     Amg::Vector3D chCenterA = (mmA->absTransform())*Amg::Vector3D(0.,0.,0.);
-		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*180./M_PI<<std::endl;
-		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*180./M_PI<<std::endl;
+		     fout<<"center of the chamber on the A-side = "<<chCenterA<<" cyl coord (r,phi)-> "<<chCenterA.perp()<<" "<<chCenterA.phi()*invRad<<std::endl;
+		     fout<<"center of the chamber on the C-side = "<<chCenterC<<" cyl coord (r,phi)-> "<<chCenterC.perp()<<" "<<chCenterC.phi()*invRad<<std::endl;
 
 		   }
 	       }
@@ -1301,7 +1272,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                                                                                     seta_index,
                                                                                     sphi_index,
                                                                                     dbr_index);
-                     if (mdt == NULL) continue;
+                     if (!mdt) continue;
 
                      fout<<" ///////////////////// Found a MdtReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
@@ -1309,7 +1280,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                               <<std::endl;
                      Identifier idr = mdt->identify();
                      fout<<" its offline hash Id = "<<mdt->identifyHash()<<std::endl;
-                     fout<<" its offline Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr)
+                     fout<<" its offline Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(idr)
                               <<" ////////////////// belongs to module "
                               <<mdt->getTechnologyName()<<"/"
 			      <<mdt->getStationName();
@@ -1317,12 +1288,12 @@ void MuonGMCheck::checkreadoutmdtgeo()
 		     else fout<<std::endl;
 
 		     // here get B-line 
-		     const BLinePar* bLine = NULL; 
+		     const BLinePar* bLine = nullptr; 
 		     bLine = mdt->getBLinePar();//
 
 
-                     Identifier idp = m_muonIdHelperTool->mdtIdHelper().parentID(idr);
-                     fout<<"      parent Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idp)<<std::endl;
+                     Identifier idp = m_idHelperSvc->mdtIdHelper().parentID(idr);
+                     fout<<"      parent Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(idp)<<std::endl;
 
                      const MuonStation* pms = mdt->parentMuonStation();
                      
@@ -1336,7 +1307,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                              fout<<" tube layer = "<<tl<<std::endl;
                              for (int tube = 1; tube<mdt->getNtubesperlayer(); tube++)
                              {
-                                 Identifier chid   = m_muonIdHelperTool->mdtIdHelper().channelID(idp,mdt->getMultilayer(), tl, tube);
+                                 Identifier chid   = m_idHelperSvc->mdtIdHelper().channelID(idp,mdt->getMultilayer(), tl, tube);
                                  Amg::Vector3D locPos = gToStation*mdt->tubePos(chid);
                                  const Amg::Vector3D locTubePos = mdt->AmdbLRStubePos( chid );
                                  fout<<" locPos = "<<locPos<<" locTubePos "<<locTubePos<<std::endl;
@@ -1387,8 +1358,8 @@ void MuonGMCheck::checkreadoutmdtgeo()
 			   }
 
                              gotTube = tube;
-                             chid   = m_muonIdHelperTool->mdtIdHelper().channelID(idp,mdt->getMultilayer(), tl, tube);
-                             fout<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+                             chid   = m_idHelperSvc->mdtIdHelper().channelID(idp,mdt->getMultilayer(), tl, tube);
+                             fout<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
                                  <<" wire global pos "<<mdt->tubePos(chid);
                              fout<<" Tube length is "<<mdt->tubeLength(chid);
 			     if (mdt->hasCutouts()) fout<<" HAS CUTOUTS"<<std::endl;
@@ -1423,8 +1394,8 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				 Amg::Vector3D pz0  = mdt->center(chid);				 
                                  fout<<" point on the wire at 1m from the center @ RO side "<<mdt->transform(chid)*Amg::Vector3D(0.,0., z1000RO)<<std::endl;
                                  fout<<" point on the wire at 1m from the center @ HV side "<<mdt->transform(chid)*Amg::Vector3D(0.,0.,-z1000RO)<<std::endl;
-                                 fout<<" RO side tube end-point                            "<<pzRO<<std::endl;//mdt->transform(chid)*Amg::Vector3D(0.,0., zRO)<<std::endl;
-                                 fout<<" HV side tube end-point                            "<<pzHV<<std::endl;//mdt->transform(chid)*Amg::Vector3D(0.,0.,-zRO)<<std::endl;
+                                 fout<<" RO side tube end-point                            "<<pzRO<<std::endl;
+                                 fout<<" HV side tube end-point                            "<<pzHV<<std::endl;
 				 fout<<" s+ half-tube end-point                            "<<pzEPsplus<<std::endl;
 				 fout<<" s- half-tube end-point                            "<<pzEPsminus<<std::endl;
 				 if (doHeader) 
@@ -1432,8 +1403,6 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				     doHeader = false;
 				     fendpoints<<"================================================="<<std::endl;
 				     
-				     //				     fendpoints
-				     //					 <<"   Atlas id                                 RO end-point x,y,z               center x,y,z                                HV  end-point x,y,z    MGM_nativeFrameZRO"<<std::endl;
 				     fendpoints
 					 <<"   Atlas id                                 s+ end-point x,y,z               center x,y,z                                s-  end-point x,y,z    halfTubeLength"<<std::endl;
 				     fendpoints<<"================================================="<<std::endl;
@@ -1443,7 +1412,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				     doChHeader = false;
 				     
 				     
-				     fendpoints<<" ----------- New MDT Station --------- id = "<<m_muonIdHelperTool->mdtIdHelper().print_to_string(chid)<<"----------------------------------------------------------------------- "<<std::endl;
+				     fendpoints<<" ----------- New MDT Station --------- id = "<<m_idHelperSvc->mdtIdHelper().print_to_string(chid)<<"----------------------------------------------------------------------- "<<std::endl;
 				     fendpoints<<" A-line in use is s,z,t rots,z,t "<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(7)
                                      <<pms->getALine_tras()<<" "
                                      <<pms->getALine_traz()<<" "
@@ -1451,10 +1420,10 @@ void MuonGMCheck::checkreadoutmdtgeo()
                                      <<pms->getALine_rots()<<" "
                                      <<pms->getALine_rotz()<<" "
                                      <<pms->getALine_rott()<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(4)<<std::endl;
-				     if (bLine==NULL) 
-					 fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)<<" B-line is NOT defined "<<std::endl;
+				     if (!bLine) 
+					 fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)<<" B-line is NOT defined "<<std::endl;
 				     else {
-					 fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)<<" B-line in use is: bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en  "<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(7)
+					 fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)<<" B-line in use is: bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en  "<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(7)
 					     <<bLine->bz()<<" "
 					     <<bLine->bp()<<" "
 					     <<bLine->bn()<<" "
@@ -1468,12 +1437,12 @@ void MuonGMCheck::checkreadoutmdtgeo()
 					     <<bLine->en()<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(4)<<std::endl;
 				     }
 				     if (mdt->barrel())
-					 fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+					 fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 						   <<" MDT envelop Ssize, LongSsize, Rsize=Height, Zsize=Length "
 						   <<pms->Ssize()<<" "<<pms->LongSsize()<<" "
 						   <<pms->RsizeMdtStation()<<" "<<pms->ZsizeMdtStation()<<std::endl;
 				     else 
-					 fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+					 fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 						   <<" MDT envelop Ssize, LongSsize, Zsize=Height, Rsize=Length "
 						   <<pms->Ssize()<<" "<<pms->LongSsize()<<" "
 						   <<pms->ZsizeMdtStation()<<" "<<pms->RsizeMdtStation()<<std::endl;
@@ -1481,19 +1450,19 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				     Amg::Vector3D bLineFixedPointAMDBl(temp[0],temp[1],temp[2]);
 				     Amg::Vector3D aLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
 				     Amg::Vector3D bLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(bLineFixedPointAMDBl);
-				     fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+				     fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 					       <<" A-line szt frame origine:               "
 					       <<std::setw(15)<<setiosflags(std::ios::fixed)
 					       <<std::setprecision(4)<<" "
 					       <<aLineFixedPoint.x()<<" "<<aLineFixedPoint.y()<<" "
 					       <<aLineFixedPoint.z()<<std::endl;
-				     fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+				     fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 					       <<" B-line fixed point in A-line szt frame: "
 					       <<std::setw(15)<<setiosflags(std::ios::fixed)
 					       <<std::setprecision(4)<<" "
 					       <<bLineFixedPointAMDBl.x()<<" "<<bLineFixedPointAMDBl.y()<<" "
 					       <<bLineFixedPointAMDBl.z()<<std::endl;
-				     fendpoints<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+				     fendpoints<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 					       <<" B-line fixed point:                     "
 					       <<std::setw(15)<<setiosflags(std::ios::fixed)
 					       <<std::setprecision(4)<<" "
@@ -1505,7 +1474,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
 
 				 Amg::Vector3D amdbpos  = mdt->AmdbLRStubePos(chid);
 				 fendpoints << "Amdb LRS rubePos " << amdbpos.x() << " " << amdbpos.y() << " " << amdbpos.z() << std::endl;
-				 fendpoints<<std::setw(20)<<setiosflags(std::ios::fixed)<<m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+				 fendpoints<<std::setw(20)<<setiosflags(std::ios::fixed)<<m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 					   <<"     s+ "
 					   <<std::setw(12)<<setiosflags(std::ios::fixed)
 					   <<std::setprecision(4)<<" "
@@ -1523,7 +1492,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
 
 				 fendpoints2 <<
 				   boost::format("%10d %25s   %12.4f %12.4f %12.4f   %12.4f %12.4f %12.4f   %12.4f %12.4f %12.4f\n")
-				   % m_fixedIdTool->idToFixedId(chid).getIdInt() % m_muonIdHelperTool->mdtIdHelper().show_to_string(chid)
+				   % m_fixedIdTool->idToFixedId(chid).getIdInt() % m_idHelperSvc->mdtIdHelper().show_to_string(chid)
 				   % pzEPsplus.x() % pzEPsplus.y() % pzEPsplus.z()
 				   % pz0.x() % pz0.y() % pz0.z()
 				   % pzEPsminus.x() % pzEPsminus.y() % pzEPsminus.z()
@@ -1536,7 +1505,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
                                      <<pms->getALine_rots()<<" "
                                      <<pms->getALine_rotz()<<" "
                                      <<pms->getALine_rott()<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(4)<<std::endl;
-				 if (bLine==NULL) 
+				 if (!bLine) 
 				   fout<<" B-line is NOT defined "<<std::endl;
 				 else {
 				   fout<<" B-line in use is: bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en  "<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(7)
@@ -1621,26 +1590,26 @@ void MuonGMCheck::checkreadouttgcgeo()
                  const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
                                                                                 seta_index,
                                                                                 sphi_index);
-                 if (tgc == NULL) continue;
+                 if (!tgc) continue;
                  fout<<" ///////////////////// Found a TgcReadoutElement for indices = "
                           <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                           <<std::endl;                 
                  Identifier idr = tgc->identify();
                  fout<<" its offline hash Id = "<<tgc->identifyHash()<<std::endl;
-                 fout<<" its offline Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idr)
+                 fout<<" its offline Id = "<<m_idHelperSvc->tgcIdHelper().show_to_string(idr)
                           <<" ////////////////// belongs to module "
                           <<tgc->getTechnologyName()<<"/"
                           <<tgc->getStationName()
                           <<" stEta/stPhi "<<tgc->getStationEta()<<" "<<tgc->getStationPhi()<<std::endl;
-                 Identifier idp = m_muonIdHelperTool->tgcIdHelper().parentID(idr);
-                 Identifier idp1 = m_muonIdHelperTool->tgcIdHelper().elementID(m_muonIdHelperTool->tgcIdHelper().stationName(idp),
-                                                            -m_muonIdHelperTool->tgcIdHelper().stationEta(idp),
-                                                            m_muonIdHelperTool->tgcIdHelper().stationPhi(idp));
-                 fout<<"      parent Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp);
-                 fout<<" opposite stEta = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp1);
+                 Identifier idp = m_idHelperSvc->tgcIdHelper().parentID(idr);
+                 Identifier idp1 = m_idHelperSvc->tgcIdHelper().elementID(m_idHelperSvc->tgcIdHelper().stationName(idp),
+                                                            -m_idHelperSvc->tgcIdHelper().stationEta(idp),
+                                                            m_idHelperSvc->tgcIdHelper().stationPhi(idp));
+                 fout<<"      parent Id = "<<m_idHelperSvc->tgcIdHelper().show_to_string(idp);
+                 fout<<" opposite stEta = "<<m_idHelperSvc->tgcIdHelper().show_to_string(idp1);
                  const TgcReadoutElement* tgc1 = p_MuonMgr->getTgcReadoutElement(idp1);
                  if (!tgc1) {
-                     ATH_MSG_FATAL( " TGC readout Element at z<0, with id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp1)<<" not found " );
+                     ATH_MSG_FATAL( " TGC readout Element at z<0, with id = "<<m_idHelperSvc->tgcIdHelper().show_to_string(idp1)<<" not found " );
                      ATH_MSG_FATAL( " is the geometry COMPLETE ? Any StationSelection active ? Exiting" );
                      return;
                  }
@@ -1648,11 +1617,11 @@ void MuonGMCheck::checkreadouttgcgeo()
 
                  const MuonStation* ms  = tgc->parentMuonStation();
                  if (ms) fout<<"Parent MuonStation found for element at z>0"<<std::endl;
-                 else  fout<<"Parent MuonStation NOT found for element "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp)<<std::endl;
+                 else  fout<<"Parent MuonStation NOT found for element "<<m_idHelperSvc->tgcIdHelper().show_to_string(idp)<<std::endl;
 
                  const MuonStation* ms1  = tgc1->parentMuonStation();
                  if (ms1) fout<<"Parent MuonStation found for element at z<0"<<std::endl;
-                 else  fout<<"Parent MuonStation NOT found for element "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idp1)<<std::endl;
+                 else  fout<<"Parent MuonStation NOT found for element "<<m_idHelperSvc->tgcIdHelper().show_to_string(idp1)<<std::endl;
                  
                  fout<<" N gasgaps layers = "<<tgc->NwirePlanes();
                  fout<<" N strip planes   = "<<tgc->NstripPlanes()<<std::endl;
@@ -1672,70 +1641,70 @@ void MuonGMCheck::checkreadouttgcgeo()
                               <<rpar->nWires(ngg+1,2)<<"/"
                               <<rpar->nWires(ngg+1,3)<<std::endl;
                      
-                     Identifier idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
+                     Identifier idch = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
                      Amg::Vector3D ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     fout<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
+                     fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
-                     idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 0, 1);
+                     idch = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 0, 1);
                      ggcentre = tgc1->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     fout<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
+                     fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
-                     idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
+                     idch = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
                      ggcentre = tgc->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     fout<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
+                     fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
-                     idch = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 1, 1);
+                     idch = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 1, 1);
                      ggcentre = tgc1->localToGlobalCoords(Amg::Vector3D(0.,0.,0.), idch);
-                     fout<<" For Chamber id "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idch)
+                     fout<<" For Chamber id "<<m_idHelperSvc->tgcIdHelper().show_to_string(idch)
                               <<" gasgap centre is "<<ggcentre<<std::endl;
 
                      
-                     Identifier fg = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
-                     Identifier lg = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, tgc->getNGangs(ngg+1));
-                     Identifier fgn = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 0, 1);
-                     Identifier lgn = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 0, tgc1->getNGangs(ngg+1));
+                     Identifier fg = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 0, 1);
+                     Identifier lg = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 0, tgc->getNGangs(ngg+1));
+                     Identifier fgn = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 0, 1);
+                     Identifier lgn = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 0, tgc1->getNGangs(ngg+1));
 
                      Amg::Vector3D xfg = tgc->channelPos(fg);
                      Amg::Vector3D xlg = tgc->channelPos(lg);
                      Amg::Vector3D xfgn = tgc1->channelPos(fgn);
                      Amg::Vector3D xlgn = tgc1->channelPos(lgn);
-                     fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fg)
+                     fout<<"\n gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fg)
                               <<"GM:: first eta gang z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
-                     fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fgn)
+                              <<xfg.perp()<<" "<<xfg.phi()*invRad<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*invRad<<" "<<xlg.z()<<std::endl;
+                     fout<<"gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fgn)
                               <<"GM:: first eta gang z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*invRad<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*invRad<<" "<<xlgn.z()<<std::endl;
 
-                     Identifier fs = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
-                     Identifier ls = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, tgc->getNStrips(ngg+1));
-                     Identifier fsn = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 1, 1);
-                     Identifier lsn = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 1, tgc1->getNStrips(ngg+1));
+                     Identifier fs = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 1, 1);
+                     Identifier ls = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 1, tgc->getNStrips(ngg+1));
+                     Identifier fsn = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 1, 1);
+                     Identifier lsn = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 1, tgc1->getNStrips(ngg+1));
                      xfg = tgc->channelPos(fs);
                      xlg = tgc->channelPos(ls);
                      xfgn = tgc1->channelPos(fsn);
                      xlgn = tgc1->channelPos(lsn);
-                     fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
+                     fout<<"\n gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first phi strip z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
-                     fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
+                              <<xfg.perp()<<" "<<xfg.phi()*invRad<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*invRad<<" "<<xlg.z()<<std::endl;
+                     fout<<"gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first phi strip z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*invRad<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*invRad<<" "<<xlgn.z()<<std::endl;
                      xfg = tgc->localChannelPos(fs);
                      xlg = tgc->localChannelPos(ls);
                      xfgn = tgc1->localChannelPos(fsn);
                      xlgn = tgc1->localChannelPos(lsn);
-                     fout<<"\n gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fs)
+                     fout<<"\n gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fs)
                               <<"GM:: first p_S local z>0 r,p,z "
-                              <<xfg.perp()<<" "<<xfg.phi()*180./M_PI<<" "<<xfg.z()<<" last "
-                              <<xlg.perp()<<" "<<xlg.phi()*180./M_PI<<" "<<xlg.z()<<std::endl;
-                     fout<<"gg "<<ngg+1<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(fsn)
+                              <<xfg.perp()<<" "<<xfg.phi()*invRad<<" "<<xfg.z()<<" last "
+                              <<xlg.perp()<<" "<<xlg.phi()*invRad<<" "<<xlg.z()<<std::endl;
+                     fout<<"gg "<<ngg+1<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(fsn)
                               <<"GM:: first p_S local z<0 r,p,z "
-                              <<xfgn.perp()<<" "<<xfgn.phi()*180./M_PI<<" "<<xfgn.z()<<" last "
-                              <<xlgn.perp()<<" "<<xlgn.phi()*180./M_PI<<" "<<xlgn.z()<<std::endl;
+                              <<xfgn.perp()<<" "<<xfgn.phi()*invRad<<" "<<xfgn.z()<<" last "
+                              <<xlgn.perp()<<" "<<xlgn.phi()*invRad<<" "<<xlgn.z()<<std::endl;
 
                      if (m_check_surfaces)
                      {
@@ -1824,8 +1793,8 @@ void MuonGMCheck::checkreadouttgcgeo()
                      if (m_check_surfaces_details){
                          for (int strip = 1; strip<=tgc->getNStrips(ngg+1); strip++)
                          {
-                             Identifier chid = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 1, strip);
-                             Identifier chid1 = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 1, strip);
+                             Identifier chid = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 1, strip);
+                             Identifier chid1 = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 1, strip);
                              // Global position
                              Amg::Vector3D tempGlobalPosition = tgc->channelPos(chid);
                              Amg::Vector3D tempGlobalPosition1 = tgc1->channelPos(chid1);
@@ -1856,8 +1825,8 @@ void MuonGMCheck::checkreadouttgcgeo()
                          }
                          for (int gang = 1; gang<=tgc->getNGangs(ngg+1); gang++)
                          {
-                             Identifier chid = m_muonIdHelperTool->tgcIdHelper().channelID(idp, ngg+1, 0, gang);
-                             Identifier chid1 = m_muonIdHelperTool->tgcIdHelper().channelID(idp1, ngg+1, 0, gang);
+                             Identifier chid = m_idHelperSvc->tgcIdHelper().channelID(idp, ngg+1, 0, gang);
+                             Identifier chid1 = m_idHelperSvc->tgcIdHelper().channelID(idp1, ngg+1, 0, gang);
                              // Global position
                              Amg::Vector3D tempGlobalPosition = tgc->channelPos(chid);
                              Amg::Vector3D tempGlobalPosition1 = tgc1->channelPos(chid1);
@@ -1931,33 +1900,33 @@ void MuonGMCheck::checkreadoutcscgeo()
                                                                                     seta_index,
                                                                                     sphi_index,
                                                                                     ml);
-                     if (csc == NULL) continue;
+                     if (!csc) continue;
                      fout<<" ///////////////////// Found a CscReadoutElement for indices = "
                               <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "<<ml
                               <<std::endl;
                      Identifier idr = csc->identify();
                      fout<<" its offline hash Id = "<<csc->identifyHash()<<std::endl;
-                     fout<<" its offline Id = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idr)
+                     fout<<" its offline Id = "<<m_idHelperSvc->cscIdHelper().show_to_string(idr)
                               <<" ////////////////// belongs to module "
                               <<csc->getTechnologyName()<<"/"
                               <<csc->getStationName()<<" centre at "<<(csc->transform())*Amg::Vector3D(0.,0.,0.)<<std::endl;
-                     Identifier idp = m_muonIdHelperTool->cscIdHelper().parentID(idr);
-                     fout<<"      parent Id = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idp)<<std::endl;
+                     Identifier idp = m_idHelperSvc->cscIdHelper().parentID(idr);
+                     fout<<"      parent Id = "<<m_idHelperSvc->cscIdHelper().show_to_string(idp)<<std::endl;
 
-                     Identifier idp1 = m_muonIdHelperTool->cscIdHelper().elementID(m_muonIdHelperTool->cscIdHelper().stationName(idp),
-                                                                -m_muonIdHelperTool->cscIdHelper().stationEta(idp),
-                                                                m_muonIdHelperTool->cscIdHelper().stationPhi(idp));
+                     Identifier idp1 = m_idHelperSvc->cscIdHelper().elementID(m_idHelperSvc->cscIdHelper().stationName(idp),
+                                                                -m_idHelperSvc->cscIdHelper().stationEta(idp),
+                                                                m_idHelperSvc->cscIdHelper().stationPhi(idp));
 
 
                      
-                     Identifier idp1ch = m_muonIdHelperTool->cscIdHelper().channelID(idp1, csc->ChamberLayer(), 1, 0, 1);
+                     Identifier idp1ch = m_idHelperSvc->cscIdHelper().channelID(idp1, csc->ChamberLayer(), 1, 0, 1);
                      const CscReadoutElement* csc1 = p_MuonMgr->getCscReadoutElement(idp1ch);
                      if (!csc1) {
-                         ATH_MSG_FATAL( " CSC readout Element at z<0, with id = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idp1ch)<<" not found " );
+                         ATH_MSG_FATAL( " CSC readout Element at z<0, with id = "<<m_idHelperSvc->cscIdHelper().show_to_string(idp1ch)<<" not found " );
                          ATH_MSG_FATAL( " is the geometry COMPLETE ? Any StationSelection active ? Exiting" );
                      return;
                      }
-                     fout<<" at opposite z  = "<<m_muonIdHelperTool->cscIdHelper().show_to_string(csc1->identify())
+                     fout<<" at opposite z  = "<<m_idHelperSvc->cscIdHelper().show_to_string(csc1->identify())
                               <<" ////////////////// belongs to module "
                               <<csc1->getTechnologyName()<<"/"
                               <<csc1->getStationName()<<" centre at "<<(csc1->transform())*Amg::Vector3D(0.,0.,0.)<<std::endl;
@@ -1966,11 +1935,11 @@ void MuonGMCheck::checkreadoutcscgeo()
 
                      const MuonStation* ms  = csc->parentMuonStation();
                      if (ms) fout<<"Parent MuonStation found for element at z>0"<<std::endl;
-                     else  fout<<"Parent MuonStation NOT found for element "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idp)<<std::endl;
+                     else  fout<<"Parent MuonStation NOT found for element "<<m_idHelperSvc->cscIdHelper().show_to_string(idp)<<std::endl;
                      
                      const MuonStation* ms1  = csc1->parentMuonStation();
                      if (ms1) fout<<"Parent MuonStation found for element at z<0"<<std::endl;
-                     else  fout<<"Parent MuonStation NOT found for element "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idp1)<<std::endl;
+                     else  fout<<"Parent MuonStation NOT found for element "<<m_idHelperSvc->cscIdHelper().show_to_string(idp1)<<std::endl;
 		     int netastrips = csc->NetaStrips(1);
 		     int nphistrips = csc->NphiStrips(1);
 		     fout<<"N or eta / phi strips in this chamber = "<<netastrips<<" "<<nphistrips
@@ -2027,14 +1996,14 @@ void MuonGMCheck::checkreadoutcscgeo()
 			 fout<<"Side-C: in AmdbLRS Gas Gap center         (after      internal alignment) = "<<csc1->GlobalToAmdbLRSCoords(ggCenter1)<<std::endl;
 			 
 			 
-                         Identifier fwzp = m_muonIdHelperTool->cscIdHelper().channelID(idp, ml+1, gg, 0, 1);
-                         Identifier fszp = m_muonIdHelperTool->cscIdHelper().channelID(idp, ml+1, gg, 1, 1);
-                         Identifier lwzp = m_muonIdHelperTool->cscIdHelper().channelID(idp, ml+1, gg, 0, csc->NetaStrips(gg));
-                         Identifier lszp = m_muonIdHelperTool->cscIdHelper().channelID(idp, ml+1, gg, 1, csc->NphiStrips(gg));
-                         Identifier fwzp1 = m_muonIdHelperTool->cscIdHelper().channelID(idp1, ml+1, gg, 0, 1);
-                         Identifier fszp1 = m_muonIdHelperTool->cscIdHelper().channelID(idp1, ml+1, gg, 1, 1);
-                         Identifier lwzp1 = m_muonIdHelperTool->cscIdHelper().channelID(idp1, ml+1, gg, 0, csc1->NetaStrips(gg));
-                         Identifier lszp1 = m_muonIdHelperTool->cscIdHelper().channelID(idp1, ml+1, gg, 1, csc1->NphiStrips(gg));
+                         Identifier fwzp = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, 0, 1);
+                         Identifier fszp = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, 1, 1);
+                         Identifier lwzp = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, 0, csc->NetaStrips(gg));
+                         Identifier lszp = m_idHelperSvc->cscIdHelper().channelID(idp, ml+1, gg, 1, csc->NphiStrips(gg));
+                         Identifier fwzp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 0, 1);
+                         Identifier fszp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 1, 1);
+                         Identifier lwzp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 0, csc1->NetaStrips(gg));
+                         Identifier lszp1 = m_idHelperSvc->cscIdHelper().channelID(idp1, ml+1, gg, 1, csc1->NphiStrips(gg));
 			 Amg::Vector3D AoriginGlobalF = csc->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
 			 Amg::Vector3D AoriginTrkF = csc->transform(fszp).inverse()*AoriginGlobalF;
 			 fout<<" Side-A: A-line origin Global Frame       "
@@ -2058,70 +2027,60 @@ void MuonGMCheck::checkreadoutcscgeo()
                          Amg::Vector3D xfszp1 = csc1->stripPos(fszp1);
                          Amg::Vector3D xlwzp1 = csc1->stripPos(lwzp1);
                          Amg::Vector3D xlszp1 = csc1->stripPos(lszp1);
-			 /*
-                         Amg::Vector3D xfwzpNew = csc->transform(fwzp)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xfszpNew = csc->transform(fszp)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xlwzpNew = csc->transform(lwzp)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xlszpNew = csc->transform(lszp)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xfwzp1New = csc1->transform(fwzp1)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xfszp1New = csc1->transform(fszp1)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xlwzp1New = csc1->transform(lwzp1)*Amg::Vector3D(0.,0.,0.);
-                         Amg::Vector3D xlszp1New = csc1->transform(lszp1)*Amg::Vector3D(0.,0.,0.);
-			 */
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta wire is at z>0 local coord "<<csc->localStripPos(fwzp) <<" last "<<csc->localStripPos(lwzp)<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta wire is at z>0 AMDB lcoord "<<csc->GlobalToAmdbLRSCoords(csc->stripPos(fwzp))
 			     <<" last "<<csc->GlobalToAmdbLRSCoords(csc->stripPos(lwzp))<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp1)
 			     <<"GM::  first eta wire is at z<0 AMDB lcoord "<<csc1->GlobalToAmdbLRSCoords(csc1->stripPos(fwzp1)) 
 			     <<" last "<<csc1->GlobalToAmdbLRSCoords(csc1->stripPos(lwzp1))<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"Nom:: first eta wire is at z>0 local coord "<<csc->nominalLocalStripPos(fwzp) <<" last "<<csc->nominalLocalStripPos(lwzp)<<std::endl;
-			 fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+			 fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"TRK:: first eta wire on    TrackingSurface "<<csc->stripPosOnTrackingSurface(fwzp) <<" last "<<csc->stripPosOnTrackingSurface(lwzp)<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta wire is at z>0 "<<xfwzp <<" last "<<xlwzp<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"Nom:: first eta wire is at z>0 "<<xfwzpNom <<" last "<<xlwzpNom<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp1)
 			     <<"GM:: first eta wire is at z<0 "<<xfwzp1<<" last "<<xlwzp1<<std::endl;
 
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi strip is at z>0 local coord "<<csc->localStripPos(fszp) <<" last "<<csc->localStripPos(lszp)<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi wire is at z>0 AMDB lcoord "<<csc->GlobalToAmdbLRSCoords(csc->stripPos(fszp)) 
 			     <<" last "<<csc->GlobalToAmdbLRSCoords(csc->stripPos(lszp))<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp1)
 			     <<"GM::  first phi wire is at z<0 AMDB lcoord "<<csc1->GlobalToAmdbLRSCoords(csc->stripPos(fszp1)) 
 			     <<" last "<<csc1->GlobalToAmdbLRSCoords(csc1->stripPos(lszp1))<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"Nom:: first phi strip is at z>0 local coord "<<csc->nominalLocalStripPos(fszp) <<" last "<<csc->nominalLocalStripPos(lszp)<<std::endl;
-			 fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+			 fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"TRK:: first phi strip    on TrackingSurface "<<csc->stripPosOnTrackingSurface(fszp) <<" last "<<csc->stripPosOnTrackingSurface(lszp)<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi strip is at z>0 "<<xfszp <<" last "<<xlszp<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"Nom:: first phi strip is at z>0 "<<xfszpNom <<" last "<<xlszpNom<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp1)
 			     <<"GM:: first phi strip is at z<0 "<<xfszp1<<" last "<<xlszp1<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp)
 			     <<"GM::  first eta gang z>0 r,p,z "
-			     <<xfwzp.perp()<<" "<<xfwzp.phi()*180./M_PI<<" "<<xfwzp.z()<<" last "
-			     <<xlwzp.perp()<<" "<<xlwzp.phi()*180./M_PI<<" "<<xlwzp.z()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fwzp1)
+			     <<xfwzp.perp()<<" "<<xfwzp.phi()*invRad<<" "<<xfwzp.z()<<" last "
+			     <<xlwzp.perp()<<" "<<xlwzp.phi()*invRad<<" "<<xlwzp.z()<<std::endl;
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fwzp1)
 			     <<"GM:: first eta wire z<0 r,p,z "
-			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*180./M_PI<<" "<<xfwzp1.z()<<" last "
-			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*180./M_PI<<" "<<xlwzp1.z()<<std::endl;
+			     <<xfwzp1.perp()<<" "<<xfwzp1.phi()*invRad<<" "<<xfwzp1.z()<<" last "
+			     <<xlwzp1.perp()<<" "<<xlwzp1.phi()*invRad<<" "<<xlwzp1.z()<<std::endl;
 
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
 			     <<"GM::  first phi strip z>0 r,p,z "
-			     <<xfszp.perp()<<" "<<xfszp.phi()*180./M_PI<<" "<<xfszp.z()<<" last "
-			     <<xlszp.perp()<<" "<<xlszp.phi()*180./M_PI<<" "<<xlszp.z()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
+			     <<xfszp.perp()<<" "<<xfszp.phi()*invRad<<" "<<xfszp.z()<<" last "
+			     <<xlszp.perp()<<" "<<xlszp.phi()*invRad<<" "<<xlszp.z()<<std::endl;
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp1)
 			     <<"GM:: first phi strip z<0 r,p,z "
-			     <<xfszp1.perp()<<" "<<xfszp1.phi()*180./M_PI<<" "<<xfszp1.z()<<" last "
-			     <<xlszp1.perp()<<" "<<xlszp1.phi()*180./M_PI<<" "<<xlszp1.z()<<std::endl;
+			     <<xfszp1.perp()<<" "<<xfszp1.phi()*invRad<<" "<<xfszp1.z()<<" last "
+			     <<xlszp1.perp()<<" "<<xlszp1.phi()*invRad<<" "<<xlszp1.z()<<std::endl;
 
                          Amg::Vector3D lxfszp = csc->localStripPos(fszp);
                          Amg::Vector3D lxlszp = csc->localStripPos(lszp);
@@ -2130,14 +2089,14 @@ void MuonGMCheck::checkreadoutcscgeo()
 
                          
                          
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp)
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp)
                                   <<"GM:: first phi_S local z>0 r,p,z "
-                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*180./M_PI<<" "<<lxfszp.z()<<" last "
-                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*180./M_PI<<" "<<lxlszp.z()<<std::endl;
-                         fout<<"gg "<<gg<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(fszp1)
+                                  <<lxfszp.perp()<<" "<<lxfszp.phi()*invRad<<" "<<lxfszp.z()<<" last "
+                                  <<lxlszp.perp()<<" "<<lxlszp.phi()*invRad<<" "<<lxlszp.z()<<std::endl;
+                         fout<<"gg "<<gg<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(fszp1)
                                   <<"GM:: first phi_S local z<0 r,p,z "
-                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*180./M_PI<<" "<<lxfszp1.z()<<" last "
-                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*180./M_PI<<" "<<lxlszp1.z()<<std::endl;
+                                  <<lxfszp1.perp()<<" "<<lxfszp1.phi()*invRad<<" "<<lxfszp1.z()<<" last "
+                                  <<lxlszp1.perp()<<" "<<lxlszp1.phi()*invRad<<" "<<lxlszp1.z()<<std::endl;
 
 
                          if (m_check_surfaces)
@@ -2232,10 +2191,10 @@ void MuonGMCheck::checkreadoutcscgeo()
 }
 void MuonGMCheck::buildRpcRegionSelectorMap()
 {
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->rpcIdHelper().module_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->rpcIdHelper().module_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->rpcIdHelper().module_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->rpcIdHelper().module_end();
 
-    IdContext rpcModuleContext = m_muonIdHelperTool->rpcIdHelper().module_context();
+    IdContext rpcModuleContext = m_idHelperSvc->rpcIdHelper().module_context();
 
     std::ofstream fout0("RPCMapIdAndHash.txt");
     fout0 <<"RPC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -2245,11 +2204,11 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->rpcIdHelper().get_hash(Id, Idhash, &rpcModuleContext);
-        std::string extid = m_muonIdHelperTool->rpcIdHelper().show_to_string(Id);
-        std::cout<<" Identifier = "<<extid;
-        if (gethash_code == 0) std::cout<<" its hash Id is "<<Idhash<<std::endl;
-        else                   std::cout<<"     hash Id NOT computed "<<Idhash<<std::endl;
+        int gethash_code = m_idHelperSvc->rpcIdHelper().get_hash(Id, Idhash, &rpcModuleContext);
+        std::string extid = m_idHelperSvc->rpcIdHelper().show_to_string(Id);
+        ATH_MSG_INFO(" Identifier = "<<extid);
+        if (gethash_code == 0) ATH_MSG_INFO(" its hash Id is "<<Idhash);
+        else                   ATH_MSG_INFO("     hash Id NOT computed "<<Idhash);
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
@@ -2268,20 +2227,18 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
                 new_extid = rpcid_nstr.str();
             }
         }
-        std::cout<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<std::endl;
+        ATH_MSG_INFO(extid<<" hash Id "<<Idhash<<" new format "<<new_extid);
 
         RpcReadoutSet Set(p_MuonMgr, Id);
         int nmod = Set.NreadoutElements();
-        std::cout<<" Number of modules  in this RpcSet "<<nmod<<std::endl;
-        std::cout<<" Number of doubletZ in this RpcSet "<<Set.NdoubletZ()<<std::endl;
+        ATH_MSG_INFO(" Number of modules  in this RpcSet "<<nmod);
+        ATH_MSG_INFO(" Number of doubletZ in this RpcSet "<<Set.NdoubletZ());
         int ndbz = Set.NdoubletZ();
-        std::cout<<" Number of modules in Phi/DoubletZ: ";
-        for (int i=1; i<=ndbz; i++) std::cout<<Set.NPhimodules(i)<<" ";
-        std::cout<<std::endl;
-        std::cout<<" Number of modules  in this RpcSet "<<nmod<<" Number of doubletZ in this RpcSet "<<Set.NdoubletZ()<<std::endl;
-        std::cout<<" Number of modules in Phi/DoubletZ: ";
-        for (int i=1; i<=ndbz; i++) std::cout<<Set.NPhimodules(i)<<" ";
-        std::cout<<std::endl;
+        ATH_MSG_INFO(" Number of modules in Phi/DoubletZ: ");
+        for (int i=1; i<=ndbz; i++) ATH_MSG_INFO(Set.NPhimodules(i)<<" ");
+        ATH_MSG_INFO(" Number of modules  in this RpcSet "<<nmod<<" Number of doubletZ in this RpcSet "<<Set.NdoubletZ());
+        ATH_MSG_INFO(" Number of modules in Phi/DoubletZ: ");
+        for (int i=1; i<=ndbz; i++) ATH_MSG_INFO(Set.NPhimodules(i)<<" ");
 
         double zmin =  99999999;
         double zmax = -99999999;
@@ -2292,13 +2249,13 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
         unsigned int nmodules = 0;
         for (int dbz=1; dbz<=ndbz; dbz++)
         {
-            const RpcReadoutElement* rpcold = NULL;
+            const RpcReadoutElement* rpcold = nullptr;
             int ndbp = Set.NPhimodules(dbz);
             for (int dbp=1; dbp<=ndbp; dbp++)
             {
-                std::cout<<" dbz, dbp = "<<dbz<<" "<<dbp<<std::endl;
+                ATH_MSG_INFO(" dbz, dbp = "<<dbz<<" "<<dbp);
                 const RpcReadoutElement* rpc = Set.readoutElement(dbz, dbp);
-                std::cout<<"_rpc = "<<rpc<<std::endl;
+                ATH_MSG_INFO("_rpc = "<<rpc);
                 if ( rpc != rpcold )
                 {
                     nmodules ++;
@@ -2327,13 +2284,13 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
             }
         }
         if (nmodules != Set.NreadoutElements())
-            std::cout<<" nmod = "<<nmodules<<" != NreadoutElements() "<<nmod<<std::endl;
+            ATH_MSG_INFO(" nmod = "<<nmodules<<" != NreadoutElements() "<<nmod);
         // here define the eta and phi(0-2*pi) ranges
         coercePositivePhi(phimin);
         coercePositivePhi(phimax);
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
-        std::cout<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<std::endl;
+        ATH_MSG_INFO("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax);
 
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -2355,10 +2312,10 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
 
 void MuonGMCheck::buildMdtRegionSelectorMap()
 {
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->mdtIdHelper().module_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->mdtIdHelper().module_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->mdtIdHelper().module_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->mdtIdHelper().module_end();
 
-    IdContext mdtModuleContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+    IdContext mdtModuleContext = m_idHelperSvc->mdtIdHelper().module_context();
 
     std::ofstream fout0("MDTMapIdAndHash.txt");
     fout0 <<"MDT ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -2367,11 +2324,11 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext);
-        std::string extid = m_muonIdHelperTool->mdtIdHelper().show_to_string(Id);
-        std::cout<<"\n Identifier = "<<extid;
-        if (gethash_code == 0) std::cout<<" its hash Id is "<<Idhash<<std::endl;
-        else                   std::cout<<"     hash Id NOT computed "<<Idhash<<std::endl;
+        int gethash_code = m_idHelperSvc->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext);
+        std::string extid = m_idHelperSvc->mdtIdHelper().show_to_string(Id);
+        ATH_MSG_INFO("\n Identifier = "<<extid);
+        if (gethash_code == 0) ATH_MSG_INFO(" its hash Id is "<<Idhash);
+        else                   ATH_MSG_INFO("     hash Id NOT computed "<<Idhash);
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
@@ -2390,37 +2347,37 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                 new_extid = mdtid_nstr.str();
             }
         }
-        std::cout<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid;
+        ATH_MSG_INFO(extid<<" hash Id "<<Idhash<<" new format "<<new_extid);
         
-        IdContext mdtChannelContext = m_muonIdHelperTool->mdtIdHelper().channel_context();
+        IdContext mdtChannelContext = m_idHelperSvc->mdtIdHelper().channel_context();
         // get the element corresponding to multilayer = 1
         const MdtReadoutElement* mdt1 = p_MuonMgr->getMdtReadoutElement(Id);
-        if (mdt1 == NULL) {
-            std::cout<<" Mdt Readout Element not found for Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(Id)<<" go to next "<<std::endl;
+        if (!mdt1) {
+            ATH_MSG_INFO(" Mdt Readout Element not found for Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(Id)<<" go to next ");
             continue;
         }
-        std::cout<<" Station name / technology "<<mdt1->getStationName()<<" / "<<mdt1->getTechnologyName()<<std::endl;
-        Identifier Id2 = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 2, 1, 1);
+        ATH_MSG_INFO(" Station name / technology "<<mdt1->getStationName()<<" / "<<mdt1->getTechnologyName());
+        Identifier Id2 = m_idHelperSvc->mdtIdHelper().channelID(Id, 2, 1, 1);
         // get the element corresponding to multilayer = 2
         const MdtReadoutElement* mdt2 = p_MuonMgr->getMdtReadoutElement(Id2);
         double tubePitch = mdt1->tubePitch();
         int ntlay = mdt1->getNLayers();
         int ntubesl1 = mdt1->getNtubesperlayer();
         int ntubesl2 = 0;
-        if (mdt2 == NULL) {
-            std::cout<<" Mdt Readout Element not found for Id = "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(Id2)<<std::endl;
+        if (!mdt2) {
+            ATH_MSG_INFO(" Mdt Readout Element not found for Id = "<<m_idHelperSvc->mdtIdHelper().show_to_string(Id2));
         }
         else
             ntubesl2 = mdt2->getNtubesperlayer();
 
         Identifier Idv[4];
-        Idv[0] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 1, 1, 1);
-        Idv[1] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 1, 1, ntubesl1);
-        Idv[2] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 2, ntlay, 1);
-        Idv[3] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 2, ntlay, ntubesl2);
+        Idv[0] = m_idHelperSvc->mdtIdHelper().channelID(Id, 1, 1, 1);
+        Idv[1] = m_idHelperSvc->mdtIdHelper().channelID(Id, 1, 1, ntubesl1);
+        Idv[2] = m_idHelperSvc->mdtIdHelper().channelID(Id, 2, ntlay, 1);
+        Idv[3] = m_idHelperSvc->mdtIdHelper().channelID(Id, 2, ntlay, ntubesl2);
 
-        std::cout<<" Number of tube layers "<<ntlay;
-        std::cout<<" Number of tubes / layer (1 ,2) "<<ntubesl1<<", "<<ntubesl2;
+        ATH_MSG_INFO(" Number of tube layers "<<ntlay);
+        ATH_MSG_INFO(" Number of tubes / layer (1 ,2) "<<ntubesl1<<", "<<ntubesl2);
         
         double rmin =  99999999.;
         double rmax = -99999999.;
@@ -2432,44 +2389,44 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         double phimax = -999999.;
         
         double zpos21 = 0.;
-        Identifier Idsl = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 1, 2, 1);
+        Identifier Idsl = m_idHelperSvc->mdtIdHelper().channelID(Id, 1, 2, 1);
         if (mdt1->barrel())
         {
             zpos21 = (mdt1->tubePos(Idsl)).z()-(mdt1->tubePos(Idv[0])).z();
-            if (zpos21 > 1.) std::cout<<" staggering this way >>>>> "<<std::endl;
-            else if (zpos21 <-1.)  std::cout<<" staggering this way <<<<< "<<std::endl;
-            else std::cout<<" zpos 21 = 0 ??? "<<zpos21<<std::endl;
+            if (zpos21 > 1.) ATH_MSG_INFO(" staggering this way >>>>> ");
+            else if (zpos21 <-1.)  ATH_MSG_INFO(" staggering this way <<<<< ");
+            else ATH_MSG_INFO(" zpos 21 = 0 ??? "<<zpos21);
         }
         else 
         {
             zpos21 = (mdt1->tubePos(Idsl)).perp()-(mdt1->tubePos(Idv[0])).perp();
-            if (zpos21 > 1.) std::cout<<" staggering this way /\\ "<<std::endl;
-            else if (zpos21 <-1.)  std::cout<<" staggering this way \\/ "<<std::endl;
-            else std::cout<<" zpos 21 = 0 ??? "<<zpos21<<std::endl;
+            if (zpos21 > 1.) ATH_MSG_INFO(" staggering this way /\\ ");
+            else if (zpos21 <-1.)  ATH_MSG_INFO(" staggering this way \\/ ");
+            else ATH_MSG_INFO(" zpos 21 = 0 ??? "<<zpos21);
         }
         
         for (int i=0; i<4; i++)
         {
             //
-            const MdtReadoutElement* mdt = NULL;
+            const MdtReadoutElement* mdt = nullptr;
             i<2 ? mdt = mdt1: mdt = mdt2;
-            if (mdt == NULL) {
-                std::cout<<" element not found for index i = "<<i<<" --------- "<<std::endl;
+            if (!mdt) {
+                ATH_MSG_INFO(" element not found for index i = "<<i<<" --------- ");
                 if (i==2) {
-                    Idv[2] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 1, ntlay, 1);
+                    Idv[2] = m_idHelperSvc->mdtIdHelper().channelID(Id, 1, ntlay, 1);
                     mdt = p_MuonMgr->getMdtReadoutElement(Idv[2]);
                 }
                 else if (i==3) {
-                    Idv[3] = m_muonIdHelperTool->mdtIdHelper().channelID(Id, 1, ntlay, ntubesl1);
+                    Idv[3] = m_idHelperSvc->mdtIdHelper().channelID(Id, 1, ntlay, ntubesl1);
                     mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
                 }
             }
-            if (mdt == NULL) {
-                    std::cout<<" Skipping element; i = "<<i<<" ----- "<<std::endl;
+            if (!mdt) {
+                    ATH_MSG_INFO(" Skipping element; i = "<<i<<" ----- ");
                     continue;
             }            
             Amg::Vector3D mdtPos = mdt->tubePos(Idv[i]);
-            std::cout<<m_muonIdHelperTool->mdtIdHelper().show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp()<<std::endl;
+            ATH_MSG_INFO(m_idHelperSvc->mdtIdHelper().show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp());
             //
             Amg::Vector3D mdtPos1 = mdtPos;
             Amg::Vector3D mdtPos2 = mdtPos;
@@ -2601,10 +2558,10 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
             }
             double pminMod = mdtPos.phi() - dphi;
             double pmaxMod = mdtPos.phi() + dphi;
-            std::cout<<" Stack  zmin, max "<<zminMod<<" "<<zmaxMod
+            ATH_MSG_INFO(" Stack  zmin, max "<<zminMod<<" "<<zmaxMod
                      <<" phimin, max "<<pminMod<<" "<<pmaxMod
                      <<"   Rmin, max "<<rminMod<<" "<<rmaxMod
-                     <<" etamin, max "<<eminMod<<" "<<emaxMod<<std::endl;
+                     <<" etamin, max "<<eminMod<<" "<<emaxMod);
             
             if (zminMod < zmin) {
                 zmin = zminMod;
@@ -2618,7 +2575,7 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
             if (emaxMod > emax) emax = emaxMod;
             if (rminMod < rmin) rmin = rminMod;
             if (rmaxMod > rmax) rmax = rmaxMod;
-            std::cout<<" Module emin - emax "<<emin<<" "<<emax<<" phimin - phimax "<<phimin<<" "<<phimax<<std::endl;
+            ATH_MSG_INFO(" Module emin - emax "<<emin<<" "<<emax<<" phimin - phimax "<<phimin<<" "<<phimax);
             
         }
 
@@ -2626,9 +2583,9 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
         coercePositivePhi(phimin);
         coercePositivePhi(phimax);
 
-        std::cout<<" ***** Z range "<<zmin<<" "<<zmax<<" ***** R range "<<rmin<<" "<<rmax
+        ATH_MSG_INFO(" ***** Z range "<<zmin<<" "<<zmax<<" ***** R range "<<rmin<<" "<<rmax
                  <<" --- eta range "<<emin<<" "<<emax
-                 <<" phi range "<<phimin<<" "<<phimax<<std::endl;
+                 <<" phi range "<<phimin<<" "<<phimax);
 
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -2650,10 +2607,10 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 }
 void MuonGMCheck::buildTgcRegionSelectorMap()
 {
-  std::vector<Identifier>::const_iterator idfirst = m_muonIdHelperTool->tgcIdHelper().module_begin();
-  std::vector<Identifier>::const_iterator idlast  = m_muonIdHelperTool->tgcIdHelper().module_end();
+  std::vector<Identifier>::const_iterator idfirst = m_idHelperSvc->tgcIdHelper().module_begin();
+  std::vector<Identifier>::const_iterator idlast  = m_idHelperSvc->tgcIdHelper().module_end();
 
-  const IdContext tgcModuleContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  const IdContext tgcModuleContext = m_idHelperSvc->tgcIdHelper().module_context();
 
   std::ofstream fout0("TGCMapIdAndHash.txt");
   fout0 <<"TGC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -2663,12 +2620,12 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       Identifier     elemId = *i;
       IdentifierHash hashId;
 
-      int gethash_code = m_muonIdHelperTool->tgcIdHelper().get_hash(elemId,hashId,&tgcModuleContext);
+      int gethash_code = m_idHelperSvc->tgcIdHelper().get_hash(elemId,hashId,&tgcModuleContext);
 
-      std::string extid = m_muonIdHelperTool->tgcIdHelper().show_to_string(elemId);
-      std::cout<<"\n Identifier = "<<extid;
-      if (gethash_code == 0) std::cout<<" its hash Id is "<<hashId<<std::endl;
-      else                   std::cout<<"     hash Id NOT computed "<<hashId<<std::endl;
+      std::string extid = m_idHelperSvc->tgcIdHelper().show_to_string(elemId);
+      ATH_MSG_INFO("\n Identifier = "<<extid);
+      if (gethash_code == 0) ATH_MSG_INFO(" its hash Id is "<<hashId);
+      else                   ATH_MSG_INFO("     hash Id NOT computed "<<hashId);
 
       std::string new_extid = "";
       int aux0, aux1, aux2, aux3, aux4, aux5;
@@ -2687,27 +2644,27 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 	      new_extid = mdtid_nstr.str();
 	    }
 	}
-      std::cout<<extid<<" hash Id "<<hashId<<" new format "<<new_extid;
+      ATH_MSG_INFO(extid<<" hash Id "<<hashId<<" new format "<<new_extid);
 	  
       const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(elemId);
-      if (tgc == NULL)
+      if (!tgc)
 	{
-	  std::cout<<" Tgc Readout Element not found for Id = "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(elemId)<<" go to next "<<std::endl;
+	  ATH_MSG_INFO(" Tgc Readout Element not found for Id = "<<m_idHelperSvc->tgcIdHelper().show_to_string(elemId)<<" go to next ");
 	  continue;
 	}
-      std::cout<<" Station name / technology "<<tgc->getStationName()<<" / "<<tgc->getTechnologyName()<<std::endl;
+      ATH_MSG_INFO(" Station name / technology "<<tgc->getStationName()<<" / "<<tgc->getTechnologyName());
 	  
       Amg::Vector3D posmin, posmax;
       float etamin, etamax;
-      int gapMin = m_muonIdHelperTool->tgcIdHelper().gasGapMin(elemId);
-      int gapMax = m_muonIdHelperTool->tgcIdHelper().gasGapMax(elemId);
+      int gapMin = m_idHelperSvc->tgcIdHelper().gasGapMin(elemId);
+      int gapMax = m_idHelperSvc->tgcIdHelper().gasGapMax(elemId);
 
       Identifier chId;
-      chId = m_muonIdHelperTool->tgcIdHelper().channelID(elemId,gapMin,0,1);
-      const int chmax = m_muonIdHelperTool->tgcIdHelper().channelMax(chId);
+      chId = m_idHelperSvc->tgcIdHelper().channelID(elemId,gapMin,0,1);
+      const int chmax = m_idHelperSvc->tgcIdHelper().channelMax(chId);
       posmax = tgc->channelPos(gapMin,0,chmax); // gapMax gives posmax!
-      chId = m_muonIdHelperTool->tgcIdHelper().channelID(elemId,gapMax,0,1);
-      const int chmin = m_muonIdHelperTool->tgcIdHelper().channelMin(chId);
+      chId = m_idHelperSvc->tgcIdHelper().channelID(elemId,gapMax,0,1);
+      const int chmin = m_idHelperSvc->tgcIdHelper().channelMin(chId);
       posmin = tgc->channelPos(gapMax,0,chmin); // gapMin gives posmin!
 
       // calculation based on active sensitive area
@@ -2717,7 +2674,7 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
       activeheight = tgc->length();
       etamin = -logf(tan(atan((posctr.perp()-activeheight/2.)/fabs(posmin.z()))/2.));
       etamax = -logf(tan(atan((posctr.perp()+activeheight/2.)/fabs(posmax.z()))/2.));
-      if (m_muonIdHelperTool->tgcIdHelper().stationEta(elemId) < 0) {
+      if (m_idHelperSvc->tgcIdHelper().stationEta(elemId) < 0) {
 	etamin = -etamin;
 	etamax = -etamax;
       }
@@ -2749,10 +2706,10 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 
 void MuonGMCheck::buildCscRegionSelectorMap()
 {
-     std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->cscIdHelper().module_begin();
-     std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->cscIdHelper().module_end();
+     std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->cscIdHelper().module_begin();
+     std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->cscIdHelper().module_end();
  
-     IdContext cscModuleContext = m_muonIdHelperTool->cscIdHelper().module_context();
+     IdContext cscModuleContext = m_idHelperSvc->cscIdHelper().module_context();
  
      std::ofstream fout0("CSCMapIdAndHash.txt");
      fout0 <<"CSC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -2761,11 +2718,11 @@ void MuonGMCheck::buildCscRegionSelectorMap()
      {
          Identifier Id = *i;
          IdentifierHash Idhash;
-         int gethash_code = m_muonIdHelperTool->cscIdHelper().get_hash(Id, Idhash, &cscModuleContext);
-         std::string extid = m_muonIdHelperTool->cscIdHelper().show_to_string(Id);
-         std::cout<<"\n Identifier = "<<extid;
-         if (gethash_code == 0) std::cout<<" its hash Id is "<<Idhash<<std::endl;
-         else                   std::cout<<"     hash Id NOT computed "<<Idhash<<std::endl;
+         int gethash_code = m_idHelperSvc->cscIdHelper().get_hash(Id, Idhash, &cscModuleContext);
+         std::string extid = m_idHelperSvc->cscIdHelper().show_to_string(Id);
+         ATH_MSG_INFO("\n Identifier = "<<extid);
+         if (gethash_code == 0) ATH_MSG_INFO(" its hash Id is "<<Idhash);
+         else                   ATH_MSG_INFO("     hash Id NOT computed "<<Idhash);
  
          std::string new_extid="";
          int aux0, aux1=0, aux2, aux3=0, aux4, aux5;
@@ -2788,38 +2745,38 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  				// aux2 is eta region (-1,1)
  				// aux3 is phi region (1,8)
          if( aux1==0 || aux3==0 ) {
-           std::cout<< "ERROR : There is something wrong in buildCscRegionSelectorMap!" << std::endl;
-           std::cout<< "ERROR : Variables aux1 and/or aux3 not initialized - Taking emergency exit!" << std::endl;
+           ATH_MSG_ERROR("There is something wrong in buildCscRegionSelectorMap!");
+           ATH_MSG_ERROR("Variables aux1 and/or aux3 not initialized - Taking emergency exit!");
            throw;
          }
  
-         std::cout<<extid<<" hash Id "<<Idhash<<" new format " << new_extid << std::endl;
+         ATH_MSG_INFO(extid<<" hash Id "<<Idhash<<" new format " << new_extid);
  
  				// retrieve CscReadoutElement
          Identifier Id2ndLayer;
          int chamberLayer = 2;
          const CscReadoutElement *csc;
          csc = p_MuonMgr->getCscReadoutElement(Id);
-         if (csc == NULL) {
-             std::cout << "Csc Readout Element not found for this Id ---- try 2nd layer"<<std::endl;
-             Id2ndLayer = m_muonIdHelperTool->cscIdHelper().parentID(Id);
-             Id2ndLayer = m_muonIdHelperTool->cscIdHelper().channelID(Id2ndLayer, chamberLayer, 1, 0, 1);
+         if (!csc) {
+             ATH_MSG_INFO("Csc Readout Element not found for this Id ---- try 2nd layer");
+             Id2ndLayer = m_idHelperSvc->cscIdHelper().parentID(Id);
+             Id2ndLayer = m_idHelperSvc->cscIdHelper().channelID(Id2ndLayer, chamberLayer, 1, 0, 1);
              csc = p_MuonMgr->getCscReadoutElement(Id2ndLayer);
-             if (csc == NULL)
+             if (!csc)
              {
-                 std::cout << "Csc Readout Element not found for 2nd layer too ---- skip"<<std::endl;
+                 ATH_MSG_INFO("Csc Readout Element not found for 2nd layer too ---- skip");
                  continue;
              }
              else
              {
-                 std::cout << "Csc Readout Element found for 2nd layer"<<std::endl;
+                 ATH_MSG_INFO("Csc Readout Element found for 2nd layer");
              }
          }
          
                        
-         std::cout << "number of chamber layers : " << m_muonIdHelperTool->cscIdHelper().chamberLayerMin(Id) << "," << m_muonIdHelperTool->cscIdHelper().chamberLayerMax(Id) << std::endl;
-         std::cout << "number of wire layers : " << m_muonIdHelperTool->cscIdHelper().wireLayerMin(Id) << "," << m_muonIdHelperTool->cscIdHelper().wireLayerMax(Id)<< std::endl;
-         std::cout << "strip number : " << m_muonIdHelperTool->cscIdHelper().stripMin(Id) << "," << m_muonIdHelperTool->cscIdHelper().stripMax(Id) << std::endl;
+         ATH_MSG_INFO("number of chamber layers : " << m_idHelperSvc->cscIdHelper().chamberLayerMin(Id) << "," << m_idHelperSvc->cscIdHelper().chamberLayerMax(Id));
+         ATH_MSG_INFO("number of wire layers : " << m_idHelperSvc->cscIdHelper().wireLayerMin(Id) << "," << m_idHelperSvc->cscIdHelper().wireLayerMax(Id));
+         ATH_MSG_INFO("strip number : " << m_idHelperSvc->cscIdHelper().stripMin(Id) << "," << m_idHelperSvc->cscIdHelper().stripMax(Id));
  
          double eta_min =  99999999.;
          double eta_max = -99999999.;
@@ -2831,11 +2788,11 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  				Identifier Id_eta_max;
  				Identifier Id_eta_min;				
  	
- 				for(int chlayer=1; chlayer<=m_muonIdHelperTool->cscIdHelper().chamberLayerMax(Id);chlayer++){						
- 					for (int wlayer=1;wlayer<=m_muonIdHelperTool->cscIdHelper().wireLayerMax(Id);wlayer++){
+ 				for(int chlayer=1; chlayer<=m_idHelperSvc->cscIdHelper().chamberLayerMax(Id);chlayer++){						
+ 					for (int wlayer=1;wlayer<=m_idHelperSvc->cscIdHelper().wireLayerMax(Id);wlayer++){
  						for (int phis=1; phis<=csc->NphiStrips(wlayer); phis++){
  
- 							Identifier phis_id = m_muonIdHelperTool->cscIdHelper().channelID(Id, chlayer, wlayer, 1, phis);
+ 							Identifier phis_id = m_idHelperSvc->cscIdHelper().channelID(Id, chlayer, wlayer, 1, phis);
  							Amg::Vector3D phis_x = csc->localStripPos(phis_id);
  							double phis_lenght = csc->stripLength(phis_id);
  							
@@ -2893,22 +2850,20 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  								Id_eta_min=phis_id;
  								eta_min=gphis_x2.eta();
  							}			
- 							std::cout << "pm 1 n " << phis << " phi1 " << gphis_x1.phi() 
+ 							ATH_MSG_INFO("pm 1 n " << phis << " phi1 " << gphis_x1.phi() 
  																						 << " phi2 " << gphis_x2.phi() 
  																						 << " phi_min " << phi_min 
- 																						 << " phi_max " << phi_max 
- 																						 << std::endl;
+ 																						 << " phi_max " << phi_max);
  							
- 							std::cout << "pm 1 n " << phis << " eta1 " << gphis_x1.eta() 
+ 							ATH_MSG_INFO("pm 1 n " << phis << " eta1 " << gphis_x1.eta() 
  																						 << " eta2 " << gphis_x2.eta() 
  																						 << " eta_min " << eta_min 
- 																						 << " eta_max " << eta_max 
- 																						 << std::endl;	
- 							std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+ 																						 << " eta_max " << eta_max);	
+ 							ATH_MSG_INFO("------------------------------------------------------------------------------------------------");
  						}						
  						for (int etas=1; etas<=csc->NetaStrips(wlayer); etas++){
  
- 							Identifier etas_id = m_muonIdHelperTool->cscIdHelper().channelID(Id, chlayer, wlayer, 0, etas);
+ 							Identifier etas_id = m_idHelperSvc->cscIdHelper().channelID(Id, chlayer, wlayer, 0, etas);
  							Amg::Vector3D etas_x = csc->localStripPos(etas_id);
  							double etas_lenght = csc->stripLength(etas_id);
  							
@@ -2965,48 +2920,46 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  								eta_min=getas_x2.eta();
  							}
  			
- 							std::cout << "pm 0 n " << etas << " phi1 " << getas_x1.phi() 
+ 							ATH_MSG_INFO("pm 0 n " << etas << " phi1 " << getas_x1.phi() 
  																						 << " phi2 " << getas_x2.phi() 
  																						 << " phi_min " << phi_min 
- 																						 << " phi_max " << phi_max 
- 																						 << std::endl;
+ 																						 << " phi_max " << phi_max);
  							
- 							std::cout << "pm 0 n " << etas << " eta1 " << getas_x1.eta() 
+ 							ATH_MSG_INFO("pm 0 n " << etas << " eta1 " << getas_x1.eta() 
  																						 << " eta2 " << getas_x2.eta() 
  																						 << " eta_min " << eta_min 
- 																						 << " eta_max " << eta_max 
- 																						 << std::endl;
- 							std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+ 																						 << " eta_max " << eta_max);
+ 							ATH_MSG_INFO("------------------------------------------------------------------------------------------------");
  						}			
  				} //gas gaps
  			} // chamber layers 	
  			
- 			int cl_phi_min = m_muonIdHelperTool->cscIdHelper().chamberLayer(Id_phi_min);
- 			int cl_phi_max = m_muonIdHelperTool->cscIdHelper().chamberLayer(Id_phi_max);
- 			int cl_eta_min = m_muonIdHelperTool->cscIdHelper().chamberLayer(Id_eta_min);
- 			int cl_eta_max = m_muonIdHelperTool->cscIdHelper().chamberLayer(Id_eta_max);
+ 			int cl_phi_min = m_idHelperSvc->cscIdHelper().chamberLayer(Id_phi_min);
+ 			int cl_phi_max = m_idHelperSvc->cscIdHelper().chamberLayer(Id_phi_max);
+ 			int cl_eta_min = m_idHelperSvc->cscIdHelper().chamberLayer(Id_eta_min);
+ 			int cl_eta_max = m_idHelperSvc->cscIdHelper().chamberLayer(Id_eta_max);
  	
- 			int wl_phi_min = m_muonIdHelperTool->cscIdHelper().wireLayer(Id_phi_min);
- 			int wl_phi_max = m_muonIdHelperTool->cscIdHelper().wireLayer(Id_phi_max);
- 			int wl_eta_min = m_muonIdHelperTool->cscIdHelper().wireLayer(Id_eta_min);
- 			int wl_eta_max = m_muonIdHelperTool->cscIdHelper().wireLayer(Id_eta_max);
+ 			int wl_phi_min = m_idHelperSvc->cscIdHelper().wireLayer(Id_phi_min);
+ 			int wl_phi_max = m_idHelperSvc->cscIdHelper().wireLayer(Id_phi_max);
+ 			int wl_eta_min = m_idHelperSvc->cscIdHelper().wireLayer(Id_eta_min);
+ 			int wl_eta_max = m_idHelperSvc->cscIdHelper().wireLayer(Id_eta_max);
  			
  		
- 			int N_phi_min = m_muonIdHelperTool->cscIdHelper().strip(Id_phi_min);
- 			int N_phi_max = m_muonIdHelperTool->cscIdHelper().strip(Id_phi_max);
- 			int N_eta_min = m_muonIdHelperTool->cscIdHelper().strip(Id_eta_min);
- 			int N_eta_max = m_muonIdHelperTool->cscIdHelper().strip(Id_eta_max);
+ 			int N_phi_min = m_idHelperSvc->cscIdHelper().strip(Id_phi_min);
+ 			int N_phi_max = m_idHelperSvc->cscIdHelper().strip(Id_phi_max);
+ 			int N_eta_min = m_idHelperSvc->cscIdHelper().strip(Id_eta_min);
+ 			int N_eta_max = m_idHelperSvc->cscIdHelper().strip(Id_eta_max);
  			
- 			int mp_phi_min = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_phi_min);
- 			int mp_phi_max = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_phi_max);
- 			int mp_eta_min = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_eta_min);
- 			int mp_eta_max = m_muonIdHelperTool->cscIdHelper().measuresPhi(Id_eta_max);
+ 			int mp_phi_min = m_idHelperSvc->cscIdHelper().measuresPhi(Id_phi_min);
+ 			int mp_phi_max = m_idHelperSvc->cscIdHelper().measuresPhi(Id_phi_max);
+ 			int mp_eta_min = m_idHelperSvc->cscIdHelper().measuresPhi(Id_eta_min);
+ 			int mp_eta_max = m_idHelperSvc->cscIdHelper().measuresPhi(Id_eta_max);
  		
- 			std::cout << "--------> phi_min " << phi_min << " mp " << mp_phi_min << " chl " << cl_phi_min << " wl " << wl_phi_min << " strip " << N_phi_min << std::endl;
- 			std::cout << "--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max << std::endl;
- 			std::cout << "--------> eta_min " << eta_min << " mp " << mp_eta_min << " chl " << cl_eta_min << " wl " << wl_eta_min << " strip " << N_eta_min << std::endl;
- 			std::cout << "--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max << std::endl;
- 			std::cout << "--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min) << std::endl;
+ 			ATH_MSG_INFO("--------> phi_min " << phi_min << " mp " << mp_phi_min << " chl " << cl_phi_min << " wl " << wl_phi_min << " strip " << N_phi_min);
+ 			ATH_MSG_INFO("--------> phi_max " << phi_max << " mp " << mp_phi_max << " chl " << cl_phi_max << " wl " << wl_phi_max << " strip " << N_phi_max);
+ 			ATH_MSG_INFO("--------> eta_min " << eta_min << " mp " << mp_eta_min << " chl " << cl_eta_min << " wl " << wl_eta_min << " strip " << N_eta_min);
+ 			ATH_MSG_INFO("--------> eta_max " << eta_max << " mp " << mp_eta_max << " chl " << cl_eta_max << " wl " << wl_eta_max << " strip " << N_eta_max);
+ 			ATH_MSG_INFO("--------> Dphi " << fabs(phi_max-phi_min) << " Deta " << fabs(eta_max-eta_min));
  			
  			if(aux1==51 && aux3==1)	if (phi_min < 0) phi_min += 2.*M_PI;
  			if(aux1==51 && aux3==1)	if (phi_max < 0) phi_max += 2.*M_PI;
@@ -3055,36 +3008,26 @@ void MuonGMCheck::testRpcCache_here()
      std::string fileName = "testRpcCache_"+gVersion;
 
      int nre = 0;
-     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
-     {
-         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
-         {
-             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
-             {
-                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
-                 {
-                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
-                     {
-                         RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
-
-			 if (rpc == NULL) {
-			   continue;			 
-			 }
-                         nre++;
-                         
-
-                         Identifier idr = rpc->identify();
-
-			 ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_muonIdHelperTool->rpcIdHelper().show_to_string(idr) );
-			 rpc->fillCache();
-		     }
-		 }
-	     }
-	 }
+     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++sname_index) {
+         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index) {
+             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index) {
+                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index) {
+                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index) {
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                        const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
+                        if (!rpc) {
+                          continue;			 
+                        }
+                        nre++;
+                        Identifier idr = rpc->identify();
+                        ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr) );
+                     }
+                 }
+             }
+         }
      }
      ATH_MSG_INFO(" Rpc cache built !" );
 }
@@ -3117,10 +3060,10 @@ void MuonGMCheck::testTgcCache_here()
                  TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(sname_index,
                                                                                 seta_index,
                                                                                 sphi_index);
-                 if (tgc == NULL) continue;
+                 if (!tgc) continue;
                  nre++;           
                  Identifier idr = tgc->identify();
-                 ATH_MSG_DEBUG(" Filling cache for tgcRE n. "<<nre<<" "<<m_muonIdHelperTool->tgcIdHelper().show_to_string(idr) );
+                 ATH_MSG_DEBUG(" Filling cache for tgcRE n. "<<nre<<" "<<m_idHelperSvc->tgcIdHelper().show_to_string(idr) );
                  tgc->fillCache();
              }
          }
@@ -3158,12 +3101,12 @@ void MuonGMCheck::testCscCache_here()
                                                                                     seta_index,
                                                                                     sphi_index,
                                                                                     ml);
-                     if (csc == NULL) continue;
+                     if (!csc) continue;
                      nre++;
                      Identifier idr = csc->identify();
 
 
-                     ATH_MSG_DEBUG(" Filling cache for cscRE n. "<<nre<<" "<<m_muonIdHelperTool->cscIdHelper().show_to_string(idr) );
+                     ATH_MSG_DEBUG(" Filling cache for cscRE n. "<<nre<<" "<<m_idHelperSvc->cscIdHelper().show_to_string(idr) );
                      csc->fillCache();
                  }
              }
@@ -3202,12 +3145,12 @@ void MuonGMCheck::testMdtCache_here()
                                                                                     dbr_index);
                      
                      
-                     if (mdt == NULL) continue;
+                     if (!mdt) continue;
                      nre++;
                      Identifier idr = mdt->identify();
 
 
-                     ATH_MSG_DEBUG(" Filling cache for mdtRE n. "<<nre<<" "<<m_muonIdHelperTool->mdtIdHelper().show_to_string(idr) );
+                     ATH_MSG_DEBUG(" Filling cache for mdtRE n. "<<nre<<" "<<m_idHelperSvc->mdtIdHelper().show_to_string(idr) );
                      mdt->fillCache();
                  } // end of multilayer
              } // end of stPhi
@@ -3220,10 +3163,10 @@ void MuonGMCheck::testMdtCache_here()
 void MuonGMCheck::testMdtDetectorElementHash()
 {
     ATH_MSG_INFO(" start running " );
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->mdtIdHelper().detectorElement_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->mdtIdHelper().detectorElement_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->mdtIdHelper().detectorElement_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->mdtIdHelper().detectorElement_end();
 
-    IdContext mdtDetElemContext = m_muonIdHelperTool->mdtIdHelper().detectorElement_context();
+    IdContext mdtDetElemContext = m_idHelperSvc->mdtIdHelper().detectorElement_context();
 
     std::ofstream fout0("testDEtElemHash_MDT.txt");
     fout0 <<"MDT ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -3233,8 +3176,8 @@ void MuonGMCheck::testMdtDetectorElementHash()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->mdtIdHelper().get_hash(Id, Idhash, &mdtDetElemContext);
-        std::string extid = m_muonIdHelperTool->mdtIdHelper().show_to_string(Id);
+        int gethash_code = m_idHelperSvc->mdtIdHelper().get_hash(Id, Idhash, &mdtDetElemContext);
+        std::string extid = m_idHelperSvc->mdtIdHelper().show_to_string(Id);
         ATH_MSG_DEBUG("MDT Identifier = "<<extid );
         if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
         else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash<<" for Id "<<extid );
@@ -3266,7 +3209,7 @@ void MuonGMCheck::testMdtDetectorElementHash()
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const MdtReadoutElement* mdt = p_MuonMgr->getMdtReadoutElement(Idhash);
-        if (mdt == NULL) 
+        if (!mdt) 
         {
             ATH_MSG_ERROR("MuonManager->getMdtReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
@@ -3312,10 +3255,10 @@ void MuonGMCheck::testMdtDetectorElementHash()
 void MuonGMCheck::testRpcDetectorElementHash()
 {
     ATH_MSG_INFO(" start running " );
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->rpcIdHelper().detectorElement_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->rpcIdHelper().detectorElement_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->rpcIdHelper().detectorElement_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->rpcIdHelper().detectorElement_end();
 
-    IdContext rpcDetElemContext = m_muonIdHelperTool->rpcIdHelper().detectorElement_context();
+    IdContext rpcDetElemContext = m_idHelperSvc->rpcIdHelper().detectorElement_context();
 
     std::ofstream fout0("testDEtElemHash_RPC.txt");
     fout0 <<"RPC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -3325,8 +3268,8 @@ void MuonGMCheck::testRpcDetectorElementHash()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->rpcIdHelper().get_hash(Id, Idhash, &rpcDetElemContext);
-        std::string extid = m_muonIdHelperTool->rpcIdHelper().show_to_string(Id);
+        int gethash_code = m_idHelperSvc->rpcIdHelper().get_hash(Id, Idhash, &rpcDetElemContext);
+        std::string extid = m_idHelperSvc->rpcIdHelper().show_to_string(Id);
         ATH_MSG_DEBUG("RPC  Identifier = "<<extid );
         if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
         else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
@@ -3352,7 +3295,7 @@ void MuonGMCheck::testRpcDetectorElementHash()
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(Idhash);
-        if (rpc == NULL) 
+        if (!rpc) 
         {
             ATH_MSG_ERROR("MuonManager->getRpcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
@@ -3401,10 +3344,10 @@ void MuonGMCheck::testTgcDetectorElementHash()
 {
     ATH_MSG_INFO(" start running " );
     
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->tgcIdHelper().detectorElement_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->tgcIdHelper().detectorElement_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->tgcIdHelper().detectorElement_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->tgcIdHelper().detectorElement_end();
 
-    IdContext tgcDetElemContext = m_muonIdHelperTool->tgcIdHelper().detectorElement_context();
+    IdContext tgcDetElemContext = m_idHelperSvc->tgcIdHelper().detectorElement_context();
 
     std::ofstream fout0("testDEtElemHash_TGC.txt");
     fout0 <<"TGC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -3414,8 +3357,8 @@ void MuonGMCheck::testTgcDetectorElementHash()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->tgcIdHelper().get_hash(Id, Idhash, &tgcDetElemContext);
-        std::string extid = m_muonIdHelperTool->tgcIdHelper().show_to_string(Id);
+        int gethash_code = m_idHelperSvc->tgcIdHelper().get_hash(Id, Idhash, &tgcDetElemContext);
+        std::string extid = m_idHelperSvc->tgcIdHelper().show_to_string(Id);
         ATH_MSG_DEBUG("TGC Identifier = "<<extid );
         if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
         else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
@@ -3441,7 +3384,7 @@ void MuonGMCheck::testTgcDetectorElementHash()
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const TgcReadoutElement* tgc = p_MuonMgr->getTgcReadoutElement(Idhash);
-        if (tgc == NULL) 
+        if (!tgc) 
         {
             ATH_MSG_ERROR("MuonManager->getTgcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
@@ -3487,10 +3430,10 @@ void MuonGMCheck::testCscDetectorElementHash()
 {
     ATH_MSG_INFO(" start running " );
 
-    std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->cscIdHelper().detectorElement_begin();
-    std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->cscIdHelper().detectorElement_end();
+    std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->cscIdHelper().detectorElement_begin();
+    std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->cscIdHelper().detectorElement_end();
 
-    IdContext cscDetElemContext = m_muonIdHelperTool->cscIdHelper().detectorElement_context();
+    IdContext cscDetElemContext = m_idHelperSvc->cscIdHelper().detectorElement_context();
 
     std::ofstream fout0("testDEtElemHash_CSC.txt");
     fout0 <<"CSC ExtendedId HashId Etamin Etamax Phimin Phimax "<<std::endl;
@@ -3500,8 +3443,8 @@ void MuonGMCheck::testCscDetectorElementHash()
     {
         Identifier Id = *i;
         IdentifierHash Idhash;
-        int gethash_code = m_muonIdHelperTool->cscIdHelper().get_hash(Id, Idhash, &cscDetElemContext);
-        std::string extid = m_muonIdHelperTool->cscIdHelper().show_to_string(Id);
+        int gethash_code = m_idHelperSvc->cscIdHelper().get_hash(Id, Idhash, &cscDetElemContext);
+        std::string extid = m_idHelperSvc->cscIdHelper().show_to_string(Id);
         ATH_MSG_DEBUG("CSC Identifier = "<<extid );
         if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
         else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
@@ -3527,7 +3470,7 @@ void MuonGMCheck::testCscDetectorElementHash()
         ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const CscReadoutElement* csc = p_MuonMgr->getCscReadoutElement(Idhash);
-        if (csc == NULL) 
+        if (!csc) 
         {
             ATH_MSG_ERROR("MuonManager->getCscReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;

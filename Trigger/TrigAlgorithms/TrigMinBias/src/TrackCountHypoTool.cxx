@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -35,13 +35,13 @@ StatusCode TrackCountHypoTool::decide(  TrkCountsInfo& trkinfo )  const {
 	float countForConfiguredPtThreshold{};
 	bool found{false};
 	for ( size_t i = 0; i < counts.size(); ++i ) {
-		if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 && std::abs( z0cuts[i] - m_max_z0 ) < 0.001 ) {
+		 if ( std::abs( pTcuts[i] - m_min_pt ) < 0.001 && std::abs( z0cuts[i] - m_max_z0 ) < 0.001 ) {
 			found = true;
 			countForConfiguredPtThreshold = counts[i];
-		}
+		 }
 	}
 	if (!found ) {
-	  ATH_MSG_ERROR ("Unable to find tracks count for requested pT threshold " << m_min_pt << " need to fix hypo tool configuratio or add new threshold in tracks counting");
+		ATH_MSG_ERROR ("Unable to find tracks count for requested pT threshold " << m_min_pt << " need to fix hypo tool configuratio or add new threshold in tracks counting");
 	  for ( size_t i = 0; i < counts.size(); ++i ) {
 	    ATH_MSG_ERROR( "Count of tracks of pT above " << pTcuts[i]  << " is available");
 	  }

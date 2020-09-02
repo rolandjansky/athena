@@ -270,7 +270,7 @@ if doBphysNtuple or doCBNT:
     HistogramPersistencySvc.OutputFile = "histo.root"
     theApp.Dlls                       += [ "RootHistCnv" ]
     theApp.HistogramPersistency        = "ROOT"
-    #theApp.DLLs                       += [ "HbookCnv" ]
+    #theApp.Dlls                       += [ "HbookCnv" ]
     #theApp.HistogramPersistency        = "HBOOK"
     #HbookHistSvc                       = Service( "HbookHistSvc")
     #HbookHistSvc.NPAWC                 = 1500000

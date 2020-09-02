@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  AthenaServices/test/RCUSvc_test.cxx
  * @author scott snyder
@@ -250,7 +248,7 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc = 0;
-  if (!Athena_test::initGaudi("RCUSvc_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/RCUSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 1;
   }  

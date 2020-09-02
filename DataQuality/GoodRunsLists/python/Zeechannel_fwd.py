@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from GoodRunsLists.GoodRunsListConfig import GoodRunsListConfig
@@ -29,7 +29,7 @@ class Zeechannel_fwd(GoodRunsListConfig):
                         'L1CAL LBSUMM#DetStatus-v03-repro04-01 g',
                         'cp_eg_electron_endcap LBSUMM#DetStatus-v03-repro04-01 g',
                         'cp_eg_electron_barrel LBSUMM#DetStatus-v03-repro04-01 g',
-		        'cp_eg_electron_forward LBSUMM#DetStatus-v03-repro04-01 g',
+                        'cp_eg_electron_forward LBSUMM#DetStatus-v03-repro04-01 g',
                    ]
 
     ## Set the dqflags query

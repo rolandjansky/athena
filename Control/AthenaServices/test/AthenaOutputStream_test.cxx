@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file AthenaOutputStream_test.cxx
@@ -28,6 +28,8 @@
 #include "CxxUtils/ubsan_suppress.h"
 
 #include "../src/AthenaOutputStream.h"
+#include "../src/SelectionVetoes.h"
+#include "../src/CompressionInfo.h"
 #include "TInterpreter.h"
 
 using std::cerr;
@@ -42,7 +44,7 @@ int main() {
   const std::string appName = "AthenaOutputStream_test";
   cout << "*** " << appName << " starts ***" <<endl;
   ISvcLocator* pSvcLoc(nullptr);
-  if (!initGaudi("AthenaOutputStream_test.txt", pSvcLoc)) {
+  if (!initGaudi("AthenaServices/AthenaOutputStream_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
     return 0;
   }  
@@ -73,18 +75,42 @@ int main() {
   assert( (pStore->record(new Bar(), "cinque")).isSuccess() );
   assert( (pStore->symLink(8107, "quattro", 8108)).isSuccess() );
   assert( (pStore->symLink(8107, "cinque", 8108)).isSuccess() );
+
+  auto baz = std::make_unique<Baz>();
+  auto bazaux = std::make_unique<BazAuxContainer>();
+  baz->setStore (bazaux.get());
+  SG::AuxElement::Accessor<int> aaa ("aaa");
+  SG::AuxElement::Accessor<int> bbb ("bbb");
+  SG::AuxElement::Accessor<int> ccc ("ccc");
+  aaa (*baz);
+  bbb (*baz);
+  ccc (*baz);
+  assert( (pStore->record(std::move(baz), "sei")).isSuccess() );
+  assert( (pStore->record(std::move(bazaux), "seiAux.")).isSuccess() );
   
+  auto baz4lfc = std::make_unique<Baz>();
+  auto bazaux4lfc = std::make_unique<BazAuxContainer>();
+  baz4lfc->setStore (bazaux4lfc.get());
+  SG::AuxElement::Accessor<float> foo ("foo");
+  SG::AuxElement::Accessor<double> bar ("bar");
+  SG::AuxElement::Accessor<std::vector<float>> zzz ("zzz");
+  foo (*baz4lfc);
+  bar (*baz4lfc);
+  zzz (*baz4lfc);
+  assert( (pStore->record(std::move(baz4lfc), "comp")).isSuccess() );
+  assert( (pStore->record(std::move(bazaux4lfc), "compAux.")).isSuccess() );
+
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
 
   //fill the vector of selected objects
-  pStream->collectAllObjects();
+  assert( pStream->collectAllObjects().isSuccess() );
 
   //  cout << pStream->selectedObjects()->end() - 
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 6 == (pStream->selectedObjects()->end() - 
+  assert( 10 == (pStream->selectedObjects()->end() -
   		pStream->selectedObjects()->begin()) );
 
   for (DataObject* obj : *pStream->selectedObjects()) {
@@ -93,7 +119,25 @@ int main() {
     const SG::DataProxy* proxy = pStore->proxy (dbb->object());
     std::cout << dbb->clID() << " " << proxy->name() << "\n";
   }
-  
+
+  const SG::SelectionVetoes* selvetoes = nullptr;
+  assert (pStore->retrieve (selvetoes, "SelectionVetoes_AthenaOutputStream").isSuccess());
+  assert (selvetoes->size() == 2);
+  auto it = selvetoes->find("sei");
+  assert (it != selvetoes->end());
+  assert (!it->second.test (aaa.auxid()));
+  assert ( it->second.test (bbb.auxid()));
+  assert (!it->second.test (ccc.auxid()));
+
+  const SG::CompressionInfo* compInfo = nullptr;
+  assert (pStore->retrieve (compInfo, "CompressionInfo_AthenaOutputStream").isSuccess());
+  assert (compInfo->size() == 2); // 2 levels of compression as high/low
+  auto val = compInfo->find("comp");
+  assert (val != compInfo->end());
+  assert (val->second.at(10).test(foo.auxid()));  // compress foo high
+  assert (!val->second.at(10).test(bar.auxid())); // don't compress bar since it's double
+  assert (val->second.at(16).test(zzz.auxid()));  // compress zzz low
+
   pStream->clearSelection();
   assert( 0 == (pStream->selectedObjects()->end() - 
 		pStream->selectedObjects()->begin()) );

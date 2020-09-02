@@ -9,7 +9,6 @@ from AthenaServices.AthenaServicesConf import OutputStreamSequencerSvc
 
 outputStreamSequencerSvc = OutputStreamSequencerSvc()
 outputStreamSequencerSvc.SequenceIncidentName = "EndEvent"
-outputStreamSequencerSvc.IgnoreInputFileBoundary = True
 svcMgr += outputStreamSequencerSvc
 
 ### Add the algorithm producing VP1 events

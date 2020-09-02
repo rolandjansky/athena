@@ -14,7 +14,7 @@ namespace MuonGM
 }
 
 
-class MuonDetectorTool : public GeoModelTool {
+class MuonDetectorTool final : public GeoModelTool {
 
 public:
 
@@ -29,7 +29,7 @@ public:
 
   // build the geometry 
   virtual StatusCode create() override final;
-  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory);
+  StatusCode createFactory(MuonGM::MuonDetectorFactory001& theFactory) const;
 
   // Dereference tree tops and drop readout objects
   virtual StatusCode clear() override final;
@@ -39,7 +39,7 @@ private:
   std::string m_layout;
   int m_accessCondDb;
   int m_asciiCondData;
-  int m_nova;  
+  Gaudi::Property<int> m_amdcDb { this, "BuildFromAmdcDb", 0, "Build the geometry from AMDB file (expert only!)" };
   int m_includeCutouts;
   int m_includeCutoutsBog;
   int m_includeCtbBis;
@@ -63,6 +63,9 @@ private:
   bool m_useCscIntAlinesFromGM;
   std::string m_altCscIntAlinesFile;
   Gaudi::Property<int> m_cachingFlag { this, "CachingFlag", 1, "Turn on/off caching of ReadoutElement surfaces etc. (i.e. for MDTs)" };
+  //the following two properties are for local validation, not for production
+  Gaudi::Property<std::string> m_NSWABLinesAsciiSideA { this, "NSWABLinesAsciiSideA", "", "Pass A/B Lines for NSW from Ascii file" };
+  Gaudi::Property<std::string> m_NSWABLinesAsciiSideC { this, "NSWABLinesAsciiSideC", "", "Pass A/B Lines for NSW from Ascii file" };
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
   std::string m_altMdtAsBuiltFile;

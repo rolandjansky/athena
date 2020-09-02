@@ -8,7 +8,7 @@
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
@@ -21,6 +21,8 @@
 #include "TDirectory.h"
 
 #include <unordered_map>
+
+class TH1;
 
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;

@@ -5,26 +5,20 @@
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-#include <string>
-
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-class AtlasDetectorID;
-class Identifier;
-
-class ITGCcablingSvc;
-
-namespace MuonGM 
-{
-  class MuonDetectorManager;
-  class TgcReadoutElement; 
-}
+#include <string>
+#include <vector>
 
 namespace Muon 
 {
@@ -43,8 +37,6 @@ namespace Muon
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
-      /** Standard AthAlgTool finalize method */
-      virtual StatusCode finalize() override;
       
       /** Decode RDO to PRD  
        *  A vector of IdentifierHash are passed in, and the data corresponding to this list (i.e. in a Region of Interest) are converted.  
@@ -78,12 +70,9 @@ namespace Muon
 
       void processRDOContainer(std::vector<IdentifierHash>& idWithDataVect);
 
-      /** muon detector manager */
-      const MuonGM::MuonDetectorManager * m_muonMgr;
+      SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
-      /** TGC identifier helper */
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       bool m_fullEventDone;
 

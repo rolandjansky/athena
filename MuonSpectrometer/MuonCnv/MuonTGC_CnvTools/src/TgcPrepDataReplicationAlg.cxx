@@ -7,7 +7,7 @@
 namespace Muon
 {
   TgcPrepDataReplicationAlg::TgcPrepDataReplicationAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator), m_tool("Muon::TgcPrepDataReplicationTool")
+    : AthAlgorithm(name, pSvcLocator)
   {
   }
 

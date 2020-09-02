@@ -49,10 +49,17 @@ def TileDigitizationCfg(flags):
     if not flags.Digitization.PileUpPremixing and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
+    else:
+        from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
+        acc.merge( TileRawChannelMakerCfg(flags) )
 
-        if flags.Digitization.DoDigiTruth:
+    if flags.Digitization.DoDigiTruth:
+        if flags.Output.doWriteRDO:
             from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerDigiHSTruthOutputCfg
             acc.merge( TileRawChannelMakerDigiHSTruthOutputCfg(flags, streamName = 'RDO') )
+        else:
+            from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerDigiHSTruthCfg
+            acc.merge( TileRawChannelMakerDigiHSTruthCfg(flags) )
 
     return acc
 
@@ -82,11 +89,17 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
+
+    if 'EventInfo' not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                     inputKey='McEventInfo',
+                                     outputKey='EventInfo'))
 
     acc.merge( TileDigitizationCfg(ConfigFlags) )
     acc.merge( TileTriggerDigitizationCfg(ConfigFlags) )

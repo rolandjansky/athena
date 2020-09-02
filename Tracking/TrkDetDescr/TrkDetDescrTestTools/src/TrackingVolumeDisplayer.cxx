@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ void Trk::TrackingVolumeDisplayer::closeFile(std::ofstream& out) const
 }
 
 
-StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::TrackingVolume& tvol, size_t)
+StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::TrackingVolume& tvol, size_t) const
 {
 
     ATH_MSG_VERBOSE("Writing display information for TrackingVolume.");
@@ -163,7 +163,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::TrackingVolume& 
 }
 
 
-StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size_t)
+StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size_t) const
 {
     
     ATH_MSG_VERBOSE("Writing display information for Layer.");
@@ -256,7 +256,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Layer& lay, size
 }
 
 
-StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, size_t)
+StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, size_t) const
 {
 
     ++s_displaySurfaces;

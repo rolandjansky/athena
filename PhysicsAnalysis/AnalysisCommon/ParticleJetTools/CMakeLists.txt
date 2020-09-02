@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 789264 2016-12-12 13:21:11Z cpollard $
 ################################################################################
 # Package: ParticleJetTools
 ################################################################################
@@ -11,6 +10,7 @@ atlas_subdir( ParticleJetTools )
 if( XAOD_STANDALONE )
    atlas_depends_on_subdirs(
       PUBLIC
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
@@ -24,6 +24,7 @@ if( XAOD_STANDALONE )
 else()
    atlas_depends_on_subdirs(
       PUBLIC
+      Control/AthToolSupport/AsgDataHandles
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
@@ -44,14 +45,14 @@ if( XAOD_STANDALONE )
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth
-      JetInterface MCTruthClassifierLib JetRecLib
+      JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthContainers TruthUtils )
 else()
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
       LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth GaudiKernel
-      JetInterface MCTruthClassifierLib JetRecLib
+      JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES AthAnalysisBaseCompsLib AthContainers TruthUtils )
 endif()
 
@@ -68,4 +69,3 @@ atlas_add_dictionary( ParticleJetToolsDict
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )

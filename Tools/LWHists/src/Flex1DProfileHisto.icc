@@ -215,12 +215,6 @@ inline void Flex1DProfileHisto::setBinContent(unsigned bin, const double& c )
   if (bin>m_nbinsPlus1)
     return;
   m_flexArray.setBinContent(bin,c);
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,28,0)
-#ifdef LW_STRICT_ROOT_BEHAVIOUR
-  if (bin==m_nbinsPlus1)//inconsistent root behaviour for last bin...
-    return;
-#endif
-#endif
   ++m_nEntries;
   m_sumW = 0;//As in ROOT
 }

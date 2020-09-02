@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_AlignCondAlg.h"
@@ -25,11 +25,11 @@ StatusCode SCT_AlignCondAlg::initialize()
 
   // Read Handles
   // Static
-  ATH_CHECK(m_readKeyStatic.initialize(!m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyStatic.initialize(not m_useDynamicAlignFolders));
   // Dynamic
-  ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders.value()));
-  ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders.value()));
+  ATH_CHECK(m_readKeyDynamicL1.initialize(m_useDynamicAlignFolders));
+  ATH_CHECK(m_readKeyDynamicL2.initialize(m_useDynamicAlignFolders));
+  ATH_CHECK(m_readKeyDynamicL3.initialize(m_useDynamicAlignFolders));
 
   // Write Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -66,9 +66,8 @@ StatusCode SCT_AlignCondAlg::execute()
 
   // ____________ Construct new Write Cond Object ____________
   std::unique_ptr<GeoAlignmentStore> writeCdo{std::make_unique<GeoAlignmentStore>()};
-  EventIDRange rangeW;
 
-  if (not m_useDynamicAlignFolders.value()) { // Static
+  if (not m_useDynamicAlignFolders) { // Static
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<AlignableTransformContainer> readHandleStatic{m_readKeyStatic};
     const AlignableTransformContainer* readCdoStatic{*readHandleStatic};
@@ -82,11 +81,8 @@ StatusCode SCT_AlignCondAlg::execute()
     readCdoContainerStatic.emplace(m_readKeyStatic.key(), readCdoStatic);
     ATH_CHECK(m_detManager->align(readCdoContainerStatic, writeCdo.get()));
 
-    // Define validity of the output cond object and record it
-    if (not readHandleStatic.range(rangeW)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleStatic.key());
-      return StatusCode::FAILURE;
-    }
+    // Add dependency
+    writeHandle.addDependency(readHandleStatic);
   } else { // Dynamic
     // ____________ Get Read Cond Object ____________
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicL1{m_readKeyDynamicL1};
@@ -119,23 +115,10 @@ StatusCode SCT_AlignCondAlg::execute()
     readCdoContainerDynamicL3.emplace(m_readKeyDynamicL3.key(), readCdoDynamicL3);
     ATH_CHECK(m_detManager->align(readCdoContainerDynamicL3, writeCdo.get()));
 
-    // Define validity of the output cond object and record it
-    EventIDRange rangeWL1;
-    if (not readHandleDynamicL1.range(rangeWL1)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL1.key());
-      return StatusCode::FAILURE;
-    }
-    EventIDRange rangeWL2;
-    if (not readHandleDynamicL2.range(rangeWL2)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL2.key());
-      return StatusCode::FAILURE;
-    }
-    EventIDRange rangeWL3;
-    if (not readHandleDynamicL3.range(rangeWL3)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleDynamicL3.key());
-      return StatusCode::FAILURE;
-    }
-    rangeW = EventIDRange::intersect(rangeWL1, rangeWL2, rangeWL3);
+    // Add dependency
+    writeHandle.addDependency(readHandleDynamicL1);
+    writeHandle.addDependency(readHandleDynamicL2);
+    writeHandle.addDependency(readHandleDynamicL3);
   }
 
   // Set (default) absolute transforms in alignment store by calling them.
@@ -144,13 +127,13 @@ StatusCode SCT_AlignCondAlg::execute()
     oldEl->getMaterialGeom()->getDefAbsoluteTransform(writeCdo.get());
   }
 
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record GeoAlignmentStore " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

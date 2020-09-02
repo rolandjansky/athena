@@ -21,7 +21,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
@@ -104,10 +104,6 @@ public:
     bool m_forkedProcess;
     pid_t m_lastPID;
 
-    // Retrieval key
-    SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey
-      { "EventInfo" };
-
     //NB: The LW hist leak checker is now also looking for
     //inappropriate usage of MonGroup copy constructors (temporary
     //until we outlaw copy/assignment of MonGroups):
@@ -184,6 +180,7 @@ public:
     static DataType_t      s_dataType;
     static Environment_t   s_environment;
 
+    static bool         s_runLBOverridden;
     static unsigned int s_lumiBlock;
     static unsigned int s_run;
     static unsigned int s_fill;
@@ -201,6 +198,7 @@ std::string                      AthenaMonManager::Imp::s_environmentStr("user")
 AthenaMonManager::DataType_t     AthenaMonManager::Imp::s_dataType(userDefined);
 AthenaMonManager::Environment_t  AthenaMonManager::Imp::s_environment(user);
 
+bool          AthenaMonManager::Imp::s_runLBOverridden(false);
 unsigned int  AthenaMonManager::Imp::s_lumiBlock(0);
 unsigned int  AthenaMonManager::Imp::s_run(0);
 unsigned int  AthenaMonManager::Imp::s_fill(0);
@@ -363,7 +361,11 @@ unsigned int
 AthenaMonManager::
 lumiBlockNumber()
 {
-    return Imp::s_lumiBlock;
+    if (Imp::s_runLBOverridden) {
+        return Imp::s_lumiBlock;
+    } else {
+        return Gaudi::Hive::currentContext().eventID().lumi_block();
+    }
 }
 
 
@@ -371,7 +373,11 @@ unsigned int
 AthenaMonManager::
 runNumber()
 {
-    return Imp::s_run;
+    if (Imp::s_runLBOverridden) {
+        return Imp::s_run;
+    } else {
+        return Gaudi::Hive::currentContext().eventID().run_number();
+    }
 }
 
 
@@ -393,8 +399,6 @@ initialize()
     //typedef MonList_t::iterator            MonIter_t;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "AthenaMonManager::initialize():" << endmsg;
-
-    ATH_CHECK( m_d->m_EventInfoKey.initialize() );
 
     if (Imp::s_svcLocator->service("SGAudSvc", m_d->m_sgAudSvc, false/*do not create*/).isFailure())
         m_d->m_sgAudSvc=0;
@@ -454,6 +458,7 @@ initialize()
         if( m_d->m_manualRunLBProp ) {
             Imp::s_run = m_d->m_runProp;
             Imp::s_lumiBlock = m_d->m_lumiBlockProp;
+            Imp::s_runLBOverridden = true;
             if (msgLvl(MSG::DEBUG))
                 msg(MSG::DEBUG) << "          --> using run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;
         } else {
@@ -544,11 +549,6 @@ execute()
 
     StatusCode sc;
     sc.setChecked();
-
-    if( !m_d->m_manualRunLBProp ) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "  --> Calling setEventInfo()" << endmsg;
-        setEventInfo();
-    }
 
     ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
     for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); i != monToolsEnd; ++i ) {
@@ -920,25 +920,6 @@ writeAndDelete( const std::string& key )
 // *********************************************************************
 // Protected Methods
 // *********************************************************************
-
-void
-AthenaMonManager::
-setEventInfo()
-{
-    if( m_d->m_isPrimaryManager ) {
-        SG::ReadHandle<xAOD::EventInfo> evt(m_d->m_EventInfoKey);
-	if (! evt.isValid()) {
-	  ATH_MSG_ERROR("!! Unable to retrieve Event from StoreGate !!");
-	}
-
-        Imp::s_run = evt->runNumber();
-        Imp::s_lumiBlock = evt->lumiBlock();
-
-        if (msgLvl(MSG::DEBUG))
-            msg(MSG::DEBUG) << "          --> setEventInfo: run = " << Imp::s_run << ", lumiBlock = " << Imp::s_lumiBlock << endmsg;
-
-    }
-}
 
 
 // *********************************************************************

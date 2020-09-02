@@ -19,9 +19,9 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "AthContainers/DataVector.h"
 
@@ -55,7 +55,7 @@ private:
   int               m_bcZee;
   int               m_bcZgee;
   int               m_bcTopWbgg;
-  typedef HepLorentzVector HLV_t;
+  typedef HepMC::FourVector HLV_t;
   
 public:
 

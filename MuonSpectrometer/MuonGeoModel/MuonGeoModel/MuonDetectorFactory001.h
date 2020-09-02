@@ -34,7 +34,10 @@ public:
   // Creates the raw geometry tree: required,
   virtual void create (GeoPhysVol* world);
 
-  // Get the manager.
+  // this function is inherited from GeoVDetectorFactory where it is declared const.
+  // However, the MuonDetectorManager cannot be const since it holds the pointers to the readout elements,
+  // and those can change with alignment. Thus, this const method will create a thread-safety warning since 
+  // the returned object is *not* const
   virtual MuonDetectorManager* getDetectorManager() const;
 
   inline void setDBAtlasVersion(std::string v);
@@ -42,6 +45,7 @@ public:
   inline void setDBkey(std::string v);
   inline void setDBnode(std::string v);
 
+  inline void setAmdcDb(bool value);
   inline void setLayout(std::string );
   inline void setCutoutsFlag(int );
   inline void setCutoutsBogFlag(int );
@@ -65,6 +69,8 @@ public:
   inline void hasCSC(bool value);
   inline void hasSTgc(bool value);
   inline void hasMM(bool value);
+  inline void setABLinesAsciiSideA(const std::string& );
+  inline void setABLinesAsciiSideC(const std::string& );
 
 private:
 
@@ -73,6 +79,7 @@ private:
   std::string m_DBkey;
   std::string m_DBnode;
 
+  bool m_isAmdcDb;
   std::string m_layout;
   int m_includeCutouts;
   int m_includeCutoutsBog;
@@ -95,6 +102,9 @@ private:
   bool m_hasSTgc;
   bool m_hasMM;
 
+  std::string m_NSWABLinesSideA;
+  std::string m_NSWABLinesSideC;
+
   std::vector<std::string> m_selectedStations;
   std::vector<int> m_selectedStEta;
   std::vector<int> m_selectedStPhi;
@@ -112,6 +122,7 @@ void MuonDetectorFactory001::setDBMuonVersion(std::string v) {m_DBMuonVersion = 
 void MuonDetectorFactory001::setDBkey(std::string v) {m_DBkey = v;}
 void MuonDetectorFactory001::setDBnode(std::string v) {m_DBnode = v;}
 
+void MuonDetectorFactory001::setAmdcDb(bool value) {m_isAmdcDb = value;}
 void MuonDetectorFactory001::setLayout(std::string str) {m_layout = str;}
 void MuonDetectorFactory001::setCutoutsFlag(int flag) {m_includeCutouts = flag;}
 void MuonDetectorFactory001::setCutoutsBogFlag(int flag) {m_includeCutoutsBog = flag;}
@@ -142,6 +153,9 @@ void MuonDetectorFactory001::setFineClashFixingFlag(int value){m_enableFineClash
 void MuonDetectorFactory001::hasCSC(bool value){m_hasCSC = value;}
 void MuonDetectorFactory001::hasSTgc(bool value){m_hasSTgc = value;}
 void MuonDetectorFactory001::hasMM(bool value){m_hasMM = value;}
+void MuonDetectorFactory001::setABLinesAsciiSideA(const std::string& str) {m_NSWABLinesSideA = str; }
+void MuonDetectorFactory001::setABLinesAsciiSideC(const std::string& str) {m_NSWABLinesSideC = str; }
+
 
 } // namespace MuonGM
 

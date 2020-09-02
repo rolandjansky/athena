@@ -100,7 +100,7 @@ IOVDbSvc.OutputLevel = WARNING
 # Set input byte stream file (from q431 test)
 inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 
@@ -124,6 +124,7 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
                                                 PixelCablingSvc = None,
                                                 PixelModuleData = "",
                                                 PixelChargeCalibCondData = "",
+                                                PixelOfflineCalibData = '',
                                                 PixelLorentzAngleTool = None,
                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 # SCT conditions setups
@@ -245,9 +246,9 @@ if doDump:
     outStream = AthenaPoolOutputStream("OutStream", "testSCTDecode.pool.root")
     outStream.ItemList  = ["xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."]
     outStream.ItemList += ["SCT_RDO_Container#SCT_RDOs"]
-    outStream.ItemList += ["InDetBSErrContainer#SCT_ByteStreamErrs"]
+    outStream.ItemList += ["IDCInDetBSErrContainer#SCT_ByteStreamErrs"]
     outStream.ItemList += ["InDet::SCT_ClusterContainer#SCT_Clusters"]
-    outStream.ItemList += ["SCT_FlaggedCondData#SCT_FlaggedCondData"]
+    outStream.ItemList += ["IDCInDetBSErrContainer#SCT_FlaggedCondData"]
     # outStream.ItemList += ["SpacePointContainer#SCT_SpacePoints"]
     outStream.ItemList += ["xAOD::SCTRawHitValidationContainer#*", "xAOD::SCTRawHitValidationAuxContainer#*"]
     outStream.ItemList += ["xAOD::TrackMeasurementValidationContainer#*", "xAOD::TrackMeasurementValidationAuxContainer#*"]

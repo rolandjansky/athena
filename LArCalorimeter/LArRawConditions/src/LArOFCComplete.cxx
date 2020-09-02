@@ -8,7 +8,6 @@
 const std::vector<float> LArOFCComplete::m_empty;
 
 LArOFCComplete::LArOFCComplete(){ 
-  m_cache.gain=-1;
 }
 
 LArOFCComplete::~LArOFCComplete() {}

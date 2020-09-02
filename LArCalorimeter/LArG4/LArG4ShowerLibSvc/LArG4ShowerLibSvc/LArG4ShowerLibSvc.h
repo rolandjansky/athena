@@ -23,11 +23,6 @@ namespace ShowerLib {
   class ShowerLibStatistics;
 }
 
-class IAtRndmGenSvc;
-
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
   /**
    *
@@ -57,15 +52,18 @@ public:
     virtual bool                    checkLibrary(G4int particleCode, int detectorTag);
 
     //! return list of energy depositions for given track (interface implementation)
+#ifdef DEBUG_FrozenShowers
     virtual std::vector<EnergySpot> getShower(const G4FastTrack& track, int detectorTag);
-
+#else
+    virtual std::vector<EnergySpot> getShower(const G4FastTrack& track, int detectorTag) const;
+#endif
     virtual double                  getContainmentZ(const G4FastTrack& track, int detectorTag);
     virtual double                  getContainmentR(const G4FastTrack& track, int detectorTag);
 
 private:
 
     //! get shower library from StoreGate by track (using current volume name)
-    const ShowerLib::IShowerLib* getShowerLib(G4int particleCode, int detectorTag);
+    const ShowerLib::IShowerLib* getShowerLib(G4int particleCode, int detectorTag) const;
 
     typedef std::map<int, const ShowerLib::IShowerLib*> libmap;
     libmap m_libraryMap;                                              //!< mapping StoreGate key to handle in StoreGate
@@ -75,10 +73,7 @@ private:
     std::map<std::string,int> m_detmap;
 
     StringArrayProperty      m_fileNameList;                          //!< property, list of library files
-    StringProperty           m_rndmEngineName;                        //!< property, name of athena RNG engine
     
-    ServiceHandle<IAtRndmGenSvc> m_rndmGenSvc;
-    CLHEP::HepRandomEngine *m_rndmEngine;
 };
 
 #endif // G4SHOWERLIBSVC_G4SHOWERLIBSVC_H

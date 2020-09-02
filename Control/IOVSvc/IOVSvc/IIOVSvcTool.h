@@ -32,16 +32,16 @@ public:
   virtual const std::string& getStoreName() const = 0;
 
   // register callback functions
-  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
+  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID& c, 
                             const IOVSvcCallBackFcn& fcn, bool trigger) = 0;
 
-  virtual StatusCode regFcn(const CallBackID c1,
-                            const CallBackID c2, 
+  virtual StatusCode regFcn(const CallBackID& c1,
+                            const CallBackID& c2, 
                             const IOVSvcCallBackFcn& fcn2, 
                             bool trigger) = 0;
   
   virtual StatusCode regFcn(const IAlgTool* ia,
-                            const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+                            const CallBackID& c2, const IOVSvcCallBackFcn& fcn2,
                             bool trigger) = 0;
   
   // Update Range from dB

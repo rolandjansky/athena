@@ -3,12 +3,7 @@
 */
 
 #include "sTgcRdoToPrepDataToolCore.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
+
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
@@ -18,7 +13,6 @@ using namespace Muon;
 
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(0),
   m_fullEventDone(false),
   m_stgcPrepDataContainer(0),
   m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
@@ -37,30 +31,13 @@ Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
 StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
-  
-  /// get the detector descriptor manager
-  StatusCode sc = detStore()->retrieve( m_muonMgr );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-    return sc;
-  }
-  
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   // check if the initialization of the data container is success
   ATH_CHECK(m_stgcPrepDataContainerKey.initialize());
-
   ATH_CHECK(m_rdoContainerKey.initialize());
-
-
+  ATH_CHECK(m_muDetMgrKey.initialize());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::sTgcRdoToPrepDataToolCore::finalize()
-{
-  return StatusCode::SUCCESS;
-
 }
 
 StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawDataCollection *rdoColl, std::vector<IdentifierHash>& idWithDataVect)
@@ -73,7 +50,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   sTgcPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_stgcPrepDataContainer->indexFind(hash) != m_stgcPrepDataContainer->end() ) {
+  if ( m_stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
@@ -83,9 +60,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     idWithDataVect.push_back(hash);
 
     // set the offline identifier of the collection Id
-    IdContext context = m_muonIdHelperTool->stgcIdHelper().module_context();
+    IdContext context = m_idHelperSvc->stgcIdHelper().module_context();
     Identifier moduleId;
-    int getId = m_muonIdHelperTool->stgcIdHelper().get_id(hash,moduleId,&context);
+    int getId = m_idHelperSvc->stgcIdHelper().get_id(hash,moduleId,&context);
     if ( getId != 0 ) {
       ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
     } 
@@ -106,17 +83,30 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   std::vector<sTgcPrepData> sTgcPadPrds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
+  
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muonDetMgr = detMgrHandle.cptr(); 
+  if(!muonDetMgr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE;
+  }
+  
   for ( ; it != rdoColl->end() ; ++it ) {
 
     ATH_MSG_DEBUG("Adding a new sTgc PrepRawData");
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+    if (!m_idHelperSvc->issTgc(rdoId)) {
+      ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->stgcIdHelper().print_to_string(rdoId)<<") is no sTGC Identifier, continuing");
+      continue;
+    }
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
     
     // get the local and global positions
-    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(rdoId);
+    const MuonGM::sTgcReadoutElement* detEl = muonDetMgr->getsTgcReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
@@ -126,8 +116,8 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     } 
 
     // get the resolution from strip width
-    const int gasGap  = m_muonIdHelperTool->stgcIdHelper().gasGap(rdoId);
-    const int channel = m_muonIdHelperTool->stgcIdHelper().channel(rdoId);
+    const int gasGap  = m_idHelperSvc->stgcIdHelper().gasGap(rdoId);
+    const int channel = m_idHelperSvc->stgcIdHelper().channel(rdoId);
 
     const int charge = (int) rdo->charge();
     const int rdoTime = (int) rdo->time();
@@ -137,7 +127,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     // next update
     double width = 0.;
 
-    int channelType = m_muonIdHelperTool->stgcIdHelper().channelType(rdoId);
+    int channelType = m_idHelperSvc->stgcIdHelper().channelType(rdoId);
 
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel 
 		  << " type: " << channelType );
@@ -243,6 +233,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     // merge the eta and phi prds that fire closeby strips or wires
     std::vector<Muon::sTgcPrepData*> sTgcStripClusters;
     std::vector<Muon::sTgcPrepData*> sTgcWireClusters;
+    std::vector<Muon::sTgcPrepData*> sTgcPadClusters;
     //
     // Clusterize strips
     //
@@ -251,6 +242,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     // Clusterize wires
     //
     ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
+    // Clusterize pads
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcPadPrds,sTgcPadClusters));
     //
     // Add the clusters to the event store ( do not clusterize wires for now )
     //
@@ -261,7 +255,11 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     for ( auto it : sTgcWireClusters ) {
       it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(it);
-    } 
+    }
+    for ( auto it : sTgcPadClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(it);
+    }
   }
 
 
@@ -281,7 +279,7 @@ Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdo
     m_fullEventDone=false;
     
     SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_muonIdHelperTool->stgcIdHelper().module_hash_max()));
+    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max()));
     
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of STGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 

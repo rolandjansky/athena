@@ -55,7 +55,7 @@ if len( primDPD.OutputDirectoryName() ) >= 1 and not primDPD.OutputDirectoryName
 
 if rec.OutputLevel() <= INFO:
     primaryDPD_msg.info('Values of all PrimaryDPD flags:')    
-    print primDPD
+    print(primDPD)
 
 
 ##=============================================================================

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -7,7 +7,6 @@
 
 /// algorithm to decode RDO into PrepRawData
 
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
@@ -65,7 +64,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
   const bool externalCachePRD = !m_prdContainerCacheKey.key().empty();
   if (!externalCachePRD) {
     // without the cache we just record the container
-    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max()));
+    StatusCode status = outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_idHelperSvc->cscIdHelper().module_hash_max()));
     if (status.isFailure() || !outputHandle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of CSC PrepData Container at " << m_outputCollectionKey.key());
       return StatusCode::FAILURE;
@@ -135,7 +134,9 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(std::vector<IdentifierHash>& givenI
 StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {
   
     
-  IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -155,13 +156,12 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   // retrieve specific collection for the givenID
   uint16_t idColl = 0xffff;
   m_cabling->hash2CollectionId(givenHashId,idColl);
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
-  if (rdoContainer->end() ==  it_coll) {
+  const CscRawDataCollection * rawCollection  = rdoContainer->indexFindPtr(idColl);
+  if (nullptr ==  rawCollection) {
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 
-  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //return if the input raw collection is empty (can happen for seeded decoding in trigger)
   if(rawCollection->size()==0) return StatusCode::SUCCESS;
@@ -191,7 +191,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   ATH_MSG_DEBUG("CSC RDO ID " << rawCollection->identify() << " with hashID " << rawCollection->identifyHash() );
   // Just use the first iterator entry as stationID does not change between data inside a single container
   Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
-  if (m_muonIdHelperTool->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
+  if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
     ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                        << "context begin_index = " << cscContext.begin_index()
                        << " context end_index  = " << cscContext.end_index()
@@ -227,17 +227,17 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
       ATH_MSG_DEBUG ( "        LOOP over width  " << j <<  " " << channelId );
 
-      const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+      const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
       //calculate local positions on the strip planes
       if ( !descriptor ) {
-        ATH_MSG_WARNING ( "Invalid descriptor for " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId)
+        ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
                           << " Skipping channel " );
         continue;
       } else if (!descriptor->containsId(channelId)) {
         ATH_MSG_WARNING ("Identifier from the cabling service <"
-                         <<m_muonIdHelperTool->cscIdHelper().show_to_string(channelId)
+                         <<m_idHelperSvc->cscIdHelper().show_to_string(channelId)
                          <<"> inconsistent with the geometry of detector element <"
-                         <<m_muonIdHelperTool->cscIdHelper().show_to_string(descriptor->identify())
+                         <<m_idHelperSvc->cscIdHelper().show_to_string(descriptor->identify())
                          <<">  =>>ignore this hit");
         continue;
       }
@@ -253,7 +253,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       }   
       
       IdentifierHash stripHash;
-      if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, stripHash)) {
+      if (m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, stripHash)) {
         ATH_MSG_WARNING ( "Unable to get CSC strip hash id");
         channelId.show();
       }
@@ -265,16 +265,16 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
         continue;
       }
       if ( samples.size() >=4 ) 
-        ATH_MSG_DEBUG ( "ADC: " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) 
+        ATH_MSG_DEBUG ( "ADC: " << m_idHelperSvc->cscIdHelper().show_to_string(channelId) 
                         << " " << samples[0] << " " << samples[1] << " " << samples[2] << " " << samples[3]
                         << " Charges: "  
                         << " " << charges[0] << " " << charges[1] << " " << charges[2] << " " << charges[3] ); 
       
-      int measuresPhi    = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
+      int measuresPhi    = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
 
       Amg::Vector2D localWirePos1( descriptor->xCoordinateInTrackingFrame(channelId ),0.);
       
-      int chamberLayer   = m_muonIdHelperTool->cscIdHelper().chamberLayer(channelId);
+      int chamberLayer   = m_idHelperSvc->cscIdHelper().chamberLayer(channelId);
       float stripWidth   = descriptor->cathodeReadoutPitch( chamberLayer, measuresPhi );
       double errPos      = stripWidth / sqrt(12.0);
 
@@ -317,7 +317,9 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   
   typedef CscRawDataContainer::const_iterator collection_iterator;
   
-  IdContext cscContext = m_muonIdHelperTool->cscIdHelper().module_context();
+  IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
  
   // if CSC decoding is switched off stop here
   if( !m_decodeData ) {
@@ -334,9 +336,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   std::vector<uint16_t> samples;
   samples.reserve(4);
 
-  Identifier oldId;
   IdentifierHash cscHashId;
-  Identifier stationId;
   for (; rdoColl!=lastRdoColl; ++rdoColl) {
     if ( (*rdoColl)->size() > 0 ) {
       ATH_MSG_DEBUG ( " Number of RawData in this rdo " << (*rdoColl)->size() );
@@ -359,7 +359,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
       ATH_MSG_DEBUG("CSC RDO ID " << (*rdoColl)->identify() << " with hashID " << (*rdoColl)->identifyHash() );
       // Just use the first iterator entry as stationID does not change between data inside a single container
       Identifier stationId = m_cscRdoDecoderTool->stationIdentifier( (const CscRawData *)(*itD) );
-      if (m_muonIdHelperTool->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
+      if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
         ATH_MSG_WARNING ( "Unable to get CSC digiti collection hash id "
                            << "context begin_index = " << cscContext.begin_index()
                            << " context end_index  = " << cscContext.end_index()
@@ -395,18 +395,18 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
           const Identifier channelId = m_cscRdoDecoderTool->channelIdentifier(data, j);
           ATH_MSG_DEBUG ( "DecodeAll**LOOP over width  " << j <<  " " << channelId );
 
-          const CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(channelId);
+          const CscReadoutElement * descriptor = muDetMgr->getCscReadoutElement(channelId);
           //calculate local positions on the strip planes
           if ( !descriptor ) {
-            ATH_MSG_WARNING ( "Invalid descriptor for " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId)
+            ATH_MSG_WARNING ( "Invalid descriptor for " << m_idHelperSvc->cscIdHelper().show_to_string(channelId)
                               << " Skipping channel " );
             continue;
           }
           else if (!descriptor->containsId(channelId)) {
             ATH_MSG_WARNING ("Identifier from the cabling service <"
-                             <<m_muonIdHelperTool->cscIdHelper().show_to_string(channelId)
+                             <<m_idHelperSvc->cscIdHelper().show_to_string(channelId)
                              <<"> inconsistent with the geometry of detector element <"
-                             <<m_muonIdHelperTool->cscIdHelper().show_to_string(descriptor->identify())
+                             <<m_idHelperSvc->cscIdHelper().show_to_string(descriptor->identify())
                              <<">  =>>ignore this hit");
             continue;
           }
@@ -422,14 +422,14 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
           }  
           
           IdentifierHash stripHash;
-          if (m_muonIdHelperTool->cscIdHelper().get_channel_hash(channelId, stripHash)) {
+          if (m_idHelperSvc->cscIdHelper().get_channel_hash(channelId, stripHash)) {
             ATH_MSG_WARNING ( "Unable to get CSC strip hash id");
             channelId.show();
           }
 
 
           Identifier channelIdFromHash;
-          m_muonIdHelperTool->cscIdHelper().get_id(stripHash, channelIdFromHash, &cscContext);
+          m_idHelperSvc->cscIdHelper().get_id(stripHash, channelIdFromHash, &cscContext);
           
           
           bool adctocharge = m_cscCalibTool->adcToCharge(samples, stripHash, charges);
@@ -439,13 +439,13 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
             continue;
           }
           if ( samples.size() >=4 ) 
-            ATH_MSG_DEBUG ( "DecodeAll*** ADC: " << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) << " "
+            ATH_MSG_DEBUG ( "DecodeAll*** ADC: " << m_idHelperSvc->cscIdHelper().show_to_string(channelId) << " "
                             << (int) stripHash << " "
-                            << m_muonIdHelperTool->cscIdHelper().show_to_string(channelIdFromHash) 
+                            << m_idHelperSvc->cscIdHelper().show_to_string(channelIdFromHash) 
                             << " " << samples[0] << " " << samples[1] << " " << samples[2] << " " << samples[3]
                             << " Charges: "  
                             << " " << charges[0] << " " << charges[1] << " " << charges[2] << " " << charges[3] ); 
-          if (m_muonIdHelperTool->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
+          if (m_idHelperSvc->cscIdHelper().get_hash(stationId, cscHashId, &cscContext)) {
             ATH_MSG_WARNING ( "Unable to get CSC hash id from CSC RDO collection "
                               << "context begin_index = " << cscContext.begin_index()
                               << " context end_index  = " << cscContext.end_index() 
@@ -466,12 +466,12 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
           }
           if (IsThisStripDecoded) continue;
 
-          int measuresPhi    = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
+          int measuresPhi    = m_idHelperSvc->cscIdHelper().measuresPhi(channelId);
 
           Amg::Vector2D localWirePos1( descriptor->xCoordinateInTrackingFrame(channelId ),0.);
 
  
-          int chamberLayer   = m_muonIdHelperTool->cscIdHelper().chamberLayer(channelId);
+          int chamberLayer   = m_idHelperSvc->cscIdHelper().chamberLayer(channelId);
           float stripWidth   = descriptor->cathodeReadoutPitch( chamberLayer, measuresPhi );
           double errPos      = stripWidth / sqrt(12.0);
                 

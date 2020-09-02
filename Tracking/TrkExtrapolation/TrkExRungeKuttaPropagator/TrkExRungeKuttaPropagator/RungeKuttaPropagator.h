@@ -12,7 +12,6 @@
 #include <list>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -33,7 +32,6 @@ namespace Trk {
     class PatternTrackParameters   ;
 
 /**
-<<<<<<< HEAD
    @class RungeKuttaPropagator
 
    Trk::RungeKuttaPropagator is algorithm for track parameters propagation through
@@ -105,18 +103,24 @@ namespace Trk {
    if pointer to const *  = 0 algorithm will propagate track 
    parameters and jacobian of transformation according straight line model
 
-
-   @author Igor.Gavrilenko@cern.ch     
+   @author Igor.Gavrilenko@cern.ch
+   
+   @authors AthenaMT modifications RD Schaffer C Anastopoulos 
 */
 
-    class RungeKuttaPropagator final: public AthAlgTool, virtual public IPropagator,
-                                      virtual public IPatternParametersPropagator
+    class RungeKuttaPropagator final
+      : public AthAlgTool
+      , virtual public IPropagator
+      , virtual public IPatternParametersPropagator
     {
         /////////////////////////////////////////////////////////////////////////////////
         // Public methods:
         /////////////////////////////////////////////////////////////////////////////////
 
     public:
+        /** This following "using" statements can be removed after the methods in IPropagator.h for the
+         * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+         * used throughout the sw */
         using IPropagator::intersect;
         using IPropagator::propagate;
         using IPropagator::propagateParameters;
@@ -311,38 +315,35 @@ namespace Trk {
 
         /** a very simple propagation along a given path length */
 
-        virtual void propagateStep(const EventContext&          ctx,
-                                   const Amg::Vector3D& inputPosition, 
-                                   const Amg::Vector3D& inputMomentum, 
-                                   double charge, 
-                                   double step,
-                                   Amg::Vector3D& outputPosition, 
-                                   Amg::Vector3D& outputMomentum,
-                                   const MagneticFieldProperties& mprop) const override final;
+        virtual void propagateStep(
+          const EventContext& ctx,
+          const Amg::Vector3D& inputPosition,
+          const Amg::Vector3D& inputMomentum,
+          double charge,
+          double step,
+          Amg::Vector3D& outputPosition,
+          Amg::Vector3D& outputMomentum,
+          const MagneticFieldProperties& mprop) const override final;
 
-    private:
+      private:
 
         struct Cache{
+            MagField::AtlasFieldCache    m_fieldCache;
+            double  m_field[3];
             double  m_direction;
             double  m_step;
             double  m_maxPath                            = 10000;
-            double  m_field[3];
             bool    m_maxPathLimit                       = false;
             bool    m_mcondition                         = false;
             bool    m_solenoid                           = true;
             bool    m_needgradient                       = false;  
             bool    m_newfield                           = true;
-
-            MagField::AtlasFieldCache    m_fieldCache;
         };
-
 
         /////////////////////////////////////////////////////////////////////////////////
         // Private methods:
         /////////////////////////////////////////////////////////////////////////////////
-
         /** Test quality Jacobian calculation */
-
         void JacobianTest
         (const TrackParameters        &,
          const Surface                &,
@@ -429,7 +430,12 @@ namespace Trk {
 
         /** Step estimator with directions correction */
 
-        double stepEstimatorWithCurvature(Cache& cache,int,double*,const double*,bool&) const;
+        double stepEstimatorWithCurvature(
+          Cache& cache,
+          int,
+          double*,
+          const double*,
+          bool&) const;
 
         /** Step reduction */
         double stepReduction(const double*) const;
@@ -467,70 +473,63 @@ namespace Trk {
          double                   *,
          std::pair<double,int>    &) const;
 
-        void getField        (Cache& cache, double*,double*        ) const;
-        void getFieldGradient(Cache& cache, double*,double*,double*) const;
+        void getField(
+          Cache& cache, 
+          double*, 
+          double*) const;
 
-        //placeholder for compatibility with new interface
-        virtual
-        const TrackSurfaceIntersection* intersectSurface(const EventContext&,
-                                                         const Surface&,
-                                                         const TrackSurfaceIntersection*,
-                                                         const double,
-                                                         const MagneticFieldProperties&,
-                                                         ParticleHypothesis) const override
-            {return nullptr;}
- 
-        /////////////////////////////////////////////////////////////////////////////////
-        // Private data members: 
-        /////////////////////////////////////////////////////////////////////////////////
+        void getFieldGradient(
+          Cache& cache, 
+          double*, 
+          double*, 
+          double*) const;
+
+        void getFieldCacheObject(
+          Cache& cache, 
+          const EventContext& ctx) const;
+
+        // Private data members:
+        // Read handle for conditions object to get the field cache
+        SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey{
+          this,
+          "AtlasFieldCacheCondObj",
+          "fieldCondObj",
+          "Name of the Magnetic Field conditions object key"
+        };
 
         double m_dlt                                               ;  // accuracy parameter
         double m_helixStep                                         ;  // max step whith helix model
         double m_straightStep                                      ;  // max step whith srtaight line model
         bool   m_usegradient                                       ;  // use magnetif field gradient
-        ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-        MagField::IMagFieldSvc*                m_fieldService      ;
-
-        // temporary flag to be able to avoid the use of the AtlasFieldCacheCondObj
-        Gaudi::Property<bool> m_useCondObj {this, "UseCondObj", true, "Use the conditions object to fetch the field cache"};
-
-        // Read handle for conditions object to get the field cache
-        SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-        void getFieldCacheObject(Cache& cache, const EventContext& ctx) const;      
-
     };
 
-/////////////////////////////////////////////////////////////////////////////////
-// Inline methods for magnetic field information
-/////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    // Inline methods for magnetic field information
+    /////////////////////////////////////////////////////////////////////////////////
 
-    inline void RungeKuttaPropagator::getField(Cache& cache,double* R,double* H) const {	 
+    inline void
+    RungeKuttaPropagator::getField(Cache& cache, double* R, double* H) const
+    {
 
-        // MT version uses cache, temporarily keep old version
-        if (cache.m_fieldCache.useNewBfieldCache()) {
-            if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H);
-            else                 cache.m_fieldCache.getField  (R, H);
-        }
-        else {
-            if(cache.m_solenoid) m_fieldService->getFieldZR(R, H);
-            else                 m_fieldService->getField  (R, H);
-        }
-    
+      if (cache.m_solenoid) {
+        cache.m_fieldCache.getFieldZR(R, H);
+      } else {
+        cache.m_fieldCache.getField(R, H);
+      }
     }
 
-    inline void RungeKuttaPropagator::getFieldGradient(Cache& cache,double* R,double* H,double* dH) const { 
-
-        // MT version uses cache, temporarily keep old version
-        if (cache.m_fieldCache.useNewBfieldCache()) {
-            if(cache.m_solenoid) cache.m_fieldCache.getFieldZR(R, H, dH);
-            else                 cache.m_fieldCache.getField  (R, H, dH);
-        }
-        else {
-            if(cache.m_solenoid) m_fieldService->getFieldZR(R, H, dH);
-            else                 m_fieldService->getField  (R, H, dH);
-        }
-    
+    inline void
+    RungeKuttaPropagator::getFieldGradient(Cache& cache,
+                                           double* R,
+                                           double* H,
+                                           double* dH) const
+    {
+      if (cache.m_solenoid){
+        cache.m_fieldCache.getFieldZR(R, H, dH);
+      }
+      else{
+        cache.m_fieldCache.getField(R, H, dH);
+      }
     }
-}
-
+}//end namespace Trk
 #endif // RungeKuttaPropagator_H

@@ -94,8 +94,8 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     acc = ComponentAccumulator()
     
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge( TrigBSReadCfg( ConfigFlags ) )
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge( ByteStreamReadCfg( ConfigFlags ) )
 
     acc.merge( trigCaloDataAccessSvcCfg( ConfigFlags ) )
     

@@ -32,13 +32,13 @@ SliceIDDict = {
 
 AllowedSignatures = ["jet", "bjet", "ht",
                      "electron", "photon", "egamma",
-                     "muon", 
+                     "muon",
                      "met",
-                     "tau", 
-                     "minbias", 
-                     "heavyion", 
-                     "cosmic", 
-                     "calibration", "streaming", "monitoring", 'eb']        
+                     "tau",
+                     "minbias",
+                     "heavyion",
+                     "cosmic",
+                     "calibration", "streaming", "monitoring", 'eb']
 
 #==========================================================
 # ---- Generic Template for all chains          ----
@@ -65,21 +65,22 @@ TestChainParts = {
     'L1threshold'    : '',
     'signature'      : ['Test'],
     'chainPartName'  : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
+    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty1', 'muEmpty2', 'ev1dr', 'muv1dr'],
     'trigType'       : ['TestChain'],
     'threshold'      : '',
     'addInfo'        : [''],
-    }
+}
 
 # ---- Test Dictionary of default Values ----
 TestChainParts_Default = {
     'signature'      : ['Test'],
     'L1threshold'    : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : '',
     'threshold'      : '',
     'addInfo'        : [],
-    }
+}
 
 #==========================================================
 # Jet
@@ -92,7 +93,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320', '320eta490', '0eta240'],
+    'etaRange'     : ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'          : ['011jvt', '015jvt', '059jvt'],
     # May need to reinstate in the event that preselection is
     # needed before running tracking
@@ -105,7 +106,7 @@ JetChainParts = {
     'calib'        : ['em', 'lcw'],
     'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : ['FS',],
-    'addInfo'      : ['perf'],    
+    'addInfo'      : ['perf'],
 
     'TLA'          : [],
     'dataScouting' : [],
@@ -113,7 +114,7 @@ JetChainParts = {
     'topo'         : AllowedTopos_jet,
 
     'bTag'         : ['boffperf'  ,
-                      'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' , 
+                      'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' ,
                       'bmv2c1040' , 'bmv2c1050' , 'bmv2c1060' , 'bmv2c1070' , 'bmv2c1077' , 'bmv2c1085' ,
                       'bhmv2c1040', 'bhmv2c1050', 'bhmv2c1060', 'bhmv2c1070', 'bhmv2c1077', 'bhmv2c1085'],
     'bTracking'    : [],
@@ -122,7 +123,9 @@ JetChainParts = {
     'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
-                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass'],
+                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+                      'HTSEP1000htSEP100etSEP0eta320',
+                      'HTSEP100htSEP10etSEP0eta320',],
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
 }
 
@@ -142,9 +145,9 @@ JetChainParts_Default = {
     'calib'        :'em',
     'jetCalib'     :'subjesIS',
     'scan'         :'FS',
-    'addInfo'      : [],    
-    'TLA'          : '',    
-    'topo'         : [],  
+    'addInfo'      : [],
+    'TLA'          : '',
+    'topo'         : [],
     'bTag'         : '',
     'bTracking'    : '',
     'bConfig'      : [],
@@ -153,7 +156,12 @@ JetChainParts_Default = {
     'trkopt'       : 'notrk',
     'hypoScenario' : 'simple',
     'smc'          : 'nosmc',
-    }
+}
+
+# ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
+bJetChainParts_Default = {
+    'etaRange' : '0eta290',
+}
 
 #==========================================================
 # HT chains
@@ -171,7 +179,7 @@ HTChainParts_Default['trigType']     = 'ht'
 HTChainParts_Default['extra']     = ''
 
 #==========================================================
-# Muon 
+# Muon
 #==========================================================
 AllowedTopos_mu = []
 
@@ -180,7 +188,7 @@ MuonChainParts = {
     'signature'      : ['Muon'],
     'L1threshold'    : '',
     'chainPartName'  : [],
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
@@ -191,23 +199,23 @@ MuonChainParts = {
     'addInfo'        : ['1step','idperf','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
-    }
+}
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
     'signature'      : ['Muon'],
     'L1threshold'    : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['mu'],
-    'etaRange'       : '0eta250',    
+    'etaRange'       : '0eta250',
     'threshold'      : '',
-    'extra'          : '',    
-    'IDinfo'         : '',    
-    'isoInfo'        : '',    
+    'extra'          : '',
+    'IDinfo'         : '',
+    'isoInfo'        : '',
     'addInfo'        : [],
     'invMassInfo'    : '',
     'topo'           : [],
     'flavour'        : '',
-    }
+}
 
 #==========================================================
 # Bphysics
@@ -238,7 +246,7 @@ TauChainParts = {
     'preselection' : ['track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'tracktwoEFmvaTES', 'ptonly', ],
     'selection'    : ['medium1', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'perf', 'idperf'],
     'multiplicity' : '',
-    'trigType'     : ['tau'],   
+    'trigType'     : ['tau'],
     'trkInfo'      : '',
     'extra'        : '',
     'recoAlg'      : '',
@@ -254,7 +262,7 @@ TauChainParts_Default = {
     'preselection' : 'tracktwo',
     'selection'    : 'medium1',
     'multiplicity' : '',
-    'trigType'     : ['tau'],   
+    'trigType'     : ['tau'],
     'trkInfo'      : [],
     'extra'        : '',
     'recoAlg'      : '',
@@ -275,15 +283,17 @@ METChainParts = {
     'threshold'    : '',
     'multiplicity' : '',
     'topo'         : AllowedTopos_xe,
-    'trigType'     : ['xe'],   
+    'trigType'     : ['xe'],
     'extra'        : ['noL1'],
-    'calib'        : ['lcw',],    
+    'calib'        : ['lcw','em'],
+    'jetCalib'     : JetChainParts['jetCalib'],
     'L2recoAlg'    : [],
-    'EFrecoAlg'    : ['cell', 'tcpufit', 'mht', 'trkmht', 'pfsum'],
+    'EFrecoAlg'    : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
+    'jetDataType'  : JetChainParts['dataType'],
     'L2muonCorr'   : [],
     'EFmuonCorr'   : [],
     'addInfo'      : ['FStracks'],
-    }
+}
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
     'signature'      : ['MET'],
@@ -292,20 +302,22 @@ METChainParts_Default = {
     'threshold'      : '',
     'extra'          : '',
     'calib'          : 'lcw',
+    'jetCalib'       : JetChainParts_Default['jetCalib'],
     'L2recoAlg'      : '',
     'EFrecoAlg'      : '',
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
-    }
+    'jetDataType'    : 'tc',
+}
 
 #==========================================================
 # XS
 #==========================================================
 # ---- xs Dictinary of all allowed Values ----
-XSChainParts = METChainParts 
+XSChainParts = METChainParts
 XSChainParts['signature'] = ['XS']
-XSChainParts['trigType']  = ['xs'],   
+XSChainParts['trigType']  = ['xs']
 
 # ---- xs Dictinary of default Values ----
 XSChainParts_Default = METChainParts_Default
@@ -316,9 +328,9 @@ XSChainParts_Default['trigType']  = ['xs']
 # TE
 #==========================================================
 # ---- te Dictinary of all allowed Values ----
-TEChainParts = METChainParts 
+TEChainParts = METChainParts
 TEChainParts['signature'] = ['TE']
-TEChainParts['trigType']  = ['te'],   
+TEChainParts['trigType']  = ['te']
 
 # ---- te Dictinary of default Values ----
 TEChainParts_Default = METChainParts_Default
@@ -335,7 +347,7 @@ ElectronChainParts = {
     'chainPartName'  : '',
     'L1threshold'    : '',
     'extra'          : '',
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : [],
@@ -346,11 +358,11 @@ ElectronChainParts = {
     'lhInfo'         : [],
     'L2IDAlg'        : ['noringer'],
     'addInfo'        : [ 'etcut', 'etcut1step',"v2","v3"],
-    }
+}
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
     'signature'      : ['Electron'],
-    'multiplicity'   : '',    
+    'multiplicity'   : '',
     'L1threshold'         : '',
     'trigType'       : '',
     'threshold'      : '',
@@ -361,14 +373,14 @@ ElectronChainParts_Default = {
     'isoInfo'        : '',
     'reccalibInfo'   : '',
     'trkInfo'        : '',
-    'caloInfo'       : '',   
+    'caloInfo'       : '',
     'lhInfo'         : '',
     'L2IDAlg'        : '',
     'hypoInfo'       : '',
     'recoAlg'        : '',
     'FSinfo'         : '',
     'addInfo'        : [],
-    }
+}
 
 #==========================================================
 # Photon chains
@@ -759,8 +771,8 @@ def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
     reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
-            if (token in chainpart):
-                theMatchingTokens += [token]
+        if (token in chainpart):
+            theMatchingTokens += [token]
     theToken = max(theMatchingTokens, key=len) # gets the longest string in t
     if len(theMatchingTokens)>0:
         if len(theMatchingTokens)>1:
@@ -781,6 +793,8 @@ def getSignatureInformation(signature):
         return [PhotonChainParts_Default, PhotonChainParts]
     if signature == "Jet":
         return [JetChainParts_Default, JetChainParts]
+    if signature == "Bjet":
+        return [bJetChainParts_Default, JetChainParts]
     if signature == "HT":
         return [HTChainParts_Default, HTChainParts]
     if signature == "Tau":
@@ -827,6 +841,7 @@ def getBasePattern():
     possibleTT = '|'.join(allTrigTypes)
     pattern = re.compile("(?P<multiplicity>\d*)(?P<trigType>(%s))(?P<threshold>\d+)(?P<extra>\w*)" % (possibleTT)) # noqa: W605
     return pattern
+
 
 
 

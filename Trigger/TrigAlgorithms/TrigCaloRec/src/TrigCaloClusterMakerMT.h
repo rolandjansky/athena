@@ -2,7 +2,7 @@
 // Hi Emacs ! this is  -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -19,7 +19,7 @@
 #ifndef TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
 #define TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloRec/CaloClusterProcessor.h"
@@ -36,7 +36,7 @@ class CaloClusterProcessor;
 class CaloClusterContainer;
 class CaloCellLinkContainer;
 
-class TrigCaloClusterMakerMT : public AthAlgorithm {
+class TrigCaloClusterMakerMT : public AthReentrantAlgorithm {
 
  public:
 
@@ -45,7 +45,7 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
@@ -57,10 +57,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
   // Following used for testing only :
   //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
- 
-
-  //Other members  
-  xAOD::CaloClusterContainer* m_pCaloClusterContainer;
 
 //   double m_Eta;
 //   double m_Phi;
@@ -108,10 +104,7 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
       "Decor_ncells",                // decorator name
       "nCells",                      // default value
       "Decorator containing the number of cells associated to a cluster"};
-  
-public:
 
-  inline xAOD::CaloClusterContainer* GetClusterContainer() const {return m_pCaloClusterContainer;}
-
+  bool m_isSW{false};
 };
 #endif

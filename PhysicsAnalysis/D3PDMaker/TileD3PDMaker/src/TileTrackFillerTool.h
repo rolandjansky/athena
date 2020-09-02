@@ -21,9 +21,9 @@
 #include "TrackToVertex/TrackToVertex.h"
 
 // MONTE CARLO INCLUDES
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // MONTE CARLO (TRUTH) INFORMATION
 #include "GeneratorObjects/McEventCollection.h"

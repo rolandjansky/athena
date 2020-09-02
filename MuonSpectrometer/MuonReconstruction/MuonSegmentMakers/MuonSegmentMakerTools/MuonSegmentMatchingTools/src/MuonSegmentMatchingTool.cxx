@@ -1,31 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMatchingTool.h"
- 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentPairMatchingTool.h"
 
 #include "MuonSegment/MuonSegment.h"
 
 #include <cmath>
 #include <iostream>
 
-
 namespace Muon {
 
   MuonSegmentMatchingTool::MuonSegmentMatchingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_overlapResolvingTool("Muon::MuonSegmentInOverlapResolvingTool/MuonSegmentInOverlapResolvingTool"),
       m_pairMatchingTool("Muon::MuonSegmentPairMatchingTool/MuonSegmentPairMatchingTool"),
-      m_magFieldSvc("AtlasFieldSvc",na),
       m_straightLineMatches(0),m_straightLineMatchesGood(0),
       m_overlapMatches(0),m_overlapMatchesGood(0),
       m_curvedMatches(0),m_curvedMatchesGood(0)
@@ -53,8 +43,8 @@ namespace Muon {
 		    "Cut on the angular difference between the extrapolated segment angle and reference");
     declareProperty("StraightLineMatchPositionCut",m_straightLineMatchPositionCut = 200.,
 		    "Cut on the distance of extrapolated segment position and reference");
-    declareProperty("MaxDistanceBetweenSegments",m_maxDistSegments = 3000.,
-		    "If the two segments are further appart than this distance, they are always considered to match");
+    declareProperty("MaxDistanceBetweenSegments",m_maxDistSegments = 5000.,
+		    "If the two segments are further apart than this distance, they are considered to not match");
 
     declareProperty("OnlySameSectorIfTight",m_onlySameSectorIfTight = true, "Accept only segments that are in the same sector for tight matching");
     declareProperty("TightSegmentMatching",m_useTightCuts = false, "Use tight selection for busy event to suppress combinatorics and improve CPU");
@@ -76,49 +66,16 @@ namespace Muon {
     declareProperty("DrExtrapolationRMS", m_drExtrapRMS = 10 );
     declareProperty("DThetaExtrapolationRMS", m_dthetaExtrapRMS = 0.01*2 );
     declareProperty("DrExtrapolationAlignementOffset", m_drExtrapAlignmentOffset = 50 );
-    declareProperty("MagFieldSvc",    m_magFieldSvc );
 }
-
-
-  MuonSegmentMatchingTool::~MuonSegmentMatchingTool(){}
-
 
   StatusCode MuonSegmentMatchingTool::initialize()
   {
-    if( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
-    if (m_magFieldSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_edmHelperSvc.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc ); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_printer.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_printer ); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool ); 
-      return StatusCode::FAILURE;
-    }
-
-    if( m_pairMatchingTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not find "<<m_pairMatchingTool);
-      return StatusCode::FAILURE;
-    }
-
-    if( m_overlapResolvingTool.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not find "<<m_overlapResolvingTool);
-      return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK(AthAlgTool::initialize());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_pairMatchingTool.retrieve());
+    ATH_CHECK(m_overlapResolvingTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -152,21 +109,21 @@ namespace Muon {
     Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
     if( chid1 == chid2 ) return false;
 
-    MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid1);
-    MuonStationIndex::StIndex stIndex2 = m_idHelperTool->stationIndex(chid2);
+    MuonStationIndex::StIndex stIndex1 = m_idHelperSvc->stationIndex(chid1);
+    MuonStationIndex::StIndex stIndex2 = m_idHelperSvc->stationIndex(chid2);
 
     if( isSLMatch(chid1,chid2) ){ 
-      if( !m_idHelperTool->isMdt(chid1) || !m_idHelperTool->isMdt(chid2)) return false;
+      if( !m_idHelperSvc->isMdt(chid1) || !m_idHelperSvc->isMdt(chid2)) return false;
       // if there is a stereo angle match using overlap matching tool
 
       if( stIndex1 == stIndex2 ){
 	
 	if( hasStereoAngle(chid1,chid2) ){
 	  if( !m_doOverlapMatch ) return true;
-	  int eta1 = m_idHelperTool->mdtIdHelper().stationEta(chid1);
-	  int eta2 =  m_idHelperTool->mdtIdHelper().stationEta(chid2); 
-	  int phi1 = m_idHelperTool->sector(chid1);
-	  int phi2 =  m_idHelperTool->sector(chid2);
+	  int eta1 = m_idHelperSvc->mdtIdHelper().stationEta(chid1);
+	  int eta2 =  m_idHelperSvc->mdtIdHelper().stationEta(chid2); 
+	  int phi1 = m_idHelperSvc->sector(chid1);
+	  int phi2 =  m_idHelperSvc->sector(chid2);
 	  
 	  // require that the two segments are close in eta AND are in adjecent sectors
 	  if( (eta1==eta2||eta1==eta2-1||eta1==eta2+1) && 
@@ -248,8 +205,8 @@ namespace Muon {
     }
     if (segDist > m_maxDistSegments) return false;
 
-    if( !m_idHelperTool->isMdt(chid) ) {
-      ATH_MSG_DEBUG(" not a mdt segment " << m_idHelperTool->toString(chid));
+    if( !m_idHelperSvc->isMdt(chid) ) {
+      ATH_MSG_DEBUG(" not a mdt segment " << m_idHelperSvc->toString(chid));
       return true;
     }
 
@@ -294,10 +251,10 @@ namespace Muon {
   bool MuonSegmentMatchingTool::isSLMatch( const Identifier& chid1, const Identifier& chid2 ) const {
     
     // check whether there is field
-    if( !m_magFieldSvc->toroidOn() ) return true;
+    if(!m_toroidOn) return true;
 
-    MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid1);
-    MuonStationIndex::StIndex stIndex2 = m_idHelperTool->stationIndex(chid2);
+    MuonStationIndex::StIndex stIndex1 = m_idHelperSvc->stationIndex(chid1);
+    MuonStationIndex::StIndex stIndex2 = m_idHelperSvc->stationIndex(chid2);
     
     // check whether segments in same station
     if( stIndex1 == stIndex2 ) return true;
@@ -313,14 +270,14 @@ namespace Muon {
   bool MuonSegmentMatchingTool::hasStereoAngle( const Identifier& id1, const Identifier& id2 ) const {
    
     // check whether same phi, else stereo angle (need correction for cosmic up-down tracks)
-    int phi1 = m_idHelperTool->mdtIdHelper().stationPhi(id1);
-    int phi2 =  m_idHelperTool->mdtIdHelper().stationPhi(id2);
+    int phi1 = m_idHelperSvc->mdtIdHelper().stationPhi(id1);
+    int phi2 =  m_idHelperSvc->mdtIdHelper().stationPhi(id2);
     
     if( phi1!=phi2) return true; 
     
     // check whether there is a small/large overlap 
-    bool isSmallChamber1 = m_idHelperTool->isSmallChamber(id1);
-    bool isSmallChamber2 = m_idHelperTool->isSmallChamber(id2);
+    bool isSmallChamber1 = m_idHelperSvc->isSmallChamber(id1);
+    bool isSmallChamber2 = m_idHelperSvc->isSmallChamber(id2);
 
     return isSmallChamber1 != isSmallChamber2;
   }
@@ -334,23 +291,23 @@ namespace Muon {
     // calculate matching variables
     IMuonSegmentPairMatchingTool::SegmentMatchResult result = m_pairMatchingTool->matchResult(seg1,seg2);
 
-    MuonStationIndex::StIndex station_a = m_idHelperTool->stationIndex( result.chid_a );
-    MuonStationIndex::StIndex station_b = m_idHelperTool->stationIndex( result.chid_b );
+    MuonStationIndex::StIndex station_a = m_idHelperSvc->stationIndex( result.chid_a );
+    MuonStationIndex::StIndex station_b = m_idHelperSvc->stationIndex( result.chid_b );
 
-    bool isEndcap_a   = m_idHelperTool->isEndcap( result.chid_a );
-    bool isCSC_a      = m_idHelperTool->isCsc( result.chid_a );
+    bool isEndcap_a   = m_idHelperSvc->isEndcap( result.chid_a );
+    bool isCSC_a      = m_idHelperSvc->isCsc( result.chid_a );
     bool isBEE_a      = station_a == MuonStationIndex::BE;
 
-    bool isEndcap_b   = m_idHelperTool->isEndcap( result.chid_b );
-    bool isCSC_b      = m_idHelperTool->isCsc( result.chid_b );
+    bool isEndcap_b   = m_idHelperSvc->isEndcap( result.chid_b );
+    bool isCSC_b      = m_idHelperSvc->isCsc( result.chid_b );
     bool isBEE_b      = station_a == MuonStationIndex::BE;
 
     
     if ( m_dumpAngles ) {
 
       std::cout << "SegmentPositionChange "
-	      << " " << m_idHelperTool->chamberNameString(result.chid_a)
-	      << " " << m_idHelperTool->chamberNameString(result.chid_b)
+	      << " " << m_idHelperSvc->chamberNameString(result.chid_a)
+	      << " " << m_idHelperSvc->chamberNameString(result.chid_b)
 	      << " " << result.phiSector_a
 	      << " " << result.phiSector_b
 	      << " " << result.deltaTheta_a
@@ -363,8 +320,8 @@ namespace Muon {
 //      return true; // to get the maximum statistics and not be hindered by current cuts
     }    
   
-    ATH_MSG_VERBOSE( "matching " << m_idHelperTool->chamberNameString(result.chid_a)
-		     << " " << m_idHelperTool->chamberNameString(result.chid_b)
+    ATH_MSG_VERBOSE( "matching " << m_idHelperSvc->chamberNameString(result.chid_a)
+		     << " " << m_idHelperSvc->chamberNameString(result.chid_b)
 		     << " phis " << result.phiSector_a
 		     << " " << result.phiSector_b
 		     << " thetas " << result.deltaTheta_a
@@ -706,17 +663,17 @@ namespace Muon {
     // calculate matching variables
     IMuonSegmentPairMatchingTool::SegmentMatchResult result = m_pairMatchingTool->matchResult(seg1,seg2);
     
-    MuonStationIndex::StIndex station_a = m_idHelperTool->stationIndex( result.chid_a );
-    MuonStationIndex::StIndex station_b = m_idHelperTool->stationIndex( result.chid_b );
+    MuonStationIndex::StIndex station_a = m_idHelperSvc->stationIndex( result.chid_a );
+    MuonStationIndex::StIndex station_b = m_idHelperSvc->stationIndex( result.chid_b );
        
-    bool isEndcap_a   = m_idHelperTool->isEndcap( result.chid_a );
+    bool isEndcap_a   = m_idHelperSvc->isEndcap( result.chid_a );
        
-    bool isEndcap_b   = m_idHelperTool->isEndcap( result.chid_b );
+    bool isEndcap_b   = m_idHelperSvc->isEndcap( result.chid_b );
        
     if ( m_dumpAngles ) {
       std::cout << "SegmentPositionChange Phi"
-		<< " " << m_idHelperTool->chamberNameString(result.chid_a)
-		<< " " << m_idHelperTool->chamberNameString(result.chid_b)
+		<< " " << m_idHelperSvc->chamberNameString(result.chid_a)
+		<< " " << m_idHelperSvc->chamberNameString(result.chid_b)
 		<< " deltaPhipos " << result.deltaPhipos
 		<< " deltaPhidir " << result.deltaPhidir
 		<< " phiposerr_a " << result.phiposerr_a
@@ -1064,8 +1021,8 @@ namespace Muon {
     Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
     if( chid1 == chid2 ) return false;
 
-    MuonStationIndex::StIndex stIndex1 = m_idHelperTool->stationIndex(chid1);
-    MuonStationIndex::StIndex stIndex2 = m_idHelperTool->stationIndex(chid2);
+    MuonStationIndex::StIndex stIndex1 = m_idHelperSvc->stationIndex(chid1);
+    MuonStationIndex::StIndex stIndex2 = m_idHelperSvc->stationIndex(chid2);
     if( stIndex1 == stIndex2 ) return false;
 
     const MuonSegment* segInner = 0;

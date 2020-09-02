@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -17,7 +17,7 @@
 // ********************************************************************
 
 
-#include "TrigT2CaloCalibration/EgammaHitsCalibration.h"
+#include "EgammaHitsCalibration.h"
 //#include "TrigCaloEvent/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "GaudiKernel/MsgStream.h"
@@ -35,19 +35,6 @@ const CaloSampling::CaloSample EgammaHitsShowerDepth::m_samps[2][4] =
 };
 
 
-EgammaHitsShowerDepth::EgammaHitsShowerDepth  (const CaloRec::Array<2>& sampling_depth,        
-                            const float& start_crack,                  
-                            const float& end_crack,                    
-                            const float& etamax,                       
-                            MsgStream* /*log*/)
-    : m_sampling_depth (sampling_depth),
-      m_start_crack (start_crack),
-      m_end_crack (end_crack),
-      m_etamax (etamax)
-{
-}
-
-
 /**
  * @brief Calculate the depth of the cluster.
  * @param aeta abs(eta) of the cluster.
@@ -55,18 +42,22 @@ EgammaHitsShowerDepth::EgammaHitsShowerDepth  (const CaloRec::Array<2>& sampling
  * @param log Stream for debug messages.
  */
 float EgammaHitsShowerDepth::depth (const float &aeta,
-                                          const xAOD::TrigEMCluster* cluster) const
+                                    const float start_crack,
+                                    const float end_crack,
+                                    const CxxUtils::Array<2>& sampling_depth,
+                                    const float etamax,
+                                    const xAOD::TrigEMCluster* cluster) const
 {
 
   float R[4];
   int si;
 
-  if (aeta < m_start_crack) {
+  if (aeta < start_crack) {
     barrelCoefs (aeta, R);
     si = 0;
   }
-  else if (aeta > m_end_crack) {
-    if (!endcapCoefs (aeta, R))
+  else if (aeta > end_crack) {
+    if (!endcapCoefs (aeta, sampling_depth, etamax, R))
       return 0;
     si = 1;
   }
@@ -165,16 +156,21 @@ void EgammaHitsShowerDepth::barrelCoefs (const float &aeta, float R[4]) const
 /**
  * @brief Calculate the sampling depth coefficients for the endcap.
  * @param aeta abs(eta) of the cluster.
+ * @param sampling_depth Array of sampling depths per bin/sampling in the EC.
+ * @param etamax Maximum eta value in @a sampling_depth.
  * @param R[out] The set of coefficients per layer.
  */
-bool EgammaHitsShowerDepth::endcapCoefs (const float &aeta, float R[4]) const
+bool EgammaHitsShowerDepth::endcapCoefs (const float &aeta,
+                                         const CxxUtils::Array<2>& sampling_depth,
+                                         const float etamax,
+                                         float R[4]) const
 {
-  unsigned int ibin = (static_cast<unsigned int> (aeta / m_etamax * 100)) ;
-  if (ibin >= m_sampling_depth.size())
+  unsigned int ibin = (static_cast<unsigned int> (aeta / etamax * 100)) ;
+  if (ibin >= sampling_depth.size())
     return false;
 
   for (int i=0; i < 4; i++)
-    R[i] = m_sampling_depth[ibin][i+1];
+    R[i] = sampling_depth[ibin][i+1];
   return true;
 }
 

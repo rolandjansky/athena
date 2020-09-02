@@ -12,7 +12,6 @@
 // Asg includes:
 # include "AsgTools/MsgStream.h"
 # include "AsgTools/MsgStreamMacros.h"
-# include "xAODCaloRings/tools/PrintHelperFcns.h"
 //#pragma message "ASGTOOL or XAOD_STANDALONE"
 #else
 # include <iostream>

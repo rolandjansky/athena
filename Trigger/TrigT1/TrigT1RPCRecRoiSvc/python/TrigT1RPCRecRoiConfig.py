@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigT1RPCRecRoiConfig.py 301203 2010-05-26 12:08:22Z krasznaa $
 #
 # To use the LVL1RPC::RPCRecRoiSvc, one has to import this module simply
 # like:
@@ -8,8 +7,9 @@
 #   import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
 #
 
-from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiSvcConf import *
+from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiSvcConf import LVL1RPC__RPCRecRoiSvc
 from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.Configurable import Configurable
 
 # Create a logger:
 from AthenaCommon.Logging import logging
@@ -22,7 +22,7 @@ class RPCRecRoiConfig( LVL1RPC__RPCRecRoiSvc ):
 
 # Configure the cabling. Let the cabling configurable set up the services based
 # on the conditions.
-import MuonCnvExample.MuonCablingConfig
+import MuonCnvExample.MuonCablingConfig  # noqa: F401
 logger.debug( "Configured the cabling services" )
 
 # Add the RPCRecRoiSvc to the service manager:

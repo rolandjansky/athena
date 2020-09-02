@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -51,7 +51,7 @@ class TileCablingService;
 class TileCellToTTL1: public AthAlgorithm {
   public:
     // Constructor
-    TileCellToTTL1(std::string name, ISvcLocator* pSvcLocator);
+    TileCellToTTL1(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileCellToTTL1();

@@ -9,9 +9,13 @@ atlas_add_poolcnv_library( xAODPFlowAthenaPoolPoolCnv
    FILES xAODPFlow/PFOContainer.h xAODPFlow/PFOAuxContainer.h
          xAODPFlow/TrackCaloClusterContainer.h
          xAODPFlow/TrackCaloClusterAuxContainer.h
+         xAODPFlow/FlowElementContainer.h
+         xAODPFlow/FlowElementAuxContainer.h
    TYPES_WITH_NAMESPACE xAOD::PFOContainer xAOD::PFOAuxContainer
                         xAOD::TrackCaloClusterContainer
                         xAOD::TrackCaloClusterAuxContainer
+			xAOD::FlowElementContainer
+			xAOD::FlowElementAuxContainer
    CNV_PFX xAOD
    LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib
                   AthenaPoolUtilities xAODPFlow )

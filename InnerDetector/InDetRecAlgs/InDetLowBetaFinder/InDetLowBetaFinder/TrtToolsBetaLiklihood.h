@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTCHAMP_H
@@ -15,16 +15,18 @@
 #include "TH1.h"
 #include "TMinuit.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //-----------------------------------------------------------------------------------------------//
 //                                                                                               //
-//     TRTChamp / TrtToolBetaLiklihood                                                                     //
+//     TRTChamp / TrtToolBetaLiklihood                                                           //
 //     Authors: C. Gay, B. Mills, S. Schramm 2009-2011 Univ. British Columbia / ATLAS Canada     //
 //     Contact developers at mills.wj@gmail.com                                                  //
 //     Use default calibrations at your own risk!                                                //
 //                                                                                               //
 //-----------------------------------------------------------------------------------------------//
 
-class TrtToolBetaLiklihood {
+class ATLAS_NOT_THREAD_SAFE TrtToolBetaLiklihood { // This class uses global variables and function for TMinuit. However, they are not protected by mutex. This class is not thread safe.
   
 public:
   TrtToolBetaLiklihood();

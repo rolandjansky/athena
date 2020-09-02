@@ -34,25 +34,14 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
   if (not m_sctDefaults.value()) {
     // SCTSiliconConditionsTool
     ATH_CHECK(m_siConditionsTool.retrieve());
-    // Read Cond handle
-    if (not m_useGeoModel.value()) {
-      ATH_CHECK(m_readKeyTemp.initialize());
-      ATH_CHECK(m_readKeyHV.initialize());
-    }
   } else {
     m_siConditionsTool.disable();
   }
+  // Read Cond handle
+  ATH_CHECK(m_readKeyTemp.initialize((not m_sctDefaults.value()) and (not m_useGeoModel.value())));
+  ATH_CHECK(m_readKeyHV.initialize((not m_sctDefaults.value()) and (not m_useGeoModel.value())));
 
-  if (m_useMagFieldCache.value()) {
-    ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-    // Read Cond handle
-    if (m_useMagFieldDcs.value()) {
-      ATH_CHECK(m_readKeyBFieldSensor.initialize());
-    }
-    else {
-      ATH_CHECK(m_readKeyBFieldSensor.initialize(false));
-    }
-  }
+  ATH_CHECK(m_fieldCondObjInputKey.initialize(m_useMagFieldCache.value()));
 
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
@@ -84,15 +73,6 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
     return StatusCode::SUCCESS;
   }
 
-  EventIDBase eidStart;
-  eidStart.set_time_stamp(0);
-  eidStart.set_time_stamp_ns_offset(0);
-  EventIDBase eidStop;
-  eidStop.set_time_stamp(EventIDBase::UNDEFNUM);
-  eidStop.set_time_stamp_ns_offset(EventIDBase::UNDEFNUM);
-  EventIDRange rangeSCT{eidStart, eidStop};
-  EventIDRange rangeBField{eidStart, eidStop};
-
   // Get SCT_DetectorElementCollection
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
   const InDetDD::SiDetectorElementCollection* elements(sctDetEle.retrieve());
@@ -100,13 +80,8 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
     ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " could not be retrieved");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeDetEle; // Run-LB IOV
-  if (not sctDetEle.range(rangeDetEle)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << m_SCTDetEleCollKey.key());
-    return StatusCode::FAILURE;
-  }
+  writeHandle.addDependency(sctDetEle); // Run-LB IOV
 
-  bool validSCT{false};
   if ((not m_sctDefaults.value()) and (not m_useGeoModel.value())) {
     // Read Cond Handle (temperature)
     SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp, ctx};
@@ -115,12 +90,8 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    EventIDRange rangeTemp;
-    if (not readHandleTemp.range(rangeTemp)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << rangeTemp);
+    writeHandle.addDependency(readHandleTemp);
+    ATH_MSG_INFO("Input is " << readHandleTemp.fullKey() << " with the range of " << readHandleTemp.getRange());
     
     // Read Cond Handle (HV)
     SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV, ctx};
@@ -129,69 +100,22 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    EventIDRange rangeHV;
-    if (not readHandleHV.range(rangeHV)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
-    
-    // Combined the validity ranges of temp and HV
-    rangeSCT = EventIDRange::intersect(rangeTemp, rangeHV);
-    if (rangeSCT.stop().isValid() and rangeSCT.start()>rangeSCT.stop()) {
-      ATH_MSG_FATAL("Invalid intersection rangeSCT: " << rangeSCT);
-      return StatusCode::FAILURE;
-    }
-    validSCT = true;
+    writeHandle.addDependency(readHandleHV);
+    ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << readHandleHV.getRange());
   }
 
-  bool validBField{false};
-  MagField::AtlasFieldCache    fieldCache;
+  MagField::AtlasFieldCache fieldCache;
   if (m_useMagFieldCache.value()) {
     // Get field cache object
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
-    if (fieldCondObj == nullptr) {
-        ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+    if (fieldCondObj==nullptr) {
+        ATH_MSG_FATAL("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
         return StatusCode::FAILURE;
     }
-    fieldCondObj->getInitializedCache (fieldCache);
-
-    if (m_useMagFieldDcs.value()) {
-      // Read Cond Handle (B field sensor)
-      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor{m_readKeyBFieldSensor, ctx};
-      const CondAttrListCollection* readCdoBFieldSensor{*readHandleBFieldSensor};
-      if (readCdoBFieldSensor==nullptr) {
-        ATH_MSG_FATAL("Null pointer to the read conditions object");
-        return StatusCode::FAILURE;
-      }
-      EventIDRange rangeBFieldSensor;
-      if (not readHandleBFieldSensor.range(rangeBFieldSensor)) {
-        ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldSensor.key());
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << rangeBFieldSensor);
-
-      // Set the validity ranges of sensor
-      rangeBField = rangeBFieldSensor;
-      if (rangeBField.stop().isValid() and rangeBField.start()>rangeBField.stop()) {
-        ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
-        return StatusCode::FAILURE;
-      }
-      validBField = true;
-    }
-  }
-
-  // Combined the validity ranges of temp and HV
-  EventIDRange rangeW{rangeBField};
-  if (validSCT) {
-    if (validBField) rangeW = EventIDRange::intersect(rangeSCT, rangeBField);
-    else rangeW = rangeSCT;
-  }
-  if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection rangeW: " << rangeW);
-    return StatusCode::FAILURE;
+    writeHandle.addDependency(readHandle);
+    fieldCondObj->getInitializedCache(fieldCache);
   }
 
   // Construct the output Cond Object and fill it in
@@ -283,12 +207,12 @@ StatusCode SCTSiLorentzAngleCondAlg::execute(const EventContext& ctx) const
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SiLorentzAngleCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW << " into Conditions Store");
+                  << " with EventRange " << writeHandle.getRange() << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

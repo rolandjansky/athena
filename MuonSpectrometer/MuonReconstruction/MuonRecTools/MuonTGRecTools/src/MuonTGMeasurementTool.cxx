@@ -2,22 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonTGMeasurementTool.cxx
-//   Implementation file for class MuonTGMeasurementTool
-///////////////////////////////////////////////////////////////////
-// S.Todorova
-///////////////////////////////////////////////////////////////////
-
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
 
-// Gaudi includes
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkGeometry/Layer.h"
@@ -25,8 +16,6 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrackRecord/TrackRecord.h"
-#include <vector>
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
@@ -48,9 +37,8 @@
 Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, const std::string &name, const IInterface* parent ) :
   AthAlgTool(type,name,parent),
   m_muonDetMgr(nullptr),
-  //m_assocMeasName("MuonTGMeasAssocAlg"),
-  m_hits(0),
-  m_segments(0)
+  m_hits(nullptr),
+  m_segments(nullptr)
 {  
   declareInterface<Muon::IMuonTGMeasTool>(this);
 }
@@ -62,7 +50,7 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonTGMeasurementTool::initialize()");
 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK(m_DetectorManagerKey.initialize(!m_useDSManager));
   if (m_useDSManager) {
     ATH_CHECK( detStore()->retrieve(m_muonDetMgr) );
@@ -145,15 +133,15 @@ const std::vector<const Trk::PrepRawData*>* Muon::MuonTGMeasurementTool::getEtaP
   if ( meas) {
     for (unsigned int ih=0; ih<meas->size(); ih++) {
       const Identifier id = (*meas)[ih]->identify();
-      if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) ) hitsOnLayer->push_back( (*meas)[ih] );
-      if ( m_muonIdHelperTool->rpcIdHelper().is_rpc(id) ) {
-	if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
+      if ( m_idHelperSvc->isMdt(id) ) hitsOnLayer->push_back( (*meas)[ih] );
+      if ( m_idHelperSvc->isRpc(id) ) {
+	if ( m_idHelperSvc->rpcIdHelper().measuresPhi(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
       }
-      if ( m_muonIdHelperTool->cscIdHelper().is_csc(id) ) {
-	if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
+      if ( m_idHelperSvc->isCsc(id) ) {
+	if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
       }
-      if ( m_muonIdHelperTool->tgcIdHelper().is_tgc(id) ) {
-	if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
+      if ( m_idHelperSvc->isTgc(id) ) {
+	if ( m_idHelperSvc->tgcIdHelper().isStrip(id) == phi)  hitsOnLayer->push_back( (*meas)[ih] );
       }
     } 
     delete meas;
@@ -226,16 +214,16 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
     Identifier layId(lay->layerType()); 
    
     unsigned int hitType = 0;
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) ) hitType = 1;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id) ) hitType = 2;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id) ) hitType = 3;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id) ) hitType = 4;
+    if ( m_idHelperSvc->isMdt(id) ) hitType = 1;    
+    if ( m_idHelperSvc->isRpc(id) ) hitType = 2;    
+    if ( m_idHelperSvc->isCsc(id) ) hitType = 3;    
+    if ( m_idHelperSvc->isTgc(id) ) hitType = 4;
 
     unsigned int layType = 0;
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) layType = 1;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(layId) ) layType = 2;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(layId) ) layType = 3;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(layId) ) layType = 4;
+    if ( m_idHelperSvc->isMdt(layId) ) layType = 1;    
+    if ( m_idHelperSvc->isRpc(layId) ) layType = 2;    
+    if ( m_idHelperSvc->isCsc(layId) ) layType = 3;    
+    if ( m_idHelperSvc->isTgc(layId) ) layType = 4;
 
     if ( layType != hitType ) return projPar; 
 
@@ -256,7 +244,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
         return projPar;
       }
       // local position of tube
-      int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
+      int tube = m_idHelperSvc->mdtIdHelper().tube(id); 
       Amg::Vector2D locWire(0.,lay->getRef()+(tube-1)*30.035);
       if (fabs(lay->getRef())>10e6) {
         double sign = (lay->getRef()>0) ? 1.:-1.;
@@ -264,13 +252,13 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
         double ref0 = dec/1.e5;
         double ref1 = lay->getRef()-dec*1e5-0.5*(sign+1)*1e5;
         locWire[0]=ref0; locWire[1]=ref1;
-        int tube = m_muonIdHelperTool->mdtIdHelper().tube(id);
-        int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(id);
+        int tube = m_idHelperSvc->mdtIdHelper().tube(id);
+        int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(id);
         if ( tube>6 && tubeMax-tube>5 ) locWire[0]=0.; 
       }
       if (sqrt(locWire[0]*locWire[0]+locWire[1]*locWire[1])>2000.) {
-	ATH_MSG_WARNING( name() << " wire shift out bounds for MDT tube :" << m_muonIdHelperTool->mdtIdHelper().stationName(id) <<","<<
-	  m_muonIdHelperTool->mdtIdHelper().stationEta(id) <<","<< m_muonIdHelperTool->mdtIdHelper().stationPhi(id) <<": abandon projection");
+	ATH_MSG_WARNING( name() << " wire shift out bounds for MDT tube :" << m_idHelperSvc->mdtIdHelper().stationName(id) <<","<<
+	  m_idHelperSvc->mdtIdHelper().stationEta(id) <<","<< m_idHelperSvc->mdtIdHelper().stationPhi(id) <<": abandon projection");
         return projPar;
       }
       // direction at the layer
@@ -320,18 +308,18 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       Amg::VectorX locPar = parm->parameters();
       // projection matrix
       AmgMatrix(5,5)* pMx = 0;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
       else                                pMx = m_rpcProjEta;
       // projected parameters 
       double eta = 1.;
-      double sign = (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) && m_muonIdHelperTool->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
+      double sign = (m_idHelperSvc->rpcIdHelper().measuresPhi(id) && m_idHelperSvc->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
       double zswap = (lay->getRef()> 10000.) ? -1. : 1.;
       double ref = (zswap < 0.) ? lay->getRef()-20000. :  lay->getRef();
       locPar[0] -= sign*ref;
       Amg::VectorX pPar = (*pMx) * locPar;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) pPar[0] *= eta;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pPar[0] *= eta;
       else                                pPar[1] *= -eta;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) pPar[1] *= zswap;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pPar[1] *= zswap;
       else                                pPar[0] *= zswap;
 
       AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
@@ -346,9 +334,9 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       }
       
       if (m_alignedMode && (parm->position()-projPar->position()).mag()>0.001 ) {
-        ATH_MSG_DEBUG("geometrical RPC projection (layerToDetEl) for hit : " << m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) << "," << 
-	  m_muonIdHelperTool->rpcIdHelper().stationName(id) << "," << m_muonIdHelperTool->rpcIdHelper().stationEta(id) <<","<<m_muonIdHelperTool->rpcIdHelper().stationPhi(id) << "," << 
-	  m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) <<"," <<m_muonIdHelperTool->rpcIdHelper().doubletR(id)<<","<< m_muonIdHelperTool->rpcIdHelper().doubletZ(id) );
+        ATH_MSG_DEBUG("geometrical RPC projection (layerToDetEl) for hit : " << m_idHelperSvc->rpcIdHelper().measuresPhi(id) << "," << 
+	  m_idHelperSvc->rpcIdHelper().stationName(id) << "," << m_idHelperSvc->rpcIdHelper().stationEta(id) <<","<<m_idHelperSvc->rpcIdHelper().stationPhi(id) << "," << 
+	  m_idHelperSvc->rpcIdHelper().doubletPhi(id) <<"," <<m_idHelperSvc->rpcIdHelper().doubletR(id)<<","<< m_idHelperSvc->rpcIdHelper().doubletZ(id) );
         Amg::Vector2D locPos;
         const Amg::Vector3D globPos = parm->position();
 	bool onSurface = stripSurf->globalToLocal(globPos, globPos, locPos);
@@ -375,7 +363,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       const Trk::PlaneSurface* stripSurf = dynamic_cast<const Trk::PlaneSurface*> (&(cscROE->surface(id)));
       if (!stripSurf) return projPar;
       // dealing with displaced planes, possibly sligthly displaced
-      double diff = m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
+      double diff = m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
       // distance between planes (assuming parallel planes)
       Amg::Vector3D layNormal = lay->surfaceRepresentation().normal();
       double DN = parm->momentum().dot(layNormal);
@@ -400,10 +388,10 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       parProj[4]= parm->parameters()[Trk::qOverP];
       //    
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
+      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
       else                                   pMx = m_tgcProjEta;
       Amg::VectorX locPar = (*pMx)*parProj;
-      ATH_MSG_DEBUG("projected parameters (layer->CSC):" << m_muonIdHelperTool->cscIdHelper().measuresPhi(id) <<"," << locPar );
+      ATH_MSG_DEBUG("projected parameters (layer->CSC):" << m_idHelperSvc->cscIdHelper().measuresPhi(id) <<"," << locPar );
 
       if (parm->covariance()) {
       
@@ -431,10 +419,10 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
       if (!stripSurf) return projPar;
       //
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
+      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
       else                               pMx = m_tgcProjEta;
       Amg::VectorX locPar = (*pMx)*parm->parameters();
-      ATH_MSG_DEBUG("projected parameters (layer->TGC):" << m_muonIdHelperTool->tgcIdHelper().isStrip(id) <<"," << locPar <<"," << stripSurf );
+      ATH_MSG_DEBUG("projected parameters (layer->TGC):" << m_idHelperSvc->tgcIdHelper().isStrip(id) <<"," << locPar <<"," << stripSurf );
 
       AmgMatrix(5,5)* projEM = 0;
       bool bcov = false;
@@ -451,8 +439,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::layerToDetEl(const Trk:
 
       // verify
       if ( m_alignedMode && (parm->position() - projPar->position()).mag() > 0.001 ) {
-	ATH_MSG_DEBUG("geometrical TGC projection ( layer2detEl ):" << 	m_muonIdHelperTool->tgcIdHelper().stationName(id) << ","<<	m_muonIdHelperTool->tgcIdHelper().stationEta(id)
-	    <<","<< 	m_muonIdHelperTool->tgcIdHelper().stationPhi(id) <<","<< m_muonIdHelperTool->tgcIdHelper().isStrip(id) );
+	ATH_MSG_DEBUG("geometrical TGC projection ( layer2detEl ):" << 	m_idHelperSvc->tgcIdHelper().stationName(id) << ","<<	m_idHelperSvc->tgcIdHelper().stationEta(id)
+	    <<","<< 	m_idHelperSvc->tgcIdHelper().stationPhi(id) <<","<< m_idHelperSvc->tgcIdHelper().isStrip(id) );
 	Amg::Vector2D locPos;
 	const Amg::Vector3D globPos = parm->position();
 	bool onSurface = stripSurf->globalToLocal(globPos, globPos, locPos);
@@ -491,16 +479,16 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
     ATH_MSG_DEBUG("MuonTGMeasurementTool::input ok");
    
     unsigned int hitType = 0;
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) ) hitType = 1;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id) ) hitType = 2;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id) ) hitType = 3;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id) ) hitType = 4;
+    if ( m_idHelperSvc->isMdt(id) ) hitType = 1;    
+    if ( m_idHelperSvc->isRpc(id) ) hitType = 2;    
+    if ( m_idHelperSvc->isCsc(id) ) hitType = 3;    
+    if ( m_idHelperSvc->isTgc(id) ) hitType = 4;
 
     unsigned int layType = 0;
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) layType = 1;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(layId) ) layType = 2;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(layId) ) layType = 3;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(layId) ) layType = 4;
+    if ( m_idHelperSvc->isMdt(layId) ) layType = 1;    
+    if ( m_idHelperSvc->isRpc(layId) ) layType = 2;    
+    if ( m_idHelperSvc->isCsc(layId) ) layType = 3;    
+    if ( m_idHelperSvc->isTgc(layId) ) layType = 4;
 
     if ( layType != hitType ) return projPar; 
 
@@ -511,7 +499,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 
     if ( hitType == 1) {
       // local position of the tube
-      int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
+      int tube = m_idHelperSvc->mdtIdHelper().tube(id); 
       Amg::Vector2D locWire(0.,lay->getRef()+(tube-1)*30.035);
       if (fabs(lay->getRef())>10e6) {
         double sign = (lay->getRef()>0) ? 1.:-1.;
@@ -519,13 +507,13 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
         double ref0 = dec/1.e5;
         double ref1 = lay->getRef()-dec*1e5-0.5*(sign+1)*1e5;
         locWire[0]=ref0; locWire[1]=ref1;
-        int tube = m_muonIdHelperTool->mdtIdHelper().tube(id);
-        int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(id);
+        int tube = m_idHelperSvc->mdtIdHelper().tube(id);
+        int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(id);
         if ( tube>6 && tubeMax-tube>5 ) locWire[0]=0.; 
       }
       if (sqrt(locWire[0]*locWire[0]+locWire[1]*locWire[1])>2000.) {
-	ATH_MSG_WARNING( name() << " wire shift out bounds for MDT tube :" << m_muonIdHelperTool->mdtIdHelper().stationName(id) <<","<<
-	  m_muonIdHelperTool->mdtIdHelper().stationEta(id) <<","<< m_muonIdHelperTool->mdtIdHelper().stationPhi(id) <<": abandon projection");
+	ATH_MSG_WARNING( name() << " wire shift out bounds for MDT tube :" << m_idHelperSvc->mdtIdHelper().stationName(id) <<","<<
+	  m_idHelperSvc->mdtIdHelper().stationEta(id) <<","<< m_idHelperSvc->mdtIdHelper().stationPhi(id) <<": abandon projection");
         return projPar;
       }
       // local position (tube)
@@ -574,25 +562,25 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       //
       Amg::VectorX locPar = parm->parameters();
       AmgMatrix(5,5)* pMx = 0;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) pMx = m_rpcProjPhi;
       else                                pMx = m_rpcProjEta;
 
       double eta = 1.;
-      double sign = (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) && m_muonIdHelperTool->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
+      double sign = (m_idHelperSvc->rpcIdHelper().measuresPhi(id) && m_idHelperSvc->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
 
       double ref = (lay->getRef()>10000.) ? lay->getRef()-20000. : lay->getRef(); 
       double zswap = (lay->getRef()>10000.) ? -1. : 1.;
 
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) locPar[0] *= eta;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) locPar[0] *= eta;
       else                                locPar[1] *= -eta;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)) locPar[1] *= zswap;
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id)) locPar[1] *= zswap;
       else                                locPar[0] *= zswap;
 
       Amg::VectorX pPar = (*pMx) * locPar;
       pPar[0] +=  sign*ref; 
 
       //  
-      ATH_MSG_DEBUG("back projected parameters(RPC->layer):" << m_muonIdHelperTool->rpcIdHelper().measuresPhi(id)<<"," << pPar );
+      ATH_MSG_DEBUG("back projected parameters(RPC->layer):" << m_idHelperSvc->rpcIdHelper().measuresPhi(id)<<"," << pPar );
 
       AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
       *projEM = parm->covariance()->similarityT(*pMx);
@@ -602,9 +590,9 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       //delete projEM;
 
       if ( (parm->position()-projPar->position()).mag()>0.001 ) {
-        ATH_MSG_DEBUG("geometrical RPC projection (detElToLayer) for hit : " << m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) << "," << 
-	  m_muonIdHelperTool->rpcIdHelper().stationName(id) << "," << m_muonIdHelperTool->rpcIdHelper().stationEta(id) <<","<<m_muonIdHelperTool->rpcIdHelper().stationPhi(id) << "," << 
-	  m_muonIdHelperTool->rpcIdHelper().doubletPhi(id) <<"," <<m_muonIdHelperTool->rpcIdHelper().doubletR(id)<<","<< m_muonIdHelperTool->rpcIdHelper().doubletZ(id) );
+        ATH_MSG_DEBUG("geometrical RPC projection (detElToLayer) for hit : " << m_idHelperSvc->rpcIdHelper().measuresPhi(id) << "," << 
+	  m_idHelperSvc->rpcIdHelper().stationName(id) << "," << m_idHelperSvc->rpcIdHelper().stationEta(id) <<","<<m_idHelperSvc->rpcIdHelper().stationPhi(id) << "," << 
+	  m_idHelperSvc->rpcIdHelper().doubletPhi(id) <<"," <<m_idHelperSvc->rpcIdHelper().doubletR(id)<<","<< m_idHelperSvc->rpcIdHelper().doubletZ(id) );
 	Amg::Vector2D locPos;
 	const Amg::Vector3D globPos = parm->position();
 	bool onSurface = laySurf->globalToLocal(globPos, globPos, locPos);
@@ -626,7 +614,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       const Trk::PlaneSurface* laySurf = dynamic_cast<const Trk::PlaneSurface*> (&(lay->surfaceRepresentation()));
       if (!laySurf) return projPar;
       // dealing with parallel displaced planes
-      double diff = m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
+      double diff = m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
       //
       Amg::Vector3D layNormal = lay->surfaceRepresentation().normal();
       double DN = parm->momentum().dot(layNormal);
@@ -635,7 +623,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       const Amg::Vector2D csc_shift(0.,lay->getRef());
       // projection : take into account possible misalignment ;
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
+      if ( m_idHelperSvc->cscIdHelper().measuresPhi(id) )  pMx = m_tgcProjPhi;
       else                                   pMx = m_tgcProjEta;
       AmgMatrix(5,5) pMxInv = pMx->inverse();
       Amg::VectorX parProj = pMxInv*parm->parameters();
@@ -645,7 +633,7 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       if(onSurface && locCorrLay.size()>0) { 
         parProj[0] += locCorrLay[Trk::locX]+csc_shift[Trk::locX];
         parProj[1] += locCorrLay[Trk::locY]+csc_shift[Trk::locY];
-        ATH_MSG_DEBUG("back projected parameters(CSC->layer):"<<m_muonIdHelperTool->cscIdHelper().measuresPhi(id)<<"," << parProj );
+        ATH_MSG_DEBUG("back projected parameters(CSC->layer):"<<m_idHelperSvc->cscIdHelper().measuresPhi(id)<<"," << parProj );
       }
       AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
       *projEM = parm->covariance()->similarity(pMxInv);
@@ -664,11 +652,11 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
       }
 
       AmgMatrix(5,5)* pMx = 0;
-      if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
+      if ( m_idHelperSvc->tgcIdHelper().isStrip(id) )  pMx = m_tgcProjPhi;
       else                               pMx = m_tgcProjEta;
       AmgMatrix(5,5) pMxInv = pMx->inverse();
       Amg::VectorX locPar = pMxInv * parm->parameters();
-      ATH_MSG_DEBUG("back projected parameters(TGC->layer):" << m_muonIdHelperTool->tgcIdHelper().isStrip(id)<<"," << locPar );
+      ATH_MSG_DEBUG("back projected parameters(TGC->layer):" << m_idHelperSvc->tgcIdHelper().isStrip(id)<<"," << locPar );
 
       AmgMatrix(5,5)* projEM = new AmgMatrix(5,5);
       *projEM = parm->covariance()->similarity(pMxInv);
@@ -678,8 +666,8 @@ const Trk::TrackParameters* Muon::MuonTGMeasurementTool::detElToLayer(const Trk:
 
       // verify
       if ( m_alignedMode && (parm->position() - projPar->position()).mag() > 0.001 ) {
-	ATH_MSG_DEBUG("geometrical TGC projection ( detEl2Layer ):" << 	m_muonIdHelperTool->tgcIdHelper().stationName(id) << ","<<	m_muonIdHelperTool->tgcIdHelper().stationEta(id)
-            <<","<< 	m_muonIdHelperTool->tgcIdHelper().stationPhi(id) <<","<< m_muonIdHelperTool->tgcIdHelper().isStrip(id) );
+	ATH_MSG_DEBUG("geometrical TGC projection ( detEl2Layer ):" << 	m_idHelperSvc->tgcIdHelper().stationName(id) << ","<<	m_idHelperSvc->tgcIdHelper().stationEta(id)
+            <<","<< 	m_idHelperSvc->tgcIdHelper().stationPhi(id) <<","<< m_idHelperSvc->tgcIdHelper().isStrip(id) );
 	Amg::Vector2D locPos;
 	const Amg::Vector3D globPos = parm->position();
 	bool onSurface = laySurf->globalToLocal(globPos, globPos, locPos);
@@ -725,15 +713,15 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
     ATH_MSG_DEBUG("MuonTGMeasurementTool::input ok");
    
     unsigned int hitType = 0;
-    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(id) ) hitType = 1;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(id) ) hitType = 2;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(id) ) hitType = 3;    
-    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(id) ) hitType = 4;
+    if ( m_idHelperSvc->isMdt(id) ) hitType = 1;    
+    if ( m_idHelperSvc->isRpc(id) ) hitType = 2;    
+    if ( m_idHelperSvc->isCsc(id) ) hitType = 3;    
+    if ( m_idHelperSvc->isTgc(id) ) hitType = 4;
 
 
     if ( hitType == 1) {
       // local position of the tube
-      int tube = m_muonIdHelperTool->mdtIdHelper().tube(id); 
+      int tube = m_idHelperSvc->mdtIdHelper().tube(id); 
       Amg::Vector2D locWire(0.,lay->getRef()+(tube-1)*30.035);
       if (fabs(lay->getRef())>10e6) {
         double sign = (lay->getRef()>0) ? 1.:-1.;
@@ -741,8 +729,8 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
         double ref0 = dec/1.e5;
         double ref1 = lay->getRef()-dec*1e5-0.5*(sign+1)*1e5;
         locWire[0]=ref0; locWire[1]=ref1;
-        int tube = m_muonIdHelperTool->mdtIdHelper().tube(id);
-        int tubeMax = m_muonIdHelperTool->mdtIdHelper().tubeMax(id);
+        int tube = m_idHelperSvc->mdtIdHelper().tube(id);
+        int tubeMax = m_idHelperSvc->mdtIdHelper().tubeMax(id);
         if ( tube>6 && tubeMax-tube>5 ) locWire[0]=0.; 
       }
       // direction at the layer
@@ -774,17 +762,17 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
  
     else if ( hitType == 2) {
       //
-      double eta = (m_muonIdHelperTool->rpcIdHelper().stationEta(id)<0) ? -1. : 1.;
-      double sign = (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) && m_muonIdHelperTool->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
+      double eta = (m_idHelperSvc->rpcIdHelper().stationEta(id)<0) ? -1. : 1.;
+      double sign = (m_idHelperSvc->rpcIdHelper().measuresPhi(id) && m_idHelperSvc->rpcIdHelper().doubletPhi(id)==2 ) ? -1. : 1.;
 
       double locPos = rio->localParameters()[Trk::locX];
 
-      if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) )   locPos *= eta;
+      if ( m_idHelperSvc->rpcIdHelper().measuresPhi(id) )   locPos *= eta;
   
       double ref = (lay->getRef()>10000.) ? lay->getRef()-20000. : lay->getRef(); 
       double zswap = (lay->getRef()>10000.) ? -1. : 1.;
 
-      if ( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) ) locPos +=  sign*ref;
+      if ( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) locPos +=  sign*ref;
       else                                  locPos *= zswap;    
       //
       const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);			
@@ -793,7 +781,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       rdoList.push_back(id);
       const Muon::RpcPrepData* rpcPrd = new Muon::RpcPrepData( id , idHash, Amg::Vector2D(locPos,0.), rdoList, new Amg::MatrixX(rio->localCovariance()), rpcROE, float(0.), 0, 0);
       const Muon::RpcClusterOnTrack* rpcRio = 0;
-      if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(id))
+      if (m_idHelperSvc->rpcIdHelper().measuresPhi(id))
 	rpcRio = new Muon::RpcClusterOnTrack( rpcPrd,
 					      Trk::LocalParameters(Trk::DefinedParameter(locPos,Trk::locX)),
 					      rpcPrd->localCovariance(), parm->localPosition()[Trk::locY]);  
@@ -807,7 +795,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 
     else if ( hitType == 3) {
       // dealing with parallel displaced planes
-      double diff = m_muonIdHelperTool->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
+      double diff = m_idHelperSvc->cscIdHelper().measuresPhi(id) ? 1.55 : -1.55 ;      
       //
       Amg::Vector3D layNormal = lay->surfaceRepresentation().normal();
       double DN = parm->momentum().dot(layNormal);
@@ -823,7 +811,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
 	return projRIO;
       }
       double locPos; 
-      if (m_muonIdHelperTool->cscIdHelper().measuresPhi(id)) {
+      if (m_idHelperSvc->cscIdHelper().measuresPhi(id)) {
          locPos = rio->localParameters()[Trk::locX]+locCorrLay[Trk::locX]+csc_shift[Trk::locX];
       } else { 
          locPos = rio->localParameters()[Trk::locX]+locCorrLay[Trk::locY]+csc_shift[Trk::locY];
@@ -836,7 +824,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       Muon::CscClusterStatus status = Muon::CscStatusSimple;
       const Muon::CscPrepData* cscPrd = new Muon::CscPrepData( id , idHash, Amg::Vector2D(locPos,0.), rdoList, new Amg::MatrixX(rio->localCovariance()), cscROE,0,0.,status);
       const Muon::CscClusterOnTrack* cscRio = 0;
-      if (m_muonIdHelperTool->cscIdHelper().measuresPhi(id))
+      if (m_idHelperSvc->cscIdHelper().measuresPhi(id))
 	cscRio = new Muon::CscClusterOnTrack( cscPrd,
 					      Trk::LocalParameters(Trk::DefinedParameter(locPos,Trk::locX)),
 					      cscPrd->localCovariance(), parm->localPosition()[Trk::locY],cscPrd->status());  
@@ -858,7 +846,7 @@ const Trk::RIO_OnTrack* Muon::MuonTGMeasurementTool::measToLayer(const Trk::Laye
       rdoList.push_back(id);
       const Muon::TgcPrepData* tgcPrd = new Muon::TgcPrepData( id , idHash,Amg::Vector2D(locPos,0.), rdoList, new Amg::MatrixX(rio->localCovariance()), tgcROE);
       const Muon::TgcClusterOnTrack* tgcRio = 0;
-      if (m_muonIdHelperTool->tgcIdHelper().isStrip(id)) {
+      if (m_idHelperSvc->tgcIdHelper().isStrip(id)) {
         Amg::Vector2D loc(locPos,parm->localPosition()[Trk::locY]);
 	tgcRio = new Muon::TgcClusterOnTrack( tgcPrd,
 					      Trk::LocalParameters(Trk::DefinedParameter(locPos,Trk::locX)),
@@ -901,10 +889,10 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
   Identifier layId(lay->layerType());
   
   unsigned int hitType = 0;
-  if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) hitType = 1;    
-  if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(layId) ) hitType = 2;    
-  if ( m_muonIdHelperTool->mdtIdHelper().is_csc(layId) ) hitType = 3;    
-  if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(layId) ) hitType = 4;
+  if ( m_idHelperSvc->isMdt(layId) ) hitType = 1;    
+  if ( m_idHelperSvc->isRpc(layId) ) hitType = 2;    
+  if ( m_idHelperSvc->isCsc(layId) ) hitType = 3;    
+  if ( m_idHelperSvc->isTgc(layId) ) hitType = 4;
 
   if ( hitType==0 ) {
     ATH_MSG_DEBUG("unknown hit technology");
@@ -933,18 +921,18 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     int itube = int( dloc/30.035 ) + 1;
     if (itube < 1 || itube > tMax || dloc<0.) {return nid;} 
     // tube id
-    Identifier nearId = m_muonIdHelperTool->mdtIdHelper().channelID(m_muonIdHelperTool->mdtIdHelper().stationName(layId),
-						 m_muonIdHelperTool->mdtIdHelper().stationEta(layId),
-						 m_muonIdHelperTool->mdtIdHelper().stationPhi(layId),
-						 m_muonIdHelperTool->mdtIdHelper().multilayer(layId),
-						 m_muonIdHelperTool->mdtIdHelper().tubeLayer(layId),
+    Identifier nearId = m_idHelperSvc->mdtIdHelper().channelID(m_idHelperSvc->mdtIdHelper().stationName(layId),
+						 m_idHelperSvc->mdtIdHelper().stationEta(layId),
+						 m_idHelperSvc->mdtIdHelper().stationPhi(layId),
+						 m_idHelperSvc->mdtIdHelper().multilayer(layId),
+						 m_idHelperSvc->mdtIdHelper().tubeLayer(layId),
 						 itube);
     // check if position within active volume 
-    if (fabs(locLay[Trk::locX])>0.5*mdtROE->getActiveTubeLength(m_muonIdHelperTool->mdtIdHelper().tubeLayer(layId),itube)) {
+    if (fabs(locLay[Trk::locX])>0.5*mdtROE->getActiveTubeLength(m_idHelperSvc->mdtIdHelper().tubeLayer(layId),itube)) {
       return nid; 
     }
     // 
-    if (m_muonIdHelperTool->mdtIdHelper().valid(nearId)) return nearId;
+    if (m_idHelperSvc->mdtIdHelper().valid(nearId)) return nearId;
     else return nid;
   }
 
@@ -956,26 +944,26 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     bool foundDoubletPhi = false;
     const MuonGM::RpcReadoutElement* rpcROE = 0;    
     while (!foundDoubletPhi && doubletPhi<3) { 
-      Identifier refPhi1 = m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-						    m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
-						    m_muonIdHelperTool->rpcIdHelper().doubletZ(layId),
+      Identifier refPhi1 = m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+						    m_idHelperSvc->rpcIdHelper().stationEta(layId),
+						    m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+						    m_idHelperSvc->rpcIdHelper().doubletR(layId),	
+						    m_idHelperSvc->rpcIdHelper().doubletZ(layId),
 						    doubletPhi,
-						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+						    m_idHelperSvc->rpcIdHelper().gasGap(layId),
 						    1,1);
       rpcROE = MuonDetMgr->getRpcReadoutElement(refPhi1);    
       if (!rpcROE) return nid;
-      if (!m_muonIdHelperTool->rpcIdHelper().valid(refPhi1)) return nid; 
+      if (!m_idHelperSvc->rpcIdHelper().valid(refPhi1)) return nid; 
       int  nStripPhi = rpcROE->Nstrips(1);  
       
-      Identifier refPhiN = m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-						    m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
-						    m_muonIdHelperTool->rpcIdHelper().doubletZ(layId),
+      Identifier refPhiN = m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+						    m_idHelperSvc->rpcIdHelper().stationEta(layId),
+						    m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+						    m_idHelperSvc->rpcIdHelper().doubletR(layId),	
+						    m_idHelperSvc->rpcIdHelper().doubletZ(layId),
 						    doubletPhi,
-						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+						    m_idHelperSvc->rpcIdHelper().gasGap(layId),
 						    1,nStripPhi);
       //
       Amg::Vector2D loc1; 
@@ -996,13 +984,13 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 	
 	if (strip> 0 && strip <= nStripPhi) {
 	  // correct doublet
-	  phiId =  m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-					    m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-					    m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-					    m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
-					    m_muonIdHelperTool->rpcIdHelper().doubletZ(layId),
+	  phiId =  m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+					    m_idHelperSvc->rpcIdHelper().stationEta(layId),
+					    m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+					    m_idHelperSvc->rpcIdHelper().doubletR(layId),	
+					    m_idHelperSvc->rpcIdHelper().doubletZ(layId),
 					    doubletPhi,
-					    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+					    m_idHelperSvc->rpcIdHelper().gasGap(layId),
 					    1,strip);
           foundDoubletPhi=true;
  
@@ -1018,26 +1006,26 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     Identifier etaId(0);    
     int doubletZ = 1;
     while (doubletZ<4) { 
-      Identifier refEta1 = m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-						    m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
+      Identifier refEta1 = m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+						    m_idHelperSvc->rpcIdHelper().stationEta(layId),
+						    m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+						    m_idHelperSvc->rpcIdHelper().doubletR(layId),	
 						    doubletZ,
 						    doubletPhi,
-						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+						    m_idHelperSvc->rpcIdHelper().gasGap(layId),
 						    0,1);
       rpcROE = MuonDetMgr->getRpcReadoutElement(refEta1);    
       if (!rpcROE) return nid;
-      if (!m_muonIdHelperTool->rpcIdHelper().valid(refEta1)) return nid; 
+      if (!m_idHelperSvc->rpcIdHelper().valid(refEta1)) return nid; 
       int nStrips = rpcROE->Nstrips(0);  
       
-      Identifier refEtaN = m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-						    m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-						    m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
+      Identifier refEtaN = m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+						    m_idHelperSvc->rpcIdHelper().stationEta(layId),
+						    m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+						    m_idHelperSvc->rpcIdHelper().doubletR(layId),	
 						    doubletZ,
 						    doubletPhi,
-						    m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+						    m_idHelperSvc->rpcIdHelper().gasGap(layId),
 						    0,nStrips);
       //
 
@@ -1059,13 +1047,13 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 	strip = dstrip>=0. ? int(dstrip)+1 : 0;  
 	
 	if (strip > 0 && strip <= nStrips) {
-	  etaId = m_muonIdHelperTool->rpcIdHelper().channelID(m_muonIdHelperTool->rpcIdHelper().stationName(layId),
-					   m_muonIdHelperTool->rpcIdHelper().stationEta(layId),
-					   m_muonIdHelperTool->rpcIdHelper().stationPhi(layId),
-					   m_muonIdHelperTool->rpcIdHelper().doubletR(layId),	
+	  etaId = m_idHelperSvc->rpcIdHelper().channelID(m_idHelperSvc->rpcIdHelper().stationName(layId),
+					   m_idHelperSvc->rpcIdHelper().stationEta(layId),
+					   m_idHelperSvc->rpcIdHelper().stationPhi(layId),
+					   m_idHelperSvc->rpcIdHelper().doubletR(layId),	
 					   doubletZ,
 					   doubletPhi,
-					   m_muonIdHelperTool->rpcIdHelper().gasGap(layId),
+					   m_idHelperSvc->rpcIdHelper().gasGap(layId),
 					   0,strip);
 	  if (measPhi) return phiId;
 	  else return etaId; 
@@ -1079,13 +1067,13 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 
   if ( hitType == 3) {
     // ref id
-    Identifier refId = m_muonIdHelperTool->cscIdHelper().channelID(m_muonIdHelperTool->cscIdHelper().stationName(layId),
-						m_muonIdHelperTool->cscIdHelper().stationEta(layId),
-						m_muonIdHelperTool->cscIdHelper().stationPhi(layId),
-						m_muonIdHelperTool->cscIdHelper().chamberLayer(layId),	
-						m_muonIdHelperTool->cscIdHelper().wireLayer(layId),
+    Identifier refId = m_idHelperSvc->cscIdHelper().channelID(m_idHelperSvc->cscIdHelper().stationName(layId),
+						m_idHelperSvc->cscIdHelper().stationEta(layId),
+						m_idHelperSvc->cscIdHelper().stationPhi(layId),
+						m_idHelperSvc->cscIdHelper().chamberLayer(layId),	
+						m_idHelperSvc->cscIdHelper().wireLayer(layId),
 						measPhi,1);
-    if (!m_muonIdHelperTool->cscIdHelper().valid(refId)) return nid; 
+    if (!m_idHelperSvc->cscIdHelper().valid(refId)) return nid; 
     // residual in ref frame
     const Trk::TrackParameters* refPar = layerToDetEl(lay,parm,refId);
     if (!refPar) return nid;
@@ -1093,14 +1081,14 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(refId);
     if (!cscROE) {delete refPar; return nid;}
     pitch = cscROE->StripPitch(measPhi);
-    int nStrips = m_muonIdHelperTool->cscIdHelper().stripMax(refId);
+    int nStrips = m_idHelperSvc->cscIdHelper().stripMax(refId);
     if (nStrips < 1) {delete refPar; return nid;}
 
-    Identifier refIdN = m_muonIdHelperTool->cscIdHelper().channelID(m_muonIdHelperTool->cscIdHelper().stationName(refId),
-						 m_muonIdHelperTool->cscIdHelper().stationEta(refId),
-						 m_muonIdHelperTool->cscIdHelper().stationPhi(refId),
-						 m_muonIdHelperTool->cscIdHelper().chamberLayer(refId),	
-						 m_muonIdHelperTool->cscIdHelper().wireLayer(refId),
+    Identifier refIdN = m_idHelperSvc->cscIdHelper().channelID(m_idHelperSvc->cscIdHelper().stationName(refId),
+						 m_idHelperSvc->cscIdHelper().stationEta(refId),
+						 m_idHelperSvc->cscIdHelper().stationPhi(refId),
+						 m_idHelperSvc->cscIdHelper().chamberLayer(refId),	
+						 m_idHelperSvc->cscIdHelper().wireLayer(refId),
 						 measPhi,nStrips);
     //
     Amg::Vector3D loc1 = cscROE->surface(refId).transform().inverse()*cscROE->stripPos(refId);
@@ -1113,11 +1101,11 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
     delete refPar; refPar=0;
     if ( strip>0 && strip <= nStrips ) { 
       // strip id
-      Identifier nearId =  m_muonIdHelperTool->cscIdHelper().channelID(m_muonIdHelperTool->cscIdHelper().stationName(layId),
-						    m_muonIdHelperTool->cscIdHelper().stationEta(layId),
-						    m_muonIdHelperTool->cscIdHelper().stationPhi(layId),
-						    m_muonIdHelperTool->cscIdHelper().chamberLayer(layId),	
-						    m_muonIdHelperTool->cscIdHelper().wireLayer(layId),
+      Identifier nearId =  m_idHelperSvc->cscIdHelper().channelID(m_idHelperSvc->cscIdHelper().stationName(layId),
+						    m_idHelperSvc->cscIdHelper().stationEta(layId),
+						    m_idHelperSvc->cscIdHelper().stationPhi(layId),
+						    m_idHelperSvc->cscIdHelper().chamberLayer(layId),	
+						    m_idHelperSvc->cscIdHelper().wireLayer(layId),
 						    measPhi,strip);
       if (fabs(residual(parm,nearId))> 0.5*pitch ) ATH_MSG_DEBUG("nearest CSC channel residual too large: "
 						       << residual(parm,nearId) );
@@ -1126,29 +1114,29 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
   }
 
   if ( hitType == 4) {    // ref id
-    if (  measPhi && m_muonIdHelperTool->tgcIdHelper().gasGap(layId)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(layId)==3 ) return nid;  // no phi strips here
+    if (  measPhi && m_idHelperSvc->tgcIdHelper().gasGap(layId)==2 && m_idHelperSvc->tgcIdHelper().gasGapMax(layId)==3 ) return nid;  // no phi strips here
      // ref id
     Identifier refId = layId;
-    if (measPhi) refId = m_muonIdHelperTool->tgcIdHelper().channelID(m_muonIdHelperTool->tgcIdHelper().stationName(layId),
-						  m_muonIdHelperTool->tgcIdHelper().stationEta(layId),
-						  m_muonIdHelperTool->tgcIdHelper().stationPhi(layId),
-						  m_muonIdHelperTool->tgcIdHelper().gasGap(layId),
+    if (measPhi) refId = m_idHelperSvc->tgcIdHelper().channelID(m_idHelperSvc->tgcIdHelper().stationName(layId),
+						  m_idHelperSvc->tgcIdHelper().stationEta(layId),
+						  m_idHelperSvc->tgcIdHelper().stationPhi(layId),
+						  m_idHelperSvc->tgcIdHelper().gasGap(layId),
 						  measPhi,1);
-    if (!m_muonIdHelperTool->tgcIdHelper().valid(refId)) return nid; 
+    if (!m_idHelperSvc->tgcIdHelper().valid(refId)) return nid; 
     // residual in ref frame
     const Trk::TrackParameters* refPar = layerToDetEl(lay,parm,refId);
     if (!refPar) return nid;
     //
     const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(layId);
     if (!tgcROE) {delete refPar; return nid;}
-    int nStrips = m_muonIdHelperTool->tgcIdHelper().channelMax(refId);
+    int nStrips = m_idHelperSvc->tgcIdHelper().channelMax(refId);
    
     if ( nStrips < 1 ) {delete refPar; return nid;}
 
-    Identifier refIdN = m_muonIdHelperTool->tgcIdHelper().channelID(m_muonIdHelperTool->tgcIdHelper().stationName(layId),
-						 m_muonIdHelperTool->tgcIdHelper().stationEta(layId),
-						 m_muonIdHelperTool->tgcIdHelper().stationPhi(layId),
-						 m_muonIdHelperTool->tgcIdHelper().gasGap(layId),
+    Identifier refIdN = m_idHelperSvc->tgcIdHelper().channelID(m_idHelperSvc->tgcIdHelper().stationName(layId),
+						 m_idHelperSvc->tgcIdHelper().stationEta(layId),
+						 m_idHelperSvc->tgcIdHelper().stationPhi(layId),
+						 m_idHelperSvc->tgcIdHelper().gasGap(layId),
 						 measPhi,nStrips);
     //
     Amg::Vector2D loc1; 
@@ -1170,20 +1158,20 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
 
     if ( strip > 0 && strip <= nStrips) {
       // check second coordinate for active volume
-      if (!measPhi && fabs(refPar->localPosition()[Trk::locY])>(tgcROE->WireLength(m_muonIdHelperTool->tgcIdHelper().gasGap(layId),strip)-tgcROE->frameXwidth()) ) {
+      if (!measPhi && fabs(refPar->localPosition()[Trk::locY])>(tgcROE->WireLength(m_idHelperSvc->tgcIdHelper().gasGap(layId),strip)-tgcROE->frameXwidth()) ) {
         delete refPar;
         return nid;
       }
-      Identifier nearId = m_muonIdHelperTool->tgcIdHelper().channelID(m_muonIdHelperTool->tgcIdHelper().stationName(layId),
-						   m_muonIdHelperTool->tgcIdHelper().stationEta(layId),
-						   m_muonIdHelperTool->tgcIdHelper().stationPhi(layId),
-						   m_muonIdHelperTool->tgcIdHelper().gasGap(layId),  
+      Identifier nearId = m_idHelperSvc->tgcIdHelper().channelID(m_idHelperSvc->tgcIdHelper().stationName(layId),
+						   m_idHelperSvc->tgcIdHelper().stationEta(layId),
+						   m_idHelperSvc->tgcIdHelper().stationPhi(layId),
+						   m_idHelperSvc->tgcIdHelper().gasGap(layId),  
 						   measPhi,strip);
       Amg::Vector3D stripposition=tgcROE->surface(nearId).transform().inverse()*tgcROE->channelPos(nearId);
       Amg::Vector3D localhit=tgcROE->surface(nearId).transform().inverse()*parm->position(); 
 
-      int plane = m_muonIdHelperTool->tgcIdHelper().gasGap(nearId);
-      if (m_muonIdHelperTool->tgcIdHelper().isStrip(nearId)) pitch = tgcROE->StripPitch(plane,m_muonIdHelperTool->tgcIdHelper().channel(nearId),localhit[1]); 
+      int plane = m_idHelperSvc->tgcIdHelper().gasGap(nearId);
+      if (m_idHelperSvc->tgcIdHelper().isStrip(nearId)) pitch = tgcROE->StripPitch(plane,m_idHelperSvc->tgcIdHelper().channel(nearId),localhit[1]); 
       int last = 0;
       while ( fabs(stripposition[0] - localhit[0])>0.5*pitch ) {
 	if (stripposition[0]<localhit[0]) {
@@ -1194,18 +1182,18 @@ const Identifier Muon::MuonTGMeasurementTool::nearestDetEl(const Trk::Layer* lay
           else break;
 	}
 	if ( strip<1 || strip > nStrips) break;
-	nearId = m_muonIdHelperTool->tgcIdHelper().channelID(m_muonIdHelperTool->tgcIdHelper().stationName(layId),
-					  m_muonIdHelperTool->tgcIdHelper().stationEta(layId),
-					  m_muonIdHelperTool->tgcIdHelper().stationPhi(layId),
-					  m_muonIdHelperTool->tgcIdHelper().gasGap(layId),  
+	nearId = m_idHelperSvc->tgcIdHelper().channelID(m_idHelperSvc->tgcIdHelper().stationName(layId),
+					  m_idHelperSvc->tgcIdHelper().stationEta(layId),
+					  m_idHelperSvc->tgcIdHelper().stationPhi(layId),
+					  m_idHelperSvc->tgcIdHelper().gasGap(layId),  
 					  measPhi,strip);
 	stripposition=tgcROE->surface(nearId).transform().inverse()*tgcROE->channelPos(nearId);
 	localhit=tgcROE->surface(nearId).transform().inverse()*parm->position(); 
-	if (m_muonIdHelperTool->tgcIdHelper().isStrip(nearId)) pitch = tgcROE->StripPitch(plane,m_muonIdHelperTool->tgcIdHelper().channel(nearId),localhit[1]); 
+	if (m_idHelperSvc->tgcIdHelper().isStrip(nearId)) pitch = tgcROE->StripPitch(plane,m_idHelperSvc->tgcIdHelper().channel(nearId),localhit[1]); 
       }
       delete refPar;
       if ( strip<1 || strip > nStrips) return nid;
-      if (m_muonIdHelperTool->tgcIdHelper().valid(nearId)) return nearId;    
+      if (m_idHelperSvc->tgcIdHelper().valid(nearId)) return nearId;    
       else return nid;
     }
     delete refPar;
@@ -1238,9 +1226,9 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::associatedLayer(Identifier id, Am
     for (unsigned int i=0;i<detTV->size();i++) { 
       if ((*detTV)[i]->layerRepresentation() && (*detTV)[i]->layerRepresentation()->layerType()>0 ) {
         Identifier stId((*detTV)[i]->layerRepresentation()->layerType());
-        if (  m_muonIdHelperTool->mdtIdHelper().stationName(stId) == m_muonIdHelperTool->mdtIdHelper().stationName(id) 
-	      && m_muonIdHelperTool->mdtIdHelper().stationEta(stId) == m_muonIdHelperTool->mdtIdHelper().stationEta(id) 
-	      && m_muonIdHelperTool->mdtIdHelper().stationPhi(stId) == m_muonIdHelperTool->mdtIdHelper().stationPhi(id) ) {
+        if (  m_idHelperSvc->mdtIdHelper().stationName(stId) == m_idHelperSvc->mdtIdHelper().stationName(id) 
+	      && m_idHelperSvc->mdtIdHelper().stationEta(stId) == m_idHelperSvc->mdtIdHelper().stationEta(id) 
+	      && m_idHelperSvc->mdtIdHelper().stationPhi(stId) == m_idHelperSvc->mdtIdHelper().stationPhi(id) ) {
 	  station = (*detTV)[i]; break;
         }
       }
@@ -1302,28 +1290,28 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::match(Identifier id, const Trk::L
   
   Identifier layId(lay->layerType());
   
-  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id) && m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) { 
+  if (m_idHelperSvc->isMdt(id) && m_idHelperSvc->isMdt(layId) ) { 
     
-    if (m_muonIdHelperTool->mdtIdHelper().multilayer(layId) == m_muonIdHelperTool->mdtIdHelper().multilayer(id)
-	&& m_muonIdHelperTool->mdtIdHelper().tubeLayer(layId)  == m_muonIdHelperTool->mdtIdHelper().tubeLayer(id) ) return lay;
+    if (m_idHelperSvc->mdtIdHelper().multilayer(layId) == m_idHelperSvc->mdtIdHelper().multilayer(id)
+	&& m_idHelperSvc->mdtIdHelper().tubeLayer(layId)  == m_idHelperSvc->mdtIdHelper().tubeLayer(id) ) return lay;
   }
   
-  if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id) && m_muonIdHelperTool->rpcIdHelper().is_rpc(layId) ) { 
+  if (m_idHelperSvc->isRpc(id) && m_idHelperSvc->isRpc(layId) ) { 
     
-    if (   m_muonIdHelperTool->rpcIdHelper().doubletR(layId) == m_muonIdHelperTool->rpcIdHelper().doubletR(id)
-	   && m_muonIdHelperTool->rpcIdHelper().doubletZ(layId) == m_muonIdHelperTool->rpcIdHelper().doubletZ(id)
-	   && m_muonIdHelperTool->rpcIdHelper().gasGap(layId) == m_muonIdHelperTool->rpcIdHelper().gasGap(id) ) return lay;
+    if (   m_idHelperSvc->rpcIdHelper().doubletR(layId) == m_idHelperSvc->rpcIdHelper().doubletR(id)
+	   && m_idHelperSvc->rpcIdHelper().doubletZ(layId) == m_idHelperSvc->rpcIdHelper().doubletZ(id)
+	   && m_idHelperSvc->rpcIdHelper().gasGap(layId) == m_idHelperSvc->rpcIdHelper().gasGap(id) ) return lay;
   }
   
-  if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id) && m_muonIdHelperTool->tgcIdHelper().is_tgc(layId) ) { 
+  if (m_idHelperSvc->isTgc(id) && m_idHelperSvc->isTgc(layId) ) { 
     
-    if ( m_muonIdHelperTool->tgcIdHelper().gasGap(layId) == m_muonIdHelperTool->tgcIdHelper().gasGap(id) ) return lay;
+    if ( m_idHelperSvc->tgcIdHelper().gasGap(layId) == m_idHelperSvc->tgcIdHelper().gasGap(id) ) return lay;
   }
   
-  if (m_muonIdHelperTool->cscIdHelper().is_csc(id) && m_muonIdHelperTool->cscIdHelper().is_csc(layId) ) { 
+  if (m_idHelperSvc->isCsc(id) && m_idHelperSvc->isCsc(layId) ) { 
     
-    if (   m_muonIdHelperTool->cscIdHelper().chamberLayer(layId) == m_muonIdHelperTool->cscIdHelper().chamberLayer(id)
-	   && m_muonIdHelperTool->cscIdHelper().wireLayer(layId) == m_muonIdHelperTool->cscIdHelper().wireLayer(id) ) return lay;
+    if (   m_idHelperSvc->cscIdHelper().chamberLayer(layId) == m_idHelperSvc->cscIdHelper().chamberLayer(id)
+	   && m_idHelperSvc->cscIdHelper().wireLayer(layId) == m_idHelperSvc->cscIdHelper().wireLayer(id) ) return lay;
   }
   
   return mLay;
@@ -1361,7 +1349,7 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
   
   const Trk::TrackParameters* detElPar = layerToDetEl( layer, layPar, rio->identify() );
   if (!detElPar) return res;
-  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(rio->identify())) {
+  if (m_idHelperSvc->isMdt(rio->identify())) {
     res = fabs( detElPar->localPosition()[Trk::locR] - rio->localParameters()[Trk::locR] );
   } else {
     res = fabs( detElPar->localPosition()[Trk::locX] - rio->localParameters()[Trk::locX]);
@@ -1387,16 +1375,16 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
   
   const Trk::TrackParameters* detElPar = layerToDetEl( layer, layPar, id );
   if (!detElPar) return res;
-  if (m_muonIdHelperTool->mdtIdHelper().is_mdt(id)) {
+  if (m_idHelperSvc->isMdt(id)) {
     res = detElPar->localPosition()[Trk::locR] ;
-  } else if (m_muonIdHelperTool->rpcIdHelper().is_rpc(id)) {
+  } else if (m_idHelperSvc->isRpc(id)) {
     const MuonGM::RpcReadoutElement* rpcROE = MuonDetMgr->getRpcReadoutElement(id);
     if (rpcROE) res = detElPar->localPosition()[Trk::locX] - (detElPar->associatedSurface().transform().inverse()*(rpcROE->stripPos(id)))[Trk::locX];
-  } else if (m_muonIdHelperTool->cscIdHelper().is_csc(id)) {
+  } else if (m_idHelperSvc->isCsc(id)) {
     const MuonGM::CscReadoutElement* cscROE = MuonDetMgr->getCscReadoutElement(id);
     if (cscROE) res = detElPar->localPosition()[Trk::locX] - (detElPar->associatedSurface().transform().inverse()*(cscROE->stripPos(id)))[0];
-  } else if (m_muonIdHelperTool->tgcIdHelper().is_tgc(id)) {
-    if ( m_muonIdHelperTool->tgcIdHelper().isStrip(id) && m_muonIdHelperTool->tgcIdHelper().gasGap(id)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(id)==3 ) {
+  } else if (m_idHelperSvc->isTgc(id)) {
+    if ( m_idHelperSvc->tgcIdHelper().isStrip(id) && m_idHelperSvc->tgcIdHelper().gasGap(id)==2 && m_idHelperSvc->tgcIdHelper().gasGapMax(id)==3 ) {
       delete detElPar;
       return res;  // no phi strips here
     }

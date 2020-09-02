@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_DCSConditionsTempCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -21,11 +19,11 @@ StatusCode SCT_DCSConditionsTempCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
 
-  if (m_returnHVTemp.value()) {
-    // Read Cond Handle
-    ATH_CHECK(m_readKey.initialize());
-    // Write Cond Handles
-    ATH_CHECK(m_writeKey.initialize());
+  // Read Cond Handle
+  ATH_CHECK(m_readKey.initialize(m_returnHVTemp));
+  // Write Cond Handles
+  ATH_CHECK(m_writeKey.initialize(m_returnHVTemp));
+  if (m_returnHVTemp) {
     if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
       return StatusCode::FAILURE;
@@ -38,7 +36,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::initialize() {
 StatusCode SCT_DCSConditionsTempCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("execute " << name());
 
-  if (not m_returnHVTemp.value()) {
+  if (not m_returnHVTemp) {
     return StatusCode::SUCCESS;
   }
 
@@ -59,14 +57,10 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute(const EventContext& ctx) const 
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  // Get the validitiy range
-  EventIDRange rangeW;
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  ATH_MSG_INFO("Range of input is " << rangeW);
+  ATH_MSG_INFO("Range of input is " << readHandle.getRange());
   
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
@@ -89,13 +83,13 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute(const EventContext& ctx) const 
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

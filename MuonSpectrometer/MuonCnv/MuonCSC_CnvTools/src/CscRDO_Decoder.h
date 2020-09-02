@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDO_DECODER_H
@@ -9,6 +9,7 @@
 #include "CscCalibTools/ICscCalibTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CSCcabling/CSCcablingSvc.h"
@@ -16,7 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "CSCcabling/CSCcablingSvc.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <inttypes.h>
 #include <vector>
@@ -56,8 +57,7 @@ namespace Muon {
 
   private:
     std::string m_detdescr;
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<CSCcablingSvc>       m_cabling{this, "CSCcablingSvc", "CSCcablingSvc", "CSC cabling service handle"};
     ToolHandle<ICscCalibTool>          m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", "CSC calibration tool handle"};
     double   m_timeOffset   ;

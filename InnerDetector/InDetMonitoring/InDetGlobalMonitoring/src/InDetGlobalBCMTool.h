@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalBCMTool.h
@@ -141,10 +141,11 @@ private:
     class deltat_data{
     public: 
       unsigned int bcid;
+      unsigned int bcid_max;
       unsigned int ecr;
       unsigned int position;
       unsigned int detector;
-	unsigned int lvl1a;
+      unsigned int lvl1a;
       deltat_data();
       bool operator<(const deltat_data &data);
       // deltat_data min(const deltat_data &data);

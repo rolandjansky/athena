@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -52,7 +52,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     
     if 'dPhi15' in chainDict['topo']:
         EFChainName = 'EF_2g_OvlRem_dPhi15'
-        from TrigGenericAlgs.TrigGenericAlgsConfig import OverlapRemovalConfig
+        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import OverlapRemovalConfig
         OverlapRemoval_algo = OverlapRemovalConfig('OvlRem', MinPhiDist = 1.5, MinEtaDist = 0)
     
         theChainDef.addSequence([OverlapRemoval_algo],inputTEsEF,EFChainName)

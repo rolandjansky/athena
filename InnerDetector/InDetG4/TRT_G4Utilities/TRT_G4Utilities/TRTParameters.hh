@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,9 +9,9 @@
 #include "globals.hh"
 #include <map>
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
-
-class TRTParameters
+class ATLAS_NOT_THREAD_SAFE TRTParameters // static variable and thread unsafe exit are used.
 {
 public:
   ~TRTParameters();
@@ -49,7 +49,7 @@ private:
   
   static TRTParameters* s_pParameters;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

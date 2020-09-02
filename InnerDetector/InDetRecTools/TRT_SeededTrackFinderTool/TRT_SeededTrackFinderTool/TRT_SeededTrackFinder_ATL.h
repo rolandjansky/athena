@@ -35,13 +35,10 @@
 //Magnetic field
 //
 #include "TrkGeometry/MagneticFieldProperties.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Si Tools
 //
@@ -65,7 +62,6 @@ namespace Trk{
   class IUpdator;
   class IPropagator;
   class IRIO_OnTrackCreator;
-  class IMagFieldSvc;
 }
 
 namespace InDet{
@@ -73,14 +69,14 @@ namespace InDet{
   class SiCombinatorialTrackFinderData_xk;
 
   /**
-  @class TRT_SeededTrackFinder_ATL 
-  
+  @class TRT_SeededTrackFinder_ATL
+
   InDet::TRT_SeededTrackFinderATL is an algorithm which produces tracks
   along the road of InDetDD::SiDetectorElement* sorted in propagation order.
-  @author Thomas.Koffas@cern.ch     
+  @author Thomas.Koffas@cern.ch
   */
 
-  class TRT_SeededTrackFinder_ATL : 
+  class TRT_SeededTrackFinder_ATL :
 
     virtual public ITRT_SeededTrackFinder, public AthAlgTool
     {
@@ -89,7 +85,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
     public:
-            
+
       ///////////////////////////////////////////////////////////////////
       /** Standard tool methods                                        */
       ///////////////////////////////////////////////////////////////////
@@ -160,16 +156,12 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       /** Protected Data                                               */
       ///////////////////////////////////////////////////////////////////
-      
+
       std::string                         m_fieldmode     ;  /** Magnetic field mode       */
 
       Trk::MagneticFieldProperties        m_fieldprop     ;  /** Magnetic field properties */
 
       /** Tools used  */
-      ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle  ;  /** Magnetic field tool */
-      
-      MagField::IMagFieldSvc*                m_fieldService;
-
 
       ToolHandle<InDet::ISiDetElementsRoadMaker>     m_roadmaker  ;  /** Road maker tool     */
       ToolHandle<InDet::ITRT_SeededSpacePointFinder> m_seedmaker  ;  /** Seed maker tool     */
@@ -177,7 +169,8 @@ namespace InDet{
       ToolHandle<Trk::IUpdator>                      m_updatorTool;  /** Updator tool        */
       ToolHandle<InDet::ISiCombinatorialTrackFinder> m_tracksfinder; /** Combinatorial track finder tool */
 
-      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj",
+        "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
       /**ID TRT helper*/
       const TRT_ID* m_trtId;
@@ -192,29 +185,29 @@ namespace InDet{
       int                                                      m_nclusmin      ; /** Min number clusters */
       int                                                      m_nwclusmin     ; /** Min number weighted clusters */
       bool                                                     m_bremCorrect   ; /** Optional Brem correction */
-      bool                                                     m_propR         ; /** Check seed-TRT segment consistency at large etas */ 
+      bool                                                     m_propR         ; /** Check seed-TRT segment consistency at large etas */
       bool                                                     m_useassoTool   ; /** Use prd-track association tool */
-      InDet::TrackQualityCuts                                  m_trackquality  ; 
+      InDet::TrackQualityCuts                                  m_trackquality  ;
       std::vector<double>                                      m_errorScale    ; /** Optional error scaling of track parameters  */
       double                                                   m_outlierCut    ; /** Outlier chi2 cut when propagating through the seed */
       bool                                                     m_searchInCaloROI; /** Outlier chi2 cut when propagating through the seed */
-      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputClusterContainerName {this,"InputClusterContainerName","InDetCaloClusterROIs", "RHK for CaloClusterROI_Collection"}; 
+      SG::ReadHandleKey<CaloClusterROI_Collection> m_inputClusterContainerName {this,"InputClusterContainerName","InDetCaloClusterROIs", "RHK for CaloClusterROI_Collection"};
 
       ///////////////////////////////////////////////////////////////////
       /** Private Methods                                              */
       ///////////////////////////////////////////////////////////////////
 
       /** Get Magnetic field properties  */
-      void magneticFieldInit(); 
+      void magneticFieldInit();
 
       /** Update track parameters through space point propagation  */
-       const Trk::TrackParameters*                            getTP(const Trk::SpacePoint*,
+       const Trk::TrackParameters*                            getTP(MagField::AtlasFieldCache& fieldCache, const Trk::SpacePoint*,
                                                                     const Trk::TrackParameters*,
                                                                     bool&,
                                                                     InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
 
       /** Find the corresponding list of Si tracks  */
-      std::list<Trk::Track*>                                 findTrack(const EventContext& ctx,
+      std::list<Trk::Track*>                                 findTrack(const EventContext& ctx, MagField::AtlasFieldCache& fieldCache,
                                                                        InDet::TRT_SeededTrackFinder_ATL::EventData &event_data,
                                                                        const Trk::TrackParameters*,const Trk::TrackSegment&) const;
 
@@ -252,7 +245,7 @@ namespace InDet{
 
       /** Eliminate spurious Pixel clusters in track  */
       std::list<Trk::Track*>                                 cleanTrack(std::list<Trk::Track*>) const;
-      
+
       /** aalonso: Only propagete to the Si if the TRT segment is compatible with a calo measurement */
       bool isCaloCompatible(const Trk::TrackParameters&, const InDet::TRT_SeededTrackFinder_ATL::EventData &event_data) const;
       double m_phiWidth                              ;

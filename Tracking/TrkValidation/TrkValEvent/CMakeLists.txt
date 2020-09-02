@@ -9,17 +9,17 @@ atlas_subdir( TrkValEvent )
 atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack )
+                          Tracking/TrkEvent/TrkTrack 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( TrkValEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrkValEvent
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} TrkEventPrimitives TrkParameters TrkTrack )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib TrkEventPrimitives TrkParameters TrkTrack )
 

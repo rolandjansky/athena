@@ -12,9 +12,9 @@
 #include "TruthJetFilterTool.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "boost/range/iterator_range_core.hpp"
 #include <utility>

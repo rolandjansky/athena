@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_STOREGATE_H
@@ -28,11 +28,11 @@ public:
   static ActiveStoreSvc* activeStoreSvc();
   /** multipleton: get a store by name
    * @param sgID name of the StoreGateSvc ptr to be returned */ 
-  static StoreGateSvc* pointer(std::string sgID); 
+  static StoreGateSvc* pointer(const std::string& sgID); 
   /** multipleton: get a store by name
    *  @param sgID name of the StoreGateSvc ptr to be returned 
    *  @throws std::runtime_error if not found*/ 
-  static StoreGateSvc& instance(std::string sgID);
+  static StoreGateSvc& instance(const std::string& sgID);
   
   friend class NullType; //remove compiler warning
 

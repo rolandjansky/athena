@@ -75,6 +75,14 @@ namespace Muon {
     /** @brief returns whether this is a sTGC Identifier or not */
     virtual bool issTgc( const Identifier& id ) const = 0;
 
+    /** @brief returns whether this is a sMDT Identifier or not */
+    virtual bool issMdt( const Identifier& id ) const = 0;
+
+    /** @brief returns whether this Identifier belongs to an MDT with HPTDC or not
+        NOTE that in Run4, no HPTDCs at all are planned to be present any more,
+        so this function should be obsolete from Run4 onwards */
+    virtual bool hasHPTDC( const Identifier& id ) const = 0;
+
     /** @brief returns whether channel measures phi or not */
     virtual bool measuresPhi( const Identifier& id ) const = 0;
     
@@ -143,6 +151,12 @@ namespace Muon {
 
     /** @brief Return stationEta for all technologies */
     virtual int stationEta( const Identifier& id ) const = 0;
+
+    /** @brief Return stationName for all technologies */
+    virtual int stationName( const Identifier& id ) const = 0;
+
+    /** @brief Return stationRegion for all technologies */
+    virtual int stationRegion( const Identifier& id ) const = 0;
 
     /** @brief return sector number 1-16, odd=large, even=small */
     virtual int sector( const Identifier& id ) const = 0;

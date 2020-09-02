@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import sys,os,getopt
 def usage():
     use = "usage: %s [-h] [-p] [-f] [[trf_name] [trf_name]]" % os.path.basename(sys.argv[0])
-    print use + """
+    print(use + """
     
 Print a list of available jobtransforms, or find a specific one. Wildcards allowed.
 If <trf_name> does not end with _trf.py, this will be added before searching.
@@ -12,7 +13,7 @@ Options:
  -h : Print this help message
  -f : Print full path name.
  -p : Look in PYTHONPATH and include package name in front of trf name (for import in python)
-      If combined with option -f, print full path of python module."""
+      If combined with option -f, print full path of python module.""")
 
 
 showPython = False
@@ -61,11 +62,10 @@ for f in filelist:
     for full in found:
         trf = os.path.basename(full)
         if showPath:
-            print full
+            print(full)
         elif showPython:
             dir = os.path.dirname(full)
             package = os.path.basename(dir)
-            print '%s ' % os.path.join(package,trf)
+            print('%s ' % os.path.join(package,trf))
         else:
-            print trf
-            
+            print(trf)

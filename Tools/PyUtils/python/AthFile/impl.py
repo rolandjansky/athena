@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/AthFile/impl.py
 # @purpose a simple abstraction of a file to retrieve informations out of it
@@ -7,18 +7,14 @@
 
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
 import errno
 import os
-import subprocess
-import sys
 import six
 
 import PyUtils.Helpers as H
-from PyUtils.Helpers    import ShutUp
 from .timerdecorator import timelimit, TimeoutError
 
 # see bug #95942 for the excruciating details
@@ -26,7 +22,7 @@ try:
     from AthenaCommon.Include import excludeTracePattern
     excludeTracePattern.append("*cache.ascii.gz")
     del excludeTracePattern
-except:
+except Exception:
     pass
 
 ### globals -------------------------------------------------------------------
@@ -45,9 +41,9 @@ DEFAULT_AF_TIMEOUT = 20
 # to prevent interoperability problems if we then read with python3.
 def _clean_dict (d):
     for k, v in d.items():
-        if type(v) == type({}):
+        if isinstance(v, dict):
             _clean_dict(v)
-        elif type(v) == type([]):
+        elif isinstance(v, list):
             _clean_list(v)
         elif type(v) in six.integer_types:
             d[k] = int(v)
@@ -55,9 +51,9 @@ def _clean_dict (d):
 def _clean_list (l):
     for i in range(len(l)):
         v = l[i]
-        if type(v) == type({}):
+        if isinstance(v, dict):
             _clean_dict(v)
-        elif type(v) == type([]):
+        elif isinstance(v, list):
             _clean_list(v)
         elif type(v) in six.integer_types:
             l[i] = int(v)
@@ -90,16 +86,14 @@ def _my_open(name, mode='r', bufsiz=-1):
     
 def _find_file(filename, pathlist, access):
     """Find <filename> with rights <access> through <pathlist>."""
-    import os
-    import os.path as osp
     # special case for those filenames that already contain a path
-    if osp.dirname(filename):
+    if os.path.dirname(filename):
         if os.access(filename, access):
             return filename
 
     # test the file name in all possible paths until first found
     for path in pathlist:
-        f = osp.join(path, filename)
+        f = os.path.join(path, filename)
         if os.access(f, access):
             return f
 
@@ -449,7 +443,7 @@ class AthFileServer(object):
 
     def pfopen(self, fnames, evtmax=1):
         if isinstance(fnames, (list, tuple)):
-            self.msg().debug("using mp.pool... (files=%s)" % len(fnames))
+            self.msg().debug("using mp.pool... (files=%s)", len(fnames))
             fct = _do_fopen
             do_pers_cache = self._do_pers_cache
             self.disable_pers_cache()
@@ -593,8 +587,7 @@ class AthFileServer(object):
     def fname(self, fname):
         """take a file name, return the pair (protocol, 'real' file name)
         """
-        import os.path as osp
-        fname = osp.expanduser(osp.expandvars(fname))
+        fname = os.path.expanduser(os.path.expandvars(fname))
 
         msg = self.msg()
         
@@ -607,7 +600,6 @@ class AthFileServer(object):
         url = urlsplit(_normalize_uri(fname))
         protocol = url.scheme
         def _normalize(fname):
-            import os.path as osp
             from posixpath import normpath
             fname = normpath(fname)
             if fname.startswith('//'): fname = fname[1:]
@@ -667,7 +659,6 @@ class AthFileServer(object):
         msg = self.msg()
         self._do_pers_cache = True
         
-        import os
         fname = DEFAULT_AF_CACHE_FNAME
         if (fname and
             os.path.exists(fname) and
@@ -692,7 +683,6 @@ class AthFileServer(object):
         if not self._do_pers_cache:
             return
         msg = self.msg()
-        import os
         fname = DEFAULT_AF_CACHE_FNAME
         if not fname:
             # protect against empty or invalid (None) cache file names
@@ -729,11 +719,9 @@ class AthFileServer(object):
         extension of the `fname` parameter.
         defaults to py-ASCII.
         """
-        import os
-        import os.path as osp
         msg = self.msg()
 
-        ext = _get_real_ext(osp.basename(fname))
+        ext = _get_real_ext(os.path.basename(fname))
         if len(ext) == 0:
             # illegal file...
             msg.info('load_cache: invalid file [%s]', fname)
@@ -750,7 +738,7 @@ class AthFileServer(object):
         try:
             search_path = os.environ.get('DATAPATH',os.getcwd())
             search_path = search_path.split(os.pathsep)
-            fname = _find_file(osp.expanduser(osp.expandvars(fname)),
+            fname = _find_file(os.path.expanduser(os.path.expandvars(fname)),
                              search_path,
                              os.R_OK) or fname
         except ImportError:
@@ -758,7 +746,7 @@ class AthFileServer(object):
             pass
 
         # ensure one can read that file...
-        with open(fname, 'r') as file_handle:
+        with open(fname, 'r'):
             pass
 
         msg.debug('loading cache from [%s]...', fname)
@@ -780,7 +768,6 @@ class AthFileServer(object):
         falls back to py-ASCII.
         """
         msg = self.msg()
-        import os
         if os.path.exists(fname):
             os.rename(fname, fname+'.bak')
         ext = _get_real_ext(fname)
@@ -847,7 +834,7 @@ class AthFileServer(object):
         del ast
         try:
             cache = dct['fileinfos']
-        except Exception as err:
+        except Exception:
             raise
         finally:
             del dct
@@ -919,9 +906,6 @@ class AthFileServer(object):
         >>> af.ftype ('rfio:/castor/cern.ch/bs.data')
         ('bs', 'rfio:/castor/cern.ch/bs.data')
         """
-        msg = self.msg()
-        import os
-        import os.path as osp
 
         _is_root_file = None
         do_close = True
@@ -939,7 +923,6 @@ class AthFileServer(object):
                 ami_infos = self.fopen(fname).infos
                 return ami_infos['file_type'], fname
 
-            root = self.pyroot
             f = self._root_open(fname)
         else:
             do_close = False
@@ -972,9 +955,6 @@ class AthFileServer(object):
         >>> af.exists('/afs/cern.ch/atlas/offline/ReleaseData/v2/testfile/calib1_csc11.005200.T1_McAtNlo_Jimmy.digit.RDO.v12000301_tid003138._00016_extract_10evt.pool.root')
         True
         """
-        import os
-
-        msg = self.msg()
 
         def _root_exists(fname):
             exists = False
@@ -999,7 +979,7 @@ class AthFileServer(object):
         elif protocol in ('ami',):
             # FIXME: what else can we do ?
             try:
-                infos = ami_dsinfos(fname)
+                ami_dsinfos(fname)
                 return True
             except Exception:
                 return False
@@ -1042,8 +1022,6 @@ class FilePeeker(object):
         nentries = 0
         runs=[]
         evts=[]
-        import PyUtils.Helpers as H
-        root = self.pyroot
         do_close = True
         if isinstance(fname, str):
             f = self._root_open(fname, raw=False)
@@ -1064,7 +1042,7 @@ class FilePeeker(object):
         del schema
         metadata= f.Get('CollectionMetadata') if f else None
         if metadata:
-            nbytes = metadata.GetEntry(0)
+            metadata.GetEntry(0)
             # note: we used to use .rstrip('\0') b/c of the change in
             # semantics in PyROOT (char[] and const char* may not mean
             # the same thing)
@@ -1105,7 +1083,6 @@ class FilePeeker(object):
 
     def _is_empty_pool_file(self, fname):
         is_empty = False
-        root = self.pyroot
         do_close = True
         if isinstance(fname, str):
             f = self._root_open(fname, raw=False)
@@ -1125,7 +1102,6 @@ class FilePeeker(object):
         return is_empty
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
-        import os
         msg = self.msg()
         f = _create_file_infos()
         protocol, _ = self.server.fname(fname)
@@ -1138,7 +1114,6 @@ class FilePeeker(object):
         f_root = f_raw
         try:
             file_type, file_name = self.server.ftype(f_raw)
-            import os
 
             protocol,file_name = self.server.fname(fname)
             f['file_md5sum'] = self.server.md5sum(f_raw)
@@ -1168,7 +1143,6 @@ class FilePeeker(object):
                     else:
                         import tempfile
                         fd_pkl,out_pkl_fname = tempfile.mkstemp(suffix='.pkl')
-                        import os
                         os.close(fd_pkl)
                         if os.path.exists(out_pkl_fname):
                             os.remove(out_pkl_fname)
@@ -1204,7 +1178,6 @@ class FilePeeker(object):
                             'outfname': out_pkl_fname,
                             'evtmax': evtmax,
                             }
-                        import os
                         import uuid
                         stdout_fname = (
                             'athfile-%i-%s.log.txt' %
@@ -1240,7 +1213,6 @@ class FilePeeker(object):
                             db.close()
                             msg.info('extracting infos from [%s]... [ok]',
                                      out_pkl_fname)
-                            import os
                             os.remove(stdout.name)
                         else:
                             # maybe an empty file
@@ -1308,21 +1280,20 @@ class FilePeeker(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
             pass
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
             pass
 
         bs = ef.istream(fname)
 
         file_infos = _create_file_infos()
-        infos = []; _append = infos.append
         nentries = bs.total_events
         file_infos['nentries'] = nentries
         import uuid

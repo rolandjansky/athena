@@ -132,12 +132,12 @@ StatusCode ISF::TruthSvc::initializeTruthCollection()
 }
 
 /** Delete child vertex */
-void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex* vertex) const {
-  std::vector<HepMC::GenVertex*> verticesToDelete;
+void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertexPtr vertex) const {
+  std::vector<HepMC::GenVertexPtr> verticesToDelete;
   verticesToDelete.resize(0);
   verticesToDelete.push_back(vertex);
   for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
-    HepMC::GenVertex* vtx = verticesToDelete.at(i);
+    HepMC::GenVertexPtr vtx = verticesToDelete.at(i);
     for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
          iter != vtx->particles_out_const_end(); ++iter) {
       if( (*iter) && (*iter)->end_vertex() ) {
@@ -241,7 +241,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
 
   // record the GenVertex
   const bool replaceVertex(false);
-  HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti, replaceVertex);
+  HepMC::GenVertexPtr  vtx = createGenVertexFromTruthIncident(ti, replaceVertex);
   const ISF::InteractionClass_t classification = ti.interactionClassification();
 #ifdef DEBUG_TRUTHSVC
   const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
@@ -274,8 +274,8 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
     }
   }
 
-  HepMC::GenParticle *parentBeforeIncident = ti.parentParticle();
-  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC ); // This call changes ti.parentParticle() output
+  HepMC::GenParticlePtr  parentBeforeIncident = ti.parentParticle();
+  HepMC::GenParticlePtr  parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC ); // This call changes ti.parentParticle() output
   if(parentAfterIncident) {
     ATH_MSG_VERBOSE ( "Parent After Incident: " << *parentAfterIncident);
     if (classification==ISF::QS_SURV_VTX) {
@@ -292,7 +292,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
       ATH_MSG_INFO("New QS GenVertex 1: " << *(newVtx.get()) );
 #endif
       HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
-      newVtx->suggest_barcode( this->maxGeneratedVertexBarcode(mcEvent)-1 );
+      HepMC::suggest_barcode(newVtx.get(), this->maxGeneratedVertexBarcode(mcEvent)-1 );
 #ifdef DEBUG_TRUTHSVC
       ATH_MSG_INFO("New QSGenVertex 2: " << *(newVtx.get()) );
 #endif
@@ -332,14 +332,14 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
     ATH_MSG_VERBOSE("Existing vertex has " << nVertexChildren << " children. " <<
                  "Number of secondaries in current truth incident = " << numSec);
   }
-  const std::vector<HepMC::GenParticle*> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticle*>();
-  std::vector<HepMC::GenParticle*> matchedChildParticles;
+  const std::vector<HepMC::GenParticlePtr> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticlePtr>();
+  std::vector<HepMC::GenParticlePtr> matchedChildParticles;
   for ( unsigned short i=0; i<numSec; ++i) {
 
     bool writeOutChild = isQuasiStableVertex || m_passWholeVertex || ti.childPassedFilters(i);
 
     if (writeOutChild) {
-      HepMC::GenParticle *p = nullptr;
+      HepMC::GenParticlePtr  p = nullptr;
       if(isQuasiStableVertex) {
         //Find matching GenParticle in GenVertex
         const int childPDGcode= ti.childPdgCode(i);
@@ -393,7 +393,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
 }
 
 /** Record the given truth incident to the MC Truth */
-HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti,
+HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti,
                                                                    bool replaceExistingGenVertex) const {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
@@ -407,7 +407,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
   //  a new copy of the particle.  This is the agreed upon version of the quasi-stable particle truth, where
   //  the vertex at which we start Q-S simulation no longer conserves energy, but we keep both copies of the
   //  truth particles
-  HepMC::GenParticle *parent = ti.parentParticle();
+  HepMC::GenParticlePtr  parent = ti.parentParticle();
   if (!parent) {
     ATH_MSG_ERROR("Unable to write particle interaction to MC truth due to missing parent HepMC::GenParticle instance");
     abort();
@@ -430,7 +430,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
   }
   int vtxID = 1000 + static_cast<int>(processCode);
   std::unique_ptr<HepMC::GenVertex> vtx = std::make_unique<HepMC::GenVertex>( ti.position(), vtxID, weights );
-  vtx->suggest_barcode( vtxbcode );
+  HepMC::suggest_barcode( vtx.get(), vtxbcode );
 
   if (parent->end_vertex()){
     if(!m_quasiStableParticlesIncluded) {

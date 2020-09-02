@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "HIJetRec/HIJetDRAssociationTool.h"
+#include "HIJetDRAssociationTool.h"
 #include <iomanip>
 
 //**********************************************************************
@@ -10,38 +10,25 @@
 HIJetDRAssociationTool::HIJetDRAssociationTool(const std::string& n)
    :  JetModifierBase(n)
 {
-  declareProperty("ContainerKey",m_container_key);
-  declareProperty("AssociationName",m_assoc_name);
-  declareProperty("DeltaR", m_DR = 0.8);
-  declareProperty("ApplyFilter", m_apply_filter=false);
-  declareProperty("FilterMinE", m_E_min = -999);
-  declareProperty("FilterMinPt", m_pT_min = 0);
-
-
 }
 
 //**********************************************************************
 
+StatusCode HIJetDRAssociationTool::initialize()
+{
+   ATH_MSG_VERBOSE("HIJetDRAssociationTool initialize");
+   ATH_CHECK( m_containerKey.initialize( !m_containerKey.key().empty() ) );
+   return StatusCode::SUCCESS;
+}
 
 StatusCode HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
 {
 
   const xAOD::IParticleContainer* ppars=0;
-  if ( evtStore()->contains<xAOD::IParticleContainer>(m_container_key) ) 
-  {
-    ATH_MSG_DEBUG("Retrieving xAOD container " << m_container_key );
-    ppars = evtStore()->retrieve<const xAOD::IParticleContainer>(m_container_key);
-    if (!ppars)
-    {
-      ATH_MSG_ERROR("Failed to retrieve xAOD container " << m_container_key );
-      return StatusCode::FAILURE;
-    }
-  }
-  else
-  {
-    ATH_MSG_ERROR("Failed to retrieve xAOD container " << m_container_key );
-    return StatusCode::FAILURE;
-  }
+
+    ATH_MSG_DEBUG("Retrieving xAOD container " << m_containerKey.key() );
+    SG::ReadHandle<xAOD::IParticleContainer>  readHandlePcontainer ( m_containerKey );
+    ppars = readHandlePcontainer.get();
 
   for (xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ijet++)
   {
@@ -52,8 +39,7 @@ StatusCode HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
       const xAOD::IParticle* ap=(*pItr);
       if(theJet->p4().DeltaR( ap->p4()) < m_DR) ParticleVector.push_back(ap);
     }
-    theJet->setAssociatedObjects(m_assoc_name,ParticleVector);
+    theJet->setAssociatedObjects(m_assocName,ParticleVector);
   }
   return StatusCode::SUCCESS;
-} 
-
+}

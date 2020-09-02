@@ -36,7 +36,9 @@ atlas_depends_on_subdirs(
    Reconstruction/Particle
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-   Tracking/TrkEvent/VxVertex )
+   Tracking/TrkEvent/VxVertex
+   MagneticField/MagFieldElements
+   MagneticField/MagFieldConditions)
 
 # Component(s) in the package:
 atlas_add_library( TrkParticleCreatorLib
@@ -56,4 +58,4 @@ atlas_add_component( TrkParticleCreator
    AthContainers AtlasDetDescr GeoPrimitives IdDictDetDescr InDetPrepRawData
    InDetRIO_OnTrack MagFieldInterfaces Particle ITrackToVertex TrkSurfaces
    TrkPseudoMeasurementOnTrack VxVertex TrkExInterfaces PixelGeoModelLib
-   TrkParticleCreatorLib )
+   TrkParticleCreatorLib MagFieldElements MagFieldConditions BeamSpotConditionsData )

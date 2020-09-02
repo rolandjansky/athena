@@ -8,7 +8,7 @@
 
 from __future__ import print_function
 
-import getopt,sys,os
+import getopt,sys,os,bisect
 os.environ['TERM'] = 'linux'
 
 def usage():
@@ -20,10 +20,16 @@ def usage():
     print ("-t, --tag=      specify tag to use, default is RUN2-HLT-UPD1-00")
     print ("-r, --run=      specify run  number, default is 0")
     print ("-l, --lumi=     specify lumi block number, default is 0")
+    print ("-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov")
+    print ("-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov")
+    print ("-L, --endlumi=  specify lumi block number for last iov in multi-iov mode, default is 0")
+    print ("-A, --adjust    in multi-iov mode adjust iov boundaries to nearest iov available in DB, default is False")
+    print ("-M, --module=   specify module to use in multi-IOV update, default is all")
     print ("-m, --mode=     specify update mode: 1 or 2; if not set - choosen automatically, depending on schema")
-    print ("-c, --comment=    specify comment which should be written to DB")
+    print ("-c, --comment=    specify comment which should be written to DB, in multi-iov mode it is appended to old comment")
+    print ("-C, --Comment=    specify comment which should be written to DB, in mutli-iov mode it overwrites old comment")
     print ("-U, --user=       specify username for comment")
-    print ("-e, --execfile=   specify python file which should be executed, default is bch.py")
+    print ("-x, --execfile=   specify python file which should be executed, default is bch.py")
     print ("-i, --inschema=   specify the input schema to use, default is 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=CONDBR2'")
     print ("-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
     print ("-n, --online      write additional sqlite file with online bad channel status")
@@ -31,9 +37,9 @@ def usage():
     print ("-v, --verbose     verbose mode")
     print ("-s, --schema=     specify input/output schema to use when both input and output schemas are the same")
     print ("-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated")
-    
-letters = "hr:l:m:s:i:o:t:f:e:c:U:npvu"
-keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","user=","online","upd4","verbose","update"]
+
+letters = "hr:l:b:e:L:AM:m:s:i:o:t:f:x:c:C:U:npvu"
+keywords = ["help","run=","lumi=","begin=","end=","endlumi=","adjust","module=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","Comment=","user=","online","upd4","verbose","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
@@ -42,7 +48,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = -1
 lumi = 0
 mode = 0
@@ -56,8 +62,16 @@ curSuffix = ""
 tag = "UPD1"
 execFile = "bch.py"
 comment = ""
+Comment = None
 verbose = False
 update = False
+iov = False
+beg = 0
+end = 2147483647
+endlumi = 0
+moduleList = []
+adjust = False
+
 try:
     user=os.getlogin()
 except Exception:
@@ -86,11 +100,26 @@ for o, a in opts:
         run = int(a)
     elif o in ("-l","--lumi"):
         lumi = int(a)
+    elif o in ("-b","--begin"):
+        beg = int(a)
+        iov = True
+    elif o in ("-e","--end"):
+        end = int(a)
+        iov = True
+    elif o in ("-L","--endlumi"):
+        endlumi = int(a)
+    elif o in ("-A","--adjust"):
+        adjust = True
+    elif o in ("-M","--module"):
+        moduleList += a.split(",")
     elif o in ("-m","--mode"):
         mode = int(a)
-    elif o in ("-e","--execfile"):
+    elif o in ("-x","--execfile"):
         execFile = a
     elif o in ("-c","--comment"):
+        comment = a
+    elif o in ("-C","--Comment"):
+        Comment = a
         comment = a
     elif o in ("-U","--user"):
         user = a
@@ -103,7 +132,7 @@ for o, a in opts:
         assert False, "unhandeled option"
 
 onl=("/TILE/ONL01" in folderPath)
-if onl: 
+if onl:
     if inSchema == oraSchema:
         inSchema = inSchema.replace("COOLOFL","COOLONL")
     oraSchema = oraSchema.replace("COOLOFL","COOLONL")
@@ -117,7 +146,12 @@ update = update or (inSchema==outSchema)
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
-from TileCalibBlobObjs.Classes import TileBchPrbs, TileBchDecoder
+from TileCalibBlobObjs.Classes import TileBchPrbs, TileBchDecoder, TileCalibUtils
+
+if iov and end >= TileCalibTools.MAXRUN:
+    end = TileCalibTools.MAXRUN
+    endlumi = TileCalibTools.MAXLBK
+until = (TileCalibTools.MAXRUN,TileCalibTools.MAXLBK)
 
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("WriteBchToCool")
@@ -126,12 +160,125 @@ log.setLevel(logging.DEBUG)
 
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
 folderTag = TileCalibTools.getFolderTag(dbr, folderPath, tag)
+log.info("Initializing bad channels from %s folder %s with tag %s", inSchema, folderPath, tag)
 
-if run < 0:
-    since = (TileCalibTools.MAXRUN, TileCalibTools.MAXLBK - 1) 
+iovList = []
+iovUntil = []
+iovListMOD = []
+iovListCMT = []
+iovUntilCMT = []
+blobReader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
+if iov:
+    #=== filling the iovList
+    log.info( "Looking for IOVs" )
+    if moduleList!=['CMT']:
+        for ros in range(1,5):
+            for mod in range(0,64):
+                modName = TileCalibUtils.getDrawerString(ros,mod)
+                if len(moduleList)>0 and modName not in moduleList and 'ALL' not in moduleList:
+                    continue
+                iovList += blobReader.getIOVsWithinRange(ros,mod)
+    if 'CMT' in moduleList:
+        iovListMOD = iovList
+        iovListCMT = blobReader.getIOVsWithinRange(-1,1000)
+        if len(iovList)==0:
+            iovList = iovListCMT
+
+    import functools
+    def compare(item1,item2):
+        if item1[0]!=item2[0]:
+            return item1[0]-item2[0]
+        else:
+            return item1[1]-item2[1]
+    iovList=list(set(iovList))
+    iovList=sorted(iovList,key=functools.cmp_to_key(compare))
+    iovList+=[until]
+    iovListCMT+=[until]
+
+    since=(beg,lumi)
+    ib=bisect.bisect(iovList,since)-1
+    if ib<0:
+        ib=0
+    if iovList[ib] != since:
+        if adjust:
+            since = iovList[ib]
+            log.info( "Moving beginning of first IOV with new bad channels from (%d,%d) to (%d,%d)", beg,lumi,since[0],since[1])
+        else:
+            iovList[ib] = since
+            log.info( "Creating new IOV starting from (%d,%d) with new bad channels", beg,lumi)
+
+    if end<0:
+        ie=ib+1
+        if ie>=len(iovList):
+            ie=ib
+        until=iovList[ie]
+        log.info( "Next IOV without new bad channels starts from (%d,%d)", until[0],until[1])
+    else:
+        until=(end,endlumi)
+        ie=bisect.bisect_left(iovList,until)
+        if ie>=len(iovList):
+            ie=len(iovList)-1
+
+        if iovList[ie] != until:
+            if adjust:
+                until=iovList[ie]
+                log.info( "Moving end of last IOV from (%d,%d) to (%d,%d)", end,endlumi,until[0],until[1])
+            else:
+                log.info( "Keeping end of last IOV at (%d,%d) - new IOV is shorter than IOV in input DB", end,endlumi)
+                iovList[ie] = until
+
+
+    iovList = iovList[ib:ie]
+    iovUntil = iovList[1:] + [until]
+    begin = since
+    run = since[0]
+    lumi = since[1]
+    log.info( "IOVs: %s", str(iovList) )
+
+    if len(iovListMOD)>0 and len(iovListCMT)>0:
+        if Comment is None:
+            iovList += [until]  # one more IOV for "UNDO" comment
+            iovUntil += [until] # one more IOV for "UNDO" comment
+        iovUntilCMT = []
+        for io,since in enumerate(iovList):
+            p = bisect.bisect(iovListCMT,since)
+            if p<len(iovListCMT):
+                iovUntilCMT += [iovListCMT[p]]
+                if iovUntil[io] != iovListCMT[p]:
+                    log.info( "End of iov %s in comments record is %s", str(since),str(iovListCMT[p]))
+            else:
+                if since!=until:
+                    iovUntilCMT += [since]
+                else:
+                    iovList.pop(-1)
+                    break
+    else:
+        iovUntilCMT = iovUntil
+
+    log.info( "%d IOVs in total, end of last IOV is %s", ie-ib,str(until))
+
 else:
+    #=== set run number
+    if run<0:
+        lumi=0
+        if "UPD4" in folderTag:
+            run=TileCalibTools.getPromptCalibRunNumber()
+            log.warning( "Run number is not specified, using minimal run number in calibration loop %d", run )
+        else:
+            run=TileCalibTools.getLastRunNumber()
+            log.warning( "Run number is not specified, using current run number %d", run )
+        if run<0:
+            log.error( "Bad run number" )
+            sys.exit(2)
+
     since = (run, lumi)
-until = (TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
+    iovList = [since]
+    iovUntil = [until]
+    iovUntilCMT = [until]
+    begin=since
+
+    log.info("Initializing for run %d, lumiblock %d", run,lumi)
+
 
 if mode == 0:
     if inSchema == outSchema:
@@ -144,11 +291,21 @@ elif mode != 1 and mode != 2:
 
 #=== create bad channel manager
 log.info("")
-log.info("Initializing bad channels from %s", inSchema)
-log.info("with tag=%s and IOV=%s", folderTag, since)
-mgr = TileBchTools.TileBchMgr()
-mgr.setLogLvl(logging.DEBUG)
-mgr.initialize(dbr, folderPath, folderTag, since, mode)
+comments = []
+mgrWriters = []
+nvalUpdated = []
+commentsSplit = []
+for since in iovList:
+    comm=blobReader.getComment(since)
+    #log.info("Comment: %s", comm)
+    comments+=[comm]
+    nvalUpdated += [0]
+    commentsSplit+=[blobReader.getComment(since,True)]
+    mgr = TileBchTools.TileBchMgr()
+    mgr.setLogLvl(logging.DEBUG)
+    mgr.initialize(dbr, folderPath, folderTag, since, mode)
+    mgrWriters += [mgr]
+log.info("")
 
 #=== Tuples of empty channels
 emptyChannelLongBarrel =     (30, 31, 43)
@@ -164,7 +321,7 @@ emptyChannelExtendedBarrel = (18, 19, 24, 25, 26, 27, 28, 29, 33, 34, 42, 43, 44
 # adc: 0 = low gain, 1 = high gain.
 
 #=== print bad channels
-if verbose:
+if verbose and not iov:
     log.info("============================================================== ")
     log.info("bad channels before update")
     mgr.listBadAdcs()
@@ -172,45 +329,71 @@ if verbose:
 #=== Add problems with mgr.addAdcProblem(ros, drawer, channel, adc, problem)
 #=== Remove problems with mgr.delAdcProblem(ros, drawer, channel, adc, problem)
 
-if run<0:
-    if "UPD4" in folderTag:
-        run=TileCalibTools.getPromptCalibRunNumber()
-        log.warning( "Run number is not specified, using minimal run number in calibration loop %d", run )
-    else:
-        run=TileCalibTools.getLastRunNumber()
-        log.warning( "Run number is not specified, using current run number %d", run )
-    if run<0:
-        log.error( "Bad run number" )
-        sys.exit(2)
-since = (run, lumi)
 
 if len(execFile):
     log.info("Masking new bad channels, including file %s", execFile )
-
-    try:
-        exec(compile(open(execFile).read(),execFile,'exec'))
-        if len(comment)==0:
-            log.error( "Comment string is not provided, pleae put comment='bla-bla-bla' line in %s", execFile )
-            sys.exit(2)
-    except Exception as e:
-        log.error( e )
-        log.error( "Problem reading include file %s", execFile )
-        sys.exit(2)
-
-    #=== print bad channels
-    if verbose:
-        log.info("============================================================== ")
-        log.info("bad channels after update")
-        mgr.listBadAdcs()
-
-    #====================== Write new bad channel list =================
-
-    #=== commit changes
     dbw = TileCalibTools.openDbConn(outSchema,('UPDATE' if update else 'RECREATE'))
-    mgr.commitToDb(dbw, folderPath, folderTag, (TileBchDecoder.BitPat_onl01 if onl else TileBchDecoder.BitPat_ofl01), user, comment, since, until)
+
+    #=== loop over all IOVs
+    for io,since in enumerate(iovList):
+
+        until=iovUntil[io]
+        untilCmt=iovUntilCMT[io]
+        if since==until and since==untilCmt:
+            continue # nothing to do
+
+        log.info( "Updating IOV %s", str(since) )
+        mgr = mgrWriters[io]
+
+        if since==until or (since in iovListCMT and since not in iovListMOD):
+            mList = ['CMT']
+        else:
+            mList = moduleList
+            try:
+                exec(compile(open(execFile).read(),execFile,'exec'))
+                if len(comment)==0:
+                    log.error( "Comment string is not provided, please put comment='bla-bla-bla' line in %s", execFile )
+                    sys.exit(2)
+            except Exception as e:
+                log.error( e )
+                log.error( "Problem reading include file %s", execFile )
+                sys.exit(2)
+
+            #=== print bad channels
+            if verbose:
+                log.info("============================================================== ")
+                log.info("bad channels after update")
+                mgr.listBadAdcs()
+
+        #====================== Write new bad channel list =================
+
+        #=== commit changes
+        if Comment is not None:
+            comment = Comment
+            author = user
+        else:
+            if comment=="None":
+                comment = comments[io]
+            elif iov and comments[io] not in comment:
+                comment += "  //  " + comments[io]
+            if io>0 and since!=until and 'ALL' not in moduleList:
+                author=commentsSplit[io]
+                for m in moduleList:
+                    if m in comments[io]:
+                        author=user
+                        break
+            else:
+                author=user
+        # UNDO comment in IOV after the "end"
+        if since==until and comment!=comments[io]:
+            comment = "UNDO " + comment
+        mgr.commitToDb(dbw, folderPath, folderTag, (TileBchDecoder.BitPat_onl01 if onl else TileBchDecoder.BitPat_ofl01), author, comment, since, until, untilCmt, mList)
 else:
     dbw = None
 
+
+since = iovList[0]
+until = (TileCalibTools.MAXRUN,TileCalibTools.MAXLBK)
 
 if len(curSuffix) and not onl and "sqlite" in outSchema:
 
@@ -263,7 +446,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
     log.info("creating DB with ONLINE status")
 
     #if dbw:
-    #  mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
+    #    mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
 
     #--- create online bad channel manager
     folderOnl = "/TILE/ONL01/STATUS/ADC"
@@ -318,7 +501,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
                             mgrOnl.addAdcProblem(ros, mod, chn, 1, prb)
 
                 #--- add IgnoreInHlt if either of the ADCs has isBad
-                #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
+                #--- add OnlineGeneralMaskAdc if the ADCs has isBad
                 if statlo.isBad() and stathi.isBad():
                     mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.IgnoredInHlt)
                     mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)

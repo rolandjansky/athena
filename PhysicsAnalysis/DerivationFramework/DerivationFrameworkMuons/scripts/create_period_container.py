@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ######################
 ##
 ## Contact: Dongliang Zhang <dongliang.zhang@cern.ch>
@@ -9,6 +9,8 @@
 ##   setupATLAS
 ##   lsetup pyami
 ######################
+
+from __future__ import print_function
 
 import sys
 import pyAMI.client
@@ -46,7 +48,7 @@ def makeContainer(c1):
     runs = set([a['run_number'] for a in x0])
 
     if len(runs)==0:
-        print 'no run in period'+c1.period+' is listed in GRL:', c1.grl
+        print ('no run in period'+c1.period+' is listed in GRL:', c1.grl)
         return
 
     ### get AOD datasets
@@ -55,7 +57,7 @@ def makeContainer(c1):
     ### get dataset info
     dic1={}
     for a in x:
-        print a['run_number'], a['ldn']
+        print (a['run_number'], a['ldn'])
         try:
             dic1[a['ldn'].split('_')[-1]].append((a['run_number'],a['ldn']))
         except KeyError:
@@ -64,10 +66,10 @@ def makeContainer(c1):
     ### get the tags, sorted by popularity
     allTags = sorted(dic1.keys(), key=lambda k: len(dic1[k]),reverse=True)
     for tag in allTags:
-        print tag,':',
+        print (tag,':', end='')
         for xx in dic1[tag]:
-            print xx[0],
-        print
+            print (xx[0], end='')
+        print()
 
     ### use the most popular tags if not spicified
     t_acceptTags = c1.acceptTags if c1.acceptTags else allTags
@@ -86,19 +88,19 @@ def makeContainer(c1):
 
     ### Warning when the given tag does not select any dataset
     if len(ds)==0:
-        print 'No dataset in period',c1.period+', exiting...'
+        print ('No dataset in period',c1.period+', exiting...')
         return
 
     #### find any missing runs
     for d in ds:
-        print d[0],d[1]
+        print (d[0],d[1])
         runs.remove(d[0])
-    print runs
+    print (runs)
 
     #### Warn when there are any missing runs
     if len(runs) !=0:
-        print '!'*10
-        print 'MISSING ', ' '.join(runs)
+        print ('!'*10)
+        print ('MISSING ', ' '.join(runs))
 
     ### prepare commands
     dlist=','.join([d[1] for d in ds])
@@ -106,7 +108,7 @@ def makeContainer(c1):
     comments = superTag+','+c1.derivation
 
     cmd='ami cmd COMAPopulateSuperProductionDataset -rucioRegistration="yes" -creationComment="'+comments+'" -selectionType="run_config" -superTag="'+superTag+'" -containedDatasets="'+dlist+'" -separator="," '
-    print 'command:',cmd
+    print ('command:',cmd)
 
     ### write out script if asked
     if c1.outScript:
@@ -139,7 +141,7 @@ def doFirstTry():
     c1.grl = grl15
 
     pds =[p['period'] for p in periods if p['status']=='frozen']
-#     print pds
+#     print (pds)
 #     sys.exit(0)
 
     for p in pds:
@@ -161,7 +163,7 @@ def doData15():
     c1.grl = grl15
 
     pds =[p['period'] for p in periods if p['status']=='frozen']
-#     print pds
+#     print (pds)
 #     sys.exit(0)
 
     for p in pds:
@@ -184,7 +186,7 @@ def do2016LaterPeriods():
     c1.grl = grl16
 
 #     pds =[p['period'] for p in periods if p['status']=='frozen']
-#     print pds
+#     print (pds)
 #     sys.exit(0)
     pds = ['J', 'K', 'L']
 

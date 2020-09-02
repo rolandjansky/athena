@@ -13,6 +13,8 @@
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
+class TH2;
+
 namespace TCS {
 /**
    @brief Select TOBs that fall in a given eta/phi region
@@ -43,6 +45,9 @@ private:
     parType_t      p_EtaMax = { 0 };
     parType_t      p_PhiMax = { 0 };
     parType_t      p_PhiMin = { 0 };
+
+    TH2 * m_histAccept[1] = {};
+    TH2 * m_histReject[1] = {};
 };
 
 }

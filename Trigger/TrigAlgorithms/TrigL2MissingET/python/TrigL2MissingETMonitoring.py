@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################# Validation, DQ checks
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
+from builtins import range
 
 bitNames = [ "ErrParityL1",          # bit  0
              "ErrL1mult",            # bit  1
@@ -88,7 +89,7 @@ class T2CaloMissingETOnlineMonitoring(TrigGenericMonitoringToolConfig):
         label_lbc=''
         label_eba=''
         label_ebc=''
-        for i in xrange(64):
+        for i in range(64):
            if i==63 :
               label_la = '%(b)s%(n)02d' % {'b':'LBA', 'n':(i+1)}  
               label_lc = '%(b)s%(n)02d' % {'b':'LBC', 'n':(i+1)}  
@@ -121,7 +122,7 @@ class T2CaloMissingETValidationMonitoring(TrigGenericMonitoringToolConfig):
         label_lbc=''
         label_eba=''
         label_ebc=''
-        for i in xrange(64):
+        for i in range(64):
            if i==63 :
               label_la = '%(b)s%(n)02d' % {'b':'LBA', 'n':(i+1)}
               label_lc = '%(b)s%(n)02d' % {'b':'LBC', 'n':(i+1)}

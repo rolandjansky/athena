@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTElectronicsProcessing.h"
@@ -305,9 +305,8 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   // Only attempt this if the digit is non-zero
   if ( m_settings->isOverlay() && digit ) { //doing overlay
     digit += (1<<31);//flag digit a "MC" one
-    static bool first = true;
-    if (first){
-      first=false;
+    if (m_first){
+      m_first=false;
       msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;
     }
   }

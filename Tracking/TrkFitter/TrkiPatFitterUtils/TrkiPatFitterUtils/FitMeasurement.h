@@ -21,6 +21,8 @@
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/MeasurementType.h"
 
+#include <memory>
+
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class HitOnTrack;
@@ -122,7 +124,8 @@ public:
     bool				hasIntersection (ExtrapolationType type) const;
     const TrackSurfaceIntersection&	intersection (ExtrapolationType type) const;
     void				intersection (ExtrapolationType type,
-						      const TrackSurfaceIntersection*);
+						      const TrackSurfaceIntersection* value);
+                                                      //std::unique_ptr<TrackSurfaceIntersection>);
     bool				isAlignment (void) const;
     bool				isCluster (void) const;
     bool				isDrift (void) const;
@@ -214,7 +217,7 @@ private:
     bool				m_flippedDriftDistance;
     int					m_hitIndex;
     HitOnTrack*				m_hitOnTrack;
-    const TrackSurfaceIntersection*	m_intersection[ExtrapolationTypes];
+    std::array<std::unique_ptr<const TrackSurfaceIntersection>,ExtrapolationTypes >  m_intersection;
     unsigned				m_lastParameter;
     const MaterialEffectsBase*		m_materialEffects;
     bool				m_materialEffectsOwner;
@@ -364,7 +367,7 @@ FitMeasurement::hitOnTrack (void) const
 
 inline bool
 FitMeasurement::hasIntersection (ExtrapolationType type) const
-{ return (m_intersection[type] != 0); }
+{ return (bool)m_intersection[type]; }
 
 inline const TrackSurfaceIntersection&
 FitMeasurement::intersection (ExtrapolationType type) const

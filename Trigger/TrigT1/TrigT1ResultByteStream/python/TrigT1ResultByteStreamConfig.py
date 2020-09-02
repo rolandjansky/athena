@@ -2,7 +2,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def RoIBResultByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.RoIBResultByteStreamTool(name)
@@ -34,12 +35,16 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   return tool
 
 def L1TriggerByteStreamDecoderCfg(flags):
+  from AthenaCommon.Configurable import Configurable
+  cb = Configurable.configurableRun3Behavior
+  Configurable.configurableRun3Behavior += 1
+
   decoderTools = []
-  if flags.Trigger.decodeLegacyL1:
+  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
     decoderTools += [roibResultTool]
 
-  if flags.Trigger.decodePhaseIL1:
+  if flags.Trigger.enableL1Phase1:
     # Placeholder for real decoder tools - now it's just an example
     exampleTool = ExampleL1TriggerByteStreamToolCfg(name="L1MuonBSDecoderTool", writeBS=False)
     decoderTools += [exampleTool]
@@ -48,34 +53,29 @@ def L1TriggerByteStreamDecoderCfg(flags):
                                                          DecoderTools=decoderTools)
 
   acc = ComponentAccumulator()
-  acc.addEventAlgo(decoderAlg)
+  acc.addEventAlgo(decoderAlg, primary=True)
+
+  Configurable.configurableRun3Behavior = cb
   return acc
 
 def L1TriggerByteStreamEncoderCfg(flags):
-  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   acc = ComponentAccumulator()
 
-  if flags.Trigger.decodeLegacyL1:  # TODO: Maybe have separate encode*L1 flags?
+  if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSEncoderTool", writeBS=True)
     acc.addPublicTool(roibResultTool)
 
-  if flags.Trigger.decodePhaseIL1:
+  if flags.Trigger.enableL1Phase1:
     # Placeholder for real encoder tools - now it's just an example
     exampleTool = ExampleL1TriggerByteStreamToolCfg(name="L1MuonBSEncoderTool", writeBS=True)
     acc.addPublicTool(exampleTool)
 
   return acc
 
-def L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=True):
+def L1ByteStreamDecodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
-  from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  ConfigFlags.Trigger.decodeLegacyL1 = enableRun2L1
-  ConfigFlags.Trigger.decodePhaseIL1 = enableRun3L1
   CAtoGlobalWrapper(L1TriggerByteStreamDecoderCfg,ConfigFlags)
 
 def L1ByteStreamEncodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
-  from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
   CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg,ConfigFlags)

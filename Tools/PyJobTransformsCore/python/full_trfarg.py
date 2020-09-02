@@ -1,20 +1,13 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-import CVSutil
-CVSkeywords = CVSutil.CVSkeywords( ["$Id: full_trfarg.py,v 1.61 2009-04-17 06:40:35 cote Exp $" ,
-                                    "$Name: not supported by cvs2svn $" ,
-                                    "$Revision: 525634 $"] )
-
-__version__ = CVSkeywords["Revision"]
-__author__ = "clat@hep.ph.bham.ac.uk"
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """End-user Fully specialised arguments that can be used in JobTransform implemenations."""
 
+import os
 import copy
-from PyJobTransformsCore.basic_trfarg import *
-from PyJobTransformsCore.envutil import *
-from PyJobTransformsCore.trfutil import *
-from PyJobTransformsCore.trferr import *
+from PyJobTransformsCore.basic_trfarg import Argument, BoolArg, InputDataFileArg, InputTarFileAndSetupArg, InputTarFileArg, IntegerArg, OutputDataFileArg, OutputFileArg, StringArg
+from PyJobTransformsCore.envutil import find_joboptions
+from PyJobTransformsCore.trfutil import AODFile, BSFile, DPDFile, ESDFile, EvgenFile, FTKIPFile, HistogramFile, HitsFile, JiveXMLTGZFile, MonitorHistFile, NtupleFile, RDOFile, SANFile, TAGFile, expandStringToList, strip_suffix
+from PyJobTransformsCore.trferr import JobOptionsNotFoundError, TransformArgumentError, TransformDefinitionError
 from PyJobTransformsCore import fileutil
 
 
@@ -122,17 +115,17 @@ class OutputSkimmedBSFileArg(OutputDataFileArg):
         #print "FilenameTDAQ",filenameTDAQ
             
         if  fileutil.exists(filename):
-            self.logger().info("Found skimmed bystream file called %s" % filename)
+            self.logger().info("Found skimmed bystream file called %s", filename)
             OutputDataFileArg.prepareFileInfo( self )
             return
         elif  fileutil.exists(filenameTDAQ):
-            self.logger().info("Found skimmed bystream file called %s, renaming back to %s" % (filenameTDAQ, filename))
-            os.rename(filenameTDAQ,filename); #try - except?
+            self.logger().info("Found skimmed bystream file called %s, renaming back to %s", filenameTDAQ, filename)
+            os.rename(filenameTDAQ,filename) #try - except?
             #That's of course a hack that will work only in local file system. 
             OutputDataFileArg.prepareFileInfo( self )
             return
         else:
-            self.logger().info("No skimmed bystream file corresponding to %s found." % filename)
+            self.logger().info("No skimmed bystream file corresponding to %s found.", filename)
             return
         
 class InputESDFileArg(InputDataFileArg):
@@ -337,7 +330,7 @@ class BasicExec(Argument):
         try:
             valOut=StringToExec(valIn)
             return valOut
-        except:
+        except Exception:
             raise TransformArgumentError( '%s=%s: syntax error in BasicExec' % (self.name(),valIn) )
         return None
     
@@ -370,7 +363,7 @@ class ListOfStringsArg(StringArg):
             try:
                 valTmp=valIn.replace(',,',',')
                 valList=valTmp.split(',')
-            except:
+            except Exception:
                 raise TransformArgumentError( '%s=%s: syntax error in list of strings' % (self.name(),valIn) )
             return valList
 
@@ -392,10 +385,10 @@ class JobOptionsArg(StringArg):
         elif pacType == list:
             self._packages = package
         else:
-            raise TypeError("%s constructor argument \'package\' is not of type str or list (got type %s)" % \
-                            (self.__class__.__name__, pacType.__name__) )
+            raise TypeError("%s constructor argument \'package\' is not of type str or list (got type %s)",
+                            self.__class__.__name__, pacType.__name__)
         # prepend current directory if not already present
-        if not os.curdir in self._packages: self._packages.insert(0,os.curdir)
+        if os.curdir not in self._packages: self._packages.insert(0,os.curdir)
         self._fullFiles = []
         self._exeEnv = {} # copy of python environment after last execution of joboptions
         StringArg.__init__(self,help,name)
@@ -442,7 +435,7 @@ class JobOptionsArg(StringArg):
         val = Argument.value(self)
         newVal = []
         for v in val:
-            if self._packages and not os.sep in v:
+            if self._packages and os.sep not in v:
                 for p in self._packages:
                     full = os.path.join(p,v)
                     if find_joboptions( full ):
@@ -462,7 +455,7 @@ class JobOptionsArg(StringArg):
             #convert value to the correct case
             valUpper = value.upper()
             if valUpper == 'NONE' and value != 'NONE':
-                self.logger().info( 'Changing case of %s to %s' % (value,valUpper) )
+                self.logger().info( 'Changing case of %s to %s', value,valUpper )
                 value = valUpper
             # treat empty string as NONE
             if value == '': value = 'NONE'
@@ -485,7 +478,7 @@ class JobOptionsArg(StringArg):
         for i in range(len(shortList)):
             short = shortList[i]
             full  = fullList[i]
-            self.logger().info( 'Found %s in %s' % (short, strip_suffix(full,short)) )
+            self.logger().info( 'Found %s in %s', short, strip_suffix(full,short) )
 
     def exeJobOptions( self, env = {} ):
         """Execute the lines in the jobOptions file in environment <env>. The runtime
@@ -499,7 +492,7 @@ class JobOptionsArg(StringArg):
         for i in range( len( shortList ) ):
             short = shortList[ i ]
             full  = fullList[ i ]
-            self.logger().info( "Executing jobOptions file %s." % full )
+            self.logger().info( "Executing jobOptions file %s.", full )
             FakeAthena.theApp.exeJobOptions( short, env )
         self._exeEnv.update( copy.copy( env ) )
 
@@ -706,7 +699,7 @@ class DBReleaseArg( InputTarFileAndSetupArg ):
     """Tarball containing the DBRelease to use"""
     def __init__( self, name = 'DBRelease', destdir = os.curdir ):
         InputTarFileAndSetupArg.__init__( self, help = 'default', name = name,
-                                         setupfile = 'setup.py', envVars = None, destdir = destdir, temporary = True )
+                                          setupfile = 'setup.py', envVars = None, destdir = destdir, temporary = True )
 
     def isFullArgument(self):
         return True

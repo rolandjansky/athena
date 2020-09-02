@@ -76,8 +76,10 @@ void showCalibration(TString fileName,
 	  cout << uncs[i] << endl;
     } else if (uncertainty == "comment") {
       cout << c->getComment() << endl;
-    } else if (uncertainty == "hadronisation") {
+    } else if (uncertainty == "MChadronisation") {
       cout << c->getHadronisation() << endl;
+    } else if (uncertainty == "excluded_set") {
+      cout << c->getExcludedUncertainties() << endl;
     } else {
       bool doTotal = uncertainty == "total";
       bool doExtrap = uncertainty == "extrapolation";

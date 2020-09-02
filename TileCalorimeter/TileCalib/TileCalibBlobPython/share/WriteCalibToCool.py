@@ -8,7 +8,7 @@
 
 from __future__ import print_function
 
-import getopt,sys,os
+import getopt,sys,os,bisect
 os.environ['TERM'] = 'linux'
 
 def usage():
@@ -26,6 +26,8 @@ def usage():
     print ("-L, --lumi2=    specify lumi block number for new IOV where correction is undone")
     print ("-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov")
     print ("-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov")
+    print ("-A, --adjust    in multi-iov mode adjust iov boundaries to nearest iov available in DB, default is False")
+    print ("-D, --module=   specify module to use in multi-IOV update, default is all")
     print ("-c, --channel   if present, means that one constant per channel is expected (i.e. no gain field)")
     print ("-d, --default   if present, means that also default values stored in AUX01-AUX20 should be updated")
     print ("-a, --all       if present, means that all drawers are saved, otherwise only those which were updated")
@@ -36,7 +38,8 @@ def usage():
     print ("-n, --nval=     specify number of values to store to DB, default is 0 - means all")
     print ("-v, --version=  specify blob version, by default version from input DB is used" )
     print ("-x, --txtfile=  specify the text file with the new constants for reading")
-    print ("-m, --comment=  specify comment to write")
+    print ("-m, --comment=  specify comment which should be written to DB, in multi-iov mode it is appended to old comment")
+    print ("-M, --Comment=  specify comment which should be written to DB, in mutli-iov mode it overwrites old comment")
     print ("-U, --user=     specify username for comment")
     print ("-p, --prefix=   specify prefix which is expected on every line in input file, default - no prefix")
     print ("-k, --keep=     field numbers or channel numbers to ignore, e.g. '0,2,3,EBch0,EBch1,EBch12,EBch13,EBspD4ch18,EBspD4ch19,EBspC10ch4,EBspC10ch5' ")
@@ -44,9 +47,9 @@ def usage():
     print ("-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
     print ("-s, --schema=     specify input/output schema to use when both input and output schemas are the same")
     print ("-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated")
-    
-letters = "hr:l:R:L:b:e:s:i:o:t:T:f:F:C:G:n:v:x:m:U:p:dcazZuk:"
-keywords = ["help","run=","lumi=","run2=","lumi2=","begin=","end=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","user=","prefix=","default","channel","all","zero","allzero","update","keep="]
+
+letters = "hr:l:R:L:b:e:AD:s:i:o:t:T:f:F:C:G:n:v:x:m:M:U:p:dcazZuk:"
+keywords = ["help","run=","lumi=","run2=","lumi2=","begin=","end=","adjust","module=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","comment=","Comment=","user=","prefix=","default","channel","all","zero","allzero","update","keep="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -55,7 +58,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = -1
 lumi = 0
 run2 = -1
@@ -78,12 +81,16 @@ nval = 0
 blobVersion = -1
 txtFile= ""
 comment = ""
+Comment = None
 prefix = ""
 update = False
 keep=[]
 iov = False
 beg = 0
 end = 2147483647
+moduleList = []
+adjust = False
+
 try:
     user=os.getlogin()
 except Exception:
@@ -140,9 +147,16 @@ for o, a in opts:
     elif o in ("-e","--end"):
         end = int(a)
         iov = True
+    elif o in ("-A","--adjust"):
+        adjust = True
+    elif o in ("-D","--module"):
+        moduleList += a.split(",")
     elif o in ("-x","--txtfile"):
         txtFile = a
     elif o in ("-m","--comment"):
+        comment = a
+    elif o in ("-M","--Comment"):
+        Comment = a
         comment = a
     elif o in ("-U","--user"):
         user = a
@@ -177,6 +191,11 @@ import cppyy
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import TileCalibUtils
 
+if iov and end >= TileCalibTools.MAXRUN:
+    end = TileCalibTools.MAXRUN
+    lumi2 = TileCalibTools.MAXLBK
+until = (TileCalibTools.MAXRUN,TileCalibTools.MAXLBK)
+
 from TileCalibBlobPython.TileCalibLogger import getLogger
 log = getLogger("WriteCalibToCool")
 import logging
@@ -206,29 +225,38 @@ log.info("Initializing folder %s with tag %s", folderPath, folderTag)
 
 iovAll = []
 iovList = []
+iovUntil = []
+iovListMOD = []
+iovListCMT = []
+iovUntilCMT = []
 blobReader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
 if iov:
     #=== filling the iovList
     log.info( "Looking for IOVs" )
-    for ros in range(rosmin,5):
-        for mod in range(min(64,TileCalibUtils.getMaxDrawer(ros))):
-            iovMod=[]
-            try:
-              dbobjs = blobReader.getDBobjsWithinRange(ros,mod)
-              if (dbobjs is None):
-                  raise Exception("No DB objects retrieved when building IOV list!")
-              while dbobjs.goToNext():
-                obj = dbobjs.currentRef()
-                objsince = obj.since()
-                sinceRun = objsince >> 32
-                sinceLum = objsince & 0xFFFFFFFF
-                since    = (sinceRun, sinceLum)
-                iovMod.append(since)
-            except Exception:
-              log.warning( "Warning: can not read IOVs from input DB file" )
-              sys.exit(2)
-            iovAll+=[iovMod]
-            iovList+=iovMod
+    if moduleList!=['CMT']:
+        for ros in range(rosmin,5):
+            for mod in range(min(64,TileCalibUtils.getMaxDrawer(ros))):
+                modName = TileCalibUtils.getDrawerString(ros,mod)
+                if len(moduleList)>0 and modName not in moduleList and 'ALL' not in moduleList:
+                    iovAll+=[[]]
+                else:
+                    iovMod = blobReader.getIOVsWithinRange(ros,mod)
+                    iovAll+=[iovMod]
+                    iovList+=iovMod
+        if 'ALL' in moduleList:
+            moduleList.remove('ALL')
+    else:
+        for ros in range(rosmin,5):
+            iovAll+=[[]]*min(64,TileCalibUtils.getMaxDrawer(ros))
+    if 'CMT' in moduleList:
+        iovListMOD = iovList
+        iovListCMT = blobReader.getIOVsWithinRange(-1,1000)
+        if len(iovList)==0:
+            iovList = iovListCMT
+            iovAll+=[iovListCMT]
+        else:
+            moduleList.remove('CMT')
+
     import functools
     def compare(item1,item2):
         if item1[0]!=item2[0]:
@@ -237,38 +265,72 @@ if iov:
             return item1[1]-item2[1]
     iovList=list(set(iovList))
     iovList=sorted(iovList,key=functools.cmp_to_key(compare))
+    iovList+=[until]
+    iovListCMT+=[until]
 
-    be=iovList[0][0]
-    en=iovList[-1][0]
-
-    if beg != be or end != en:
+    since=(beg,lumi)
+    ib=bisect.bisect(iovList,since)-1
+    if ib<0:
         ib=0
-        ie=len(iovList)
-        for i,iovs in enumerate(iovList):
-            run = iovs[0]
-            if (run<beg and run>be) or run==beg :
-                be=run
-                ib=i
-            if (run>end and run<en) :
-                en=run
-                ie=i
-        if ie>0:
-            en=iovList[ie-1][0]
-        if be != beg:
-            log.info( "Changing begin run from %d to %d (start of IOV)", beg,be)
-            beg=be
-        if en != end:
-            log.info( "Changing end run from %d to %d (start of IOV)", end,en)
-            end=en
-        iovList=iovList[ib:ie]
+    if iovList[ib] != since:
+        if adjust:
+            since = iovList[ib]
+            log.info( "Moving beginning of first IOV with new constants from (%d,%d) to (%d,%d)", beg,lumi,since[0],since[1])
+        else:
+            iovList[ib] = since
+            log.info( "Creating new IOV starting from (%d,%d) with new constants", beg,lumi)
 
-    since = iovList[0]
-    run=since[0]
-    lumi=since[1]
+    if end<0:
+        ie=ib+1
+        if ie>=len(iovList):
+            ie=ib
+        until=iovList[ie]
+        log.info( "Next IOV without new constants starts from (%d,%d)", until[0],until[1])
+    else:
+        until=(end,lumi2)
+        ie=bisect.bisect_left(iovList,until)
+        if ie>=len(iovList):
+            ie=len(iovList)-1
+
+        if iovList[ie] != until:
+            if adjust:
+                until=iovList[ie]
+                log.info( "Moving end of last IOV from (%d,%d) to (%d,%d)", end,lumi2,until[0],until[1])
+            else:
+                log.info( "Keeping end of last IOV at (%d,%d) - new IOV is shorter than IOV in input DB", end,lumi2)
+                iovList[ie] = until
+
+
+    iovList = iovList[ib:ie]
+    iovUntil = iovList[1:] + [until]
+    begin = since
+    run = since[0]
+    lumi = since[1]
     undo = False
-
     log.info( "IOVs: %s", str(iovList))
-    log.info( "%d IOVs in total", len(iovList))
+
+    if len(iovListMOD)>0 and len(iovListCMT)>0:
+        if Comment is None:
+            iovList += [until]  # one more IOV for "UNDO" comment
+            iovUntil += [until] # one more IOV for "UNDO" comment
+        iovUntilCMT = []
+        for io,since in enumerate(iovList):
+            p = bisect.bisect(iovListCMT,since)
+            if p<len(iovListCMT):
+                iovUntilCMT += [iovListCMT[p]]
+                if iovUntil[io] != iovListCMT[p]:
+                    log.info( "End of iov %s in comments record is %s", str(since),str(iovListCMT[p]))
+            else:
+                if since!=until:
+                    iovUntilCMT += [since]
+                else:
+                    iovList.pop(-1)
+                    break
+        since = begin
+    else:
+        iovUntilCMT = iovUntil
+
+    log.info( "%d IOVs in total, end of last IOV is %s", ie-ib,str(until))
 
 else:
     #=== set run number
@@ -287,6 +349,8 @@ else:
 
     since = (run, lumi)
     iovList = [since]
+    iovUntil = [until]
+    iovUntilCMT = [until]
     if "begin" not in dir():
         begin=since
     if run2<0:
@@ -318,8 +382,10 @@ if flt:
     mval=flt.getObjSizeUint32()
     log.info( "Blob type: %d  version: %d  Nchannels: %d  Ngains: %d  Nval: %d", blobT,blobV,mchan,mgain,mval)
     if blobVersion<0:
-        blobVersion = blobV 
+        blobVersion = blobV
 else:
+    mchan=-1
+    mgain=-1
     mval=-1
 nchanDef=nchan
 ngainDef=ngain
@@ -353,6 +419,9 @@ if len(txtFile)>0:
     #=== loop over all IOVs
     for io,since in enumerate(iovList):
 
+        if since==iovUntil[io]: # dummy IOV without update
+            continue
+
         log.info( "Updating IOV %s", str(since) )
         nold=0
         nnew=0
@@ -367,7 +436,7 @@ if len(txtFile)>0:
         for ros in range(rosmin,5):
             for mod in range(min(64,TileCalibUtils.getMaxDrawer(ros))):
                 irm+=1
-                if iov and since not in iovAll[irm]:
+                if iov and since!=begin and (since not in iovAll[irm]):
                     continue
                 modName = TileCalibUtils.getDrawerString(ros,mod)
                 if modName in ['EBA39','EBA40','EBA41','EBA42','EBA55','EBA56','EBA57','EBA58',
@@ -528,30 +597,77 @@ if len(txtFile)>0:
             log.info("%d/%d new channels*gains/values have been added to database", nnew-nold,nvnew-nvold-nvnewdef)
         if ndef or nvdef:
             log.info("%d/%d new channels*gains/values with default values have been added to database", ndef,nvdef)
-    
+
 #=== commit changes
-if mval!=0 and (len(comment)>0 or len(txtFile)>0):
+if (mval!=0 or Comment is not None) and (len(comment)>0 or len(txtFile)>0):
     if not iov:
         iovList = [begin]
-    until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
-    for io,begin in enumerate(iovList):
-        if (comment is None) or (comment == "None"):
-            blobWriters[io].setComment("None","None")
+
+    #=== loop over all IOVs
+    for io,since in enumerate(iovList):
+
+        untilMod = iovUntil[io]
+        untilCmt = iovUntilCMT[io]
+        appendCmt = (untilCmt < (TileCalibTools.MAXRUN,TileCalibTools.MAXLBK))
+
+        if since==untilMod: # empty IOV
+            if since==untilCmt:
+                continue # nothing to do
+            undoCmt = True # only comments with UNDO text will be written
         else:
-            if len(comment)==0:
-                if begin[1]==0:
-                    comm="Update for run %i from file %s" % (begin[0],txtFile)
+            undoCmt = False
+            if len(moduleList)!=1:
+                untilMod = until # more than one module updated
+                untilCmt = until # will use IOV till very end
+            elif untilCmt>untilMod:
+                untilCmt = untilMod
+
+        log.info( "Updating IOV %s", str(since) )
+
+        #=== set comment
+        if Comment is not None:
+            comm = Comment
+            if undoCmt:
+                comm = "UNDO " + comm
+            author = user
+        else:
+            if (comment is None) or (comment == "None"):
+                comm = "None"
+                author = "None"
+            else:
+                if len(comment)==0:
+                    if undoCmt:
+                        if since[1]==0 and begin[1]==0:
+                            comm="Update for run %i - undoing changes done for run %i from file %s" % (since[0],begin[0],txtFile)
+                        else:
+                            comm="Update for run,lumi %i,%i - undoing changes done for %i,%i from file %s" % (since[0],since[1],begin[0],begin[1],txtFile)
+                    else:
+                        if since[1]==0:
+                            comm="Update for run %i from file %s" % (since[0],txtFile)
+                        else:
+                            comm="Update for run,lumi %i,%i from file %s" % (since[0],since[1],txtFile)
                 else:
-                    comm="Update for run,lumi %i,%i from file %s" % (begin[0],begin[1],txtFile)
-            else:
-                comm=comment
-            if iov:
-                comm+=" - "+comments[io]
-            if iov and (nvalUpdated[io]==0 or comment=="keep"):
-                blobWriters[io].setComment(commentsSplit[io])
-            else:
-                blobWriters[io].setComment(user,comm)
-        blobWriters[io].register(begin, until, outfolderTag)
+                    comm = comment
+                    if undoCmt:
+                        comm = "UNDO " + comm
+                if iov and appendCmt:
+                    comm += "  //  " + comments[io]
+                if not undoCmt and iov and (nvalUpdated[io]==0 or comment=="keep"):
+                    author = commentsSplit[io]
+                else:
+                    author = user
+        blobWriters[io].setComment(author,comm)
+
+        #=== commit changes
+        if untilCmt!=untilMod:
+            cmtOnly = (since in iovListCMT and since not in iovListMOD)
+            if not cmtOnly and untilMod>since:
+                blobWriters[io].register(since,untilMod,outfolderTag,1)
+            if untilCmt>since:
+                blobWriters[io].register(since,untilCmt,outfolderTag,-1)
+        else:
+            blobWriters[io].register(since,untilMod,outfolderTag)
+
     if undo:
         if (comment is None) or (comment == "None"):
             blobWriter2.setComment("None","None")
@@ -566,7 +682,7 @@ if mval!=0 and (len(comment)>0 or len(txtFile)>0):
         log.warning("(run2,lumi2)=(%i,%i) is smaller than (run,lumi)=(%i,%i) - will not create second IOV", run2,lumi2,begin[0],begin[1])
 else:
     log.warning("Nothing to update")
-    
+
 #=== close DB
 dbr.closeDatabase()
 dbw.closeDatabase()

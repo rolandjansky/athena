@@ -16,8 +16,6 @@
 
 #include "GaudiKernel/IAppMgrUI.h"
 
-#include "StoreGateBindings/StoreGatePyExt.h"
-
 //include the CLIDs of simple types so that we don't need to do this ourselves from ROOT prompt
 //when reading in kTreeAccess
 #include "SGTools/BuiltinsClids.h"

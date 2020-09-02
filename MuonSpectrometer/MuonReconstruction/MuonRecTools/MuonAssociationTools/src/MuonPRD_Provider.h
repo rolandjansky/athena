@@ -1,31 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonPRD_Provider.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUON__MUONASSOCIATIONTOOLS_MUONPRDPROVIDER_H
 #define MUON__MUONASSOCIATIONTOOLS_MUONPRDPROVIDER_H
 
-// Gaudi
+#include "TrkToolInterfaces/IPRD_Provider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-// Muon includes
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
-// Trk includes
-#include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkPrepRawData/PrepRawDataContainer.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
-// Identifier
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
  
 namespace Muon {
  
@@ -45,9 +36,6 @@ namespace Muon {
  
     /** Athena algtool's Hooks */
     StatusCode  initialize();
-       
-    /** finalize */
-    StatusCode  finalize();
 
     /** retrieve the PRD collection from StoreGate */
     StatusCode retrieveCollection();
@@ -62,12 +50,11 @@ namespace Muon {
 									       const Identifier& ideh, const IdentifierHash& ideHash ) const 
     {
       // find the collection
-      typename MuonPrepDataContainer< MuonPrepDataCollection< PrdT > >::const_iterator prdCollIter = cont.indexFind(ideHash);
-      if ( prdCollIter == cont.end() ){
+      const MuonPrepDataCollection< PrdT >* prdCollection = cont.indexFindPtr(ideHash);
+      if ( prdCollection == nullptr ){
 	ATH_MSG_VERBOSE("PRD Collection to IdentifierHash could not be found. Return 0.");
 	return 0;
       }
-      const MuonPrepDataCollection< PrdT >* prdCollection = (*prdCollIter);
       // search for the PRD in the collection --- do a loop, can be done better with std::find probably
       const PrdT* prd = 0;
       // iterate through the collections
@@ -83,8 +70,7 @@ namespace Muon {
       return prd;
     }
     
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     std::string         m_keyTgc;
     std::string         m_keyRpc;
     std::string         m_keyCsc;

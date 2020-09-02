@@ -2,25 +2,103 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/****************************************************************************************
-      MultiComponentStateModeCalculator.cxx  -  description
-      -----------------------------------------------------
-begin                : Thursday 6th July 2006
-author               : atkinson , amorley , anastopoulos
-email                : amorley@cern.ch
-description          : Implementation code for MultiComponentStateModeCalculator class
-****************************************************************************************/
+/**
+ * @file   MultiComponentStateModeCalculator.cxx
+ * @date   Thursday 6th July 2006
+ * @author Atkinson,Anthony Morley, Christos Anastopoulos
+ *
+ * Implementation code for MultiComponentStateModeCalculator
+ */
 
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
+#include "CxxUtils/phihelper.h"
+#include <cmath>
 
 namespace {
-const double invsqrt2PI = 1. / sqrt(2. * M_PI);
+constexpr double invsqrt2PI =
+  M_2_SQRTPI / (2. * M_SQRT2); // 1. / sqrt(2. * M_PI);
+
+using namespace Trk::MultiComponentStateModeCalculator;
+
+/** bried method to determine the value of the a gaussian distribution at a
+ * given value */
+double
+gaus(double x, double mean, double sigma)
+{
+  // gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
+  // = (1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) *
+  // ((x-mean)*(1/sigma)) )
+  //= invsqrt2PI * invertsigma * exp (-0.5 *z * z)
+  const double invertsigma = 1. / sigma;
+  const double z = (x - mean) * invertsigma;
+  return (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
 }
 
+/** @brief method to determine the pdf of the cashed mixture at a given value*/
+double
+pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+  double pdf(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    pdf += component->weight * gaus(x, component->mean, component->sigma);
+  }
+  return pdf;
+}
+
+/** @brief method to determine the first order derivative of the pdf at a given
+ * value*/
+double
+d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+
+  double result(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    double z = (x - component->mean) / component->sigma;
+    result += -1. * component->weight * z *
+              gaus(x, component->mean, component->sigma) / component->sigma;
+  }
+  return result;
+}
+
+/** @brief method to determine the second order derivative of the pdf at a given
+ * value*/
+double
+d2pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+
+  double result(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    double z = (x - component->mean) / component->sigma;
+    result += component->weight / (component->sigma * component->sigma) *
+              (z * z - 1.) * gaus(x, component->mean, component->sigma);
+  }
+  return result;
+}
+
+/** bried method to determine the width of the a gaussian distribution at a
+ * given value */
+double
+width(int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+  double pdf(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    pdf += component->weight * component->sigma;
+  }
+  return pdf;
+}
+
+}//end of anonymous namespace
+
+
 std::array<double, 10>
-Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentState& multiComponentState)
+Trk::MultiComponentStateModeCalculator::calculateMode(
+  const Trk::MultiComponentState& multiComponentState)
 {
   std::array<double, 10> modes{};
   // Check to see if the multi-component state is measured
@@ -52,8 +130,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
       }
     }
     modes[i] = findMode(largerMeanComponent, i, mixture);
-    // Calculate the FWHM and return this back so that it can be used to correct the covariance
-    // matrix
+    // Calculate the FWHM and return this back so that it can be used to correct
+    // the covariance matrix
     if (largerMeanComponent != modes[i]) {
       // mode calculation was successful now calulate FWHM
       double currentWidth = width(i, mixture);
@@ -72,7 +150,8 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
         }
       }
 
-      bool highXFound = findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture);
+      bool highXFound =
+        findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture);
 
       double lowerbound = modes[i] - 1.5 * currentWidth;
       while (true) {
@@ -82,18 +161,15 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
           break;
         }
       }
-      bool lowXFound = findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture);
+      bool lowXFound =
+        findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture);
       if (highXFound && lowXFound) {
         double FWHM = highX - lowX;
         modes[i + 5] = FWHM / 2.35482; // 2 * sqrt( 2* log(2))
       }
       // Ensure that phi is between -pi and pi
       if (i == 2) {
-        if (modes[i] > M_PI) {
-          modes[i] -= 2 * M_PI;
-        } else if (modes[i] < -M_PI) {
-          modes[i] += 2 * M_PI;
-        }
+        modes[i] = CxxUtils::wrapToPi(modes[i]);
       }
     }
   }
@@ -101,53 +177,61 @@ Trk::MultiComponentStateModeCalculator::calculateMode(const Trk::MultiComponentS
 }
 
 void
-Trk::MultiComponentStateModeCalculator::fillMixture(const Trk::MultiComponentState& multiComponentState,
-                                                    std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::fillMixture(
+  const Trk::MultiComponentState& multiComponentState,
+  std::array<std::vector<Component>, 5>& mixture)
 {
 
-  for (int i = 0; i < 5; i++) {
+  constexpr Trk::ParamDefs parameter[5] = {
+    Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP
+  };
+
+  const size_t componentsNum = multiComponentState.size();
+  for (size_t i = 0; i < 5; ++i) {
     mixture[i].clear();
+    mixture[i].reserve(componentsNum);
   }
 
   // Loop over all the components in the multi-component state
-  Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
-  Trk::ParamDefs parameter[5] = { Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP };
-  for (; component != multiComponentState.end(); ++component) {
-    for (int i = 0; i < 5; ++i) {
-      const Trk::TrackParameters* componentParameters = component->first.get();
+  for (const Trk::ComponentParameters& component : multiComponentState) {
 
+    //And then for each component over each 5 parameters
+    for (size_t i = 0; i < 5; ++i) {
+
+      const Trk::TrackParameters* componentParameters = component.first.get();
       const AmgSymMatrix(5)* measuredCov = componentParameters->covariance();
-
-      if (!measuredCov)
+      if (!measuredCov) {
         return;
+      }
       // Enums for Perigee //
-      //                           d0=0, z0=1, phi0=2, theta=3, qOverP=4,
-      double weight = component->second;
+      // d0=0, z0=1, phi0=2, theta=3, qOverP=4,
+      double weight = component.second;
       double mean = componentParameters->parameters()[parameter[i]];
-      // FIXME ATLASRECTS-598 this fabs() should not be necessary... for some reason
-      // cov(qOverP,qOverP) can be negative
-      double sigma = sqrt(fabs((*measuredCov)(parameter[i], parameter[i])));
+      // FIXME ATLASRECTS-598 this std::abs() should not be necessary... for
+      // some reason cov(qOverP,qOverP) can be negative
+      double sigma = sqrt(std::abs((*measuredCov)(parameter[i], parameter[i])));
 
       // Ensure that we don't have any problems with the cyclical nature of phi
       // Use first state as reference point
       if (i == 2) { // phi
-        double deltaPhi = multiComponentState.begin()->first->parameters()[2] - mean;
+        double deltaPhi =
+          multiComponentState.begin()->first->parameters()[2] - mean;
         if (deltaPhi > M_PI) {
           mean += 2 * M_PI;
         } else if (deltaPhi < -M_PI) {
           mean -= 2 * M_PI;
         }
       }
-      Component comp(weight, mean, sigma);
-      mixture[i].push_back(comp);
+      mixture[i].emplace_back(weight, mean, sigma);
     }
   }
 }
 
 double
-Trk::MultiComponentStateModeCalculator::findMode(double xStart,
-                                                 int i,
-                                                 const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::findMode(
+  double xStart,
+  int i,
+  const std::array<std::vector<Component>, 5>& mixture)
 {
 
   int iteration(0);
@@ -171,7 +255,8 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
     double pdfPreviousMode = pdf(previousMode, i, mixture);
 
     if ((pdfMode + pdfPreviousMode) != 0.0) {
-      tolerance = fabs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
+      tolerance =
+        std::abs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
     } else {
       return xStart;
     }
@@ -187,9 +272,10 @@ Trk::MultiComponentStateModeCalculator::findMode(double xStart,
 }
 
 double
-Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
-                                                       int i,
-                                                       const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::findModeGlobal(
+  double mean,
+  int i,
+  const std::array<std::vector<Component>, 5>& mixture)
 {
 
   double start(-1);
@@ -204,7 +290,7 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
 
   double mode(0);
   double maximum(-1);
-  double iterate(fabs(mean / 1000));
+  double iterate(std::abs(mean / 1000));
 
   for (double counter(start); counter < end; counter += iterate) {
     double value(pdf(counter, i, mixture));
@@ -217,97 +303,18 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(double mean,
 }
 
 double
-Trk::MultiComponentStateModeCalculator::pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+Trk::MultiComponentStateModeCalculator::findRoot(
+  double& result,
+  double xlo,
+  double xhi,
+  double value,
+  double i,
+  const std::array<std::vector<Component>, 5>& mixture)
 {
-
-  double pdf(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component)
-    pdf += component->weight * gaus(x, component->mean, component->sigma);
-
-  return pdf;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double result(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-
-    double z = (x - component->mean) / component->sigma;
-
-    result += -1. * component->weight * z * gaus(x, component->mean, component->sigma) / component->sigma;
-  }
-
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::d2pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double result(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-
-    double z = (x - component->mean) / component->sigma;
-
-    result += component->weight / (component->sigma * component->sigma) * (z * z - 1.) *
-              gaus(x, component->mean, component->sigma);
-  }
-
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::gaus(double x, double mean, double sigma)
-{
-
-  /*
-   * gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
-   * =(1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) * ((x-mean)*(1/sigma)) )
-   * = invsqrt2PI * invertsigma * exp (-0.5 *z * z)
-   */
-  double invertsigma = 1. / sigma;
-  double z = (x - mean) * invertsigma;
-  double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::width(int i, const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double pdf(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component)
-    pdf += component->weight * component->sigma;
-
-  return pdf;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::findRoot(double& result,
-                                                 double xlo,
-                                                 double xhi,
-                                                 double value,
-                                                 double i,
-                                                 const std::array<std::vector<Component>, 5>& mixture)
-{
-  // Do the root finding using the Brent-Decker method. Returns a boolean status and
-  // loads 'result' with our best guess at the root if true.
-  // Prints a warning if the initial interval does not bracket a single
-  // root or if the root is not found after a fixed number of iterations.
+  // Do the root finding using the Brent-Decker method. Returns a boolean status
+  // and loads 'result' with our best guess at the root if true. Prints a
+  // warning if the initial interval does not bracket a single root or if the
+  // root is not found after a fixed number of iterations.
 
   double a(xlo);
   double b(xhi);
@@ -337,7 +344,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
       e = b - a;
     }
 
-    if (fabs(fc) < fabs(fb)) {
+    if (std::abs(fc) < std::abs(fb)) {
       ac_equal = true;
       a = b;
       b = c;
@@ -347,15 +354,15 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
       fc = fa;
     }
 
-    double tol = 0.5 * tolerance * fabs(b);
+    double tol = 0.5 * tolerance * std::abs(b);
     double m = 0.5 * (c - b);
 
-    if (fb == 0 || fabs(m) <= tol) {
+    if (fb == 0 || std::abs(m) <= tol) {
       result = b;
       return true;
     }
 
-    if (fabs(e) < tol || fabs(fa) <= fabs(fb)) {
+    if (std::abs(e) < tol || std::abs(fa) <= std::abs(fb)) {
       // Bounds decreasing too slowly: use bisection
       d = m;
       e = m;
@@ -382,8 +389,8 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
         p = -p;
       }
 
-      double min1 = 3 * m * q - fabs(tol * q);
-      double min2 = fabs(e * q);
+      double min1 = 3 * m * q - std::abs(tol * q);
+      double min2 = std::abs(e * q);
       if (2 * p < (min1 < min2 ? min1 : min2)) {
         // Accept the interpolation
         e = d;
@@ -398,7 +405,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(double& result,
     a = b;
     fa = fb;
     // Evaluate new trial root
-    if (fabs(d) > tol) {
+    if (std::abs(d) > tol) {
       b += d;
     } else {
       b += (m > 0 ? +tol : -tol);

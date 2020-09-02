@@ -183,7 +183,7 @@ StatusCode EvtDecay::callEvtGen( HepMC::GenEvent* hepMCevt ) {
 
 			EvtParticle* part=EvtParticleFactory::particleFactory(eid,p_init);
 
-			if(fabs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
+			if(std::abs(id)==5122 && m_PolarizedLambdab) setLambdabSpinDensityMatrix(part,m_LambdabPol);
 
 			m_myGen->generateDecay(part);
 			if ( log.level() <= MSG::DEBUG ) part->printTree();
@@ -418,7 +418,6 @@ double EvtCLHepRandom::random() {
 
 void EvtDecay::MeVToGeV (HepMC::GenEvent* evt) {
 	for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-//		std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
 	        HepMC::FourVector newMomentum(0.,0.,0.,0.);
 		newMomentum.setPx( (*p)->momentum().px() / 1000. );
 		newMomentum.setPy( (*p)->momentum().py() / 1000. );

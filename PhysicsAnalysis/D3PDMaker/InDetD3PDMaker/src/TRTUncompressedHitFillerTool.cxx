@@ -5,7 +5,7 @@
 #include "TRTUncompressedHitFillerTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeoAdaptors/GeoTRTUncompressedHit.h"
 
 D3PD::TRTUncompressedHitFillerTool::TRTUncompressedHitFillerTool (const std::string& type,

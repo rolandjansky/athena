@@ -8,7 +8,7 @@
 #include "AthenaKernel/errorcheck.h"
 
 // EDM include(s):
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // Local include(s):
 #include "GenVertexGetterTool.h"

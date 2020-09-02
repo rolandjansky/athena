@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H
 #define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOL_H 
+
+#include "CxxUtils/checker_macros.h"
 
 #include "CscRdoToCscPrepDataToolCore.h"
 
@@ -22,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Muon {
-  class CscRdoToCscPrepDataTool : public CscRdoToCscPrepDataToolCore {
+  class ATLAS_NOT_THREAD_SAFE CscRdoToCscPrepDataTool : public CscRdoToCscPrepDataToolCore {
 
   public:
     
@@ -31,11 +33,9 @@ namespace Muon {
     
     /** destructor 
      */ 
-    virtual ~CscRdoToCscPrepDataTool();
+    virtual ~CscRdoToCscPrepDataTool()=default;
     
     virtual StatusCode initialize() override;
-    
-    virtual StatusCode finalize() override;
     
     using CscRdoToCscPrepDataToolCore::decode;
     

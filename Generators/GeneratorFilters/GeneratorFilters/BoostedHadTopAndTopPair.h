@@ -17,9 +17,7 @@
 #include <iostream>
 #include "GeneratorModules/GenFilter.h"
 
-namespace HepMC{
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 
 /// Filter events based on presence of charged leptons
@@ -57,11 +55,11 @@ private:
   double m_tPairPtMax;
   int m_cutPtOf;
 
-  const HepMC::GenParticle*  findInitial(const HepMC::GenParticle* part) const;
-  bool  isFromTop(const HepMC::GenParticle* part) const;
-  bool  isHadronic(const HepMC::GenParticle* part) const;
-  bool  isFinalParticle(const HepMC::GenParticle* part) const;
-  HepMC::FourVector momentumBofW(const HepMC::GenParticle* part);
+  HepMC::ConstGenParticlePtr  findInitial(HepMC::ConstGenParticlePtr part) const;
+  bool  isFromTop(HepMC::ConstGenParticlePtr part) const;
+  bool  isHadronic(HepMC::ConstGenParticlePtr part) const;
+  bool  isFinalParticle(HepMC::ConstGenParticlePtr part) const;
+  HepMC::FourVector momentumBofW(HepMC::ConstGenParticlePtr part);
 
 };
 

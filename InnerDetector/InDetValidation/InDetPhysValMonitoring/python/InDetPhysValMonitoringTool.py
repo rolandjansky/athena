@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
-from ConfigUtils import serviceFactory,toolFactory
+from InDetPhysValMonitoring.ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
 def removePhysValExample() :
    print ('DEBUG no AntiKt4EMTopoJets in input file.')
-   from InDetPhysValDecoration import findMonMan
+   from InDetPhysValMonitoring.InDetPhysValDecoration import findMonMan
    mon_index = findMonMan()
    if mon_index is not None :
      import re
@@ -53,6 +53,10 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                             FillTrackInJetPlots = True)
          from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising
          addTruthJetsIfNotExising(jets_name)
+         if InDetPhysValFlags.doValidateTracksInBJets():
+            kwargs=setDefaults(kwargs,
+                              FillTrackInBJetPlots = True)
+
       else :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
@@ -63,6 +67,21 @@ def getInDetPhysValMonitoringTool(**kwargs) :
       kwargs=setDefaults(kwargs, 
                         useVertexTruthMatchTool = True,
          		VertexTruthMatchTool = toolFactory(InDetVertexTruthMatchTool) )
+      
+      #Options for Truth Strategy : Requires full pile-up truth containers for some
+      if InDetPhysValFlags.setTruthStrategy() == 'All' or InDetPhysValFlags.setTruthStrategy() == 'PileUp' :
+        from RecExConfig.AutoConfiguration import IsInInputFile
+        if IsInInputFile('xAOD::TruthPileupEventContainer','TruthPileupEvents') :
+            kwargs=setDefaults(kwargs,
+                               PileupSwitch = InDetPhysValFlags.setTruthStrategy())
+        else :
+            print ('WARNING Truth Strategy for InDetPhysValMonitoring set to %s but TruthPileupEvents are missing in the input; resetting to HardScatter only' % (InDetPhysValFlags.setTruthStrategy()))
+      elif InDetPhysValFlags.setTruthStrategy() != 'HardScatter' :
+        print ('WARNING Truth Strategy for for InDetPhysValMonitoring set to invalid option %s; valid flags are ["HardScatter", "All", "PileUp"]' %  (InDetPhysValFlags.setTruthStrategy()))
+         
+
+      
+
 
    else :
       # disable truth monitoring for data
@@ -74,7 +93,17 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          TruthSelectionTool         = '',
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
-                         FillTrackInJetPlots        = False)
+                         FillTrackInJetPlots        = False,
+                         FillTrackInBJetPlots       = False)
+
+   # Control the number of output histograms
+   if InDetPhysValFlags.doPhysValOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 100)
+
+   elif InDetPhysValFlags.doExpertOutput() :
+      kwargs=setDefaults(kwargs,
+                         SkillLevel = 200)
 
    # hack to remove example physval monitor
    from RecExConfig.AutoConfiguration import IsInInputFile

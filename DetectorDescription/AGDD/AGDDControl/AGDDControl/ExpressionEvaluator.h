@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EXPRESSION_EVALUATOR_H
-#define EXPRESSION_EVALUATOR_H 1
+#define EXPRESSION_EVALUATOR_H
 
 #include "CLHEP/Evaluator/Evaluator.h"
 
@@ -11,9 +11,9 @@
 #include <vector>
 #include <map>
 
-typedef std::map< std::string, double >         ConstantsTable;
-typedef std::map< std::string, double >         PhysicalConstantsTable;
-typedef std::map< std::string, std::string >       ExpressionsTable;
+typedef std::map< std::string, double> ConstantsTable;
+typedef std::map< std::string, double> PhysicalConstantsTable;
+typedef std::map< std::string, std::string> ExpressionsTable;
 
 class ExpressionEvaluator
 {

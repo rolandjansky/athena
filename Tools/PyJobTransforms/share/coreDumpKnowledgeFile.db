@@ -1,0 +1,18 @@
+# A knowledge file consist of abnormal lines  
+#
+# The main goal of reporting abnormal line(s) before core dump is to 
+# improve error reporting for exe65 with "Segmentation fault"
+# 
+# These abnormal lines normally do not appeare in successful jobs
+# and they don't have the standard logging structure
+#
+# List of abnormal lines:
+warn\s+\[frontier(.*)
+TBufferFile::CheckObject:0:\s(.*)
+Error\s+in\s<TExMap::Remove>:\s(.*)
+G4GDecay3::GetThreeBodyMomenta:\s(.*)
+generateSCMmuonAbsorption:\sGetThreeBodyMomenta\(\)\sfailed(.*)
+Failed\sretrieving\stool!!
+Warning:\spTpythia\swas\snegative
+tcmalloc:\slarge\salloc(.*)
+

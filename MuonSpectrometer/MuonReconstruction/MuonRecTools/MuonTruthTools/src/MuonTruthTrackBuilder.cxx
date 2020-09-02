@@ -33,7 +33,7 @@
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonSegment/MuonSegment.h"
 // HepMC
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"

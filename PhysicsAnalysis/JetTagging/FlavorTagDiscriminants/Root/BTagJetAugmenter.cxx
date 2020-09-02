@@ -107,143 +107,51 @@ BTagJetAugmenter::BTagJetAugmenter(std::string associator, FlavorTagDiscriminant
   m_min_trk_flightDirRelEta("minimumTrackRelativeEta" + flipString(f)),
   m_max_trk_flightDirRelEta("maximumTrackRelativeEta" + flipString(f)),
   m_avg_trk_flightDirRelEta("averageTrackRelativeEta" + flipString(f)),
-  m_smt_mu_pt("SMT_mu_pt"),
-  m_smt_isDefaults("SMT_isDefaults"),
   m_rnnip_pbIsValid(rnn(f) + "_pbIsValid"),
   m_rnnip_isDefaults(rnn(f) + "_isDefaults")
 {
-  using namespace FlavorTagDiscriminants;
-  typedef SG::AuxElement::Decorator<float> ADF;
-  typedef SG::AuxElement::Decorator<double> ADD;
-  typedef SG::AuxElement::Decorator<char> ADC;
-  typedef SG::AuxElement::Decorator<int> ADI;
 }
 
 BTagJetAugmenter::~BTagJetAugmenter() = default;
 BTagJetAugmenter::BTagJetAugmenter(BTagJetAugmenter&&) = default;
 
-std::string BTagJetAugmenter::get_pt_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_pt_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter::get_eta_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_eta_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter:: get_abs_eta_uncalib_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_abs_eta_uncalib.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_nTrks.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_cu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_cu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_bu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip2d_bc_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip2d_bc.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_nTrks.auxid() );
-} 
-
-std::string BTagJetAugmenter::get_ip3d_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_cu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_cu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_bu_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bu.auxid() );
-}
-
-std::string BTagJetAugmenter::get_ip3d_bc_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_ip3d_bc.auxid() );
-}
-
-std::string BTagJetAugmenter::get_jf_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_jf_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_jf_deltaR_key()  {
-  return SG::AuxTypeRegistry::instance().getName( m_jf_deltaR.auxid() );
-}
-
-std::string BTagJetAugmenter::get_sv1_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_sv1_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_nTrks_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_nTrks.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_m_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_m.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_E_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_E.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_EFrac_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_EFrac.auxid() );
-}
-  
-std::string BTagJetAugmenter::get_secondaryVtx_L3d_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_L3d.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_Lxy_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_Lxy.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_min_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_min_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_max_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_max_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_secondaryVtx_avg_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_secondaryVtx_avg_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_min_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_min_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_max_trk_flightDirRelEta_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_max_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_avg_trk_flightDirRelEta_key()  {
-  return SG::AuxTypeRegistry::instance().getName( m_avg_trk_flightDirRelEta.auxid() );
-}
-
-std::string BTagJetAugmenter::get_smt_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_smt_isDefaults.auxid() );
-}
-
-std::string BTagJetAugmenter::get_rnnip_isDefaults_key() {
-  return SG::AuxTypeRegistry::instance().getName( m_rnnip_isDefaults.auxid() );
+std::vector<std::string> BTagJetAugmenter::getDecoratorKeys() const {
+  const auto& type_registry = SG::AuxTypeRegistry::instance();
+  std::vector<std::string> keys;
+  for (const auto& auxid: {
+      m_pt_uncalib.auxid(),
+        m_eta_uncalib.auxid(),
+        m_abs_eta_uncalib.auxid(),
+        m_ip2d_nTrks.auxid(),
+        m_ip2d_isDefaults.auxid(),
+        m_ip2d_cu.auxid(),
+        m_ip2d_bu.auxid(),
+        m_ip2d_bc.auxid(),
+        m_ip3d_nTrks.auxid(),
+        m_ip3d_isDefaults.auxid(),
+        m_ip3d_cu.auxid(),
+        m_ip3d_bu.auxid(),
+        m_ip3d_bc.auxid(),
+        m_jf_isDefaults.auxid(),
+        m_jf_deltaR.auxid(),
+        m_sv1_isDefaults.auxid(),
+        m_secondaryVtx_isDefaults.auxid(),
+        m_secondaryVtx_nTrks.auxid(),
+        m_secondaryVtx_m.auxid(),
+        m_secondaryVtx_E.auxid(),
+        m_secondaryVtx_EFrac.auxid(),
+        m_secondaryVtx_L3d.auxid(),
+        m_secondaryVtx_Lxy.auxid(),
+        m_secondaryVtx_min_trk_flightDirRelEta.auxid(),
+        m_secondaryVtx_max_trk_flightDirRelEta.auxid(),
+        m_secondaryVtx_avg_trk_flightDirRelEta.auxid(),
+        m_min_trk_flightDirRelEta.auxid(),
+        m_max_trk_flightDirRelEta.auxid(),
+        m_avg_trk_flightDirRelEta.auxid(),
+        m_rnnip_isDefaults.auxid()}) {
+    keys.push_back(type_registry.getName(auxid));
+  }
+  return keys;
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet) {
@@ -261,15 +169,38 @@ void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
     m_jf_deltaR(btag) = std::hypot(m_jf_deltaEta(btag), m_jf_deltaPhi(btag));
   }
 }
+
+
+float BTagJetAugmenter::safelog_prob(float p_up, float p_down){
+
+  if( std::isnan(p_up) ){
+    return -1000.0;
+  }
+
+  if(std::isnan(p_down) ){
+    return -1000.0;
+  }
+
+  if(p_down < 0.0000000000000000000001 && p_up > p_down){
+    return 1000.0;
+  }
+
+  if(p_up < 0.0000000000000000000001){
+    return -1000.0;
+  }
+
+  return std::log(p_up /p_down);
+}
+
 void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
 
-  m_ip2d_cu(btag) = std::log(m_ip2d_pc(btag) / m_ip2d_pu(btag));
-  m_ip2d_bu(btag) = std::log(m_ip2d_pb(btag) / m_ip2d_pu(btag));
-  m_ip2d_bc(btag) = std::log(m_ip2d_pb(btag) / m_ip2d_pc(btag));
+  m_ip2d_cu(btag) = safelog_prob(m_ip2d_pc(btag) , m_ip2d_pu(btag));
+  m_ip2d_bu(btag) = safelog_prob(m_ip2d_pb(btag) , m_ip2d_pu(btag));
+  m_ip2d_bc(btag) = safelog_prob(m_ip2d_pb(btag) , m_ip2d_pc(btag));
 
-  m_ip3d_cu(btag) = std::log(m_ip3d_pc(btag) / m_ip3d_pu(btag));
-  m_ip3d_bu(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pu(btag));
-  m_ip3d_bc(btag) = std::log(m_ip3d_pb(btag) / m_ip3d_pc(btag));
+  m_ip3d_cu(btag) = safelog_prob(m_ip3d_pc(btag) , m_ip3d_pu(btag));
+  m_ip3d_bu(btag) = safelog_prob(m_ip3d_pb(btag) , m_ip3d_pu(btag));
+  m_ip3d_bc(btag) = safelog_prob(m_ip3d_pb(btag) , m_ip3d_pc(btag));
 
 }
 void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
@@ -331,9 +262,11 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
 
     for (std::size_t jf_vtx_index = 0; jf_vtx_index < m_jf_vertices(btag).size() && jf_vtx_index < m_jf_fittedPosition(btag).size() - 5; jf_vtx_index++) {
       float jf_vtx_L3d = m_jf_fittedPosition(btag).at(jf_vtx_index + 5);
-      if (jf_vtx_L3d > 0 && (jf_vtx_L3d < min_jf_vtx_L3d || std::isnan(min_jf_vtx_L3d))) {
-        secondary_jf_vtx_index = jf_vtx_index;
-        min_jf_vtx_L3d = jf_vtx_L3d;
+      if (jf_vtx_L3d > 0){
+        if(std::isnan(min_jf_vtx_L3d) || (jf_vtx_L3d < min_jf_vtx_L3d)){ 
+          secondary_jf_vtx_index = jf_vtx_index;
+          min_jf_vtx_L3d = jf_vtx_L3d;
+        }
       }
     }
 
@@ -377,33 +310,35 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     track_number++;
     track_E_total += track_particle.e();
 
-    TVector3 track_flightDirRelVect = track_particle.p4().Vect();
-    track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
 
     double track_flightDirRelEta = NAN;
-    if (track_flightDirRelVect.Perp() != 0) {
-      track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+    if (!std::isnan(jf_phi)) {
+      TVector3 track_flightDirRelVect = track_particle.p4().Vect();
+      if (track_flightDirRelVect.Perp()) {
+        track_flightDirRelVect.SetTheta(track_flightDirRelVect.Angle(flightDir));
+        track_flightDirRelEta = track_flightDirRelVect.PseudoRapidity();
+      }
     }
 
     track_flightDirRelEta_total += track_flightDirRelEta;
-    if (track_flightDirRelEta < min_track_flightDirRelEta || std::isnan(min_track_flightDirRelEta)) {
+    if(std::isnan(min_track_flightDirRelEta) || track_flightDirRelEta < min_track_flightDirRelEta){
       min_track_flightDirRelEta = track_flightDirRelEta;
     }
-    if (track_flightDirRelEta > max_track_flightDirRelEta || std::isnan(max_track_flightDirRelEta)) {
+    if (std::isnan(max_track_flightDirRelEta) || track_flightDirRelEta > max_track_flightDirRelEta) {
       max_track_flightDirRelEta = track_flightDirRelEta;
     }
     if (secondary_jf_vtx_index >= 0) {
-      for (const ElementLink<xAOD::TrackParticleContainer> vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
+      for (const ElementLink<xAOD::TrackParticleContainer>& vertex_track_particle : (**m_jf_vertices(btag).at(secondary_jf_vtx_index)).track_links()) {
         if (*vertex_track_particle == &track_particle) {
           secondaryVtx_track_number++;
           TLorentzVector track_fourVector;
           track_fourVector.SetVectM(track_particle.p4().Vect(), track_mass);
           secondaryVtx_4momentum_total += track_fourVector;
           secondaryVtx_track_flightDirRelEta_total += track_flightDirRelEta;
-          if (track_flightDirRelEta < secondaryVtx_min_track_flightDirRelEta || std::isnan(secondaryVtx_min_track_flightDirRelEta)) {
+          if (std::isnan(secondaryVtx_min_track_flightDirRelEta) || track_flightDirRelEta < secondaryVtx_min_track_flightDirRelEta) {
             secondaryVtx_min_track_flightDirRelEta = track_flightDirRelEta;
           }
-          if (track_flightDirRelEta > secondaryVtx_max_track_flightDirRelEta || std::isnan(secondaryVtx_max_track_flightDirRelEta)) {
+          if (std::isnan(secondaryVtx_max_track_flightDirRelEta) || track_flightDirRelEta > secondaryVtx_max_track_flightDirRelEta) {
             secondaryVtx_max_track_flightDirRelEta = track_flightDirRelEta;
           }
         }
@@ -429,28 +364,31 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     m_secondaryVtx_E(btag) = E;
     m_secondaryVtx_EFrac(btag) = EFrac;
   }
-  {
+  if(secondaryVtx_track_number > 0){
     double min = secondaryVtx_min_track_flightDirRelEta;
     double max = secondaryVtx_max_track_flightDirRelEta;
     double avg = secondaryVtx_track_flightDirRelEta_total / secondaryVtx_track_number;
     m_secondaryVtx_min_trk_flightDirRelEta(btag) = min;
     m_secondaryVtx_max_trk_flightDirRelEta(btag) = max;
     m_secondaryVtx_avg_trk_flightDirRelEta(btag) = avg;
+  }else{
+    m_secondaryVtx_min_trk_flightDirRelEta(btag) = NAN;
+    m_secondaryVtx_max_trk_flightDirRelEta(btag) = NAN;
+    m_secondaryVtx_avg_trk_flightDirRelEta(btag) = NAN;
   }
-  {
+  if(track_number > 0){
     double min = min_track_flightDirRelEta;
     double max = max_track_flightDirRelEta;
     double avg = track_flightDirRelEta_total / track_number;
     m_min_trk_flightDirRelEta(btag) = min;
     m_max_trk_flightDirRelEta(btag) = max;
     m_avg_trk_flightDirRelEta(btag) = avg;
+  }else{
+    m_min_trk_flightDirRelEta(btag) = NAN;
+    m_max_trk_flightDirRelEta(btag) = NAN;
+    m_avg_trk_flightDirRelEta(btag) = NAN;
   }
 
-  if (m_smt_mu_pt(btag) > 0) {
-    m_smt_isDefaults(btag) = 0;
-  }  else {
-    m_smt_isDefaults(btag) = 1;
-  }
   m_rnnip_isDefaults(btag) = 0;
 
 }

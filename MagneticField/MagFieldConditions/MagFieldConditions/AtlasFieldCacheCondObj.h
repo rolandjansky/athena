@@ -23,27 +23,24 @@ public:
 
     ~AtlasFieldCacheCondObj();
 
-    /// Temporary flag for switching between 'old' and 'new' magField usage
-    bool useNewBfieldCache() { return m_useNewBfieldCache; }
-
     /** get B field cache for evaluation as a function of 2-d (solenoid) or 3-d (toroid) position. 
         Resets cache to an initialized state */
     inline void getInitializedCache (MagField::AtlasFieldCache& cache) const;
 
     /** access to solenoid field scale factor */
-    double solenoidFieldScaleFactor() const { return m_solFieldScale; } ;
+    double solenoidFieldScaleFactor() const { return m_solFieldScale; } 
 
     /** access to toroid field scale factor */
-    double toriodFieldScaleFactor() const { return m_torFieldScale; } ;
+    double toriodFieldScaleFactor() const { return m_torFieldScale; } 
 
+    /** access to non-owning AtlasFieldMap*/
+    const MagField::AtlasFieldMap* fieldMap() const { return m_fieldMap; }
+    
     /** set values for field scale and service to be able to build the cache **/
-    bool initialize(double solFieldScale, double torFieldScale, 
-                    const MagField::AtlasFieldMap* fieldMap,
-                    bool useNewBfieldCache);
+    void initialize(double solFieldScale, double torFieldScale, 
+                    const MagField::AtlasFieldMap* fieldMap);
 
 private:
-    /// Temporary flag for switching between 'old' and 'new' magField usage
-    bool                             m_useNewBfieldCache{false};
     double                           m_solFieldScale{1};
     double                           m_torFieldScale{1};
     const MagField::AtlasFieldMap*   m_fieldMap{nullptr};
@@ -56,7 +53,7 @@ AtlasFieldCacheCondObj::getInitializedCache (MagField::AtlasFieldCache& cache) c
 {
 
     // setup with field scale and magnetic field service for first access to field */
-    cache = MagField::AtlasFieldCache(m_solFieldScale, m_torFieldScale, m_fieldMap, m_useNewBfieldCache);
+    cache = MagField::AtlasFieldCache(m_solFieldScale, m_torFieldScale, m_fieldMap);
 }
 
 

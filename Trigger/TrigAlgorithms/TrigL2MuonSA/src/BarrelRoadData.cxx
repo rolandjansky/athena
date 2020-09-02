@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/BarrelRoadData.h"
+#include "BarrelRoadData.h"
 #include <iostream>
 
 const float MuonRoads[2][12][8] = {{ // LOW PT threshold

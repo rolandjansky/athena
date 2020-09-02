@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import os
@@ -606,7 +606,7 @@ def makeOneHistFile(htmlDir, name, subname, sp, runlistLoc, compare, jsRoot):
                 else:
                     name = ' '.join([namecache[-1]])
                     namecache = []
-                import urllib
+                from six.moves import urllib
                 resultname = name.rsplit(':', 1)[0]
                 resultval = sp[cc-1]
                 if algorithm == 'RepeatAlgorithm' and resultname.endswith('|Status'):
@@ -615,15 +615,15 @@ def makeOneHistFile(htmlDir, name, subname, sp, runlistLoc, compare, jsRoot):
                 if compare and run is not None:
                     if period_type == 'run':
                         queryurl = 'http://atlasdqm.cern.ch:8080/dqmfquery/query?histogram=%s&result=%s&error=&stream=%s&period_type=%s&source=tier0&proc_ver=%s&low_run=%s&high_run=&low_y=&high_y=&outputtype=png' % (
-                            urllib.quote_plus(subname+'/'+sp[0]), urllib.quote_plus(resultname), stream.strip(), period_type, proc_ver, int(run)-1000)
+                            urllib.parse.quote_plus(subname+'/'+sp[0]), urllib.parse.quote_plus(resultname), stream.strip(), period_type, proc_ver, int(run)-1000)
                         k.write(
                             '<tr><td align="right"><b><a href="%s">%s</a>:</b></td>' % (queryurl, resultname))
                         k.write('<td>'+resultval+'</td></tr>\n')
                     else:
                         queryurl1 = 'http://atlasdqm.cern.ch:8080/dqmfquery/query?histogram=%s&result=%s&error=&stream=%s&period_type=%s&source=tier0&proc_ver=%s&low_run=%s&high_run=&low_y=&high_y=&outputtype=png' % (
-                            urllib.quote_plus(subname+'/'+sp[0]), urllib.quote_plus(resultname), stream.strip(), period_type, proc_ver, int(run)-1000)
+                            urllib.parse.quote_plus(subname+'/'+sp[0]), urllib.parse.quote_plus(resultname), stream.strip(), period_type, proc_ver, int(run)-1000)
                         queryurl2 = 'http://atlasdqm.cern.ch:8080/dqmfquery/query?histogram=%s&result=%s&error=&stream=%s&period_type=%s&source=tier0&proc_ver=%s&low_run=%s&high_run=%s&low_y=&high_y=&outputtype=png' % (
-                            urllib.quote_plus(subname+'/'+sp[0]), urllib.quote_plus(resultname), stream.strip(), period_type, proc_ver, run, run)
+                            urllib.parse.quote_plus(subname+'/'+sp[0]), urllib.parse.quote_plus(resultname), stream.strip(), period_type, proc_ver, run, run)
                         k.write(
                             '<tr><td align="right"><b><a href="%s">%s</a>:</b></td>' % (queryurl1, resultname))
                         k.write(

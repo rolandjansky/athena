@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from G4UserActions.G4UserActionsConf import G4UA__AthenaStackingActionTool, G4UA__AthenaTrackingActionTool, G4UA__LooperKillerTool, G4UA__G4SimTimerTool, G4UA__G4TrackCounterTool
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
@@ -31,7 +31,7 @@ def AthenaStackingActionToolCfg(ConfigFlags, name='G4UA::AthenaStackingActionToo
         kwargs.setdefault('PRRWeight',  ConfigFlags.Sim.PRRWeight)
     kwargs.setdefault('IsISFJob', ConfigFlags.Sim.ISFRun)
 
-    result.setPrivateTools( G4UA__AthenaStackingActionTool(name,**kwargs) )
+    result.setPrivateTools( CompFactory.G4UA.AthenaStackingActionTool(name,**kwargs) )
     return result
 
 
@@ -45,21 +45,45 @@ def AthenaTrackingActionToolCfg(ConfigFlags, name='G4UA::AthenaTrackingActionToo
         subDetLevel=2
 
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
-    result.setPrivateTools( G4UA__AthenaTrackingActionTool(name,**kwargs) )
+    result.setPrivateTools( CompFactory.G4UA.AthenaTrackingActionTool(name,**kwargs) )
     return result
 
 def LooperKillerToolCfg(ConfigFlags, name='G4UA::LooperKillerTool', **kwargs):
     result = ComponentAccumulator()
-    result.setPrivateTools(G4UA__LooperKillerTool(name, **kwargs))
+    result.setPrivateTools(CompFactory.G4UA.LooperKillerTool(name, **kwargs))
     return result
 
 def G4SimTimerToolCfg(ConfigFlags, name='G4UA::G4SimTimerTool', **kwargs):
     result = ComponentAccumulator()
-    result.setPrivateTools(G4UA__G4SimTimerTool(name,**kwargs))
+    result.setPrivateTools(CompFactory.G4UA.G4SimTimerTool(name,**kwargs))
     return result
 
 
 def G4TrackCounterToolCfg(ConfigFlags, name='G4UA::G4TrackCounterTool', **kwargs):
     result = ComponentAccumulator()
-    result.setPrivateTools(G4UA__G4TrackCounterTool(name,**kwargs))
+    result.setPrivateTools(CompFactory.G4UA.G4TrackCounterTool(name,**kwargs))
+    return result
+
+
+def StoppedParticleActionToolCfg(ConfigFlags, name="G4UA::StoppedParticleActionTool", **kwargs):
+    # Just have to set the stopping condition
+    result = ComponentAccumulator()
+    # FIXME UserActionConfig not yet migrated
+    # example custom configuration 
+    # if name in simFlags.UserActionConfig.get_Value().keys():
+    #     for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+    #         kwargs.setdefault(prop,value)
+    result.setPrivateTools(CompFactory.G4UA.StoppedParticleActionTool(name, **kwargs))
+    return result
+
+
+def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
+    result = ComponentAccumulator()
+    # FIXME UserActionConfig not yet migrated
+    # example custom configuration
+    # from G4AtlasApps.SimFlags import simFlags
+    # if name in simFlags.UserActionConfig.get_Value().keys():
+    #     for prop,value in simFlags.UserActionConfig.get_Value()[name].iteritems():
+    #         kwargs.setdefault(prop,value)
+    result.setPrivateTools(CompFactory.G4UA.HitWrapperTool(name, **kwargs))
     return result

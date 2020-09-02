@@ -17,8 +17,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TestStore.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
 #include <cassert>
 #include <iostream>
 

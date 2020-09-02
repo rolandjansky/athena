@@ -5,7 +5,7 @@
 #include "TrkTrackDetailedTruthAssociationTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"

@@ -6,20 +6,22 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/HelperFunctions.h"
 
-#include "GaudiKernel/SystemOfUnits.h"
+#include "AsgDataHandles/ReadHandle.h"
+
+#define GeV 1000
 
 //_____________________________________________________________________________
 MvaTESVariableDecorator::MvaTESVariableDecorator(const std::string& name) 
-  : TauRecToolBase(name) 
-{
+  : TauRecToolBase(name) {
+  declareProperty("IncShowerSubtr", m_incShowerSubtr = true, "use shower subtracted clusters in calo calculations");
 }
 
 //_____________________________________________________________________________
-MvaTESVariableDecorator::~MvaTESVariableDecorator()
-{
+MvaTESVariableDecorator::~MvaTESVariableDecorator() {
+
 }
 
-StatusCode MvaTESVariableDecorator::initialize(){
+StatusCode MvaTESVariableDecorator::initialize() {
 
   ATH_CHECK( m_eventInfo.initialize() );
 
@@ -33,7 +35,7 @@ StatusCode MvaTESVariableDecorator::finalize() {
 }
 
 //_____________________________________________________________________________
-StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
+StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   
   // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger
@@ -83,25 +85,16 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   clusters_EM_P4.SetPtEtaPhiM(0,0,0,0);
   TLorentzVector clusters_had_P4;
   clusters_had_P4.SetPtEtaPhiM(0,0,0,0);
-  
+
   TLorentzVector LC_P4;
   LC_P4.SetPtEtaPhiM(xTau.ptDetectorAxis(), xTau.etaDetectorAxis(), xTau.phiDetectorAxis(), xTau.m());
-  
-  // ----loop over jet seed constituents
-  xAOD::JetConstituentVector vec = jet_seed->getConstituents();
-  xAOD::JetConstituentVector::iterator it = vec.begin();
-  xAOD::JetConstituentVector::iterator itE = vec.end();
-  for( ; it!=itE; ++it){
-    // ----DeltaR selection
-    TLorentzVector cluster_P4;
-    cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),0);
-    if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
 
-    // ----retrieve CaloCluster moments
-    const xAOD::CaloCluster *cl = nullptr;
-    ATH_CHECK(tauRecTools::GetJetConstCluster(it, cl));
-    // Skip if charged PFO
-    if (!cl){continue;}
+  // Loop through jets, get links to clusters
+  std::vector<const xAOD::CaloCluster*> clusterList;
+  ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr, LC_P4, 0.2));
+
+  // Loop through clusters and jet constituents
+  for (auto cl : clusterList){
 
     clE = cl->calE();
     Etot += clE;
@@ -200,7 +193,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   // calculate interpolated pT
   double pt_pantau  = xTau.ptPanTauCellBased();
   double pt_LC      = xTau.ptDetectorAxis();  
-  double interpolWeight = 0.5 * ( 1. + TMath::TanH( ( pt_LC/Gaudi::Units::GeV - 250. ) / 20. ) );
+  double interpolWeight = 0.5 * ( 1. + TMath::TanH( ( pt_LC/GeV - 250. ) / 20. ) );
   double LC_pantau_interpolPt = interpolWeight*pt_LC + (1.-interpolWeight)*pt_pantau;
   
   xTau.setDetail(xAOD::TauJetParameters::LC_pantau_interpolPt, (float) LC_pantau_interpolPt);

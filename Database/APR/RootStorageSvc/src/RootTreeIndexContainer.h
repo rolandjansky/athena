@@ -61,7 +61,7 @@ namespace pool {
    private:
       /// Pointer to index branch
       TBranch* m_index_ref;
-      TBranch* m_index_foreign;
+      long long int m_index_entries;
       /// Index multiplier (e.g. pid - ppid), fill in c'tor
       int m_index_multi;
       /// Index (64 bit)

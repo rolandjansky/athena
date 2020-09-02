@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnlDbPrep/LArDSPThresholdFillInline.h"
@@ -54,8 +54,8 @@ LArDSPThresholdFillInline::LArDSPThresholdFillInline(const std::string& name, IS
   //For channel masking
   declareProperty("MaskBadChannels",m_maskBadChannels=false);
   declareProperty("BadChannelMasker",m_badChannelMasker);
-  declareProperty("MaskedtQThreshold",m_maskedtqThrsh=0x7fffffff);
-  declareProperty("MaskedsamplesThreshold",m_maskedsamplesThrsh=0x7fffffff);
+  declareProperty("MaskedtQThreshold",m_maskedtqThrsh=static_cast<float>(0x7fffffff));
+  declareProperty("MaskedsamplesThreshold",m_maskedsamplesThrsh=static_cast<float>(0x7fffffff));
 
   declareProperty("Dump",m_dump=false);
   declareProperty("OutFile",m_outFileName="out.txt");

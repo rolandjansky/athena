@@ -1,27 +1,9 @@
-################################################################################
-# Package: InDetOverlay
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetOverlay )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/EventOverlay/IDC_OverlayBase
-                          GaudiKernel
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/IdDictParser
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          InnerDetector/InDetRecTools/TRT_ElectronPidTools
-                          Tracking/TrkEvent/TrkTrack
-                          )
-
-#External dependencies:
+# External dependencies:
 find_package( CLHEP )
 find_package( GTest )
 
@@ -31,15 +13,20 @@ set( _jobOPath
 set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 
 # Unit Tests
+atlas_add_test( BCMOverlay_test
+                SOURCES test/BCMOverlay_test.cxx src/BCMOverlay.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES AthenaBaseComps GaudiKernel CxxUtils StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetSimData ${GTEST_LIBRARIES} )
+
 atlas_add_test( PixelOverlay_test
                 SOURCES test/PixelOverlay_test.cxx src/PixelOverlay.cxx
-                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
 
 atlas_add_test( SCTOverlay_test
                 SOURCES test/SCTOverlay_test.cxx src/SCTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
+                LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 
@@ -48,14 +35,17 @@ atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib TRT_ElectronPidToolsLib)
 
 # Install files from the package:
-atlas_install_headers( InDetOverlay )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
 
 # Configuration tests
+atlas_add_test( BCMOverlayConfig_test
+                SCRIPT test/BCMOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( PixelOverlayConfig_test
                 SCRIPT test/PixelOverlayConfig_test.py
                 PROPERTIES TIMEOUT 300 )

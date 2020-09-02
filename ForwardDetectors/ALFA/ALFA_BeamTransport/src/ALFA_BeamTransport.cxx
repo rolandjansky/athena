@@ -23,15 +23,15 @@
 
 // FrameWork includes
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/SimpleVector.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/SimpleVector.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //ROOT headers
 #include "TFile.h"

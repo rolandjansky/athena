@@ -17,8 +17,8 @@ EMClusterEtaPosErrorsMatrix::EMClusterEtaPosErrorsMatrix() :
 
 
 EMClusterEtaPosErrorsMatrix::EMClusterEtaPosErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, 
-						   std::string textDescription) : 
-  EMClusterErrorsMatrix(axes, std::move(textDescription))
+						   const std::string& textDescription) : 
+  EMClusterErrorsMatrix(axes, textDescription)
 {
 }
 

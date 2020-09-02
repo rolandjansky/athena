@@ -1,44 +1,28 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
+
 #include "MuonPrepRawData/MMPrepData.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 
 using namespace Muon;
 
-Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& t,
-							     const std::string& n,
-							     const IInterface*  p )
-  :  
-  AthAlgTool(t,n,p)
-{
+Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
   declareInterface<IMMClusterBuilderTool>(this);
-  declareProperty("useErrorParametrization",m_useErrorParametrization=true);
-
+  declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
+  declareProperty("useErrorParametrization", m_useErrorParametrization = true);
+  declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
-
-Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
-{
-
-}
-
 
 StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
-  ATH_CHECK( m_idHelperSvc.retrieve() );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Muon::SimpleMMClusterBuilderTool::finalize()
-{
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
 StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect) const 
+							 std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const 
 
 {
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
@@ -67,35 +51,45 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     int strip = m_idHelperSvc->mmIdHelper().channel(id_prd);
     int gasGap  = m_idHelperSvc->mmIdHelper().gasGap(id_prd);
     int layer   = m_idHelperSvc->mmIdHelper().multilayer(id_prd);
-    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip 
-		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z() );
-    for (unsigned int j=i+1; j<MMprds.size(); ++j){
+    ATH_MSG_VERBOSE("  MMprds " <<  MMprds.size() <<" index "<< i << " strip " << strip
+		    << " gasGap " << gasGap << " layer " << layer << " z " << MMprds[i].globalPosition().z());
+    for (unsigned int j = i+1; j < MMprds.size(); ++j) {
       Identifier id_prdN = MMprds[j].identify();
       int stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
       int gasGapN  = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
       int layerN   = m_idHelperSvc->mmIdHelper().multilayer(id_prdN);
-      if( gasGapN==gasGap && layerN==layer ) {
-	ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j << " strip " << stripN << " gasGap " << gasGapN << " layer " << layerN );
-	if(abs(strip-stripN)<2) {
-	  jmerge = j;
-	  break;
-	}
+      if (gasGapN == gasGap && layerN == layer) {
+          ATH_MSG_VERBOSE(" next MMprds strip same gasGap and layer index " << j
+                          << " strip " << stripN
+                          << " gasGap " << gasGapN
+                          << " layer " << layerN);
+          if (static_cast<unsigned int>(std::abs(strip-stripN)) <= m_maxHoleSize + 1) {
+          jmerge = j;
+          break;
+        }
       }
     }
- 
+
     unsigned int nmerge = 0;
     std::vector<Identifier> rdoList;
     std::vector<unsigned int> mergeIndices;
     std::vector<uint16_t> mergeStrips;
     std::vector<short int> mergeStripsTime;
     std::vector<int> mergeStripsCharge;
+    std::vector<float> mergeStripsDriftDists;
+    std::vector<Amg::MatrixX> mergeStripsDriftDistErrors;
+
 
     rdoList.push_back(id_prd);
     MMflag[i] = 1;
     mergeIndices.push_back(i);
     mergeStrips.push_back(strip);
-    mergeStripsTime.push_back(MMprds[i].time()-MMprds[i].globalPosition().norm()/299.792);
-    mergeStripsCharge.push_back(MMprds[i].charge());
+    if (m_writeStripProperties) {
+      mergeStripsTime.push_back(MMprds[i].time());
+      mergeStripsCharge.push_back(MMprds[i].charge());
+    }
+    mergeStripsDriftDists.push_back(MMprds[i].driftDist());
+    mergeStripsDriftDistErrors.push_back(MMprds[i].localCovariance());
 
     unsigned int nmergeStrips = 1;
     unsigned int nmergeStripsMax = 50;
@@ -104,7 +98,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	if(MMflag[j] == 1) continue;
 	Identifier id_prdN = MMprds[j].identify();
 	int stripN = m_idHelperSvc->mmIdHelper().channel(id_prdN);
-	if( abs(mergeStrips[k]-stripN) <= 1 ) {
+	if( static_cast<unsigned int>(std::abs(mergeStrips[k]-stripN)) <= m_maxHoleSize + 1 ) {
 	  int gasGapN  = m_idHelperSvc->mmIdHelper().gasGap(id_prdN);
 	  int layerN   = m_idHelperSvc->mmIdHelper().multilayer(id_prdN);
 	  if( gasGapN==gasGap && layerN==layer ) {
@@ -117,8 +111,12 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 	    MMflag[j] = 1;
 	    mergeIndices.push_back(j);
 	    mergeStrips.push_back(stripN);
-	    mergeStripsTime.push_back(MMprds[j].time()-MMprds[j].globalPosition().norm()/299.792);
-	    mergeStripsCharge.push_back(MMprds[j].charge());
+      if(m_writeStripProperties) {
+        mergeStripsTime.push_back(MMprds[j].time());
+        mergeStripsCharge.push_back(MMprds[j].charge());
+      }
+      mergeStripsDriftDists.push_back(MMprds[j].driftDist());
+      mergeStripsDriftDistErrors.push_back(MMprds[j].localCovariance());
 	    nmergeStrips++;
 	  }
 	}
@@ -188,11 +186,16 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition, 
-				      rdoList, covN, MMprds[j].detectorElement(),
-                                      (short int)0,int(totalCharge),(float)0.0,
-				      mergeStrips,mergeStripsTime,mergeStripsCharge);
-    clustersVect.push_back(prdN);
+    std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprds[j].identify(), hash, clusterLocalPosition,
+              rdoList, covN, MMprds[j].detectorElement(),
+              static_cast<short int> (0), static_cast<int>(totalCharge), static_cast<float>(0.0),
+              (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0) ),
+              mergeStripsTime, mergeStripsCharge);
+    prdN->setDriftDist(mergeStripsDriftDists, mergeStripsDriftDistErrors);
+    prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
+
+
+    clustersVect.push_back(std::move(prdN));
   } // end loop MMprds[i]
   //clear vector and delete elements
   MMflag.clear();

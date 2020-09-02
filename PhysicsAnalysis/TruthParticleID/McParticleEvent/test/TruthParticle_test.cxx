@@ -23,12 +23,14 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IService.h"
 
+#include "StoreGate/WriteHandle.h"
+
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
@@ -74,20 +76,31 @@ void throw_tp_test_err (const char* file, int line, const char* what)
 
 #define TP_ASSERT(X) myassert(X)
 
-typedef CLHEP::HepLorentzVector HLV_t;
+typedef HepMC::FourVector HLV_t;
 typedef TruthParticleContainer::Map_t Map_t;
 typedef TruthEtIsolations::EtIsol_t EtIsol_t;
 
 // helper to fill the TruthParticleContainer internal map[extended-bc -> truthpart]
 //  note that it is only working for the case where there is only 1 GenEvent...
+#ifdef HEPMC3
+Map_t::value_type 
+make_map_t_pair(const HepMC::GenParticlePtr &p,
+                const TruthParticle &tp)
+{
+  const std::size_t genEventIdx = 0;
+  HepMcParticleLink link(HepMC::barcode(p), genEventIdx);
+  return Map_t::value_type(link.compress(), &tp);
+}
+#else
 Map_t::value_type 
 make_map_t_pair(const HepMC::GenParticle &p,
                 const TruthParticle &tp)
 {
   const std::size_t genEventIdx = 0;
-  HepMcParticleLink link(p.barcode(), genEventIdx);
+  HepMcParticleLink link(p.barcode(), genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   return Map_t::value_type(link.compress(), &tp);
 }
+#endif
 
 
 class TruthParticleProt
@@ -104,12 +117,12 @@ class TruthParticleTest
 public:
 
   HepMC::GenEvent * m_evt;
-  HepMC::GenVertex * m_vtx;
-  HepMC::GenParticle * m_top;
-  HepMC::GenParticle * m_w;
-  HepMC::GenParticle * m_b;
-  HepMC::GenParticle * m_g1;
-  HepMC::GenParticle * m_g2;
+  HepMC::GenVertexPtr m_vtx;
+  HepMC::GenParticlePtr m_top;
+  HepMC::GenParticlePtr m_w;
+  HepMC::GenParticlePtr m_b;
+  HepMC::GenParticlePtr m_g1;
+  HepMC::GenParticlePtr m_g2;
 
   unsigned int m_nPartsIn;
   unsigned int m_nPartsOut;
@@ -128,9 +141,23 @@ TruthParticleTest* makeTestData()
 
   const int signalProcessId = 1000082;
   const int evtNbr = 1;
-  HepMC::GenEvent * evt = new HepMC::GenEvent( signalProcessId, evtNbr );
+  HepMC::GenEvent * evt = HepMC::newGenEvent( signalProcessId, evtNbr );
   test->m_evt = evt;
 
+#ifdef HEPMC3
+// This is how the attribute can be set. But in HepMC3 meaningless attributes hsould be avoided.
+//  evt->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(-1));
+
+  std::vector<double> weights(3);
+  weights[0] = 1;
+  weights[1] = 1;
+  weights[2] = 1;
+  std::vector<long> rdmStates(2);
+  rdmStates[0] = 85909879;
+  rdmStates[1] = 9707499;
+  evt->weights() = weights;
+  evt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(rdmStates));
+#else
   evt->set_event_scale( -1 );
   evt->set_alphaQCD( -1 );
   evt->set_alphaQED( -1 );
@@ -144,14 +171,15 @@ TruthParticleTest* makeTestData()
   rdmStates[1] = 9707499;
   evt->weights() = weights;
   evt->set_random_states( rdmStates );
+#endif
     
   // Add a t->W+bgg
-  HepMC::GenVertex * vtx = new HepMC::GenVertex;
+  HepMC::GenVertexPtr vtx = HepMC::newGenVertexPtr();
 
   evt->add_vertex( vtx );
   // top
-  HepMC::GenParticle * top = 0;
-  top = new HepMC::GenParticle( HLV_t(-2.35e+05,
+  HepMC::GenParticlePtr top = 
+  HepMC::newGenParticlePtr( HLV_t(-2.35e+05,
 				      +7.34e+04,
 				      +3.60e+04,
 				      +3.04e+05),
@@ -160,40 +188,42 @@ TruthParticleTest* makeTestData()
   
 
   // Wbgg
-  HepMC::GenParticle * w = 0;
-  w = new HepMC::GenParticle( HLV_t(-1.09e+05,
+  HepMC::GenParticlePtr w = 
+  HepMC::newGenParticlePtr( HLV_t(-1.09e+05,
 				    +6.99e+04,
 				    -3.86e+04,
 				    +1.57e+05),
 			      24, 2 ) ;
   vtx->add_particle_out(w);
 
-  HepMC::GenParticle * b = 0;
-  b = new HepMC::GenParticle( HLV_t(-9.23e+04,
+  HepMC::GenParticlePtr b = 
+  HepMC::newGenParticlePtr( HLV_t(-9.23e+04,
 				    +2.54e+03,
 				    +5.32e+04,
 				    +1.07e+05),
 			      5, 2 );
   vtx->add_particle_out(b);
 
-  HepMC::GenParticle * g1 = 0;
-  g1 = new HepMC::GenParticle( HLV_t(-4.76e+03,
+  HepMC::GenParticlePtr g1 =
+  HepMC::newGenParticlePtr( HLV_t(-4.76e+03,
 				     +6.72e+02,
 				     +2.90e+03,
 				     +5.62e+03),
 			       21, 2 );
   vtx->add_particle_out( g1 );
 
-  HepMC::GenParticle * g2 = 0;
-  g2 = new HepMC::GenParticle( HLV_t(-2.93e+04,
+  HepMC::GenParticlePtr g2 =
+  HepMC::newGenParticlePtr( HLV_t(-2.93e+04,
 				     +2.13e+02,
 				     +1.85e+04,
 				     +3.46e+04),
 			       21, 2 );
   vtx->add_particle_out( g2 );
 
-  McEventCollection * genEvt = new McEventCollection;
-  genEvt->push_back( evt );
+  SG::WriteHandle<McEventCollection> inputTestDataHandle{"GEN_AOD"};
+  inputTestDataHandle = std::make_unique<McEventCollection>();
+  inputTestDataHandle->push_back( evt );
+  McEventCollection * genEvt = &*inputTestDataHandle;
 
   // filling Data test members
   test->m_evt        = evt;
@@ -204,8 +234,13 @@ TruthParticleTest* makeTestData()
   test->m_g1         = g1;
   test->m_g2         = g2;
   // we subtract one because we don't account for the top
+#ifdef HEPMC3
+  test->m_nPartsIn   = vtx->particles_in().size() - 1; 
+  test->m_nPartsOut  = vtx->particles_out().size();
+#else
   test->m_nPartsIn   = vtx->particles_in_size() - 1; 
   test->m_nPartsOut  = vtx->particles_out_size();
+#endif
 
   test->m_nCones = TruthParticleParameters::NbrOfCones;
   for ( std::size_t i = 0; 
@@ -297,10 +332,17 @@ void testSettersAndGetters( TruthParticleTest* tp )
   TruthParticle g2 ( tp->m_g2,  tp->m_mc );
   {
     TruthParticle mc( tp->m_w, tp->m_mc );
+#ifdef HEPMC3
+    Map_t parts;
+    parts.insert( make_map_t_pair( tp->m_w,   mc  ) );
+    parts.insert( make_map_t_pair( tp->m_top, top ) );
+    tp->m_mc->setParticles( parts );
+#else
     Map_t parts;
     parts.insert( make_map_t_pair( *tp->m_w,   mc  ) );
     parts.insert( make_map_t_pair( *tp->m_top, top ) );
     tp->m_mc->setParticles( parts );
+#endif
 
     TP_ASSERT( mc.genMother()          == tp->m_top );
     TP_ASSERT( mc.genMother(refTopIdx) == tp->m_top );
@@ -326,6 +368,15 @@ void testSettersAndGetters( TruthParticleTest* tp )
   }
   {
     TruthParticle mc( tp->m_top, tp->m_mc );
+#ifdef HEPMC3
+    Map_t parts;
+    parts.insert( make_map_t_pair( tp->m_top, mc ) );
+    parts.insert( make_map_t_pair( tp->m_w,   w  ) );
+    parts.insert( make_map_t_pair( tp->m_b,   b  ) );
+    parts.insert( make_map_t_pair( tp->m_g1,  g1 ) );
+    parts.insert( make_map_t_pair( tp->m_g2,  g2 ) );
+    tp->m_mc->setParticles( parts );
+#else
     Map_t parts;
     parts.insert( make_map_t_pair( *tp->m_top, mc ) );
     parts.insert( make_map_t_pair( *tp->m_w,   w  ) );
@@ -333,6 +384,7 @@ void testSettersAndGetters( TruthParticleTest* tp )
     parts.insert( make_map_t_pair( *tp->m_g1,  g1 ) );
     parts.insert( make_map_t_pair( *tp->m_g2,  g2 ) );
     tp->m_mc->setParticles( parts );
+#endif
 
     bool caught = false;
     try {
@@ -344,12 +396,20 @@ void testSettersAndGetters( TruthParticleTest* tp )
     TP_ASSERT( mc.mother( ) == 0 );
     TP_ASSERT( mc.mother(0) == 0 );
 
+#ifdef HEPMC3
+    TP_ASSERT(  mc.genParticle() == tp->m_top );
+#else
     TP_ASSERT( *mc.genParticle() == *tp->m_top );
+#endif
 
     {
       // testing automatic cast to GenParticle
+#ifdef HEPMC3
+      TP_ASSERT( mc == tp->m_top );
+#else
       const HepMC::GenParticle& hepMc = mc;
       TP_ASSERT( hepMc == *tp->m_top );
+#endif
     }
 
     for ( unsigned int i = 0; i != mc.nDecay(); ++i ) {
@@ -426,9 +486,13 @@ void testSettersAndGetters( TruthParticleTest* tp )
 				 tp->m_w->momentum().e());
 
     TP_ASSERT( mc.status()       == tp->m_top->status() );
+#ifdef HEPMC3
+//Add the comparison here?
+#else
     TP_ASSERT( mc.flow()         == tp->m_top->flow() );
     TP_ASSERT( mc.polarization() == tp->m_top->polarization() );
-    TP_ASSERT( mc.barcode()      == tp->m_top->barcode() );
+#endif
+    TP_ASSERT( mc.barcode()      == HepMC::barcode(tp->m_top) );
 
     TP_ASSERT( mc.nParents()        == tp->m_nPartsIn  );
     TP_ASSERT( mc.nDecay()          == tp->m_nPartsOut );
@@ -441,13 +505,6 @@ void testSettersAndGetters( TruthParticleTest* tp )
 	  ++i ) {
       etIsols.push_back( i*2.*CLHEP::GeV );
     }
-//     TP_ASSERT( mc.etIsol() == tp->m_etIsols );
-
-//     mc.setEtIsol( etIsols );
-//     TP_ASSERT( mc.etIsol() == etIsols );
-
-//     mc.setEtIsol( TruthParticleParameters::etcone, -300.*CLHEP::GeV );
-//     TP_ASSERT( mc.etIsol(TruthParticleParameters::etcone) == -300.*CLHEP::GeV );
   }
   
   return;

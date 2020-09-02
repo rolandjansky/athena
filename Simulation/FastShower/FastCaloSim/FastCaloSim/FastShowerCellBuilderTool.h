@@ -93,8 +93,7 @@ public:
   StatusCode caloAligned( IOVSVC_CALLBACK_ARGS );
 
   typedef std::map<int,int> MCdo_simul_state;
-  typedef std::vector<const HepMC::GenParticle*> MCparticleCollection ;
-  typedef MCparticleCollection::const_iterator MCparticleCollectionCIter ;
+  typedef std::vector<HepMC::ConstGenParticlePtr> MCparticleCollection ;
 
 private:
   void LoadParametrizationsFromDir(std::string dir);
@@ -160,8 +159,6 @@ private:
   ParticleEnergyParametrization* findEupper(int id,double E,double eta) const;
   const TShape_Result* findShape (int id,int calosample,double E,double eta,double dist,double distrange) const;
 
-  //void sum_par(const HepMC::GenParticle* par,MsgStream& log,std::vector<double>& sums,int level=0);
-  //void print_par(const HepMC::GenParticle* par,MsgStream& log,int level=0);
 
 
 public:
@@ -189,11 +186,11 @@ private:
   // extrapolation through Calo
   std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
 
-  bool Is_ID_Vertex(HepMC::GenVertex* ver) const;
+  bool Is_ID_Vertex(HepMC::ConstGenVertexPtr ver) const;
   std::vector< double >          m_ID_cylinder_r;
   std::vector< double >          m_ID_cylinder_z;
-  bool Is_EM_Vertex(HepMC::GenVertex* ver) const;
-  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::GenVertex* ver) const;
+  bool Is_EM_Vertex(HepMC::ConstGenVertexPtr ver) const;
+  flag_simul_sate Is_below_v14_truth_cuts_Vertex(HepMC::ConstGenVertexPtr ver) const;
   void MC_remove_out_of_ID(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
   void MC_remove_out_of_EM(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;
   void MC_remove_below_v14_truth_cuts(MCdo_simul_state& do_simul_state,const MCparticleCollection& particles) const;

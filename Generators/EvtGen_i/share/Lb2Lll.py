@@ -246,9 +246,6 @@ if not doNotWritePOOL:
     Stream1.ItemList += [ "2101#*", "133273#*" ]
     Stream1.AcceptAlgs = [ "BSignalFilter" ]
 
-    include("AthenaServices/AthenaSealSvc_joboptions.py" )
-    AthenaSealSvc.CheckDictionary = TRUE
-
 #==============================================================
 #
 # End of job options file

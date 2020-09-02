@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file SCTTracksMonTool.cxx
@@ -34,7 +34,6 @@
 
 #include <cmath>
 
-using namespace std;
 using namespace SCT_Monitoring;
 
 namespace {
@@ -59,7 +58,7 @@ namespace {
   }
 }
 
-const string SCTTracksMonTool::s_triggerNames[] = {
+const std::string SCTTracksMonTool::s_triggerNames[] = {
   "RNDM", "BPTX", "L1CAL", "TGC", "RPC", "MBTS", "COSM", "Calib"
 };
 
@@ -71,8 +70,8 @@ const string SCTTracksMonTool::s_triggerNames[] = {
  *  numbers to be used, and the timebin.
  */
 // ====================================================================================================
-SCTTracksMonTool::SCTTracksMonTool(const string& type,
-                                   const string& name,
+SCTTracksMonTool::SCTTracksMonTool(const std::string& type,
+                                   const std::string& name,
                                    const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent) {
 }
@@ -138,7 +137,7 @@ SCTTracksMonTool::fillHistograms() {
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
 
-  bitset<N_TRIGGER_TYPES> firedTriggers{0};
+  std::bitset<N_TRIGGER_TYPES> firedTriggers{0};
   if (m_doTrigger and (not checkTriggers(firedTriggers).isSuccess())) {
     ATH_MSG_WARNING("Triggers not found!");
   }
@@ -187,7 +186,7 @@ SCTTracksMonTool::fillHistograms() {
     m_tracksPerRegion->Fill(etaRegion(trackPerigeeEta));
     m_trk_eta->Fill(trackPerigeeEta);
     if (track->perigeeParameters()->parameters()[Trk::qOverP] != 0.) {
-      m_trk_pt->Fill(fabs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)));
+      m_trk_pt->Fill(std::abs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)));
     }
     m_trk_d0->Fill(track->perigeeParameters()->parameters()[Trk::d0]);
     m_trk_z0->Fill(track->perigeeParameters()->parameters()[Trk::z0]);
@@ -223,34 +222,32 @@ SCTTracksMonTool::fillHistograms() {
             const unsigned int subsystemIndex{bec2Index(bec)};
             const bool doThisDetector{doThisSubsystem[subsystemIndex]};
             hasHits[subsystemIndex] = true;
-            const Trk::TrackParameters* trkParameters{nullptr};
+            std::unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
+            const Trk::TrackParameters* trkParam{tsos->trackParameters()};
             const Trk::RIO_OnTrack* rio{dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack())};
-            bool updateSucceeds{true};
             if (rio) {
 #ifndef NDEBUG
               ATH_MSG_DEBUG("if rio");
 #endif
               if (m_doUnbiasedCalc) {
-                const Trk::TrackParameters* trkParam{tsos->trackParameters()};
                 if (trkParam) {
-                  trkParameters = m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance());
-                  updateSucceeds = (trkParameters);
+                  trkParameters.reset(m_updator->removeFromState(*trkParam, rio->localParameters(), rio->localCovariance())); //need to take ownership of the returned pointer
+                  if (trkParameters) {
+                    trkParam = trkParameters.get();
+                  }
                 }
               }
             } else {
               ATH_MSG_DEBUG("not rio");
             }
-            if (trkParameters==nullptr) {
-              trkParameters = tsos->trackParameters();
-            }
-            if (trkParameters) {
-              const AmgVector(5) LocalTrackParameters{trkParameters->parameters()};
+            if (trkParam) {
+              const AmgVector(5) LocalTrackParameters{trkParam->parameters()};
 #ifndef NDEBUG
               ATH_MSG_DEBUG("Track Position Phi= " << LocalTrackParameters[Trk::locX]);
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (not m_residualPullCalculator.empty()) {
-                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParameters,
+                std::unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
                                                                       m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased)};
                 if (not residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
@@ -268,12 +265,6 @@ SCTTracksMonTool::fillHistograms() {
               ATH_MSG_WARNING("No measured local parameters, pull won't be calculated");
             }
             ++local_scthits; // TODO This is not correct, change it
-            if (m_doUnbiasedCalc and rio and updateSucceeds) {
-              if (trkParameters) {
-                delete trkParameters;
-                trkParameters = nullptr;
-              }
-            }
           } // end if SCT..
         } // end if (clus)
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement))
@@ -374,10 +365,10 @@ SCTTracksMonTool::calculatePull(const float residual, const float trkErr, const 
 StatusCode
 SCTTracksMonTool::bookGeneralHistos() {
   if (newRunFlag()) {
-    string stem{m_path + "/SCT/GENERAL/tracks/"};
+    std::string stem{m_path + "/SCT/GENERAL/tracks/"};
     MonGroup Tracks{this, m_path + "SCT/GENERAL/tracks", run, ATTRIB_UNMANAGED};
 
-    const string regionNames[N_REGIONS]{"EndCapC", "Barrel", "EndCapA"};
+    const std::string regionNames[N_REGIONS]{"EndCapC", "Barrel", "EndCapA"};
 
     // Book histogram of number of tracks per region
     m_tracksPerRegion = new TH1F("tracksPerRegion", "Number of tracks in eta regions", N_REGIONS, 0, N_REGIONS);
@@ -463,8 +454,8 @@ SCTTracksMonTool::bookGeneralHistos() {
 
 
 StatusCode
-SCTTracksMonTool::h1Factory(const string& name, const string& title, const float extent, MonGroup& registry,
-                            vector<TH1F*>& storageVector) const {
+SCTTracksMonTool::h1Factory(const std::string& name, const std::string& title, const float extent, MonGroup& registry,
+                            std::vector<TH1F*>& storageVector) const {
   static const unsigned int nbins{100};
   const float lo{-extent};
   const float hi{extent};
@@ -476,7 +467,7 @@ SCTTracksMonTool::h1Factory(const string& name, const string& title, const float
 }
 
 StatusCode
-SCTTracksMonTool::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonTool::checkTriggers(std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
   SG::ReadHandle<xAOD::EventInfo> evtInfo{m_eventInfoKey};
   if (evtInfo.isValid()) {
     firedTriggers = evtInfo->level1TriggerType();
@@ -487,6 +478,6 @@ SCTTracksMonTool::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
 }
 
 bool
-SCTTracksMonTool::hasTriggerFired(const unsigned int trigger, const bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonTool::hasTriggerFired(const unsigned int trigger, const std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
   return ((trigger < N_TRIGGER_TYPES) ? firedTriggers.test(trigger) : false);
 }

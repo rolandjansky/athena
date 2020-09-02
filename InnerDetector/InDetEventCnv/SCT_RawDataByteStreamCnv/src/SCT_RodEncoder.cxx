@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodEncoder.h" 
@@ -125,7 +125,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& vec32Data, const uint32_t& r
   for (unsigned int iRDO1{0}; iRDO1<vecRDOs.size(); iRDO1++) {
     const SCT_RDORawData* rdo1{vecRDOs.at(iRDO1)};
     if (rdo1 == nullptr) {
-      ATH_MSG_ERROR("RDO pointer is NULL. skipping this hit.");
+      ATH_MSG_ERROR("RDO pointer is nullptr. skipping this hit.");
       vec_isDuplicated.at(iRDO1) = true;
       continue;
     }

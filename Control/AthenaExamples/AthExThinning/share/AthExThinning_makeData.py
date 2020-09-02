@@ -62,10 +62,6 @@ if not 'OUTPUT' in dir():
   pass
 outStream.OutputFile = OUTPUT
 
-if not hasattr (svcMgr, 'AthenaSealSvc'):
-    svcMgr += CfgMgr.AthenaSealSvc()
-svcMgr.AthenaSealSvc.OutputLevel = ERROR
-
 svcMgr += CfgMgr.MessageSvc( defaultLimit = 4000000 )
 #svcMgr.MessageSvc.OutputLevel  = ERROR
 

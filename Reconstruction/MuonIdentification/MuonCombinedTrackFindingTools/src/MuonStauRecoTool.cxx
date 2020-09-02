@@ -9,6 +9,7 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
+#include "GaudiKernel/ConcurrencyFlags.h"
 
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "TrkDriftCircleMath/SegmentFinder.h"
@@ -40,49 +41,8 @@ namespace MuonCombined {
   }
 
   MuonStauRecoTool::MuonStauRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-    m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
-    m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool(""),
-    m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
-    m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
-    m_muonPRDSelectionToolStau("Muon::MuonPRDSelectionTool/MuonPRDSelectionToolStau"),
-    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_mdtCreatorStau("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreatorStau"),
-    m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
-    m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-    m_calibrationDbTool("MdtCalibrationDbTool", this)
+    AthAlgTool(type,name,parent)
   {
-    declareInterface<IMuonCombinedInDetExtensionTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer );
-    declareProperty("MuonSegmentMaker",m_segmentMaker );    
-    declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
-    declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
-    declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
-    declareProperty("MuonHitTimingTool",m_hitTimingTool);
-    declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
-    declareProperty("MuonPRDSelectionToolStau", m_muonPRDSelectionToolStau );
-    declareProperty("MdtDriftCircleOnTrackCreator", m_mdtCreator );
-    declareProperty("MdtDriftCircleOnTrackCreatorStau", m_mdtCreatorStau );
-    declareProperty("Updator", m_updator );
-    declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
-    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
-    declareProperty("DoSummary", m_doSummary = false );
-    declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
-    declareProperty("UseTruthMatching", m_useTruthMatching = false );
-    declareProperty("DoTruth", m_doTruth = false );
-    declareProperty("PtThreshold", m_ptThreshold = 10000. );
-    declareProperty("HoughAssociationPullCut", m_houghAssociationPullCut = 5);
-    declareProperty("UseSegmentMDTT", m_segmentMDTT = true );
-    declareProperty("MDTTAssocationCut", m_mdttBetaAssociationCut = 0.4 );
-    declareProperty("RPCAssocationCut", m_rpcBetaAssociationCut = 0.2 );
-    declareProperty("SegmentAssocationCut", m_segmentBetaAssociationCut = 0.2 );
-    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
   }
 
   StatusCode MuonStauRecoTool::initialize() {
@@ -115,7 +75,7 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
+					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
     // Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
     // For now it's just a placeholder though
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("empty PRDs passed");
@@ -123,7 +83,7 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				 Trk::SegmentCollection* segments) {
+				 Trk::SegmentCollection* segments) const {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     if(meTracks) ATH_MSG_DEBUG("Not currently creating ME tracks for staus");
@@ -148,7 +108,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) {
+  void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) const {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -268,7 +228,7 @@ namespace MuonCombined {
     return refineCandidates(candidates);
   }
 
-  bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) {
+  bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) const {
 
     // keep track of candidates for which segments are found    
     CandidateVec refinedCandidates;
@@ -339,7 +299,7 @@ namespace MuonCombined {
     return !candidates.empty();
   }
   
-  void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
+  void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) const {
     ATH_MSG_VERBOSE("extractTimeMeasurementsFromTrack for candidate: beta seed " << candidate.betaSeed.beta );
     Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
@@ -811,7 +771,7 @@ namespace MuonCombined {
 
   }
 
-  bool MuonStauRecoTool::resolveAmbiguities( MuonStauRecoTool::CandidateVec& candidates ) {
+  bool MuonStauRecoTool::resolveAmbiguities( MuonStauRecoTool::CandidateVec& candidates ) const {
 
     ATH_MSG_DEBUG("Resolving ambiguities: candidates " << candidates.size());
     
@@ -860,7 +820,7 @@ namespace MuonCombined {
 
 
 
-  bool MuonStauRecoTool::combineCandidates( const xAOD::TrackParticle& indetTrackParticle, MuonStauRecoTool::CandidateVec& candidates ) {
+  bool MuonStauRecoTool::combineCandidates( const xAOD::TrackParticle& indetTrackParticle, MuonStauRecoTool::CandidateVec& candidates ) const {
     
     // keep track of candidates that have a successfull fit
     CandidateVec combinedCandidates;
@@ -1056,7 +1016,7 @@ namespace MuonCombined {
   }
 
   bool MuonStauRecoTool::extractTimeMeasurements(  const Muon::MuonSystemExtension& muonSystemExtension, 
-                                                   MuonStauRecoTool::AssociatedData& associatedData ) {
+                                                   MuonStauRecoTool::AssociatedData& associatedData ) const {
 
     // get layer intersections
     const std::vector<Muon::MuonSystemExtension::Intersection>& layerIntersections = muonSystemExtension.layerIntersections();
@@ -1292,7 +1252,7 @@ namespace MuonCombined {
   }
 
 
-  void MuonStauRecoTool::extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) {
+  void MuonStauRecoTool::extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) const {
    
     // extract trigger hits per chamber
     const MuonHough::MuonLayerHough::Maximum& maximum = *maximumData.maximum;
@@ -1344,7 +1304,7 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::createRpcTimeMeasurementsFromClusters( const Muon::MuonSystemExtension::Intersection& intersection,
                                                                 const std::vector< Muon::RpcClusterObj>& clusterObjects, 
-                                                                MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements ) {
+                                                                MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements ) const {
 
     // loop over the clusters
     for( auto& cluster : clusterObjects ){
@@ -1384,7 +1344,7 @@ namespace MuonCombined {
     }
   }
 
-  void MuonStauRecoTool::associateHoughMaxima( MuonStauRecoTool::LayerData& layerData ) {
+  void MuonStauRecoTool::associateHoughMaxima( MuonStauRecoTool::LayerData& layerData ) const {
     
     // get intersection and layer identifiers
     const Muon::MuonSystemExtension::Intersection& intersection = layerData.intersection;
@@ -1497,7 +1457,10 @@ namespace MuonCombined {
     }
   }  
 
-  void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) {
+  void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) const {
+    if (Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
+      ATH_MSG_WARNING("You are calling the non thread-safe MuonRecoValidationTool with multiple threads, will most likely crash");
+    }
     if( m_recoValidationTool.empty() ) return;
 
     ATH_MSG_DEBUG("add candidates to ntuple, stage "<<stage);

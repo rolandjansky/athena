@@ -10,10 +10,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkEvent/VxVertex )
+                          Tracking/TrkEvent/VxVertex 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
-find_package( HepMC )
 
 # Install files from the package:
 atlas_install_headers( TrkVertexFitterValidationInterfaces )

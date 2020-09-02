@@ -1,6 +1,6 @@
 
 #use muon alignments
-print "Haas: Reading muon alignment constants from DB for reco"
+printfunc ("Haas: Reading muon alignment constants from DB for reco")
 
 from IOVDbSvc.CondDB import conddb
 #conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL')
@@ -20,16 +20,16 @@ from IOVDbSvc.CondDB import conddb
 #ToolSvc += MuonAlignmentDbTool
 #MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 #MGM_AlignmentDbTool.OutputLevel=DEBUG
-#print MGM_AlignmentDbTool
+#printfunc (MGM_AlignmentDbTool)
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 MuonDetectorTool.UseConditionDb = 1
 #MuonDetectorTool.OutputLevel=DEBUG
 
 MuonDetectorTool.EnableFineClashFixing = 0 #this should be on for g4?
-#print MuonDetectorTool
-#print GeoModelSvc
-#print ToolSvc
+#printfunc (MuonDetectorTool)
+#printfunc (GeoModelSvc)
+#printfunc (ToolSvc)
 
 #Now use MC T0 for TRT during overlay digi, but MC or data T0/Rt during reco, depending on where digit came from... so this stuff is just for reco:
 #conddb.blockFolder("/TRT/Calib/MCRT")
@@ -61,11 +61,11 @@ ToolSvc.InDetTRT_DriftFunctionTool.IsOverlay=True
 ToolSvc.InDetTRT_DriftFunctionTool.TRTCalDbTool2=TRTMCCalibDBTool
 
 if "EOJT_noLorentz" in globals():
-    print "EOJT_noLorentz found in globals(), so not doing Lorentz corrections"
+    printfunc ("EOJT_noLorentz found in globals(), so not doing Lorentz corrections")
     svcMgr.PixelSiliconConditionsSvc.ForceUseGeoModel=True
     svcMgr.PixelSiliconConditionsSvc.CheckGeoModel=True
     svcMgr.PixelSiliconConditionsSvc.UseDBForHV=False
     svcMgr.PixelLorentzAngleSvc.usePixelDefaults=True
 else:
-    print "EOJT_noLorentz not found in globals(), so doing standard Lorentz corrections"
+    printfunc ("EOJT_noLorentz not found in globals(), so doing standard Lorentz corrections")
 

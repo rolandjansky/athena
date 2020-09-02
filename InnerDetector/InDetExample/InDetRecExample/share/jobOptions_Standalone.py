@@ -118,9 +118,7 @@ InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.I
 # --- special setup for Beate
 # InDetFlags.doVtxLumi = True 
 
-# --- enable xKalman and iPatRec
-# InDetFlags.doxKalman              = True
-# InDetFlags.doiPatRec              = True
+
 
 # --- uncomment to change the default of one of the following options:
 #InDetFlags.doNewTracking          = False
@@ -169,7 +167,7 @@ InDetFlags.doMonitoringAlignment = False
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 # --- activate physics validation monitoring
 #InDetFlags.doPhysValMon  = True
 # --- active storegate delection

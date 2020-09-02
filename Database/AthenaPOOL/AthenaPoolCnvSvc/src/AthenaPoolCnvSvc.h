@@ -17,17 +17,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StorageSvc/DbType.h"
 #include "AthenaBaseComps/AthCnvSvc.h"
+#include "AthenaKernel/IAthenaIPCTool.h"
+#include "GaudiKernel/IChronoStatSvc.h"
+#include "PoolSvc/IPoolSvc.h"
+#include "AthenaKernel/IClassIDSvc.h"
 
 #include <vector>
 #include <map>
 #include <mutex>
 
 // Forward declarations
-class IAthenaIPCTool;
 class IAthenaSerializeSvc;
-class IChronoStatSvc;
-class IClassIDSvc;
-class IPoolSvc;
 class Guid;
 
 template <class TYPE> class SvcFactory;
@@ -42,6 +42,7 @@ class ATLAS_CHECK_THREAD_SAFETY AthenaPoolCnvSvc : public ::AthCnvSvc,
    friend class SvcFactory<AthenaPoolCnvSvc>;
 
 public:
+
    /// Required of all Gaudi Services
    StatusCode initialize();
    /// Required of all Gaudi Services
@@ -176,66 +177,70 @@ private: // member functions
 	   bool doClear = true) const;
 
 private: // data
-   pool::DbType    m_dbType;
+   pool::DbType    m_dbType{pool::ROOTTREEINDEX_StorageType};
    std::string     m_lastInputFileName;
-   ServiceHandle<IPoolSvc>       m_poolSvc;
-   ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
-   ServiceHandle<IClassIDSvc>    m_clidSvc;
-   ServiceHandle<IAthenaSerializeSvc> m_serializeSvc;
-   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
+   ServiceHandle<IPoolSvc>       m_poolSvc{this,"PoolSvc","PoolSvc"};
+   ServiceHandle<IChronoStatSvc> m_chronoStatSvc{this,"ChronoStatSvc","ChronoStatSvc"};
+   ServiceHandle<IClassIDSvc>    m_clidSvc{this,"ClassIDSvc","ClassIDSvc"};
+   ServiceHandle<IAthenaSerializeSvc> m_serializeSvc{this,"AthenaRootSerializeSvc","AthenaRootSerializeSvc"};
+   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool",{}};
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
-   std::size_t     m_streamServer;
-   int m_metadataClient;
+   //The following doesn't work because of Gaudi issue #122
+   //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
+   BooleanProperty m_streamMetaDataOnly{this,"StreamMetaDataOnly",false};
+   std::size_t     m_streamServer=0;
+   int m_metadataClient=0;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:
    /// default = false.
-   BooleanProperty m_useDetailChronoStat;
+   BooleanProperty m_useDetailChronoStat{this,"UseDetailChronoStat",false};
 
    /// PoolContainerPrefix, prefix for top level POOL container: default = "POOLContainer"
-   StringProperty  m_containerPrefixProp;
+   StringProperty  m_containerPrefixProp{this,"PoolContainerPrefix","ROOTTREEINDEX:CollectionTree"};
    /// TopLevelContainerName, naming hint policy for top level POOL container: default = "<type>"
-   StringProperty  m_containerNameHintProp;
+   StringProperty  m_containerNameHintProp{this,"TopLevelContainerName",""};
    /// SubLevelBranchName, naming hint policy for POOL branching: default = "" (no branching)
-   StringProperty  m_branchNameHintProp;
+   StringProperty  m_branchNameHintProp{this,"SubLevelBranchName", "<type>/<key>"};
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
-   StringArrayProperty m_poolAttr;
+   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","OrderedSet<std::string>"};
    std::vector<std::vector<std::string> > m_domainAttr;
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;
    std::vector<unsigned int> m_contextAttr;
    /// Input PoolAttributes, vector with names and values of technology specific attributes for POOL
-   StringArrayProperty m_inputPoolAttr;
+   StringArrayProperty m_inputPoolAttr{this,"InputPoolAttributes",{}};
    std::vector<std::vector<std::string> > m_inputAttr;
    /// Print input PoolAttributes per event, vector with names of technology specific attributes for POOL
    /// to be printed each event
-   StringArrayProperty m_inputPoolAttrPerEvent;
+   StringArrayProperty m_inputPoolAttrPerEvent{this,"PrintInputAttrPerEvt",{}};
    std::vector<std::vector<std::string> > m_inputAttrPerEvent;
 
    /// Output FileNames to be associated with Stream Clients
-   StringArrayProperty m_streamClientFilesProp;
+   StringArrayProperty m_streamClientFilesProp{this,"OutputPoolFileAllocator",{}};
    std::vector<std::string>   m_streamClientFiles;
 
    /// MaxFileSizes, vector with maximum file sizes for Athena POOL output files
-   StringArrayProperty m_maxFileSizes;
-   long long m_domainMaxFileSize;
+   StringArrayProperty m_maxFileSizes{this,"MaxFileSizes",{}};
+   long long m_domainMaxFileSize=15000000000LL;
    std::map<std::string, long long> m_databaseMaxFileSize;
 
    /// PersSvcPerOutput,boolean property to use multiple persistency services, one per output stream.
    /// default = false.
-   BooleanProperty m_persSvcPerOutput;
+   BooleanProperty m_persSvcPerOutput{this,"PersSvcPerOutput",true};
    unsigned outputContextId(const std::string& outputConnection);
    std::mutex  m_mutex;
   
    /// SkipFirstChronoCommit, boolean property to skip the first commit in the chrono stats so the first
    /// container being committed to disk is not 'tainted' with the POOL overhead
-   BooleanProperty m_skipFirstChronoCommit;
+   BooleanProperty m_skipFirstChronoCommit{this,"SkipFirstChronoCommit",false};
    /// bool to activate the chrono stats, depending on the m_skipFirstChronoCommit data member
-   bool m_doChronoStat;
+   bool m_doChronoStat=true;
 
    /// For SharedWriter to use MetadataSvc to merge data placed in a certain container
-   StringProperty  m_metadataContainerProp;
+   StringProperty  m_metadataContainerProp{this,"OutputMetadataContainer",""};
 };
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -29,13 +29,13 @@ public:
     SiElementPropertiesTable(const SCT_ID&					idHelper,
 			     const InDetDD::SiDetectorElementCollection&	elements, 
 			     float						epsilonWidth); 
-    ~SiElementPropertiesTable();
+    ~SiElementPropertiesTable() = default;
 
     const std::vector<IdentifierHash>*	neighbours(const IdentifierHash& waferID) const;
     float				halfWidth(IdentifierHash hashID) const;
     
 private:
-    std::vector<SiElementProperties*>		m_properties;
+    std::vector<SiElementProperties>		m_properties;
     
 };
 
@@ -43,13 +43,13 @@ private:
 inline const std::vector<IdentifierHash>*
 SiElementPropertiesTable::neighbours(const IdentifierHash& waferID) const
 {
-    return (m_properties[(unsigned int)waferID])->neighbours();
+    return (m_properties[(unsigned int)waferID]).neighbours();
 }
 
 inline float
 SiElementPropertiesTable::halfWidth(IdentifierHash waferID) const
 {
-    return (m_properties[(unsigned int)waferID])->halfWidth();
+    return (m_properties[(unsigned int)waferID]).halfWidth();
 }
 
 }

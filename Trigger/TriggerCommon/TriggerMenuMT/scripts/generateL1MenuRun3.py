@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys,os
+import sys
 
 
 def parseCmdLine(possibleMenus):
@@ -11,13 +11,11 @@ def parseCmdLine(possibleMenus):
     # mandatory argument is the menu
     parser.add_argument("menu", help="the menu to generate (possible menus: %s)" % ', '.join(possibleMenus), nargs='?', default="mc8")
     parser.add_argument("-v", "--verbose", help="increase output verbosity", action="count", default=0)
-    parser.add_argument("-x", "--xml", dest="writeXML", help="enable xml file creation (currently not implemented)", action="store_true", default=False)
     parser.add_argument("--destdir", dest="dest", help="directory for output files", default = "./")
     return parser.parse_args()
     
 
-def generateL1Menu(menu, cmdline):    
-
+def generateL1Menu(menu, cmdline):
     # logging
     from AthenaCommon.Logging import logging
     log = logging.getLogger(sys.argv[0].split('/')[-1])
@@ -25,25 +23,15 @@ def generateL1Menu(menu, cmdline):
     logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
 
     # setup
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.triggerMenuSetup = menu
 
     # L1 menu generation
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig()
+    l1cfg = L1MenuConfig( menu )
 
     from TrigConfigSvc.TrigConfigSvcCfg import getL1MenuFileName
-    l1cfg.writeJSON( outputFile = getL1MenuFileName(), destdir = cmdline.dest)
-
-    if cmdline.writeXML:
-        outfilename = l1cfg.writeXML()
-        # consistency checker
-        checkResult = os.system("get_files -xmls -symlink LVL1config.dtd > /dev/null")
-        checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
-        if checkResult == 0:
-            log.info("XML file %s is conform with LVL1config.dtd", outfilename)
-        else:
-            log.error("The XML does not follow the document type definition LVL1config.dtd")
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Trigger.triggerMenuSetup = menu
+    l1cfg.writeJSON( outputFile = getL1MenuFileName(ConfigFlags), destdir = cmdline.dest)
 
     return l1cfg.l1menu
 

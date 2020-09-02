@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "EgammaAnalysisInterfaces/IAsgEGammaIsEMSelector.h"
+//#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
+#include "PATCore/IAsgSelectionTool.h"
+#include "AsgTools/IAsgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace DerivationFramework {
@@ -28,7 +31,7 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      //ToolHandle<IAsgSelectionTool> m_tool;
+      //ToolHandle<IAsgSelectionTool> m_tool; // can't use isemValue, but can use TAccept and then getInvertedCutBitSet to retrieve isem-like value for both cut-based and LH selectors
       ToolHandle<IAsgEGammaIsEMSelector> m_tool; // provides isemValue, but will not work with likelihood..
       ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
       std::string m_cut;

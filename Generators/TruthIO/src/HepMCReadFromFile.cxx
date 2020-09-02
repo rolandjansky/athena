@@ -32,7 +32,11 @@ StatusCode HepMCReadFromFile::initialize() {
   }
   
   // Initialize input file and event number
+#ifdef HEPMC3
+  m_hepmcio.reset( new HepMC3::ReaderAsciiHepMC2(m_input_file.c_str()) );
+#else
   m_hepmcio.reset( new HepMC::IO_GenEvent(m_input_file.c_str(), std::ios::in) );
+#endif
   m_event_number = 0;
   return StatusCode::SUCCESS;
 }
@@ -54,7 +58,16 @@ StatusCode HepMCReadFromFile::execute() {
       return status;
     }
   }
+#ifdef HEPMC3
+  HepMC3::GenEvent* evt = new HepMC3::GenEvent();
+  m_hepmcio->read_event(*evt);
+  if (m_hepmcio) {
+    ++m_event_number;
+    evt->set_event_number(m_event_number);
+    mcEvtColl->push_back(evt);
+  }
 
+#else
   /// @todo Should be a do-while until the read is successful or end of file?
   HepMC::GenEvent* evt = m_hepmcio->read_next_event();
   if (evt) {
@@ -63,5 +76,6 @@ StatusCode HepMCReadFromFile::execute() {
     GeVToMeV(evt);
     mcEvtColl->push_back(evt);
   }
+#endif
   return StatusCode::SUCCESS;
 }

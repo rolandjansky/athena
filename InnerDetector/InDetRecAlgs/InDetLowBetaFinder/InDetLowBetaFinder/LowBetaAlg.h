@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,11 +24,14 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
+#include "CxxUtils/checker_macros.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +56,8 @@ namespace InDet
 {
 
 
-  class LowBetaAlg:public AthAlgorithm {
+  class ATLAS_NOT_THREAD_SAFE LowBetaAlg: // This class is thread unsafe because this class uses thread unsafe TrtToolBetaLiklihood class.
+public AthAlgorithm {
   public:
     LowBetaAlg (const std::string& name, ISvcLocator* pSvcLocator);
     StatusCode initialize();
@@ -84,7 +88,8 @@ namespace InDet
     /** trying to get ahold of the TRT calib DB: */
     ToolHandle<ITRT_CalDbTool> m_trtconddbTool;
 
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
+      // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   private: // Functions/variables for using TrtToolsBetaLiklihood, see TrtToolsWrapper.cxx
     

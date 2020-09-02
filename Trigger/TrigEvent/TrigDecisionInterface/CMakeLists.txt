@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 750298 2016-05-27 13:03:48Z krasznaa $
-################################################################################
-# Package: TrigDecisionInterface
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionInterface )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools )
 
 # Define an interface library for the header(s):
 atlas_add_library( TrigDecisionInterface

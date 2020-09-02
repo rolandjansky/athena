@@ -22,6 +22,7 @@ public:
 
 private:
     std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
+    std::map<std::string,int> m_TrackGroup; 
     SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
 
 protected:

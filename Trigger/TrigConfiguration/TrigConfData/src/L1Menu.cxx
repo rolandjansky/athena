@@ -65,33 +65,46 @@ TrigConf::L1Menu::update()
 
    // connectors
    for( auto & conn : data().get_child( "connectors" ) ) {
-      m_connectors.emplace( std::piecewise_construct,
-                            std::forward_as_tuple(conn.first),
-                            std::forward_as_tuple(conn.first, conn.second) );
+      auto res = m_connectors.emplace( std::piecewise_construct,
+                                       std::forward_as_tuple(conn.first),
+                                       std::forward_as_tuple(conn.first, conn.second) );
+
+      for( auto & tl : res.first->second.triggerLineNames() ) {
+         m_threshold2ConnectorName.emplace( std::piecewise_construct,
+                                            std::forward_as_tuple(tl),
+                                            std::forward_as_tuple(conn.first));
+      }
    }
 
    // algorithms
-   for( const std::string & path : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
-      auto & v = m_algorithmsByType[path] = std::vector<TrigConf::L1TopoAlgorithm>();
-      if(path == "MULTTOPO") {
-         for( auto & alg : data().get_child( "topoAlgorithms." + path + ".multiplicityAlgorithms" ) ) {
-            v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, alg.second );
+   for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+      auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
+      if(algoCategory == "MULTTOPO") {
+         for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
+            v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
          }
       } else {
          for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
-            std::string subpath = "topoAlgorithms." + path + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
+            std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
             for( auto & algorithm : data().get_child( subpath ) ) {
-               v.emplace_back( algorithm.first, algoType, algorithm.second );
+               v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
             }
          }
       }
-      for( auto & algo : v ) { 
-         m_algorithmsByName[ algo.name() ] = & algo;
+      for( auto & algo : v ) {
+         if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
+            std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
+            throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
+         }
+         m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
          for( const std::string & output : algo.outputs() ) {
-            m_algorithmsByOutput[output] = & algo;
+            if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
+               std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
+               throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+            }
+            m_algorithmsByOutput[algoCategory][output] = & algo;
          }
       }
-
    }
 }
 
@@ -219,6 +232,18 @@ TrigConf::L1Menu::thrExtraInfo() const
    return m_thrExtraInfo;
 }
 
+const std::string &
+TrigConf::L1Menu::connectorNameFromThreshold(const std::string & thresholdName) const
+{
+   try {
+      return m_threshold2ConnectorName.at(thresholdName);
+   }
+   catch(...) {
+      std::cerr << "Threshold '" << thresholdName << "' not defined as triggerline in the L1 menu" << std::endl;
+      throw;      
+   }
+}
+
 std::vector<std::string>
 TrigConf::L1Menu::connectorNames() const {
    std::vector<std::string> connNames;
@@ -240,26 +265,80 @@ TrigConf::L1Menu::connector(const std::string & connectorName) const {
    }
 }
 
-const TrigConf::L1TopoAlgorithm & 
-TrigConf::L1Menu::algorithm(const std::string & algoName) const
+/** Access to topo algorithm names */
+std::vector<std::string>
+TrigConf::L1Menu::topoAlgorithmNames(const std::string & category) const
 {
+   std::vector<std::string> algoNames;
    try {
-      return * m_algorithmsByName.at(algoName);
+      for(auto & entry : m_algorithmsByName.at(category) ) {
+         algoNames.push_back(entry.first);
+      }
    }
    catch(std::exception & ex) {
-      std::cerr << "No algorithm " << algoName << " defined in the L1 menu" << std::endl;
+      std::cerr << "No algorithm category '" << category << "' defined in the L1 menu" << std::endl;
+      throw;
+   }
+   return algoNames;
+}
+
+/** Access to topo algoritm output names */
+std::vector<std::string>
+TrigConf::L1Menu::topoAlgorithmOutputNames(const std::string & category) const
+{
+   std::vector<std::string> outputNames;
+   try {
+      for(auto & entry : m_algorithmsByOutput.at(category) ) {
+         outputNames.push_back(entry.first);
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "No algorithm category '" << category << "' defined in the L1 menu" << std::endl;
+      throw;
+   }
+   return outputNames;
+}
+
+
+
+const TrigConf::L1TopoAlgorithm & 
+TrigConf::L1Menu::algorithm(const std::string & algoName, const std::string & category) const
+{
+   try {
+      return * m_algorithmsByName.at(category).at(algoName);
+   }
+   catch(std::exception & ex) {
+      std::cerr << "No algorithm " << algoName << " of category " << category << " defined in the L1 menu" << std::endl;
       throw;
    }
 }
 
 const TrigConf::L1TopoAlgorithm &
-TrigConf::L1Menu::algorithmFromOutput(const std::string & outputName) const
+TrigConf::L1Menu::algorithmFromTriggerline(const std::string & triggerlineName) const
 {
+   std::string category {"MULTTOPO"};
+   std::string outputName {triggerlineName};
+   if( std::size_t pos = triggerlineName.find('_'); pos != std::string::npos ) {
+      category = triggerlineName.substr(0,pos);
+      outputName = triggerlineName.substr(pos+1);
+   }
    try {
-      return * m_algorithmsByOutput.at(outputName);
+      return * m_algorithmsByOutput.at(category).at(outputName);
    }
    catch(std::exception & ex) {
-      std::cerr << "No output '" << outputName << "' defined by any algorithm in the L1 menu" << std::endl;
+      std::cerr << "No output " << outputName << " defined by any algorithm of category " << category << " in the L1 menu. (It was asked for " << triggerlineName << ")" << std::endl;
+      throw;
+   }
+}
+
+const TrigConf::L1TopoAlgorithm &
+TrigConf::L1Menu::algorithmFromOutput(const std::string & bareOutputName, const std::string & type) const
+{
+   try {
+      return * m_algorithmsByOutput.at(type).at(bareOutputName);
+   }
+   catch(std::exception & ex) {
+      std::cerr << "No output " << bareOutputName << " defined by any algorithm of type " << type << " in the L1 menu" << std::endl;
       throw;
    }
 }

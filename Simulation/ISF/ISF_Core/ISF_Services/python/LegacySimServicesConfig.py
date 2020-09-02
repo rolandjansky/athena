@@ -6,8 +6,6 @@ Configurations for (potentially) thread-unsafe ISF Sim Services
 
 from AthenaCommon import CfgMgr
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
 
 def getParticleKillerSvc(name="ISF_ParticleKillerSvc", **kwargs):
     kwargs.setdefault('Identifier',           "ParticleKiller")

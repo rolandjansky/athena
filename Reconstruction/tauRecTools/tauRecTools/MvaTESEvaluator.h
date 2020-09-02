@@ -21,13 +21,9 @@ class MvaTESEvaluator
   MvaTESEvaluator(const std::string& name="MvaTESEvaluator");
   virtual ~MvaTESEvaluator();
     
-  StatusCode initialize() override;
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return static_cast<const MvaTESEvaluator*>(this)->execute(xTau);
-  }
-  StatusCode execute(xAOD::TauJet& xTau) const;
-  StatusCode finalize() override { return StatusCode::SUCCESS; }
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
+  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   
  private:
   // MVA input variables (provide all variables in float)
@@ -70,7 +66,7 @@ class MvaTESEvaluator
   std::unique_ptr<tauRecTools::BDTHelper> m_bdtHelper;
 
   // Configurable properties
-  Gaudi::Property<std::string> m_sWeightFileName{this, "WeightFileName", "MvaTES_20170207_v2_BDTG.weights.root"};
+  std::string m_sWeightFileName;
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

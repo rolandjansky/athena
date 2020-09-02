@@ -84,5 +84,7 @@ from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
 CscRdoToCscPrepData = CscRdoToCscPrepData()
 #CscRdoToCscPrepData.DecodingTool = ToolSvc.CscPrepDataProviderTool
 CscRdoToCscPrepData.PrintPrepData = True
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+CscRdoToCscPrepData.RegSel_CSC = makeRegSelTool_CSC()
 
 topSequence += CscRdoToCscPrepData

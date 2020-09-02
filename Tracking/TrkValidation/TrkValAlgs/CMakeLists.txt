@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    DetectorDescription/AtlasDetDescr
    Generators/GeneratorObjects
+   Generators/AtlasHepMC
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkEventUtils
    Tracking/TrkEvent/TrkMaterialOnTrack
@@ -32,14 +33,13 @@ atlas_depends_on_subdirs(
    Tracking/TrkValidation/TrkValInterfaces )
 
 # External dependencies:
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree )
 
 # Component(s) in the package:
 atlas_add_component( TrkValAlgs
    TrkValAlgs/*.h src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps
    GaudiKernel TrkParameters TrkTrack TrkTruthData AtlasDetDescr
    GeneratorObjects TrkSurfaces TrkEventUtils TrkMaterialOnTrack
    TrkParticleBase TrkPrepRawData TrkRIO_OnTrack TrkSegment TrkSpacePoint

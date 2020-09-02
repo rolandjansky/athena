@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloSimEvent
                           Control/AthenaKernel
                           DetectorDescription/AtlasDetDescr
+                          Generators/AtlasHepMC
                           Generators/GeneratorObjects
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
@@ -29,15 +30,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( AIDA )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( CaloTests
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel CaloEvent CaloGeoHelpers CaloSimEvent AthenaKernel AtlasDetDescr GeneratorObjects LArIdentifier LArRawEvent LArRawUtilsLib LArSimEvent LArCablingLib )
+                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib CaloDetDescrLib CaloIdentifier AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel CaloEvent CaloGeoHelpers CaloSimEvent AthenaKernel AtlasDetDescr GeneratorObjects LArIdentifier LArRawEvent LArRawUtilsLib LArSimEvent LArCablingLib )
 
 # Install files from the package:
 atlas_install_headers( CaloTests )

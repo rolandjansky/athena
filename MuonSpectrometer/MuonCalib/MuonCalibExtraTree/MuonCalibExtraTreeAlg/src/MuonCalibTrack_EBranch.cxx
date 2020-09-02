@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/MuonCalibTrack_EBranch.h"
@@ -22,16 +22,12 @@ MuonCalibTrack_EBranch::MuonCalibTrack_EBranch(std::string branchName) :
 bool  MuonCalibTrack_EBranch::fillBranch(const MuonCalibTrack_E &track) {
   // check if branches where initialized
   if( !m_branchesInit ) {
-    //std::cout << "MuonCalibTrack_EBranch::fillBranch  ERROR <branches where not initialized>"
-    //	<<  std::endl;
     return false;    
   }
 
   // check if index not out of range 
   if( m_index >= s_blockSize || m_index < 0 ) {
     if (m_first == true) {
-      //std::cout << "MuonCalibTrack_EBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //  <<  m_index << std::endl;
       m_first = false;
     }
     return false;
@@ -42,7 +38,6 @@ bool  MuonCalibTrack_EBranch::fillBranch(const MuonCalibTrack_E &track) {
   m_phi[m_index]  = track.phi();
   m_theta[m_index]  = track.theta();
   m_qOverP[m_index]  = track.qOverP();
-//    m_errInvP[m_index] = track.errInvP();
   m_author[m_index] = track.author();
   m_cov00[m_index] = track.cov00();
   m_cov01[m_index] = track.cov01();
@@ -71,8 +66,6 @@ bool  MuonCalibTrack_EBranch::fillBranch(const MuonCalibTrack_E &track) {
 bool  MuonCalibTrack_EBranch::createBranch(TTree* tree) {
   // check if pointer is valid
   if( !tree ) {
-    //std::cout << "MuonCalibTrack_EBranch::createBranch  ERROR <got invalid tree pointer> " 
-    //	<< std::endl;
     return false;
   }
 

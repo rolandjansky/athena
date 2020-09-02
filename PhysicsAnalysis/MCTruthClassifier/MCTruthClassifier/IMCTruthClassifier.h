@@ -36,9 +36,7 @@
 #endif
 
 #ifndef XAOD_ANALYSIS // Can not be used in AnalysisBase
-namespace HepMC {
-class GenParticle;
-}
+#include <AtlasHepMC/GenParticle.h>
 #endif
 
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) // Can only be used in Athena
@@ -114,7 +112,7 @@ public:
 
 #ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
-    const HepMC::GenParticle*,
+    HepMC::ConstGenParticlePtr,
     Info* info = nullptr) const = 0;
 #endif
   //

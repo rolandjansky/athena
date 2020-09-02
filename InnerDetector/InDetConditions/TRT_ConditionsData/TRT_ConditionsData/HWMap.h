@@ -26,12 +26,12 @@ namespace TRTCond{
 
   virtual ~HWMap() {}
 
-  std::vector<std::string>* get_Barrel_HV_Names() const {return m_Barrel_HV_CoolChanNames; } 
-  std::vector<std::string>* get_EndcapA_HV_Names() const {return m_EndcapA_HV_CoolChanNames; } 
-  std::vector<std::string>* get_EndcapC_HV_Names() const {return m_EndcapC_HV_CoolChanNames; } 
-  std::vector<int>* get_Barrel_HV_Nums() const {return m_Barrel_HV_CoolChanNums; }
-  std::vector<int>* get_EndcapA_HV_Nums() const {return m_EndcapA_HV_CoolChanNums; }
-  std::vector<int>* get_EndcapC_HV_Nums() const {return m_EndcapC_HV_CoolChanNums; }
+  const std::vector<std::string>* get_Barrel_HV_Names() const {return m_Barrel_HV_CoolChanNames; } 
+  const std::vector<std::string>* get_EndcapA_HV_Names() const {return m_EndcapA_HV_CoolChanNames; } 
+  const std::vector<std::string>* get_EndcapC_HV_Names() const {return m_EndcapC_HV_CoolChanNames; } 
+  const std::vector<int>* get_Barrel_HV_Nums() const {return m_Barrel_HV_CoolChanNums; }
+  const std::vector<int>* get_EndcapA_HV_Nums() const {return m_EndcapA_HV_CoolChanNums; }
+  const std::vector<int>* get_EndcapC_HV_Nums() const {return m_EndcapC_HV_CoolChanNums; }
  
   void setBarrelName(int i, const std::string & name) {
     m_Barrel_HV_CoolChanNames->at(i)=name;

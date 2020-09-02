@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OfflineCalibOutputTrack_h
 #define OfflineCalibOutputTrack_h
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCalibAlgs/PixelNtupleTracks.h"
 
 class string;
@@ -20,7 +21,7 @@ namespace PixelValid{
 
 class ResPullValidation;
 
-class OfflineCalibOutputTrack: public PixelNtupleTracks {
+class ATLAS_NOT_THREAD_SAFE OfflineCalibOutputTrack: public PixelNtupleTracks { // Thread unsafe PixelChargeInterpolationCalibration class is used.
 
   //forbid copying
   OfflineCalibOutputTrack(const OfflineCalibOutputTrack &) = delete;

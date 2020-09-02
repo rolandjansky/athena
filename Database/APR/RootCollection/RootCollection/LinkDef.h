@@ -8,10 +8,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-#pragma link C++ class std::pair< std::string, std::string >+;
-#pragma link C++ class std::vector< std::pair< std::string, std::string > >+;
-#endif 
 #pragma link C++ class AttributeListLayout+;
 
 #endif

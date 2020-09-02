@@ -1,23 +1,34 @@
-################################################################################
-# Package: TrigEgammaMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigEgammaMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigEvent/TrigSteeringEvent
-			                    Control/AthenaMonitoring )
-
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( Boost )
 
+# Component(s) in the package:
+atlas_add_component( TrigEgammaMonitoring
+                     src/*.h
+                     src/*.cxx
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES AthenaMonitoringKernelLib AthenaMonitoringLib EgammaAnalysisInterfacesLib GaudiKernel PATCoreLib StoreGateLib TrigConfxAODLib TrigDecisionToolLib TrigEgammaAnalysisToolsLib TrigEgammaMatchingToolLib xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTruth )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

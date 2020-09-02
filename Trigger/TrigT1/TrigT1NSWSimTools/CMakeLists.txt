@@ -1,63 +1,25 @@
-################################################################################
-# Package: TrigT1NSWSimTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1NSWSimTools )
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          DetectorDescription/AGDD/AGDDKernel
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/EventInfo
-                          DetectorDescription/RegSelLUT
-                          MuonSpectrometer/MuonDetDescr/MuonRegionSelector
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonSimEvent
-                          MuonSpectrometer/MuonSimData
-                          MuonSpectrometer/MuonRDO
-                          Simulation/G4Sim/TrackRecord
-                          Tools/PathResolver)
 
 # External dependencies:
 find_package( Boost )
-find_package( TBB )
-find_package( HepMC )
 find_package( CLHEP )
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( ROOT COMPONENTS Core Tree MathCore )
 
 # Library in the package
 atlas_add_library( TrigT1NSWSimToolsLib
-                     src/*.cxx
-                     PUBLIC_HEADERS TrigT1NSWSimTools
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
-                     SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO RegSelLUT PathResolver)
-
+                   src/*.cxx
+                   PUBLIC_HEADERS TrigT1NSWSimTools
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoPrimitives Identifier MuonDigitContainer MuonIdHelpersLib MuonRDO MuonReadoutGeometry MuonSimData MuonSimEvent RegSelLUT TrkSurfaces
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AGDDKernel AtlasHepMCLib EventInfo GeneratorObjects MuonAGDDDescription MuonRegionSelectorLib PathResolver StoreGateLib TrackRecordLib )
 
 # Component(s) in the package:
 atlas_add_component( TrigT1NSWSimTools
-                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${HEPMC_LIBRARIES} 
-                     SGTools GaudiKernel AthenaBaseComps AthenaKernel AGDDKernel GeoPrimitives Identifier EventInfo MuonAGDDDescription MuonReadoutGeometry
-                     MuonDigitContainer MuonIdHelpersLib MuonSimEvent MuonSimData MuonRDO  RegSelLUT PathResolver)
-
-
-
-
-
+                     LINK_LIBRARIES TrigT1NSWSimToolsLib )
 
 # Install files from the package:
-atlas_install_headers( TrigT1NSWSimTools )
-atlas_install_runtime( share/* )
+atlas_install_runtime( share/*.dat )

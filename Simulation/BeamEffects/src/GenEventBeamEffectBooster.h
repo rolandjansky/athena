@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ namespace Simulation {
     /** calculate the transformations that we want to apply to the particles in the current GenEvent */
     StatusCode initializeGenEvent(CLHEP::HepLorentzRotation& transform) const;
     /** apply boost to individual GenParticles */
-    void boostParticle(HepMC::GenParticle* p, const CLHEP::HepLorentzRotation& transform) const;
+    void boostParticle(HepMC::GenParticlePtr p, const CLHEP::HepLorentzRotation& transform) const;
 
     ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
     ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG

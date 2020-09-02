@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -41,80 +41,6 @@ namespace InDet{
      return StatusCode::SUCCESS;
   }
  
-
-
-
-
-   int  InDetVKalVxInJetTool::SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpTrk,
-                                                  const xAOD::Vertex                          & PrimVrt,
-	                                          const TLorentzVector                        & JetDir,
-                                                  std::vector<const Rec::TrackParticle*>   & SelectedTracks)
-   const
-   {    
-
-    std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* mPer;
-    const Trk::FitQuality*     TrkQual;
-    std::vector<double> Impact,ImpactError;
-    int NPrimTrk=0;
-    for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-//
-//-- Perigee in TrackParticle
-//
-          mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL )  continue;
-          VectPerig = mPer->parameters(); 
-          TrkQual   = (*i_ntrk)->fitQuality();
-          if(TrkQual && TrkQual->numberDoF()== 0) continue; //Protection
-          double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
-          double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
-          double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
-
-	  if ( CovTrkMtx11 > m_a0TrkErrorCut*m_a0TrkErrorCut )  continue;
-	  if ( CovTrkMtx22 > m_zTrkErrorCut*m_zTrkErrorCut )    continue;
-	  if( ConeDist(VectPerig,JetDir) > m_coneForTag )       continue;
-          if( (*i_ntrk)->pt() > JetDir.Pt() )                   continue;
-
-          double trkP=1./fabs(VectPerig[4]);         
-          double CovTrkMtx55 = (*(mPer->covariance()))(4,4);
-          if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_fillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
-                            if(trkPErr>0.5) continue;   }
-
-          long int PixelHits     = 3;
-          long int SctHits       = 9; 
-          long int SharedHits    = 0; //Always 0 now
-          long int BLayHits      = 1;
-//----------------------------------- Summary tools
-          const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
-          PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
-          SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
-          BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
-	  if(PixelHits < 0 ) PixelHits=0; 
-	  if(SctHits   < 0 ) SctHits=0; 
-	  if(BLayHits  < 0 ) BLayHits=0; 
-//std::cout<<"NwTrkSummary="<<PixelHits<<", "<<SctHits<<", "<<BLayHits<<", fitter="<<'\n';
-          double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          double ImpactA0=VectPerig[0];                         // Temporary
-          double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
-	  ImpactA0=Impact[0];  
-	  ImpactZ=Impact[1];   
-//----
-          StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
-                       ImpactA0 , ImpactZ, trkChi2,
-		       PixelHits, SctHits, SharedHits, BLayHits);
-
-					  
-          if( sc.isFailure() )                 continue;
-	  if(ImpactSignif < 3.)NPrimTrk += 1;
-	  SelectedTracks.push_back(*i_ntrk);
-      }
-      AnalysisUtils::Sort::pT (&SelectedTracks); // no equivalent for TrkTrack yet...
-      return NPrimTrk;
-   }
-
-
 //==============================================================================================================
 //          xAOD based stuff
 //

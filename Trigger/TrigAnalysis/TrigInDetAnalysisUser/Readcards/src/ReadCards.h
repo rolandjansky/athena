@@ -103,6 +103,15 @@ public:
     return GetVector(GetIndex(tag));
   }
 
+
+  const std::vector<int>  GetIntVector(const std::string& tag) const {
+    std::vector<double> s = GetVector(GetIndex(tag));
+    std::vector<int> a; a.reserve(s.size());
+    for ( size_t i=0 ; i<s.size() ; i++ ) a.push_back( int(s[i]) );
+    return a;
+  }
+
+
   std::vector<std::string>  GetStringVector(const std::string& tag) const {
     return mValues[GetIndex(tag)].Val();
   }

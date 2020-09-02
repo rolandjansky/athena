@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4ProfilingTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaKernel
-                          Simulation/G4Atlas/G4AtlasTools
-			  Simulation/G4Atlas/G4AtlasInterfaces )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
@@ -35,8 +27,7 @@ atlas_add_library( G4ProfilingToolsLib
 
 atlas_add_component( G4ProfilingTools
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaKernel G4AtlasToolsLib G4ProfilingToolsLib )
+                     LINK_LIBRARIES G4ProfilingToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

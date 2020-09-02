@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwPhimod_v2.cxx,v 1.4 2008-01-25 04:14:22 ssnyder Exp $
 /**
  * @file  CaloSwPhimod_v2.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -49,29 +47,6 @@ using std::cos;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwPhimod_v2::CaloSwPhimod_v2 (const std::string& type,
-                                  const std::string& name,
-                                  const IInterface* parent)
-  : CaloClusterCorrectionCommon (type,name,parent)
-{
-  declareConstant ("correction",       m_correction);
-  declareConstant ("correction_coef",  m_correction_coef);
-  declareConstant ("interp_barriers",  m_interp_barriers);
-  declareConstant ("degree",           m_degree);
-  declareConstant ("rfac",             m_rfac);
-  declareConstant ("rfac_degree",      m_rfac_degree);
-  declareConstant ("energies",         m_energies);
-  declareConstant ("energy_degree",    m_energy_degree);
-  declareConstant ("use_raw_eta",      m_use_raw_eta);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
  * @param ctx     The event context.
  * @param cluster The cluster to correct.
@@ -91,7 +66,7 @@ CaloSwPhimod_v2::CaloSwPhimod_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwPhimod_v2::makeTheCorrection (const EventContext& /*ctx*/,
+void CaloSwPhimod_v2::makeTheCorrection (const Context& myctx,
                                          CaloCluster* cluster,
                                          const CaloDetDescrElement* /*elt*/,
                                          float eta,
@@ -105,7 +80,7 @@ void CaloSwPhimod_v2::makeTheCorrection (const EventContext& /*ctx*/,
   //     and range checks.  However, the v2 corrections were derived
   //     using regular eta instead.
   float the_aeta;
-  if (m_use_raw_eta) {
+  if (m_use_raw_eta(myctx)) {
     the_aeta = std::abs (adj_eta);
     if (adj_eta < 0)
       adj_phi = -adj_phi;
@@ -131,13 +106,17 @@ void CaloSwPhimod_v2::makeTheCorrection (const EventContext& /*ctx*/,
   // of the energy.  This is needed since the corrections are tabulated
   // using the true cluster energies.
   float energy = cluster->e();
-  float rfac = interpolate (m_rfac, the_aeta, m_rfac_degree);
+  float rfac = interpolate (m_rfac(myctx), the_aeta, m_rfac_degree(myctx));
   energy /= rfac;
 
   float corr = energy_interpolation (energy,
-                                     Builder (*this, the_aeta, adj_phi, nabs),
-                                     m_energies,
-                                     m_energy_degree);
+                                     Builder (m_correction (myctx),
+                                              m_interp_barriers (myctx),
+                                              m_degree (myctx),
+                                              m_correction_coef (myctx),
+                                              the_aeta, adj_phi, nabs),
+                                     m_energies(myctx),
+                                     m_energy_degree(myctx));
 
   // set energy, and rescale each sampling
   setenergy (cluster, cluster->e() / corr);
@@ -146,18 +125,27 @@ void CaloSwPhimod_v2::makeTheCorrection (const EventContext& /*ctx*/,
 
 /**
  * @brief Constructor for energy interpolation table helper class.
- * @param corr The parent correction object.
+ * @param correction The correction table.
+ * @param interp_barriers Allow breaking up the interpolation into independent regions.
+ * @param degree Interpolation degree.
+ * @param correction_coef Coefficient by which to scale the entire correction.
  * @param aeta The absolute value of @f$\eta@f$ at which the correction
  *             is being evaluated (in cal-local coordinates).
  * @param phi  The @f$\phi@f$ at which the correction
  *             is being evaluated (in cal-local coordinates).
  * @param nabs Number of absorbers in @f$2\pi@f$.
  */
-CaloSwPhimod_v2::Builder::Builder (const CaloSwPhimod_v2& corr,
+CaloSwPhimod_v2::Builder::Builder (const CxxUtils::Array<3>& correction,
+                                   const CxxUtils::Array<1>& interp_barriers,
+                                   int degree,
+                                   float correction_coef,
                                    float aeta,
                                    float phi,
                                    int nabs)
-  : m_corr (corr),
+  : m_correction (correction),
+    m_interp_barriers (interp_barriers),
+    m_degree (degree),
+    m_correction_coef (correction_coef),
     m_aeta (aeta),
     m_phi (phi),
     m_nabs (nabs)
@@ -176,14 +164,14 @@ float CaloSwPhimod_v2::Builder::calculate (int energy_ndx, bool& good) const
   good = true;
   float par[4];
   for (int j=0; j<4; j++) {
-    par[j] = interpolate (m_corr.m_correction[energy_ndx],
+    par[j] = interpolate (m_correction[energy_ndx],
                           m_aeta,
-                          m_corr.m_degree,
+                          m_degree,
                           j+1,
-                          m_corr.m_interp_barriers);
+                          m_interp_barriers);
   }
   double a = atan (par[2])*(1./pi) + 0.5;
-  return 1 + m_corr.m_correction_coef * abs (par[0]) *
+  return 1 + m_correction_coef * abs (par[0]) *
       (a*cos(m_nabs*m_phi + par[1]) +
        (1-a)*cos (2*m_nabs*m_phi + par[3]));
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARRINJP
@@ -20,7 +20,7 @@
 class  LArRinjP{
 public:
 
-    LArRinjP() : m_Rinj(-999999999) {} 
+    LArRinjP() : m_Rinj(-9999999) {} 
     LArRinjP(float f) : m_Rinj(f) {} 
     bool isEmpty() const { return m_Rinj < -9999 ; } ;
     float         m_Rinj;

@@ -124,6 +124,10 @@ namespace Muon
       /** Costructor */
       TgcSlbData(void); 
 
+      /** Get bitArray for a BC tag. */
+      // Non-const version which is used in this class only
+      bool * getBitArray(const uint16_t bcTag);
+
       uint16_t m_bcId;
       uint32_t m_l1Id;
       uint16_t m_sswId;

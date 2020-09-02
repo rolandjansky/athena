@@ -11,6 +11,7 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
@@ -34,13 +35,7 @@
 #include <cmath>
 #include <functional>
 
-/*
- * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
- * Initialize, Event Loop and Finalize
- */
-#define SNAPSHOT_NUM 3
-
-class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
+class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
   /// Standard Gaudi Service constructor
   PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
@@ -50,6 +45,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   /// Function declaring the interface(s) implemented by the service
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+
+  /// Incident service handle for post-finalize
+  virtual void handle( const Incident& incident ) override;
 
   /// Standard Gaudi Service initialization
   virtual StatusCode initialize() override;
@@ -71,48 +69,35 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   /// Snapshot Auditing: Take snapshots at the beginning and at the end of each step
   void startSnapshotAud(const std::string& stepName, const std::string& compName);
-
   void stopSnapshotAud(const std::string& stepName, const std::string& compName);
 
-  /// Component Level Auditing in Serial Steps
-  void startCompAud_serial(const std::string& stepName, const std::string& compName);
+  /// Component Level Auditing: Take measurements at the beginning and at the end of each component call
+  void startCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx);
+  void stopCompAud(const std::string& stepName, const std::string& compName, const EventContext& ctx);
 
-  void stopCompAud_serial(const std::string& stepName, const std::string& compName);
-
-  void startCompAud_MT(const std::string& stepName, const std::string& compName);
-  void stopCompAud_MT(const std::string& stepName, const std::string& compName);
-
-  // Report the results
+  /// Report the results
   void report();
 
-  // Report to stdout
+  /// Report to log
   void report2Log();
   void report2Log_Description() const;
-  void report2Log_Time_Mem_Serial();
+  void report2Log_ComponentLevel();
   void report2Log_EventLevel_instant() const;
   void report2Log_EventLevel();
-  void report2Log_CompLevel_Time_Parallel();
   void report2Log_Summary();  // make it const
   void report2Log_CpuInfo() const;
 
-  // Report to the JSON File
+  /// Report to the JSON File
   void report2JsonFile();
   void report2JsonFile_Summary(nlohmann::json& j) const;
-  void report2JsonFile_Time_Serial(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Time_Parallel(nlohmann::json& j) const;
-  void report2JsonFile_CompLevel_Time_Parallel(nlohmann::json& j) const;
-  void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Mem_Parallel(nlohmann::json& j);
+  void report2JsonFile_ComponentLevel(nlohmann::json& j) const;
+  void report2JsonFile_EventLevel(nlohmann::json& j) const;
 
-  EventIDBase::event_number_t getEventID() const;
-
+  /// A few helper functions
   bool isPower(uint64_t input, uint64_t base);  // check if input is power of base or not
-  bool isLoop() const;                // Returns true if the execution is at the event loop, false o/w.
 
-  void divideData2Steps_serial();
-  void divideData2Steps_parallel();
-
-  void parallelDataAggregator();
+  void aggregateSlotData();
+  void divideData2Steps();
 
   std::string scaleTime(double timeMeas) const;
   std::string scaleMem(long memMeas) const;
@@ -122,19 +107,14 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   std::string get_cpu_model_info() const;
   int get_cpu_core_info() const;
 
-  PMonMT::StepComp generate_serial_state(const std::string& stepName, const std::string& compName) const;
-
-  PMonMT::StepCompEvent generate_parallel_state(const std::string& stepName, const std::string& compName,
-                                                const uint64_t& eventNumber) const;
-
-  double get_wall_time();
+  PMonMT::StepComp generate_state(const std::string& stepName, const std::string& compName) const;
 
  private:
-  /// Measurement to capture the peaks
-  PMonMT::Measurement m_peaks;
+  /// Measurement to capture snapshots
+  PMonMT::Measurement m_measurement_snapshots;
 
-  /// Measurement to capture
-  PMonMT::Measurement m_measurement;
+  /// Measurement to capture events
+  PMonMT::Measurement m_measurement_events;
 
   /// Do event loop monitoring
   Gaudi::Property<bool> m_doEventLoopMonitoring{
@@ -160,24 +140,24 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
       "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
   /// Frequency of event level monitoring
   Gaudi::Property<uint64_t> m_checkPointFactor{
-      this, "checkPointFactor", 10,
+      this, "checkPointFactor", 50,
       "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric."};
   /// Offset for the wall-time, comes from configuration
   Gaudi::Property<double> m_wallTimeOffset{this, "wallTimeOffset", 0, "Job start wall time in miliseconds."};
-  /// Print the top N serial components
-  Gaudi::Property<int> m_printNSerialComps{
-      this, "printNSerialComps", 50, "Maximum number of components to be printed under the serial components list."};
-  /// Print the top N parallel components
-  Gaudi::Property<int> m_printNParallelComps{
-      this, "printNParallelComps", 50,
-      "Maximum number of components to be printed under the parallel components list."};
+  /// Print the top N components
+  Gaudi::Property<int> m_printNComps{
+      this, "printNComps", 50, "Maximum number of components to be printed."};
+  /// Get the number of threads
+  Gaudi::Property<int> m_numberOfThreads{this, "numberOfThreads", 1, "Number of threads in the job."};
+  /// Get the number of slots
+  Gaudi::Property<int> m_numberOfSlots{this, "numberOfSlots", 1, "Number of slots in the job."};
+  /// Set the number of messages for the event-level report
+  Gaudi::Property<unsigned long> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
-  // An array to store snapshot measurements: Init - EvtLoop - Fin
-  PMonMT::MeasurementData m_snapshotData[SNAPSHOT_NUM];
-
-  // TODO: It gives error when defining this variable as a class member. Fix it.
-  // const static std::string m_snapshotStepNames[3];
-  std::vector<std::string> m_snapshotStepNames;
+  /// Snapshots data
+  std::vector<PMonMT::MeasurementData> m_snapshotData;
+  std::vector<std::string> m_snapshotStepNames = {"Configure", "Initialize", "Execute", "Finalize"};
+  enum Snapshots {CONFIGURE, INITIALIZE, EXECUTE, FINALIZE, NSNAPSHOTS};
 
   // Store event level measurements
   PMonMT::MeasurementData m_eventLevelData;
@@ -188,36 +168,29 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   // Count the number of events processed
   std::atomic<unsigned long long> m_eventCounter;
 
-  /* Data structure  to store component level measurements
+  // Instant event-loop report counter
+  std::atomic<unsigned long> m_eventLoopMsgCounter;
+
+  /* 
+   * Data structure  to store component level measurements
    * We use pointer to the MeasurementData, because we use new keyword while creating them. Clear!
    */
-  std::map<PMonMT::StepComp, PMonMT::MeasurementData*> m_compLevelDataMap;
+  typedef std::map<PMonMT::StepComp, PMonMT::MeasurementData*> data_map_t;
+  // Here I'd prefer to use SG::SlotSpecificObj<data_map_t>
+  // However, w/ invalid context it seems to segfault
+  // Can investigate in the future, for now std::vector should be OK
+  data_map_t m_compLevelDataMap;
 
   // m_compLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_serial.
   // There should be a more clever way!
-  std::map<PMonMT::StepComp, PMonMT::MeasurementData*> m_compLevelDataMap_ini;
-  std::map<PMonMT::StepComp, PMonMT::MeasurementData*> m_compLevelDataMap_fin;
-  std::map<PMonMT::StepComp, PMonMT::MeasurementData*> m_compLevelDataMap_plp;  // preLoadProxy
-  std::map<PMonMT::StepComp, PMonMT::MeasurementData*> m_compLevelDataMap_cbk;  // callback
+  std::vector<data_map_t> m_compLevelDataMapVec; // all
+  data_map_t m_compLevelDataMap_ini;  // initialize
+  data_map_t m_compLevelDataMap_evt;  // execute
+  data_map_t m_compLevelDataMap_fin;  // finalize
+  data_map_t m_compLevelDataMap_plp;  // preLoadProxy
+  data_map_t m_compLevelDataMap_cbk;  // callback
 
-  std::vector<std::map<PMonMT::StepComp, PMonMT::MeasurementData*> > m_stdoutVec_serial;
-
-  //
-  // Comp level measurements inside event loop
-  PMonMT::MeasurementData m_parallelCompLevelData;
-
-  std::map<PMonMT::StepComp, PMonMT::Measurement> m_aggParallelCompLevelDataMap;
-
-  // m_aggParallelCompLevelDataMap is divided into following maps and these are stored in the m_stdoutVec_parallel.
-  // There should be a more clever way!
-  std::map<PMonMT::StepComp, PMonMT::Measurement> m_aggParallelCompLevelDataMap_evt;
-  std::map<PMonMT::StepComp, PMonMT::Measurement> m_aggParallelCompLevelDataMap_plp;
-  std::map<PMonMT::StepComp, PMonMT::Measurement> m_aggParallelCompLevelDataMap_cbk;
-
-  std::vector<std::map<PMonMT::StepComp, PMonMT::Measurement> > m_stdoutVec_parallel;
-
-  // Estimated job configuration time
-  double m_jobCfg_time;
+  std::vector<data_map_t> m_stdoutVec_serial;
 
   // Leak estimates
   PerfMon::LinFitSglPass m_fit_vmem;

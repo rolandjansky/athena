@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleCaloClusterAssociationTool.h"
@@ -61,7 +61,7 @@ namespace Rec {
     ATH_MSG_DEBUG(" particleClusterAssociation: ptr " << &particle << " dr " << dr << " useCaching " << useCaching);
 
     // reset pointer
-    association = 0;
+    association = nullptr;
     // check if link is already there
     if( useCaching ){
       if( particle.isAvailable< ParticleClusterAssociation* >("clusterAssociation") ){
@@ -88,7 +88,7 @@ namespace Rec {
 
     // get the extrapolation into the calo
     std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtensionTool->caloExtension(particle);
-    if( caloExtension.get()==nullptr ) {
+    if( caloExtension==nullptr ) {
       ATH_MSG_DEBUG("Failed to get calo extension");      
       return false;
     }
@@ -111,13 +111,13 @@ namespace Rec {
     association = new ParticleClusterAssociation( caloExtension.release(), std::move(clusters), dr, container );
 
     // now add particle and CaloExtension to the container
-    IParticleToCaloExtensionMap * caloExtensionMap = 0;
+    IParticleToCaloExtensionMap * caloExtensionMap = nullptr;
     if(not evtStore()->contains<IParticleToCaloExtensionMap>(m_caloEntryMapName)) {
       caloExtensionMap = new IParticleToCaloExtensionMap();
       if (evtStore()->record(caloExtensionMap, m_caloEntryMapName).isFailure()) {
 	ATH_MSG_WARNING( "Failed to record output collection, will leak the ParticleCaloExtension");
 	delete caloExtensionMap;
-	caloExtensionMap = 0;
+	caloExtensionMap = nullptr;
       }
     } else {
       if(evtStore()->retrieve(caloExtensionMap,m_caloEntryMapName).isFailure()) {
@@ -217,11 +217,11 @@ namespace Rec {
   
   const xAOD::CaloClusterContainer* ParticleCaloClusterAssociationTool::getClusterContainer() const {
 
-    const xAOD::CaloClusterContainer* container = 0;
+    const xAOD::CaloClusterContainer* container = nullptr;
     //retrieve the cell container
     if( evtStore()->retrieve(container, m_caloClusters).isFailure() || !container ) {
       ATH_MSG_WARNING( "Unable to retrieve the cluster container  " << m_caloClusters << " container ptr " << container );
-      return 0;
+      return nullptr;
     }
     if( container ) ATH_MSG_DEBUG("Retrieved cluster container " << container->size());
     return container;

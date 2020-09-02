@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactory.h"
@@ -24,6 +24,9 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 
@@ -34,13 +37,11 @@ PixelServMatFactory::PixelServMatFactory(const InDetDD::AthenaComps * athenaComp
 
 PixelServMatFactory::~PixelServMatFactory()
 {
-  // It owns the material manager
-  delete m_materialManager;
 }
 
 
 //## Other Operations (implementation)
-void PixelServMatFactory::create(GeoPhysVol *mother)
+void PixelServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
 {
   msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg; 
   
@@ -56,7 +57,8 @@ void PixelServMatFactory::create(GeoPhysVol *mother)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table if it exists
-  m_materialManager = new InDetMaterialManager("PixelMaterialManager", getAthenaComps());
+  m_materialManagerUnique = std::make_unique<InDetMaterialManager>("PixelMaterialManager", getAthenaComps());
+  m_materialManager = m_materialManagerUnique.get();
   m_materialManager->addWeightTable(weightTable, "pix");
   m_materialManager->addScalingTable(scalingTable);
   

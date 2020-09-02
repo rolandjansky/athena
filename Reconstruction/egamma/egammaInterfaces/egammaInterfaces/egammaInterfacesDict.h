@@ -33,4 +33,5 @@
 #include "egammaInterfaces/IegammaSwTool.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/IegammaMVASvc.h"
+#include "egammaInterfaces/IegammaOQFlagsBuilder.h"
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H

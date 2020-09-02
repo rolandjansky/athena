@@ -11,3 +11,10 @@ def getMDTLabel(x,y):
     #print(labelx)
     #print(labely)
     return labelx,labely
+
+def getMDTLabelx(x):
+    labelx = getattr(labels, x)
+    #print(labelx)
+    return labelx
+
+

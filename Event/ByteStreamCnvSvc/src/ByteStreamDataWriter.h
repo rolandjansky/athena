@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMDATAWRITER_H
@@ -19,6 +19,7 @@
 #include "EventStorage/ESCompression.h"
 #include "EventStorage/EventStorageRecords.h"
 #include "EventStorage/FileNameCallback.h"
+#include "boost/shared_ptr.hpp"
 
 
 /** @class ByteStreamDataWriter

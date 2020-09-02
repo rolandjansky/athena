@@ -1,31 +1,23 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## A simple 'echo' transform which merely prints its arguments and exits
 # $Id: Echo_tf.py 532364 2013-01-09 15:51:55Z graemes $
 
-import argparse
-import os
-import os.path
 import sys
 import time
-import traceback
-
-import logging
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
-from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfExe import echoExecutor
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
 import PyJobTransforms.trfArgs as trfArgs
 import PyJobTransforms.trfArgClasses as trfArgClasses
-import PyJobTransforms.trfExceptions as trfExceptions
 
 # Always embed your transform inside a top level exception
 # handler. This ensures that uncaught exceptions are handled
@@ -36,7 +28,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 @sigUsrStackTrace
 def main():
     
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
         
     trf = getTransform()
 
@@ -44,7 +36,7 @@ def main():
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, transform exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, transform exit code %d", sys.argv[0], time.asctime(), trf.exitCode)
     sys.exit(trf.exitCode)
 
 def getTransform():

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -27,6 +27,6 @@ IdentifierHash	Identifiable::identifyHash() const
 const IdHelper* 
 Identifiable::getHelper() const
 {
-    return (0);
+    return (nullptr);
 }
 

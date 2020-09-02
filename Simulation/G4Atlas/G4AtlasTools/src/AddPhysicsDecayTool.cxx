@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -38,9 +38,6 @@ AddPhysicsDecayTool::AddPhysicsDecayTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
   : base_class ( type, nam , parent )
 {
-  declareProperty("ParticleName",m_ParticleName="NoFile","Particle name");
-  declareProperty("BR",m_BR=0,"Branching Ratio");
-  declareProperty("Daughters",m_Daughters="NoFile","Daughters");
 }
 
 //=============================================================================
@@ -76,7 +73,7 @@ void AddPhysicsDecayTool::ConstructProcess()
   while( (*PARTICLEITERATOR)() )
     {
       G4ParticleDefinition *particle = PARTICLEITERATOR->value();
-      if (m_ParticleName== static_cast<const std::string&>(particle->GetParticleName()))
+      if (m_ParticleName.value()== static_cast<const std::string&>(particle->GetParticleName()))
         {
 
           G4DecayTable *table = particle->GetDecayTable();
@@ -89,15 +86,15 @@ void AddPhysicsDecayTool::ConstructProcess()
 
           if (m_Daughters_vec.size()==2)
             {
-              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName,m_BR,2,m_Daughters_vec[0],m_Daughters_vec[1]);
+              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName.value(),m_BR,2,m_Daughters_vec[0],m_Daughters_vec[1]);
             }
           else if (m_Daughters_vec.size()==3)
             {
-              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName,m_BR,3,m_Daughters_vec[0],m_Daughters_vec[1],m_Daughters_vec[2]);
+              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName.value(),m_BR,3,m_Daughters_vec[0],m_Daughters_vec[1],m_Daughters_vec[2]);
             }
           else if (m_Daughters_vec.size()==4)
             {
-              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName,m_BR,4,m_Daughters_vec[0],m_Daughters_vec[1],m_Daughters_vec[2],m_Daughters_vec[3]);
+              mode_vec = new G4PhaseSpaceDecayChannel(m_ParticleName.value(),m_BR,4,m_Daughters_vec[0],m_Daughters_vec[1],m_Daughters_vec[2],m_Daughters_vec[3]);
             }
           else
             {
@@ -118,7 +115,7 @@ void AddPhysicsDecayTool::ConstructProcess()
 
           table->Insert(mode_vec);
 
-          ATH_MSG_DEBUG( "Adding decay to "<<m_ParticleName );
+          ATH_MSG_DEBUG( "Adding decay to "<<m_ParticleName.value() );
           particle->SetDecayTable(table);
         }
     }

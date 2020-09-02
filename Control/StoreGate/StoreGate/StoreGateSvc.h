@@ -25,7 +25,7 @@
 #include <GaudiKernel/ClassID.h>        // for CLID
 #include <GaudiKernel/IInterface.h>     // for InterfaceID
 #include <GaudiKernel/IMessageSvc.h>    // for Level
-#include "GaudiKernel/Property.h"   /*StringArrayProperty*/
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObjID.h"
@@ -106,7 +106,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ThinningSvc;
 class ActiveStoreSvc;
 class CondSvc;
 namespace SG { 
@@ -860,7 +859,6 @@ private:
   void clearProxyPayload(SG::DataProxy*);
 
   ///access typeless_record
-  friend class ThinningSvc;
   friend class SG::VarHandleBase;
   friend 
   PyObject* 
@@ -923,7 +921,7 @@ private:
   void t2pRemove(const void* const pTrans);
 
   /// callback for output level property 
-  void msg_update_handler(Property& outputLevel);
+  void msg_update_handler(Gaudi::Details::PropertyBase& outputLevel);
 
   /// Add automatically-made symlinks for DP.
   void addAutoSymLinks (const std::string& key, CLID clid, SG::DataProxy* dp,

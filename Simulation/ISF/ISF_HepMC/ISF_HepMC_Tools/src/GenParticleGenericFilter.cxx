@@ -85,7 +85,7 @@ bool ISF::GenParticleGenericFilter::pass(const HepMC::GenParticle& particle) con
 {
   bool pass = true;
 
-  const auto* productionVertex = particle.production_vertex();
+  HepMC::ConstGenVertexPtr productionVertex = particle.production_vertex();
   const auto* position = productionVertex ? &productionVertex->position() : nullptr;
   if (!position || position->perp()<=m_maxApplicableRadius) {
     pass = check_cuts_passed(particle);
@@ -104,7 +104,7 @@ bool ISF::GenParticleGenericFilter::pass(const HepMC::GenParticle& particle) con
 /** Check whether the given particle passes all configure cuts or not */
 bool ISF::GenParticleGenericFilter::check_cuts_passed(const HepMC::GenParticle &particle) const {
   const auto& momentum = particle.momentum();
-  double mom = momentum.rho();
+  double mom = std::sqrt(momentum.x()*momentum.x()+momentum.y()*momentum.y()+momentum.z()*momentum.z());
   double eta = momentum.eta();
   double phi = momentum.phi();
   int pdg = particle.pdg_id();

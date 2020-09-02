@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigL2MultiMuHypo
 
@@ -22,7 +22,7 @@ class L2MultiMuHypo_DiMu (TrigL2MultiMuHypo):
         validation = TrigL2MultiMuHypoValidationMonitoring()
         from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
         online = TrigL2MultiMuHypoOnlineMonitoring()
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 class L2MultiMuHypo_Jpsi (TrigL2MultiMuHypo):
@@ -45,7 +45,7 @@ class L2MultiMuHypo_Jpsi (TrigL2MultiMuHypo):
         validation = TrigL2MultiMuHypoValidationMonitoring()
         from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
         online = TrigL2MultiMuHypoOnlineMonitoring()
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 class L2MultiMuHypo_Upsi (TrigL2MultiMuHypo):
@@ -68,7 +68,7 @@ class L2MultiMuHypo_Upsi (TrigL2MultiMuHypo):
         validation = TrigL2MultiMuHypoValidationMonitoring()
         from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
         online = TrigL2MultiMuHypoOnlineMonitoring()
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 class L2MultiMuHypo_Tau (TrigL2MultiMuHypo):
@@ -91,7 +91,7 @@ class L2MultiMuHypo_Tau (TrigL2MultiMuHypo):
         validation = TrigL2MultiMuHypoValidationMonitoring()
         from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
         online = TrigL2MultiMuHypoOnlineMonitoring()
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 class L2MultiMuHypo_Tau_passL2 (TrigL2MultiMuHypo):
@@ -114,6 +114,6 @@ class L2MultiMuHypo_Tau_passL2 (TrigL2MultiMuHypo):
         validation = TrigL2MultiMuHypoValidationMonitoring()
         from TrigBphysHypo.TrigL2MultiMuHypoMonitoring import TrigL2MultiMuHypoOnlineMonitoring
         online = TrigL2MultiMuHypoOnlineMonitoring()
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 

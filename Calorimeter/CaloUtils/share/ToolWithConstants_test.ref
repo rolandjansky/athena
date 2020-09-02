@@ -1,0 +1,257 @@
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on lxplus747.cern.ch on Sun Aug 30 00:06:23 2020
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+PyComponentMgr       INFO Initializing PyComponentMgr...
+TestAlg              INFO Initializing TestAlg...
+ClassIDSvc           INFO  getRegistryEntries: read 20739 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 423 CLIDRegistry entries for module ALL
+EventSelector        INFO  Enter McEventSelector Initialization 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr    SUCCESS ****************************** Algorithm Sequence ****************************
+ApplicationMgr    SUCCESS AthSequencer/AthMasterSeq
+ApplicationMgr    SUCCESS      AthSequencer/AthAlgEvtSeq
+ApplicationMgr    SUCCESS           AthSequencer/AthBeginSeq
+ApplicationMgr    SUCCESS                AthIncFirerAlg/BeginIncFiringAlg
+ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg1
+ApplicationMgr    SUCCESS           AthSequencer/AthAllAlgSeq
+ApplicationMgr    SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr    SUCCESS                AthSequencer/AthAlgSeq
+ApplicationMgr    SUCCESS                     PyAthena::Alg/TestAlg
+ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
+ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
+ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
+ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
+ApplicationMgr    SUCCESS ******************************************************************************
+ApplicationMgr       INFO Application Manager Started successfully
+EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
+AthenaEventLoopMgr   INFO   ===>>>  start of run 284500    <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #284500 0 events processed so far  <<<===
+284500 0 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 0
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 [
+    [4, 5],
+    [10, 9],
+    [2.5, 1]
+    ]
+
+ToolSvc.tool2        INFO Member: m_constants
+ToolSvc.tool2.ca1 = [3, 4.5, 6]
+ToolSvc.tool2.cf1 = 2.5
+ToolSvc.tool2.ci1 = 10
+ToolSvc.tool2.isDummy = 0
+ToolSvc.tool2.order = 0
+
+Member: m_DBconstants
+ToolSvc.tool2.test.ca2 = [
+    [4, 5],
+    [10, 9],
+    [2.5, 1]
+    ]
+ToolSvc.tool2.test.cb1 = 0
+
+
+testMerge:  CaloUtils::ToolWithConstantsTestTool 2 .test.ca1 = [3, 4.5, 6]
+.test.ca2 = [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+.test.cb1 = 0
+.test.cf1 = 2.5
+.test.ci1 = 10
+.test.isDummy = 0
+.test.order = 0
+
+
+ToolSvc.tool1       ERROR CaloUtils/src/ToolWithConstants.cxx:112 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for tools of differing types: foofoo and CaloUtils::ToolWithConstantsTestTool
+ToolSvc.tool1       ERROR CaloUtils/src/ToolWithConstants.cxx:118 (StatusCode CaloUtils::ToolWithConstantsImpl::mergeConstants(const std::string&, int, CaloUtils::ToolWithConstantsImpl::Context&, bool, CaloRec::ToolConstants&) const): code FAILURE: Trying to write to ToolConstants for differing versions of tool CaloUtils::ToolWithConstantsTestTool: 10 and 2
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #284500 1 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #284500 1 events processed so far  <<<===
+284500 0 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 0
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 [
+    [4, 5],
+    [10, 9],
+    [2.5, 1]
+    ]
+
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #284500 2 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #284500 2 events processed so far  <<<===
+284500 1 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 1
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 [
+    [14, 15],
+    [1, 19],
+    [12.5, 11]
+    ]
+
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #284500 3 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #284500 3 events processed so far  <<<===
+284500 1 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 1
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 [
+    [14, 15],
+    [1, 19],
+    [12.5, 11]
+    ]
+
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #284500 4 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #284500 4 events processed so far  <<<===
+284500 2 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 ExcBadToolConstantVersion: version mismatch for tool ToolSvc.tool2 constant cb1 constant version 3 is larger than tool version 2
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 ExcBadToolConstantVersion: version mismatch for tool ToolSvc.tool2 constant ca2 constant version 3 is larger than tool version 2
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #284500 5 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #284500 5 events processed so far  <<<===
+284500 2 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 ExcBadToolConstantVersion: version mismatch for tool ToolSvc.tool2 constant cb1 constant version 3 is larger than tool version 2
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 ExcBadToolConstantVersion: version mismatch for tool ToolSvc.tool2 constant ca2 constant version 3 is larger than tool version 2
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #284500 6 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #284500 6 events processed so far  <<<===
+284500 3 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 Can't find key in
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 Can't find key in
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #284500 7 events processed so far  <<<===
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #284500 7 events processed so far  <<<===
+284500 3 1000
+ToolSvc.tool1        INFO m_cf1 2.5
+ToolSvc.tool1        INFO m_ci1 10
+ToolSvc.tool1        INFO m_cb1 0
+ToolSvc.tool1        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool1        INFO m_ca2 [
+    [4, 5],
+    [6, 7],
+    [9, 8]
+    ]
+
+ToolSvc.tool2        INFO m_cf1 2.5
+ToolSvc.tool2        INFO m_ci1 10
+ToolSvc.tool2        INFO m_cb1 Can't find key in
+ToolSvc.tool2        INFO m_ca1 [3, 4.5, 6]
+
+ToolSvc.tool2        INFO m_ca2 Can't find key in
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #284500 8 events processed so far  <<<===
+ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
+TestAlg              INFO Finalizing TestAlg...
+IncidentProcAlg2     INFO Finalize
+EventSelector        INFO finalize
+ToolSvc              INFO Removing all tools created by ToolSvc
+PyComponentMgr       INFO Finalizing PyComponentMgr...
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

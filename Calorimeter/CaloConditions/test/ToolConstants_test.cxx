@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ToolConstants_test.cxx,v 1.4 2009-04-09 14:41:17 ssnyder Exp $
@@ -65,13 +65,33 @@ void test1()
   Array<0> a4 (tc.getrep ("foo", "fee"));
   assert (a4 == 1.25);
 
-  assert (tc.clsname() == "");
+  Arrayrep rep;
+  rep.m_shape.assign ({3});
+  rep.m_data.assign ({1.5, 2.5, 3.5});
+  rep.init_sizes();
+
+  tc.setrep ("bar", std::move (rep));
+  Array<1> a5 = tc.getrep ("foo", "bar");
+  assert (a5.size() == 3);
+  assert (a5[0] == 1.5);
+  assert (rep.m_data.empty());
+
+  assert (tc.clsname().empty());
   tc.clsname ("abc");
   assert (tc.clsname() == "abc");
 
   assert (tc.version() == 0);
   tc.version (10);
   assert (tc.version() == 10);
+
+  std::string s = tc.toString ("foo");
+  assert (s == "foo.a = 1.25\n"
+          "foo.b = [\n"
+          "    [1, 2],\n"
+          "    [3, 4]\n"
+          "    ]\n"
+          "foo.bar = [1.5, 2.5, 3.5]\n"
+          "foo.fee = 1.25\n\n");
 }
 
 

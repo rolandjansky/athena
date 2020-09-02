@@ -106,7 +106,9 @@ IOVSvcTool::IOVSvcTool(const std::string& type, const std::string& name,
   m_storeName("StoreGateSvc"), 
   p_cndSvc("DetectorStore",name),
   p_incSvc("IncidentSvc",name), p_PPSvc("ProxyProviderSvc",name),
-  p_CLIDSvc("ClassIDSvc",name), p_toolSvc("ToolSvc",name)
+  p_CLIDSvc("ClassIDSvc",name), p_toolSvc("ToolSvc",name),
+  p_startSet(nullptr),
+  p_stopSet(nullptr)
 {
   m_trigTree = new CBTree();
 }
@@ -446,9 +448,6 @@ IOVSvcTool::handle(const Incident &inc) {
       for (pmITR p=fitr.first; p!=fitr.second; ++p) {
         BFCN *f = p->second;
         std::string key = prx->name();
-        if (resetKeys.find(f) == resetKeys.end()) {
-          resetKeys[f] = std::list<std::string>();
-        }
         resetKeys[f].push_back(key);
       }
     }
@@ -1019,9 +1018,6 @@ IOVSvcTool::preLoadProxies() {
     for (pitr=pi.first; pitr!=pi.second; ++pitr) {
       BFCN *f = pitr->second;
       std::string key = dp->name();
-      if (resetKeys.find(f) == resetKeys.end()) {
-        resetKeys[f] = std::list<std::string>();
-      }
       resetKeys[f].push_back(key);
     }
     
@@ -1201,7 +1197,7 @@ IOVSvcTool::PrintProxyMap(const SG::DataProxy* dp){
 
 StatusCode 
 IOVSvcTool::regFcn(SG::DataProxy* dp, 
-                   const CallBackID c, 
+                   const CallBackID& c, 
                    const IOVSvcCallBackFcn& fcn,
                    bool trigger) {
 
@@ -1289,8 +1285,8 @@ IOVSvcTool::regFcn(SG::DataProxy* dp,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode 
-IOVSvcTool::regFcn(const CallBackID c1,
-                   const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+IOVSvcTool::regFcn(const CallBackID& c1,
+                   const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                    bool trigger) {
 
   // Check if second function has been registered with same proxy
@@ -1393,7 +1389,7 @@ IOVSvcTool::regFcn(const CallBackID c1,
 
 StatusCode 
 IOVSvcTool::regFcn(const IAlgTool* ia,
-                   const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+                   const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                    bool trigger) {
 
   ObjMap::const_iterator oitr = m_objMap.find( ia );

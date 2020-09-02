@@ -43,7 +43,7 @@ IOVDbSvc.Folders += ["/lar/LArElecCalibTB04/LArCalibParams"]
 theApp.Dlls += [ "LArByteStream"]
 
 ByteStreamInputSvc = Service( "ByteStreamInputSvc" )
-ByteStreamInputSvc.FullFileName += ["/castor/cern.ch/atlas/LargFec/Installation/daq_ROS-1_HIGH_InstCalib_0010157_file01.data"]
+EventSelector.Input += ["/castor/cern.ch/atlas/LargFec/Installation/daq_ROS-1_HIGH_InstCalib_0010157_file01.data"]
 
 ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc" )
 ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_PHOTONSUPERCLUSTERBUILDER_H
@@ -10,98 +10,141 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "GaudiKernel/EventContext.h"
 
-//Fwd declarations
-#include "egammaRecEvent/egammaRecContainer.h"
-#include "xAODEgamma/EgammaEnums.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
+// Fwd declarations
 #include "egammaInterfaces/IEMConversionBuilder.h"
+#include "egammaRecEvent/egammaRecContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODEgamma/EgammaEnums.h"
 
-class photonSuperClusterBuilder : public egammaSuperClusterBuilder {
+class photonSuperClusterBuilder : public egammaSuperClusterBuilder
+{
 
- public:
-
-  //Constructor/destructor.
+public:
+  // Constructor/destructor.
   photonSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-  //Tool standard routines.
+  // Tool standard routines.
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final;
- 
- private:
+  virtual StatusCode execute() override final
+  {
+    return execute_r(Algorithm::getContext());
+  }
+  // This will become the normal execute when
+  // inheriting from AthReentrantAlgorithm
+  StatusCode execute_r(const EventContext& ctx) const;
+
+private:
   /** Return extra clusters that can be added to make supercluster */
-  std::vector<std::size_t> 
-    searchForSecondaryClusters(std::size_t photonInd,
-			       const EgammaRecContainer *egammaRecs,
-			       std::vector<bool>& isUsed,
-			       int& nWindowClusters,
-			       int& nExtraClusters) const;
+  std::vector<std::size_t> searchForSecondaryClusters(
+    std::size_t photonInd,
+    const EgammaRecContainer* egammaRecs,
+    std::vector<bool>& isUsed,
+    int& nWindowClusters,
+    int& nExtraClusters) const;
 
   /** Does the cluster share conversion vertex? */
-  bool matchesVtx(const std::vector<const xAOD::Vertex*>& seedVertices,
-		  const std::vector<xAOD::EgammaParameters::ConversionType>& seedVertexType,
-		  const egammaRec *egRec) const;
+  bool matchesVtx(
+    const std::vector<const xAOD::Vertex*>& seedVertices,
+    const std::vector<xAOD::EgammaParameters::ConversionType>& seedVertexType,
+    const egammaRec* egRec) const;
 
   /** Does the cluster match a conversion vertex track with the seed? */
-  bool matchesVtxTrack(const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
-		  const egammaRec *egRec) const;
+  bool matchesVtxTrack(
+    const std::vector<const xAOD::TrackParticle*>& seedVertexTracks,
+    const egammaRec* egRec) const;
 
   /////////////////////////////////////////////////////////////////////
-  //internal variables
+  // internal variables
   /** @brief Key for input egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey {this,
-      "InputEgammaRecContainerName", "egammaRecCollection",
-      "input egammaRec container"};
+  SG::ReadHandleKey<EgammaRecContainer> m_inputEgammaRecContainerKey{
+    this,
+    "InputEgammaRecContainerName",
+    "egammaRecCollection",
+    "input egammaRec container"
+  };
 
   /** @brief Key for output egammaRec container */
-  SG::WriteHandleKey<EgammaRecContainer> m_photonSuperRecCollectionKey {this,
-      "SuperPhotonRecCollectionName", "PhotonSuperRecCollection",
-      "output egammaRec container"};
+  SG::WriteHandleKey<EgammaRecContainer> m_photonSuperRecCollectionKey{
+    this,
+    "SuperPhotonRecCollectionName",
+    "PhotonSuperRecCollection",
+    "output egammaRec container"
+  };
 
   /** @brief Key for output clusters */
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey {this,
-      "SuperClusterCollestionName", "PhotonSuperClusters",
-      "output calo cluster container"};
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey{
+    this,
+    "SuperClusterCollestionName",
+    "PhotonSuperClusters",
+    "output calo cluster container"
+  };
 
   /** @brief Tool to retrieve the conversions*/
-  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
-      "ConversionBuilderTool", "EMConversionBuilder",
-      "Tool that matches conversion vertices to egammaRecs"};
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder{
+    this,
+    "ConversionBuilderTool",
+    "EMConversionBuilder",
+    "Tool that matches conversion vertices to egammaRecs"
+  };
 
   // options for how to build superclusters
   /** @brief add the topoclusters in window */
-  Gaudi::Property<bool> m_addClustersInWindow {this,
-      "AddClustersInWindow", true, "add the topoclusters in window"};
+  Gaudi::Property<bool> m_addClustersInWindow{
+    this,
+    "AddClustersInWindow",
+    true,
+    "add the topoclusters in window"
+  };
 
   /** @brief add the topoclusters matching conversion vertex */
-  Gaudi::Property<bool>  m_addClustersMatchingVtx {this,
-      "AddClustersMatchingVtx", true, 
-      "add the topoclusters matching conversion vertex"};
+  Gaudi::Property<bool> m_addClustersMatchingVtx{
+    this,
+    "AddClustersMatchingVtx",
+    true,
+    "add the topoclusters matching conversion vertex"
+  };
 
   /** @brief use only the leading vertex for matching */
-  Gaudi::Property<bool>  m_useOnlyLeadingVertex {this,
-      "UseOnlyLeadingVertex", true, 
-      "use only the leading vertex for matching"};
+  Gaudi::Property<bool> m_useOnlyLeadingVertex{
+    this,
+    "UseOnlyLeadingVertex",
+    true,
+    "use only the leading vertex for matching"
+  };
 
   /** @brief use only vertices/tracks with silicon tracks */
-  Gaudi::Property<bool>  m_useOnlySi {this, "UseOnlySi", true, 
-      "use only vertices/tracks with silicon tracks for adding sec. clusters (Mix not considered Si)"};
- 
+  Gaudi::Property<bool> m_useOnlySi{
+    this,
+    "UseOnlySi",
+    true,
+    "use only vertices/tracks with silicon tracks for adding sec. clusters "
+    "(Mix not considered Si)"
+  };
+
   /** @brief add the topoclusters matching conversion vertex tracks */
-  Gaudi::Property<bool>  m_addClustersMatchingVtxTracks {this, 
-      "AddClustrsMatchingVtxTracks", true, 
-      "add the topoclusters matching conversion vertex tracks"};
+  Gaudi::Property<bool> m_addClustersMatchingVtxTracks{
+    this,
+    "AddClustrsMatchingVtxTracks",
+    true,
+    "add the topoclusters matching conversion vertex tracks"
+  };
 
   /** @brief use only the leading track for matching */
-  Gaudi::Property<bool>  m_useOnlyLeadingTrack {this, 
-      "UseOnlyLeadingTrack", true, 
-      "use only the leading track for matching"}; 
+  Gaudi::Property<bool> m_useOnlyLeadingTrack{
+    this,
+    "UseOnlyLeadingTrack",
+    true,
+    "use only the leading track for matching"
+  };
 
   /** @brief private member flag to do the conversion building and matching */
-  Gaudi::Property<bool> m_doConversions {this, "doConversions", true,
-      "Boolean to do conversion matching"};
-
+  Gaudi::Property<bool> m_doConversions{ this,
+                                         "doConversions",
+                                         true,
+                                         "Boolean to do conversion matching" };
 };
 
 #endif

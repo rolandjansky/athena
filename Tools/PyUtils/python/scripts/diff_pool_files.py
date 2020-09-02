@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_pool_files
 # @purpose check that 2 POOL files have same content (containers and sizes).
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 276362 $"
-__doc__ = "check that 2 POOL files have same content (containers and sizes)."
+__doc__ = "diff two POOL files (containers and sizes)"
 __author__ = "Sebastien Binet"
 
 
@@ -23,8 +22,7 @@ import PyUtils.acmdlib as acmdlib
                   default=False,
                   help="""Enable verbose printout""")
 def main(args):
-    """check that 2 POOL files have same content (containers and sizes)
-    """
+    """diff two POOL files (containers and sizes)"""
 
     import os.path as osp
     old = osp.expandvars(osp.expanduser(args.old))

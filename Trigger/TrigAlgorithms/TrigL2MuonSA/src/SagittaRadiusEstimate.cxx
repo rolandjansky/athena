@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/SagittaRadiusEstimate.h"
+#include <cmath>
+
+#include "SagittaRadiusEstimate.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -14,46 +14,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_SagittaRadiusEstimate("IID_SagittaRadiusEstimate", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::SagittaRadiusEstimate::interfaceID() { return IID_SagittaRadiusEstimate; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(const std::string& type,
 							   const std::string& name,
 							   const IInterface*  parent):
-  AthAlgTool(type, name, parent), 
-  m_use_mcLUT(0),
-  m_alignmentBarrelLUT(0)
+  AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::SagittaRadiusEstimate>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::SagittaRadiusEstimate::~SagittaRadiusEstimate() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::SagittaRadiusEstimate::initialize()
-{
-  ATH_MSG_DEBUG("Initializing SagittaRadiusEstimate - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -64,14 +29,6 @@ void TrigL2MuonSA::SagittaRadiusEstimate::setMCFlag(BooleanProperty use_mcLUT,
 {
   m_use_mcLUT = use_mcLUT;
   if ( alignmentBarrelLUTSvc ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
-
-  return;
-}
-
-void TrigL2MuonSA::SagittaRadiusEstimate::setUseEndcapInner( BooleanProperty use_endcapInner )
-{
-  m_use_endcapInner = use_endcapInner;
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -84,7 +41,8 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
   const int MAX_STATION = 4;
   const float ZERO_LIMIT = 1e-5;
 
-  int nit,nitmx=10;
+  int nit;
+  const int nitmx=10;
   int count=0;
   double a3,theta,rad,phi,one,phim=0,signZ;
   
@@ -94,7 +52,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
   double x0 = 0., y0 = 0., x1 = 0., y1 = 0., x2 = 0., y2 = 0., x3 = 0., y3 = 0.;
   double tm = 0.;
   double xn = 0.;
-  double eps = 0.005;
+  const double eps = 0.005;
   
   TrigL2MuonSA::SuperPoint* superPoints[4];
 
@@ -177,7 +135,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     }
     phi = atan2(trackPattern.phiMSDir*one,one);
 
-    if(phim>=CLHEP::pi+0.1) phim = phim - 2*CLHEP::pi;
+    if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
     
     if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
     else trackPattern.phiMap = phi - phim;
@@ -217,7 +175,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
       one = (cos(p_roi->phi())>0)? 1: -1;
     }
     phi = atan2(trackPattern.phiMSDir*one,one);
-    if(phim>=CLHEP::pi+0.1) phim = phim - 2*CLHEP::pi;
+    if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
 
     if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
     else trackPattern.phiMap = phi - phim;
@@ -328,7 +286,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     }
     phi = atan2(trackPattern.phiMSDir*one,one);
 
-    if(phim>=CLHEP::pi+0.1) phim = phim - 2*CLHEP::pi;
+    if(phim>=M_PI+0.1) phim = phim - 2*M_PI;
 
     if(phim>=0) trackPattern.phiMap = (phi>=0.)? phi - phim : phim -fabs(phi);
     else trackPattern.phiMap = phi - phim;
@@ -361,17 +319,6 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
 		<< trackPattern.phiMS);
   
   return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::SagittaRadiusEstimate::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing SagittaRadiusEstimate - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
 }
 
 // --------------------------------------------------------------------------------

@@ -80,8 +80,8 @@ split_canv = options.split_canvas.split(":")
 split_canv = map(int,split_canv)
 
 from LArG4Validation.LArG4PlottingScript import parseRoots, defaultRoots, \
-     parsePlots, fillPlots, dividePlots, savePlots, drawPlots, PlotEntry, \
-     createPlots
+	parsePlots, fillPlots, dividePlots, savePlots, drawPlots, PlotEntry, \
+	createPlots
 
 if (len(split_canv) != 2) :
 	printfunc ("ERROR: wrong split parameter")

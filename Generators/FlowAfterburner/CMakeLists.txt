@@ -30,12 +30,12 @@ atlas_add_library( FlowAfterburnerLib
                    PRIVATE_INCLUDE_DIRS 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TruthHelper GeneratorObjects StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib TruthUtils )
+                   PRIVATE_LINK_LIBRARIES AtlasHepMCLib AtlasHepMCsearchLib TruthUtils )
 
 atlas_add_component( FlowAfterburner
                      src/components/*.cxx
                      INCLUDE_DIRS ${GSL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}  ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TruthHelper GeneratorObjects StoreGateLib SGtests TruthUtils FlowAfterburnerLib )
+                     LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib  AtlasHepMCsearchLib ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TruthHelper GeneratorObjects StoreGateLib SGtests TruthUtils FlowAfterburnerLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

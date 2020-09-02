@@ -28,7 +28,7 @@ TrigPassFlags* TrigPassFlagsCnv::createTransient() {
     if(mlog.level()<=MSG::DEBUG)
        mlog << MSG::DEBUG << "TrigPassFlagsCnv::createTransient " << endmsg;
 
-    static pool::Guid p1_guid("1FA7E531-B1F9-4EC5-9BD1-FD19CE7368B6");
+    static const pool::Guid p1_guid("1FA7E531-B1F9-4EC5-9BD1-FD19CE7368B6");
 
 
     if( compareClassGuid(p1_guid) ) {

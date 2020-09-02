@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( TileGeoG4SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileSimEvent
-                          
-                          PRIVATE
-                          Calorimeter/CaloIdentifier
-                          Control/StoreGate
-                          TileCalorimeter/TileG4/TileG4Interfaces
-                          Calorimeter/CaloDetDescr
-                          Control/CxxUtils
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools
-                          TileCalorimeter/TileGeoModel
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -35,8 +17,8 @@ atlas_add_library( TileGeoG4SDLib
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} TileDetDescr TileSimEvent
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CxxUtils GeoModelUtilities GaudiKernel PathResolver StoreGateLib SGtests CaloDetDescrLib G4AtlasToolsLib TileGeoModelLib )
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} G4AtlasToolsLib TileDetDescr TileSimEvent TileG4InterfacesLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier CxxUtils GeoModelInterfaces GeoModelUtilities GaudiKernel PathResolver StoreGateLib SGtests CaloDetDescrLib TileGeoModelLib )
 
 atlas_add_component( TileGeoG4SD
                      src/components/*.cxx

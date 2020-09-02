@@ -118,11 +118,7 @@ namespace {
          ~TTransObject() {
             // If ROOT is already deleted, then at least some of the objects
             // are probably also deleted by now.
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 6, 0 )
             if( ! ROOT::Internal::gROOTLocal ) {
-#else
-            if( ! ROOT::gROOTLocal ) {
-#endif // ROOT_VERSION
                m_obj.release();
             }
             // If we're in global cleanup, then they may also have been deleted.

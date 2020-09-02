@@ -8,6 +8,7 @@
 #include <iostream>
 #include <limits>
 #include <iostream>
+#include <sstream>
 
 #ifndef RINGER_STANDALONE
 // Athena framework includes:
@@ -140,8 +141,6 @@ AsgElectronRingerSelector::AsgElectronRingerSelector(std::string asgToolName) :
   declareProperty("primaryVertexContainer",
                   m_primVtxContName="PrimaryVertices",
                   "The primary vertex container name" );
-
-  m_ringsELReader = xAOD::getCaloRingsReader();
 
 }
 
@@ -297,7 +296,11 @@ StatusCode AsgElectronRingerSelector::configureFromStruct(RingerConfStruct &file
     for ( auto &discrWrapper : m_discrWrapperCol ) {
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
-    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+    if( msgLevel() <= MSG::DEBUG ) {
+      std::ostringstream str;
+      xAOD::RingSetConf::print( m_rawConfCol, str );
+      ATH_MSG_DEBUG( str.str() );
+    }
   }
 
   // See if we are using CutID selector and retrieve it if so:
@@ -407,7 +410,7 @@ StatusCode AsgElectronRingerSelector::execute(
   // First, check if we can retrieve decoration:
   const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try {
-    caloRingsLinks = &(m_ringsELReader->operator()(*el));
+    caloRingsLinks = &(xAOD::getCaloRingsReader()(*el));
   } catch ( const std::exception &e) {
     ATH_MSG_ERROR("Couldn't retrieve CaloRingsLinks. Reason: "
         << e.what());
@@ -676,7 +679,11 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
 
-    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+    if( msgLevel() <= MSG::DEBUG ) {
+      std::ostringstream str;
+      xAOD::RingSetConf::print( m_rawConfCol, str );
+      ATH_MSG_DEBUG( str.str() );
+    }
     m_metaDataCached = true;
   } else {
     // Flag that meta is on outputMeta rather than the input
@@ -703,7 +710,11 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
     for ( auto &discrWrapper : m_discrWrapperCol ) {
       discrWrapper->setRawConfCol( &m_rawConfCol );
     }
-    xAOD::RingSetConf::print( m_rawConfCol, msg() );
+    if( msgLevel() <= MSG::DEBUG ) {
+      std::ostringstream str;
+      xAOD::RingSetConf::print( m_rawConfCol, str );
+      ATH_MSG_DEBUG( str.str() );
+    }
 
     ATH_MSG_DEBUG( "Successfully retrieve configuration info.");
   }

@@ -20,7 +20,6 @@
 #include "AthenaKernel/Timeout.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -38,13 +37,6 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile2D.h>
-
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
  
 ////////////////////////////////////////////////////////////////////////////
 
@@ -438,7 +430,7 @@ StatusCode TrigALFAROBMonitor::start() {
 					        m_histProp_failedChecksumForALFAROB.value().lowEdge(),
 					        m_histProp_failedChecksumForALFAROB.value().highEdge());
     if (m_hist_failedChecksumForALFAROB) {
-      CAN_REBIN(m_hist_failedChecksumForALFAROB);
+      m_hist_failedChecksumForALFAROB->SetCanExtend(TH1::kAllAxes);
       if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName());
       }
@@ -450,7 +442,7 @@ StatusCode TrigALFAROBMonitor::start() {
     std::string histTitle = "goodDataAssessment";
     m_hist_goodData = new TH1F (histTitle.c_str(), (histTitle + " elastics").c_str(), 10, -0.5, 9.5);
     if (m_hist_goodData) {
-      CAN_REBIN(m_hist_goodData);
+      m_hist_goodData->SetCanExtend(TH1::kAllAxes);
       if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
 	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName());
       }

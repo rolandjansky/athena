@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -9,15 +9,15 @@ class TrigL2PhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
 
 
         self.Histograms = [ defineHistogram('PhEt', 	type='TH1F', title="L2Photon Hypo E_{T}; E_{T}^{EM} [MeV]",
-                                                                                                                xbins=50, xmin=-2000, xmax=100000) ]
+                                            xbins=50, xmin=-2000, xmax=100000) ]
         self.Histograms += [ defineHistogram('PhEta', 	type='TH1F', title="L2Photon Hypo #eta;#eta",
-                                            									xbins=100, xmin=-2.5, xmax=2.5) ]
+                                             xbins=100, xmin=-2.5, xmax=2.5) ]
         self.Histograms += [ defineHistogram('PhPhi', 	type='TH1F', title="L2Photon Hypo #phi;#phi",
-                                            									xbins=128, xmin=-3.2, xmax=3.2) ]
+                                             xbins=128, xmin=-3.2, xmax=3.2) ]
         self.Histograms += [ defineHistogram('PhEratio', 	type='TH1F', title="L2Photon Hypo Eratio;Eratio",
-                                    										xbins=64, xmin=-0.1, xmax=1.5) ]
+                                             xbins=64, xmin=-0.1, xmax=1.5) ]
         self.Histograms += [ defineHistogram('PhRcore', 	type='TH1F', title="L2Photon Hypo Rcore; Rcore",
-                                             									xbins=48, xmin=-0.1, xmax=1.1 ) ]
+                                             xbins=48, xmin=-0.1, xmax=1.1 ) ]
 
         self.Histograms += [ defineHistogram('dEta', 	type='TH1F', title="L2Photon Hypo #Delta #eta; #Delta #eta",
                                              xbins=80, xmin=-0.2, xmax=0.2 ) ]
@@ -51,11 +51,11 @@ class TrigL2PhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
 
         self.Histograms = [ defineHistogram('PhEt', 	type='TH1F', title="L2Photon Hypo E_{T}; E_{T}^{EM} [MeV]",
-                                                                                                                xbins=50, xmin=-2000, xmax=100000) ]
+                                            xbins=50, xmin=-2000, xmax=100000) ]
         self.Histograms += [ defineHistogram('PhEta', 	type='TH1F', title="L2Photon Hypo #eta;#eta",
-                                            									xbins=100, xmin=-2.5, xmax=2.5) ]
+                                             xbins=100, xmin=-2.5, xmax=2.5) ]
         self.Histograms += [ defineHistogram('PhPhi', 	type='TH1F', title="L2Photon Hypo #phi;#phi",
-                                            									xbins=128, xmin=-3.2, xmax=3.2) ]
+                                             xbins=128, xmin=-3.2, xmax=3.2) ]
         cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi', '#eta','Reta','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
         
         labelsDescription = ''
@@ -74,15 +74,15 @@ class TrigL2PhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget("Cosmic")
 
         self.Histograms = [ defineHistogram('PhEt', 	type='TH1F', title="L2Photon Hypo E_{T}; E_{T}^{EM} [MeV]",
-                                                                                                                xbins=50, xmin=-2000, xmax=100000) ]
+                                            xbins=50, xmin=-2000, xmax=100000) ]
         self.Histograms += [ defineHistogram('PhEta', 	type='TH1F', title="L2Photon Hypo #eta;#eta",
-                                            									xbins=100, xmin=-2.5, xmax=2.5) ]
+                                             xbins=100, xmin=-2.5, xmax=2.5) ]
         self.Histograms += [ defineHistogram('PhPhi', 	type='TH1F', title="L2Photon Hypo #phi;#phi",
-                                            									xbins=128, xmin=-3.2, xmax=3.2) ]
+                                             xbins=128, xmin=-3.2, xmax=3.2) ]
         self.Histograms += [ defineHistogram('PhEratio', 	type='TH1F', title="L2Photon Hypo Eratio;Eratio",
-                                    										xbins=64, xmin=-0.1, xmax=1.5) ]
+                                             xbins=64, xmin=-0.1, xmax=1.5) ]
         self.Histograms += [ defineHistogram('PhRcore', 	type='TH1F', title="L2Photon Hypo Rcore; Rcore",
-                                             									xbins=48, xmin=-0.1, xmax=1.1 ) ]
+                                             xbins=48, xmin=-0.1, xmax=1.1 ) ]
 
         self.Histograms += [ defineHistogram('dEta', 	type='TH1F', title="L2Photon Hypo #Delta #eta; #Delta #eta",
                                              xbins=80, xmin=-0.2, xmax=0.2 ) ]

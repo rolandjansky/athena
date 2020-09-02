@@ -46,7 +46,7 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h" //member
 
-// STL and boost headers
+// STL headers
 #include <string>
 #include <vector>
 #include <utility>
@@ -69,7 +69,7 @@ class SCTCalib : public AthAlgorithm {
       ~SCTCalib() = default;
       virtual StatusCode initialize() override;
       virtual StatusCode execute() override;
-      virtual StatusCode stop ATLAS_NOT_THREAD_SAFE () override;
+      virtual StatusCode stop ATLAS_NOT_THREAD_SAFE () override; // Thread unsafe getNoisyStrip, getDeadStrip, getNoiseOccupancy, getRawOccupancy, getEfficiency, getBSErrors, getLorentzAngle methods are used.
       virtual StatusCode finalize() override;
 
    private:
@@ -256,13 +256,13 @@ class SCTCalib : public AthAlgorithm {
 
       bool       notEnoughStatistics(const int required, const int obtained, const std::string& histogramName="HIST") const;
 
-      StatusCode getNoisyStrip ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getDeadStrip ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getNoiseOccupancy ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getRawOccupancy ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getEfficiency ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getBSErrors ATLAS_NOT_THREAD_SAFE ();
-      StatusCode getLorentzAngle ATLAS_NOT_THREAD_SAFE ();
+      StatusCode getNoisyStrip ATLAS_NOT_THREAD_SAFE (); // Thread unsafe writeModuleListToCool method is used.
+      StatusCode getDeadStrip ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListStrip, SCTCalibWriteTool::createListChip methods are used.
+      StatusCode getNoiseOccupancy ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListNO method is used.
+      StatusCode getRawOccupancy ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListRawOccu method is used.
+      StatusCode getEfficiency ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListEff method is used.
+      StatusCode getBSErrors ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListBSErr method is used.
+      StatusCode getLorentzAngle ATLAS_NOT_THREAD_SAFE (); // Thread unsafe SCTCalibWriteTool::createListLA method is used.
 
       // To handle XML file for DB
       StatusCode openXML4DB(std::ofstream&, const char*, const char*, IOVTime, IOVTime) const;
@@ -296,7 +296,7 @@ class SCTCalib : public AthAlgorithm {
       addStripsToList(Identifier& waferId, std::set<Identifier>& stripIdList, bool isNoisy, bool isNew) const;
 
       StatusCode
-      writeModuleListToCool ATLAS_NOT_THREAD_SAFE
+      writeModuleListToCool ATLAS_NOT_THREAD_SAFE // Thread unsafe SCTCalibWriteTool::createCondObjects method is used.
                            (const std::map<Identifier, std::set<Identifier>>& moduleListAll,
                             const std::map<Identifier, std::set<Identifier>>& moduleListNew,
                             const std::map<Identifier, std::set<Identifier>>& moduleListRef);

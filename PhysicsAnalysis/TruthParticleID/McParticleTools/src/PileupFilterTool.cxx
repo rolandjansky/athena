@@ -19,9 +19,9 @@
 #include "TruthHelper/IsGenStable.h"
 #include "TruthHelper/IsGenSimulStable.h"
 #include "TruthHelper/IsGenerator.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // McParticleKernel includes
@@ -168,7 +168,7 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
   // Get all of the generated particles (does not have Geant secondaries)
 
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   if ( m_includeSimul ) {
     sc = m_tesIO->getMC(particles,  m_mcEventsReadHandleKey.key());
   } else {

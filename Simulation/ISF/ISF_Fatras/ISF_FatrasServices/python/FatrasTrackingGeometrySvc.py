@@ -4,7 +4,6 @@ from __future__ import print_function
 
 class FatrasTrackingGeometrySvc:
   def __init__(self):
-    from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ToolSvc
 
     ##################################################################################

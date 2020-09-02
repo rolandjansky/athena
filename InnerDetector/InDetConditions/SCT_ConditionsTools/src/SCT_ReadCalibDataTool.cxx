@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTool.cxx Implementation file for SCT_ReadCalibDataTool.
@@ -11,6 +11,9 @@
 // Include Athena stuff
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+// Include STL
+#include <cstdint>
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std::string& name, const IInterface* parent) :
@@ -70,7 +73,7 @@ bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, const EventConte
       // Get strip on wafer to check
       int strip{m_id_sct->strip(elementId)};
       // Set value
-      status = (*condDataInfo)[waferHash.value()][strip];
+      status = (*condDataInfo)[waferHash][strip];
       break;
     }
   case InDetConditions::SCT_MODULE:
@@ -286,10 +289,10 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
   }
   
   //Loop over all wafers using hashIds from the cabling service
-  std::vector<boost::uint32_t> listOfRODs;
+  std::vector<std::uint32_t> listOfRODs;
   m_cabling->getAllRods(listOfRODs, ctx);
-  std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
-  std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
+  std::vector<std::uint32_t>::iterator rodIter{listOfRODs.begin()};
+  std::vector<std::uint32_t>::iterator rodEnd{listOfRODs.end()};
   for (; rodIter!=rodEnd; ++rodIter) {
     std::vector<IdentifierHash> listOfHashes;
     m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);
@@ -306,7 +309,7 @@ std::list<Identifier> SCT_ReadCalibDataTool::defectList(const std::string& defec
       }  else if (noDefect) {
         wantedDefects = condDataNoise->findModule(moduleId);
       }
-      if (!wantedDefects.begDefects.empty()) {
+      if (not wantedDefects.begDefects.empty()) {
         for (unsigned int i{0}; i < wantedDefects.begDefects.size(); ++i) {
           if (wantedDefects.typeOfDefect[i] == defect) {
             // Create identifier for all strips inside begin to end

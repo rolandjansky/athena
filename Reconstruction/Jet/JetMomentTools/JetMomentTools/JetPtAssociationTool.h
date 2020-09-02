@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetPtAssociationTool.h
@@ -16,11 +16,16 @@
 ///   AssociationName - Name of the association
 ///   InputContainer - Name of the matching jet container
 
-#include "JetRec/JetModifierBase.h"
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "JetInterface/IJetDecorator.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "xAODJet/JetContainer.h"
 
-class JetPtAssociationTool : public JetModifierBase {
-  ASG_TOOL_CLASS(JetPtAssociationTool, IJetModifier)
+class JetPtAssociationTool : public asg::AsgTool,
+                             virtual public IJetDecorator {
+  ASG_TOOL_CLASS(JetPtAssociationTool, IJetDecorator)
     
 public:
 
@@ -34,12 +39,12 @@ public:
   JetPtAssociationTool(std::string myname);
 
   /// Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /// Inherited method to modify a jet.
   /// Extract and record the element link and pT fraction
   /// for the jet with the highest such fraction.
-  int modifyJet(xAOD::Jet& jet) const;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
 
 private:  // data
 
@@ -59,8 +64,11 @@ private:  // data
   int match(const APVector& aps, const xAOD::Jet& jet, APVector& apvs, double& ptsum_constituents) const;
 
   /// Properties.
-  std::string m_aname;
-  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainer_key;
+  Gaudi::Property<std::string> m_aname{this, "AssociationName", "", "Key for association vector"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this, "JetContainer", "", "Input jet container"};
+
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocFracKey{this, "AssociationFractionName", "AssociationFraction", "SG key for output AssociationFraction decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocLinkKey{this, "AssociationLinkName", "AssociationLink", "SG key for output AssociationLink decoration"};
 };
 
 #endif

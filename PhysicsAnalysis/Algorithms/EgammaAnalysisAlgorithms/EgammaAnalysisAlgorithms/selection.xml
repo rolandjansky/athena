@@ -1,0 +1,11 @@
+<lcgdict>
+
+   <class name="CP::EgammaCalibrationAndSmearingAlg" />
+   <class name="CP::EgammaIsGoodOQSelectionTool" />
+   <class name="CP::EgammaIsolationCorrectionAlg" />
+   <class name="CP::EgammaIsolationSelectionAlg" />
+   <class name="CP::ElectronEfficiencyCorrectionAlg" />
+   <class name="CP::PhotonEfficiencyCorrectionAlg" />
+   <class name="CP::PhotonShowerShapeFudgeAlg" />
+   
+</lcgdict>

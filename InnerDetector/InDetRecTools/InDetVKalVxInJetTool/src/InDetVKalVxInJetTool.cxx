@@ -465,7 +465,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
       tmpVectxAOD->InpTrk.resize(InpTrk.size());
       std::copy(InpTrk.begin(),InpTrk.end(), tmpVectxAOD->InpTrk.begin());
       //////listVrtSec = GetVrtSecMulti(InpTrk,PrimVrt,JetDir,Results,SelSecTrkPerVrt,TrkFromV0);
-      listVrtSec = GetVrtSecMulti(tmpVectxAOD,0,PrimVrt,JetDir,Results);
+      listVrtSec = GetVrtSecMulti(tmpVectxAOD,PrimVrt,JetDir,Results);
       SelSecTrkPerVrt.swap(tmpVectxAOD->FoundSecondTracks);
       xaodTrkFromV0.swap(tmpVectxAOD->TrkFromV0);
       delete tmpVectxAOD;
@@ -508,63 +508,5 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 
 
-   Trk::VxSecVertexInfo* InDetVKalVxInJetTool::findSecVertex(const Trk::RecVertex & PrimVrt,
-							           const TLorentzVector & JetDir,
-						 	           const std::vector<const Trk::TrackParticleBase*> & InpTrkBase)
-    const  {
-    if(m_timingProfile)m_timingProfile->chronoStart("InDetVKalVxInJetTool");
-    std::vector<double>     Results;
-    std::vector<const Rec::TrackParticle*>            SelSecTrk;
-    std::vector< std::vector<const Rec::TrackParticle*> >  SelSecTrkPerVrt;
-    std::vector<const Rec::TrackParticle*>            TrkFromV0;
-    std::vector<xAOD::Vertex*> listVrtSec(0);
-    std::vector<const Rec::TrackParticle*> InpTrk = BaseToPart(InpTrkBase) ;
-    double SecVtxMass =   0.;
-    double RatioE     =   0.;
-    double EnergyJet  =   0.;
-    int N2trVertices  =   0 ;
-    if(m_curTup){ m_curTup->nVrt=0; m_curTup->nTrkInJet=0; m_curTup->nNVrt=0; m_curTup->NTHF=0; }
-
-    xAOD::Vertex xaodPrimVrt; 
-                            xaodPrimVrt.setPosition(PrimVrt.position());
-                            xaodPrimVrt.setCovariancePosition(PrimVrt.covariancePosition());
-
-    if(m_multiVertex){
-       workVectorArrREC * tmpVectREC=new workVectorArrREC();
-       tmpVectREC->InpTrk.resize(InpTrk.size());
-       std::copy(InpTrk.begin(),InpTrk.end(), tmpVectREC->InpTrk.begin());
-       //////listVrtSec = GetVrtSecMulti(InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrkPerVrt,TrkFromV0);
-       listVrtSec = GetVrtSecMulti(0,tmpVectREC,xaodPrimVrt,JetDir,Results);
-       SelSecTrkPerVrt.swap(tmpVectREC->FoundSecondTracks);
-       TrkFromV0.swap(tmpVectREC->TrkFromV0);
-       delete tmpVectREC;
-    }else{
-       xAOD::Vertex* secVrt = GetVrtSec( InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrk,TrkFromV0);
-       if(secVrt != 0) listVrtSec.push_back(secVrt);
-       else if(m_fillHist){ m_pr_effVrt->Fill((float)m_NRefPVTrk,0.);              
-	                    m_pr_effVrtEta->Fill( JetDir.Eta(),0.);}
-    }
-    if(Results.size()<3) {
-       listVrtSec.clear();
-    }else{
-       SecVtxMass =      Results[0];
-       RatioE     =      Results[1];
-       N2trVertices  = (int)Results[2];
-       EnergyJet     =      Results[6];
-    }
-    Trk::VxSecVKalVertexInfo* res = 
-          new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
-    if(Results.size()>8)res->setDstToMatLay(Results[7]);
-
-    if(m_fillHist){  m_tuple->Fill(); };
-    m_compatibilityGraph->clear();
-    std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
-    std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
-    if(m_timingProfile)m_timingProfile->chronoStop("InDetVKalVxInJetTool");
-    return res;
-       
-//    return new Trk::VxSecVertexInfo(listVrtSec);
-
-   }
 
 }  // end InDet namespace

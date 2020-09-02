@@ -8,6 +8,10 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 # Tracking
 from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
 
+def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
+    kwargs.setdefault('TgcPrdCollection', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
+    return CompFactory.Muon.MuonEDMPrinterTool(name, **kwargs)
+
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
@@ -57,6 +61,8 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     if not flags.Detector.GeometryMM:
         kwargs.setdefault("MMPrepDataContainer","")
     
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     
     muon_seeded_segment_finder = Muon__MuonSeededSegmentFinder(name, **kwargs)
@@ -66,13 +72,7 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         
 def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", **kwargs):
     MuonSegmentMomentumFromField=CompFactory.MuonSegmentMomentumFromField
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    
     result = ComponentAccumulator()
-    acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("MagFieldSvc", magfieldsvc)
     
     navigator_ca = MuonNavigatorCfg(flags)
     navigator = navigator_ca.popPrivateTools()
@@ -84,20 +84,13 @@ def MuonSegmentMomentumFromFieldCfg(flags, name="MuonSegmentMomentumFromField", 
     muon_prop = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("PropagatorTool", muon_prop)
-    
-    kwargs.setdefault("HasCSC",  flags.Detector.GeometryCSC)
-    kwargs.setdefault("HasSTgc", flags.Detector.GeometrysTGC)
         
     muon_seg_mom_from_field = MuonSegmentMomentumFromField(name=name, **kwargs)
     result.setPrivateTools(muon_seg_mom_from_field)
     return result
     
 def MuonTrackSummaryHelperToolCfg(flags, name="MuonTrackSummaryHelperTool", **kwargs):
-    #   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    #   m_edmHelperTool("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
-    #   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    #   m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
-    
+
     result = ComponentAccumulator()
     acc  = TrackingGeometrySvcCfg(flags)
     
@@ -165,7 +158,6 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
 def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     Muon__MuonTrackCleaner=CompFactory.Muon.MuonTrackCleaner
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg, TriggerChamberClusterOnTrackCreatorCfg
-    # declareProperty("IdHelper",m_idHelper);
     # declareProperty("Helper",m_edmHelperSvc);
     # declareProperty("Printer",m_printer);
     # declareProperty("MdtRotCreator",  m_mdtRotCreator );
@@ -205,8 +197,10 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     kwargs.setdefault("Fitter", fitter)
 
     # kwargs.setdefault("MagFieldSvc", mag_field_svc) Default for moment
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
 
     # FIXME - do remaining tools
+
     
     result.setPrivateTools(Muon__MuonTrackCleaner(name, **kwargs))
     
@@ -314,13 +308,11 @@ def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
     result = ComponentAccumulator()
     
     acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
     result.merge(acc)
     
     kwargs.setdefault("Tolerance", 0.00001 )
     kwargs.setdefault("MaterialEffects", True  )
     kwargs.setdefault("IncludeBgradients", True  )
-    kwargs.setdefault("MagFieldSvc", magfieldsvc  )
     
     propagator = Trk__STEP_Propagator(name=name, **kwargs)
     result.setPrivateTools(propagator)

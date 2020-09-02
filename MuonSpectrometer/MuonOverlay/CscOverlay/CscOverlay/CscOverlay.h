@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Overlaying RDOs from two different events for InDet subdetectors.
@@ -11,24 +11,19 @@
 #ifndef CSCOVERLAY_CSCOVERLAY_H
 #define CSCOVERLAY_CSCOVERLAY_H
 
-
-#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
-
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
-
 #include "AthenaKernel/IAthRNGSvc.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <vector>
 #include <string>
 #include <map>
-
-class CscIdHelper;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -94,8 +89,7 @@ private:
   SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","CSCRDO",""};
 
   Gaudi::Property<bool> m_isDataOverlay{this, "isDataOverlay", false, ""};
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
   ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};
 

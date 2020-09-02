@@ -19,7 +19,7 @@
 
 // EDM include(s):
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 // Helper tool(s):
 #include "TruthD3PDAnalysis/IGenObjectsFilterTool.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibNtuple/MuonPatternNtupleBranch.h"
@@ -20,18 +20,12 @@ namespace MuonCalib {
   bool MuonPatternNtupleBranch::fillBranch(const MuonCalibPattern &pat, const PatInfo& /* info (not used) */) {
     // check if branches were initialized
     if( !m_branchesInit ){
-      //     std::cout << "MuonPatternNtupleBranch::fillBranch "
-      //	<< " ERROR <branches where not initialized>"
-      //	<<  std::endl;
       return false;    
     }
 
     // check if index is within range 
     if( m_index >= m_blockSize || m_index < 0 ){
       if (m_first == true) {
-	//std::cout << "MuonPatternNtupleBranch::fillBranch  " 
-	//  << " ERROR <index out of range; pat not added to ntuple> "
-	//		  <<  m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -59,8 +53,6 @@ namespace MuonCalib {
   bool MuonPatternNtupleBranch::createBranch(TTree *tree) {
     // check if pointer is valid
     if( !tree ){
-      //   std::cout << "MuonPatternNtupleBranch::createBranch: <got invalid tree pointer> " 
-      //	<< std::endl;
       return false;
     }
 

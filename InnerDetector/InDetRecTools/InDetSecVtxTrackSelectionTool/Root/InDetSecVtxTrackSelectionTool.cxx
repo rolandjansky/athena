@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -16,20 +16,6 @@
 #endif
 
 #include <memory>
-
-namespace {
-  // define a local make_unique to use in gcc version < 4.9
-#if __cplusplus > 201103L
-  using std::make_unique;
-#else
-  // this version of make_unique is taken from Scott Meyers Effective Modern C++, item 21
-  template<typename T, typename... Ts>
-  std::unique_ptr<T> make_unique(Ts&&... params)
-  {
-    return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
-  }
-#endif
-}
 
 InDet::InDetSecVtxTrackSelectionTool::InDetSecVtxTrackSelectionTool(const std::string& name )
   : asg::AsgTool(name) 
@@ -82,14 +68,14 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::initialize() {
   if ( m_minD0 >= 0 ) 
   {
     ATH_MSG_INFO( "  Maximum on d0: " << m_minD0 << " mm" );
-    m_trackCuts["D0"].push_back(make_unique<D0minCut>(this, m_minD0));
+    m_trackCuts["D0"].push_back(std::make_unique<D0minCut>(this, m_minD0));
   }
 
   if ( m_NPixel0TRT > 0 )
   {
     ATH_MSG_INFO( "  Minimum number of Pixel hit when TRT has zero hit: " << m_NPixel0TRT  );
 
-    auto minPixelHits = make_unique< FuncSummaryValueCut<3> >
+    auto minPixelHits = std::make_unique< FuncSummaryValueCut<3> >
     (  this, std::array<xAOD::SummaryType,3>
              (  
                { xAOD::numberOfTRTHits, xAOD::numberOfPixelHits, xAOD::numberOfPixelDeadSensors } 
@@ -109,7 +95,7 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::initialize() {
   {
     ATH_MSG_INFO( "  Minimum number of Pixel + SCT + TRT hits: " << m_minInDetHits  );
 
-    auto mintotHits = make_unique< FuncSummaryValueCut<4> >
+    auto mintotHits = std::make_unique< FuncSummaryValueCut<4> >
     (  this, std::array<xAOD::SummaryType,4>
              (
                { xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfPixelHits, 
@@ -125,12 +111,13 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::initialize() {
   }
 
 
+  //  std::lock_guard<std::mutex> lock{m_mutex};
   for (const auto& cutFamily : m_trackCuts) {
     for (const auto& cut : cutFamily.second) {
       ATH_CHECK( cut->initialize() );
     }
     const std::string& cutFamilyName = cutFamily.first;
-    m_numTracksPassedCuts.push_back(0);
+    //    m_numTracksPassedCuts.push_back(0);
     if (m_acceptInfo.addCut( cutFamilyName, "Selection of SecVtx tracks according to " + cutFamilyName ) < 0) {
       ATH_MSG_ERROR( "Failed to add cut family " << cutFamilyName << " because the TAccept object is full." );
       return StatusCode::FAILURE;
@@ -159,6 +146,7 @@ StatusCode InDet::InDetSecVtxTrackSelectionTool::finalize()
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
 /**
+  std::lock_guard<std::mutex> lock{m_mutex};
   for (const auto& cutFamily : m_trackCuts) {
     ULong64_t numPassed = m_numTracksPassedCuts.at(m_acceptInfo.getCutPosition(cutFamily.first));
     ATH_MSG_INFO( numPassed << " = " << numPassed*100./m_numTracksProcessed << "% passed "
@@ -230,6 +218,7 @@ asg::AcceptData InDet::InDetSecVtxTrackSelectionTool::accept( const xAOD::TrackP
     }
   }
 
+  //  std::lock_guard<std::mutex> lock{m_mutex};
   // loop over all cuts
   UShort_t cutFamilyIndex = 0;
   for ( const auto& cutFamily : m_trackCuts ) {
@@ -243,7 +232,7 @@ asg::AcceptData InDet::InDetSecVtxTrackSelectionTool::accept( const xAOD::TrackP
       }
     }
     acceptData.setCutResult( cutFamilyIndex, pass );
-    if (pass) m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
+    //    if (pass) m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
     cutFamilyIndex++;
   }
 
@@ -302,6 +291,7 @@ InDet::InDetSecVtxTrackSelectionTool::accept( const Trk::Track& /* track */,
 //  m_accept = m_trkFilter->accept( track, vertex ) ;
 //  if ( ! (bool)( m_accept ) ) return m_accept ;
   
+//  std::lock_guard<std::mutex> lock{m_mutex};
   // for faster lookup in setCutResult we will keep track of the index explicitly
   UShort_t cutFamilyIndex = 0;
   for ( const auto& cutFamily : m_trackCuts ) {
@@ -315,7 +305,7 @@ InDet::InDetSecVtxTrackSelectionTool::accept( const Trk::Track& /* track */,
     }
     acceptData.setCutResult( cutFamilyIndex, pass );
     if (pass)
-      m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
+      //      m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
     cutFamilyIndex++;
   }
   

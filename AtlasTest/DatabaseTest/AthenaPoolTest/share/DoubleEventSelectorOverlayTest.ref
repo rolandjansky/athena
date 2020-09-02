@@ -882,7 +882,7 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, 
 AthenaEventLoopMgr   INFO   ===>>>  using secondary event #76487 instead of #10<<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #76487, run #300000 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #76487, run #300000 10 events processed so far  <<<===
-Stream1              INFO Records written: 11
+Stream1              INFO Metadata records written: 11
 /home/sss/nobac...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8BCD9728-EB56-6042-AFDF-61C0C379D70E
 /home/sss/nobac...   INFO Database being retired...

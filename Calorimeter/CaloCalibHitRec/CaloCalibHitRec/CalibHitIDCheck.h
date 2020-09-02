@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***********************************************************************
@@ -29,7 +29,7 @@ class CalibHitIDCheck : public AthAlgorithm {
 
  public:
 
-  CalibHitIDCheck(std::string name, ISvcLocator* pSvcLocator);
+  CalibHitIDCheck(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CalibHitIDCheck();
 
   StatusCode initialize();

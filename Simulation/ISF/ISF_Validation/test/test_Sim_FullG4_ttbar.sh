@@ -21,7 +21,7 @@ Sim_tf.py \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' \
 --outputHITSFile 'test.HITS.pool.root' \
 --maxEvents '4' \
---imf False
+--imf False 
 
 rc=$?
 rc2=-9999
@@ -31,7 +31,7 @@ then
     ArtPackage=$1
     ArtJobName=$2
     # TODO This is a regression test I think. We would also need to compare these files to fixed references
-    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc2=$?
 fi
 

@@ -1,25 +1,32 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from future.moves.collections import UserList
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
 
-class StreamInfo(UserList):
+class StreamInfo(object):
     def __init__(self, name, streamType, obeysLumiBlock, forceFullEventBuilding):
-        self.data = [name, streamType, obeysLumiBlock, forceFullEventBuilding]
+        assert type(name) == str, "name has to be str"
+        assert type(streamType) == str, "streamType has to be str"
+        assert type(obeysLumiBlock) == bool, "obeysLumiBlock has to be bool"
+        assert type(forceFullEventBuilding) == bool, "forceFullEventBuilding has to be bool"
+        self.__data = [name, streamType, obeysLumiBlock, forceFullEventBuilding]
+
+    def __str__(self):
+        return '({}, obeysLumiBlock={}, forceFullEventBuilding={})'.format(
+            self.typeName(), self.obeysLumiBlock(), self.forceFullEventBuilding())
 
     def name(self):
-        return self.data[0]
+        return self.__data[0]
 
     def type(self):
-        return self.data[1]
+        return self.__data[1]
 
     def obeysLumiBlock(self):
-        return self.data[2]
+        return self.__data[2]
 
     def forceFullEventBuilding(self):
-        return self.data[3]
+        return self.__data[3]
 
     def typeName(self):
         return '{:s}_{:s}'.format(self.type(), self.name())
@@ -28,26 +35,31 @@ class StreamInfo(UserList):
 _all_streams = [
     # PHYSICS STREAMS
     StreamInfo('Main', 'physics', True, True),
-    StreamInfo('CosmicMuons','physics',True,True),
-    StreamInfo('CosmicCalo','physics',True,True),
-    StreamInfo('IDCosmic','physics',True,True),
+    StreamInfo('CosmicMuons', 'physics', True, True),
+    StreamInfo('CosmicCalo', 'physics', True, True),
+    StreamInfo('IDCosmic', 'physics', True, True),
+    StreamInfo('ZeroBias', 'physics', True, True),
+    StreamInfo('Background', 'physics', True, True),
+    StreamInfo('Standby', 'physics', True, True),
+    StreamInfo('L1Calo', 'physics', True, True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
+    # MONITORING STREAMS
+    StreamInfo('IDMonitoring', 'monitoring', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
-    StreamInfo('CostMonitoring','calibration', False, False),
-    StreamInfo('SCTNoise','calibration',False,False),
+    StreamInfo('CostMonitoring', 'calibration', False, False),
+    StreamInfo('SCTNoise', 'calibration', False, False),
+    StreamInfo('Tile', 'calibration', False, False),
+    StreamInfo('ALFACalib', 'calibration', False, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
-    StreamInfo('UPC', 'physics', True, True),
-    StreamInfo('UCC', 'physics', True, True),
-    StreamInfo('PC', 'physics', True, True),
-    StreamInfo('CC', 'physics', True, True),
-    StreamInfo('PCPEB', 'calibration', False, False),
-    StreamInfo('CCPEB', 'calibration', False, False),
+    # Special stream to be used only for special chains rejecting all events like timeburner
+    StreamInfo('DISCARD', 'unknown', False, False)
+    # Add new streams grouped by type as above, not at the end of the list
 ]
 
 

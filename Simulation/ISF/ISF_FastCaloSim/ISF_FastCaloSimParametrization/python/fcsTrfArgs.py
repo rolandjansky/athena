@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import argparse
 import logging
@@ -26,3 +26,6 @@ def addFCS_NtupArgs(parser):
     parser.add_argument('--saveAllBranches',
                         type=argFactory(argBool),
                         help='Flag to turn on extra branches for Hits and G4hits', group='FCS_Ntup_tf')
+    parser.add_argument('--NTruthParticles',
+                        type=argFactory(argInt),
+                        help='Option to select number of truth particles copied to ntuples', group='FCS_Ntup_tf')

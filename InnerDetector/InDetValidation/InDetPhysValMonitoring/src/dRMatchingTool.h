@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_DRMATCHINGTOOL_H
@@ -13,12 +13,16 @@
  */
 
 // STL include(s)
+#include <atomic>
 #include <cmath> /* std::fabs, sqrt, pow */
 #include <algorithm> /* std::all_of (C++11), std::sort, std::lower_bound, std::upper_bound, std::set_intersection */
 #include <iterator> /* std::back_inserter */
+#include <mutex>
 
 // ATLAS software include(s)
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "AsgTools/AsgTool.h"
 
@@ -121,29 +125,71 @@ public:
   // Accessor for the minimal dR from the latest matching of either type.
   float dRmin() const;
 protected:
+  // Struct for event cache
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+
+    // The minimal dR for latest successful matching of either type.
+    float m_dRmin = 9999.;
+
+    // Copy of the xAOD::TruthParticleContainer used to perform the caching. A
+    // copy, rather than a pointer or reference, is necessary to check when a new
+    // container is encountered (i.e. when a new event is processed).
+    xAOD::TruthParticleContainer m_baseTruthContainer;
+    // Copy of the xAOD::TrackParticleContainer used to perform the caching.
+    xAOD::TrackParticleContainer m_baseTrackContainer;
+
+    // Cached vectors of the xAOD::TruthParticles in m_baseTruthContainer, sorted
+    // in ascending order accoring to their pT, eta, and phi, resp.
+    std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedPt;
+    std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedEta;
+    std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedPhi;
+    // Cached vectors of the xAOD::TrackParticles in m_baseTrackContainer, sorted
+    // in ascending order accoring to their pT, eta, and phi, resp.
+    std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedPt;
+    std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedEta;
+    std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedPhi;
+
+    void check(EventContext::ContextEvt_t evt) {
+      // Check event number and reset variables if a new event
+      if (m_evt==evt) return;
+
+      m_dRmin = 9999.;
+      m_truthParticlesSortedPt.clear();
+      m_truthParticlesSortedEta.clear();
+      m_truthParticlesSortedPhi.clear();
+      m_trackParticlesSortedPt.clear();
+      m_trackParticlesSortedEta.clear();
+      m_trackParticlesSortedPhi.clear();
+      m_evt = evt;
+    }
+  };
+
   /// Internal method(s).
   // Cache track particles.
   void checkCacheTrackParticles(const xAOD::TrackParticleContainer* trackParticles,
+                                CacheEntry* ent,
                                 bool (* trackSelectionTool)(const xAOD::TrackParticle*) = nullptr) const;
   // Cache truth particles.
   void checkCacheTruthParticles(const xAOD::TruthParticleContainer* truthParticles,
+                                CacheEntry* ent,
                                 bool (* truthSelectionTool)(const xAOD::TruthParticle*) = nullptr) const;
 
   // Clear cached track particle arrays.
   inline void
-  clearTrackParticles() const {
-    m_trackParticlesSortedPt.clear();
-    m_trackParticlesSortedEta.clear();
-    m_trackParticlesSortedPhi.clear();
+  clearTrackParticles(CacheEntry* ent) const {
+    ent->m_trackParticlesSortedPt.clear();
+    ent->m_trackParticlesSortedEta.clear();
+    ent->m_trackParticlesSortedPhi.clear();
     return;
   }
 
   // Clear cached truth particle arrays.
   inline void
-  clearTruthParticles() const {
-    m_truthParticlesSortedPt.clear();
-    m_truthParticlesSortedEta.clear();
-    m_truthParticlesSortedPhi.clear();
+  clearTruthParticles(CacheEntry* ent) const {
+    ent->m_truthParticlesSortedPt.clear();
+    ent->m_truthParticlesSortedEta.clear();
+    ent->m_truthParticlesSortedPhi.clear();
     return;
   }
 
@@ -162,7 +208,8 @@ protected:
   bool sortedMatch(const U* p,
                    std::vector< const V* >& vec_pt,
                    std::vector< const V* >& vec_eta,
-                   std::vector< const V* >& vec_phi) const;
+                   std::vector< const V* >& vec_phi,
+                   float& dRmin) const;
 private:
   /// Data member(s).
   // AcceptInfo object.
@@ -171,35 +218,19 @@ private:
   std::vector<std::pair<std::string, std::string> > m_cuts;
 
   // Counters.
-  mutable ULong64_t m_numProcessed; // !< a counter of the number of tracks proccessed
-  mutable ULong64_t m_numPassed; // !< a counter of the number of tracks that passed all cuts
-  mutable std::vector<ULong64_t> m_numPassedCuts; // !< tracks the number of tracks that passed each cut family
+  mutable std::atomic<ULong64_t> m_numProcessed; // !< a counter of the number of tracks proccessed
+  mutable std::atomic<ULong64_t> m_numPassed; // !< a counter of the number of tracks that passed all cuts
+  mutable std::vector<ULong64_t> m_numPassedCuts ATLAS_THREAD_SAFE; // !< tracks the number of tracks that passed each cut family. Guarded by m_mutex
+  mutable std::mutex m_mutex; // !< To guard m_numPassedCuts and m_cache
 
   /// Cut vales.
   // The maximal dR-distance allowed for successful matching.
   float m_dRmax;
   // The maximal pT-resolution allowed for successful matching.
   float m_pTResMax;
-  // The minimal dR for latest successful matching of either type.
-  mutable float m_dRmin = 9999.;
 
-  // Copy of the xAOD::TruthParticleContainer used to perform the caching. A
-  // copy, rather than a pointer or reference, is necessary to check when a new
-  // container is encountered (i.e. when a new event is processed).
-  mutable xAOD::TruthParticleContainer m_baseTruthContainer;
-  // Copy of the xAOD::TrackParticleContainer used to perform the caching.
-  mutable xAOD::TrackParticleContainer m_baseTrackContainer;
-
-  // Cached vectors of the xAOD::TruthParticles in m_baseTruthContainer, sorted
-  // in ascending order accoring to their pT, eta, and phi, resp.
-  mutable std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedPt;
-  mutable std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedEta;
-  mutable std::vector< const xAOD::TruthParticle* > m_truthParticlesSortedPhi;
-  // Cached vectors of the xAOD::TrackParticles in m_baseTrackContainer, sorted
-  // in ascending order accoring to their pT, eta, and phi, resp.
-  mutable std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedPt;
-  mutable std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedEta;
-  mutable std::vector< const xAOD::TrackParticle* > m_trackParticlesSortedPhi;
+  // Event cache
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 };
 
 #endif // > !INDETPHYSVALMONITORING_DRMATCHINGTOOL_H

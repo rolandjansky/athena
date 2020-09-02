@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigTrackSlimmer/TrigTrackSlimmer.h"
@@ -101,8 +101,8 @@ namespace InDet
           // FIXME: const_cast
 	  m_sumTool->updateTrack(*const_cast<Trk::Track*>(*it));
 	}
-	Trk::Track* slimmed = m_trackSlimmingTool->slim(**it);
-	slimmedTracks->push_back(slimmed);
+        std::unique_ptr<Trk::Track> slimmed = m_trackSlimmingTool->slimCopy(**it);
+	slimmedTracks->push_back(std::move(slimmed));
       }
       
     } 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -67,9 +67,10 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"
@@ -152,23 +153,6 @@ StatusCode TrigSteer::initialize()
    ATH_MSG_DEBUG("start initialize");
 
    CHECK( m_robDataProvider.retrieve());
-  
-   // Setup the HLT ROB Data Provider Service when configured
-   ATH_MSG_INFO(" Enable ROB prefetching = " << m_enableRobRequestPreparation);
-   if ( m_robDataProvider.isValid() ) {
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
-      if (m_trigROBDataProvider.isValid()) {
-        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
-      } else {
-        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
-      }
-      m_trigROBDataProviderPrefetch = SmartIF<ITrigROBDataProviderSvcPrefetch>( &*m_robDataProvider );
-      if (m_trigROBDataProviderPrefetch.isValid()) {
-        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
-      } else {
-        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
-      }
-   }
 
    // get the navigation tool
    CHECK(m_navigation.retrieve());
@@ -184,8 +168,6 @@ StatusCode TrigSteer::initialize()
    m_config->setStoreGate(&*evtStore());
    m_config->setSteeringOPILevel(m_doOperationalInfo);
    m_config->setRobRequestInfo(new RobRequestInfo());
-   // allow the ROBDataProviderSvc access to the RobRequestInfo object
-   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( m_config->robRequestInfo() ); 
 
    // set the trigger level of this instance
    if (m_hltLevel == "L2")          m_config->setHLTLevel(HLT::L2);
@@ -427,9 +409,6 @@ StatusCode TrigSteer::finalize()
    m_sequences.clear();
    m_algos.clear();
    ATH_MSG_DEBUG("finalized sequences");
-
-   // reset the Robrequestinfo object in the ROB data provider
-   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( 0 ); 
 
    delete m_config; m_config=0;
 
@@ -717,8 +696,8 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
 
 
   //  skip if the event is already in cache
-  if (m_trigROBDataProvider.isValid()) {
-    if (m_trigROBDataProvider->isEventComplete()){ // this is return always treu for offline running
+  if (m_robDataProvider.isValid()) {
+    if (m_robDataProvider->isEventComplete(Gaudi::Hive::currentContext())){ // this is return always treu for offline running
       ATH_MSG_DEBUG("Event is complete");
       if ( m_strategyEB == 0){ // return for online, do the prefetching for testing EBstrategy=1
         ATH_MSG_DEBUG("Event is complete; do not pre-fetch data for online running");
@@ -910,12 +889,11 @@ void TrigSteer::runChains(bool secondPass) {
 
 
 void TrigSteer::issueEventBuildingRequest(int step) {
-  // issue the EB request through the TrigROBDataProviderSvc
+  // issue the EB request
   // only if not already requested 
-  // for offline running, just set the EB step, doing nothing else
 
   // check if complete event has been already requested (by DCM or Steering)
-  if (m_trigROBDataProvider.isValid() && m_trigROBDataProvider->isEventComplete()) {
+  if (m_robDataProvider->isEventComplete(Gaudi::Hive::currentContext())) {
     if ( m_stepForEB == 0 ){ // record this step as negative, in case EB is not called by the steering
       m_stepForEB = (-1.) * step;
       if (m_config->getMsgLvl() <=MSG::DEBUG) 
@@ -932,17 +910,10 @@ void TrigSteer::issueEventBuildingRequest(int step) {
   if (m_doTiming) m_timerCallEB->stop();
   m_stepForEB = step;
 
-  // return if running is offline 
-  if (!m_trigROBDataProvider.isValid()) {
-    if (m_config->getMsgLvl() <=MSG::DEBUG) 
-      ATH_MSG_DEBUG("Request of Event Building is issued for offline running at step " << m_stepForEB); 
-    return;
-  }
-
   // issue the EB
   if (m_config->getMsgLvl() <=MSG::DEBUG) 
     ATH_MSG_DEBUG("Going to issue Event Building at step " << m_stepForEB); 
-  m_trigROBDataProvider->collectCompleteEventData(name());
+  m_robDataProvider->collectCompleteEventData(Gaudi::Hive::currentContext(), name());
 
   return;
 }
@@ -982,7 +953,7 @@ bool TrigSteer::resetChainsROBRequestPreparation(std::vector<HLT::SteeringChain*
 void findAlgTypeName(const std::string& property, std::string& type_name,
 		     std::string& instance_name)
 {
-  int slash_pos = property.find_first_of("/");
+  int slash_pos = property.find_first_of('/');
   type_name = property.substr( 0, slash_pos );
   instance_name = (slash_pos > 0) ? property.substr( slash_pos + 1) : type_name;
   replace(instance_name.begin(), instance_name.end(), '/', '_');
@@ -991,7 +962,7 @@ void findAlgTypeName(const std::string& property, std::string& type_name,
 
 
 
-HLT::Algo* TrigSteer::getAlgo(std::string name)
+HLT::Algo* TrigSteer::getAlgo(const std::string& name)
 {
   HLT::Algo* algo = 0;
 
@@ -1321,21 +1292,22 @@ bool TrigSteer::canContinueJob() {
 
 HLT::ErrorCode TrigSteer::setEvent() {
 
-  const EventInfo* einfo(0);
-  StatusCode sc =  m_config->getStoreGate()->retrieve(einfo);
-  if(sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object for update event information" );
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  if (!ctx.valid()) {
+    ATH_MSG_FATAL("No valid EventContext to update event information" );
     return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_1, SteeringInternalReason::UNKNOWN);
   } else {
-    if ( einfo->event_ID() ) {
-      m_config->setLumiBlockNumber( einfo->event_ID()->lumi_block() );
+    if ( ctx.eventID().isValid() ) {
+      ATH_MSG_DEBUG("Setting event information from eventID " << ctx.eventID());
+
+      m_config->setLumiBlockNumber( ctx.eventID().lumi_block() );
       
       ITrigLBNHist::set_lbn( m_config->getLumiBlockNumber() ); // this is setting LBN for all trigger monitoring tools
 
-      m_config->setLvl1Id( einfo->event_ID()->event_number() );
+      m_config->setLvl1Id(ctx.eventID().event_number() );
 
       // request the config service to set the correct prescales for the lumiblock
-      StatusCode sc = m_configSvc->assignPrescalesToChains( einfo->event_ID()->lumi_block() );
+      StatusCode sc = m_configSvc->assignPrescalesToChains( ctx.eventID().lumi_block() );
       if (sc.isFailure()) {
         ATH_MSG_FATAL("ConfigSvc failed to assign HLT prescales to chains.");
         return HLT::ErrorCode(Action::ABORT_JOB, Reason::USERDEF_1, SteeringInternalReason::BAD_JOB_SETUP);        
@@ -1349,7 +1321,7 @@ HLT::ErrorCode TrigSteer::setEvent() {
       m_lvlCnvTool->setConfigurationKeys(m_configSvc->masterKey(), m_configSvc->hltPrescaleKey());
       
     } else {
-      ATH_MSG_ERROR("EventNumber&LBN not possible because missing event_ID");
+      ATH_MSG_ERROR("EventNumber&LBN not possible because missing eventID");
       return HLT::ErrorCode(Action::ABORT_EVENT, Reason::USERDEF_2, SteeringInternalReason::UNKNOWN);
     }
   }
@@ -1415,7 +1387,7 @@ TrigSteer::configureCoherentPrescaling() {
   
 
    // now order chains in each prescaling group by value of prescale
-   for( PrescalingGroup::value_type g : prescaling_group) {
+   for( const PrescalingGroup::value_type& g : prescaling_group) {
       HLT::SteeringChain* previous = 0;
       for(HLT::SteeringChain* ch : g.second ) {
          ATH_MSG_DEBUG("Prescaling group: " << ch->prescaleGroup()

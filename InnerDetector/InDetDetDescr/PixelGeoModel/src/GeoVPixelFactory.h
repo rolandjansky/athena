@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -13,11 +13,12 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "PixelGeometryManager.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
+#include "CxxUtils/checker_macros.h"
 
 // fwd declaration
 namespace InDetDD {class PixelDetectorManager;}
 
-class GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoVPixelFactory { // static member variables are used.
  public:
   GeoVPixelFactory();
   virtual ~GeoVPixelFactory();

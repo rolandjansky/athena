@@ -31,7 +31,7 @@ HLT::ErrorCode DummyCopyAllTEAlgo::hltExecute(std::vector<std::vector<HLT::Trigg
     const HLT::TriggerElement *cacheTE=input.back().back();
     ATH_MSG_DEBUG("cacheTE features " << cacheTE->getPreviousFeatures().size());
     
-    for(auto vec : input){
+    for(const auto& vec : input){
         for(auto *te : vec){
             if(te==cacheTE) continue;
             HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(te, output);

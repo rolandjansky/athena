@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOPHIPARABOLA_H
@@ -24,12 +24,10 @@ class CaloPhiParabola
 : public CaloClusterCorrectionCommon
 {
 public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
 
-  CaloPhiParabola(const std::string& type,
-                  const std::string& name,
-                  const IInterface* parent);
-
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -39,10 +37,9 @@ public:
                                   CaloSampling::CaloSample samp) const override;
 
 private:
-
-  CaloRec::Array<2> m_correction;
-  CaloRec::Array<1> m_energies;
-  int m_degree;
+  Constant<CxxUtils::Array<2> > m_correction { this, "correction", "" };
+  Constant<CxxUtils::Array<1> > m_energies   { this, "energies",   "" };
+  Constant<int>                 m_degree     { this, "degree",     "" };
 };
 
 

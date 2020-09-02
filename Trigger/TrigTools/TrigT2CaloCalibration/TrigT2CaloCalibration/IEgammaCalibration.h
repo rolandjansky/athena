@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,12 +12,10 @@
 // Just for the pointer definition
 //class TrigEMCluster;
 
-static const InterfaceID IID_IEgammaCalibration("IEgammaCalibration",1,0);
-
 /** General Interface for calibrations at the LVL2 Egamma Calo Fex algo */
 class IEgammaCalibration : virtual public IAlgTool{
 	public:
-		static const InterfaceID& interfaceID();
+                DeclareInterfaceID( IEgammaCalibration, 1, 0 );
 
 	/** method to perform the correction. The correction
 		type is defined by the tool which also uses
@@ -27,10 +25,5 @@ class IEgammaCalibration : virtual public IAlgTool{
 	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* par=NULL) = 0;
 		
 };
-
-inline const InterfaceID& IEgammaCalibration::interfaceID()
-{
-	return IID_IEgammaCalibration;
-}
 
 #endif

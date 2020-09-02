@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,10 +36,10 @@ namespace DerivationFramework {
   StatusCode EGSelectionToolWrapper::initialize()
   {
     if (m_sgName=="") {
-      ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
+      ATH_MSG_ERROR("No SG name provided for the output of EGSelectionToolWrapper!");
       return StatusCode::FAILURE;
     }
-    if (m_containerName!="Photons" && m_containerName!="Electrons") {
+    if (m_containerName!="Photons" && m_containerName!="Electrons" && m_containerName!="ForwardElectrons") {
       ATH_MSG_ERROR("Wrong container provided!");
       return StatusCode::FAILURE;
     }
@@ -65,7 +65,7 @@ namespace DerivationFramework {
     // Decorator
     SG::AuxElement::Decorator< char > decoratorPass(m_sgName);
     SG::AuxElement::Decorator< unsigned int > decoratorIsEM(m_sgName + "IsEMValue");
-    
+
     // Write mask for each element and record to SG for subsequent selection
     for (xAOD::IParticleContainer::const_iterator pItr = particles->begin(); pItr!=particles->end(); ++pItr) {
 
@@ -74,7 +74,7 @@ namespace DerivationFramework {
 	  ATH_MSG_ERROR ("addBranches(): Wrong particle type (not electron nor photon) being passed to EGSelectionToolWrapper");
 	  return StatusCode::FAILURE;
       }
-      if (type==xAOD::Type::Electron && m_containerName!="Electrons") {
+      if (type==xAOD::Type::Electron && (m_containerName!="Electrons" && m_containerName!="ForwardElectrons")) {
 	  ATH_MSG_ERROR ("addBranches(): Wrong particle type being passed to EGSelectionToolWrapper");
 	  return StatusCode::FAILURE;
       }
@@ -114,9 +114,9 @@ namespace DerivationFramework {
 
       // compute the output of the selector
       asg::AcceptData theAccept(m_tool->accept(pCopy));
-      // this one should be done only for IsEM selectors..
-      unsigned int isEM = theAccept.getCutResultInverted();
-
+      //unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
+      
       // decorate the original object
       if(m_cut==""){
 	bool pass_selection = (bool) theAccept;

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addAlgorithm,addTool,addService
+from AthenaCommon.CfgGetter import addAlgorithm,addTool
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 addTool("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFStandaloneTrackToolConfig", "TrigMuonEFStandaloneTrackTool")

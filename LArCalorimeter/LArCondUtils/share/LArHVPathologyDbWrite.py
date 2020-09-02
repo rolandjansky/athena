@@ -136,23 +136,4 @@ svcMgr.EventSelector.InitialTimeStamp  = int(TimeStamp/1e9)
 svcMgr.EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 1
 
-#--------------------------------------------------------------
-# Load POOL support
-#--------------------------------------------------------------
-#import AthenaPoolCnvSvc.WriteAthenaPool
-
-#--------------------------------------------------------------
-# AthenaPool details
-#--------------------------------------------------------------
-
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
-#--------------------------------------------------------------
-#  Use AthenaOutputStreamTool to write
-#    Must "turn off" standard AthenaOutputStream
-#--------------------------------------------------------------
-#theApp.OutStream = []
-
-
 

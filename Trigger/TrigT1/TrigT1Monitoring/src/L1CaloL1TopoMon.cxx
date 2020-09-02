@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <map>
@@ -431,7 +431,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     topo_error|=(1<<CALO_CONV);
   }
 
-  const DataHandle<CTP_RDO> ctpRDO = 0;
+  const CTP_RDO* ctpRDO = 0;
   sc = evtStore()->retrieve(ctpRDO,"CTP_RDO");
   if (sc.isFailure()) {
     ATH_MSG_WARNING("Could not find CTP_RDO in StoreGate");
@@ -467,7 +467,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
   
   // Retrieve CMX CP tobs
-  const DataHandle<xAOD::CMXCPTobContainer> cmxcptob = 0;
+  const xAOD::CMXCPTobContainer* cmxcptob = 0;
   sc = evtStore()->retrieve(cmxcptob);
   if (sc.isFailure() || !cmxcptob) {
     ATH_MSG_DEBUG ("No CMX CP tobs found in TES");
@@ -494,7 +494,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   
   std::vector<const xAOD::CMXJetTob*> cmxtobs;  
   // Retrieve CMX jet tobs
-  const DataHandle<xAOD::CMXJetTobContainer> cmxtob = 0;
+  const xAOD::CMXJetTobContainer* cmxtob = 0;
   sc = evtStore()->retrieve(cmxtob);
   if (sc.isFailure() || !cmxtob) {
     ATH_MSG_DEBUG ("No CMX tobs found in TES");
@@ -525,7 +525,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 		  << m_topoCTPLoc.value());
   }
   else {
-    const DataHandle< LVL1::FrontPanelCTP > topoCTP;
+    const LVL1::FrontPanelCTP* topoCTP = nullptr;
     CHECK_RECOVERABLE(evtStore()->retrieve(topoCTP,m_topoCTPLoc.value()));
     if (!topoCTP){
       ATH_MSG_INFO( "Retrieve of LVL1::FrontPanelCTP failed." );
@@ -566,7 +566,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 
   // Retrieve the L1Topo RDOs from the DAQ RODs
   const int NFPGA=4;
-  const DataHandle<L1TopoRDOCollection> rdos = 0;
+  const L1TopoRDOCollection* rdos = 0;
   sc = evtStore()->retrieve(rdos);
   if (sc.isFailure() or 0 == rdos) {
     m_h_l1topo_1d_Errors->Fill(NO_DAQ);
@@ -759,7 +759,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   ATH_MSG_DEBUG( "Number of L1Topo ROI RODs found: " << l1TopoResults.size() );
   for (auto & r : l1TopoResults) {
     //ATH_MSG_VERBOSE( r.dump() );
-    auto rdo = r.rdo();
+    const auto& rdo = r.rdo();
     ATH_MSG_DEBUG( "Found ROI RDO with source ID "
 		   << L1Topo::formatHex8(rdo.getSourceID()) );
     auto errors = rdo.getErrors();
@@ -768,7 +768,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       m_h_l1topo_1d_Errors->Fill(ROI_CONV);
       topo_error|=(1<<ROI_CONV);
     }
-    const std::vector<uint32_t> cDataWords = rdo.getDataWords();
+    const std::vector<uint32_t>& cDataWords = rdo.getDataWords();
     if ( cDataWords.size() == 0 ) {
       ATH_MSG_DEBUG ( "L1TopoRDO ROI is empty" );
       m_h_l1topo_1d_Errors->Fill(NO_ROI);

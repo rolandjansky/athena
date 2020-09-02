@@ -1,34 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_DIGITIZER_H
 #define MUONDIGITIZATION_MM_DIGITIZER_H
 
-/// Gaudi External
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class IMuonDigitizationTool;
+class IPileUpTool;
 
-/*******************************************************************************/
 class MM_Digitizer : public AthAlgorithm {
 
  public:
-
   MM_Digitizer(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MM_Digitizer();
+  ~MM_Digitizer()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
-
  private:
-
-  ToolHandle<IMuonDigitizationTool> m_digTool{this, "DigitizationTool", "MM_DigitizationTool", "MMDigitizationTool name"};
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "MM_DigitizationTool", "MMDigitizationTool name"};
 
 };
-/*******************************************************************************/
 #endif // MUONDIGITIZATION_MM_DIGITIZER_H
 
 

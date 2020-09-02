@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -136,10 +136,9 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
   Layer(surfaceArray, laymatprop, thickness, olap, laytyp)
 {}
 
-Trk::PlaneLayer::PlaneLayer(const Trk::PlaneLayer& play):
-  PlaneSurface(play),
-  Layer(play)
-{}
+Trk::PlaneLayer::PlaneLayer(const Trk::PlaneLayer& play)
+  
+= default;
 
 Trk::PlaneLayer::PlaneLayer(const Trk::PlaneLayer& play, const Amg::Transform3D& transf):
   PlaneSurface(play, transf),

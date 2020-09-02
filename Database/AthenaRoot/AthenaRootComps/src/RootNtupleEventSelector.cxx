@@ -856,7 +856,7 @@ RootNtupleEventSelector::updateAddress(StoreID::type /*storeID*/, SG::TransientA
 
 /// callback to synchronize the list of input files
 void 
-RootNtupleEventSelector::setupInputCollection( Property& /*inputCollectionsName*/ )
+RootNtupleEventSelector::setupInputCollection( Gaudi::Details::PropertyBase& /*inputCollectionsName*/ )
 {
   // nothing ?
   return;

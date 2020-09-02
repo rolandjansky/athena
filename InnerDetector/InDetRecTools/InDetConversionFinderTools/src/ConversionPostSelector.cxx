@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -22,12 +22,14 @@ namespace{
 
 namespace InDet {
   
-  Trk::ParticleMasses ConversionPostSelector::s_particleMasses;
+  Trk::ParticleMasses const ConversionPostSelector::s_particleMasses;
   
   static const InterfaceID IID_IConversionPostSelector("InDet::ConversionPostSelector", 1, 0);
-  
-  ConversionPostSelector::ConversionPostSelector(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent)
+
+  ConversionPostSelector::ConversionPostSelector(const std::string& type,
+                                                 const std::string& name,
+                                                 const IInterface* parent)
+    : AthAlgTool(type, name, parent)
   {
     m_massK0      = 497.672;
     m_sigmaK0     = 8.5;
@@ -66,7 +68,7 @@ namespace InDet {
     declareProperty("DecorateVertices", m_decorateVertices=true);
   }
   
-  ConversionPostSelector::~ConversionPostSelector() {}
+  ConversionPostSelector::~ConversionPostSelector() = default;
   
   const InterfaceID& ConversionPostSelector::interfaceID() {
     return IID_IConversionPostSelector;
@@ -81,7 +83,7 @@ namespace InDet {
   }
   
   bool ConversionPostSelector::selectConversionCandidate(xAOD::Vertex * vertex, int flag, 
-               std::vector<Amg::Vector3D>& trkL){
+               std::vector<Amg::Vector3D>& trkL) const{
     bool pass = true;
     
     //Determine the cuts
@@ -172,9 +174,14 @@ namespace InDet {
     }
     return pass;
   }
-  
-  bool ConversionPostSelector::selectSecVtxCandidate(xAOD::Vertex * vertex, int flag,
-                                                     std::vector<Amg::Vector3D>& trkL, int& type){
+
+  bool
+  ConversionPostSelector::selectSecVtxCandidate(
+    xAOD::Vertex* vertex,
+    int flag,
+    std::vector<Amg::Vector3D>& trkL,
+    int& type) const
+  {
     bool pass = true;
     bool isK0 = false;
     bool isLambda = false;
@@ -263,9 +270,13 @@ namespace InDet {
     type = kind;
     return pass;
   }
-  
-  CLHEP::HepLorentzVector 
-  ConversionPostSelector::fourP(const Trk::TrackParameters& per1,const Trk::TrackParameters& per2,double mass, bool isBar){
+
+  CLHEP::HepLorentzVector
+  ConversionPostSelector::fourP(const Trk::TrackParameters& per1,
+                                const Trk::TrackParameters& per2,
+                                double mass,
+                                bool isBar) const
+  {
     CLHEP::HepLorentzVector momentum;
     Amg::Vector3D sum_mom = per1.momentum() + per2.momentum();
     double mp1 = 0.; double mp2 = 0.;
@@ -296,7 +307,13 @@ namespace InDet {
     return momentum;
   }
 
-void ConversionPostSelector::decorateVertex(xAOD::Vertex &vertex, float inv_mass, float pt1, float pt2, float fR, float deltaPhiVtxTrk)
+  void
+  ConversionPostSelector::decorateVertex(xAOD::Vertex& vertex,
+                                         float inv_mass,
+                                         float pt1,
+                                         float pt2,
+                                         float fR,
+                                         float deltaPhiVtxTrk) const
   {
     vertex.auxdata<float>("mass") = inv_mass;
     vertex.auxdata<float>("pt1") = pt1;

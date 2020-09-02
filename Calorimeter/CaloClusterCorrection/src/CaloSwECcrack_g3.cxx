@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -36,17 +36,9 @@ const float CaloSwECcrack_g3::P0[3] = {116.8, 169.77, 62.224};
 const float CaloSwECcrack_g3::P1[1] = {1.614};
 const float CaloSwECcrack_g3::P2[3] = {188.1, 242.89, 78.836};
 
-CaloSwECcrack_g3::CaloSwECcrack_g3(const std::string& type,
-                                   const std::string& name,
-                                   const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent)
-{ }
 
-CaloSwECcrack_g3::~CaloSwECcrack_g3()
-{ }
-
-void CaloSwECcrack_g3::makeCorrection(const EventContext& /*ctx*/,
-                                      CaloCluster* cluster) const
+void CaloSwECcrack_g3::makeCorrection (const Context& /*myctx*/,
+                                       CaloCluster* cluster) const
 {
 
   float eta = cluster->etaBE(2);   // use second sampling 

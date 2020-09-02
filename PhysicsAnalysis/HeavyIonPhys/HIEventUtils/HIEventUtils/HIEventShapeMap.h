@@ -1,29 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HIEVENTSHAPEMAP_H
-#define HIEVENTSHAPEMAP_H
+#ifndef HIEVENTUTILS_HIEVENTSHAPEMAP_H
+#define HIEVENTUTILS_HIEVENTSHAPEMAP_H
 
 #include "xAODHIEvent/HIEventShape.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include <string>
 
+//This class is currently supersed by HIEventShapeMapTool - fully MT safe
+
 class HIEventShapeMap
 {
+  public:
 
-public:
+    static const HIEventShapeIndex* insert(std::string key, const HIEventShapeIndex& index, bool clobber=false);
+    static const HIEventShapeIndex* getIndex(std::string key);
+    static bool hasKey(std::string key);
+    static HIEventShapeMap* getMap();
 
-  static const HIEventShapeIndex* insert(std::string key, const HIEventShapeIndex& index, bool clobber=false);
-  static const HIEventShapeIndex* getIndex(std::string key);
-  static bool hasKey(std::string key);
-  static HIEventShapeMap* getMap();
-
-private:
-  HIEventShapeMap(){};
-  std::map<std::string,HIEventShapeIndex> m_map;
-  static HIEventShapeMap s_obj;  
-
+  private:
+    HIEventShapeMap(){};
+    std::map<std::string,HIEventShapeIndex> m_map;
+    static HIEventShapeMap s_obj;
 };
 
 

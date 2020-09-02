@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -127,7 +127,7 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
 
   m_caloSelection=false;
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
-  if (m_caloIndices.size()>0 && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
+  if (!m_caloIndices.empty() && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
 
   ATH_MSG_INFO( " Calo selection applied ? " << m_caloSelection  );
   if (m_caloSelection) {
@@ -143,7 +143,7 @@ StatusCode CaloTopoTowerAlgorithm::initialize()
   ////////////////////
 
   // check tool names
-  if ( m_ptools.size() == 0 )
+  if ( m_ptools.empty() )
     {
       ATH_MSG_ERROR( "no tools given for this algorithm." );
       return StatusCode::FAILURE;
@@ -299,7 +299,7 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
       //if ( (*firstITool).empty() ) { log << MSG::INFO << "tool is empty " << endmsg; }
 
       //ATH_MSG_INFO( "tool retrieved, going to start "  );
-      if ( theTicker != 0 )
+      if ( theTicker != nullptr )
 	{
 	  //	  ATH_MSG_INFO( "Chrono start "  );
 	  theTicker->chronoStart((*firstITool)->name());
@@ -317,7 +317,7 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
       // ATH_MSG_INFO( "processStatus is: " << processStatus  );
       
 
-      if ( theTicker != 0 )
+      if ( theTicker != nullptr )
 	{
 	  //  ATH_MSG_INFO( "Chrono stop "  );
 	  theTicker->chronoStop((*firstITool)->name());

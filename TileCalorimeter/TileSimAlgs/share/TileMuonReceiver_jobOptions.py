@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 # ****************************************************************************
@@ -45,13 +45,15 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 #  Set up TilePulseForTileMuonReceiver
+from TileConditions.TileConditionsConf import TileCondToolNoiseSample
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
 #                                                   , OutputLevel = VERBOSE 
                                                    , IntegerDigits = not jobproperties.Digitization.PileUpPremixing()
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
                                                    , TileCondToolPulseShape = TileCondToolMuRcvPulseShape
-                                                   , TileRawChannelBuilderMF = TileMuRcvRawChannelBuilderMF)
+                                                   , TileRawChannelBuilderMF = TileMuRcvRawChannelBuilderMF
+                                                   , TileCondToolNoiseSample = TileCondToolNoiseSample (TileOnlineSampleNoise = ''))
 if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"

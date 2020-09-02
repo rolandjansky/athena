@@ -254,11 +254,7 @@ LArAutoCorrSubsetCnv_p1::transToPers(const LArAutoCorrTransType* transObj,
 
                 if (subsetIt->second[j].m_vAutoCorr.size() > 0) {
                     // store the channel number in bit map
-                    if (j < chansOffset || (j - chansOffset) > 31) {
-                        log << MSG::ERROR 
-                            << "LArAutoCorrSubsetCnv_p1::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endmsg;
-                    }
+                    assert (j >= chansOffset && (j - chansOffset) <= 31);
                     chansSet |= (1 << (j - chansOffset));
                 }
                 else {

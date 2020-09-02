@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: BaseInfo.h,v 1.11 2008-12-15 16:22:45 ssnyder Exp $
-
 /**
  * @file  AthenaKernel/BaseInfo.h
  * @author scott snyder
@@ -16,28 +12,28 @@
  * The @a SG::BaseInfo<T> class provides an interface for finding
  * inheritance information about class @a T.  In the absence of compiler
  * support for reflection, the inheritance information must be
- * explicitly declared.  This is done with the @a SG_BASE macro
+ * explicitly declared.  This is done with the @a SG_BASES macro
  * and friends.  To declare that class @a D derives from class @a B, use
  *
  *@code
  *   struct B {};
  *   struct D : public B {};
- *   SG_BASE (D, B);
+ *   SG_BASES (D, B);
  @endcode
  *
- * You can also use multiple inheritance with the @a SG_BASES2
- * and @a SG_BASES3 macros:
+ * @a SG_BASES can take any number of base classes as arguments:
  *
  *@code
  *   struct B1 {};
  *   struct B2 {};
  *   struct B3 {};
  *   struct D : public B1, public B2, public B3 {};
- *   SG_BASES3 (D, B1, B2, B3);
+ *   SG_BASES (D, B1, B2, B3);
  @endcode
  *
- * Supporting more than three base classes requires (straightforward)
- * changes to the code here.
+ * For backwards compatibility, there are also macros which
+ * take a fixed number of base class arguments: @a SG_BASE, @a SG_BASES1,
+ * @a SG_BASES2, @a SG_BASES3, and @a SG_BASES4.
  *
  * If any of the derivations are virtual, the corresponding
  * base class should be within a @a SG_VIRTUAL macro:
@@ -46,15 +42,14 @@
  *   struct B1 {};
  *   struct B2 {};
  *   struct D : public B1, virtual public B2 {};
- *   SG_BASES2 (D, B1, SG_VIRTUAL (B2));
+ *   SG_BASES (D, B1, SG_VIRTUAL (B2));
  @endcode
  *
  * Note that these macros will only work with non-templated types,
  * or with specific instantiations of templated types.  If you want
- * a templated @a SG_BASE, you'll need to declare the specialization
- * yourself.  You should specialize @a SG::Bases<T>, defining types
- * @a Base1, @a Base2, and @a Base3 (which should be @a SG::NoBase
- * if not used).  Example:
+ * a templated @a SG_BASES, you'll need to declare the specialization
+ * yourself.  You should specialize @a SG::Bases<T>, defining the
+ * type @a bases to be a @c BaseList of the bases.  Example:
  *
  *@code
  *   template <class T> struct B {};
@@ -62,9 +57,7 @@
  *   namespace SG {
  *     template <class T>
  *     struct Bases<D<T> > {
- *       typedef B<T> Base1;
- *       typedef NoBase Base2;
- *       typedef NoBase Base3;
+ *       using bases = BaseList<B<T> >;
  *     };
  *   }
  @endcode
@@ -192,6 +185,7 @@
 #define ATHENAKERNEL_BASEINFO_H
 
 #include "CxxUtils/checker_macros.h"
+#include "AthenaKernel/Bases.h"
 #include "GaudiKernel/ClassID.h"
 #include <vector>
 #include <typeinfo>
@@ -204,17 +198,37 @@
 
 /**
  * @brief Used to mark virtual derivation.
- *        When using the @a SG_BASE macros below, use this in the case
+ *        When using the @a SG_BASES macros below, use this in the case
  *        of virtual derivation.  Example:
  *
  *@code
  *   struct B1 {};
  *   struct B2 {};
  *   struct D : public B1, virtual public B2 {};
- *   SG_BASES2 (D, B1, SG_VIRTUAL (B2));
+ *   SG_BASES (D, B1, SG_VIRTUAL (B2));
  @endcode
  */
 #define SG_VIRTUAL(T) Virtual<T>
+
+
+/**
+ * @brief Declare the base classes from which @a D derives.  Example:
+ *
+ *@code
+ *   struct B1 {};
+ *   struct B2 {};
+ *   struct D : public B1, public B2 {};
+ *   SG_BASES (D, B1, B2);
+ @endcode
+ */
+#define SG_BASES(D, ...) \
+  namespace SG        {          \
+    template<> struct Bases<D >{ \
+      using bases = BaseList<__VA_ARGS__>; \
+    };                           \
+    template struct RegisterBaseInit<D >; \
+    template struct BaseInit<D >; \
+} struct sg_dummy // to swallow semicolon
 
 
 /**
@@ -226,7 +240,7 @@
  *   SG_BASE (D, B);
  @endcode
  */
-#define SG_BASE(D, B) SG_BASES1(D, B)
+#define SG_BASE(D, B) SG_BASES(D, B)
 
 
 /**
@@ -239,17 +253,7 @@
  *   SG_BASES1 (D, B);
  @endcode
  */
-#define SG_BASES1(D, B)          \
-  namespace SG        {          \
-    template<> struct Bases<D >{ \
-      typedef B Base1;           \
-      typedef NoBase Base2;      \
-      typedef NoBase Base3;      \
-      typedef NoBase Base4;      \
-    };                           \
-    template struct RegisterBaseInit<D >; \
-    template struct BaseInit<D >; \
-} struct sg_dummy // to swallow semicolon
+#define SG_BASES1(D, B) SG_BASES(D, B)
 
 
 /**
@@ -263,17 +267,7 @@
  *   SG_BASES2 (D, B1, B2);
  @endcode
  */
-#define SG_BASES2(D, B1, B2)     \
-  namespace SG        {          \
-    template<> struct Bases<D >{ \
-      typedef B1 Base1;          \
-      typedef B2 Base2;          \
-      typedef NoBase Base3;      \
-      typedef NoBase Base4;      \
-    };                           \
-    template struct RegisterBaseInit<D >; \
-    template struct BaseInit<D >; \
-} struct sg_dummy // to swallow semicolon
+#define SG_BASES2(D, B1, B2) SG_BASES(D, B1, B2)
 
 
 /**
@@ -288,17 +282,7 @@
  *   SG_BASES3 (D, B1, B2, B3);
  @endcode
  */
-#define SG_BASES3(D, B1, B2, B3) \
-  namespace SG        {          \
-    template<> struct Bases<D >{ \
-      typedef B1 Base1;          \
-      typedef B2 Base2;          \
-      typedef B3 Base3;          \
-      typedef NoBase Base4;          \
-    };                           \
-    template struct RegisterBaseInit<D >; \
-    template struct BaseInit<D >; \
-} struct sg_dummy // to swallow semicolon
+#define SG_BASES3(D, B1, B2, B3) SG_BASES(D, B1, B2, B3)
 
 
 /**
@@ -314,30 +298,23 @@
  *   SG_BASES4 (D, B1, B2, B3, B4);
  @endcode
  */
-#define SG_BASES4(D, B1, B2, B3, B4) \
-  namespace SG        {          \
-    template<> struct Bases<D >{ \
-      typedef B1 Base1;          \
-      typedef B2 Base2;          \
-      typedef B3 Base3;          \
-      typedef B4 Base4;          \
-    };                           \
-    template struct RegisterBaseInit<D >; \
-    template struct BaseInit<D >; \
-} struct sg_dummy // to swallow semicolon
+#define SG_BASES4(D, B1, B2, B3, B4) SG_BASES(D, B1, B2, B3, B4)
 
 
 /**
  * @brief Add a new base class @c B to class @c D.
  *
- * Sometimes, the SG_BASE macro for a class isn't present in its header.
+ * Sometimes, the SG_BASES macro for a class isn't present in its header.
  *
- * One can try to put the appropriate SG_BASE macro somewhere else,
+ * One can try to put the appropriate SG_BASES macro somewhere else,
  * but this doesn't always work: if the @c BaseInfoBase for @c D has
- * already been created by the time the @c SG_BASE initialization
- * runs, then that @c SG_BASE macro won't do anything.
+ * already been created by the time the @c SG_BASES initialization
+ * runs, then that @c SG_BASES macro won't do anything.
  *
  * @c SG_ADD_BASE, however, will add a new base to an existing @c BaseInfoBase.
+ *
+ * Beware, though. that any bases added this way will not be visited
+ * by Bases<T>::bases::foreach_.
  *
  *@code
  *   struct B {};

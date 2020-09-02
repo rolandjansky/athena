@@ -17,7 +17,7 @@ UPDATED:  Jul 30, 2010 (JM) Add ambiguity result
 
 // INCLUDE HEADER FILES:
 
-#include <math.h>
+#include <cmath>
 
 #include "egammaEvent/EMConvert.h"
 
@@ -993,11 +993,11 @@ Trk::VxCandidate* EMConvert::getVxCandidate() const
     evxCand = new Trk::ExtendedVxCandidate(*vx, vxTrkAtVx, getVxErrorMatrix());
     delete vx;
     return evxCand;
-  }else{//single track conversion -> VxCandidate
+  }//single track conversion -> VxCandidate
     vxCand = new Trk::VxCandidate(*vx, vxTrkAtVx);
     delete vx;
     return vxCand;
-  }
+  
 }
 
 

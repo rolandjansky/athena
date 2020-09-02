@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1Interfaces/CTPSLink.h"
@@ -11,10 +11,6 @@
 
 // local LVL1 include(s):
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
-
-// tdaq-common includes for CTP format definition
-//#include "CTPfragment/CTPdataformat.h"
-
 
 namespace LVL1CTP {
 

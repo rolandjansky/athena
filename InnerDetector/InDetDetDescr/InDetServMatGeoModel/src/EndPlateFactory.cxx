@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/EndPlateFactory.h"
@@ -23,6 +23,8 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <iostream>
@@ -41,7 +43,7 @@ EndPlateFactory::~EndPlateFactory()
 
 
 //## Other Operations (implementation)
-void EndPlateFactory::create(GeoPhysVol *mother)
+void EndPlateFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother)
 {
    DecodeVersionKey indetVersionKey(geoDbTagSvc(),"InnerDetector");
    IRDBRecordset_ptr shell  = rdbAccessSvc()->getRecordsetPtr("EPShell",  indetVersionKey.tag(), indetVersionKey.node());

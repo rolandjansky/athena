@@ -40,6 +40,18 @@ MUON3ThinningHelper.TriggerChains = '|'.join(triggerList)
 MUON3ThinningHelper.AppendToStream( MUON3Stream )
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_MUON3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_MUON3Stream )
+MUON3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+MUON3Stream.AcceptAlgs(["MUON3Kernel"])
+# Special lines for thinning
+# Thinning service name must match the one passed to the thinning tools
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+
+#====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
 MUON3AugmentTools = []
@@ -137,10 +149,9 @@ MUON3ThinningTools = []
 thinning_expression1 = '||'.join(thinningORs)
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 MUON3ThinningTool1 = DerivationFramework__TrackParticleThinning(name                    = "MUON3ThinningTool1",
-                                                                ThinningService         = MUON3ThinningHelper.ThinningSvc(),
+                                                                StreamName              = streamName,
                                                                 SelectionString         = thinning_expression1,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool1
 MUON3ThinningTools.append(MUON3ThinningTool1)
 
@@ -148,11 +159,10 @@ MUON3ThinningTools.append(MUON3ThinningTool1)
 thinning_expression2 = ""
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 MUON3ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON3ThinningTool2",
-                                                                    ThinningService         = MUON3ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.3,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON3ThinningTool2
 MUON3ThinningTools.append(MUON3ThinningTool2)
@@ -161,7 +171,7 @@ MUON3ThinningTools.append(MUON3ThinningTool2)
 # keep topoclusters around muons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 MUON3ThinningTool4 = DerivationFramework__CaloClusterThinning(name                    = "MUON3ThinningTool4",
-                                                              ThinningService         = MUON3ThinningHelper.ThinningSvc(),
+                                                              StreamName              = streamName,
                                                               SGKey                   = "Muons",
                                                               SelectionString         = "Muons.pt>2.5*GeV",
                                                               TopoClCollectionSGKey   = "CaloCalTopoClusters",
@@ -172,11 +182,10 @@ MUON3ThinningTools.append(MUON3ThinningTool4)
 ### also for forward tracks
 thinning_expression3 = "Muons.muonType==4"
 MUON3ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                   = "MUON3ThinningTool2f",
-                                                                    ThinningService         = MUON3ThinningHelper.ThinningSvc(),
+                                                                    StreamName              = streamName,
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression3,
                                                                     ConeSize                = 0.3,
-                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetForwardTrackParticles")
 ToolSvc += MUON3ThinningTool2f
 MUON3ThinningTools.append(MUON3ThinningTool2f)
@@ -196,7 +205,7 @@ MUON3AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON3',False)
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 MUON3Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
   name                       = "MUON3Thin_vtxTrk",
-  ThinningService            = MUON3ThinningHelper.ThinningSvc(),
+  StreamName                 = streamName,
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["MUON3JpsiCandidates"],
   PassFlags                  = ["passed_Jpsi"] )

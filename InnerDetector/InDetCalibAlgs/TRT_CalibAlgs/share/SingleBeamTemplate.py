@@ -103,8 +103,6 @@ InDetFlags.doNewTracking  = False
 #InDetFlags.doLowPt        = True
 InDetFlags.doBeamGas      = True
 InDetFlags.doBeamHalo     = True
-InDetFlags.doxKalman      = False
-InDetFlags.doiPatRec      = False
 InDetFlags.doBackTracking = False
 InDetFlags.doTRTStandalone = True
 #InDetFlags.doSingleSpBackTracking = True
@@ -131,7 +129,7 @@ InDetFlags.doMonitoringAlignment = True
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 #InDetFlags.doTrkNtuple      = True

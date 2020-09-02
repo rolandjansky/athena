@@ -106,7 +106,7 @@ int main() {
         // Retrieve a vector of Trigger Element (TE) features, i.e. collect all the TEs that contain ElectronContainers
         std::vector<Trig::Feature<xAOD::ElectronContainer> > vec = fcel.containerFeature<xAOD::ElectronContainer>("egamma_Electrons");
         std::cout << "Electron trigger has " << vec.size() << " electron features " << std::endl;
-        for( const Trig::Feature<xAOD::ElectronContainer> feat : vec ) {
+        for( const Trig::Feature<xAOD::ElectronContainer>& feat : vec ) {
             // With a TE, retrieve ancestors and activeState (did the hypo pass/fail?)
             // Which step is active?
             const xAOD::ElectronContainer *cont=feat.cptr();
@@ -124,7 +124,7 @@ int main() {
         // Retrieve featues from L2 step
         std::vector<Trig::Feature<xAOD::TrigElectronContainer> > vecl2 = fcel.containerFeature<xAOD::TrigElectronContainer>();
         std::cout << "Electron trigger has " << vecl2.size() << " trig electron features " << std::endl;
-        for( const Trig::Feature<xAOD::TrigElectronContainer> feat : vecl2 ) {
+        for( const Trig::Feature<xAOD::TrigElectronContainer>& feat : vecl2 ) {
             // With a TE, retrieve ancestors and activeState (did the hypo pass/fail?)
             // Which step is active?
             const xAOD::TrigElectronContainer *cont=feat.cptr();
@@ -141,7 +141,7 @@ int main() {
         // Can also look at the combinations of the two rois 
         std::cout << eltrigger << " has " << fcel.getCombinations().size() << " combinations, " 
             << fcel.containerFeature<xAOD::ElectronContainer>().size() << " Electron features, " << std::endl;
-        for( const Trig::Combination comb : fcel.getCombinations()){ 
+        for( const Trig::Combination& comb : fcel.getCombinations()){ 
             std::vector< Trig::Feature <xAOD::ElectronContainer> > elfeats = comb.containerFeature<xAOD::ElectronContainer>();
             std::cout << "Combination has " << elfeats.size() << " Electron features " << std::endl;
         }

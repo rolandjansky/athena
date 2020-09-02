@@ -1,28 +1,11 @@
-################################################################################
-# Package: TrigMuonToolInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigMuonToolInterfaces )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODMuon
-			  Event/xAOD/xAODTrigMuon
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          Reconstruction/MuonIdentification/MuonCombinedEvent
-                          Reconstruction/Particle
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkTrack
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent )
-
-# Install files from the package:
-atlas_install_headers( TrigMuonToolInterfaces )
-
+# Component(s) in the package:
+atlas_add_library( TrigMuonToolInterfaces
+                   TrigMuonToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrigMuonToolInterfaces
+                   LINK_LIBRARIES GaudiKernel MuonCombinedEvent MuonPattern TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrkSegment TrkTrack xAODMuon xAODTracking xAODTrigMuon )

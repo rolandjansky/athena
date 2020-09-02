@@ -29,7 +29,7 @@ namespace Trk{
     declareProperty("Z0SignificanceMax", m_z0SignificanceMax);
   }
 
-  Z0PVTrackCompatibilityEstimator::~Z0PVTrackCompatibilityEstimator(){}
+  Z0PVTrackCompatibilityEstimator::~Z0PVTrackCompatibilityEstimator()= default;
 
 
   StatusCode Z0PVTrackCompatibilityEstimator::initialize(){

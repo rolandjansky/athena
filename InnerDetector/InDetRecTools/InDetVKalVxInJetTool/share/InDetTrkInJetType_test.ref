@@ -1,40 +1,25 @@
 InDetVKalVxInJetTool/InDetTrkInJetType_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/v/vkost/Workdir/TRKTYPECALIB/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/v/vkost/Workdir/TRKTYPECALIB/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/ConditionStore", "CondSvc"]
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/v/vkost/Workdir/TRKTYPECALIB/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Fri Jul 26 11:39:59 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on lxplus770.cern.ch on Thu Jul 23 09:18:15 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens
-AtlasFieldSvc        INFO Added listener to BeginRun incident
-AtlasFieldSvc        INFO initialize() successful
+ClassIDSvc           INFO  getRegistryEntries: read 1907 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-AtlasFieldSvc        INFO handling incidents ...
-AtlasFieldSvc        INFO importCurrents() ...
-AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
-AtlasFieldSvc        INFO reading the map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Initialized the field map from /home/sss/nobackup/atlas/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Currents imported and map initialized
-AtlasFieldSvc        INFO BeginRun incident handled
-AtlasFieldSvc        INFO incidents handled successfully
-                         : Booking "BDTG" of type "BDT" from /home/sss/nobackup/atlas/GroupData/InDetVKalVxInJetTool/TrackClassif_3cl.v02.xml.
-                         : Reading weight file: /home/sss/nobackup/atlas/GroupData/InDetVKalVxInJetTool/TrackClassif_3cl.v02.xml
-<HEADER> DataSetInfo              : [Default] : Added class "Signal"
-<HEADER> DataSetInfo              : [Default] : Added class "Fragment"
-<HEADER> DataSetInfo              : [Default] : Added class "Garbage"
-                         : Booked classifier "BDTG" of type: "BDT"
+InDetVKalVxInJetTool/InDetTrkInJetType_test initGaudi 
+InDetVKalVxInJetTool/InDetTrkInJetType_test record 
+ClassIDSvc           INFO  getRegistryEntries: read 4092 CLIDRegistry entries for module ALL
 ToolSvc.InDet::...   INFO TrkVKalVrtFitter initialize() successful
+InDetVKalVxInJetTool/InDetTrkInJetType_test retrieve tool 
 test1
+test1 is OK

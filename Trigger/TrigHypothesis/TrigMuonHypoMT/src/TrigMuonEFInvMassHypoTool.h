@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUONEFINVMASSHYPOTOOL_H 
@@ -9,41 +9,20 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "xAODMuon/MuonContainer.h"
+#include "DecisionHandling/ComboHypoToolBase.h"
 
 class StoreGateSvc;
-class TrigMuonEFInvMassHypoTool: public ::AthAlgTool {
-  enum { MaxNumberTools = 20 };  
+class TrigMuonEFInvMassHypoTool: public ::ComboHypoToolBase {
+
  public:
   TrigMuonEFInvMassHypoTool(const std::string& type, const std::string & name, const IInterface* parent);
-  ~TrigMuonEFInvMassHypoTool();
+  virtual ~TrigMuonEFInvMassHypoTool();
  
-  struct MuonEFInfo {
-  MuonEFInfo( TrigCompositeUtils::Decision* d, 
-              const xAOD::Muon* m1,
-              const xAOD::Muon* m2,
-	      const TrigCompositeUtils::Decision* previousDecision1,
-	      const TrigCompositeUtils::Decision* previousDecision2 )
-    : decision( d ), 
-      muon1( m1 ),
-      muon2( m2 ),
-      previousDecisionIDs1(TrigCompositeUtils::decisionIDs( previousDecision1 ).begin(), 
-			  TrigCompositeUtils::decisionIDs( previousDecision1 ).end() ),
-      previousDecisionIDs2(TrigCompositeUtils::decisionIDs( previousDecision2 ).begin(), 
-			  TrigCompositeUtils::decisionIDs( previousDecision2 ).end() )
-    {}
-      
-    TrigCompositeUtils::Decision* decision;
-    const xAOD::Muon* muon1;
-    const xAOD::Muon* muon2;
-    const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs1;
-    const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs2;
-  };
   virtual StatusCode initialize() override;    
-  StatusCode decide(std::vector<TrigMuonEFInvMassHypoTool::MuonEFInfo>& toolInput) const ;
+
  private:
-  bool decideOnMassPair(TrigMuonEFInvMassHypoTool::MuonEFInfo& input) const;
-  HLT::Identifier m_decisionId;
+  bool executeAlg(std::vector<LegDecision> & thecomb) const override;
+
   // Properties:
   Gaudi::Property< double> m_invMassLow {
     this, "InvMassLow", -1.0, "Low threshold for invariant mass cut" };

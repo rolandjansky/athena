@@ -5,7 +5,7 @@
 // ********************************************************************
 //
 // NAME:     DQTDetSynchMonTool.cxx
-// PACKAGE:  DataQualityTools  
+// PACKAGE:  DataQualityTools
 //
 // AUTHORS:   Luca Fiorini <Luca.Fiorini@cern.ch>
 //            Updated by:
@@ -22,22 +22,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-
 #include "TProfile.h"
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
-#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
-#else
-#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
-#endif
-
 //----------------------------------------------------------------------------------
-DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type, 
+DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type,
                                        const std::string & name,
                                        const IInterface* parent)
    : DataQualityFatherMonTool(type, name, parent),
-     m_field("AtlasFieldSvc", name),
      m_CTP_BCID(0),
      m_SCT_BCID(0),
      m_TRT_BCID(0),
@@ -150,8 +141,8 @@ DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type,
      m_diff_Tile_RPC_L1ID_Rebin(0),
      m_Bfield_solenoid(0),
      m_Bfield_toroid(0),
-     m_Bfield_solenoid_vsLB(0),    
-     m_Bfield_toroid_vsLB(0),    
+     m_Bfield_solenoid_vsLB(0),
+     m_Bfield_toroid_vsLB(0),
      m_diff_BCID(0),
      m_diff_BCID_rate(0), //rate plot; bcid diff relative to ctp
      m_diff_L1ID(0),
@@ -185,7 +176,6 @@ DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type,
      //declareProperty("doRunBeam", m_doRunBeam = 1);
      //declareProperty("doOfflineHists", m_doOfflineHists = 1);
      //declareProperty("doOnlineHists", m_doOnlineHists = 1);
-   declareProperty("MagFieldTool", m_field);
    declareProperty("SolenoidPositionX", m_solenoidPositionX = 0);
    declareProperty("SolenoidPositionY", m_solenoidPositionY = 10);
    declareProperty("SolenoidPositionZ", m_solenoidPositionZ = 0);
@@ -208,9 +198,7 @@ StatusCode DQTDetSynchMonTool::initialize() {
   ATH_CHECK( m_LArFebHeaderContainerKey.initialize() );
   ATH_CHECK( m_TileDigitsContainerKey.initialize() );
   ATH_CHECK( m_RpcPadContainerKey.initialize() );
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   return DataQualityFatherMonTool::initialize();
 }
 
@@ -234,17 +222,17 @@ StatusCode DQTDetSynchMonTool::bookHistograms( )
    m_printedErrorLAr = false;
    m_printedErrorTile = false;
    m_printedErrorTileCtr = false;
-   m_printedErrorRPC = false;     
+   m_printedErrorRPC = false;
 
 
    ////  if (isNewEventsBlock || isNewLumiBlock || isNewRun) {
    //if (newRun) {
       MsgStream log(msgSvc(), name());
-  
+
       //log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endmsg;
       //log << MSG::DEBUG << "Using base path " << m_path << endmsg;
-  
-      failure = bookBCID(); 
+
+      failure = bookBCID();
       failure = failure || bookL1ID();
       failure = failure || bookBfield();
    //}
@@ -253,7 +241,7 @@ StatusCode DQTDetSynchMonTool::bookHistograms( )
    //}
    if (failure) {return  StatusCode::FAILURE;}
    else {return StatusCode::SUCCESS;}
-}	
+}
 
 
 //----------------------------------------------------------------------------------
@@ -263,8 +251,8 @@ bool DQTDetSynchMonTool::bookBCID()
    bool failure(false);
    //  if (isNewEventsBlock || isNewLumiBlock || isNewRun) {
    MsgStream log(msgSvc(), name());
-  
-  
+
+
    std::string  fullPathBCID=m_path+"/BCID";
 
 // Book summary plot
@@ -297,7 +285,7 @@ bool DQTDetSynchMonTool::bookBCID()
      m_diff_BCID_rate->GetXaxis()->SetBinLabel(5, "RPC");
      m_diff_BCID_rate->GetXaxis()->SetBinLabel(6, "Pixel");
    }
-   
+
    // Booking subdetectors BCID values
    failure = failure | registerHist(fullPathBCID, m_CTP_BCID      = TH1I_LW::create("m_CTP_BCID", "BCID of CTP", 4096, -0.5, 4095.5)).isFailure();
    failure = failure | registerHist(fullPathBCID, m_SCT_BCID      = TH1I_LW::create("m_SCT_BCID", "BCID of SCT detector", 4096, -0.5, 4095.5)).isFailure();
@@ -315,21 +303,21 @@ bool DQTDetSynchMonTool::bookBCID()
    failure = failure |registerHist(fullPathBCID, m_diff_CTP_RPC_BCID  = TH1I_LW::create("m_diff_CTP_RPC_BCID", "BCID difference between CTP and RPC detectors", 51, -25.5, 25.5)).isFailure();
 
 
-  
+
    // Booking subdetectors BCID differences wrt CTP as a function of LumiBlock
-   if (!m_doOnlineHists) {  
+   if (!m_doOnlineHists) {
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_SCT_BCID_lumi  = new TProfile("m_diff_CTP_SCT_BCID_lumi", "BCID difference between CTP and SCT detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_TRT_BCID_lumi = new TProfile("m_diff_CTP_TRT_BCID_lumi", "BCID difference between CTP and TRT detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_LAR_BCID_lumi = new TProfile("m_diff_CTP_LAR_BCID_lumi", "BCID difference between CTP and LAR detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Tile_BCID_lumi  = new TProfile("m_diff_CTP_Tile_BCID_lumi", "BCID difference between CTP and Tile detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096 )).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_RPC_BCID_lumi  = new TProfile("m_diff_CTP_RPC_BCID_lumi", "BCID difference between CTP and RPC detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Pixel_BCID_lumi  = new TProfile("m_diff_CTP_Pixel_BCID_lumi", "BCID difference between CTP and Pixel detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
-      CAN_REBIN(m_diff_CTP_RPC_BCID_lumi);
-      CAN_REBIN(m_diff_CTP_SCT_BCID_lumi);
-      CAN_REBIN(m_diff_CTP_TRT_BCID_lumi);
-      CAN_REBIN(m_diff_CTP_LAR_BCID_lumi);
-      CAN_REBIN(m_diff_CTP_Tile_BCID_lumi);
-      CAN_REBIN(m_diff_CTP_Pixel_BCID_lumi);
+      m_diff_CTP_RPC_BCID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_SCT_BCID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_TRT_BCID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_LAR_BCID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_Tile_BCID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_Pixel_BCID_lumi->SetCanExtend(TH1::kAllAxes);
    }
 
    // Booking subdetectors BCID differences
@@ -360,68 +348,66 @@ bool DQTDetSynchMonTool::bookBCID()
 
    if (!m_doOnlineHists) {
 
-      // Booking subdetectors BCID differences wrt CTP in resizable histograms  
+      // Booking subdetectors BCID differences wrt CTP in resizable histograms
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_SCT_BCID_Rebin  = new TH1I("m_diff_CTP_SCT_BCID_Rebin", "BCID difference between CTP and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_SCT_BCID_Rebin);
+      m_diff_CTP_SCT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_TRT_BCID_Rebin = new TH1I("m_diff_CTP_TRT_BCID_Rebin", "BCID difference between CTP and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_TRT_BCID_Rebin);
+      m_diff_CTP_TRT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_LAR_BCID_Rebin = new TH1I("m_diff_CTP_LAR_BCID_Rebin", "BCID difference between CTP and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_LAR_BCID_Rebin);
+      m_diff_CTP_LAR_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Tile_BCID_Rebin  = new TH1I("m_diff_CTP_Tile_BCID_Rebin", "BCID difference between CTP and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_Tile_BCID_Rebin);
+      m_diff_CTP_Tile_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_RPC_BCID_Rebin  = new TH1I("m_diff_CTP_RPC_BCID_Rebin", "BCID difference between CTP and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_RPC_BCID_Rebin);
+      m_diff_CTP_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
      
      
       // Booking subdetectors BCID differences in resizable histograms, these were missing
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_TRT_BCID_Rebin = new TH1I("m_diff_SCT_TRT_BCID_Rebin", "BCID difference between SCT and TRT detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_TRT_BCID_Rebin);
+      m_diff_SCT_TRT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_LAR_BCID_Rebin = new TH1I("m_diff_SCT_LAR_BCID_Rebin", "BCID difference between SCT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_LAR_BCID_Rebin);
+      m_diff_SCT_LAR_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_Tile_BCID_Rebin  = new TH1I("m_diff_SCT_Tile_BCID_Rebin", "BCID difference between SCT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_TRT_BCID_Rebin);
+      m_diff_SCT_TRT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_RPC_BCID_Rebin  = new TH1I("m_diff_SCT_RPC_BCID_Rebin", "BCID difference between SCT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_RPC_BCID_Rebin);
+      m_diff_SCT_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_LAR_BCID_Rebin = new TH1I("m_diff_TRT_LAR_BCID_Rebin", "BCID difference between TRT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_LAR_BCID_Rebin);
+      m_diff_TRT_LAR_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_Tile_BCID_Rebin  = new TH1I("m_diff_TRT_Tile_BCID_Rebin", "BCID difference between TRT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_Tile_BCID_Rebin);
+      m_diff_TRT_Tile_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_RPC_BCID_Rebin  = new TH1I("m_diff_TRT_RPC_BCID_Rebin", "BCID difference between TRT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_RPC_BCID_Rebin);
+      m_diff_TRT_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_LAR_Tile_BCID_Rebin  = new TH1I("m_diff_LAR_Tile_BCID_Rebin", "BCID difference between LAR and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_LAR_Tile_BCID_Rebin);
+      m_diff_LAR_Tile_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_LAR_RPC_BCID_Rebin  = new TH1I("m_diff_LAR_RPC_BCID_Rebin", "BCID difference between LAR and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_LAR_RPC_BCID_Rebin);
+      m_diff_LAR_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Tile_RPC_BCID_Rebin  = new TH1I("m_diff_Tile_RPC_BCID_Rebin", "BCID difference between Tile and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Tile_RPC_BCID_Rebin);
-     
-          
+      m_diff_Tile_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_SCT_BCID_Rebin  = new TH1I("m_diff_Pixel_SCT_BCID_Rebin", "BCID difference between Pixel and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_SCT_BCID_Rebin);
+      m_diff_Pixel_SCT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_TRT_BCID_Rebin = new TH1I("m_diff_Pixel_TRT_BCID_Rebin", "BCID difference between Pixel and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_TRT_BCID_Rebin);
+      m_diff_Pixel_TRT_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_LAR_BCID_Rebin = new TH1I("m_diff_Pixel_LAR_BCID_Rebin", "BCID difference between Pixel and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_LAR_BCID_Rebin);
+      m_diff_Pixel_LAR_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_Tile_BCID_Rebin  = new TH1I("m_diff_Pixel_Tile_BCID_Rebin", "BCID difference between Pixel and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_Tile_BCID_Rebin);
+      m_diff_Pixel_Tile_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_RPC_BCID_Rebin  = new TH1I("m_diff_Pixel_RPC_BCID_Rebin", "BCID difference between Pixel and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_RPC_BCID_Rebin);
+      m_diff_Pixel_RPC_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_CTP_BCID_Rebin  = new TH1I("m_diff_Pixel_CTP_BCID_Rebin", "BCID difference between Pixel and CTP detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_CTP_BCID_Rebin);
+      m_diff_Pixel_CTP_BCID_Rebin->SetCanExtend(TH1::kAllAxes);
    }
-  
-  
-   if (failure) 
+
+
+   if (failure)
    {
       log << MSG::WARNING << "Error Booking BCID histograms " << endmsg;
    }
    return failure;
 
 }
-		
+
 
 //----------------------------------------------------------------------------------
 bool DQTDetSynchMonTool::bookL1ID()
@@ -429,7 +415,7 @@ bool DQTDetSynchMonTool::bookL1ID()
 {
    bool failure(false);
    MsgStream log(msgSvc(), name());
-  
+
    std::string  fullPathL1ID=m_path+"/L1ID";
 
    failure = failure | registerHist(fullPathL1ID, m_diff_L1ID = TH2I_LW::create("m_L1ID","L1ID subdetector summary ", 7, 0.5, 7.5, 7, 0.5, 7.5)).isFailure();
@@ -466,8 +452,8 @@ bool DQTDetSynchMonTool::bookL1ID()
    failure = failure |registerHist(fullPathL1ID, m_diff_CTP_LAR_L1ID = TH1I_LW::create("m_diff_CTP_LAR_L1ID", "L1ID difference between CTP and LAR detectors", 51, -25.5, 25.5)).isFailure();
    failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Tile_L1ID  = TH1I_LW::create("m_diff_CTP_Tile_L1ID", "L1ID difference between CTP and Tile detectors", 51, -25.5, 25.5)).isFailure();
    failure = failure |registerHist(fullPathL1ID, m_diff_CTP_RPC_L1ID  = TH1I_LW::create("m_diff_CTP_RPC_L1ID", "L1ID difference between CTP and RPC detectors", 51, -25.5, 25.5)).isFailure();
-    
-  
+
+
    // Booking subdetectors L1ID differences as a function of the lumiblock
    if (!m_doOnlineHists) {
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_SCT_L1ID_lumi  = new TProfile("m_diff_CTP_SCT_L1ID_lumi", "L1ID difference between CTP and SCT detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
@@ -476,12 +462,12 @@ bool DQTDetSynchMonTool::bookL1ID()
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Tile_L1ID_lumi  = new TProfile("m_diff_CTP_Tile_L1ID_lumi", "L1ID difference between CTP and Tile detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096 )).isFailure();
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_RPC_L1ID_lumi  = new TProfile("m_diff_CTP_RPC_L1ID_lumi", "L1ID difference between CTP and RPC detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Pixel_L1ID_lumi  = new TProfile("m_diff_CTP_Pixel_L1ID_lumi", "L1ID difference between CTP and Pixel detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();     
-      CAN_REBIN(m_diff_CTP_SCT_L1ID_lumi);
-      CAN_REBIN(m_diff_CTP_TRT_L1ID_lumi);
-      CAN_REBIN(m_diff_CTP_LAR_L1ID_lumi);
-      CAN_REBIN(m_diff_CTP_Tile_L1ID_lumi);
-      CAN_REBIN(m_diff_CTP_Pixel_L1ID_lumi);
-      CAN_REBIN(m_diff_CTP_RPC_L1ID_lumi);
+      m_diff_CTP_SCT_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_TRT_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_LAR_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_Tile_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_Pixel_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
+      m_diff_CTP_RPC_L1ID_lumi->SetCanExtend(TH1::kAllAxes);
    }
 
    // Add those that were missing
@@ -507,68 +493,68 @@ bool DQTDetSynchMonTool::bookL1ID()
    failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_Tile_L1ID  = TH1I_LW::create("m_diff_Pixel_Tile_L1ID", "L1ID difference between Pixel and Tile detectors", 51, -25.5, 25.5)).isFailure();
    failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_RPC_L1ID  = TH1I_LW::create("m_diff_Pixel_RPC_L1ID", "L1ID difference between Pixel and RPC detectors", 51, -25.5, 25.5)).isFailure();
    failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_CTP_L1ID  = TH1I_LW::create("m_diff_Pixel_CTP_L1ID", "L1ID difference between Pixel and CTP", 51, -25.5, 25.5)).isFailure();
-  
-  
+
+
    // Booking subdetectors L1ID differences in resizable histograms, these were missing
    if (!m_doOnlineHists) {
-     
+
       // Booking subdetectors L1ID differences wrt CTP in resizable histograms
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_SCT_L1ID_Rebin  = new TH1I("m_diff_CTP_SCT_L1ID_Rebin", "L1ID difference between CTP and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_SCT_L1ID_Rebin);
+      m_diff_CTP_SCT_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_TRT_L1ID_Rebin = new TH1I("m_diff_CTP_TRT_L1ID_Rebin", "L1ID difference between CTP and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_TRT_L1ID_Rebin);
+      m_diff_CTP_TRT_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_LAR_L1ID_Rebin = new TH1I("m_diff_CTP_LAR_L1ID_Rebin", "L1ID difference between CTP and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_LAR_L1ID_Rebin);
+      m_diff_CTP_LAR_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Tile_L1ID_Rebin  = new TH1I("m_diff_CTP_Tile_L1ID_Rebin", "L1ID difference between CTP and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_Tile_L1ID_Rebin);
+      m_diff_CTP_Tile_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_RPC_L1ID_Rebin  = new TH1I("m_diff_CTP_RPC_L1ID_Rebin", "L1ID difference between CTP and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_CTP_RPC_L1ID_Rebin);
+      m_diff_CTP_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
      
 
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_TRT_L1ID_Rebin = new TH1I("m_diff_SCT_TRT_L1ID_Rebin", "L1ID difference between SCT and TRT detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_TRT_L1ID_Rebin);
+      m_diff_SCT_TRT_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
      
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_LAR_L1ID_Rebin = new TH1I("m_diff_SCT_LAR_L1ID_Rebin", "L1ID difference between SCT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_LAR_L1ID_Rebin);
+      m_diff_SCT_LAR_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_Tile_L1ID_Rebin  = new TH1I("m_diff_SCT_Tile_L1ID_Rebin", "L1ID difference between SCT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_Tile_L1ID_Rebin);
+      m_diff_SCT_Tile_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_RPC_L1ID_Rebin  = new TH1I("m_diff_SCT_RPC_L1ID_Rebin", "L1ID difference between SCT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_SCT_RPC_L1ID_Rebin);
+      m_diff_SCT_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_LAR_L1ID_Rebin = new TH1I("m_diff_TRT_LAR_L1ID_Rebin", "L1ID difference between TRT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_LAR_L1ID_Rebin);
+      m_diff_TRT_LAR_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_Tile_L1ID_Rebin  = new TH1I("m_diff_TRT_Tile_L1ID_Rebin", "L1ID difference between TRT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_Tile_L1ID_Rebin);
+      m_diff_TRT_Tile_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_RPC_L1ID_Rebin  = new TH1I("m_diff_TRT_RPC_L1ID_Rebin", "L1ID difference between TRT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_TRT_RPC_L1ID_Rebin);
+      m_diff_TRT_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_LAR_Tile_L1ID_Rebin  = new TH1I("m_diff_LAR_Tile_L1ID_Rebin", "L1ID difference between LAR and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_LAR_Tile_L1ID_Rebin);
+      m_diff_LAR_Tile_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_LAR_RPC_L1ID_Rebin  = new TH1I("m_diff_LAR_RPC_L1ID_Rebin", "L1ID difference between LAR and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_LAR_RPC_L1ID_Rebin);
+      m_diff_LAR_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Tile_RPC_L1ID_Rebin  = new TH1I("m_diff_Tile_RPC_L1ID_Rebin", "L1ID difference between Tile and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Tile_RPC_L1ID_Rebin);
      
+      m_diff_Tile_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_SCT_L1ID_Rebin  = new TH1I("m_diff_Pixel_SCT_L1ID_Rebin", "L1ID difference between Pixel and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_SCT_L1ID_Rebin);
+      m_diff_Pixel_SCT_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_TRT_L1ID_Rebin = new TH1I("m_diff_Pixel_TRT_L1ID_Rebin", "L1ID difference between Pixel and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_TRT_L1ID_Rebin);
+      m_diff_Pixel_TRT_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_LAR_L1ID_Rebin = new TH1I("m_diff_Pixel_LAR_L1ID_Rebin", "L1ID difference between Pixel and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_LAR_L1ID_Rebin);
+      m_diff_Pixel_LAR_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_Tile_L1ID_Rebin  = new TH1I("m_diff_Pixel_Tile_L1ID_Rebin", "L1ID difference between Pixel and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_Tile_L1ID_Rebin);
+      m_diff_Pixel_Tile_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_RPC_L1ID_Rebin  = new TH1I("m_diff_Pixel_RPC_L1ID_Rebin", "L1ID difference between Pixel and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_RPC_L1ID_Rebin);
+      m_diff_Pixel_RPC_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_CTP_L1ID_Rebin  = new TH1I("m_diff_Pixel_CTP_L1ID_Rebin", "L1ID difference between Pixel and CTP detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      CAN_REBIN(m_diff_Pixel_CTP_L1ID_Rebin);
+      m_diff_Pixel_CTP_L1ID_Rebin->SetCanExtend(TH1::kAllAxes);
      
    }
 
-   if (failure) 
+   if (failure)
    {
       log << MSG::WARNING << "Error Booking L1ID histograms " << endmsg;
    }
    return failure;
-  
-}	
+
+}
 
 //----------------------------------------------------------------------------------
 bool DQTDetSynchMonTool::bookBfield()
@@ -576,21 +562,21 @@ bool DQTDetSynchMonTool::bookBfield()
 {
    bool failure(false);
    MsgStream log(msgSvc(), name());
-  
+
    std::string  fullPathBfield=m_path+"/Bfield";
-    
+
    failure = failure |registerHist(fullPathBfield, m_Bfield_solenoid  = TH1I_LW::create("m_Bfield_solenoid", "Bz of Solenoid", 50, -1, 4)).isFailure();
    failure = failure |registerHist(fullPathBfield, m_Bfield_toroid  = TH1I_LW::create("m_Bfield_toroid", "Bx of Toroid", 50, -1, 4)).isFailure();
 
    failure = failure |registerHist(fullPathBfield, m_Bfield_solenoid_vsLB  = TProfile_LW::create("m_Bfield_solenoid_vsLB","m_Bfield_solenoid_vsLB", 1500, -0.5, 1499.5)).isFailure();
    failure = failure |registerHist(fullPathBfield, m_Bfield_toroid_vsLB  = TProfile_LW::create("m_Bfield_toroid_vsLB","m_Bfield_toroid_vsLB", 1500, -0.5, 1499.5)).isFailure();
 
-   if (failure) 
+   if (failure)
    {
       log << MSG::WARNING << "Error Booking L1ID histograms " << endmsg;
    }
    return failure;
-}    
+}
 
 
 
@@ -621,7 +607,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    clearMultisets(); // clear previous event entries
 
    uint16_t sctbcid(0), trtbcid(0), larbcid(0), tilebcid(0), rpcbcid(0), pixelbcid(0);
-   uint32_t sctl1id(0), trtl1id(0), larl1id(0), tilel1id(0), rpcl1id(0), pixell1id(0);  
+   uint32_t sctl1id(0), trtl1id(0), larl1id(0), tilel1id(0), rpcl1id(0), pixell1id(0);
 
    float sctfrac(0.0), trtfrac(0.0), larfrac(0.0), tilefrac(0.0), rpcfrac(0.0), pixelfrac(0.0);
 
@@ -629,7 +615,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    uint32_t ctpl1id(9999999);
 
    uint32_t lumi(0), evtNum(0);
-   
+
    //Retrieve CTP, other things from EventInfo
    SG::ReadHandle<xAOD::EventInfo> thisEventInfo(m_EventInfoKey);
    if(! thisEventInfo.isValid())
@@ -648,46 +634,46 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 
    if (inDetTimeCollections[0].isValid()) {
      auto& TRT_BCIDColl(inDetTimeCollections[0]);
-     for ( InDetTimeCollection::const_iterator itrt_bcid 
+     for ( InDetTimeCollection::const_iterator itrt_bcid
 	     = TRT_BCIDColl->begin();
 	   itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
        //log << MSG::DEBUG << "TRT BCID pointer found! " << endmsg;
        //Current bcid
        m_trtbcidset.insert((uint16_t)(*itrt_bcid).second);
-       //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;      
-       
+       //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;
+
      } // End for loop
    }
    else {
      ATH_MSG_WARNING( "Could not get any TRT_BCID containers " );
    }
 
-   
+
    if (inDetTimeCollections[1].isValid()) {
      auto& SCT_BCIDColl(inDetTimeCollections[1]);
-     for ( InDetTimeCollection::const_iterator isct_bcid 
+     for ( InDetTimeCollection::const_iterator isct_bcid
 	     = SCT_BCIDColl->begin();
 	   isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
        //log << MSG::DEBUG << "SCT BCID pointer found! " << endmsg;
        //Current bcid
        m_sctbcidset.insert((uint16_t)(*isct_bcid).second);
-       //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;            
+       //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;
      } // End for loop
    }
    else {
      ATH_MSG_WARNING( "Could not get any SCT_BCID containers " );
    }
-     
+
 
    if (inDetTimeCollections[2].isValid()) {
      auto& Pixel_BCIDColl(inDetTimeCollections[2]);
-     for ( InDetTimeCollection::const_iterator ipixel_bcid 
+     for ( InDetTimeCollection::const_iterator ipixel_bcid
 	     = Pixel_BCIDColl->begin();
 	   ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
        //log << MSG::DEBUG << "Pixel BCID pointer found! " << endmsg;
        //Current bcid
        m_pixelbcidset.insert((uint16_t)(*ipixel_bcid).second);
-       //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;            
+       //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;
      } // End for loop
    }
    else {
@@ -697,13 +683,13 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 
    if (inDetTimeCollections[3].isValid()) {
      auto& TRT_LVL1IDColl(inDetTimeCollections[3]);
-     for ( InDetTimeCollection::const_iterator itrt_lvl1id 
+     for ( InDetTimeCollection::const_iterator itrt_lvl1id
 	     = TRT_LVL1IDColl->begin();
 	   itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
        //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endmsg;
        //Current lvl1id
        m_trtl1idset.insert((uint16_t)(*itrt_lvl1id).second);
-       //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;      
+       //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;
      } // End for loop
    }
    else {
@@ -713,29 +699,29 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 
    if (inDetTimeCollections[4].isValid()) {
      auto& SCT_LVL1IDColl(inDetTimeCollections[4]);
-     for ( InDetTimeCollection::const_iterator isct_lvl1id 
+     for ( InDetTimeCollection::const_iterator isct_lvl1id
 	     = SCT_LVL1IDColl->begin();
 	   isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
        //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endmsg;
        //Current lvl1id
        m_sctl1idset.insert((uint16_t)(*isct_lvl1id).second);
-       //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;            
+       //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;
      } // End for loop
    }
    else {
      ATH_MSG_WARNING( "Could not get SCT_LVL1ID container " );
    }
-  
+
 
    if (inDetTimeCollections[5].isValid()) {
      auto& Pixel_LVL1IDColl(inDetTimeCollections[5]);
-     for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
+     for ( InDetTimeCollection::const_iterator ipixel_lvl1id
 	     = Pixel_LVL1IDColl->begin();
 	   ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
        //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endmsg;
        //Current lvl1id
        m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id).second);
-       //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;            
+       //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;
      } // End for loop
    }
    else {
@@ -752,15 +738,15 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    pixell1id=findid(m_pixell1idset);
    pixelbcid=findid(m_pixelbcidset);
    pixelfrac=findfrac(m_pixelbcidset,ctpbcid);
-   
+
    SG::ReadHandle<LArFebHeaderContainer> hdrCont(m_LArFebHeaderContainerKey);
    if (! hdrCont.isValid()) {
       ATH_MSG_WARNING( "No LArFEB container found in TDS" );
    }
    else {
-      //log << MSG::DEBUG << "LArFEB container found" <<endmsg; 
-      LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
-      LArFebHeaderContainer::const_iterator itend = hdrCont->end(); 
+      //log << MSG::DEBUG << "LArFEB container found" <<endmsg;
+      LArFebHeaderContainer::const_iterator it = hdrCont->begin();
+      LArFebHeaderContainer::const_iterator itend = hdrCont->end();
       for ( ; it!=itend;++it) {
 	//HWIdentifier febid=(*it)->FEBId();
         unsigned int febid=((*it)->FEBId()).get_identifier32().get_compact();
@@ -773,11 +759,11 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    larbcid=findid(m_larbcidset);
    larfrac=findfrac(m_larbcidset,larbcid);
    larl1id=findid(m_larl1idset);
-   
+
    SG::ReadHandle<TileDigitsContainer> DigitsCnt(m_TileDigitsContainerKey);
    if (! DigitsCnt.isValid()) {
      ATH_MSG_WARNING( "No Tile Digits container found in TDS" );
-   } 
+   }
    else {
      TileDigitsContainer::const_iterator collItr=DigitsCnt->begin();
      TileDigitsContainer::const_iterator lastColl=DigitsCnt->end();
@@ -793,17 +779,17 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 
    SG::ReadHandle<RpcPadContainer> rpcRDO(m_RpcPadContainerKey);
    if (! rpcRDO.isValid())
-   { 
+   {
      ATH_MSG_WARNING( "No RPC Pad container found in TDS" );
    }
-   else 
+   else
    {
 
       RpcPadContainer::const_iterator pad = rpcRDO->begin();
       RpcPadContainer::const_iterator endpad = rpcRDO->end();
       for (; pad !=  endpad ; ++pad ) {
          if ( (*pad) ) {
-            if ( (*pad)->size() > 0 ) 
+            if ( (*pad)->size() > 0 )
             {
                m_rpcbcidset.insert( (*pad)->bcId() );
                m_rpcl1idset.insert( (*pad)->lvl1Id() );
@@ -817,7 +803,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    rpcbcid=findid(m_rpcbcidset);
    rpcfrac=findfrac(m_rpcbcidset,rpcbcid);
    rpcl1id=findid(m_rpcl1idset);
-  
+
    uint32_t ctp_l1id16 = ctpl1id & 0xFFFF;
    uint32_t ctp_l1id9 = ctpl1id & 0x1FF;
    uint32_t tile_l1id16 = tilel1id & 0xFFFF;
@@ -826,7 +812,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    uint32_t trt_l1id9 = trtl1id & 0x1FF;
    uint32_t lar_l1id9 = larl1id & 0x1FF;
    uint32_t pixel_l1id9 = pixell1id & 0x1FF;
-  
+
    m_CTP_BCID->Fill(ctpbcid);
    m_SCT_BCID->Fill(sctbcid);
    m_TRT_BCID->Fill(trtbcid);
@@ -837,14 +823,14 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_RPC_BCID->Fill(rpcbcid);
    m_Pixel_BCID->Fill(pixelbcid);
 
-   
+
    m_diff_BCID_rate->Fill(1,sctfrac);
    m_diff_BCID_rate->Fill(2,trtfrac);
    m_diff_BCID_rate->Fill(3,larfrac);
    m_diff_BCID_rate->Fill(4,tilefrac);
    m_diff_BCID_rate->Fill(5,rpcfrac);
    m_diff_BCID_rate->Fill(6,pixelfrac);
-   
+
 
    if (((Int_t)ctpbcid-(Int_t)sctbcid) > 0) m_diff_BCID->Fill(1,2);
    else if (((Int_t)ctpbcid-(Int_t)sctbcid) < 0) m_diff_BCID->Fill(2,1);
@@ -1026,7 +1012,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_Tile_L1ID->Fill(tile_l1id16);
    m_RPC_L1ID->Fill(rpcl1id);
    m_Pixel_L1ID->Fill(pixell1id);
-  
+
 
    m_diff_Pixel_SCT_BCID->Fill((int)(pixelbcid-sctbcid));
    m_diff_Pixel_TRT_BCID->Fill((int)(pixelbcid-trtbcid));
@@ -1034,7 +1020,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_diff_Pixel_Tile_BCID->Fill((int)(pixelbcid-tilebcid));
    m_diff_Pixel_RPC_BCID->Fill((int)(pixelbcid-rpcbcid));
    m_diff_Pixel_CTP_BCID->Fill((int)(pixelbcid-ctpbcid));
-  
+
    m_diff_CTP_SCT_BCID->Fill((int)(ctpbcid-sctbcid));
    m_diff_CTP_TRT_BCID->Fill((int)(ctpbcid-trtbcid));
    m_diff_CTP_LAR_BCID->Fill((int)(ctpbcid-larbcid));
@@ -1084,7 +1070,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       m_diff_Pixel_LAR_BCID_Rebin->Fill((int)(pixelbcid-larbcid));
       m_diff_Pixel_Tile_BCID_Rebin->Fill((int)(pixelbcid-tilebcid));
       m_diff_Pixel_RPC_BCID_Rebin->Fill((int)(pixelbcid-rpcbcid));
-      m_diff_Pixel_CTP_BCID_Rebin->Fill((int)(pixelbcid-ctpbcid));  
+      m_diff_Pixel_CTP_BCID_Rebin->Fill((int)(pixelbcid-ctpbcid));
       m_diff_CTP_SCT_BCID_Rebin->Fill((int)(ctpbcid-sctbcid));
       m_diff_CTP_TRT_BCID_Rebin->Fill((int)(ctpbcid-trtbcid));
       m_diff_CTP_LAR_BCID_Rebin->Fill((int)(ctpbcid-larbcid));
@@ -1133,7 +1119,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       m_diff_CTP_Tile_BCID_lumi->Fill(lumi,float(ctpbcid-tilebcid));
       m_diff_CTP_RPC_BCID_lumi->Fill(lumi,float(ctpbcid-rpcbcid));
       m_diff_CTP_Pixel_BCID_lumi->Fill(lumi,float(ctpbcid-pixelbcid));
-     
+
       m_diff_CTP_SCT_L1ID_lumi->Fill(lumi,float(ctp_l1id16-sctl1id));
       m_diff_CTP_TRT_L1ID_lumi->Fill(lumi,float(ctp_l1id16-trtl1id));
       m_diff_CTP_LAR_L1ID_lumi->Fill(lumi,float(ctp_l1id16-larl1id));
@@ -1143,37 +1129,24 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    }
 
 
-   if ( m_field.retrieve().isFailure() ) {
-      log << MSG::WARNING << "Failed to retrieve MagneticField tool " << m_field << endmsg;
-      return StatusCode::FAILURE;
-   } else {
-      //log << MSG::DEBUG << "Retrieved MagneticField tool " << m_field << endmsg;
-   }
-  
-   //REL19 
-   Amg::Vector3D f; 
-   //REL18 CLHEP::Hep3Vector f; 
-   //REL19 
+   //REL19
+   Amg::Vector3D f;
+   //REL18 CLHEP::Hep3Vector f;
+   //REL19
    Amg::Vector3D gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
    //REL18 Trk::GlobalPosition gP1(m_solenoidPositionX, m_solenoidPositionY, m_solenoidPositionZ);
-   //REL19 
-//   m_field->getField(&gP1,&f);
-////////////////////////////////////////////////////////////////////////////////////////////////////
+   //REL19
+
    MagField::AtlasFieldCache    fieldCache;
-
-   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, Gaudi::Hive::currentContext()};
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
    if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("DQTDetSynchMonAlg: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCondObjInputKey.key());
+      ATH_MSG_ERROR("DQTDetSynchMonTool: Failed to retrieve AtlasFieldCacheCondObj with key "
+                    << m_fieldCacheCondObjInputKey.key());
       return StatusCode::FAILURE;
    }
-
    fieldCondObj->getInitializedCache (fieldCache);
-
-   // MT version uses cache, temporarily keep old version
-   if (fieldCache.useNewBfieldCache()) fieldCache.getField  (gP1.data(),f.data());
-   else                                m_field->getField    (&gP1,&f);
+   fieldCache.getField (gP1.data(),f.data());
 
    //REL18 m_field->getMagneticFieldKiloGauss(gP1,f);
    float solenoid_bz = f[2];
@@ -1181,17 +1154,15 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    solenoid_bz *= 1000;
    //REL18 : was in kilogauss
    //solenoid_bz/=10;
-   m_Bfield_solenoid->Fill(solenoid_bz); 
+   m_Bfield_solenoid->Fill(solenoid_bz);
    m_Bfield_solenoid_vsLB->Fill(lumi, solenoid_bz);
-   //REL19 
+   //REL19
    Amg::Vector3D  gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
    //REL18 Trk::GlobalPosition gP2(m_toroidPositionX, m_toroidPositionY, m_toroidPositionZ);
-   //REL19 
+   //REL19
 
    // MT version uses cache, temporarily keep old version
-   if (fieldCache.useNewBfieldCache()) fieldCache.getField (gP2.data(),f.data());
-   else                                m_field->getField   (&gP2,&f);
-
+   fieldCache.getField (gP2.data(),f.data());
 
    //REL18 m_field->getMagneticFieldKiloGauss(gP2,f);
    float toroid_bx = f[0];
@@ -1199,7 +1170,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    toroid_bx *= 1000;
    //REL18 : was in kilogauss
    //toroid_bx/=10;
-   m_Bfield_toroid->Fill(toroid_bx);    
+   m_Bfield_toroid->Fill(toroid_bx);
    m_Bfield_toroid_vsLB->Fill(lumi, toroid_bx);
 
 
@@ -1250,7 +1221,7 @@ uint32_t DQTDetSynchMonTool::findid(std::multiset<uint32_t>& mset)
    std::multiset<uint32_t>::iterator it = mset.begin();
    std::multiset<uint32_t>::iterator itend = mset.end();
 
-   if (it!=itend && !mset.empty()){ //if empty do nothing 
+   if (it!=itend && !mset.empty()){ //if empty do nothing
      // the following uses invalid iterator
      // if ( (*it)==(*itend) ) { log << "all ids equal: " << (*it) << endmsg; return (*it);} // if all ids equal, return the result immediately
       for (;it!=itend;++it) {

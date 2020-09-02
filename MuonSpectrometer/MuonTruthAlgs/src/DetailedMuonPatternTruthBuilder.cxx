@@ -3,54 +3,42 @@
 */
 
 #include "DetailedMuonPatternTruthBuilder.h"
+
 #include "MuonPattern/MuonPattern.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonPattern/DetailedMuonPatternTruthCollection.h"
-
 #include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTruthData/DetailedSegmentTruth.h"
 #include "TrkTruthData/TruthTrajectory.h"
-
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "AthContainers/DataVector.h"
-
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPrepRawData/PrepRawData.h"
-
-// GROSS MASS INCLUDING ALL PACKAGES
 #include "MuonSimData/MuonSimData.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
-
-// package include
-// Trk includes
 #include "TrkParameters/TrackParameters.h" 
 #include "TrkTrack/Track.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
-
 #include "TrkDetElementBase/TrkDetElementBase.h"
-
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-
 #include "TrackRecord/TrackRecordCollection.h"
-
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
@@ -59,18 +47,14 @@
 #include "MuonPrepRawData/sTgcPrepData.h"
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonSegment/MuonSegment.h"
-// HepMC
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
-
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
-
-// END GROSS MASS INCLUDING
 
 #include <map>
 #include <queue>
@@ -99,7 +83,6 @@ struct DetectorLayer {
 };
 
 namespace {
-  //template<class Map>  void printMap(const Map& m);
 
   template<class Map>  void printMap(const Map& m) {
     std::cout<<"printMap(): [";
@@ -144,24 +127,17 @@ namespace {
 namespace Trk {
 
 //================================================================
-DetailedMuonPatternTruthBuilder::DetailedMuonPatternTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent)
-  , m_truthTrackBuilder("Trk::ElasticTruthTrajectoryBuilder")
-  , m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator")
-  , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
-{
+DetailedMuonPatternTruthBuilder::DetailedMuonPatternTruthBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type,name,parent) {
   declareInterface<IDetailedMuonPatternTruthBuilder>(this);
-  declareProperty("TruthTrajectoryTool", m_truthTrackBuilder);
 }
 
 //================================================================
 StatusCode DetailedMuonPatternTruthBuilder::initialize() {
-
   ATH_CHECK(m_truthTrackBuilder.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_mdtCreator.retrieve());
   ATH_CHECK(m_muonClusterCreator.retrieve());
-
   return StatusCode::SUCCESS;
 }
 

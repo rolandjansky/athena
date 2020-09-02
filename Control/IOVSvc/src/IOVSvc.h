@@ -66,17 +66,17 @@ public:
 
   /// register callback functions
   virtual
-  StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
+  StatusCode regFcn(SG::DataProxy *dp, const CallBackID& c, 
                     const IOVSvcCallBackFcn& fcn, bool trigger=false) override;
 
   virtual
-  StatusCode regFcn(const CallBackID c1,
-                    const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+  StatusCode regFcn(const CallBackID& c1,
+                    const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                     bool trigger) override;
 
   virtual
   StatusCode regFcn(const std::string& toolName,
-                    const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+                    const CallBackID& c2, const IOVSvcCallBackFcn& fcn2,
                     bool trigger) override;
 
   /// Update Range from dB

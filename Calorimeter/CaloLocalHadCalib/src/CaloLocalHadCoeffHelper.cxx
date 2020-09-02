@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -39,7 +39,7 @@ CaloLocalHadCoeffHelper::~CaloLocalHadCoeffHelper()
 
 
 // get HadDMArea from area name
-const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * coeff, std::string sname, int &indx) const
+const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeffHelper::getAreaFromName(const CaloLocalHadCoeff * coeff, const std::string& sname, int &indx) const
 {
   for(int i_area=0; i_area<coeff->getSizeAreaSet(); i_area++) {
     if(sname == coeff->getArea(i_area)->getTitle()) {
@@ -48,7 +48,7 @@ const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeffHelper::getAreaFromName
     }
   }
   std::cout << "CaloLocalHadCoeffHelper::getAreaFromName() -> Error! No such area '" << sname << "'" << std::endl;
-  return 0;
+  return nullptr;
 }
 
 
@@ -68,7 +68,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
   std::ifstream fin(filename);
   if ( !fin ) {
     std::cout << "CaloLocalHadCoeffHelper::InitDataFromFile - Can't open file '" << filename << "'." << std::endl;
-    delete data; return 0;
+    delete data; return nullptr;
   }
 
   std::string sLine;
@@ -83,7 +83,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
     int area_indx(0), area_type(0), area_npars(0);
     if( !(ist >> sdummy >> area_indx >> area_title >> area_type >> area_npars) ) {
       std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() -> Error! Could not parse line '" << cLine << "' at p1." << std::endl;
-      delete data; return 0;
+      delete data; return nullptr;
     }
 
     CaloLocalHadCoeff::LocalHadArea theArea(area_title.c_str(), area_type, area_npars);
@@ -98,7 +98,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
       CaloLocalHadCoeff::LocalHadDimension *dim = parse_dim(sLine);
       if( !dim ) {
         std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << sLine << "' at p2a." << std::endl;
-        delete data; return 0;
+        delete data; return nullptr;
       }
       theArea.addDimension(*dim);
       delete dim;
@@ -110,7 +110,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
     for(int i_len=0; i_len<theArea.getLength(); i_len++){
       if(!fin.getline(cLine,sizeof(cLine)-1)) {
         std::cout << "panic " << std::endl;
-        delete data; return 0;
+        delete data; return nullptr;
       }
       sLine = cLine;
       ist.clear(); ist.str(sLine);
@@ -121,12 +121,12 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
       }
       if(idummy != theArea.getOffset()+i_len){
         std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p3." << std::endl;
-        delete data; return 0;
+        delete data; return nullptr;
       }
       for(int j=0; j<theArea.getNdim(); j++) {
         if(!(ist >> idummy)) {
           std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() -> panic!" << std::endl;
-          delete data; return 0;
+          delete data; return nullptr;
         }
       }
       CaloLocalHadCoeff::LocalHadCoeff pars;
@@ -135,7 +135,7 @@ CaloLocalHadCoeff *CaloLocalHadCoeffHelper::InitDataFromFile(const char *filenam
         if( !(ist >> pars[j]) ) {
           std::cout << "CaloLocalHadCoeffHelper::initDataFromFile() ->Error! Could not parse line '" << cLine << "' at p4." << std::endl;
           std::cout << " dmArea.m_title" << theArea.getTitle() << std::endl;
-          delete data; return 0;
+          delete data; return nullptr;
         }
       }
       data->setCoeff(theArea.getOffset()+i_len, pars);
@@ -232,7 +232,7 @@ parsing dimension string  of type 'ener   8   3.1    6.3'
 *************************************************************************** */
 CaloLocalHadCoeff::LocalHadDimension *CaloLocalHadCoeffHelper::parse_dim(std::string &sLine)
 {
-  CaloLocalHadCoeff::LocalHadDimension *dim = 0;
+  CaloLocalHadCoeff::LocalHadDimension *dim = nullptr;
   std::istringstream ist(sLine.c_str());
 
   std::string dim_title;
@@ -245,7 +245,7 @@ CaloLocalHadCoeff::LocalHadDimension *CaloLocalHadCoeffHelper::parse_dim(std::st
       dim_nbins > 1000)
   {
     std::cout << "CaloHadDMCoeffHelper::parse_dim() -> Error! Could not parse line '" << sLine << "' at p1." << std::endl;
-    return 0;
+    return nullptr;
   }
 
   if(stype.find("flat") != std::string::npos) {
@@ -258,7 +258,7 @@ CaloLocalHadCoeff::LocalHadDimension *CaloLocalHadCoeffHelper::parse_dim(std::st
     for(int i=0; i<dim_nbins+1; i++) {
       if( !(ist >> e) ) {
         std::cout << "CaloHadDMCoeffHelper::parse_dim() -> Error! Could not parse line '" << sLine << "' at p2." << std::endl;
-        return 0;
+        return nullptr;
       }else{
         x_bins.push_back(e);
       }
@@ -266,7 +266,7 @@ CaloLocalHadCoeff::LocalHadDimension *CaloLocalHadCoeffHelper::parse_dim(std::st
     dim = new CaloLocalHadCoeff::LocalHadDimension(dim_title.c_str(), dim_type, x_bins);
   }else{
     std::cout << "CaloHadDMCoeffHelper::parse_dim() -> Error! Could not parse line '" << sLine << "' at p3." << std::endl;
-    return 0;
+    return nullptr;
   }
   return dim;
 }

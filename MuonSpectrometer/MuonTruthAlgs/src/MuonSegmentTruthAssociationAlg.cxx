@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonSegmentTruthAssociationAlg.cxx
-//   Implementation file for class MuonSegmentTruthAssociationAlg
-///////////////////////////////////////////////////////////////////
-
 #include "MuonSegmentTruthAssociationAlg.h"
+
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -19,24 +15,13 @@ namespace Muon {
 
   // Constructor with parameters:
   MuonSegmentTruthAssociationAlg::MuonSegmentTruthAssociationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
-    AthAlgorithm(name,pSvcLocator),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_muonTrackTruthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
-    m_hasCSC(true),
-    m_hasSTgc(true),
-    m_hasMM(true)
-  {  
-    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 ,"barcode offset for matching truth particles");
-    declareProperty("HasCSC",m_hasCSC=true);
-    declareProperty("HasSTgc",m_hasSTgc=true);
-    declareProperty("HasMM",m_hasMM=true);
+    AthAlgorithm(name,pSvcLocator) {  
   }
 
   // Initialize method:
   StatusCode MuonSegmentTruthAssociationAlg::initialize()
   {
-    ATH_CHECK(m_idHelper.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonTrackTruthTool.retrieve());
     m_muonTruthSegmentContainerName=m_muonTruthSegmentContainerName.key()+".recoSegmentLink";
@@ -44,15 +29,10 @@ namespace Muon {
     ATH_CHECK(m_muonTruthSegmentContainerName.initialize());
     ATH_CHECK(m_muonSegmentCollectionName.initialize());
     ATH_CHECK(m_mcEventColl.initialize());
-    if(!(m_hasSTgc && m_hasMM)) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
+    if(!(m_idHelperSvc->hasSTgc() && m_idHelperSvc->hasMM())) m_muonSimData={"MDT_SDO", "RPC_SDO", "TGC_SDO"};
     ATH_CHECK(m_muonSimData.initialize());
-    if (m_hasCSC) ATH_CHECK(m_cscSimData.initialize(true));
+    if (m_idHelperSvc->hasCSC()) ATH_CHECK(m_cscSimData.initialize());
     ATH_CHECK(m_trackRecord.initialize());
-    return StatusCode::SUCCESS;
-  }
-  // Finalize method:
-  StatusCode MuonSegmentTruthAssociationAlg::finalize() 
-  {
     return StatusCode::SUCCESS;
   }
 
@@ -116,17 +96,17 @@ namespace Muon {
       if(!simDataMap.isPresent()) continue;
       muonSimData.push_back(simDataMap.cptr());
     }
-    if(m_hasCSC){
+    if(m_idHelperSvc->hasCSC()){
       SG::ReadHandle<CscSimDataCollection> cscSimDataMap(m_cscSimData);
       if(!cscSimDataMap.isValid()){
         ATH_MSG_WARNING(cscSimDataMap.key()<<" not valid");
-	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,NULL);
+	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
       }
       else{
 	m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,cscSimDataMap.cptr());
       }
     }
-    else m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,NULL);
+    else m_muonTrackTruthTool->createTruthTree(truthTrackCol.cptr(),mcEventCollection.cptr(),muonSimData,nullptr);
     ATH_MSG_DEBUG("Matching reconstructed segments " << muonSegments.size() );
     IMuonTrackTruthTool::SegmentResultVec segmentMatchResult = m_muonTrackTruthTool->match(muonSegments);
 
@@ -160,7 +140,7 @@ namespace Muon {
       if( !result.second.mms.matchedHits.empty() ) id = *result.second.mms.matchedHits.begin();
       if( !id.is_valid() ) continue;
 
-      Muon::MuonStationIndex::ChIndex chIndex = m_idHelper->chamberIndex(id);
+      Muon::MuonStationIndex::ChIndex chIndex = m_idHelperSvc->chamberIndex(id);
       auto pos = chambers.insert(chIndex);
 
       if( !pos.second ) {

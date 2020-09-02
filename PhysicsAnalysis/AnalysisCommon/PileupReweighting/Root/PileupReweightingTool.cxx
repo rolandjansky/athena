@@ -27,9 +27,12 @@ namespace CP {
 
 PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPileupReweighting(name.c_str()), asg::AsgTool( name ), 
    m_inConfigMode(false), 
-   m_upTool(0), m_downTool(0), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
+   m_upTool(), m_downTool(), m_systUp("PRW_DATASF", 1 ), m_systDown("PRW_DATASF", -1), 
    m_activeTool(this), 
-   m_noWeightsMode(false), 
+   m_noWeightsMode(false),
+#ifdef XAOD_STANDALONE
+   m_defaultWeightTool( new McEventWeight( "DefaultWeightTool" ) ),
+#endif // XAOD_STANDALONE
    m_weightTool("McEventWeight/myWeightTool"),
    m_grlTool(""), m_tdt("") {
 
@@ -39,32 +42,38 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("ConfigOutputStream", m_configStream="", "When creating PRW config files, this is the THistSvc stream it goes into. If blank, it wont write this way");
 #endif
 
-   declareProperty("ConfigFiles", m_prwFiles={"dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root","dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"}, "List of prw config files"); //array of files
+   declareProperty("ConfigFiles", m_prwFiles, "List of prw config files"); //array of files
    declareProperty("ConfigFilesPathPrefix", m_prwFilesPathPrefix="", "Path of additional folder structure in prw config files"); //string prefix
    declareProperty("LumiCalcFiles", m_lumicalcFiles, "List of lumicalc files, in the format '<filename>:<trigger>' .. if no trigger given, 'None' is assumed"); //array of files
    declareProperty("Prefix",m_prefix="","Prefix to attach to all decorations ... only used in the 'apply' method");
    declareProperty("UnrepresentedDataAction",m_unrepresentedDataAction=3,"1 = remove unrepresented data, 2 = leave it there, 3 = reassign it to nearest represented bin");
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
-   declareProperty("UseMultiPeriods",m_useMultiPeriods=false,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
-   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
+   declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
+   declareProperty("UseRunDependentPrescaleWeight",m_useRunDependentPrescaleWeight=false,"If true, prescale weights in the getCombinedWeight method with Trigger string are determined with the specific random run number");
+   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.03);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
-   declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.18,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorUP",m_upVariation=1./0.99,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.07,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("VaryRandomRunNumber",m_varyRunNumber=false,"If true, then when doing systematic variations, RandomRunNumber will fluctuate as well. Off by default as believed to lead to overestimated uncertainties");
+   
+   declareProperty("PeriodAssignments", m_customPeriods={284500,222222,324300,300000,324300,344495,310000,344496,999999}, "Specify period number assignments to run numbers ranges - this is usually an expert option");
    
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );
    declareProperty("TrigDecisionTool",m_tdt, "When using the getDataWeight method, the TDT will be used to check decisions before prescale. Alternatively do expert()->SetTriggerBit('trigger',0) to flag which triggers are not fired before prescale (assumed triggers are fired if not specified)");
 
 #ifdef XAOD_STANDALONE
-   declareProperty( "WeightTool", m_weightTool = new McEventWeight("myWeightTool"),"The tool to compute the weight in the sumOfWeights");
+   declareProperty( "WeightTool", m_weightTool = m_defaultWeightTool.get(),
+                    "The tool to compute the weight in the sumOfWeights" );
 #else
-   declareProperty( "WeightTool", m_weightTool,"The tool to compute the weight in the sumOfWeights");
+   declareProperty( "WeightTool", m_weightTool,
+                    "The tool to compute the weight in the sumOfWeights" );
 #endif
 
 #ifndef XAOD_STANDALONE
    //attached update handler to the outputlevel property, so we can pass changes on to the underlying tool
    auto props = getProperties();
- 	for( Property* prop : props ) {
+ 	for( Gaudi::Details::PropertyBase* prop : props ) {
       if( prop->name() != "OutputLevel" ) {
          continue;
       }
@@ -77,8 +86,11 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 
 #ifndef XAOD_STANDALONE
 //rootcore can't do this yet!
-void PileupReweightingTool::updateHandler(Property& /*p*/) {
-   //call the original update handler 
+void PileupReweightingTool::updateHandler(Gaudi::Details::PropertyBase& /*p*/) {
+   // commenting this out as it doesn't compile anymore
+   // leaving it to domain expert to decide whether to keep or remove it
+   // //call the original update handler 
+   // this->msg_update_handler(p);
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 }
 #endif
@@ -119,11 +131,11 @@ CP::SystematicCode PileupReweightingTool::applySystematicVariation( const CP::Sy
    }
    if(systConfig.find( m_systUp ) != systConfig.end()) {
       if(!m_upTool) { ATH_MSG_ERROR("Requested up variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
-       m_activeTool = m_upTool;
+      m_activeTool = m_upTool.get();
    }
    else if(systConfig.find( m_systDown ) != systConfig.end() ) {
       if(!m_downTool) { ATH_MSG_ERROR("Requested down variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
-      m_activeTool = m_downTool;
+      m_activeTool = m_downTool.get();
    }
    else m_activeTool = this;
    return SystematicCode::Ok;
@@ -156,21 +168,39 @@ StatusCode PileupReweightingTool::initialize() {
    //set debugging if debugging is on:
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 
+   //convert custom periods vector to a vector of vectors (length 3) ...
+   std::vector<std::vector<int>> customPeriods;
+   for(auto& num : m_customPeriods) {
+    if(customPeriods.size()==0 || customPeriods.back().size()==3) customPeriods.resize(customPeriods.size()+1);
+    customPeriods.back().push_back(num);
+   }
+
+   for(auto& period : customPeriods) {
+    if(period.size()!=3) {
+      ATH_MSG_FATAL("Recevied period with " << period.size() << " numbers. Period configuration requires 3 numbers: periodNumber, startNumber, endNumber");
+      return StatusCode::FAILURE;
+    }
+    AddPeriod(period[0],period[1],period[2]);
+   }
+
    //see if we need variations 
    if(m_upVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
-      m_upTool = new TPileupReweighting((name()+"_upVariation").c_str());
+      m_upTool.reset( new TPileupReweighting((name()+"_upVariation").c_str()) );
       m_upTool->SetParentTool(this);
       m_upTool->CopyProperties(this);
       m_upTool->SetDataScaleFactors(m_upVariation);
+      for(auto& period : customPeriods) m_upTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
    if(m_downVariation && (m_prwFiles.size()+m_lumicalcFiles.size())!=0) {
-      m_downTool = new TPileupReweighting((name()+"_downVariation").c_str());
+      m_downTool.reset( new TPileupReweighting((name()+"_downVariation").c_str()) );
       m_downTool->SetParentTool(this);
       m_downTool->CopyProperties(this);
       m_downTool->SetDataScaleFactors(m_downVariation);
+      for(auto& period : customPeriods) m_downTool->AddPeriod(period[0],period[1],period[2]); //already checked sizes above
    }
 
    SetDefaultChannel(m_defaultChannel); //handled in GetDefaultChannel method now! if(m_upTool) m_upTool->SetDefaultChannel(m_defaultChannel); if(m_downTool) m_downTool->SetDefaultChannel(m_defaultChannel);
+
 
    //should we set the period config (file maker mode)
    if(m_prwFiles.size()+m_lumicalcFiles.size()==0) {
@@ -186,6 +216,16 @@ StatusCode PileupReweightingTool::initialize() {
 #endif
    } else {
       //have we any prw to load
+      if(m_prwFiles.size() && m_usePeriodConfig=="auto") {
+        //will override the input config period assignments, will assume PRW is so standardized by r21 that we know best!
+        IgnoreConfigFilePeriods(true);
+        if(m_upTool) m_upTool->IgnoreConfigFilePeriods(true);
+        if(m_downTool) m_downTool->IgnoreConfigFilePeriods(true);
+        UsePeriodConfig("MC16"); //hardcoded period assignments
+        if(m_upTool) m_upTool->UsePeriodConfig("MC16");
+        if(m_downTool) m_downTool->UsePeriodConfig("MC16");
+      }
+      
       for(unsigned int j=0;j<m_prwFiles.size();j++) {
             ATH_MSG_VERBOSE("Locating File: " << m_prwFiles[j]);
             std::string file = PathResolverFindCalibFile(m_prwFiles[j]);
@@ -207,8 +247,11 @@ StatusCode PileupReweightingTool::initialize() {
             if(m_upTool) m_upTool->UsePeriodConfig(m_usePeriodConfig);
             if(m_downTool) m_downTool->UsePeriodConfig(m_usePeriodConfig);
          } else {
-            ATH_MSG_INFO("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Please specify a UsePeriodConfig if you want to use the tool without a config file (e.g. do 'MC15') ");
-            return StatusCode::FAILURE;
+            ATH_MSG_WARNING("No config files provided, but " << m_lumicalcFiles.size() << " lumicalc file provided. Assuming a period config of MC16 ");
+            UsePeriodConfig("MC16");
+            m_noWeightsMode=true; //will stop the prw weight being decorated in apply method
+            if(m_upTool) m_upTool->UsePeriodConfig("MC16");
+            if(m_downTool) m_downTool->UsePeriodConfig("MC16");
          }
       }
    
@@ -287,9 +330,9 @@ StatusCode PileupReweightingTool::finalize() {
                pStarts.push_back(subp->start); pEnds.push_back(subp->end);
             }
          }
-         for(auto inHist : period.second->inputHists) {
+         for(auto& inHist : period.second->inputHists) {
             channel = inHist.first;
-            TH1* hist = inHist.second;
+            TH1* hist = inHist.second.release();
             strncpy(histName,hist->GetName(),sizeof(histName)-1);
             CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
             if(!outTreeMC) {
@@ -310,7 +353,7 @@ StatusCode PileupReweightingTool::finalize() {
          runNumber = run.first;
          if(run.second.inputHists.find("None")==run.second.inputHists.end()) continue;
    
-         TH1* hist = run.second.inputHists["None"];
+         TH1* hist = run.second.inputHists["None"].release();
          strncpy(histName,hist->GetName(),sizeof(histName)-1);
          CHECK( histSvc->regHist(TString::Format("/%s/PileupReweighting/%s",m_configStream.c_str(),hist->GetName()).Data(),hist) );
          if(!outTreeData) {
@@ -335,7 +378,7 @@ StatusCode PileupReweightingTool::finalize() {
 #endif
    }
 
-   if(m_upTool) {delete m_upTool;m_upTool=0;} if(m_downTool)  {delete m_downTool;m_downTool=0;} 
+   m_upTool.reset(); m_downTool.reset(); 
 
    return StatusCode::SUCCESS;
 }
@@ -361,9 +404,10 @@ float PileupReweightingTool::getUnrepresentedDataWeight( const xAOD::EventInfo& 
 
 /// Get a random run number for this MC event, mu_dependency is not recommended for this
 int PileupReweightingTool::getRandomRunNumber( const xAOD::EventInfo& eventInfo , bool mu_dependent) {
-   m_activeTool->SetRandomSeed(314159+eventInfo.mcChannelNumber()*2718+eventInfo.eventNumber()); //to make randomization repeatable
-   if(mu_dependent) return m_activeTool->GetRandomRunNumber(   eventInfo.runNumber(), eventInfo.averageInteractionsPerCrossing()  );
-   else return m_activeTool->GetRandomRunNumber( eventInfo.runNumber() );
+   CP::TPileupReweighting* tool = (m_varyRunNumber) ? m_activeTool : this;
+   tool->SetRandomSeed(314159+eventInfo.mcChannelNumber()*2718+eventInfo.eventNumber()); //to make randomization repeatable
+   if(mu_dependent) return tool->GetRandomRunNumber(   eventInfo.runNumber(), eventInfo.averageInteractionsPerCrossing()  );
+   else return tool->GetRandomRunNumber( eventInfo.runNumber() );
 }
 
 int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo ) {
@@ -395,6 +439,11 @@ int PileupReweightingTool::fill( const xAOD::EventInfo& eventInfo, Double_t x, D
 }
 
 StatusCode PileupReweightingTool::apply(const xAOD::EventInfo& eventInfo, bool mu_dependent) {
+
+   if (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")){
+     ATH_MSG_WARNING("Attempting to run pileup reweighting, but it has already been run with prefix \"" << m_prefix << "\" - returning");
+     return StatusCode::SUCCESS;
+   }
 
    if(m_inConfigMode)  {
       fill( eventInfo );
@@ -453,7 +502,7 @@ float PileupReweightingTool::getCombinedWeight( const xAOD::EventInfo& eventInfo
    //need to use the random run number ... only used to pick the subperiod, but in run2 so far we only have one subperiod
    unsigned int randomRunNum = (eventInfo.isAvailable<unsigned int>(m_prefix+"RandomRunNumber")) ? eventInfo.auxdataConst<unsigned int>(m_prefix+"RandomRunNumber") : getRandomRunNumber( eventInfo, mu_dependent );
    if(!mu_dependent) out *= m_activeTool->GetPrescaleWeight(randomRunNum, trigger);
-   out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/ );
+   else out *= m_activeTool->GetPrescaleWeight( randomRunNum, trigger, getCorrectedAverageInteractionsPerCrossing(eventInfo,false) /*use the 'correct' mu instead of the one from the file!!*/, m_useRunDependentPrescaleWeight /*run-dependent*/ );
    return out;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigOutputHandling_BareDataBucket_h
 #define TrigOutputHandling_BareDataBucket_h
@@ -38,6 +38,7 @@ public:
     return m_type.TypeInfo(); 
   };
 
+  using DataBucketBase::cast;
   virtual void* cast (CLID clid,
                       SG::IRegisterTransient* ,
                       bool isConst = true) override {

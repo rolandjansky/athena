@@ -162,11 +162,11 @@ TCS::InvariantMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArray
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                       fillHist1D(m_histAcceptINV1[i]->GetName(),sqrt((float)invmass2));
                    } else if(fillReject) {
-                       m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                       fillHist1D(m_histRejectINV1[i]->GetName(),sqrt((float)invmass2));
                    }
-                   TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }
@@ -221,11 +221,11 @@ TCS::InvariantMassInclusive1::process( const std::vector<TCS::TOBArray const *> 
                       output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                   }
                   if(fillAccept and not alreadyFilled) {
-                      m_histAcceptINV1[i]->Fill(sqrt((float)invmass2));
+                      fillHist1D(m_histAcceptINV1[i]->GetName(),sqrt((float)invmass2));
                   } else if(fillReject) {
-                      m_histRejectINV1[i]->Fill(sqrt((float)invmass2));
+                      fillHist1D(m_histRejectINV1[i]->GetName(),sqrt((float)invmass2));
                   }
-                  TRG_MSG_INFO("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
+                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
             }
          }

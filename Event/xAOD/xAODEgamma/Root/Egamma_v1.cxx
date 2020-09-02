@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1$
-
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 // Local include(s):
@@ -11,7 +9,7 @@
 #include "xAODEgamma/EgammaContainer.h"
 #include "EgammaAccessors_v1.h"
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
-#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h" 
+#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include <stdexcept>
 
@@ -55,8 +53,8 @@ Egamma_v1::Egamma_v1(const Egamma_v1& eg) : IParticle(eg) {
 
 Egamma_v1& Egamma_v1::operator=(const Egamma_v1& eg ){
 
-  if (this != &eg){ // protect against invalid self-assignment      
-    if (!this->container() && !this->hasStore() ) {      
+  if (this != &eg){ // protect against invalid self-assignment
+    if (!this->container() && !this->hasStore() ) {
       makePrivateStore();
     }
     this->IParticle::operator=( eg );
@@ -91,17 +89,17 @@ Egamma_v1::GenVecFourMom_t Egamma_v1::genvecP4() const {
 }
 
 double Egamma_v1::e() const{
-  return genvecP4().E(); 
+  return genvecP4().E();
 }
 
 double Egamma_v1::rapidity() const {
-  return genvecP4().Rapidity();	
+  return genvecP4().Rapidity();
 }
 
 Egamma_v1::FourMom_t Egamma_v1::p4() const {
   FourMom_t p4;
-  p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
-  return p4;	
+  p4.SetPtEtaPhiM( pt(), eta(), phi(),m());
+  return p4;
 }
 
 void Egamma_v1::setP4(float pt, float eta, float phi, float m){
@@ -141,15 +139,15 @@ Egamma_v1::EgammaCovMatrix_t Egamma_v1::covMatrix() const{
   EgammaCovMatrix_t cov;
   cov.setZero();
 
-  if(!acc.isAvailable(*this) ) { 
+  if(!acc.isAvailable(*this) ) {
     return cov;
   }
-  const std::vector<float>& v = acc(*this);   
-  size_t size= v.size();    
+  const std::vector<float>& v = acc(*this);
+  size_t size= v.size();
   if(size==16){
     //up to 21.0.11
     cov = Eigen::Map<const EgammaCovMatrix_t> (v.data());
-  }   
+  }
   else {
     //from >21.0.11
     EgammaCovMatrix_t cov;
@@ -165,7 +163,7 @@ void Egamma_v1::setCovMatrix(const Egamma_v1::EgammaCovMatrix_t& cov){
   MatrixHelpers::compress(cov,acc(*this));
 }
 
-///egamma author 
+///egamma author
 uint16_t Egamma_v1::author(uint16_t mask) const {
   static const Accessor< uint16_t > acc( "author" );
   uint16_t author = acc(*this);
@@ -183,13 +181,26 @@ void Egamma_v1::setAuthor(uint16_t newAuthor) {
   acc(*this) = newAuthor;
 }
 
+/// Accessor for the "ambiguityLink" dynamic variable
+///
+/// It is declared outside of the @c xAOD::Egamma_v1::ambiguousObject() call to
+/// make sure that the auxiliary ID registry would know about this type as soon
+/// as the library holding this code is loaded.
+///
+static const SG::AuxElement::Accessor< ElementLink< xAOD::EgammaContainer > >
+   ambiguityLinkAcc( "ambiguityLink" );
+
 /// ambiguous
-const Egamma_v1* Egamma_v1::ambiguousObject() const{
-  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > acc("ambiguityLink");
-  if(acc.isAvailable(*this) && acc(*this).isValid()){
-    return (*acc(*this));
-  }
-  return nullptr;
+const Egamma_v1* Egamma_v1::ambiguousObject() const {
+
+   if( ! ambiguityLinkAcc.isAvailable( *this ) ) {
+      return nullptr;
+   }
+   const ElementLink< xAOD::EgammaContainer >& link = ambiguityLinkAcc( *this );
+   if( ! link.isValid() ) {
+      return nullptr;
+   }
+   return *link;
 }
 
 
@@ -199,7 +210,7 @@ bool Egamma_v1::showerShapeValue(float& value, const EgammaParameters::ShowerSha
   if( !acc ) {
     return false;
   }
-  if(!acc->isAvailable(*this) ) { 
+  if(!acc->isAvailable(*this) ) {
     return  false;
   }
   // Retrieve the value:
@@ -268,7 +279,7 @@ bool Egamma_v1::setIsolation(float value, const Iso::IsolationType information) 
 }
 
 ///Isolation corrections
-bool Egamma_v1::isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+bool Egamma_v1::isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr,
                                         const Iso::IsolationCorrectionParameter param) const{
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr,param);
   if(!acc.isAvailable(*this) ) {
@@ -279,7 +290,7 @@ bool Egamma_v1::isolationCaloCorrection(float& value, const Iso::IsolationFlavou
   return true;
 }
 
-float Egamma_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+float Egamma_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr,
                                          const Iso::IsolationCorrectionParameter param) const{
 
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr,param);
@@ -287,7 +298,7 @@ float Egamma_v1::isolationCaloCorrection(const Iso::IsolationFlavour flavour, co
   return  acc(*this);
 }
 
-bool Egamma_v1::setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr, 
+bool Egamma_v1::setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection corr,
                                            const Iso::IsolationCorrectionParameter param){
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr,param);
   // Set the value:
@@ -327,7 +338,7 @@ bool Egamma_v1::isolationTrackCorrection(float& value, const Iso::IsolationFlavo
   return true;
 }
 
-float Egamma_v1::isolationTrackCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr) const{    
+float Egamma_v1::isolationTrackCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationTrackCorrection corr) const{
   const SG::AuxElement::Accessor< float > acc = getIsolationCorrectionAccessor(flavour,corr);
   if( !acc.isAvailable(*this) ) {throw std::runtime_error( "Unknown/Unavailable Isolation correction requested" );}
   return  acc(*this);
@@ -400,58 +411,10 @@ Egamma_v1::caloClusterLink( size_t index ) const {
 AUXSTORE_OBJECT_SETTER_AND_GETTER( Egamma_v1, Egamma_v1::CLELVec_t,
                                    caloClusterLinks, setCaloClusterLinks)
 
-///Selectors / isEM and all that 
-///First with enums (static accessor no lookup => faster but less flexible)
-bool Egamma_v1::passSelection(bool&  value, const xAOD::EgammaParameters::SelectionMenu menu ) const {
-  const SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
-  if( !acc ) {
-    return false;
-  }
-  if(!acc->isAvailable(*this) ) { 
-    return  false;
-  }
-  value= (*acc)(*this);
-  return true;
-}
-
-bool Egamma_v1::passSelection(const xAOD::EgammaParameters::SelectionMenu menu  ) const {
-  const SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
-  if(!acc ) throw std::runtime_error( "Unknown/Unavailable bool selection menu requested" );
-  return (*acc)(*this);
-}
-
-void Egamma_v1::setPassSelection(bool value, const xAOD::EgammaParameters::SelectionMenu menu){
-  const SG::AuxElement::Accessor< char >* acc = selectionMenuAccessorV1( menu );
-  ( *acc )(*this)=value;
-}
-
-bool Egamma_v1::selectionisEM(unsigned int&  value, const xAOD::EgammaParameters::SelectionisEM isEM) const {
-  const SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
-  if(!acc ) {
-    return false;
-  }    
-  if(!acc->isAvailable(*this) ) { 
-    return  false;
-  }
-  value= (*acc)(*this);
-  return true;
-}
-
-unsigned int Egamma_v1::selectionisEM(const xAOD::EgammaParameters::SelectionisEM isEM) const {
-  const SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
-  if(!acc ) throw std::runtime_error( "Unknown/Unavailable unsigned int isEM requested" );
-  return (*acc)(*this);
-}
-
-void Egamma_v1::setSelectionisEM(unsigned int value, const xAOD::EgammaParameters::SelectionisEM isEM){
-  const SG::AuxElement::Accessor< unsigned int >* acc = selectionisEMAccessorV1( isEM );
-  ( *acc )(*this)=value;
-}
-
 ///Then with strings (full flexibility when adding new menus dynamically)
 bool Egamma_v1::passSelection(bool&  value, const std::string& menu ) const {
   const SG::AuxElement::Accessor< char > acc( menu );
-  if(!acc.isAvailable(*this) ) { 
+  if(!acc.isAvailable(*this) ) {
     return  false;
   }
   value= acc(*this);
@@ -470,7 +433,7 @@ void Egamma_v1::setPassSelection(bool value, const std::string& menu){
 
 bool Egamma_v1::selectionisEM(unsigned int&  value, const std::string& isEM) const{
   const SG::AuxElement::Accessor< unsigned int > acc( isEM );
-  if(!acc.isAvailable(*this) ) { 
+  if(!acc.isAvailable(*this) ) {
     return  false;
   }
   value= acc(*this);
@@ -489,7 +452,7 @@ void Egamma_v1::setSelectionisEM(unsigned int value, const std::string& isEM){
 
 bool Egamma_v1::likelihoodValue(float&  value, const std::string& LHValue/*=std::string("LHValue")*/) const{
   const SG::AuxElement::Accessor<float> acc( LHValue );
-  if(!acc.isAvailable(*this) ) { 
+  if(!acc.isAvailable(*this) ) {
     return  false;
   }
   value= acc(*this);

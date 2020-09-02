@@ -19,6 +19,7 @@
 + Control/AthContainersInterfaces
 + Control/AthContainersRoot
 + Control/AthLinks
++ Control/AthToolSupport/AsgDataHandles
 + Control/AthToolSupport/AsgMessaging
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
@@ -131,6 +132,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODEventFormat
 + Event/xAOD/xAODEventInfo
++ Event/xAOD/xAODEventInfoAthenaPool
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
@@ -181,8 +183,6 @@
 + Reconstruction/RecExample/RecExConfig
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
-+ Tools/JobTransforms
-+ Tools/KitValidation
 + Tools/PathResolver
 + Tools/PmbCxxUtils
 + Tools/PyJobTransforms

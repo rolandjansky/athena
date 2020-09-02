@@ -17,7 +17,7 @@ atlas_add_library( TrigPSC
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${Python_LIBRARIES} RDBAccessSvcLib TrigKernel PathResolver TrigConfBase )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${Python_LIBRARIES} TrigKernel PathResolver TrigConfBase )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

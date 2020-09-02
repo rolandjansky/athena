@@ -46,7 +46,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
-   Reconstruction/Jet/JetResolution
    Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetCalibTools
    Reconstruction/Jet/JetInterface
@@ -82,7 +81,7 @@ atlas_add_library( CPAnalysisExamplesLib
    ElectronPhotonFourMomentumCorrectionLib IsolationCorrectionsLib
    JetSelectorToolsLib xAODBTaggingEfficiencyLib MuonEfficiencyCorrectionsLib
    MuonMomentumCorrectionsLib MuonSelectorToolsLib TauAnalysisToolsLib
-   JetResolutionLib JetUncertaintiesLib JetCalibToolsLib JetInterface
+   JetUncertaintiesLib JetCalibToolsLib JetInterface
    METInterface METUtilitiesLib TrigDecisionToolLib
    TriggerMatchingToolLib ${extra_libs}
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData )

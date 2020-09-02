@@ -3,32 +3,30 @@
 */
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-//
-#include "StoreGate/StoreGateSvc.h"
-//
+
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-//
 #include "MuonReadoutGeometry/MdtDetectorElement.h"
 #include "MuonReadoutGeometry/RpcDetectorElement.h"
 #include "MuonReadoutGeometry/TgcDetectorElement.h"
 #include "MuonReadoutGeometry/CscDetectorElement.h"
-//
 #include "MuonReadoutGeometry/MuonStation.h"
-//
 #include "MuonReadoutGeometry/GlobalUtilities.h"
-//
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
+
 #include <TString.h> // for Form
+
+#ifndef SIMULATIONBASE
+#include "MuonCondSvc/NSWCondUtils.h"
+#endif
 
 namespace MuonGM {
 
@@ -365,11 +363,11 @@ MuonDetectorManager::muonStationKey(std::string stName, int statEtaIndex, int st
     std::string key;
     if (statEtaIndex<0)
         key = stName.substr(0,3)
-              +"_C_zi"+MuonGM::buildString(abs(statEtaIndex),2)
+              +"_C_zi"+MuonGM::buildString(std::abs(statEtaIndex),2)
               +"fi"+MuonGM::buildString(statPhiIndex,2);
     else
         key = stName.substr(0,3)
-              +"_A_zi"+MuonGM::buildString(abs(statEtaIndex),2)
+              +"_A_zi"+MuonGM::buildString(std::abs(statEtaIndex),2)
               +"fi"+MuonGM::buildString(statPhiIndex,2);
     return key;
 }
@@ -414,18 +412,8 @@ void MuonDetectorManager::addRpcReadoutElement (RpcReadoutElement* x, Identifier
       }
       m_rpcArrayByHash[Idhash] = x;
     }
-    
-    int stname_indexId = m_rpcIdHelper->stationName(id);
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
 
+    int stname_index = rpcStationTypeIdx(m_rpcIdHelper->stationName(id));
     int steta_index  = m_rpcIdHelper->stationEta(id)  + NRpcStEtaOffset;
     int stphi_index  = m_rpcIdHelper->stationPhi(id)  - 1;
     int dbr_index    = m_rpcIdHelper->doubletR(id)    - 1;
@@ -439,18 +427,18 @@ void MuonDetectorManager::addRpcReadoutElement (RpcReadoutElement* x, Identifier
   // to be addressed with a dbz_index=dbZ+1
   if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS")
   {
-      if (abs(m_rpcIdHelper->stationEta(id)) == 2 &&
+      if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 &&
           m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 2 &&
                m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 1 &&
                m_rpcIdHelper->doubletZ(id) == 2)
       {
@@ -499,16 +487,8 @@ void MuonDetectorManager::addRpcReadoutElement (RpcReadoutElement* x, Identifier
 
 const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement (const Identifier id) const
 {
-    int stname_indexId = m_rpcIdHelper->stationName(id);
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
+  int stationName = m_rpcIdHelper->stationName(id);
+  int stname_index = rpcStationTypeIdx(stationName);
   int steta_index  = m_rpcIdHelper->stationEta(id)  + NRpcStEtaOffset;
   int stphi_index  = m_rpcIdHelper->stationPhi(id)  - 1;
   int dbr_index    = m_rpcIdHelper->doubletR(id)    - 1;
@@ -520,20 +500,19 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement (const Identi
   // BMS 6/ |stEta|= 4 / dbR = 1 / dbZ = 2
   // these are the special cases where we want the rpc at doubletPhi = 2
   // to be addressed with a dbz_index=dbZ+1
-  if (m_rpcIdHelper->stationNameString(m_rpcIdHelper->stationName(id)) == "BMS")
-  {
-      if (abs(m_rpcIdHelper->stationEta(id)) == 2 &&
+  if (m_rpcIdHelper->stationNameString(stationName) == "BMS") {
+      if (std::abs(m_rpcIdHelper->stationEta(id)) == 2 &&
           m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 2 &&
                m_rpcIdHelper->doubletZ(id) == 3)
       {
           if (doubletPhi == 2) dbz_index++;
       }
-      else if (abs(m_rpcIdHelper->stationEta(id)) == 4 &&
+      else if (std::abs(m_rpcIdHelper->stationEta(id)) == 4 &&
                m_rpcIdHelper->doubletR(id) == 1 &&
                m_rpcIdHelper->doubletZ(id) == 2)
       {
@@ -1001,18 +980,6 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
                                                                           int i2,
                                                                           int i3, int i4, int i5, int i6) const
 {
-    int stname_indexId = i1; 
-    int stname_index = stname_indexId + NRpcStatTypeOff;
-    if (stname_indexId == 53) // BME 
-    {
-	stname_index = NRpcStatType-2;
-    }
-    else if (stname_indexId == 54) // BOE 
-    {
-	stname_index = NRpcStatType-1;
-    }
-
-
       int steta_index  = i2 + NRpcStEtaOffset;
       int stphi_index  = i3 - 1;
       int dbr_index    = i4 - 1;
@@ -1022,7 +989,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
 
       int dbr = i4;
       int dbz = i5;
-      int absEta = abs(i2);
+      int absEta = std::abs(i2);
 
 
       // BMS 5/ |stEta|= 2 / dbR = 1 and 2 / dbZ = 3
@@ -1059,7 +1026,7 @@ const RpcReadoutElement* MuonDetectorManager::getRpcRElement_fromIdFields(int i1
           }      
       }
       
-      return getRpcReadoutElement(stname_index, steta_index, stphi_index, dbr_index, dbz_index);
+      return getRpcReadoutElement(i1, steta_index, stphi_index, dbr_index, dbz_index);
 }
 
 void MuonDetectorManager::checkRpcReadoutElementIndices(int i1, int i2, int i3, int i4, int i5)const
@@ -1180,7 +1147,7 @@ MuonDetectorManager::initABlineContainers()
             id = m_cscIdHelper->elementID(stType, jzz, jff);
             if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Filling A-line container with entry for key = "<<m_cscIdHelper->show_to_string(id)<<endmsg;
         }
-        else if (m_rpcIdHelper && stType.substr(0,3)=="BML" && abs(jzz)==7) 
+        else if (m_rpcIdHelper && stType.substr(0,3)=="BML" && std::abs(jzz)==7) 
         {
             // RPC case
             id = m_rpcIdHelper->elementID(stType, jzz, jff, 1);
@@ -1194,6 +1161,47 @@ MuonDetectorManager::initABlineContainers()
         m_aLineContainer.emplace(id, std::move(newALine));
         if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"<Filling A-line container with entry for key >"<<m_mdtIdHelper->show_to_string(id)<<endmsg;
     }
+
+#ifndef SIMULATIONBASE
+    if(m_stgcIdHelper && m_mmIdHelper && !(m_NSWABLinesAsciiSideA.empty())){
+
+      ALineMapContainer writeALines;
+      BLineMapContainer writeBLines;
+      MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideA, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+      for(auto it = writeALines.cbegin(); it != writeALines.cend(); ++it){
+        Identifier id = it->first;
+        ALinePar aline = it->second;
+        m_aLineContainer.emplace(id, std::move(aline));
+      }
+
+      for(auto it = writeBLines.cbegin(); it != writeBLines.cend(); ++it){
+        Identifier id = it->first;
+        BLinePar bline = it->second;
+        m_bLineContainer.emplace(id, std::move(bline));
+      }
+
+      if(!m_cscIdHelper && !(m_NSWABLinesAsciiSideC.empty())){
+        ALineMapContainer writeALines;
+        BLineMapContainer writeBLines;
+        MuonCalib::NSWCondUtils::setNSWABLinesFromAscii(m_NSWABLinesAsciiSideC, writeALines, writeBLines, m_stgcIdHelper, m_mmIdHelper);
+
+        for(auto it = writeALines.cbegin(); it != writeALines.cend(); ++it)
+        {
+          Identifier id = it->first;
+          ALinePar aline = it->second;
+          m_aLineContainer.emplace(id, std::move(aline));
+        }
+
+        for(auto it = writeBLines.cbegin(); it != writeBLines.cend(); ++it)
+        {
+          Identifier id = it->first;
+          BLinePar bline = it->second;
+          m_bLineContainer.emplace(id, std::move(bline));
+        }
+      }
+    }
+#endif
+
     log << MSG::INFO << "Init A/B Line Containers - done - size is respectively " << m_aLineContainer.size() << "/" << m_bLineContainer.size() << endmsg;
 }
 
@@ -1419,7 +1427,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer& blineData)
 					    <<BLine.en()<<")"<<endmsg;
 	  }
         BLine.getAmdbId(stType, jff, jzz, job);
-	if (stType.substr(0,1)=="T" || stType.substr(0,1)=="C" || (stType.substr(0,3)=="BML" && abs(jzz)==7) ) {
+	if (stType.substr(0,1)=="T" || stType.substr(0,1)=="C" || (stType.substr(0,3)=="BML" && std::abs(jzz)==7) ) {
 	  if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG
                <<"BLinePar with AmdbId "
                <<stType<<" "<<jzz<<" "<<jff<<" "<<job
@@ -1856,6 +1864,38 @@ const RpcDetectorElement* MuonDetectorManager::getRpcDetectorElement(IdentifierH
   }
 #endif
   return m_rpcDEArray[id];
+}
+
+unsigned int MuonDetectorManager::rpcStationTypeIdx(const int stationName) const {
+  if (stationName==m_rpcIdHelper->stationNameIndex("BML")) return RpcStatType::BML;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BMS")) return RpcStatType::BMS;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BOL")) return RpcStatType::BOL;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BOS")) return RpcStatType::BOS;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BMF")) return RpcStatType::BMF;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BOF")) return RpcStatType::BOF;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BOG")) return RpcStatType::BOG;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BME")) return RpcStatType::BME;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BIR")) return RpcStatType::BIR;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BIM")) return RpcStatType::BIM;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BIL")) return RpcStatType::BIL;
+  else if (stationName==m_rpcIdHelper->stationNameIndex("BIS")) return RpcStatType::BIS;
+  return RpcStatType::UNKNOWN;
+}
+
+int MuonDetectorManager::rpcStationName(const int stationIndex) const {
+  if (stationIndex==RpcStatType::BML) return m_rpcIdHelper->stationNameIndex("BML");
+  else if (stationIndex==RpcStatType::BMS) return m_rpcIdHelper->stationNameIndex("BMS");
+  else if (stationIndex==RpcStatType::BOL) return m_rpcIdHelper->stationNameIndex("BOL");
+  else if (stationIndex==RpcStatType::BOS) return m_rpcIdHelper->stationNameIndex("BOS");
+  else if (stationIndex==RpcStatType::BMF) return m_rpcIdHelper->stationNameIndex("BMF");
+  else if (stationIndex==RpcStatType::BOF) return m_rpcIdHelper->stationNameIndex("BOF");
+  else if (stationIndex==RpcStatType::BOG) return m_rpcIdHelper->stationNameIndex("BOG");
+  else if (stationIndex==RpcStatType::BME) return m_rpcIdHelper->stationNameIndex("BME");
+  else if (stationIndex==RpcStatType::BIR) return m_rpcIdHelper->stationNameIndex("BIR");
+  else if (stationIndex==RpcStatType::BIM) return m_rpcIdHelper->stationNameIndex("BIM");
+  else if (stationIndex==RpcStatType::BIL) return m_rpcIdHelper->stationNameIndex("BIL");
+  else if (stationIndex==RpcStatType::BIS) return m_rpcIdHelper->stationNameIndex("BIS");
+  return -1;
 }
 
 } // namespace MuonGM

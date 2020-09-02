@@ -9,6 +9,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "AthenaMonitoringKernel/Monitored.h"
 
 #include "eflowRec/eflowRecTrack.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -74,5 +75,7 @@ private:
   /** Upper limit on track Pt for input tracks */
   Gaudi::Property<float> m_upperTrackPtCut{this,"upperTrackPtCut",100.0,"Upper limit on track Pt for input tracks"};
 
+  /** Online monitoring tool for recording histograms of the alg in action */
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
 #endif

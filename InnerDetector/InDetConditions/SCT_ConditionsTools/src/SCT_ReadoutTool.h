@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,9 +40,9 @@ class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
   StatusCode finalize() override;
   
   /** Determine which chips are in the readout for a module of a particular type by Identifier*/
-  virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const override;
+  virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const override;
   /** Determine which chips are in the readout for a module of a particular type by truncated serial number*/
-  virtual StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const override;
+  virtual StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const override;
 
  private:
 

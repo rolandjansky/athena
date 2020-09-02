@@ -100,8 +100,6 @@ InDetFlags.doTrackSegmentsTRT   = False
 
 InDetFlags.doNewTracking  =         True
 InDetFlags.doLowPt        =         False
-InDetFlags.doxKalman      =         False
-InDetFlags.doiPatRec      =         False
 InDetFlags.doBackTracking =         False
 InDetFlags.doTRTStandalone =        False
 #InDetFlags.doSingleSpBackTracking = False
@@ -126,7 +124,7 @@ InDetFlags.doMonitoringAlignment = False
 
 # --- activate creation of ntuples, standard plots
 InDetFlags.doTrkNtuple      = True
-InDetFlags.doStandardPlots  = False
+InDetFlags.doPhysValMon  = False
 InDetFlags.doSGDeletion     = False
 InDetFlags.doTrkD3PD        = True
 

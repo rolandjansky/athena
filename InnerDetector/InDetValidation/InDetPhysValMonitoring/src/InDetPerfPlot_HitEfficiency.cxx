@@ -55,9 +55,8 @@ InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
   }
 
   const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
-  static int warnCount(0);
   if (!hitDetailsAvailable) {
-    if (warnCount++ < 10) {
+    if (m_warnCount++ < 10) {
       ATH_MSG_WARNING("The HitEff plots dont see any data (note: only 10 warnings issued)");
     }
   } else {
@@ -74,10 +73,7 @@ InDetPerfPlot_HitEfficiency::fill(const xAOD::TrackParticle& trkprt) {
         const int det = result_det[idx]; // LAYER TYPE L0PIXBARR / PIXEL / ...
         const int region = result_region[idx]; // BARREL OR ENDCAP
         float eta = std::fabs(trkprt.eta());
-        if (det == DBM) {
-          continue; // ignore DBM
-        }
-        //fillHisto(m_eff_hit_vs_eta[det][region], eta, int(isHit));
+        
         fillHisto(m_HitEfficiencyVsEta[det][region], eta, isHit);
       }
     }

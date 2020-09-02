@@ -1,32 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TGC_CnvTool.cxx, (c) ATLAS Detector software
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TgcRdoToPrepDataToolCore.h"
 
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
-
-#include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "TGCcablingInterface/TGCIdBase.h"
-
 #include "MuonDigitContainer/TgcDigit.h"
-
 #include "MuonTrigCoinData/TgcCoinData.h"
-
 #include "TrkSurfaces/Surface.h"
-
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
-
 #include "EventPrimitives/EventPrimitives.h"
-
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include <cfloat>
@@ -36,7 +21,6 @@
 
 Muon::TgcRdoToPrepDataToolCore::TgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
-    m_muonMgr(0),
     m_tgcCabling(0),
     m_nHitRDOs(0), 
     m_nHitPRDs(0), 
@@ -70,11 +54,6 @@ Muon::TgcRdoToPrepDataToolCore::TgcRdoToPrepDataToolCore(const std::string& t, c
   for(int ibc=0; ibc<NBC+1; ibc++) m_fullEventDone[ibc]=false;
 }  
 
-//================ Destructor =================================================
-
-Muon::TgcRdoToPrepDataToolCore::~TgcRdoToPrepDataToolCore()
-{}
-
 //___________________________________________________________________________
 StatusCode Muon::TgcRdoToPrepDataToolCore::queryInterface(const InterfaceID& riid, void** ppvIf)
 {
@@ -92,17 +71,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::queryInterface(const InterfaceID& rii
 
 StatusCode Muon::TgcRdoToPrepDataToolCore::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  if(sc.isFailure()) return sc;
-
-  sc = detStore()->retrieve(m_muonMgr);
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve MuonDetectorManager");
-    return sc;
-  }
-
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-  
+  ATH_CHECK(AthAlgTool::initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   for(int ibc=0; ibc<NBC+1; ibc++) {      
     int bcTag=ibc+1;
@@ -122,12 +92,13 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::initialize()
   
   ATH_CHECK(m_outputCoinKeys.initialize());
   ATH_CHECK(m_outputprepdataKeys.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
  
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
   
   //try to configure the cabling service
-  sc = getCabling();
+  StatusCode sc = getCabling();
   if(sc.isFailure()) {
     ATH_MSG_INFO("TGCcablingServerSvc not yet configured; postpone TGCcabling initialization at first event.");
   }
@@ -151,8 +122,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::finalize()
 	       "HiPt: "         << m_nHiPtRDOs         << "->" << m_nHiPtPRDs         << ", " << 
 	       "SL: "           << m_nSLRDOs           << "->" << m_nSLPRDs           << "]"); 
 
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
+  return AthAlgTool::finalize();
 }
 
 //================ Decoding =================================================
@@ -166,7 +136,7 @@ void Muon::TgcRdoToPrepDataToolCore::printInputRdo()
   ATH_MSG_INFO("***************** Listing input TgcRdo Collections *****************************************");
 
   /// TGC context
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
 
   /// TGC RDO container --- assuming it is available
   auto rdoContainer = SG::makeHandle(m_rdoContainerKey);
@@ -206,12 +176,12 @@ void Muon::TgcRdoToPrepDataToolCore::printInputRdo()
     
     IdentifierHash tgcHashId = rdoColl->identifyHash();
     Identifier rdoId;
-    int code = m_muonIdHelperTool->tgcIdHelper().get_id(tgcHashId, rdoId, &tgcContext);
+    int code = m_idHelperSvc->tgcIdHelper().get_id(tgcHashId, rdoId, &tgcContext);
     if(code!=0) { 
       ATH_MSG_INFO("*** A problem in hash -> id conversion for hashId= " << static_cast<int>(tgcHashId)); 
     }
     
-    std::string extIdstring = m_muonIdHelperTool->tgcIdHelper().show_to_string(rdoId);
+    std::string extIdstring = m_idHelperSvc->tgcIdHelper().show_to_string(rdoId);
     ATH_MSG_INFO("*** Offine HashId = " << tgcHashId << " extended = " << extIdstring);
     
     int iHit = 0;
@@ -329,13 +299,13 @@ void Muon::TgcRdoToPrepDataToolCore::printPrepData()
 		   << (ibc==2 ? "NextBC" : ""));
 
       ATH_MSG_INFO("PrepData Collection ID "
-		   << m_muonIdHelperTool->tgcIdHelper().show_to_string(tgcColl->identify()));
+		   << m_idHelperSvc->tgcIdHelper().show_to_string(tgcColl->identify()));
 
       TgcPrepDataCollection::const_iterator it_tgcPrepData   = tgcColl->begin();
       TgcPrepDataCollection::const_iterator it_tgcPrepData_e = tgcColl->end();
       for(; it_tgcPrepData!=it_tgcPrepData_e; it_tgcPrepData++) {
 	ATH_MSG_INFO("PrepData Offline ID "
-		     << m_muonIdHelperTool->tgcIdHelper().show_to_string((*it_tgcPrepData)->identify()));
+		     << m_idHelperSvc->tgcIdHelper().show_to_string((*it_tgcPrepData)->identify()));
       }
     }
   }
@@ -359,13 +329,13 @@ void Muon::TgcRdoToPrepDataToolCore::printPrepData()
 		   << (ibc==2 ? "NextBC" : ""));
 
       ATH_MSG_INFO("CoinData Collection ID "
-		   << m_muonIdHelperTool->tgcIdHelper().show_to_string(tgcCoinColl->identify()));
+		   << m_idHelperSvc->tgcIdHelper().show_to_string(tgcCoinColl->identify()));
 
       TgcCoinDataCollection::const_iterator it_tgcCoinData   = tgcCoinColl->begin();
       TgcCoinDataCollection::const_iterator it_tgcCoinData_e = tgcCoinColl->end();
       for(; it_tgcCoinData!=it_tgcCoinData_e; it_tgcCoinData++) {
 	ATH_MSG_INFO("CoinData Offline ID "
-		     << m_muonIdHelperTool->tgcIdHelper().show_to_string((*it_tgcCoinData)->identify()));
+		     << m_idHelperSvc->tgcIdHelper().show_to_string((*it_tgcCoinData)->identify()));
       }
     }
   }
@@ -425,10 +395,13 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
     if(!status.isSuccess()) return status;
   }
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+
   TgcPrepDataCollection* collection = 0;
   TgcPrepDataCollection* collectionAllBcs = 0;
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
   // select current Hits, =0 for backward compatibility
   // BC_CURRENT=2, BC_UNDEFINED=0
@@ -502,7 +475,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
       continue;
     }
     
-    if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+    if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
       ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		      << "context begin_index = " << tgcContext.begin_index()
 		      << " context end_index  = " << tgcContext.end_index()
@@ -511,7 +484,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
     }
     
     collection  = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-      (elementId, m_tgcPrepDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+      (elementId, m_tgcPrepDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
 
     // convert RawData to PrepRawData
     Identifier channelId;    
@@ -540,7 +513,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
       if(channelId==(*cit_tgcPrepData)->identify()) {
 	duplicate = true;
 	ATH_MSG_DEBUG("Duplicated TgcPrepData(removed) = "
-		      << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId));
+		      << m_idHelperSvc->tgcIdHelper().show_to_string(channelId));
 	break;
       }
     }
@@ -549,12 +522,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
       continue;
     }
     
-    const MuonGM::TgcReadoutElement* descriptor = m_muonMgr->getTgcReadoutElement(channelId);
+    const MuonGM::TgcReadoutElement* descriptor = muDetMgr->getTgcReadoutElement(channelId);
     if(!isOfflineIdOKForTgcReadoutElement(descriptor, channelId)) {
       ATH_MSG_WARNING("decodeHits: MuonGM::TgcReadoutElement is invalid.");
       continue;
     }
-    ATH_MSG_DEBUG("TGC RDO->PrepRawdata: " << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId));
+    ATH_MSG_DEBUG("TGC RDO->PrepRawdata: " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId));
     
     std::vector<Identifier> identifierList;
     identifierList.push_back(channelId);
@@ -568,10 +541,10 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
       continue; 
     }
     
-    int gasGap  = m_muonIdHelperTool->tgcIdHelper().gasGap(channelId);
-    int channel = m_muonIdHelperTool->tgcIdHelper().channel(channelId);
+    int gasGap  = m_idHelperSvc->tgcIdHelper().gasGap(channelId);
+    int channel = m_idHelperSvc->tgcIdHelper().channel(channelId);
     double width = 0.;
-    if(!static_cast<bool>(m_muonIdHelperTool->tgcIdHelper().isStrip(channelId))) { // wire
+    if(!static_cast<bool>(m_idHelperSvc->tgcIdHelper().isStrip(channelId))) { // wire
       width = getWidthWire(descriptor, gasGap, channel);
     } else { // strip
       width = getWidthStrip(descriptor, gasGap, channel, channelId);
@@ -601,7 +574,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHits(const TgcRdo::const_iterat
 
     // for All Bcs
     collectionAllBcs = Muon::IDC_Helper::getCollection<TgcPrepDataContainer, TgcIdHelper>
-      (elementId, m_tgcPrepDataContainer[NBC], m_muonIdHelperTool->tgcIdHelper(), msg());
+      (elementId, m_tgcPrepDataContainer[NBC], m_idHelperSvc->tgcIdHelper(), msg());
     uint16_t bcBitMap = 0;
     if (locId == 0)      bcBitMap = TgcPrepData::BCBIT_PREVIOUS;
     else if (locId == 1) bcBitMap = TgcPrepData::BCBIT_CURRENT;
@@ -665,6 +638,9 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
     ATH_MSG_DEBUG("decodeTracklet: can't get the OfflineIdOut");
     return StatusCode::SUCCESS;
   }
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+
   //*** Get OfflineId of pivot plane (TGC3) end ***//
   
   //*** Get OfflineId of non-pivot plane (TGC2) start ***//
@@ -691,9 +667,9 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
   //*** Get OfflineId of non-pivot plane (TGC2) end ***//
   
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
-  Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelIdOut);
-  if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelIdOut);
+  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		    << "context begin_index = " << tgcContext.begin_index()
 		    << " context end_index  = " << tgcContext.end_index()
@@ -705,7 +681,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
     ? 1 : (*itD)->bcTag()-1;
 
   TgcCoinDataCollection* coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
-    (elementId, m_tgcCoinDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+    (elementId, m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
 
   int subMatrix = static_cast<int>((*itD)->subMatrix());
   int trackletId = static_cast<int>(2*(*itD)->slbId()+subMatrix); 
@@ -723,23 +699,23 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
        (subMatrix==(*it_tgcCoinData)->sub()) // subMatrix 
        ) {
       ATH_MSG_DEBUG("Duplicated TgcCoinData (Tracklet) = "
-		    << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdIn));
+		    << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdIn));
       return StatusCode::SUCCESS;
     }
   }
 
-  ATH_MSG_DEBUG("TGC RDO->Coindata for LowPT: " << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdOut)); 
+  ATH_MSG_DEBUG("TGC RDO->Coindata for LowPT: " << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdOut)); 
 
   //*** Get geometry of pivot plane (TGC3) start ***//
-  const MuonGM::TgcReadoutElement* descriptor_o = m_muonMgr->getTgcReadoutElement(channelIdOut);
+  const MuonGM::TgcReadoutElement* descriptor_o = muDetMgr->getTgcReadoutElement(channelIdOut);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_o, channelIdOut)) {
     return StatusCode::SUCCESS;
   }
   
-  int gasGap_o = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdOut);
-  int channel_o = m_muonIdHelperTool->tgcIdHelper().channel(channelIdOut);
+  int gasGap_o = m_idHelperSvc->tgcIdHelper().gasGap(channelIdOut);
+  int channel_o = m_idHelperSvc->tgcIdHelper().channel(channelIdOut);
   double width_o = 0.;
-  if(!(static_cast<bool> (m_muonIdHelperTool->tgcIdHelper().isStrip(channelIdOut)))) { // wire 
+  if(!(static_cast<bool> (m_idHelperSvc->tgcIdHelper().isStrip(channelIdOut)))) { // wire 
     width_o = getWidthWire(descriptor_o, gasGap_o, channel_o);
   } else { // strip
     width_o = getWidthStrip(descriptor_o, gasGap_o, channel_o, channelIdOut);
@@ -759,15 +735,15 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
   //*** Get geometry of pivot plane (TGC3) end ***//
   
   //*** Get geometry of non-pivot plane (TGC2) start ***//
-  const MuonGM::TgcReadoutElement* descriptor_i = m_muonMgr->getTgcReadoutElement(channelIdIn);
+  const MuonGM::TgcReadoutElement* descriptor_i = muDetMgr->getTgcReadoutElement(channelIdIn);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_i, channelIdIn)) {
     return StatusCode::SUCCESS;
   }
   
-  int gasGap_i = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdIn);
-  int channel_i = m_muonIdHelperTool->tgcIdHelper().channel(channelIdIn);
+  int gasGap_i = m_idHelperSvc->tgcIdHelper().gasGap(channelIdIn);
+  int channel_i = m_idHelperSvc->tgcIdHelper().channel(channelIdIn);
   double width_i = 0.;
-  if(!(static_cast<bool>(m_muonIdHelperTool->tgcIdHelper().isStrip(channelIdIn)))) { // wire 
+  if(!(static_cast<bool>(m_idHelperSvc->tgcIdHelper().isStrip(channelIdIn)))) { // wire 
     width_i = getWidthWire(descriptor_i, gasGap_i, channel_i);
   } else { // strip
     width_i = getWidthStrip(descriptor_i, gasGap_i, channel_i, channelIdIn);
@@ -795,10 +771,10 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTracklet(const TgcRdo::const_it
 					     descriptor_o, // determined from channelIdOut
 					     TgcCoinData::TYPE_TRACKLET, 
 					     ((*itD)->subDetectorId()==ASIDE), // isAside
-					     static_cast<int>(m_muonIdHelperTool->tgcIdHelper().stationPhi(channelIdOut)), // phi
+					     static_cast<int>(m_idHelperSvc->tgcIdHelper().stationPhi(channelIdOut)), // phi
                                              0, // isInner
 					     ((*itD)->sswId()==7||(*itD)->sswId()==2), // isForward
-					     static_cast<bool>(m_muonIdHelperTool->tgcIdHelper().isStrip(channelIdOut)), // isStrip
+					     static_cast<bool>(m_idHelperSvc->tgcIdHelper().isStrip(channelIdOut)), // isStrip
 					     trackletId, // trackletId
 					     hitPosition_i, // determined from channelIdIn
 					     hitPosition_o, // determined from channelIdOut
@@ -929,12 +905,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI(const TgcRdo::cons
   }
 
   // Retrieve ElementID from OfflineID
-  Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelIdIn);
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelIdIn);
 
   // Retrieve Hash from ElementID
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
-  if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
+  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
                     << "context begin_index = " << tgcContext.begin_index()
                     << " context end_index  = " << tgcContext.end_index()
@@ -948,7 +924,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI(const TgcRdo::cons
 
   // Get corresponding collection 
   TgcCoinDataCollection* coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
-    (elementId, m_tgcCoinDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+    (elementId, m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
 
   // Check duplicate digits
   TgcCoinDataCollection::const_iterator it_tgcCoinData   = coincollection->begin();
@@ -958,16 +934,18 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI(const TgcRdo::cons
        (channelIdIn==(*it_tgcCoinData)->channelIdIn()) && // channelIdIn
        (static_cast<int>((*itD)->subMatrix())==(*it_tgcCoinData)->sub())) { // sub
       ATH_MSG_DEBUG("Duplicated TgcCoinData (TrackletEIFI) = "
-		    << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdIn));
+		    << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdIn));
       return StatusCode::SUCCESS;
     }
   }
 
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   // Get MuonGM::TgcReadoutElement from channelIdIn
-  const MuonGM::TgcReadoutElement* descriptor = m_muonMgr->getTgcReadoutElement(channelIdIn);
+  const MuonGM::TgcReadoutElement* descriptor = muDetMgr->getTgcReadoutElement(channelIdIn);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor, channelIdIn)) {
     ATH_MSG_WARNING("Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI descriptor doesn't contain " 
-		    << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdIn));
+		    << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdIn));
     return StatusCode::SUCCESS;
   }
 
@@ -983,8 +961,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI(const TgcRdo::cons
 
   // Get width from channelIdIn, one subMatrix covers 8 channels per gasGap 
   double width = 0.;
-  int gasGap = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdIn); // 1
-  int channel = m_muonIdHelperTool->tgcIdHelper().channel(channelIdIn); // 4, 12, 20, 28
+  int gasGap = m_idHelperSvc->tgcIdHelper().gasGap(channelIdIn); // 1
+  int channel = m_idHelperSvc->tgcIdHelper().channel(channelIdIn); // 4, 12, 20, 28
   if(isStrip) { // Strip
     double localZ = (descriptor->transform(channelIdIn).inverse()*descriptor->channelPos(channelIdIn)).z();
     double stripMaxX  = descriptor->stripMaxX(gasGap, channel+4, localZ);
@@ -1010,7 +988,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeTrackletEIFI(const TgcRdo::cons
                                              descriptor, // determined from channelIdIn
 					     TgcCoinData::TYPE_TRACKLET_EIFI,
                                              isAside, 
-                                             m_muonIdHelperTool->tgcIdHelper().stationPhi(channelIdIn), 
+                                             m_idHelperSvc->tgcIdHelper().stationPhi(channelIdIn), 
                                              isForward, 
                                              isStrip, 
                                              hitPosition, // determined from channelIdIn
@@ -1044,10 +1022,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
     ATH_MSG_DEBUG("Invalid hitId_rdo_hipt, hitId == 0!! skip to convert this RDO to PRD");
     return StatusCode::SUCCESS;
   }
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
   TgcCoinDataCollection* coincollection = 0;
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
   int slbsubMatrix = 0;
   bool isBackward = isBackwardBW(itD);  // Backward or Forward
@@ -1134,10 +1114,10 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
   //}
   //*** TGC1 end ***//
   
-  ATH_MSG_DEBUG("TGC RDO->Coindata for HIPT: " << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdOut[1])); 
+  ATH_MSG_DEBUG("TGC RDO->Coindata for HIPT: " << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdOut[1])); 
   
-  Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelIdOut[1]);
-  if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelIdOut[1]);
+  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		    << "context begin_index = " << tgcContext.begin_index()
 		    << " context end_index  = " << tgcContext.end_index()
@@ -1149,12 +1129,12 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
     ? 1 : (*itD)->bcTag()-1;
 
   coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
-    (elementId, m_tgcCoinDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+    (elementId, m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
   
   //*** TGC3 start ***// 
   // Get geometry of pivot plane 
-  const MuonGM::TgcReadoutElement* descriptor_o[2] = {m_muonMgr->getTgcReadoutElement(channelIdOut[0]), 
-                                                      m_muonMgr->getTgcReadoutElement(channelIdOut[1])};
+  const MuonGM::TgcReadoutElement* descriptor_o[2] = {muDetMgr->getTgcReadoutElement(channelIdOut[0]), 
+                                                      muDetMgr->getTgcReadoutElement(channelIdOut[1])};
   for(int i=0; i<2; i++) {
     if(!isOfflineIdOKForTgcReadoutElement(descriptor_o[i], channelIdOut[i])) {
       return StatusCode::SUCCESS;
@@ -1162,8 +1142,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
   }
 
   for(int i=0; i<2; i++) { 
-    gasGap_o[i] = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdOut[i]);
-    channel_o[i] = m_muonIdHelperTool->tgcIdHelper().channel(channelIdOut[i]);
+    gasGap_o[i] = m_idHelperSvc->tgcIdHelper().gasGap(channelIdOut[i]);
+    channel_o[i] = m_idHelperSvc->tgcIdHelper().channel(channelIdOut[i]);
   }
 
   if(!((*itD)->isStrip())) { // wire
@@ -1185,8 +1165,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
     return StatusCode::SUCCESS;
   }
 
-  //const MuonGM::TgcReadoutElement* descriptor_oo = m_muonMgr->getTgcReadoutElement(channelIdOut_tmp);
-  descriptor_oo = m_muonMgr->getTgcReadoutElement(channelIdOut_tmp);
+  descriptor_oo = muDetMgr->getTgcReadoutElement(channelIdOut_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_oo, channelIdOut_tmp)) {
     return StatusCode::SUCCESS;
   }
@@ -1195,18 +1174,18 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
   
   //*** TGC1 start ***// 
   // Get geometry of non-pivot plane 
-  const MuonGM::TgcReadoutElement* descriptor_i[4] = {m_muonMgr->getTgcReadoutElement(channelIdIn[0]), 
-                                                      m_muonMgr->getTgcReadoutElement(channelIdIn[1]), 
-                                                      m_muonMgr->getTgcReadoutElement(channelIdIn[2]), 
-                                                      m_muonMgr->getTgcReadoutElement(channelIdIn[3])};
+  const MuonGM::TgcReadoutElement* descriptor_i[4] = {muDetMgr->getTgcReadoutElement(channelIdIn[0]), 
+                                                      muDetMgr->getTgcReadoutElement(channelIdIn[1]), 
+                                                      muDetMgr->getTgcReadoutElement(channelIdIn[2]), 
+                                                      muDetMgr->getTgcReadoutElement(channelIdIn[3])};
   for(int i=0; i<4; i++) {
     if(!isOfflineIdOKForTgcReadoutElement(descriptor_i[i], channelIdIn[i])) {
       return StatusCode::SUCCESS;
     }
   }
   for(int i=0; i<4; i++) { 
-    gasGap_i[i] = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdIn[i]); 
-    channel_i[i] = m_muonIdHelperTool->tgcIdHelper().channel(channelIdIn[i]); 
+    gasGap_i[i] = m_idHelperSvc->tgcIdHelper().gasGap(channelIdIn[i]); 
+    channel_i[i] = m_idHelperSvc->tgcIdHelper().channel(channelIdIn[i]); 
   }
     
   if(!(*itD)->isStrip()) { // WIRE
@@ -1228,8 +1207,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
     return StatusCode::SUCCESS;
   }
 
-  //const MuonGM::TgcReadoutElement* descriptor_ii = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
-  descriptor_ii = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
+  descriptor_ii = muDetMgr->getTgcReadoutElement(channelIdIn_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_ii, channelIdIn_tmp)) {
     return StatusCode::SUCCESS;
   }
@@ -1256,7 +1234,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
 	m_nHiPtRDOs--; // Reduce the number of input RDOs. 
       }
       ATH_MSG_DEBUG("Duplicated TgcCoinData (HiPt) = "
-		    << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelIdOut_tmp));
+		    << m_idHelperSvc->tgcIdHelper().show_to_string(channelIdOut_tmp));
       return StatusCode::SUCCESS;
     }
   }
@@ -1273,7 +1251,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeHiPt(const TgcRdo::const_iterat
 					     descriptor_oo, // determined from channelIdOut_tmp
 					     TgcCoinData::TYPE_HIPT, // Coincidence type
 					     ((*itD)->subDetectorId()==ASIDE), // isAside
-					     static_cast<int>(m_muonIdHelperTool->tgcIdHelper().stationPhi(channelIdOut_tmp)), // phi
+					     static_cast<int>(m_idHelperSvc->tgcIdHelper().stationPhi(channelIdOut_tmp)), // phi
                                              0, // isInner
 					     static_cast<bool>((*itD)->isForward()), // isForward
 					     static_cast<bool>((*itD)->isStrip()), // isStrip
@@ -1316,7 +1294,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(const TgcRdo::const_itera
 
   TgcCoinDataCollection* coincollection = 0;
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
  
   Identifier channelIdIn; 
   Identifier channelIdOut; 
@@ -1343,8 +1321,8 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(const TgcRdo::const_itera
   int stationEta = isAside ? 1 : -1;
   int stationPhi = phi;
 
-  Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true);
-  if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(stationName, stationEta, stationPhi, true);
+  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		    << "context begin_index = " << tgcContext.begin_index()
 		    << " context end_index  = " << tgcContext.end_index()
@@ -1353,7 +1331,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeInner(const TgcRdo::const_itera
   }
   
   coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
-    (elementId, m_tgcCoinDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+    (elementId, m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
   
   ATH_MSG_DEBUG("Inner Data Word, phi: " << phi << " isAside: " << isAside << " isEndcap: " << isEndcap
                 << " subDetectorId: " << subDetectorId << " isStrip: " << (*itD)->isStrip()
@@ -1402,7 +1380,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
   
   TgcCoinDataCollection* coincollection = 0;
   IdentifierHash tgcHashId;
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
   
   bool found = false;
 
@@ -1440,10 +1418,10 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
     return StatusCode::SUCCESS;
   }
 
-  ATH_MSG_DEBUG("TGC RDO->TgcCoindata(SL): " << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId_wire[1])); 
+  ATH_MSG_DEBUG("TGC RDO->TgcCoindata(SL): " << m_idHelperSvc->tgcIdHelper().show_to_string(channelId_wire[1])); 
   
-  Identifier elementId = m_muonIdHelperTool->tgcIdHelper().elementID(channelId_wire[1]);
-  if(m_muonIdHelperTool->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
+  Identifier elementId = m_idHelperSvc->tgcIdHelper().elementID(channelId_wire[1]);
+  if(m_idHelperSvc->tgcIdHelper().get_hash(elementId, tgcHashId, &tgcContext)) {
     ATH_MSG_WARNING("Unable to get TGC hash id from TGC RDO collection "
 		    << "context begin_index = " << tgcContext.begin_index()
 		    << " context end_index  = " << tgcContext.end_index()
@@ -1455,7 +1433,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
     ? 1 : (*itD)->bcTag()-1;
 
   coincollection = Muon::IDC_Helper::getCollection<TgcCoinDataContainer, TgcIdHelper>
-    (elementId, m_tgcCoinDataContainer[locId], m_muonIdHelperTool->tgcIdHelper(), msg());
+    (elementId, m_tgcCoinDataContainer[locId], m_idHelperSvc->tgcIdHelper(), msg());
   
   int trackletId = 2*sbLoc_w + subMatrix_w;
   int trackletIdStrip = 2*sbLoc_s + subMatrix_s;
@@ -1478,7 +1456,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
        (isPositiveDeltaR==(*it_tgcCoinData)->isPositiveDeltaR()) 
        ) {
       ATH_MSG_DEBUG("Duplicated TgcCoinData (SL) = "
-		    << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId_wire[2]));
+		    << m_idHelperSvc->tgcIdHelper().show_to_string(channelId_wire[2]));
       return StatusCode::SUCCESS;
     }
   }
@@ -1515,8 +1493,9 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
     return StatusCode::SUCCESS;
   }
   //*** Phi (strip) end ***//
-  
-  const MuonGM::TgcReadoutElement* descriptor_w2 = m_muonMgr->getTgcReadoutElement(channelId_wire[2]);
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+  const MuonGM::TgcReadoutElement* descriptor_w2 = muDetMgr->getTgcReadoutElement(channelId_wire[2]);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_w2, channelId_wire[2])) {
     return StatusCode::SUCCESS;
   }
@@ -1546,7 +1525,7 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::decodeSL(const TgcRdo::const_iterator
 					     descriptor_w2, // determined from channelId_wire[2]
 					     TgcCoinData::TYPE_SL, // Coincidence type
 					     static_cast<bool>((*itD)->subDetectorId()==ASIDE), // isAside
-					     static_cast<int>(m_muonIdHelperTool->tgcIdHelper().stationPhi(channelId_wire[2])), // phi
+					     static_cast<int>(m_idHelperSvc->tgcIdHelper().stationPhi(channelId_wire[2])), // phi
 					     static_cast<bool> ((*itD)->isForward()), // isForward
 					     trackletId, // trackletId 
 					     trackletIdStrip, // trackletIdStrip
@@ -1698,7 +1677,7 @@ bool Muon::TgcRdoToPrepDataToolCore::isOfflineIdOKForTgcReadoutElement(const Muo
 								   const Identifier channelId)
 {
   if(!descriptor || !descriptor->containsId(channelId)) {
-    ATH_MSG_DEBUG("Illegal OfflineID for TgcReadoutElement" << m_muonIdHelperTool->tgcIdHelper().show_to_string(channelId));
+    ATH_MSG_DEBUG("Illegal OfflineID for TgcReadoutElement" << m_idHelperSvc->tgcIdHelper().show_to_string(channelId));
     return false;
   }
   return true;
@@ -1723,7 +1702,7 @@ void Muon::TgcRdoToPrepDataToolCore::showIdentifierHashVector(std::vector<Identi
 
 void Muon::TgcRdoToPrepDataToolCore::fillIdentifierHashVector(std::vector<IdentifierHash>& selectedIdHashVect) {  
   // Fill the hashes with hits or coincidences   
-  unsigned int HashId_max = m_muonIdHelperTool->tgcIdHelper().module_hash_max();  
+  unsigned int HashId_max = m_idHelperSvc->tgcIdHelper().module_hash_max();  
   for(unsigned int HashId=0; HashId<HashId_max; HashId++) {  
     IdentifierHash offlineCollHash(static_cast<IdentifierHash>(HashId));  
     if(isIdentifierHashFoundInAnyTgcPrepDataContainer(offlineCollHash) ||  
@@ -1740,7 +1719,7 @@ void Muon::TgcRdoToPrepDataToolCore::showIdentifierHash() {
   if(!(this->msgLvl(MSG::DEBUG))) return;
 
   unsigned int nc = 0;
-  unsigned int HashId_max = m_muonIdHelperTool->tgcIdHelper().module_hash_max();
+  unsigned int HashId_max = m_idHelperSvc->tgcIdHelper().module_hash_max();
   for(unsigned int HashId=0; HashId<HashId_max; HashId++) {
     nc++;
     IdentifierHash offlineCollHash(static_cast<IdentifierHash>(HashId));
@@ -1755,7 +1734,7 @@ void Muon::TgcRdoToPrepDataToolCore::showIdentifierHash() {
 bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcPrepDataContainer(const IdentifierHash Hash) const
 {
   for(int ibc=0; ibc<NBC+1; ibc++) {
-    if(m_tgcPrepDataContainer[ibc]->indexFind(Hash) != m_tgcPrepDataContainer[ibc]->end()) {
+    if(m_tgcPrepDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
   }
@@ -1765,7 +1744,7 @@ bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcPrepDataContai
 bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcCoinDataContainer(const IdentifierHash Hash) const
 {
   for(int ibc=0; ibc<NBC; ibc++) {
-    if(m_tgcCoinDataContainer[ibc]->indexFind(Hash) != m_tgcCoinDataContainer[ibc]->end()) {
+    if(m_tgcCoinDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
   }
@@ -2274,9 +2253,11 @@ double Muon::TgcRdoToPrepDataToolCore::getWidthStrip(const MuonGM::TgcReadoutEle
 bool Muon::TgcRdoToPrepDataToolCore::getSLWireGeometry(const Identifier* channelId_wire, 
 						   double& width_wire, double& r_wire, double& z_wire)
 {
-  const MuonGM::TgcReadoutElement* descriptor_w[3] = {m_muonMgr->getTgcReadoutElement(channelId_wire[0]), 
-						      m_muonMgr->getTgcReadoutElement(channelId_wire[1]), 
-						      m_muonMgr->getTgcReadoutElement(channelId_wire[2])};
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+  const MuonGM::TgcReadoutElement* descriptor_w[3] = {muDetMgr->getTgcReadoutElement(channelId_wire[0]), 
+						      muDetMgr->getTgcReadoutElement(channelId_wire[1]), 
+						      muDetMgr->getTgcReadoutElement(channelId_wire[2])};
   for(int i=0; i<3; i++) {
     if(!isOfflineIdOKForTgcReadoutElement(descriptor_w[i], channelId_wire[i])) {
       return false;
@@ -2295,8 +2276,8 @@ bool Muon::TgcRdoToPrepDataToolCore::getSLWireGeometry(const Identifier* channel
   int gasGap_w[3] = {0, 0, 0};
   int channel_w[3] = {0, 0, 0};
   for(int i=0; i<3; i++) {
-    gasGap_w[i] = m_muonIdHelperTool->tgcIdHelper().gasGap(channelId_wire[i]);
-    channel_w[i] = m_muonIdHelperTool->tgcIdHelper().channel(channelId_wire[i]);
+    gasGap_w[i] = m_idHelperSvc->tgcIdHelper().gasGap(channelId_wire[i]);
+    channel_w[i] = m_idHelperSvc->tgcIdHelper().channel(channelId_wire[i]);
   }
   double tmp_r_w[3] = {0., 0., 0.};
   double tmp_phi_w[3] = {0., 0., 0.};
@@ -2347,9 +2328,11 @@ bool Muon::TgcRdoToPrepDataToolCore::getSLStripGeometry(const Identifier* channe
 						    const bool isBackward, const bool isAside, 
 						    double& width_strip, double& theta_strip)
 {
-  const MuonGM::TgcReadoutElement* descriptor_s[3] = {m_muonMgr->getTgcReadoutElement(channelId_strip[0]), 
-						      m_muonMgr->getTgcReadoutElement(channelId_strip[1]), 
-						      m_muonMgr->getTgcReadoutElement(channelId_strip[2])};
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+  const MuonGM::TgcReadoutElement* descriptor_s[3] = {muDetMgr->getTgcReadoutElement(channelId_strip[0]), 
+						      muDetMgr->getTgcReadoutElement(channelId_strip[1]), 
+						      muDetMgr->getTgcReadoutElement(channelId_strip[2])};
   for(int i=0; i<3; i++) {
     if(!isOfflineIdOKForTgcReadoutElement(descriptor_s[i], channelId_strip[i])) {
       return false;
@@ -2368,8 +2351,8 @@ bool Muon::TgcRdoToPrepDataToolCore::getSLStripGeometry(const Identifier* channe
   int gasGap_s[3] = {0, 0, 0};
   int channel_s[3] = {0, 0, 0};
   for(int i=0; i<3; i++) {
-    gasGap_s[i] = m_muonIdHelperTool->tgcIdHelper().gasGap(channelId_strip[i]);
-    channel_s[i] = m_muonIdHelperTool->tgcIdHelper().channel(channelId_strip[i]);
+    gasGap_s[i] = m_idHelperSvc->tgcIdHelper().gasGap(channelId_strip[i]);
+    channel_s[i] = m_idHelperSvc->tgcIdHelper().channel(channelId_strip[i]);
   }
 
   Amg::Vector3D localPos[3];
@@ -2558,7 +2541,9 @@ bool Muon::TgcRdoToPrepDataToolCore::getPosAndIdWireIn(const MuonGM::TgcReadoutE
   }
   
   channelIdIn_tmp = channelIdIn[flag_boundary_i];
-  const MuonGM::TgcReadoutElement* descriptor_iw = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+  const MuonGM::TgcReadoutElement* descriptor_iw = muDetMgr->getTgcReadoutElement(channelIdIn_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_iw, channelIdIn_tmp)) {
     return false;
   }
@@ -2605,8 +2590,8 @@ bool Muon::TgcRdoToPrepDataToolCore::getPosAndIdWireIn(const MuonGM::TgcReadoutE
     return false;
   }
   
-  int gasGap_tmp = m_muonIdHelperTool->tgcIdHelper().gasGap(channelIdIn_tmp);
-  int channel_tmp = m_muonIdHelperTool->tgcIdHelper().channel(channelIdIn_tmp);
+  int gasGap_tmp = m_idHelperSvc->tgcIdHelper().gasGap(channelIdIn_tmp);
+  int channel_tmp = m_idHelperSvc->tgcIdHelper().channel(channelIdIn_tmp);
   double half_width = getWidthWire(descriptor_iw, gasGap_tmp, channel_tmp)/2.;
   if(half_width<s_cutDropPrdsWithZeroWidth/2. && m_dropPrdsWithZeroWidth) { // Invalid PRD's whose widths are zero are dropped.
     return false;
@@ -2659,7 +2644,9 @@ bool Muon::TgcRdoToPrepDataToolCore::getPosAndIdStripIn(const MuonGM::TgcReadout
   }
   
   channelIdIn_tmp = channelIdIn[flag_isL3];
-  const MuonGM::TgcReadoutElement* descriptor_is = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+  const MuonGM::TgcReadoutElement* descriptor_is = muDetMgr->getTgcReadoutElement(channelIdIn_tmp);
   if(!isOfflineIdOKForTgcReadoutElement(descriptor_is, channelIdIn_tmp)) {
     return true;
   }
@@ -3190,16 +3177,16 @@ StatusCode Muon::TgcRdoToPrepDataToolCore::getCabling() {
   }
 
   // check the relation between hash and onlineId (onlineId depends on cabling)  
-  unsigned int hashId_max = m_muonIdHelperTool->tgcIdHelper().module_hash_max();  
+  unsigned int hashId_max = m_idHelperSvc->tgcIdHelper().module_hash_max();  
   m_hashToOnlineId.reserve(hashId_max);  
-  IdContext tgcContext = m_muonIdHelperTool->tgcIdHelper().module_context(); // TGC context   
+  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context(); // TGC context   
   Identifier elementId;  
   int subDetectorId = 0; // 103(=0x67) for A side, 104(=0x68) for C side  
   int rodId = 0; // 1 to 12 (12-fold cabling), 0 to 7 (8-fold cabling)   
   TgcRdo tgcRdo; // For onlineId conversion  
   for(unsigned int hashId=0; hashId<hashId_max; hashId++) {  
     IdentifierHash hash(hashId);  
-    m_muonIdHelperTool->tgcIdHelper().get_id(hash, elementId, &tgcContext);  
+    m_idHelperSvc->tgcIdHelper().get_id(hash, elementId, &tgcContext);  
     m_tgcCabling->getReadoutIDfromElementID(elementId, subDetectorId, rodId);  
     // onlineId: 0 to 11 on A side and 12 to 23 on C side (12-fold cabling)  
     //           0 to  7 on A side and  8 to 15 on C side (8-fold cabling)  

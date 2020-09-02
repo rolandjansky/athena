@@ -2,7 +2,7 @@
 
 // $Id: DataPool_test.txt,v 1.1 2003-04-02 19:35:10 calaf Exp $
 
-//ApplicationMgr.DLLs += { "StoreGate" };
+//ApplicationMgr.Dlls += { "StoreGate" };
 MessageSvc.OutputLevel = 2;
 
 ApplicationMgr.ExtSvc += {"IncidentSvc", "ChronoStatSvc", "AuditorSvc"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  AtlasMagFld object inherits from Trk::baseMagFld.  So pointer
@@ -35,18 +35,20 @@
 namespace Trk{
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //                  ATLAS magnetic field access
-  VKalAtlasMagFld::VKalAtlasMagFld() {
-     m_VKalAthenaField=0; 
-     m_magFrameX=0.;
-     m_magFrameY=0.;
-     m_magFrameZ=0.;
-  }
-  VKalAtlasMagFld::~VKalAtlasMagFld(){}
+  VKalAtlasMagFld::VKalAtlasMagFld():
+     m_magFrameX(0.),
+     m_magFrameY(0.),
+     m_magFrameZ(0.)
+     {}
+
+  VKalAtlasMagFld::~VKalAtlasMagFld()= default;
 //
 //  Setting of parameters
 //
-  void VKalAtlasMagFld::setAtlasField(MagField::IMagFieldSvc*  pnt)
-  {   m_VKalAthenaField = pnt;  }
+  void VKalAtlasMagFld::setAtlasField(MagField::AtlasFieldCache * pnt )
+  {   
+     m_VKalAthenaField = pnt;
+  }
      
   void VKalAtlasMagFld::setAtlasField(const double  field)
   {   m_FIXED_ATLAS_FIELD = field; }

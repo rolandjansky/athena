@@ -151,7 +151,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+    DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info('DetDescrVersion = %s' % (jobproperties.Global.DetDescrVersion()))
 
@@ -270,22 +270,22 @@ if doTileTMDBRawChannel:
     # Set up TileCondToolPulseShape to be used in
     # TileCondToolOfc
     from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
-    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    muRcvPulseShape = getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
     
     # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
-    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+    muRcvOfc = CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
                                       , OptFilterDeltaCorrelation = True
-                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+                                      , TileCondToolPulseShape = muRcvPulseShape)
 
 
     # Set up TileRawChannelBuilderOpt2 to be used
-    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
-                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
-                                                      , PedestalMode = 1
-                                                      , Minus1Iteration = TRUE
-                                                      , calibrateEnergy = False
-                                                      , correctTime = False
-                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+    muRcvRawChannelBuilder = CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                                    , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                                    , PedestalMode = 1
+                                                                    , Minus1Iteration = TRUE
+                                                                    , calibrateEnergy = False
+                                                                    , correctTime = False
+                                                                    , TileCondToolOfc = muRcvOfc)
 
 
     # Set up TileRawChannelBuilderMF to be used
@@ -300,7 +300,7 @@ if doTileTMDBRawChannel:
 
     topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
                                               , TileDigitsContainer = 'MuRcvDigitsCnt'
-                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
+                                              , TileRawChannelBuilder = [ muRcvRawChannelBuilder ])
 
 #----------------
 # TileMonitoring

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwGap_v2.cxx,v 1.5 2009-04-25 17:57:01 ssnyder Exp $
 /**
  * @file  CaloSwGap_v2.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -33,14 +31,14 @@
 
 
 #include "CaloSwGap_v2.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/StatusCode.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 
 using xAOD::CaloCluster;
@@ -60,27 +58,6 @@ const double dphi = twopi / 64. ;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwGap_v2::CaloSwGap_v2 (const std::string& type,
-                            const std::string& name,
-                            const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{
-  declareConstant ("etamin_crack", m_etamin_crack);
-  declareConstant ("etamax_crack", m_etamax_crack);
-  declareConstant ("degree",       m_degree);
-  declareConstant ("correction",   m_correction);
-  declareConstant ("use_raw_eta",  m_use_raw_eta);
-
-  declareProperty ("cells_name",   m_cells_name = "AllCalo");
-}
-
-
-/**
  * @brief Standard Gaudi initialize method.
  */
 StatusCode CaloSwGap_v2::initialize()
@@ -93,7 +70,7 @@ StatusCode CaloSwGap_v2::initialize()
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -111,7 +88,7 @@ StatusCode CaloSwGap_v2::initialize()
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwGap_v2::makeTheCorrection (const EventContext& ctx,
+void CaloSwGap_v2::makeTheCorrection (const Context& myctx,
                                       CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
@@ -124,15 +101,15 @@ void CaloSwGap_v2::makeTheCorrection (const EventContext& ctx,
   //     and range checks.  However, the v2 corrections were derived
   //     using regular eta instead.
   float the_aeta;
-  if (m_use_raw_eta)
+  if (m_use_raw_eta(myctx))
     the_aeta = std::abs (adj_eta);
   else
     the_aeta = std::abs (eta);
 
-  if (the_aeta < m_etamin_crack || the_aeta > m_etamax_crack) 
+  if (the_aeta < m_etamin_crack(myctx) || the_aeta > m_etamax_crack(myctx))
     return; // no correction required
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
+  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, myctx.ctx());
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
@@ -161,10 +138,13 @@ void CaloSwGap_v2::makeTheCorrection (const EventContext& ctx,
     }
   }
 
+  const int degree = m_degree (myctx);
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+
   // Find the correction weights.
-  float a = interpolate (m_correction, the_aeta, m_degree, 1);
-  float alpha = interpolate (m_correction, the_aeta, m_degree, 2);
-  float offset = interpolate (m_correction, the_aeta, m_degree, 3);
+  float a = interpolate (correction, the_aeta, degree, 1);
+  float alpha = interpolate (correction, the_aeta, degree, 2);
+  float offset = interpolate (correction, the_aeta, degree, 3);
 
   // The correction is a weighted sum of calorimeter and scintillator energies.
   float ec = cluster->e();

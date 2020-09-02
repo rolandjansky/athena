@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GeoModel_SCT_GeometryManager_H
@@ -41,6 +41,7 @@ public:
 
   // To be passed to detector element.
   const InDetDD::SiCommonItems * commonItems() const;
+  void setCommonItems(const InDetDD::SiCommonItems* commonItems);
 
   const SCT_BarrelParameters          * barrelParameters() const;
   const SCT_BarrelModuleParameters    * barrelModuleParameters() const;
@@ -56,7 +57,7 @@ private:
 
   SCT_Options m_options;
   const SCT_GeoModelAthenaComps * m_athenaComps;
-  InDetDD::SiCommonItems * m_commonItems;
+  const InDetDD::SiCommonItems * m_commonItems;
   SCT_DataBase* m_rdb;
  
   std::unique_ptr<SCT_BarrelParameters> m_barrelParameters;

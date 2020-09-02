@@ -18,8 +18,6 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "CxxUtils/ubsan_suppress.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "TInterpreter.h"
 #include <iostream>
 #include <cassert>

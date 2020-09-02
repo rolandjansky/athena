@@ -13,7 +13,7 @@
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/FLOATassert.h"
@@ -22,6 +22,7 @@
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
@@ -99,9 +100,29 @@ void test1 (InDet::IInDetTrkInJetType& tool)
 
   std::vector<float> out = tool.trkTypeWgts (&tp, pv, j);
   assert( out.size() == 3 );
-  assert( Athena_test::isEqual (out[0], 0.0946472, 1e-5) );
-  assert( Athena_test::isEqual (out[1], 0.479743, 1e-5) );
-  assert( Athena_test::isEqual (out[2], 0.42561, 1e-5) );
+  assert( Athena_test::isEqual (out[0], 0.107339, 1e-5) );
+  assert( Athena_test::isEqual (out[1], 0.851263, 1e-5) );
+  assert( Athena_test::isEqual (out[2], 0.0413975, 1e-5) );
+
+  std::cout << "test1 is OK\n";
+}
+
+EventIDBase timestamp (int t)
+{
+  return EventIDBase (EventIDBase::UNDEFNUM,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      t);
+}
+
+
+EventIDBase runlbn (int run,
+                    int lbn)
+{
+  return EventIDBase (run,  // run
+                      EventIDBase::UNDEFEVT,  // event
+                      EventIDBase::UNDEFNUM,  // timestamp
+                      0,                      // ns offset
+                      lbn);
 }
 
 
@@ -110,14 +131,40 @@ int main()
   std::cout << "InDetVKalVxInJetTool/InDetTrkInJetType_test\n";
   CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   ISvcLocator* svcloc = nullptr;
-  Athena_test::initGaudi ("InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt", svcloc);
+  if (!Athena_test::initGaudi("InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt", svcloc)) {
+    return 1;
+  }
 
-  ServiceHandle<MagField::IMagFieldSvc> field ("MagField::AtlasFieldSvc/AtlasFieldSvc", "test");
-  Incident inc_br ("test", IncidentType::BeginRun);
-  dynamic_cast<IIncidentListener*>(&*field)->handle (inc_br);
+  
+  std::cout << "InDetVKalVxInJetTool/InDetTrkInJetType_test initGaudi \n";
+
+  
+  EventContext ctx;
+  ctx.setExtension (Atlas::ExtendedEventContext());
+  EventIDBase eid (1, 0, 0, 0, 20);
+  ctx.setEventID (eid);
+
+  Gaudi::Hive::setCurrentContext(ctx);
+  
+  Athena_test::DummyRCUSvc rcu;
+  DataObjID id ("fieldCondObj");
+  auto cc = std::make_unique<CondCont<AtlasFieldCacheCondObj> > (rcu, id);
+  const EventIDRange range (runlbn (1, 10), runlbn (1, 100));
+  assert( cc->insert (range, std::make_unique<AtlasFieldCacheCondObj>(), ctx).isSuccess() );
+
+  ServiceHandle<StoreGateSvc> conditionStore ("ConditionStore", "test");
+  assert( conditionStore->record (std::move (cc), "fieldCondObj") );
+
+    
+  std::cout << "InDetVKalVxInJetTool/InDetTrkInJetType_test record \n";
+
 
   ToolHandle<InDet::IInDetTrkInJetType> tool ("InDet::InDetTrkInJetType");
   assert( tool.retrieve().isSuccess() );
+  
+  
+  std::cout << "InDetVKalVxInJetTool/InDetTrkInJetType_test retrieve tool \n";
+
 
   test1 (*tool);
 

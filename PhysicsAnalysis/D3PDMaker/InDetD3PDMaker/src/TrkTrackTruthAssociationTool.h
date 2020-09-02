@@ -10,7 +10,7 @@
 
 // EDM include(s):
 #include "TrkTrack/Track.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 // D3PDMaker include(s):
 #include "D3PDMakerUtils/SingleAssociationTool.h"

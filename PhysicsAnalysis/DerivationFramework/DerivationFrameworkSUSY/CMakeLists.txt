@@ -1,48 +1,18 @@
-################################################################################
-# Package: DerivationFrameworkSUSY
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DerivationFrameworkSUSY )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODTruth
-                          PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          PRIVATE
-                          Control/AthenaKernel
-                          Event/xAOD/xAODAssociations
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          PhysicsAnalysis/CommonTools/ExpressionEvaluation
-                          PhysicsAnalysis/MCTruthClassifier )
 
 # External dependencies:
 find_package( CLHEP )
 
 # Component(s) in the package:
-atlas_add_library( DerivationFrameworkSUSYLib
-                   src/*.cxx
-                   PUBLIC_HEADERS DerivationFrameworkSUSY
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps xAODTruth RecoToolInterfaces ExpressionEvaluationLib MCTruthClassifierLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODAssociations xAODEventInfo xAODJet xAODTracking GaudiKernel )
-
 atlas_add_component( DerivationFrameworkSUSY
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps xAODTruth RecoToolInterfaces AthenaKernel xAODAssociations xAODEventInfo xAODJet xAODTracking GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib DerivationFrameworkSUSYLib )
+                     DEFINITIONS ${CLHEP_DEFINITIONS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel MCTruthClassifierLib RecoToolInterfaces xAODAssociations xAODEventInfo xAODJet xAODTracking xAODTruth )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-
-atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
-                POST_EXEC_SCRIPT nopost.sh )
-

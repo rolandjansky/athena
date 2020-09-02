@@ -12,7 +12,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 
@@ -39,7 +38,6 @@ namespace InDet
     : AthAlgTool(t,n,p)
     , m_trackSumTool("Trk::TrackSummaryTool", this)
     , m_extrapolator("Trk::Extrapolator", this)
-    , m_magFieldSvc("AtlasFieldSvc",n)
     , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool", this)
     , m_inDetTestBLayerTool("", this)
     , m_trackSumToolAvailable(true)
@@ -107,7 +105,6 @@ namespace InDet
     
     declareProperty("TrackSummaryTool"   , m_trackSumTool);
     declareProperty("Extrapolator"       , m_extrapolator);
-    declareProperty("MagFieldSvc", m_magFieldSvc);
     declareProperty("TrtDCCutTool"       , m_trtDCTool);
     declareProperty("InDetTestBLayerTool", m_inDetTestBLayerTool);
     
@@ -153,12 +150,10 @@ namespace InDet
     }else{
       m_trtDCTool.disable();
     }
-    ATH_CHECK(m_magFieldSvc.retrieve());
-    if(m_inDetTestBLayerTool.empty()){
-	    ATH_MSG_INFO(" The BLayerTool not specified, turning off cut. ");
-    } else {
-      ATH_CHECK( m_inDetTestBLayerTool.retrieve());
-    }
+
+    // Read handle for AtlasFieldCacheCondObj
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
     ATH_MSG_INFO("Using cuts on the number of Silicon hits");
     if(m_usePtDependentCuts) {
 	    //checking whether sizes of cuts and pt interval expressed in vectors match
@@ -688,7 +683,18 @@ namespace InDet
 
     const AmgVector(5)& perigeeParms = track->parameters();
     
-    if (m_magFieldSvc->solenoidOn()) {
+    // only check pt if mag. field is on
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return false;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (fieldCache.solenoidOn()){//B field
       if (perigeeParms[Trk::qOverP] == 0.) {
 	ATH_MSG_DEBUG("Track rejected because of qOverP == 0.");
 	return false;
@@ -1072,7 +1078,18 @@ namespace InDet
   {
     const AmgVector(5)& perigeeParms = myPerigee.parameters();
     
-    if (m_magFieldSvc->solenoidOn()) {
+    // only check pt if mag. field is on
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return false;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (fieldCache.solenoidOn()){//B field
       if (perigeeParms[Trk::qOverP] == 0.) {
 	ATH_MSG_DEBUG("Track rejected because of perigee qOverP == 0.");
 	return false;

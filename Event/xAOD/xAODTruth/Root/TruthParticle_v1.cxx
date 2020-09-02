@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthParticle_v1.cxx 690336 2015-08-20 10:54:57Z abuckley $
@@ -16,6 +16,9 @@
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
+
+// Accessor include:
+#include "AthContainers/AuxElement.h"
 
 // Local include(s):
 #include "xAODTruth/versions/TruthParticle_v1.h"
@@ -57,20 +60,20 @@ namespace xAOD {
 
    /// Accessor for the production vertex
    static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
-      prodVtxLinkAcc( "prodVtxLink" );
+      acc_prodVtxLink( "prodVtxLink" );
    /// Accessor for the decay vertex
    static const SG::AuxElement::Accessor< ElementLink< TruthVertexContainer > >
-      decayVtxLinkAcc( "decayVtxLink" );
+      acc_decayVtxLink( "decayVtxLink" );
 
    bool TruthParticle_v1::hasProdVtx() const {
 
-      return ( prodVtxLinkAcc.isAvailable( *this ) &&
-               prodVtxLinkAcc( *this ).isValid() );
+      return ( acc_prodVtxLink.isAvailable( *this ) &&
+               acc_prodVtxLink( *this ).isValid() );
    }
 
    const TruthVertex* TruthParticle_v1::prodVtx() const {
 
-      return hasProdVtx() ? *prodVtxLink() : 0;
+      return hasProdVtx() ? *prodVtxLink() : nullptr;
    }
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthParticle_v1,
@@ -79,13 +82,13 @@ namespace xAOD {
 
    bool TruthParticle_v1::hasDecayVtx() const {
 
-      return ( decayVtxLinkAcc.isAvailable( *this ) &&
-               decayVtxLinkAcc( *this ).isValid() );
+      return ( acc_decayVtxLink.isAvailable( *this ) &&
+               acc_decayVtxLink( *this ).isValid() );
    }
 
    const TruthVertex* TruthParticle_v1::decayVtx() const {
 
-      return hasDecayVtx() ? *decayVtxLink() : 0;
+      return hasDecayVtx() ? *decayVtxLink() : nullptr;
    }
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthParticle_v1,
@@ -100,24 +103,50 @@ namespace xAOD {
    //                 Direct access to parents and children
    //
 
-   size_t TruthParticle_v1::nParents() const {
+   // Accessor for links to parents
+   static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      acc_parentLinks( "parentLinks" );
+   // Accessor for links to children
+   static const SG::AuxElement::ConstAccessor< std::vector<ElementLink<xAOD::TruthParticleContainer> > >
+      acc_childLinks( "childLinks" );
+   // Note that in some conditions the vertex might be saved in a different collection from
+   // the daughters, causing the vertex to not know how many children or parents the particle has.
+   // An extra test lets us ensure that we avoid this case.
 
-      return hasProdVtx() ? prodVtx()->nIncomingParticles() : 0;
+   size_t TruthParticle_v1::nParents() const {
+      if (hasProdVtx() && prodVtx()->nIncomingParticles()>0){
+        return prodVtx()->nIncomingParticles();
+      } else if ( acc_parentLinks.isAvailable( *this ) ) {
+        return acc_parentLinks( *this ).size();
+      }
+      return 0;
    }
 
    const TruthParticle_v1* TruthParticle_v1::parent( size_t i ) const {
-
-      return hasProdVtx() ? prodVtx()->incomingParticle( i ) : 0;
+      if (hasProdVtx() && prodVtx()->nIncomingParticles()>0){
+        return prodVtx()->incomingParticle( i );
+      } else if ( acc_parentLinks.isAvailable( *this ) && i<acc_parentLinks( *this ).size() ) {
+        return acc_parentLinks( *this )[i].isValid() ? *(acc_parentLinks( *this )[i]) : nullptr;
+      }
+      return nullptr;
    }
 
    size_t TruthParticle_v1::nChildren() const {
-
-      return hasDecayVtx() ? decayVtx()->nOutgoingParticles() : 0;
+      if (hasDecayVtx() && decayVtx()->nOutgoingParticles()>0){
+        return decayVtx()->nOutgoingParticles();
+      } else if ( acc_childLinks.isAvailable( *this ) ) {
+        return acc_childLinks( *this ).size();
+      }
+      return 0;
    }
 
    const TruthParticle_v1* TruthParticle_v1::child( size_t i ) const {
-
-      return hasDecayVtx() ? decayVtx()->outgoingParticle( i ) : 0;
+      if (hasDecayVtx() && decayVtx()->nOutgoingParticles()>0){
+        return decayVtx()->outgoingParticle( i );
+      } else if ( acc_childLinks.isAvailable( *this ) && i<acc_childLinks( *this ).size() ) {
+        return acc_childLinks( *this )[i].isValid() ? *(acc_childLinks( *this )[i]) : nullptr;
+      }
+      return nullptr;
    }
 
    //
@@ -273,6 +302,7 @@ namespace xAOD {
    MC_PID_HELPER( bool, isHiggs )
    MC_PID_HELPER( bool, isResonance )
    MC_PID_HELPER( bool, isGenSpecific )
+   MC_PID_HELPER( bool, isBSM )
 
 // Forget about this macro:
 #undef MC_PID_HELPER
@@ -326,7 +356,7 @@ namespace xAOD {
       return true;
    }
 
-   float TruthParticle_v1::polarizationPatameter( PolParam param ) const {
+   float TruthParticle_v1::polarizationParameter( PolParam param ) const {
 
       // Get the accessor object:
       const Accessor< float >* acc = polarizationAccessorV1( param );
@@ -355,11 +385,11 @@ namespace xAOD {
 
    void TruthParticle_v1::toPersistent() {
 
-      if( prodVtxLinkAcc.isAvailableWritable( *this ) ) {
-         prodVtxLinkAcc( *this ).toPersistent();
+      if( acc_prodVtxLink.isAvailableWritable( *this ) ) {
+         acc_prodVtxLink( *this ).toPersistent();
       }
-      if( decayVtxLinkAcc.isAvailableWritable( *this ) ) {
-         decayVtxLinkAcc( *this ).toPersistent();
+      if( acc_decayVtxLink.isAvailableWritable( *this ) ) {
+         acc_decayVtxLink( *this ).toPersistent();
       }
       return;
    }

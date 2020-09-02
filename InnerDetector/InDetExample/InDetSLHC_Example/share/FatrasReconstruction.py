@@ -52,8 +52,6 @@ class FatrasReconstruction :
       # --- setup InDetFlags according to InDetFlagsJobProperty
       from InDetRecExample.InDetJobProperties import InDetFlags
       # the different pattern components
-      InDetFlags.doxKalman       = False
-      InDetFlags.doiPatRec       = False
       InDetFlags.doNewTracking   = True
       InDetFlags.doBackTracking  = True
       InDetFlags.doTruth         = True

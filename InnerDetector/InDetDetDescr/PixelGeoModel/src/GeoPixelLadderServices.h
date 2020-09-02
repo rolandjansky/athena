@@ -12,7 +12,7 @@
 class GeoLogVol;
 class GeoPhysVol;
 
-class GeoPixelLadderServices : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelLadderServices : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelLadderServices(int ladderType);
   virtual ~GeoPixelLadderServices();

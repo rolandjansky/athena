@@ -222,7 +222,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
             endItr = partToEndVtx.end();
           p != endItr;
           ++p ) {
-      auto decayVtx = genEvt->barcode_to_vertex( p->second );
+      auto decayVtx = HepMC::barcode_to_vertex(genEvt, p->second );
       if ( decayVtx ) {
         decayVtx->add_particle_in( p->first );
       } else {
@@ -373,16 +373,16 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
 // Protected methods:
 ///////////////////////////////////////////////////////////////////
 
-HepMC::GenVertex*
+HepMC::GenVertexPtr
 McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
                                           const GenVertex_p5& persVtx,
                                           ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools
                                           ) const
 {
   DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
-  HepMC::GenVertex * vtx(0);
+  HepMC::GenVertexPtr vtx(0);
   if(m_isPileup) {
-    vtx=new HepMC::GenVertex();
+    vtx=HepMC::newGenVertexPtr();
   } else {
     vtx = poolOfVertices.nextElementPtr();
   }
@@ -418,18 +418,14 @@ McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
   return vtx;
 }
 
-HepMC::GenParticle*
+HepMC::GenParticlePtr
 McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
                                             ParticlesMap_t& partToEndVtx, HepMC::DataPool* datapools ) const
 {
-  using std::abs;
-  using std::sqrt;
-  using std::pow;
-
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
-  HepMC::GenParticle* p(0);
+  HepMC::GenParticlePtr p(0);
   if (m_isPileup) {
-    p = new HepMC::GenParticle();
+    p = HepMC::newGenParticlePtr();
   } else {
     p    = poolOfParticles.nextElementPtr();
   }
@@ -456,7 +452,7 @@ McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
     p->m_momentum.setPx( persPart.m_px);
     p->m_momentum.setPy( persPart.m_py);
     p->m_momentum.setPz( persPart.m_pz);
-    double temp_e = sqrt( (long double)(persPart.m_px)*persPart.m_px +
+    double temp_e = std::sqrt( (long double)(persPart.m_px)*persPart.m_px +
                           (long double)(persPart.m_py)*persPart.m_py +
                           (long double)(persPart.m_pz)*persPart.m_pz +
                           (long double)(persPart.m_m) *persPart.m_m );
@@ -464,7 +460,7 @@ McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
   } else {
     const int signM2 = ( persPart.m_m >= 0. ? 1 : -1 );
     const double persPart_ene =
-      sqrt( abs((long double)(persPart.m_px)*persPart.m_px +
+      std::sqrt( std::abs((long double)(persPart.m_px)*persPart.m_px +
                 (long double)(persPart.m_py)*persPart.m_py +
                 (long double)(persPart.m_pz)*persPart.m_pz +
                 signM2* (long double)(persPart.m_m)* persPart.m_m));
@@ -506,9 +502,9 @@ void McEventCollectionCnv_p5::writeGenVertex( const HepMC::GenVertex& vtx,
   GenVertex_p5& persVtx = persEvt.m_genVertices.back();
 
   // we write only the orphans in-coming particles
-  const std::vector<HepMC::GenParticle*>::const_iterator endInVtx = vtx.m_particles_in.end();
+  const std::vector<HepMC::GenParticlePtr>::const_iterator endInVtx = vtx.m_particles_in.end();
   persVtx.m_particlesIn.reserve(vtx.m_particles_in.size());
-  for ( std::vector<HepMC::GenParticle*>::const_iterator p = vtx.m_particles_in.begin();
+  for ( std::vector<HepMC::GenParticlePtr>::const_iterator p = vtx.m_particles_in.begin();
         p != endInVtx;
         ++p ) {
     if ( 0 == (*p)->production_vertex() ) {
@@ -516,9 +512,9 @@ void McEventCollectionCnv_p5::writeGenVertex( const HepMC::GenVertex& vtx,
     }
   }
 
-  const std::vector<HepMC::GenParticle*>::const_iterator endOutVtx = vtx.m_particles_out.end();
+  const std::vector<HepMC::GenParticlePtr>::const_iterator endOutVtx = vtx.m_particles_out.end();
   persVtx.m_particlesOut.reserve(vtx.m_particles_out.size());
-  for ( std::vector<HepMC::GenParticle*>::const_iterator p = vtx.m_particles_out.begin();
+  for ( std::vector<HepMC::GenParticlePtr>::const_iterator p = vtx.m_particles_out.begin();
         p != endOutVtx;
         ++p ) {
     persVtx.m_particlesOut.push_back( writeGenParticle( **p, persEvt ) );
@@ -530,7 +526,6 @@ void McEventCollectionCnv_p5::writeGenVertex( const HepMC::GenVertex& vtx,
 int McEventCollectionCnv_p5::writeGenParticle( const HepMC::GenParticle& p,
                                                McEventCollection_p5& persEvt ) const
 {
-  using std::abs;
   const HepMC::FourVector& mom = p.m_momentum;
   const double ene = mom.e();
   const double m2  = mom.m2();
@@ -538,7 +533,7 @@ int McEventCollectionCnv_p5::writeGenParticle( const HepMC::GenParticle& p,
   // Definitions of Bool isTimeLilike, isSpacelike and isLightlike according to HepLorentzVector definition
   const bool useP2M2 = !(m2 > 0) &&   // !isTimelike
     (m2 < 0) &&   //  isSpacelike
-    !(abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
+    !(std::abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
 
   //  const bool useP2M2 = !isTimelike () &&
   //                        mom.isSpacelike() &&

@@ -4,40 +4,34 @@
 
 #include "RPC_CondCabling/RpcCablingCondAlg.h"
 
-
 RpcCablingCondAlg::RpcCablingCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_ConfMapPString(nullptr),
   m_MaxType(0),
-  m_SectorMap{0},
+  m_SectorMap(),
   m_Version(""),
   m_condSvc("CondSvc",name)
 {
   declareProperty( "CosmicConfiguration", m_cosmic_configuration=false );
-  declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true,
-      "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
-  // declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=false)
+  declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true, "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
   declareProperty("ForceFeetPadThresholdsFromJO", m_ForceFeetPadThresholdsFromJO=false, "JO override db setting"); 
 }
 
 StatusCode RpcCablingCondAlg::initialize() {
 
   ATH_MSG_DEBUG( "initializing" << name() );
-  // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
-  // Read CondHandles
   ATH_CHECK( m_readKey_map_schema.initialize() );
   ATH_CHECK( m_readKey_map_schema_corr.initialize() );
   ATH_CHECK( m_readKey_cm_thr_eta.initialize() );
   ATH_CHECK( m_readKey_cm_thr_phi.initialize() );
-  // Register write CondHandle
   ATH_CHECK( m_writeKey.initialize() );
   if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
     ATH_MSG_ERROR("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-
   ATH_CHECK(m_idHelperSvc.retrieve());
+  RDOindex::setRpcIdHelper(&m_idHelperSvc->rpcIdHelper());
 
   return StatusCode::SUCCESS;
 }
@@ -259,8 +253,10 @@ StatusCode RpcCablingCondAlg::ReadConf()
   ATH_MSG_DEBUG("--- ReadConf: map has size " << m_ConfMapPString->size() );
   ATH_MSG_DEBUG("--- ReadConf: m_MaxType of types is " << m_MaxType );
   
-  if(m_ConfMapPString==nullptr) 
+  if(!m_ConfMapPString) {
+    ATH_MSG_ERROR("Pointer to cabling map not set");
     return StatusCode::FAILURE;
+  }
 
   std::stringstream MAP;
   MAP.str(*m_ConfMapPString);
@@ -500,7 +496,10 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     ++hashID;
     // get pointer to RDOindex class
     writeCdo->m_HashVec.push_back(pRDOindex);
-    if( writeCdo->m_HashVec.size() != pRDOindex->hash()+1 ) return StatusCode::FAILURE;
+    if( writeCdo->m_HashVec.size() != pRDOindex->hash()+1 ) {
+      ATH_MSG_ERROR("Size of hash vector and RDO hash does not match");
+      return StatusCode::FAILURE;
+    }
 
     // calculate  m_fullListOfRobIds
     const unsigned short int rob_id = pRDOindex->ROBid();
@@ -522,12 +521,24 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     Identifier id;
     pRDOindex->pad_identifier( id );
 
+    //build the offline_id vector
+    writeCdo->m_offline_id[sub_id_index][sec_id][pad_id] = id;
+
     // build the map
     std::pair < RpcCablingCondData::OfflineOnlineMap::iterator, bool> ins = writeCdo->m_RDOmap.insert( RpcCablingCondData::OfflineOnlineMap::value_type(id,pRDOindex));
     ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<< m_idHelperSvc ->rpcIdHelper().show_to_string(id) << 
                   "hash of the RDOindex (key) = " << pRDOindex->hash());
-    if(!ins.second) return StatusCode::FAILURE;
+    if(!ins.second) {
+      ATH_MSG_ERROR("RpcCablingCondData::OfflineOnlineMap is false for value "<< m_idHelperSvc->rpcIdHelper().show_to_string(id) << " and hash of the RDOindex (key) = " << pRDOindex->hash());
+      return StatusCode::FAILURE;
+    }
 
+    //build the ROB->RDO map
+    std::pair<std::set<IdentifierHash>::iterator, bool> insert_ROB_RDO_returnVal = writeCdo->m_ROB_RDO_map[ROB_ID].insert(IdentifierHash(pRDOindex->hash()));
+    if (insert_ROB_RDO_returnVal.second)
+      ATH_MSG_DEBUG("A new RDO HashId = " << pRDOindex->hash() << " registered for ROB Id = " << ROB_ID);
+    else
+      ATH_MSG_VERBOSE("The RDO HashId = " << pRDOindex->hash() << " was already registered for ROB Id = " << ROB_ID);
 
     //build the PRD->RDO and PRD->ROB maps
     ATH_MSG_VERBOSE("Looking for PRDs corresponding to this RDO");
@@ -606,7 +617,6 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     // -----  Initialization of Pad configuration ------ //
     if (m_ApplyFeetPadThresholds) {
       // if using COOL check the existence of a PAD not existing in run-1 cabling
-      Identifier offline_id;
       // if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
       //   ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
       // }else{
@@ -682,28 +692,27 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
 
   // record
   if (writeCdo->m_RDOs.empty()) {
-    ATH_MSG_DEBUG("Could not read any map configuration");
+    ATH_MSG_ERROR("Could not read any map configuration");
     return StatusCode::FAILURE;
   }
   if (writeCdo->m_HashVec.empty()) {
-    ATH_MSG_DEBUG("Could not read any HashID");
+    ATH_MSG_ERROR("Could not read any HashID");
     return StatusCode::FAILURE;
   }
   if (writeCdo->m_SectorType.empty()) {
-    ATH_MSG_DEBUG("Could not read any m_SectorMap");
+    ATH_MSG_ERROR("Could not read any m_SectorMap");
     return StatusCode::FAILURE;
   }
   if (writeCdo->m_int2id.empty()) {
-    ATH_MSG_DEBUG("Could not read any HashID");
+    ATH_MSG_ERROR("Could not read any HashID");
     return StatusCode::FAILURE;
   }
   if (writeCdo->m_lookup.empty()) {
-    ATH_MSG_DEBUG("Could not read any HashID");
+    ATH_MSG_ERROR("Could not read any HashID");
     return StatusCode::FAILURE;
   }
-
   if (writeCdo->m_fullListOfRobIds.empty()) {
-    ATH_MSG_DEBUG("Could not read any HashID");
+    ATH_MSG_ERROR("Could not read any HashID");
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

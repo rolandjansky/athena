@@ -30,7 +30,7 @@ class SeedPtMin(JobProperty):
     """
     statusOn     = True
     allowedTypes = ['float']
-    StoredValue  = 20*Units.GeV
+    StoredValue  = 25*Units.GeV
 
 class RecoOutputPtMin(JobProperty):
     """ Minimum pT for seeds after iteration
@@ -62,7 +62,14 @@ class ApplyOriginCorrection(JobProperty):
     StoredValue  = True
 
 class ApplyEtaJESCalibration(JobProperty):
-    """ Option to apply MC-derived calibration 
+    """ Option to apply MC-derived calibration
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class ApplyTowerEtaPhiCorrection(JobProperty):
+    """ Option to apply MC-derived calibration
     """
     statusOn     = True
     allowedTypes = ['bool']
@@ -93,17 +100,17 @@ class AntiKtRValues(JobProperty):
 class DoCellBasedSubtraction(JobProperty):
     """ option to use cell based subtraction
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class HarmonicsForSubtraction(JobProperty):
     """ List of flow harmonics applied to jet subtraction
     """
     statusOn     = True
     allowedTypes = ['list']
-    #StoredValue  = [2,3,4]
-    StoredValue  = []
+    StoredValue  = [2,3,4]
+    #StoredValue  = []
 
 class ModulationScheme(JobProperty):
     """ 1, 2 or 3 correspond to total calo, total calo w/ fcal phase, fcal only
@@ -129,9 +136,9 @@ class ExtraFlowMoments(JobProperty):
 class DoHIBTagging(JobProperty):
     """ Perform b-tagging over HI jet collections
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 
 class HIClusterKey(JobProperty):
@@ -157,7 +164,7 @@ class TruthJetPtMin(JobProperty):
 
 class TrackInputPtMin(JobProperty):
     """ Minimum track pT used in track jet finding
-xo    """
+    """
     statusOn     = True
     allowedTypes = ['float']
     StoredValue  = 4*Units.GeV
@@ -179,9 +186,9 @@ class TrackJetContainerName(JobProperty):
 class TrackJetSeeds(JobProperty):
     """ Flag to control whether track jets are used as seeds in addition to calo jets
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class HIJetOutputList(JobProperty):
     """ List of items to be written to AOD, initially empty but filled based on configuration
@@ -236,11 +243,16 @@ class HIJetRecFlags(JobPropertyContainer):
     """ The HIJetRec property container.
     """
     pass
-
-# add the flags container to the top container 
+class TWConfigFile(JobProperty):
+    """ Name of main track jets used in iteration and ghost matching
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'cluster.geo.HIJING_2018.root'
+# add the flags container to the top container
 jobproperties.add_Container(HIJetRecFlags)
 
-# We want always the following flags in the container  
+# We want always the following flags in the container
 list_jobproperties = [UnsubtractedSuffix,
                       SeedSuffix,
                       SeedRValue,
@@ -272,7 +284,9 @@ list_jobproperties = [UnsubtractedSuffix,
                       WriteUnsubtracted,
                       WriteSeeds,
                       UseHITracks,
-                      MomentsSkipped
+                      MomentsSkipped,
+                      TWConfigFile,
+                      ApplyTowerEtaPhiCorrection
                       ]
 
 for i in list_jobproperties:

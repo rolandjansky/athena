@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ComboHypo.h"
+#include "DecisionHandling/ComboHypo.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -57,12 +57,14 @@ StatusCode ComboHypo::initialize() {
   ATH_CHECK( m_multiplicitiesReqMap.size() != 0 );
 
   bool errorOccured = false;
-  for ( const auto& m : m_multiplicitiesReqMap ) {
-    if ( m.second.size() != maxMult )  {
-      errorOccured =  true;
-      ATH_MSG_ERROR( "Chain " << m.first 
-        << " configured with input multiplicity " << m.second.size() << " like this: " <<  m.second 
-        << " which is lower than for this chain " << maxMultEl->first <<  " " << maxMult);
+  if (m_checkMultiplicityMap) {
+    for ( const auto& m : m_multiplicitiesReqMap ) {
+      if ( m.second.size() != maxMult )  {
+        errorOccured =  true;
+        ATH_MSG_ERROR( "Chain " << m.first
+          << " configured with input multiplicity " << m.second.size() << " like this: " << m.second
+          << " which is lower than for this chain " << maxMultEl->first << " " << maxMult);
+      }
     }
   }
 
@@ -118,8 +120,7 @@ StatusCode ComboHypo::copyDecisions(  const LegDecisionsMap & passingLegs, const
           }
         }
 
-        Decision* newDec = newDecisionIn( outDecisions );
-        linkToPrevious( newDec, inputDecision, context );
+        Decision* newDec = newDecisionIn( outDecisions, inputDecision, "CH", context );
         ATH_MSG_DEBUG("New decision (Container Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
 		      << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
 		      << " valid initialRoI, "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions and "<<finalIds.size()<<" decision IDs") ;   
@@ -274,14 +275,14 @@ StatusCode ComboHypo::extractFeatureAndRoI(const ElementLink<DecisionContainer>&
 {
   uint32_t featureClid = 0; // Note: Unused. We don't care what the type of the feature is here
   const bool result = (*dEL)->typelessGetObjectLink(featureString(), featureKey, featureClid, featureIndex);
-  if (!result) {
-    ATH_MSG_WARNING("Did not find the feature for " << dEL.dataID() << " index " << dEL.index());
-  }
   // Try and get seeding ROI data too. Don't need to be type-less here
   LinkInfo<TrigRoiDescriptorCollection> roiSeedLI = findLink<TrigRoiDescriptorCollection>((*dEL), initialRoIString());
   if (roiSeedLI.isValid()) {
     roiKey = roiSeedLI.link.key();
     roiIndex = roiSeedLI.link.index();
+  }
+  if (!result && !roiSeedLI.isValid()) {
+    ATH_MSG_WARNING("Did not find the feature or initialRoI for " << dEL.dataID() << " index " << dEL.index());
   }
   return StatusCode::SUCCESS;
 }

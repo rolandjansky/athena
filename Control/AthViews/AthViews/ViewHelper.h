@@ -202,8 +202,10 @@ namespace ViewHelper
         //Nothing to do for empty collections
         if ( queryHandle->size() == 0 )
         {
-          m_msg << MSG::DEBUG << "Empty collection " << queryHandle.key() <<" in a view " << inputView->name() <<endmsg;
-          continue;
+          if (m_msg.level() <= MSG::DEBUG) {
+            m_msg << MSG::DEBUG << "Empty collection " << queryHandle.key() <<" in a view " << inputView->name() <<endmsg;
+            continue;
+          }
         }
 
         //Merge the data
@@ -217,10 +219,16 @@ namespace ViewHelper
           //Add aux data for bookkeeping
           viewBookkeeper( *outputObject ) = inputView->getROI();
         }
-        m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
+
+        if (m_msg.level() <= MSG::DEBUG) {
+          m_msg << MSG::DEBUG << "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() << endmsg;
+        }
 
         //Declare remapping
-        m_sg->remap( ClassID_traits< DataVector< T > >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
+        m_sg->remap( ClassID_traits< DataVector< T > >::ID(),
+                     inputView->viewKey (queryHandle.name()),
+                     queryHandle.name(),
+                     offset );
         offset += queryHandle->size();
       }
 
@@ -269,7 +277,7 @@ namespace ViewHelper
   template<typename T>
   ElementLink<T> makeLink( const SG::View* view, const SG::ReadHandle<T>& handle, size_t index )
   {
-    return ElementLink<T>( view->name() + "_" + handle.key(), index );
+    return ElementLink<T>( view->viewKey (handle.key()), index );
   }
 
 } // EOF namspace ViewHelper

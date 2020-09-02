@@ -159,6 +159,9 @@ def test(model_file, tree_file, objective, tree_name='xgboost', ntests=10000, te
     if 'binary' in objective:
         logging.info("testing binary")
         return test_binary(bst, mva_utils, objective, ntests, test_file)
+    elif 'multi' in objective:
+        logging.info("testing multi-class")
+        return test_multiclass(bst,mva_utils, objective, ntests, test_file)
     else:
         logging.info("testing regression")
         return test_regression(bst, mva_utils, objective, ntests, test_file)
@@ -202,7 +205,6 @@ def test_regression(booster, mva_utils, objective, ntests=10000, test_file=None)
 def test_binary(booster, mva_utils, objective, ntests=10000, test_file=None):
     import numpy as np
     logging.info("Testing input features with binary classification")
-    print(test_file)
     if test_file is not None:
         data_input = np.load(test_file)
         logging.info("using as input %s inputs from file %s", len(data_input), test_file)
@@ -223,6 +225,44 @@ def test_binary(booster, mva_utils, objective, ntests=10000, test_file=None):
             input_values_vector.push_back(v)
         output_MVAUtils = mva_utils.GetClassification(input_values_vector)
         results_MVAUtils.append(output_MVAUtils)
+    logging.info("mvautils (not vectorized+overhead) timing = %s ms/input", (time.time() - start) * 1000 / len(data_input))
+
+    for input_values, output_xgb, output_MVAUtils in zip(data_input, results_xgboost, results_MVAUtils):
+        if not np.allclose(output_xgb, output_MVAUtils):
+            logging.info("output are different:"
+                         "mvautils: %s\n"
+                         "xgboost: %s\n"
+                         "inputs: %s", output_MVAUtils, output_xgb, input_values)
+            return False
+    return True
+
+def test_multiclass(booster, mva_utils, objective, ntests=10000, test_file=None):
+    import numpy as np
+    logging.info("using multiclass model")
+
+    if test_file is not None:
+        data_input = np.load(test_file)
+        logging.info("using as input %s inputs from file %s", len(data_input), test_file)
+    else:
+        logging.error("Please provide an input test file for testing")
+
+    start = time.time()
+    dTest = xgb.DMatrix(data_input)
+    results_xgboost = booster.predict(dTest)
+    ##Extract the number of classes from the python prediction
+    nclasses = results_xgboost.shape[1]
+    logging.info("xgboost (vectorized) timing = %s ms/input", (time.time() - start) * 1000 / len(data_input))
+
+    input_values_vector = ROOT.std.vector("float")()
+    results_MVAUtils = []
+    start = time.time()
+    for input_values in data_input:
+        input_values_vector.clear()
+        for v in input_values:
+            input_values_vector.push_back(v)
+        output_MVAUtils = mva_utils.GetMultiResponse(input_values_vector, nclasses)
+        results_MVAUtils.append(output_MVAUtils)
+
     logging.info("mvautils (not vectorized+overhead) timing = %s ms/input", (time.time() - start) * 1000 / len(data_input))
 
     for input_values, output_xgb, output_MVAUtils in zip(data_input, results_xgboost, results_MVAUtils):
@@ -262,13 +302,13 @@ if __name__ == "__main__":
     parser.add_argument('--no-test', action='store_true', help="don't run test (not suggested)")
     parser.add_argument('--ntests', type=int, default=1000, help="number of random test, default=1000")
     parser.add_argument('--test-file', type=str, help='numpy table')
-    parser.add_argument('--objective', type=str, help='Specify the learning task and the corresponding learning objective, currently support options: binary:logistic, reg:linear(squarederror)')
+    parser.add_argument('--objective', type=str, help='Specify the learning task and the corresponding learning objective, currently support options: binary:logistic, reg:linear(squarederror), multi:softprob')
 
     args = parser.parse_args()
     logging.info("converting input file %s to root file %s", args.input, args.output)
 
-    #  'reg:linear'is been named as 'reg:squarederror' in newer version of xgboost (> 0.90) 
-    supported_objective = ['binary:logistic', 'reg:linear', 'reg:squarederror']
+    #  'reg:linear'is been named as 'reg:squarederror' in newer version of xgboost (> 0.90)
+    supported_objective = ['binary:logistic', 'reg:linear', 'reg:squarederror','multi:softprob']
 
     if args.objective not in supported_objective:
         parser.error('''
@@ -276,6 +316,7 @@ if __name__ == "__main__":
                      Only the following objectives are supported and tested:
                      - binary:logistic
                      - reg:linear(or squarederror)
+                     - multi:softprob
                      ''')
 
     if not args.input:
@@ -290,6 +331,8 @@ if __name__ == "__main__":
         print("model has not been tested. Do not use it production!")
     else:
         logging.info("testing model")
+        if not args.test_file:
+            parser.error("Attempting to do test but no test file was provided, pass this with '--test-file <test_file> or use option '--no_test' ")
         if not check_file(args.output):
             print("problem when checking file")
         result = test(args.input, args.output, args.objective, args.tree_name, args.ntests, args.test_file)
@@ -328,3 +371,17 @@ MVAUtils::BDT my_bdt(tree);
 // ...
 float output = my_bdt.Predict(input_values);
                 ''' % (args.output, output_treename, len(data[0])))
+            elif "multi" in objective:
+                print('''In c++ use your BDT as:
+#include "MVAUtils/BDT.h"
+
+TFile* f = TFile::Open("%s");
+TTree* tree = nullptr;
+f->GetObject("%s", tree);
+MVAUtils::BDT my_bdt(tree);
+// ...
+// std::vector<float> input_values(%d, 0.);
+// fill the vector using the order as in the trainig
+// ...
+float output = my_bdt.GetMultiResponse(input_values, nclasses);
+''' % (args.output, output_treename, len(data[0])))

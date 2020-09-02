@@ -3,14 +3,14 @@
 # Declare the package name.
 atlas_subdir( TrkVertexFitters )
 
-# Component(s) in the package.
+#Component(s) in the package.
 atlas_add_library( TrkVertexFittersLib
    TrkVertexFitters/*.h src/*.h src/*.cxx
    PUBLIC_HEADERS TrkVertexFitters
    LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel TrkParameters
    TrkParametersBase TrkParticleBase TrkVertexFitterInterfaces
    PRIVATE_LINK_LIBRARIES VxVertex TrkSurfaces TrkLinks TrkTrack VxMultiVertex
-   TrkExInterfaces TestTools )
+   TrkExInterfaces TestTools CxxUtils)
 
 atlas_add_component( TrkVertexFitters
    src/components/*.cxx

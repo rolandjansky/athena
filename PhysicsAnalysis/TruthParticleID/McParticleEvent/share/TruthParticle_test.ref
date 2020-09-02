@@ -27,6 +27,7 @@ ApplicationMgr Ready
 Build test data...
 Launching tests...
 JobIDSvc             INFO Initializing JobIDSvc - package version AthenaServices-00-00-00
+HepMcParticleLink    INFO find_proxy: Using GEN_AOD as McEventCollection key for this job 
 indices[0]= 0
 child[0]= 24	24
 child[1]= 5	5

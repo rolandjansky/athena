@@ -36,6 +36,7 @@
 #include <TBufferJSON.h>
 #include <TString.h>
 #include <TEfficiency.h>
+#include "TPluginManager.h"
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -80,6 +81,11 @@ HanOutputFile()
   , m_style(0)
 {
   clearData();
+  TPluginHandler* h;
+  if ((h = gROOT->GetPluginManager()->FindHandler("TVirtualPS", "image"))) {
+    if (h->LoadPlugin() == -1) return;
+    h->ExecPlugin(0);
+  }
 }
 
 
@@ -90,6 +96,11 @@ HanOutputFile( std::string fileName )
 {
   clearData();
   setFile( fileName );
+  TPluginHandler* h;
+  if ((h = gROOT->GetPluginManager()->FindHandler("TVirtualPS", "image"))) {
+    if (h->LoadPlugin() == -1) return;
+    h->ExecPlugin(0);
+  }
 }
 
 
@@ -1524,7 +1535,8 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   }
 
 
-  std::string rv(x, y);
+  std::string rv;
+  if (cnvsType & GENERATE_PNG) { rv.assign(x, y); };
   std::pair<std::string,std::string>rvPair{rv,json};
 
   delete img;
@@ -2773,8 +2785,6 @@ writeToFile(std::string fname ,std::string content)
 void HanOutputFile::
 convertToGraphics(int cnvsType, TCanvas* myC,std::string &json, TImage *img,char **x, int *y)
 {
-    int GENERATE_PNG        = 1; // Make PNG with TImage
-    int GENERATE_JSON       = 2; // Make JSON
     if (cnvsType & GENERATE_PNG) 
     {
         if(img) getImageBuffer(img,myC,x,y);
@@ -2788,8 +2798,6 @@ convertToGraphics(int cnvsType, TCanvas* myC,std::string &json, TImage *img,char
 void HanOutputFile::
 convertToGraphics(int cnvsType, TCanvas* myC,std::string namePNG,std::string nameJSON)
 {
-    int GENERATE_PNG        = 1; // Make PNG with TImage
-    int GENERATE_JSON       = 2; // Make JSON
     if (cnvsType & GENERATE_PNG) 
     {
         myC->SaveAs(namePNG.c_str());
@@ -2804,9 +2812,6 @@ convertToGraphics(int cnvsType, TCanvas* myC,std::string namePNG,std::string nam
 bool HanOutputFile::
 saveFile(int cnvsType, std::string pngfName,std::string pngContent, std::string jsonfName, std::string jsonfContent)
 {
-    int GENERATE_PNG        = 1; // Make PNG with TImage
-    int GENERATE_JSON       = 2; // Make JSON
-
     bool png =false;
     bool json=false;
     if (cnvsType & GENERATE_PNG) 

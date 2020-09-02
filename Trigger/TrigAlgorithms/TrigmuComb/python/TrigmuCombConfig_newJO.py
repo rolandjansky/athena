@@ -64,7 +64,11 @@ def l2MuCombRecoCfg(flags):
     acc, alg = muCombCfg(flags)
     alg.L2StandAloneMuonContainerName=muFastInfo
     alg.L2CombinedMuonContainerName = muCombInfo
-    reco.addRecoAlg(alg)
+
+    muCombAcc = ComponentAccumulator()
+    muCombAcc.addEventAlgo(alg)
+
+    reco.mergeReco(muCombAcc)
     reco.merge(acc)
 
     return reco

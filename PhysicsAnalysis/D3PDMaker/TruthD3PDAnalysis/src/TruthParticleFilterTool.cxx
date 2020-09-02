@@ -14,8 +14,8 @@
 #include "TruthParticleFilterTool.h"
 #include "EventKernel/PdtPdg.h"
 #include "AthenaKernel/errorcheck.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "HepPID/ParticleIDMethods.hh"
 #include "GaudiKernel/SystemOfUnits.h"
 #include <algorithm>

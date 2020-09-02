@@ -11,14 +11,9 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "GeneratorObjects/McEventCollection.h"
-
-#include "AtlasHepMC/GenEvent.h"
-
+// ROOT
 #include "TFile.h"
 #include "TH1.h"
 #include "TString.h"
@@ -45,13 +40,10 @@
 #include "HepMCAnalysis_i/ParticleContentAnalysis.h"
 #include "HepMCAnalysis_i/PdfAnalysis.h"
 
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
+
 
 // ---------------------------------------------------------------------- 
-HepMCAnalysis::HepMCAnalysis(const string &name, ISvcLocator *pSvcLocator): 
+HepMCAnalysis::HepMCAnalysis(const std::string &name, ISvcLocator *pSvcLocator): 
     AthAlgorithm(name, pSvcLocator), m_histSvc("ITHistSvc", name)
 {
   declareProperty("McEventKey", m_key = "GEN_EVENT");
@@ -96,118 +88,105 @@ HepMCAnalysis::~HepMCAnalysis()
 }
 
 // ---------------------------------------------------------------------- 
-void HepMCAnalysis::MeVToGeV(HepMC::GenEvent *event)
-{
-  for (HepMC::GenEvent::particle_iterator p = event->particles_begin(); p != event->particles_end(); ++p) {
-    const HepMC::FourVector fv((*p)->momentum().px() / 1000.0,
-			       (*p)->momentum().py() / 1000.0,
-			       (*p)->momentum().pz() / 1000.0,
-			       (*p)->momentum().e() / 1000.0);
-    
-    (*p)->set_momentum(fv);
-  }
-}
-
-// ---------------------------------------------------------------------- 
 StatusCode HepMCAnalysis::initialize()
 {
   ATH_MSG_DEBUG("Initializing " << name() << "...");
   
   if (m_JetFinder) {
-    cout << "Adding module JetFinder" << endl;
+    std::cout << "Adding module JetFinder" << std::endl;
     m_jetfinder.push_back(new JetFinder);
   }
   
     // create analyses and initialize them
   if (m_JetAnalysis) {
-    cout << "Adding module JetAnalysis" << endl;
+    std::cout << "Adding module JetAnalysis" << std::endl;
     m_analysis.push_back(new JetAnalysis);
   }
 
   if (m_WplusJetAnalysis) {
-    cout << "Adding module WplusJetAnalysis" << endl;
+    std::cout << "Adding module WplusJetAnalysis" << std::endl;
     m_analysis.push_back(new WplusJetAnalysis);
   }
 
   if (m_ZAnalysis) {
-    cout << "Adding module ZAnalysis" << endl;
+    std::cout << "Adding module ZAnalysis" << std::endl;
     m_analysis.push_back(new ZAnalysis);
   }
   if (m_ZtautauAnalysis) {
-    cout << "Adding module ZtautauAnalysis" << endl;
+    std::cout << "Adding module ZtautauAnalysis" << std::endl;
     m_analysis.push_back(new ZtautauAnalysis);
   }
 
   if (m_WtaunuAnalysis) {
-    cout << "Adding module WtaunuAnalysis" << endl;
+    std::cout << "Adding module WtaunuAnalysis" << std::endl;
     m_analysis.push_back(new WtaunuAnalysis);
   }
 
   if (m_ttbarAnalysis) {
-    cout << "Adding module ttbarAnalysis" << endl;
+    std::cout << "Adding module ttbarAnalysis" << std::endl;
     m_analysis.push_back(new ttbarAnalysis);
   }
 
   if (m_bbbarAnalysis) {
-    cout << "Adding module bbbarAnalysis" << endl;
+    std::cout << "Adding module bbbarAnalysis" << std::endl;
     m_analysis.push_back(new bbbarAnalysis);
   }
 
   if (m_UEAnalysis) {
-    cout << "Adding module UEAnalysis" << endl;
+    std::cout << "Adding module UEAnalysis" << std::endl;
     m_analysis.push_back(new UEAnalysis);
   } 
    
   if (m_EtmissAnalysis) {
-    cout << "Adding module EtMissAnalysis" << endl;
+    std::cout << "Adding module EtMissAnalysis" << std::endl;
     m_analysis.push_back(new EtMissAnalysis);
   }
 
   if (m_ElasScatAnalysis) {
-    cout << "Adding module ElasScatAnalysis" << endl;
+    std::cout << "Adding module ElasScatAnalysis" << std::endl;
     m_analysis.push_back(new ElasScatAnalysis);
   }
 
   if (m_UserAnalysis) {
-    cout << "Adding module UserAnalysis" << endl;
+    std::cout << "Adding module UserAnalysis" << std::endl;
     m_analysis.push_back(new UserAnalysis);
   }
   ATH_MSG_DEBUG("Analyses added");
 
   if (m_LeptonJetAnalysis) {
-    cout << "Adding module LeptonJetAnalysis" << endl;
+    std::cout << "Adding module LeptonJetAnalysis" << std::endl;
     m_analysis.push_back(new LeptonJetAnalysis);
   }
   ATH_MSG_DEBUG("Analyses added");
 
   if (m_ParticleContentAnalysis) {
-    cout << "Adding module ParticleContentAnalysis" << endl;
+    std::cout << "Adding module ParticleContentAnalysis" << std::endl;
     m_analysis.push_back(new ParticleContentAnalysis);
   }
   ATH_MSG_DEBUG("Analyses added");
 
   if (m_PdfAnalysis) {
-    cout << "Adding module PdfAnalysis" << endl;
+    std::cout << "Adding module PdfAnalysis" << std::endl;
     m_analysis.push_back(new PdfAnalysis);
   }
   ATH_MSG_DEBUG("Analyses added");
 
 
-  for (vector<baseAnalysis*>::const_iterator i(m_jetfinder.begin()); i != m_jetfinder.end(); ++i) {
+  for (std::vector<baseAnalysis*>::const_iterator i(m_jetfinder.begin()); i != m_jetfinder.end(); ++i) {
     (*i)->Init(m_max_eta,m_min_pt);
     (*i)->InitJetFinder(m_jet_coneRadius,m_jet_overlapThreshold,m_jet_ptmin, m_lepton_ptmin, m_DeltaR_lepton_track);
   }
 
-  for (vector<baseAnalysis*>::const_iterator i(m_analysis.begin()); i != m_analysis.end(); ++i) {
+  for (std::vector<baseAnalysis*>::const_iterator i(m_analysis.begin()); i != m_analysis.end(); ++i) {
     (*i)->Init(m_max_eta,m_min_pt);
     (*i)->InitJetFinder(m_jet_coneRadius,m_jet_overlapThreshold,m_jet_ptmin, m_lepton_ptmin, m_DeltaR_lepton_track);
   }
 
   //TH1::SetDirectory(0) prevent histograms to be added to the list of histiograms of currently opened file (solve conflict with TestHepMC)
-  for ( vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) 
+  for ( std::vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) 
     {
-      vector<TH1D*> hists = (*ana)->Histograms();
-      for (vector<TH1D* >::iterator h = hists.begin(); h != hists.end(); h++)
+      std::vector<TH1D*> hists = (*ana)->Histograms();
+      for (std::vector<TH1D* >::iterator h = hists.begin(); h != hists.end(); h++)
 	(*h)->SetDirectory(0);
     }
 
@@ -225,6 +204,8 @@ StatusCode HepMCAnalysis::initialize()
   return StatusCode::SUCCESS;
 }
 
+StatusCode  GetRunEventNumber(AthAlgorithm*  a,int& runNumber,int& evtNumber,  const std::string im);
+StatusCode  GetEvents( AthAlgorithm* a, std::vector<HepMC::GenEvent*>& evts, const std::string km);
 // ---------------------------------------------------------------------- 
 StatusCode HepMCAnalysis::execute()
 {  
@@ -232,71 +213,32 @@ StatusCode HepMCAnalysis::execute()
 
   int runNumber = 0, evtNumber = 0;
 
-  // load event info
-  const EventInfo* mcInfoptr;
-  if ( evtStore()->retrieve( mcInfoptr, m_infokey ).isFailure() ) {
-    ATH_MSG_ERROR( "Could not retrieve EventInfo" );
-    return StatusCode::FAILURE;
-  
-  } else{
-    runNumber = mcInfoptr->event_ID()->run_number();
-    evtNumber = mcInfoptr->event_ID()->event_number();
-    ATH_MSG_DEBUG( "run: " << runNumber << " event: " << evtNumber );
-  }
-  ATH_MSG_DEBUG("Event info loaded");
-
-  // load HepMC info
-  const McEventCollection* mcCollptr;
-  if ( evtStore()->retrieve( mcCollptr, m_key ).isFailure() ) {
-    ATH_MSG_WARNING( "Could not retrieve McEventCollection" );
-    return StatusCode::SUCCESS;
-  
-  } else { 
-    ATH_MSG_DEBUG("HepMC info loaded");
-
-    // loop over all events in McEventCollection
-    for ( McEventCollection::const_iterator itr = mcCollptr->begin(); itr != mcCollptr->end(); ++itr ) {
-      // FIXME: This gets an object from SG, which we are not allowed to modify.
-      //        But we do modify it in MeVToGeV.
-      //        This needs to change.
-      //        Further, we need a non-const pointer to call the Process() and
-      //        ClearEvent() methods of baseAnalysis, although from a spot check,
-      //        it appears that these do not actually change the object.
-      //        If that is the case, then these interfaces should really be changed
-      //        to take a const pointer.
-      HepMC::GenEvent *evt = const_cast<HepMC::GenEvent*>(*itr);
-
-      // convert units 
-      MeVToGeV( evt );
-      
+  StatusCode  runeventnumber_statuscode =GetRunEventNumber(this,runNumber,evtNumber,m_infokey);
+  if (runeventnumber_statuscode==StatusCode::FAILURE) return StatusCode::FAILURE;
+  std::vector<HepMC::GenEvent*> evts;
+  StatusCode  events_statuscode=GetEvents(this,evts,m_key);
+  if (events_statuscode==StatusCode::FAILURE) return StatusCode::FAILURE;
+  for (auto evt: evts) {
       // call JetFinder
-      vector< fastjet::PseudoJet > inclusive_jets;
-      for ( vector< baseAnalysis* >::const_iterator i( m_jetfinder.begin() ); i != m_jetfinder.end(); ++i ) {
+      std::vector< fastjet::PseudoJet > inclusive_jets;
+      for ( std::vector< baseAnalysis* >::const_iterator i( m_jetfinder.begin() ); i != m_jetfinder.end(); ++i ) {
         inclusive_jets = (*i)->GetJet(evt);
       }
       ATH_MSG_DEBUG( "after jet finder" );
-
-//      int ret_all = true;
-      for ( vector< baseAnalysis* >::const_iterator analysis = m_analysis.begin(); analysis != m_analysis.end(); ++analysis ) {
+      for ( std::vector< baseAnalysis* >::const_iterator analysis = m_analysis.begin(); analysis != m_analysis.end(); ++analysis ) {
         (*analysis)->SetJet( &inclusive_jets );
-//        int ret = 
         (*analysis)->Process( evt );     // call analysis
-
-//        if ( !ret ) {
-//          ret_all = false;        
-// }
       }
       ATH_MSG_DEBUG("After process function");
 
       // delete jet object, missing Et etc.   
-      for ( vector<baseAnalysis*>::const_iterator i( m_jetfinder.begin() ); i != m_jetfinder.end(); ++i ) {
+      for ( std::vector<baseAnalysis*>::const_iterator i( m_jetfinder.begin() ); i != m_jetfinder.end(); ++i ) {
         (*i)->ClearEvent(evt);
       }
 
       ATH_MSG_DEBUG("After jetfinder mem cleanup");
     }
-  }
-
+  for (size_t i=0;i<evts.size();i++) delete evts[i];
   ATH_MSG_DEBUG("Successful execution");
   return StatusCode::SUCCESS;
 }
@@ -314,18 +256,18 @@ StatusCode HepMCAnalysis::finalize()
   }
 
   // average histograms
-  for ( vector< baseAnalysis* >::const_iterator analysis = m_analysis.begin(); analysis != m_analysis.end(); ++analysis ) {
+  for ( std::vector< baseAnalysis* >::const_iterator analysis = m_analysis.begin(); analysis != m_analysis.end(); ++analysis ) {
     (*analysis)->averagedHistograms();
   }
 
   // register histos with histogram service
   TH1D *hist = 0;
 
-  for ( vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) {
+  for ( std::vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) {
     while ( ( hist =(*ana)->popHisto() ) ) {
       TString histname("/hepmcanalysis/");
-      string name = hist->GetName();
-      string dir = name.substr(0, name.find("_"));
+      std::string name = hist->GetName();
+      std::string dir = name.substr(0, name.find("_"));
       histname += dir;
       histname += "/";
       histname += hist->GetName();
@@ -342,12 +284,12 @@ StatusCode HepMCAnalysis::finalize()
   ATH_MSG_INFO( "Histograms registered successfully" );
   
   // clean up analysis modules
-  for ( vector< baseAnalysis* >::const_iterator j = m_jetfinder.begin(); j != m_jetfinder.end(); ++j ) {
+  for ( std::vector< baseAnalysis* >::const_iterator j = m_jetfinder.begin(); j != m_jetfinder.end(); ++j ) {
     delete (*j);
   }
   m_jetfinder.clear();
 
-  for ( vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) {
+  for ( std::vector< baseAnalysis* >::const_iterator ana = m_analysis.begin(); ana != m_analysis.end(); ++ana ) {
     delete (*ana);
   }
   m_analysis.clear();

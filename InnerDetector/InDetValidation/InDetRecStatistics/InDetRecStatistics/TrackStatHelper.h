@@ -17,7 +17,7 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h" // needed by Trk::numberOfTrackSummaryTypes
 #include "TrkTrack/TrackCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"

@@ -25,9 +25,9 @@
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1ParticleData.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "TrackRecord/TrackRecordCollection.h"
@@ -445,8 +445,6 @@ bool TrackCollHandle_TruthTracks::load()
       itGenPart->second = 0;
     }
 
-//     if (!itHitList->first.isNonUniqueSecondary()) continue;//FIXME
-//    if (!itHitList->first.actualBarCode()==0) continue;//FIXME
     m_d->possiblyUpdateGUI();
 
     if (m_d->fixMomentumInfoInSimHits(p,itHitList->second))//Provide guesses for momentum in simhits that needs them (and deletes the rest).

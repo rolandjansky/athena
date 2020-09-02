@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -8,12 +8,13 @@
 
 #include <TApplication.h>
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCalibAlgs/PixelClusterOnTrackErrorPlot.h"
 #include "PixelConditionsData/PixelClusterOnTrackErrorData.h"
 
 using namespace PixelCalib;
 
-int main(int argc, char *argv[]){
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread usnafe PixelClusterOnTrackErrorPlot class is used.
 
 	TApplication myapp("application", 0 , 0);
 

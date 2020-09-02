@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SEGMENTINFO_H 
 #define SEGMENTINFO_H
 
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include <iostream>
 #include <map>
 
@@ -93,7 +95,10 @@ namespace MuonCalib{
        }
       }
 
-      if (barcodeMap.size()>1) { std::cout << " More than one barcode in segment " << barcodeMap.size() << std::endl;}
+      if (barcodeMap.size()>1) {
+        MsgStream log(Athena::getMessageSvc(),"TimedSegment");
+        log<<MSG::WARNING<<"More than one barcode in segment " << barcodeMap.size()<<endmsg;
+      }
 
       return bc;
     }

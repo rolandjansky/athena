@@ -12,8 +12,10 @@ AlgorithmTableConstructor::AlgorithmTableConstructor(const std::string& name) : 
   addExpectedHistogram("Time_perEvent");
   addExpectedHistogram("Time_perEventFractional");
   addExpectedHistogram("AlgCalls_perEvent");
+  addExpectedHistogram("RoIID_perCall");
+  addExpectedHistogram("InEventView_perCall");
 
-  getBaseEntry().addColumn("name", "Name", "Algorithm's name");
+  getBaseEntry().addColumn("name", "Name", "Algorithms name");
   getBaseEntry().addColumn("events", "Raw Active Events", "Raw underlying statistics on number of events processed with the alg active");
   getBaseEntry().addColumn("eventsWeighted", "Active Events", "Total weighted number of events with the alg active");
   getBaseEntry().addColumn("callsPerEvent", "Calls/Event", "Mean number of alg calls in events with one or more calls");
@@ -31,18 +33,18 @@ TableEntry AlgorithmTableConstructor::getTableEntry(const std::string name) {
   TableEntry tableEntry(getBaseEntry());
   getHistograms(name);
 
-  const float weightedEvents = hist("Time_perEvent")->Integral();
-  const float weightedCalls = histGetXWeightedIntegral("AlgCalls_perEvent", false);
+  const float weightedEvents = hist("AlgCalls_perEvent")->Integral(); // Filled once per event with event weight
+  const float weightedCalls = histGetXWeightedIntegral("AlgCalls_perEvent", /*isLog*/ false);
 
   tableEntry.setEntry("name", name);
-  tableEntry.setEntry("events", hist("Time_perEvent")->GetEntries());
+  tableEntry.setEntry("events", hist("AlgCalls_perEvent")->GetEntries());
   tableEntry.setEntry("eventsWeighted", weightedEvents);
   tableEntry.setEntry("callsPerEvent", hist("AlgCalls_perEvent")->GetMean());
   tableEntry.setEntry("callsSlow", hist("Time_perCall")->Integral( hist("Time_perCall")->FindBin(1000.), hist("Time_perCall")->GetNbinsX()));
-  tableEntry.setEntry("eventRate", weightedEvents); // Needs normalising
-  tableEntry.setEntry("callRate", weightedCalls); // Needs normalising
-  tableEntry.setEntry("totalTimeSec", histGetXWeightedIntegral("Time_perCall") * 1e-3);
-  tableEntry.setEntry("totalTimePerc", 0.0); // Needs post
+  tableEntry.setEntry("eventRate", weightedEvents); // Needs normalising in tablePostProcessing
+  tableEntry.setEntry("callRate", weightedCalls); // Needs normalising in tablePostProcessing
+  tableEntry.setEntry("totalTimeSec", histGetXWeightedIntegral("Time_perCall", /*isLog*/ true) * 1e-3);
+  //"totalTimePerc" is set in post
   tableEntry.setEntry("timePerCall", hist("Time_perCall")->GetMean());
   tableEntry.setEntry("timePerEvent", hist("Time_perEvent")->GetMean());
 

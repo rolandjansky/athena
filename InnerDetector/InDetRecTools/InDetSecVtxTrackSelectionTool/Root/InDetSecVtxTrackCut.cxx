@@ -89,14 +89,16 @@ StatusCode InDet::FuncSummaryValueCut<N>::initialize()
 template <size_t N>
 bool InDet::FuncSummaryValueCut<N>::result() const
 {
+  std::array<uint8_t,N> results; // member variable to store the results
+  
   for (size_t i=0; i<N; ++i) {
     if (!m_summaryAccessors[i]) {
       ATH_MSG_WARNING( "Track summary accessor not valid. Track will not pass this cut." );
       return false;
     }
-    m_results[i] = m_summaryAccessors[i]->getValue();
+    results[i] = m_summaryAccessors[i]->getValue();
   }
-  return m_func(m_results);
+  return m_func(results);
 }
 
 template class InDet::FuncSummaryValueCut<3>;

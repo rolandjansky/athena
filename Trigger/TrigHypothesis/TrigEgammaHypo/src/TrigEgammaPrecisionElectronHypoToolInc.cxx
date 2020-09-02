@@ -6,8 +6,9 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-
+#include "xAODPrimitives/IsolationType.h"
 #include "TrigEgammaPrecisionElectronHypoToolInc.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 
 
 using namespace TrigCompositeUtils;
@@ -37,6 +38,10 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "Retrieving egammaElectronLHTool..."  );
   CHECK( m_egammaElectronLHTool.retrieve() );
 
+  // Retrieving Luminosity info
+  ATH_MSG_DEBUG( "Retrieving luminosityCondData..."  );
+  ATH_CHECK( m_avgMuKey.initialize() );
+
   unsigned int nEtaBin = m_etabin.size();
   ATH_CHECK( m_eTthr.size() == nEtaBin-1 );
 
@@ -53,9 +58,14 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 TrigEgammaPrecisionElectronHypoToolInc::~TrigEgammaPrecisionElectronHypoToolInc(){}
 
 
-bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ) const {
+bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ctx) const {
 
   bool pass = false;
+
+  // Likelihood output
+   std::vector<float> lhval_monitored;
+  // Lumi monitoring
+   std::vector<double> avgmu_monitored;
 
   auto ET           = Monitored::Scalar( "Et_em"   , -1.0 );
   auto dEta         = Monitored::Scalar( "dEta", -1. ); 
@@ -63,11 +73,13 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
   auto monEta       = Monitored::Scalar( "Eta", -99. ); 
   auto monPhi       = Monitored::Scalar( "Phi", -99. );
-  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
+  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );
+  auto mon_lhval    = Monitored::Collection("LikelihoodRatio",   lhval_monitored);
+  auto mon_mu       = Monitored::Collection("mu",   avgmu_monitored);  
   auto monitorIt    = Monitored::Group( m_monTool, 
 					       dEta, dPhi, 
                                                etaBin, monEta,
-					       monPhi,PassedCuts);
+					       monPhi,PassedCuts,mon_lhval,mon_mu);
  // when leaving scope it will ship data to monTool
   PassedCuts = PassedCuts + 1; //got called (data in place)
 
@@ -147,16 +159,42 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   
  
 // This is the last step. So pass is going to be the result of LH
-  asg::AcceptData accept =  m_egammaElectronLHTool->accept(input.electron); 
-  pass = (bool) accept;
+
+  // get average luminosity information to calculate LH
+
+  float avg_mu = 0;
+  float lhval=0;
+  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_avgMuKey, ctx);
+  if(eventInfoDecor.isPresent()) {
+    avg_mu = eventInfoDecor(0);
+    ATH_MSG_DEBUG("Average mu " << avg_mu);
+    avgmu_monitored.push_back(avg_mu);
+    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron,avg_mu);
+    pass = (bool) accept;
+  
+    // Monitor the LH value
+    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron,avg_mu);
+    ATH_MSG_DEBUG("LHValue with avgmu " << lhval);
+    lhval_monitored.push_back(lhval);
+  }  
+  else{
+    ATH_MSG_WARNING("EventInfo decoration not available!");
+    asg::AcceptData accept =  m_egammaElectronLHTool->accept(ctx,input.electron);
+    pass = (bool) accept;
+    // Monitor the LH value
+    lhval=m_egammaElectronLHTool->calculate(ctx, input.electron);
+    ATH_MSG_DEBUG("LHValue without avgmu " << lhval);
+    lhval_monitored.push_back(lhval);
+  }
 
   ATH_MSG_DEBUG("AthenaLHSelectorTool: TAccept = " << pass);
-
+  
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+   float ptcone20(0), ptcone30(0), ptcone40(0), etcone20(0), etcone30(0), etcone40(0);
 
-    
+
   // variables based on HCAL
   // transverse energy in 1st scintillator of hadronic calorimeter/ET
   input.electron->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
@@ -189,6 +227,19 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   // E(+/-3)-E(+/-1)/E(+/-1)
   input.electron->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
 
+  input.electron->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+
+  input.electron->isolationValue(ptcone30, xAOD::Iso::ptcone30);
+
+  input.electron->isolationValue(ptcone40, xAOD::Iso::ptcone40);
+
+  input.electron->isolationValue(etcone20, xAOD::Iso::etcone20);
+
+  input.electron->isolationValue(etcone30, xAOD::Iso::etcone30);
+
+  input.electron->isolationValue(etcone40, xAOD::Iso::etcone40);
+
+  ATH_MSG_DEBUG(" electron Cluster Et "<<ET);
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
   ATH_MSG_DEBUG( "  e277   " << e277 ) ;
@@ -201,6 +252,15 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
   ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
+  ATH_MSG_DEBUG( " trackPT "<<input.electron->trackParticle()->pt());
+  ATH_MSG_DEBUG( " d0      "<<input.electron->trackParticle()->d0());
+  ATH_MSG_DEBUG( " z0      "<<input.electron->trackParticle()->z0());
+  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
 
 
   if ( !pass ){

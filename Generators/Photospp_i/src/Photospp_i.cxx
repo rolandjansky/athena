@@ -7,7 +7,14 @@
 
 #include "Photos/Photos.h"
 
+#ifdef HEPMC3
+#include "Photos/PhotosHepMC3Event.h"
+namespace Photospp {
+using PhotosHepMCEvent=PhotosHepMC3Event;
+}
+#else
 #include "Photos/PhotosHepMCEvent.h"
+#endif
 #include "Photos/Log.h"
 
 #include "GeneratorObjects/McEventCollection.h"

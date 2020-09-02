@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 Configuration database for ISF_SimulationSelectors
 Elmar Ritsch, 10/11/2014
@@ -12,6 +12,11 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getMuonGeant4Sele
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getProtonAFIIGeant4Selector"             , "ISF_ProtonAFIIGeant4Selector"            )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getProtonAFII_QS_Geant4Selector"         , "ISF_ProtonAFII_QS_Geant4Selector"        )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionAFIIGeant4Selector"               , "ISF_PionAFIIGeant4Selector"              )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionG4FastCaloGeant4Selector"         , "ISF_PionG4FastCaloGeant4Selector"        )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getProtonG4FastCaloGeant4Selector"       , "ISF_ProtonG4FastCaloGeant4Selector"      )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getNeutronG4FastCaloGeant4Selector"      , "ISF_NeutronG4FastCaloGeant4Selector"     )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getChargedKaonG4FastCaloGeant4Selector"  , "ISF_ChargedKaonG4FastCaloGeant4Selector" ) 
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getKLongG4FastCaloGeant4Selector"        , "ISF_KLongG4FastCaloGeant4Selector"       )  
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPionAFII_QS_Geant4Selector"           , "ISF_PionAFII_QS_Geant4Selector"          )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getChargedKaonAFIIGeant4Selector"        , "ISF_ChargedKaonAFIIGeant4Selector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getChargedKaonAFII_QS_Geant4Selector"    , "ISF_ChargedKaonAFII_QS_Geant4Selector"   )

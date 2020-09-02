@@ -7,19 +7,20 @@ import eformat
 from eformat import helper
 import logging
 import sys
+import re
 
 class Config:
   """Configuration options for this module"""
   firstLB = 1                 # first LB number
   incLB = 1                   # step-size to increment LB
-  eventsPerLB = 10            # events per LB
+  eventsPerLB = None          # events per LB
   runNumber = None            # modify run number if set
   bc_sec = None               # event timestamp
 
 class Store:
   """Global variables"""
   eventCounter = 0
-  currentLB = 0
+  currentLB = 1
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -27,11 +28,14 @@ log = logging.getLogger(__name__)
 def modify(event):
   from TrigByteStreamTools import CTPfragment
 
+  if Store.eventCounter==0:
+    Store.currentLB = Config.firstLB
+
   newevt = event if isinstance(event,eformat.write.FullEventFragment) else eformat.write.FullEventFragment(event)
   Store.eventCounter += 1
 
   if Config.eventsPerLB is not None:
-    Store.currentLB = Config.firstLB + (Store.eventCounter-1) // Config.eventsPerLB
+    Store.currentLB = Config.firstLB + Config.incLB*((Store.eventCounter-1) // Config.eventsPerLB)
 
     # Find CTP ROB
     ctp_robs = [rob for rob in newevt.children()
@@ -72,10 +76,11 @@ def main():
   parser.add_argument('--firstLB', type=int, default=1, help='first lumiblock number [%(default)s]')
   parser.add_argument('--incLB', type=int, default=1, help='increment steps for lumiblock number [%(default)s]')
   parser.add_argument('-t', '--timestamp', type=int, help='set timestamp in seconds [%(default)s]')
+  parser.add_argument('--removeRobs', metavar='PATTERN', type=str, help='regex for removing specific ROB IDs')
 
   args = parser.parse_args()
 
-  Config.firstLB = args.firstLB
+  Config.firstLB = Store.currentLB = args.firstLB
   Config.incLB = args.incLB
   Config.eventsPerLB = args.eventsPerLB
   Config.runNumber = args.runNumber
@@ -97,7 +102,10 @@ def main():
     if args.events>0 and i>args.events:
       break
     ro_event = modify(event)
-    rw_event = eformat.write.FullEventFragment(ro_event)
+    if args.removeRobs:
+      rw_event = eformat.write.FullEventFragment(ro_event, re.compile(args.removeRobs))
+    else:
+      rw_event = eformat.write.FullEventFragment(ro_event)
     ostr.write(rw_event)
 
   return

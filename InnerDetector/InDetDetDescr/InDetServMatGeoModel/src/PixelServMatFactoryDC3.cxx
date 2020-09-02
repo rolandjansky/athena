@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactoryDC3.h"
@@ -24,6 +24,9 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/SystemOfUnits.h"
+
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 #define SKIPCYLINDER 3
@@ -43,7 +46,7 @@ PixelServMatFactoryDC3::~PixelServMatFactoryDC3()
 
 
 //## Other Operations (implementation)
-void PixelServMatFactoryDC3::create(GeoPhysVol *mother)
+void PixelServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method is used.
 {
   msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg;
 

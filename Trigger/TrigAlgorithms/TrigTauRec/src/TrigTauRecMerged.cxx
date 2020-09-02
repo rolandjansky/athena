@@ -17,7 +17,7 @@
 //#include "GaudiKernel/IToolSvc.h"
 //#include "GaudiKernel/ListItem.h"
 //#include "GaudiKernel/StatusCode.h"
-//#include "GaudiKernel/Property.h"
+//#include "Gaudi/Property.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -691,10 +691,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   p_tau->setROIWord(roiDescriptor->roiWord());
   p_tau->setJet(theJetCollection, p_seed);
 
-  // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-  // can't we instead implement in the EDM a function to retrieve the track container of a tau?
-  setEmptyTauTrack(p_tau, pTrackContainer);
-
   if(p_seed->e()<=0) {
     ATH_MSG_DEBUG( "Roi: changing eta due to energy " << p_seed->e() );
     p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
@@ -724,7 +720,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
       processStatus = (*firstTool)->executeVertexFinder(*p_tau, RoIVxContainer ,RoITrackContainer);
     }
     else if ( (*firstTool)->type() == "TauTrackFinder") {
-      processStatus = (*firstTool)->executeTrackFinder(*p_tau, RoITrackContainer);
+      processStatus = (*firstTool)->executeTrackFinder(*p_tau, *pTrackContainer, RoITrackContainer);
     }
     else if ( (*firstTool)->type() == "TauVertexVariables" ) {
       processStatus = (*firstTool)->executeVertexVariables(*p_tau, *dummyVxCont);
@@ -1017,17 +1013,3 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
   // set status of TE to always true for FE algorithms
   return HLT::OK;
 }
-
-void TrigTauRecMerged::setEmptyTauTrack(xAOD::TauJet* &pTau,
-					xAOD::TauTrackContainer* &tauTrackContainer)
-{
-  // Make a new tau track, add to container
-  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
-  tauTrackContainer->push_back(pTrack);
-
-  // Create an element link for that track
-  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
-  pTau->addTauTrackLink(linkToTauTrack);
-}
-

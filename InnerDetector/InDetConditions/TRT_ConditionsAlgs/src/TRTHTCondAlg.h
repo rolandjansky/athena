@@ -10,7 +10,7 @@
 #include "TRT_ConditionsData/HTcalculator.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 
 class TRTHTCondAlg : public AthAlgorithm

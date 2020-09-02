@@ -27,6 +27,7 @@
 #include <fstream>
 
 //LWTNN
+#include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
 
 // XML reader
@@ -64,7 +65,7 @@ unsigned int TFCSEnergyAndHitGAN::get_nr_of_init(unsigned int bin) const
 
 void TFCSEnergyAndHitGAN::set_nr_of_init(unsigned int bin,unsigned int ninit)
 {
-  if(bin<=m_bin_ninit.size()) {
+  if(bin>=m_bin_ninit.size()) {
     m_bin_ninit.resize(bin+1,0);
     m_bin_ninit.shrink_to_fit();
   }
@@ -164,8 +165,13 @@ void TFCSEnergyAndHitGAN::GetBinning(int pid,int etaMid,std::string FastCaloGANI
                      
                      std::string name = "hist_pid_" + std::to_string(nodePid) + "_etaSliceNumber_" + std::to_string(EtaMaxList.size()) + "_layer_" + std::to_string(layer);
                      int xBins = edges.size()-1;
-                     if (xBins == 0) xBins = 1; //remove warning
+                     if (xBins == 0) {
+                       xBins = 1; //remove warning
+                       edges.push_back(0);
+                       edges.push_back(1);
+                     }  
                      binsInLayer[layer] = TH2D(name.c_str(), name.c_str(), xBins, &edges[0], binsInAlpha, -TMath::Pi(), TMath::Pi());
+                     binsInLayer[layer].SetDirectory(0);
                   }
                }
                
@@ -217,8 +223,12 @@ bool TFCSEnergyAndHitGAN::fillFastCaloGanNetworkInputs(TFCSSimulationState& simu
 bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol, NetworkInputs inputs) const
 {
   const int     pdgId    = truth->pdgid();
-  const double  charge   = HepPDT::ParticleID(pdgId).charge();
-  const double EKin = truth->Ekin();
+  const float   charge   = HepPDT::ParticleID(pdgId).charge();
+
+  float Einit;
+  const float Ekin = truth->Ekin();
+  if(OnlyScaleEnergy()) Einit=simulstate.E();
+   else Einit=Ekin;
 
   ATH_MSG_VERBOSE("Momentum " << truth->P() <<" pdgId " << truth->pdgid());
   
@@ -238,6 +248,16 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     int layer = element.first;
     simulstate.setAuxInfo<int>("GANlayer"_FCShash,layer);
     TFCSLateralShapeParametrizationHitBase::Hit hit;
+
+    TH2D* h = &element.second;
+    int xBinNum = h->GetNbinsX();
+    //If only one bin in r means layer is empty, no value should be added
+    if (xBinNum == 1) {
+        ATH_MSG_VERBOSE(" Layer "<< layer
+         << " has only one bin in r, this means is it not used, skipping (this is needed to keep correct syncronisation of voxel and layers)");
+        //delete h;
+        continue;
+    }
 
     if(get_number_of_bins()>0) {
       const int bin=get_bin(simulstate,truth,extrapol);
@@ -281,15 +301,6 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     int nHitsAlpha;
     int nHitsR;
 
-    TH2D* h = &element.second;
-    int xBinNum = h->GetNbinsX();
-    //If only one bin in r means layer is empty, no value should be added
-    if (xBinNum == 1) {
-        ATH_MSG_VERBOSE(" Layer "<< layer
-         << " has only one bin in r, this means is it not used, skipping (this is needed to keep correct syncronisation of voxel and layers)");
-        //delete h;
-        continue;
-    }
     int yBinNum = h->GetNbinsY();
     for (int iy = 1; iy <= yBinNum; ++iy){
       for (int ix = 1; ix <= xBinNum; ++ix){
@@ -304,7 +315,7 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
           continue;
         }
         
-        simulstate.add_E(layer,EKin*energyInVoxel);
+        simulstate.add_E(layer,Einit*energyInVoxel);
         
         TAxis* x = (TAxis*)h->GetXaxis();
         nHitsR = x->GetBinUpEdge(ix) - x->GetBinLowEdge(ix);
@@ -341,7 +352,7 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
             }
 
             hit.reset();
-            hit.E()=EKin*energyInVoxel/(nHitsAlpha*nHitsR);
+            hit.E()=Einit*energyInVoxel/(nHitsAlpha*nHitsR);
 
             if (layer <=20){
                float delta_eta_mm = r * cos(alpha);

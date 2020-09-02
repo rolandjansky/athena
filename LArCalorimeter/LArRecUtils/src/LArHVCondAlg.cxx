@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./LArHVCondAlg.h" 
@@ -89,11 +89,11 @@ StatusCode LArHVCondAlg::initialize(){
   ATH_CHECK( detStore()->retrieve(m_onlineID));
 
   // Read Handles
-  ATH_CHECK(m_pathologiesKey.initialize());
-  ATH_CHECK(m_DCSFolderKeys.initialize());
+  ATH_CHECK(m_pathologiesKey.initialize (m_doHV || m_doAffectedHV));
+  ATH_CHECK(m_DCSFolderKeys.initialize (m_doHV || m_doAffectedHV));
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_BFKey.initialize() );
-  ATH_CHECK(m_hvMappingKey.initialize());
+  ATH_CHECK(m_hvMappingKey.initialize (m_doHV || m_doAffectedHV));
 
   // Write Handle
   

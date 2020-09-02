@@ -4,6 +4,7 @@
 
 #include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
@@ -38,11 +39,32 @@ StatusCode TrackVertexAssociationTool::initialize()
 
   ATH_CHECK( m_eventInfo.initialize() );
 
+  // WPs which are obsoleted in Run 2 and remapped to new values:
   const std::map<std::string, std::string> remap_wps = {{"Loose", "SV_Reject"}, {"Nominal", "SV_Reject"}, {"Tight", "PU_SV_Reject"}};
-  auto it = remap_wps.find(m_wp);
-  if (it != remap_wps.end()) {
-    ATH_MSG_WARNING("TVA working part '" << m_wp << "' is not recommended for use and will eventually be obsoleted. Automatically remapping to '" << it->second << "' instead.");
-    m_wp = it->second;
+  std::string str_of_remapped_wps = "[";
+  for (auto it = remap_wps.begin(); it != remap_wps.end(); it++) {
+    str_of_remapped_wps += ("'" + it->first + "',");
+  }
+  str_of_remapped_wps += "]";
+
+  // If we specify to use an old (Run 2) WP, include special handling
+  if (m_wp.find("Old_") == 0) {
+    std::string wp_suffix = m_wp.substr(m_wp.find("_") + 1);
+    auto it = remap_wps.find(wp_suffix);
+    if (it != remap_wps.end()) {
+      m_wp = wp_suffix;
+    }
+    else {
+      ATH_MSG_FATAL("TVA working point '" << wp_suffix << "' was prefixed by 'Old_', but it is not matched to any of " << str_of_remapped_wps << "!");
+    }
+  }
+  // Else, automatically remap old WPs to new ones
+  else {
+    auto it = remap_wps.find(m_wp);
+    if (it != remap_wps.end()) {
+      ATH_MSG_WARNING("TVA working point '" << m_wp << "' is not recommended for use and will eventually be obsoleted. Automatically remapping to '" << it->second << "' instead.");
+      m_wp = it->second;
+    }
   }
 
   if ( m_wp == "PU_Reject" ) {

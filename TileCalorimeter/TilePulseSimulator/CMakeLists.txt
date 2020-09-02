@@ -19,7 +19,3 @@ atlas_add_library( TilePulseSimulator
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES}
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
-
-# Install files from the package:
-atlas_install_runtime( share/*.root )
-

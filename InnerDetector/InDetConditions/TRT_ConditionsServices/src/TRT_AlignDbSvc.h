@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_ALIGNDBSVC_H
@@ -22,6 +22,7 @@
 
 #include <vector>
 #include "AthenaBaseComps/AthService.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
@@ -29,6 +30,8 @@
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast. Legacy code
 
 namespace InDetDD {
   class TRT_DetectorManager ;

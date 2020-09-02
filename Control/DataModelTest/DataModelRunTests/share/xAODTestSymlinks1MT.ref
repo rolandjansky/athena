@@ -1,7 +1,7 @@
-Wed Jan  1 21:03:22 CET 2020
+Wed Jun  3 16:02:30 PDT 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.9] [x86_64-centos7-gcc8-opt] [atlas-work3/afd0e4f54af] -- built on [2020-01-01T1908]
+Py:Athena            INFO using release [WorkDir-22.0.15] [x86_64-centos7-gcc8-opt] [Unknown/07d2aec7427] -- built on [2020-06-03T1534]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,7 +9,7 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks1MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestSymlinks1_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5638 configurables from 48 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5530 configurables from 17 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/commonTrailer.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
@@ -19,15 +19,14 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r0)
-                                          running on lxplus721.cern.ch on Wed Jan  1 21:03:35 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on zeus on Wed Jun  3 16:02:38 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                      INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                    INFO in initialize...
 AthDictLoaderSvc                                    INFO acquired Dso-registry
-ClassIDSvc                                          INFO  getRegistryEntries: read 4098 CLIDRegistry entries for module ALL
-CoreDumpSvc                                         INFO install f-a-t-a-l handler... (flag = -1)
+ClassIDSvc                                          INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
 CoreDumpSvc                                         INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                              INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
 MetaDataSvc                                         INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
@@ -35,18 +34,19 @@ AthenaPoolCnvSvc                                    INFO Initializing AthenaPool
 PoolSvc                                             INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc                                             INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                             INFO Frontier compression level set to 5
-DBReplicaSvc                                        INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                        INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-12-31T2130/Athena/22.0.9/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc                                        INFO Total of 10 servers found for host lxplus721.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                        INFO Frontier server at (serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas1.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas2.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas3.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://frontiercache.nersc.gov:3128)(proxyurl=http://atlsquid.slac.stanford.edu:3128)(proxyurl=http://atlasbpfrontier.fnal.gov:3127)(proxyurl=http://atlasbpfrontier.cern.ch:3127) will be considered for COOL data
+DBReplicaSvc                                        INFO Read replica configuration from /bld3/build/master/build/install/Athena/22.0.15/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                        INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                        INFO Total of 2 servers found for host zeus [ATLF atlas_dd ]
 PoolSvc                                             INFO Successfully setup replica sorting algorithm
 PoolSvc                                             INFO Setting up APR FileCatalog and Streams
 PoolSvc                                             INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession                                           INFO     Open     DbSession    
 Domain[ROOT_All]                                    INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc                                         INFO Found MetaDataTools = PublicToolHandleArray([])
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 2268 CLIDRegistry entries for module ALL
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 1220 CLIDRegistry entries for module ALL
-ClassIDSvc                                     0    INFO  getRegistryEntries: read 6252 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1782 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 1401 CLIDRegistry entries for module ALL
+ClassIDSvc                                     0    INFO  getRegistryEntries: read 6321 CLIDRegistry entries for module ALL
 xAODMaker::EventInfoCnvAlg                     0    INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
 xAODMaker::EventInfoCnvAlg.EventInfoC...       0    INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
 xAODMaker::EventInfoCnvAlg.EventInfoC...       0 WARNING Beam conditions service not available
@@ -108,10 +108,13 @@ PrecedenceSvc                                  0    INFO PrecedenceSvc initializ
 AvalancheSchedulerSvc                          0    INFO Concurrency level information:
 AvalancheSchedulerSvc                          0    INFO  o Number of events in flight: 1
 AvalancheSchedulerSvc                          0    INFO  o TBB thread pool size:  'ThreadPoolSize':1
+AvalancheSchedulerSvc                          0    INFO Task scheduling settings:
+AvalancheSchedulerSvc                          0    INFO  o Avalanche generation mode: disabled
+AvalancheSchedulerSvc                          0    INFO  o Preemptive scheduling of CPU-blocking tasks: disabled
+AvalancheSchedulerSvc                          0    INFO  o Scheduling of condition tasks: disabled
 EventSelector                                  0    INFO  Enter McEventSelector Initialization 
 AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
 ApplicationMgr                                 0    INFO Application Manager Initialized successfully
-PoolSvc                                        0    INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
 ApplicationMgr                                 0    INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                         0    INFO Starting loop on events
 EventPersistencySvc                        0   0    INFO Added successfully Conversion service:McCnvSvc
@@ -197,7 +200,7 @@ AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  start process
 xAODTestAlg.xAODTestReadSymlinkTool       19   0    INFO From tool: C (as AuxElement): 20000; S 1900
 xAODTestReadSymlink                       19   0    INFO C (as AuxElement): 20000; S 1900
 AthenaHiveEventLoopMgr                    19   0    INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                    19   0    INFO ---> Loop Finished (seconds): 0.0510393
+AthenaHiveEventLoopMgr                    19   0    INFO ---> Loop Finished (seconds): 0.0256289
 Domain[ROOT_All]                                    INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr                                      INFO Application Manager Stopped successfully
 IncidentProcAlg1                                    INFO Finalize

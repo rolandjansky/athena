@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: ut_xaodtruth_helpers_test.py 761304 2016-07-12 12:03:36Z krasznaa $
-#
 # This is a simple unit test for checking the health of the truth helper
 # functions in the standalone analysis environment.
 #
@@ -13,11 +11,13 @@ def main():
 
     # Initialise the environment:
     import ROOT
-    ROOT.gROOT.Macro( "$ROOTCOREDIR/scripts/load_packages.C" )
+    if not ROOT.xAOD.Init().isSuccess():
+        print( "Couldn't initialise the xAOD reading environment" )
+        return 1
 
     # Open an input xAOD file:
     import os
-    FNAME = os.getenv( "ROOTCORE_TEST_FILE", "FileNotSpecifiedInEnvironment" )
+    FNAME = os.getenv( "ASG_TEST_FILE_MC", "FileNotSpecifiedInEnvironment" )
     f = ROOT.TFile.Open( FNAME, "READ" )
     if not f:
         print( "Couldn't open \"%s\"" % FNAME )
@@ -25,7 +25,7 @@ def main():
     print( "Opened: %s" % FNAME )
 
     # Make a transient tree from it:
-    treeMgr = ROOT.xAOD.TTreeMgr( ROOT.xAOD.TEvent.kAthenaAccess )
+    treeMgr = ROOT.xAOD.TTreeMgr()
     if not treeMgr.readFrom( f ).isSuccess():
         print( "Couldn't make a transient tree from the input file!" )
         return 1

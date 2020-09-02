@@ -16,7 +16,7 @@
 #include <list>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -26,11 +26,11 @@
 //#include "McParticleEvent/TruthParticle.h"
 //#include "McParticleEvent/TruthParticleContainer.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 // Needed for FourVector
-#include "HepMC/SimpleVector.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 //#include "McParticleUtils/McVtxFilter.h"
 
@@ -184,7 +184,7 @@ StatusCode CompactHardTruth::execute() {
 
   // Signal event is first (only?) event; front() is from DataVector
   const HepMC::GenEvent* mcEvt = mcEvts->front();
-  HepMC::WeightContainer wtCont = mcEvt->weights();
+  auto wtCont = mcEvt->weights();
   //double wt = 1;
   if( wtCont.size() != 0 ){
     //wt = wtCont[0];

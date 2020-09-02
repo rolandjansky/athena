@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALDBTOOL_H
@@ -20,7 +20,6 @@
 #include "GaudiKernel/ICondSvc.h"
 // Storegate
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/DataHandle.h"
 //Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 // TRT

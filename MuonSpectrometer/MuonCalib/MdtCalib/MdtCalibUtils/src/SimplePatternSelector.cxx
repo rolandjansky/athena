@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/SimplePatternSelector.h"
-
 #include "MuonCalibEventBase/MuonCalibPattern.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <iostream>
 
@@ -17,34 +18,31 @@ namespace MuonCalib {
     : m_chi2_max(chi2_max),m_mdtSeg_min(mdtSeg_min)
   {
     m_printLevel = 0;
-    if( m_printLevel >= 1 ){
-      std::cout << "SimplePatternSelector::SimplePatternSelector" << std::endl;
-      std::cout << "New SimplePatternSelector : " << std::endl;
-      std::cout << "       chi2 cut    " << m_chi2_max << std::endl;
-      std::cout << "       muon seg cut " << m_mdtSeg_min << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"SimplePatternSelector");
+    if(log.level()<=MSG::VERBOSE) {
+      log<<MSG::VERBOSE<<"SimplePatternSelector::SimplePatternSelector" << endmsg;
+      log<<MSG::VERBOSE<<"New SimplePatternSelector : " << endmsg;
+      log<<MSG::VERBOSE<<"       chi2 cut    " << m_chi2_max << endmsg;
+      log<<MSG::VERBOSE<<"       muon seg cut " << m_mdtSeg_min << endmsg;
     }
   }
 
 
-  bool SimplePatternSelector::select(const MuonCalibPattern& pattern) const
-  {
-    if( m_printLevel >= 1)
-      std::cout << "SimplePatternSelector::select" << std::endl;
+  bool SimplePatternSelector::select(const MuonCalibPattern& pattern) const {
+    MsgStream log(Athena::getMessageSvc(),"SimplePatternSelector");
+    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"SimplePatternSelector::select" << endmsg;
 
     // test if pattern satisfies the selectors selection criteria
 
     // test chi2
     if( pattern.chi2() > m_chi2_max ) return false;
 
-    if( m_printLevel >= 2)
-      std::cout << "pattern passed chi2 cut " << pattern.chi2() << std::endl;
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"pattern passed chi2 cut " << pattern.chi2() << endmsg;
 
     // test total numbers of mdt segments on pattern
     if( pattern.muonSegments() < m_mdtSeg_min ) return false;
 
-    if( m_printLevel >= 2)
-      std::cout << "pattern passed muon segments cut " 
-		<< pattern.muonSegments() << std::endl;
+    if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"pattern passed muon segments cut " << pattern.muonSegments() << endmsg;
 
 
     return true;

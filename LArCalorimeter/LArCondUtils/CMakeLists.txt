@@ -5,27 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArCondUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArElecCalib
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloGeoHelpers
-                          Control/AthenaKernel
-                          Database/RDBAccessSvc
-                          Database/RegistrationServices
-                          LArCalorimeter/LArCabling
-                          LArCalorimeter/LArGeoModel/LArHV
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArRecConditions )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

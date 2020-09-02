@@ -1,29 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MUONTRACKSCORINGTOOL_H
 #define MUONTRACKSCORINGTOOL_H
 
+#include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "TrkEventPrimitives/TrackScore.h"
-#include "TrkToolInterfaces/ITrackScoringTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+
+#include <string>
 #include <vector>
 
 namespace Trk {
   class Track;
-  class ITrackSummaryTool;
   class TrackSummary;
 }
 
-class MsgStream;
-
 namespace Muon {
-
-  class MuonEDMPrinterTool;
-
 
   /**Concrete implementation of the ITrackScoringTool pABC*/
   class MuonTrackScoringTool : virtual public Trk::ITrackScoringTool, public AthAlgTool
@@ -31,9 +29,9 @@ namespace Muon {
     
   public:
     MuonTrackScoringTool(const std::string&,const std::string&,const IInterface*);
-    virtual ~MuonTrackScoringTool ();
+    virtual ~MuonTrackScoringTool()=default;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize  () override;
+
     /** create a score based on how good the passed track is*/
     virtual
     Trk::TrackScore score( const Trk::Track& track, const bool suppressHoleSearch ) const override;
@@ -45,8 +43,8 @@ namespace Muon {
   private:
     
     /**\todo make this const, once createSummary method is const*/
-    ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
-    ToolHandle<MuonEDMPrinterTool>     m_printer;
+    ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool {this, "SumHelpTool", "Trk::TrackSummaryTool"};
+    ToolHandle<MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
     
     /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/
     std::vector<Trk::TrackScore> m_summaryTypeScore;

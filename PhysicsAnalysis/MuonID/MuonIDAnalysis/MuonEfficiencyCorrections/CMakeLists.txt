@@ -1,55 +1,23 @@
-################################################################################
-# Package: MuonEfficiencyCorrections
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonEfficiencyCorrections )
 
-# Extra dependencies, based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess )
-else()
-   set( extra_dep Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgMessaging
-   Control/StoreGate
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODJet
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
-   PRIVATE
-   Control/AthContainers
-   Event/xAOD/xAODTrigger
-   Event/FourMomUtils
-   Tools/PathResolver
-   ${extra_dep} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree RIO Hist Physics )
-
 
 # Libraries in the package:
 atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
-   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces StoreGateLib AsgMessagingLib
-   PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces AsgDataHandlesLib
+   PRIVATE_LINK_LIBRARIES FourMomUtils xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonEfficiencyCorrections
       src/*.h src/*.cxx src/components/*.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODJet PATInterfaces AthContainers MuonAnalysisInterfacesLib AsgMessagingLib
-      AthenaBaseComps GaudiKernel MuonEfficiencyCorrectionsLib StoreGateLib )
+      LINK_LIBRARIES AsgAnalysisInterfaces AthContainers AthenaBaseComps FourMomUtils GaudiKernel MuonEfficiencyCorrectionsLib StoreGateLib xAODJet )
 endif()
 
 atlas_add_dictionary( MuonEfficiencyCorrectionsDict
@@ -61,9 +29,7 @@ atlas_add_dictionary( MuonEfficiencyCorrectionsDict
 macro( _add_exec name )
    atlas_add_executable( ${name}
       util/${name}.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
-      PATInterfaces xAODCore AsgAnalysisInterfaces PileupReweightingLib MuonEfficiencyCorrectionsLib StoreGateLib AsgMessagingLib )
+      LINK_LIBRARIES AsgAnalysisInterfaces MuonEfficiencyCorrectionsLib )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )

@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( BarcodeServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/Barcode/BarcodeInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
 
@@ -34,7 +27,7 @@ atlas_add_component( BarcodeServices
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel BarcodeServicesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel BarcodeEventLib BarcodeInterfacesLib BarcodeServicesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

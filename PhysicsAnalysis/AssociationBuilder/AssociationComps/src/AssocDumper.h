@@ -70,12 +70,12 @@ class AssocDumper : public AthAlgorithm
   /** Callback method to configure the input location of the
    *  @c INav4MomAssocs we want to print out
    */
-  void setupINav4MomAssocs( Property& inav4MomAssocsName );
+  void setupINav4MomAssocs( Gaudi::Details::PropertyBase& inav4MomAssocsName );
 
   /** Callback method to configure the output stream into which we'll
    *  dump the informations from @c INav4MomAssocs.
    */
-  void setupOutputStream( Property& outputStreamName );
+  void setupOutputStream( Gaudi::Details::PropertyBase& outputStreamName );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

@@ -237,9 +237,6 @@ if ( readNovaDB	) :
 # POOL
 #
 if ( readPOOLfile) :
-	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-	AthenaSealSvc.CheckDictionary = True 
-
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 	theApp.Dlls += ["EventSelectorAthenaPool"] 
 	theApp.Dlls += [ "LArAthenaPoolPoolCnv" ]
@@ -298,9 +295,6 @@ if ( writeNovaDB ) :
 	IOVDbSvc.OutputLevel              = INFO
 
 if ( writePOOLfile ) :
-	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-	AthenaSealSvc.CheckDictionary = True 
-
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 	theApp.Dlls   += [ "LArAthenaPoolPoolCnv" ]
 	theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]

@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys, time, os, re, argparse
+from __future__ import print_function
+import sys
+import argparse
 from itertools import groupby
-from operator import attrgetter, itemgetter
+from operator import attrgetter
 from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
-from math import copysign, pi as PI
+from math import pi as PI
 from TrigConfMuctpi.Utils import getLogger
 from copy import copy
 
@@ -248,22 +250,22 @@ class MuonGeometry(object):
         return mioct
     def writeXML(self,outfilename):
         f = open(outfilename,"write")
-        print >> f, '<?xml version="1.0" ?>\n'
-        print >> f, '<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n'
-        print >> f, '<MuCTPiGeometry>'
+        print('<?xml version="1.0" ?>\n', file=f)
+        print('<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n', file=f)
+        print('<MuCTPiGeometry>', file=f)
         for mioct in sorted(self.miocts,key=lambda m:m.id):
-            print >> f, mioct.asXML(4)
-        print >> f,'    <PtEncoding>'
-        print >> f,'        <PtCodeElement pt="1" code="0" value="4"/>'
-        print >> f,'        <PtCodeElement pt="2" code="1" value="6"/>'
-        print >> f,'        <PtCodeElement pt="3" code="2" value="10"/>'
-        print >> f,'        <PtCodeElement pt="4" code="2" value="11"/>'
-        print >> f,'        <PtCodeElement pt="5" code="2" value="15"/>'
-        print >> f,'        <PtCodeElement pt="6" code="2" value="20"/>'
-        print >> f,'    </PtEncoding>'
-        print >> f, "</MuCTPiGeometry>"
+            print(mioct.asXML(4), file=f)
+        print('    <PtEncoding>', file=f)
+        print('        <PtCodeElement pt="1" code="0" value="4"/>', file=f)
+        print('        <PtCodeElement pt="2" code="1" value="6"/>', file=f)
+        print('        <PtCodeElement pt="3" code="2" value="10"/>', file=f)
+        print('        <PtCodeElement pt="4" code="2" value="11"/>', file=f)
+        print('        <PtCodeElement pt="5" code="2" value="15"/>', file=f)
+        print('        <PtCodeElement pt="6" code="2" value="20"/>', file=f)
+        print('    </PtEncoding>', file=f)
+        print("</MuCTPiGeometry>", file=f)
         f.close()
-        print "Wrote %s" % outfilename
+        print("Wrote %s" % outfilename)
     def getStats(self,stats):
         stats['miocts'] = len(self.miocts)
         for mioct in self.miocts:
@@ -271,12 +273,12 @@ class MuonGeometry(object):
     def printStats(self):
         stats = {'miocts' : 0, 'sectors' : 0, 'rois' : 0, 'decodes' : 0, 'topocells' : 0}
         self.getStats(stats)
-        print "Numbers for %s" % self.name
-        print "#MIOCTs    : %i" % stats['miocts']
-        print "#Sectors   : %i" % stats['sectors']
-        print "#Decodes   : %i" % stats['decodes']
-        print "#ROIs      : %i" % stats['rois']
-        print "#Topocells : %i" % stats['topocells']
+        print("Numbers for %s" % self.name)
+        print("#MIOCTs    : %i" % stats['miocts'])
+        print("#Sectors   : %i" % stats['sectors'])
+        print("#Decodes   : %i" % stats['decodes'])
+        print("#ROIs      : %i" % stats['rois'])
+        print("#Topocells : %i" % stats['topocells'])
         
 
 
@@ -432,7 +434,7 @@ def read2016RPCGeomData(fn, oldMapping):
     log = getLogger(__file__+".read2016RPCGeomData")
 
 
-    log.info("Reading %s" % fn)
+    log.info("Reading %s", fn)
     f = open(fn,"read")
     for line in f:
         if line.lstrip().startswith("#"): # remove comments
@@ -502,7 +504,8 @@ def roiAsXML_2(roi, depth):
     return s
 
 
-def sectorAsXML((connector, name, rois), depth, stats):
+def sectorAsXML(xxx_todo_changeme, depth, stats):
+    (connector, name, rois) = xxx_todo_changeme
     s = ' '*depth + '<Sector connector="%s" name="%s">\n' % (connector, name)
     s += ' '*depth + '    <!-- contains %i ROIs -->\n' % len(rois)
     s += ' '*depth + '    <!-- mapping from ROI to coding scheme -->\n'

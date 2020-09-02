@@ -20,6 +20,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" //for Argon
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 
@@ -28,7 +29,7 @@ class GeoFullPhysVol;
 class TRTParameterInterface;
 class InDetMaterialManager;
 
-class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
+class ATLAS_NOT_THREAD_SAFE TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  { // Static variables are used.
 
  public:
   

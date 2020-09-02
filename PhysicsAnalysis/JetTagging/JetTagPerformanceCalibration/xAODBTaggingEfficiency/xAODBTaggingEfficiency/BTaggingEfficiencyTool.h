@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,32 +11,36 @@
 #ifndef CPBTAGGINGEFFICIENCYTOOL_H
 #define CPBTAGGINGEFFICIENCYTOOL_H
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+#include "PATInterfaces/ISystematicsTool.h"
 
 #include "xAODBTagging/BTagging.h"
 
-#include "AsgTools/AsgTool.h"
+#include <fstream>
 #include <string>
 #include <set>
 #include <vector>
 #include <map>
 //#include <memory>
 
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
+
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
-#include "PATInterfaces/ISystematicsTool.h"
 
 class BTaggingEfficiencyTool: public asg::AsgTool,
-			      public virtual IBTaggingEfficiencyTool, 
-			      public virtual CP::ISystematicsTool {
+            public virtual IBTaggingEfficiencyTool
+{
   //  typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( BTaggingEfficiencyTool , IBTaggingEfficiencyTool, ISystematicsTool )
-  
+
   public:
-  
-  
+
+
   /// Create a constructor for standalone usage
   BTaggingEfficiencyTool( const std::string& name );
 
@@ -45,7 +49,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   // For now, disable the generation of a default copy constructor (since it would not be constructed correctly)
   // BTaggingEfficiencyTool(const BTaggingEfficiencyTool& other) = delete;
-  
+
   // /// Silly copy constructor for the benefit of dictionary generation
   // BTaggingEfficiencyTool(const BTaggingEfficiencyTool& other);
 
@@ -56,31 +60,31 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getScaleFactor( const xAOD::Jet & jet,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getEfficiency( const xAOD::Jet & jet,
 				    float & eff) const;
-  
+
   /** Computes the data inefficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiencyScaleFactor( const xAOD::Jet & jet,
-						 float & sf) const;
+             float & sf) const;
 
   /** Computes the MC efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /// @name Methods equivalent to those above but not relying on the xAOD format
   /// @{
@@ -89,39 +93,39 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
   */
   CP::CorrectionCode getScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				    float & eff) const;
+            float & eff) const;
 
   /** Computes the data inefficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiencyScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
 						 float & sf) const;
-  
+
   /** Computes the MC efficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /// @}
-  
+
   /// @name Other methods implementing the IBTagEfficiencyTool interface
   /// @{
 
   /** Initialise the tool.
-   *  
+   *
    *  This is the stage at which all of the configuration is done and the underlying @c CalibrationDataInferfaceROOT object is instantiated.
    *  The properties that can be set are documented in the
    *  <a href="https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingCalibrationDataInterface#xAOD_interface">xAOD interface</a> section
@@ -160,6 +164,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    * documentation for more detail on the meaning of the map index
    */
   bool setMapIndex(const std::string& flavour, unsigned int index);
+  bool setMapIndex(unsigned int dsid);
   // bool setMapIndex(const std::string& flavour, const std::string & type);
   /// @}
 
@@ -170,13 +175,13 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   /// Retrieve the name of the tagger (as specified in the calibration file)
   std::string getTaggerName() const { return m_taggerName;}
-  
+
   /// Retrieve the operating point (as specified in the calibration file)
   std::string getOperatingPoint() const { return m_OP;}
-  
+
   /// Retrieve the jet collection name (as specified in the calibration file) for which this tool was setup
   std::string getJetAuthor() const { return m_jetAuthor;}
-  
+
   // /// Returns false if the tool isn't initialised yet (it has to be initialised before processing jets)
   // bool isInitialized() const { return m_initialised;}
 
@@ -206,8 +211,8 @@ private:
   bool addSystematics(const std::vector<std::string> & systematicNames,unsigned int flavourID, Analysis::Uncertainty uncType);
 
   /// generate names for the eigenvector variations for the given jet flavour
-  std::vector<std::string> makeEigenSyst(const std::string & flav, int number);
-  
+  std::vector<std::string> makeEigenSyst(const std::string & flav, int number, const std::string& suffix);
+
   /// helper function for retrieving object indices
   bool getIndices(unsigned int flavour, unsigned int & sf, unsigned int & ef) const;
 
@@ -266,58 +271,60 @@ private:
   /// @name core configuration properties (set at initalization time and not modified afterwards)
   /// @{
 
+  /// we need access to a BTaggingSelectionTool, at least for DL1 weight computation
+  asg::AnaToolHandle<IBTaggingSelectionTool> m_selectionTool;
+
   /// name of the data/MC efficiency scale factor calibration file (may be changed by the @c PathResolver)
   std::string m_SFFile;
   /// name of the optional MC efficiency file (may be changed by the @c PathResolver)
   std::string m_EffFile;
-  /// name of the data/MC scale factor calibration for b jets
-  std::string m_SFBName;
-  /// name of the data/MC scale factor calibration for charm jets
-  std::string m_SFCName;
-  /// name of the data/MC scale factor calibration for tau jets
-  std::string m_SFTName;
-  /// name of the data/MC scale factor calibration for light-flavour jets
-  std::string m_SFLightName;
-  /// specification of the eigenvector reduction strategy for b jets (if eigenvectors are used)
-  std::string m_EVReductionB;
-  /// specification of the eigenvector reduction strategy for c jets (if eigenvectors are used)
-  std::string m_EVReductionC;
-  /// specification of the eigenvector reduction strategy for light-flavour jets (if eigenvectors are used)
-  std::string m_EVReductionLight;
-  /// semicolon-separated list of MC efficiency parametrisation names for b jets
-  std::string m_EffBName;
-  /// semicolon-separated list of MC efficiency parametrisation names for charm jets
-  std::string m_EffCName;
-  /// semicolon-separated list of MC efficiency parametrisation names for tau jets
-  std::string m_EffTName;
-  /// semicolon-separated list of MC efficiency parametrisation names for light-flavour jets
-  std::string m_EffLightName;
-  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure
+  std::string m_EffConfigFile;
+  /// names of the data/MC scale factor calibrations
+  std::map<std::string, std::string> m_SFNames;
+  /// specification of the eigenvector reduction strategy (if eigenvectors are used)
+  std::map<std::string, std::string> m_EVReduction;
+  /// semicolon-separated lists of MC efficiency parametrisation names
+  std::map<std::string, std::string> m_EffNames;
+  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure for all flavours
   std::string m_excludeFromEV;
+  /// semicolon-separated list of uncertainties to be excluded from the eigenvector variation procedure for b, c, and light-flavour jets
+  std::map<std::string, std::string> m_excludeFlvFromEV;
+  /// optional (per-flavour) suffix that can be used to decorrelate uncertainties (between flavours, or -in case of a result from different runs- between periods)
+  std::map<std::string, std::string> m_uncertaintySuffixes;
   /// tagger name
   std::string m_taggerName;
   /// operating point
   std::string m_OP;
   ///  jet collection name
   std::string m_jetAuthor;
-  /// systematics model to be used (current choices are "SFEigen" and "Envelope")
+  ///  minimum jet pT
+  float m_minPt;
+  /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area
   bool m_useDevFile;
   /// if true, use cone-based labelling (as opposed to ghost association)
   bool m_coneFlavourLabel;
+  /// if true, use an 'extended' labelling (allowing for multiple HF hadrons -or perhaps partons- in the jet)
+  bool m_extFlavourLabel;
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;
+  /// if true, extract pre-set lists of uncertainties to be recommended from the EV decomposition (in addition to user specified ones)
+  bool m_useRecommendedEVExclusions;
+  /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
+  bool m_ignoreOutOfValidityRange;
+  /// if false, suppress any non-error/warning printout from the underlying tool
+  bool m_verboseCDITool;
   /// @}
-  
+
   /// @name Cached variables
   /// @{
 
   /// flag to indicate tool is initialized correctly when set
   bool m_initialised;
 
-  
+
   bool m_applySyst;
   SystInfo m_applyThisSyst;
 
@@ -336,7 +343,10 @@ private:
   std::map<unsigned int, unsigned int> m_SFIndices;
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
-  
+
+
+  //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
+  std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;
   /// @}
 
 };

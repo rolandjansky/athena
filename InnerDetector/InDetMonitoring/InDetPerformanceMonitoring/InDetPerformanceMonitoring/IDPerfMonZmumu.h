@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPERFMON_ZMUMU_H
@@ -16,11 +16,12 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
 
-class IDPerfMonZmumu : public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE IDPerfMonZmumu : public AthAlgorithm // Thread unsafe ZmumuEvent class is used.
 {
  public:
   // Constructors & destructors
@@ -94,9 +95,9 @@ class IDPerfMonZmumu : public AthAlgorithm
   TTree*                          m_combStacoTree;
   TTree*                          m_combMuidTree;
 
-  mutable unsigned int            m_runNumber{};
-  mutable unsigned int            m_evtNumber{};
-  mutable unsigned int            m_lumi_block{};
+  unsigned int            m_runNumber{};
+  unsigned int            m_evtNumber{};
+  unsigned int            m_lumi_block{};
 
   double m_positive_px{};
   double m_positive_py{};

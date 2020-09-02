@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTATIONINTERSECTSVC_H
 #define MUON_MUONSTATIONINTERSECTSVC_H
 
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonStationIntersectSvc/MuonStationIntersect.h"
 
 const InterfaceID IID_IMuonStationIntersectSvc("MuonStationIntersectSvc", 1, 0);
 
-#include "MuonStationIntersectSvc/MuonStationIntersect.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class MuonIdHelperTool;
 namespace MuonGM {
   class MuonDetectorManager;
 }
@@ -33,13 +33,12 @@ class MdtCondDbData;
 class MuonStationIntersectSvc : public AthService, virtual public IInterface{
  public:
   MuonStationIntersectSvc(const std::string& name,ISvcLocator* sl);
-  virtual ~MuonStationIntersectSvc();
+  virtual ~MuonStationIntersectSvc()=default;
 
   static const InterfaceID& interfaceID() { return IID_IMuonStationIntersectSvc; }
   virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
 
   virtual StatusCode initialize(void);
-  virtual StatusCode finalize(void);  
  
   /** @brief calculate which MDT tubes were crossed by a trajectory
       @param id the Identifier of the chamber
@@ -61,7 +60,7 @@ class MuonStationIntersectSvc : public AthService, virtual public IInterface{
   /** @brief get identifiers of chamber corresponding to this id and its neighbors */
   const std::vector<Identifier> binPlusneighbours( const Identifier& id ) const;
 
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper{this,"MuonIdHelperTool","Muon::MuonIdHelperTool/MuonIdHelperTool","MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
 };
 

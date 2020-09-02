@@ -56,6 +56,6 @@ if hasattr(runArgs,"maxEvents"):
 #ServiceMgr.EventSelector.SkipEvents=1870
 
 if globalflags.InputFormat() == 'bytestream':
-    ServiceMgr.FullFileName=athenaCommonFlags.BSRDOInput()
+    ServiceMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
 else:
     ServiceMgr.EventSelector.InputCollections = InDetD3PDSCTFlags.inputFiles()

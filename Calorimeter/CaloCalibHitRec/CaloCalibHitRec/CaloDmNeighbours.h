@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -50,7 +50,7 @@ class CaloDmNeighbours {
     int getNeighbours_CaloCellsForDmHit(const IdentifierHash &dmHashID,  std::vector<IdentifierHash>& neighbourList) const;
 
   private:
-    StatusCode load_neighbours(std::string DmNeighboursFileName);
+    StatusCode load_neighbours(const std::string& DmNeighboursFileName);
     StatusCode unfold_neighbours(std::string &MyDm, std::string &MyCalo);
     int get_indexes(ExpandedIdentifier &idExp, int &indxSide, int &indxEta, int &indxPhi);
     int get_id(ExpandedIdentifier &idExp, Identifier &id, IdentifierHash &hash_id);

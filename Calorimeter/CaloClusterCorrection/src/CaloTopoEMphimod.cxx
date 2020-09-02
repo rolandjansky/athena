@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -18,57 +18,16 @@ Updated:  March 12, 2005   (MB)
 ********************************************************************/
 
 #include "CaloTopoEMphimod.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <math.h> 
+#include <cmath> 
 
 using CLHEP::pi;
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-CaloTopoEMphimod::CaloTopoEMphimod(const std::string& type, const std::string& name, const IInterface* parent) 
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant("P1b",                     m_P1b);
-  declareConstant("P2b",                     m_P2b);
-  declareConstant("P3b",                     m_P3b);
-  declareConstant("P4b",                     m_P4b);
-  declareConstant("P1e",                     m_P1e);
-  declareConstant("P2e",                     m_P2e);
-  declareConstant("P3e",                     m_P3e);
-  declareConstant("P4e",                     m_P4e);
-  declareConstant("BarrelGranularity",       m_BarrelGranularity);
-  declareConstant("EndcapGranularity",       m_EndcapGranularity);
-  declareConstant("EtaFrontier",             m_EtaFrontier);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloTopoEMphimod::~CaloTopoEMphimod()
-{ }
-
-// Initialization
-/*StatusCode CaloTopoEMphimod::initialize()
-{
-  ATH_MSG_DEBUG( " Phi modulation parameters : " << endmsg);
-  ATH_MSG_DEBUG( "   P1b =          " << m_P1b << endmsg);
-  ATH_MSG_DEBUG( "   P2b =          " << m_P2b << endmsg);
-  ATH_MSG_DEBUG( "   P3b =          " << m_P3b << endmsg);
-  ATH_MSG_DEBUG( "   P4b =          " << m_P4b << endmsg);
-  ATH_MSG_DEBUG( "   P1e =          " << m_P1e << endmsg);
-  ATH_MSG_DEBUG( "   P2e =          " << m_P2e << endmsg);
-  ATH_MSG_DEBUG( "   P3e =          " << m_P3e << endmsg);
-  ATH_MSG_DEBUG( "   P4e =          " << m_P4e << endmsg);
-  ATH_MSG_DEBUG( "   Granularity =  " << m_BarrelGranularity << " / " << m_EndcapGranularity << endmsg);
-  ATH_MSG_DEBUG( "   EtaFrontier =  " << m_EtaFrontier << endmsg);
-  return StatusCode::SUCCESS;
-}*/
 
 // make correction to one cluster 
-void CaloTopoEMphimod::makeTheCorrection(const EventContext& /*ctx*/,
+void CaloTopoEMphimod::makeTheCorrection(const Context& myctx,
                                          xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float /*eta*/,
@@ -87,18 +46,24 @@ void CaloTopoEMphimod::makeTheCorrection(const EventContext& /*ctx*/,
   ATH_MSG_DEBUG( " ... phi-mod BEGIN" << endmsg);
   ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << endmsg);
 
+  const CxxUtils::Array<1> EtaFrontier = m_EtaFrontier (myctx);
+
   // Compute the correction
-  if (aeta < m_EtaFrontier[0]) 
+  if (aeta < EtaFrontier[0]) 
     { 
-      iEtaBin = (int)(aeta / m_BarrelGranularity);
-      qphimod = 1 - m_P1b[iEtaBin]*std::cos(8*pi*u) - m_P2b[iEtaBin]*std::cos(16*pi*u) 
-	          - m_P3b[iEtaBin]*std::sin(8*pi*u) - m_P4b[iEtaBin]*std::sin(16*pi*u);
+      iEtaBin = (int)(aeta / m_BarrelGranularity(myctx));
+      qphimod = 1 - m_P1b(myctx)[iEtaBin]*std::cos(8*pi*u)
+                  - m_P2b(myctx)[iEtaBin]*std::cos(16*pi*u) 
+                  - m_P3b(myctx)[iEtaBin]*std::sin(8*pi*u)
+                  - m_P4b(myctx)[iEtaBin]*std::sin(16*pi*u);
     }
-  else if (aeta > m_EtaFrontier[1] && aeta < m_EtaFrontier[2])
+  else if (aeta > EtaFrontier[1] && aeta < EtaFrontier[2])
     {
-      iEtaBin = (int)((aeta - m_EtaFrontier[1]) / m_EndcapGranularity);
-      qphimod = 1 - m_P1e[iEtaBin]*std::cos(6*pi*u) - m_P2e[iEtaBin]*std::cos(12*pi*u) 
-	          - m_P3e[iEtaBin]*std::sin(6*pi*u) - m_P4e[iEtaBin]*std::sin(12*pi*u);
+      iEtaBin = (int)((aeta - EtaFrontier[1]) / m_EndcapGranularity(myctx));
+      qphimod = 1 - m_P1e(myctx)[iEtaBin]*std::cos(6*pi*u)
+                  - m_P2e(myctx)[iEtaBin]*std::cos(12*pi*u) 
+                  - m_P3e(myctx)[iEtaBin]*std::sin(6*pi*u)
+                  - m_P4e(myctx)[iEtaBin]*std::sin(12*pi*u);
     }
   else // wrong eta value
     {

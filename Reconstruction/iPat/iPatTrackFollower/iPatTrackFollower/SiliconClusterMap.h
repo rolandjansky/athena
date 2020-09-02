@@ -28,7 +28,7 @@ public:
   
     SiliconClusterMap(const InDet::SiClusterContainer* pixelContainer,
 		      const InDet::SiClusterContainer* SCT_Container);	// constructor
-    ~SiliconClusterMap(void);	// destructor
+    ~SiliconClusterMap(void)= default;
     
     // forbidden copy constructor
     // forbidden assignment operator

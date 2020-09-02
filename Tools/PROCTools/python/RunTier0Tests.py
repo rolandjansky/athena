@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## RunTier0Tests.py - Brief description of the purpose of this script (Has to be in PROC tools)
 # $Id$
@@ -8,7 +8,6 @@ import sys
 import subprocess
 import os
 import threading
-import time
 import uuid
 import logging
 import glob
@@ -191,7 +190,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", 
 def pwd():
     Proc = subprocess.Popen('pwd', shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
     Out = (Proc.communicate()[0])[:-1]     
-    return Out
+    return Out.decode('utf-8')
     
 def GetReleaseSetup(isCImode=False):
 
@@ -207,13 +206,14 @@ def GetReleaseSetup(isCImode=False):
     release_head=os.environ['AtlasVersion']
     platform=os.environ['LCG_PLATFORM']
     project=os.environ['AtlasProject']
-    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
+    builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'_'+project+'_'+platform+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
     # suggest to use latest opt over dbg
     sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
     latest_nightly = ''
     for folder in reversed(sorted_list):
-        if not glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log') : continue
+        if not glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log'):
+            continue
         latest_nightly = folder.split('/')[-3]
         break
 
@@ -268,6 +268,7 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
 
         cmd = "grep \"successful run\" run_"+q+"/log."+str(step)
         test = subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+        test = test.decode('utf-8')
 
         if "successful run" in test:
             logging.info(step+" Patched test successful")
@@ -275,10 +276,12 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
             logging.error(step+" Patched test failed")
             _Test = False
 
-        if RunPatchedOnly : continue   # Skip checking reference test because in this mode the clean tests have not been run
+        if RunPatchedOnly:
+            continue   # Skip checking reference test because in this mode the clean tests have not been run
             
         cmd = "grep \"successful run\" " + test_dir + "/log."+str(step)
         ref = subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+        ref = ref.decode('utf-8')
 
         if "successful run" in ref:
             logging.info(step+" Reference test successful")
@@ -287,7 +290,7 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
             _Test = False
 
     logging.info("")       
-    if _Test == True:
+    if _Test is True:
         logging.info("All "+q+" athena steps completed successfully")
     else :
         logging.error("One or more "+q+" Athena steps failed. Please investigate the cause.")
@@ -319,6 +322,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  index_ref  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RecoTimingObj_p1_RAWtoALL_mems  RecoTimingObj_p1_RAWtoALL_timings  RAWtoALL_mems  RAWtoALL_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    output,error = output.decode('utf-8'), error.decode('utf-8')
 
     # We want to catch/print both container additions/subtractions as well as
     # changes in these containers.  `allGood_return_code` is meant to catch
@@ -369,7 +373,7 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 
         try:
             ref = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
-        except:
+        except Exception:
             logging.error("No data available in "+ test_dir + "/log."+str(step)+" . Job failed.")
             return  
 
@@ -377,7 +381,7 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
 
         try:
             test = int(subprocess.Popen(['/bin/bash', '-c',cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].split()[FieldNumber])
-        except:
+        except Exception:
             logging.error("No data available in run_"+q+"/log."+str(step)+" . Job failed.")
             return
  
@@ -418,7 +422,7 @@ def warnings_count(file_name):
         lines= file.readlines()
         for line in lines:
             if "WARNING" in line:
-                if not "| WARNING |" in line:
+                if "| WARNING |" not in line:
                     warnings.append(line)
     return warnings
 
@@ -478,38 +482,6 @@ def RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqID):
         logging.error("Failed!" )
   
     return _Test
-
-##########################################################################
-def RunHistTest(q,CleanRunHeadDir,UniqID):
-    logging.info("-----------------------------------------------------" )
-    logging.info("Running "+q+" HIST Comparison Test"                    )
-
-    ref_file   = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID+"/myHIST.root"
-    test_file = "./run_"+q+"/myHIST.root"
-
-    ref_outfile   = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID+"/ref."+q+".HIST.chk.log"
-    test_outfile = "./run_"+q+"/test."+q+".HIST.chk.log"
-
-    ref_cmd  = "root_lsr_rank.py "+  ref_file +" --hash >& "+ref_outfile
-    test_cmd = "root_lsr_rank.py "+ test_file +" --hash >& "+test_outfile
-
-    ref_out  = subprocess.Popen(['/bin/bash', '-c',ref_cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    test_out = subprocess.Popen(['/bin/bash', '-c',test_cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    
-
-    comparison_command = "diff "+ref_outfile+" "+test_outfile+" >& run_"+q+"/diff."+q+".HIST.log"                                                    
-    output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()                                                   
-
-    f = open("run_"+q+"/diff."+q+".HIST.log", 'r')
-    logging.info("The following are changes you've made to the HIST file: ")
-    for line in f.readlines():                                                                                                                                                               
-        logging.info(line)
-    f.close() 
-    logging.info("-----------------------------------------------------" )
-    pass
-
-
-
 
 
 ##########################################################################
@@ -708,12 +680,12 @@ def main():
         if options.ref and options.val:
             cleanSetup = options.ref
             mysetup = options.val
-            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
+            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" ,(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
             try:
                 list_patch_packages(ciMode)
-            except:
+            except Exception:
                 logging.warning("Cannot list patch packages...\n")
 
 ########### Get unique name for the clean run directory
@@ -840,7 +812,8 @@ def main():
                 if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
 
-            if RunPatchedOnly: continue  # Performance checks against static references not possible
+            if RunPatchedOnly:
+                continue  # Performance checks against static references not possible
     
             if 'q221' in q or 'q440' in q: 
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
@@ -860,8 +833,6 @@ def main():
             
             if not RunWARNINGSTest(q,qTestsToRun,CleanRunHeadDir,UniqName):
                 All_Tests_Passed = False
-
-#           RunHistTest(q,CleanRunHeadDir,UniqName)
 
         logging.info("-----------------------------------------------------"    )
         logging.info("---------------------- Summary ----------------------"    )

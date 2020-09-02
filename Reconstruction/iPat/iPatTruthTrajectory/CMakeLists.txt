@@ -16,19 +16,19 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GenAnalysisTools/TruthTools
                           Generators/GenInterfaces
                           Generators/GeneratorObjects
+                          Generators/AtlasHepMC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # External dependencies:
-find_package( HepMC )
 find_package( HepPDT )
 
 # Component(s) in the package:
 atlas_add_component( iPatTruthTrajectory
                      src/TruthParameters.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel iPatInterfaces iPatTrackParameters TrkExUtils GeneratorObjects TrkSurfaces TrkExInterfaces )
+                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel iPatInterfaces iPatTrackParameters TrkExUtils GeneratorObjects TrkSurfaces TrkExInterfaces GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( iPatTruthTrajectory )

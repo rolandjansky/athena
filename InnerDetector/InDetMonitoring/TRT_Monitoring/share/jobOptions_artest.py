@@ -46,8 +46,6 @@ DetFlags.Muon_setOff()
 DetFlags.Print()
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.InputFormat() == 'pool')
-InDetFlags.doxKalman              = False
-InDetFlags.doiPatRec              = False
 InDetFlags.doNewTracking          = True 
 InDetFlags.doMonitoringGlobal    = True
 InDetFlags.doMonitoringPixel     = False
@@ -78,9 +76,9 @@ if not doReadBS:
   ServiceMgr.PoolSvc.AttemptCatalogPatch=True
   ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d158/CSC.005200.T1_McAtNlo_Jimmy.RDO.pool.root" ]
 if doReadBS:
-#  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW._lb0137._SFO-ALL._0001.1"]
-#AB  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
-#ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/work/e/ecelebi/public/data11_7TeV.00179710.physics_ZeroBias.merge.RAW" ]
-  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/user/e/eyazici/public/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
+#  ServiceMgr.EventSelector.Input = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00205010.physics_ZeroBiasOverlay.merge.RAW._lb0137._SFO-ALL._0001.1"]
+#AB  ServiceMgr.EventSelector.Input = [ "/afs/cern.ch/user/e/eyazici/rawdata/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
+#ServiceMgr.EventSelector.Input = [ "/afs/cern.ch/work/e/ecelebi/public/data11_7TeV.00179710.physics_ZeroBias.merge.RAW" ]
+  ServiceMgr.EventSelector.Input = [ "/afs/cern.ch/user/e/eyazici/public/data12_8TeV.00201113.physics_ZeroBiasOverlay.merge.RAW._lb0423._SFO-ALL._0001.1"]
 
-#  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "/tmp/rjungst/testinput"]
+#  ServiceMgr.EventSelector.Input = [ "/tmp/rjungst/testinput"]

@@ -11,9 +11,10 @@ import sys
 import signal
 import subprocess
 import time
+import re
 from enum import Enum
 from threading import Timer
-from TrigValTools.TrigValSteering.Common import get_logger, art_result
+from TrigValTools.TrigValSteering.Common import get_logger, art_result, running_in_CI
 
 
 class Step(object):
@@ -59,9 +60,7 @@ class Step(object):
             if self.result is not None:
                 result = self.result
             else:
-                self.log.error('report_result was called but result is None')
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('report_result was called but result is None')
 
         if name is None:
             if self.name is not None:
@@ -70,6 +69,15 @@ class Step(object):
                 name = 'UnnamedStep'
 
         art_result(result, name)
+
+    def misconfig_abort(self, error_msg, *args, **kwargs):
+        '''
+        Print an error message (arguments passed to logging.error),
+        report non-zero art-result and exit the process with non-zero code
+        '''
+        self.log.error('Misconfiguration in %s: '+error_msg, self.name, *args, **kwargs)
+        self.report_result(1, 'TestConfig')
+        sys.exit(1)
 
     def __trace_and_kill(self, pid, signal, backtrace_list):
         '''
@@ -179,12 +187,25 @@ class Step(object):
         # Print full log to stdout for failed steps if running in CI
         if self.required \
                 and self.result != 0 \
-                and os.environ.get('gitlabTargetBranch') \
+                and running_in_CI() \
                 and self.output_stream==self.OutputStream.FILE_ONLY:
             self.log.error('Step failure while running in CI. Printing full log %s', self.get_log_file_name())
             with open(self.get_log_file_name()) as log_file:
                 log=log_file.read()
                 print(log)  # noqa: ATL901
+                # Print also sub-step logs for transforms
+                if self.executable.endswith('_tf.py'):
+                    step_matches = re.findall('Logs for (.*) are in (.*)', log)
+                    if not step_matches:
+                        self.log.warning('Failed to determine sub-step log names, cannot print the full sub-step logs')
+                    else:
+                        step_log_names = [m[1] for m in step_matches]
+                        for step_log_name in step_log_names:
+                            if os.path.isfile(step_log_name):
+                                with open(step_log_name) as step_log_file:
+                                    step_log = step_log_file.read()
+                                    self.log.info('Printing sub-step log file %s', step_log_name)
+                                    print(step_log)  # noqa: ATL901
 
         return self.result, cmd
 
@@ -196,5 +217,16 @@ def get_step_from_list(step_name, step_list):
     '''
     for step in step_list:
         if step.name is not None and step_name in step.name:
+            return step
+    return None
+
+
+def get_step_type_from_list(step_type, step_list):
+    '''
+    Retrieve the first test matching the type from the list. Returns None if
+    no match is found.
+    '''
+    for step in step_list:
+        if isinstance(step, step_type):
             return step
     return None

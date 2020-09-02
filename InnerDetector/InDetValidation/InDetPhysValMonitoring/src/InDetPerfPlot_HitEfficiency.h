@@ -22,6 +22,7 @@
 
 
 // std includes
+#include <atomic>
 #include <string>
 
 class TProfile;
@@ -39,7 +40,7 @@ public:
 private:
   // enum copied from the hitDecorator tool in InDetPhysValMonitoring
   enum Subdetector {
-    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
+    INVALID_DETECTOR=-1, L0PIXBARR, PIXEL, SCT, TRT, N_SUBDETECTORS
   };
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
@@ -50,6 +51,8 @@ private:
   //TProfile* m_eff_hit_vs_eta[N_SUBDETECTORS][N_REGIONS];
   TEfficiency* m_HitEfficiencyVsEta[N_SUBDETECTORS][N_REGIONS];
   bool m_debug;
+
+  mutable std::atomic<int> m_warnCount{0};
 };
 
 

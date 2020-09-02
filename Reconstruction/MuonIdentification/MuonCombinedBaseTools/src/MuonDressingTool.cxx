@@ -1,14 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////////////////
-// MuonDressingTool
-//
-//  (c) ATLAS Combined Muon software
-//////////////////////////////////////////////////////////////////////////////
-
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "MuonDressingTool.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -16,33 +9,15 @@
 
 namespace MuonCombined {
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
-MuonDressingTool::MuonDressingTool (const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type, name, parent),
-    m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-
+MuonDressingTool::MuonDressingTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent)
 {
   declareInterface<xAOD::IMuonDressingTool>(this);
-  declareProperty("MuonHitSummaryTool", m_hitSummaryTool );
-  declareProperty("MuonIdHelperTool", m_idHelper );
 }
-
-MuonDressingTool::~MuonDressingTool()
-{}
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 StatusCode MuonDressingTool::initialize() {
-
   ATH_CHECK(m_hitSummaryTool.retrieve());
-  ATH_CHECK(m_idHelper.retrieve());
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MuonDressingTool::finalize() {
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -261,12 +236,12 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
       std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit_end = mts.chamberHitSummary().end();
       for ( ; chit != chit_end; ++chit ) {
         const Identifier& chId = chit->chamberId();
-        bool isMdt = m_idHelper->isMdt(chId);
-        bool isCsc = m_idHelper->isCsc(chId);
-        bool isMM   = m_idHelper->isMM(chId);
-        bool issTgc = m_idHelper->issTgc(chId);
+        bool isMdt = m_idHelperSvc->isMdt(chId);
+        bool isCsc = m_idHelperSvc->isCsc(chId);
+        bool isMM   = m_idHelperSvc->isMM(chId);
+        bool issTgc = m_idHelperSvc->issTgc(chId);
         if ( isMdt || isMM || isCsc || issTgc ) {
-          Muon::MuonStationIndex::ChIndex index = m_idHelper->chamberIndex(chId);
+          Muon::MuonStationIndex::ChIndex index = m_idHelperSvc->chamberIndex(chId);
           uint8_t* hits = 0;
           uint8_t* holes = 0;
           if ( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
@@ -323,7 +298,7 @@ void MuonDressingTool::addMuonHitSummary( xAOD::Muon& muon, const Trk::TrackSumm
           uint8_t* phiHoles = 0;
           uint8_t* etaHits = 0;
           uint8_t* etaHoles = 0;
-          Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(chId);
+          Muon::MuonStationIndex::PhiIndex index = m_idHelperSvc->phiIndex(chId);
           if ( index == Muon::MuonStationIndex::BM1 || index == Muon::MuonStationIndex::T4 ||
                index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1 ) {
             phiHits = &phiLayer1Hits;

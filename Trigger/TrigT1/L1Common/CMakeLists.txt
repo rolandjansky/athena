@@ -1,8 +1,4 @@
-################################################################################
-# Package: L1Common
-################################################################################
-# Author: ruth.poettgen@cern.ch
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( L1Common )

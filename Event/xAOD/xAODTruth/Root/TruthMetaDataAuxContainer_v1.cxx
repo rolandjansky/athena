@@ -14,6 +14,12 @@ namespace xAOD {
 
       AUX_VARIABLE( weightNames );
       AUX_VARIABLE( mcChannelNumber );
+      AUX_VARIABLE( lhefGenerator );
+      AUX_VARIABLE( generators );
+      AUX_VARIABLE( evgenProcess );
+      AUX_VARIABLE( evgenTune );
+      AUX_VARIABLE( hardPDF );
+      AUX_VARIABLE( softPDF );
    }
 
 } // namespace xAOD

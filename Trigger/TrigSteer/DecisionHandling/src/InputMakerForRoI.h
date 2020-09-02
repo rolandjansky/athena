@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGUPGRADETEST_INPUTMAKERFORROI_H
-#define TRIGUPGRADETEST_INPUTMAKERFORROI_H 
+#ifndef DESICIONHANDLING_INPUTMAKERFORROI_H
+#define DESICIONHANDLING_INPUTMAKERFORROI_H 
 
 
 #include <string>
@@ -11,6 +11,8 @@
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "DecisionHandling/IViewCreatorROITool.h"
+
 
   /**
    * @class  InputMakerForRoI
@@ -26,10 +28,16 @@
     virtual StatusCode  execute(const EventContext&) const override;
 
   private: 
-    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this,"RoIs", "",
+    SG::WriteHandleKey<TrigRoiDescriptorCollection> m_RoIs {this, "RoIs", "",
       "Name of the collection of ROI extrated from the input Decision Objects. Used as cocnrete starting handle for step's reconstruction."};
+
+    ToolHandle<IViewCreatorROITool> m_roiTool{this, "RoITool", "",
+      "Tool used to supply per-Decision Object the RoI which should be processed."};
+
+    Gaudi::Property<bool> m_mergeIntoSuperRoI{this, "MergeIntoSuperRoI", false,
+      "If true, the output RoIs collection will contain only one ROI, this will be a SuperRoI encompassing all individual ROIs - one from each of the input Decision Objects."};
 
   }; 
 
 
-#endif //> !TRIGUPGRADETEST_INPUTMAKERFORROI_H
+#endif //> !DESICIONHANDLING_INPUTMAKERFORROI_H

@@ -22,9 +22,6 @@ namespace FlavorTagDiscriminants {
         flipTagConfigFromString(m_flipTagConfig)));
     return StatusCode::SUCCESS;
   }
-  StatusCode BTagAugmenterTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
 
   void BTagAugmenterTool::decorate(const xAOD::Jet& jet) const {
     m_aug->augment(jet);

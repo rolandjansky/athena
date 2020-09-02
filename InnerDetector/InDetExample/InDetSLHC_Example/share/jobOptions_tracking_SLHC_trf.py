@@ -130,8 +130,6 @@ if ( rec.OutputFileNameForRecoStep() == 'ESDtoAOD' or
 else:
     printfunc ('setting flags for RAWtoESD')
     InDetFlags.doLowPt        =         False
-    InDetFlags.doxKalman      =         False
-    InDetFlags.doiPatRec      =         False
     InDetFlags.doBackTracking =         False
     InDetFlags.doTRTStandalone =        False
     #InDetFlags.doSingleSpBackTracking = False
@@ -160,7 +158,7 @@ else:
 
     # --- activate creation of ntuples, standard plots
     #InDetFlags.doTrkNtuple      = False
-    InDetFlags.doStandardPlots  = False
+    InDetFlags.doPhysValMon  = False
     InDetFlags.doSGDeletion     = False
 
     # Write RDOs 

@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, RecoFragmentsPool
-
+from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 
 #----------------------------------------------------------------
 # Base class to configure chain
@@ -43,14 +43,19 @@ class ChainConfigurationBase(object):
         mySequence = RecoFragmentsPool.retrieve(mySequenceCfg, None) # the None will be used for flags in future
         return mySequence
 
-    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboTools=[]):
+    def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[]):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
         log.debug("Configuring step " + stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
-        return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboToolConfs=comboTools)
-    
+        return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
+
+    def getEmptyStep(self, stepID, stepPartName):
+        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        log.debug("Configuring empty step " + stepName)        
+        return ChainStep(stepName, Sequences=[], multiplicity=[] ,chainDicts=[self.dict])
+ 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
                         ChainSteps = chainSteps,

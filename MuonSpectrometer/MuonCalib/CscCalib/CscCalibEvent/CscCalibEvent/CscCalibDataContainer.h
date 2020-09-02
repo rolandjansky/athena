@@ -28,7 +28,7 @@ class CscCalibDataContainer : public IdentifiableContainer<CscCalibDataCollectio
     CscCalibDataContainer(int maxHash) ;
 
     /** destructor */ 
-    virtual ~CscCalibDataContainer() ; 
+    virtual ~CscCalibDataContainer()=default; 
 
     /** type definitions */
     typedef CscCalibDataCollection::size_type size_type ; 

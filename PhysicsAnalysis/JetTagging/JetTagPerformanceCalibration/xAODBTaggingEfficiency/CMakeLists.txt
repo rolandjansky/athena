@@ -6,27 +6,6 @@
 # Declare the package name:
 atlas_subdir( xAODBTaggingEfficiency )
 
-# Extra dependencies based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Event/xAOD/xAODBTagging
-  Event/xAOD/xAODJet
-  PhysicsAnalysis/AnalysisCommon/PATCore
-  PhysicsAnalysis/AnalysisCommon/PATInterfaces
-  PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
-  PRIVATE
-  Tools/PathResolver
-  ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
 
@@ -36,7 +15,8 @@ atlas_add_library( xAODBTaggingEfficiencyLib
   PUBLIC_HEADERS xAODBTaggingEfficiency
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBTagging xAODJet
-  PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver )
+  PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver
+  FTagAnalysisInterfacesLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( xAODBTaggingEfficiency

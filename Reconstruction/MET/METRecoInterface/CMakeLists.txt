@@ -12,8 +12,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthToolSupport/AsgTools
                           Event/xAOD/xAODMissingET )
 
-# Install files from the package:
-atlas_install_headers( METRecoInterface )
+atlas_add_library( METRecoInterface
+                   METRecoInterface/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS METRecoInterface
+                   LINK_LIBRARIES AsgTools xAODMissingET )
+
 
 atlas_add_dictionary( METRecoInterfaceDict
        		      METRecoInterface/METRecoInterfaceDict.h

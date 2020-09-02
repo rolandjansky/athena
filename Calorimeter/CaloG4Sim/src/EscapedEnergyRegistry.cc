@@ -72,7 +72,7 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
                                                      VEscapedEnergyProcessing* process )
   {
     // Don't bother adding a null pointer.
-    if ( process == 0 ) return;
+    if ( process == nullptr ) return;
 
     // Check that we're not adding any duplicates.
     // TODO range-based for
@@ -129,7 +129,7 @@ EscapedEnergyRegistry* EscapedEnergyRegistry::GetInstance()
     // If we get here, then there was no entry in the map that
     // matched any portion of the volume name.
 
-    return 0;
+    return nullptr;
   }
 
 } // namespace CaloG4

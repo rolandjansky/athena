@@ -12,7 +12,7 @@
 
 
 #include "GenEventGenParticleAssociationTool.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "AthenaKernel/errorcheck.h"
 
 

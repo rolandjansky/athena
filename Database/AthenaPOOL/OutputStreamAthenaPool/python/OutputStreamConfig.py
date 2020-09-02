@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 
-def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False ):
+def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False ,
+                    trigNavThinningSvc = None):
    MakeEventStreamInfo=CompFactory.MakeEventStreamInfo
    AthenaOutputStream=CompFactory.AthenaOutputStream
    AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
@@ -29,12 +30,20 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
    writingTool = AthenaOutputStreamTool( "Stream" + streamName + "Tool" )
    streamInfoTool = MakeEventStreamInfo( "Stream" + streamName + "_MakeEventStreamInfo" )
    streamInfoTool.Key = "Stream" + streamName
+
+   # Support for MT thinning.
+   ThinningCacheTool = CompFactory.getComp ('Athena::ThinningCacheTool') # AthenaServices
+   tct = ThinningCacheTool ('ThinningCacheTool_' + streamName,
+                            StreamName = streamName)
+   if trigNavThinningSvc is not None:
+      tct.TrigNavigationThinningSvc = trigNavThinningSvc
+
    outputStream = AthenaOutputStream(
       outputAlgName,
       WritingTool = writingTool,
       ItemList    = [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux."  ]+ItemList, 
       OutputFile = fileName,
-      HelperTools = [ streamInfoTool ],
+      HelperTools = [ streamInfoTool, tct ],
       )
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")

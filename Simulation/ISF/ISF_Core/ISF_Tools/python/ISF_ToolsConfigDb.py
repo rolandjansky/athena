@@ -7,9 +7,6 @@ Elmar Ritsch, 31/10/2014
 
 from AthenaCommon.CfgGetter import addTool
 
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-import AthenaCommon.SystemOfUnits as Units
-
 # Common tools, services and algorithms used by jobs
 addTool("ISF_Tools.ISF_ToolsConfig.getParticleHelper"                       , "ISF_ParticleHelper"                  )
 addTool("ISF_Tools.ISF_ToolsConfig.getMemoryMonitor"                        , "ISF_MemoryMonitor"                   )

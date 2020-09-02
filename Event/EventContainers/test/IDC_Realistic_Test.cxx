@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "EventContainers/IdentifiableContainerMT.h"
 #include <vector>
@@ -134,12 +134,14 @@ struct counters {
     int cachehit=0;
     int fills =0;
     int reads =0;
+    int itreads =0;
     int aborted =0;
     void Add(const counters &rh) {
         deletedcount+= rh.deletedcount;
         cachehit+= rh.cachehit;
         fills+= rh.fills;
         reads+= rh.reads;
+        itreads+= rh.itreads;
         aborted += rh.aborted;
     }
     void Print() const {
@@ -147,6 +149,7 @@ struct counters {
         std::cout << "countHit " << cachehit << '\n';
         std::cout << "fills " << fills << '\n';
         std::cout << "reads " << reads << '\n';
+        std::cout << "itreads " << itreads << '\n';
         std::cout << "aborted " << aborted << '\n';
     }
     counters() {
@@ -154,6 +157,7 @@ struct counters {
         cachehit=0;
         fills =0;
         reads =0;
+        itreads=0;
         aborted=0;
     }
 };
@@ -176,11 +180,17 @@ public:
 
         int wrong = 0;
         auto hashes = container.GetAllCurrentHashes();
+        auto countall = container.numberOfCollections();
+        if(hashes.size() != countall){
+            std::cout << "Counts don't match" << std::endl;
+            std::abort();
+        }
         if(hashes.size()!=(size_t) 1000-c.aborted) {
             std::cout << "Error container is " << hashes.size() << " not " << 1000-c.aborted << std::endl;
             std::abort();
         }
-        for(const auto x : hashes) {
+        //Check random access method
+        for(const auto& x : hashes) {
             auto p = container.indexFindPtr(x);
             int j =0;
             for(auto q : *p) {
@@ -191,6 +201,36 @@ public:
                 std::abort();
             }
             c.reads++;
+        }
+        //check iterator method
+        int orig=0;
+        for(auto p : container){
+            int j =0;
+            for(auto q : *p) {
+                if(q->val() != (initialdata[hashes[orig]]->at(j++))->val()) wrong++;
+            }
+            if(j!=ndigits) {
+                std::cout << "n digits wrong"<<std::endl;
+                std::abort();
+            }
+            c.itreads++;
+            orig++;
+        }
+        int orig2=0;
+        const auto& directaccess = container.GetAllHashPtrPair();
+        for(const auto &[hashId, ptr] : directaccess){
+            int j =0;
+            if(hashes[orig2] != hashId){
+                std::cout << "directaccess broke " << std::endl;
+                std::abort();
+            }
+            for(auto q : *ptr) {
+                if(q->val() != (initialdata[hashes[orig2]]->at(j++))->val()) {
+                    std::cout << "directaccess broke " << std::endl;
+                    std::abort();
+                }
+            }
+            orig2++;
         }
         if(wrong > 0) {
             std::cout << "Thread " << threads << " found wrong data " << wrong << std::endl;
@@ -361,7 +401,7 @@ int main() {
         }
         std::cout << "NoLock\n";
         c.Print();
-        if(c.fills!=c.reads+c.aborted) {
+        if(c.fills!=c.reads+c.aborted || c.fills!=c.itreads+c.aborted ) {
             std::cout << "Fills do not equal reads " << std::endl;
             std::abort();
         }
@@ -378,7 +418,7 @@ int main() {
         }
         std::cout << "Lock\n";
         c.Print();
-        if(c.fills!=c.reads+c.aborted) {
+        if(c.fills!=c.reads+c.aborted || c.fills!=c.itreads+c.aborted ) {
             std::cout << "Fills do not equal reads " << std::endl;
             std::abort();
         }

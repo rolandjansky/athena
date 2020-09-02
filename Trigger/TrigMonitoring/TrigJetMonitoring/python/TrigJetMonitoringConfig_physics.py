@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_physics.py
@@ -21,7 +21,7 @@ hlt_JetKeys = { "a10tcemsubFS" : "HLT_xAOD__JetContainer_a10tcemsubFS",
                 "a4tcemsubFS" : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                 "a4tcemjesFS" : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                 "a4tcemsubjesFS" : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-		"a4tclcwjesFS" : "HLT_xAOD__JetContainer_a4tclcwjesFS" }
+                "a4tclcwjesFS" : "HLT_xAOD__JetContainer_a4tclcwjesFS" }
 
 hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets", 
                        "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets", 
@@ -103,7 +103,7 @@ def TrigJetMonitoringTool():
             histoPathBase        = "/Trigger/HLT",
             JetMonBase           = "/HLT/JetMon",
             DoL1Efficiency       = True,         # w.r.t offline
-	    DoOfflineJets        = True,         # fill offline jet plots
+            DoOfflineJets        = True,         # fill offline jet plots
             DoHLTEfficiency      = True,         # w.r.t offline (HLT eff = L1 & HLT)
                                    
             # SG Keys for L1, EF, OF Jets
@@ -239,8 +239,7 @@ def TrigJetMonitoringTool():
             ## Out-of-time Calo Jet Energy (not to exceed X ns)
             #DoOFMaxJetTimeCut = True,
             #OFMaxTimens = 50.
-        );
-  #from AthenaCommon.AppMgr import ToolSvc
-  #ToolSvc += HLTJetMon;
-  list = [ HLTJetMon ];
+        )
+
+  list = [ HLTJetMon ]
   return list

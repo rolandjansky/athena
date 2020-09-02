@@ -383,9 +383,6 @@ StatusCode ISF::DNNCaloSimSvc::fillNetworkInputs(const ISF::ISFParticle& isfp, N
   Amg::Vector3D particle_position =  isfp.position();  
   Amg::Vector3D particle_direction(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z());
   
-  //int barcode=isfp.barcode(); // isfp barcode, eta and phi: in case we need them
-  // float eta_isfp = particle_position.eta();  
-  // float phi_isfp = particle_position.phi(); 
 
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(isfp.momentum().mag2()+pow(isfp.mass(),2)),isfp.pdgCode());
   truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);

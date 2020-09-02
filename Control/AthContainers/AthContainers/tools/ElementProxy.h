@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/tools/ElementProxy.h
  * @author scott snyder <snyder@bnl.gov>
@@ -63,6 +60,10 @@ public:
    */
   ElementProxy (typename DVL::BaseContainer::iterator i,
                 DVL* container);
+
+
+  /// Default copy.
+  ElementProxy (const ElementProxy&) = default;
 
 
   /**
@@ -154,33 +155,13 @@ ENTER_ROOT_SELECTION_NS
 
 namespace DataModel_detail {
 
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 99, 0 )
-
-template <class DVL>
-class ElementProxy
-{
-public:
-  typedef ElementProxy<DVL> self;
-  ROOT_SELECTION_NS::NO_SELF_AUTOSELECT dum2;
-  ROOT_SELECTION_NS::TRANSIENT m_proxied;
-  ROOT_SELECTION_NS::TRANSIENT m_container;
-};
-
-#else
-
-template <class DVL>
-class ElementProxy
-#if ROOT_VERSION_CODE > ROOT_VERSION( 6, 0, 2 )
-  : public SelectNoInstance
-#endif
+template <class DVL> class ElementProxy : public SelectNoInstance
 {
 public:
   typedef ElementProxy<DVL> self;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_proxied;
   ROOT_SELECTION_NS::MemberAttributes< kTransient > m_container;
 };
-
-#endif // ROOT_VERSION
 
 }
 

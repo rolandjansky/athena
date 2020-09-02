@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -24,6 +24,8 @@
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
 
+#include "OutputStreamSequencerSvc.h"
+
 #include <vector>
 #include <sstream>
 
@@ -34,6 +36,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_addrCrtr("AthenaPoolCnvSvc", name),
 	m_fileMgr("FileMgr", name),
 	m_incSvc("IncidentSvc", name),
+        m_outSeqSvc("OutputStreamSequencerSvc", name),
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_clearedOutputDataStore(false),
@@ -143,9 +146,9 @@ StatusCode MetaDataSvc::initialize() {
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
-      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
+      const std::vector<const Gaudi::Details::PropertyBase*>* evtselProps = joSvc->getProperties("EventSelector");
       if (evtselProps != nullptr) {
-         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
+         for (std::vector<const Gaudi::Details::PropertyBase*>::const_iterator iter = evtselProps->begin(),
                          last = evtselProps->end(); iter != last; iter++) {
             if ((*iter)->name() == "InputCollections") {
                // Get EventSelector to force in-time initialization and FirstInputFile incident
@@ -157,6 +160,9 @@ StatusCode MetaDataSvc::initialize() {
          }
       }
    }
+   // retrieve the output sequences service (EventService) if available
+   m_outSeqSvc.retrieve().ignore();
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -197,8 +203,8 @@ StatusCode MetaDataSvc::stop() {
 StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
    if (riid == this->interfaceID()) {
       *ppvInterface = this;
-   } else if (riid == IMetadataTransition::interfaceID()) {
-     *ppvInterface = dynamic_cast<IMetadataTransition*>(this);
+   } else if (riid == IMetaDataSvc::interfaceID()) {
+     *ppvInterface = dynamic_cast<IMetaDataSvc*>(this);
    } else {
       // Interface is not directly available: try out a base class
       return(::AthService::queryInterface(riid, ppvInterface));
@@ -321,6 +327,27 @@ StatusCode MetaDataSvc::prepareOutput()
    return rc;
 }
 
+// like prepareOutput() but for parallel streams
+StatusCode MetaDataSvc::prepareOutput(const std::string& outputName)
+{
+   // default to the serial implementation if no output name given
+   if( outputName.empty() ) return prepareOutput();
+   ATH_MSG_DEBUG( "prepareOutput('" << outputName << "')" );
+   
+   StatusCode rc = StatusCode::SUCCESS;
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG("  calling metaDataStop for " << (*it)->name());
+      // planning to replace the call below with  (*it)->prepareOutput(outputName)
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+         rc = StatusCode::FAILURE;
+      }
+   }
+   // MN: not releasing tools here - revisit when clear what happens on new file open
+   return rc;
+}
+
+
 StatusCode MetaDataSvc::shmProxy(const std::string& filename)
 {
    if (!m_clearedInputDataStore) {
@@ -374,9 +401,8 @@ void MetaDataSvc::handle(const Incident& inc) {
    } 
 }
 //__________________________________________________________________________
-StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
-   // Allow MetaDataStop only on Input file transitions
-   if (!m_allowMetaDataStop && !ignoreInputFile) {
+StatusCode MetaDataSvc::transitionMetaDataFile() {
+   if( !m_allowMetaDataStop ) {
       return(StatusCode::FAILURE);
    }
    // Make sure metadata is ready for writing
@@ -469,6 +495,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          }
          ToolHandle<IMetaDataTool> metadataTool(toolInstName);
          m_metaDataTools.push_back(metadataTool);
+         ATH_MSG_DEBUG("Added new MetadDataTool: " << metadataTool->name());
          if (!metadataTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
@@ -582,3 +609,18 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    return(StatusCode::SUCCESS);
 }
 
+
+const std::string MetaDataSvc::currentRangeID() const
+{
+   return m_outSeqSvc.isValid()? m_outSeqSvc->currentRangeID() : "";
+}
+
+
+CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
+{
+   // for now just a simple dumb if
+   if( item_id == 167728019 ) {
+      return 167729019;   //  MetaCont<EventStreamInfo> CLID
+   }
+   return item_id;
+}

@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 #include <TObject.h>
-#include <RootCoreUtils/Deprecated.h>
 #include <SampleHandler/TagList.h>
 
 class TChain;
@@ -313,67 +312,67 @@ namespace SH
     /// \deprecated use meta() instead, or (preferably) access of
     ///   meta-data by name
   public:
-    RCU_DEPRECATED ("use meta() instead, or (preferably) access of meta-data by name")
+    [[deprecated("use meta() instead, or (preferably) access of meta-data by name")]]
     TCollection *metaDataList ();
 
 
     /// \copydoc metaDataList()
   public:
-    RCU_DEPRECATED ("use meta() instead, or (preferably) access of meta-data by name")
+    [[deprecated("use meta() instead, or (preferably) access of meta-data by name")]]
     const TCollection *metaDataList () const;
 
 
     /// \copydoc MetaObject::remove
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     void removeMeta (const std::string& name);
 
 
     /// \copydoc MetaObject::addReplace
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     void addReplaceMeta (TNamed *meta_swallow);
 
 
     /// \copydoc MetaObject::get
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     TObject *getMeta (const std::string& name);
 
 
     /// \copydoc MetaObject::get
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     const TObject *getMeta (const std::string& name) const;
 
 
     /// \copydoc MetaObject::getDouble
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     double getMetaDouble (const std::string& name, double def_val = 0) const;
 
 
     /// \copydoc MetaObject::getString
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     std::string getMetaString (const std::string& name, const std::string& def_val = "") const;
 
 
     /// \copydoc MetaObject::setDouble
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     void setMetaDouble (const std::string& name, double value);
 
 
     /// \copydoc MetaObject::setString
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     void setMetaString (const std::string& name, const std::string& value);
 
 
     /// \copydoc MetaObject::fetch
   public:
-    RCU_DEPRECATED ("use meta() instead")
+    [[deprecated("use meta() instead")]]
     void fetchMeta (const Sample& source);
 
 

@@ -28,7 +28,8 @@ namespace Analysis
     typedef std::set<size_t> IndexSet;
     typedef std::set<IndexSet> IndexSuperSet;
 
-    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt);
+    /** normal constructor. The second argument, if true, will attempt to retrieve a 'recommended' set of uncertainties to be excluded from EV decomposition */
+    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt, bool excludeRecommendedUncertaintySet = false);
     ~CalibrationDataEigenVariations();
 
     /** exclude the source of uncertainty indicated by  name  from eigenvector calculations */
@@ -102,6 +103,9 @@ namespace Analysis
     /** eigenvector variations */
     std::vector<std::pair<TH1*, TH1*> > m_eigen;
 
+    /** indicate whether statistical uncertainties are stored as variations */
+    bool m_statVariations;
+    
     // /** @ data members needed for eigenvector method **/
     // /** the map stores the int which is needed to access the other vector<> objects **/
     // mutable std::map<std::string, unsigned int> m_eigenvectorMethod_index;

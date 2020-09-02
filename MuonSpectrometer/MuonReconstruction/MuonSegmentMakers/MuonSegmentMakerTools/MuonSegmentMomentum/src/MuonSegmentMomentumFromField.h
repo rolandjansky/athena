@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonSegmentMomentumFromField_MuonSegmentMomentumFromField_H
@@ -7,15 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/INavigator.h"
-
-class RpcIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class sTgcIdHelper;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 namespace Muon {
   class MuonSegment;
@@ -30,8 +29,6 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
   
   /** to initiate private members */
   virtual StatusCode initialize(); 
-  /** to delete private members */
-  virtual StatusCode finalize(); 
 
   /** fits a momentum to 2 segments */
   virtual void fitMomentum2Segments( const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2, double & signedMomentum ) const;
@@ -43,19 +40,14 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
   double fieldIntegralEstimate(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
   double fieldIntegralEstimate_old(const Muon::MuonSegment* segment1, const Muon::MuonSegment* segment2) const;
   
-  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc {this, "MagFieldSvc", "AtlasFieldSvc"};
   ToolHandle<Trk::IPropagator>          m_propagator{this, "PropagatorTool", 
                                           "Trk::STEP_Propagator/MuonPropagator"};  
   ToolHandle<Trk::INavigator>           m_navigator {this, "NavigatorTool",
                                           "Trk::Navigator/MuonNavigator"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
-  const RpcIdHelper*                  m_rpcid {nullptr};
-  const TgcIdHelper*                  m_tgcid {nullptr};
-  const CscIdHelper*                  m_cscid {nullptr};
-  const sTgcIdHelper*                 m_stgcid {nullptr};
   Gaudi::Property<bool> m_doOld {this, "DoOld", false, "Use old fitMomentum2Segments"};
-  Gaudi::Property<bool> m_hasCSC {this, "HasCSC", true, "Is CSC available?"};
-  Gaudi::Property<bool> m_hasSTgc {this, "HasSTgc", true, "is sTGC available?"};
 };
 
 #endif // MuonSegmentMomentumFromField_H

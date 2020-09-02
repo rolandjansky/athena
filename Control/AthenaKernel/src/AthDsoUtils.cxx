@@ -34,67 +34,6 @@ libNativeName( const std::string& libName )
 #endif
 }
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-   
-#ifdef _GNU_SOURCE
-#include <dlfcn.h>
-static
-std::string
-dsoName( const ROOT::Reflex::Member& mem )
-{
-  Dl_info info;
-  if (dladdr (
-#if __GNUC__ < 4
-      (void*)mem.Stubfunction()
-#else
-      System::FuncPtrCast<void*>(mem.Stubfunction())
-#endif
-      , &info) == 0)
-    return "";
-
-  const char* pos = strrchr (info.dli_fname, '/');
-  if (pos)
-    ++pos;
-  else
-    pos = info.dli_fname;
-  return pos;
-}
-#elif defined(_WIN32)
-#include <windows.h>
-
-static
-std::string
-dsoName( const ROOT::Reflex::Member& mem )
-{
-  void* addr = (void*)(mem.Stubfunction());
-  if (addr) {
-    MEMORY_BASIC_INFORMATION mbi;
-    if ( VirtualQuery(addr, &mbi, sizeof(mbi)) )    {
-      HMODULE h_module = (HMODULE)mbi.AllocationBase;
-      char mod[1024];
-      if( GetModuleFileName(h_module, mod, sizeof(mod)) ) {
-        const char* pos = strrchr (mod, '\\');
-        if (pos)
-          ++pos;
-        else
-          pos = mod;
-        return pos;
-      }
-    }
-  }
-  return "";
-}
-
-#else // dummy implementation for unknown platforms
-static std::string dsoName( const ROOT::Reflex::Member& )
-{
-  return "";
-}
-
-#endif
-
-#else // ROOT ver
-
 static
 std::string
 dsoName( const RootDataMember& mem )
@@ -102,8 +41,6 @@ dsoName( const RootDataMember& mem )
    const char *lib = mem.GetSharedLibs();
    return lib? lib : "";
 }
-   
-#endif //ROOT ver   
    
 bool 
 inDso( const RootDataMember& mem,

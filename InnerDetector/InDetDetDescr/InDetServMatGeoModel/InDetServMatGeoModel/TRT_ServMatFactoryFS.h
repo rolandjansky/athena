@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYFS_H
 #define INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYFS_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -13,6 +14,7 @@ class GeoPhysVol;
 class InDetMaterialManager;
 class IRDBAccessSvc;
 
+#include <memory>
 #include <string>
 
 // TRT service material factory fro Frozen Showers
@@ -40,8 +42,8 @@ class TRT_ServMatFactoryFS   {
   // private data
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
-  InDetMaterialManager            *m_materialManager;
-  mutable Athena::MsgStreamMember  m_msg;
+  std::unique_ptr<InDetMaterialManager> m_materialManager;
+  mutable Athena::MsgStreamMember  m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif 

@@ -9,7 +9,7 @@ atlas_subdir( AFP_ByteStream2RawCnv )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthenaBaseComps                          
-			  Control/AthContainers
+			  Control/DataModel
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
@@ -20,20 +20,17 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( tdaq-common )
-
-# Component(s) in the package:
-atlas_add_component( AFP_ByteStream2RawCnv
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv)
+find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 atlas_add_library( AFP_ByteStream2RawCnvLib
 		   src/*.cxx
 	           PUBLIC_HEADERS AFP_ByteStream2RawCnv
-                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv)
+                   INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  ${CORAL_LIBRARIES} AthenaBaseComps AthContainers AFP_RawEv ByteStreamCnvSvcBaseLib )
 
-# Install files from the package:
-atlas_install_headers( AFP_ByteStream2RawCnv )
+# Component(s) in the package:
+atlas_add_component( AFP_ByteStream2RawCnv
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CORAL_LIBRARIES}  AthenaBaseComps AthContainers AFP_RawEv AFP_ByteStream2RawCnvLib )
 

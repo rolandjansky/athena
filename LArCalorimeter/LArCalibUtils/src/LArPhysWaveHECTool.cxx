@@ -15,8 +15,6 @@
 
 #include <TGraphSmooth.h>
 
-#include "RVersion.h"
-
 using std::cout;
 using std::endl;
 
@@ -644,14 +642,8 @@ Double_t Tp4(Double_t t)
   b = t;
 
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  static Double_t par[1];
-  par[0]=t;
-  return fun4->Integral(a,b,par,epsrel);
-#else
   fun4->SetParameter(0,t);
   return fun4->Integral(a,b,epsrel);
-#endif
 
 }
 // Integrand for the Tp4 function
@@ -674,15 +666,9 @@ Double_t Tp5(Double_t t)
 
   if(fun5 == NULL) fun5 = new TF1("fun5",&f5_g,0.,NMAX,1);
 
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-  static Double_t par[1];
-  par[0]=t;
-  return fun5->Integral(a,b,par,epsrel);
-#else
   b = t - tdr;
   fun5->SetParameter(0,t);
   return fun5->Integral(a,b,epsrel);
-#endif
 }
 
 // Integrand for the Tp5 function

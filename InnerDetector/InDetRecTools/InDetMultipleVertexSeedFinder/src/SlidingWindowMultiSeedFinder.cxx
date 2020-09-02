@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetMultipleVertexSeedFinder/SlidingWindowMultiSeedFinder.h"
@@ -155,8 +155,8 @@ namespace InDet
 //storing the Z0 of last iteration...
    float prevTrackZ0 = 0.;
    
-  
-   if(m_useMaxInCluster) m_addingDistance = 0.;
+   float addingDistance = m_addingDistance;
+   if(m_useMaxInCluster) addingDistance = 0.;
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
     const  Trk::TrackParameters * lexPerigee = m_extrapolator->extrapolate(*preselectedTracks[indexOfSorted[i]],
@@ -168,7 +168,7 @@ namespace InDet
      
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;    
     
-    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
+    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>addingDistance )|| 
                                                               fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
     {
   
@@ -191,7 +191,7 @@ namespace InDet
     if(m_useMaxInCluster)
     { 
       float diff = fabs(currentTrackZ0-prevTrackZ0);
-      if(m_addingDistance < diff) m_addingDistance = diff; 
+      if(addingDistance < diff) addingDistance = diff; 
     }//end of  using max in cluster
     prevTrackZ0 = currentTrackZ0;
    }//end of loop over the sorted container, using sorted index
@@ -267,8 +267,9 @@ namespace InDet
    
 //looping over sorted container:  storing the Z0 of last iteration...
    float prevTrackZ0 =0.;
-   
-   if(m_useMaxInCluster) m_addingDistance = 0.;
+
+   float addingDistance = m_addingDistance;
+   if(m_useMaxInCluster) addingDistance = 0.;
    
    for(unsigned int i=0;i<indexOfSorted.size();++i)
    {
@@ -281,7 +282,7 @@ namespace InDet
     if(!i)prevTrackZ0 = currentTrackZ0;    
     
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
-    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
+    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>addingDistance )|| 
                                                               fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
     {
   
@@ -307,7 +308,7 @@ namespace InDet
     if(m_useMaxInCluster)
     { 
       float diff = fabs(currentTrackZ0-prevTrackZ0);
-      if(m_addingDistance < diff) m_addingDistance = diff; 
+      if(addingDistance < diff) addingDistance = diff; 
     }//end of  using max in cluster
     prevTrackZ0 = currentTrackZ0;
    }//end of loop
@@ -397,8 +398,9 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	
 	//looping over sorted container:  storing the Z0 of last iteration...
 	float prevTrackZ0 =0.;
-	
-	if(m_useMaxInCluster) m_addingDistance = 0.;
+
+        float addingDistance = m_addingDistance;
+	if(m_useMaxInCluster) addingDistance = 0.;
 	
 	for(unsigned int i=0;i<indexOfSorted.size();++i)
 	  {
@@ -411,7 +413,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	    if(!i)prevTrackZ0 = currentTrackZ0;    
 	    
 	    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Z0 of current  track"<< currentTrackZ0<<endmsg;   
-	    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>m_addingDistance )|| 
+	    if((fabs(currentTrackZ0 - lastTrackZ0)>m_clusterLength && fabs(currentTrackZ0 - prevTrackZ0)>addingDistance )|| 
 	       fabs(currentTrackZ0 - prevTrackZ0)>m_breakingDistance)
 	      {
 		
@@ -437,7 +439,7 @@ std::vector< std::vector<const Trk::TrackParameters *> > SlidingWindowMultiSeedF
 	    if(m_useMaxInCluster)
 	      { 
 		float diff = fabs(currentTrackZ0-prevTrackZ0);
-		if(m_addingDistance < diff) m_addingDistance = diff; 
+		if(addingDistance < diff) addingDistance = diff; 
 	      }//end of  using max in cluster
 	    prevTrackZ0 = currentTrackZ0;
 	  }//end of loop

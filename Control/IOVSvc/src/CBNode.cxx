@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -19,7 +19,7 @@
 
 unsigned int CBNode::s_serial = 0;
 
-CBNode::CBNode(std::string name, CBNode* parent): 
+CBNode::CBNode(const std::string& name, CBNode* parent): 
   m_name(name), m_proxy(0), m_fcn(0), m_trig(false), m_flag(false) {
   m_serial = ++s_serial;
   if (parent != 0) {

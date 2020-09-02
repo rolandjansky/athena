@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCoralClientUtils/PixCalibCoralCoolDb.h"
@@ -12,6 +12,8 @@
 #include "CoraCool/CoraCoolFolder.h"
 #include "CoraCool/CoraCoolObjectIter.h"
 #include "CoraCool/CoraCoolObject.h"
+
+#include "CxxUtils/checker_macros.h"
 
 // std lib
 #include <fstream>
@@ -102,7 +104,7 @@ bool PixCalibCoralCoolDb::load(cool::ValidityKey vkx)
   return true;
 }
 
-bool PixCalibCoralCoolDb::saveCalibData( string textfile , long long FK )
+bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile , long long FK ) // Thread unsafe coral::AttributeList class is used.
 {
   cool::RecordSpecification payloadspec;
   // primary / foreign keys

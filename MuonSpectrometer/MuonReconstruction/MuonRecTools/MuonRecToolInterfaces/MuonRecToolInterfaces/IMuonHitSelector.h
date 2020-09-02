@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHITSELECTOR_H
 #define MUON_IMUONHITSELECTOR_H
 
-#include <vector>
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+
+#include <vector>
 
 static const InterfaceID IID_IMuonHitSelector
     ("Muon::IMuonHitSelector",1,0);
@@ -34,7 +35,6 @@ namespace Muon {
     
     virtual std::vector<const Trk::MeasurementBase*>* select_rio( const double pmom, const std::vector<const Trk::RIO_OnTrack*>& associatedHits,
 								  const std::vector<const Trk::PrepRawData*>& unassociatedHits ) const = 0;
-    virtual double getPhi() const = 0;	
 
   };
   

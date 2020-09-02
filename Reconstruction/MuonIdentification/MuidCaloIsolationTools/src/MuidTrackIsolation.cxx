@@ -10,12 +10,9 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
-#include <cmath>
-#include <iomanip>
-#include "GaudiKernel/SystemOfUnits.h"
 #include "MuidCaloIsolationTools/MuidTrackIsolation.h"
+
+#include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -24,7 +21,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+#include <cmath>
+#include <iomanip>
 
 namespace Rec
 {
@@ -115,7 +113,6 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
     }
 
     // set initial state
-    m_maxP = 0.;
     std::pair<int,double> isolation = std::make_pair(0,0.);
 
     // retrieve track collection
@@ -143,12 +140,7 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
     }
 
     // debug result
-    ATH_MSG_DEBUG(std::endl << " Found "<< isolation.first
-		  << std::setiosflags(std::ios::fixed)
-		  << " InDet tracks with total momentum "
-		  << std::setw(8) << std::setprecision(1) << isolation.second/Gaudi::Units::GeV <<" Gaudi::Units::GeV "
-		  << "and maximum momentum "
-		  << std::setw(8) << std::setprecision(1) << m_maxP/Gaudi::Units::GeV);
+    ATH_MSG_DEBUG("Found "<<isolation.first<<std::setiosflags(std::ios::fixed)<<" InDet tracks with total momentum "<< std::setw(8)<<std::setprecision(1)<<isolation.second/Gaudi::Units::GeV<<" GeV");
     
     return isolation;
 }
@@ -157,7 +149,6 @@ std::pair<int,double>
 MuidTrackIsolation::trackVertex(const TrackCollection* inDetTracks, double eta, double phi) const
 {
     // set initial state
-    m_maxP		= 0.;
     double sumP		= 0.;
     int numberTracks	= 0;
 
@@ -192,7 +183,6 @@ MuidTrackIsolation::trackVertex(const TrackCollection* inDetTracks, double eta, 
 	if ((diffPhi*diffPhi + diffEta*diffEta) > m_trackCone*m_trackCone)	continue;
 	++numberTracks;
 	double p = perigee.momentum().mag();
-	if (p > m_maxP) m_maxP = p;
 	sumP += p;
 
 	if (msgLvl(MSG::VERBOSE)) msg() << "  inside cone, track#" << std::setw(3) << numberTracks;
@@ -205,7 +195,6 @@ std::pair<int,double>
 MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double eta, double phi) const
 {
     // set initial state
-    m_maxP		= 0.;
     double sumP		= 0.;
     int numberTracks	= 0;
 
@@ -281,7 +270,6 @@ MuidTrackIsolation::trackExtrapolated(const TrackCollection* inDetTracks, double
 	{
 	    ++numberTracks;
 	    double p = perigee.momentum().mag();
-	    if (p > m_maxP) m_maxP = p;
 	    sumP += p;
 	    
 	    if (msgLvl(MSG::VERBOSE)) msg() << "  inside cone, track#" << std::setw(3) << numberTracks;

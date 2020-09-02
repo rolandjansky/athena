@@ -20,7 +20,7 @@
 // forward declarations
 class G4Step;
 class G4Track;
-class EventInformation;
+class AtlasG4EventUserInfo;
 
 namespace ISF {
   class ISFParticle;
@@ -41,7 +41,7 @@ namespace iGeant4 {
       Geant4TruthIncident( const G4Step*,
                            const ISF::ISFParticle& baseISP,
                            AtlasDetDescr::AtlasRegion geoID,
-                           EventInformation* eventInfo);
+                           AtlasG4EventUserInfo* atlasG4EvtUserInfo);
       virtual ~Geant4TruthIncident() {};
 
       /** Return HepMC position of the truth vertex */
@@ -68,7 +68,7 @@ namespace iGeant4 {
       bool                      parentSurvivesIncident() const override final;
       /** Return the parent particle after the TruthIncident vertex (and give
           it a new barcode) */
-      HepMC::GenParticle*       parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
+      HepMC::GenParticlePtr     parentParticleAfterIncident(Barcode::ParticleBarcode newBC) override final;
 
       /** Return p of the i-th child particle */
       const G4ThreeVector       childP(unsigned short index) const;
@@ -95,17 +95,17 @@ namespace iGeant4 {
       // only called once accepted
 
       /** Return the parent particle as a HepMC particle type */
-      HepMC::GenParticle*       parentParticle() const override final;
+      HepMC::GenParticlePtr   parentParticle() const override final;
       /** Return the i-th child as a HepMC particle type and assign the given
           Barcode to the simulator particle */
-      HepMC::GenParticle*       childParticle(unsigned short index,
-                                              Barcode::ParticleBarcode bc) const override final;
+      HepMC::GenParticlePtr   childParticle(unsigned short index,
+                                            Barcode::ParticleBarcode bc) const override final;
       /** Update the properties of a child particle from a pre-defined
           interaction based on the properties of the ith child of the
           current TruthIncident (only used in quasi-stable particle
           simulation). */
-      HepMC::GenParticle* updateChildParticle(unsigned short index,
-                                              HepMC::GenParticle *existingChild) const override final;
+      HepMC::GenParticlePtr   updateChildParticle(unsigned short index,
+                                                  HepMC::GenParticlePtr existingChild) const override final;
     private:
       Geant4TruthIncident();
       /** prepare the child particles */
@@ -114,18 +114,18 @@ namespace iGeant4 {
       /** check if the given G4Track represents a particle that is alive in ISF or ISF-G4 */
       inline bool particleAlive(const G4Track *track) const;
 
-      HepMC::GenParticle* convert(const G4Track *particle, const int barcode, const bool secondary) const; //*AS* might be put static
+      HepMC::GenParticlePtr convert(const G4Track *particle, const int barcode, const bool secondary) const; //*AS* might be put static
 
       mutable bool                  m_positionSet;
       mutable HepMC::FourVector     m_position;
-      const G4Step*                 m_step;
+      const G4Step*                 m_step{};
       const ISF::ISFParticle&       m_baseISP;
 
-      EventInformation*             m_eventInfo;
+      AtlasG4EventUserInfo*             m_atlasG4EvtUserInfo{};
       mutable bool                  m_childrenPrepared;
       mutable std::vector<const G4Track*> m_children;
 
-      HepMC::GenParticle*           m_parentParticleAfterIncident;
+      HepMC::GenParticlePtr         m_parentParticleAfterIncident{};
    };
 
 }

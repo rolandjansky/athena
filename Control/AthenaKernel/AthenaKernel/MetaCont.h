@@ -28,6 +28,7 @@ class MetaContBase {
   virtual ~MetaContBase(){};
 
   virtual bool insert(const SourceID& sid, void* obj) = 0;
+  virtual size_t erase(const SourceID& sid) = 0;
 
   virtual int entries() const { return 0; }
   virtual bool valid(const SourceID& sid) const = 0;
@@ -35,6 +36,8 @@ class MetaContBase {
   virtual std::vector<SourceID> sources() const = 0;
 
   virtual void list(std::ostringstream& stream) const = 0;
+
+  virtual void* getAsVoid(const SourceID& sid) const = 0;
 
  private:
 };
@@ -51,19 +54,25 @@ class MetaCont: public MetaContBase {
   ~MetaCont();
 
   // Virtual functions
-  virtual bool insert(const SourceID& sid, void* obj) override;
+  virtual bool insert(const SourceID& sid, void* obj) override final;
+  virtual size_t erase(const SourceID& sid) override final;
+
 
   virtual int entries() const override;
-  virtual bool valid(const SourceID& sid) const override;
+  virtual bool valid(const SourceID& sid) const override final;
 
-  virtual std::vector<SourceID> sources() const override;
+  virtual std::vector<SourceID> sources() const override final;
 
-  virtual void list(std::ostringstream& stream) const override;
+  virtual void list(std::ostringstream& stream) const override final;
 
   // Non-virtual functions
   bool insert(const SourceID& sid, T* t);
+
+   /// various Get methods
   bool find(const SourceID& sid, T*& t) const;
-  const T* get(const SourceID& sid) const;
+  T* get(const SourceID& sid) const;
+
+  void* getAsVoid(const SourceID& sid) const override final { return get(sid); }
 
  private:
 
@@ -113,6 +122,14 @@ bool MetaCont<T>::insert(const SourceID& sid, void* obj) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
+size_t MetaCont<T>::erase(const SourceID& sid) {
+  std::lock_guard<std::mutex> lock(m_mut);
+  return m_metaSet.erase(sid);
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+template <typename T>
 bool MetaCont<T>::insert(const SourceID& sid, T* t) {
   std::lock_guard<std::mutex> lock(m_mut);
   return m_metaSet.insert(std::make_pair(sid,t)).second;
@@ -145,7 +162,7 @@ bool MetaCont<T>::find(const SourceID& sid, T*& t) const {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-const T* MetaCont<T>::get(const SourceID& sid) const {
+T* MetaCont<T>::get(const SourceID& sid) const {
   std::lock_guard<std::mutex> lock(m_mut);
 
   typename MetaContSet::const_iterator itr = m_metaSet.find(sid);
@@ -203,7 +220,7 @@ CLASS_DEF( MetaContBase , 34480469 , 1 )
 //
 #define METACONT_DEF(T, CLID) \
   CLASS_DEF( MetaCont<T>, CLID, 1 )             \
-  SG_BASE( MetaCont<T>, MetaContBase )
+  SG_BASES( MetaCont<T>, MetaContBase )
 
 #endif
 

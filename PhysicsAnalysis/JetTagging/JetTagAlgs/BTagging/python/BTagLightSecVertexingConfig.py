@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from BTagging.BTaggingFlags import BTaggingFlags
+from AthenaConfiguration.ComponentFactory import CompFactory
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-from BTagging.BTaggingConf import Analysis__BTagLightSecVertexing
+Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
 
-def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeStamp = "", **options):
+
+def BTagLightSecVtxToolCfg(flags, Name, JetCollection, PrimaryVertexCollectionName="", SVandAssoc = {""}, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -45,8 +46,7 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeSt
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options['BTagVxSecVertexInfoNames'] = VxSecVertexInfoNameList
-    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', PrimaryVertexCollectionName)
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options['JetSecVtxLinkName'] = jetcol + '.' + OutputFilesSVname
     options['JetJFVtxLinkName'] = jetcol + '.' + OutputFilesJFVxname

@@ -125,13 +125,13 @@ DESDM_EGAMMAJPsiTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   n
 
 
 ToolSvc += DESDM_EGAMMAJPsiTrigSkimmingTool
-print DESDM_EGAMMAJPsiTrigSkimmingTool
+print(DESDM_EGAMMAJPsiTrigSkimmingTool)
 
 # Final event selection filter : 
 
 DESDM_EGAMMAEventFilterTool=DerivationFramework__FilterCombinationOR(name="DESDM_EGAMMAEventFilterTool",FilterList=[DESDM_EGAMMA_SkimmingTool,DESDM_EGAMMAJPsiTrigSkimmingTool])
 ToolSvc+=DESDM_EGAMMAEventFilterTool
-print DESDM_EGAMMAEventFilterTool
+print(DESDM_EGAMMAEventFilterTool)
 
 # =================================================================================
 # Agmentation starts here

@@ -52,7 +52,6 @@ InDetPerfPlot_Vertex::initializePlots() {
 
 
 
-  // Expert plots (iDetailLevel >= 100)
   if (m_iDetailLevel >= 100) {
     IDPVM_BOOK(m_vx_track_pt);
     IDPVM_BOOK(m_vx_track_eta);

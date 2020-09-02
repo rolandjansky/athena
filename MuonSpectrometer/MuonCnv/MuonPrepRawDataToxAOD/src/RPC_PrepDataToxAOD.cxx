@@ -1,19 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// RPC_PrepDataToxAOD.cxx
-//   Implementation file for class RPC_PrepDataToxAOD
-///////////////////////////////////////////////////////////////////
-
 #include "RPC_PrepDataToxAOD.h"
+
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 #include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
 
 // Constructor with parameters:
@@ -23,7 +18,6 @@ RPC_PrepDataToxAOD::RPC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSv
   m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_inversePropagationSpeed(0.0048)
 {  
-    
 }
 
 StatusCode RPC_PrepDataToxAOD::initialize() 
@@ -58,7 +52,7 @@ void RPC_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementVal
   xprd.auxdata<int>("triggerInfo") = prd.triggerInfo();
   xprd.auxdata<int>("ambiguityFlag") = prd.ambiguityFlag();
   xprd.auxdata<unsigned int>("collectionHash") = prd.collectionHash();
-  xprd.auxdata<uint16_t>("measPhi") = m_idHelper->measuresPhi(prd.identify());
+  xprd.auxdata<uint16_t>("measPhi") = m_idHelperSvc->measuresPhi(prd.identify());
   xprd.auxdata<uint16_t>("muonClusterSize") = (uint16_t)prd.rdoList().size();
 }
 
@@ -71,7 +65,7 @@ void RPC_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementVal
   Amg::Vector3D gpos = sdo->globalPosition();
   if( gpos.mag() > 1000 ){
     double distToReadout = 0.;
-    if( m_idHelper->measuresPhi(prd.identify()) ) {
+    if( m_idHelperSvc->measuresPhi(prd.identify()) ) {
       distToReadout = prd.detectorElement()->distanceToPhiReadout(gpos);
     }else{
       distToReadout = prd.detectorElement()->distanceToEtaReadout(gpos);

@@ -39,9 +39,7 @@
 class TFile;
 class TruthTrajectory;
 
-namespace HepMC{
-  class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
   class Track;

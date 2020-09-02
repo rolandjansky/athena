@@ -32,7 +32,7 @@
 #include "exception"
 #include <typeinfo>
 #include "zlib.h"
-//using namespace cool;
+
 namespace MuonCalib {
 
 CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),  m_version("v0.0"), p_reg_sel_svc(NULL), m_cool_connect(false), m_t0_created(false), m_rt_created(false) {
@@ -46,8 +46,6 @@ CoolInserter::CoolInserter(const std::string& name, ISvcLocator* pSvcLocator) : 
   declareProperty("RtFolder", m_rt_folder);
   declareProperty("T0FolderCompress", m_compressed_t0);
   declareProperty("RtFolderCompress", m_compressed_rt);
-  
-  declareProperty("CalibrationSources", m_calibration_sources);
   m_n_tubes_chamber=0;
   m_n_tubes_added=0;
   m_iovt_start=0;
@@ -243,8 +241,6 @@ bool CoolInserter::StoreT0Chamber(const NtupleStationId & id,  const std::string
     m_t0_created = true;
   }
   if(m_t0_created) {
-    std::cout<<"."<<std::flush;
-    //		std::cout<<data_column.str()<<std::endl;
     for(std::map<bool, coral::AttributeList>::iterator it=m_mdtt0_cool_row.begin(); it!=m_mdtt0_cool_row.end(); it++) {
       it->second["file"].data<cool::String4k>() = file;
       it->second["tech"].data<int>() = creation_flags;
@@ -330,8 +326,6 @@ bool CoolInserter::StoreRtChamber(const NtupleStationId & id, const std::map<int
     data_column<<it->second.x2() << "," << it->second.x1() << "," << it->second.error() << ",";
   }
   if(m_rt_created) {
-    std::cout<<"."<<std::flush;
-//		std::cout<<data_column.str()<<std::endl;
     for(std::map<bool, coral::AttributeList>::iterator it=m_mdtrt_cool_row.begin(); it!=m_mdtrt_cool_row.end(); it++) {
       it->second["tech"].data<int>() = creation_flags;
       it->second["file"].data<cool::String4k>() = file;
@@ -377,7 +371,6 @@ inline bool CoolInserter::create_folder(const unsigned int & fldr_nr, const bool
       if (m_compressed_rt[fldr_nr])
 	compressed=true;
   } else {
-    std::cout<<"XXxxXX "<<m_compressed_t0.size() <<" "<<fldr_nr<<std::endl;
     if(m_compressed_t0.size()>fldr_nr)
       if (m_compressed_t0[fldr_nr])
 	compressed=true;

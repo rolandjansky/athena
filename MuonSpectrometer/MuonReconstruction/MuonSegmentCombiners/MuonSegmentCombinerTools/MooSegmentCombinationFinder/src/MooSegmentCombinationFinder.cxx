@@ -186,10 +186,6 @@ void Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const Md
 
   }
 
-
-
-  if( m_doSummary || msgLvl(MSG::DEBUG) ) msg() << endmsg;
-
   // increase counters, assume that the tools is only called once per event
   ++m_nevents;
   if( csc2dSegmentCombinations )   m_ncsc2SegmentCombinations += csc2dSegmentCombinations->size();
@@ -250,8 +246,8 @@ Muon::MooSegmentCombinationFinder::printSummary( std::string stageTag, const Muo
     if( !col ){
       ATH_MSG_INFO("No segment combinations found ");
     }else{
-      msg(MSG::INFO) << "Found " << col->size() << " segment combinations " << std::endl
-         << m_edmPrinter->print( *col );
+      ATH_MSG_INFO("Found " << col->size() << " segment combinations " << std::endl
+         << m_edmPrinter->print( *col ));
     }
   }
 }
@@ -263,7 +259,7 @@ Muon::MooSegmentCombinationFinder::printSummary( std::string stageTag, const Trk
     if( !col ){
       ATH_MSG_INFO("No segments found ");
     }else{
-      msg(MSG::INFO) << "Found " << col->size() << " segments found " << std::endl;
+      ATH_MSG_INFO("Found " << col->size() << " segments found ");
       Trk::SegmentCollection::const_iterator sit = col->begin();
       Trk::SegmentCollection::const_iterator sit_end = col->end();
       for( ;sit!=sit_end;++sit ){
@@ -272,7 +268,8 @@ Muon::MooSegmentCombinationFinder::printSummary( std::string stageTag, const Trk
           msg() << m_edmPrinter->print( *seg ) ;
           if( sit+1 != sit_end ) msg() << std::endl;
         }
-      } 
+      }
+      msg() << endmsg;
     }
   }
 }
@@ -349,7 +346,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
           if( !m_segmentSelector->select( *seg, ignoreHoles, quality, useEta, usePhi ) ){
             if( msgLvl(MSG::VERBOSE) ) {
               int q = m_segmentSelector->quality(*seg,ignoreHoles,useEta,usePhi);
-              msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(*seg) << " quality " << q << endmsg;
+              ATH_MSG_VERBOSE(" bad segment " << m_edmPrinter->print(*seg) << " quality " << q);
             }
             ++nremovedBadSegments;
             continue;
@@ -368,7 +365,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
           if( !m_segmentSelector->select( *seg, ignoreHoles, quality,useEta,usePhi ) ){
             if( msgLvl(MSG::VERBOSE) ) {
               int q = m_segmentSelector->quality(*seg,ignoreHoles,useEta,usePhi);
-              msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(*seg) << " quality " << q << endmsg;
+              ATH_MSG_VERBOSE(" bad segment " << m_edmPrinter->print(*seg) << " quality " << q);
             }
             ++nremovedBadSegments;
             continue;
@@ -384,8 +381,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
   RSMapIt rsit_end = segMap.end();
   for( ;rsit!=rsit_end;++rsit){
 
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Working on new chamber layer with  " << rsit->second->size() 
-               << " segments" << std::endl;
+    if( msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG("Working on new chamber layer with  " << rsit->second->size() << " segments");
 
 
     // sort segments according to the number of hits

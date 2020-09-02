@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,15 @@
 			      correctly accounting for bin-to-bin correlations. For detailed usage of
 			      b-tagging results (e.g. in profile likelihood fits) this is recommended (default: false)
        excludeFromCovMatrix:  semicolon-separated list of uncertainties to be excluded from the eigenvector
-                              decomposition.
+                              decomposition, for all flavours.
+       excludeFromBCovMatrix: semicolon-separated list of uncertainties to be excluded from the eigenvector
+                              decomposition for b jets
+       excludeFromCCovMatrix: semicolon-separated list of uncertainties to be excluded from the eigenvector
+                              decomposition for c jets
+       excludeFromTCovMatrix: semicolon-separated list of uncertainties to be excluded from the eigenvector
+                              decomposition for tau "jets"
+       excludeFromLightCovMatrix: semicolon-separated list of uncertainties to be excluded from the eigenvector
+                              decomposition for light-flavour jets
    </pre>
    </li>
 </ul>
@@ -252,6 +260,8 @@ End_Html */
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 
 #include "CalibrationDataInterface/CalibrationDataEigenVariations.h"
+#include "CalibrationDataInterface/CalibrationDataInternals.h"
+#include <boost/algorithm/string.hpp>
 
 #include "TMath.h"
 #include "TEnv.h"
@@ -271,30 +281,17 @@ using std::endl;
 using Analysis::CalibrationDataContainer;
 using Analysis::UncertaintyResult;
 using Analysis::CalibrationDataEigenVariations;
+using Analysis::CalibrationDataInterface::split;
+using boost::trim;
 
 #ifndef __CINT__
 ClassImp(Analysis::CalibrationDataInterfaceROOT)
 #endif
 
-// local utility function: trim leading and trailing whitespace in the configuration .env file
-
-namespace {
-  std::string trim(const std::string& str,
-		   const std::string& whitespace = " \t") {
-    const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
-        return ""; // no content
-
-    const auto strEnd = str.find_last_not_of(whitespace);
-    const auto strRange = strEnd - strBegin + 1;
-
-    return str.substr(strBegin, strRange);
-  }
-}
-
 //________________________________________________________________________________
-Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const string& taggerName, string configname, string pathname)
-:     m_runEigenVectorMethod(false), m_absEtaStrategy(GiveUp), m_otherStrategy(Flag)
+Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const string& taggerName, string configname, string pathname) :
+  m_runEigenVectorMethod(false), m_useRecommendedEVExclusions(false), m_verbose(true),
+  m_absEtaStrategy(GiveUp), m_otherStrategy(Flag)
 {
   // Normal constructor.
   //
@@ -308,8 +305,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
 
   // ROOT file containing the calibrations
   TString filename = env.GetValue("File", "BTaggingPerformanceCalibrations.root");
-  m_filenameEff = trim(string(env.GetValue("FileEff", "")));
-  m_filenameSF = trim(string(env.GetValue("FileSF", "")));
+  m_filenameEff = string(env.GetValue("FileEff", "")); trim(m_filenameEff);
+  m_filenameSF =  string(env.GetValue("FileSF", ""));  trim(m_filenameSF);
   if (m_filenameEff == "") {
     m_filenameEff = pathname + filename.Data();
   }
@@ -317,11 +314,13 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     m_filenameSF = pathname + filename.Data();
   }
 
-  cout << "=== CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT ===" << endl;
-  cout << " Config name          : " << configname << endl;
-  cout << " taggerName           : " << taggerName << endl;
-  cout << " Efficiency file name : " << m_filenameEff << endl 
-       << " SF         file name : " << m_filenameSF << endl;
+  if (m_verbose) {
+    cout << "=== CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT ===" << endl;
+    cout << " Config name          : " << configname << endl;
+    cout << " taggerName           : " << taggerName << endl;
+    cout << " Efficiency file name : " << m_filenameEff << endl 
+	 << " SF         file name : " << m_filenameSF << endl;
+  }
 
   m_fileEff = TFile::Open(m_filenameEff.c_str(), "READ");
   if (m_filenameEff == m_filenameSF)
@@ -329,89 +328,36 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   else
     m_fileSF = TFile::Open(m_filenameSF.c_str(), "READ");
 
-  TObjString* s;
-  m_fileSF->GetObject("VersionInfo/BuildNumber", s);
-  if (s) cout << " CDI file build number: " << s->GetName() << endl;
-  cout << endl;
-  
-  // Calibration names for the efficiencies
+  if (m_verbose) {
+    TObjString* s;
+    m_fileSF->GetObject("VersionInfo/BuildNumber", s);
+    if (s) cout << " CDI file build number: " << s->GetName() << endl;
+    cout << endl;
+  }
+
+  std::string flavours[] = { "B", "C", "T", "Light" };
   string testPrefix(taggerName); testPrefix += ".";
-  string test(testPrefix); test += "EfficiencyCalibrationBName";
-  string calibrationBName(trim(string(env.GetValue(test.c_str(), "default"))));
-  test = testPrefix; test += "EfficiencyCalibrationCName";
-  string calibrationCName(trim(string(env.GetValue(test.c_str(), "default"))));
-  test = testPrefix; test += "EfficiencyCalibrationTName";
-  string calibrationTName(trim(string(env.GetValue(test.c_str(), "default"))));
-  test = testPrefix; test += "EfficiencyCalibrationLightName";
-  string calibrationLightName(trim(string(env.GetValue(test.c_str(), "default"))));
 
   // Since TEnv doesn't allow for straight retrieval of vectors of strings, expect
   // semicolon-separated entries (semicolon because ROOT considers this as a "special"
   // token anyway in object names).
   string::size_type end;
 
-  std::vector<string> calibrationBNames;
-  if (calibrationBName.size() > 0) {
-    do {
-      end = calibrationBName.find(";");
-      calibrationBNames.push_back(trim(calibrationBName.substr(0,end)));
-      if (end != string::npos) calibrationBName = calibrationBName.substr(end+1);
-    } while (end != string::npos);
-  }
-
-  std::vector<string> calibrationCNames;
-  if (calibrationCName.size() > 0) {
-    do {
-      end = calibrationCName.find(";");
-      calibrationCNames.push_back(trim(calibrationCName.substr(0,end)));
-      if (end != string::npos) calibrationCName = calibrationCName.substr(end+1);
-    } while (end != string::npos);
-  }
-
-  std::vector<string> calibrationTNames;
-  if (calibrationTName.size() > 0) {
-    do {
-      end = calibrationTName.find(";");
-      calibrationTNames.push_back(trim(calibrationTName.substr(0,end)));
-      if (end != string::npos) calibrationTName = calibrationTName.substr(end+1);
-    } while (end != string::npos);
-  }
-
-  std::vector<string> calibrationLightNames;
-  if (calibrationLightName.size() > 0) {
-    do {
-      end = calibrationLightName.find(";");
-      calibrationLightNames.push_back(trim(calibrationLightName.substr(0,end)));
-      if (end != string::npos) calibrationLightName = calibrationLightName.substr(end+1);
-    } while (end != string::npos);
-  }
-
-
-  // insert the calibration names into a common object
+  // Calibration names for the efficiencies
   std::map<string, std::vector<string> > effNames;
-  effNames["B"] = calibrationBNames;
-  effNames["C"] = calibrationCNames;
-  effNames["T"] = calibrationTNames;
-  effNames["Light"] = calibrationLightNames;
+  for (auto const& flavour : flavours) {
+    string test(testPrefix); test += "EfficiencyCalibration"; test += flavour; test += "Name";
+    effNames[flavour] = split(string(env.GetValue(test.c_str(), "default")));
+  }
   setEffCalibrationNames(effNames);
 
   // Calibration names for the efficiency scale factors
-  test = testPrefix; test += "ScaleFactorCalibrationBName";
-  calibrationBName = trim(string(env.GetValue(test.c_str(), "default")));
-  test = testPrefix; test += "ScaleFactorCalibrationCName";
-  calibrationCName = trim(string(env.GetValue(test.c_str(), "default")));
-  test = testPrefix; test += "ScaleFactorCalibrationTName";
-  calibrationTName = trim(string(env.GetValue(test.c_str(), "default")));
-  test = testPrefix; test += "ScaleFactorCalibrationLightName";
-  calibrationLightName = trim(string(env.GetValue(test.c_str(), "default")));
-
-  // insert the calibration names into a common object
-  std::map<string, string> names;
-  names["B"] = calibrationBName;
-  names["C"] = calibrationCName;
-  names["T"] = calibrationTName;
-  names["Light"] = calibrationLightName;
-  setSFCalibrationNames(names);
+  std::map<string, string> SFNames;
+  for (auto const& flavour : flavours) {
+    string test(testPrefix); test += "ScaleFactorCalibration"; test += flavour; test += "Name";
+    SFNames[flavour] = string(env.GetValue(test.c_str(), "default")); trim(SFNames[flavour]);
+  }
+  setSFCalibrationNames(SFNames);
 
   // Since TEnv doesn't allow for straight retrieval of vectors of strings, expect
   // semicolon-separated entries (semicolon because ROOT considers this as a "special"
@@ -427,53 +373,69 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
       // NB: TEnv imposes a maximum string length of 1024 characters -- is this a problem?
       string::size_type arrow = alias.find("->");
       if (arrow == string::npos) continue;
-      m_aliases[trim(alias.substr(0,arrow))] = trim(alias.substr(arrow+2));
+      string target = alias.substr(0,arrow); trim(target);
+      m_aliases[target] = alias.substr(arrow+2); trim(m_aliases[target]);
       if (end != string::npos) AL = AL.substr(end+1);
     } while (end != string::npos);
   }
 
   //run egenvector method or not?
-  test="runEigenVectorMethod";
+  string test="runEigenVectorMethod";
   m_runEigenVectorMethod=(bool)env.GetValue(test.c_str(),0);
 
   if (m_runEigenVectorMethod) {
     // Retrieve the list of systematic uncertainties not to be considered when building up 
-    // the full covariance matrix used for the eigenvector method
+    // the full covariance matrix used for the eigenvector method.
+    // We do this in two steps: first, for backward compatibility reasons, a flavour-independent list is scanned.
+    // Second, flavour-specific lists are scanned.
     test = "excludeFromCovMatrix";
-    string uncList(env.GetValue(test.c_str(), ""));
-    string::size_type end2;
-    if (uncList.size() > 0) {
-      do {
-        end2 = uncList.find(";");
-        m_excludeFromCovMatrix.push_back(trim(uncList.substr(0,end2)));
-        if (end2 != string::npos) uncList = uncList.substr(end2+1);
-      } while (end2 != string::npos);
+    std::vector<std::string> to_exclude = split(env.GetValue(test.c_str(), ""));
+    // Copy the resulting list to all flavours
+    for (auto const& flavour : flavours) {
+      m_excludeFromCovMatrix[flavour] = to_exclude;
     }
 
-    cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
-    cout << endl;
-    for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
-      cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
+    for (auto const& flavour : flavours) {
+      test = "excludeFrom"; test += flavour; test += "CovMatrix";
+      to_exclude = split(env.GetValue(test.c_str(), ""));
+      // Append to the existing list
+      m_excludeFromCovMatrix[flavour].insert(m_excludeFromCovMatrix[flavour].end(), to_exclude.begin(), to_exclude.end());
+    }
+    
+    unsigned int n_excluded = 0;
+    for (auto const& flavour : flavours) {
+      n_excluded += m_excludeFromCovMatrix[flavour].size();
+    }
+    if (m_verbose) {
+      cout << " List of uncertainties to exclude:";
+      if (n_excluded == 0) cout << " none";
+      for (auto const& flavour : flavours) {
+	if (m_excludeFromCovMatrix[flavour].size() > 0) {
+	  cout << "\n\t" << flavour << ":\t";
+	  for (unsigned int i = 0; i < m_excludeFromCovMatrix[flavour].size(); ++i) {
+	    cout << m_excludeFromCovMatrix[flavour][i];
+	    if (i+1 != m_excludeFromCovMatrix[flavour].size()) cout << ";  ";
+	  }
+	  cout << endl;
+	}
+      }
+      cout << endl;
     }
 
+    // The following determines whether also pre-determined (recommended) lists of uncertainties are to be excluded from EV decomposition.
+    // These lists are stored with the CalibrationDataContainers, which have not been instantiated yet (so we cannot show them at this point).
+    m_useRecommendedEVExclusions = (bool) env.GetValue("ExcludeRecommendedFromEigenVectorTreatment", false);
+    
     // determine also the eigenvector reduction strategies
     std::map<string, EVReductionStrategy> mappings;
-    std::map<string, string> reductions;
-    test = testPrefix; test += "EigenvectorReductionB";
-    reductions["B"] = trim(string(env.GetValue(test.c_str(), "Loose")));
-    test = testPrefix; test += "EigenvectorReductionC";
-    reductions["C"] = trim(string(env.GetValue(test.c_str(), "Loose")));
-    test = testPrefix; test += "EigenvectorReductionLight";
-    reductions["Light"] = trim(string(env.GetValue(test.c_str(), "Loose")));
     mappings["Loose"] = Loose;
     mappings["Medium"] = Medium;
     mappings["Tight"] = Tight;
-    for (auto const &flavour : reductions) {
-      m_EVReductions[flavour.first] = mappings.find(flavour.second) == mappings.end() ? mappings["Loose"] : mappings.find(flavour.second)->second;
+    for (auto const& flavour : flavours) {
+      test = testPrefix; test += "EigenvectorReduction"; test += flavour;
+      std::string reduction = string(env.GetValue(test.c_str(), "Loose")); trim(reduction);
+      m_EVReductions[flavour] = mappings.find(reduction) == mappings.end() ? mappings["Loose"] : mappings.find(reduction)->second;
     }
-    // copy the strategy for c jets over to tau "jets"
-    m_EVReductions["T"] = m_EVReductions["C"];
   }
 
   // determine |eta| validity range
@@ -481,7 +443,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   if (m_maxAbsEta < 0) m_maxAbsEta = 2.5;
 
   // set validation / protection strategy in case an out-of-bounds eta value is specified
-  string strategy = trim(string(env.GetValue("OutOfBoundsEta", "GiveUp")));
+  string strategy = string(env.GetValue("OutOfBoundsEta", "GiveUp")); trim(strategy);
   if (strategy == "GiveUp") m_absEtaStrategy = GiveUp;
   else if (strategy == "Flag") m_absEtaStrategy = Flag;
   else if (strategy == "Ignore") m_absEtaStrategy = Ignore;
@@ -491,7 +453,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   }
 
   // set validation / protection strategy in case out-of-bounds variables are specified
-  strategy = trim(string(env.GetValue("OutOfBoundsOther", "Flag")));
+  strategy = string(env.GetValue("OutOfBoundsOther", "Flag")); trim(strategy);
   if (strategy == "GiveUp") m_otherStrategy = GiveUp;
   else if (strategy == "GiveUpExtrapolated") m_otherStrategy = GiveUpExtrapolated;
   else if (strategy == "Flag") m_otherStrategy = Flag;
@@ -509,7 +471,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   // MC/MC (topology) scale factors: making this user-steerable is intended to be *temporary* only
   m_useTopologyRescaling = (bool) env.GetValue("useTopologySF", 0);
 
-  cout << "======= end of CalibrationDataInterfaceROOT instantiation ========" << endl;
+  if (m_verbose) cout << "======= end of CalibrationDataInterfaceROOT instantiation ========" << endl;
 }
 
 
@@ -519,11 +481,14 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
 								     const std::vector<std::string>& jetAliases,
 								     const std::map<std::string, std::string>& SFNames,
 								     const std::map<std::string, std::vector<std::string> >& EffNames,
-								     const std::vector<std::string>& excludeFromEV,
+								     const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 								     const std::map<std::string, EVReductionStrategy> EVReductions,
-								     bool useEV, bool useMCMCSF, bool useTopologyRescaling) :
+								     bool useEV, bool useMCMCSF, bool useTopologyRescaling,
+								     bool useRecommendedEEVExclusions, bool verbose) :
   m_filenameSF(fileSF), m_filenameEff(""),
-  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions), m_useMCMCSF(useMCMCSF), m_useTopologyRescaling(useTopologyRescaling),
+  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions),
+  m_useRecommendedEVExclusions(useRecommendedEEVExclusions), m_verbose(verbose),
+  m_useMCMCSF(useMCMCSF), m_useTopologyRescaling(useTopologyRescaling),
   m_maxAbsEta(2.5), m_absEtaStrategy(GiveUp),
   m_otherStrategy(Flag), m_maxTagWeight(10.0)
 {
@@ -544,8 +509,9 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
   //                     name of the scale factor calibration object
   //     EffNames:       map specifying for each of the calibration flavours ("B", "C", "T", "Light") the
   //                     names of the possibly relevant efficiency calibration objects
-  //     excludeFromEV:  list of systematic uncertainties to be excluded from the Eigenvector variation
-  //                     treatment (this is used only if Eigenvector variations are used to begin with)
+  //     excludeFromEV:  map specifying for each of the calibration flavours ("B", "C", "T", "Light") the
+  //                     systematic uncertainties to be excluded from the Eigenvector variation treatment
+  //                     (this is used only if Eigenvector variations are used to begin with)
   //     EVReductions:   Eigenvector variation reduction strategies for "B", "C", "Light" jets (again,
   //                     this is only relevant if Eigenvector variations are used to begin with)
   //     useEV:          switch specifying if Eigenvector variations will be used or not
@@ -554,11 +520,13 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
   // Note: at present, the means to change the strategies and maximum values initialized above do not exist
   // when using this constructor
 
-  cout << "=== CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT ===" << endl;
-  cout << " taggerName           : " << taggerName.c_str() << endl;
-  if (fileEff) cout << " Efficiency file name : " << fileEff << endl;
-  cout << " SF         file name : " << fileSF << endl
-       << endl;
+  if (m_verbose) {
+    cout << "=== CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT ===" << endl;
+    cout << " taggerName           : " << taggerName.c_str() << endl;
+    if (fileEff) cout << " Efficiency file name : " << fileEff << endl;
+    cout << " SF         file name : " << fileSF << endl
+	 << endl;
+  }
 
   m_taggerName = taggerName;
 
@@ -569,11 +537,13 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
   } else
     m_fileEff = m_fileSF;
 
-  TObjString* s;
-  m_fileSF->GetObject("VersionInfo/BuildNumber", s);
-  if (s) cout << " CDI file build number: " << s->GetName() << endl;
-  cout << endl;
-
+  if (m_verbose) {
+    TObjString* s;
+    m_fileSF->GetObject("VersionInfo/BuildNumber", s);
+    if (s) cout << " CDI file build number: " << s->GetName() << endl;
+    cout << endl;
+  }
+  
   for (unsigned int i = 0; i < jetAliases.size(); ++i) {
     // Each alias specification uses an arrow ("->"). Forget about entries
     // not properly following this specification.
@@ -588,14 +558,29 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
   if (m_runEigenVectorMethod) {
     m_excludeFromCovMatrix = excludeFromEV;
 
-    cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
-    cout << endl;
-    for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
-      cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
+    std::string flavours[] = { "B", "C", "T", "Light" };
+    unsigned int n_excluded = 0;
+    for (auto const& flavour : flavours) {
+      n_excluded += m_excludeFromCovMatrix[flavour].size();
+    }
+    if (m_verbose) {
+      cout << " List of uncertainties to exclude:";
+      if (n_excluded == 0) cout << " none";
+      for (auto const& flavour : flavours) {
+	if (m_excludeFromCovMatrix[flavour].size() > 0) {
+	  cout << "\n\t" << flavour << ":\t";
+	  for (unsigned int i = 0; i < m_excludeFromCovMatrix[flavour].size(); ++i) {
+	    cout << m_excludeFromCovMatrix[flavour][i];
+	    if (i+1 != m_excludeFromCovMatrix[flavour].size()) cout << ";  ";
+	  }
+	  cout << endl;
+	}
+      }
+      cout << endl;
     }
   }
-  cout << "======= end of CalibrationDataInterfaceROOT instantiation ========" << endl;
+  
+  if (m_verbose) cout << "======= end of CalibrationDataInterfaceROOT instantiation ========" << endl;
 }
 
 //________________________________________________________________________________
@@ -654,8 +639,14 @@ Analysis::CalibrationDataInterfaceROOT::~CalibrationDataInterfaceROOT()
     }
   }
 
+  for (std::map<std::string, HadronisationReferenceHelper*>::iterator it = m_refMap.begin();
+       it != m_refMap.end(); ++it) {
+    if(it->second)
+      { delete it->second; it->second=nullptr; }
+  }
+
   // Print summary output on out-of-bounds issues
-  if (m_absEtaStrategy == Flag) {
+  if (m_absEtaStrategy == Flag && m_verbose) {
     bool found = false;
     cout << "\t\tCalibrationDataInterfaceROOT |eta| out-of-bounds summary:" << endl;
     for (unsigned int index = 0; index < m_mainCounters.size(); ++index)
@@ -665,7 +656,7 @@ Analysis::CalibrationDataInterfaceROOT::~CalibrationDataInterfaceROOT()
       }
     if (!found) cout << "\t\t\tNo issues found" << endl;
   }
-  if (m_otherStrategy == Flag) {
+  if (m_otherStrategy == Flag && m_verbose) {
     bool found = false;
     cout << "\t\tCalibrationDataInterfaceROOT object out-of-bounds summary:" << endl;
     for (unsigned int index = 0; index < m_mainCounters.size(); ++index)
@@ -718,7 +709,7 @@ Analysis::CalibrationDataInterfaceROOT::retrieveCalibrationIndex (const std::str
     string flavour = (label == "N/A") ? "Light" : label;
     string dirname = m_taggerName + "/" + getAlias(author) + "/" + OP + "/" + flavour;
     string cntname = getContainername(flavour, isSF, mapIndex);
-    const_cast<Analysis::CalibrationDataInterfaceROOT*>(this)->retrieveContainer(dirname, cntname, isSF);
+    const_cast<Analysis::CalibrationDataInterfaceROOT*>(this)->retrieveContainer(dirname, cntname, isSF, m_verbose);
     it = m_objectIndices.find(name);
     if (it == m_objectIndices.end()) return false;
   }
@@ -817,8 +808,8 @@ Analysis::CalibrationDataInterfaceROOT::getScaleFactor (const CalibrationDataVar
 
   if (!m_runEigenVectorMethod && (unc == SFEigen || unc == SFNamed))
   {
-     cerr << " ERROR. Trying to call eigenvector method but initialization not switched on in b-tagging .env config file." << endl;
-     cerr << " Please correct your .env config file first. Nominal uncertainties used. " << endl;
+     cerr << " ERROR. Trying to call eigenvector method but initialization not switched on in b-tagging configuration." << endl;
+     cerr << " Please correct your configuration first. Nominal uncertainties used. " << endl;
   }
   if (unc == SFEigen || unc == SFNamed) {
     const CalibrationDataEigenVariations* eigenVariation=m_eigenVariationsMap[container];
@@ -1244,7 +1235,7 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
   if (effStatus == Analysis::kError) return effStatus;
 
   double eff = std::min(effResult.first, 1.);
-  double efferr = effResult.second;
+  //  double efferr = effResult.second; // not needed as (per the code change indicated below) we are not doing anything with MC statistical uncertainties
   double sf = sfResult.first; 
   double sferr = sfResult.second; 
 
@@ -1261,7 +1252,10 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
       result.second = valDown;
       return sfStatus;
     }
-    err = pow((1. - sf) / (1. - eff) * efferr, 2) + pow(eff*sferr, 2);
+    // When using eigenvector (or named) variations (as above), only scale factor variations are considered.
+    // For the sake of consistency, it has been decided (see https://its.cern.ch/jira/browse/AFT-350) to remove them also when EV variations aren't used
+    //err = pow((1. - sf) / (1. - eff) * efferr, 2) + pow(eff*sferr, 2);
+    err = pow(eff*sferr, 2);
     if (err > 0.)
       err = 1./(1. - eff) * TMath::Sqrt(err);
     // cout << "btag Calib Ineff err=" << err << endl;
@@ -1595,7 +1589,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
   else if (m_otherStrategy == Flag)
     if (effStatus == Analysis::kRange) const_cast<CalibrationDataInterfaceROOT*>(this)->increaseCounter(indexEff);
   // since we need to divide by this quantity, check that it is well-defined
-  if (!(fracMCnew > 0.)) {
+  if (!(fracMCnew > 0.) and m_useTopologyRescaling) {// but we only care if using topology rescaling
     cerr << "getWeightScaleFactor: error: null fracMCnew would lead to invalid operation" << endl;
     return Analysis::kError;
   }
@@ -1626,7 +1620,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
       return Analysis::kError;
     }
     // the 'extrapolation' uncertainty (always a named one) needs a somewhat special treatment
-    bool extrapolate = (unc==SFNamed) ? eigenVariation->isExtrapolationVariation(numVariation) : false;
+    bool extrapolate = ( unc == SFNamed ) ? eigenVariation->isExtrapolationVariation(numVariation) : false;
     
     double valueUp;
     double valueDown;
@@ -1686,10 +1680,19 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
   if (unc == Total || unc == Systematic) {
     if (container->getSystUncertainty(variables, uncertaintyResult) == Analysis::kError) {
       cerr << "getWeightScaleFactor: error retrieving Scale factor parameter systematic uncertainty!"
-	   << endl;
+           << endl;
       return Analysis::kError;
     }
-  }
+  } else if (unc == Extrapolation) {
+    // this uncertainty is special, since it is not normally to be combined into the overall systematic uncertainty
+    if (container->getUncertainty("extrapolation", variables, uncertaintyResult) == Analysis::kError)
+      cerr << "getWeightScaleFactor: error retrieving Scale factor parameter extrapolation uncertainty!" << endl;
+  } else if (unc == TauExtrapolation) {
+    // also this uncertainty is special, since it it singles out an uncertainty relevant only for tau "jets",
+    // and some care has to be taken not to duplicate or omit uncertainties
+    if (container->getUncertainty("extrapolation from charm", variables, uncertaintyResult) == Analysis::kError)
+      cerr << "getWeightScaleFactor: error retrieving Scale factor parameter extrapolation uncertainty!" << endl;
+  }  
 
   double uncertainty = combinedUncertainty(stat, uncertaintyResult);
 
@@ -2341,7 +2344,7 @@ Analysis::CalibrationDataInterfaceROOT::initialize(const string& jetauthor, cons
 
 //________________________________________________________________________________
 CalibrationDataContainer*
-Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, const string& cntname, bool isSF)
+Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, const string& cntname, bool isSF, bool doPrint)
 {
   // Attempt to retrieve the given container from file. Note that also the corresponding
   // "hadronisation" reference is retrieved (if possible and not yet done).
@@ -2351,6 +2354,9 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
   //     isSF:    set to false (true) if the object is to be retrieved from the MC efficiencies
   //              file (the calibration scale factor file). Note that it is assumed that scale
   //              factor objects will always be retrieved from the calibration scale factor file.
+  //     doPrint: if true, print out some basic information about the successfully retrieved container
+  //              (note that this is typically steered by the m_verbose setting;
+  //               only for the retrieval of the maps used for MC/MC SF calculations, this printout is always switched off)
 
   // construct the full object name
   string name = dir + "/" + cntname;
@@ -2370,9 +2376,16 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
   if (!isSF && !cnt && m_fileSF != m_fileEff) m_fileSF->GetObject(name.c_str(), cnt);
   m_objects.push_back(cnt);
   if (!cnt) {
-    cout << "btag Calib: retrieveContainer: failed to retrieve container named " << name.c_str() << " from file" << endl;
+    cerr << "btag Calib: retrieveContainer: failed to retrieve container named " << name.c_str() << " from file" << endl;
     return 0;
   }
+
+  // For successfully retrieved containers, also print some more information (implemented on user request)
+  if (doPrint) {
+    cout << "CalibrationDataInterface: retrieved container " << name << " (with comment: '" << cnt->getComment()
+	 << "' and hadronisation setting '" << cnt->getHadronisation() << "')" << endl;
+  }
+
 
   // If the requested object is a MC efficiency container, make sure to retrieve the corresponding
   // calibration scale factor container first (a feature first thought to be necessary, erroneously,
@@ -2389,7 +2402,7 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
       delete mapEff;
     } else {
       string SFCalibName = getContainername(getBasename(dir), true);
-      if (m_objectIndices.find(SFCalibName) == m_objectIndices.end()) retrieveContainer(dir, SFCalibName, true);
+      if (m_objectIndices.find(SFCalibName) == m_objectIndices.end()) retrieveContainer(dir, SFCalibName, true, doPrint);
     }
   }
 
@@ -2411,45 +2424,45 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
 	string refname(dir + "/" + ref);
 	std::map<string, unsigned int>::const_iterator it = m_objectIndices.find(refname);
 	// If the reference cannot be found, assume that it hasn't yet been retrieved so attempt it now.
-	if (it == m_objectIndices.end()) { 
-	  retrieveContainer(dir, ref, isSF); it = m_objectIndices.find(refname);
+	if (it == m_objectIndices.end()) {
+	  // Omit the printout of container information here (the idea being that showing MC/MC SF information would confuse rather than help)
+	  retrieveContainer(dir, ref, isSF, false); it = m_objectIndices.find(refname);
 	}
 	m_hadronisationReference[idx] = it->second;
       }
     } else if (m_useMCMCSF)
-      cout << "btag Calib: retrieveContainer: MC hadronisation reference map not found -- this should not happen!" << endl;
+      cerr << "btag Calib: retrieveContainer: MC hadronisation reference map not found -- this should not happen!" << endl;
   }
   if (m_hadronisationReference[idx] == -1 || ! m_objects[m_hadronisationReference[idx]])
     // Not being able to construct the MC/MC scale factors will lead to a potential bias.
     // However, this is not considered sufficiently severe that we will flag it as an error.
     if (m_useMCMCSF)
-      cout << "btag Calib: retrieveContainer: warning: unable to apply MC/MC scale factors for container "
+      cerr << "btag Calib: retrieveContainer: warning: unable to apply MC/MC scale factors for container "
 	   << name << " with hadronisation reference = '" << spec << "'" << endl;
 
-  // Initialize the Eigenvector variation object corresponding to this object, if applicable. Note that the
-  // dual use of "isSF" (both referring to the file and to the object, see above) requires another protection here.
+  // Initialize the Eigenvector variation object corresponding to this object, if applicable. Notes:
+  // - the dual use of "isSF" (both referring to the file and to the object, see above) requires another protection here
+  // - the constructor's second argument is used to determine whether to exclude a pre-determined set of uncertainties from the EV decomposition
   if (m_runEigenVectorMethod && isSF && name.find("_SF") != string::npos) {
     const CalibrationDataHistogramContainer* histoContainer=dynamic_cast<const CalibrationDataHistogramContainer*>(cnt);
     if (histoContainer==0) {
       cerr << "Could not cast Container to a HistogramContainer. " << endl;
       return 0;
     }
-    CalibrationDataEigenVariations* newEigenVariation=new CalibrationDataEigenVariations(histoContainer);
+    CalibrationDataEigenVariations* newEigenVariation=new CalibrationDataEigenVariations(histoContainer, m_useRecommendedEVExclusions);
 
-    std::vector<std::string>::const_iterator listBegin=m_excludeFromCovMatrix.begin();
-    std::vector<std::string>::const_iterator listEnd=m_excludeFromCovMatrix.end();
-    
-    for (std::vector<std::string>::const_iterator listIter=listBegin;listIter!=listEnd;++listIter) {
-      newEigenVariation->excludeNamedUncertainty(*listIter);
-    }
-
-    newEigenVariation->initialize();
     // At this point we may also want to reduce the number of eigenvector variations.
     // The choices are stored with the container object; but first we need to know what flavour we are dealing with.
     string flavour = dir.substr(dir.find_last_of("/")+1);
+
+    for (auto entry : m_excludeFromCovMatrix[flavour]) {
+      newEigenVariation->excludeNamedUncertainty(entry);
+    }
+
+    newEigenVariation->initialize();
     int to_retain = histoContainer->getEigenvectorReduction(m_EVReductions[flavour]);
     if (to_retain > -1) {
-      cout << "btag Calib: reducing number of eigenvector variations for flavour " << flavour << " to " << to_retain << endl;
+      if (m_verbose) cout << "btag Calib: reducing number of eigenvector variations for flavour " << flavour << " to " << to_retain << endl;
       // The merged variations will end up as the first entry in the specified list, i.e., as the last of the variations to be "retained"
       newEigenVariation->mergeVariationsFrom(size_t(to_retain-1));
     } else if (m_EVReductions[flavour] != Loose)

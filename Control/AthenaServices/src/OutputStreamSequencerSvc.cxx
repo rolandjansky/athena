@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file OutputStreamSequencerSvc.cxx
@@ -23,7 +23,6 @@ OutputStreamSequencerSvc::OutputStreamSequencerSvc(const std::string& name, ISvc
 {
    // declare properties
    declareProperty("SequenceIncidentName", m_incidentName = "");
-   declareProperty("IgnoreInputFileBoundary", m_ignoreInputFile = false);
 }
 //__________________________________________________________________________
 OutputStreamSequencerSvc::~OutputStreamSequencerSvc() {
@@ -35,12 +34,6 @@ StatusCode OutputStreamSequencerSvc::initialize() {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
    }
-
-   // Retrieve MetaDataSvc
-   if (!m_metaDataSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get MetaDataSvc.");
-      return(StatusCode::FAILURE);
-   }
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incsvc("IncidentSvc", this->name());
    if (!incsvc.retrieve().isSuccess()) {
@@ -49,6 +42,7 @@ StatusCode OutputStreamSequencerSvc::initialize() {
    }
    if( !incidentName().empty() ) {
       incsvc->addListener(this, incidentName(), 100);
+      incsvc->addListener(this, IncidentType::BeginProcessing, 100);
    }
    if( inConcurrentEventsMode() ) {
       ATH_MSG_DEBUG("Concurrent events mode");
@@ -56,6 +50,8 @@ StatusCode OutputStreamSequencerSvc::initialize() {
       ATH_MSG_VERBOSE("Sequential events mode");
    }
 
+   // Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents() not set yet
+   // m_rangeIDinSlot.resize( );
    m_finishedRange = m_fnToRangeId.end();
 
    return(StatusCode::SUCCESS);
@@ -93,32 +89,59 @@ bool    OutputStreamSequencerSvc::inUse() const {
 //__________________________________________________________________________
 void OutputStreamSequencerSvc::handle(const Incident& inc)
 {
-   // process NextEventRange 
    ATH_MSG_INFO("handle incident type " << inc.type());
 
-   // finish the old range if needed
-   if( m_fileSequenceNumber >= 0 and !inConcurrentEventsMode() ) {
-      // When processing events sequentially (threads<2) write metadata on the NextRange incident
-      // but ignore the first incident because it only starts the first sequence
-      ATH_MSG_DEBUG("MetaData transition");
-      if (!m_metaDataSvc->transitionMetaDataFile( ignoringInputBoundary() ).isSuccess()) {
-         ATH_MSG_FATAL("Cannot transition MetaDataSvc.");
+   auto slot = Gaudi::Hive::currentContext().slot();
+   if( slot == EventContext::INVALID_CONTEXT_ID )  slot = 0;
+
+   if( inc.type() == incidentName() ) {  // NextEventRange 
+      // finish the old range if needed
+      if( m_fileSequenceNumber >= 0 and !inConcurrentEventsMode() ) {
+         // When processing events sequentially (threads<2) write metadata on the NextRange incident
+         // but ignore the first incident because it only starts the first sequence
+         ATH_MSG_DEBUG("MetaData transition");
+         // Retrieve MetaDataSvc
+         if( !m_metaDataSvc.isValid() and !m_metaDataSvc.retrieve().isSuccess() ) {
+            throw GaudiException("Cannot get MetaDataSvc", name(), StatusCode::FAILURE);
+         }
+         if( !m_metaDataSvc->transitionMetaDataFile().isSuccess() ) {
+            throw GaudiException("Cannot transition MetaData", name(), StatusCode::FAILURE);
+         }
       }
+      // start a new range
+      std::lock_guard lockg( m_mutex );
+      std::string rangeID;
+      m_fileSequenceNumber++;
+      const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+      if (fileInc != nullptr) {
+         rangeID = fileInc->fileName();
+         ATH_MSG_DEBUG("Requested (through incident) next event range filename extension: " << rangeID);
+      }
+      if( rangeID.empty() ) {
+         std::ostringstream n;
+         n << "_" << std::setw(4) << std::setfill('0') << m_fileSequenceNumber;
+         rangeID = n.str();
+         ATH_MSG_DEBUG("Default next event range filename extension: " << rangeID);
+      } 
+      if( slot >= m_rangeIDinSlot.size() ) {
+         // MN - late resize, is there a better place for it?
+         m_rangeIDinSlot.resize( std::max(slot+1, Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) );
+      }
+      m_rangeIDinSlot[ slot ] = rangeID;
+      // remember range ID for next events in the same range
+      m_currentRangeID = rangeID;
    }
-   // start a new range
-   m_currentRangeID.clear();
-   m_fileSequenceNumber++;
-   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
-   if (fileInc != nullptr) {
-      m_currentRangeID = fileInc->fileName();
-      ATH_MSG_DEBUG("Requested (through incident) next event range filename extension: " << m_currentRangeID);
+   else if( inc.type() == IncidentType::BeginProcessing ) {
+      // new event start - assing current rangeId to its slot
+      ATH_MSG_DEBUG("Assigning rangeID = " << m_currentRangeID << " to slot " << slot);
+      std::lock_guard lockg( m_mutex );
+      // If this service is enabled but not getting NextRange incidents, need to resize here
+      if( slot >= m_rangeIDinSlot.size() ) {
+         m_rangeIDinSlot.resize( std::max(slot+1, Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) );
+      }
+      m_rangeIDinSlot[ slot ] = m_currentRangeID;
    }
-   if( m_currentRangeID.empty() ) {
-      std::ostringstream n;
-      n << "_" << std::setw(4) << std::setfill('0') << m_fileSequenceNumber;
-      m_currentRangeID = n.str();
-      ATH_MSG_DEBUG("Default next event range filename extension: " << m_currentRangeID);
-   } 
+
 }
 
 //__________________________________________________________________________
@@ -128,6 +151,8 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
       // Event sequences not in use, just return the original filename
       return orgFileName;
    }
+   std::string rangeID = currentRangeID();
+   std::lock_guard lockg( m_mutex );
    // build the full output file name for this event range
    std::string fileNameCore = orgFileName, fileNameExt;
    std::size_t sepPos = orgFileName.find("[");
@@ -136,20 +161,34 @@ std::string OutputStreamSequencerSvc::buildSequenceFileName(const std::string& o
       fileNameExt = orgFileName.substr(sepPos);
    }
    std::ostringstream n;
-   n << fileNameCore << "." << m_currentRangeID << fileNameExt;
-   m_fnToRangeId.insert(std::pair<std::string,std::string>(n.str(),m_currentRangeID));
+   n << fileNameCore << "." << rangeID << fileNameExt;
+   m_fnToRangeId.insert( std::pair(n.str(), rangeID) );
 
    return n.str();
 }
 
+
+std::string OutputStreamSequencerSvc::currentRangeID() const
+{
+   if( !inUse() )  return "";
+   auto slot = Gaudi::Hive::currentContext().slot();
+   if( slot == EventContext::INVALID_CONTEXT_ID )  slot = 0; 
+   std::lock_guard lockg( m_mutex );
+   if( slot >= m_rangeIDinSlot.size() ) return "";
+   return m_rangeIDinSlot[ slot ];
+}
+
+
 void OutputStreamSequencerSvc::publishRangeReport(const std::string& outputFile)
 {
-  m_finishedRange = m_fnToRangeId.find(outputFile);
+   std::lock_guard lockg( m_mutex );
+   m_finishedRange = m_fnToRangeId.find(outputFile);
 }
 
 OutputStreamSequencerSvc::RangeReport_ptr OutputStreamSequencerSvc::getRangeReport()
 {
   RangeReport_ptr report;
+  std::lock_guard lockg( m_mutex );
   if(m_finishedRange!=m_fnToRangeId.end()) {
     report = std::make_unique<RangeReport_t>(m_finishedRange->second,m_finishedRange->first);
     m_fnToRangeId.erase(m_finishedRange);

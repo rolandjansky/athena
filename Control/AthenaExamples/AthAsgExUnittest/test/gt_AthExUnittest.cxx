@@ -12,7 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "../AthAsgExUnittest/IMyPackageTool.h"
+#include "../src/IMyPackageTool.h"
 
 #include <string>
 #include <iostream>

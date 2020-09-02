@@ -40,6 +40,24 @@ namespace xAOD {
       const std::vector< std::string >& weightNames() const;
       void setWeightNames( const std::vector< std::string >& value );
 
+      const std::string& lhefGenerator() const;
+      void setLhefGenerator( const std::string& value );
+
+      const std::string& generators() const;
+      void setGenerators( const std::string& value );
+
+      const std::string& evgenProcess() const;
+      void setEvgenProcess( const std::string& value );
+
+      const std::string& evgenTune() const;
+      void setEvgenTune( const std::string& value );
+
+      const std::string& hardPDF() const;
+      void setHardPDF( const std::string& value );
+
+      const std::string& softPDF() const;
+      void setSoftPDF( const std::string& value );
+
       /// @}
 
    private:

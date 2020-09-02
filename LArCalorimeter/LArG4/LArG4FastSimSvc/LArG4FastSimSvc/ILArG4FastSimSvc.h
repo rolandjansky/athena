@@ -8,9 +8,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "G4ParticleDefinition.hh"
 
-namespace HepMC {
-	class GenEvent;
-}
+#include "AtlasHepMC/GenEvent_fwd.h"
 // Declaration of the interface ID ( interface id, major version, minor version)
 static const InterfaceID IID_ILArG4FastSimSvc("ILArG4FastSimSvc", 0 , 0);
 

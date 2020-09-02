@@ -4,4 +4,7 @@
   <class name="TRT_BSErrContainer_p1" id="D461AC01-02CA-4A9E-886B-24EC14309121" />
   <class name="TRT_BSIdErrContainer_p1" id="26F44F1E-D1F5-43B3-93E9-09376AB37491" />
   <class name="InDetBSErrContainer64_p1" id="84056f02-9d9f-4d0c-8d5a-c6c686f5cf76" />
+ <class name="TRT_BSErrContainer_p2" id="A815E78C-BB68-4CA5-9B95-739E9B47043A" />
+
+
 </lcgdict>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -118,9 +118,9 @@ void CaloSurfaceHelper::get_flat_surfaces() {
 
   for (unsigned int i=0; i < m_entrySurfs.size(); i++) {
     // cloning turns sliding surface into "standard" one
-    Trk::Surface* surf1=m_entrySurfs[i].first ? m_entrySurfs[i].first->clone() : 0;        
-    Trk::Surface* surf2=m_entrySurfs[i].second ? m_entrySurfs[i].second->clone() : 0;   
-    m_flatEntrySurfs.push_back(std::pair<const Trk::Surface*,const Trk::Surface*>(surf1,surf2));
+    Trk::Surface* surf1=m_entrySurfs[i].first ? m_entrySurfs[i].first->clone() : nullptr;        
+    Trk::Surface* surf2=m_entrySurfs[i].second ? m_entrySurfs[i].second->clone() : nullptr;   
+    m_flatEntrySurfs.emplace_back(surf1,surf2);
 
   }
 

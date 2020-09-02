@@ -34,9 +34,15 @@ void TableEntry::normaliseEntry(const std::string& name, const float denominator
 
 
 void TableEntry::addColumn(const std::string& name, const std::string& header, const std::string& tooltip) {
-  m_columnName.push_back(name);
-  m_columnHeader.push_back(header);
-  m_columnTooltip.push_back(tooltip);
+  std::string nameCopy(name);
+  std::string headerCopy(header);
+  std::string tooltipCopy(tooltip);
+  nameCopy.erase(std::remove(nameCopy.begin(), nameCopy.end(), '\''), nameCopy.end());
+  headerCopy.erase(std::remove(headerCopy.begin(), headerCopy.end(), '\''), headerCopy.end());
+  tooltipCopy.erase(std::remove(tooltipCopy.begin(), tooltipCopy.end(), '\''), tooltipCopy.end());
+  m_columnName.push_back(nameCopy);
+  m_columnHeader.push_back(headerCopy);
+  m_columnTooltip.push_back(tooltipCopy);
 }
 
 

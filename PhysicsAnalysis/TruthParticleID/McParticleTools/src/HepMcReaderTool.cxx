@@ -18,7 +18,7 @@
 // CLHEP/HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
-#include "HepMC/IO_GenEvent.h"
+#include "AtlasHepMC/IO_GenEvent.h"
 
 // McParticleTools includes
 #include "HepMcReaderTool.h"
@@ -143,7 +143,7 @@ StatusCode HepMcReaderTool::read( HepMC::GenEvent* evt )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void HepMcReaderTool::setupFrontend( Property& /*prop*/ )
+void HepMcReaderTool::setupFrontend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
   std::string protocol = "ascii";

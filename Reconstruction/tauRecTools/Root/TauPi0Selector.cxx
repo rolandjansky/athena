@@ -19,7 +19,11 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0Selector::TauPi0Selector( const string& name ) :
-    TauRecToolBase(name) {
+    TauRecToolBase(name)
+{
+    declareProperty("ClusterEtCut",             m_clusterEtCut);
+    declareProperty("ClusterBDTCut_1prong",     m_clusterBDTCut_1prong);
+    declareProperty("ClusterBDTCut_mprong",     m_clusterBDTCut_mprong);
 }
 
 //-------------------------------------------------------------------------
@@ -40,7 +44,7 @@ StatusCode TauPi0Selector::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) 
+StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     // decay mode enum
     auto kDecayModeProto = xAOD::TauJetParameters::PanTau_DecayModeProto;
@@ -64,11 +68,6 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
     // Pi0NeutralPFOs 
     //---------------------------------------------------------------------
     int nRecoPi0s=0;
-    
-    const std::vector<float>& clusterEtCut = m_clusterEtCut.value();
-    const std::vector<float>& clusterBDTCut_1prong = m_clusterBDTCut_1prong.value();
-    const std::vector<float>& clusterBDTCut_mprong = m_clusterBDTCut_mprong.value();
-    
     for( auto neutralPFO : neutralPFOContainer )
     {
         // Set number of pi0s to 0 for all neutral PFOs. Required when rerunning on xAOD level
@@ -78,17 +77,17 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
         int etaBin = getPi0Cluster_etaBin( neutralPFO->cluster(0)->eta() );
 
         // Preselection
-        if(neutralPFO->p4().Et() < clusterEtCut.at(etaBin)) continue;
+        if(neutralPFO->p4().Et() < m_clusterEtCut.at(etaBin)) continue;
         if(pTau.p4().DeltaR(neutralPFO->p4()) > 0.2) continue; // TODO: Replace by shrinking cone?
 
         // BDT Selection
         float BDTScore = neutralPFO->bdtPi0Score();
         ATH_MSG_DEBUG("etaBin = " << etaBin 
-                   << ", clusterEtCut.at(etaBin) = " <<clusterEtCut.at(etaBin) 
-                   << ", clusterBDTCut_1prong.at(etaBin) = " << clusterBDTCut_1prong.at(etaBin) 
-                   << ", clusterBDTCut_mprong.at(etaBin) = " << clusterBDTCut_mprong.at(etaBin));
-        if( (pTau.nTracks()==1 && BDTScore < clusterBDTCut_1prong.at(etaBin)) 
-                || (pTau.nTracks()>1 && BDTScore < clusterBDTCut_mprong.at(etaBin)) ) continue;
+                   << ", m_clusterEtCut.at(etaBin) = " <<m_clusterEtCut.at(etaBin) 
+                   << ", m_clusterBDTCut_1prong.at(etaBin) = " << m_clusterBDTCut_1prong.at(etaBin) 
+                   << ", m_clusterBDTCut_mprong.at(etaBin) = " << m_clusterBDTCut_mprong.at(etaBin));
+        if( (pTau.nTracks()==1 && BDTScore < m_clusterBDTCut_1prong.at(etaBin)) 
+                || (pTau.nTracks()>1 && BDTScore < m_clusterBDTCut_mprong.at(etaBin)) ) continue;
 
         // Set number of pi0s
         int nHitsInEM1 = 0;
@@ -124,7 +123,7 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
     return StatusCode::SUCCESS;
 }
 
-int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta){
+int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta) const {
     int Pi0Cluster_etaBin = -1;
     double Pi0Cluster_noCorr_ABSeta = std::abs(Pi0Cluster_eta);
 
@@ -136,7 +135,7 @@ int TauPi0Selector::getPi0Cluster_etaBin(double Pi0Cluster_eta){
     return Pi0Cluster_etaBin;
 }
 
-TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau)
+TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau) const
 {
     TLorentzVector p4(0.,0.,0.,0.);
     // Add charged PFOs 

@@ -27,7 +27,7 @@ BipolarFit::BipolarFit()
   m_powcachez = -9999.;
   m_powcachezn= -9999.;
   m_zmax= m_n+1 - std::sqrt(m_n+1.0);
-  m_bipolarNormalization = FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
+  m_bipolarNormalization = FindPow(m_zmax)*(1-m_zmax/(m_n+1))*std::exp(-m_zmax);
   m_tsampling = 25.;
 
 }
@@ -116,7 +116,7 @@ BipolarFit::bipolar(double *x, double *parm) // the bipolar pulse function
   if(z<0.)
     return 0.;
 
-  return parm[0]*FindPow(z)*(1-z/(m_n+1))*exp(-z)/m_bipolarNormalization;
+  return parm[0]*FindPow(z)*(1-z/(m_n+1))*std::exp(-z)/m_bipolarNormalization;
 }
 
   void 
@@ -134,7 +134,7 @@ BipolarFit::Derivative(double A[][3],double fp[][1], double p0[][1],int imeas, i
     double dFdzNormalized = 0.;
     if(z>0.)
     {
-      repquant = FindPow(z)*exp(-z)/m_bipolarNormalization;
+      repquant = FindPow(z)*std::exp(-z)/m_bipolarNormalization;
       dFdzNormalized= repquant*(m_n/z+z/13.-2.);
     }
 
@@ -234,11 +234,9 @@ The function return an integer representing different exit status.
 
   // initial parameter estimates using parabola interpolation
   double initValues[3]={0.};
-  //double FWHM=0.;
   int imax = -1;
   initValues[2]=predefinedwidth;
   double samplemax = FindInitValues(x,initValues,&imax);
-  //std::cout << " Init " << initValues[0] << " "<<initValues[1] << " "<<initValues[2]<<std::endl;
   result[0] = initValues[0];
   result[1] = initValues[1];
   result[2] = initValues[2];
@@ -309,23 +307,11 @@ The function return an integer representing different exit status.
       ipar++;
     }  
 
-  /* std::cout << " Use Meas " <<std::endl;
-     for(int i =0;i<4;i++)
-     std::cout << usemeas[i]<< " ";
-     std::cout<<std::endl << " fit par  " <<std::endl;
-     for(int i=0;i<3;i++)
-     std::cout << fitpar[i] << " ";
-     std::cout<<std::endl;
-   */
   int FitStatus = TheFitter(x,ex,initValues,imeas,meas,ipar,par,chi2,result);
-  //std::cout << "chi2 " << (*chi2) <<std::endl;
-  //std::cout << result[0] << " " << result[1] << " "<<result[2] <<std::endl;
-  //std::cout<< initValues[0] << " " << initValues[1] << " "<< initValues[2]<<std::endl;
   // the parabola interpolated estimate is most of the time a lower bound (for high pulses)!
   if(result[0]> 10.*ex && result[0]<0.90*initValues[0])
   {
     result[0] = initValues[0];
-    //  std::cout << "using the lower bound "<<std::endl;
     return 10;
   }
 

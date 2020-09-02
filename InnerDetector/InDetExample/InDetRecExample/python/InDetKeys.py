@@ -470,6 +470,12 @@ class ExtendedLargeD0Tracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ExtendedLargeD0Tracks'
 
+class ExtendedLargeD0TracksTruth(JobProperty):
+    """ Storegate key for new-tracking extended high-d0 tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedLargeD0TracksTruthCollection'
+
 class ProcessedESDTracks(JobProperty):
     """ Storegate key for already processed tracks from ESD"""
     statusOn     = True
@@ -797,71 +803,11 @@ class IPatPrimaryVertices(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'IPatVxPrimaryCandidate'
 
-class IPatParticles(JobProperty):
-    """StoreGate key for IPatTrackParticles"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'IPatTrackParticleCandidate'
-
-class IPatParticlesTruth(JobProperty):
-    """StoreGate key for IPatTrackParticlesTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'IPatTrackParticleTruthCollection'
-
-class IPatConvertedTracks(JobProperty):
-    """StoreGate key for converted IPatRec Tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracks'
-
-class IPatConvertedTracksTruth(JobProperty):
-    """StoreGate key for converted IPatRec Tracks truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracksTruth'
-
-class IPatConvertedTracksDetailedTruth(JobProperty):
-    """StoreGate key for converted IPatRec Tracks detailed truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedIPatTracksDetailedTruth'
-
 class XKalPrimaryVertices(JobProperty):
     """StoreGate key for XKalPrimaryVertices"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'XKalVxPrimaryCandidate'
-
-class XKalParticles(JobProperty):
-    """StoreGate key for XKalTrackParticles"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'XKalTrackParticleCandidate'
-
-class XKalParticlesTruth(JobProperty):
-    """StoreGate key for XKalTrackParticlesTruth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'XKalTrackParticleTruthCollection'
-
-class XKalConvertedTracks(JobProperty):
-    """StoreGate key for converted XKalman Tracks"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracks'
-
-class XKalConvertedTracksTruth(JobProperty):
-    """StoreGate key for converted XKalman Tracks truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracksTruth'
-
-class XKalConvertedTracksDetailedTruth(JobProperty):
-    """StoreGate key for converted XKalman Tracks detailed truth"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'ConvertedXKalmanTracksDetailedTruth'
 
 class V0Candidates(JobProperty):
     """StoreGate key for V0 candidates"""
@@ -1023,6 +969,12 @@ class xAODForwardTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetForwardTrackParticles"
 
+class xAODLargeD0TrackParticleContainer(JobProperty):
+    """xAOD TrackParticle from Forward Tracking"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetLargeD0TrackParticles"
+
 class xAODLowBetaTrackParticleContainer(JobProperty):
     """xAOD TrackParticle from Low Beta Finder"""
     statusOn = True
@@ -1152,6 +1104,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(ExtendedSLHCTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedBeamGasTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0Tracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedLargeD0TracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ProcessedESDTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksTruth)
@@ -1209,17 +1162,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(PrimaryVerticesSplitStream)
 jobproperties.InDetContainerKeys.add_JobProperty(TrackParticles)
 jobproperties.InDetContainerKeys.add_JobProperty(TrackParticlesTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(IPatPrimaryVertices)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatParticles)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatParticlesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(IPatConvertedTracksDetailedTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(XKalPrimaryVertices)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalParticles)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalParticlesTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracks)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracksTruth)
-jobproperties.InDetContainerKeys.add_JobProperty(XKalConvertedTracksDetailedTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(V0Candidates)
 jobproperties.InDetContainerKeys.add_JobProperty(SimpleV0Candidates)
 jobproperties.InDetContainerKeys.add_JobProperty(SecVertices)
@@ -1246,6 +1189,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODKshortVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdaVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdabarVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLargeD0TrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)

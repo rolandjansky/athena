@@ -1,0 +1,6 @@
+CaloUtils/exceptions_test
+test1
+ExcBadToolConstantVersion: version mismatch for tool tool constant const constant version 2 is larger than tool version 1
+ExcConstantNotSet: constant const in tool tool was not set.
+ExcConstantReset: constant const in tool tool set more than once.
+ExcBadContextlessRetrieve: constant const in tool tool bad contextless retrieve.

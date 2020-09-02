@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cstring>
@@ -9,7 +9,7 @@
 namespace TrigSteeringEvent {
 
 
-const char* StringSerializer::s_delimiter = "\n";
+const char* const StringSerializer::s_delimiter = "\n";
 
 
 void StringSerializer::serialize (const std::vector<std::string>& strings, std::vector<uint32_t>& storage ) {

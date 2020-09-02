@@ -14,18 +14,6 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    result.merge(MagneticFieldSvcCfg(inputFlags))
-
-    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
-    result.merge(AtlasGeometryCfg(inputFlags))
-
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    trackGeomCfg = TrackingGeometrySvcCfg(inputFlags)
-    geom_svc = trackGeomCfg.getPrimary() 
-    geom_svc.GeometryBuilder.Compactify = False ######## To avoid crash ########
-    result.merge(trackGeomCfg)
-
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 
@@ -121,9 +109,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     import glob
 
-    inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/tmp.ESD')
-    # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/run_mc_zmumu_normal/*/AOD*')
-    # inputs = glob.glob('/data01/masato/L1MuonDevRun3/athenaMT/mc_scan_normal/*/tmp.ESD')
+    inputs = glob.glob('/data03/mySamples/run_mc_zmumu/*/tmp.ESD')
 
     ConfigFlags.Input.Files = inputs
     ConfigFlags.Input.isMC = True
@@ -137,14 +123,21 @@ if __name__=='__main__':
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.Dump = False
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)
     tgcRawDataMonitorAcc.OutputLevel = DEBUG
     cfg.merge(tgcRawDataMonitorAcc)
+
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    cfg.merge(MagneticFieldSvcCfg(ConfigFlags))
+    cfg.merge(AtlasGeometryCfg(ConfigFlags))
+    cfg.merge(TrackingGeometrySvcCfg(ConfigFlags))
 
     cfg.printConfig(withDetails=True, summariseProps = True)
 

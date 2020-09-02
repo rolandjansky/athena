@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigT1CTP.TrigT1CTPConf import *
-from AthenaCommon.Constants import DEBUG, INFO
+from TrigT1CTP.TrigT1CTPConf import LVL1CTP__CTPSimulation
 
 class DefaultCTPSimulation(LVL1CTP__CTPSimulation):
 
@@ -12,8 +11,6 @@ class DefaultCTPSimulation(LVL1CTP__CTPSimulation):
         self.log = logging.getLogger( 'CTPSimulation' )
 
         self.AthenaMonTools = []
-
-        self.OutputLevel = INFO
 
     def setDefaultRandomService(self, rndmSvc = 'AtRanluxGenSvc'):
         # Random service is not needed anymore in Run 3 for CTP

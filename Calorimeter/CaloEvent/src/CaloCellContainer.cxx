@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------------------------------------
@@ -169,14 +169,14 @@ bool CaloCellContainer::checkOrdered() const {
 	      << " add cell " << theCell 
 	      << std::endl; */
 
-    const CaloDetDescrElement * theDDE = 0;
+    const CaloDetDescrElement * theDDE = nullptr;
     
-    if (theCell==0){
+    if (theCell==nullptr){
       REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
         << MSG::WARNING << "CaloCellContainer NULL CELL ";
     } else {
 	theDDE=theCell->caloDDE();
-      if (theDDE==0){
+      if (theDDE==nullptr){
         REPORT_MESSAGE_WITH_CONTEXT (MSG::WARNING, "CaloCellContainer")
           << MSG::WARNING << "CaloCellContainer WARNING NULL DDE ";
       }
@@ -341,7 +341,7 @@ const CaloCell * CaloCellContainer::findCell(const IdentifierHash   theHash) con
   int ndx = findIndex (theHash);
   if (ndx >= 0)
     return (*this)[ndx];
-  return 0;
+  return nullptr;
 }
 
 
@@ -350,7 +350,7 @@ const CaloCell * CaloCellContainer::findCell(const IdentifierHash   theHash) con
   int ndx = findIndex (theHash);
   if (ndx >= 0)
     return (*this)[ndx];
-  return 0;
+  return nullptr;
 }
 
 
@@ -404,7 +404,7 @@ void CaloCellContainer::findCellVectorT (CONT& cont, const std::vector<Identifie
     int ndx = (int)lookUpTable[ hash ] - 1;
     if (ndx >= 0) {
       auto theCell = cont[ndx];
-      if (theCell!=0) {
+      if (theCell!=nullptr) {
         theCellVector.push_back( theCell);
       }
     }
@@ -517,7 +517,7 @@ void CaloCellContainer::orderWhenIncomplete()
       IdentifierHash hash = (*it)->caloDDE()->calo_hash();  
       assert (hash < tmp.size());
 	
-      if (tmp[hash] != 0) {
+      if (tmp[hash] != nullptr) {
         REPORT_MESSAGE_WITH_CONTEXT (MSG::ERROR, "CaloCellContainer")
           << "Duplicated cell: hash= " << hash;
       }
@@ -531,7 +531,7 @@ void CaloCellContainer::orderWhenIncomplete()
     itend = tmp.end();
     DataVector<CaloCell>::iterator itout = begin();
     for (DataVector<CaloCell>::iterator it = tmp.begin(); it != itend; ++it) {
-      if (*it != 0) {
+      if (*it != nullptr) {
         using std::iter_swap;
         iter_swap (itout, it);
         ++itout;
@@ -539,6 +539,7 @@ void CaloCellContainer::orderWhenIncomplete()
     }
 
     // May be less, if there were duplicates.
+    // cppcheck-suppress assertWithSideEffect
     assert (itout <= end());
     resize (itout - begin());
   }
@@ -559,7 +560,7 @@ void CaloCellContainer::orderWhenComplete()
     if (hash >= size())
       resize (hash + 1);
 
-    if ((*this)[hash] != 0) {
+    if ((*this)[hash] != nullptr) {
       REPORT_MESSAGE_WITH_CONTEXT (MSG::ERROR, "CaloCellContainer")
         << "Duplicated cell: hash= " << hash;
     }
@@ -598,11 +599,7 @@ const CxxUtils::PackedArray& CaloCellContainer::getLookUpTable() const
       // If the cells are sorted, we can look at the last cell to know
       // the maximum hash we're dealing with.  Otherwise, set it to the
       // maximum cell hash value.
-      if (ncells == 0) {
-        // Special case --- don't do anything for an empty container.
-        theSize = 0;
-      }
-      else if (isOrdered()) {
+      if (isOrdered()) {
         // Set LUT size from the hash of the last cell.
         theSize = back()->caloDDE()->calo_hash()+1;
       }

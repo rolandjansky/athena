@@ -16,8 +16,6 @@
 
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
@@ -60,7 +58,6 @@ class TrigEFTrkMassFex: public HLT::FexAlgo {
     // container inputs names
     std::string m_input_trackCollectionKey; //! list of tracks to search for second leg
 
-    float        m_matchL1;
     float        m_trackPtthr;
     float        m_muonPtthr;
     float        m_dEta_cut;

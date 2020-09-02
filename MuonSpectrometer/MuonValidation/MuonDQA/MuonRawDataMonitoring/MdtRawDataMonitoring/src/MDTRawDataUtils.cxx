@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////////
@@ -723,15 +723,15 @@ StatusCode MdtRawDataValAlg::fillMDTMaskedTubes(IdentifierHash idHash, const std
   std::set<Identifier> noisyTubes = m_masked_tubes->getNoiseList(idHash);
   for(std::set<Identifier>::const_iterator itr = noisyTubes.begin(); itr != noisyTubes.end(); ++itr){
     Identifier digcoll_id = *itr;
-    int mdtlayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(digcoll_id);
-    if (m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)==2) {
+    int mdtlayer = m_idHelperSvc->mdtIdHelper().tubeLayer(digcoll_id);
+    if (m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id)==2) {
       if ( hardware_name.at(1) == 'I' && hardware_name.at(3) != '8' )
 	mdtlayer += 4;
       else 
 	mdtlayer += 3;
     }	  
-    int mdttube= m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id);
-    ChamberTubeNumberCorrection(mdttube, hardware_name, m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
+    int mdttube= m_idHelperSvc->mdtIdHelper().tube(digcoll_id) + (mdtlayer-1) * m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
+    ChamberTubeNumberCorrection(mdttube, hardware_name, m_idHelperSvc->mdtIdHelper().tube(digcoll_id), mdtlayer-1);
     h->Fill(mdttube, 1);
   }
   return StatusCode::SUCCESS;
@@ -745,20 +745,20 @@ void MdtRawDataValAlg::mdtchamberId()
 {
   ATH_MSG_DEBUG("in MDT ChambersIDvector" );  
 
-  std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->mdtIdHelper().module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->mdtIdHelper().module_end();
+  std::vector<Identifier>::const_iterator  idfirst = m_idHelperSvc->mdtIdHelper().module_begin();
+  std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->mdtIdHelper().module_end();
 
-  IdContext mdtModuleContext = m_muonIdHelperTool->mdtIdHelper().module_context();
+  IdContext mdtModuleContext = m_idHelperSvc->mdtIdHelper().module_context();
   Identifier Id;
   IdentifierHash Idhash;
   for (std::vector<Identifier>::const_iterator i = idfirst; i != idlast; i++)
     {    
       Id=*i;
-      int gethash_code = m_muonIdHelperTool->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext); 
+      int gethash_code = m_idHelperSvc->mdtIdHelper().get_hash(Id, Idhash, &mdtModuleContext); 
       m_chambersId.push_back(Id);
       m_chambersIdHash.push_back(Idhash);
 
-      std::string extid = m_muonIdHelperTool->mdtIdHelper().show_to_string(Id);
+      std::string extid = m_idHelperSvc->mdtIdHelper().show_to_string(Id);
       ATH_MSG_DEBUG("Adding the chamber Identifier: " << extid );
       if (gethash_code == 0) {
 	ATH_MSG_DEBUG(" its hash Id is " << Idhash );
@@ -774,10 +774,9 @@ void MdtRawDataValAlg::mdtchamberId()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 int MdtRawDataValAlg::mezzmdt(Identifier digcoll_id) { //int mezz_chamber, int mezz_eta, int mezz_ml, int mezz_tube, int max_tube) {
   int TotmezzTubes = 8;
-  if( m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(digcoll_id) == 4 ) 
+  if( m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id) == 4 ) 
     TotmezzTubes = 6;
-  //   if (mezz_chamber==1 || mezz_chamber==2 || mezz_chamber==8 || mezz_chamber==13) TotmezzTubes=6 ; // old way of doing things that didn't work
-  int Imezz = (int)((m_muonIdHelperTool->mdtIdHelper().tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_muonIdHelperTool->mdtIdHelper().multilayer(digcoll_id)-1)*((m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id))/TotmezzTubes));
+  int Imezz = (int)((m_idHelperSvc->mdtIdHelper().tube(digcoll_id)-1)/TotmezzTubes) + (int)((m_idHelperSvc->mdtIdHelper().multilayer(digcoll_id)-1)*((m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id))/TotmezzTubes));
 
   return Imezz;  
 }
@@ -786,9 +785,9 @@ int MdtRawDataValAlg::mezzmdt(Identifier digcoll_id) { //int mezz_chamber, int m
 // the 'if' statements are for chambers with ML1 != ML2
 // except for BIS8 -- mdtIdHelper gets the # layers wrong in this instance
 int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::string & hardware_name ) {
-  int numtubes = m_muonIdHelperTool->mdtIdHelper().tubeMax(digcoll_id);
-  int numlayers = m_muonIdHelperTool->mdtIdHelper().tubeLayerMax(digcoll_id);
-  int numML = m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(digcoll_id);
+  int numtubes = m_idHelperSvc->mdtIdHelper().tubeMax(digcoll_id);
+  int numlayers = m_idHelperSvc->mdtIdHelper().tubeLayerMax(digcoll_id);
+  int numML = m_idHelperSvc->mdtIdHelper().numberOfMultilayers(digcoll_id);
   int tubeMax = numtubes * numlayers * numML;
 
   if( hardware_name.substr(0,4) == "BIS8" ) // Why does mdtIdHelper get this one wrong?
@@ -922,14 +921,14 @@ std::string MdtRawDataValAlg::getChamberName(const Muon::MdtPrepData* hit){
 std::string MdtRawDataValAlg::getChamberName(Identifier id){
   if(m_hist_hash_list) {
     IdentifierHash idHash;
-    m_muonIdHelperTool->mdtIdHelper().get_module_hash(id, idHash);
+    m_idHelperSvc->mdtIdHelper().get_module_hash(id, idHash);
     if( idHash < m_hist_hash_list->size() ) {
       MDTChamber* chamber = (*m_hist_hash_list)[idHash];
       if(chamber) return chamber->getName();
-      else return convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(id),m_muonIdHelperTool->mdtIdHelper().stationEta(id),m_muonIdHelperTool->mdtIdHelper().stationPhi(id),"MDT");    
+      else return convertChamberName(m_idHelperSvc->mdtIdHelper().stationName(id),m_idHelperSvc->mdtIdHelper().stationEta(id),m_idHelperSvc->mdtIdHelper().stationPhi(id),"MDT");    
     }
   }
-  return convertChamberName(m_muonIdHelperTool->mdtIdHelper().stationName(id),m_muonIdHelperTool->mdtIdHelper().stationEta(id),m_muonIdHelperTool->mdtIdHelper().stationPhi(id),"MDT");
+  return convertChamberName(m_idHelperSvc->mdtIdHelper().stationName(id),m_idHelperSvc->mdtIdHelper().stationEta(id),m_idHelperSvc->mdtIdHelper().stationPhi(id),"MDT");
 }
 
 StatusCode MdtRawDataValAlg::getChamber(IdentifierHash id, MDTChamber* &chamber){

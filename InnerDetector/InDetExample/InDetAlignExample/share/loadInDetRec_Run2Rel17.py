@@ -221,9 +221,6 @@ else:
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
-if not loadInDetRec_Options["Cosmics"]:
-  InDetFlags.doxKalman              = False
-  InDetFlags.doiPatRec              = False
 #InDetFlags.doBackTracking         = False
 #InDetFlags.doSingleSpBackTracking = True
 #InDetFlags.doTRTStandalone        = False
@@ -261,7 +258,7 @@ if loadInDetRec_Options["Cosmics"]:
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 # --- active storegate delection
 #InDetFlags.doSGDeletion  = True
 

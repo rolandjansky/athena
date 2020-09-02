@@ -86,7 +86,7 @@ def doSlimSMQCD(treeName,outputFile,inputFiles,year):
         #   and ch.mcevt_weight[0].size() !=0:
         #    w=ch.mcevt_weight[0][0]
         #else:
-	#    w=1
+        #    w=1
         #weight[1]+=w
 
         ch_new.Fill()

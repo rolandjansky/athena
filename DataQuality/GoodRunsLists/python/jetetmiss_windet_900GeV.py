@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from GoodRunsLists.GoodRunsListConfig import GoodRunsListConfig
@@ -25,10 +25,10 @@ class jetetmiss_windet_900GeV(GoodRunsListConfig):
     self.querydict['st']   = ["physics_MinBias"]
 
     dqflagsquery = [ 'ATLGL  LBSUMM#DetStatusLBSUMM-December09-01 g',
-		     'L1CTP  LBSUMM#DetStatusLBSUMM-December09-01 g',
-		     'atlsol LBSUMM#DetStatusLBSUMM-December09-01 g',
-		     'lar    LBSUMM#DetStatusLBSUMM-December09-01 g',
-		     'tile   LBSUMM#DetStatusLBSUMM-December09-01 g',
+                     'L1CTP  LBSUMM#DetStatusLBSUMM-December09-01 g',
+                     'atlsol LBSUMM#DetStatusLBSUMM-December09-01 g',
+                     'lar    LBSUMM#DetStatusLBSUMM-December09-01 g',
+                     'tile   LBSUMM#DetStatusLBSUMM-December09-01 g',
                      'pix    LBSUMM#DetStatusLBSUMM-December09-01 g',
                      'sct    LBSUMM#DetStatusLBSUMM-December09-01 g',
                      'trtb,trte LBSUMM#DetStatusLBSUMM-December09-01 g',

@@ -21,7 +21,6 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -38,10 +37,9 @@
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsLayer_xk.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadData_xk.h"
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 #include <atomic>
 #include <mutex>
@@ -59,23 +57,23 @@ namespace Trk {
 namespace InDet {
 
   /**
-  @class TRT_DetElementsRoadMaker_xk 
-  InDet::TRT_DetElementsRoadMaker_xk is algorithm which produce list of 
+  @class TRT_DetElementsRoadMaker_xk
+  InDet::TRT_DetElementsRoadMaker_xk is algorithm which produce list of
   InDetDD::TRT_BaseElement* sorted in propagation order.
-  @author Igor.Gavrilenko@cern.ch     
+  @author Igor.Gavrilenko@cern.ch
   */
 
 
-  class TRT_DetElementsRoadMaker_xk : 
+  class TRT_DetElementsRoadMaker_xk :
 
     virtual public ITRT_DetElementsRoadMaker, public AthAlgTool
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
       ///////////////////////////////////////////////////////////////////
-      
+
     public:
-      
+
       ///////////////////////////////////////////////////////////////////
       // Standard tool methods
       ///////////////////////////////////////////////////////////////////
@@ -89,7 +87,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Main methods for road builder
       ///////////////////////////////////////////////////////////////////
-      
+
       virtual void detElementsRoad
 	(const EventContext& ctx,
          MagField::AtlasFieldCache& fieldCache,
@@ -112,11 +110,12 @@ namespace InDet {
 
     private :
 
-      SG::ReadCondHandleKey<TRT_DetElementsRoadData_xk> m_roadDataKey{this, "RoadDataKey",                       
-        "TRT_DetElementsRoadData_xk", "Key of TRT_DetElementsRoadData_xk"}; 
+      SG::ReadCondHandleKey<TRT_DetElementsRoadData_xk> m_roadDataKey{this, "RoadDataKey",
+        "TRT_DetElementsRoadData_xk", "Key of TRT_DetElementsRoadData_xk"};
 
-      ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-      MagField::IMagFieldSvc*               m_fieldService{}      ;
+      SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this,"AtlasFieldCacheCondObj", "fieldCondObj",
+        "Name of the Magnetic Field conditions object key"}; // Necessary only for dumpConditions method
+
       ServiceHandle<IGeoModelSvc>           m_geoModelSvc{this, "GeoModelSvc", "GeoModelSvc"};
       ToolHandle<Trk::IPropagator>          m_proptool ;  // Propagator     tool
 
@@ -130,9 +129,9 @@ namespace InDet {
       // Methods
       ///////////////////////////////////////////////////////////////////
 
-      void detElementsRoadATL(std::list<Amg::Vector3D>&, 
+      void detElementsRoadATL(std::list<Amg::Vector3D>&,
 			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
-      void detElementsRoadCTB(std::list<Amg::Vector3D>&, 
+      void detElementsRoadCTB(std::list<Amg::Vector3D>&,
 			      std::vector<const InDetDD::TRT_BaseElement*>&) const;
       double stepToDetElement
 	(const InDetDD::TRT_BaseElement*&,Amg::Vector3D&,Amg::Vector3D&) const;
@@ -176,4 +175,3 @@ namespace InDet {
 } // end of name space
 
 #endif // TRT_DetElementsRoadMaker_xk_H
-

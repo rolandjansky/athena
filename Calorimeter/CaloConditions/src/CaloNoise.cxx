@@ -1,19 +1,30 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloNoise.h"
+#include "boost/multi_array.hpp"
 #include "TMath.h"
 
-CaloNoise::CaloNoise(const size_t nLArCells, const size_t nLArGains, const size_t nTileCells, const size_t nTileGains,
-		     const CaloCell_Base_ID* caloCellId,const NOISETYPE noisetype) :
-  m_caloCellId(caloCellId),m_noiseType(noisetype) {
-  m_larNoise.resize(boost::extents[nLArGains][nLArCells]);
-  m_tileNoise.resize(boost::extents[nTileGains][nTileCells]);
+CaloNoise::CaloNoise(const size_t nLArCells,
+                     const size_t nLArGains,
+                     const size_t nTileCells,
+                     const size_t nTileGains,
+                     const CaloCell_Base_ID* caloCellId,
+                     const NOISETYPE noisetype)
+  : m_caloCellId(caloCellId)
+  , m_noiseType(noisetype)
+{
+
+  boost::multi_array_types::extent_gen lar_extent_gen;
+  m_larNoise.resize(lar_extent_gen[nLArGains][nLArCells]);
+  boost::multi_array_types::extent_gen tile_extent_gen;
+  m_tileNoise.resize(tile_extent_gen[nTileGains][nTileCells]);
+  
   IdentifierHash h1,h2;
   m_caloCellId->calo_cell_hash_range(CaloCell_ID::TILE, h1,h2);
   m_tileHashOffset=h1;
-}  
+}
 
 void CaloNoise::setTileBlob(const CaloCondBlobFlt* flt, const float lumi) {
   m_tileBlob=flt;

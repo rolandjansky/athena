@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include <vector>
@@ -68,7 +68,7 @@ int run(int argc, const char* argv[]) {
    h[2] = new TH1F("Decision/DecisionModule3", "L1 Topo Decision (Module 3)", 64, 0, 64);
 
    const std::vector<TXC::TriggerLine> & topoTriggers = XMLParser.menu().getL1TopoConfigOutputList().getTriggerLines();
-   for(const TXC::TriggerLine tl : topoTriggers) {
+   for(const TXC::TriggerLine& tl : topoTriggers) {
       h[tl.module()]->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
    }
    for(uint i=0; i<3; ++i)

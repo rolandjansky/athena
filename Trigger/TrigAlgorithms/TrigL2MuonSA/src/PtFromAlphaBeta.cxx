@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtFromAlphaBeta.h"
+#include "PtFromAlphaBeta.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
@@ -12,26 +12,10 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_PtFromAlphaBeta("IID_PtFromAlphaBeta", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtFromAlphaBeta::interfaceID() { return IID_PtFromAlphaBeta; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(const std::string& type,
 					       const std::string& name,
 					       const IInterface*  parent):
-  AthAlgTool(type, name, parent), 
-  m_ptEndcapLUT(0)
-{
-  declareInterface<TrigL2MuonSA::PtFromAlphaBeta>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::PtFromAlphaBeta::~PtFromAlphaBeta() 
+  AthAlgTool(type, name, parent) 
 {
 }
 
@@ -40,15 +24,6 @@ TrigL2MuonSA::PtFromAlphaBeta::~PtFromAlphaBeta()
 
 StatusCode TrigL2MuonSA::PtFromAlphaBeta::initialize()
 {
-  ATH_MSG_DEBUG("Initializing PtFromAlphaBeta - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
   ATH_MSG_DEBUG(m_use_cscpt);
   // 
   return StatusCode::SUCCESS; 
@@ -62,8 +37,6 @@ void TrigL2MuonSA::PtFromAlphaBeta::setMCFlag(BooleanProperty use_mcLUT,
 {
   m_use_mcLUT = use_mcLUT;
   m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT();
-
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -82,11 +55,11 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   if ( fabs(trackPattern.slope)<ZERO_LIMIT && fabs(trackPattern.intercept)<ZERO_LIMIT )
     return StatusCode::SUCCESS;
   
-  float tgcPt = tgcFitResult.tgcPT ;
+  const float tgcPt = tgcFitResult.tgcPT ;
   
   // MDT pT by alpha
-  int  side   = (trackPattern.etaMap <= 0.0) ? 0 : 1;
-  int  charge = (trackPattern.intercept * trackPattern.etaMap) < 0.0 ? 0 : 1;
+  const int  side   = (trackPattern.etaMap <= 0.0) ? 0 : 1;
+  const int  charge = (trackPattern.intercept * trackPattern.etaMap) < 0.0 ? 0 : 1;
 
   float mdtPt = (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::ALPHAPOL2, trackPattern.etaBin,
 				      trackPattern.phiBin, trackPattern.endcapAlpha) / 1000;
@@ -107,7 +80,7 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
     if (charge == 0)  betaPt = -betaPt;
     trackPattern.ptEndcapBeta = betaPt;//pt calculated by beta
 
-    int outer = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+    const int outer = xAOD::L2MuonParameters::Chamber::EndcapOuter;
     if ( fabs((betaPt - mdtPt) / mdtPt) < ALPHA_TO_BETA_RATIO ) {
       mdtPt = betaPt;
     } else if ( fabs(trackPattern.superPoints[outer].Z) < ZERO_LIMIT) {
@@ -116,7 +89,7 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   }
   if (trackPattern.endcapRadius3P>0) {//calculate pt from radius
     ATH_MSG_DEBUG("calculate pt from Radius");
-    float invR = 1. / trackPattern.endcapRadius3P;
+    const float invR = 1. / trackPattern.endcapRadius3P;
 
     if (trackPattern.etaBin<8){
       trackPattern.ptEndcapRadius =  (*m_ptEndcapLUT)->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 
@@ -141,8 +114,8 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   if(m_use_cscpt){
     const float &cscPt = trackPattern.ptCSC;
     const int &etabin = trackPattern.etaBin;
-    bool validrange = (20<=etabin && etabin<=27) || (etabin==20 && abs(side-charge)!=1);//side-charge==0 <=> Qeta==1
-    bool validchamber = !m_avoid_misaligned_cscs || (16!=trackPattern.hashID_CSC && 17!=trackPattern.hashID_CSC);
+    const bool validrange = (20<=etabin && etabin<=27) || (etabin==20 && abs(side-charge)!=1);//side-charge==0 <=> Qeta==1
+    const bool validchamber = !m_avoid_misaligned_cscs || (16!=trackPattern.hashID_CSC && 17!=trackPattern.hashID_CSC);
     if( etabin !=23 && etabin!=24 &&  validrange && validchamber){
       if(fabs(trackPattern.ptEndcapBeta)<ZERO_LIMIT && fabs(cscPt)>ZERO_LIMIT 
 	 &&  fabs((cscPt - mdtPt) / mdtPt)<ALPHA_TO_CSC_RATIO && fabs(1./cscPt-1./mdtPt)<ALPHA_TO_CSC_RATIO_PT ){
@@ -190,13 +163,3 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromAlphaBeta::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing PtFromAlphaBeta - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

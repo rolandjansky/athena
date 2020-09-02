@@ -17,6 +17,7 @@
 #include "TrigInDetAnalysisExample/TrigTestMonToolAC.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Tier0.h"
 #include "TrigInDetAnalysisExample/AnalysisConfig_Ntuple.h"
+#include "TrigInDetAnalysisExample/AnalysisConfigMT_Ntuple.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -123,19 +124,25 @@ StatusCode TrigTestMonToolAC::init() {
 
   msg(MSG::DEBUG) << " ----- enter init() ----- " << endmsg;
 
-  msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << endmsg;
+  msg(MSG::INFO) << "TrigTestMonToolAC::init() " << gDirectory->GetName() << " " << __DATE__ << endmsg;
 
-  //  std::cout << "TrigTestMonToolAC::init() SUTT buildNtuple " << m_buildNtuple << std::endl;
-  
   // roi width information
   //  m_roiInfo.etaHalfWidth(m_etaWidth);
   //  m_roiInfo.phiHalfWidth(m_phiWidth);
   //  m_roiInfo.zedHalfWidth(m_zedWidth);
   
   if ( m_buildNtuple ) { 
-    m_sequences.push_back( new AnalysisConfig_Ntuple( &m_roiInfo, m_ntupleChainNames, 
-						      m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
-						      m_keepAllEvents ) );
+    if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
+      m_sequences.push_back( new AnalysisConfig_Ntuple( &m_roiInfo, m_ntupleChainNames, 
+							m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
+							m_keepAllEvents ) );
+    }
+    else { 
+      m_sequences.push_back( new AnalysisConfigMT_Ntuple( &m_roiInfo, m_ntupleChainNames, 
+							  m_outputFileName, m_tauEtCutOffline, m_selectTruthPdgId, 
+							  m_keepAllEvents ) );
+    }
+
     m_sequences.back()->releaseData(m_releaseMetaData);
     if ( m_requireDecision ) m_sequences.back()->setRequireDecision(true);
     if ( m_mcTruth )         m_sequences.back()->setMCTruth(m_mcTruth);
@@ -169,7 +176,7 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
   bool newRun         = newRunFlag();
 #endif
 
-  msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
+  msg(MSG::DEBUG) << "TrigTestMonToolAC::book() buildNtuple " << m_buildNtuple 
 		  << "\tNewEventBlock " << newEventsBlock 
 		  << "\tNewLumiBlock "  << newLumiBlock 
 		  << "\tNewRun "        << newRun  <<  std::endl;
@@ -273,9 +280,6 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 	
 	msg(MSG::INFO) << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << endmsg;
 	
-	//	std::cout  << "[91;1m"  << "booking a Tier0 chain " << m_chainNames[i] << " [m" << std::endl;
-
-	//	if ( m_legacy && m_tdt->getNavigationFormat() == "TriggerElement" ) { 
 	if ( m_tdt->getNavigationFormat() == "TriggerElement" ) { 
 	
 	  m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
@@ -340,10 +344,9 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
 
 StatusCode TrigTestMonToolAC::fill() { 
-  msg(MSG::INFO) << " ----- enter fill() (athena) ----- " << endmsg;  
+  msg(MSG::DEBUG) << " ----- enter fill() (athena) ----- " << endmsg;  
 
-
-  msg(MSG::INFO) << "chains: " << m_chainNames.size() << endmsg;
+  msg(MSG::DEBUG) << "chains: " << m_chainNames.size() << endmsg;
 
   for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
     ChainString s = m_chainNames[i];
@@ -353,7 +356,7 @@ StatusCode TrigTestMonToolAC::fill() {
   
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
 
-  msg(MSG::INFO) << " ----- exit fill() ----- " << endmsg;
+  msg(MSG::DEBUG) << " ----- exit fill() ----- " << endmsg;
   return StatusCode::SUCCESS; 
 }
 

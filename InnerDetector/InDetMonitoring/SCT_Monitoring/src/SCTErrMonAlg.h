@@ -16,6 +16,7 @@
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_FlaggedConditionTool.h"
 
 #include "TH2F.h"
 
@@ -91,6 +92,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
+  BooleanProperty m_coverageCheckOnlyFirtsEventOfLB{this, "CoverageCheckOnlyFirtsEventOfLB", true};
   BooleanProperty m_useDCS{this, "UseDCS", true};
   BooleanProperty m_doPerLumiErrors{this, "DoPerLumiErrors", true, "Do lumi block 2D error histos"};
 
@@ -98,6 +100,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configurationTool{this, "conditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   ToolHandle<ISCT_DCSConditionsTool> m_dcsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool/InDetSCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+  ToolHandle<ISCT_FlaggedConditionTool> m_flaggedTool{this, "SCT_FlaggedConditionTool", "SCT_FlaggedConditionTool/InDetSCT_FlaggedConditionTool", "Tool to retrieve bad wafers with many fired strips"};
 
   const SCT_ID* m_pSCTHelper{nullptr};
 

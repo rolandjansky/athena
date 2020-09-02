@@ -8,7 +8,7 @@
 #define INDETD3PDMAKER_TRUTHVERTEXFILLERTOOL_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 
 namespace D3PD {
 

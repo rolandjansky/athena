@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,6 +41,7 @@ InDet::InDetTrigExtensProcessor::InDetTrigExtensProcessor(const std::string &nam
   m_tracks(0),
   m_trackExtensionMap(0),
   m_ITrackFitter("Trk::KalmanFitter/InDetTrigTrackFitter"),
+  m_trkSummaryTool("", this),
   m_scoringTool("Trk::TrackScoringTool/InDetTrigScoringTool"),
   m_newtracks(0),
   m_cosmics(false)
@@ -49,6 +50,7 @@ InDet::InDetTrigExtensProcessor::InDetTrigExtensProcessor(const std::string &nam
 
   // Get parameter values from jobOptions file
   declareProperty("TrackFitter",     m_ITrackFitter);
+  declareProperty("SummaryTool" ,    m_trkSummaryTool);
   declareProperty("ScoringTool",     m_scoringTool);
   declareProperty("runOutlier",      m_runOutlier);
   declareProperty("RefitPrds",       m_refitPrds,"switch whether to do the fit with re-calibrated clusters (true) or not");
@@ -80,6 +82,16 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltInitialize() {
   // Configuration of the material effects
   Trk::ParticleSwitcher particleSwitch;
   m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
+
+  if (!m_trkSummaryTool.empty()) {
+     if ( m_trkSummaryTool.retrieve().isFailure()) {
+        msg() << MSG::FATAL << "Failed to retrieve tool " << m_scoringTool << endmsg;
+        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+     }
+  }
+  else {
+     m_trkSummaryTool.disable();
+  }
 
   // get scoring tool
   if ( m_scoringTool.retrieve().isFailure() ) {
@@ -279,9 +291,12 @@ HLT::ErrorCode InDet::InDetTrigExtensProcessor::hltExecute(const HLT::TriggerEle
 	// score old and new tool and decide which one to push back
 	Trk::TrackScore oldScore = m_scoringTool->score( **itr, m_suppressHoleSearch );
 	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"original track has score: "<<oldScore<<endmsg;
+        if (!newtrack->trackSummary() && m_trkSummaryTool.isEnabled()) {
+           m_trkSummaryTool->computeAndReplaceTrackSummary(*newtrack,nullptr /** no shared hits */, m_suppressHoleSearch);
+        }
 	Trk::TrackScore newScore = m_scoringTool->score( *newtrack, m_suppressHoleSearch );
 	if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"new track has score     : "<<newScore<<endmsg;
-	
+
 	if (newScore > oldScore) {
 
 	  if (outputLevel <= MSG::DEBUG) msg()<<MSG::DEBUG<<"take extended track, it's better !"<< endmsg;

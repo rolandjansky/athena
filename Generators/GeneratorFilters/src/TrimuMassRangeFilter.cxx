@@ -99,33 +99,35 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     int n=0;
-    for(HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin();
-	pitr1!=genEvt->particles_end(); ++pitr1 ){
+    auto genEvt_particles_begin  = HepMC::begin(*genEvt);
+    auto genEvt_particles_end    = HepMC::end(*genEvt);
+    for(auto pitr1 = genEvt_particles_begin;
+	pitr1!=genEvt_particles_end; ++pitr1 ){
       n++;
       if( ( std::abs((*pitr1)->pdg_id()) != std::abs(m_PartId1)  && 99999 != std::abs(m_PartId1) ) || //PDG ID selection
           (*pitr1)->status() != m_PartStatus  ||    //status of the particle 
           (*pitr1)->momentum().perp() < m_Ptmin1  || // pT cut
-          fabs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange1
+          std::abs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange1
         ) continue;//eta cut
           
       ATH_MSG_INFO( "   type1 " << (*pitr1)->pdg_id() << " pT1 " << (*pitr1)->momentum().perp()
                     << " eta1 " << (*pitr1)->momentum().pseudoRapidity() << " phi1 " << (*pitr1)->momentum().phi()
                     << " stat1 " << (*pitr1)->status()  );
 
-      HepMC::GenEvent::particle_const_iterator pitr2 = genEvt->particles_begin();
+      auto pitr2 = genEvt_particles_begin;
       if( samePDGID12 ){
         pitr2 = pitr1;
         pitr2++;//pirt2 = pitr1 + 1  is not allowed. operator+ is not defined....
       }
 
-      for(; pitr2!=genEvt->particles_end(); ++pitr2 ){
+      for(; pitr2!=genEvt_particles_end; ++pitr2 ){
 
         if( pitr1 == pitr2 ) continue;//if the pointers are the same. 
           
         if( ( std::abs((*pitr2)->pdg_id()) != std::abs(m_PartId2) && 99999 != std::abs(m_PartId2) ) || //PDG ID selection
             (*pitr2)->status() != m_PartStatus  ||    //status of the particle 
             (*pitr2)->momentum().perp() < m_Ptmin2  || // pT cut
-            fabs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2
+            std::abs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2
           ) continue;//eta cut
         if( samePDGID12 && !samePDGID123 && (*pitr1)->pdg_id()==(*pitr2)->pdg_id()) continue;
           
@@ -133,20 +135,20 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
                       << " eta2 " << (*pitr2)->momentum().pseudoRapidity() << " phi2 " << (*pitr2)->momentum().phi()
                       << " stat2 " << (*pitr2)->status()  );
 
-        HepMC::GenEvent::particle_const_iterator pitr3 = genEvt->particles_begin();
+        auto pitr3 = genEvt_particles_begin;
         if( samePDGID123 ){
           pitr3 = pitr2;
           pitr3++;//pirt2 = pitr1 + 1  is not allowed. operator+ is not defined....
         }
 
-        for(; pitr3!=genEvt->particles_end(); ++pitr3 ){
+        for(; pitr3!=genEvt_particles_end; ++pitr3 ){
 
           if( pitr1 == pitr3 || pitr2 == pitr3 ) continue;//if the pointers are the same. 
   
           if( ( std::abs((*pitr3)->pdg_id()) != std::abs(m_PartId3) && 99999 != std::abs(m_PartId3) ) || //PDG ID selection
               (*pitr3)->status() != m_PartStatus  ||    //status of the particle 
               (*pitr3)->momentum().perp() < m_Ptmin3  || // pT cut
-              fabs((*pitr3)->momentum().pseudoRapidity()) > m_EtaRange3
+              std::abs((*pitr3)->momentum().pseudoRapidity()) > m_EtaRange3
             ) continue;//eta cut
           
           ATH_MSG_INFO( "   type3 " << (*pitr3)->pdg_id() << " pT3 " << (*pitr3)->momentum().perp()

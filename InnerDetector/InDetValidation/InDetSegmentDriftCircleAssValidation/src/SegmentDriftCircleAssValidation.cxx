@@ -15,7 +15,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "InDetSegmentDriftCircleAssValidation/SegmentDriftCircleAssValidation.h"
 
 // ReadHandle

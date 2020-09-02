@@ -4,7 +4,7 @@
 
 #include "LArGeoH62004Algs/RadLenNtuple.h"
 #include "LArG4RunControl/LArGeoTBH1GeoOptions.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include <iostream>
 #include "GaudiKernel/IService.h"

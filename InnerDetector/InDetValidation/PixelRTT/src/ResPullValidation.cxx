@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ResPullValidation_C
@@ -174,7 +174,7 @@ bool ResPullValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 	else HighPtRes=0.5;
 	if( fabs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt)
 				+ HighPtRes*HighPtRes) ){
-		static std::vector<Double_t> Pars(3);
+                std::vector<Double_t> Pars(3);
 		Pars[1] = ClusterSize;
 		Pars[0] = Layer;
 		m_AngleProfile->Fill(Angle,Residual,Pars);

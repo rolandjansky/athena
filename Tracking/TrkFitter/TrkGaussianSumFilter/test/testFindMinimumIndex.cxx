@@ -14,13 +14,8 @@ int main(){
     6.97245, 2.13307, 2.89188, 1.46095, 1.32797, 4.67858, 5.1219,  5.38812, 8.14577, 9.28787, 8.26778, 7.35197, 1.02537,
     7.39633, 6.79565, 5.1043,  7.96525, 6.16379, 8.89082, 8.27358, 1.15997, 8.39121, 8.38757, 9.46067, 4.714};
 
-    int32_t minIndex=GSFUtils::findMinimumIndex(array,64);
-    std::cout << "FindMinimumIndex Index = " <<  minIndex <<  " with value = " <<array[minIndex] <<'\n'; 
-    minIndex=GSFUtils::findMinimumIndexSTL(array,64);
-    std::cout << "FindMinimumIndexSTL Index = " <<  minIndex << " with value = " <<array[minIndex] <<'\n'; 
-    std::pair<int32_t,int32_t> minpair = GSFUtils::findMinimumIndexPair(array,64);
-    std::cout << "FindMinimumIndexPair 1st = " << minpair.first << " with value " << array[minpair.first]
-              << " ,2nd = " << minpair.second << " with value " << array[minpair.second] << '\n';
+  int32_t minIndex=GSFUtils::findMinimumIndex(array,64);
+  std::cout << "FindMinimumIndex Index = " <<  minIndex <<  " with value = " <<  array[minIndex] <<'\n';
 
-    return 0;
+  return 0;
 }

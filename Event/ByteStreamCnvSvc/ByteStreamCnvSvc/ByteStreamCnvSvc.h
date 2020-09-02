@@ -60,8 +60,8 @@ private:
    std::string m_ioSvcName;
 
    /// list of service names
-   Gaudi::Property<std::vector<std::string>> m_ioSvcNameList;
-
+   Gaudi::Property<std::vector<std::string>> m_ioSvcNameList{ this, "ByteStreamOutputSvcList", {}, "", "OrderedSet<T>"};
+   
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
 
@@ -82,6 +82,14 @@ private:
 
    /// @brief common FEA, indexed by string key
    std::map<std::string, FullEventAssemblerBase*> m_feaMap;
+
+   /// Cache for serialised event header data
+   std::vector<std::unique_ptr<uint32_t[]>> m_serialiseCache;
+
+   /// Add new array to the cache
+   uint32_t* newCachedArray(const size_t size) {
+      return m_serialiseCache.emplace_back(std::make_unique<uint32_t[]>(size)).get();
+   }
 };
 
 // Implementation of template method:

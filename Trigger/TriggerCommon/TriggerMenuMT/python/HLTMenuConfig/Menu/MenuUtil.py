@@ -4,58 +4,6 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
-def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
-    list=[]
-    for item, prescales in HLTPrescale.iteritems():
-        # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
-        if item not in triggerPythonConfig.allChains.keys():
-            log.debug('Signature %s not registered to TriggerPythonConfig', item)
-            continue
-        n = len(prescales)
-        hltchain = None
-        for ch in triggerPythonConfig.allChains[item]:
-            if ch.level == 'HLT': 
-                hltchain = ch
-            if n > 3  and hltchain:
-                if hltchain.prescale != "0":
-                    log.warning("chain %s in rerun mode with special strema tag does not have the correct HLT PS [=0] ",
-                                hltchain.chain_name)
-                if hltchain.rerun_prescale !=  "1":
-                    log.error("chain %s has special stream tag but it's not in rerun mode", hltchain.chain_name)
-                list.append( "%s:%s", hltchain.chain_name, prescales[3] )
-            
-
-    return list
-
-                
-
-
-def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
-    for item, prescales in HLTPrescale.iteritems():
-        # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
-        if item not in triggerPythonConfig.allChains.keys():
-            if triggerPythonConfig.signaturesOverwritten:
-                log.warning('Attempt to set prescales for nonexisting chain: %s', item)
-                continue
-            else:
-                log.error('Attempt to set prescales for nonexisting chain: %s', item)
-                continue
-        n = len(prescales)
-        hltchain = None
-        for ch in triggerPythonConfig.allChains[item]:
-            if ch.level == 'HLT': 
-                hltchain = ch
-        if n > 0  and hltchain:
-            hltchain.prescale = str(prescales[0])
-        if n > 1  and hltchain:
-            hltchain.pass_through = str(prescales[1])
-        if n > 2  and hltchain:
-            hltchain.rerun_prescale = str(prescales[2])
-       
-        log.info('Applied HLTPS to the item '+item+': PS'+ hltchain.prescale+" PT"+hltchain.pass_through+" RerunPS"+hltchain.rerun_prescale)
-
-
-
 def checkGroups(triggerPythonConfig):
     """ Make sure the groups used in Physics and MC menu exists
     """
@@ -153,19 +101,6 @@ def checkStreamConsistency(triggerPythonConfig):
                 already_used_robs[rob_id]=stream
                 
 
-def resetAllPrescales(triggerPythonConfig):
-    for sig in triggerPythonConfig.allChains.values():
-        for chain in sig:
-            if float(chain.prescale) > 0.:
-                chain.prescale = '1'
-            if float(chain.pass_through) > 0.:
-                chain.pass_through = '1'
-            if float(chain.rerun_prescale) > 0.:   
-                chain.rerun_prescale = '1'
-    for item in triggerPythonConfig.allItems.values():
-        if float(item.prescale) > 0.:
-            item.prescale = '1'
-        
 def allSignatures():
     sigs = []
     slices = (

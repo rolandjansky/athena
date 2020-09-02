@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -16,12 +16,13 @@
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
 
-#include "TrigmuIso/muIso.h"
-#include "TrigmuIso/muIsoUtil.h"
+#include "muIso.h"
+#include "muIsoUtil.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "StoreGate/DataHandle.h"
 
@@ -38,8 +39,6 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -277,11 +276,11 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
       double z_id     = (*trkit)->z0();
 
       ATH_MSG_DEBUG( "Found track: "
-                     << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+                     << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
                      << ", eta =" << eta_id
                      << ", phi =" << phi_id );
 
-      if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
+      if ((fabs(pt_id) / Gaudi::Units::GeV) < m_PtMinTrk)       continue;
       if (fabs(eta_id)               > m_EtaMaxTrk)      continue;
 
       double dzeta    = z_id - zeta;
@@ -326,7 +325,7 @@ HLT::ErrorCode muIso::hltExecute(const HLT::TriggerElement* inputTE, HLT::Trigge
 
    // updated monitored variables
    m_NTRK     = ntrk;
-   m_Sumpt    = sumpt02 / CLHEP::GeV; //in GeV
+   m_Sumpt    = sumpt02 / Gaudi::Units::GeV; //in GeV
    m_IDiso    = sumpt02 / pt;
    m_ErrorFlagMI = 0;
    m_MuPt        = pt;
@@ -449,11 +448,11 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
       double z_id     = (*trkit)->z0();
 
       ATH_MSG_DEBUG( "Found track: "
-                     << "  with pt (GeV) = " << pt_id / CLHEP::GeV
+                     << "  with pt (GeV) = " << pt_id / Gaudi::Units::GeV
                      << ", eta =" << eta_id
                      << ", phi =" << phi_id );
 
-      if ((fabs(pt_id) / CLHEP::GeV) < m_PtMinTrk)       continue;
+      if ((fabs(pt_id) / Gaudi::Units::GeV) < m_PtMinTrk)       continue;
       if (fabs(eta_id)               > m_EtaMaxTrk)      continue;
 
       double dzeta    = z_id - zeta;
@@ -498,7 +497,7 @@ StatusCode muIso::findIsolation( const xAOD::L2CombinedMuonContainer& muonColl,
 
    // updated monitored variables
    nTrk     = ntrk;
-   sumpt    = sumpt02 / CLHEP::GeV; //in GeV
+   sumpt    = sumpt02 / Gaudi::Units::GeV; //in GeV
    idIso    = sumpt02 / pt;
    errorFlagMI = 0;
    muPt        = pt;

@@ -137,11 +137,6 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('ChPiEMEOverCaloEME', path='EXPERT', type='TH1F', title="EF EM energy of charged pions over calorimetric EM energy;ChPiEME over CaloEME; nRoIs", xbins=40, xmin=-20., xmax=20.)
    monTool.defineHistogram('innerTrkAvgDist', path='EXPERT', type='TH1F', title="EF inner track average distance; innerTrkAvgDist; nRoIs", xbins=40, xmin=-0.05, xmax=0.5)
    monTool.defineHistogram('nCand', path='EXPERT', type='TH1F', title="Number of tau candidates;Number of tau candidates; nevents", xbins=10, xmin=-1.0, xmax=9.)
-   monTool.defineHistogram('ActualInteractions', path='EXPERT', type='TH1F', title="Number of actual interaction per bunch crossing;ActualInteractions;nevents", xbins=80, xmin=0.0, xmax=80.)
-   monTool.defineHistogram('AvgInteractions', path='EXPERT', type='TH1F', title="Number of average interaction per bunch crossing;AvgInteractions;nevents", xbins=80, xmin=0.0, xmax=80.)
-   monTool.defineHistogram('beamspot_x', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_y', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.)
-   monTool.defineHistogram('beamspot_z', path='EXPERT', type='TH1F', title="Beamspot position;Beamspot z;nevents", xbins=100, xmin=-500.0, xmax=500.)
    monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",

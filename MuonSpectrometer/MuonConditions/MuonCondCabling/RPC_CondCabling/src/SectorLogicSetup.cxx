@@ -1017,40 +1017,31 @@ std::ostream& operator<<(std::ostream& stream,const SectorLogicSetup& setup)
 
 
 bool
-SectorLogicSetup::operator+=(RPCchamberdata& data)
-{
-    while(RPCchamber* cham = data.give_rpc())
-    {
+SectorLogicSetup::operator+=(RPCchamberdata& data) {
+    while(RPCchamber* cham = data.give_rpc()) {
         int key = data.station()*100;
-        std::pair < RPCmap::iterator, bool> ins = 
-            m_RPCs.insert(RPCmap::value_type(key + cham->number(),*cham));
+        std::pair < RPCmap::iterator, bool> ins = m_RPCs.insert(RPCmap::value_type(key + cham->number(),*cham));
 
-	RPCmap::iterator lower = m_RPCs.lower_bound(key);
-	RPCmap::iterator upper = m_RPCs.upper_bound(key+99);
+        RPCmap::iterator lower = m_RPCs.lower_bound(key);
+        RPCmap::iterator upper = m_RPCs.upper_bound(key+99);
         RPCmap::iterator current = (ins.first);
 
-        if (ins.second)
-        {
-            if (current != lower ) --current; 
-            while (current != upper )
-	    {
-	        int div       = ((*current).second.number())? 1 : 2;
-	        int eta_st    = (*current).second.eta_strips()/div;
+        if (ins.second) {
+            if (current != lower ) --current;
+            while (current != upper ) {
+                int div       = ((*current).second.number())? 1 : 2;
+                int eta_st    = (*current).second.eta_strips()/div;
                 int eta_st_of = (*current).second.eta_strip_global()/div;
                 int eta_co    = (*current).second.eta_connectors()/div;
                 int eta_co_of = (*current).second.eta_conn_global()/div;
-	        
-		current++;
-		if (current != m_RPCs.end())
-                {
-		    (*current).second.set_eta_st_global(eta_st + eta_st_of);
+                current++;
+                if (current != m_RPCs.end()) {
+                    (*current).second.set_eta_st_global(eta_st + eta_st_of);
                     (*current).second.set_eta_co_global(eta_co + eta_co_of);
-	        }
-	    }
-        } 
-        else
-        {
-	    DISP <<"Error in inserting chamber:" << std::endl
+                }
+            }
+        } else {
+            DISP <<"Error in inserting chamber:" << std::endl
                  << *cham << std::endl << "in "; 
             PrintElement(m_message->message(),data.station(),"RPC",0,false);
             DISP_ERROR;

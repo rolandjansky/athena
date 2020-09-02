@@ -7,5 +7,4 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import OutputStreamSequencerSvc
 outputStreamSequencerSvc = OutputStreamSequencerSvc()
 outputStreamSequencerSvc.SequenceIncidentName = "NextEventRange"
-outputStreamSequencerSvc.IgnoreInputFileBoundary = True
 svcMgr += outputStreamSequencerSvc

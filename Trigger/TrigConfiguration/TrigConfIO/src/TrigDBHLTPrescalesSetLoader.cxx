@@ -1,32 +1,7 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+#include "./TrigDBHelper.h"
 #include "TrigConfIO/TrigDBHLTPrescalesSetLoader.h"
-
-#include "CoralBase/Exception.h"
-#include "CoralBase/Attribute.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/Blob.h"
-
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/IConnectionServiceConfiguration.h"
-#include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/IQuery.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ITransaction.h"
-
-
-#include "boost/property_tree/ptree.hpp"
-#include "boost/property_tree/json_parser.hpp"
-#include "boost/iostreams/stream.hpp"
-
-#include <memory>
-#include <exception>
 
 TrigConf::TrigDBHLTPrescalesSetLoader::TrigDBHLTPrescalesSetLoader(const std::string & connection) : 
    TrigDBLoader("TrigDBHLTPrescalesSetLoader", connection)
@@ -35,54 +10,61 @@ TrigConf::TrigDBHLTPrescalesSetLoader::TrigDBHLTPrescalesSetLoader(const std::st
 TrigConf::TrigDBHLTPrescalesSetLoader::~TrigDBHLTPrescalesSetLoader()
 {}
 
+namespace {
+   std::vector<TrigConf::QueryDefinition>
+   getQueryDefinitions() {
+      std::vector<TrigConf::QueryDefinition> queries;
+      { // query for table dev1 and dev2
+         queries.emplace_back();
+         auto & q = queries.back();
+         // tables
+         q.addToTableList ( "HLT_PRESCALE_SET" );
+         // bind vars
+         q.extendBinding<int>("key");
+         // conditions
+         q.extendCondition("HPS_ID = :key");
+         // attributes
+         q.extendOutput<coral::Blob>( "HPS_DATA" );
+         // the field with the data
+         q.setDataName("HPS_DATA");
+      }
+      return queries;
+   }
+}
 
 bool
-TrigConf::TrigDBHLTPrescalesSetLoader::loadHLTPrescales ( unsigned int hltpsk,
-                                                          TrigConf::HLTPrescalesSet & hltpss ) const
+TrigConf::TrigDBHLTPrescalesSetLoader::loadHLTPrescales ( unsigned int psk, TrigConf::HLTPrescalesSet & pss,
+                                                          const std::string & outFileName ) const
 {
    auto session = createDBSession();
    session->transaction().start( /*bool readonly=*/ true);
-
-   std::unique_ptr<coral::IQuery> query( session->nominalSchema().tableHandle("HLT_PRESCALE_SET").newQuery() );
-   query->setRowCacheSize( 5 );
-   
-   // bind list
-   coral::AttributeList bindList;
-   bindList.extend<int>("hltpsk");
-   bindList[0].data<int>() = hltpsk;
-
-   // condition clause
-   std::string theCondition = "HPS_ID = :hltpsk";
-   query->setCondition( theCondition, bindList );
-
-   // output data and types
-   coral::AttributeList attList;
-   attList.extend<std::string>( "HPS_NAME" );
-   attList.extend<int>        ( "HPS_VERSION" );
-   attList.extend<std::string>( "HPS_COMMENT" );
-   attList.extend<coral::Blob>( "HPS_DATA" );
-   query->defineOutput(attList);
-   for( const coral::Attribute & attr : attList) {
-      query->addToOutputList(attr.specification().name());
+   bool querySuccess { false };
+   for( auto & qdef : getQueryDefinitions() ) {
+      try {
+         qdef.setBoundValue<int>("key", psk);
+         auto q = qdef.createQuery( session.get() );
+         auto & cursor = q->execute();
+         querySuccess = true;
+         if ( ! cursor.next() ) {
+            throw std::runtime_error( "TrigDBHLTPrescalesSetLoader: HLT presale key " + std::to_string(psk) + " not available" );
+         }
+         const coral::AttributeList& row = cursor.currentRow();
+         const coral::Blob& dataBlob = row[qdef.dataName()].data<coral::Blob>();
+         writeRawFile( dataBlob, outFileName );
+         boost::property_tree::ptree pt;
+         blobToPtree( dataBlob, pt );
+         pss.setData(std::move(pt));
+         pss.setPSK(psk);
+         break;
+      }
+      catch(coral::QueryException & ex) {
+         continue;
+      }
    }
-
-   coral::ICursor& cursor = query->execute();
-
-   if ( ! cursor.next() ) {
-      throw std::runtime_error( "TrigDBHLTPrescalesSetLoader: HLT PSK " + std::to_string(hltpsk) + " not available" );
+   if( ! querySuccess ) {
+      TRG_MSG_ERROR("Could not read the HLT prescale set data from the database, all query attempts failed");
+      return false;
    }
-	
-   const coral::AttributeList& row = cursor.currentRow();
-
-   const coral::Blob& hltpsBlob = row["HPS_DATA"].data<coral::Blob>();
-   boost::iostreams::stream<boost::iostreams::array_source> stream( static_cast<const char*> ( hltpsBlob.startingAddress()), hltpsBlob.size());
-
-   boost::property_tree::ptree hltpss_pt;
-   boost::property_tree::read_json(stream, hltpss_pt);
-   hltpss.setData(std::move(hltpss_pt));
-   hltpss.setPSK(hltpsk);
-
-   session->transaction().commit();
 
    return true;
 }

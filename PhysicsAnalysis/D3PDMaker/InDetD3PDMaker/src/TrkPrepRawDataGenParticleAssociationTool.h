@@ -8,7 +8,7 @@
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "Identifier/Identifier.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkPrepRawData/PrepRawData.h"

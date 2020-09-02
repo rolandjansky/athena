@@ -15,6 +15,7 @@ def GetCurrentStreamName( msg ):
         msg.info("Couldn't get input stream name from the RecFlags... trying AthFile directly.")
 
     from PyUtils.MetaReader import read_metadata
+    from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
     input_file = svcMgr.EventSelector.InputCollections[0]
     metadata = read_metadata(input_file)
     metadata = metadata[input_file]  # promote all keys one level up
@@ -24,7 +25,7 @@ def GetCurrentStreamName( msg ):
             return class_name
     return 'unknownStream'
 
-def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMetaDataToAllOutputFiles=True, SGkey="CutBookkeepers" ):
+def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFiles=True ):
     """
     Helper to create the CutFlowSvc, extract the needed information from
     the input file, and also schedule all the needed stuff.
@@ -40,12 +41,10 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMe
     inputStreamName = GetCurrentStreamName( msg=msg )
     msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
 
-    # Create the CutFlowSvc instance(s)
+    # Create the CutFlowSvc instance
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
-    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -56,31 +55,14 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMe
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
     # Standard event bookkeepers
-    inname = "CutBookkeepers"
-    outname = "CutBookkeepers"
-    cutflowtool = BookkeeperTool(outname+"Tool",
-                                 InputCollName = inname,
-                                 OutputCollName= outname)
+    primary_name = "CutBookkeepers"
+    cutflowtool = BookkeeperTool(primary_name + "Tool",
+                                 InputCollName = primary_name,
+                                 OutputCollName= primary_name)
     svcMgr.ToolSvc += cutflowtool
 
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
-
-    # Add pdf sum of weights counts if appropriate
-    from AthenaCommon.GlobalFlags  import globalflags
-    if globalflags.DataSource() == 'geant4':
-        #from PyUtils import AthFile
-        #afc = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
-
-        # PDF
-        name = "PDFSumOfWeights"
-        pdfweighttool = BookkeeperTool(name,
-                                       OutputCollName= name,
-                                       InputCollName = name)
-        svcMgr.ToolSvc += pdfweighttool
-
-        # Add tool to MetaDataSvc
-        svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]
 
     # Check if we have a sequence given
     if not seq :
@@ -91,22 +73,16 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMe
     # First of all, schedule EventCounterAlg
     if not hasattr(seq,"AllExecutedEvents"):
         if not seq.isLocked():
-            if addAlgInPlace:
-                msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s" % seq.getName())
-                seq += CfgMgr.EventCounterAlg("AllExecutedEvents")
-                pass
-            else:
-                # Need to schedule it after the xAODMaker::EventInfoCnvAlg such that xAOD::EventInfo is present
-                index = 0
-                if hasattr( seq, "xAODMaker::EventInfoCnvAlg" ):
-                    for alg in seq:
-                        index += 1
-                        if alg.getName() == "xAODMaker::EventInfoCnvAlg": break
-                        pass
+            # Need to schedule it after the xAODMaker::EventInfoCnvAlg such that xAOD::EventInfo is present
+            index = 0
+            if hasattr( seq, "xAODMaker::EventInfoCnvAlg" ):
+                for alg in seq:
+                    index += 1
+                    if alg.getName() == "xAODMaker::EventInfoCnvAlg": break
                     pass
-                msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i" % (seq.getName(),index))
-                seq.insert( index, CfgMgr.EventCounterAlg("AllExecutedEvents") )
                 pass
+            msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i" % (seq.getName(),index))
+            seq.insert( index, CfgMgr.EventCounterAlg("AllExecutedEvents") )
             pass
         else :
             msg.info("Could NOT add EventCounterAlg with name AllExecutedEvents to locked sequence with name %s" % seq.getName())
@@ -119,15 +95,10 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addAlgInPlace=False, addMe
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         # Explicitely add file metadata from input and from transient store,
         # but only the ones that we always create.
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
-        SGkey = "FileBookkeepers"
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+SGkey )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+SGkey+"Aux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+SGkey )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+SGkey+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"Aux.*" )
         pass
 
     return

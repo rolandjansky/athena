@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
@@ -34,65 +33,23 @@
 #include "xAODTruth/TruthParticle.h"
 
 // --- HepMC Includes ---
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include <cmath>
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+  MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent) :
 
-  MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent)
-    :	AthAlgTool(type, name, parent),
-	m_nTrueMuons(0),
-	m_nTracksTagged(0),
-	m_nMuonsTagged(0),
-	m_caloMuonLikelihood("CaloMuonLikelihoodTool/CaloMuonLikelihoodTool",this),
-        m_trkDepositInCalo("TrackDepositInCaloTool/TrackDepositInCaloTool"),
-	m_trackIsolationTool("xAOD::TrackIsolationTool"),
-        m_trkSelTool("InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool")
-  {
-    declareInterface<IMuonCombinedInDetExtensionTool>(this);
-    declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
-    
-    // --- Muon Dressing ---
-    declareProperty("doCosmicTrackSelection",            m_doCosmicTrackSelection  = false     );
-    
-    // --- Track Preselection Cuts ---
-    declareProperty("doTrkSelection",                    m_doTrkSelection            =  true   );
-    declareProperty("TrackEIsoBarrelCut",                m_eIsoBarrelCut             =  15000. );
-    declareProperty("TrackEIsoTransitionCut",            m_eIsoTransitionCut         =  8000.  );
-    declareProperty("TrackEIsoEndCapCut",                m_eIsoEndCapCut             =  12000. );
-    declareProperty("TrackPtIsoPtRatioCut",              m_ptIsoPtRatioCut           =  5.0    );
-    declareProperty("TrackEIsoPtRatioBarrelCut",         m_eIsoPtRatioBarrelCut      =  2.5    );
-    declareProperty("TrackEIsoPtRatioTransitionCut",     m_eIsoPtRatioTransitionCut  =  1.25   );
-    declareProperty("TrackEIsoPtRatioEndCapCut",         m_eIsoPtRatioEndCapCut      =  1.6    );
-    declareProperty("TrackIsoConeSize",                  m_trackIsoCone              =  0.45   );
-    declareProperty("EnergyIsoConeSize",                 m_energyIsoCone             =  0.4    );
-    
-    // --- Calorimeter ID Tools ---
-    declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
-    declareProperty("doCaloLR",                          m_doCaloLR             =  true );
-    declareProperty("ShowTruth",                         m_doTruth              =  true);
-    declareProperty("DebugMode",                         m_debugMode            =  false);
-    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  false);
-    declareProperty("IgnoreSiAssociatedCandidates",      m_ignoreSiAssocated    =  true );
-    declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
-    declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
-    declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
-    
-    // --- Track in Calo Tools ---
-    declareProperty("TrackDepositInCaloTool",            m_trkDepositInCalo  );
-    declareProperty("TrackIsolationTool",                m_trackIsolationTool );
-    declareProperty("TrackSelectorTool",                 m_trkSelTool        );
+
+    AthAlgTool(type, name, parent),
+    m_nTrueMuons(0),
+    m_nTracksTagged(0),
+    m_nMuonsTagged(0) {
+      declareInterface<IMuonCombinedInDetExtensionTool>(this);
+      declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
   }
-
-  MuonCaloTagTool::~MuonCaloTagTool()
-  {}
-
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCaloTagTool::initialize() {
     
@@ -106,6 +63,10 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     if( m_doCaloLR ) ATH_CHECK( m_caloMuonLikelihood.retrieve() );
     else m_caloMuonLikelihood.disable();
+
+    if( m_doCaloMuonScore ) ATH_CHECK( m_caloMuonScoreTool.retrieve() );
+    else m_caloMuonScoreTool.disable();
+
     ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
     ATH_CHECK( m_caloMuonTagTight.retrieve()   );
     ATH_CHECK( m_trkDepositInCalo.retrieve()   );
@@ -119,25 +80,21 @@ namespace MuonCombined {
   }
 
   StatusCode MuonCaloTagTool::finalize() {
-    
-    
     ATH_MSG_INFO("Number of true muons               : " << m_nTrueMuons);
     ATH_MSG_INFO("Number of tracks tagged            : " << m_nTracksTagged);
     ATH_MSG_INFO("Number of muons tagged             : " << m_nMuonsTagged);
-    
     return StatusCode::SUCCESS;
-  
   }
 
   void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) {
+					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
     //shouldn't need this interface for this tool, I don't think
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
     extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				Trk::SegmentCollection* segments) {
+				Trk::SegmentCollection* segments) const {
 
     if(combTracks || meTracks || segments) ATH_MSG_DEBUG("track collections passed to MuonCaloTagTool?");
     const xAOD::CaloClusterContainer* caloClusterCont=0;
@@ -159,7 +116,7 @@ namespace MuonCombined {
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
                                 const CaloCellContainer* caloCellCont,
-                                const xAOD::CaloClusterContainer* caloClusterCont) {
+                                const xAOD::CaloClusterContainer* caloClusterCont) const {
 
 
     // --- Retrieve primary vertex (not retrieving for now) ---
@@ -241,6 +198,7 @@ namespace MuonCombined {
 
       // --- Muon tagging ---
       float likelihood = 0;                                                                                                                                                    
+      float muon_score = -1;
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
@@ -252,20 +210,24 @@ namespace MuonCombined {
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
-      if(m_doCaloLR)
+      if(m_doCaloLR){
 	likelihood = m_caloMuonLikelihood->getLHR(tp, caloClusterCont);
-	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
-      // --- If both the taggers do not think it's a muon, forget about it ---
-      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {
+      }
+      if(m_doCaloMuonScore){
+	muon_score = m_caloMuonScoreTool->getMuonScore(tp);
+      }
+      ATH_MSG_DEBUG("Track found with tag " << tag << ", LHR " << likelihood << " and calo muon score " << muon_score);
+      // --- If all three taggers do not think it's a muon, forget about it ---
+      if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut && muon_score < m_CaloMuonScoreCut) {
 	continue;                                                                                                                                                            
       }
-      // --- Only accept tight tagged muons if pT is below 4 GeV ---
-      if (tag<10&& par->pT()<4000) {
+      // --- Only accept tight tagged muons if pT is below 4 GeV and the muon score is below the threshold---
+      if (tag<10 && par->pT()<4000 && muon_score < m_CaloMuonScoreCut ) {
 	continue;
       }
       
       // FIXME const-cast  changes object passed in as const
-      createMuon(*idTP,  deposits, tag, likelihood, tagMap);
+      createMuon(*idTP,  deposits, tag, likelihood, muon_score, tagMap);
 
       // --- Count number of muons written to container 
       if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
@@ -335,7 +297,7 @@ namespace MuonCombined {
   
   // applyTrackIsolation check 
   
-  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) {
+  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) const {
 
     if( m_trackIsolationTool.empty() ) return true;
 
@@ -384,7 +346,7 @@ namespace MuonCombined {
   }
   
   void MuonCaloTagTool::createMuon(const InDetCandidate& muonCandidate,
-                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, InDetCandidateToTagMap* tagMap) const {
+                                   const std::vector<DepositInCalo>& deposits, int tag, float likelihood, float muonScore, InDetCandidateToTagMap* tagMap) const {
     
     std::vector<DepositInCalo>::const_iterator deposit  = deposits.begin();
     std::vector<DepositInCalo>::const_iterator depositE = deposits.end();
@@ -392,21 +354,35 @@ namespace MuonCombined {
     CaloTag* caloTag = 0;
     for(; deposit != depositE; deposit++)
       eLoss+=deposit->energyDeposited();
-    
+
     if (tag>0) {
       caloTag = new CaloTag(xAOD::Muon::CaloTag, eLoss, 0); //set eLoss, sigmaEloss is set to 0.
       if(likelihood > m_CaloLRlikelihoodCut)
         caloTag->set_author2(xAOD::Muon::CaloLikelihood);
+      
+      if (muonScore > m_CaloMuonScoreCut && likelihood > m_CaloLRlikelihoodCut)
+	caloTag->set_author3(xAOD::Muon::CaloScore);
+      else if (muonScore > m_CaloMuonScoreCut)
+	caloTag->set_author2(xAOD::Muon::CaloScore);
+
     }
-    else if (likelihood > m_CaloLRlikelihoodCut)
+    else if (likelihood > m_CaloLRlikelihoodCut){
       caloTag = new CaloTag(xAOD::Muon::CaloLikelihood, eLoss, 0); 
+      if (muonScore > m_CaloMuonScoreCut) 
+	caloTag->set_author2(xAOD::Muon::CaloScore);
+    }
+    else if (muonScore > m_CaloMuonScoreCut){
+      caloTag = new CaloTag(xAOD::Muon::CaloScore, eLoss, 0);
+    }
+
     if( caloTag ){
       caloTag->set_deposits(deposits);
       caloTag->set_caloMuonIdTag(tag);
       caloTag->set_caloLRLikelihood(likelihood);
-      
+      caloTag->set_caloMuonScore(muonScore);
       tagMap->addEntry(&muonCandidate,caloTag);
     }
+
   }
 
 

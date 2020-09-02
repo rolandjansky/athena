@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( CaloRingerAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel CaloEvent AthContainers AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODBase xAODCaloRings xAODCore )
+                     LINK_LIBRARIES GaudiKernel CaloEvent AthContainers AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODBase xAODCaloRings xAODCore CaloRingerToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

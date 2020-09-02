@@ -43,9 +43,9 @@
 #include "McParticleEvent/TruthParticleContainer.h"
 
 #include "GeneratorObjects/McEventCollection.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

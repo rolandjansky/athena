@@ -12,14 +12,16 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include <atomic>
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Trk
 {
@@ -107,8 +109,9 @@ private:
                                                          const Amg::Vector3D&	planePosition,
                                                          const Amg::Vector3D&	planeNormal,
                                                          double& stepLength) const;
-    Amg::Vector3D			field (const Amg::Vector3D&	point) const;
-    
+    Amg::Vector3D			field (const Amg::Vector3D&	point, MagField::AtlasFieldCache &fieldCache) const;
+    void                                initializeFieldCache(MagField::AtlasFieldCache& fieldCache) const;
+
     bool				isTrapped (const double distance,
                            double& previousDistance,
                            unsigned long long& stepsUntilTrapped) const;
@@ -127,10 +130,11 @@ private:
     void				step (TrackSurfaceIntersection& isect,
                                               Amg::Vector3D& fieldValue,
                                               double& stepLength,
-                                              const double qOverP) const;
+                                              const double qOverP,
+                                              MagField::AtlasFieldCache &fieldCache) const;
 
-    // field access:
-    ServiceHandle<MagField::IMagFieldSvc>	m_magFieldSvc;
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey
+       {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
     // additional configuration
     bool					m_productionMode;
@@ -256,12 +260,21 @@ RungeKuttaIntersector::distanceToPlane (const TrackSurfaceIntersection& isect,
     return		  std::abs(distance);
 }
 
+inline void
+RungeKuttaIntersector::initializeFieldCache(MagField::AtlasFieldCache &fieldCache) const {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> fieldCondObj{m_fieldCacheCondObjInputKey};
+    if (!fieldCondObj.isValid()) {
+       ATH_MSG_FATAL("Failed to get magnetic field conditions data " << m_fieldCacheCondObjInputKey.key() );
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+}
+
 inline Amg::Vector3D
-RungeKuttaIntersector::field (const Amg::Vector3D& position) const
+RungeKuttaIntersector::field (const Amg::Vector3D& position, MagField::AtlasFieldCache &fieldCache) const
 {
-    Amg::Vector3D field;
-    m_magFieldSvc->getField(&position,&field);
-    return field;
+    Amg::Vector3D fieldValue;
+    fieldCache.getField(position.data(),fieldValue.data());
+    return fieldValue;
 }
     
 inline const TrackSurfaceIntersection*

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -85,29 +85,28 @@ namespace ExpressionParsing {
     return true;
   }
 
-  StackElement ExpressionParser::evaluate()
+  StackElement ExpressionParser::evaluate() const
   {
-    m_vm->execute(m_code);
-    return m_vm->top();
+    return m_vm->execute(m_code);
   }
 
-  bool ExpressionParser::evaluateAsBool()
+  bool ExpressionParser::evaluateAsBool() const
   {
-    const StackElement &result = evaluate();
+    StackElement result = evaluate();
     if (result.isScalar()) return result.asBool();
     else throw std::runtime_error("Unable to evaluate vector quantity as a boolean");
   }
 
-  double ExpressionParser::evaluateAsDouble()
+  double ExpressionParser::evaluateAsDouble() const
   {
-    const StackElement &result = evaluate();
+    StackElement result = evaluate();
     if (result.isScalar()) return result.scalarValue<double>();
     else throw std::runtime_error("Unable to evaluate vector quantity as a double");
   }
 
-  std::vector<int> ExpressionParser::evaluateAsVector() 
+  std::vector<int> ExpressionParser::evaluateAsVector() const
   {
-    const StackElement &result = evaluate();
+    StackElement result = evaluate();
     if (result.isVector()) return result.vectorValue<int>();
     else throw std::runtime_error("Unable to evaluate scalar quantity as a vector"); 
   }

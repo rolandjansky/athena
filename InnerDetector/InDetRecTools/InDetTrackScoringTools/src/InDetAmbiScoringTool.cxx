@@ -14,9 +14,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "TMath.h"
-#include <vector>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
@@ -41,18 +38,15 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_maxB_LayerHits(-1),
   m_maxPixelHits(-1),
   m_maxPixLay(-1),
-  m_maxLogProb(-1),
   m_maxGangedFakes(-1),
   m_trkSummaryTool("Trk::TrackSummaryTool", this),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool", this),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
-  m_extrapolator("Trk::Extrapolator", this),
-  m_magFieldSvc("AtlasFieldSvc",n)
+  m_extrapolator("Trk::Extrapolator", this)
 {
   declareInterface<Trk::ITrackScoringTool>(this);
   
   // declare properties
-  declareProperty("minNDF",            m_minNDF             = 0);
   declareProperty("minPt",             m_minPt              = 500.);
   declareProperty("maxEta",            m_maxEta             = 2.7);
   declareProperty("maxRPhiImp",        m_maxRPhiImp         = 10.);
@@ -75,14 +69,12 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   // switches and tools
   declareProperty("useAmbigFcn",       m_useAmbigFcn        = true);
   declareProperty("useTRT_AmbigFcn",   m_useTRT_AmbigFcn    = false);
-  declareProperty("useLogProbBins",    m_useLogProbBins     = false);
   declareProperty("useSigmaChi2",      m_useSigmaChi2       = false);
 
   // tools
   declareProperty("Extrapolator",      m_extrapolator);
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
-  declareProperty("MagFieldSvc",       m_magFieldSvc);
 
   declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
   declareProperty("doEmCaloSeed",      m_useEmClusSeed = true );
@@ -154,20 +146,13 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
 
   ATH_CHECK(m_beamSpotKey.initialize());
 
-  sc =  m_magFieldSvc.retrieve();
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
-    return StatusCode::FAILURE;
-  } 
-  else {
-    msg(MSG::DEBUG) << "Retrieved " << m_magFieldSvc << endmsg;
-  }
-
   if (m_useAmbigFcn && m_useTRT_AmbigFcn) {
     msg(MSG::FATAL) << "Both on, normal ambi funciton and the one for back tracking, configuration problem, not recoverable" << endmsg;
     return StatusCode::FAILURE;
   }
   
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   
   if (m_useAmbigFcn || m_useTRT_AmbigFcn) setupScoreModifiers();
 
@@ -188,21 +173,13 @@ StatusCode InDet::InDetAmbiScoringTool::finalize()
 
 Trk::TrackScore InDet::InDetAmbiScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
+   (void) suppressHoleSearch;
    if (!track.trackSummary()) {
-      // @TODO this is not thread safe. Should fail when being called in MT
-      ATH_MSG_DEBUG("Track without track summary. Compute summary to score track.");
-      std::unique_ptr<const Trk::TrackSummary> summary;
-      if ( suppressHoleSearch) {
-         ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
-         summary.reset( m_trkSummaryTool->createSummaryNoHoleSearch(track) );
-      } else {
-         ATH_MSG_DEBUG ("Get summary for new Track with HoleSearch");
-         summary.reset( m_trkSummaryTool->createSummary(track) );
-      }
+      ATH_MSG_FATAL("Track without a summary");
    }
-   assert( track.trackSummary() );
    ATH_MSG_VERBOSE ("Track has TrackSummary "<<*track.trackSummary());
    Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *track.trackSummary()) );
+
    ATH_MSG_DEBUG ("Track has Score: "<<score);
 
    return score;
@@ -241,10 +218,6 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
     // NdF cut :
     if (track.fitQuality()) {
       ATH_MSG_DEBUG ("numberDoF = "<<track.fitQuality()->numberDoF());
-      if (track.fitQuality()->numberDoF() < m_minNDF) {
-        ATH_MSG_DEBUG ("track numberDoF < "<<m_minNDF<<", reject it");
-        return Trk::TrackScore(0);
-      }
     }
     // Number of double Holes
     if (numSCTDoubleHoles>=0) {
@@ -310,7 +283,17 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   const Trk::TrackParameters* input = track.trackParameters()->front();
 
   // cuts on parameters
-  if (m_magFieldSvc->solenoidOn()) {
+  EventContext ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+  if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("simpleScore: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return Trk::TrackScore(0);
+  }
+  MagField::AtlasFieldCache fieldCache;
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  if (fieldCache.solenoidOn()){ 
     if (fabs(input->pT()) < m_minPt) {
       ATH_MSG_DEBUG ("Track pt < "<<m_minPt<<", reject it");
       return Trk::TrackScore(0);
@@ -557,7 +540,7 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
   // 
   // --- non binned Chi2
   //
-  if (!ispatterntrack && !m_useLogProbBins) {
+  if (!ispatterntrack) {
     if (track.fitQuality()!=0 && track.fitQuality()->chiSquared()>0 && track.fitQuality()->numberDoF()>0 ) {
       int    indf  = track.fitQuality()->numberDoF();
       double chi2  = track.fitQuality()->chiSquared();
@@ -571,40 +554,11 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::ambigScore( const Trk::Track& track
   //
   // --- fit quality prob
   //
-  if ( !ispatterntrack && (m_useLogProbBins || m_useSigmaChi2) && track.fitQuality() ) {
+  if ( !ispatterntrack && (m_useSigmaChi2) && track.fitQuality() ) {
 
     int    ndf  = track.fitQuality()->numberDoF();
     double chi2 = track.fitQuality()->chiSquared();
     if (ndf > 0) {
-
-      //
-      // --- first the chi2 prob
-      //
-      if (m_useLogProbBins) {
-        double p = TMath::Prob(chi2,ndf);
-        if (p > 0.) {
-          p = log(p);
-          if ( m_boundsLogProb[0] < p  && p <= m_boundsLogProb[m_maxLogProb] ) {
-            for (int ii=0; ii<m_maxLogProb; ++ii) {
-              if ( m_boundsLogProb[ii]<p && p<=m_boundsLogProb[ii+1] ) {
-          prob *= m_factorLogProb[ii];
-          ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[ii]
-                   << "  New score now: " << prob);
-          break;
-              }
-            }
-          } else if ( p < m_boundsLogProb[0] ) { 
-            prob *= m_factorLogProb[0];
-            ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[0]
-               << "  New score now: " << prob);
-          } else {
-            prob *= m_factorLogProb[m_maxLogProb-1];
-            ATH_MSG_DEBUG ("Modifier for " << p << " prob.-log.: "<< m_factorLogProb[m_maxLogProb-1]
-               << "  New score now: " << prob);
-          }
-        }
-      }
-
       //
       // --- special variable for bad chi2 distribution
       //
@@ -801,34 +755,6 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
   for (int i=0; i<m_maxTrtFittedRatio; ++i) m_factorTrtFittedRatio.push_back(goodTrtFittedRatio[i]/fakeTrtFittedRatio[i]);
   for (int i=0; i<=m_maxTrtFittedRatio; ++i) m_boundsTrtFittedRatio.push_back(TrtFittedRatioBounds[i]);
 
-  //
-  // --- chi2 prob
-  //
-  if (!m_useLogProbBins) {
-    m_maxLogProb = -1 ;
-  } else {
-    if (!m_useTRT_AmbigFcn) {
-      // --- NewTracking
-      const int maxLogProb = 10;
-      const double LogProbBounds[maxLogProb+1] = {-10., -9., -8., -7., -6., -5., -4., -3., -2., -1., 0.};
-      const double goodLogProb[maxLogProb] = {0.01, 0.01, 0.015, 0.02, 0.025, 0.045, 0.08, 0.11 , 0.21, 0.45};
-      const double fakeLogProb[maxLogProb] = {0.04, 0.04, 0.05 , 0.06, 0.06 , 0.07 , 0.09, 0.115, 0.15, 0.18};
-      // put it into the private members
-      m_maxLogProb = maxLogProb;
-      for (int i=0; i<m_maxLogProb; ++i) m_factorLogProb.push_back(goodLogProb[i]/fakeLogProb[i]);
-      for (int i=0; i<=m_maxLogProb; ++i) m_boundsLogProb.push_back(LogProbBounds[i]);
-    } else {
-      // --- BackTracking
-      const int maxLogProb = 12;
-      const double LogProbBounds[maxLogProb+1] = {-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0};
-      const double goodLogProb[maxLogProb] = {0.002, 0.002, 0.004, 0.007, 0.008, 0.012, 0.020, 0.033, 0.051, 0.104, 0.219, 0.531};
-      const double fakeLogProb[maxLogProb] = {0.020, 0.025, 0.032, 0.030, 0.042, 0.051, 0.063, 0.071, 0.080, 0.112, 0.156, 0.216};
-      // put it into the private members
-      m_maxLogProb = maxLogProb;
-      for (int i=0; i<m_maxLogProb; ++i) m_factorLogProb.push_back(goodLogProb[i]/fakeLogProb[i]);
-      for (int i=0; i<=m_maxLogProb; ++i) m_boundsLogProb.push_back(LogProbBounds[i]);
-    }
-  }
 
   //
   // --- sigma chi2
@@ -884,10 +810,6 @@ void InDet::InDetAmbiScoringTool::setupScoreModifiers()
       msg(MSG::VERBOSE) << "Modifier for " << m_boundsTrtFittedRatio[i] << " < TRT fitted ratio  < "
       << m_boundsTrtFittedRatio[i+1] <<"  : " <<m_factorTrtFittedRatio[i] <<endmsg;
     
-    // only if used
-    for (int i=0; i<m_maxLogProb; ++i)
-      msg(MSG::VERBOSE) << "Modifier for " << m_boundsLogProb[i] << " < log(P)  < "
-      << m_boundsLogProb[i+1] <<"  : " <<m_factorLogProb[i] <<endmsg;
     
     // only if used
     for (int i=0; i<m_maxSigmaChi2; ++i)

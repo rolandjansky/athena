@@ -5,7 +5,7 @@
 // L1JetTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1JetTools.h"
+#include "L1JetTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloEvent/JetInput.h"

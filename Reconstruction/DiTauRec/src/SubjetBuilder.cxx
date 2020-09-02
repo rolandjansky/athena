@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -138,7 +138,7 @@ StatusCode SubjetBuilder::execute(DiTauCandidateData * data,
 	}
 
 	ATH_MSG_DEBUG("found "<< vSubjets.size() << " subjets");
-	for (const auto subjet: vSubjets) {
+	for (const auto& subjet: vSubjets) {
 		ATH_MSG_DEBUG("pt: " << subjet.pt() << "  eta: " << subjet.eta() << "  phi: " << subjet.phi());
 	}
 

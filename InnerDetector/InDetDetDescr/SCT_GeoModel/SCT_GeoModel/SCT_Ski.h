@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_SKI_H
@@ -9,7 +9,7 @@
 
 #include "GeoModelKernel/GeoDefinitions.h"
 
-
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -56,13 +56,13 @@ public:
   int    stereoSign()   const {return m_stereoSign;}
 
   const SCT_Module * module() const {return m_module;}   
-  const SCT_Dogleg * dogleg() const {return m_dogleg;}   
-  const SCT_CoolingBlock * coolingBlock() const {return m_coolingBlock;}   
-  const SCT_CoolingPipe * coolingPipe() const {return m_coolingPipe;}   
+  const SCT_Dogleg * dogleg() const {return m_dogleg.get();}
+  const SCT_CoolingBlock * coolingBlock() const {return m_coolingBlock.get();}
+  const SCT_CoolingPipe * coolingPipe() const {return m_coolingPipe.get();}
 
   const GeoTransform * getRefPointTransform() const {return m_refPointTransform;}
-  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector.get();}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector.get();}
   double env1Thickness() const {return m_env1Thickness;}
   double env1Width()     const {return m_env1Width;}
   double env2Thickness() const {return m_env2Thickness;}
@@ -119,17 +119,17 @@ private:
   double m_doglegOffsetY;
 
   SCT_Module* m_module;
-  SCT_Dogleg* m_dogleg;
-  SCT_CoolingBlock* m_coolingBlock;
-  SCT_CoolingPipe* m_coolingPipe;
+  std::unique_ptr<SCT_Dogleg> m_dogleg;
+  std::unique_ptr<SCT_CoolingBlock> m_coolingBlock;
+  std::unique_ptr<SCT_CoolingPipe> m_coolingPipe;
 
   GeoTransform * m_refPointTransform;
   GeoTransform * m_coolingPipePos;
 
   //! For calculations of envelopes of SCT_DetailLayer.
-  GeoTrf::Vector3D * m_env1RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env1RefPointVector;
   //! For calculations of envelopes of SCT_DetailLayer.
-  GeoTrf::Vector3D * m_env2RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env2RefPointVector;
 
   double m_env1Thickness;
   double m_env1Width;

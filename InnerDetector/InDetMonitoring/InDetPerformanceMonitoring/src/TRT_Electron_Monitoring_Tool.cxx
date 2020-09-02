@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -17,7 +17,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"
-
+#include "CxxUtils/checker_macros.h"
 
 namespace{
 constexpr float electron_mass = 0.511 * Gaudi::Units::MeV;
@@ -219,7 +219,7 @@ bookPCandHistograms( MonGroup& monGroup, lw_partcand_hists_t &hists, const std::
 
 StatusCode
 TRT_Electron_Monitoring_Tool::
-fillHistograms()
+fillHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe loopOverXyz methods are used.
 {
    ATH_MSG_DEBUG("Filling TRT Electron Monitor Histograms");
   m_tBarrelA.N = 0;
@@ -249,7 +249,7 @@ fillHistograms()
 
 void
 TRT_Electron_Monitoring_Tool::
-loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
+loopOverConversions ATLAS_NOT_THREAD_SAFE (std::vector<Trk::Track*> &v_usedTrks) // const_cast is used.
 {
    ATH_MSG_DEBUG( "Entering loopOverConversions." );
 
@@ -270,7 +270,7 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
 	  const xAOD::TrackParticle* trkTag = *tp_elem;
 	  if(!trkTag) continue;
 	  i++;
-	  v_usedTrks.push_back( (Trk::Track*)trkTag->track() );
+	  v_usedTrks.push_back( const_cast<Trk::Track*>(trkTag->track()) );
 
 	  if(!m_doElectronMon) continue;
 	  //Vertex cuts
@@ -300,7 +300,7 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
 
 void
 TRT_Electron_Monitoring_Tool::
-loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
+loopOverRecElectrons ATLAS_NOT_THREAD_SAFE (std::vector<Trk::Track*> &v_usedTrks) // const_cast is used.
 {
    ATH_MSG_DEBUG( "Entering loopOverRecElectrons." );
   if(!m_doRecElectrons) return;
@@ -314,7 +314,7 @@ loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
       const Trk::Track *trk = trkP->track();
       const bool matched = (std::find(v_usedTrks.begin(), v_usedTrks.end(), trk) != v_usedTrks.end());
       if(matched) continue;
-      v_usedTrks.push_back( (Trk::Track*)trk );
+      v_usedTrks.push_back( const_cast<Trk::Track*>(trk) );
       m_tEl.N++;
       if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, electron_mass, PCAND_EL )){
 	      ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -329,7 +329,7 @@ loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks)
 }//loopOverRecElectrons
 
 void
-TRT_Electron_Monitoring_Tool::loopOverMuons(std::vector<Trk::Track*> &v_usedTrks)
+TRT_Electron_Monitoring_Tool::loopOverMuons ATLAS_NOT_THREAD_SAFE (std::vector<Trk::Track*> &v_usedTrks) // const_cast is used.
 {
    ATH_MSG_DEBUG( "Entering loopOverMuons." );
   if(!m_doMuonMon) return;
@@ -342,7 +342,7 @@ TRT_Electron_Monitoring_Tool::loopOverMuons(std::vector<Trk::Track*> &v_usedTrks
       const xAOD::TrackParticle* trkP = p_Muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
       if(!trkP) continue;
       const Trk::Track *trk = trkP->track();
-      v_usedTrks.push_back( (Trk::Track*)trk );
+      v_usedTrks.push_back( const_cast<Trk::Track*>(trk) );
       m_tMu.N++;
       if(!fillAllHistograms( (xAOD::TrackParticle*)trkP, muon_mass, PCAND_MU )){
 	      ATH_MSG_DEBUG( "fillStructHistograms failed!" );
@@ -357,7 +357,7 @@ TRT_Electron_Monitoring_Tool::loopOverMuons(std::vector<Trk::Track*> &v_usedTrks
 }//loopOverMuons
 
 void
-TRT_Electron_Monitoring_Tool::loopOverTracks(std::vector<Trk::Track*> &v_usedTrks)
+TRT_Electron_Monitoring_Tool::loopOverTracks ATLAS_NOT_THREAD_SAFE (std::vector<Trk::Track*> &v_usedTrks) // const_cast is used.
 {
    ATH_MSG_DEBUG( "Entering loopOverTracks." );
   if(!m_doTracksMon) return;
@@ -365,10 +365,10 @@ TRT_Electron_Monitoring_Tool::loopOverTracks(std::vector<Trk::Track*> &v_usedTrk
   {
    for(const auto* tp : *m_trkpCollection)
     {
-      fillAllHistograms((xAOD::TrackParticle*)tp);
-      if(!pionQualityCuts((xAOD::TrackParticle*)tp,v_usedTrks)) continue;
+      fillAllHistograms(const_cast<xAOD::TrackParticle*>(tp));
+      if(!pionQualityCuts(const_cast<xAOD::TrackParticle*>(tp),v_usedTrks)) continue;
       m_tPi.N++;
-      if(!fillAllHistograms((xAOD::TrackParticle*)tp, pion_mass, PCAND_PI ))
+      if(!fillAllHistograms(const_cast<xAOD::TrackParticle*>(tp), pion_mass, PCAND_PI ))
       {
 	     ATH_MSG_DEBUG( "fillStructHistograms failed!" );
       }
@@ -476,7 +476,7 @@ TRT_Electron_Monitoring_Tool::pionQualityCuts(xAOD::TrackParticle *trkP,std::vec
 
 bool
 TRT_Electron_Monitoring_Tool::
-fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
+fillAllHistograms ATLAS_NOT_THREAD_SAFE (xAOD::TrackParticle *trkP, float mass, int PCand){ // CLHEP::HepLorentzVector::isLightlike() uses a static variable.
   uint8_t dummy(255);
   int nPix = trkP->summaryValue(dummy,xAOD::numberOfPixelHits)?dummy:-1;
   int nSCT = trkP->summaryValue(dummy,xAOD::numberOfSCTHits)?dummy:-1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGCBYTESTREAMDATA_H
@@ -180,6 +180,133 @@ struct TGC_BYTESTREAM_SL
 
   TGC_BYTESTREAM_SL() { memset(this, 0, sizeof(*this)); }
 };
+
+/**********************/
+/** structs for NewSL */
+/**********************/
+
+struct TGC_BYTESTREAM_NSL_ROI
+{
+  unsigned roi:       8;
+  unsigned pt:        4;
+  unsigned charge:    1;
+  unsigned coinflag:  3;
+  unsigned fill1:     6;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSL_ROI() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_NSW_POS
+{
+  unsigned eta:       8;
+  unsigned phi:       6;
+  unsigned fill1:    10;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSW_POS() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_NSW_ANG
+{
+  unsigned angle:     5;
+  unsigned phires:    1;
+  unsigned lowres:    1;
+  unsigned fill1:     2;
+  unsigned nswid:     4;
+  unsigned bcid:      4;
+  unsigned input:     3;
+  unsigned cand:      2;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSW_ANG() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_RPCBIS78_POS
+{
+  unsigned eta:       6;
+  unsigned phi:       6;
+  unsigned fill1:    12;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_RPCBIS78_POS() { memset(this, 0, sizeof(*this)); }
+};
+struct TGC_BYTESTREAM_RPCBIS78_COIN
+{
+  unsigned fill1:     4;
+  unsigned flag:      2;
+  unsigned dphi:      3;
+  unsigned deta:      3;
+  unsigned fill2:     1;
+  unsigned bcid:      4;
+  unsigned fill3:     3;
+  unsigned cand:      2;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_RPCBIS78_COIN() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_NSL_EIFI
+{
+  unsigned ei:        8;
+  unsigned fi:        8;
+  unsigned fill1:     6;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSL_EIFI() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_NSL_HIPT
+{
+  signed   delta:     5;
+  unsigned sub:       1;
+  unsigned hitId:     3;
+  unsigned hipt:      1;
+  unsigned cand:      1;
+  unsigned chip:      2;
+  unsigned strip:     1;
+  unsigned fill1:     8;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSL_HIPT() { memset(this, 0, sizeof(*this)); }
+};
+
+struct TGC_BYTESTREAM_NSL_TMDB
+{
+  unsigned module:   12;
+  unsigned bcid:      4;
+  unsigned fill1:     6;
+  unsigned bcBitmap:  2;
+  unsigned sector:    4;
+  unsigned fwd:       1;
+  unsigned type:      3;
+
+  TGC_BYTESTREAM_NSL_TMDB() { memset(this, 0, sizeof(*this)); }
+};
+
+/*****************************/
+/** end of structs for NewSL */
+/*****************************/
+
 
 template <typename DEST, typename SRC> DEST* my_pointer_cast(SRC* src) {
   void* ptr = src;  

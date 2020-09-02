@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_GLOBALTIMEFITTER_H
@@ -35,7 +35,7 @@ Provides the operator to fit  ....
   inline void setRtRelation(const IRtRelation * rtRel) {m_rtRel=rtRel ;}  ;
 
   inline double getDefaultResolution(double r) { 
-         double resolH8 = 0.164*exp(-r/4.43)+0.043 ; //  resolution from H8 TestBeam
+         double resolH8 = 0.164*std::exp(-r/4.43)+0.043 ; //  resolution from H8 TestBeam
          return 2.*resolH8 ; //  resolution from Cosmics in the pit
          // return 2.0 ; //  FLAT 2 mm resolution
   } ;

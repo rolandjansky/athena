@@ -9,8 +9,8 @@
 
 #include "GaudiKernel/IPartPropSvc.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
@@ -55,9 +55,9 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
   if ( m_extrapolator.retrieve().isFailure() ) {
     ATH_MSG_FATAL ("Failed to retrieve tool " << m_extrapolator );
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
   } 
+    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
+  
 
   ATH_CHECK( m_reccollkey.initialize() );
 
@@ -215,7 +215,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
     MsgStream log(msgSvc(), name());
     
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
-    if(productionVertexTrackParams.get()) {
+    if(productionVertexTrackParams) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.
@@ -239,7 +239,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(
     MsgStream log(msgSvc(), name());
     
     std::unique_ptr<const Trk::TrackParameters> productionVertexTrackParams( makeProdVertexParameters(part) );
-    if(productionVertexTrackParams.get()) {
+    if(productionVertexTrackParams) {
       
       // Extrapolate the TrackParameters object to the perigee. Direct extrapolation,
       // no material effects.

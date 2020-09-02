@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOTOPOEMSSHAPE_H
@@ -24,16 +24,13 @@ class CaloCluster;
 
 class CaloTopoEMsshape : public CaloClusterCorrectionCommon
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
 
- public: 
-    // constructor 
-  CaloTopoEMsshape(const std::string& type, const std::string& name, const IInterface* parent);
-  // destructor 
-  ~CaloTopoEMsshape();
-  // initialization
-  //  virtual StatusCode initialize();
+
   // virtual method in CaloClusterCorrection
-  virtual void makeTheCorrection(const EventContext& ctx,
+  virtual void makeTheCorrection(const Context& myctx,
                                  xAOD::CaloCluster* cluster,
 				 const CaloDetDescrElement* elt,
 				 float eta,
@@ -47,14 +44,13 @@ class CaloTopoEMsshape : public CaloClusterCorrectionCommon
   // f(x) = P0 + atan(P1*(x-0.5)) + P2(x-0.5) + P3*|x-0.5| + P4
   // x is the position on the cell (0<x<1)
   // Tuned on 100 GeV electrons, no energy dependence
- CaloRec::Array<1> m_P0;
- CaloRec::Array<1> m_P1;
- CaloRec::Array<1> m_P2;
- CaloRec::Array<1> m_P3;
- CaloRec::Array<1> m_P4;
- CaloRec::Array<1> m_EtaFrontier;
- float m_Granularity;
-
+  Constant<CxxUtils::Array<1> > m_P0            { this, "P0", "" };
+  Constant<CxxUtils::Array<1> > m_P1            { this, "P1", "" };
+  Constant<CxxUtils::Array<1> > m_P2            { this, "P2", "" };
+  Constant<CxxUtils::Array<1> > m_P3            { this, "P3", "" };
+  Constant<CxxUtils::Array<1> > m_P4            { this, "P4", "" };
+  Constant<CxxUtils::Array<1> > m_EtaFrontier   { this, "EtaFrontier", "" };
+  Constant<float> m_Granularity                 { this, "Granularity", "" };
 };
 
 #endif

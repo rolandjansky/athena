@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( GeoMaterial2G4 )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoModel/GeoModelUtilities )
-
 # External dependencies:
 find_package( Geant4 )
 find_package( CLHEP )

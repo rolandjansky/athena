@@ -1,28 +1,7 @@
-################################################################################
-# Package: TrigTauEmulation
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigTauEmulation )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Event/xAOD/xAODEventInfo
-  Event/xAOD/xAODTau
-  Event/xAOD/xAODTracking
-  Event/xAOD/xAODTrigger
-  PhysicsAnalysis/AnalysisCommon/PATCore
-  PhysicsAnalysis/AnalysisCommon/PATInterfaces
-  Trigger/TrigAnalysis/TrigDecisionTool
-  PRIVATE
-  Control/AthContainers
-  Control/AthenaBaseComps
-  Event/xAOD/xAODBase
-  Event/xAOD/xAODCore
-  Event/xAOD/xAODJet
-  GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist )
@@ -38,13 +17,12 @@ atlas_add_library( TrigTauEmulationLib
 
 atlas_add_component( TrigTauEmulation
   src/*.h src/*.cxx src/components/*.cxx
-  LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODJet xAODTau xAODTrigger
-  xAODTracking TrigTauEmulationLib )
+  LINK_LIBRARIES AthenaBaseComps GaudiKernel TrigTauEmulationLib xAODJet )
 
 atlas_add_dictionary( TrigTauEmulationDict
   TrigTauEmulation/TrigTauEmulationDict.h
   TrigTauEmulation/selection.xml
-  LINK_LIBRARIES AsgTools TrigTauEmulationLib )
+  LINK_LIBRARIES TrigTauEmulationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

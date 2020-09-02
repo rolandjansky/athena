@@ -18,7 +18,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
@@ -52,7 +52,7 @@ namespace InDet {
  * The clustering algorithm is actually a private Tool in the
  * SiClusterizationTool package
  **/
-class PixelClusterization : public AthAlgorithm {
+class PixelClusterization : public AthReentrantAlgorithm {
 public:
   typedef InDetRawDataCollection<PixelRDORawData> COLLECTION;
 
@@ -62,7 +62,7 @@ public:
   //@name Usual algorithm methods 
   //@{
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
   /**    @name Disallow default instantiation, copy, assignment */
   //@{

@@ -47,37 +47,77 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread EG )
+find_package( Boost COMPONENTS unit_test_framework )
 find_package( XercesC )
-find_package( Boost )
+
 
 # Component(s) in the package:
 atlas_add_library( InDetPhysValMonitoringLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetPhysValMonitoring
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}   ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES}  ${EIGEN_LIBRARIES} 
                    AthenaBaseComps AthenaMonitoringLib CxxUtils AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry
                    InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
                    AthContainers StoreGateLib
-                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib )
+                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib BeamSpotConditionsData )
 
 atlas_add_component( InDetPhysValMonitoring
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} 
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES}  ${EIGEN_LIBRARIES} 
                      AthenaBaseComps AthenaMonitoringLib CxxUtils xAODTracking xAODTruth GaudiKernel PATCoreLib 
                      TrkValHistUtils AsgTools AthenaKernel AtlasDetDescr GeoPrimitives EventPrimitives 
                      xAODBase xAODEventInfo xAODJet InDetIdentifier InDetPrepRawData InDetRIO_OnTrack 
-                     MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetPhysValMonitoringLib)
+                     MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetPhysValMonitoringLib InDetTruthVertexValidationLib BeamSpotConditionsData )
+
+
+
+
 
 # Install files from the package:
-atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl )
+atlas_install_joboptions( share/*.py share/*.txt )
+atlas_install_runtime( share/*.xml )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 
+# build postprocessing program 
+atlas_add_executable( postProcessIDPVMHistos util/postProcessIDPVMHistos.cxx 
+        INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+        LINK_LIBRARIES ${ROOT_LIBRARIES} InDetPhysValMonitoringLib )
+        
+atlas_add_test( SingleHistogramDefinition_test
+                SOURCES
+                test/SingleHistogramDefinition_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( HistogramDefinitionSvc_test
+                SOURCES
+                test/HistogramDefinitionSvc_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( XmlEntityInclusion_test
+                SOURCES
+                test/XmlEntityInclusion_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( InDetPlotBase_test
+                SOURCES
+                test/InDetPlotBase_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
 
 

@@ -24,6 +24,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include <cstdint>
@@ -172,9 +173,6 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(const std::string& myname) :
 //=============================================================================
 AsgElectronIsEMSelector::~AsgElectronIsEMSelector()
 {
-  if(finalize().isFailure()){
-    ATH_MSG_ERROR ( "Failure in AsgElectronIsEMSelector finalize()");
-  }
   delete m_rootTool;
 }
 
@@ -294,10 +292,10 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
     return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
-  else{
+  
     ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_rootTool->accept();
-  }
+  
 }
 
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const xAOD::Egamma* eg ) const{
@@ -312,10 +310,10 @@ asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx,  const
     }
     return m_rootTool->fillAccept(isEM);
   }
-  else{
+  
     ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
     return m_rootTool->accept();
-  }
+  
 }
 
 asg::AcceptData AsgElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Electron* el) const{
@@ -336,20 +334,20 @@ std::string AsgElectronIsEMSelector::getOperatingPointName() const{
   if(!m_WorkingPoint.empty()){
     return m_WorkingPoint;
   }
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTight1){return "Tight1";}
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
-  else if (m_rootTool->m_isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
-  else if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
-  else{
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronLoose1){return "Loose1";}
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronMedium1){return "Medium1";}
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronTight1){return "Tight1";}
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronLooseHLT){return "LooseHLT";}
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronMediumHLT){return "MediumHLT";}
+  if (m_rootTool->m_isEMMask == egammaPID::ElectronTightHLT){return "TightHLT";}
+  if (m_rootTool->m_isEMMask == 0){ return "0 No cuts applied"; }
+  
     ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->m_isEMMask );
     return "";
-  }
+  
 }
 
 // ==============================================================

@@ -23,14 +23,14 @@ using eformat::helper::SourceIdentifier;
 
 
 MDT_Hid2RESrcID::MDT_Hid2RESrcID() :
-  m_muonIdHelperTool(nullptr), m_specialROBNumber(0), m_readKey("MuonMDT_CablingMap")
+  m_mdtIdHelper(nullptr), m_specialROBNumber(0), m_readKey("MuonMDT_CablingMap")
 {
 
 }
 
-StatusCode MDT_Hid2RESrcID::set(const Muon::MuonIdHelperTool* muonIdHelperTool) {
+StatusCode MDT_Hid2RESrcID::set(const MdtIdHelper* mdtId) {
   // Initialize the cabling Service
-  m_muonIdHelperTool = muonIdHelperTool;
+  m_mdtIdHelper = mdtId;
   ATH_CHECK( m_readKey.initialize() ); 
   return StatusCode::SUCCESS; 
 }
@@ -58,12 +58,12 @@ uint32_t MDT_Hid2RESrcID::getRodID(const Identifier& offlineId) {
       << endmsg;
 
   bool online;
-  int station_name = m_muonIdHelperTool->mdtIdHelper().stationName(offlineId);
-  int station_eta = m_muonIdHelperTool->mdtIdHelper().stationEta(offlineId);
-  int station_phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(offlineId);
-  int multilayer = m_muonIdHelperTool->mdtIdHelper().multilayer(offlineId);
-  int tubelayer = m_muonIdHelperTool->mdtIdHelper().tubeLayer(offlineId);
-  int tube = m_muonIdHelperTool->mdtIdHelper().tube(offlineId);
+  int station_name = m_mdtIdHelper->stationName(offlineId);
+  int station_eta = m_mdtIdHelper->stationEta(offlineId);
+  int station_phi = m_mdtIdHelper->stationPhi(offlineId);
+  int multilayer = m_mdtIdHelper->multilayer(offlineId);
+  int tubelayer = m_mdtIdHelper->tubeLayer(offlineId);
+  int tube = m_mdtIdHelper->tube(offlineId);
 
   SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_readKey};
   const MuonMDT_CablingMap* readCdo{*readHandle};

@@ -33,7 +33,7 @@ StatusCode ReadMdtDigit::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_activeStore.retrieve() );
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK( m_idHelperSvc.retrieve() );
  
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
@@ -86,9 +86,9 @@ StatusCode ReadMdtDigit::execute()
 	m_tdc[m_nDig] = (*dig)->tdc();
 	m_adc[m_nDig] = (*dig)->adc();
 
-	m_multi[m_nDig] = m_muonIdHelperTool->mdtIdHelper().multilayer(dig_id); 
-	m_layer[m_nDig] = m_muonIdHelperTool->mdtIdHelper().tubeLayer(dig_id);
-	m_wire[m_nDig]  = m_muonIdHelperTool->mdtIdHelper().tube(dig_id); 
+	m_multi[m_nDig] = m_idHelperSvc->mdtIdHelper().multilayer(dig_id); 
+	m_layer[m_nDig] = m_idHelperSvc->mdtIdHelper().tubeLayer(dig_id);
+	m_wire[m_nDig]  = m_idHelperSvc->mdtIdHelper().tube(dig_id); 
 	++m_nDig;
         ATH_MSG_DEBUG( " Digit number  " << m_nDig );
 
@@ -118,13 +118,6 @@ StatusCode ReadMdtDigit::execute()
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-
-StatusCode ReadMdtDigit::finalize()
-{
-  ATH_MSG_INFO( "in finalize()"  );
-  return StatusCode::SUCCESS;
-}
-
 
 StatusCode ReadMdtDigit::accessNtuple()
 {

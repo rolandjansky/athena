@@ -11,7 +11,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/assign/std/vector.hpp>
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -22,7 +21,6 @@
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
-using boost::assign::operator+=;
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -49,7 +47,7 @@ std::string py8version()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-Pythia8_i::Pythia8_i(const string &name, ISvcLocator *pSvcLocator)
+Pythia8_i::Pythia8_i(const std::string &name, ISvcLocator *pSvcLocator)
 : GenModule(name, pSvcLocator),
 m_internal_event_number(0),
 m_version(-1.),
@@ -138,16 +136,16 @@ StatusCode Pythia8_i::genInitialize() {
   m_pythia->readString("PDF:pSet= LHAPDF6:cteq6ll.LHpdf");
   
   // have to find any old-style Pythia 8.18x PDF commands and convert them
-  for(string &cmd : m_commands){
+  for(std::string &cmd : m_commands){
     try{
-      string val = findValue(cmd, "PDF:LHAPDFset");
+      std::string val = findValue(cmd, "PDF:LHAPDFset");
       if(val != ""){
         cmd = "PDF:pSet = LHAPDF6:" + val;
       }else{
         val = findValue(cmd, "BeamRemnants:reconnectRange");
         if(val != ""){
           cmd = "ColourReconnection:range = " + val;
-          m_commands += "ColourReconnection:mode = 0";
+          m_commands.push_back( "ColourReconnection:mode = 0");
         }
       }
         
@@ -162,8 +160,8 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
 
-  for(const string &param : m_userParams){
-    std::vector<string> splits;
+  for(const std::string &param : m_userParams){
+    std::vector<std::string> splits;
     boost::split(splits, param, boost::is_any_of("="));
     if(splits.size() != 2){
       ATH_MSG_ERROR("Cannot interpret user param command: " + param);
@@ -172,11 +170,11 @@ StatusCode Pythia8_i::genInitialize() {
     
     boost::erase_all(splits[0], " ");
     m_pythia->settings.addParm(splits[0], 0., false, false, 0., 0.);
-    m_commands+=param;
+    m_commands.push_back( param);
   }
 
-  for(const string &mode : m_userModes){
-    std::vector<string> splits;
+  for(const std::string &mode : m_userModes){
+    std::vector<std::string> splits;
     boost::split(splits, mode, boost::is_any_of("="));
     if(splits.size() != 2){
       ATH_MSG_ERROR("Cannot interpret user mode command: " + mode);
@@ -185,15 +183,15 @@ StatusCode Pythia8_i::genInitialize() {
     
     boost::erase_all(splits[0], " ");
     m_pythia->settings.addMode(splits[0], 0, false, false, 0, 0);
-    m_commands+=mode;
+    m_commands.push_back(mode);
   }
   
   // Now apply the settings from the JO
-  for(const string &cmd : m_commands){
+  for(const std::string &cmd : m_commands){
     
     if(cmd.compare("")==0) continue;
     try{
-      string val = findValue(cmd, "Tune:pp");
+      std::string val = findValue(cmd, "Tune:pp");
       if(val != ""){
         int tune = boost::lexical_cast<int>(val);
         if(tune > s_allowedTunes(m_version)){
@@ -276,7 +274,7 @@ StatusCode Pythia8_i::genInitialize() {
 
   if(m_userResonances != ""){
    
-    std::vector<string> resonanceArgs;
+    std::vector<std::string> resonanceArgs;
     
     boost::split(resonanceArgs, m_userResonances, boost::is_any_of(":"));
     if(resonanceArgs.size() != 2){
@@ -285,7 +283,7 @@ StatusCode Pythia8_i::genInitialize() {
       ATH_MSG_ERROR("Where name is the name of your UserResonance, and id1,id2,id3 are a comma separated list of PDG IDs to which it is applied");
       canInit = false;
     }
-    std::vector<string> resonanceIds;
+    std::vector<std::string> resonanceIds;
     boost::split(resonanceIds, resonanceArgs.back(), boost::is_any_of(","));
     if(resonanceIds.size()==0){
       ATH_MSG_ERROR("You did not specifiy any PDG ids to which your user resonance width should be applied!");
@@ -294,7 +292,7 @@ StatusCode Pythia8_i::genInitialize() {
       canInit=false;
     }
     
-    for(std::vector<string>::const_iterator sId = resonanceIds.begin();
+    for(std::vector<std::string>::const_iterator sId = resonanceIds.begin();
         sId != resonanceIds.end(); ++sId){
       int idResIn = boost::lexical_cast<int>(*sId);
       m_userResonancePtrs.push_back(Pythia8_UserResonance::UserResonanceFactory::create(resonanceArgs.front(), idResIn));
@@ -330,9 +328,9 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }else{
     canInit = canInit && m_pythia->readString("Beams:frameType = 1");
-    canInit = canInit && m_pythia->readString("Beams:idA = " + boost::lexical_cast<string>(beam1));
-    canInit = canInit && m_pythia->readString("Beams:idB = " + boost::lexical_cast<string>(beam2));
-    canInit = canInit && m_pythia->readString("Beams:eCM = " + boost::lexical_cast<string>(m_collisionEnergy));
+    canInit = canInit && m_pythia->readString("Beams:idA = " + std::to_string(beam1));
+    canInit = canInit && m_pythia->readString("Beams:idB = " + std::to_string(beam2));
+    canInit = canInit && m_pythia->readString("Beams:eCM = " + std::to_string(m_collisionEnergy));
   }
   
   if(m_procPtr != 0){
@@ -406,7 +404,7 @@ StatusCode Pythia8_i::callGenerator(){
   double eventWeight = m_pythia->info.mergingWeight()*m_pythia->info.weight();
   
   if(returnCode != StatusCode::FAILURE &&
-     (fabs(eventWeight) < 1.e-18 ||
+     (std::abs(eventWeight) < 1.e-18 ||
       m_pythia->event.size() < 2)){
        
        returnCode = this->callGenerator();
@@ -435,6 +433,15 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   // in debug mode you can check whether the pdf information is stored
   if(evt->pdf_info()){
+#ifdef HEPMC3
+    ATH_MSG_DEBUG("PDFinfo id1:" << evt->pdf_info()->parton_id[0]);
+    ATH_MSG_DEBUG("PDFinfo id2:" << evt->pdf_info()->parton_id[1]);
+    ATH_MSG_DEBUG("PDFinfo x1:" << evt->pdf_info()->x[0]);
+    ATH_MSG_DEBUG("PDFinfo x2:" << evt->pdf_info()->x[1]);
+    ATH_MSG_DEBUG("PDFinfo scalePDF:" << evt->pdf_info()->scale);
+    ATH_MSG_DEBUG("PDFinfo pdf1:" << evt->pdf_info()->pdf_id[0]);
+    ATH_MSG_DEBUG("PDFinfo pdf2:" << evt->pdf_info()->pdf_id[1]);
+#else
     ATH_MSG_DEBUG("PDFinfo id1:" << evt->pdf_info()->id1());
     ATH_MSG_DEBUG("PDFinfo id2:" << evt->pdf_info()->id2());
     ATH_MSG_DEBUG("PDFinfo x1:" << evt->pdf_info()->x1());
@@ -442,24 +449,25 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     ATH_MSG_DEBUG("PDFinfo scalePDF:" << evt->pdf_info()->scalePDF());
     ATH_MSG_DEBUG("PDFinfo pdf1:" << evt->pdf_info()->pdf1());
     ATH_MSG_DEBUG("PDFinfo pdf2:" << evt->pdf_info()->pdf2());
+#endif
   }
   else
     ATH_MSG_DEBUG("No PDF information available in HepMC::GenEvent!");
 
   // set the randomseeds
-  if(m_useRndmGenSvc)evt->set_random_states(m_seeds);
+  if(m_useRndmGenSvc) HepMC::set_random_states(evt,m_seeds);
   
   double phaseSpaceWeight = m_pythia->info.weight();
   double mergingWeight    = m_pythia->info.mergingWeight();
   double eventWeight = phaseSpaceWeight*mergingWeight;
   
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
-  evt->weights().clear();
+  std::map<std::string,double> fWeights;
   
-  std::vector<string>::const_iterator id = m_weightIDs.begin();
+  std::vector<std::string>::const_iterator id = m_weightIDs.begin();
   
   if(m_pythia->info.getWeightsDetailedSize() != 0){
-    for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia->info.rwgt->wgts.begin();
+    for(std::map<std::string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia->info.rwgt->wgts.begin();
         wgt != m_pythia->info.rwgt->wgts.end(); ++wgt){
       
       if(m_internal_event_number == 1){
@@ -473,11 +481,11 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
         ++id;
       }
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia->info.init_weights->find(wgt->first);
+      std::map<std::string, Pythia8::LHAweight>::const_iterator weightName = m_pythia->info.init_weights->find(wgt->first);
       if(weightName != m_pythia->info.init_weights->end()){
-        evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
+        fWeights[weightName->second.contents] = mergingWeight * wgt->second.contents;
       }else{
-        evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+        fWeights[wgt->first] = mergingWeight * wgt->second.contents;
       }
       
     }
@@ -491,12 +499,23 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
     
     if(m_pythia->info.nWeights() != 1){
       if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
-      evt->weights()[wtName] = mergingWeight*m_pythia->info.weight(iw);
+      fWeights[wtName] = mergingWeight*m_pythia->info.weight(iw);
     }else{
-      evt->weights().push_back(eventWeight);
+      fWeights["Default"]=eventWeight;
     }
   }
 
+#ifdef HEPMC3
+  if(m_internal_event_number == 1){
+    std::vector<std::string> names;
+    for (auto w: fWeights)   names.push_back(w.first);
+    evt->run_info()->set_weight_names(names);
+  }
+  for (auto w: fWeights) {evt->weight(w.first)=w.second;}  
+#else
+  evt->weights().clear();
+  for (auto w: fWeights) {evt->weights()[w.first]=w.second;}  
+#endif
   // Units correction
   /// @todo We shouldn't be having to rescale these events if they're already in MeV :S Where's the screw-up: HepMC or Py8?
   /// Hopefully this is permanently fixed in version 8.170 onwards
@@ -529,9 +548,9 @@ StatusCode Pythia8_i::genFinalize(){
   if(m_doLHE3Weights || m_weightIDs.size()>1 ){
     std::cout<<"MetaData: weights = ";
 
-    for(const string &id : m_weightIDs){
+    for(const std::string &id : m_weightIDs){
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia->info.init_weights->find(id);
+      std::map<std::string, Pythia8::LHAweight>::const_iterator weight = m_pythia->info.init_weights->find(id);
       
       if(weight != m_pythia->info.init_weights->end()){
         std::cout<<weight->second.contents<<" | ";
@@ -551,10 +570,10 @@ double Pythia8_i::pythiaVersion()const{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-string Pythia8_i::findValue(const string &command, const string &key){
+std::string Pythia8_i::findValue(const std::string &command, const std::string &key){
   if(command.find(key) == std::string::npos) return "";
   
-  std::vector<string> splits;
+  std::vector<std::string> splits;
   boost::split(splits, command, boost::is_any_of("="));
   if(splits.size() != 2){
     throw Pythia8_i::CommandException(command);
@@ -566,9 +585,9 @@ string Pythia8_i::findValue(const string &command, const string &key){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-string Pythia8_i::xmlpath(){
+std::string Pythia8_i::xmlpath(){
     
-  string foundpath = "";
+  std::string foundpath = "";
   
   // Try to find the xmldoc directory using PathResolver:
   foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );

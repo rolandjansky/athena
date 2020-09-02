@@ -13,6 +13,7 @@
 #include <vector>
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 
 class TH1I;
 class TH2I;
@@ -68,7 +69,6 @@ namespace LVL1 {
       */
       unsigned int topoMuonPtThreshold(const MuCTPIL1TopoCandidate &mctpiCand) const;
 
-      SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation;
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
@@ -81,14 +81,14 @@ namespace LVL1 {
 
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
-      SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation;    //!<  Muon ROIs SG key
+      SG::ReadHandleKey<L1MUINT::MuCTPIToRoIBSLink> m_muonROILocation { this, "MuonROILocation", LVL1MUCTPI::DEFAULT_MuonRoIBLocation, "Storegate key for the Muon ROIs" };
+      SG::ReadHandleKey<ROIB::RoIBResult> m_roibLocation{ this, "ROIBResultLocation", ROIB::DEFAULT_RoIBRDOLocation, "Storegate key for the reading the ROIBResult" };
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocation { this, "locationMuCTPItoL1Topo", LVL1MUCTPI::DEFAULT_MuonL1TopoLocation, "Storegate key for MuCTPItoL1Topo "};
+      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne { this, "BCPlusOneLocation", "", "Storegate key for MuCTPItoL1TopoPlusOne"};
+      Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
       TH1I * m_hPt {nullptr};
       TH2I * m_hEtaPhi {nullptr};
-
-      int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
-      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocation;
-      SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne;
    };
 }
 

@@ -20,9 +20,20 @@ class LumiCalc:
         # Python file to make updates in working directory
         self.updateScript = 'LumiCalcWorking.py'
         self.recoverScript = 'LumiCalcRecover.py'
+
+        # Prod area
         self.homeDir = '/var/www/lumicalc/'
-        self.htmlDir = self.homeDir + 'LumiBlock/LumiCalc/html/'
-        self.scriptDir = self.homeDir + 'LumiBlock/LumiCalc/share/'
+        self.dev = False
+
+        # Check if we are running as dev
+        if os.environ.get('SERVER_NAME', '') == 'atlas-lumicalc-dev.cern.ch':
+            self.homeDir = '/var/www/lumicalc_dev/'
+            self.dev = True
+
+        self.resultsDir = '/var/www/lumifiles/'
+
+        self.htmlDir = self.homeDir + 'athena/LumiBlock/LumiCalc/html/'
+        self.scriptDir = self.homeDir + 'athena/LumiBlock/LumiCalc/share/'
         self.workdir = os.getcwd()
 
         self.uselar = True
@@ -32,8 +43,7 @@ class LumiCalc:
         
         # Create a new subdirectory for this
         self.subdir = hex(random.randint(0,0xFFFFFF))[2:]
-        #self.workdir = self.homeDir + 'results/' + self.subdir
-        self.workdir = '/tmp/lumifiles/' + self.subdir
+        self.workdir = self.resultsDir + self.subdir
         os.mkdir(self.workdir)
 
         # Open the output file
@@ -151,7 +161,7 @@ class LumiCalc:
         if self.fileitem.filename:
 
             # strip any leading C: from windows
-            if self.fileitem.filename[0:2] is 'C:':
+            if self.fileitem.filename[0:2] == 'C:':
                 self.fileitem.filename = self.fileitem.filename[2:]
             # strip leading path from file name to avoid directory traversal attacks
             self.grlfn = os.path.basename(self.fileitem.filename)
@@ -215,7 +225,10 @@ class LumiCalc:
         self.f.write( '<p>iLumiCalc '+self.command+'</p>\n' )
 
         #self.cmdstr = os.getcwd()+'/runLumiCalc.sh '+self.command
-        self.cmdstr = self.scriptDir+'runLumiCalc.sh '+self.command
+        if self.dev:
+            self.cmdstr = self.scriptDir+'runLumiCalcDev.sh '+self.command
+        else:
+            self.cmdstr = self.scriptDir+'runLumiCalc.sh '+self.command
 
     def runCommand(self):
         p = subprocess.Popen(self.cmdstr+' > output.txt 2>&1', executable='/bin/bash', cwd=self.workdir, shell=True) 
@@ -226,23 +239,23 @@ class LumiCalc:
 #
     def parseOutput(self):
         
-        matchrun = re.compile('Run ([0-9]+) LB \[([0-9]+)-([0-9]+)\]')
-        matchlumidel = re.compile(': IntL delivered \(ub\^-1\) : ([0-9\.e+]+)')
-        matchlumipre = re.compile(': IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchlumilar = re.compile(': IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchlumirec = re.compile(': IntL recorded after prescale \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchgoodlb = re.compile(': Good LBs     : ([0-9]+)')
-        matchbadlb = re.compile(': Bad LBs      : ([0-9]+)')
+        matchrun = re.compile(r'Run ([0-9]+) LB \[([0-9]+)-([0-9]+)\]')
+        matchlumidel = re.compile(r': IntL delivered \(ub\^-1\) : ([0-9\.e+]+)')
+        matchlumipre = re.compile(r': IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchlumilar = re.compile(r': IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchlumirec = re.compile(r': IntL recorded after prescale \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchgoodlb = re.compile(r': Good LBs     : ([0-9]+)')
+        matchbadlb = re.compile(r': Bad LBs      : ([0-9]+)')
 
-        matchtotlumidel = re.compile(': Total IntL delivered \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchtotlumipre = re.compile(': Total IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchtotlumilar = re.compile(': Total IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
-        matchtotlumirec = re.compile(': Total IntL recorded \(ub\^-1\) : ([0-9\.\e\+\-]+)')
-        matchtotgoodlb = re.compile(': Total Good LBs     : ([0-9]+)')
-        matchtotbadlb = re.compile(': Total Bad LBs     : ([0-9]+)')
+        matchtotlumidel = re.compile(r': Total IntL delivered \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchtotlumipre = re.compile(r': Total IntL after livefraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchtotlumilar = re.compile(r': Total IntL after LAr fraction \(ub\^-1\):  ([0-9\.\e\+\-]+)')
+        matchtotlumirec = re.compile(r': Total IntL recorded \(ub\^-1\) : ([0-9\.\e\+\-]+)')
+        matchtotgoodlb = re.compile(r': Total Good LBs     : ([0-9]+)')
+        matchtotbadlb = re.compile(r': Total Bad LBs     : ([0-9]+)')
 
-        matchrealtime = re.compile(': Real time: ([0-9\.\e\+\-]+)')
-        matchcputime = re.compile(': CPU time:  ([0-9\.\e\+\-]+)')
+        matchrealtime = re.compile(r': Real time: ([0-9\.\e\+\-]+)')
+        matchcputime = re.compile(r': CPU time:  ([0-9\.\e\+\-]+)')
 
         self.runset = set()
         self.lumidel = dict()
@@ -545,7 +558,17 @@ class LumiCalc:
         print ('<html><head>')
         print ('<meta http-equiv="Refresh" content="0; url=/results/'+self.subdir+'/'+outfile+'">')
         print ('</head></html>')
-        
+
+    # For debugging, dump all os.environ variables
+    def dumpEnviron(self):
+
+        print ('Content-Type: text/html')
+        print () # Blank line, end of headers
+        print ('<html>')
+        for key in os.environ:
+            print('<p><b>',key,':</b>',os.environ[key],'<p>')
+        print ('</html>')
+
 # Run from command line    
 if __name__ == "__main__":
 

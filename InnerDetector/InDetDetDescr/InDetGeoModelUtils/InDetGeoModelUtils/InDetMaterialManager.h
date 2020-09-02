@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETMATERIALMANAGER_H
@@ -8,6 +8,8 @@
 // Message Stream Member
 #include "AthenaKernel/MsgStreamMember.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+
+#include "CxxUtils/checker_macros.h"
 
 class GeoMaterial;
 class GeoElement;
@@ -45,7 +47,7 @@ public:
 		       IRDBRecordset_ptr compositionTable,
 		       const std::string & space = "");
   InDetMaterialManager(const std::string & managerName, 
-		       const InDetDD::AthenaComps *);
+		       const InDetDD::AthenaComps *) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe AthenaComps::detStore() const is used.
   ~InDetMaterialManager();
 
   void addWeightTable(IRDBRecordset_ptr weightTable, const std::string & space = "");
@@ -184,7 +186,7 @@ private:
   };
   
   
-  const AbsMaterialManager * retrieveManager(StoreGateSvc* detStore);
+  const AbsMaterialManager * retrieveManager(const StoreGateSvc* detStore);
   const GeoMaterial* getAdditionalMaterial(const std::string & materialName) const; 
   bool compareDensity(double d1, double d2) const;
   void addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string & space);
@@ -231,7 +233,7 @@ private:
   ExtraScaleFactorMap m_scalingMap;
 
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   // Has linear weight flag. 
   bool m_extraFunctionality;

@@ -1,17 +1,13 @@
-#include "DigitizationTests/DigiTestAlg.h"
-//#include "DigitizationTests/PileUpEventInfoTest.h"
+#include "../EventInfoTestTool.h"
 #include "../McEventCollectionTestTool.h"
-#include "../PileUpEventInfoTestTool.h"
 #include "../PixelRDOsTestTool.h"
 #include "../SCT_RDOsTestTool.h"
 #include "../TRT_RDOsTestTool.h"
+#include "DigitizationTests/DigiTestAlg.h"
 
-
-DECLARE_COMPONENT( McEventCollectionTestTool )
-DECLARE_COMPONENT( PileUpEventInfoTestTool )
-DECLARE_COMPONENT( PixelRDOsTestTool )
-DECLARE_COMPONENT( SCT_RDOsTestTool )
-DECLARE_COMPONENT( TRT_RDOsTestTool )
-DECLARE_COMPONENT( DigiTestAlg )
-//DECLARE_COMPONENT( PileUpEventInfoTest )
-
+DECLARE_COMPONENT(McEventCollectionTestTool)
+DECLARE_COMPONENT(EventInfoTestTool)
+DECLARE_COMPONENT(PixelRDOsTestTool)
+DECLARE_COMPONENT(SCT_RDOsTestTool)
+DECLARE_COMPONENT(TRT_RDOsTestTool)
+DECLARE_COMPONENT(DigiTestAlg)

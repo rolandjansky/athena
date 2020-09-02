@@ -36,7 +36,7 @@ atlas_add_component( MuonTGMeasAssocAlg
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkGeometry TrkSurfaces TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces EventPrimitives MuonSegment TrkEventPrimitives TrkMeasurementBase TrkParameters )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData TrkGeometry TrkSurfaces TrkPrepRawData TrkSegment TrkTrack TrkExInterfaces EventPrimitives MuonSegment TrkEventPrimitives TrkMeasurementBase TrkParameters MuonTGRecToolsLib )
 
 # Install files from the package:
 atlas_install_headers( MuonTGMeasAssocAlg )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan
@@ -23,7 +23,7 @@ CscRdoToCscPrepData::CscRdoToCscPrepData(const std::string& name, ISvcLocator* p
     m_print_prepData(false),
     m_seededDecoding(false),
     m_roiCollectionKey("OutputRoIs"),
-    m_regionSelector("RegSelSvc",name),
+    m_regsel_csc("RegSelTool/RegSelTool_CSC",this),
     m_cscCollection("CSC_Measurements")
 {
     declareProperty("CscRdoToCscPrepDataTool",     m_muonRdoToPrepDataTool );
@@ -31,7 +31,7 @@ CscRdoToCscPrepData::CscRdoToCscPrepData(const std::string& name, ISvcLocator* p
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
     declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-    declareProperty("RegionSelectionSvc", m_regionSelector, "Region Selector");
+    declareProperty("RegSel_CSC", m_regsel_csc);
     declareProperty("OutputCollection", m_cscCollection);
 }
 
@@ -58,8 +58,8 @@ StatusCode CscRdoToCscPrepData::initialize(){
     if(m_seededDecoding){
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_cscCollection.initialize());
-      if (m_regionSelector.retrieve().isFailure()) {
-	ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+      if (m_regsel_csc.retrieve().isFailure()) {
+	ATH_MSG_FATAL("Unable to retrieve m_regsel_csc");
 	return StatusCode::FAILURE;
       }
     }
@@ -84,7 +84,7 @@ StatusCode CscRdoToCscPrepData::execute() {
       }
       else{
 	for(auto roi : *muonRoI){
-	  m_regionSelector->DetHashIDList(CSC,*roi,givenIDs);
+	  m_regsel_csc->HashIDList(*roi,givenIDs);
 	  if(givenIDs.size()!=0){
 	    status=m_muonRdoToPrepDataTool->decode(givenIDs, decodedIDs);
 	    givenIDs.clear();

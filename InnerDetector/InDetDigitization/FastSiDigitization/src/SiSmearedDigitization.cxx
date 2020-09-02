@@ -1,34 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastSiDigitization/SiSmearedDigitization.h"
-#include "FastSiDigitization/ISiSmearedDigitizationTool.h"
+#include "PileUpTools/IPileUpTool.h"
 
 //----------------------------------------------------------------------
 // Constructor with parameters:
 //----------------------------------------------------------------------
 SiSmearedDigitization::SiSmearedDigitization(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_smearTool("SiSmearedDigitizationTool", this )
-  
+  AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("SiSmearedDigitizationTool", m_smearTool, "AthAlgTool which performs the Pixel or SCT smearing");
 }
 
 //----------------------------------------------------------------------
 // Initialize method:
 //----------------------------------------------------------------------
 StatusCode SiSmearedDigitization::initialize() {
-// intitialize store gate active store
-  
-  if (m_smearTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve Silicon Smearing Tool!" );
-    return StatusCode::FAILURE;
-  }
-  
+
+  ATH_CHECK (m_smearTool.retrieve());
+
   ATH_MSG_INFO ( "Retrieved Silicon Smearing Tool." );
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -40,29 +33,9 @@ StatusCode SiSmearedDigitization::execute() {
 
   ATH_MSG_INFO ( " SiSmearedDigitization : execute()" );
 
-  StatusCode sc =  m_smearTool->processAllSubEvents(Gaudi::Hive::currentContext());
-  
-  ATH_MSG_INFO ( " SiSmearedDigitization : m_smearTool->processAllSubEvents()" );
-  
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Error in SiSmearedDigitization : m_smearTool->processAllSubEvents()" );
-    return StatusCode::FAILURE;
-  }
-  
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Error in SiSmearedDigitization : m_digTool->processAllSubEvents()" );
-    return StatusCode::FAILURE;
-  }
-  
-  return sc;
-}
+  ATH_CHECK (m_smearTool->processAllSubEvents(Gaudi::Hive::currentContext()));
 
-//----------------------------------------------------------------------//
-// Finalize method:                                                     //
-//----------------------------------------------------------------------//
-StatusCode SiSmearedDigitization::finalize() {
-  
-  ATH_MSG_INFO ( "SiSmearedDigitization : finalize()" );
+  ATH_MSG_INFO ( " SiSmearedDigitization : m_smearTool->processAllSubEvents()" );
 
   return StatusCode::SUCCESS;
 }

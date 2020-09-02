@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DataQuality/GoodRunsLists
                           Event/EventInfo
                           GaudiKernel
-                          LumiBlock/LumiBlockComps
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigEvent/TrigDecisionEvent )
 
@@ -26,7 +25,7 @@ atlas_add_component( GoodRunsListsUser
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GoodRunsListsLib EventInfo GaudiKernel LumiBlockCompsLib TrigDecisionToolLib TrigDecisionEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GoodRunsListsLib EventInfo GaudiKernel TrigDecisionToolLib TrigDecisionEvent )
 
 # Install files from the package:
 atlas_install_headers( GoodRunsListsUser )

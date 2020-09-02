@@ -15,7 +15,7 @@
 #include "TrackRecord/TrackRecordCollection.h"
 
 namespace HepPDT { class ParticleDataTable; }
-namespace HepMC  { class GenParticle;       }
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 namespace Trk {
 

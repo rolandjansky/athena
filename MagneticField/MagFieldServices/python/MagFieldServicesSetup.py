@@ -31,26 +31,18 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
     # currents for scaling wrt to map currents
     kwargs.setdefault( "UseSoleCurrent", 7730 )
     kwargs.setdefault( "UseToroCurrent", 20400 )
+    kwargs.setdefault( "LockMapCurrents", True )
   else:
     kwargs.setdefault( "UseDCS", True )
-    kwargs.setdefault( "UseNewBfieldCache", True )
-    # kwargs.setdefault( "UseNewBfieldCache", False )
-    # kwargs.setdefault( "UseDCS", False )
-    # kwargs.setdefault( "UseSoleCurrent", 12000 )
-    # kwargs.setdefault( "UseToroCurrent", 20400 )
   return CfgMgr.MagField__AtlasFieldCacheCondAlg(name,**kwargs)
 
 def AtlasFieldMapCondAlg(name="AtlasFieldMapCondAlg",**kwargs):
   if athenaCommonFlags.isOnline():
-    # The following are the defaults - added here to be clear
-    kwargs.setdefault( "UseMapsFromCOOL", True )
-    # kwargs.setdefault( "MapSoleCurrent", 7730 )
-    # kwargs.setdefault( "MapToroCurrent", 20400 )
-  else:
-    # The following are the defaults - added here to be clear
-    kwargs.setdefault( "UseMapsFromCOOL", True )
-    # kwargs.setdefault( "MapSoleCurrent", 7730 )
-    # kwargs.setdefault( "MapToroCurrent", 20400 )
+    # For old tests, must update field from defautl jobOpt
+    kwargs.setdefault( "UseMapsFromCOOL", False )
+    # online has the map loaded at start (for the future - uncomment if needed)
+    # kwargs.setdefault( "LoadMapOnStart", True )
+
   return CfgMgr.MagField__AtlasFieldMapCondAlg(name,**kwargs)
 
 

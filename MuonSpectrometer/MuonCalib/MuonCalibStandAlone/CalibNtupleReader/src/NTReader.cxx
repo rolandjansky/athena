@@ -37,18 +37,15 @@
 namespace MuonCalib{
 
   NTReader::~NTReader() {
-    //std::cout << "Calling NTReader::~NTReader()" << std::endl;
     clearEvent();
   }
 
   void NTReader::clearEvent() {
-    //	std::cout << "Calling NTReader::clearEvent()" << std::endl;
     delete m_event;
     m_event = 0;
   }
 
   const MuonCalibEvent& NTReader::getEvent( int entry ) {
-    //std::cout << "NTReader::getEvent " << " first clean previous event" << std::endl;
     clearEvent();
 
     if(!fChain->GetEntry( entry )) {
@@ -74,10 +71,6 @@ namespace MuonCalib{
     if(m_storeTruth) {
       MuonCalibTruthCollection *truth = buildTruthColl();
       m_event->setMuonCalibTruthCollection(truth);
-      //      std::cout << truth->size() << std::endl;
-
-      //      int distance = std::distance(truth->mdtTruthCollectionBegin(), truth->mdtTruthCollectionEnd());
-      //std::cout << distance << std::endl;
     }
 
     m_event->setMuonCalibEventInfo(info);
@@ -109,7 +102,6 @@ namespace MuonCalib{
 
     for( Int_t i_mdt_truth = 0; i_mdt_truth < mdtTruth_nMdtTruthHit; ++i_mdt_truth){
      truth->addTruth( getMdtTruth(i_mdt_truth) );
-//     std::cout << "mdt truth added" << std::endl;
     }
     for( Int_t i_rpc_truth = 0; i_rpc_truth < rpcTruth_nRpcTruthHit; ++i_rpc_truth){
      truth->addTruth( getRpcTruth(i_rpc_truth) );
@@ -172,7 +164,6 @@ namespace MuonCalib{
       dummy_pattern=true;
       patternVec.push_back(new MuonCalibPattern());
     }
-    //    std::cout << " reading segments " << std::endl;
     m_ordered_segments.resize(seg_nSegments);
     for( Int_t i_segment = 0; i_segment < seg_nSegments; ++ i_segment ){
       MuonCalibSegment *segment = getSegment( i_segment );
@@ -194,8 +185,6 @@ namespace MuonCalib{
     fChain->GetEntry( entry );  
     
     MuonCalibEvent::MCPVec patternVec = buildPatternVec();
-
-    //      std::cout << " reading event data " << std::endl;
     m_event = new MuonCalibEvent( patternVec);
     
     const MuonCalibEventInfo info = buildEventInfo();
@@ -479,12 +468,7 @@ namespace MuonCalib{
    
     Amg::Transform3D loc2Glob;
 
-//    loc2Glob = rotation;
-//    loc2Glob*=Amg::Translation3D(translation);
     loc2Glob = translation * rotation;
-    
-//    Amg::Transform3D glob2Loc = loc2Glob.inverse();
-    
     Double_t seg_chisq = seg_chi2[i_segment]; 
     MuonCalibSegment* MCS = new MuonCalibSegment(seg_chisq, seg_localPos, seg_localDir, loc2Glob, seg_quality[i_segment]); 
 
@@ -496,17 +480,14 @@ namespace MuonCalib{
     }
     
     for( Int_t i_hit = 0; i_hit < mdt_nMdt; ++i_hit){
-//      if( mdt_segIndex[i_hit] == i_segment)  MCS->addHitOnTrack( getMdtHit(i_hit) );
       if( mdt_segIndex[i_hit] == i_segment)  {
  	MCS->addHitOnTrack( getMdtHit(i_hit) );
       }
-      //       std::cout << "   segment MDT hits " << MCS->mdtHitsOnTrack() << std::endl;
     }
     for( Int_t i_hit = 0; i_hit < csc_nCsc; ++i_hit){
       if( csc_segIndex[i_hit] == i_segment)  {
  	MCS->addHitOnTrack( getCscHit(i_hit) );
       }
-      //       std::cout << "   segment Csc hits " << MCS->cscHitsOnTrack() << std::endl;
     }
 
     if(rpcOs_nRpcHits > 0){
@@ -537,7 +518,6 @@ namespace MuonCalib{
     hit->setDriftTime( mdt_t[i_hit] );
     hit->setDriftRadius( mdt_r[i_hit], mdt_dr[i_hit] );
     hit->setDistanceToTrack( mdt_rTrk[i_hit], mdt_drTrk[i_hit] );
-    //  hit->setTimeFromTrackDistance( float t, float sigmaT ); //no entry in ntuple
     hit->setSlewingTime( mdt_slewTime[i_hit] );
     hit->setBFieldTime( mdt_lorTime[i_hit] );
     hit->setPropagationTime( mdt_propTime[i_hit] );
@@ -551,11 +531,6 @@ namespace MuonCalib{
     hit->setTubeAdcCal( mdt_tube_adccal[i_hit] );
     hit->setLocXtwin( mdt_xtwin[i_hit] );
     hit->setSegmentT0Applied( mdt_segmentT0Applied[i_hit] );
-			
-    //  hit->setWiresagTime( float wsag );                      //no entry in ntuple
-    //  hit->setTemperatureTime( float temp );                  //no entry in ntuple
-    //  hit->setBackgroundTime( float bkgr );                   //no entry in ntuple
-
     return hit;
   }  //end NTReader::getMdtHit
 

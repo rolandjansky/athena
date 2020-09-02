@@ -76,6 +76,10 @@ class ConfiguredNewTrackingCuts :
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
+    self.__maxSeedsPerSP_Pixels    = 5
+    self.__maxSeedsPerSP_Strips    = 5
+    self.__keepAllConfirmedPixelSeeds   = False
+    self.__keepAllConfirmedStripSeeds   = False
 
     # --- min pt cut for brem
     self.__minPTBrem               = 1. * Units.GeV # off
@@ -123,7 +127,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- run back tracking and TRT only in RoI seed regions
     self.__RoISeededBackTracking     = False
-
+    self.__minRoIClusterEt            = 0.
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
@@ -219,6 +223,28 @@ class ConfiguredNewTrackingCuts :
       self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
 
     if self.__indetflags.cutLevel() >= 17:
+      # Tuning of the search road and strip seed IP in the track finder.
+      # Designed to speed up reconstruction at minimal performance impact. 
+      self.__roadWidth              = 12
+      self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+
+    if self.__indetflags.cutLevel() >= 18:
+      # Further tuning of the pattern recognition designed to 
+      # speed up reconstruction compared to 17 with minimal additional 
+      # impact. Kept as separate level pending cross-check of 
+      # seed confirmation robustness with end-of-run-3 radiation
+      # damage. 
+      self.__keepAllConfirmedPixelSeeds  = True
+      self.__maxSeedsPerSP_Pixels          = 1
+      self.__maxSeedsPerSP_Strips          = 5
+    
+    if self.__indetflags.cutLevel() >= 19:
+      # Calo cluster Et for RoI seeded backtracking for TRT segment finding
+      # and for TRT-si extensions
+      self.__minRoIClusterEt         = 6000. * Units.MeV
+      self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
+
+    if self.__indetflags.cutLevel() >= 20:
       print('--------> FATAL ERROR, cut level undefined, abort !')
       import sys
       sys.exit()
@@ -354,12 +380,12 @@ class ConfiguredNewTrackingCuts :
       self.__minPT              = 1.0 * Units.GeV                                                                                    
       self.__maxEta             = 3                                                                                                        
       self.__maxPrimaryImpact   = 300.0 * Units.mm
-      self.__maxZImpact         = 750 * Units.mm    
+      self.__maxZImpact         = 500 * Units.mm    
       self.__maxSecondaryImpact = 300.0 * Units.mm  
       self.__minSecondaryPt     = 1000.0 * Units.MeV 
       self.__minClusters        = 8                  
       self.__minSiNotShared     = 6                 
-      self.__maxShared          = 2   # cut is now on number of shared modules                                                                                  
+      self.__maxShared          = 2   # cut is now on number of shared modules   
       self.__minPixel           = 0
       self.__maxHoles           = 2
       self.__maxPixelHoles      = 1
@@ -372,10 +398,13 @@ class ConfiguredNewTrackingCuts :
       self.__maxTracksPerSharedPRD   = 2
       self.__Xi2max                  = 9.0  
       self.__Xi2maxNoAdd             = 25.0 
-      self.__roadWidth               = 10. 
+      self.__roadWidth               = 5. 
       self.__nWeightedClustersMin    = 8   
       self.__maxdImpactSSSSeeds      = 300.0
       self.__doZBoundary             = True
+      self.__keepAllConfirmedStripSeeds   = True
+      self.__maxSeedsPerSP_Strips    = 1
+
 
     # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
     if mode == "LowPtLargeD0":
@@ -991,6 +1020,18 @@ class ConfiguredNewTrackingCuts :
   def RoadWidth( self ) :
     return self.__roadWidth
 
+  def MaxSeedsPerSP_Strips( self ) :
+    return self.__maxSeedsPerSP_Strips
+
+  def MaxSeedsPerSP_Pixels( self ) :
+    return self.__maxSeedsPerSP_Pixels
+    
+  def KeepAllConfirmedPixelSeeds( self ) :
+    return self.__keepAllConfirmedPixelSeeds
+    
+  def KeepAllConfirmedStripSeeds( self ) :
+    return self.__keepAllConfirmedStripSeeds
+
   def seedFilterLevel( self ) :
     return self.__seedFilterLevel
 
@@ -1047,6 +1088,9 @@ class ConfiguredNewTrackingCuts :
 
   def RoISeededBackTracking( self ) :
     return self.__RoISeededBackTracking
+
+  def minRoIClusterEt( self ) :
+    return self.__minRoIClusterEt
 
   def printInfo( self ) :
     print('****** Inner Detector Track Reconstruction Cuts ************************************')
@@ -1125,6 +1169,8 @@ class ConfiguredNewTrackingCuts :
       print('* TRT segment finder pt bins  :  ', self.__TRTSegFinderPtBins)
       print('* rejectShortExtensions       :  ', self.__rejectShortExtensions)
       print('* SiExtensionsCuts            :  ', self.__SiExtensionCuts)
+      if self.__RoISeededBackTracking:
+        print('* min CaloCluster Et          :  ', self.__minRoIClusterEt)
       print('*')
     if self.__useTRT:
       print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)

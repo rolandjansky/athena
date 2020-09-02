@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           PRIVATE
+                          Control/CxxUtils
                           Control/StoreGate )
 
 # External dependencies:
@@ -23,9 +24,8 @@ atlas_add_component( InDetDiMuonMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaMonitoringLib xAODMuon xAODTracking GaudiKernel StoreGateLib SGtests )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaMonitoringLib xAODMuon xAODTracking GaudiKernel CxxUtils StoreGateLib SGtests )
 
 # Install files from the package:
-atlas_install_headers( InDetDiMuonMonitoring )
 atlas_install_joboptions( share/*.py )
 

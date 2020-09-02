@@ -11,15 +11,15 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkSegment
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkTruthTracks/TrkTruthTrackInterfaces )
+                          Tracking/TrkTruthTracks/TrkTruthTrackInterfaces 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( TrkTruthTrackAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel TrkSegment TrkTrack TrkToolInterfaces )
+                     INCLUDE_DIRS 
+                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps GaudiKernel TrkSegment TrkTrack TrkToolInterfaces TrkTruthTrackInterfaces )
 

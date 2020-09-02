@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 //Package For New Tracking:
 // Amg includes
@@ -93,8 +93,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixEmulateSurfaceCharge(true),
   m_pixSmearPathLength(0.01),
   m_pixSmearLandau(true),
-  m_siDeltaPhiCut(0),
-  m_siDeltaEtaCut(0),
   m_pixMinimalPathCut(0.06),// Optimized choice of threshold (old 0.02)
   m_pixPathLengthTotConv(125.),
   m_pixModuleDistortion(true), // default: false
@@ -111,7 +109,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_ambiguitiesMap(nullptr),
   m_digitizationStepper("Trk::PlanarModuleStepper")
 {
-  declareInterface<IPixelFastDigitizationTool>(this);
   declareProperty("RndmSvc"                        , m_rndmSvc,                  "Random Number Service used in Pixel digitization" );
   declareProperty("RndmEngine"                     , m_randomEngineName,         "Random engine name");
   declareProperty("ClusterMaker"                   , m_clusterMaker);

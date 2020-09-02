@@ -25,13 +25,16 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 
+atlas_add_library( InDetTrackSplitterToolLib
+                   CInDetTrackSplitterTool/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS InDetTrackSplitterTool
+                   LINK_LIBRARIES GaudiKernel TrkTrack AthenaBaseComps )
+
 # Component(s) in the package:
 atlas_add_component( InDetTrackSplitterTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TrkTrack GeoPrimitives EventPrimitives InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkPseudoMeasurementOnTrack TrkFitterInterfaces )
-
-# Install files from the package:
-atlas_install_headers( InDetTrackSplitterTool )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} InDetTrackSplitterToolLib GeoPrimitives EventPrimitives InDetIdentifier InDetRIO_OnTrack TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMeasurementBase TrkPseudoMeasurementOnTrack TrkFitterInterfaces )
 

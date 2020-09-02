@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,6 +48,17 @@ namespace Trk {
   @author Andreas.Salzburger@cern.ch
  */
 
+  namespace RIO_OnTrackType{
+    enum Type{
+        PixelCluster=0,
+        SCTCluster=1,
+        TRT_DriftCircle=2,
+        MdtDriftCircle=3,
+        MuonCluster=4,
+        PlanarCluster=5
+    };
+  }
+
   class RIO_OnTrack : public MeasurementBase {
     
     friend class ITrkEventCnvTool;
@@ -83,9 +94,13 @@ namespace Trk {
       virtual const Amg::Vector3D& globalPosition() const override = 0;
 
       /** Extended method checking the type*/
-       virtual bool type(MeasurementBaseType::Type type) const override {
-         return (type==MeasurementBaseType::RIO_OnTrack);
-       }
+      virtual bool type(MeasurementBaseType::Type type) const override final
+      {
+        return (type == MeasurementBaseType::RIO_OnTrack);
+      }
+
+      /** Method checking the Rio On Track type*/
+      virtual bool rioType(RIO_OnTrackType::Type type) const = 0;
 
       /**returns the some information about this RIO_OnTrack. */
       virtual MsgStream&    dump( MsgStream& out ) const override;  

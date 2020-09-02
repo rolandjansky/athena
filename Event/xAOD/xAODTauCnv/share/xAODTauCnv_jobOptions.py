@@ -32,7 +32,6 @@ ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [
 
 # Force POOL to just simply use the StoreGate keys as branch names:
 ServiceMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<key>"
-#ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp

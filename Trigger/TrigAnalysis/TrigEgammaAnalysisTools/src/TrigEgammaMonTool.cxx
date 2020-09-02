@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -37,7 +37,7 @@ StatusCode TrigEgammaMonTool::book(){
     ATH_MSG_INFO("Initializing " << name() << "...");
     ATH_MSG_INFO("Retrieving tools..." << m_asgToolNames.size());
 
-    for(const auto toolname : m_asgToolNames){
+    for(const auto& toolname : m_asgToolNames){
         ATH_MSG_INFO("Add "<<toolname<<"..." );
         m_asgtools.push_back(ToolHandle<ITrigEgammaAnalysisBaseTool>(toolname));
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBMWPCRAW_H
@@ -53,7 +53,7 @@ class TBMWPCRaw : public TBBeamDetector
 
 
   /** Set the collection of the center wire number */
-  inline void setCwireno(std::vector<int> cwireno) {
+  inline void setCwireno(const std::vector<int>& cwireno) {
     m_cwireno = cwireno;
   }
   inline void addCwireno(int cwire){
@@ -61,7 +61,7 @@ class TBMWPCRaw : public TBBeamDetector
   }
 
   /** Set the collection of the number of wires in a cluster */
-  inline void setNwires(std::vector<int> nwires) {
+  inline void setNwires(const std::vector<int>& nwires) {
     m_nwires  = nwires;
   }    
   inline void addNwires(int nwire){

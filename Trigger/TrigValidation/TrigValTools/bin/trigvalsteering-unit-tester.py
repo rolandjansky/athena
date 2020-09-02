@@ -1,13 +1,33 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 import sys
 import os
+import re
 import argparse
 import subprocess
 from TrigValTools.TrigValSteering import Common
+
+
+def grep_errors(filename):
+    '''Grep for error messages but ignore missing reference errors and echo commands'''
+    error_pattern = '^.*ERROR.*$'
+    ignore_patterns = [
+        'Missing reference',
+        'echo "ERROR'
+    ]
+    def filter_fn(msg):
+        for p in ignore_patterns:
+            if p in msg:
+                return False
+        return True
+
+    lines = []
+    with open(filename) as f:
+        lines = re.findall(error_pattern, f.read(), re.MULTILINE)
+    return list(filter(filter_fn, lines))
 
 
 def main():
@@ -32,20 +52,28 @@ def main():
             log_file = '{:s}.unitTest.log'.format(test)
             cmd += ' >{:s} 2>&1'.format(log_file)
             ret_code = subprocess.call(cmd, shell=True)
+            failed = False
             status_str = 'OK'
             if ret_code != 0:
+                failed = True
                 status_str = 'FAILED WITH CODE {:d}'.format(ret_code)
-            # Grep for error messages but ignore missing reference errors and echo commands
-            grep_cmd = 'grep ERROR {:s}'.format(log_file)
-            grep_cmd += ' | grep -v "Missing reference"'
-            grep_cmd += ' | grep -v "echo \\\"ERROR"'
-            grep_cmd += ' >/dev/null 2>&1'
-            grep_code = subprocess.call(grep_cmd, shell=True)
-            if grep_code == 0:
-                status_str = 'ERROR IN LOG {:s}'.format(log_file)
-            if status_str != 'OK':
-                n_failed += 1
+            errors = grep_errors(log_file)
+            if len(errors) > 0:
+                failed = True
+                status_str = 'ERROR IN LOG {:s}:'.format(log_file)
             log.info('---- %s ---- %s', test, status_str)
+
+            if failed:
+                n_failed += 1
+                if len(errors) > 0:
+                    for msg in errors:
+                        print(msg)
+                else:
+                    log.error('Test failed but no ERROR messages found, printing full log below')
+                    with open(log_file) as f:
+                        for msg in f:
+                            print(msg)
+
     return n_failed
 
 

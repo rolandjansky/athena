@@ -32,6 +32,7 @@
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
 #include "tauRecTools/KineUtils.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
@@ -75,7 +76,7 @@ StatusCode TauElectronVetoVariables::initialize()
 //-------------------------------------------------------------------------
 // Execution
 //-------------------------------------------------------------------------
-StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
+StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
 {
     if (pTau.nTracks() < 1) {
         return StatusCode::SUCCESS;
@@ -199,22 +200,20 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
       return StatusCode::FAILURE;
     }
 
-    xAOD::JetConstituentVector::const_iterator cItr = pJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator cItrE = pJetSeed->getConstituents().end();
+    // Loop through jets, get links to clusters
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr));
 
     std::bitset<200000> cellSeen;
 
-    for (; cItr != cItrE; ++cItr) {
-      
-      const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*cItr)->rawConstituent() ); 
-      
+    for (auto cluster : clusterList){
+
       CaloClusterCellLink::const_iterator pCellIter  = cluster->getCellLinks()->begin();
       CaloClusterCellLink::const_iterator pCellIterE = cluster->getCellLinks()->end();
 
-      double cellPhi;
-      double cellEta;
-      double cellET;
       for (; pCellIter != pCellIterE; pCellIter++) {
+
+	double cellEta, cellPhi, cellET;
 
         pCell = *pCellIter;
 	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;

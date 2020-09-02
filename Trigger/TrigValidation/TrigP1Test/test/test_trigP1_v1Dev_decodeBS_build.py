@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # art-description: Runs athenaHLT writing BS output and then runs BS decoding
 # art-type: build
@@ -18,7 +19,7 @@ def filterBS(stream_name):
     '''Extract ByteStream data for a given stream from a file with multiple streams'''
     filterStep = ExecStep.ExecStep('FilterBS_'+stream_name)
     filterStep.type = 'other'
-    filterStep.executable = 'athenaHLT-select-PEB-stream.py'
+    filterStep.executable = 'trigbs_extractStream.py'
     filterStep.input = ''
     filterStep.args = '-s ' + stream_name + ' ' + findFile('*_HLTMPPy_output.*.data')
     return filterStep
@@ -61,6 +62,17 @@ test.art_type = 'build'
 test.exec_steps = [writeBS, filterMain, decodeMain, filterCost, decodeCost]
 test.check_steps = CheckSteps.default_check_steps(test)
 test.get_step('CheckFile').input_file = 'ESD.pool.root,ESD.Module1.pool.root'
+
+# Overwrite default MessageCount settings
+# We are trying to lower the limits step by step
+# Ultimately there should be no per-event messages
+msgcount = test.get_step("MessageCount")
+msgcount.thresholds = {
+  'WARNING': 600,
+  'INFO': 600,
+  'other': 100
+}
+msgcount.required = True # make the test exit code depend on this step
 
 import sys
 sys.exit(test.run())

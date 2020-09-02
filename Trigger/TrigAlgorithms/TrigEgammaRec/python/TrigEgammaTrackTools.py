@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr, ToolSvc
+from AthenaCommon.AppMgr import ToolSvc
 
 from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
 egTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("egTrigPixelClusterOnTrackTool",
@@ -23,8 +23,6 @@ egTrigRotCreator = Trk__RIO_OnTrackCreator(name             = 'egTrigRotCreator'
                                        Mode             = 'indet')
 ToolSvc += egTrigRotCreator
 
-
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
 egTrigTrkPropagator = Propagator(name = 'egTrigTrkPropagator')
@@ -68,15 +66,9 @@ ToolSvc += egTrigTrkExtrapolator
 
 
 # Set up the GSF
-# component Reduction
-from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-GSFTrigComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name                      = 'GSFTrigComponentReduction',
-                                                                       MaximumNumberOfComponents = 12)
-ToolSvc += GSFTrigComponentReduction
-
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
 GSFTrigMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GSFTrigMaterialUpdator',
-                                                             MultiComponentStateMerger = GSFTrigComponentReduction)
+                                                             MaximumNumberOfComponents = 12)
 ToolSvc += GSFTrigMaterialUpdator
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator

@@ -4,6 +4,13 @@
 
 namespace TrigConf {
 
+
+   template<class T>
+   ValueWithEtaDependence<T>::RangeValue::RangeValue(const T & value, int etaMin, int etaMax, unsigned int priority, bool symmetric) :
+      m_value(value), m_etaMin(etaMin), m_etaMax(etaMax), m_priority(priority), m_symmetric(symmetric)
+   {}
+
+
    template<class T>
    size_t ValueWithEtaDependence<T>::size() const {
       return m_rangeValues.size();
@@ -25,25 +32,36 @@ namespace TrigConf {
 
    template<class T>
    void ValueWithEtaDependence<T>::addRangeValue(const T & value, int etaMin, int etaMax, unsigned int priority, bool symmetric) {
-      RangeValue rv = { value, etaMin, etaMax, priority, symmetric };
+      auto rv = RangeValue{ value, etaMin, etaMax, priority, symmetric };
+      for( const auto & rv : m_rangeValues ) {
+         if( rv.priority() != priority )
+            continue;
+         if( (etaMax > rv.etaMin()) and (etaMin < rv.etaMax()) ) { // overlaps with existing range of the same priority
+            throw std::runtime_error( "Range eta " + std::to_string(etaMin) + " - " + std::to_string(etaMax) +
+                                      " (priority " + std::to_string(priority) + ") overlaps with existing range of the same priority");
+         }
+      }
       m_rangeValues.emplace_back( std::move(rv) );
    }
 
    template<class T>
    const T & ValueWithEtaDependence<T>::at(int eta) const {
+      // the ranges are by definition such that the lower boundary is inclusive, while the upper boundary is exclusive
+      // this has been the convention for Run 2 and will remain like this in Run 3
+      // this has been agreed upon by L1Calo and L1Topo
       int current_priority = -1;
       const T * retVal { nullptr };
       for( const auto & rv : m_rangeValues ) {
-         if(eta>rv.etaMax or eta < rv.etaMin) // outside the window
+         if( eta >= rv.etaMax() or eta < rv.etaMin()) // outside the window
             continue;
-         if(int(rv.priority) < current_priority)
+         if(int(rv.priority()) < current_priority)
             continue;
-         if(int(rv.priority) == current_priority) {
-            throw std::runtime_error(name() + ": found two values with the same priority " + std::to_string(rv.priority) 
+         if(int(rv.priority()) == current_priority) {
+            throw std::runtime_error(name() + ": found two values with the same priority " + std::to_string(rv.priority()) 
                                      + " for eta = " + std::to_string(eta));
          }
-         current_priority = (int)rv.priority;
-         retVal = & rv.value;
+         current_priority = (int)rv.priority();
+         retVal = & rv.value();
       }
       if( retVal ) {
          return * retVal;

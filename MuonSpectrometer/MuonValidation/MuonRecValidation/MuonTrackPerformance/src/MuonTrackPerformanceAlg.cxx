@@ -6,8 +6,8 @@
 
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegment.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include <iostream>
 #include <fstream>
@@ -294,7 +294,7 @@ bool MuonTrackPerformanceAlg::handleTracks() {
 }
 
 bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::TruthTreeEntry& entry ) const {
-  if( (!entry.cscHits.empty() || !entry.mmHits.empty()) && entry.mdtHits.empty() ) return false;
+  if( (!entry.cscHits.empty()||(!entry.mmHits.empty()&&!entry.stgcHits.empty()) ) && entry.mdtHits.empty() ) return false;
   TrackRecord* trackRecord = const_cast<TrackRecord*>(entry.truthTrack);
   if( !trackRecord ) return false;
   if( m_usePtCut ){
@@ -303,7 +303,7 @@ bool MuonTrackPerformanceAlg::goodTruthTrack( const Muon::IMuonTrackTruthTool::T
     if( trackRecord->GetMomentum().mag() < m_momentumCutSim ) return false; 
   }
   if( !selectPdg(trackRecord->GetPDGCode()) ) return false;
-  if( m_isCombined && fabs(trackRecord->GetMomentum().eta()) > 2.8 ) return false;
+  if( m_isCombined && std::abs(trackRecord->GetMomentum().eta()) > 2.5 ) return false;
   int hits = entry.mdtHits.size();
   if(m_idHelperSvc->hasCSC()) hits += entry.cscHits.size();
   if(m_idHelperSvc->hasMM()) hits += entry.mmHits.size();
@@ -785,7 +785,7 @@ std::string MuonTrackPerformanceAlg::print( const Muon::IMuonTrackTruthTool::Tru
        << " phi " << trackRecord.GetMomentum().phi() << " theta " << trackRecord.GetMomentum().theta() 
        << std::setw(6) << " q*mom " << (int)trackRecord.GetMomentum().mag()*charge 
        << " pt " << std::setw(5) << (int)trackRecord.GetMomentum().perp();
-  if( abs(trackRecord.GetPDGCode()) != 13 ) sout << " pdg " << trackRecord.GetPDGCode();
+  if( std::abs(trackRecord.GetPDGCode()) != 13 ) sout << " pdg " << trackRecord.GetPDGCode();
 
   if( trackTruth.truthTrajectory ) {
     const HepMC::GenParticle* mother = getMother( *trackTruth.truthTrajectory );
@@ -1210,7 +1210,7 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
 				       trackData.truthTrack->GetMomentum().z()),
 			 charge,Trk::PerigeeSurface(Amg::Vector3D(0.,0.,0.)));
     sout << "Truth: " << m_printer->print(perigee);// << " barcode " << trackData.truthTrack->GetBarCode();
-    if( abs(trackData.truthTrack->GetPDGCode()) == 13 ){
+    if( std::abs(trackData.truthTrack->GetPDGCode()) == 13 ){
       if( trackData.motherPdg != -1 ) sout << " mother " << trackData.motherPdg;
     }else{
       sout << " pdg " << trackData.truthTrack->GetPDGCode();
@@ -1225,15 +1225,15 @@ std::string MuonTrackPerformanceAlg::print( const MuonTrackPerformanceAlg::Track
   if( trackData.trackPars ){
     sout << "Track: " << m_printer->print(*trackData.trackPars) << " chi2/ndof " << trackData.chi2Ndof << std::endl;
     if(trackData.trackPars->covariance()) {
-      double qOverP = fabs(trackData.trackPars->parameters()[Trk::qOverP]);
+      double qOverP = std::abs(trackData.trackPars->parameters()[Trk::qOverP]);
       double dpp = 0.;
       double cov00 = (*trackData.trackPars->covariance())(0,0);
       double cov11 = (*trackData.trackPars->covariance())(1,1);
       double cov22 = (*trackData.trackPars->covariance())(2,2);
       double cov33 = (*trackData.trackPars->covariance())(3,3);
       double cov44 = (*trackData.trackPars->covariance())(4,4);
-      if(qOverP>0) dpp = sqrt(cov44)/qOverP; 
-      sout <<  " error d0 " << sqrt(cov00)  << " z0 " << sqrt(cov11) << " phi (mrad) " << 1000*sqrt(cov22) << " theta (mrad) " << 1000*sqrt(cov33) << " dp/p " << dpp << std::endl;
+      if(qOverP>0) dpp = std::sqrt(cov44)/qOverP; 
+      sout <<  " error d0 " << std::sqrt(cov00)  << " z0 " << std::sqrt(cov11) << " phi (mrad) " << 1000*std::sqrt(cov22) << " theta (mrad) " << 1000*std::sqrt(cov33) << " dp/p " << dpp << std::endl;
   }
 
 
@@ -1457,7 +1457,7 @@ const HepMC::GenParticle* MuonTrackPerformanceAlg::getMother( const TruthTraject
   std::vector<HepMcParticleLink>::const_reverse_iterator pit = traj.rbegin();
   std::vector<HepMcParticleLink>::const_reverse_iterator pit_end = traj.rend();
   for( ;pit!=pit_end;++pit ){
-    if( abs((*pit)->pdg_id()) != 13 ) return *pit;
+    if( std::abs((*pit)->pdg_id()) != 13 ) return *pit;
   }
   return 0;
 }
@@ -1466,7 +1466,7 @@ const HepMC::GenParticle* MuonTrackPerformanceAlg::getInitialState( const TruthT
   std::vector<HepMcParticleLink>::const_reverse_iterator pit = traj.rbegin();
   std::vector<HepMcParticleLink>::const_reverse_iterator pit_end = traj.rend();
   for( ;pit!=pit_end;++pit ){
-    if( abs((*pit)->pdg_id()) != 13 ) {
+    if( std::abs((*pit)->pdg_id()) != 13 ) {
       if( pit!=traj.rbegin() ) --pit;
       else return 0;
       return *pit;

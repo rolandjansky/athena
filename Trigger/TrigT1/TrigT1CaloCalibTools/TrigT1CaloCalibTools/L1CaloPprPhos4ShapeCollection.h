@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************
@@ -66,6 +66,7 @@
 
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 class TTree;
 class TFile;
@@ -111,7 +112,7 @@ public:
    StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int timeSlice,const unsigned int rodHeaderStep,const int adc);
    StatusCode Fill(const L1CaloCoolChannelId& coolId,const unsigned int rodHeaderStep,const std::vector<int> adc);
    
-   StatusCode Finalize(void);
+   StatusCode Finalize ATLAS_NOT_REENTRANT(void);
    
    TProfile* GetRawSignalShape(const L1CaloCoolChannelId& coolId){return GetMapIterator(coolId)->second->GetRawSignalShape();};
    unsigned int GetRawMaxPeakBin(const L1CaloCoolChannelId& coolId){return GetMapIterator(coolId)->second->GetRawMaxPeakBin();};

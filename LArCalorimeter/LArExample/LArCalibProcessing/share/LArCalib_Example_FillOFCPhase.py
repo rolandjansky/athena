@@ -18,7 +18,7 @@ include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 #include ("LArConditionsCommon/LArMinimalSetup.py")
 
 #theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-#theByteStreamInputSvc.FullFileName=["/data/pavol/athena_calib/daq.Ramp.0031077.No.Streaming.LB0000.EB-ECC._0001.data"]
+#svcMgr.EventSelector.Input=["/data/pavol/athena_calib/daq.Ramp.0031077.No.Streaming.LB0000.EB-ECC._0001.data"]
 #--------------------------------------------------------------
 # pick a proper run number for conditions
 #--------------------------------------------------------------

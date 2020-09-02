@@ -97,8 +97,8 @@ StatusCode BeamHaloGeneratorAlg::genInitialize() {
     const Int_t nbins_E = 60;
     double xmin = 1e-2;
     double xmax = 3.5e3;
-    double logxmin = log10(xmin);
-    double logxmax = log10(xmax);
+    double logxmin = std::log10(xmin);
+    double logxmax = std::log10(xmax);
     double binwidth = (logxmax-logxmin)/nbins_E;
     Double_t xbins[nbins_E+1];
     xbins[0] = xmin;
@@ -193,9 +193,9 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
 
   // Fill monitoring plots if requested
   if(m_doMonitoringPlots) {
-    HepMC::WeightContainer weightContainer = m_evt.weights();
+    auto weightContainer = m_evt.weights();
     if(weightContainer.size() != 5) {
-      ATH_MSG_WARNING("HepMC::WeightContainer does not contain five elements.");
+      ATH_MSG_WARNING("The number of weights for this event is not equal to 5.");
       return StatusCode::SUCCESS;
     }
     double weight = weightContainer[0];
@@ -206,20 +206,17 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
 
     double values[4];
     int pdgId;
-    HepMC::GenEvent::particle_const_iterator hepmc_part_itr;
-    for (hepmc_part_itr = m_evt.particles_begin();
-         hepmc_part_itr != m_evt.particles_end();
-         hepmc_part_itr++) {
-      auto prodVertex = (*hepmc_part_itr)->production_vertex();
+    for (const auto& hepmc_part: m_evt) {
+      auto prodVertex = hepmc_part->production_vertex();
       if(!prodVertex) continue;
       
       // Store the values for use in the if conditions that follow
       values[0] = prodVertex->position().perp()/1000.; 
-      values[1] = (*hepmc_part_itr)->momentum().e()/1000.;
-      values[2] = (*hepmc_part_itr)->momentum().pz()/1000.;
-      values[3] = (*hepmc_part_itr)->momentum().perp()/1000.;
+      values[1] = hepmc_part->momentum().e()/1000.;
+      values[2] = hepmc_part->momentum().pz()/1000.;
+      values[3] = hepmc_part->momentum().perp()/1000.;
 
-      pdgId = (*hepmc_part_itr)->pdg_id(); if(pdgId<0) pdgId = -pdgId; 
+      pdgId = hepmc_part->pdg_id(); if(pdgId<0) pdgId = -pdgId; 
       m_validationPlots[SP_R_ALL]->Fill(values[0],weight);
       m_validationPlots[SP_E_ALL]->Fill(values[1],weight);
       m_validationPlots[SP_PZ_ALL]->Fill(values[2],weight);

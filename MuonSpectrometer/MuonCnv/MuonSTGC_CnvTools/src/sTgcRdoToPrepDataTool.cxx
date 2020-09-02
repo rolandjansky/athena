@@ -11,15 +11,11 @@
 
 
 Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
-						   const std::string& n,
-						   const IInterface*  p )
+               const std::string& n,
+               const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   sTgcRdoToPrepDataToolCore(t,n,p)
-{
-}
-
-Muon::sTgcRdoToPrepDataTool::~sTgcRdoToPrepDataTool()
 {
 }
 
@@ -31,11 +27,6 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
-{
-  return sTgcRdoToPrepDataToolCore::finalize();
-}
-
 Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataTool::setupSTGC_PrepDataContainer() 
 {
 
@@ -43,7 +34,7 @@ Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdo
     m_fullEventDone=false;
     
     SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_muonIdHelperTool->stgcIdHelper().module_hash_max()));
+    StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max()));
     
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of STGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 

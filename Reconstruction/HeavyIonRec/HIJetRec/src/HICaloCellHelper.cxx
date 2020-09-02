@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HICaloCellHelper.h"
@@ -12,26 +12,26 @@
 #include <set>
 #include <TMath.h>
 
-float HICaloCellHelper::GetAreaEtaPhi(const CaloCell* theCell)
+float HICaloCellHelper::getAreaEtaPhi(const CaloCell* theCell)
 {
   float deta=theCell->caloDDE()->deta();
   float dphi=theCell->caloDDE()->dphi();
   return std::abs(deta*dphi);
 }
 
-float HICaloCellHelper::GetEtDensity(const CaloCell* theCell, float geoWeight)
+float HICaloCellHelper::getEtDensity(const CaloCell* theCell, float geoWeight)
 {
   float density=theCell->et();
-  float area=HICaloCellHelper::GetAreaEtaPhi(theCell);
+  float area=HICaloCellHelper::getAreaEtaPhi(theCell);
   if(area<1e-9) area=0.2*TMath::Pi()/geoWeight;
   density/=area;
   return density;
 }
 
-std::string HICaloCellHelper::DumpCell(const CaloCell* theCell) 
+std::string HICaloCellHelper::dumpCell(const CaloCell* theCell)
 {
   std::stringstream ss;
-  ss << "CELLINFO:" 
+  ss << "CELLINFO:"
      << std::setw(10) << (CaloSampling::CaloSample) theCell->caloDDE()->getSampling()
      << std::setw(20) << theCell->ID().get_compact()
      << std::setw(10) << theCell->et()
@@ -39,6 +39,6 @@ std::string HICaloCellHelper::DumpCell(const CaloCell* theCell)
      << std::setw(10) << theCell->caloDDE()->phi()
      << std::setw(15) << theCell->caloDDE()->deta()
      << std::setw(15) << theCell->caloDDE()->dphi()
-     << std::setw(15) << HICaloCellHelper::GetAreaEtaPhi(theCell);
+     << std::setw(15) << HICaloCellHelper::getAreaEtaPhi(theCell);
   return ss.str();
 }

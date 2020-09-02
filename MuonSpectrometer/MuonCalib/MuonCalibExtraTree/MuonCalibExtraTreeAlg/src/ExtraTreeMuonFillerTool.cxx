@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtraTreeMuonFillerTool.h"
-// #include "xAODMuon/MuonContainer.h"
-// #include "xAODMuon/Muon.h"
-// #include "xAODTracking/TrackParticle.h"
-// #include "Particle/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/Track.h"
 #include <string>
@@ -27,15 +23,13 @@ ExtraTreeMuonFillerTool::ExtraTreeMuonFillerTool(const std::string &type, const 
   m_hitsForSA(true),
   m_hitsForSAE(true),
   m_hitsForCombined(true),
-  m_hitsForStatCombined(true),
-  m_propagator("Trk::StraightLinePropagator/MuonStraightLinePropagator") {
+  m_hitsForStatCombined(true) {
   declareProperty("MuonContainer", m_muonContainer);
   declareProperty("AuthorOffset", m_authorOffset);
   declareProperty("HitsForSA", m_hitsForSA);
   declareProperty("HitsForSAE", m_hitsForSAE);
   declareProperty("HitsForCombined", m_hitsForCombined);
   declareProperty("HitsForStatCombined", m_hitsForStatCombined);
-  declareProperty("Propagator", m_propagator);
 }
 
 StatusCode ExtraTreeMuonFillerTool::initialize() {
@@ -53,11 +47,7 @@ StatusCode ExtraTreeMuonFillerTool::initialize() {
   }
   return StatusCode::SUCCESS;	
 }  // end ExtraTreeMuonFillerTool::initialize
-  
-StatusCode ExtraTreeMuonFillerTool::finalize() {
-  return StatusCode::SUCCESS;
-}
-	
+
 StatusCode ExtraTreeMuonFillerTool::writeTracks(unsigned int &index) {
   const xAOD::MuonContainer *muonContainer;
   if(evtStore()->retrieve(muonContainer, m_muonContainer).isSuccess()) {

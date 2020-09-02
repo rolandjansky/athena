@@ -27,13 +27,11 @@ public:
     ~TauCommonCalcVars();
     
     virtual StatusCode initialize() override;   
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode finalize() override;  
 
 private:
-    
-    //if TauTrackClassifier is not run, wide&passTrkSelector==classifiedIsolation==modifiedIsolationTrack
-    Gaudi::Property<int> m_isolationTrackType {this, "isolationTrackType", xAOD::TauJetParameters::modifiedIsolationTrack};
+    int m_isolationTrackType;
 };
 
 #endif // TAUREC_TAUCOMMONCALCVARS_H

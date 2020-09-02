@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,6 +19,7 @@
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "SCT_ConditionsData/SCT_Chip.h"
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 
 //Gaudi
@@ -27,9 +28,6 @@
 // C++
 #include <string>
 #include <vector>
-
-// Forward declarations
-class SCT_chip;
 
 /**
  * @class SCT_ReadoutTool
@@ -50,7 +48,7 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   ToolHandle<ISCT_ReadoutTool> m_readout{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle to the SCT_ReadoutTool"};
 
   //!< List of chips for that module. *Modified in execute* This should be OK because this is a test alg.
-  std::vector<SCT_Chip*> m_chips;
+  std::vector<SCT_Chip> m_chips;
 
   StringArrayProperty m_chipConfigs{this, "ChipConfigurationList", {}, "The configuration of the chips in that module (from job options)"};
   IntegerProperty m_moduleId{this, "ModuleId", 168497152, "The Module identifier (from job options)"};
@@ -60,7 +58,7 @@ class SCT_ReadoutTestAlg : public AthAlgorithm {
   /** Function to convert the configuration string into an int*/
   short bin2dec(const char *bin);
   /** Initialise a chip given its id and configuration string*/
-  SCT_Chip* initialiseChip(short id, std::string configString);
+  SCT_Chip initialiseChip(short id, std::string configString);
 
 }; //end of class
 

@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SiliconTempCondAlg.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -27,9 +25,7 @@ StatusCode SCT_SiliconTempCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handle
-  if (m_useState.value()) {
-    ATH_CHECK(m_readKeyState.initialize());
-  }
+  ATH_CHECK(m_readKeyState.initialize(m_useState));
   ATH_CHECK(m_readKeyTemp0.initialize());
   // Write Cond Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -61,16 +57,10 @@ StatusCode SCT_SiliconTempCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  EventIDRange rangeTemp0;
-  if (not readHandleTemp0.range(rangeTemp0)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleTemp0.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleTemp0.fullKey() << " with the range of " << rangeTemp0);
+  writeHandle.addDependency(readHandleTemp0);
+  ATH_MSG_INFO("Input is " << readHandleTemp0.fullKey() << " with the range of " << readHandleTemp0.getRange());
 
-  EventIDRange rangeW{rangeTemp0};
-
-  if (m_useState.value()) {
+  if (m_useState) {
     // Read Cond Handle (state)
     SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState, ctx};
     const SCT_DCSStatCondData* readCdoState{*readHandleState};
@@ -78,19 +68,8 @@ StatusCode SCT_SiliconTempCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_FATAL("Null pointer to the read conditions object");
       return StatusCode::FAILURE;
     }
-    EventIDRange rangeState;
-    if (not readHandleState.range(rangeState)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
-
-    // Combined the validity ranges of state and range
-    rangeW = EventIDRange::intersect(rangeState, rangeTemp0);
-    if (rangeW.stop().isValid() and rangeW.start()>rangeW.stop()) {
-      ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-      return StatusCode::FAILURE;
-    }
+    writeHandle.addDependency(readHandleState);
+    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << readHandleState.getRange());
   }
 
   // Construct the output Cond Object and fill it in
@@ -101,13 +80,13 @@ StatusCode SCT_SiliconTempCondAlg::execute(const EventContext& ctx) const {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key()
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

@@ -15,13 +15,13 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/StoreGate
-                          Control/RootUtils )
+                          Control/RootUtils 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CppUnit )
-find_package( HepMC )
 find_package( HepPDT )
 find_package( Python COMPONENTS Development )
 
@@ -29,10 +29,10 @@ find_package( Python COMPONENTS Development )
 atlas_add_library( McParticleUtils
                    src/*.cxx
                    PUBLIC_HEADERS McParticleUtils
-                   INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
+                   INCLUDE_DIRS 
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaKernel AthContainers EventKernel GaudiKernel AnalysisUtilsLib StoreGateLib SGtests RootUtils
+                   LINK_LIBRARIES AtlasHepMCLib AthenaKernel AthContainers EventKernel GaudiKernel AnalysisUtilsLib StoreGateLib SGtests RootUtils
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${Python_LIBRARIES} ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} )
 
 # Install files from the package:

@@ -14,8 +14,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "TrigInDetEvent/TrigSiSpacePoint.h"
-
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -25,10 +23,11 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
-#include "TrigInDetTrackFitter/TrigDkfTrackMakerTool.h"
+#include "TrigDkfTrackMakerTool.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "StoreGate/ReadCondHandle.h"
 
@@ -48,205 +47,8 @@ TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t,
 
 StatusCode TrigDkfTrackMakerTool::initialize()
 {
-  ATH_MSG_INFO("In initialize..."); 
-
-
- if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
-    return StatusCode::FAILURE;
-  }  
-
- // Get SCT & pixel Identifier helpers
-
-  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     ATH_MSG_FATAL("Could not get Pixel ID helper");
-     return StatusCode::FAILURE;  
-  }
-  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
-     ATH_MSG_FATAL("Could not get SCT ID helper");
-     return StatusCode::FAILURE;
-  }
-
-  ATH_CHECK(m_pixelDetEleCollKey.initialize());
-  ATH_CHECK(m_SCTDetEleCollKey.initialize());
-
-  ATH_MSG_INFO("TrigDkfTrackMakerTool constructed ");
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
   return StatusCode::SUCCESS;
-}
-
-bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>& siSpacePoints, 
-					   std::vector<Trk::TrkBaseNode*>& vpTrkNodes,
-					   double DChi2) const
-{
-  const double radLength=0.022;
-
-  std::vector<const TrigSiSpacePoint*>::iterator pSPIt,lastSPIt;
-
-  double C[3],N[3],M[3][3];int i;
-  Amg::Vector3D mx,my,mz;
-
-  vpTrkNodes.clear();
-
-  if(siSpacePoints.size()==0) 
-  {
-    ATH_MSG_WARNING("Cannot create a DKF track -- TrigInDetTrack has no hits");
-    return false;
-  }
-  pSPIt=siSpacePoints.begin();lastSPIt=siSpacePoints.end();
-  for(; pSPIt != lastSPIt; pSPIt++) 
-    {
-      const TrigSiSpacePoint* pSP=(*pSPIt);
-
-      // std::cout<<"SP layer="<<pSP->layer()<<" r="<<pSP->r()<<" phi="<<pSP->phi()<<" z="<<pSP->z()<<std::endl;
-
-      Identifier ID=pSP->identify();
-      if(m_idHelper->is_sct(ID))
-	{
-	  const InDet::SiCluster *pCL[2];
-	  pCL[0] = pSP->clusters().first;
-	  pCL[1] = pSP->clusters().second;
-	  if((pCL[0]==NULL)||(pCL[1]==NULL)) continue;
-
-	  IdentifierHash idHash[2];
-	  const InDetDD::SiDetectorElement* pEL[2];
-	  double RadVec[2];
-	  int index[2];
-	  for(i=0;i<2;i++)
-	    {
-	      idHash[i]=m_sctId->wafer_hash(m_sctId->wafer_id(pCL[i]->identify()));
-	      pEL[i]=getSCTDetectorElement(idHash[i]);
-	      const Trk::Surface& rSurf=pEL[i]->surface();
-
-	      // const Trk::Surface& rSurf=pCL[i]->detectorElement()->surface();
-	      RadVec[i]=rSurf.center().mag();
-	      index[i]=i;
-	    }
-	  if(RadVec[0]>RadVec[1])
-	    {
-	      index[0]=1;index[1]=0;
-	    }
-	  for (int iClusInSP=0; iClusInSP<2; iClusInSP++)
-	    {
-	      const Trk::Surface& rSurf=pEL[index[iClusInSP]]->surface();
-	      //const Trk::Surface& rSurf=pCL[i]->detectorElement()->surface();
-	      N[0]=rSurf.normal().x();
-	      N[1]=rSurf.normal().y();
-	      N[2]=rSurf.normal().z();
-	      C[0]=rSurf.center().x();
-	      C[1]=rSurf.center().y();
-	      C[2]=rSurf.center().z();
-
-	      mx=rSurf.transform().rotation().block(0,0,3,1);
-	      my=rSurf.transform().rotation().block(0,1,3,1);
-	      mz=rSurf.transform().rotation().block(0,2,3,1);
-	      for(i=0;i<3;i++) 
-		{
-		  M[i][0]=mx[i];M[i][1]=my[i];M[i][2]=mz[i];
-		}
-	      Trk::TrkPlanarSurface* pS = new Trk::TrkPlanarSurface(C,N,M,radLength,
-								    &(pEL[index[iClusInSP]]->surface()));
-	      //std::cout<<"created SCT surface"<<std::endl;pS->m_report();
-	      /*
-	      double locCov;
-	      try {
-		const Trk::ErrorMatrix& errMatRef=pCL[index[iClusInSP]]->localErrorMatrix();
-		locCov=errMatRef.covariance()[0][0];
-	      }
-	      catch(Trk::PrepRawDataUndefinedVariable) {
-		locCov=pEL[index[iClusInSP]]->phiPitch();
-		locCov=locCov*locCov/12.0;
-	      }
-	      // override
-	      
-	      locCov=pEL[index[iClusInSP]]->phiPitch();
-	      locCov=locCov*locCov/12.0;
-	      */
-
-	      if(pEL[index[iClusInSP]]->design().shape()!=InDetDD::Trapezoid)
-		{
-		  //vpTrkNodes.push_back(new Trk::TrkClusterNode(pS,DChi2,pCL[index[iClusInSP]]->localPosition()[0],locCov));
-		  vpTrkNodes.push_back(new Trk::TrkClusterNode(pS,DChi2,pCL[index[iClusInSP]]));
-		}
-	      else
-		{	  
-		  const Trk::SurfaceBounds& rBounds=rSurf.bounds();
-		  const Trk::TrapezoidBounds& ecBounds=
-		    dynamic_cast<const Trk::TrapezoidBounds&>(rBounds);
-		  double R=(ecBounds.maxHalflengthX()+ecBounds.minHalflengthX())*
-		    ecBounds.halflengthY()/
-		    (ecBounds.maxHalflengthX()-ecBounds.minHalflengthX());
-		  vpTrkNodes.push_back(new Trk::TrkEndCapClusterNode(pS,DChi2,pCL[index[iClusInSP]],R));
-
-		  //  vpTrkNodes.push_back(new Trk::TrkEndCapClusterNode(pS,DChi2,R,pCL[index[iClusInSP]]->localPosition()[0],locCov));
-		}
-	    }
-	}
-      else if(m_idHelper->is_pixel(ID))
-	{
-	  const InDet::SiCluster* pCL=pSP->clusters().first;
-	  
-	  if(pCL)
-	    {
-	      
-	      const IdentifierHash idHash=
-		m_pixelId->wafer_hash(m_pixelId->wafer_id(pCL->identify()));
-	      const InDetDD::SiDetectorElement* pEL=getPixelDetectorElement(idHash);
-	      const Trk::Surface& rSurf=pEL->surface();
-	      
-	      //const Trk::Surface& rSurf=pCL->detectorElement()->surface();
-
-	      N[0]=rSurf.normal().x();
-	      N[1]=rSurf.normal().y();
-	      N[2]=rSurf.normal().z();
-	      C[0]=rSurf.center().x();
-	      C[1]=rSurf.center().y();
-	      C[2]=rSurf.center().z();
-	      mx=rSurf.transform().rotation().block(0,0,3,1);
-	      my=rSurf.transform().rotation().block(0,1,3,1);
-	      mz=rSurf.transform().rotation().block(0,2,3,1);
-	      for(i=0;i<3;i++) 
-		{
-		  M[i][0]=mx[i];M[i][1]=my[i];M[i][2]=mz[i];
-		}
-	      Trk::TrkPlanarSurface* pS = new Trk::TrkPlanarSurface(C,N,M,radLength,&(pEL->surface()));
-	      /*
-	      std::cout<<"created PIX surface"<<std::endl;
-	      std::cout<<"local position: "<<pCL->localPosition()[0]<<" "<<pCL->localPosition()[1]<<std::endl;
-	      pS->m_report();
-	      */
-	      //	      double locPos[2];
-	      /*
-	      double locCov[4];
-	      try {
-		const Trk::ErrorMatrix& errMatRef=pCL->localErrorMatrix();
-		locCov[0]=errMatRef.covariance()[0][0];
-		locCov[1]=errMatRef.covariance()[0][1];
-		locCov[2]=errMatRef.covariance()[1][0];
-		locCov[3]=errMatRef.covariance()[1][1];
-	      }
-	      catch(Trk::PrepRawDataUndefinedVariable) {
-		//locCov[0]=pEL->phiPitch()*pEL->phiPitch()/12.0;
-		locCov[1]=0.0;locCov[2]=0.0;
-		//locCov[3]=pEL->etaPitch()*pEL->etaPitch()/12.0;
-		locCov[3]=0.3*0.3;locCov[0]=0.012*0.012;
-	      }
-	      */
-	      // override
-	      /*
-	      locCov[0]=pEL->phiPitch()*pEL->phiPitch()/12.0;
-	      locCov[1]=0.0;locCov[2]=0.0;
-	      locCov[3]=pEL->etaPitch()*pEL->etaPitch()/12.0;
-	      locPos[0]=pCL->localPosition()[0];
-	      locPos[1]=pCL->localPosition()[1];    
-	      */
-	      //vpTrkNodes.push_back(new Trk::TrkPixelNode(pS,DChi2,locPos,locCov));
-	      vpTrkNodes.push_back(new Trk::TrkPixelNode(pS,DChi2,pCL));
-	    }
-	}
-    }
-  ATH_MSG_DEBUG(vpTrkNodes.size());
-
-  return true;
 }
 
 bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track, 
@@ -328,14 +130,3 @@ bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track,
 	return true;
 }
 
-const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getPixelDetectorElement(const IdentifierHash& waferHash) const {
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
-  if (not condData.isValid()) return nullptr;
-  return condData->getDetectorElement(waferHash);
-}
-
-const InDetDD::SiDetectorElement* TrigDkfTrackMakerTool::getSCTDetectorElement(const IdentifierHash& waferHash) const {
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_SCTDetEleCollKey};
-  if (not condData.isValid()) return nullptr;
-  return condData->getDetectorElement(waferHash);
-}

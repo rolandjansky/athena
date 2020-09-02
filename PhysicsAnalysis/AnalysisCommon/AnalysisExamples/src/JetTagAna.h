@@ -24,7 +24,7 @@
 #include "JetEvent/JetTagInfoBase.h"
 #include "ParticleTruth/TrackParticleTruth.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "egammaEvent/ElectronContainer.h"

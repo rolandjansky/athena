@@ -5,8 +5,8 @@
 #ifndef TAUREC_TAUCALIBRATELC_H
 #define TAUREC_TAUCALIBRATELC_H
 
+#include "AsgDataHandles/ReadHandleKey.h"
 #include "tauRecTools/TauRecToolBase.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class TH1;
@@ -32,12 +32,10 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
 
 private:
-    Gaudi::Property<std::string> m_calibrationFile {this, "calibrationFile", "EnergyCalibrationLC2012.root", "energy calibration file"};
-
     static const int s_nProngBins = 2;
 
     std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
@@ -49,12 +47,13 @@ private:
     int    m_nEtaBins=0;
     double m_averageNPV=0;
 
-    Gaudi::Property<bool> m_doEnergyCorr {this, "doEnergyCorrection", false, "switch for energy correction"};
-    Gaudi::Property<bool> m_doPtResponse {this, "doPtResponse", false, "switch for pt response vs pt, if false, use E response vs E"};
-    Gaudi::Property<bool> m_countOnlyPileupVertices {this, "countOnlyPileupVertices", false, "switch for counting vertices by nTracks or VxType::PileUp"};
-    Gaudi::Property<bool> m_doAxisCorr {this, "doAxisCorrection", false, "switch for eta correction"};
-    Gaudi::Property<bool> m_usePantauAxis {this, "usePantauAxis", false, "switch for overwriting calo (eta,phi) with Pantau (eta,phi)"}; 
-    Gaudi::Property<bool> m_isCaloOnly {this, "isCaloOnly", false, "switch for CaloOnly corrections"};
+    std::string m_calibrationFile; //!< energy calibration file
+    bool m_doEnergyCorr; //!< switch for energy correction
+    bool m_doPtResponse; //!< switch for pt response vs pt, if false, use E response vs E
+    bool m_countOnlyPileupVertices; //!< switch for counting vertices by nTracks or VxType::PileUp
+    bool m_doAxisCorr;   //!< switch for eta correction
+    bool m_usePantauAxis; //!< switch for overwriting calo (eta,phi) with Pantau (eta,phi) 
+    bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};

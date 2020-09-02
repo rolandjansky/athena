@@ -53,16 +53,6 @@ EventSelector.FirstEvent=1
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = True
-AthenaSealSvc.CheckDictAtInit = True
-
-include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-# include ("LArTools/LArToolsDict_joboptions.py")
-
-
 # Exercise writing the objects to NOVA (no IOV).
 theApp.OutStream     =["StreamDet"]
 theApp.OutStreamType ="AthenaOutputStream"

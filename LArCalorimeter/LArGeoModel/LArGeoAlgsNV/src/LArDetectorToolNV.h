@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,7 @@ class LArDetectorManager;
     align() which applies misalignments on top of the 'regular' geometry.
 */
 
-class LArDetectorToolNV : public GeoModelTool {
+class LArDetectorToolNV final : public GeoModelTool {
  public:
     // Standard Constructor
     LArDetectorToolNV( const std::string& type, const std::string& name, const IInterface* parent );
@@ -59,6 +59,8 @@ class LArDetectorToolNV : public GeoModelTool {
 
     std::string m_EMECVariantInner;
     std::string m_EMECVariantOuter;
+
+    bool m_activateFT;
 };
 
 #endif

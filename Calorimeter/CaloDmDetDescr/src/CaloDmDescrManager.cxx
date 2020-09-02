@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -28,21 +28,17 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include <map>
 #include <cmath>
 
 #define MAX_BUFFER_LEN 1024
 #undef DEBUG
 
-CaloDmDescrManager* CaloDmDescrManager::s_instance = 0;
-
-
 /* **************************************************************************
 
 ************************************************************************** */
 CaloDmDescrManager::CaloDmDescrManager()
-  : m_caloDM_ID (0),
-    m_id_helper (0)
+  : m_caloDM_ID (nullptr),
+    m_id_helper (nullptr)
 {
   initialize();
 }
@@ -69,11 +65,8 @@ CaloDmDescrManager::~CaloDmDescrManager()
 ************************************************************************** */
 const CaloDmDescrManager* CaloDmDescrManager::instance()
 {
-  if(s_instance==0)
-  {
-    s_instance = new CaloDmDescrManager();
-  }
-  return s_instance;
+  static const CaloDmDescrManager s_instance;
+  return &s_instance;
 }
 
 
@@ -146,13 +139,13 @@ CaloDmDescrElement* CaloDmDescrManager::get_element(const Identifier& cellId) co
     hash = m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash(cellId);
   } else {
     std::cout <<  "CaloDmDescrManager::get_element-> Error! Wrong dead material identifier! " << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0;
+    return nullptr;
   }
   if(hash < m_DmElementVector.size()) {
     return m_DmElementVector[hash];
   } else {
     std::cout << "CaloDmDescrManager::get_element-> Error! Bad hash id for dead material identifier " << hash << std::endl;
-    return 0; 
+    return nullptr; 
   }
 }
 
@@ -199,13 +192,13 @@ CaloDmRegion* CaloDmDescrManager::get_dm_region(const Identifier& cellId) const
     hash_reg = m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash(id_reg);
   } else {
     std::cout <<  "CaloDmDescrManager::get_dm_region-> Error! Wrong dead material identifier! " << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0;
+    return nullptr;
   }
   if(hash_reg < m_DmRegionVector.size()) {
     return m_DmRegionVector[hash_reg];
   } else {
     std::cout << "CaloDmDescrManager::get_dm_region-> Error! Bad region hash id!" << m_id_helper->show_to_string(cellId) << std::endl;
-    return 0; 
+    return nullptr; 
   }
 }
 
@@ -286,7 +279,7 @@ m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash_max()
 ************************************************************************** */
 void CaloDmDescrManager::build_element_vector()
 {
-  if(m_DmElementVector.size()) {
+  if(!m_DmElementVector.empty()) {
     std::cout << "CaloDmDescrManager::build_element_list() -> Warning! Non empty list."
         << " m_DmElementVector.size(): " << m_DmElementVector.size()
         << std::endl;
@@ -354,13 +347,13 @@ CaloDmDescrElement* CaloDmDescrManager::build_element(const Identifier& id, cons
 /* **************************************************************************
 Load private Dead Material Regions definition from text file
 ************************************************************************** */
-StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
+StatusCode CaloDmDescrManager::load_regions(const std::string& DmRegionFileName)
 {
   MsgStream log(Athena::getMessageSvc(), "CaloDmDescrManager");
 
   char cLine[MAX_BUFFER_LEN];
 
-  if(m_DmRegionVector.size()) {
+  if(!m_DmRegionVector.empty()) {
     log << MSG::WARNING << "CaloDmDescrManager::build_element_list() -> Warning! Non empty list."
         << " m_DmRegionVector.size(): " << m_DmRegionVector.size()
         << endmsg;
@@ -377,7 +370,7 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
     return StatusCode::FAILURE;
   }
 
-  m_DmRegionVector.resize(m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash_max(), 0);
+  m_DmRegionVector.resize(m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash_max(), nullptr);
   std::string sLine;
   while(fin.getline(cLine,sizeof(cLine)-1)){
     if( strlen(cLine)==0 ||  cLine[0] == '#' || cLine[0] == '\n') continue;
@@ -636,11 +629,11 @@ CaloCell_ID::CaloSample CaloDmDescrManager::get_calo_sample(const std::string &S
     return CaloCell_ID::Unknown;
   }
   char dummy;
-  if(SamplingName.find("(") == std::string::npos || SamplingName.find(")") != SamplingName.size()-1 ){
+  if(SamplingName.find('(') == std::string::npos || SamplingName.find(')') != SamplingName.size()-1 ){
     std::cout << "CaloDmDescrManager::get_calo_sample() -> Can't parse calorimeter sampling '" << SamplingName << "' string! Something with brackets..." << std::endl;
     return CaloCell_ID::Unknown;
   }
-  std::string sEtaRange(SamplingName,SamplingName.find("(")+1);
+  std::string sEtaRange(SamplingName,SamplingName.find('(')+1);
   std::istringstream iEtaRange( sEtaRange.c_str() );
   if(iEtaRange >> etaMin >> dummy >> etaMax) {
     return nsmp;

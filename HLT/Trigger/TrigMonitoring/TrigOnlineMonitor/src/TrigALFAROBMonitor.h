@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -36,7 +36,6 @@ namespace ROIB {
 
 class MuCTPI_RDO;
 class IROBDataProviderSvc;
-class ITrigROBDataProviderSvc;
 
 class TH1F;       /// for monitoring purposes
 class TH2F;       /// for monitoring purposes

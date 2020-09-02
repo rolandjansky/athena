@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTLorentzMonAlg.h"
@@ -11,6 +11,8 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include <cmath>
+#include <memory>
 #include <vector>
 
 SCTLorentzMonAlg::SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -22,6 +24,12 @@ StatusCode SCTLorentzMonAlg::initialize() {
   ATH_CHECK(m_trackSummaryTool.retrieve());
   ATH_CHECK(m_tracksName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
+  if (m_rejectSharedHits) {
+    ATH_CHECK(m_assoTool.retrieve());
+  } else {
+    m_assoTool.disable();
+  }
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -63,6 +71,12 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
+  // Prepare AssociationTool
+  Trk::IPRD_AssociationTool::Maps maps;
+  for (const Trk::Track* track : *tracks) {
+    ATH_CHECK(m_assoTool->addPRDs(maps, *track));
+  }
+
   for (const Trk::Track* track: *tracks) {
     if (track==nullptr) {
       ATH_MSG_ERROR("no pointer to track!!!");
@@ -77,14 +91,13 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     }
 
     const Trk::TrackSummary* summary{track->trackSummary()};
-    bool ownSummary{false};
+    std::unique_ptr<Trk::TrackSummary> mySummary;
     if (summary==nullptr) {
-      summary = m_trackSummaryTool->createSummary(*track);
+      mySummary = m_trackSummaryTool->summary(*track);
+      summary = mySummary.get();
       if (summary==nullptr) {
         ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
         continue;
-      } else {
-        ownSummary = true;
       }
     }
 
@@ -92,6 +105,11 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
       if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
         const InDet::SiClusterOnTrack* clus{dynamic_cast<const InDet::SiClusterOnTrack*>(tsos->measurementOnTrack())};
         if (clus) { // Is it a SiCluster? If yes...
+          // Reject shared hits if you want
+          if (m_rejectSharedHits and m_assoTool->isShared(maps, *(clus->prepRawData()))) {
+            continue;
+          }
+
           const InDet::SiCluster* RawDataClus{dynamic_cast<const InDet::SiCluster*>(clus->prepRawData())};
           if (RawDataClus==nullptr) {
             continue; // Continue if dynamic_cast returns null
@@ -147,8 +165,8 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
-                         (fabs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
-                         (fabs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
+                         (std::abs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
                          (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
                          (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {
@@ -186,11 +204,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
         } // end if (clus)
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
-
-    if (ownSummary) {
-      delete summary;
-      summary = nullptr;
-    }
   } // end of loop on tracks
 
     

@@ -1,32 +1,20 @@
-################################################################################
-# Package: TileMuId
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( TileMuId )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          TileCalorimeter/TileEvent )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_component( TileMuId
-                     src/Tile*.cxx
-                     src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloEvent CaloIdentifier AthenaKernel TileEvent )
+   TileMuId/*.h src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES AthenaBaseComps GaudiKernel CaloEvent CaloIdentifier
+   AthenaKernel TileEvent StoreGateLib )
 
-# Install files from the package:
-atlas_install_headers( TileMuId )
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*jobOptions*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+# Install files from the package.
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_joboptions( share/*jobOptions*.py )
 
+# Test(s) in the package.
 atlas_add_test( TileMuIdConfig_test
-                SCRIPT python -m TileMuId.TileMuIdConfig
-                PROPERTIES TIMEOUT 300
-                POST_EXEC_SCRIPT nopost.sh)
+   SCRIPT python -m TileMuId.TileMuIdConfig
+   PROPERTIES TIMEOUT 300
+   POST_EXEC_SCRIPT nopost.sh)

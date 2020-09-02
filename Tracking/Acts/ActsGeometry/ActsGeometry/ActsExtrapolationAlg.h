@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSEXTRAPOLATIONALG_H
@@ -8,15 +8,12 @@
 // ATHENA
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "Gaudi/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Geometry/GeometryID.hpp"
-#include "Acts/Utilities/Helpers.hpp"
-
-// PACKAGE
 
 // STL
 #include <memory>
@@ -27,16 +24,14 @@
 
 namespace Acts {
   class TrackingGeometry;
-
   namespace detail {
     class Step;
   }
 }
 
-//class IActsMaterialTrackWriterSvc;
 
-template<typename>
-class RootExCellWriter;
+class IActsMaterialTrackWriterSvc;
+
 class EventContext;
 class IAthRNGSvc;
 class IActsExtrapolationTool;
@@ -55,16 +50,15 @@ private:
 
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
-  std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
 
   // poor-mans Particle Gun is included here right now
   Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, "The eta range for particles"};
   Gaudi::Property<std::vector<double>> m_ptRange{this, "PtRange", {0.1, 1000}, "The pt range for particles"};
   Gaudi::Property<size_t> m_nParticlePerEvent{this, "NParticlesPerEvent", 1, "The number of particles per event"};
 
-  // this does not work right now
-  //Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
-  //ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+  // material track writer for the material map validation
+  Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, "Write material track"};
+  ServiceHandle<IActsMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 
   mutable std::mutex m_writeMutex{};
   mutable std::unique_ptr<std::ofstream> m_objOut;

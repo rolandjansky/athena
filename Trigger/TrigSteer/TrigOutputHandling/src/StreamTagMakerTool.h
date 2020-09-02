@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
 #define TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H
@@ -38,6 +38,7 @@ public:
   typedef std::tuple<std::string, std::string, bool, bool> StreamTagInfo;
 
 private:
+  std::string formatStreamTagInfo (const StreamTagInfo& info) const;
 
   SG::ReadHandleKey<TrigConf::HLTMenu> m_hltMenuKey{"DetectorStore+HLTTriggerMenu"};
 
@@ -57,10 +58,5 @@ private:
   StatusCode fillPEBInfoMap(std::unordered_map<TrigCompositeUtils::DecisionID, PEBInfoWriterToolBase::PEBInfo>& map, const EventContext& ctx) const;
 };
 
-/// operator<< for StreamTagInfo
-std::ostream& operator<< (std::ostream& str, const StreamTagMakerTool::StreamTagInfo& info) {
-  str << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
-  return str;
-}
 
 #endif // TRIGOUTPUTHANDLING_STREAMTAGMAKERTOOL_H

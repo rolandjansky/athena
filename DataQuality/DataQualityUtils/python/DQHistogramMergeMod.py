@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os
 ## Needed to correct ROOT behavior; see below
@@ -23,7 +23,7 @@ MODVERSION = '$Id: DQHistogramMergeMod.py,v 1.8 2009-05-12 11:38:35 ponyisi Exp 
 
 DoProcMon=False
 if DoProcMon:
-    import DQProcMonitor
+    from . import DQProcMonitor
     DQProcMonitor.startProcMonThread()
   
 def DQHistogramMerge( listFileName, outFileName, runPostProcessing, directoryRegularExpression=".*", histogramRegularExpression=".*", isIncremental=False, compressionLevel=1,debugLevel=0 ):
@@ -38,5 +38,5 @@ def DQHistogramMerge( listFileName, outFileName, runPostProcessing, directoryReg
     mf.mergeLBintervals( outFileName )
   
     if runPostProcessing:
-        import DQPostProcessMod
+        from . import DQPostProcessMod
         DQPostProcessMod.DQPostProcess( outFileName, isIncremental )

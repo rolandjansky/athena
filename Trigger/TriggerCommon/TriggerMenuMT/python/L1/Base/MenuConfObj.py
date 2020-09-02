@@ -4,12 +4,12 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger("Menu.L1.Base.MenuConfObj")
 
 class TopoMenuDef:
+
     __slots__ = [ "algoname", "outputlines", "outputbits" ]
     def __init__(self, algoname, outputlines = None, outputbits = None):
 
         if outputlines and len(outputlines) == 1 and algoname == outputlines[0]:
             log.info("... outputlines can be ommitted for topo algo %s", algoname)
-
 
         if outputlines is None:
             outputlines = [ algoname ]
@@ -19,6 +19,9 @@ class TopoMenuDef:
         self.algoname = algoname
         self.outputlines = outputlines
         self.outputbits = outputbits
+
+    def __repr__(self):
+        return self.algoname
 
     def isMultiplicityDefinition(self):
         return self.algoname.startswith("Mult")

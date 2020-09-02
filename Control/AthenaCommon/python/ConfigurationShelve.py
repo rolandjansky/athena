@@ -110,7 +110,6 @@ class ConfigurationJar( object ):
       self.TopSequence  = _as.AlgSequence  ("TopAlg")
       self.athAlgSeq    = _as.AthSequencer ("AthAlgSeq")
       self.athOutSeq    = _as.AthSequencer ("AthOutSeq")
-      self.athRegSeq    = _as.AthSequencer ("AthRegSeq")
       
       self.AppMgr      = theApp
       self.ServiceMgr  = ServiceMgr     # takes care of AuditorSvc & ToolSvc
@@ -131,7 +130,6 @@ class ConfigurationJar( object ):
       d[ 'AthAlgSeq' ]     = self.athAlgSeq
       d[ 'TopSequence' ]   = self.TopSequence
       d[ 'AthOutSeq' ]     = self.athOutSeq
-      d[ 'AthRegSeq' ]     = self.athRegSeq
       d[ 'AppMgr' ]        = self.AppMgr
       d[ 'Streams' ]       = self.AppMgr._streams
       d[ 'ServiceMgr' ]    = self.ServiceMgr #takes care of {Auditor,Tool}Svc
@@ -224,15 +222,14 @@ def storeJobOptionsCatalogue( cfg_fname ):
  # get the values for all other components (these may contain duplicates of
  # the ones above in svcs, and there may even be conflicts)
    import AthenaPython.PyAthena as PyAthena
-   josvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'IJobOptionsSvc' )
-
-   clients = list( josvc.getClients() )
-   for client in clients:
-      props = josvc.getProperties( client )
-      for prop in props:
-         n = prop.name()
-         v = prop.toString()
-         jocat[ client ][ n ] = v
+   josvc = PyAthena.py_svc( 'JobOptionsSvc',iface="Gaudi::Interfaces::IOptionsSvc")
+   allProps=josvc.items() #a std::tuple<string,string>
+   for prop in allProps: 
+      cn=str(prop._0).split(".")
+      v=str(prop._1)
+      client=".".join(cn[:-1])
+      n=cn[-1]
+      jocat[ client ][ n ] = v
 
  # take care of some ancient history
    for k in ( 'Go', 'Exit' ):
@@ -305,6 +302,9 @@ def loadJobOptionsCatalogue( cfg_fname ):
  # restore job catalogue entries
    import GaudiPython.Bindings as gaudi
    for client in jocat:
+      if client == "ApplicationMgr":
+         # ApplicationMgr properties are already set
+         continue
       for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.

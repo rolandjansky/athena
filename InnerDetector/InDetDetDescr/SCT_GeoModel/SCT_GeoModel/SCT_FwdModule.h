@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDMODULE_H
@@ -9,6 +9,7 @@
 
 #include "SCT_GeoModel/SCT_FwdSensor.h"
 
+#include <memory>
 #include <string>
 
 class SCT_Identifier;
@@ -91,12 +92,12 @@ private:
 
 public:	  
   // Child detector elements
-  SCT_FwdSensor    * m_sensor;
-  SCT_FwdModuleConnector    * m_connector;
-  SCT_FwdHybrid    * m_hybrid;
-  SCT_FwdSpine     * m_spine;
-  SCT_FwdSubSpine  * m_subspineL;
-  SCT_FwdSubSpine  * m_subspineR;
+  std::unique_ptr<SCT_FwdSensor> m_sensor;
+  std::unique_ptr<SCT_FwdModuleConnector> m_connector;
+  std::unique_ptr<SCT_FwdHybrid> m_hybrid;
+  std::unique_ptr<SCT_FwdSpine> m_spine;
+  std::unique_ptr<SCT_FwdSubSpine> m_subspineL;
+  std::unique_ptr<SCT_FwdSubSpine> m_subspineR;
 };
     
 #endif //  SCT_GEOMODEL_SCT_FWDMODULE_H

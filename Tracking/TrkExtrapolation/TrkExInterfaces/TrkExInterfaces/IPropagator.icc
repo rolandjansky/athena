@@ -1,0 +1,436 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/*
+ * default implementations  
+ * for some methods which need to be always
+ * re-implemented.
+ *
+ * TODO: Check usage / design causing
+ * this
+ */
+inline Trk::TrackParameters*
+Trk::IPropagator::propagate(const EventContext&,
+                            const TrackParameters&,
+                            std::vector<DestSurf>&,
+                            PropDirection,
+                            const MagneticFieldProperties&,
+                            ParticleHypothesis,
+                            std::vector<unsigned int>&,
+                            double&,
+                            bool,
+                            bool,
+                            const Trk::TrackingVolume*) const
+{
+  return nullptr;
+}
+
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateT(const EventContext&,
+                             const TrackParameters&,
+                             std::vector<DestSurf>&,
+                             PropDirection,
+                             const MagneticFieldProperties&,
+                             ParticleHypothesis,
+                             std::vector<unsigned int>&,
+                             PathLimit&,
+                             TimeLimit&,
+                             bool,
+                             const Trk::TrackingVolume*,
+                             std::vector<Trk::HitInfo>*&) const
+{
+  return nullptr;
+}
+
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateT(const EventContext&,
+                             const TrackParameters&,
+                             Trk::TargetSurfaces&,
+                             PropDirection,
+                             const MagneticFieldProperties&,
+                             ParticleHypothesis,
+                             Trk::TargetSurfaceVector&,
+                             PathLimit&,
+                             TimeLimit&,
+                             bool,
+                             std::vector<Trk::HitInfo>*&) const
+{
+  return nullptr;
+}
+
+inline Trk::ExtrapolationCode
+Trk::IPropagator::propagate(const EventContext&,
+                            Trk::ExCellCharged&,
+                            Trk::TargetSurfaces&,
+                            Trk::TargetSurfaceVector&) const
+{
+  return Trk::ExtrapolationCode::FailureConfiguration;
+}
+
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateM(
+  const EventContext&,
+  const TrackParameters&,
+  std::vector<DestSurf>&,
+  PropDirection,
+  const MagneticFieldProperties&,
+  ParticleHypothesis,
+  std::vector<unsigned int>&,
+  std::vector<const Trk::TrackStateOnSurface*>*&,
+  std::vector<std::pair<const Trk::TrackParameters*, int>>*&,
+  double&,
+  bool,
+  bool,
+  const Trk::TrackingVolume*,
+  Trk::ExtrapolationCache*) const
+{
+  return nullptr;
+}
+        // placeholder for compatibility with new interface
+inline const Trk::TrackSurfaceIntersection*
+Trk::IPropagator::intersectSurface(const EventContext&,
+                                   const Surface&,
+                                   const TrackSurfaceIntersection*,
+                                   const double,
+                                   const MagneticFieldProperties&,
+                                   ParticleHypothesis) const
+{
+  return nullptr;
+}
+
+inline void
+Trk::IPropagator::propagateStep(const EventContext&,
+                                const Amg::Vector3D&,
+                                const Amg::Vector3D&,
+                                double,
+                                double,
+                                Amg::Vector3D&,
+                                Amg::Vector3D&,
+                                const MagneticFieldProperties&) const
+{}
+
+
+/*
+ * Implementation of interfaces without Gaudi Context
+ * in terms of the Gaudi Context aware ones
+ */
+
+//  Propagation interface:
+//    The propagation method called by the TrkExtrapolator. The extrapolator
+//    is responsible for the underlying logic of which surface to go to.
+inline Trk::TrackParameters*
+Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
+                            const Trk::Surface& sf,
+                            Trk::PropDirection dir,
+                            const BoundaryCheck& bcheck,
+                            const Trk::MagneticFieldProperties& mprop,
+                            Trk::ParticleHypothesis particle,
+                            bool returnCurv,
+                            const Trk::TrackingVolume* tVol) const
+{
+  return propagate(Gaudi::Hive::currentContext(),
+                   parm,
+                   sf,
+                   dir,
+                   bcheck,
+                   mprop,
+                   particle,
+                   returnCurv,
+                   tVol);
+}
+
+/** Propagation interface:
+    The propagation method called by the TrkExtrapolator. The propagator
+    finds the closest surface.
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
+                            std::vector<Trk::DestSurf>& sfs,
+                            Trk::PropDirection dir,
+                            const Trk::MagneticFieldProperties& mprop,
+                            Trk::ParticleHypothesis particle,
+                            std::vector<unsigned int>& solutions,
+                            double& path,
+                            bool usePathLim,
+                            bool returnCurv,
+                            const Trk::TrackingVolume* tVol) const
+{
+
+  return propagate(Gaudi::Hive::currentContext(),
+                   parm,
+                   sfs,
+                   dir,
+                   mprop,
+                   particle,
+                   solutions,
+                   path,
+                   usePathLim,
+                   returnCurv,
+                   tVol);
+}
+
+/** Propagation interface:
+    The propagation method called by the TrkExtrapolator. The propagator
+    finds the closest surface. Timing included.
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateT(const Trk::TrackParameters& parm,
+                             std::vector<Trk::DestSurf>& sfs,
+                             Trk::PropDirection dir,
+                             const Trk::MagneticFieldProperties& mprop,
+                             Trk::ParticleHypothesis particle,
+                             std::vector<unsigned int>& solutions,
+                             PathLimit& pathLim,
+                             TimeLimit& timeLim,
+                             bool returnCurv,
+                             const Trk::TrackingVolume* tVol,
+                             std::vector<Trk::HitInfo>*& hitVector) const
+{
+
+  return propagateT(Gaudi::Hive::currentContext(),
+                    parm,
+                    sfs,
+                    dir,
+                    mprop,
+                    particle,
+                    solutions,
+                    pathLim,
+                    timeLim,
+                    returnCurv,
+                    tVol,
+                    hitVector);
+}
+
+/** Propagation interface:
+    The propagation method called by the TrkExtrapolator. The propagator
+    finds the closest surface. Timing included.
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateT(const Trk::TrackParameters& parm,
+                             Trk::TargetSurfaces& sfs,
+                             Trk::PropDirection dir,
+                             const Trk::MagneticFieldProperties& mprop,
+                             Trk::ParticleHypothesis particle,
+                             TargetSurfaceVector& solutions,
+                             PathLimit& pathLim,
+                             TimeLimit& timeLim,
+                             bool returnCurv,
+                             std::vector<Trk::HitInfo>*& hitVector) const
+{
+  return propagateT(Gaudi::Hive::currentContext(),
+                    parm,
+                    sfs,
+                    dir,
+                    mprop,
+                    particle,
+                    solutions,
+                    pathLim,
+                    timeLim,
+                    returnCurv,
+                    hitVector);
+}
+
+/** Propagation interface:
+    The propagation method called by the TrkExEngine. All options included.
+*/
+inline Trk::ExtrapolationCode
+Trk::IPropagator::propagate(Trk::ExCellCharged& eCell,
+                            Trk::TargetSurfaces& sfs,
+                            Trk::TargetSurfaceVector& solutions) const
+{
+  return propagate(Gaudi::Hive::currentContext(), eCell, sfs, solutions);
+}
+
+/** Propagation interface:
+    The propagation method with internal material collection. The propagator
+    finds the closest surface.
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateM(
+  const Trk::TrackParameters& parm,
+  std::vector<Trk::DestSurf>& sfs,
+  Trk::PropDirection dir,
+  const Trk::MagneticFieldProperties& mprop,
+  Trk::ParticleHypothesis particle,
+  std::vector<unsigned int>& solutions,
+  std::vector<const Trk::TrackStateOnSurface*>*& matstates,
+  std::vector<std::pair<const Trk::TrackParameters*, int>>*& intersections,
+  double& path,
+  bool usePathLim,
+  bool returnCurv,
+  const Trk::TrackingVolume* tVol,
+  Trk::ExtrapolationCache* cache) const
+{
+  return propagateM(Gaudi::Hive::currentContext(),
+                    parm,
+                    sfs,
+                    dir,
+                    mprop,
+                    particle,
+                    solutions,
+                    matstates,
+                    intersections,
+                    path,
+                    usePathLim,
+                    returnCurv,
+                    tVol,
+                    cache);
+}
+
+/** Propagation interface:
+    The propagation method including the return of the TransportJacobian matrix.
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagate(const Trk::TrackParameters& parm,
+                            const Trk::Surface& sf,
+                            Trk::PropDirection dir,
+                            const BoundaryCheck& bcheck,
+                            const Trk::MagneticFieldProperties& mprop,
+                            TransportJacobian*& jacob,
+                            double& pathLength,
+                            Trk::ParticleHypothesis particle,
+                            bool returnCurv,
+                            const Trk::TrackingVolume* tVol) const
+{
+  return propagate(Gaudi::Hive::currentContext(),
+                   parm,
+                   sf,
+                   dir,
+                   bcheck,
+                   mprop,
+                   jacob,
+                   pathLength,
+                   particle,
+                   returnCurv,
+                   tVol);
+}
+
+/** Propagation interface without Covariance matrix propagation
+    the pathlength has to be returned for eventual following propagateCovariance
+*/
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateParameters(const Trk::TrackParameters& parm,
+                                      const Trk::Surface& sf,
+                                      Trk::PropDirection dir,
+                                      const BoundaryCheck& bcheck,
+                                      const Trk::MagneticFieldProperties& mprop,
+                                      Trk::ParticleHypothesis particle,
+                                      bool returnCurv,
+                                      const Trk::TrackingVolume* tVol) const
+{
+  return propagateParameters(Gaudi::Hive::currentContext(),
+                             parm,
+                             sf,
+                             dir,
+                             bcheck,
+                             mprop,
+                             particle = pion,
+                             returnCurv,
+                             tVol);
+}
+
+inline Trk::TrackParameters*
+Trk::IPropagator::propagateParameters(const Trk::TrackParameters& parm,
+                                      const Trk::Surface& sf,
+                                      Trk::PropDirection dir,
+                                      const BoundaryCheck& bcheck,
+                                      const Trk::MagneticFieldProperties& mprop,
+                                      TransportJacobian*& jacob,
+                                      Trk::ParticleHypothesis particle,
+                                      bool returnCurv,
+                                      const Trk::TrackingVolume* tVol) const
+{
+  return propagateParameters(Gaudi::Hive::currentContext(),
+                             parm,
+                             sf,
+                             dir,
+                             bcheck,
+                             mprop,
+                             jacob,
+                             particle = pion,
+                             returnCurv,
+                             tVol);
+}
+
+/** Intersection interface:
+    The intersection interface might be used by the material service as well to
+   estimate the surfaces (sensitive and nonesensitive) while propagation
+*/
+inline const Trk::IntersectionSolution*
+Trk::IPropagator::intersect(const Trk::TrackParameters& parm,
+                            const Trk::Surface& sf,
+                            const Trk::MagneticFieldProperties& mprop,
+                            Trk::ParticleHypothesis particle,
+                            const Trk::TrackingVolume* tVol) const
+{
+  return intersect(
+    Gaudi::Hive::currentContext(), parm, sf, mprop, particle = pion, tVol);
+}
+
+/** Intersection and Intersector interface:
+ */
+
+inline const Trk::TrackSurfaceIntersection*
+Trk::IPropagator::intersectSurface(
+  const Trk::Surface& surface,
+  const TrackSurfaceIntersection* trackIntersection,
+  const double qOverP,
+  const Trk::MagneticFieldProperties& mft,
+  Trk::ParticleHypothesis particle) const
+{
+  return intersectSurface(Gaudi::Hive::currentContext(),
+                          surface,
+                          trackIntersection,
+                          qOverP,
+                          mft,
+                          particle);
+}
+
+/** GlobalPositions list interface:
+    This is used mostly in pattern recognition in the road finder, the
+   propagation direction is intrinsically given by the sign of the stepSize.
+    To avoid memory fragmentation in multiple use of pattern recognition
+   processes and respecting the possible iterative filling of the positions
+   list, the list of GlobalPositions is given by reference through the signature
+   and a void method has been chosen.
+*/
+inline void
+Trk::IPropagator::globalPositions(std::list<Amg::Vector3D>& positionslist,
+                                  const Trk::TrackParameters& parm,
+                                  const Trk::MagneticFieldProperties& mprop,
+                                  const CylinderBounds& cylbo,
+                                  double stepSize,
+                                  Trk::ParticleHypothesis particle,
+                                  const Trk::TrackingVolume* tVol) const
+{
+  globalPositions(Gaudi::Hive::currentContext(),
+                  positionslist,
+                  parm,
+                  mprop,
+                  cylbo,
+                  stepSize,
+                  particle = pion,
+                  tVol);
+}
+
+/** a very simple propagation along a given path length */
+inline void
+Trk::IPropagator::propagateStep(const Amg::Vector3D& inputPosition,
+                                const Amg::Vector3D& inputMomentum,
+                                double charge,
+                                double step,
+                                Amg::Vector3D& outputPosition,
+                                Amg::Vector3D& outputMomentum,
+                                const Trk::MagneticFieldProperties& mprop) const
+{
+  propagateStep(Gaudi::Hive::currentContext(),
+                inputPosition,
+                inputMomentum,
+                charge,
+                step,
+                outputPosition,
+                outputMomentum,
+                mprop);
+}
+

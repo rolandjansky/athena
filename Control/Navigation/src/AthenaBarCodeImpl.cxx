@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -19,8 +19,7 @@
 
 #include "uuid/uuid.h"
 
-AthenaBarCode_t AthenaBarCodeImpl::m_barcodeCounter = 0;
-AthenaBarCode_t AthenaBarCodeImpl::m_defaultHash = 0;
+std::atomic<AthenaBarCode_t> AthenaBarCodeImpl::m_barcodeCounter = 0;
 
 void AthenaBarCodeImpl::initABC() const {
 
@@ -33,8 +32,14 @@ void AthenaBarCodeImpl::initABC() const {
   //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   //Set counter part
   //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+  const AthenaBarCode_t counter = m_barcodeCounter++;
+
+  AthenaBarCode_t barcode = IAthenaBarCode::UNDEFINEDBARCODE;
+
   try {
-    setBits(SCounterBits, CounterBits, m_barcodeCounter);
+    setBits(SCounterBits, CounterBits, counter & ((1u<<CounterBits)-1),
+            barcode);
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error(
@@ -45,7 +50,7 @@ void AthenaBarCodeImpl::initABC() const {
   //Set reserve part
   //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   try {
-    setBits(SReserveBits, ReserveBits, 0);
+    setBits(SReserveBits, ReserveBits, 0, barcode);
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error(
@@ -56,7 +61,7 @@ void AthenaBarCodeImpl::initABC() const {
   //Set Version part
   //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   try {
-    setBits(SVersionBits, VersionBits, 0);
+    setBits(SVersionBits, VersionBits, 0, barcode);
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error(
@@ -64,27 +69,14 @@ void AthenaBarCodeImpl::initABC() const {
   }
 
 
-  if (!m_defaultHash) {
-    throw std::runtime_error("AthenaBarCodeImpl::Can not get UUID Hash");
+  try {
+    setBits(SUUIDBits, UUIDBits, getDefaultHash(), barcode);
   }
-  else {
-    try {
-      setBits(SUUIDBits, UUIDBits, m_defaultHash);
-    }
-    catch (const GaudiException& Exception) {
-      throw std::runtime_error("AthenaBarCodeImpl::Can not set UUID Hash Bits");
-    }
+  catch (const GaudiException& Exception) {
+    throw std::runtime_error("AthenaBarCodeImpl::Can not set UUID Hash Bits");
   }
 
-  m_barcodeCounter++;
-
-  const AthenaBarCode_t tmp2 = 0;
-  const AthenaBarCode_t tmp = ((~tmp2) >> (TotalBits - CounterBits));
-
-  if ((m_barcodeCounter) >= tmp-1) {
-    m_barcodeCounter = 0;
-    //    std::cout << "[AthenaBarCodeImpl:m_barcodeCounter rewinding] "<<std::endl;
-  }
+  m_barcode = barcode;
 
   /*  std::cout << "[AthenaBarCodeImpl::m_barcode,m_defaultHash,m_barcodeCounter]= "
    << std::hex
@@ -99,41 +91,19 @@ void AthenaBarCodeImpl::initABC() const {
 AthenaBarCodeImpl::AthenaBarCodeImpl()
   : m_barcode (IAthenaBarCode::UNDEFINEDBARCODE)
 {
-  //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-  //Set JobID Hash
-  //* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-  if (!m_defaultHash) {
-    // First look for a uuid as an environment variable.
-    // This can be set in cases where we don't have the full
-    // Gaudi/Athena environment available (eg, ARA), and we
-    // don't want to try to create JobIDSvc.  This has to be
-    // communicated in some way external to this library,
-    // as we may end up here while initializing the dictionary
-    // for this library.
-    const char* env_uuid = getenv ("_ATHENABARCODEIMPL_JOBUUID");
-    if (env_uuid)
-      setDefaultHash (env_uuid);
-    else {
-      //    std::cout<<"no UUID stored, generating."<<std::endl;
+}
 
-      ServiceHandle<IJobIDSvc> p_jobidsvc("JobIDSvc", "JobIDSvc");
-      StatusCode sc = p_jobidsvc.retrieve();
-      if (!sc.isSuccess() || 0 == p_jobidsvc) {
-        //FIXME
-        //use uuid instead if service not available
-        JobID_t JobID;
-        uuid_generate(JobID);
-        m_defaultHash = AthenaBarCodeImpl::hashUUID((const char *) JobID);
-        /*      std::cout << "Could not find JobIDSvc, using uuid directly"
-		<<"jobid "<<o.str()
-		<< std::endl;*/
-      }
-      else {
-        PJobID_t pjobid = p_jobidsvc->getJobID();
-        m_defaultHash = AthenaBarCodeImpl::hashUUID((const char *) pjobid);
-      }
-    }
+AthenaBarCodeImpl::AthenaBarCodeImpl (const AthenaBarCodeImpl& other)
+  : m_barcode (static_cast<AthenaBarCode_t>(other.m_barcode))
+{
+}
+
+AthenaBarCodeImpl& AthenaBarCodeImpl::operator= (const AthenaBarCodeImpl& other)
+{
+  if (this != &other) {
+    m_barcode = static_cast<AthenaBarCode_t>(other.m_barcode);
   }
+  return *this;
 }
 
 bool
@@ -173,7 +143,9 @@ AthenaBarCodeImpl::newVersion() {
   AthenaBarCodeVersion_t currversion = getVersion();
 
   try {
-    setBits(SVersionBits, VersionBits, currversion + 1);
+    AthenaBarCode_t bc = m_barcode;
+    setBits(SVersionBits, VersionBits, currversion + 1, bc);
+    m_barcode = bc;
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error(
@@ -187,7 +159,9 @@ AthenaBarCodeImpl::setVersion(AthenaBarCodeVersion_t ver) {
     initABC();
 
   try {
-    setBits(SVersionBits, VersionBits, ver);
+    AthenaBarCode_t bc = m_barcode;
+    setBits(SVersionBits, VersionBits, ver, bc);
+    m_barcode = bc;
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error("AthenaBarCodeImpl::newVersion()::Version Too big");
@@ -209,7 +183,7 @@ AthenaBarCodeImpl::createdInCurrentJob() const {
     initABC();
 
   //FIXME: it is possible that m_defaultHash is not yet initialized.
-  return getUUIDHash() == m_defaultHash;
+  return getUUIDHash() == getDefaultHash();
 }
 
 AthenaBarCode_t
@@ -251,7 +225,9 @@ AthenaBarCodeImpl::setReserveBits(AthenaBarCode_t id) {
     initABC();
 
   try {
-    setBits(SReserveBits, ReserveBits, id);
+    AthenaBarCode_t bc = m_barcode;
+    setBits(SReserveBits, ReserveBits, id, bc);
+    m_barcode = bc;
   }
   catch (const GaudiException& Exception) {
     throw std::runtime_error(
@@ -282,7 +258,9 @@ AthenaBarCodeImpl::getBits(unsigned short startbit, unsigned short nbits) const 
 
 void
 AthenaBarCodeImpl::setBits(unsigned short startbit, unsigned short nbits,
-			   AthenaBarCode_t id) const {
+			   AthenaBarCode_t id,
+                           AthenaBarCode_t& bc) const
+{
   AthenaBarCode_t tmp;
   AthenaBarCode_t tmp2;
   tmp2 = 0;
@@ -311,14 +289,59 @@ AthenaBarCodeImpl::setBits(unsigned short startbit, unsigned short nbits,
   tmp2 = (~tmp2); //tmp2=111110011
 
   //now m_barcode=aaaaayyaa
-  m_barcode &= tmp2; //m_barcode=aaaaa00aa
-  m_barcode |= tmp; //m_barcode=aaaaaxxaa
+  bc &= tmp2; //m_barcode=aaaaa00aa
+  bc |= tmp; //m_barcode=aaaaaxxaa
 
 }
 
 void
 AthenaBarCodeImpl::setDefaultHash(const char* jobid) {
-  if (m_defaultHash != 0)
-    std::abort();
-  m_defaultHash = AthenaBarCodeImpl::hashUUID(jobid);
+  getDefaultHash (jobid);
+}
+
+
+AthenaBarCode_t
+AthenaBarCodeImpl::getDefaultHash (const char* jobid /*= nullptr*/)
+{
+  static const AthenaBarCode_t defaultHash = makeDefaultHash (jobid);
+  return defaultHash;
+}
+
+
+AthenaBarCode_t
+AthenaBarCodeImpl::makeDefaultHash (const char* jobid)
+{
+  if (jobid) {
+    return AthenaBarCodeImpl::hashUUID(jobid);
+  }
+
+  // First look for a uuid as an environment variable.
+  // This can be set in cases where we don't have the full
+  // Gaudi/Athena environment available (eg, ARA), and we
+  // don't want to try to create JobIDSvc.  This has to be
+  // communicated in some way external to this library,
+  // as we may end up here while initializing the dictionary
+  // for this library.
+  const char* env_uuid = getenv ("_ATHENABARCODEIMPL_JOBUUID");
+  if (env_uuid) {
+    return AthenaBarCodeImpl::hashUUID(env_uuid);
+  }
+
+  //    std::cout<<"no UUID stored, generating."<<std::endl;
+
+  ServiceHandle<IJobIDSvc> p_jobidsvc("JobIDSvc", "JobIDSvc");
+  StatusCode sc = p_jobidsvc.retrieve();
+  if (!sc.isSuccess() || 0 == p_jobidsvc) {
+    //FIXME
+    //use uuid instead if service not available
+    JobID_t JobID;
+    uuid_generate(JobID);
+    return AthenaBarCodeImpl::hashUUID((const char *) JobID);
+    /*      std::cout << "Could not find JobIDSvc, using uuid directly"
+            <<"jobid "<<o.str()
+            << std::endl;*/
+  }
+
+  PJobID_t pjobid = p_jobidsvc->getJobID();
+  return AthenaBarCodeImpl::hashUUID((const char *) pjobid);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTMONITORING_TRIGHLTMONITORALGORITHM_H
@@ -20,6 +20,8 @@ class TrigHLTMonitorAlgorithm : public AthMonitorAlgorithm {
 
   private:
    SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultReadKey {this, "HLTResultMT", "HLTResultMT", "Key of the HLTResultMT object" };
-
+   ToolHandle<Trig::TrigDecisionTool> m_trigDecTool; 
+   ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConfigSvc{ this, "TrigConfigSvc", "" };
+   StatusCode fillResultAndConsistencyHistograms( const EventContext& ctx ) const;
 };
 #endif

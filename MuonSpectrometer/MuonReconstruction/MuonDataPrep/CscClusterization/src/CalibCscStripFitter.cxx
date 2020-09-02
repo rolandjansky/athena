@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CalibCscStripFitter.cxx
-
 #include "CalibCscStripFitter.h"
-#include "CscCalibTools/ICscCalibTool.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
-#include "cmath"
 
-using std::string;
+#include <cmath>
+
 using Muon::CscStripPrepData;
 
 typedef ICscStripFitter::Result Result;
@@ -17,11 +14,9 @@ typedef ICscStripFitter::ChargeList ChargeList;
 
 //**********************************************************************
 
-CalibCscStripFitter::
-CalibCscStripFitter(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),m_noiseOption(rms),
+CalibCscStripFitter::CalibCscStripFitter(std::string type, std::string aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent),m_noiseOption(rms),
     m_cscCalibTool("CscCalibTool/CscCalibTool", this) {
-  
   declareInterface<ICscStripFitter>(this);
   declareProperty("timeError", m_terr =5.0);
   declareProperty("failTimeError", m_terr_fail =50.0);
@@ -30,14 +25,7 @@ CalibCscStripFitter(string type, string aname, const IInterface* parent)
   declareProperty("noiseOption", m_noiseOptionStr="f001");
   declareProperty("doCorrection", m_doCorrection=true);
   declareProperty("chargeErrorScaler", m_chargeErrorScaler = 1.0);
-
-  //  declareProperty("chargeError", m_qerr =5500.0);
-  //  declareProperty("failChargeError", m_qerr_fail =5000.0);  set as 4300 by multiply scaler to noise..
 }
-
-//**********************************************************************
-
-CalibCscStripFitter::~CalibCscStripFitter() { }
 
 //**********************************************************************
 
@@ -73,13 +61,6 @@ StatusCode CalibCscStripFitter::initialize() {
   // Retrieve the detector descriptor.
   ATH_CHECK(m_idHelperSvc.retrieve());
 
-  return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
-
-StatusCode CalibCscStripFitter::finalize() {
-  ATH_MSG_VERBOSE ( "Finalizing " << name() );
   return StatusCode::SUCCESS;
 }
 

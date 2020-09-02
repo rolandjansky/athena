@@ -288,6 +288,7 @@ class MuonSegmentMatchingTool(CfgMgr.Muon__MuonSegmentMatchingTool):
     def __init__(self,name='MuonSegmentMatchingTool',**kwargs):
         kwargs.setdefault( "doThetaMatching", muonStandaloneFlags.useSegmentMatching() )
         kwargs.setdefault( "doPhiMatching", False )
+        kwargs.setdefault( "ToroidOn", jobproperties.BField.allToroidOn() )
         if beamFlags.beamType() == 'cosmics':
             # switch off cut of phi hit pulls
             kwargs.setdefault("OverlapMatchAveragePhiHitPullCut", 200. )
@@ -441,14 +442,30 @@ class MuonSegmentRegionRecoveryTool(CfgMgr.Muon__MuonSegmentRegionRecoveryTool,C
       #MDT conditions information not available online
       if(athenaCommonFlags.isOnline):
           kwargs.setdefault("MdtCondKey","")
+      from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT, makeRegSelTool_RPC, makeRegSelTool_TGC
+      kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
+      kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
+      kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
+      if MuonGeometryFlags.hasCSC():
+          from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+          kwargs.setdefault("CSCRegionSelector", makeRegSelTool_CSC())
+      else:
+          kwargs.setdefault("CSCRegionSelector", "")
+      if MuonGeometryFlags.hasSTGC():
+          from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+          kwargs.setdefault("STGCRegionSelector", makeRegSelTool_sTGC())
+      else:
+          kwargs.setdefault("STGCRegionSelector", "")
+      if MuonGeometryFlags.hasMM():
+          from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
+          kwargs.setdefault("MMRegionSelector", makeRegSelTool_MM())
+      else:
+          kwargs.setdefault("MMRegionSelector", "")
+
       self.applyUserDefaults(kwargs,name)
       super(MuonSegmentRegionRecoveryTool,self).__init__(name,**kwargs)
-      global ServiceMgr
-      from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-      SegRecoveryRegSelSvc = RegSelSvcDefault()
-      SegRecoveryRegSelSvc.enableMuon = True
-      ServiceMgr += SegRecoveryRegSelSvc
-#     self.RegionSelector = SegRecoveryRegSelSvc
+
+
 
 MuonSegmentRegionRecoveryTool.setDefaultProperties (
     Fitter = "MCTBFitter",
@@ -529,7 +546,6 @@ if not MuonGeometryFlags.hasCSC():
     mCHRT.CscPrepDataContainer = ""
 getPublicTool("MuonTrackSelectorTool")
 getPublicTool("MuonTrackExtrapolationTool")
-getPublicTool("MuonSegmentRegionRecoveryTool")
 getPublicTool("MuonTrackCleaner")
 getPublicTool("FixedErrorMuonClusterOnTrackCreator")
 getPublicTool("MuonSegmentSelectionTool")

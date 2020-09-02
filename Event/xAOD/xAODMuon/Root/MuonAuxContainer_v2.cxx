@@ -107,7 +107,7 @@ namespace xAOD {
         AUX_VARIABLE(msInnerMatchChi2               );
         AUX_VARIABLE(meanDeltaADCCountsMDT          );
         AUX_VARIABLE(CaloLRLikelihood               );
-        AUX_VARIABLE(EnergyLoss                     );
+	AUX_VARIABLE(EnergyLoss                     );
         AUX_VARIABLE(ParamEnergyLoss                );
         AUX_VARIABLE(MeasEnergyLoss                 );
         AUX_VARIABLE(EnergyLossSigma                );

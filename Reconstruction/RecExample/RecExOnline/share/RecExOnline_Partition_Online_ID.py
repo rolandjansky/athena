@@ -73,7 +73,7 @@ if ( publishName == "ID-AthenaMon-Noise" ):
     streamType        = 'monitoring'
     streamName        = 'IDMonitoring'
     streamLogic       = 'Or'# This should be taken out when we have a proper IDMonitoring stream
-    dispersion        = False
+    groupName        = ''
     lvl1Logic         = 'Or' if partitionName == "ATLAS" else 'Ignore' # cgrefe 08.09.15: see if the Or works in beam 
     lvl1Name          = 'L1_RD0_EMPTY'
     doIdGlobalErrorMon = True
@@ -117,7 +117,7 @@ elif ( publishName == "ID-Test-Application" ):
 elif ( publishName == 'ID-AthenaMon-TRTBeam' ):
     keyname      = 'dcm'
     keycount     = 255           # there are only around 100 SFIs - connect to all of them
-    dispersion   = False         # process the same events as other monitoring jobs with the same event selection
+    groupName   = ''         # process the same events as other monitoring jobs with the same event selection
     streamType   = 'monitoring'
     streamLogic  = 'Or'
     streamName   = 'IDMonitoring'# avoid PixelNoise and SCTNoise, because those streams contain mostly partial events without TRT data
@@ -129,7 +129,7 @@ elif ( publishName == 'ID-AthenaMon-TRTBeam' ):
 elif ( publishName == 'ID-AthenaMon-TRTBeam-Test' ):
     keyname      = 'dcm'
     keycount     = 255           # there are only around 100 SFIs - connect to all of them
-    dispersion   = False         # process the same events as other monitoring jobs with the same event selection
+    groupName   = ''         # process the same events as other monitoring jobs with the same event selection
     streamType   = 'monitoring'
     streamLogic  = 'Or'
     streamName   = 'IDMonitoring'# avoid PixelNoise and SCTNoise, because those streams contain mostly partial events without TRT data

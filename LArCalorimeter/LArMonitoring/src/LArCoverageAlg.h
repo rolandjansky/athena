@@ -55,22 +55,22 @@ class LArCoverageAlg: public AthMonitorAlgorithm
 
   class LArChanHelp {
   public:
-  LArChanHelp(int chan=-1,int status=-100,double eta=-100,double phi=-100): m_channelNumber(chan), m_channelStatus(status), m_channelEta(eta), m_channelPhi(phi) {};
+  LArChanHelp(int chan=-1,int ft_slot=-100,int sampling=-1,double eta=-100,double phi=-100): m_channelNumber(chan), m_channelFtSlot(ft_slot), m_channelSampling(sampling), m_channelEta(eta), m_channelPhi(phi) {};
     ~LArChanHelp() {};
 
-    void setChanStatus(int status){m_channelStatus=status;};
     void setChanPhi(double phi){m_channelPhi=phi;};
     int getChNumber() const { return m_channelNumber; };    
-    int getChStatus() const { return m_channelStatus; };
+    int getChFtSlot() const { return m_channelFtSlot; };
+    int getChSampling() const { return m_channelSampling; };
     double getChEta() const { return m_channelEta; };
     double getChPhi() const { return m_channelPhi; };
 
   private:
     int m_channelNumber;
-    int m_channelStatus;
+    int m_channelFtSlot;
+    int m_channelSampling;
     double m_channelEta;
     double m_channelPhi;
-
   };
 
   const LArOnlineID* m_LArOnlineIDHelper;
@@ -97,9 +97,6 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   /** To retrieve bad channel DB keywords  */
   int DBflag(HWIdentifier) const;
 
-  /** To check if FEB status in map needs to be replaced */
-  int CheckReplacement(int ,LArBadFeb) const;
-
   /** Properties */
   Gaudi::Property<EventContext::ContextEvt_t> m_nevents {this,"Nevents",50};
   Gaudi::Property<int> m_Nchannels {this,"Nchannels",128}; 
@@ -123,13 +120,22 @@ class LArCoverageAlg: public AthMonitorAlgorithm
   Gaudi::Property< std::vector<std::string> > m_CoverageBarrelPartitions {this, "CoverageBarrelPartitions", {"EMBA","EMBC"}};
   Gaudi::Property< std::vector<std::string> > m_CoverageEndcapPartitions {this, "CoverageEndcapPartitions", {"EMECA","EMECC","HECA","HECC","FCalA","FCalC"}};
   Gaudi::Property< std::vector<std::string> > m_Sides {this, "Sides", {"A","C"}};
+  Gaudi::Property< std::vector<std::string> > m_availableErrorCodes {this, "AvailableErrorCodes", {"0","1","2","3","4"}};
 
   /** for tools array */
   std::vector<int> m_CaloNoiseGroupArrEM;
   std::vector<int> m_CaloNoiseGroupArrHEC;
   std::vector<int> m_CaloNoiseGroupArrFCAL;
-  std::map<std::string,int> m_CoverageHWToolArrayBarrel;
-  std::map<std::string,int> m_CoverageHWToolArrayEndcap;
+
+  std::map<std::string,int> m_CoverageToolArrayEMBA;
+  std::map<std::string,int> m_CoverageToolArrayEMECA;
+  std::map<std::string,int> m_CoverageToolArrayHECA;
+  std::map<std::string,int> m_CoverageToolArrayFCalA;
+  std::map<std::string,int> m_CoverageToolArrayEMBC;
+  std::map<std::string,int> m_CoverageToolArrayEMECC;
+  std::map<std::string,int> m_CoverageToolArrayHECC;
+  std::map<std::string,int> m_CoverageToolArrayFCalC;
+
   std::map<std::string,int> m_BadChannelToolArrayBarrel;
   std::map<std::string,int> m_BadChannelToolArrayEndcap;
 

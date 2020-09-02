@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMOUTPUTSVC_H
@@ -14,6 +14,8 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "ByteStreamData/RawEvent.h"
+
+#include "GaudiKernel/EventContext.h"
 
 /** @class ByteStreamOutputSvc
  *  @brief This class provides the base class to services to write bytestream data.
@@ -31,6 +33,9 @@ public:
 
   /// virtual method for writing the event
   virtual bool putEvent(RawEvent* re) = 0;
+
+  /// context-aware method for writing the event
+  virtual bool putEvent(RawEvent* re, const EventContext& ctx) = 0;
 };
 
 inline const InterfaceID& ByteStreamOutputSvc::interfaceID() {

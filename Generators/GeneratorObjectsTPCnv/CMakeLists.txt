@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( CLHEP )
-find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
@@ -27,7 +26,7 @@ atlas_add_tpcnv_library( GeneratorObjectsTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS GeneratorObjectsTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects AthAllocators AthenaKernel TestTools )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects AthAllocators AthenaKernel GenInterfacesLib TestTools )
 
 atlas_add_dictionary( GeneratorObjectsTPCnvDict
                       GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h

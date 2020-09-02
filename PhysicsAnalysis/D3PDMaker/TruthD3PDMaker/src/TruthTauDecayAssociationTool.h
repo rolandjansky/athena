@@ -17,7 +17,7 @@
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "McParticleEvent/TruthParticle.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 
 namespace D3PD {

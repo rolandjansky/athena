@@ -8,7 +8,7 @@ myCommand = 'dumpRunNumber.py EVNT.*'
 import commands, re
 sc,out = commands.getstatusoutput(myCommand)
 if sc != 0:
-    print 'ERR: problem:\n%s',str(out)
+    printfunc ('ERR: problem:\n' + str(out))
     raise SystemExit(sc)
 myOutput = '0' 
 for l in out.splitlines():
@@ -22,8 +22,8 @@ for l in out.splitlines():
         ServiceMgr.EventSelector.RunNumber=digitizationFlags.simRunNumber.get_Value()
         # pileUpEventLoopMgr.mcRunNumber=digitizationFlags.simRunNumber.get_Value()
     else :
-        print "Failed to find Run Number in hits file metadata."
+        printfunc ("Failed to find Run Number in hits file metadata.")
 
-print "simRunNumber: "
-print ServiceMgr.EventSelector
-print pileUpEventLoopMgr
+printfunc ("simRunNumber: ")
+printfunc (ServiceMgr.EventSelector)
+printfunc (pileUpEventLoopMgr)

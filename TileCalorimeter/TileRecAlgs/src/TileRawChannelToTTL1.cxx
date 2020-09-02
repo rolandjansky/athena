@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -61,7 +61,7 @@ using namespace CLHEP;
 //
 // Constructor
 //
-TileRawChannelToTTL1::TileRawChannelToTTL1(std::string name, ISvcLocator* pSvcLocator)
+TileRawChannelToTTL1::TileRawChannelToTTL1(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_tileID(0)
   , m_tileHWID(0)

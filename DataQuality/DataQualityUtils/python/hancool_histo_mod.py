@@ -82,7 +82,7 @@ def stringGetInfo(file, rootFolder):
 def ListHistoAssessments(xml, channel):
     the_result_histo = "Undefined"
     g = open(xml, 'r')
-    while 1:
+    while True:
         line = g.readline()
         if not line:
             break
@@ -160,7 +160,7 @@ def hancool_histo(inputFilePath="", input_run=-1, dbConnectionHisto="", dqmfOflH
     filename = "run_"+str(run)+"_han.root"
 
     # filling OFLH DB for histos (global run)
-    for pair in folderMapHisto.iteritems():
+    for pair in folderMapHisto.items():
         i = 0
         number = 0
         print(pair[0], pair[1])

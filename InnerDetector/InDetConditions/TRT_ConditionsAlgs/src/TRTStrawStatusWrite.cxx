@@ -63,9 +63,14 @@ StatusCode TRTStrawStatusWrite::initialize()
   }
 
     // Read keys
-    if (m_par_stattextfile.empty()) ATH_CHECK( m_statReadKey.initialize() );
-    if (m_par_stattextfilepermanent.empty()) ATH_CHECK( m_permReadKey.initialize() );
-    if (m_par_stattextfileHT.empty() ) ATH_CHECK( m_statHTReadKey.initialize() );
+    bool useStatKey = m_par_stattextfile.empty();
+    ATH_CHECK( m_statReadKey.initialize( useStatKey ) );
+
+    bool usePermKey = m_par_stattextfilepermanent.empty();
+    ATH_CHECK( m_permReadKey.initialize( usePermKey ) );
+
+    bool useStatHTKey = m_par_stattextfileHT.empty();
+    ATH_CHECK( m_statHTReadKey.initialize( useStatHTKey ) );
 
     // Check if a text file has been supplied. In that case assume that
     // the corresponding folder was blocked. Create, record and update a new data handle

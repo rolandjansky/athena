@@ -75,7 +75,6 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
   ///////////////////////////////////////////////////////////////////////////
   // Loop over TgcPrepDataContainer
   if(pcn!=TOTA){
-
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
@@ -98,9 +97,9 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
       Identifier chamberID = (*containerIt)->identify();
       
       // Get chamber indexes
-      int stationName = int(m_muonIdHelperTool->tgcIdHelper().stationName(chamberID));//unsigned integer 41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T4F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
-      int stationEta  = int(m_muonIdHelperTool->tgcIdHelper().stationEta(chamberID)); //backward:[-5,-1], forward:[1,5], (1 or -1 at lowest R)
-      int stationPhi  = int(m_muonIdHelperTool->tgcIdHelper().stationPhi(chamberID)); //forward:[1:24], endcap:[1:48], EI:[1:21], FI:[1:24]
+      int stationName = int(m_idHelperSvc->tgcIdHelper().stationName(chamberID));//unsigned integer 41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T4F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
+      int stationEta  = int(m_idHelperSvc->tgcIdHelper().stationEta(chamberID)); //backward:[-5,-1], forward:[1,5], (1 or -1 at lowest R)
+      int stationPhi  = int(m_idHelperSvc->tgcIdHelper().stationPhi(chamberID)); //forward:[1:24], endcap:[1:48], EI:[1:21], FI:[1:24]
       
       int fe = (stationName==42||stationName==44||stationName==46||stationName==48);// 0:forward, 1:endcap
       int ac = (stationEta<0);
@@ -130,6 +129,11 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
       for(Muon::TgcPrepDataCollection::const_iterator collectionIt=(*containerIt)->begin();
           collectionIt!= collection_end;
           ++collectionIt){
+	if(pcn<0){
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_PREVIOUS)==Muon::TgcPrepData::BCBIT_PREVIOUS) pcn=PREV;
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_CURRENT)==Muon::TgcPrepData::BCBIT_CURRENT) pcn=CURR;
+	  if (((*collectionIt)->getBcBitMap()&Muon::TgcPrepData::BCBIT_NEXT)==Muon::TgcPrepData::BCBIT_NEXT) pcn=NEXT;
+	}
         // Increment Prd Counter
         if(pcn==CURR)m_nPrd++;
         
@@ -137,9 +141,9 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
         Identifier elementID = (*collectionIt)->identify();
         
         // Get element indexes
-        int gasGap  = int(m_muonIdHelperTool->tgcIdHelper().gasGap(elementID)); //increase with |Z|, doublet:[1:2], triplet:[1:3]
-        int channel = int(m_muonIdHelperTool->tgcIdHelper().channel(elementID));//channel in a chamber
-        int ws      = int(m_muonIdHelperTool->tgcIdHelper().isStrip(elementID));//[0:1]
+        int gasGap  = int(m_idHelperSvc->tgcIdHelper().gasGap(elementID)); //increase with |Z|, doublet:[1:2], triplet:[1:3]
+        int channel = int(m_idHelperSvc->tgcIdHelper().channel(elementID));//channel in a chamber
+        int ws      = int(m_idHelperSvc->tgcIdHelper().isStrip(elementID));//[0:1]
         
         // Get indexes for EtaPhi numbering scheme
         // tgc[0:3] TGC index, gasgap[0:2] GasGap index,
@@ -166,7 +170,7 @@ TgcRawDataValAlg::readTgcPrepDataContainer(const Muon::TgcPrepDataContainer* tgc
         int ssize = m_hitIdVects[pcn][ac][ws][eta][phi48][layer].size();
         bool multihit_inchannel=false;
         for(int hit=0;hit<ssize;hit++){
-          int ch=m_muonIdHelperTool->tgcIdHelper().channel(m_hitIdVects[pcn][ac][ws][eta][phi48][layer].at(hit));
+          int ch=m_idHelperSvc->tgcIdHelper().channel(m_hitIdVects[pcn][ac][ws][eta][phi48][layer].at(hit));
           if(ch == channel){
             multihit_inchannel=true;
             break;

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logFastChainWriteMetadata = logging.getLogger( 'FastChainWriteMetadata' )
@@ -190,11 +190,11 @@ def writeDigitizationMetadata():
         attrname = det+"_on"
         checkfn = getattr(DetFlags.digitize, attrname, None)
         if checkfn is None:
-            logFastChainWriteMetadata.info("No attribute '%s' found on DetFlags.digitize" % attrname)
+            logFastChainWriteMetadata.info("No attribute '%s' found on DetFlags.digitize", attrname)
             continue
         if checkfn():
             digiDets.append(det)
-    logFastChainWriteMetadata.info("Setting 'DigitizedDetectors' = %s" % repr(digiDets))
+    logFastChainWriteMetadata.info("Setting 'DigitizedDetectors' = %s", repr(digiDets))
     dbFiller.addDigitParam('DigitizedDetectors', repr(digiDets))
 
     #-------------------------------------------------
@@ -230,7 +230,7 @@ def createSimulationParametersMetadata():
     dbFiller.genSimDb()
     folder = "/Simulation/Parameters"
     dbConnection = "sqlite://;schema=SimParams.db;dbname=SIMPARAM"
-    import IOVDbSvc.IOVDb
+    import IOVDbSvc.IOVDb  # noqa: F401
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
     ServiceMgr.IOVDbSvc.FoldersToMetaData += [folder]

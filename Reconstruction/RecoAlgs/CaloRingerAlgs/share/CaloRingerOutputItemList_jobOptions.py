@@ -93,7 +93,7 @@ if ( rec.doWriteAOD() or rec.doWriteESD() ) and caloRingerFlags.doWriteRingsToFi
   # Get instance to the builder:
   CRBuilder = CaloRingerAlgorithmBuilder()
   # Get instance to the metadata builder:
-  CRMetaBuilder = CaloRingerMetaDataBuilder()
+  CRMetaBuilder = CaloRingerMetaDataBuilder(disable=True)
 
   if CRBuilder.usable():
     for cType, cKeys in CRBuilder.output().items():

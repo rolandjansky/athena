@@ -228,14 +228,20 @@ InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name      
 ToolSvc += InDetPrdAssociationTool
 if InDetFlags.doPrintConfigurables:
   printfunc (     InDetPrdAssociationTool)
-  
+
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on()
+)
+ToolSvc += InDetBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                       Extrapolator = InDetExtrapolator,
-                                                      usePixel      = DetFlags.haveRIO.pixel_on(),
-                                                      useSCT        = DetFlags.haveRIO.SCT_on())
-InDetHoleSearchTool.SctSummaryTool = None
-  
+                                                      BoundaryCheckTool=InDetBoundaryCheckTool)
+
 ToolSvc += InDetHoleSearchTool
 if InDetFlags.doPrintConfigurables:
   printfunc (     InDetHoleSearchTool)
@@ -470,15 +476,6 @@ elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
                                                                   selectiontype     = 0,
                                                                   do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
-elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
-  #
-  # load vkal vertex finder tool
-  #
-  from InDetVKalPriVxFinderTool.InDetVKalPriVxFinderTool import InDet__InDetVKalPriVxFinderTool
-  InDetPriVxFinderTool = InDet__InDetVKalPriVxFinderTool(name                   = "InDetVKalPriVxFinder",
-                                                         TrackSummaryTool       = InDetTrackSummaryTool,
-                                                         FitterTool             = InDetVxFitterTool,
-                                                         BeamConstraint         = InDetFlags.useBeamConstraint())
 
 ToolSvc += InDetPriVxFinderTool
 if InDetFlags.doPrintConfigurables:

@@ -14,7 +14,7 @@
 //      
 /////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthContainers/DataVector.h"
@@ -296,6 +296,15 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 	}
 	
 	//get the event info about x's, flavor's and an event scale
+#ifdef HEPMC3
+	this->SetPDFInputs(
+		pdf_info->x[0],
+		pdf_info->parton_id[0],
+		pdf_info->x[1],
+		pdf_info->parton_id[1],
+		pdf_info->scale
+	);
+#else
 	this->SetPDFInputs(
 		pdf_info->x1(),
 		pdf_info->id1(),
@@ -303,6 +312,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 		pdf_info->id2(),
 		pdf_info->scalePDF()
 	);
+#endif
 
 	//if the initial partons are gluons change their PDG values 
 	//to the right indices of the corresponding PDF values in
@@ -316,8 +326,13 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 
 	//Retrieve PDF evoluation values for the initial partons.
 	if (!m_GeneratorUse) {
+#ifdef HEPMC3
+		m_used_pdf1 = pdf_info->pdf_id[0];
+		m_used_pdf2 = pdf_info->pdf_id[1];
+#else
 		m_used_pdf1 = pdf_info->pdf1();
 		m_used_pdf2 = pdf_info->pdf2();
+#endif
 	}
 	else {
 		//store the fake values. they will be recalculated later
@@ -421,8 +436,8 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			//which is equal to
 			//	 (cvPDF_new(p1) * cvPDF_new(p2)) / (cvPDF_original(p1) * cvPDF_original(p2))  
 			else {
-				if (fabs(m_used_pdf1)>0.) m_weightFactor *= f1[fl1+6]/m_used_pdf1;
-				if (fabs(m_used_pdf2)>0.) m_weightFactor *= f2[fl2+6]/m_used_pdf2;
+				if (std::abs(m_used_pdf1)>0.) m_weightFactor *= f1[fl1+6]/m_used_pdf1;
+				if (std::abs(m_used_pdf2)>0.) m_weightFactor *= f2[fl2+6]/m_used_pdf2;
 
 				//and replace original PDF values
 				this->SetEventPDF1( f1[fl1+6] );
@@ -433,8 +448,8 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 		
 		//calculate event weight at 'this' error PDF
 		double weight = m_weightFactor;
-		if (fabs(m_used_pdf1)>0.) weight *= f1[fl1+6]/m_used_pdf1;
-		if (fabs(m_used_pdf2)>0.) weight *= f2[fl2+6]/m_used_pdf2;
+		if (std::abs(m_used_pdf1)>0.) weight *= f1[fl1+6]/m_used_pdf1;
+		if (std::abs(m_used_pdf2)>0.) weight *= f2[fl2+6]/m_used_pdf2;
 
 		msg(MSG::DEBUG)  <<" weight = "
 				<< weight
@@ -456,6 +471,7 @@ StatusCode PDFReweightTool::Reweight(HepMC::GenEvent* evt) {
 			<<" Event weights are going to be re-writed." 
 			<<" This option works properly only for the HERWIG samples "
 			<<endmsg; 
+//TODO: Check if this code behaves correctly for HepMC2.06.10,HepMC2.06.11
 
 			double genWeight = evt->weights()[0];
 			evt->weights().clear();

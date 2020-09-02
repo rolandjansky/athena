@@ -1,0 +1,1127 @@
+<IdDictionary name="LArCalorimeter" version="fullAtlas" >
+
+  <field name="part" >
+    <label name="LArEM"   value="1" />
+    <label name="LArHEC"  value="2" />
+    <label name="LArFCAL" value="3" />
+    <label name="LArOnline" value="4" />
+    <label name="LArOnlineCalib" value="5" />
+    <label name="LArEMdisc"   value="-1" />
+    <label name="HGTD"   value="-2" />
+    <label name="LArFCALdisc" value="-3" />
+  </field>
+
+  <field name="barrel-endcap">
+    <label name="negative-endcap-inner-wheel" value="-3" />
+    <label name="negative-endcap-outer-wheel" value="-2" />
+    <label name="negative-barrel"             value="-1" />
+    <label name="barrel"                      value="0"  />
+    <label name="positive-barrel"             value="+1" />
+    <label name="positive-endcap-outer-wheel" value="+2" />
+    <label name="positive-endcap-inner-wheel" value="+3" />
+    <label name="negative-endcap-hgtd"        value="-1" />
+    <label name="positive-endcap-hgtd"        value="1" />
+  </field>
+
+  <field name="barrel-ec">
+    <label name="barrel" value="0" />
+    <label name="endcap" value="1" />
+  </field>    
+
+  <field name="pos_neg">
+    <label name="negative-side" value="0" />
+    <label name="positive-side" value="1" />
+  </field>    
+
+  <field name="is-slar">
+    <label name="cell" value="0" />
+    <label name="slar" value="1" />
+  </field>    
+
+  <field name="is-slar-hec">
+    <label name="cell" value="0" />
+    <label name="slar" value="1" />
+  </field>    
+
+  <field name="is-slar-fcal">
+    <label name="cell" value="0" />
+    <label name="slar" value="1" />
+  </field>    
+
+  <field name="granularity">
+    <label name="coarse" value="0" />
+    <label name="fine"   value="1" />
+  </field>    
+
+  <subregion name="LArFCAL-module" >
+    <range field="phi-fcal" minvalue="0" maxvalue="15" wraparound="TRUE" />
+  </subregion>
+
+  <subregion name="LArEM-extralarge-module" >
+    <range field="phi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+  </subregion>
+
+  <subregion name="LArEM-large-module" >
+    <range field="phi" minvalue="0" maxvalue="63" wraparound="TRUE" />
+  </subregion>
+
+  <subregion name="LArEM-thin-module" >
+    <range field="phi" minvalue="0" maxvalue="255" wraparound="TRUE" />
+  </subregion>
+
+
+
+        <!-- s HGTD -->
+        <!-- we misuse eta0, deta as x0, dx -->
+        <!-- we misuse phi0, dphi as y0, dy -->
+        <!-- since we have 4 quadrants we need 1200 numbers and start at 1 -->
+        <!-- for the future use only the real cells -->
+  <region group="hgtd" name="HGTD-wheel" 
+	  eta0="0.0"  
+	  phi0="0.0"  
+	  deta="0.5"
+	  dphi="0.5"
+	  >
+    <range field="part" value="HGTD" />
+    <range field="barrel-endcap" values="negative-endcap-hgtd positive-endcap-hgtd"/>
+    <range field="sampling" minvalue="0" maxvalue="3" />
+    <range field="granularity" value="coarse" />
+    <range field="x_index" minvalue="-700" maxvalue="700" />
+    <range field="y_index" minvalue="-700" maxvalue="700" />
+  </region>
+
+<!-- we will need this for later
+  <region group="hgtdCaloCell" name="HGTD-wheel" 
+	  eta0="0.0"  
+	  phi0="0.0"  
+	  deta="0.5"
+	  dphi="0.5"
+	  >
+    <range field="part" value="HGTD" />
+    <range field="barrel-endcap" values="negative-endcap-hgtd positive-endcap-hgtd"/>
+    <range field="sampling" minvalue="0" maxvalue="3" />
+    <range field="granularity" value="fine" />
+    <range field="xCaloCell_index" minvalue="-300" maxvalue="300" />
+    <range field="yCaloCell_index" minvalue="-300" maxvalue="300" />
+  </region>
+-->
+
+        <!-- EM Barrel -->
+
+  <subregion name="LArEM-barrel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-barrel positive-barrel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-barrel-00"
+          next_samp="LArEM-barrel-10 LArEM-barrel-11" 
+          next_subdet="LArEM-outer-wheel-10 LArEM-outer-wheel-00" 
+	  eta0="0.0" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="60" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-10" next_abs_eta="LArEM-barrel-11" 
+          prev_samp="LArEM-barrel-00" 
+          next_samp="LArEM-barrel-20" 
+	  eta0="0.003125" deta="0.003125" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="1" maxvalue="447" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-11"
+          prev_samp="LArEM-barrel-00" 
+          next_samp="LArEM-barrel-21" 
+	  eta0="1.4" deta="0.025" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-20" next_abs_eta="LArEM-barrel-21" 
+          prev_samp="LArEM-barrel-10" 
+          next_samp="LArEM-barrel-30" 
+	  eta0="0.0" deta="0.025" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="55" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-21"
+          prev_samp="LArEM-barrel-11" 
+          next_subdet="LArEM-outer-wheel-10" 
+	  eta0="1.4" deta="0.075" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-30"
+          prev_samp="LArEM-barrel-20" eta0="0.0" deta="0.05" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-barrel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="26" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+        <!-- EM Barrel sCells -->
+
+  <subregion name="sLArEM-barrel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-barrel positive-barrel" />
+  </subregion>
+
+  <region group="slar_em" name="sLArEM-barrel-00"
+          next_samp="sLArEM-barrel-10 sLArEM-barrel-11"
+          next_subdet="sLArEM-outer-wheel-10 sLArEM-outer-wheel-00"
+          eta0="0.0" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="14" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-barrel-10" next_abs_eta="sLArEM-barrel-11"
+          prev_samp="sLArEM-barrel-00"
+          next_samp="sLArEM-barrel-20"
+          eta0="0.0" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="55" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-barrel-11"
+          prev_samp="sLArEM-barrel-00"
+          next_samp="sLArEM-barrel-21"
+          eta0="1.4" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-barrel-20" next_abs_eta="sLArEM-barrel-21"
+          prev_samp="sLArEM-barrel-10"
+          next_samp="sLArEM-barrel-30"
+          eta0="0.0" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="55" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-barrel-21"
+          prev_samp="sLArEM-barrel-11"
+          next_subdet="sLArEM-outer-wheel-10"
+          eta0="1.4" deta="0.075" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-barrel-30"
+          prev_samp="sLArEM-barrel-20" eta0="0.0" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-barrel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="13" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+
+        <!-- EM outer wheel -->
+
+  <subregion name="LArEM-outer-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-outer-wheel-00" 
+          next_samp="LArEM-outer-wheel-12" 
+          prev_subdet="LArEM-barrel-00" 
+	  eta0="1.5" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="11" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-10" next_abs_eta="LArEM-outer-wheel-11" 
+          next_samp="LArEM-outer-wheel-20" 
+          prev_subdet="LArEM-barrel-00 LArEM-barrel-21" 
+	  eta0="1.375" deta="0.05" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-11" next_abs_eta="LArEM-outer-wheel-12" 
+          next_samp="LArEM-outer-wheel-21" eta0="1.425" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-12" next_abs_eta="LArEM-outer-wheel-13" 
+          prev_samp="LArEM-outer-wheel-00" 
+          next_samp="LArEM-outer-wheel-21" eta0="1.5" deta="0.003125" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="2" />
+    <range field="eta" minvalue="0" maxvalue="95" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-13" next_abs_eta="LArEM-outer-wheel-14" 
+          next_samp="LArEM-outer-wheel-21" eta0="1.8" deta="0.0041666666667" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="3" />
+    <range field="eta" minvalue="0" maxvalue="47" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-14" next_abs_eta="LArEM-outer-wheel-15" 
+          next_samp="LArEM-outer-wheel-21" eta0="2.0" deta="0.00625" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="4" />
+    <range field="eta" minvalue="0" maxvalue="63" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-15"
+          next_samp="LArEM-outer-wheel-21" eta0="2.4" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="5" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-20" next_abs_eta="LArEM-outer-wheel-21" 
+          prev_samp="LArEM-outer-wheel-10" eta0="1.375" deta="0.05" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-21" next_abs_eta="LArEM-inner-wheel-10" 
+          prev_samp="LArEM-outer-wheel-11 LArEM-outer-wheel-12 LArEM-outer-wheel-13 LArEM-outer-wheel-14 LArEM-outer-wheel-15" 
+          next_samp="LArEM-outer-wheel-30" eta0="1.425" deta="0.025" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="42" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-30" next_abs_eta="LArEM-inner-wheel-20"  
+          prev_samp="LArEM-outer-wheel-21" eta0="1.5" deta="0.05" phi0="0.0" dphi="256" >
+    <reference subregion="LArEM-outer-wheel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="19" />
+    <reference subregion="LArEM-thin-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+        <!-- s EM outer wheel -->
+
+  <subregion name="sLArEM-outer-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-00"
+          next_samp="sLArEM-outer-wheel-12"
+	  prev_subdet="sLArEM-barrel-00"
+          eta0="1.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-10" next_abs_eta="sLArEM-outer-wheel-20"
+          next_samp="sLArEM-outer-wheel-20"
+          eta0="1.375" deta="0.125" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-12" next_abs_eta="sLArEM-outer-wheel-13"
+          prev_samp="sLArEM-outer-wheel-00"
+          next_samp="sLArEM-outer-wheel-21" eta0="1.5" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="2" />
+    <range field="eta" minvalue="0" maxvalue="11" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-13" next_abs_eta="sLArEM-outer-wheel-14"
+          next_samp="sLArEM-outer-wheel-21" eta0="1.8" deta="0.016666667" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="3" />
+    <range field="eta" minvalue="0" maxvalue="11" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-14" next_abs_eta="sLArEM-outer-wheel-15"
+          next_samp="sLArEM-outer-wheel-21" eta0="2.0" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="4" />
+    <range field="eta" minvalue="0" maxvalue="15" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-15"
+          next_samp="sLArEM-outer-wheel-21" eta0="2.4" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="5" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-20" next_abs_eta="sLArEM-outer-wheel-21"
+          prev_samp="sLArEM-outer-wheel-10" eta0="1.375" deta="0.05" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-21" next_abs_eta="sLArEM-inner-wheel-10"
+          prev_samp="sLArEM-outer-wheel-10 sLArEM-outer-wheel-12 sLArEM-outer-wheel-13 sLArEM-outer-wheel-14 sLArEM-outer-wheel-15"
+          next_samp="sLArEM-outer-wheel-30" eta0="1.425" deta="0.025" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="42" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-outer-wheel-30" next_abs_eta="sLArEM-inner-wheel-20"
+          prev_samp="sLArEM-outer-wheel-21" eta0="1.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArEM-outer-wheel" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+
+
+
+        <!-- EM inner wheel -->
+
+  <subregion name="LArEM-inner-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-inner-wheel positive-endcap-inner-wheel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-inner-wheel-10" 
+          next_samp="LArEM-inner-wheel-20" eta0="2.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-inner-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="6" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+  <region group="lar_em" name="LArEM-inner-wheel-20" 
+          prev_samp="LArEM-inner-wheel-10" eta0="2.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArEM-inner-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="6" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar" value="cell" />
+  </region>
+
+        <!-- sEM inner wheel -->
+
+  <subregion name="sLArEM-inner-wheel" >
+    <range field="part" value="LArEM" />
+    <range field="barrel-endcap" values="negative-endcap-inner-wheel positive-endcap-inner-wheel" />
+  </subregion>
+
+  <region group="slar_em" name="sLArEM-inner-wheel-10"
+	  next_abs_eta="sLArEM-inner-wheel-11"
+          next_samp="sLArEM-inner-wheel-20" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="sLArEM-inner-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-inner-wheel-11"
+          next_samp="sLArEM-inner-wheel-21" eta0="3.1" deta="0.1" phi0="0.0" dphi="32" >
+    <reference subregion="sLArEM-inner-wheel" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+
+  <region group="slar_em" name="sLArEM-inner-wheel-20"
+	  next_abs_eta="sLArEM-inner-wheel-21"
+          prev_samp="sLArEM-inner-wheel-10" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="sLArEM-inner-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+  <region group="slar_em" name="sLArEM-inner-wheel-21"
+          prev_samp="sLArEM-inner-wheel-11" eta0="3.1" deta="0.1" phi0="0.0" dphi="32" >
+    <reference subregion="sLArEM-inner-wheel" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar" value="slar" />
+  </region>
+
+
+
+      <!--
+
+          LArHEC
+
+        -->
+
+  <subregion name="LArHEC" >
+    <range field="part" value="LArHEC" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="lar_hec" name="LArHEC-00" next_abs_eta="LArHEC-01"
+     next_samp="LArHEC-10" eta0="1.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-10" next_abs_eta="LArHEC-11"
+     next_samp="LArHEC-20" prev_samp="LArHEC-00" eta0="1.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-20" next_abs_eta="LArHEC-21"
+     next_samp="LArHEC-30" prev_samp="LArHEC-10" eta0="1.6" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="2" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="1" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-30" next_abs_eta="LArHEC-31"
+     prev_samp="LArHEC-20" eta0="1.7" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" values="3" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="2" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-01"
+     next_samp="LArHEC-11" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="0" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-11" next_abs_eta="LArFCAL-1"
+     next_samp="LArHEC-21" prev_samp="LArHEC-01" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-21" 
+     next_samp="LArHEC-31" prev_samp="LArHEC-11" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="2" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="2" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+  <region group="lar_hec" name="LArHEC-31" 
+     prev_samp="LArHEC-21" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="LArHEC" />
+    <range field="sampling" value="3" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar-hec" value="cell" />
+  </region>
+
+
+
+
+      <!--
+
+          LArHEC supercells
+
+        -->
+
+  <subregion name="sLArHEC" >
+    <range field="part" value="LArHEC" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="slar_hec" name="sLArHEC-0" next_abs_eta="sLArHEC-1"
+     eta0="1.5" deta="0.1" phi0="0.0" dphi="64" >
+    <reference subregion="sLArHEC" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="0" maxvalue="9" />
+    <reference subregion="LArEM-large-module" />
+    <range field="is-slar-hec" value="slar" />
+  </region>
+
+  <region group="slar_hec" name="LArHEC-1"
+     next_samp="LArHEC-1" eta0="2.5" deta="0.2" phi0="0.0" dphi="32" >
+    <reference subregion="sLArHEC" />
+    <range field="sampling" value="0" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="0" maxvalue="3" />
+    <reference subregion="LArEM-extralarge-module" />
+    <range field="is-slar-hec" value="slar" />
+  </region>
+
+
+
+      <!--
+
+          LArFCAL
+
+        -->
+
+  <subregion name="LArFCAL" >
+    <range field="part" value="LArFCAL" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="lar_fcal" name="LArFCAL-1"
+     eta0="3.2" deta="0.025" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="1" />
+    <range field="eta-fcal" minvalue="0" maxvalue="62" />
+    <reference subregion="LArFCAL-module" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-2a"
+     eta0="3.2" deta="0.05" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="0" maxvalue="29" />
+    <range field="phi-fcal" values="0 7 8 15" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-2b"
+     eta0="3.2" deta="0.05" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="0" maxvalue="30" />
+    <range field="phi-fcal" values="3 4 11 12" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-2c"
+     eta0="3.2" deta="0.05" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="0" maxvalue="31" />
+    <range field="phi-fcal" values="1 2 5 6 9 10 13 14" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-3a"
+     eta0="3.2" deta="0.1" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" minvalue="0" maxvalue="14" />
+    <range field="phi-fcal" values="2 10" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-3b"
+     eta0="3.2" deta="0.1" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" minvalue="0" maxvalue="14" />
+    <range field="phi-fcal" values="0 1 3 4 5 6 7 8 9 11 12 13 14 15" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-3c"
+     eta0="3.2" deta="0.1" phi0="0.0" dphi="16" >
+    <reference subregion="LArFCAL" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" value="15" />
+    <range field="phi-fcal" values="0 1 2 3 4 6 7 8 9 10 11 12 14 15" />
+    <range field="is-slar-fcal" value="cell"/>
+  </region>
+
+
+
+      <!--
+
+          LArFCAL sCells
+
+        -->
+
+  <subregion name="sLArFCAL" >
+    <range field="part" value="LArFCAL" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="slar_fcal" name="sLArFCAL-1"
+     eta0="3.2" deta="0.14" phi0="0.0" dphi="16" >
+    <reference subregion="sLArFCAL" />
+    <range field="module" value="1" />
+    <range field="eta-fcal" minvalue="0" maxvalue="11" />
+    <reference subregion="LArFCAL-module" />
+    <range field="is-slar-fcal" value="slar" />
+  </region>
+
+  <region group="slar_fcal" name="sLArFCAL-2"
+     eta0="3.2" deta="0.16" phi0="0.0" dphi="16" >
+    <reference subregion="sLArFCAL" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="0" maxvalue="7" />
+    <range field="phi-fcal" minvalue="0" maxvalue="15" />
+    <range field="is-slar-fcal" value="slar" />    
+  </region>
+
+  <region group="slar_fcal" name="sLArFCAL-3"
+     eta0="3.2" deta="0.32" phi0="0.0" dphi="16" >
+    <reference subregion="sLArFCAL" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" minvalue="0" maxvalue="3" />
+    <range field="phi-fcal" minvalue="0" maxvalue="15" />
+    <range field="is-slar-fcal" value="slar" />    
+  </region>
+
+
+      <!--
+
+          Disconnected Channels
+
+        -->
+
+  <subregion name="LArEM-barreldisc" >
+    <range field="part" value="LArEMdisc" />
+    <range field="barrel-endcap" values="negative-barrel positive-barrel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-barrel-00disconnected" >
+    <reference subregion="LArEM-barreldisc" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="61" maxvalue="63" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-10disconnected" > 
+    <reference subregion="LArEM-barreldisc" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" value="0" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-barrel-30disconnected" >
+    <reference subregion="LArEM-barreldisc" />
+    <range field="sampling" value="3" />
+    <range field="region" value="0" />
+    <range field="eta" value="27" />
+    <reference subregion="LArEM-thin-module" />
+  </region>
+
+
+  <subregion name="LArEM-outer-wheeldisc" >
+    <range field="part" value="LArEMdisc" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-outer-wheel-00disconnected" > 
+    <reference subregion="LArEM-outer-wheeldisc" />
+    <range field="sampling" value="0" />
+    <range field="region" value="0" />
+    <range field="eta" minvalue="12" maxvalue="19" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-11disconnected" >
+    <reference subregion="LArEM-outer-wheeldisc" />
+    <range field="sampling" value="1" />
+    <range field="region" value="1" />
+    <range field="eta" minvalue="3" maxvalue="6" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-13disconnected" > 
+    <reference subregion="LArEM-outer-wheeldisc" />
+    <range field="sampling" value="1" />
+    <range field="region" value="3" />
+    <range field="eta" minvalue="48" maxvalue="63" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-outer-wheel-15disconnected" >
+    <reference subregion="LArEM-outer-wheeldisc" />
+    <range field="sampling" value="1" />
+    <range field="region" value="5" />
+    <range field="eta" minvalue="4" maxvalue="7" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+
+  <subregion name="LArEM-inner-wheeldisc" >
+    <range field="part" value="LArEMdisc" />
+    <range field="barrel-endcap" values="negative-endcap-inner-wheel positive-endcap-inner-wheel" />
+  </subregion>
+
+  <region group="lar_em" name="LArEM-inner-wheel-10disconnected" > 
+    <reference subregion="LArEM-inner-wheeldisc" />
+    <range field="sampling" value="1" />
+    <range field="region" value="0" />
+    <range field="eta" value="7" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+  <region group="lar_em" name="LArEM-inner-wheel-20disconnected" >
+    <reference subregion="LArEM-inner-wheeldisc" />
+    <range field="sampling" value="2" />
+    <range field="region" value="0" />
+    <range field="eta" value="7" />
+    <reference subregion="LArEM-large-module" />
+  </region>
+
+
+  <subregion name="LArFCALdisc" >
+    <range field="part" value="LArFCALdisc" />
+    <range field="barrel-endcap" values="negative-endcap-outer-wheel positive-endcap-outer-wheel" />
+  </subregion>
+
+  <region group="lar_fcal" name="LArFCAL-1disconnected" >
+    <reference subregion="LArFCALdisc" />
+    <range field="module" value="1" />
+    <range field="eta-fcal" value="63" />
+    <reference subregion="LArFCAL-module" />
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-2adisconnected" >
+    <reference subregion="LArFCALdisc" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" minvalue="30" maxvalue="31" />
+    <range field="phi-fcal" values="0 7 8 15" />
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-2bdisconnected"
+     eta0="3.2" deta="0.05" phi0="0.0" dphi="0.4" >
+    <reference subregion="LArFCALdisc" />
+    <range field="module" value="2" />
+    <range field="eta-fcal" value="31" />
+    <range field="phi-fcal" values="3 4 11 12" />
+  </region>
+
+  <region group="lar_fcal" name="LArFCAL-3adisconnected" >
+    <reference subregion="LArFCALdisc" />
+    <range field="module" value="3" />
+    <range field="eta-fcal" value="15" />
+    <range field="phi-fcal" values="5 13" />
+  </region>
+
+
+   <!-- LAr Online -->
+
+
+  <!-- LArOnline -Barrel -->
+
+   <subregion name="LArOnline-Barrel">
+      <range field="part" value="LArOnline" />
+      <range field="barrel-ec" values="barrel" />    
+   </subregion>
+
+   <region group="LArOnline" name="laronline-barrel">
+      <reference subregion="LArOnline-Barrel" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" minvalue="0" maxvalue="31" />
+      <range field="slot" minvalue="1" maxvalue="14" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+  <!-- LArOnline-EndCap Standard -->
+
+  <subregion name="LArOnline-Endcap">
+      <range field="part" value="LArOnline" />
+      <range field="barrel-ec" values="endcap" />
+  </subregion>
+
+   <region group="LArOnline" name="laronline-endcap-standard">
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="0 1 4 5 7 8 11 12 13 14 17 18 19 20 23 24" />
+      <range field="slot" minvalue="1" maxvalue="13" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+  <!-- LArOnline-Endcap-Special -->
+
+   <region group="LArOnline" name="laronline-endcap-special" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="2 9 15 21" />
+      <range field="slot" minvalue="1" maxvalue="15" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+  <!-- LArOnline-HEC-->
+  
+   <region group="LArOnline" name="laronline-hec">
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="3 10 16 22" />
+      <range field="slot" values="1 2 5 6 7 8 9 10" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+  <!-- LArOnline-FCAL-->
+  
+   <region group="LArOnline" name="laronlinefcal" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" value="6" />
+      <range field="slot" minvalue="1" maxvalue="7" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+   <region group="LArOnline" name="laronlinefcal" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" value="6" />
+      <range field="slot" minvalue="9" maxvalue="15" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+      <range field="is-slar" value="cell" />
+   </region>
+
+
+  <!-- LArOnline -Barrel Calib -->
+
+   <subregion name="LArOnline-Barrel-Calib">
+      <range field="part" value="LArOnlineCalib" />
+      <range field="barrel-ec" values="barrel" />    
+   </subregion>
+
+   <region group="LArOnline" name="laronline-barrel-calib">
+      <reference subregion="LArOnline-Barrel-Calib" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" minvalue="0" maxvalue="31" />
+      <range field="slot" value="15" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+   </region>
+
+  <!-- LArOnline-EndCap Standard Calib -->
+
+  <subregion name="LArOnline-Endcap-Calib">
+      <range field="part" value="LArOnlineCalib" />
+      <range field="barrel-ec" values="endcap" />
+  </subregion>
+
+   <region group="LArOnline" name="laronline-endcap-standard">
+      <reference subregion="LArOnline-Endcap-Calib" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="0 1 4 5 7 8 11 12 13 14 17 18 19 20 23 24" />
+      <range field="slot" value="15" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+   </region>
+
+  <!-- LArOnline-HEC CALIB -->
+  
+   <region group="LArOnline" name="laronline-hec-calib">
+      <reference subregion="LArOnline-Endcap-Calib" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="3 10 16 22" />
+      <range field="slot" values="3 4 12" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+   </region>
+
+  <!-- LArOnline-FCAL CALIB -->
+  
+   <region group="LArOnline" name="laronline-fcal-calib">
+      <reference subregion="LArOnline-Endcap-Calib" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="feedthrough" values="6" />
+      <range field="slot" value="16" />
+      <range field="channel_in_slot" minvalue="0" maxvalue="127" />
+   </region>
+
+  <!-- LArOnline for sCell -Barrel -->
+
+   <region group="LArOnline_SuperCell" name="slaronline-barrel">
+      <reference subregion="LArOnline-Barrel" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" minvalue="0" maxvalue="31" />
+      <range field="slar_slot" value="1" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="289" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+  <!-- LArOnline for sCell -EndCap Standard -->
+
+   <region group="LArOnline_SuperCell" name="slaronline-endcap-standard">
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" values="0 1 4 5 7 8 11 12 13 14 17 18 19 20 23 24" />
+      <range field="slar_slot" value="1" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="311" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+  <!-- LArOnline for sCell -Endcap-Special -->
+
+   <region group="LArOnline_SuperCell" name="slaronline-endcap-special-01" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" values="2 9 15 21" />
+      <range field="slar_slot" value="1" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="239" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+   <region group="LArOnline_SuperCell" name="slaronline-endcap-special-02" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" values="2 9 15 21" />
+      <range field="slar_slot" value="2" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="159" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+  <!-- LArOnline for sCell -HEC-->
+
+   <region group="LArOnline_SuperCell" name="slaronline-hec">
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" values="3 10 16 22" />
+      <range field="slar_slot" value="1" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="191" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+  <!-- LArOnline for sCell -FCAL-->
+
+   <region group="LArOnline_SuperCell" name="slaronlinefcal" >
+      <reference subregion="LArOnline-Endcap" />
+      <range field="pos_neg" values="negative-side positive-side" />
+      <range field="slar_feedthrough" value="6" />
+      <range field="slar_slot" minvalue="1" maxvalue="2" />
+      <range field="sch_in_slot" minvalue="0" maxvalue="191" />
+      <range field="is-slar" value="slar" />
+   </region>
+
+</IdDictionary>
+

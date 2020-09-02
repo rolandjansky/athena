@@ -19,7 +19,7 @@ StatusCode TileCalCellMonAlg::initialize() {
   ATH_CHECK( m_caloNoiseKey.initialize() );
 
   // Excluding histogram for Tile E sample, but including histogram for all samples instead
-  m_noiseEtaPhiGroups = Monitored::buildToolMap<int>(m_tools, "CellNoiseXEtaVSPhi", N_TILE_SAMPLES);
+  m_noiseEtaPhiGroups = Monitored::buildToolMap<int>(m_tools, "CellsNoiseXEtaVSPhi", N_TILE_SAMPLES);
   // Histogams per Tile sample
   m_energyModuleGroups = Monitored::buildToolMap<int>(m_tools, "CellsXModule", N_TILE_SAMPLES);
 

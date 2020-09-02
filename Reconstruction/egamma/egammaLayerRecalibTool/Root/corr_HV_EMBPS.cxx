@@ -154,17 +154,17 @@ float corr_HV_EMBPS::getDataCorrection(float hv,float eta) const
 //  as a function of eta (possibly)
 {
   if (hv>1300.) return 1.;
-  else if (hv>1000.) {
+  if (hv>1000.) {
     if (eta<-1.2) return 0.9925;
-    else if (eta<-0.8) return 0.9918;
-    else if (eta<-0.4) return 0.9889;
-    else if (eta<0.) return 0.9935;
-    else if (eta<0.4) return 0.9908;
-    else if (eta<0.8) return 0.99197;
-    else if (eta<1.2) return 0.9974;
-    else return 0.9971;
+    if (eta<-0.8) return 0.9918;
+    if (eta<-0.4) return 0.9889;
+    if (eta<0.) return 0.9935;
+    if (eta<0.4) return 0.9908;
+    if (eta<0.8) return 0.99197;
+    if (eta<1.2) return 0.9974;
+    return 0.9971;
   }
-  else return 1.015;
+  return 1.015;
 }
 
 //===============================================================================

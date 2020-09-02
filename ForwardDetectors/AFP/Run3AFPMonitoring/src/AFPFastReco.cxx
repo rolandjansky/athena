@@ -49,7 +49,7 @@ namespace AFPMon {
 
       const float x = xPlane;
       const float y = yPlane * cos(tilt);
-      const float z = yPlane * sin(tilt) * dz * layerID;
+      const float z = yPlane * sin(tilt) + dz * layerID;
 
       m_clusters.emplace_back(x, y, z, stationID, layerID);
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBTAILCATCHER_H
@@ -45,7 +45,7 @@ class TBTailCatcher : public TBBeamDetector,
   void addScintillator(TBScintillator* thisScint);
 
   const TBScintillator* 
-    getScintillator(std::string thisScintName) const;
+    getScintillator(const std::string& thisScintName) const;
 
   // global overflow
   //  virtual void setOverflow();
@@ -69,7 +69,7 @@ class TBTailCatcher : public TBBeamDetector,
 
   std::vector<double> m_signals;
 
-  unsigned int findIndex(std::string thisScintName) const;
+  unsigned int findIndex(const std::string& thisScintName) const;
 
 };
 CLASS_DEF( TBTailCatcher , 100992621 , 1 )

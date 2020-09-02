@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexFitters/SequentialVertexFitter.h"
@@ -90,175 +90,8 @@ namespace Trk{
  }
 
 //destructor
- SequentialVertexFitter::~SequentialVertexFitter(){}
+ SequentialVertexFitter::~SequentialVertexFitter()= default;
  
-  //implementation of the fit methods 
-  //converion from the vector of tracks and starting point
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-                              const Amg::Vector3D& startingPoint) const
-  {
-    xAOD::Vertex constraint;
-    constraint.makePrivateStore();
-    constraint.setPosition( startingPoint );
-    constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
-    constraint.setFitQuality( 0.,0.);
-    return fit(vectorTrk, constraint);
-  }   
- 
-  //conversion from the vector of tracks and starting point
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk,
-                                             const xAOD::Vertex& constraint)  const
-  {
-    if(vectorTrk.empty())
-    {
-     ATH_MSG_INFO( "Empty vector of tracks passed" );
-     return 0;
-    }
-   
-    //making a list of perigee out of the vector of tracks  
-    //Also check for duplicate tracks (will otherwise be discarded by the fit); they do not
-    // fit the hypothesis of statistically independent tracks. Print a warning and discard the duplicate
-    // if this happens.
-    std::vector<const Trk::TrackParameters*> measuredPerigees;
-    std::vector<const Trk::Track*> trkToFit;
-    for(std::vector<const Trk::Track*>::const_iterator i = vectorTrk.begin(); i!= vectorTrk.end();++i)
-    {
-      //check for duplicates
-      bool foundDuplicate(false);
-      for (std::vector<const Trk::Track*>::const_iterator j = vectorTrk.begin(); j!= i; ++j) {
-        if (*i == *j) {
-  	  ATH_MSG_WARNING( "Duplicate track given as input to the fitter. Ignored." );
-	  foundDuplicate = true;
-	  break;
-        }
-      }
-      if (foundDuplicate) continue; //skip track
-      // const Trk::MeasuredPerigee *tmpMeasPer(dynamic_cast<const Trk::MeasuredPerigee*>((*i)->perigeeParameters()));
-      const Trk::TrackParameters * tmpMeasPer = (*i)->perigeeParameters();
-
-      if(tmpMeasPer!=0) {
-        trkToFit.push_back(*i);
-        measuredPerigees.push_back(tmpMeasPer);
-      } else  {
-        ATH_MSG_INFO( "Failed to dynamic_cast this track parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to track parameters?
-      }
-    }
-
-    xAOD::Vertex * FittedVertex = fit( measuredPerigees, constraint );
-
-    //assigning the input tracks to the fitted vertex through VxTrackAtVertices
-    if(FittedVertex !=0)
-    {
-      if(FittedVertex->vxTrackAtVertexAvailable())
-      {
-        if(FittedVertex->vxTrackAtVertex().size() !=0)
-        {
-          for(unsigned int i = 0; i <trkToFit.size(); ++i)
-          {
-            // (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(trkToFit[i]);
-            LinkToTrack * linkTT = new LinkToTrack;
-            linkTT->setElement(trkToFit[i]);
-            // vxtrackatvertex takes ownership!
-            (FittedVertex->vxTrackAtVertex())[i].setOrigTrack(linkTT);
-          }//end of loop for setting orig tracks in.
-        }//end of protection against unsuccessfull updates (no tracks were added)
-      }
-    }
-
-    //*******************************************************************
-    // TODO: Starting from a vector of Trk::Tracks, can't currently store
-    // separately from the vxTrackAtVertex vector the links to the
-    // original tracks in xAOD::Vertex (only links to xAOD::TrackParticles and
-    // xAOD::NeutralParticles can be stored)
-    //*******************************************************************
-
-    return FittedVertex;
-
-  }
-   
-  //implementation of the fit methods 
-  //converion from the vector of tracks and starting point
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                                             const Amg::Vector3D& startingPoint) const
-  {
-   xAOD::Vertex constraint;
-   constraint.makePrivateStore();
-   constraint.setPosition( startingPoint );
-   constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
-   constraint.setFitQuality( 0.,0.);
-   return fit(vectorTrk, constraint);
-  }   
- 
-  //conversion from the vector of tracks and starting point
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-                                             const xAOD::Vertex& constraint) const
-  {
-    if(vectorTrk.empty())
-    {
-     ATH_MSG_INFO( "Empty vector of tracks passed" );
-     return 0;
-    }
-
-    //making a list of perigee out of the vector of tracks  
-    //Also check for duplicate tracks (will otherwise be discarded by the fit); they do not
-    // fit the hypothesis of statistically independent tracks. Print a warning and discard the duplicate
-    // if this happens.
-    std::vector<const Trk::TrackParameters*> measuredPerigees;
-    std::vector<const Trk::TrackParticleBase*> trkToFit;
-    for(std::vector<const Trk::TrackParticleBase*>::const_iterator i = vectorTrk.begin(); i!= vectorTrk.end();++i)
-    {
-      //check for duplicates
-      bool foundDuplicate(false);
-      for (std::vector<const Trk::TrackParticleBase*>::const_iterator j = vectorTrk.begin(); j!= i; ++j) {
-        if (*i == *j) {
-	  ATH_MSG_WARNING( "Duplicate track given as input to the fitter. Ignored." );
-	  foundDuplicate = true;
-	  break;
-        }
-      }
-      if (foundDuplicate) continue; //skip track
-      // const Trk::MeasuredPerigee *tmpMeasPer(dynamic_cast<const Trk::MeasuredPerigee*>((*i)->perigeeParameters()));
-      const Trk::TrackParameters * tmpMeasPer = &((*i)->definingParameters());
-
-      if(tmpMeasPer!=0) {
-        trkToFit.push_back(*i);
-        measuredPerigees.push_back(tmpMeasPer);
-      } else  {
-        ATH_MSG_INFO( "Failed to dynamic_cast this track parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to track parameters?
-      }
-    }
-
-    xAOD::Vertex * FittedVertex = fit( measuredPerigees, constraint );
-
-    //assigning the input tracks to the fitted vertex   
-    if(FittedVertex !=0)
-    {
-      if(FittedVertex->vxTrackAtVertexAvailable())
-      {
-        if(FittedVertex->vxTrackAtVertex().size() !=0)
-        {
-          for(unsigned int i = 0; i <trkToFit.size(); ++i)
-          {
-            // (*(fittedVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(trkToFit[i]);
-            LinkToTrackParticleBase * linkTT = new LinkToTrackParticleBase;
-            linkTT->setElement(trkToFit[i]);
-            // vxtrackatvertex takes ownership!
-            (FittedVertex->vxTrackAtVertex())[i].setOrigTrack(linkTT);
-          }//end of loop for setting orig tracks in.
-        }//end of protection against unsuccessfull updates (no tracks were added)
-      }
-    }
-
-    //*******************************************************************
-    // TODO: Starting from a vector of Trk::Tracks, can't currently store
-    // separately from the vxTrackAtVertex vector the links to the
-    // original tracks in xAOD::Vertex (only links to xAOD::TrackParticles and
-    // xAOD::NeutralParticles can be stored)
-    //*******************************************************************
-
-    return FittedVertex;
-
-  }//end of TrackParticleBase-based method
    
   //conversion from the perigeeList and starting point   
   xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
@@ -276,11 +109,11 @@ namespace Trk{
     xAOD::Vertex * FittedVertex  = fit(perigeeList, neutralPerigeeList, constraint);
    
     //setting the initial perigees  
-    if(FittedVertex !=0 )
+    if(FittedVertex !=nullptr )
     {
       if(FittedVertex->vxTrackAtVertexAvailable())
       {
-        if(FittedVertex->vxTrackAtVertex().size() !=0)
+        if(!FittedVertex->vxTrackAtVertex().empty())
         {
           for(unsigned int i = 0; i <perigeeList.size(); ++i)
           {
@@ -312,23 +145,7 @@ namespace Trk{
 
   }
 
-  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk) const
-  {
-
-    //this method will later be modifyed to use the a finder
-    //uses a default starting point so  far.
-    const Amg::Vector3D start_point(0.,0.,0.);
-
-    //    std::cout << " start point is: " << start_point << std::endl;
-
-    xAOD::Vertex constraint;
-    constraint.makePrivateStore();
-    constraint.setPosition( start_point );
-    constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
-    constraint.setFitQuality( 0.,0.);
-    return fit(vectorTrk, constraint);
-  }
-   
+  
   //method where the actual fit is done
   xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
                                              const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
@@ -339,13 +156,13 @@ namespace Trk{
     if(perigeeList.empty())
     {
       ATH_MSG_INFO( "Empty vector of tracks passed, returning 0" );
-      return 0;
+      return nullptr;
     }
 
     //identifying the input parameters of the fit
     //and making initial xAOD::Vertex to be updated with tracks
-    Amg::Vector3D priorVertexPosition = constraint.position();
-    AmgSymMatrix(3) initialVertexError = constraint.covariancePosition();
+    const Amg::Vector3D& priorVertexPosition = constraint.position();
+    const AmgSymMatrix(3)& initialVertexError = constraint.covariancePosition();
     AmgSymMatrix(3) priorErrorMatrix;
 
     double in_chi = 0.;
@@ -470,8 +287,8 @@ namespace Trk{
                      " error z " << sqrt(returnVertex->covariancePosition()[2][2])  << std::endl;
       */
     } while ( (n_iter != m_maxStep) &&
-              ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence == true )
-                || ( m_useLooseConvergence == false && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
+              ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence )
+                || ( !m_useLooseConvergence && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
 
     if (n_iter==m_maxStep) 
     {    
@@ -508,11 +325,11 @@ namespace Trk{
     {
       ATH_MSG_DEBUG( " Fit failed. " );
       returnVertex.reset();
-      return 0;
+      return nullptr;
     }
 
     //smoothing and related
-    if(returnVertex !=0)
+    if(returnVertex !=nullptr)
     {
       if(m_doSmoothing)m_Smoother->smooth(*returnVertex);
       //std::cout << " after smoothing: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
@@ -560,12 +377,12 @@ namespace Trk{
       //creating new meas perigees, since the will be deleted 
       //by VxTrackAtVertex in destructor
       const Trk::Perigee * loc_per = dynamic_cast<const Trk::Perigee *>(*i);
-      if( loc_per != 0)
+      if( loc_per != nullptr)
       {
         Trk::Perigee * mPer = new Trk::Perigee(*loc_per);
         const Trk::Perigee * inPer = loc_per;
         //new MeasuredPerigee(*loc_per);
-        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, NULL, inPer, NULL);
+        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, nullptr, inPer, nullptr);
 
         //linearization itself
         m_LinTrkFactory->linearize( *vTrack, vrt.position() );
@@ -587,11 +404,11 @@ namespace Trk{
       //creating new meas perigees, since the will be deleted
       //by VxTrackAtVertex in destructor
       const Trk::NeutralPerigee * loc_per = dynamic_cast<const Trk::NeutralPerigee *>(*i);
-      if( loc_per != 0)
+      if( loc_per != nullptr)
       {
         Trk::NeutralPerigee * mPer  = new Trk::NeutralPerigee(*loc_per);
         const Trk::NeutralPerigee * inPer = loc_per;
-        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., NULL, mPer, NULL, inPer);
+        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., nullptr, mPer, nullptr, inPer);
 
         //linearization itself
         m_LinTrkFactory->linearize( *vTrack, vrt.position() );
@@ -650,7 +467,7 @@ namespace Trk{
    if(vectorTrk.empty())
    {
      ATH_MSG_INFO( "Empty vector of tracks passed" );
-     return 0;
+     return nullptr;
    }
 
    if(vectorNeut.empty())
@@ -680,7 +497,7 @@ namespace Trk{
 
      const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) {
+     if(tmpMeasPer!=nullptr) {
        trkToFit.push_back(*i);
        measuredPerigees.push_back(tmpMeasPer);
      } else {
@@ -706,7 +523,7 @@ namespace Trk{
 
      const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) {
+     if(tmpMeasPer!=nullptr) {
        neutToFit.push_back(*i);
        measuredNeutralPerigees.push_back(tmpMeasPer);
      } else {
@@ -719,14 +536,14 @@ namespace Trk{
 
 
    //assigning the input tracks to the fitted vertex through vxTrackAtVertices
-   if(fittedVertex ==0)
+   if(fittedVertex ==nullptr)
    {
      return fittedVertex;
    }
 
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check!
      {
-       if(fittedVertex->vxTrackAtVertex().size() !=0)
+       if(!fittedVertex->vxTrackAtVertex().empty())
        {
          for(unsigned int i = 0; i <trkToFit.size(); ++i)
          {

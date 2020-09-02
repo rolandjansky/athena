@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -157,10 +157,9 @@ class CaloDmDescrManager {
     const CaloDM_ID*    m_caloDM_ID;
     const AtlasDetectorID* m_id_helper;
     StoreGateSvc* m_detStore;
-    static CaloDmDescrManager* s_instance;
 
     CaloDmDescrElement* build_element(const Identifier& cellId, const CaloDmRegion *myRegion);
-    StatusCode load_regions(std::string DmRegionFileName);
+    StatusCode load_regions(const std::string& DmRegionFileName);
     void build_element_vector();
 
     std::vector<CaloDmRegion *> m_DmRegionVector;

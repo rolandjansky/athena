@@ -18,9 +18,7 @@ class G4Track;
 class TFile;
 class TTree;
 
-namespace HepMC {
-    class GenParticle;
-}
+#include "AtlasHepMC/GenParticle_fwd.h"
 
 // Namespace for the ShowerLib related classes
 namespace ShowerLib {
@@ -53,7 +51,7 @@ namespace ShowerLib {
     //! get average lateral spread of the showers for the given energy
     virtual double getContainmentR(const G4Track* track) const = 0;
     //! store shower in the library
-    virtual bool storeShower(const HepMC::GenParticle* genParticle,const Shower* shower) = 0;
+    virtual bool storeShower(HepMC::ConstGenParticlePtr genParticle,const Shower* shower) = 0;
     //! write library to ROOT file
     virtual bool writeToROOT(TFile* dest) = 0;
 

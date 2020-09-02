@@ -20,7 +20,7 @@ from CaloRingerAlgs.CaloRingerKeys import CaloRingerKeysDict
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
 CRAlgBuilder = CaloRingerAlgorithmBuilder()
 from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
-CRMetaDataBuilder = CaloRingerMetaDataBuilder()
+CRMetaDataBuilder = CaloRingerMetaDataBuilder(disable=True)
 
 if rec.doESD() and caloRingerFlags.buildCaloRingsOn() and CRAlgBuilder.usable():
   LastCRWriter = CRMetaDataBuilder.getLastWriterHandle()

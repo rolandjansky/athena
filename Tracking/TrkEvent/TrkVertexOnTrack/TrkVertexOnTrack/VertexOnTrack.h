@@ -69,17 +69,17 @@ namespace Trk{
 
       /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
-      virtual const PerigeeSurface& associatedSurface() const override;
+      virtual const PerigeeSurface& associatedSurface() const override final;
 
       /**Interface method to get the global Position
       - interface from MeasurementBase */
-      virtual const Amg::Vector3D& globalPosition() const override;
+      virtual const Amg::Vector3D& globalPosition() const override final;
 
       /** Extended method checking the type*/
-      virtual bool type(MeasurementBaseType::Type type) const override {
+      virtual bool type(MeasurementBaseType::Type type) const override final
+      {
         return (type==MeasurementBaseType::VertexOnTrack);
       }
-
 
       /**returns the some information about this VertexOnTrack. */
       virtual MsgStream&    dump( MsgStream& out ) const override;

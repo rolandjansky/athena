@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Thresholds import ThresholdValue
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import CaloLimits as CL
 
@@ -18,7 +18,7 @@ class ThresholdDef(object):
         # MUON
         ThresholdValue.setDefaults('MUON', {'etamin' : -49,'etamax' : 49, 'phimin' : 0,'phimax' : 64}) # keep this as an example how defaults for groups can be defined
 
-        for thrV in [0, 4, 6, 10, 11, 15, 20]:
+        for thrV in [0, 4, 6, 10, 11, 15, 20, 21]:
             tc.registerThr('MU%i' % thrV, 'MUON').addThrValue(thrV)
 
 
@@ -107,12 +107,15 @@ class ThresholdDef(object):
             .addThrValue(18, -14, -13, priority=2).addThrValue(18, 13, 14, priority=2)\
             .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
             .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
-            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)       
+            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
+
 
         # I section
 
         ThresholdValue.setDefaults('EM', {'isobits' : '00010', 'use_relIso' : True })
 
+   
+ 
         for thrV in [8]:
             tc.registerThr('EM%iI' % thrV, 'EM').addThrValue(thrV)
 
@@ -124,6 +127,26 @@ class ThresholdDef(object):
         for thrV in [15]:
             tc.registerThr('EM%iHI' % thrV, 'EM').addThrValue(thrV)
 
+        tc.registerThr( 'EM15VHI', type='EM').addThrValue(17, priority=1)\
+            .addThrValue(17, -7, 0, priority=2).addThrValue(17, 0, 7, priority=2)\
+            .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
+            .addThrValue(15, -12, -9, priority=2).addThrValue(15, 9, 12, priority=2)\
+            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
+            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
+            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
+            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)
+
+        tc.registerThr( 'EM18VHI', type='EM').addThrValue(20, priority=1)\
+            .addThrValue(20, -7, 0, priority=2).addThrValue(20, 0, 7, priority=2)\
+            .addThrValue(19, -8, -7, priority=2).addThrValue(19, 7, 8, priority=2)\
+            .addThrValue(18, -11, -8, priority=2).addThrValue(18, 8, 11, priority=2)\
+            .addThrValue(17, -13, -11, priority=2).addThrValue(17, 11, 13, priority=2)\
+            .addThrValue(16, -14, -13, priority=2).addThrValue(16, 13, 14, priority=2)\
+            .addThrValue(15, -15, -14, priority=2).addThrValue(15, 14, 15, priority=2)\
+            .addThrValue(17, -17, -15, priority=2).addThrValue(17, 15, 17, priority=2)\
+            .addThrValue(19, -25, -17, priority=2).addThrValue(19, 17, 25, priority=2)
+
+
         tc.registerThr( 'EM20VHI', type='EM').addThrValue(22, priority=1)\
             .addThrValue(22, -7, 0, priority=2).addThrValue(22, 0, 7, priority=2)\
             .addThrValue(21, -8, -7, priority=2).addThrValue(21, 7, 8, priority=2)\
@@ -133,6 +156,17 @@ class ThresholdDef(object):
             .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
             .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
             .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
+
+        tc.registerThr( 'EM22VH', type='EM').addThrValue(24, priority=1)\
+            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
+            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
+            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
+            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
+            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
+            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
+            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
+            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+
 
         tc.registerThr( 'EM22VHI', type='EM').addThrValue(24, priority=1)\
             .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
@@ -153,6 +187,18 @@ class ThresholdDef(object):
             .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
             .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
             .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+
+        tc.registerThr( 'EM24VHIM', type='EM').addThrValue(24, priority=1)\
+            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
+            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
+            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
+            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
+            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
+            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
+            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
+            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+
+
         
         tc.registerThr( 'EM26VHI', type='EM').addThrValue(26, priority=1)\
             .addThrValue(28, -7, 0, priority=2).addThrValue(28, 0, 7, priority=2)\
@@ -163,6 +209,17 @@ class ThresholdDef(object):
             .addThrValue(23, -15, -14, priority=2).addThrValue(23, 14, 15, priority=2)\
             .addThrValue(25, -17, -15, priority=2).addThrValue(25, 15, 17, priority=2)\
             .addThrValue(27, -25, -17, priority=2).addThrValue(27, 17, 25, priority=2)
+
+        tc.registerThr( 'EM30VHI', type='EM').addThrValue(30, priority=1)\
+            .addThrValue(32, -7, 0, priority=2).addThrValue(32, 0, 7, priority=2)\
+            .addThrValue(31, -8, -7, priority=2).addThrValue(31, 7, 8, priority=2)\
+            .addThrValue(30, -11, -8, priority=2).addThrValue(30, 8, 11, priority=2)\
+            .addThrValue(29, -13, -11, priority=2).addThrValue(29, 11, 13, priority=2)\
+            .addThrValue(28, -14, -13, priority=2).addThrValue(28, 13, 14, priority=2)\
+            .addThrValue(27, -15, -14, priority=2).addThrValue(27, 14, 15, priority=2)\
+            .addThrValue(29, -17, -15, priority=2).addThrValue(29, 15, 17, priority=2)\
+            .addThrValue(31, -29, -17, priority=2).addThrValue(31, 17, 29, priority=2)
+
 
 
         tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\
@@ -183,7 +240,7 @@ class ThresholdDef(object):
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
+        for thrV in [5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60, 90, 100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     
@@ -205,7 +262,7 @@ class ThresholdDef(object):
             tc.registerThr('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00010', 'use_relIso' : True })
-        for thrV in [12,20]:
+        for thrV in [12,20,25]:
             tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
@@ -244,7 +301,7 @@ class ThresholdDef(object):
         
 
         # Central jet
-        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25)]:
+        for (thrV, etamax) in [(12,23), (12,25), (12,28), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,20)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
@@ -302,7 +359,7 @@ class ThresholdDef(object):
         for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:
             tc.registerThr('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
-	 # Restricted range TE |eta|<4.9
+        # Restricted range TE |eta|<4.9
         etamax = 49
         for thrV in [500, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)

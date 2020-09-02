@@ -115,7 +115,7 @@ else:
 #"COMCOND-BLKP-005-05"
 
 #Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
 if hasattr(runArgs,"skipEvents"):
     svcMgr.EventSelector.SkipEvents=runArgs.skipEvents
@@ -229,7 +229,7 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    tf.configForStartup="HLTonline"
    tf.configForStartup.lock()
 
-   include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
+   include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
 
    ## trigger configuration
    #from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

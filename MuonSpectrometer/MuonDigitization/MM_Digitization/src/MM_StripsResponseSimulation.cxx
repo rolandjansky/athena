@@ -23,6 +23,9 @@ Check Lorentz Angle is in correct direction...
 
 */
 
+namespace {
+    static constexpr float electronsToFC = 1./6241.;
+}
 
 /*******************************************************************************/
 MM_StripsResponseSimulation::MM_StripsResponseSimulation():
@@ -38,10 +41,10 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_driftVelocity(0),              // 0.047
 
 	// Other variables
-	m_avalancheGain(8.0e3),
+	m_avalancheGain(0),
 	m_maxPrimaryIons(300),
-	m_interactionDensityMean( 16.15 / 5. ),  //   16.15 interactions per 5 mm traversed
-	m_interactionDensitySigma( 4.04 / 5. ),  //   Spread in this number.
+	m_interactionDensityMean(0),  //   16.15 interactions per 5 mm traversed
+	m_interactionDensitySigma(0),  //   Spread in this number.
 
 	// Function Pointers
 	m_polyaFunction(0),
@@ -68,6 +71,8 @@ void MM_StripsResponseSimulation::initHistos()
 	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
 	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
 	m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
+	m_mapOfHistograms["totalEffectiveCharge"] = new TH1F("totalEffectiveCharge","totalEffectiveCharge",400,0,200);
+	m_mapOf2DHistograms["totalEffectiveChargeVsTheta"] = new TH2F("totalEffectiveChargeVsTheta","totalEffectiveChargeVsTheta",17,0,35,300,0,300);
 
 	m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
 	m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
@@ -106,10 +111,6 @@ void MM_StripsResponseSimulation::initFunctions()
     m_polyaFunction->SetParameter(0, 1.765); // polya theta
     m_polyaFunction->SetParameter(1, m_avalancheGain ); // mean gain
     m_polyaFunction->SetParameter(2, 104.9); // constant
-
-	// Functional form fit to agree with Garfield simulations. Fit and parameters from G. Iakovidis
-	m_lorentzAngleFunction = new TF1("lorentzAngleFunction","[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x",0,2);
-	m_lorentzAngleFunction->SetParameters(0,58.87, -2.983, -10.62, 2.818);
 
 	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", -5., 5.);
 
@@ -151,6 +152,7 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 		digiInput.stripIDLocal(),
 		digiInput.incomingAngleXZ(), //degrees
 		digiInput.incomingAngleYZ(), //degrees
+		digiInput.stripMinID(),
 		digiInput.stripMaxID(),
 		digiInput
 		);
@@ -171,6 +173,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const int & stripID,
 											const float & incidentAngleXZ,
 											const float & incidentAngleYZ,
+											const int & stripMinID,
 											const int & stripMaxID,
 											const MM_DigitToolInput & digiInput)
 {
@@ -267,7 +270,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 			tmpEffectiveNElectrons+= effectiveCharge;
 		}
 
-		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons*1e-4 );
+		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons / m_avalancheGain);
 
 		//---
 		m_IonizationClusters.push_back(IonizationCluster);
@@ -283,7 +286,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMinID, stripMaxID);
 	stripResponseObject.timeOrderElectrons();
 	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
 	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
@@ -299,11 +302,16 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 
 
-	// Output diagnostic hists and graphs
-	//
-	m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
-	m_mapOfHistograms["nElectrons"]->Fill( stripResponseObject.getNElectrons() );
-	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
+    // Output diagnostic hists and graphs
+    //
+    m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
+    m_mapOfHistograms["nElectrons"]->Fill(stripResponseObject.getNElectrons());
+    m_mapOfHistograms["totalEffectiveCharge"]->Fill(stripResponseObject.getTotalCharge() * electronsToFC);
+    m_mapOf2DHistograms["totalEffectiveChargeVsTheta"]->Fill(std::abs(incidentAngleXZ),
+                                                   stripResponseObject.getTotalCharge() * electronsToFC);
+    ATH_MSG_DEBUG("incidentAngleXZ" << incidentAngleXZ << "charge [fC]"
+                  << stripResponseObject.getTotalCharge() / 6241.);
+    m_mapOfHistograms["lorentzAngle"]->Fill(lorentzAngle);
 
 	if(m_writeEventDisplays){
 		if(m_outputFile) m_outputFile->cd();

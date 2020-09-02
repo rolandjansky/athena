@@ -25,8 +25,8 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 // HepMC
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -237,7 +237,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
 
    Trk::Track *refittedtrack=m_trackFitter->fit(track,false,materialInteractions);
   
-   //!<  @todo : add documentation & find out why we need the fit twice ?
+   //!<  Refit a second time to add TRT hits
    Trk::Track *refittedtrack2=nullptr;
    if (refittedtrack && (int)clusters.size()-i>=9){
      Trk::MeasurementSet measset;
@@ -263,7 +263,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
        refittedtrack2=new Trk::Track(refittedtrack->info(),traj2,refittedtrack->fitQuality()->clone());
      }
      else for (int j=0;j<(int)measset.size();j++) delete measset[j];
-   } else {
+   } else if(!refittedtrack){
     ATH_MSG_VERBOSE("Track fit of truth trajectory NOT successful, NO track created. ");
     return nullptr;
    }
@@ -272,7 +272,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    if (!refittedtrack2 && refittedtrack) refittedtrack2=refittedtrack;
 
    //         
-   ATH_MSG_WARNING("Track fit of truth trajectory successful, track created. ");
+   ATH_MSG_DEBUG("Track fit of truth trajectory successful, track created. ");
    // return what you have
    // Before returning, fix the creator
    refittedtrack2->info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);

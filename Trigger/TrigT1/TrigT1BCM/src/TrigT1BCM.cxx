@@ -3,7 +3,7 @@
 */
 
 #include <stdint.h>
-#include "TrigT1BCM/TrigT1BCM.h"
+#include "TrigT1BCM.h"
 #include "TrigT1Interfaces/BcmCTP.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_STRUCT_H
@@ -12,7 +12,7 @@
 #include "MuonDigitContainer/MmDigit.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include "TLorentzVector.h"
 #include "TMath.h"
@@ -40,7 +40,7 @@ public:
   float32fixed(int value){  m_fixp_content=value; }
   float32fixed(float value){  m_fixp_content=value; }
   float32fixed(double value){  m_fixp_content=value; }
-  ~float32fixed(){}
+  ~float32fixed()=default;
 
 
 
@@ -60,10 +60,13 @@ public:
 
   }
 
-
+  //constructor
+  float32fixed<T>(const float32fixed<T>&) = default;
+  float32fixed<T>(float32fixed<T>&&) = default;
 
   // assignment
-  float32fixed<T> operator=(float other){ this->m_fixp_content = other; return *this;  }
+  float32fixed<T>& operator=(const float32fixed<T> &other) = default;
+  float32fixed<T>& operator=( float32fixed<T> &&other) noexcept = default;
   template<unsigned char S>
   float32fixed<T> operator=(float32fixed<S> other){ this->m_fixp_content = other.getFixed(); return *this;  }
 
@@ -193,7 +196,7 @@ struct par_par{
 
 };
 
-class MMT_Parameters{
+class MMT_Parameters : public AthMessaging {
  public:
   MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* detManager);
 
@@ -309,16 +312,6 @@ class MMT_Parameters{
 
   float32fixed<18> mid_plane_large_X, mid_plane_large, mid_plane_large_UV;
   float32fixed<4> vertical_strip_width_UV;
-
-  /// Log a message using the Athena controlled logging system
-  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-  /// Check whether the logging system is active at the provided verbosity level
-  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
-
-  /// Private message stream member
-  mutable Athena::MsgStreamMember m_msg;
-
-
 };
 
 struct mm_digit_entry{
@@ -353,7 +346,6 @@ struct evInf_entry{
 
 struct hitData_key{
   hitData_key(int bct=0, double t=0, double gt=0, int vmm=-1,int ev=-1);
-  hitData_key(const hitData_key& key){BC_time=key.BC_time;time=key.time;gtime=key.gtime;VMM_chip=key.VMM_chip;event=key.event;}
   //for these operators, "less" means what you think it means
   //with precedence of quantities the same as order in the constructor
   //in the context of "earlier," it might make sense to say that a hit is earlier if,
@@ -405,7 +397,6 @@ struct evAna_entry{
 struct hitData_info{
   hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const TVector3& tru,double tpos,double ppos);
   hitData_info(int the_pl=0,double the_y=0,double the_z=-999);
-  hitData_info(const hitData_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   std::string hdr()const;
   std::string str()const;

@@ -1,63 +1,45 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
+#include "TrigT1NSWSimTools/PadTriggerLookupTool.h"
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-// local includes
-#include "TrigT1NSWSimTools/PadTriggerLookupTool.h"
 #include "TrigT1NSWSimTools/PadData.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include "TrigT1NSWSimTools/sTGCTriggerBandsInEta.h"
-
-
-
-// Muon software includes
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-
 #include "PathResolver/PathResolver.h"
 
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include <algorithm>
 #include <fstream>
 #include <numeric>
 
 namespace NSWL1 {
 //------------------------------------------------------------------------------
-PadTriggerLookupTool::PadTriggerLookupTool( const std::string& type,
-                                                        const std::string& name,
-                                                        const IInterface* parent) :
+PadTriggerLookupTool::PadTriggerLookupTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
     m_etaBandsLargeSector(BandsInEtaLargeSector),
     m_etaBandsSmallSector(BandsInEtaSmallSector),
-    m_detManager(0),
-    m_dumpSectorGeometry(true)
-{
+    m_detManager(nullptr),
+    m_dumpSectorGeometry(true) {
     declareInterface<NSWL1::IPadTriggerLookupTool>(this);
     declareProperty("DumpSectorGeometry",m_dumpSectorGeometry  = true, "record sector pad geometry into an ASCII file / use it for debugging");
 }
-//------------------------------------------------------------------------------
-PadTriggerLookupTool::~PadTriggerLookupTool() {
-
-}
-
-
 
 StatusCode PadTriggerLookupTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
     ATH_CHECK( detStore()->retrieve( m_detManager ));
     ATH_CHECK(loadCoincidenceTable("TriggerPatterns.dat") );
-    
     if(m_dumpSectorGeometry){
         ATH_MSG_INFO(" Will dump  3D pad geometry / sector");
         std::ofstream padGeoFile("NSWSectorPadsGeoDump.dat");//use local variables in order not to contaminate members
@@ -69,7 +51,7 @@ StatusCode PadTriggerLookupTool::initialize() {
         padGeoFile.close();
 
     }
-    
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
@@ -97,8 +79,8 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
     );
 
     //use only active sectors selected by the pads / event
-    for(const size_t &side : activeSides){//0:C 1:A
-        for(const size_t &sector : activeSectors){//{1...16} odd:L even:S
+    for(const int &side : activeSides){//0:C 1:A
+        for(const int &sector : activeSectors){//{1...16} odd:L even:S
             ATH_CHECK( LookupSectorTriggers(pads,side,sector,triggers));
         }
     }
@@ -111,7 +93,7 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
 }
 
 
-StatusCode PadTriggerLookupTool::loadCoincidenceTable(std::string padCoincidenceFileName){
+StatusCode PadTriggerLookupTool::loadCoincidenceTable(const std::string& padCoincidenceFileName){
     
     std::string file = PathResolver::find_file (padCoincidenceFileName, "DATAPATH");
     ATH_MSG_INFO("Loading coincidence table from "<<file);
@@ -207,7 +189,7 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                        pad->multipletId() == wedge;
         };
         //filter pads within this sector / wedge
-        std::copy_if(pads.begin(),pads.end(),std::back_inserter(padsInThisWedge),[=]( std::shared_ptr<PadData> pad){ return wedgeSelector(pad);} );
+        std::copy_if(pads.begin(),pads.end(),std::back_inserter(padsInThisWedge),[=]( const std::shared_ptr<PadData>& pad){ return wedgeSelector(pad);} );
         //too many pad hits might cause a performance issue . 100 pads ~ 100/4 ~ 25 pad hits per layer !!!!
         if(padsInThisWedge.size()>100){
              ATH_MSG_WARNING("Too many pad hits: ("<<padsInThisWedge.size()<<")pad hits on side= "<<side<<" sector="<<sector<<" wedge="<<wedge);
@@ -416,23 +398,23 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
         also useful to dump the full geometetry for geometry validation& side studies(see  'printGeometry' meth. and corresponding flag in the JO)
     */
     std::vector<std::shared_ptr<PadOfflineData>> PadTriggerLookupTool::fetchSectorPads(bool isSmall, int SIDE,int SECTOR) {
-        const sTgcIdHelper* idhelper=m_detManager->stgcIdHelper();
 
         std::vector<std::shared_ptr<PadOfflineData>> sectorPads;
         std::vector<Identifier> padIds;
         
-        for(const Identifier& modId : idhelper->idVector() ){
-            int ModuleSide=1?idhelper->stationEta(modId)>0 :0;
-            int ModuleSect=idhelper->stationPhi(modId);
-            bool SectType=idhelper->isSmall(modId);
+        for(const Identifier& modId : m_idHelperSvc->stgcIdHelper().idVector() ){
+            int ModuleSide=1?m_idHelperSvc->stgcIdHelper().stationEta(modId)>0 :0;
+            int ModuleSect=m_idHelperSvc->stgcIdHelper().stationPhi(modId);
+            bool SectType=m_idHelperSvc->stgcIdHelper().isSmall(modId);
             if(ModuleSide!=SIDE || ModuleSect !=SECTOR || SectType!=isSmall) continue;//grab only sector modules selected by the method args
             std::vector<Identifier> all_channels;
-            idhelper->idChannels(modId,all_channels);
+            m_idHelperSvc->stgcIdHelper().idChannels(modId,all_channels);
 
             std::vector<Identifier> pad_channels;
+            const sTgcIdHelper* idHelper = &m_idHelperSvc->stgcIdHelper();
             std::copy_if(all_channels.begin(),all_channels.end(),std::back_inserter(pad_channels),
-                    [idhelper](const Identifier& id){
-                         int chanType=idhelper->channelType(id);
+                    [idHelper](const Identifier& id){
+                         int chanType=idHelper->channelType(id);
                          return chanType==0;
                     }
             );
@@ -441,23 +423,23 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
         }
 
         for(Identifier id : padIds){
-            int multilayer=idhelper->multilayer(id);
-            int gasgap=idhelper->gasGap(id);
+            int multilayer=m_idHelperSvc->stgcIdHelper().multilayer(id);
+            int gasgap=m_idHelperSvc->stgcIdHelper().gasGap(id);
 
-            int channeltype=idhelper->channelType(id);
+            int channeltype=m_idHelperSvc->stgcIdHelper().channelType(id);
             const MuonGM::sTgcReadoutElement* rdoEl = m_detManager->getsTgcReadoutElement(id);
             const MuonGM::MuonPadDesign* mpd=rdoEl->getPadDesign(id);
             int padEtaMinFromDesign=mpd->padEtaMin;
             int padEtaMaxFromDesign=mpd->padEtaMax;
             int nPadCols=mpd->nPadColumns; 
 
-            int thisEta=idhelper->padEta(id);
-            int thisPhi=idhelper->padPhi(id);
+            int thisEta=m_idHelperSvc->stgcIdHelper().padEta(id);
+            int thisPhi=m_idHelperSvc->stgcIdHelper().padPhi(id);
 
             int nPadRowsFromDesign=padEtaMaxFromDesign-padEtaMinFromDesign;
             if( thisEta>nPadRowsFromDesign || thisPhi > nPadCols  ) continue;
 
-            Identifier pid=idhelper->padID(id,  multilayer,  gasgap,  channeltype,  thisEta,  thisPhi,true);
+            Identifier pid=m_idHelperSvc->stgcIdHelper().padID(id,  multilayer,  gasgap,  channeltype,  thisEta,  thisPhi,true);
             auto pad=std::make_shared<PadOfflineData>(pid, 0, 0, m_detManager);
             pad->fillGeometricInformation();
             sectorPads.push_back(pad);

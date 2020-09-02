@@ -34,7 +34,7 @@ public:
   //@}
 
  protected:
-  const HepMC::GenParticle * getPrimary();
+  HepMC::ConstGenParticlePtr   getPrimary();
 
   // general prefix (e.g. "/truth/")
   std::string m_path;

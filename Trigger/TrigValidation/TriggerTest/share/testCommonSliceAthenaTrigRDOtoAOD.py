@@ -200,6 +200,9 @@ if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault()
+
 # post set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
     import TriggerJobOpts.Modifiers

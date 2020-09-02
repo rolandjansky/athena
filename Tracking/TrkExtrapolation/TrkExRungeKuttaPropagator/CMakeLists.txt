@@ -9,7 +9,6 @@ atlas_subdir( TrkExRungeKuttaPropagator )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkNeutralParameters
                           Tracking/TrkEvent/TrkParameters
@@ -19,15 +18,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkPatternParameters
                           Tracking/TrkExtrapolation/TrkExUtils 
-			  MagneticField/MagFieldElements
+                          MagneticField/MagFieldElements
                           MagneticField/MagFieldConditions
-)
+                          Control/CxxUtils
+                          )
 
 # Component(s) in the package:
 atlas_add_component( TrkExRungeKuttaPropagator
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldInterfaces TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkGeometry TrkSurfaces TrkPatternParameters TrkExUtils MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel MagFieldInterfaces TrkEventPrimitives TrkNeutralParameters 
+                     TrkParameters TrkExInterfaces TrkGeometry TrkSurfaces TrkPatternParameters TrkExUtils MagFieldElements MagFieldConditions
+                     CxxUtils)
 
 # Install files from the package:
 atlas_install_headers( TrkExRungeKuttaPropagator )

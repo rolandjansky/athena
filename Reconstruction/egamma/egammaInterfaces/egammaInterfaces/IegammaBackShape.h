@@ -2,22 +2,18 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// IegammaBackShape.h, (c) ATLAS Detector software 2009
-///////////////////////////////////////////////////////////////////
 
 #ifndef EGAMMAINTERFACES_IEGAMMABACKSHAPE_H
 #define EGAMMAINTERFACES_IEGAMMABACKSHAPE_H
 
-/// @class IegammaBackShape
-/// @brief Interface for the Reconstruction/egamma/egammaCaloTools/egammaBackrShape
-///
-/// @author Frederic Derue derue@lpnhe.in2p3.fr
-/// @author Christos Anastopoulos
-///
-/// $Revision:$
-/// $Date: 2014-02-11 17:40:48 +0100 (Tue, 11 Feb 2014) $
-///
+/*
+ * @name   IegammaBackShape.h, (c) ATLAS Detector software 2009
+ * @class IegammaBackShape
+ * @brief Interface for the Reconstruction/egamma/egammaCaloTools/egammaBackShape
+ *
+ * @author Frederic Derue derue@lpnhe.in2p3.fr
+ * @author Christos Anastopoulos
+ */
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1ZDC/TrigT1ZDC.h"
+#include "TrigT1ZDC.h"
 #include "TrigT1Interfaces/ZdcCTP.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
@@ -11,7 +11,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include <bitset>
 

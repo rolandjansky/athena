@@ -27,26 +27,10 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
-// general athena stuff
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "TrigParticle/TrigEFBphys.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
-//#include "TrigMuonEvent/TrigMuonEF.h"
-//Ntuples
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/NTuple.h"
-
-//#include "TrigTimeAlgs/TrigTimerSvc.h"
-//#include "TrigTimeAlgs/TrigTimer.h"
 
 #include "Constants.h"
 #include "BtrigUtils.h"
@@ -60,7 +44,6 @@
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
 
-class StoreGateSvc;
 class TriggerElement;
 class CombinedMuonFeature;
 
@@ -219,9 +202,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     float m_bCD0VtxChi2Cut;
     int m_maxBcD0ToStore;
     
-    // FTK Flag
-    bool m_FTK;
-
     // Monitoring variables and containers
     //   General
     std::vector<int>   m_mon_Errors;
@@ -396,10 +376,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
 
-
-    // TrigEFBphysContainer* m_trigBphysColl_b;
-    // TrigEFBphysContainer* m_trigBphysColl_X;
-
     xAOD::TrigBphysContainer * m_TrigBphysColl_b;
     xAOD::TrigBphysContainer * m_TrigBphysColl_X;
     
@@ -510,7 +486,6 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedBcD0Lxy;
     int m_countBcD0ToStore;
     
-    void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
     void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
     void addUnique(std::vector<ElementLink<xAOD::TrackParticleContainer> >&, const ElementLink<xAOD::TrackParticleContainer>&);
 //   double invariantMass(const TrigMuonEF* , const TrigMuonEF* );

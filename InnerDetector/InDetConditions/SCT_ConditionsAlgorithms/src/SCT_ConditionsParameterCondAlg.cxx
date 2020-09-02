@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConditionsParameterCondAlg.h"
@@ -7,8 +7,6 @@
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_Chip.h"
-
-#include "GaudiKernel/EventIDRange.h"
 
 #include <memory>
 
@@ -115,14 +113,10 @@ StatusCode SCT_ConditionsParameterCondAlg::execute(const EventContext& ctx) cons
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  // Get the validitiy range
-  EventIDRange rangeW;
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
   ATH_MSG_INFO("Size of CondAttrListVec " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  ATH_MSG_INFO("Range of input is " << rangeW);
+  ATH_MSG_INFO("Range of input is " << readHandle.getRange());
   
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_CondParameterData> writeCdo{std::make_unique<SCT_CondParameterData>()};
@@ -165,13 +159,13 @@ StatusCode SCT_ConditionsParameterCondAlg::execute(const EventContext& ctx) cons
   }//module loop
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CondParameterData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }

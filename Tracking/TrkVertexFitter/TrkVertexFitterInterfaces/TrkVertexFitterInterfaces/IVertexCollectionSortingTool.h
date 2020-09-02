@@ -54,9 +54,8 @@ namespace Trk
        /** Interface for xAOD::VertexContainer.
 	* A new container and auxiliary store is returned.
 	*/
-       virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> sortVertexContainer(const xAOD::VertexContainer& MyVxCont) = 0;
-
-
+       virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+       sortVertexContainer(const xAOD::VertexContainer& MyVxCont) const = 0;
   };
 }
 

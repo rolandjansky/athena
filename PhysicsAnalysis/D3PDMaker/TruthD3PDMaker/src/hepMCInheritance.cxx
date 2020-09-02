@@ -16,7 +16,7 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "Navigation/IAthenaBarCode.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "AthenaKernel/BaseInfo.h"
 
 SG_ADD_BASE (McEventCollection, DataVector<HepMC::GenEvent>);

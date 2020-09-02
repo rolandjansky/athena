@@ -15,7 +15,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // HepMC includes
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 // McParticleKernel includes

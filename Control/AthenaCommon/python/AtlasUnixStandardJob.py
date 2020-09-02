@@ -41,16 +41,7 @@ def _setupAtlasUnixStandardJob():
     svcMgr.ClassIDSvc.CLIDDBFiles += [ "Gaudi_clid.db" ]
 
     #Ignore certain Service loops
-    try:
-        theApp.InitializationLoopCheck = False
-##         theApp.LoopCheckIgnore += [
-##             "StoreGateSvc", "DetectorStore",
-##             "PerfMonSvc", "AuditorSvc", "GeoModelSvc",
-##             "IOVSvc"
-##             ]
-    except AttributeError:
-        # gaudi v19r9... were art thou ?
-        pass
+    theApp.InitializationLoopCheck = False
 
     # dictionary services
     # the dict loader
@@ -59,11 +50,6 @@ def _setupAtlasUnixStandardJob():
         svcMgr += AthenaServicesConf.AthDictLoaderSvc()
     theApp.CreateSvc += [svcMgr.AthDictLoaderSvc.getFullJobOptName()]
 
-    # the dict checker
-    if not hasattr(svcMgr, 'AthenaSealSvc'):
-        svcMgr += AthenaServicesConf.AthenaSealSvc()
-    theApp.CreateSvc += [svcMgr.AthenaSealSvc.getFullJobOptName()]
-    
     # add-in a service to handle core-dumps
     if not hasattr(svcMgr, 'CoreDumpSvc'):
         svcMgr += AthenaServicesConf.CoreDumpSvc()

@@ -8,7 +8,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk

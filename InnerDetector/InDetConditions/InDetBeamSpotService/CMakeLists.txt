@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    ${extra_dep}
    PRIVATE
    Control/AthenaBaseComps
+   Control/CxxUtils
    Control/StoreGate
    Database/AthenaPOOL/AthenaPoolUtilities
    Event/EventPrimitives )
@@ -39,7 +40,7 @@ atlas_add_library( InDetBeamSpotServiceLib
 atlas_add_component( InDetBeamSpotService
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} GeoPrimitives GaudiKernel AthenaBaseComps
+   LINK_LIBRARIES ${CORAL_LIBRARIES} GeoPrimitives GaudiKernel AthenaBaseComps CxxUtils
    StoreGateLib AthenaPoolUtilities EventPrimitives InDetBeamSpotServiceLib
    ${extra_lib} )
 

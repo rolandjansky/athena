@@ -44,6 +44,13 @@ class doHIegamma(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doHIAODFix(JobProperty):
+    """ Run AOD fix
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doHIJetAnalysis(JobProperty):
     """ Run heavy ion jet analysis
     """
@@ -109,6 +116,7 @@ list_jobproperties = [
     doHIGlobal,
     doHIJetRec,
     doHIegamma,
+    doHIAODFix,
     doHIJetAnalysis,
     doHIEventView,
     doValidation,

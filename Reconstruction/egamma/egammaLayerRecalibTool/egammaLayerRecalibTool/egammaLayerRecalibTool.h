@@ -288,7 +288,7 @@ public:
 private:
   std::string m_tune;
   const std::string resolve_path(std::string filename) const;
-  const std::string& resolve_alias(const std::string& tune) const;
+  std::string resolve_alias(const std::string& tune) const;
   ModifiersList m_modifiers;
 };
 

@@ -20,7 +20,7 @@
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 class PixelOfflineCalibCondAlg : public AthReentrantAlgorithm {
   public:

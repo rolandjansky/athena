@@ -11,25 +11,15 @@
 #include <string>
 #include "L1TopoRDO/ModuleID.h"
 
-L1TopoRDO::L1TopoRDO():
-  m_error(0),
-  m_sourceID(0)
-{
-  //m_dataWords.push_back(0);
-}
-
-L1TopoRDO::~L1TopoRDO()
-{
-}
 
 const std::vector<uint32_t>& L1TopoRDO::getDataWords () const
 {
   return m_dataWords;
 }
 
-void L1TopoRDO::setDataWords (const std::vector<uint32_t> dataWords)
+void L1TopoRDO::setDataWords (std::vector<uint32_t> &&dataWords) noexcept
 {
-  m_dataWords = dataWords;
+  m_dataWords = std::move(dataWords);
 }
 
 const std::vector<uint32_t>& L1TopoRDO::getStatusWords () const
@@ -37,9 +27,9 @@ const std::vector<uint32_t>& L1TopoRDO::getStatusWords () const
   return m_statusWords;
 }
 
-void L1TopoRDO::setStatusWords (const std::vector<uint32_t> statusWords)
+void L1TopoRDO::setStatusWords (std::vector<uint32_t> &&statusWords) noexcept
 {
-  m_statusWords = statusWords;
+  m_statusWords = std::move(statusWords);
 }
 
 std::vector<L1Topo::Error> L1TopoRDO::getErrors() const

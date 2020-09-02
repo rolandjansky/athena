@@ -729,8 +729,8 @@ namespace Muon {
 	mdtPrdContainer = rh_mdt.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
-        MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-        if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
+        auto coll = mdtPrdContainer->indexFindPtr(hash_id);
+        if( coll != nullptr ) nchHitsEta = coll->size();
         else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
     }else if( m_idHelperSvc->isRpc(chId) ){
@@ -742,10 +742,10 @@ namespace Muon {
 	rpcPrdContainer = rh_rpc.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->rpcIdHelper().get_module_hash(chId,hash_id );
-        RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
-        if( colIt != rpcPrdContainer->end() ) {
-          RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
-          RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
+        auto coll = rpcPrdContainer->indexFindPtr(hash_id);
+        if( coll != nullptr ) {
+          RpcPrepDataCollection::const_iterator rpcIt = coll->begin();
+          RpcPrepDataCollection::const_iterator rpcIt_end = coll->end();
           for( ;rpcIt!=rpcIt_end;++rpcIt ){
             if( m_idHelperSvc->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
             else                                                ++nchHitsEta;
@@ -761,10 +761,10 @@ namespace Muon {
 	tgcPrdContainer = rh_tgc.cptr();
         IdentifierHash hash_id;
         m_idHelperSvc->tgcIdHelper().get_module_hash(chId,hash_id );
-        TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
-        if( colIt != tgcPrdContainer->end() ) {
-          TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
-          TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
+        auto coll = tgcPrdContainer->indexFindPtr(hash_id);
+        if( coll != nullptr ) {
+          TgcPrepDataCollection::const_iterator tgcIt = coll->begin();
+          TgcPrepDataCollection::const_iterator tgcIt_end = coll->end();
           for( ;tgcIt!=tgcIt_end;++tgcIt ){
             if( m_idHelperSvc->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
             else                                                ++nchHitsEta;

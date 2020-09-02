@@ -4,16 +4,15 @@
 
 #ifndef CSCCALCSLOPE_H
 #define CSCCALCSLOPE_H
+
 /**CscCalcSlope - algorithm which cycles through all calibration data and 
 generates a flat file with the calibration constants. It also generates
 a root file where the user can view the histograms used to find the constants,
 so that he can determine the validity of the constants
 */
+
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthContainers/DataVector.h"
@@ -21,24 +20,19 @@ so that he can determine the validity of the constants
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonCondData/CscCondDbData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
-//temporary for tests
 #include "BipolarFit.h"
 
+#include "TGraph.h"
+#include "TH1I.h"
+
 #include <vector>
+#include <string>
 #include <map>
 #include <set>
 
-#include "TH1.h"
-
-
 class TProfile;
-class CscICoolStrSvc;
 class ICscCalibTool;
-class cscIdHelper;
-class CscCalibResultCollection;
 class TGraphErrors;
-class CscCondDbData;
 
 namespace MuonCalib{
   /** 
@@ -58,7 +52,7 @@ namespace MuonCalib{
   {
     public:
       CscCalcSlope(const std::string& name, ISvcLocator* pSvcLocator);
-      ~CscCalcSlope(void)=default;
+      ~CscCalcSlope()=default;
 
       /**basic required functions*/
       StatusCode initialize(void);
@@ -83,9 +77,9 @@ namespace MuonCalib{
 
       /*********Private member variables*/
       /**Services and tools*/
-      StoreGateSvc * m_storeGate;
-      ICscCalibTool * m_cscCalibTool;
-      ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
+      StoreGateSvc* m_storeGate;
+      ICscCalibTool* m_cscCalibTool;
+      ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"CscRDODecoder","Muon::CscRDO_Decoder"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       IChronoStatSvc* m_chronoSvc;
       SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   

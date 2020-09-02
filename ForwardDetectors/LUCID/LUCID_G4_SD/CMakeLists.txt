@@ -24,17 +24,16 @@ find_package( XercesC )
 find_package( GTest )
 
 # Component(s) in the package:
-atlas_add_component( LUCID_G4_SD
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel StoreGateLib SGtests LUCID_GeoModelLib LUCID_SimEvent G4AtlasToolsLib HitManagement )
-
 atlas_add_library( LUCID_G4_SDLib
                    src/*.cxx
                    NO_PUBLIC_HEADERS LUCID_G4_SD
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel CxxUtils StoreGateLib SGtests LUCID_GeoModelLib LUCID_SimEvent G4AtlasToolsLib HitManagement )
+
+atlas_add_component( LUCID_G4_SD
+                     src/components/*.cxx
+                     INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel StoreGateLib SGtests LUCID_GeoModelLib LUCID_SimEvent G4AtlasToolsLib HitManagement LUCID_G4_SDLib )
 
 atlas_add_test( LUCID_SensitiveDetector_gtest
                 SOURCES test/LUCID_SensitiveDetector_gtest.cxx

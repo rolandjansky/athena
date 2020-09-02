@@ -39,8 +39,6 @@ StatusCode TileRawChannelNoiseMonitorAlgorithm::initialize() {
 
 StatusCode TileRawChannelNoiseMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
-  using Tile = TileCalibUtils;
-
   // In case you want to measure the execution time
   auto timer = Monitored::Timer("TIME_execute");
 

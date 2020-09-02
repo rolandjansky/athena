@@ -2,7 +2,7 @@
 
 // $Id: AtRanlux_test.txt,v 1.2 2007-06-24 05:37:15 calaf Exp $
 
-ApplicationMgr.DLLs += { "AthenaServices" };
+ApplicationMgr.Dlls += { "AthenaServices" };
 ApplicationMgr.ExtSvc += { "AtRanluxGenSvc", "AtRanluxGenSvc/AtRanluxGenSvc2", "AtRanluxGenSvc/AtRanluxGenSvc3"  };
 ApplicationMgr.ExtSvcCreates = false;
 

@@ -38,7 +38,7 @@ namespace MuonGM {
 
     m_hasALines = false;
     m_hasBLines = false;
-    m_delta = NULL;
+    m_delta = Amg::Transform3D::Identity();
     m_ml = mL;
     
     // get the setting of the caching flag from the manager
@@ -165,7 +165,7 @@ namespace MuonGM {
       char side = getStationEta() < 0 ? 'C' : 'A';
       char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
       MMDetectorHelper aHelper;
-      MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), m_ml, side);
+      MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, std::abs(getStationEta()), getStationPhi(), m_ml, side);
       MMReadoutParameters roParam = mm->GetReadoutParameters();
 
 
@@ -198,69 +198,46 @@ namespace MuonGM {
       m_etaDesign[il].minYPhiR = roParam.minYPhiR;
       m_etaDesign[il].maxYPhi = roParam.maxYPhi;
       m_etaDesign[il].totalStrips = roParam.tStrips;
-        
-
-      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
-      else if (m_ml == 2){ m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il); } 
-      else {
+      m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
+      if (m_ml < 1 || m_ml > 2) {
         MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
         log << MSG::WARNING <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       }
       
       if (m_etaDesign[il].sAngle == 0.) {    // eta layers
-          
-            m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize;
-            m_etaDesign[il].signY  = 1 ;
-	
-            m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1;
 
-	     if (m_etaDesign[il].nch > chMax) { // never enters in this if statement
-               // fix with help of dead zone
-    
-                double dead = 0.5*(m_etaDesign[il].xSize - chMax*pitch);
-                m_etaDesign[il].deadO = dead;
-                m_etaDesign[il].deadI = dead;
-                m_etaDesign[il].firstPos += dead;
-                m_etaDesign[il].nch = chMax;
-	    }
+        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + pitch;
+        m_etaDesign[il].signY  = 1 ;
+        m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1; // Total number of active strips
 	
       } else { // stereo layers
           
-          m_etaDesign[il].signY  = il==2? 1 : -1 ;
-          
-          // define the distance from the frame till the point that the first and last active stereo strips cross the center of the chamber (low_swift & up_swift)
-          // in order to derive the total number of active strips for the stereo layer
+        m_etaDesign[il].signY  = il==2? 1 : -1 ;
         
-         
-          double low_swift=( m_minHalfY -m_etaDesign[il].dlStereoBottom)*fabs(tan(m_etaDesign[il].sAngle));
-          double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop)*fabs(tan(m_etaDesign[il].sAngle));
-          
-          double lm1_swift =0;
-          if(sector_l=='L' && (abs(getStationEta()))==1){
-            lm1_swift = (m_etaDesign[il].minYPhiR - m_etaDesign[il].minYPhiL)/2 + m_etaDesign[il].minYPhiL;
-            low_swift = 0;
-          }
+        // define the distance from the frame till the point that the first and last active stereo strips cross the center of the chamber (low_swift & up_swift)
+        // in order to derive the total number of active strips for the stereo layer
 
-          double fPos = -0.5*m_etaDesign[il].xSize - low_swift + lm1_swift;
-          double lPos = 0.5*m_etaDesign[il].xSize + up_swift;
-          
-          m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
-                    
-          m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo + m_etaDesign[il].nRoutedBottom - m_etaDesign[il].nMissedBottomEta)*pitch) - m_etaDesign[il].nRoutedBottom*pitch;
+        double low_swift=( m_minHalfY -m_etaDesign[il].dlStereoBottom)*std::abs(std::tan(m_etaDesign[il].sAngle));
+        double up_swift = (m_maxHalfY - m_etaDesign[il].dlStereoTop)*std::abs(std::tan(m_etaDesign[il].sAngle));
 
+        double lm1_swift =0;
+        if(sector_l=='L' && (std::abs(getStationEta()))==1){
+          lm1_swift = (m_etaDesign[il].minYPhiR - m_etaDesign[il].minYPhiL)/2 + m_etaDesign[il].minYPhiL;
+          low_swift = 0;
+        }
 
-	    if (m_etaDesign[il].nch > chMax) {
-            // dead zone does not help here - just limit number of channels
-	      m_etaDesign[il].nch = chMax;
-	    }
+        double fPos = -0.5*m_etaDesign[il].xSize - low_swift + lm1_swift;
+        double lPos = 0.5*m_etaDesign[il].xSize + up_swift;
 
-      }       
-      
-      m_nStrips.push_back(m_etaDesign[il].nch);
-#ifndef NDEBUG
+        m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
+        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch) + pitch;
+
+      }
+      m_nStrips.push_back(m_etaDesign[il].totalStrips);
+
       MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
       if (log.level()<=MSG::DEBUG) log << MSG::DEBUG <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
-#endif
+
     }
 
   }
@@ -330,7 +307,8 @@ namespace MuonGM {
       log << MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
     }
 #endif
-    return absTransform()*locP;
+    Amg::Vector3D gVec = absTransform()*locP;
+    return m_delta*gVec;
   }
 
   void MMReadoutElement::setDelta(double tras, double traz, double trat,
@@ -348,6 +326,30 @@ namespace MuonGM {
                      HepGeom::TranslateZ3D(trat)*HepGeom::RotateX3D(rots)*
                     HepGeom::RotateY3D(rotz)*HepGeom::RotateZ3D(rott);
        m_hasALines = true;
+    }
+    Amg::Transform3D deltaToAmg = Amg::CLHEPTransformToEigen(delta);
+    m_delta = deltaToAmg;
+  }
+  
+  void MMReadoutElement::setDelta(MuonDetectorManager* mgr)
+  {
+    const ALineMapContainer* alineMap = mgr->ALineContainer();
+    Identifier id = mgr->mmIdHelper()->elementID(getStationName(), getStationEta(), getStationPhi());
+    Identifier idMult = mgr->mmIdHelper()->multilayerID(id, m_ml);
+    if( alineMap->find(idMult) == alineMap->cend())
+    {
+      MsgStream log(Athena::getMessageSvc(),"MMReadoutElement");
+      if(log.level()<=MSG::DEBUG)
+      {
+        log << MSG::DEBUG << "m_aLineMapContainer does not contain any ALine for MM" << endmsg;
+      }
+    }
+    else
+    {
+      ALinePar aline = alineMap->find(idMult)->second;
+      float s, z, t, rots, rotz, rott;
+      aline.getParameters(s, z, t, rots, rotz, rott);
+      setDelta(s, z, t, rots, rotz, rott);
     }
   }
 

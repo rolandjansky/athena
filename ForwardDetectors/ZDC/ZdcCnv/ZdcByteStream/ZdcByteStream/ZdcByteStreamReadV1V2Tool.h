@@ -20,7 +20,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-//#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"

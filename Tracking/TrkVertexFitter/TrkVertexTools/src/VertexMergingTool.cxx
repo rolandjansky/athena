@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexTools/VertexMergingTool.h"
@@ -39,7 +39,8 @@ namespace Trk{
    }///EndOfInitialize
 
 
-  std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexMergingTool::mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) {
+  std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexMergingTool::mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) const
+  {
 
     ATH_MSG_DEBUG("Run vertex remerging");
 
@@ -89,12 +90,12 @@ namespace Trk{
               }
 
               //call the fitter -> using xAOD::TrackParticle it should set the track links for us
-              xAOD::Vertex * mergedVtx = 0;
+              xAOD::Vertex * mergedVtx = nullptr;
               if(m_useBeamConstraint) {
                 mergedVtx = m_iVertexFitter->fit( combinedTracks, theconstraint );
               } else { 
                 //no interface for no constraint and no starting point, so use starting point of original vertex
-                Amg::Vector3D start( vx->position() );
+                const Amg::Vector3D& start( vx->position() );
                 mergedVtx = m_iVertexFitter->fit( combinedTracks, start );
               }
 
@@ -123,7 +124,7 @@ namespace Trk{
  
   }
 
-  bool VertexMergingTool::checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) {
+  bool VertexMergingTool::checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) const {
 
     double z1 = vx1->z();
     double z2 = vx2->z();
@@ -135,11 +136,7 @@ namespace Trk{
 
     ATH_MSG_DEBUG("z1 = " << z1 << ", z2 = " << z2 << ", error = " << sqrt( err2_z1+err2_z2 ) );
 
-    if(sigmaZ<3){
-      return true;
-    } else { 
-      return false;
-    }
+    return sigmaZ<3;
   }
 
 }///End trk namespace  

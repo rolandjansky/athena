@@ -1,29 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file  ParabolaCscClusterFitter.cxx 
-@author Michael Schernau */
 #include "ParabolaCscClusterFitter.h"
-#include "CscClusterization/ICscClusterFitter.h"
+
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/LocalDirection.h"
-
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include <sstream>
 #include <iomanip>
 
-using std::string;
-using std::vector;
 using Muon::CscClusterStatus;
 using Muon::CscStripPrepData;
 using Muon::CscPrepData;
@@ -33,9 +25,8 @@ typedef ICscClusterFitter::DataNames DataNames;
 typedef ICscClusterFitter::Result Result;
 typedef std::vector<Result> Results;
 
-
 namespace {
-  string splane(CscPlane plane) {
+  std::string splane(CscPlane plane) {
     switch(plane) {
     case CSS_ETA: return "CSS eta";
     case CSL_ETA: return "CSL eta";
@@ -57,8 +48,6 @@ namespace {
     return UNKNOWN_PLANE;
   }
 }
-
-
 
 /** Correct the raw parabola interpolation, based on CSCPlane.
 The correction function takes the output of the parabola method,
@@ -101,7 +90,7 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane &plane, double &raw
   }
   } // end switch
 
-  return a * atan (b * raw) + c * raw;
+  return a * std::atan (b * raw) + c * raw;
 }
     
 
@@ -109,9 +98,8 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane &plane, double &raw
 
 //*************************************************************************
 
-ParabolaCscClusterFitter::
-ParabolaCscClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent), m_detMgr(nullptr) {
+ParabolaCscClusterFitter::ParabolaCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+  AthAlgTool(type, aname, parent) {
   declareInterface<ICscClusterFitter>(this);
   m_max_width.push_back(5);  // CSS eta
   m_max_width.push_back(5);  // CSL eta
@@ -127,22 +115,11 @@ ParabolaCscClusterFitter(string type, string aname, const IInterface* parent)
 }
 
 //**********************************************************************
-ParabolaCscClusterFitter::~ParabolaCscClusterFitter() { }
-
-
-
-//**********************************************************************
 StatusCode ParabolaCscClusterFitter::initialize() {
   
   ATH_MSG_VERBOSE ( "Initalizing " << name() );
 
-  // retrieve MuonDetectorManager
-  if ( detStore()->retrieve(m_detMgr,"Muon").isFailure() ) {
-    ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
-    return StatusCode::FAILURE;
-  } 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   ATH_MSG_DEBUG ( "Properties for " << name() << ":" );
   ATH_MSG_DEBUG ( "    tan(theta) error coeff: " << m_error_tantheta );
@@ -150,11 +127,11 @@ StatusCode ParabolaCscClusterFitter::initialize() {
   ATH_MSG_DEBUG ( "   CSS eta pos-slope slope: " << m_xtan_css_eta_slope );
   ATH_MSG_DEBUG ( "  CSL eta pos-slope offset: " << m_xtan_csl_eta_offset );
   ATH_MSG_DEBUG ( "   CSL eta pos-slope slope: " << m_xtan_csl_eta_slope );
+  // retrieve MuonDetectorManager from the conditions store     
+  ATH_CHECK(m_DetectorManagerKey.initialize()); 
 
   return StatusCode::SUCCESS;
 }
-
-
 
 /** data names for ntuple output  in csc_cluster tree */
 const DataNames& ParabolaCscClusterFitter::dataNames() const {
@@ -207,13 +184,22 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   // Use the first strip to extract the layer parameters.
   const CscStripPrepData* pstrip = sfits[0].strip;
   Identifier idStrip0 = pstrip->identify();
-  const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
+
+  // retrieve MuonDetectorManager from the conditions store  
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};     
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr();     
+  if(MuonDetMgr==nullptr){       
+    ATH_MSG_ERROR("Null pointer to the MuonDetectorManager conditions object");       
+    return results;     
+  }
+  const CscReadoutElement* pro = MuonDetMgr->getCscReadoutElement(idStrip0);
+
   //  const CscReadoutElement* pro = pstrip->detectorElement(); fixed by Woochun
-  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
-  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
+  unsigned int strip0 = m_idHelperSvc->cscIdHelper().strip(idStrip0) - 1;
+  int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
   CscPlane plane = findPlane(station, measphi);
   if ( plane == UNKNOWN_PLANE ) {
     ATH_MSG_WARNING ( "Invalid CSC plane: station=" << station << "; measphi=" << measphi );
@@ -227,7 +213,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   for ( unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
     if (sfits[istrip].charge>=20000) ++nstrip_threshold;
-    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_muonIdHelperTool->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke." );
+    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_idHelperSvc->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke." );
   }
   
   // Find the highest peak and count all peaks above threshold.
@@ -243,7 +229,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
     float qnext = sfits[istrip+1].charge;
     double thr = m_multi * sfits[istrip].dcharge / 10; // correct noise*10 
     Identifier id = sfits[istrip].strip->identify();
-    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_muonIdHelperTool->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke, thr: " << (int)(thr/1000) << " ke " << ((qthis>thr)?"signal":"noise") << sfits[istrip].dcharge/1000);
+    ATH_MSG_VERBOSE ( " index: " << istrip << " chn:" << m_idHelperSvc->cscIdHelper().strip(id) << " amp:" << (int)(sfits[istrip].charge/1000) << " ke, thr: " << (int)(thr/1000) << " ke " << ((qthis>thr)?"signal":"noise") << sfits[istrip].dcharge/1000);
     charge_clu += qthis;
 
     // Peak if the adjacent strips have less charge.    
@@ -332,7 +318,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   //pos = cog;
 
   // error calculation: S/N =  charge sum / ave charge error.
-  double dpos = (dqA+dqB+dqC)/3 /(qA+qB+qC) * pitch * sqrt(2.0); // pos error
+  double dpos = (dqA+dqB+dqC)/3 /(qA+qB+qC) * pitch * std::sqrt(2.0); // pos error
   dpos = 0.08; // 80 micron error
   if ( measphi ) dpos = 2.5;  // worse phi resolution of ~2.5 mm
   //dpos = 200;//*= 2; /** todo Tune this to correct chi 2 of segments */
@@ -363,7 +349,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits, double tantheta
   // Set return values.
   Result res(0, Muon::CscStatusUnspoiled); // status 0???
   res.position = pitch*(savg + 0.5 - 0.5*maxstrip);
-  res.dposition = sqrt(dpos*dpos + dpostht*dpostht); // pos. error estimate
+  res.dposition = std::sqrt(dpos*dpos + dpostht*dpostht); // pos. error estimate
   res.strip = istrip_peak; // strip number in this cluster
   res.fstrip = 0;
   res.lstrip = nstrip-1; // cluster width
@@ -403,7 +389,7 @@ double ParabolaCscClusterFitter::getCorrectedError(const CscPrepData* pclu, doub
   double dpos = Amg::error(pclu->localCovariance(),ierr);
 
   Identifier idStrip0 = pclu->identify();
-  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+  int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
   // Calculate the angle of incidence.
   double tantht = 0.0;
   if ( station == 1 ) {
@@ -416,7 +402,7 @@ double ParabolaCscClusterFitter::getCorrectedError(const CscPrepData* pclu, doub
   
   double new_dpostht = m_error_tantheta*std::abs(slope);
 
-  double newError = sqrt(dpos*dpos
+  double newError = std::sqrt(dpos*dpos
                          - old_dpostht*old_dpostht
                          + new_dpostht*new_dpostht);
 
@@ -446,7 +432,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits) const {
     // Fetch the chamber type.
     const CscStripPrepData* pstrip = sfits[0].strip;
     Identifier idStrip0 = pstrip->identify();
-    int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+    int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
     // Calculate the angle of incidence.
     double tantht = 0.0;
     double pos = res.position;
@@ -458,13 +444,7 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits) const {
     // Correct the error using this angle.
     double dpostht = m_error_tantheta*std::abs(tantht);
     double dpos = res.dposition;
-    
-    //  std::cout << "QratCluFitter:: as followed Position error:: dpos=" << dpos
-    //            << " dpostht=" << dpostht << " new=";
-    
-    res.dposition = sqrt(dpos*dpos + dpostht*dpostht);
-    //  std::cout << res.dposition << "  at tantheta=" << tantht << " angle="
-    //            << atan(tantht)*180/acos(-1.0)<< std::endl;
+    res.dposition = std::sqrt(dpos*dpos + dpostht*dpostht);
     
     // Return the updated result.
     new_results.push_back(res);
@@ -472,11 +452,3 @@ Results ParabolaCscClusterFitter::fit(const StripFitList& sfits) const {
   
   return new_results;
 }
-
-
-
-//**********************************************************************
-StatusCode ParabolaCscClusterFitter::finalize(){
-  return StatusCode::SUCCESS;
-}
-

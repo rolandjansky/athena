@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4StepLimitation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Simulation/G4Atlas/G4AtlasInterfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

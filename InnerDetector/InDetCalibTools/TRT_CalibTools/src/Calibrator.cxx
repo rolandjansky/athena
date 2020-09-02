@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -15,6 +15,7 @@ PURPOSE: Class for calibrating a TRT sub-level
 ********************************************************************/
 
 #include "Calibrator.h"
+#include "CxxUtils/checker_macros.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH1D.h>
@@ -27,7 +28,6 @@ PURPOSE: Class for calibrating a TRT sub-level
 #include <iomanip>
 #include <fstream>
 #include <cmath>
-
 
 caldata::caldata(){
   res = -999; 
@@ -565,8 +565,8 @@ int Calibrator::UpdateOldConstants(){
   } 
 }
 
-float Calibrator::FitRt(std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){
-  
+float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){ // Global gStyle is used.
+
   float rtpars[4];
 
   //create r-m_t and m_t-r graphs
@@ -697,8 +697,7 @@ float Calibrator::FitRt(std::string key, std::string opt, TH2F* rtHist, TDirecto
 }
 
 
-float Calibrator::FitTimeResidual(std::string key, TH1F* tresHist){
-  
+float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* tresHist){ // Global gStyle is used.
 
   float mean = tresHist->GetMean();
   float rms = tresHist->GetRMS();
@@ -785,7 +784,7 @@ float Calibrator::FitTimeResidual(std::string key, TH1F* tresHist){
   }
 
 
-float Calibrator::FitResidual(std::string key, TH1F* resHist){
+float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resHist){ // Global gStyle is used.
 
   float mean = resHist->GetMean();
   //float rms = resHist->GetRMS();
@@ -805,7 +804,7 @@ float Calibrator::FitResidual(std::string key, TH1F* resHist){
 
 }
 
-TDirectory* Calibrator::Calibrate(TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){
+TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
 
   //set some bool flags
   bool calrt=opt.find("R")!=std::string::npos;

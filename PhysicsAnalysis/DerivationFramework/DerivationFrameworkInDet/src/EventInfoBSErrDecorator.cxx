@@ -88,7 +88,7 @@ namespace DerivationFramework {
       scterr[kSCT_BSErr_Ntot].push_back(totalNumErrors);
 
       // loop in errorSet
-      for(const auto error : errorSet) {
+      for(const auto& error : errorSet) {
         ATH_MSG_DEBUG("debugging information");
         Identifier itId = m_sctId->wafer_id(error);
         ATH_MSG_DEBUG(error);

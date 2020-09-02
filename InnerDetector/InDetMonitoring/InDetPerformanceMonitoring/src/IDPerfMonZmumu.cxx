@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -29,8 +29,8 @@
 // ATLAS headers
 #include "GaudiKernel/IInterface.h"
 
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthKey.h"
@@ -639,7 +639,7 @@ StatusCode IDPerfMonZmumu::FillTruthParameters(const xAOD::TrackParticle* trackP
 }
 
 
-const xAOD::TruthParticle* IDPerfMonZmumu::getTruthParticle( const xAOD::IParticle& p ) {
+const xAOD::TruthParticle* IDPerfMonZmumu::getTruthParticle ATLAS_NOT_THREAD_SAFE ( const xAOD::IParticle& p ) { // static variable is used.
   /// A convenience type declaration
   typedef ElementLink< xAOD::TruthParticleContainer > Link_t;
   /// A static accessor for the information

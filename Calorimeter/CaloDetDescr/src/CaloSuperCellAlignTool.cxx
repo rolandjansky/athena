@@ -23,8 +23,6 @@
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "CxxUtils/checker_macros.h"
-
 namespace {
 
 
@@ -91,7 +89,7 @@ CaloSuperCellAlignTool::CaloSuperCellAlignTool (const std::string& type,
 /**
  * @brief Standard Gaudi initialize method.
  */
-StatusCode CaloSuperCellAlignTool::initialize ATLAS_NOT_THREAD_SAFE()
+StatusCode CaloSuperCellAlignTool::initialize()
 {
   CHECK( base_class::initialize() );
   CHECK( m_scidTool.retrieve() );
@@ -118,7 +116,7 @@ StatusCode CaloSuperCellAlignTool::initialize ATLAS_NOT_THREAD_SAFE()
  * in StoreGate.  It is called after CaloAlignTool to propagate
  * geometry changes from the offline to supercell versions.
  */
-StatusCode CaloSuperCellAlignTool::align ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
+StatusCode CaloSuperCellAlignTool::align(IOVSVC_CALLBACK_ARGS)
 {
   // Get the managers.
   const CaloSuperCellDetDescrManager* scmgr = nullptr;
@@ -140,7 +138,7 @@ StatusCode CaloSuperCellAlignTool::align ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_
  * @param mgr The supercell geometry manager.
  * @param cellmgr The offline geometry manager.
  */
-StatusCode CaloSuperCellAlignTool::doUpdate ATLAS_NOT_THREAD_SAFE (CaloSuperCellDetDescrManager* mgr,
+StatusCode CaloSuperCellAlignTool::doUpdate(CaloSuperCellDetDescrManager* mgr,
                                                                    const CaloDetDescrManager* cellmgr)
 {
   CHECK( updateElements    (mgr, cellmgr) );
@@ -248,8 +246,8 @@ double phi_for_descr (double phi)
  * based on the provided offline geometry.
  */
 StatusCode
-CaloSuperCellAlignTool::updateDescriptors ATLAS_NOT_THREAD_SAFE (CaloSuperCellDetDescrManager* mgr,
-                                                                 const CaloDetDescrManager* cellmgr)
+CaloSuperCellAlignTool::updateDescriptors(CaloSuperCellDetDescrManager* mgr,
+                                          const CaloDetDescrManager* cellmgr)
 {
   size_t maxdesc = mgr->calo_descriptors_size() + mgr->tile_descriptors_size();
   std::vector<DescrMinMax> descr_minmax (maxdesc);

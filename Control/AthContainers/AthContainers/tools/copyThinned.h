@@ -44,7 +44,7 @@ namespace SG {
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * Returns a new copy of @c orig with elements removed according to the
  * thinning defined in @c svc.  Ownership of the new object is passed
@@ -58,13 +58,13 @@ namespace SG {
 template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned (CONTAINER& orig,
-             const SG::ThinningDecisionBase* dec);
+             const SG::ThinningInfo* info);
 
 
 /**
  * @brief Helper to copy an object while applying thinning, const version.
  * @param orig The object to copy.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * Returns a new copy of @c orig with elements removed according to the
  * thinning defined in @c svc.  Ownership of the new object is passed
@@ -77,14 +77,14 @@ copyThinned (CONTAINER& orig,
 template <class CONTAINER>
 std::unique_ptr<const CONTAINER>
 copyThinnedConst (const CONTAINER& orig,
-                  SG::ThinningDecisionBase* dec);
+                  const SG::ThinningInfo* info);
 
 
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This is the generic version of @c copyThinned, which matches types
  * for which there is not a more specific overload.  It simply makes
@@ -94,14 +94,14 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const void* dummy,
-              const SG::ThinningDecisionBase* dec);
+              const SG::ThinningInfo* info);
 
 
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c DataVector types.  It returns a view container
  * copy of @c orig, from which any thinned elements are removed.
@@ -110,14 +110,14 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (CONTAINER& orig,
               DataVector<typename CONTAINER::base_value_type>* /*dummy*/,
-              const SG::ThinningDecisionBase* dec);
+              const SG::ThinningInfo* info);
 
 
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c DataVector types.  It returns a view container
  * copy of @c orig, from which any thinned elements are removed.
@@ -126,12 +126,14 @@ template <class CONTAINER>
 std::unique_ptr<const CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const DataVector<typename CONTAINER::base_value_type>* dummy,
-              const SG::ThinningDecisionBase* dec);
+              const SG::ThinningInfo* info);
+
+
 /**
  * @brief Helper to copy an object while applying thinning.
  * @param orig The object to copy.
  * @param dummy Dummy argument for overload resolution.
- * @param dec The thinning decision for this object.
+ * @param info Thinning information for this object (or nullptr).
  *
  * This overload handles @c IAuxStore types.  It returns a new copy
  * of the store, with any thinned elements removed.
@@ -140,7 +142,7 @@ template <class CONTAINER>
 std::unique_ptr<CONTAINER>
 copyThinned1 (const CONTAINER& orig,
               const SG::IAuxStore* dummy,
-              const SG::ThinningDecisionBase* dec);
+              const SG::ThinningInfo* info);
 
 
 } // namespace SG

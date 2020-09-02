@@ -18,7 +18,6 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "CoralBase/Attribute.h"
 
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -34,11 +33,10 @@
 #include "GaudiKernel/IToolSvc.h"
 
 #include <fstream>
-#include <iterator>
-#include <sstream>
 #include <iostream>
 #include <istream>
-#include <boost/lexical_cast.hpp>
+#include <iterator>
+#include <sstream>
 
 using std::string;
 /////////////////////////////////////////////////////////////////////////////
@@ -89,14 +87,14 @@ SCTCalibWriteTool::initialize() {
    // The following is required for writing out something to COOL
 
    // CondAttrListCollection to store table temporarily
-   m_attrListColl = new CondAttrListCollection{true};
-   m_attrListColl_deadStrip = new CondAttrListCollection{true};
-   m_attrListColl_deadChip = new CondAttrListCollection{true};
-   m_attrListColl_eff = new CondAttrListCollection{true};
-   m_attrListColl_no = new CondAttrListCollection{true};
-   m_attrListColl_RawOccu = new CondAttrListCollection{true};
-   m_attrListColl_BSErr = new CondAttrListCollection{true};
-   m_attrListColl_LA = new CondAttrListCollection{true};
+   m_attrListColl = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_deadStrip = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_deadChip = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_eff = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_no = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_RawOccu = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_BSErr = std::make_unique<CondAttrListCollection>(true);
+   m_attrListColl_LA = std::make_unique<CondAttrListCollection>(true);
 
    // Get the IOVRegistrationSvc when needed
    if (m_regIOV) {
@@ -113,14 +111,6 @@ SCTCalibWriteTool::initialize() {
 
 StatusCode
 SCTCalibWriteTool::finalize() {
-   delete m_attrListColl;
-   delete m_attrListColl_deadStrip;
-   delete m_attrListColl_deadChip;
-   delete m_attrListColl_eff;
-   delete m_attrListColl_no;
-   delete m_attrListColl_RawOccu;
-   delete m_attrListColl_BSErr;
-   delete m_attrListColl_LA;
    return StatusCode::SUCCESS;
 }
 
@@ -187,7 +177,8 @@ SCTCalibWriteTool::addNumber(const string numStr, const unsigned long long numbe
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
+SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -215,7 +206,7 @@ SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wa
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE
+SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                   (const Identifier& wafer_id,
                                    const SCT_ID* sctId,
                                    const int samplesize,
@@ -252,7 +243,8 @@ SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
+SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -282,7 +274,8 @@ SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE (const Identifier& wafer
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId, const int samplesize, const float eff) const {
+SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId, const int samplesize, const float eff) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -308,7 +301,8 @@ SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float noise_occ) const {
+SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float noise_occ) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -331,7 +325,8 @@ SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_i
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float raw_occu) const {
+SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float raw_occu) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -354,7 +349,8 @@ SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE (const Identifier& wa
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize, const std::string& errorList, const std::string& probList) const {
+SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize, const std::string& errorList, const std::string& probList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -397,7 +393,8 @@ SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE (const Identifier& wafe
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListLA ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW) const {
+SCTCalibWriteTool::createListLA ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW) const {
    if (!m_writeCondObjs) return StatusCode::SUCCESS;
    int barrel_ec{sctId->barrel_ec(wafer_id)};
    int layer{sctId->layer_disk(wafer_id)};
@@ -483,7 +480,7 @@ SCTCalibWriteTool::stringToInt(const std::string& s) const {
 
 StatusCode
 SCTCalibWriteTool::wrapUpNoisyChannel() {
-   if (recordAndStream(m_attrListColl, s_defectFolderName, m_defectRecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl.get(), s_defectFolderName, m_defectRecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_defectFolderName, m_tagID4NoisyStrips).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -492,7 +489,7 @@ SCTCalibWriteTool::wrapUpNoisyChannel() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpDeadStrips() {
-   if (recordAndStream(m_attrListColl_deadStrip, s_deadStripFolderName, m_deadStripRecorded).isFailure()) return  StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_deadStrip.get(), s_deadStripFolderName, m_deadStripRecorded).isFailure()) return  StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_deadStripFolderName, m_tagID4DeadStrips).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -501,7 +498,7 @@ SCTCalibWriteTool::wrapUpDeadStrips() {
 StatusCode
 
 SCTCalibWriteTool::wrapUpDeadChips() {
-   if (recordAndStream(m_attrListColl_deadChip, s_deadChipFolderName, m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_deadChip.get(), s_deadChipFolderName, m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_deadChipFolderName, m_tagID4DeadChips).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -510,7 +507,7 @@ SCTCalibWriteTool::wrapUpDeadChips() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpEfficiency() {
-   if (recordAndStream(m_attrListColl_eff, s_effFolderName, m_effRecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_eff.get(), s_effFolderName, m_effRecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_effFolderName, m_tagID4Efficiency).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -519,7 +516,7 @@ SCTCalibWriteTool::wrapUpEfficiency() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpNoiseOccupancy() {
-   if (recordAndStream(m_attrListColl_no, s_noFolderName, m_noRecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_no.get(), s_noFolderName, m_noRecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_noFolderName, m_tagID4NoiseOccupancy).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -528,7 +525,7 @@ SCTCalibWriteTool::wrapUpNoiseOccupancy() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpRawOccupancy() {
-   if (recordAndStream(m_attrListColl_RawOccu, s_RawOccuFolderName, m_RawOccuRecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_RawOccu.get(), s_RawOccuFolderName, m_RawOccuRecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_RawOccuFolderName, m_tagID4RawOccupancy).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -537,7 +534,7 @@ SCTCalibWriteTool::wrapUpRawOccupancy() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpBSErrors() {
-   if (recordAndStream(m_attrListColl_BSErr, s_BSErrFolderName, m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_BSErr.get(), s_BSErrFolderName, m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_BSErrFolderName, m_tagID4BSErrors).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }
@@ -546,7 +543,7 @@ SCTCalibWriteTool::wrapUpBSErrors() {
 
 StatusCode
 SCTCalibWriteTool::wrapUpLorentzAngle() {
-   if (recordAndStream(m_attrListColl_LA, s_LAFolderName, m_LARecorded).isFailure()) return StatusCode::FAILURE;
+   if (recordAndStream(m_attrListColl_LA.get(), s_LAFolderName, m_LARecorded).isFailure()) return StatusCode::FAILURE;
    if (registerCondObjectsWithErrMsg(s_LAFolderName, m_tagID4LorentzAngle).isFailure()) return StatusCode::FAILURE;
    return StatusCode::SUCCESS;
 }

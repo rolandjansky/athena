@@ -9,7 +9,7 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "CSC_Hid2RESrcID.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonRDO/CscRawDataCollection.h"
 
 class CscRawDataCollection;
@@ -30,9 +30,7 @@ public:
    */
   CscROD_Encoder(); 
 
-  /** destructor 
-   */
-  ~CscROD_Encoder(); 
+  ~CscROD_Encoder()=default; 
 
    /** set CscRawDataCollection
    */ 
@@ -45,11 +43,11 @@ public:
 
   /** setIdHelper
    */
-  void setIdHelper ( const Muon::MuonIdHelperTool * muonIdHelperTool) { m_muonIdHelperTool = muonIdHelperTool; }
+  void setIdHelper (const CscIdHelper* cscIdHelper) { m_cscIdHelper = cscIdHelper; }
 
 private:
   const CscRawDataCollection * m_cscRdo; 
-  const Muon::MuonIdHelperTool * m_muonIdHelperTool;
+  const CscIdHelper* m_cscIdHelper;
  
 }; 
 

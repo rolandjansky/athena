@@ -34,6 +34,7 @@
 #include "../CaloThinCellsByClusterAlg.h"
 #include "../CaloThinCellsBySamplingAlg.h"
 #include "../CaloCellContainerAliasAlg.h"
+#include "../ToolConstantsCondAlg.h"
 
 
 DECLARE_COMPONENT( CaloTowerMonitor )
@@ -78,3 +79,4 @@ DECLARE_COMPONENT (CaloCellDumper)
 DECLARE_COMPONENT (CaloThinCellsByClusterAlg)
 DECLARE_COMPONENT (CaloThinCellsBySamplingAlg)
 DECLARE_COMPONENT (CaloCellContainerAliasAlg)
+DECLARE_COMPONENT (ToolConstantsCondAlg)

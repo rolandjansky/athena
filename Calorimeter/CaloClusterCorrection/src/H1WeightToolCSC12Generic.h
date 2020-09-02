@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,22 +16,20 @@ Created  : Feb 2007
 
 #include "GaudiKernel/AlgTool.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
 class CaloCell;
 
-class H1WeightToolCSC12Generic : public AthAlgTool, virtual public IHadronicCalibrationTool, 
-				 public CaloRec::ToolWithConstantsMixin
+class H1WeightToolCSC12Generic :
+  public extends<CaloUtils::ToolWithConstants<AthAlgTool>,
+                 IHadronicCalibrationTool>
 {
  public:
-
-  // Algtool constructor
-  H1WeightToolCSC12Generic(const std::string& name, const std::string& type,
-                   const IInterface* parent);
-  virtual ~H1WeightToolCSC12Generic();
+  /// Inherit constructor.
+  using base_class::base_class;
 
   virtual StatusCode initialize() override;
 
@@ -41,43 +39,24 @@ class H1WeightToolCSC12Generic : public AthAlgTool, virtual public IHadronicCali
   virtual double wtCell(const CaloCell* thisCell) const          override;
   virtual double wtCryo()                                        override;
 
-  using AlgTool::setProperty;
-  // using IHadronicCalibrationTool::setProperty;
-  /**
-   * @brief Method to set a property value.
-   * @param propname The name of the property to set.
-   * @param value The value to which to set it.
-   *
-   * Defined here as required by @c ToolWithConstantsMixin.
-   */
-  virtual StatusCode setProperty (const std::string& propname,
-                                  const std::string& value) override;
 
-  /**
-   * @brief Method to set a property value.
-   * @param p The property name/value to set.
-   *
-   * Defined here as required by @c ToolWithConstantsMixin.
-   */
-  virtual StatusCode setProperty (const Property& p) override;
-
- private:
-  CaloRec::Array<1> m_wtEMB0;
-  CaloRec::Array<1> m_wtEME0;
-  CaloRec::Array<1> m_wtEMB1;
-  CaloRec::Array<1> m_wtEMB2;
-  CaloRec::Array<1> m_wtEME1;
-  CaloRec::Array<1> m_wtEME2;
-  CaloRec::Array<1> m_wtTile1;
-  CaloRec::Array<1> m_wtTile2;
-  CaloRec::Array<1> m_wtHec1;
-  CaloRec::Array<1> m_wtHec2;
-  CaloRec::Array<1> m_wtFCal1;
-  CaloRec::Array<1> m_wtFCal2;
-  float m_wtGap;
-  float  m_wtScint;
-  float m_wtCryo;
-  CaloRec::Array<2> m_etaFit;
+private:
+  Constant<CxxUtils::Array<1> > m_wtEMB0  { this, "wtEMB0" };
+  Constant<CxxUtils::Array<1> > m_wtEME0  { this, "wtEME0" };
+  Constant<CxxUtils::Array<1> > m_wtEMB1  { this, "wtEMB1" };
+  Constant<CxxUtils::Array<1> > m_wtEMB2  { this, "wtEMB2" };
+  Constant<CxxUtils::Array<1> > m_wtEME1  { this, "wtEME1" };
+  Constant<CxxUtils::Array<1> > m_wtEME2  { this, "wtEME2" };
+  Constant<CxxUtils::Array<1> > m_wtTile1 { this, "wtTile1" };
+  Constant<CxxUtils::Array<1> > m_wtTile2 { this, "wtTile2" };
+  Constant<CxxUtils::Array<1> > m_wtHec1  { this, "wtHec1" };
+  Constant<CxxUtils::Array<1> > m_wtHec2  { this, "wtHec2" };
+  Constant<CxxUtils::Array<1> > m_wtFCal1 { this, "wrFCal1" };
+  Constant<CxxUtils::Array<1> > m_wtFCal2 { this, "wrFCal2" };
+  Constant<float>               m_wtGap   { this, "wtGap" };
+  Constant<float>               m_wtScint { this, "wtScint" };
+  Constant<float>               m_wtCryo  { this, "wtCyo" };
+  Constant<CxxUtils::Array<2> > m_etaFit  { this, "etaFit" };
 };
 
 #endif

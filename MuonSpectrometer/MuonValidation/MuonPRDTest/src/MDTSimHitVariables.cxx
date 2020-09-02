@@ -9,9 +9,10 @@
 #include "MuonSimEvent/MdtHitIdHelper.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -52,11 +53,7 @@ StatusCode MDTSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
     }
 
     const MuonGM::MdtReadoutElement* mdtdet = MuonDetMgr->getMdtReadoutElement(offid);
-    if (mdtdet == nullptr)
-    {
-       ATH_MSG_WARNING("MDT readout element not found for Id = " << m_MdtIdHelper->show_to_string(offid) << " skipping.");
-       continue;
-    }
+    if (!mdtdet) throw std::runtime_error(Form("File: %s, Line: %d\nMDTSimHitVariables::fillVariables() - Failed to retrieve MdtReadoutElement for %s", __FILE__, __LINE__, m_MdtIdHelper->print_to_string(offid).c_str()));
 
     m_MDT_Sim_stationName   ->push_back(stname);
     m_MDT_stationName   ->push_back(m_MdtIdHelper->stationName(offid));

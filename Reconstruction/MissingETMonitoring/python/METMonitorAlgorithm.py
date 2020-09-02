@@ -72,16 +72,16 @@ def METMonitoringConfig(inputFlags):
     for mets in met_types:
         defineHistograms(METRefFinal_MonAlg, group,helper,mets)
 
+    if inputFlags.DQ.DataType != 'cosmics':
+        METPflow_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_MonAlg')   
+        pfmet_types = ["MET_PFlow","MET_PFlow_RefJet","MET_PFlow_Muon","MET_PFlow_RefEle","MET_PFlow_RefGamma","MET_PFlow_RefTau","MET_PFlow_PVSoftTrk"]
+        METPflow_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+        METPflow_MonAlg.metKeys = pfmet_types
+        METPflow_MonAlg.alltrigger = True
 
-    METPflow_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_MonAlg')   
-    pfmet_types = ["MET_PFlow","MET_PFlow_RefJet","MET_PFlow_Muon","MET_PFlow_RefEle","MET_PFlow_RefGamma","MET_PFlow_RefTau","MET_PFlow_PVSoftTrk"]
-    METPflow_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
-    METPflow_MonAlg.metKeys = pfmet_types
-    METPflow_MonAlg.alltrigger = True
-
-    group = helper.addGroup(METPflow_MonAlg, "METMonitor", "MissingEt/AllTriggers/MET_AntiKt4EMPFlow/")
-    for mets in pfmet_types:
-        defineHistograms(METPflow_MonAlg, group,helper,mets)
+        group = helper.addGroup(METPflow_MonAlg, "METMonitor", "MissingEt/AllTriggers/MET_AntiKt4EMPFlow/")
+        for mets in pfmet_types:
+            defineHistograms(METPflow_MonAlg, group,helper,mets)
 
         
     METEMTopo_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METEMTopo_MonAlg')   
@@ -114,14 +114,15 @@ def METMonitoringConfig(inputFlags):
     for mets in met_types:
         defineHistograms(METRefFinal_XE30_MonAlg, group,helper,mets)
 
-    METPflow_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_XE30_MonAlg')
-    METPflow_XE30_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
-    METPflow_XE30_MonAlg.metTotalKey="FinalTrk"
-    METPflow_XE30_MonAlg.metKeys = pfmet_types
-    METPflow_XE30_MonAlg.dotrigger = True
-    group = helper.addGroup(METPflow_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_AntiKt4EMPflow/")
-    for mets in pfmet_types:
-        defineHistograms(METPflow_XE30_MonAlg, group,helper,mets)
+    if inputFlags.DQ.DataType != 'cosmics':
+        METPflow_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_XE30_MonAlg')
+        METPflow_XE30_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+        METPflow_XE30_MonAlg.metTotalKey="FinalTrk"
+        METPflow_XE30_MonAlg.metKeys = pfmet_types
+        METPflow_XE30_MonAlg.dotrigger = True
+        group = helper.addGroup(METPflow_XE30_MonAlg,"METMonitor","MissingEt/TrigXE30/MET_AntiKt4EMPflow/")
+        for mets in pfmet_types:
+            defineHistograms(METPflow_XE30_MonAlg, group,helper,mets)
 
     METCalo_XE30_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METCalo_XE30_MonAlg')
     METCalo_XE30_MonAlg.METCaloContainer="MET_Calo"
@@ -152,14 +153,15 @@ def METMonitoringConfig(inputFlags):
     for mets in met_types:
         defineHistograms(METRefFinal_METCut_MonAlg, group,helper,mets) 
    
-    METPflow_METCut_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_METCut_MonAlg')
-    METPflow_METCut_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
-    METPflow_METCut_MonAlg.metKeys = pfmet_types
-    METPflow_METCut_MonAlg.dometcut = True
-    METPflow_METCut_MonAlg.metcut = 80
-    group = helper.addGroup(METPflow_METCut_MonAlg,"METMonitor","MissingEt/CutMet80/MET_AntiKt4EMPflow/") 
-    for mets in pfmet_types:
-        defineHistograms(METPflow_METCut_MonAlg, group,helper,mets)
+    if inputFlags.DQ.DataType != 'cosmics':
+        METPflow_METCut_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METPflow_METCut_MonAlg')
+        METPflow_METCut_MonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+        METPflow_METCut_MonAlg.metKeys = pfmet_types
+        METPflow_METCut_MonAlg.dometcut = True
+        METPflow_METCut_MonAlg.metcut = 80
+        group = helper.addGroup(METPflow_METCut_MonAlg,"METMonitor","MissingEt/CutMet80/MET_AntiKt4EMPflow/") 
+        for mets in pfmet_types:
+            defineHistograms(METPflow_METCut_MonAlg, group,helper,mets)
         
     METCalo_METCut_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METCalo_METCut_MonAlg')
     metcalo_types = [ "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" ]
@@ -200,15 +202,16 @@ def METMonitoringConfig(inputFlags):
         defineHistograms(JetCleaning_METMonAlg, JetCleaningGroup,helper,mets)
         
 
-    PflowJetCleaning_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'PflowJetCleaning_METMonAlg') 
-    PflowJetCleaning_METMonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
-    PflowJetCleaning_METMonAlg.metKeys = pfmet_types
-    PflowJetCleaning_METMonAlg.DoJetCleaning = True
-    PflowJetCleaning_METMonAlg.JetCleaningTool = jetCleaningTool
-    PflowJetCleaningGroup = helper.addGroup(PflowJetCleaning_METMonAlg,"METMonitor","MissingEt/Jetcleaning/MET_AntiKt4EMPflow/")    
-    PflowJetCleaning_METMonAlg.JetContainerName = "AntiKt4EMPFlowJets"
-    for mets in pfmet_types:
-         defineHistograms(PflowJetCleaning_METMonAlg, PflowJetCleaningGroup,helper,mets)
+    if inputFlags.DQ.DataType != 'cosmics':
+        PflowJetCleaning_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'PflowJetCleaning_METMonAlg') 
+        PflowJetCleaning_METMonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+        PflowJetCleaning_METMonAlg.metKeys = pfmet_types
+        PflowJetCleaning_METMonAlg.DoJetCleaning = True
+        PflowJetCleaning_METMonAlg.JetCleaningTool = jetCleaningTool
+        PflowJetCleaningGroup = helper.addGroup(PflowJetCleaning_METMonAlg,"METMonitor","MissingEt/Jetcleaning/MET_AntiKt4EMPflow/")    
+        PflowJetCleaning_METMonAlg.JetContainerName = "AntiKt4EMPFlowJets"
+        for mets in pfmet_types:
+            defineHistograms(PflowJetCleaning_METMonAlg, PflowJetCleaningGroup,helper,mets)
          
     METCaloJetCleaning_MonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'METCaloJetCleaning_MonAlg')   
     metcalo_types = [ "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" ]
@@ -248,17 +251,18 @@ def METMonitoringConfig(inputFlags):
     for mets in met_types:
         defineHistograms(BadJets_METMonAlg, BadJetsGroup,helper,mets)
 
-    BadPFJets_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'BadPFJets_METMonAlg')    
-    BadPFJets_METMonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
-    BadPFJets_METMonAlg.metKeys = pfmet_types
-    BadPFJets_METMonAlg.DoJetCleaning = True
-    BadPFJets_METMonAlg.alltrigger = True
-    BadPFJets_METMonAlg.DoBadJets = True
-    BadPFJets_METMonAlg.JetCleaningTool = jetCleaningTool
-    BadPFJets_METMonAlg.JetContainerName = "AntiKt4EMPFlowJets"
-    BadPFJetsGroup = helper.addGroup(BadPFJets_METMonAlg,"METMonitor","MissingEt/AllTriggers/BadJets/MET_AntiKt4EMPflow/")
-    for mets in pfmet_types:
-        defineHistograms(BadPFJets_METMonAlg, BadPFJetsGroup,helper,mets)
+    if inputFlags.DQ.DataType != 'cosmics':
+        BadPFJets_METMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'BadPFJets_METMonAlg')    
+        BadPFJets_METMonAlg.METContainer="MET_Reference_AntiKt4EMPFlow"
+        BadPFJets_METMonAlg.metKeys = pfmet_types
+        BadPFJets_METMonAlg.DoJetCleaning = True
+        BadPFJets_METMonAlg.alltrigger = True
+        BadPFJets_METMonAlg.DoBadJets = True
+        BadPFJets_METMonAlg.JetCleaningTool = jetCleaningTool
+        BadPFJets_METMonAlg.JetContainerName = "AntiKt4EMPFlowJets"
+        BadPFJetsGroup = helper.addGroup(BadPFJets_METMonAlg,"METMonitor","MissingEt/AllTriggers/BadJets/MET_AntiKt4EMPflow/")
+        for mets in pfmet_types:
+            defineHistograms(BadPFJets_METMonAlg, BadPFJetsGroup,helper,mets)
 
 
     BadJets_CaloMETMonAlg = helper.addAlgorithm(CompFactory.METMonitoringAlg,'BadJets_CaloMETMonAlg')    

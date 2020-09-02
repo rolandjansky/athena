@@ -60,7 +60,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
 
         if flags.Overlay.DataOverlay:
             from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-            acc.merge(ByteStreamReadCfg(flags, typeNames=[
+            acc.merge(ByteStreamReadCfg(flags, type_names=[
                 'TileDigitsContainer/' + flags.Overlay.BkgPrefix + 'TileDigitsCnt',
                 'TileRawChannelContainer/' + flags.Overlay.BkgPrefix + 'TileRawChannelCnt']
             ))
@@ -148,8 +148,10 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
             tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileFilteredContainer')
 
     tileDigitsContainer = tileDigitsContainer.split('+').pop()
-    outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
-    
+    if flags.Digitization.AddCaloDigi:
+        outputItemList = ['TileDigitsContainer#*']
+    else:
+        outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
 
     if flags.Output.doWriteRDO:
         if flags.Digitization.TruthOutput:
@@ -186,11 +188,17 @@ if __name__ == "__main__":
     ConfigFlags.dump()
 
     # Construct our accumulator to run
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    acc = MainServicesCfg(ConfigFlags)
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
+
+    if 'EventInfo' not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                     inputKey='McEventInfo',
+                                     outputKey='EventInfo'))
 
     acc.merge( TileDigitsMakerOutputCfg(ConfigFlags) )
 

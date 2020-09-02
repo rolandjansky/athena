@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadCalibChipGainCondAlg.h"
 
+#include "FillFromStringUtility.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
-
-#include "GaudiKernel/EventIDRange.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipDefs.h"
 
 #include <memory>
 
 using namespace SCT_ConditionsData;
-using namespace SCT_ReadCalibChipUtilities;
+using namespace SCT_ReadCalibChipDefs;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -62,14 +62,10 @@ StatusCode SCT_ReadCalibChipGainCondAlg::execute(const EventContext& ctx) const 
     ATH_MSG_FATAL("Null pointer to the read conditions object");
     return StatusCode::FAILURE;
   }
-  // Get the validitiy range
-  EventIDRange rangeW;
-  if (not readHandle.range(rangeW)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
+  // Add dependency
+  writeHandle.addDependency(readHandle);
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-  ATH_MSG_INFO("Range of input is " << rangeW);
+  ATH_MSG_INFO("Range of input is " << readHandle.getRange());
   
   // Construct the output Cond Object and fill it in
   std::unique_ptr<SCT_GainCalibData> writeCdo{std::make_unique<SCT_GainCalibData>()};
@@ -101,13 +97,13 @@ StatusCode SCT_ReadCalibChipGainCondAlg::execute(const EventContext& ctx) const 
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+  if (writeHandle.record(std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_GainCalibData " << writeHandle.key() 
-                  << " with EventRange " << rangeW
+                  << " with EventRange " << writeHandle.getRange()
                   << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << writeHandle.getRange() << " into Conditions Store");
 
   return StatusCode::SUCCESS;
 }
@@ -122,6 +118,6 @@ SCT_ReadCalibChipGainCondAlg::insertNptGainFolderData(SCT_ModuleGainCalibData& t
   for (int i{0}; i!=N_NPTGAIN; ++i) {
     SCT_ModuleCalibParameter& datavec{theseCalibData[i]};
     const std::string &dbData{((folderData)[nPtGainDbParameterNames[i]]).data<std::string>()};
-    fillFromString(dbData, datavec);
+    fillArrayFromString(dbData, datavec);
   }
 }

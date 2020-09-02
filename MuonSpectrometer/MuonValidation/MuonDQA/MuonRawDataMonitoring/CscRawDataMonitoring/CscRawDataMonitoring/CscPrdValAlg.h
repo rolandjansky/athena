@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscPrdValAlg_H
@@ -9,14 +9,14 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CscClusterization/ICscStripFitter.h"
 
 class TH1;
 class TH1F;
 class TH2F;
-
-class ICscStripFitter;
 
 class CscPrdValAlg: public ManagedMonitorToolBase  {
   
@@ -30,7 +30,7 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
 
   StatusCode bookHistograms();
   StatusCode fillHistograms();
-  StatusCode procHistograms();
+  StatusCode procHistograms(){return StatusCode::SUCCESS;}
   StatusCode checkHists(bool fromFinalise);
 
  private:
@@ -50,9 +50,7 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
   // Strip fitter
   ToolHandle<ICscStripFitter> m_stripFitter;
 
-  // CSC identifier helper
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   StatusCode fillLumiBlock();
   int m_lumiblock;

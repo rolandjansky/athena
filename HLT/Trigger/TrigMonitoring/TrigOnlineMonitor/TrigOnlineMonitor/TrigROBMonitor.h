@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "ByteStreamData/RawEvent.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "eformat/Status.h"
@@ -32,8 +31,6 @@ private:
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   /// Reference to the ROBDataProviderSvc service
   IIROBDataProviderSvc_t           m_robDataProviderSvc;
-  /// Reference to a ROBDataProviderSvc which implements also the trigger additions
-  SmartIF<ITrigROBDataProviderSvc> m_trigROBDataProviderSvc;
 
   /// Switch for setting the debug StreamTag and name for debug stream
   BooleanProperty                  m_setDebugStream;

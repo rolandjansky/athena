@@ -19,8 +19,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "LArRawEvent/LArRawChannel.h"
-#include "LArRawEvent/LArRawChannelContainer.h"
-//#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "AthenaKernel/Units.h"
 
@@ -115,8 +113,6 @@ LArRawChannelMonTool::LArRawChannelMonTool( const std::string & type,
 {
 
   declareProperty( "dataNameBase", m_data_name_base = "LArRawChannel" );
-  declareProperty( "LArRawChannelContainerKey",
-		   m_LArRawChannel_container_key = "LArRawChannels" );
   declareProperty( "calo_noise_tool", m_calo_noise_tool );
   declareProperty( "masking_tool",    m_masking_tool );
   declareProperty( "ATLASReadyFilterTool",    m_filterAtlasReady_tools );
@@ -175,6 +171,9 @@ StatusCode LArRawChannelMonTool::initialize()
   m_interval        = intervalStringToEnum( m_interval_str );
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
+
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_LArRawChannel_container_key.initialize() );
 
   ATH_CHECK( detStore()->retrieve( m_lar_online_id_ptr, "LArOnlineID" ) );
   ATH_CHECK( detStore()->retrieve( m_calo_id_mgr_ptr ) );
@@ -354,7 +353,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
   if ( is_new_interval ) {
 
     // --- exit if no LArRawChannelContainer exists ---
-    m_has_lar_raw_channels = evtStore()->contains<LArRawChannelContainer>(m_LArRawChannel_container_key);
+    m_has_lar_raw_channels = SG::ReadHandle<LArRawChannelContainer>(m_LArRawChannel_container_key).isValid();
     if ( !m_has_lar_raw_channels ) return StatusCode::SUCCESS;
 
     // --- To remeber which ft have been booked in which detector ---
@@ -1201,24 +1200,24 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
 
   // --- retrieve raw channels ---
-  const LArRawChannelContainer *raw_channels = 0;
-  if ( !evtStore()->retrieve( raw_channels, m_LArRawChannel_container_key ).isSuccess() ) {
+  SG::ReadHandle<LArRawChannelContainer> raw_channels{m_LArRawChannel_container_key};
+  if ( !raw_channels.isValid() ) {
 
     ATH_MSG_WARNING( "Cannot retrieve LArRawChannelContainer with key: "
-	<< m_LArRawChannel_container_key );
+	<< m_LArRawChannel_container_key.key() );
     return StatusCode::FAILURE;
 
   }
 
   // --- retrieve event information ---
-  const xAOD::EventInfo* event_info;
+  SG::ReadHandle<xAOD::EventInfo> event_info{m_EventInfoKey};
   uint32_t bunch_crossing_id = 0;
   uint32_t lumi_block        = 0;
   bool isEventFlaggedByLArNoisyROAlg = false; // keep default as false
   bool isEventFlaggedByLArNoisyROAlgInTimeW = false; // keep deault as false
   bool isEventFlaggedByLArNoisyROAlg_W =false; // keep deault as false
   //  double event_time_minutes = -1;
-  if ( evtStore()->retrieve( event_info ).isSuccess()) {
+  if ( event_info.isValid() ) {
    
     //ATH_MSG_DEBUG( "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) );
     // Check for LArNoisyROAlg event info
@@ -1927,7 +1926,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_quality )        per_feb_hists_to_scale.push_back(&m_per_feb_hists[quality_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
 
@@ -1939,7 +1938,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_quality )        per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[quality_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_event_counter ) );
       }
@@ -1960,7 +1959,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_negative_noise ) per_feb_hists_to_scale.push_back(&m_per_feb_hists[neg_noise_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th1_vect_cptr : per_feb_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th1_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th1_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
 
@@ -1973,7 +1972,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 	if ( m_monitor_negative_noise ) per_ft_hists_to_scale.push_back(&m_per_feedthrough_hists[neg_noise_h]);
 
 	for( const std::vector<shared_ptr<IHistoProxyBase> >* const th2_vect_cptr : per_ft_hists_to_scale )
-	  for( shared_ptr<IHistoProxyBase> const histo_cptr : *th2_vect_cptr )
+	  for( const shared_ptr<IHistoProxyBase>& histo_cptr : *th2_vect_cptr )
 	  if ( histo_cptr )
 	    histo_cptr->Scale( 100. / float( m_noise_stream_event_counter ) );
       }

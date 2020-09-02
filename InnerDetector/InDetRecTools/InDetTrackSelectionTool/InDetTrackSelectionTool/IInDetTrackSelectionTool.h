@@ -36,10 +36,7 @@ namespace InDet {
   // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackingPerformanceGuidelines
   // if you add levels, make sure to add entries to the map in InDetTrackSelectionTool.cxx
   // so that they can be set from athena as well.
-  enum
-#if __cplusplus > 201100L
-  class
-#endif
+  enum class
   CutLevel {
     NoCut, Loose, LoosePrimary, TightPrimary,
       LooseMuon, LooseElectron, LooseTau,

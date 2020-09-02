@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -45,19 +45,8 @@ Updated:  May 5, 2004    (Sven Menke)
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 using xAOD::CaloCluster;
-CaloClusterUpdate::CaloClusterUpdate(const std::string& type,
-                                     const std::string& name,
-                                     const IInterface* parent)
-  : CaloClusterCorrection(type, name, parent)
-{
-  declareConstant ("update_energy",  m_update_energy);
-}
-
-CaloClusterUpdate::~CaloClusterUpdate()
-{ }
-
-void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
-                                       CaloCluster* cluster) const
+void CaloClusterUpdate::makeCorrection (const Context& myctx,
+                                        CaloCluster* cluster) const
 {
   float energy=0; 
   float eta=0; 
@@ -161,7 +150,7 @@ void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
   cluster->setEta(eta); 
   cluster->setPhi(phi2); 
 
-  if (m_update_energy)
+  if (m_update_energy (myctx))
     cluster->setE(energy); 
 }
 

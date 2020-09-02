@@ -2,13 +2,49 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
+def LArCellMonConfigOld(inputFlags):
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
+    from CaloMonitoring.CaloMonitoringConf import  LArCellMonAlg
+
+    helper = AthMonitorCfgHelperOld(inputFlags, 'LArCellMonAlgOldCfg')
+    from AthenaCommon.BeamFlags import jobproperties
+    if jobproperties.Beam.beamType() == 'cosmics':
+       isCosmics=True
+    else:
+       isCosmics=False
+
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource() == 'data':
+       isMC=False
+    else:
+       isMC=True
+
+    if not isMC:
+        from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault
+        LBDurationCondAlgDefault()
+        from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault
+        TrigLiveFractionCondAlgDefault()
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+        LuminosityCondAlgDefault()
+
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg()
+
+    LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
+
+    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
+    helper.monSeq.LArCellMonAlg.ReadyFilterTool = GetAtlasReadyFilterTool()
+    from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
+    helper.monSeq.LArCellMonAlg.BadLBTool = GetLArBadLBFilterTool()
+
+    return helper.result()
 
 def LArCellMonConfig(inputFlags):
-
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'LArCellMonConfig' )
-    from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'LArCellMonCfg')
+
+    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
+    helper = AthMonitorCfgHelper(inputFlags,'LArCellMonAlgCfg')
 
     if not inputFlags.DQ.enableLumiAccess:
        mlog.warning('This algo needs Lumi access, returning empty config')
@@ -34,46 +70,66 @@ def LArCellMonConfig(inputFlags):
     if inputFlags.Input.isMC is False:
       from LumiBlockComps.LuminosityCondAlgConfig import  LuminosityCondAlgCfg
       cfg.merge(LuminosityCondAlgCfg(inputFlags))
-
-    isCosmics = ( inputFlags.Beam.Type == 'cosmics' ) #will use this switch many times later
+      from LumiBlockComps.LBDurationCondAlgConfig import  LBDurationCondAlgCfg
+      cfg.merge(LBDurationCondAlgCfg(inputFlags))
 
     from AthenaConfiguration.ComponentFactory import CompFactory
-    LArCellMonAlg=CompFactory.LArCellMonAlg
+    lArCellMonAlg=CompFactory.LArCellMonAlg
+
     algname='LArCellMonAlg'
-    if isCosmics:
+    if inputFlags.Beam.Type == 'cosmics':
         algname=algname+'Cosmics'
-    LArCellMonAlg = helper.addAlgorithm(LArCellMonAlg,algname)
 
-    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
+    isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
+    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
 
-    if isCosmics:
-        badChanMaskProblems=["deadReadout","deadPhys","short","sporadicBurstNoise","highNoiseHG","highNoiseMG","highNoiseLG"]
-    else: 
-        badChanMaskProblems=["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG","unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"]
-        pass
+    acc=helper.result()
 
-    acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=badChanMaskProblems,ToolName="BadLArRawChannelMask")
-    LArCellMonAlg.LArBadChannelMask=acc.popPrivateTools()
+    from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
+    acc.getEventAlgo(algname).ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
+
+    if not inputFlags.Input.isMC:
+       from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
+       acc.getEventAlgo(algname).BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
+
     cfg.merge(acc)
 
-    if not isCosmics and not inputFlags.Input.isMC:
-        from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
-        #LArCellMonAlg.FilterTools.append(cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags)))
+    return cfg
 
-        # why is there this parallel mechanism to the standard DQ filter chain?
-        LArCellMonAlg.ReadyFilterTool=cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
+
+def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=False, algname='LArCellMonAlg'):
+
+
+    LArCellMonAlg = helper.addAlgorithm(algclass, algname)
+
+    if isCosmics:
+       badChanMaskProblems=["deadReadout","deadPhys","short","sporadicBurstNoise","highNoiseHG","highNoiseMG","highNoiseLG"]
+    else: 
+       badChanMaskProblems=["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG","unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"]
+
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
+       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
+
+       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=badChanMaskProblems,ToolName="BadLArRawChannelMask")
+       LArCellMonAlg.LArBadChannelMask=acc.popPrivateTools()
+       helper.resobj.merge(acc)
+    else:
+       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+       theLArBadChannelsMasker=LArBadChannelMasker("BadLArRawChannelMask")
+       theLArBadChannelsMasker.DoMasking=True
+       theLArBadChannelsMasker.ProblemsToMask=badChanMaskProblems
+       LArCellMonAlg.LArBadChannelMask=theLArBadChannelsMasker
+
+    if not isCosmics and not isMC:
         LArCellMonAlg.useReadyFilterTool=True
     else:
         LArCellMonAlg.useReadyFilterTool=False
 
-    if not inputFlags.Input.isMC:
-        from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
-        #LArCellMonAlg.FilterTools.append(cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags)))
-        # similar to above
-        LArCellMonAlg.BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
-        LArCellMonAlg.useBadLBTool=True
-    else:
+    if isMC:
         LArCellMonAlg.useBadLBTool=False
+    else:
+        LArCellMonAlg.useBadLBTool=True
 
 # FIXME: to be added:    if isCosmics or rec.triggerStream()!='CosmicCalo':
     LArCellMonAlg.useBeamBackgroundRemoval = False
@@ -227,7 +283,7 @@ def LArCellMonConfig(inputFlags):
     cellMonGroup = helper.addGroup(
         LArCellMonAlg,
         GroupName,
-        '/CaloMonitoring/LArCellMon_NoTrigSel/'
+        '/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/'
 
     )
 
@@ -255,7 +311,7 @@ def LArCellMonConfig(inputFlags):
     # En.
     LArCellMonAlg.doUnnormalized1DEnergy=True
     energy_hist_path='Energy/'
-    if inputFlags.Beam.Type == 'collisions':
+    if not isCosmics:
         for part in LArCellMonAlg.LayerNames:
             cellMonGroup.defineHistogram('cellEnergy_'+part+';CellEnergy_'+part,
                                          title='Cell Energy in ' +part+' with CSC veto;Cell Energy [MeV];Cell Events',
@@ -289,8 +345,8 @@ def LArCellMonConfig(inputFlags):
                            type='TH2F', path=energyvstime_hist_path,
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
-         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(eCutForTiming[idx/2]),
-                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(eCutForTiming[idx/2])+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
+         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(eCutForTiming[idx//2]),
+                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(eCutForTiming[idx//2])+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
                            weight='cellEnergy_'+part+'_cut',
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,
@@ -302,7 +358,7 @@ def LArCellMonConfig(inputFlags):
     cellMonGroupPerJob = helper.addGroup(
         LArCellMonAlg,
         LArCellMonAlg.MonGroupName_perJob,
-        '/CaloMonitoring/LArCellMon_NoTrigSel/'
+        '/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/'
     )
 
     LArCellMonAlg.doKnownBadChannelsVsEtaPhi = True
@@ -347,7 +403,7 @@ def LArCellMonConfig(inputFlags):
 
     #--- group array for threshold dependent histograms
     allMonArray = helper.addArray([LArCellMonAlg.LayerNames, LArCellMonAlg.ThresholdType], LArCellMonAlg, "allMon", 
-                                    "/CaloMonitoring/LArCellMon_NoTrigSel/")
+                                    "/CaloMonitoring/LArCellMon_NoTrigSelNewAlg/")
 
 
     #now histograms
@@ -439,9 +495,6 @@ def LArCellMonConfig(inputFlags):
                                 treedef='sporadicCellE/F:sporadicCellTime/F:sporadicCellQuality/s:sporadicCellID/l:lumiBlock/i')
 
 
-    cfg.merge(helper.result())
-    return cfg
-    
 
 if __name__=='__main__':
 
@@ -470,8 +523,8 @@ if __name__=='__main__':
 
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg = MainServicesCfg(ConfigFlags)
 
     # in case of tier0 workflow:
     #from CaloRec.CaloRecoConfig import CaloRecoCfg

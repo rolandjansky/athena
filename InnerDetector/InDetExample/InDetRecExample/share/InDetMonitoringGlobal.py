@@ -72,6 +72,7 @@ if InDetFlags.doMonitoringGlobal():
 
   TrackCollection = InDetKeys.UnslimmedTracks()
 
+  from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool 
   InDetTrackSelectionToolGlobalMon_Baseline = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectionToolGlobalMon_Baseline",
                                                                                  UseTrkTrackTools = True,
                                                                                  CutLevel = "TightPrimary",
@@ -213,7 +214,7 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
 if InDetFlags.doMonitoringGlobal():
   from InDetVertexMonitoring.InDetVertexMonitoringConf import InDetVertexMonitoring
   InDetVertexMonitoring = InDetVertexMonitoring(  name = "InDetVertexMonitoring",
-                                                VertexContainer = InDetKeys.PrimaryVertices(),
+                                                VertexContainer = InDetKeys.xAODVertexContainer(),
                                                 DoControlPlots = False,
                                                 histFolder = "InDetGlobal/PrimaryVertexMultiplicity"
                                                 )

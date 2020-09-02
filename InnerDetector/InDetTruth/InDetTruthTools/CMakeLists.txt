@@ -19,17 +19,17 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRawEvent/InDetSimData
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkTruthData )
+                          Tracking/TrkEvent/TrkTruthData 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( InDetTruthTools
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps TrkEventPrimitives AtlasDetDescr GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData )
+                     INCLUDE_DIRS 
+                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps TrkEventPrimitives AtlasDetDescr GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData InDetTruthInterfaces TrkTruthTrackInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetTruthTools )

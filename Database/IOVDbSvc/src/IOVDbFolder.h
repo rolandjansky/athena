@@ -9,8 +9,7 @@
 #define IOVDbSvc_IOVDbFolder_h
 
 #include <string>
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
@@ -38,10 +37,10 @@ class StoreGateSvc;
 class IIOVDbMetaDataTool;
 class CondAttrListCollection;
 
-class IOVDbFolder {
+class IOVDbFolder : public AthMessaging {
 public:
-  IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream & /*msg*/,
-              IClassIDSvc* clidsvc,const bool checkglock, const bool outputToFile=false,
+  IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream& msg,
+              IClassIDSvc* clidsvc,const bool checklock, const bool outputToFile=false,
               const std::string & source="COOL_DATABASE");
   ~IOVDbFolder();
   
@@ -215,87 +214,70 @@ private:
   specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
  
   
-  StoreGateSvc*        p_detStore;     // pointer to detector store
-  IClassIDSvc*         p_clidSvc;      // pointer to CLID service
-  IIOVDbMetaDataTool*  p_metaDataTool; // pointer to metadata tool (writing)
-  IOVDbConn*           m_conn;         // pointer to corresponding IOVDbConn object (=0 FLMD)
-  std::string m_foldername; // COOL foldername
-  std::string m_key;   // SG key where data is loaded (unique)
-  bool m_multiversion; // is folder multiversion
-  bool m_timestamp;    // is folder indexed by timestamp (else runLB)
-  bool m_tagoverride;  // is tag reset from override (needed for FLMD)
-  bool m_notagoverride;// tag must not be overridden from input file
-  bool m_writemeta;    // is writing to metadata
-  bool m_fromMetaDataOnly; // to be read from metadata only
-  bool m_extensible;   // is this an extensible folder?
-  bool m_named;        // folder has named channels
-  bool m_iovoverridden;// folder has IOV override
-  bool m_jokey;        // folder has non-default key from joboptions
-  bool m_dropped;      // data object was dropped from SG
-  bool m_autocache;    // indicates if cache length was automatically set
-  bool m_checklock;    // indicates if global tags should be checked locked
-  cool::ValidityKey m_iovoverride; // validity key to use
-  IOVDbNamespace::FolderType        m_foldertype; // type of data in folder (enum)
-  const IOVMetaDataContainer* m_metacon; // metadata container (=0 if not FLMD)
+  StoreGateSvc*        p_detStore{nullptr};     // pointer to detector store
+  IClassIDSvc*         p_clidSvc{nullptr};      // pointer to CLID service
+  IIOVDbMetaDataTool*  p_metaDataTool{nullptr}; // pointer to metadata tool (writing)
+  IOVDbConn*           m_conn{nullptr};         // pointer to corresponding IOVDbConn object (=0 FLMD)
+  std::string m_foldername;       // COOL foldername
+  std::string m_key;              // SG key where data is loaded (unique)
+  bool m_multiversion{false};     // is folder multiversion
+  bool m_timestamp{false};        // is folder indexed by timestamp (else runLB)
+  bool m_tagoverride{false};      // is tag reset from override (needed for FLMD)
+  bool m_notagoverride{false};    // tag must not be overridden from input file
+  bool m_writemeta{false};        // is writing to metadata
+  bool m_fromMetaDataOnly{false}; // to be read from metadata only
+  bool m_extensible{false};       // is this an extensible folder?
+  bool m_named{false};            // folder has named channels
+  bool m_iovoverridden{false};    // folder has IOV override
+  bool m_jokey{false};            // folder has non-default key from joboptions
+  bool m_dropped{false};          // data object was dropped from SG
+  bool m_autocache{true};         // indicates if cache length was automatically set
+  bool m_checklock{true};         // indicates if global tags should be checked locked
+  cool::ValidityKey m_iovoverride{0};             // validity key to use
+  IOVDbNamespace::FolderType m_foldertype;        // type of data in folder (enum)
+  const IOVMetaDataContainer* m_metacon{nullptr}; // metadata container (=0 if not FLMD)
 
-  cool::ValidityKey m_cachelength; // length of cache
-  int m_cachehint; // cachehint value (set initial size to Nxchan)
-  int m_cacheinc;  // number of cache increments performed
+  cool::ValidityKey m_cachelength{0}; // length of cache
+  int m_cachehint{0};                 // cachehint value (set initial size to Nxchan)
+  int m_cacheinc{0};                  // number of cache increments performed
 
   cool::ChannelSelection m_chansel; // COOL channel selection
   typedef std::pair<cool::ChannelId,cool::ChannelId> ChanRange;
   std::vector<ChanRange> m_chanrange; // explicit list of channel ranges
   // channel range list needed to work around COOL bug 42708 which does not
   // properly select channels in non-contiguous ranges
-  std::string m_jotag; // raw tag found on job options
-  std::string m_tag;   // resolved tag actually used for lookup
-  std::string m_typename; // typename, read from folder description
+  std::string m_jotag;      // raw tag found on job options
+  std::string m_tag;        // resolved tag actually used for lookup
+  std::string m_typename;   // typename, read from folder description
   std::string m_eventstore; // associated event store name
-  std::string m_cachepar; // folder cache parameter read from jobopt/desc
+  std::string m_cachepar;   // folder cache parameter read from jobopt/desc
   std::string m_addrheader; // address header string from folder description
-  CLID m_clid;         // CLID, read from folder description or ClassIDSvc
+  CLID m_clid{0};           // CLID, read from folder description or ClassIDSvc
 
-  unsigned int m_ndbread; // number of times data read from DB
-  unsigned int m_ncacheread; // number of times data read from cache
-  unsigned int m_nobjread; // number of objects read from DB
-  unsigned long long m_nbytesread; // number of bytes read from DB
-  float m_readtime; // time spent reading data from COOL (in loadcache)
+  unsigned int m_ndbread{0};          // number of times data read from DB
+  unsigned int m_ncacheread{0};       // number of times data read from cache
+  unsigned int m_nobjread{0};         // number of objects read from DB
+  unsigned long long m_nbytesread{0}; // number of bytes read from DB
+  float m_readtime{0};                // time spent reading data from COOL (in loadcache)
 
   // channel number and names (latter only filled for 'named' folders)
-  unsigned int m_nchan;
+  unsigned int m_nchan{0};
   std::vector<cool::ChannelId> m_channums;
   std::vector<std::string> m_channames;
 
   // current range and validity flag
-  bool m_retrieved;
+  bool m_retrieved{false};
   IOVRange m_currange;
 
   // COOL data cache and limits
-  coral::AttributeListSpecification* m_cachespec;
+  coral::AttributeListSpecification* m_cachespec{nullptr};
   std::vector<cool::ChannelId> m_cachechan;
   std::vector<coral::AttributeList> m_cacheattr;
   std::vector<unsigned int> m_cacheccstart;
   std::vector<unsigned int> m_cacheccend;
   IOVDbNamespace::IovStore m_iovs;
-  const bool m_outputToFile;
+  const bool m_outputToFile{false};
   const std::string m_source;
-  
-  protected:
-   /// Log a message using the Athena controlled logging system
-          MsgStream&
-          msg(MSG::Level lvl) const {
-            return m_msg.get() << lvl;
-          }
-       
-          /// Check whether the logging system is active at the provided verbosity level
-          bool
-          msgLvl(MSG::Level lvl) {
-            return m_msg.get().level() <= lvl;
-          }
-       
-          /// Private message stream member
-          mutable Athena::MsgStreamMember m_msg;
-  
 };
 
 inline const std::string& IOVDbFolder::folderName() const {return m_foldername;}

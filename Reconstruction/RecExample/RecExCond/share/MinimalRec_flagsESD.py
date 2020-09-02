@@ -1,8 +1,6 @@
 # switch off algorithms that are not needed for minimal reconstruction
 if rec.doMinimalRec():
     from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.doiPatRec=False
-    InDetFlags.doxKalman=False
     from tauRec.tauRecFlags import jobproperties
     jobproperties.tauRecFlags.Enabled=False
     recAlgs.doMuonIDStandAlone=False

@@ -3,7 +3,7 @@
 #--------------------------------
 include.block ('HIRecExample/HIRec_jobOptions.py')
 
-print 'IN HEAVY ION REC'
+print("IN HEAVY ION REC")
 
 # # General adjustments
 # topSequence.TimeOut=3600* Units.s
@@ -12,7 +12,7 @@ print 'IN HEAVY ION REC'
 # include("HIRecExample/HICalibrationsCoolFolders.py")
 
 # from AthenaCommon.DetFlags import DetFlags
-# from HIRecExample.HIRecExampleFlags import jobproperties
+from HIRecExample.HIRecExampleFlags import jobproperties
 
 #   if jobproperties.HIRecExampleFlags.doHIEventView:
 #       include( "HIRecExample/HIEventView_jobOptions.py" )
@@ -20,14 +20,17 @@ print 'IN HEAVY ION REC'
 # include reconstruction algorithms
 # only in ESD step
 if rec.doESD:
-    print "Including HI algorithms in ESD step"
+    print("Including HI algorithms in ESD step")
     if jobproperties.HIRecExampleFlags.doHIGlobal:
         include( "HIGlobal/HIGlobal_jobOptions.py" )
-    
-    if (jobproperties.HIRecExampleFlags.doHIJetRec and DetFlags.haveRIO.Calo_on() and   rec.triggerStream() != 'CosmicCalo') :
+
+    if (jobproperties.HIRecExampleFlags.doHIJetRec and \
+            DetFlags.haveRIO.Calo_on() and \
+            rec.triggerStream() != 'CosmicCalo') :
         include( "HIJetRec/HIJetRec_jobOptions.py" )
-        if jobproperties.HIRecExampleFlags.doHIegamma : 
+        if jobproperties.HIRecExampleFlags.doHIegamma :
             include ("HIJetRec/HIegamma_jobOptions.py");
+
 # else :
 #     jobproperties.HIRecExampleFlags.doHIJetRec=False
 
@@ -35,3 +38,8 @@ if rec.doESD:
 #       include( "HIValidation/HIValidation_jobOptions.py")
 
 
+if (jobproperties.HIRecExampleFlags.doHIJetRec and \
+        DetFlags.haveRIO.Calo_on() and \
+        rec.triggerStream() != 'CosmicCalo') :
+    if jobproperties.HIRecExampleFlags.doHIAODFix :
+        include( "HIJetRec/HIJetRec_AODFix_207.py" );

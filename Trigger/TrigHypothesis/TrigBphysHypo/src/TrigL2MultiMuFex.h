@@ -15,15 +15,10 @@
 
 #include <string>
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "TrigInterfaces/ComboAlgo.h"
 
-#include "TrigInDetEvent/TrigVertexCollection.h"
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
-
-//#include "TrigParticle/TrigL2BphysContainer.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -111,7 +106,6 @@ class TrigL2MultiMuFex: public HLT::ComboAlgo {
 
     // Output collections
     xAOD::TrigBphysContainer* m_trigBphysColl;
-    //TrigVertexCollection* m_VertexColl;
 
     // Monitored variables
     std::vector<int>   m_mon_Errors;

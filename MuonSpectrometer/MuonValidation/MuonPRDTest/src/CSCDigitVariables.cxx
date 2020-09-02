@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSCDigitVariables.h"
@@ -12,6 +12,7 @@
 
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 
+#include <TString.h> // for Form
 #include "TTree.h"
 
 /** ---------- filling of variables */
@@ -74,6 +75,7 @@ StatusCode CSCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
       m_CSC_dig_channel->push_back(channel);
 
       const MuonGM::CscReadoutElement* rdoEl = MuonDetMgr->getCscReadoutElement(Id);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nCSCDigitVariables::fillVariables() - Failed to retrieve CscReadoutElement for %s", __FILE__, __LINE__, m_CscIdHelper->print_to_string(Id).c_str()));
 
       // retrieve the MC truth associated with the digit (means the Geant4 hit information)
       if (csc_SdoContainer) {

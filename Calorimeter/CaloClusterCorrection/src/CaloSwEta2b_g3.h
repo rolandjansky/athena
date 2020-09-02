@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWETA2B_G3_H
@@ -39,32 +39,29 @@ Updated:  June, 2004    (sss)
 
 class CaloSwEta2b_g3 : public CaloClusterCorrection
 {
+public:
+  // Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
- public:
-
-  // Constructor 
-  CaloSwEta2b_g3(const std::string& type,
-                 const std::string& name,
-                 const IInterface* parent);
-  // Destructor 
-  virtual ~CaloSwEta2b_g3() override;
 
   // Virtual function in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 
   CaloSwEta2b_g3() = delete;
-  CaloRec::Array<2> m_correction;
-  CaloRec::Array<2> m_residuals;
-  CaloRec::Array<1> m_residual_bins;
-  int               m_correction_degree;
-  int               m_residual_eval_degree;
-  int               m_residual_degree;
-  float             m_correction_coef;
-  float             m_residual_coef;
-  int               m_region;
+
+  Constant<CxxUtils::Array<2> > m_correction { this, "correction", "" };
+  Constant<CxxUtils::Array<2> > m_residuals  { this, "residuals", "" };
+  Constant<CxxUtils::Array<1> > m_residual_bins { this, "residual_bins", "" };
+  Constant<int>      m_correction_degree    { this, "correction_degree", "" };
+  Constant<int>      m_residual_eval_degree { this, "residual_eval_degree", ""};
+  Constant<int>      m_residual_degree      { this, "residual_degree", "" };
+  Constant<float>    m_correction_coef      { this, "correction_coef", "" };
+  Constant<float>    m_residual_coef        { this, "residual_coef",   "" };
+  Constant<int>      m_region               { this, "region",          "" };
+
   static const float s_middle_layer_granularity;
 
 };

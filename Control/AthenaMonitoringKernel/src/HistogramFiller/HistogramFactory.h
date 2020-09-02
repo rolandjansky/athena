@@ -60,6 +60,11 @@ namespace Monitored {
     */
     std::string getFullName(const HistogramDef& def) const;
 
+    /**
+     * @brief Removes histogram (used online to get rid of old LB tagged histograms)
+     **/
+    virtual void remove(const HistogramDef& def);
+
   private:
     /**
      * @brief Create and register histogram

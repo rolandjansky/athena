@@ -28,13 +28,13 @@ StatusCode egammaShowerShape::initialize(){
         ATH_MSG_FATAL("Unable to retrieve "<<m_egammaPreSamplerShape);
         return StatusCode::FAILURE;
     } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaPreSamplerShape << " retrieved"); 
+    ATH_MSG_DEBUG("Tool " << m_egammaPreSamplerShape << " retrieved"); 
 
     if(m_egammaStripsShape.retrieve().isFailure()) {
         ATH_MSG_FATAL("Unable to retrieve "<<m_egammaStripsShape);
         return StatusCode::FAILURE;
     } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaStripsShape << " retrieved"); 
+    ATH_MSG_DEBUG("Tool " << m_egammaStripsShape << " retrieved"); 
 
     if(m_egammaMiddleShape.retrieve().isFailure()) {
         ATH_MSG_FATAL("Unable to retrieve "<<m_egammaMiddleShape);
@@ -45,7 +45,7 @@ StatusCode egammaShowerShape::initialize(){
         ATH_MSG_FATAL("Unable to retrieve "<<m_egammaBackShape);
         return StatusCode::FAILURE;
     } 
-    else ATH_MSG_DEBUG("Tool " << m_egammaBackShape << " retrieved"); 
+    ATH_MSG_DEBUG("Tool " << m_egammaBackShape << " retrieved"); 
 
     return StatusCode::SUCCESS;
 }

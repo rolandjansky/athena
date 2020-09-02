@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
@@ -56,8 +55,8 @@ def BTagSecVtxToolCfg(flags, Name, JetCollection, TimeStamp = "", **options):
     options.setdefault('SecVtxFinderList', secVtxFinderList)
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
-    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('PrimaryVertexName', flags.BTagging.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', flags.BTagging.PrimaryVertexCollectionName)
     options['BTagJFVtxCollectionName'] = btagname + OutputFilesJFVxname
     options['BTagSVCollectionName'] = btagname + OutputFilesSVname
     options.setdefault('JetFitterVariableFactory', jetFitterVF)

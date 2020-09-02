@@ -59,7 +59,6 @@
 
     <class name="Muon::sTgcPrepData_p1" />
     <class name="std::vector<Muon::sTgcPrepData_p1>" />
-    <class name="Muon::STGC_RawDataCollection_p1" />
     <class name="Muon::sTgcPrepDataContainer_p1" id="7AB87DDE-8D7C-11E2-AA7C-001517648C14"/>
 
     <!--MuonTrigCoinData-->
@@ -129,11 +128,13 @@
     <!-- MuonRDO -->
     <class name="Muon::STGC_RawData_p1" />
     <class name="std::vector<Muon::STGC_RawData_p1>" />
+    <class name="Muon::STGC_RawDataCollection_p1" />
     <class name="std::vector<Muon::STGC_RawDataCollection_p1>" />
     <class name="Muon::STGC_RawDataContainer_p1" id="E9229710-DB8A-447E-9546-4BAB079C7547" />
 
     <class name="Muon::MM_RawData_p1" />
     <class name="std::vector<Muon::MM_RawData_p1>" />
+    <class name="Muon::MM_RawDataCollection_p1" />
     <class name="std::vector<Muon::MM_RawDataCollection_p1>" />
     <class name="Muon::MM_RawDataContainer_p1" id="5F202045-CE2C-4AD4-96BA-7DA18053B90F" />
 

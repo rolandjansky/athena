@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
@@ -13,8 +13,17 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
+_trigNavThinningSvcs = {}
+def registerTrigNavThinningSvc (streamName, svc):
+   _trigNavThinningSvcs[streamName] = svc
+   return
+
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
-                        eventInfoKey = "EventInfo", decisionFilter="" ):
+                        eventInfoKey = "EventInfo", decisionFilter="",
+                        trigNavThinningSvc = None ):
+   if trigNavThinningSvc is None:
+      trigNavThinningSvc = _trigNavThinningSvcs.get (streamName, None)
+
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -39,9 +48,12 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
-         svcMgr.ToolSvc += EventInfoAttListTool()
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder         
          EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
+         from AthenaCommon.GlobalFlags  import globalflags
+         if globalflags.InputFormat() == 'bytestream':
+            #No event-tag input in bytestream
+            EventInfoTagBuilder.PropagateInput=False
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing
@@ -63,6 +75,8 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
    from AthenaServices.AthenaServicesConf import Athena__ThinningCacheTool
    tct = Athena__ThinningCacheTool ('ThinningCacheTool_' + streamName,
                                     StreamName = streamName)
+   if trigNavThinningSvc is not None:
+      tct.TrigNavigationThinningSvc = trigNavThinningSvc
    outputStream.HelperTools += [tct]
 
 

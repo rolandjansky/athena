@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -44,78 +44,10 @@ Updated:  February, 2006 (DLelas)
 
 using xAOD::CaloCluster;
 
-/**
- * @brief Constructor.
- * @param type The type of this tool.
- * @param name The name of this tool.
- * @param parent The parent of this tool.
- * @param toolcls Set this to override the class name for this tool
- *                that gets saved to the database.
- */
-CaloClusterCorrection::CaloClusterCorrection
-  (const std::string& type,
-   const std::string& name,
-   const IInterface* parent,
-   const std::string& toolcls /*=""*/)
-  : CaloClusterProcessor(type,name,parent)
-{ 
-  finish_ctor (toolcls);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloClusterCorrection::~CaloClusterCorrection()
-{ }
-
-
-/**
- * @brief Standard initialization method.
- */
-StatusCode CaloClusterCorrection::initialize()
+StatusCode CaloClusterCorrection::execute (const EventContext& ctx,
+                                           CaloCluster *cluster) const
 {
-  CHECK( CaloClusterProcessor::initialize() );
-  CHECK( CaloRec::ToolWithConstantsMixin::initialize() );
-  return StatusCode::SUCCESS;
-}
-
-
-/**
- * @brief Method to set a property value.
- * @param propname The name of the property to set.
- * @param value The value to which to set it.
- *
- * Defined here as required by @c ToolWithConstantsMixin.
- */
-StatusCode
-CaloClusterCorrection::setProperty (const std::string& propname,
-                                    const std::string& value)
-{
-  CHECK( CaloClusterProcessor::setProperty (propname, value) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-  return StatusCode::SUCCESS;
-}
-
-
-/**
- * @brief Method to set a property value.
- * @param p The property name/value to set.
- *
- * Defined here as required by @c ToolWithConstantsMixin.
- */
-StatusCode
-CaloClusterCorrection::setProperty (const Property& p)
-{
-  CHECK( CaloClusterProcessor::setProperty (p) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode CaloClusterCorrection::execute(const EventContext& ctx,
-                                          CaloCluster *cluster) const
-{
-  this->makeCorrection(ctx, cluster);
+  this->makeCorrection (context(ctx), cluster);
 
 #if 0
   ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endmsg);

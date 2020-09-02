@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_EXTENDEDEVENTCONTEXT_H
@@ -50,10 +50,10 @@ namespace Atlas {
 
     /**
      * @brief Thread-local thinning cache.
-     *        Set when we are doing output with thinning' the cache
+     *        Set when we are doing output with thinning; the cache
      *        provides information about what was thinned.
      *        This is to allow converters to get thinning information.
-     *        Unfortuneately, we don't have a better way of doing this
+     *        Unfortunately, we don't have a better way of doing this
      *        without changing Gaudi interfaces.
      */
     void setThinningCache (const SG::ThinningCache* cache) { m_thinningCache = cache; }

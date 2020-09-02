@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -10,25 +10,24 @@
  // entered: 07/28/04
  // comment: MUON STATION ELEMENT
 
-#include <string>
-
 #ifndef DBLQ00_ASZT_H
 #define DBLQ00_ASZT_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
+#include <string>
 
-namespace MuonGM
-{
-    
+class AmdcDb;
 
+namespace MuonGM {
 class DblQ00Aszt {
-
 public:
     DblQ00Aszt();
     ~DblQ00Aszt();
     DblQ00Aszt(std::unique_ptr<IRDBQuery>&&);
     DblQ00Aszt(std::string asciiFileName);
+    DblQ00Aszt(AmdcDb* aszt);
     
     void WriteAsztToAsciiFile(std::string filename);
 

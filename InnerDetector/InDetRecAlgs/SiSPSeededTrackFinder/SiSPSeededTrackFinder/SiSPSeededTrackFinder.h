@@ -96,7 +96,7 @@ namespace InDet {
     IntegerProperty m_maxNumberSeeds{this, "maxNumberSeeds", 3000000, "Max. number used seeds"};
     IntegerProperty m_maxPIXsp{this, "maxNumberPIXsp", 150000, "Max. number pixels space points"};
     IntegerProperty m_maxSCTsp{this, "maxNumberSCTsp", 500000, "Max. number sct    space points"};
-    IntegerProperty m_nfreeCut{this, "FreeClustersCut", 3, "Min number free clusters"};
+    IntegerProperty m_nfreeCut{this, "FreeClustersCut", 1, "Min number free clusters"};
     IntegerProperty m_histsize{this, "HistSize", 1400};
     IntegerProperty m_nvertex{this, "maxVertices", 4};
     DoubleProperty m_zcut{this, "Zcut", 350.};
@@ -131,7 +131,7 @@ namespace InDet {
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryToolNoHoleSearch"};
     //@}
 
-    /// @name Magenetic fiedl propertis
+    /// @name Magnetic field properties
     //@{
     Trk::MagneticFieldProperties m_fieldprop;
     //@}
@@ -140,10 +140,10 @@ namespace InDet {
     //@{
     mutable Counter_t m_counterTotal ATLAS_THREAD_SAFE {};
 
-    mutable std::atomic_int m_neventsTotal{0}; //!< Number events
-    mutable std::atomic_int m_neventsTotalV{0}; //!< Number events
-    mutable std::atomic_int m_problemsTotal{0}; //!< Numbe revents with number seeds > maxNumber
-    mutable std::atomic_int m_problemsTotalV{0}; //!< Numbe revents with number seeds > maxNumber
+    mutable std::atomic_int m_neventsTotal{0}; ///< Number events
+    mutable std::atomic_int m_neventsTotalV{0}; ///< Number events
+    mutable std::atomic_int m_problemsTotal{0}; ///< Number events with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotalV{0}; ///< Number events with number seeds > maxNumber
     //@}
 
     ///////////////////////////////////////////////////////////////////
@@ -157,21 +157,61 @@ namespace InDet {
     MsgStream& dumpevent(MsgStream& out, const SiSPSeededTrackFinder::Counter_t& counter) const;
     //@}
 
-    bool isGoodEvent(const EventContext& ctx) const; //!< EventContext is used to specify which event
-    double trackQuality(const Trk::Track*) const;
-    void filterSharedTracks(std::multimap<double, Trk::Track*>&) const;
+    // check event quality - mainly used for HI events 
+    bool isGoodEvent(const EventContext& ctx) const; ///< EventContext is used to specify which event
+
+    /** \brief assign a quality score to track candidates. 
+    * 
+    * The score is increased for each hit, depending on the 
+    * technology (pix/sct) and the chi2 of the hit. 
+    * A hit will never *reduce* the total score compared to having no hit at all. 
+    * @param [in] track Track to evaluate the quality of 
+    **/ 
+    double trackQuality(const Trk::Track* track) const;
+
+    /** \brief cleans up the collection of quality filtered tracks. 
+    * 
+    * Candidates which share most of their hits (steered by m_freeCut) 
+    * with higher quality candidates are erased from the multimap 
+    * @param [in,out] scoredTracks: Track candidates, sorted by by score, best scored first (implemented by assigning negative sign to scores)
+    **/ 
+    void filterSharedTracks(std::multimap<double, Trk::Track*>& scoredTracks) const;
+
+    /** fills three z0 histograms (non-weighted, weighted by z, and weighted by pt) 
+    * with the track z at the beam line estimated using the innermost measurement. 
+    * the first two parameters are input, the other three output. 
+    * @param [in] Tr Track candidate to fill 
+    * @param [in] beamlinePerigee Perigee surface corresponding to the beam spot 
+    * @param [out] numberWeightedhistogram vector representing a histogram in z, counting the tracks per bin 
+    * @param [out] zWeightedHistogram vector representing a histogram in z, counting the tracks per bin weighted by their z values 
+    * @param [out] ptWeightedHistogram vector representing a histogram in z, counting the tracks per bin weighted by their pt values
+    **/ 
     void fillZHistogram(const Trk::Track* Tr,
-                        Trk::PerigeeSurface& per,
-                        std::vector<int>& nhistogram,
-                        std::vector<double>& zhistogram,
-                        std::vector<double>& phistogram) const;
-    void findZvertex(std::list<Trk::Vertex>& ZV,
-                     double* ZB,
-                     std::vector<int>& nhistogram,
-                     std::vector<double>& zhistogram,
-                     std::vector<double>& phistogram) const;
-    StatusCode oldStrategy(const EventContext& ctx) const; //!< EventContext is used to specify which event
-    StatusCode newStrategy(const EventContext& ctx) const; //!< EventContext is used to specify which event
+                        const Trk::PerigeeSurface& beamlinePerigee,
+                        std::vector<int>& numberWeightedhistogram,
+                        std::vector<double>& zWeightedHistogram,
+                        std::vector<double>& ptWeightedHistogram) const;
+
+    /** estimates a set of vertex positions and a z interval for the second 
+    * track finding pass using the input histograms populated using fillZHistogram. 
+    * the first two arguments serve as output, while the three histograms are input. 
+    * @param [out] vertexList - will be populated with vertex candidates if m_useNewStrategy is set
+    * @param [out] zBoundaries - will be populated with edges of a z interval corresponding to the estimated vertex locations 
+    * @param [in] numberWeightedhistogram vector representing a histogram in z, counting the tracks per bin 
+    * @param [in] zWeightedHistogram vector representing a histogram in z, counting the tracks per bin weighted by their z values 
+    * @param [in] ptWeightedHistogram vector representing a histogram in z, counting the tracks per bin weighted by their pt values
+    **/ 
+    void findZvertex(std::list<Trk::Vertex>& vertexList,
+                     std::pair<double, double> & zBoundaries,
+                     const std::vector<int>& numberWeightedhistogram,
+                     const std::vector<double>& zWeightedHistogram,
+                     const std::vector<double>& ptWeightedHistogram) const;
+
+    /// this method performs the track finding using the old strategy
+    StatusCode oldStrategy(const EventContext& ctx) const; ///< EventContext is used to specify which event
+    
+    /// this method performs the track finding using the new strategy
+    StatusCode newStrategy(const EventContext& ctx) const; ///< EventContext is used to specify which event
     void magneticFieldInit();
 
   };

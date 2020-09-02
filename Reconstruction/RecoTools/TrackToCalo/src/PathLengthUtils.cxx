@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PathLengthUtils.h"
@@ -483,7 +483,7 @@ double PathLengthUtils::get3DPathLength(const CaloCell& cell, const Amg::Vector3
     return path; 
  
 }
-bool PathLengthUtils::crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) const {
+bool PathLengthUtils::crossingMatrix(const Amg::MatrixX& Matrix ,const Amg::Vector3D& entry, Amg::Vector3D& path) const {
 
 //    std::cout << " Matrix determinant " << Matrix.determinant() << std::endl;
 //    std::cout << " Matrix " << std::endl; 

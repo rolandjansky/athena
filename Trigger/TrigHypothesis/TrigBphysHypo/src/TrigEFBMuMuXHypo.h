@@ -25,20 +25,7 @@
 // standard stuff
 #include <string>
 // general athena stuff
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/StatusCode.h"
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigInDetEvent/TrigVertexCollection.h"
-//#include "TrigParticle/TrigEFBphys.h"
-//#include "TrigParticle/TrigEFBphysContainer.h"
-
-#include "Constants.h"
-
-#include "xAODTrigBphys/TrigBphys.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
-#include "xAODTrigBphys/TrigBphysAuxContainer.h"
-
 
 class TrigEFBMuMuXHypo: public HLT::HypoAlgo  {
   

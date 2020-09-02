@@ -355,8 +355,7 @@ def find_files_split( filename, dirlist, access, depth ):
         for f in filelist:
 ##            print ("Trying %s..." % f)
             if not os.path.isfile(f) or not fileutil.access(f, access): continue
-            if not f in filenameList:
-                fullfile = os.path.join( dir, f )
+            if f not in filenameList:
 ##                print ("==> Adding %s to list from %s" % (f,dir))
                 dirnameList.append(dir)
                 filenameList.append(f)
@@ -637,47 +636,3 @@ def source_setup(setupshell,options='',envRE=None):
     newenv = getenv_from_output( source_cmd + '; printenv', envRE )
     update_env(newenv)
     return newenv
-
-
-def setup_cmt(cmtroot):
-    """setup cmt itself, located at root directory cmtroot"""
-    setupsh = os.path.join(cmtroot,'mgr','setup.sh')
-    envRE = "CMTROOT|CMTBIN|CMTCONFIG|PATH|CLASSPATH"
-    return source_setup(setupsh, envRE=envRE)
-    
-
-def setup_cmt_from_package(packageRoot):
-    setupsh = os.path.join(packageRoot,'cmt','setup.sh')
-    cmtroot = getenv_from_output('cat ' + setupsh,'CMTROOT').get('CMTROOT')
-    if not cmtroot:
-        raise EnvironmentError( 'Failed to setup cmt from %s' % (setupsh) )
-    setup_cmt(cmtroot)
-
-
-def setup_cmt_package(packageRoot,envRE=None):
-    setupsh = os.path.join(packageRoot,'cmt','setup.sh')
-    cmtroot = os.environ.get('CMTROOT')
-    if not cmtroot: setup_cmt_from_package(packageRoot)
-    cmtsetup = os.path.join( cmtroot, 'mgr', 'setup.sh' )
-    cmtcmd = os.path.join( cmtroot, 'mgr', 'cmt' )
-    cmd = 'source %s 1>/dev/null 2>/dev/null && %s setup -sh -no_cleanup' % (cmtsetup, cmtcmd)
-    newenv = getenv_from_output(cmd,envRE)
-    update_env(newenv)
-    return newenv
-
-
-def cmt_package_version(packageRoot,withVersionDirectory=True):
-    """Return the version of the cmt package at given package Root directory"""
-    version = None
-    # first try the version.cmt file
-    versioncmtfilename = os.path.join(packageRoot,'cmt','version.cmt')
-    if os.path.exists(versioncmtfilename):
-        cmtversionfile = open(versioncmtfilename)
-        for line in cmtversionfile:
-            if line: version = line.strip()
-        cmtversionfile.close()
-    # if failed, assume with-version-directory and take last directory of packageRoot
-    if not version and withVersionDirectory:
-        version = os.path.basename( packageRoot )
-
-    return version

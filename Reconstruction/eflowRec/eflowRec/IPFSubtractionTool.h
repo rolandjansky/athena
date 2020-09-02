@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPFSUBTRACTIONTOOL_H
@@ -19,7 +19,7 @@ class IPFSubtractionTool : virtual public IAlgTool {
  public:
 
   /** Execute method to modify calorimeter clusters, when performing charegd shower subtraction procedures in particle flow  */
-  virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*) = 0;
+  virtual void execute(eflowCaloObjectContainer*, eflowRecTrackContainer*, eflowRecClusterContainer*) const = 0;
 
   DeclareInterfaceID(IPFSubtractionTool,1,0);
 

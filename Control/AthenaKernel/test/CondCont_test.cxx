@@ -257,6 +257,7 @@ void checkit (const CondCont<T>& cc_rl,
   const T* t = nullptr;
   assert (cc_rl.find (runlbn (10, 17), t));
   assert (t == ptrs[0]);
+  assert (cc_rl.find (runlbn (10, 17)) == t);
 
   t = nullptr;
   assert (cc_rl.find (runlbn (100, 200), t));
@@ -271,6 +272,7 @@ void checkit (const CondCont<T>& cc_rl,
 
   assert (!cc_rl.find (runlbn (15, 17), t));
   assert (!cc_ts.find (timestamp (999), t));
+  assert (cc_rl.find (runlbn (15, 17)) == nullptr);
 
   assert (cc_rl.range (runlbn (100, 200), r));
   assert (r == r2);
@@ -364,6 +366,12 @@ void test1 (TestRCUSvc& rcusvc)
   sc = cc_rl.insert (EventIDRange (runlbn (10, 35), runlbn (10, 39)),
                      std::make_unique<B> (40));
   assert (sc.isSuccess()); 
+  assert (CondContBase::Category::isDuplicate (sc));
+  assert (!CondContBase::Category::isOverlap (sc));
+
+  sc = cc_rl.insert (EventIDRange (runlbn (10, 35), runlbn (10, 45)),
+                     std::make_unique<B> (41));
+  assert (sc.isSuccess()); 
   assert (!CondContBase::Category::isDuplicate (sc));
   assert (CondContBase::Category::isOverlap (sc));
 
@@ -439,8 +447,14 @@ void test3 (TestRCUSvc& rcusvc)
   assert (cc.extendLastRange (EventIDRange (runlbn (10, 30), runlbn (10, 33))).isSuccess());
   assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
 
-  assert (cc.extendLastRange (EventIDRange (runlbn (10, 31), runlbn (10, 33))).isFailure());
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 25), runlbn (10, 33))).isFailure());
   assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
+
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 31), runlbn (10, 33))).isSuccess());
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:37]} [2]\n");
+
+  assert (cc.extendLastRange (EventIDRange (runlbn (10, 32), runlbn (10,40))).isSuccess());
+  assert (dump_cc(cc) == "{[10,l:15] - [10,l:20]} [1]\n{[10,l:30] - [10,l:40]} [2]\n");
 }
 
 
@@ -456,10 +470,128 @@ public:
 };
 
 
-// Testing mixed keys.
+// Testing overlaps keys.
 void test4 (TestRCUSvc& rcusvc)
 {
   std::cout << "test4\n";
+
+  SG::DataProxy proxy;
+  DataObjID id ("cls", "key");
+  EventContext ctx_rl;
+  EventContext ctx_ts;
+
+  ctx_rl.setEventID (EventIDBase (runlbn (1, 25)));
+  ctx_ts.setEventID (EventIDBase (timestamp (25)));
+
+  CondCont<B> cc_rl (rcusvc, id, &proxy);
+  CondCont<B> cc_ts (rcusvc, id, &proxy);
+
+  //=============
+
+  assert (cc_rl.insert (EventIDRange (runlbn (1, 10), runlbn (1, 20)),
+                        std::make_unique<B>(1), ctx_rl).isSuccess());
+  assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n");
+  assert (cc_ts.insert (EventIDRange (timestamp (10), timestamp (20)),
+                        std::make_unique<B>(1), ctx_ts).isSuccess());
+  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n");
+
+  //=============
+
+  assert (cc_rl.insert (EventIDRange (runlbn (1, 50), runlbn (1, 60)),
+                        std::make_unique<B>(2), ctx_rl).isSuccess());
+  assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n{[1,l:50] - [1,l:60]} [2]\n");
+  assert (cc_ts.insert (EventIDRange (timestamp (50), timestamp (60)),
+                        std::make_unique<B>(2),  ctx_ts).isSuccess());
+  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:50] - [t:60]} [2]\n");
+
+  //=============
+
+  StatusCode sc;
+
+  sc = cc_rl.insert (EventIDRange (runlbn (1, 12), runlbn (1, 18)),
+                     std::make_unique<B>(3), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (CondContBase::Category::isDuplicate (sc));
+  assert (!CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n{[1,l:50] - [1,l:60]} [2]\n");
+
+  sc = cc_ts.insert (EventIDRange (timestamp (12), timestamp (18)),
+                     std::make_unique<B>(3), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (CondContBase::Category::isDuplicate (sc));
+  assert (!CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:50] - [t:60]} [2]\n");
+
+  //=============
+
+  sc = cc_rl.insert (EventIDRange (runlbn (1, 8), runlbn (1, 30)),
+                     std::make_unique<B>(4), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n{[1,l:20] - [1,l:30]} [4]\n{[1,l:50] - [1,l:60]} [2]\n");
+
+  sc = cc_ts.insert (EventIDRange (timestamp (8), timestamp (30)),
+                     std::make_unique<B>(4), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:50] - [t:60]} [2]\n");
+
+  //=============
+
+  sc = cc_rl.insert (EventIDRange (runlbn (1, 6), runlbn (1, 40)),
+                     std::make_unique<B>(5), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_rl) == "{[1,l:10] - [1,l:20]} [1]\n{[1,l:20] - [1,l:30]} [4]\n{[1,l:30] - [1,l:40]} [5]\n{[1,l:50] - [1,l:60]} [2]\n");
+
+  sc = cc_ts.insert (EventIDRange (timestamp (6), timestamp (40)),
+                     std::make_unique<B>(5), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:50] - [t:60]} [2]\n");
+
+  //=============
+
+  sc = cc_rl.insert (EventIDRange (runlbn (1, 6), runlbn (1, 15)),
+                     std::make_unique<B>(6), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_rl) == "{[1,l:6] - [1,l:10]} [6]\n{[1,l:10] - [1,l:20]} [1]\n{[1,l:20] - [1,l:30]} [4]\n{[1,l:30] - [1,l:40]} [5]\n{[1,l:50] - [1,l:60]} [2]\n");
+
+  sc = cc_ts.insert (EventIDRange (timestamp (6), timestamp (15)),
+                     std::make_unique<B>(6), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:6] - [t:10]} [6]\n{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:50] - [t:60]} [2]\n");
+
+  //=============
+
+  sc = cc_rl.insert (EventIDRange (runlbn (1, 35), runlbn (1, 45)),
+                     std::make_unique<B>(9), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_rl) == "{[1,l:6] - [1,l:10]} [6]\n{[1,l:10] - [1,l:20]} [1]\n{[1,l:20] - [1,l:30]} [4]\n{[1,l:30] - [1,l:40]} [5]\n{[1,l:40] - [1,l:45]} [9]\n{[1,l:50] - [1,l:60]} [2]\n");
+
+  sc = cc_ts.insert (EventIDRange (timestamp (35), timestamp (45)),
+                     std::make_unique<B>(9), ctx_rl);
+  assert (sc.isSuccess()); 
+  assert (!CondContBase::Category::isDuplicate (sc));
+  assert (CondContBase::Category::isOverlap (sc));
+  assert (dump_cc(cc_ts) == "{[0,0,t:6] - [t:10]} [6]\n{[0,0,t:10] - [t:20]} [1]\n{[0,0,t:20,l:0] - [t:30]} [4]\n{[0,0,t:30,l:0] - [t:40]} [5]\n{[0,0,t:40,l:0] - [t:45]} [9]\n{[0,0,t:50] - [t:60]} [2]\n");
+}
+
+
+// Testing mixed keys.
+void test5 (TestRCUSvc& rcusvc)
+{
+  std::cout << "test5\n";
   DataObjID id ("cls", "key");
 
   std::vector<B*> bptrs;
@@ -535,10 +667,12 @@ void test4 (TestRCUSvc& rcusvc)
   const B* obj = nullptr;
   assert (!cc.find (runlbn(1, 10), obj, &range));
   assert (!cc.find (timestamp(110), obj, &range));
+  assert (cc.find (runlbn(1, 10)) == nullptr);
 
   assert (cc.find (mixed(1, 12, 3), obj, &range));
   assert (obj->m_x == 2);
   assert (*range == EventIDRange (mixed(1, 10,   2),   mixed(1, 20,   4.5)));
+  assert (cc.find (mixed(1, 12, 3)) == obj);
 
   assert (cc.find (mixed(1, 35, 25), obj, &range));
   assert (obj->m_x == 3);
@@ -579,6 +713,13 @@ void test4 (TestRCUSvc& rcusvc)
   bptrs.push_back (new B (11));
   sc = cc.insert (EventIDRange (mixed (2, 10, 125),
                                 mixed (2, 20, 127)),
+                  std::unique_ptr<B> (bptrs.back()));
+  assert (CondContBase::Category::isDuplicate (sc));
+
+
+  bptrs.push_back (new B (11));
+  sc = cc.insert (EventIDRange (mixed (2, 10, 125),
+                                mixed (2, 20, 135)),
                   std::unique_ptr<B> (bptrs.back()));
   assert (CondContBase::Category::isOverlap (sc));
 
@@ -623,8 +764,9 @@ void test4 (TestRCUSvc& rcusvc)
   exp2 << "{[2,t:100,l:10] - [2,t:103.500000000,l:20]} " << bptrs[3] << "\n";
   exp2 << "{[2,t:103.500000000,l:10] - [2,t:110,l:20]} " << bptrs[4] << "\n";
   exp2 << "{[2,t:120,l:10] - [2,t:130,l:20]} " << bptrs[5] << "\n";
-  exp2 << "{[2,t:125,l:10] - [2,t:127,l:20]} " << bptrs[6] << "\n";
-  exp2 << "{[20,t:120,l:10] - [20,t:130,l:40]} " << bptrs[7] << "\n";
+  exp2 << "{[2,t:130,l:10] - [2,t:135,l:20]} " << bptrs[6] << "\n";
+  exp2 << "{[20,t:120,l:10] - [20,t:130,l:40]} " << bptrs[8] << "\n";
+  //                                                  xxx 
   //std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
   assert (ss2.str() == exp2.str());
 }
@@ -1061,6 +1203,7 @@ int main ATLAS_NOT_THREAD_SAFE ()
   test2 (rcusvc);
   test3 (rcusvc);
   test4 (rcusvc);
+  test5 (rcusvc);
   testThread (rcusvc);
   testThreadMixed (rcusvc);
   return 0;

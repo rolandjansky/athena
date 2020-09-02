@@ -4,7 +4,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import ElectronChainConfiguration as ElectronChainConfiguration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
-
+import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Egamma.generateChainConfigs' )
 log.info("Importing %s",__name__)
@@ -12,19 +12,17 @@ log.info("Importing %s",__name__)
 
 
 def generateChainConfigs( chainDict ):
-    import pprint
-    pprint.pprint( chainDict )
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     
     listOfChainDicts = splitChainDict(chainDict)
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )
         Electron = ElectronChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Electron]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
@@ -32,7 +30,6 @@ def generateChainConfigs( chainDict ):
     else:
         theChainDef = listOfChainDefs[0]
 
-    log.debug("theChainDef %s" , theChainDef)
 
     return theChainDef
 

@@ -1,52 +1,13 @@
-################################################################################
-# Package: TrigFastTrackFinder
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigFastTrackFinder )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigInDetPattRecoTools
-
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Control/StoreGate
-			  Control/AthenaMonitoringKernel
-                          DetectorDescription/IRegionSelector
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecEvent/SiSpacePointsSeed
-                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkEvent/TrkEventUtils
-                          Trigger/TrigEvent/TrigInDetPattRecoEvent
-                          Trigger/TrigTools/TrigInDetToolInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs )
-
-# External dependencies:
-find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_component( TrigFastTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent TrigTimeAlgsLib TrkEventUtils AthenaMonitoringKernelLib)
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib BeamSpotConditionsData CxxUtils GaudiKernel InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces SiSPSeededTrackFinderData SiSpacePointsSeed TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigInDetToolInterfacesLib TrigInterfacesLib TrigNavigationLib TrigSteeringEvent TrigTimeAlgsLib TrkEventPrimitives TrkEventUtils TrkParameters TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkTrackSummary TrigAccelEvent TrigInDetAccelerationToolLib TrigInDetAccelerationServiceLib)
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -1,29 +1,29 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 SUSY8SmartContent = [
-	    "AntiKt4EMTopoJets",
-	    "Muons",
-      "Photons",
-	    "MET_Reference_AntiKt4EMTopo",
-	    "PrimaryVertices"
-	]
-	
+            "AntiKt4EMTopoJets",
+            "Muons",
+            "Photons",
+            "MET_Reference_AntiKt4EMTopo",
+            "PrimaryVertices"
+        ]
+
 SUSY8ExtraVariables = [
-	# jets
-	#"AntiKt4EMTopoJets.pt",
-	#"AntiKt4EMTopoJets.eta",
-	#"AntiKt4EMTopoJets.phi",
-	#"AntiKt4EMTopoJets.m",
-	#"AntiKt4EMTopoJets.constituentLinks",
-	# taus
-  "TauJets.pt",
-	"TauJets.eta",
-	"TauJets.phi",
-	"TauJets.m"
-	]
-	
+        # jets
+        #"AntiKt4EMTopoJets.pt",
+        #"AntiKt4EMTopoJets.eta",
+        #"AntiKt4EMTopoJets.phi",
+        #"AntiKt4EMTopoJets.m",
+        #"AntiKt4EMTopoJets.constituentLinks",
+        # taus
+        "TauJets.pt",
+        "TauJets.eta",
+        "TauJets.phi",
+        "TauJets.m"
+        ]
+
 SUSY8AllVariablesContent = [
-	#"CaloCalTopoClusters",
+        #"CaloCalTopoClusters",
         "CombinedMuonTrackParticles",
         "CombinedStauTrackParticles",
         #"ExtrapolatedMuonTrackParticles",
@@ -50,4 +50,4 @@ SUSY8AllVariablesContent = [
         "TruthEvents",
         "TruthParticles",
         "TruthVertices"
-	]
+        ]

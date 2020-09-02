@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -161,8 +161,8 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    for (const auto chainItem : m_chainItemsHLT) chainItem.second->classifyLumiAndRandom();
-    for (const auto chainItem : m_chainItemsL1) chainItem.second->classifyLumiAndRandom();
+    for (const auto& chainItem : m_chainItemsHLT) chainItem.second->classifyLumiAndRandom();
+    for (const auto& chainItem : m_chainItemsL1) chainItem.second->classifyLumiAndRandom();
 
     if (Config::config().getVecSize(kListOfNoLumiWeightChains) > 0) {
       Info("MonitorRates::populateChainItemMaps",
@@ -186,7 +186,7 @@ namespace TrigCostRootAnalysis {
     }
 
     // Get the common factor of all the CPS groups
-    for (const auto cpsGroup : m_cpsGroups) cpsGroup.second->calculateCPSFactor();
+    for (const auto& cpsGroup : m_cpsGroups) cpsGroup.second->calculateCPSFactor();
   }
 
   /**

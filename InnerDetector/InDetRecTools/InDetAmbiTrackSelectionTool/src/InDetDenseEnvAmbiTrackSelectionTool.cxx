@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 #include "InDetAmbiTrackSelectionTool/InDetDenseEnvAmbiTrackSelectionTool.h"
 
 #include "AthContainers/DataVector.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
@@ -35,10 +36,6 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
 :
 base_class(t,n,p)
 {
-  // compute the number of shared hits from the number of max shared modules
-  m_maxShared = 2*m_maxSharedModules+1;
-  m_minNotShared = m_minNotSharedModules;
-  m_minSiHits = m_minSiHitsToAllowSplitting;
 }
 
 //================ Initialisation =================================================
@@ -64,11 +61,6 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
  
   ATH_CHECK(m_assoTool.retrieve());
 
-  ATH_CHECK(m_incidentSvc.retrieve());
-  
-  // register to the incident service
-  m_incidentSvc->addListener( this, "BeginEvent");
-
   ATH_CHECK(m_inputHadClusterContainerName.initialize(m_useHClusSeed));
   ATH_CHECK(m_inputEmClusterContainerName.initialize(m_useEmClusSeed));
 
@@ -85,69 +77,72 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::finalize()
 }
 
 
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::handle(const Incident& inc) 
-{ 
-  // the cluster ambiguity map
-  if ( inc.type() == IncidentType::BeginEvent ){
-    m_mapFilled =false;
-  }  
-}
-
-
 // @TODO move cluster "map" creation to separate algorithm
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent() const
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
 {
   // Reload ROI's
   if (m_useHClusSeed) {
-    m_hadF.clear();
-    m_hadE.clear();
-    m_hadR.clear();
-    m_hadZ.clear();
+    ent->m_hadF.clear();
+    ent->m_hadE.clear();
+    ent->m_hadR.clear();
+    ent->m_hadZ.clear();
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputHadClusterContainerName);
     for ( const auto& ccROI : *calo) {
-      m_hadF.push_back( ccROI->globalPosition().phi() );
-      m_hadE.push_back( ccROI->globalPosition().eta() );
-      m_hadR.push_back( ccROI->globalPosition().perp() );
-      m_hadZ.push_back( ccROI->globalPosition().z() );
+      ent->m_hadF.push_back( ccROI->globalPosition().phi() );
+      ent->m_hadE.push_back( ccROI->globalPosition().eta() );
+      ent->m_hadR.push_back( ccROI->globalPosition().perp() );
+      ent->m_hadZ.push_back( ccROI->globalPosition().z() );
     }
   }
 
   // Reload ROI's
   if (m_useEmClusSeed) {
-    m_emF.clear();
-    m_emE.clear();
-    m_emR.clear();
-    m_emZ.clear();
+    ent->m_emF.clear();
+    ent->m_emE.clear();
+    ent->m_emR.clear();
+    ent->m_emZ.clear();
 
     SG::ReadHandle<CaloClusterROI_Collection> calo(m_inputEmClusterContainerName);
     for ( const Trk::CaloClusterROI* ccROI : *calo) {
       if ( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){
         continue;
       }
-      m_emF.push_back( ccROI->globalPosition().phi() );
-      m_emE.push_back( ccROI->globalPosition().eta() );
-      m_emR.push_back( ccROI->globalPosition().perp() );
-      m_emZ.push_back( ccROI->globalPosition().z() );
+      ent->m_emF.push_back( ccROI->globalPosition().phi() );
+      ent->m_emE.push_back( ccROI->globalPosition().eta() );
+      ent->m_emR.push_back( ccROI->globalPosition().perp() );
+      ent->m_emZ.push_back( ccROI->globalPosition().z() );
     }
   }
-  m_mapFilled = true;
 }
 
 //============================================================================================
-std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track* ptrTrack,
+std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack ATLAS_NOT_THREAD_SAFE // This method uses thread unsafe updatePixelClusterInformation method and is not thread safe.
+                                                                                           (const Trk::Track* ptrTrack, 
                                                                                             const Trk::TrackScore score,
                                                                                             Trk::PRDtoTrackMap &prd_to_track_map) const
 {
-  //Fill ROI's  
-  if (!m_mapFilled) newEvent();
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  std::lock_guard<std::mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
+  if (ent->m_evt!=ctx.evt()) { // New event in this slot
+    // compute the number of shared hits from the number of max shared modules
+    ent->m_maxShared = 2*m_maxSharedModules+1;
+    ent->m_minNotShared = m_minNotSharedModules;
+    ent->m_minSiHits = m_minSiHitsToAllowSplitting;
+
+    //Fill ROI's
+    newEvent(ent);
+
+    ent->m_evt = ctx.evt();
+  }
   
   ATH_MSG_DEBUG ("getcleanedouttrack just got called "); //WPM
 
   // compute the number of shared hits from the number of max shared modules
-  m_maxShared=2*m_maxSharedModules+1;
-  m_minNotShared = m_minNotSharedModules;
-  m_minSiHits = m_minSiHitsToAllowSplitting;
+  ent->m_maxShared = 2*m_maxSharedModules+1;
+  ent->m_minNotShared = m_minNotSharedModules;
+  ent->m_minSiHits = m_minSiHitsToAllowSplitting;
 
   // cut on TRT hits, might use eta dependent cuts here
   int  nCutTRT = m_minTRT_Hits;
@@ -174,7 +169,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   
   //Decide which hits to keep
   ATH_MSG_DEBUG ("DecideWhichHitsToKeep");
-  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  prd_to_track_map, trackHitDetails, tsosDetails, nCutTRT );
+  bool TrkCouldBeAccepted = decideWhichHitsToKeep( ptrTrack,  score,  prd_to_track_map, trackHitDetails, tsosDetails, nCutTRT, ent );
   
   ATH_MSG_DEBUG ("DecidedWhichHitsToKeep " << TrkCouldBeAccepted );
     
@@ -233,8 +228,8 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
        ( !trackHitDetails.hassharedblayer || trackHitDetails.numPixelHoles<=1 )    && // if blayer, at most 1 pixel hole
        !trackHitDetails.hassharedpixel                                           && // no shared pixel hits
        ( ( totalSiHits >= m_minHits      && trackHitDetails.numShared == 0 )       || // no shared and enough hits OR
-         ( totalSiHits >= m_minNotShared && trackHitDetails.numWeightedShared < m_maxShared && // shared hits and enough unique hits and shared hits with good quality
-           ( totalSiHits + std::min(trackHitDetails.numShared,m_maxShared) ) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
+         ( totalSiHits >= ent->m_minNotShared && trackHitDetails.numWeightedShared < ent->m_maxShared && // shared hits and enough unique hits and shared hits with good quality
+           ( totalSiHits + std::min(trackHitDetails.numShared, ent->m_maxShared) ) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
     ATH_MSG_DEBUG ("=> Suggest to keep track with "<<trackHitDetails.numShared<<" shared hits !");
 
 
@@ -249,14 +244,14 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
     /*
       } else if ( trackHitDetails.numTRT_Unused >= nCutTRT           && // TRT track or no TRT at all (back tracking)
       ( totalSiHits >= m_minHits                           || // we have enough hits OR
-      ( totalSiHits >= m_minNotShared                      && // shared hits and enough unique hits and shared hits with good quality
-      totalSiHits+std::min(trackHitDetails.numShared,m_maxShared) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
+      ( totalSiHits >= ent->m_minNotShared                      && // shared hits and enough unique hits and shared hits with good quality
+      totalSiHits+std::min(trackHitDetails.numShared, ent->m_maxShared) >= m_minHits && score > m_minScoreShareTracks ) ) ) {
     */
   }  else if ( trackHitDetails.numTRT_Unused >= nCutTRT           && // TRT track or no TRT at all (back tracking)
                (
                 ( totalSiHits >= m_minHits                           || // we have enough hits OR
-                  ( totalSiHits >= m_minNotShared                      && // shared hits and enough unique hits and shared hits with good quality
-                    totalSiHits+std::min(trackHitDetails.numShared,m_maxShared) >= m_minHits && score > m_minScoreShareTracks ) ) //That is the traditional statement
+                  ( totalSiHits >= ent->m_minNotShared                      && // shared hits and enough unique hits and shared hits with good quality
+                    totalSiHits+std::min(trackHitDetails.numShared, ent->m_maxShared) >= m_minHits && score > m_minScoreShareTracks ) ) //That is the traditional statement
                 ||  //here comes WPM's addendum, which should allow tracks with many merged sct hits to pass:
                 ( m_doSCTSplitting && totalSiHits+merged_sct >= m_minHits && score > m_minScoreShareTracks )
                 )
@@ -292,7 +287,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
       } else if (tsosDetails.type[index] != SharedHit ) {
         ATH_MSG_VERBOSE ("-> Copy good TSOS");
         newTSOS.push_back(*iTsos);
-      } else if (cntIns + 1 >= m_maxShared) {
+      } else if (cntIns + 1 >= ent->m_maxShared) {
         ATH_MSG_VERBOSE ("-> Too many share hits, dropping outer hit(s)");  
       } else {
         ATH_MSG_VERBOSE ("-> Try to recover a shared hit");
@@ -315,7 +310,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
         
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
         
-        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
+        int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits, ent);
 
 
         // now decide what to do, can we keep the shared hit
@@ -324,7 +319,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
           score > m_minScoreShareTracks                            && // score cut
           (!isPixel || !trackHitDetails.hassharedblayer || trackHitDetails.numPixelHoles <= 0)         && // shared b-layer only if no pixel holes
           !otherfailsMinUniqueHits                                 && //It will not invalidate another track
-          ( maxiShared < m_maxShared || (isPixel && !trackHitDetails.firstisshared) ) && // do not allow other accepted track to exceed the shared limit, if first pixel hit is shared
+          ( maxiShared < ent->m_maxShared || (isPixel && !trackHitDetails.firstisshared) ) && // do not allow other accepted track to exceed the shared limit, if first pixel hit is shared
           (!isPixel || trackHitDetails.thishasblayer == maxotherhasblayer )           && // only allow shared pixel if both have blayer or both not
           (!isPixel || trackHitDetails.numPixelHits >= maxothernpixel )                    ) { // only allow shared pixel if new track as at least as many pixel hits  
         */
@@ -332,7 +327,7 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
                 score > m_minScoreShareTracks                            && // score cut
                 (!isPixel || !trackHitDetails.hassharedblayer || trackHitDetails.numPixelHoles <= 0)         && // shared b-layer only if no pixel holes
                 !otherfailsMinUniqueHits                                 && //It will not invalidate another track
-                ( maxiShared < m_maxShared || (isPixel && !trackHitDetails.firstisshared) ) && // do not allow other accepted track to exceed the shared limit, if first pixel hit is shared
+                ( maxiShared < ent->m_maxShared || (isPixel && !trackHitDetails.firstisshared) ) && // do not allow other accepted track to exceed the shared limit, if first pixel hit is shared
                 (!isPixel || trackHitDetails.thishasblayer == maxotherhasblayer )           && // only allow shared pixel if both have blayer or both not
                 (!isPixel || trackHitDetails.numPixelHits >= maxothernpixel )  )  ||  ( m_doSCTSplitting && m_detID->is_sct(rot->identify()) && isSplitable )                  ) { //WPM only allow shared pixel if new track as at least as many pixel hits 
 
@@ -406,7 +401,8 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
                                                                           int& maxiShared, 
                                                                           int& maxothernpixel, 
                                                                           bool& maxotherhasblayer, 
-                                                                          bool& failMinHits) const
+                                                                          bool& failMinHits,
+                                                                          CacheEntry* ent) const
 {
 
   // find out how many tracks use this hit already
@@ -478,7 +474,7 @@ int  InDet::InDetDenseEnvAmbiTrackSelectionTool::checkOtherTracksValidity(const 
     
       ATH_MSG_VERBOSE( "Track " <<  track->second << " will has " << iNotShared << " unique hits and  " <<  iSctUnique << " unique SCT hits.");
       // You are sharing too many hits reject the new track
-      if ( iNotShared  < m_minNotShared ) otherwillFailMinHits = true;
+      if ( iNotShared  < ent->m_minNotShared ) otherwillFailMinHits = true;
       // You are sharing too many shared SCT hits and you don't have enough to share -reject hit.
       if ( iSCT <= m_minUniqueSCTHits && iSCT > iSctUnique   ) otherwillFailSCTuniqueHits = true;    
     }
@@ -724,7 +720,8 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
                                                                        Trk::PRDtoTrackMap &prd_to_track_map,
                                                                        TrackHitDetails& trackHitDetails,
                                                                        TSoS_Details& tsosDetails,
-                                                                       int nCutTRT )const
+                                                                       int nCutTRT,
+                                                                       CacheEntry* ent)const
 {
 
   // Can the track can automatically be accpeted without further checks
@@ -749,13 +746,13 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
     }
 
     if (inROI){ 
-      inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front());
+      inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front(), ent);
     
       // If we are in a ROI change the shared hit cut;
       if (inROI){
-        m_maxShared=2*m_maxSharedModulesInROI+1;
-        m_minNotShared = m_minNotSharedModulesInROI;
-        m_minSiHits = m_minSiHitsToAllowSplittingInROI;
+        ent->m_maxShared = 2*m_maxSharedModulesInROI+1;
+        ent->m_minNotShared = m_minNotSharedModulesInROI;
+        ent->m_minSiHits = m_minSiHitsToAllowSplittingInROI;
       }
     }
   } 
@@ -1060,7 +1057,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         // Check if both tracks are above threshold       
         bool passPt = tpPair.first->pT() > m_minPairTrackPt && tpPair.second->pT() > m_minPairTrackPt;
         //Check if it is in a ROI
-        trackHitDetails.inROI  = m_useEmClusSeed && isEmCaloCompatible( *tpPair.first );
+        trackHitDetails.inROI  = m_useEmClusSeed && isEmCaloCompatible( *tpPair.first, ent );
         //If it is then See if it passes the pair selection
         if ( passPt && (!m_useEmClusSeed || trackHitDetails.inROI) ){
           passPairSelection = isNearbyTrackCandidate(tpPair.first, tpPair.second );    
@@ -1201,9 +1198,9 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
         bool maxotherhasblayer = false;
         bool otherfailsMinUniqueHits = false;
         bool isSplitable = tsosDetails.splitProb1[index] >= m_sharedProbCut || tsosDetails.splitProb2[index] >= m_sharedProbCut2;
-        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
+        int numberOfTracksWithThisPrd = checkOtherTracksValidity( tsosDetails.RIO[index], isSplitable, prd_to_track_map, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits, ent);
  
-        if (numberOfTracksWithThisPrd > 0 && ( otherfailsMinUniqueHits || maxiShared >= m_maxShared )){
+        if (numberOfTracksWithThisPrd > 0 && ( otherfailsMinUniqueHits || maxiShared >= ent->m_maxShared )){
           TrkCouldBeAccepted = false;
           ATH_MSG_DEBUG ("reject track; Tracks shared hits will mess up an accepted track");
           tsosDetails.type[index] = RejectedHit;
@@ -1259,7 +1256,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
 
 
 //==========================================================================================
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation(TSoS_Details& tsosDetails) const
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation ATLAS_NOT_THREAD_SAFE (TSoS_Details& tsosDetails) const // This method uses const_cast and is not thread safe.
 {
 
   for (unsigned int index(0);  index  < tsosDetails.nTSoS; ++index ){
@@ -1284,16 +1281,17 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation(T
 
 
 //==========================================================================================
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::TrackParameters& Tp) const
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const
 {
   constexpr double pi = M_PI;
   constexpr double pi2 = 2.*M_PI;
-  if (m_hadF.empty()) return false;
 
-  auto f = m_hadF.begin(), fe = m_hadF.end();
-  auto e = m_hadE.begin();
-  auto r = m_hadR.begin();
-  auto z = m_hadZ.begin();
+  if (ent->m_hadF.empty()) return false;
+
+  auto f = ent->m_hadF.begin(), fe = ent->m_hadF.end();
+  auto e = ent->m_hadE.begin();
+  auto r = ent->m_hadR.begin();
+  auto z = ent->m_hadZ.begin();
 
   double F = Tp.momentum().phi();
   double E = Tp.eta();
@@ -1319,17 +1317,18 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isHadCaloCompatible(const Trk::
 
 
 //==========================================================================================
-bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::TrackParameters& Tp) const
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::isEmCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const
 {
 
   constexpr double pi = M_PI;
   constexpr double pi2 = 2.*M_PI;
-  if (m_emF.empty()) return false;
 
-  auto f = m_emF.begin(), fe = m_emF.end();
-  auto e = m_emE.begin();
-  auto r = m_emR.begin();
-  auto z = m_emZ.begin();
+  if (ent->m_emF.empty()) return false;
+
+  auto f = ent->m_emF.begin(), fe = ent->m_emF.end();
+  auto e = ent->m_emE.begin();
+  auto r = ent->m_emR.begin();
+  auto z = ent->m_emZ.begin();
 
   double F = Tp.momentum().phi();
   double E = Tp.momentum().eta();

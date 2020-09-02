@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -6,8 +6,6 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef")
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
-
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
 
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
@@ -19,8 +17,12 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import pr
 # so let's make them functions already now
 #----------------------------------------------------------------
 
-def electronFastCaloCfg( doRinger=True ):
-    return fastCaloMenuSequence("Electron", doRinger)
+
+def electronFastCaloCfg( flags ):
+    return fastCaloMenuSequence("Electron", doRinger=False)
+
+def electronFastCaloRingerCfg( flags ):
+    return fastCaloMenuSequence("Electron", doRinger=True)
 
 def fastElectronSequenceCfg( flags ):
     return fastElectronMenuSequence()
@@ -31,6 +33,15 @@ def precisionCaloSequenceCfg( flags ):
 def precisionElectronSequenceCfg( flags ):
     return precisionElectronMenuSequence()
 
+# this must be moved to the HypoTool file:
+def diElectronMassComboHypoToolFromDict(chainDict):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDielectronMassHypoTool
+    name = chainDict['chainName']
+    tool= TrigEgammaDielectronMassHypoTool(name)
+    tool.LowerMassElectronClusterCut = 50000
+    tool.UpperMassElectronClusterCut = 130000
+    return tool
+
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
@@ -38,83 +49,80 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-
+  
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
+
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
-        etcut1step          = [ self.getFastCalo() ]
-        etcut_sequence      = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron()]
-        electron_sequence   = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
-        etcut_noringer_sequence      = [ self.getFastCalo(doRinger=False), self.getFastElectron(), self.getPrecisionCaloElectron()]
-        electron_noringer_sequence   = [ self.getFastCalo(doRinger=False), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
 
         stepDictionary = {
-                'etcut1step': etcut1step,
-                'etcut'     : etcut_sequence,
-                'lhloose'   : electron_sequence,
-                'lhvloose'  : electron_sequence,
-                'lhmedium'  : electron_sequence,
-                'lhtight'   : electron_sequence,
-                'etcutnoringer'     : etcut_noringer_sequence,
-                'lhloosenoringer'   : electron_noringer_sequence,
-                'lhvloosenoringer'  : electron_noringer_sequence,
-                'lhmediumnoringer'  : electron_noringer_sequence,
-                'lhtightnoringer'   : electron_noringer_sequence,
+                'etcut1step': ['getFastCaloNoRinger'],
+                'etcut'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloose'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloose'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmedium'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtight'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'etcutnoringer'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloosenoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloosenoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmediumnoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightnoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 }
-
 
         log.debug('electron chain part = ' + str(self.chainPart))
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['L2IDAlg'] + self.chainPart['isoInfo']
+
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
-            
+
         log.debug('electron key = ' + key)
         if key in stepDictionary:
             steps=stepDictionary[key]
         else:
             raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
-
-        chainSteps = []
-
+        
         for step in steps:
             log.debug('Adding electron trigger step ' + str(step))
-            chainSteps+=[step]
-    
-        myChain = self.buildChain(chainSteps)
+            chainstep = getattr(self, step)()
+            chainSteps+=[chainstep]
+
+        myChain = self.buildChain(chainSteps) 
+        
         return myChain
 
     # --------------------
     # Configuration of electron steps
     # --------------------
 
-    def getFastCalo(self, doRinger=True):
-        stepName = "Step1_FastCalo_electron"
-        log.debug("Configuring step " + stepName)
-        fastCalo = RecoFragmentsPool.retrieve( electronFastCaloCfg, doRinger ) # the None will be used for flags in future
-        return ChainStep(stepName, [fastCalo], [self.mult], [self.dict])
+    def getFastCaloRinger(self):
+        stepName       = "FastCaloRinger_electron"
+        fastCaloRingerCfg    = electronFastCaloRingerCfg
+        return self.getStep(1,stepName,[ fastCaloRingerCfg ])
+
+    def getFastCaloNoRinger(self):
+        stepName       = "FastCalo_electron"
+        fastCaloCfg    = electronFastCaloCfg
+        return self.getStep(1,stepName,[ fastCaloCfg])
 
     def getFastElectron(self):
-        stepName = "Step2_fast_electron"
-        log.debug("Configuring step " + stepName)
-        electronReco = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
-        return ChainStep(stepName, [electronReco], [self.mult], [self.dict])
-
+        stepName = "fast_electron"
+        return self.getStep(2,stepName,[ fastElectronSequenceCfg])
 
     def getPrecisionCaloElectron(self):
-        stepName = "Step3_precisionCalo_electron"
-        log.debug("Configuring step " + stepName)
-        precisionReco = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
-        return ChainStep(stepName, [precisionReco], [self.mult], [self.dict]) 
-
+        stepName = "precisionCalo_electron"
+        return self.getStep(3,stepName,[ precisionCaloSequenceCfg])
 
     def getPrecisionElectron(self):
-        stepName = "Step4_precision_electron"
-        log.debug("Configuring step " + stepName)
-        precisionElectron = RecoFragmentsPool.retrieve( precisionElectronSequenceCfg, None )
-        return ChainStep(stepName, [precisionElectron], [self.mult], [self.dict])
+        if "Zee" in self.chainName:
+            stepName = "precision_topoelectron"
+            return self.getStep(4,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronMassComboHypoToolFromDict])
+        else:
+            stepName = "precision_electron"
+            return self.getStep(4,stepName,[ precisionElectronSequenceCfg])
+

@@ -1,0 +1,11 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef STANDALONEANALYSISALGORITHMS_STANDALONEANALYSISALGORITHMSDICT_H
+#define STANDALONEANALYSISALGORITHMS_STANDALONEANALYSISALGORITHMSDICT_H
+
+// Local include(s):
+#include "StandaloneAnalysisAlgorithms/xAODWriterAlg.h"
+
+#endif // STANDALONEANALYSISALGORITHMS_STANDALONEANALYSISALGORITHMSDICT_H

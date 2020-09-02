@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WRPC_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wrpc {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wrpc {
 public:
     DblQ00Wrpc(){};
     ~DblQ00Wrpc();
     DblQ00Wrpc(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wrpc(AmdcDb* wrpc);
     
     // data members for DblQ00/WRPC fields
     struct WRPC {

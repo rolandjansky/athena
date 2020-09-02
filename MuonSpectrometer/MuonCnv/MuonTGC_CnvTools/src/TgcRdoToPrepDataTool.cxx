@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TGC_CnvTool.cxx, (c) ATLAS Detector software
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "TgcRdoToPrepDataTool.h"
 
 #include "MuonDigitContainer/TgcDigit.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
-
 
 Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p)
   : AthAlgTool(t, n, p), 
@@ -18,21 +13,12 @@ Muon::TgcRdoToPrepDataTool::TgcRdoToPrepDataTool(const std::string& t, const std
 {
 }  
 
-Muon::TgcRdoToPrepDataTool::~TgcRdoToPrepDataTool()
-{
-}
-
 StatusCode Muon::TgcRdoToPrepDataTool::initialize()
 {
   ATH_MSG_VERBOSE("Starting init");
   ATH_CHECK( TgcRdoToPrepDataToolCore::initialize() );
   ATH_MSG_DEBUG("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::TgcRdoToPrepDataTool::finalize()
-{
-  return TgcRdoToPrepDataToolCore::finalize();
 }
 
 StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& requestedIdHashVect, 
@@ -64,7 +50,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
       SG::WriteHandle<TgcPrepDataContainer>  handle(m_outputprepdataKeys[ibc]);
       
       // record the container in storeGate
-      handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+      handle = std::unique_ptr<TgcPrepDataContainer> (new TgcPrepDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
       // cache the pointer, storegate retains ownership
       m_tgcPrepDataContainer[ibc] = handle.ptr();
       if(!handle.isValid()) {
@@ -113,13 +99,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
   for(int ibc=0; ibc<NBC; ibc++) {
     if(!nothingToDo[ibc]) nothingToDoForAllBC = false;
   } 
-  
-  /*if(nothingToDoForAllBC) {
-    ATH_MSG_DEBUG("Whole events at all " << NBC << " BCs have already been decoded; nothing to do");
-    return StatusCode::SUCCESS;
-    }*/
 
-  
   /// clean up containers for Coincidence
   for(int ibc=0; ibc<NBC; ibc++) {
 
@@ -128,7 +108,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decode(std::vector<IdentifierHash>& reque
       SG::WriteHandle<TgcCoinDataContainer>  handle(m_outputCoinKeys[ibc]);
       
       // record the container in storeGate
-      handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_muonIdHelperTool->tgcIdHelper().module_hash_max()));
+      handle = std::unique_ptr<TgcCoinDataContainer> (new TgcCoinDataContainer(m_idHelperSvc->tgcIdHelper().module_hash_max()));
       
       // cache the pointer, storegate retains ownership
       m_tgcCoinDataContainer[ibc] = handle.ptr();

@@ -18,7 +18,7 @@
 
 // Forward declaration
 class McEventCollection;
-namespace HepMC { class GenVertex; }
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 static const InterfaceID IID_IMcVtxFilterTool("IMcVtxFilterTool", 1, 0);
 
@@ -54,7 +54,7 @@ class IMcVtxFilterTool : virtual public IAlgTool,
 
   /** Return true if one of the McVtxFilters accept this GenVertex
    */
-  virtual bool isAccepted( const HepMC::GenVertex* vtx ) const = 0;
+  virtual bool isAccepted( HepMC::ConstGenVertexPtr vtx ) const = 0;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

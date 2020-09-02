@@ -13,6 +13,8 @@ regexEventStreamInfo = re.compile(r'^EventStreamInfo(_p\d+)?$')
 regexIOVMetaDataContainer = re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
 regexByteStreamMetadataContainer = re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
 regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
+regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
@@ -51,7 +53,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
     if mode != 'full' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
-    if len(meta_key_filter) > 0:
+    if meta_key_filter:
         msg.info('Filter used: {0}'.format(meta_key_filter))
 
     # create the storage object for metadata.
@@ -146,10 +148,12 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '/Simulation/Parameters': 'IOVMetaDataContainer_p1',
                         '/Digitization/Parameters': 'IOVMetaDataContainer_p1',
                         '/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
+                        'TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>',
+                        'TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
 
-                if mode == 'full' and len(meta_key_filter) > 0:
+                if mode == 'full' and meta_key_filter:
                     meta_filter = {f: '*' for f in meta_key_filter}
                 # store all persistent classes for metadata container existing in a POOL/ROOT file.
                 persistent_instances = {}
@@ -157,6 +161,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
                     name = branch.GetName()
+
 
                     class_name = branch.GetClassName()
 
@@ -184,7 +189,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
                     # assign the corresponding persistent class based of the name of the metadata container
                     if regexEventStreamInfo.match(class_name):
-                        if class_name.endswith('_p2'):
+                        if class_name.endswith('_p1'):
+                            persistent_instances[name] = ROOT.EventStreamInfo_p1()
+                        elif class_name.endswith('_p2'):
                             persistent_instances[name] = ROOT.EventStreamInfo_p2()
                         else:
                             persistent_instances[name] = ROOT.EventStreamInfo_p3()
@@ -192,6 +199,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
                     elif regexXAODEventFormat.match(class_name):
                         persistent_instances[name] = ROOT.xAOD.EventFormat_v1()
+                    elif regexXAODTriggerMenu.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuContainer_v1()
+                    elif regexXAODTriggerMenuAux.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuAuxContainer_v1()
 
                     if name in persistent_instances:
                         branch.SetAddress(ROOT.AddressOf(persistent_instances[name]))
@@ -199,7 +210,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 metadata_tree.GetEntry(0)
 
                 # clean the meta-dict if the meta_key_filter flag is used, to return only the key of interest
-                if len(meta_key_filter) > 0:
+                if meta_key_filter:
                     meta_dict[filename] = {}
 
                 # read the metadata
@@ -209,8 +220,13 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
-                    meta_dict[filename][key] = _convert_value(content)
+                    aux = None
+                    if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
+                        aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'TriggerMenuAux.':
+                        continue
 
+                    meta_dict[filename][key] = _convert_value(content, aux)
 
 
             # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
@@ -423,7 +439,7 @@ def _extract_fields(obj):
     return result
 
 
-def _convert_value(value):
+def _convert_value(value, aux = None):
     if hasattr(value, '__cppname__'):
 
         result = regex_cppname.match(value.__cppname__)
@@ -451,6 +467,9 @@ def _convert_value(value):
 
             elif value.__cppname__ == 'xAOD::EventFormat_v1':
                 return _extract_fields_ef(value)
+
+            elif value.__cppname__ == 'DataVector<xAOD::TriggerMenu_v1>' :
+                return _extract_fields_triggermenu(interface=value, aux=aux)
 
             elif (value.__cppname__ == 'EventStreamInfo_p2' or
                   value.__cppname__ == 'EventStreamInfo_p3'):
@@ -500,9 +519,9 @@ def _extract_fields_iovpc(value):
         elif type_idx == 8:
             attr_value = int(value.m_unsignedLong[obj_idx])
         elif type_idx == 9:
-            attr_value = long(value.m_longLong[obj_idx])
+            attr_value = int(value.m_longLong[obj_idx])
         elif type_idx == 10:
-            attr_value = long(value.m_unsignedLongLong[obj_idx])
+            attr_value = int(value.m_unsignedLongLong[obj_idx])
         elif type_idx == 11:
             attr_value = float(value.m_float[obj_idx])
         elif type_idx == 12:
@@ -519,9 +538,9 @@ def _extract_fields_iovpc(value):
                 attr_value = attr_value.replace('_', '/')
             # Now it is clean
         elif type_idx == 15:
-            attr_value = long(value.m_date[obj_idx])
+            attr_value = int(value.m_date[obj_idx])
         elif type_idx == 16:
-            attr_value = long(value.m_timeStamp[obj_idx])
+            attr_value = int(value.m_timeStamp[obj_idx])
         else:
             raise ValueError('Unknown type id {0} for attribute {1}'.format(type_idx, attr_name))
 
@@ -572,6 +591,29 @@ def _extract_fields_ef(value):
 
     for ef_element in value:
         result[ef_element.first] = ef_element.second.className()
+
+    return result
+
+
+def _extract_fields_triggermenu(interface, aux):
+    L1Items = []
+    HLTChains = []
+
+    try:
+        interface.setStore( aux )
+        if interface.size() > 0:
+            # We make the assumption that the first stored SMK is
+            # representative of all events in the input collection.
+            firstMenu = interface.at(0)
+            L1Items = [ item for item in firstMenu.itemNames() ]
+            HLTChains = [ chain for chain in firstMenu.chainNames() ]
+    except Exception as err:
+        msg.warn('Problem reading xAOD::TriggerMenu:')
+        msg.warn(err)
+
+    result = {}
+    result['L1Items'] = L1Items
+    result['HLTChains'] = HLTChains
 
     return result
 
@@ -690,15 +732,17 @@ def promote_keys(meta_dict):
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
 
-                if len(md['eventTypes']):
+                if 'eventTypes' in md and len(md['eventTypes']):
                     et = md['eventTypes'][0]
                     md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
                     md['mc_channel_number'] = et.get('mc_channel_number', 0)
                     md['eventTypes'] = et['type']
 
-
-                md['lumiBlockNumbers'] = md['lumiBlockNumbers']
-                md['processingTags'] = md[key]['processingTags']
+                if 'lumiBlockNumbers' in md[key]:
+                    md['lumiBlockNumbers'] = md[key]['lumiBlockNumbers']
+                
+                if 'processingTags' in md[key]:
+                    md['processingTags'] = md[key]['processingTags']
 
                 meta_dict[filename].pop(key)
                 break

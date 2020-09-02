@@ -49,7 +49,6 @@ include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = "OFLCOND-MC16-SDR-16"
-svcMgr.AthenaSealSvc.OutputLevel = Lvl.ERROR
 svcMgr.IOVDbSvc.forceRunNumber=284500
 
 svcMgr += CfgMgr.THistSvc()

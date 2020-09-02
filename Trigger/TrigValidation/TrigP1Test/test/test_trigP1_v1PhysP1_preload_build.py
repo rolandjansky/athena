@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # art-description: PhysicsP1_pp_run3_v1 menu athenaHLT test imitating partition with preloaded data at P1
 # art-type: build
@@ -24,7 +25,7 @@ ex_bs = ExecStep.ExecStep('create_bs')
 ex_bs.type = 'other'
 ex_bs.input = ''
 ex_bs.executable = 'trigbs_modifyEvent.py'
-ex_bs.args = '-n 50 --runNumber 999999 --incLB 3 --firstLB 4 -o raw %s' % f
+ex_bs.args = '-n 50 --runNumber 999999 --incLB 6 --firstLB 4 --eventsPerLB=3 -o raw %s' % f
 
 # Run athenaHLT forcing run and timestamp of original data file
 import eformat

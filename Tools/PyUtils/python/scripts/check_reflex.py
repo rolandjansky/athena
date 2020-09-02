@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.check_reflex
 # @purpose a script to check the definitions of (reflex) plugins
@@ -8,7 +8,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 276362 $"
 __doc__ = """
 a script to check the definitions of (reflex) plugins across multiple so-called 'rootmap' files
 """
@@ -127,7 +126,6 @@ def main(args):
                 print ("  ",fct(lib))
         return
 
-    import PyUtils.Dso as Dso
     dsodb = Dso.DsoDb()
 
     if args.capabilities:
@@ -136,7 +134,7 @@ def main(args):
             capabilities = dsodb.capabilities(libname)
             print ("::: capabilities of [%s]" % (libname,))
             print (os.linesep.join([" %s"%c for c in capabilities]))
-        except ValueError as err:
+        except ValueError:
             exitcode = 1
             pass
 
@@ -150,7 +148,7 @@ def main(args):
                 print (os.linesep.join([" %s"%v for v in dups[k]]))
             if len(dups.keys())>0:
                 exitcode = 1
-        except ValueError as err:
+        except ValueError:
             exitcode = 1
             pass
 
@@ -188,9 +186,7 @@ def main(args):
                 suppressed = [os.path.basename(ii) in _suppression_dct[k]
                               for ii in v]
                 if all(suppressed):
-                    msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print (msg)
                     pass
                 else:
                     # that's a new one !!
@@ -220,9 +216,7 @@ def main(args):
                 suppressed = [os.path.basename(ii) in _suppression_dct[k]
                               for ii in v]
                 if all(suppressed):
-                    msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print (msg)
                     pass
                 else:
                     # that's a new one !!
@@ -254,9 +248,7 @@ def main(args):
                 suppressed = [os.path.basename(ii) in _suppression_dct[k]
                               for ii in v]
                 if all(suppressed):
-                    msg = "---> ignoring [%s]" % (k,)
                     suppression_log.append(k[:])
-                    #print (msg)
                     pass
                 else:
                     # that's a new one !!

@@ -1,35 +1,16 @@
-################################################################################
-# Package: TrigInDetMonitoringTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigInDetMonitoringTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Control/AthenaMonitoringKernel
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTrackingCnv
-                          PRIVATE
-                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-                           )
+# External package dependencies:
+find_package( ROOT COMPONENTS MathCore )
 
-atlas_add_library( TrigInDetTrackMonitoringToolLib
-    src/*.cxx
-    PUBLIC_HEADERS TrigInDetMonitoringTools
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps  GaudiKernel AthenaMonitoringKernelLib xAODTracking xAODTrackingCnvLib 
-)
-
-atlas_add_component(
-    TrigInDetTrackMonitoringTool
-    src/components/*.cxx
-    LINK_LIBRARIES TrigInDetTrackMonitoringToolLib 
-)
-
+# Component(s) in this package:
+atlas_add_component( TrigInDetMonitoringTools
+   src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringKernelLib xAODTrackingCnvLib )
 
 # Install files from the package:
-atlas_install_headers( TrigInDetMonitoringTools )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

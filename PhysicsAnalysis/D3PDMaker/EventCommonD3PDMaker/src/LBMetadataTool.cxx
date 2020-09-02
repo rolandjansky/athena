@@ -14,10 +14,9 @@
 
 
 #include "LBMetadataTool.h"
-#include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 #include "D3PDMakerInterfaces/ID3PD.h"
 #include "AthenaKernel/errorcheck.h"
-
+#include "TString.h"
 
 namespace D3PD {
 
@@ -31,11 +30,8 @@ namespace D3PD {
 LBMetadataTool::LBMetadataTool (const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent)
-  : AthAlgTool (type, name, parent),
-    m_lumitool ("LumiBlockMetaDataTool")
+  : AthAlgTool (type, name, parent)
 {
-  declareProperty ("LumiBlockMetaDataTool", m_lumitool,
-                   "The lumi metadata tool.");
   declareProperty ("Metakey", m_metakey = "Lumi",
                    "Key for output metadata.");
 }
@@ -46,7 +42,6 @@ LBMetadataTool::LBMetadataTool (const std::string& type,
  */
 StatusCode LBMetadataTool::initialize()
 {
-  CHECK( m_lumitool.retrieve() );
   return AthAlgTool::initialize();
 }
 
@@ -73,7 +68,8 @@ LBMetadataTool::queryInterface( const InterfaceID& riid, void** ppvIf )
  */
 StatusCode LBMetadataTool::writeMetadata (ID3PD* d3pd)
 {
-  TString xml = m_lumitool->getUniqueGRLString();
+  TString xml;
+  ATH_MSG_WARNING( "Luminosity metadata not added correctly to the D3PD!" );
   CHECK( d3pd->addMetadata (m_metakey, &xml) );
   return StatusCode::SUCCESS;
 }

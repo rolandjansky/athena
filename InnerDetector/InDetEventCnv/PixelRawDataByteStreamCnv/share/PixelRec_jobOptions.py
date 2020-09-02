@@ -78,14 +78,7 @@ if not 'TrackCollectionKeys' in dir():
 if not 'TrackCollectionTruthKeys' in dir():
    TrackCollectionTruthKeys   = []
 
-# ------------------------------------------------------------
-#
-# ----------- now we do legacy pattern if requested
-#
-# ------------------------------------------------------------
-#
-if InDetFlags.doxKalman() or InDetFlags.doiPatRec():
-   include ("InDetRecExample/InDetRecXKalIPat.py")
+
 
 # ------------------------------------------------------------
 #
@@ -150,16 +143,12 @@ else :
 #
 # ------------------------------------------------------------
 
-if InDetFlags.doxKalman() or InDetFlags.doiPatRec() or InDetFlags.doNewTracking():
+if InDetFlags.doNewTracking():
    #
    # Pick one of the result collections and turn it into tracks
    #
    if InDetFlags.doNewTracking():
       InputTrackCollection = NewTrackingCollection
-   elif InDetFlags.doiPatRec():
-      InputTrackCollection = "ConvertedIPatTracks"
-   elif InDetFlags.doxKalman():
-      InputTrackCollection = "ConvertedXKalmanTracks"
    #
    # --- we either refit or copy the input
    #

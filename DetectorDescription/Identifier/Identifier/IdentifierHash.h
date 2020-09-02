@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -48,14 +48,13 @@ public:
     /// Constructors
     ///----------------------------------------------------------------
 
-    /// Default constructor
-    IdentifierHash ();
-
-    /// Copy constructor
-    IdentifierHash (const IdentifierHash& other);
-
-    /// Assignment
-    IdentifierHash& operator= (const IdentifierHash& other);
+    /// Default methods
+    IdentifierHash () = default;
+    IdentifierHash (const IdentifierHash& other) =default;
+    IdentifierHash (IdentifierHash&& other) =default;
+    IdentifierHash& operator=(const IdentifierHash& other) = default;
+    IdentifierHash& operator=(IdentifierHash&& other) = default;
+    ~IdentifierHash () = default;
 
     /// Initialization with value
     IdentifierHash (value_type value);
@@ -93,92 +92,24 @@ private:
     //----------------------------------------------------------------
     // The actual identifier data.
     //----------------------------------------------------------------
-    value_type m_value;
+    value_type m_value = max_value;
 };
 //-----------------------------------------------
 
 
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+// Define a hash functional
 
-
-//-----------------------------------------------
-inline IdentifierHash::IdentifierHash ()
-    : m_value(max_value)
-{}
-
-//-----------------------------------------------
-inline IdentifierHash::IdentifierHash (const IdentifierHash& other)
-    : m_value(other.m_value)
-{}
-
-//-----------------------------------------------
-inline IdentifierHash& IdentifierHash::operator= (const IdentifierHash& other)
+namespace std {
+template<>
+struct hash<IdentifierHash>
 {
-  if (this != &other)
-    m_value = other.m_value;
-  return *this;
+  size_t operator()(const IdentifierHash& id) const
+  {
+    return static_cast<size_t>(id.value());
+  }
+};
 }
 
-//-----------------------------------------------
-inline IdentifierHash::IdentifierHash (value_type value)
-    : m_value(value)
-{}
-
-//-----------------------------------------------
-inline IdentifierHash&
-IdentifierHash::operator = (value_type value)
-{
-    m_value = value;
-    return (*this);
-}
-
-//-----------------------------------------------
-inline IdentifierHash& 				     
-IdentifierHash::operator += (unsigned int value)
-{
-    m_value += value;
-    return (*this);
-}
-
-//-----------------------------------------------
-inline IdentifierHash& 
-IdentifierHash::operator -= (unsigned int value)
-{
-    m_value = (m_value > value) ? m_value - value : 0;
-    return (*this);
-}
-
-//-----------------------------------------------
-inline IdentifierHash::operator unsigned int (void) const
-{
-    return (m_value);
-}
-
-//-----------------------------------------------
-inline unsigned int IdentifierHash::value (void) const
-{
-    return (m_value);
-}
-
-//-----------------------------------------------
-inline bool 
-IdentifierHash::is_valid () const
-{
-    return (!(max_value == m_value));
-}
-
-inline MsgStream& operator << (MsgStream& f, const IdentifierHash& id)
-{
-  f << id.value();
-  return f;
-}
-
-inline std::ostream& operator << (std::ostream& os, const IdentifierHash& id)
-{
-  os << id.value();
-  return os;
-}
-
+#include "Identifier/IdentifierHash.icc"
 #endif // IDENTIFIER_IDENTIFIERHASH_H

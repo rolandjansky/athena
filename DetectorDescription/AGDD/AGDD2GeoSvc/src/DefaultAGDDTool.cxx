@@ -15,7 +15,7 @@ DefaultAGDDTool::DefaultAGDDTool(const std::string& type, const std::string& nam
 StatusCode DefaultAGDDTool::initialize()
 {
 	ATH_MSG_INFO("this is DefaultAGDDTool::initialize()!!!!");
-	ATH_MSG_INFO("Default detector "<<m_defaultDetector);
+	ATH_MSG_INFO("Default detector "<<m_defaultDetector.value());
 	return AGDDToolBase::initialize();
 }
 
@@ -35,8 +35,8 @@ StatusCode DefaultAGDDTool::construct()
 	
 	if (!m_defaultDetector.empty())
     {
-		ATH_MSG_INFO(" setting default detector to "<<m_defaultDetector);
-	   	m_controller->UseGeoModelDetector(m_defaultDetector);
+		ATH_MSG_INFO(" setting default detector to "<<m_defaultDetector.value());
+	   	m_controller->UseGeoModelDetector(m_defaultDetector.value());
 	}
 	
 	m_controller->BuildAll();

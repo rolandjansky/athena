@@ -1,27 +1,11 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 template<class T>
-LArFlatConditionsAlg<T>::LArFlatConditionsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_readKey("/LAr/ElecCalibFlat"),
-  m_writeKey("LArFlatCond","LArFlatCond"),
-  m_condSvc("CondSvc",name)
-{
-  declareProperty("ReadKey",m_readKey);
-  declareProperty("WriteKey",m_writeKey);
-}
-
-template<class T>
-LArFlatConditionsAlg<T>::~LArFlatConditionsAlg() {}
-
-
-template<class T>
 StatusCode LArFlatConditionsAlg<T>::initialize() {
-
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
@@ -48,29 +32,23 @@ StatusCode LArFlatConditionsAlg<T>::execute() {
 
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* attr{*readHandle};
-
   if (attr==nullptr) {
     msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_readKey.key() << endmsg;
     return StatusCode::FAILURE;
   }
+  writeHandle.addDependency(readHandle);
 
   std::unique_ptr<T> flat=std::make_unique<T>(attr);
   
-  // Define validity of the output cond object and record it
-  EventIDRange rangeW;
-  if(!readHandle.range(rangeW)) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-    return StatusCode::FAILURE;
-  }
-
-  if(writeHandle.record(rangeW,flat.release()).isFailure()) {
+  if(writeHandle.record(std::move(flat)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArFlatConditions object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " 
+	       << writeHandle.getRange() << " into Conditions Store");
 
  
   return StatusCode::SUCCESS;

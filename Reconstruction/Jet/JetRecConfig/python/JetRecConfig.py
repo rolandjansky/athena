@@ -41,7 +41,7 @@ __all__ = ["JetRecCfg", "resolveDependencies", "JetInputCfg"]
 # Receives the jet definition and input flags, mainly for input file
 # peeking such that we don't attempt to reproduce stuff that's already
 # in the input file
-def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameoverride=None):
+def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", evsprefix="", jetnameoverride=None):
     # Ordinarily we want to have jet collection names be descriptive and derived from
     # the configured reconstruction.
     # Nevertheless, we allow an explicit specification when necessary
@@ -49,7 +49,7 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameove
     if jetnameoverride:
         jetsfullname = jetnameoverride
     else:
-        jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
+        jetsfullname = jetnameprefix+jetdef.basename+"Jets"+jetnamesuffix
     jetlog.info("Setting up to find {0}".format(jetsfullname))
 
     sequencename = jetsfullname
@@ -65,24 +65,32 @@ def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameove
     # will handle the details. Just merge the components.
     # 
     # To facilitate running in serial mode, we also prepare
-    # the constituent PseudoJetGetter here (needed for rho)
-    inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname)
+    # the constituent PseudoJetAlgorithm here (needed for rho)
+    inputcomps = JetInputCfg(deps["inputs"], configFlags, sequenceName=jetsfullname, evsprefix=evsprefix)
     constitpjalg = inputcomps.getPrimary()
-    constitpjkey = constitpjalg.PJGetter.OutputContainer
+    constitpjkey = constitpjalg.OutputContainer
 
     components.merge(inputcomps)
     pjs = [constitpjkey]
 
-    # Schedule the ghost PseudoJetGetterAlgs
+    # Schedule the ghost PseudoJetAlgs
     for ghostdef in deps["ghosts"]:
         ghostpjalg = getGhostPJGAlg( ghostdef )
         components.addEventAlgo( ghostpjalg, sequencename )
-        ghostpjkey = ghostpjalg.PJGetter.OutputContainer
+        ghostpjkey = ghostpjalg.OutputContainer
         pjs.append( ghostpjkey )
 
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
-    jetrecalg = getJetAlgorithm(jetsfullname, jetdef, pjs, deps["mods"])
+    mergepjalg = CompFactory.PseudoJetMerger(
+        "pjmergealg_"+jetsfullname,
+        InputPJContainers = pjs,
+        OutputContainer = "PseudoJetMerged_"+jetsfullname)
+
+    components.addEventAlgo(mergepjalg, sequencename)
+
+    jetrecalg = getJetRecAlg(jetsfullname, jetdef, "PseudoJetMerged_"+jetsfullname, deps["mods"])
+ 
     components.addEventAlgo(jetrecalg, sequencename)
 
     jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetsfullname))
@@ -154,7 +162,7 @@ def resolveDependencies(jetdef):
     
     # Accumulate prerequisites of the ghost-associated types
     jetlog.info("  Full list of ghosts: ")
-    for ghostdef in sorted(list(ghostdefs)):
+    for ghostdef in sorted(list(ghostdefs), key=lambda g: g.inputtype):
         jetlog.info("    " + str(ghostdef))
         gprereqs = getGhostPrereqs(ghostdef)
         prereqdict["input"].update( [req.split(':',1)[1] for req in gprereqs] )
@@ -227,16 +235,16 @@ def autoconfigureModifiers(modifiers, containerName):
 # Function producing an EventShapeAlg to calculate
 # medaian energy density for pileup correction
 #
-def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
+def getEventShapeAlg( constit, constitpjkey, evsprefix="" ):
 
-    rhokey = nameprefix+"Kt4"+constit.label+"EventShape"
-    rhotoolname = "EventDensity_Kt4"+constit.label
+    rhokey = evsprefix+"Kt4"+constit.label+"EventShape"
+    rhotoolname = "EventDensity_{}Kt4{}".format(evsprefix,constit.label)
     
     rhotool = CompFactory.EventDensityTool(rhotoolname)
     rhotool.InputContainer = constitpjkey
     rhotool.OutputContainer = rhokey
     
-    eventshapealg = CompFactory.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
+    eventshapealg = CompFactory.EventDensityAthAlg("{0}{1}Alg".format(evsprefix,rhotoolname))
     eventshapealg.EventDensityTool = rhotool
 
     return eventshapealg
@@ -246,13 +254,13 @@ def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
 #
 # This includes constituent modifications, track selection, copying of
 # input truth particles and event density calculations
-def JetInputCfg(inputdeps, configFlags, sequenceName):
+def JetInputCfg(inputdeps, configFlags, sequenceName, evsprefix=""):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
     jetlog.info("Inspecting input file contents")
-    filecontents = configFlags.Input.Collections
-    
+    filecontents = [i for i in configFlags.Input.Collections]
+
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
     if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
@@ -263,14 +271,14 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             jetlog.debug("Preparing Constit Mods for label {0} from {1}".format(constit.label,constit.inputname))
             # May need to generate constituent modifier sequences to
             # produce the input collection
-            import ConstModHelpers
+            from . import ConstModHelpers
             constitalg = ConstModHelpers.getConstitModAlg(constit)
             if constitalg:
                 components.addEventAlgo(constitalg)
 
-    # Schedule the constituent PseudoJetGetterAlg
+    # Schedule the constituent PseudoJetAlg
     constitpjalg = getConstitPJGAlg( constit )
-    constitpjkey = constitpjalg.PJGetter.OutputContainer
+    constitpjkey = constitpjalg.OutputContainer
     # Mark the constit PJGAlg as the primary so that the caller
     # can access the output container name
     components.addEventAlgo( constitpjalg, primary=True )
@@ -281,7 +289,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
         jetlog.debug("Setting up input track containers and track-vertex association")
         from JetRecTools import JetRecToolsConfig
         # Jet track selection
-        jettrackselloose = JetRecToolsConfig.getTrackSelTool()
+        jettrackselloose = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True)
         jettvassoc = JetRecToolsConfig.getTrackVertexAssocTool()
 
         jettrkprepalg = CompFactory.JetAlgorithm("jetalg_TrackPrep")
@@ -331,14 +339,14 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
         elif dep == "EventDensity":
             rhokey = "Kt4"+constit.label+"EventShape"
             if rhokey in filecontents:
-                jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
+                jetlog.info("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
             else:
-                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey) )
+                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey,evsprefix) )
 
     return components
 
 ########################################################################
-# Functions for generating PseudoJetGetters, including determining
+# Functions for generating PseudoJetAlgorithms, including determining
 # the prerequisites for their operation
 #
 def getConstitPrereqs(basedef):
@@ -368,17 +376,13 @@ def getConstitPJGAlg(basedef):
     full_label = basedef.label
     if basedef.basetype == xAODType.Jet:
         full_label += "_"+basedef.inputname
-    getter = CompFactory.PseudoJetGetter("pjg_"+full_label,
-        InputContainer = basedef.inputname,
-        OutputContainer = "PseudoJet"+full_label,
-        Label = full_label,
-        SkipNegativeEnergy=True,
-        GhostScale=0.
-        )
 
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+basedef.label,
-        PJGetter = getter
+        InputContainer = basedef.inputname,
+        OutputContainer = "PseudoJet"+full_label,
+        Label = full_label,
+        SkipNegativeEnergy=True
         )
     return pjgalg
 
@@ -387,14 +391,13 @@ def getGhostPJGAlg(ghostdef):
     kwargs = {
         "OutputContainer":    "PseudoJet"+label,
         "Label":              label,
-        "SkipNegativeEnergy": True,
-        "GhostScale":         1e-40
+        "SkipNegativeEnergy": True
         }
 
-    pjgclass = CompFactory.PseudoJetGetter
+    pjaclass = CompFactory.PseudoJetAlgorithm
     if ghostdef.inputtype=="MuonSegment":
         # Muon segments have a specialised type
-        pjgclass = CompFactory.MuonSegmentPseudoJetGetter
+        pjaclass = CompFactory.MuonSegmentPseudoJetAlgorithm
         kwargs = {
             "InputContainer":"MuonSegments",
             "OutputContainer":"PseudoJet"+label,
@@ -411,11 +414,9 @@ def getGhostPJGAlg(ghostdef):
     else:
         raise ValueError("Unhandled ghost type {0} received!".format(ghostdef.inputtype))
 
-    getter = pjgclass("pjg_"+label, **kwargs)
-
-    pjgalg = CompFactory.PseudoJetAlgorithm(
+    pjgalg = pjaclass(
         "pjgalg_"+label,
-        PJGetter = getter
+        **kwargs
         )
     return pjgalg
 
@@ -423,7 +424,7 @@ def getGhostPJGAlg(ghostdef):
 # Function for configuring the jet algorithm and builders, given the
 # set of dependencies
 #
-def getJetAlgorithm(jetname, jetdef, pjs, modlist):
+def getJetAlgorithm(jetname, jetdef, pjs, modlist, monTool = None):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
     builder = getJetBuilder()
@@ -438,12 +439,12 @@ def getJetAlgorithm(jetname, jetdef, pjs, modlist):
         mods.append(mod)
 
     rectool = getJetRecTool(jetname,finder,pjs,mods)
+    if monTool: rectool.MonTool = monTool
 
     jetalg = CompFactory.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]
 
     return jetalg
-    
 
 ########################################################################
 # Function for generating a jet builder, i.e. converter from
@@ -481,7 +482,6 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetFinder = finder,
         JetModifiers = mods )
     autoconfigureModifiers(jetrec.JetModifiers, jetname)
-    #configureContainerName(jetrec.JetModifiers, jetname)
     return jetrec
 
 
@@ -499,8 +499,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     # Get a ComponentAccumulator setting up the fundamental Athena job
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
-    cfg=MainServicesThreadedCfg(ConfigFlags) 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(ConfigFlags) 
 
     # Add the components for reading in pool files
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -515,3 +515,35 @@ if __name__=="__main__":
     cfg.printConfig(withDetails=False,summariseProps=True)
 
     cfg.run(maxEvents=10)
+
+    import sys
+    sys.exit(0)
+
+########################################################################
+# Function that substitues JetRecTool + JetAlgorithm
+#
+def getJetRecAlg(jetname, jetdef, pjs, modlist):
+
+    jclust = CompFactory.JetClusterer("builder")
+    jclust.JetAlgorithm = jetdef.algorithm
+    jclust.JetRadius = jetdef.radius
+    jclust.PtMin = jetdef.ptmin
+    jclust.InputPseudoJets = pjs
+    jclust.GhostArea = 0.01 # In which cases do we not want areas?
+    jclust.JetInputType = jetdef.inputdef.basetype
+
+    from . import JetModConfig
+    mods = []
+    for moddef,modspec in modlist:
+        mod = JetModConfig.getModifier(jetdef,moddef,modspec)
+        mods.append(mod)
+
+    jra = CompFactory.JetRecAlg(
+        "jetrecalg_"+jetname,
+        Provider = jclust,
+        Modifiers = mods,
+        OutputContainer = jetname)
+
+    autoconfigureModifiers(jra.Modifiers, jetname)
+
+    return jra

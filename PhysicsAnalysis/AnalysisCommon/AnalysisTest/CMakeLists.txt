@@ -28,19 +28,19 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           PhysicsAnalysis/TruthParticleID/McParticleUtils
-                          Reconstruction/Jet/JetEvent )
+                          Reconstruction/Jet/JetEvent 
+                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( CppUnit )
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_component( AnalysisTest
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} AthContainers StoreGateLib SGtests NavFourMom GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent VxVertex TestTools AthenaBaseComps AthenaKernel EventKernel FourMom GeneratorObjects AnalysisAssociation AnalysisUtilsLib AnalysisTriggerEvent McParticleUtils JetEvent )
+                     INCLUDE_DIRS  ${CLHEP_INCLUDE_DIRS} ${CPPUNIT_INCLUDE_DIRS}
+                     LINK_LIBRARIES AtlasHepMCLib ${CLHEP_LIBRARIES} ${CPPUNIT_LIBRARIES} AthContainers StoreGateLib SGtests NavFourMom GaudiKernel McParticleEvent muonEvent Particle egammaEvent tauEvent VxVertex TestTools AthenaBaseComps AthenaKernel EventKernel FourMom GeneratorObjects AnalysisAssociation AnalysisUtilsLib AnalysisTriggerEvent McParticleUtils JetEvent )
 
 # Install files from the package:
 atlas_install_headers( AnalysisTest )

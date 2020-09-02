@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Commission/CommissionEvent
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Event/EventPrimitives
@@ -40,13 +41,17 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
+atlas_add_library( TRT_CalibToolsLib
+                   TRT_CalibTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TRT_CalibTools
+                   LINK_LIBRARIES GaudiKernel TRT_CalibData Identifier xAODEventInfo xAODTracking )
+
 # Component(s) in the package:
 atlas_add_component( TRT_CalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} Identifier GaudiKernel InDetRawData CommissionEvent AthenaBaseComps StoreGateLib AtlasDetDescr EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TRT_CalibToolsLib InDetRawData CommissionEvent AthenaBaseComps CxxUtils StoreGateLib AtlasDetDescr EventPrimitives TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TRT_DriftFunctionToolLib TRT_DriftCircleToolLib )
 
-# Install files from the package:
-atlas_install_headers( TRT_CalibTools )
 

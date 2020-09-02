@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -40,8 +40,6 @@ StatusCode ReadPileUpData::initialize(){
     ATH_MSG_ERROR ("Could not find StoreGateSvc");
     return StatusCode::FAILURE;
   }
-  //another way of doing the above (not mt-safe)
-  //   p_SGevent = StoreGate::pointer();
   //locate the PileUpMergeSvc and initialize our local ptr
   if (!(service("PileUpMergeSvc", p_mergeSvc)).isSuccess() || 
       0 == p_mergeSvc) {

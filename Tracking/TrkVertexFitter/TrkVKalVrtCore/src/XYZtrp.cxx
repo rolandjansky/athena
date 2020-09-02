@@ -2,10 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -107,7 +107,7 @@ void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double BMAG
 
 /* -- Translation to (0,0,0) (BackPropagation) --*/
     double Ref0[3]={0.,0.,0.};
-    myPropagator.Propagate(-999, (*ich), par, covd, vrt0, Ref0, paro, errt, 0);
+    myPropagator.Propagate(-999, (*ich), par, covd, vrt0, Ref0, paro, errt, nullptr);
 
 } 
 

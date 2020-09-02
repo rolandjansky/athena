@@ -21,9 +21,9 @@
 
 #include "StoreGate/DataHandle.h"
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/GenParticle.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/GenParticle.h"
 
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 

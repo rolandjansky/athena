@@ -66,7 +66,8 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   if (not TrigCompositeUtils::passed(getId().numeric(), previousDecisionIDs)) {
     // This HypoTool's chain is not active -
     // we must not check this tool's logic.
-    
+    ATH_MSG_DEBUG("Previous decisionID not found for " << getId().numeric() << " - exiting.");
+
     return StatusCode::SUCCESS;
   }
 
@@ -126,7 +127,7 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                           participating_jets.end(),
                           pair.first);
       if (it != participating_jets.end()) {
-
+	ATH_MSG_VERBOSE("Passing jet: pt " << (*it)->pt() << ", eta " << (*it)->eta() );
 	// This jet particpated in passing the event.
         // Add this HypoTool's ID to this Decision object. 
 

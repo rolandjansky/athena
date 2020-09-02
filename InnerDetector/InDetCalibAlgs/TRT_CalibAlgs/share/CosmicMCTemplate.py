@@ -125,8 +125,6 @@ InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.I
 #InDetFlags.doLowPt        = True
 #InDetFlags.doBeamGas      = True
 #InDetFlags.doBeamHalo     = True
-#InDetFlags.doxKalman      = False
-#InDetFlags.doiPatRec      = False
 #InDetFlags.doBackTracking = False
 #InDetFlags.doTRTStandalone = False
 #InDetFlags.doVertexFinding = False
@@ -162,7 +160,7 @@ InDetFlags.doMonitoringAlignment = False
 
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 #InDetFlags.doTrkNtuple      = True
@@ -208,7 +206,7 @@ if not doReadBS:
     ostring+="""
 
 if doReadBS:
-  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "some file" ]
+  ServiceMgr.EventSelector.Input = [ "some file" ]
 
 #--------------------------------------------------------------
 # Calibration stuff
