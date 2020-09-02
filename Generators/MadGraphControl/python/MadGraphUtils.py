@@ -51,6 +51,7 @@ def error_check(errors):
     if not MADGRAPH_CATCH_ERRORS:
         return
     unmasked_error = False
+    my_debug_file = None
     if len(errors):
         mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
         for err in errors.split('\n'):
@@ -78,20 +79,23 @@ def error_check(errors):
                 # https://answers.launchpad.net/mg5amcnlo/+question/690004
                 mglog.info(err)
                 continue
+            if 'More information is found in' in err:
+                my_debug_file = err.split("'")[1]
             if err.startswith('tar'):
                 mglog.info(err)
                 continue
             mglog.error(err)
             unmasked_error = True
     # This is a bit clunky, but needed because we could be several places when we get here
-    my_debug_file = None
-    debug_files = glob.glob('*debug.log')+glob.glob('*/*debug.log')
-    for debug_file in debug_files:
-        # This protects against somebody piping their output to my_debug.log and it being caught here
-        has_subproc = os.access(os.path.dirname(debug_file)+'/SubProcesses',os.R_OK)
-        if has_subproc:
-            my_debug_file = debug_file
-            break
+    if my_debug_file is None:
+        debug_files = glob.glob('*debug.log')+glob.glob('*/*debug.log')
+        for debug_file in debug_files:
+            # This protects against somebody piping their output to my_debug.log and it being caught here
+            has_subproc = os.access(os.path.dirname(debug_file)+'/SubProcesses',os.R_OK)
+            if has_subproc:
+                my_debug_file = debug_file
+                break
+
     if my_debug_file is not None:
         if not unmasked_error:
             mglog.warning('Found a debug file at '+my_debug_file+' but no apparent error. Will terminate.')
