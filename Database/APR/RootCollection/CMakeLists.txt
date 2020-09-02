@@ -20,8 +20,8 @@ atlas_add_library( RootCollection
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} CollectionBase
-                   GaudiKernel POOLCore PersistencySvc PersistentDataModel RootUtils )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel CollectionBase
+                   FileCatalog GaudiKernel POOLCore PersistencySvc PersistentDataModel RootUtils )
 
 atlas_add_library( RootCollectionComponents
                    NO_PUBLIC_HEADERS
