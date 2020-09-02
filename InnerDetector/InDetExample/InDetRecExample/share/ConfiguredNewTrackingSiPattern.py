@@ -99,6 +99,7 @@ class  ConfiguredNewTrackingSiPattern:
                InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedPixelSeeds = NewTrackingCuts.KeepAllConfirmedPixelSeeds()
 
          if NewTrackingCuts.mode() == "R3LargeD0":
+            InDetSiSpacePointsSeedMaker.optimisePhiBinning = False
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
