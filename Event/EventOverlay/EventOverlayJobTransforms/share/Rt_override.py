@@ -33,7 +33,8 @@ conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",forc
 #conddb.addOverride("/GLOBAL/BField/Map","BFieldMap-FullAsym-09-solTil3")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
-conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
+conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
+                        className = 'AthenaAttributeList')
 
 conddb.blockFolder("/Indet/Align")
 conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign_Collision_2009_08",force=True,forceData=True)
