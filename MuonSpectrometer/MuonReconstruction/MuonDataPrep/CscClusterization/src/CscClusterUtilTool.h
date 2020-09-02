@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscClusterUtilTool.h
@@ -13,65 +13,67 @@
 // Strip fitter using the parabolic fit fron the CSC calibration tool.
 
 #include <vector>
+
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
+#include "GaudiKernel/ToolHandle.h"
 class CscIdHelper;
-namespace MuonGM 
-{
-    class MuonDetectorManager;
+namespace MuonGM {
+class MuonDetectorManager;
 }
 namespace Muon {
-  class CscClusterOnTrack;
-  class CscPrepData;
-  class CscStripPrepData;
-}
+class CscClusterOnTrack;
+class CscPrepData;
+class CscStripPrepData;
+}  // namespace Muon
 namespace Trk {
-  class RIO_OnTrack;
+class RIO_OnTrack;
 }
 
 class CscClusterUtilTool : virtual public ICscClusterUtilTool, public AthAlgTool {
 
-public:  // Ctors and dtor.
+  public:  // Ctors and dtor.
+    // Constructor.
+    CscClusterUtilTool(std::string, std::string, const IInterface*);
 
-  // Constructor.
-  CscClusterUtilTool(std::string, std::string, const IInterface*);
+    // Destructor.
+    ~CscClusterUtilTool();
 
-  // Destructor.
-  ~CscClusterUtilTool();
+  public:  // AlgTool methods
+    // Initialization.
+    StatusCode initialize();
 
-public:  // AlgTool methods
+    // Finalization.
+    StatusCode finalize();
 
-  // Initialization.
-  StatusCode initialize();
+  public:
+    ICscClusterFitter::Results getRefitCluster(const Muon::CscPrepData* MClus, double tantheta) const;
 
-  // Finalization.
-  StatusCode finalize();
+    void getStripFits(const Trk::RIO_OnTrack* rot, ICscClusterFitter::StripFitList& sfits) const;
+    void getStripFits(const Muon::CscClusterOnTrack* pclu, ICscClusterFitter::StripFitList& sfits) const;
+    void getStripFits(const Muon::CscPrepData*, ICscClusterFitter::StripFitList&) const;
 
-public:
-  ICscClusterFitter::Results getRefitCluster(const Muon::CscPrepData* MClus, double tantheta) const;
-
-  void getStripFits(const Trk::RIO_OnTrack* rot, ICscClusterFitter::StripFitList& sfits) const;
-  void getStripFits(const Muon::CscClusterOnTrack* pclu, ICscClusterFitter::StripFitList& sfits) const;
-  void getStripFits(const Muon::CscPrepData*, ICscClusterFitter::StripFitList&) const;
-
-  std::vector<const Muon::CscStripPrepData*> getStrips(const Muon::CscPrepData* MClus) const;
-
-  
-
-private:  // data
-  // Pointer to muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
-  const CscIdHelper* m_phelper;
-
-  // Strip fitter.
-  ToolHandle<ICscStripFitter>   m_stripFitter;
-  ToolHandle<ICscClusterFitter> m_precClusterFitter;
-  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscStripLocation;
-  
+    std::vector<const Muon::CscStripPrepData*> getStrips(const Muon::CscPrepData* MClus) const;
 
 
-  
+  private:  // data
+    // Pointer to muon geometry manager.
+    const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
+    const CscIdHelper*                 m_phelper;
+
+    // Strip fitter.
+    ToolHandle<ICscStripFitter> m_stripFitter{
+        this,
+        "strip_fitter",
+        "CalibCscStripFitter/CalibCscStripFitter",
+    };
+    ToolHandle<ICscClusterFitter> m_precClusterFitter{
+        this,
+        "precision_fitter",
+        "QratCscClusterFitter/QratCscClusterFitter",
+    };
+
+    SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscStripLocation;
 };
 
 #endif
