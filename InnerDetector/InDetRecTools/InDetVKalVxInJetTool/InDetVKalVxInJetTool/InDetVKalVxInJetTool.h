@@ -50,7 +50,6 @@
 //
 //
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
-//#include "InDetMaterialRejTool/InDetMaterialRejTool.h"
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
 
 class TH1D;
@@ -73,11 +72,6 @@ typedef std::vector<double> dvect;
 //------------------------------------------------------------------------
 namespace InDet {
 
-  class VKalVxInJetTemp{
-    public:
-      std::vector<int> m_Incomp;
-      std::vector<int> m_Prmtrack;
-  };
 
   struct workVectorArrxAOD{
         std::vector<const xAOD::TrackParticle*> listJetTracks;
@@ -316,7 +310,6 @@ namespace InDet {
 
       boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph{};
       float m_chiScale[11]{};
-      VKalVxInJetTemp*  m_workArray{};     
       struct WrkVrt 
      {   bool Good=true;
          std::deque<long int> selTrk;
@@ -423,7 +416,7 @@ namespace InDet {
       double rankBTrk(double TrkPt, double JetPt, double Signif) const;
  
 
-      const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* ) const;
+      const Trk::Perigee* getPerigee( const xAOD::TrackParticle* ) const;
       std::vector<const Trk::Perigee*> GetPerigeeVector( const std::vector<const Trk::TrackParticleBase*>& ) const;
 
 
@@ -561,33 +554,33 @@ namespace InDet {
 	int blTrk=0, blP=0, l1Trk=0, l1P=0, l2Trk=0, nLays=0; 
         getPixelLayers( p1, blTrk , l1Trk, l2Trk, nLays );
         getPixelProblems(p1, blP, l1P );
-        double xDif=FitVertex.x()-m_xLayerB, yDif=FitVertex.y()-m_yLayerB ; 
-        double Dist2DBL=sqrt(xDif*xDif+yDif*yDif);
-        if      (Dist2DBL < m_rLayerB-vrtRadiusError(FitVertex, VrtCov)){       //----------------------------------------- Inside B-layer
+        double radiusError=vrtRadiusError(FitVertex, VrtCov);
+	double xvt=FitVertex.x();
+	double yvt=FitVertex.y();
+	double Dist2DBL=std::hypot( xvt-m_xLayerB, yvt-m_yLayerB);
+        if      (Dist2DBL < m_rLayerB-radiusError){       //----------------------------------------- Inside B-layer
           if( blTrk<1  && l1Trk<1  )  return false;
           if(  nLays           <2 )   return false;  // Less than 2 layers on track 0
 	  return true;
-        }else if(Dist2DBL > m_rLayerB+vrtRadiusError(FitVertex, VrtCov)){      //----------------------------------------- Outside b-layer
+        }else if(Dist2DBL > m_rLayerB+radiusError){      //----------------------------------------- Outside b-layer
           if( blTrk>0 && blP==0 ) return false;  // Good hit in b-layer is present
        }
 // 
 // L1 and L2 are considered only if vertex is in acceptance
 //
 	if(fabs(FitVertex.z())<400.){
-          xDif=FitVertex.x()-m_xLayer1, yDif=FitVertex.y()-m_yLayer1 ;
-	  double Dist2DL1=sqrt(xDif*xDif+yDif*yDif);
-          xDif=FitVertex.x()-m_xLayer2, yDif=FitVertex.y()-m_yLayer2 ; 
-	  double Dist2DL2=sqrt(xDif*xDif+yDif*yDif);
-          if      (Dist2DL1 < m_rLayer1-vrtRadiusError(FitVertex, VrtCov)) {   //------------------------------------------ Inside 1st-layer
+	  double Dist2DL1=std::hypot( xvt-m_xLayer1, yvt-m_yLayer1);
+	  double Dist2DL2=std::hypot( xvt-m_xLayer2, yvt-m_yLayer2);
+          if      (Dist2DL1 < m_rLayer1-radiusError) {   //------------------------------------------ Inside 1st-layer
              if( l1Trk<1  && l2Trk<1  )     return false;  // Less than 1 hits on track 0
              return true;
-          }else if(Dist2DL1 > m_rLayer1+vrtRadiusError(FitVertex, VrtCov)) {  //------------------------------------------- Outside 1st-layer
+          }else if(Dist2DL1 > m_rLayer1+radiusError) {  //------------------------------------------- Outside 1st-layer
 	     if( l1Trk>0 && l1P==0 )       return false;  //  Good L1 hit is present
           }
           
-          if      (Dist2DL2 < m_rLayer2-vrtRadiusError(FitVertex, VrtCov)) {  //------------------------------------------- Inside 2nd-layer
+          if      (Dist2DL2 < m_rLayer2-radiusError) {  //------------------------------------------- Inside 2nd-layer
 	     if( l2Trk==0 )  return false;           // At least one L2 hit must be present
-          }else if(Dist2DL2 > m_rLayer2+vrtRadiusError(FitVertex, VrtCov)) {  
+          }else if(Dist2DL2 > m_rLayer2+radiusError) {  
 	  //   if( l2Trk>0  )  return false;           // L2 hits are present
 	  }           
         } else {

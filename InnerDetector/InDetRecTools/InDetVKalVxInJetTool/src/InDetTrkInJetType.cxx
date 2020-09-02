@@ -110,12 +110,12 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
       std::vector<double> Impact,ImpactError;
       float Sig3D=m_fitSvc->VKalGetImpact(Trk, PV.position(), 1, Impact, ImpactError);
       AmgVector(5) tmpPerigee = Trk->perigeeParameters().parameters(); 
-      if( sin(tmpPerigee[2]-Jet.Phi())*Impact[0] < 0 ){ Impact[0] = -std::abs(Impact[0]);}
-                                                  else{ Impact[0] =  std::abs(Impact[0]);}
-      if(  (tmpPerigee[3]-Jet.Theta())*Impact[1] < 0 ){ Impact[1] = -std::abs(Impact[1]);}
-                                                  else{ Impact[1] =  std::abs(Impact[1]);}
-      double SignifR = Impact[0]/ sqrt(ImpactError[0]);
-      double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
+      if( std::sin(tmpPerigee[2]-Jet.Phi())*Impact[0] < 0 ){ Impact[0] = -std::abs(Impact[0]);}
+                                                       else{ Impact[0] =  std::abs(Impact[0]);}
+      if(  (tmpPerigee[3]-Jet.Theta())*Impact[1] < 0 )     { Impact[1] = -std::abs(Impact[1]);}
+                                                       else{ Impact[1] =  std::abs(Impact[1]);}
+      double SignifR = Impact[0]/ std::sqrt(ImpactError[0]);
+      double SignifZ = Impact[1]/ std::sqrt(ImpactError[2]);
 //---Calibrated range selection
       if(Impact[1]<m_Z0_limLow || Impact[1]>m_Z0_limUpp) return safeReturn;  //Don't classify track far from PV in Z
       if( std::sqrt(SignifR*SignifR +SignifZ*SignifZ) < 1.)   return safeReturn;  //Don't classify track too close to PV

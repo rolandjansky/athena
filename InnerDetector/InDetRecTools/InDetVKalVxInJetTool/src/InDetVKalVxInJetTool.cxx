@@ -71,9 +71,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_vertexMergeCut(3.),
     m_trackDetachCut(6.),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
-//    m_useMaterialRejection(true),
-//    m_materialMap ("InDet::InDetMaterialRejTool", this)
-//    m_fitSvc("Trk::TrkVKalVrtFitter/VKalVrtFitter",this)
     m_trackClassificator("InDet::InDetTrkInJetType",this)
    {
 //
@@ -123,7 +120,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("Rlayer1",   m_rLayer1  );
     declareProperty("Rlayer2",   m_rLayer2  );
 
-//    declareProperty("useMaterialRejection",  m_useMaterialRejection, "Reject vertices from hadronic interactions in detector material" );
     declareProperty("useVertexCleaning",     m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
 
     declareProperty("MultiVertex",        m_multiVertex,       "Run Multiple Secondary Vertices in jet finder"  );
@@ -147,16 +143,14 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_massK0  = 497.648  ;
     m_massLam =1115.683  ;
     m_massB   =5279.400  ;
-    m_workArray = 0;
     m_compatibilityGraph = nullptr;
     m_instanceName=name;
-    m_curTup = 0;
+    m_curTup = nullptr;
 
    }
 
 //Destructor---------------------------------------------------------------
     InDetVKalVxInJetTool::~InDetVKalVxInJetTool(){
-     if(m_workArray) delete m_workArray;
      if(m_compatibilityGraph)delete m_compatibilityGraph;
      ATH_MSG_DEBUG("InDetVKalVxInJetTool destructor called");
    }
@@ -164,11 +158,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 //Initialize---------------------------------------------------------------
    StatusCode InDetVKalVxInJetTool::initialize(){
      ATH_MSG_DEBUG("InDetVKalVxInJetTool initialize() called");
-     try{ m_workArray = new VKalVxInJetTemp;}
-     catch(std::bad_alloc& ba) {
-        ATH_MSG_DEBUG(" Work array allocation failure! "<< ba.what());
-        return StatusCode::SUCCESS;
-     }
      try{ m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();}
      catch(std::bad_alloc& ba) {
         ATH_MSG_DEBUG(" Graph allocation failure! "<< ba.what());
@@ -485,8 +474,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     if(m_fillHist){  m_tuple->Fill(); };
     m_compatibilityGraph->clear();
-    std::vector<int> zytmp(1000); m_workArray->m_Incomp.swap(zytmp);    // Deallocate memory
-    std::vector<int> zwtmp(0);    m_workArray->m_Prmtrack.swap(zwtmp);  // 
     if(m_timingProfile)m_timingProfile->chronoStop("InDetVKalVxInJetTool");
     return res;
    }

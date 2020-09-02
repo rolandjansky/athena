@@ -81,7 +81,7 @@ namespace InDet{
   const
   {
 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "getVrtSec() called with xAOD::TrackParticle=" <<inpTrk.size()<< endmsg;
+      ATH_MSG_DEBUG("getVrtSec() called with xAOD::TrackParticle=" <<inpTrk.size());
 
       std::vector<double> errorMatrix,Impact,ImpactError;
       Amg::Vector3D          fitVertex;
@@ -115,7 +115,6 @@ namespace InDet{
       std::vector<double> inpMass(NTracks,m_massPi);
       select2TrVrt(selectedTracks, tracksForFit, primVrt, jetDir, inpMass, nRefPVTrk, 
                    trkFromV0,listSecondTracks);
-      m_workArray->m_Incomp.clear();  // Not needed for single vertex version
 //
 //--- Cleaning
 // 
@@ -240,16 +239,16 @@ namespace InDet{
          { if( jetVrtDir<0. ) return 0; } 
 
       double xvt=fitVertex.x(); double yvt=fitVertex.y();
-      double Dist2DBP=std::sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
-      double Dist2DBL=std::sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
-      double Dist2DL1=std::sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
-      double Dist2DL2=std::sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
+      double Dist2DBP=std::hypot( xvt-m_beampipeX, yvt-m_beampipeY); 
+      double Dist2DBL=std::hypot( xvt-m_xLayerB, yvt-m_yLayerB); 
+      double Dist2DL1=std::hypot( xvt-m_xLayer1, yvt-m_yLayer1);
+      double Dist2DL2=std::hypot( xvt-m_xLayer2, yvt-m_yLayer2);
       double minDstMat=39.9;
       minDstMat=TMath::Min(minDstMat,std::abs(Dist2DBP-m_beampipeR));
       minDstMat=TMath::Min(minDstMat,std::abs(Dist2DBL-m_rLayerB));
       minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL1-m_rLayer1));
       minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL2-m_rLayer2));
-      if(m_existIBL) minDstMat=TMath::Min(minDstMat,std::abs(Dist2DL2-m_rLayer3));  // 4-layer pixel detector
+      if(m_existIBL) minDstMat=std::min(minDstMat,std::abs(Dist2DL2-m_rLayer3));  // 4-layer pixel detector
  
  
       vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
@@ -485,12 +484,8 @@ namespace InDet{
       StatusCode sc; sc.setChecked();
       Vrt2Tr tmpVrt;
       std::vector<Vrt2Tr> all2TrVrt(0);
-      TLorentzVector TLV; 
-//
       int NTracks = (int) (selectedTracks.size());
 
-      m_workArray->m_Incomp.clear();   // For multivertex
-      m_workArray->m_Prmtrack.clear();   // For multivertex
 //
 //  Impact parameters with sign calculations
 //
@@ -502,7 +497,7 @@ namespace InDet{
       AmgVector(5) tmpPerigee; tmpPerigee.setZero();
       for (i=0; i<NTracks; i++) {
          TrkSig3D[i] = m_fitSvc->VKalGetImpact(selectedTracks[i], primVrt.position(), 1, Impact, ImpactError);
-         tmpPerigee = GetPerigee(selectedTracks[i])->parameters(); 
+         tmpPerigee = getPerigee(selectedTracks[i])->parameters(); 
          if( sin(tmpPerigee[2]-jetDir.Phi())*Impact[0] < 0 ){ Impact[0] = -std::abs(Impact[0]);}
 	                                                else{ Impact[0] =  std::abs(Impact[0]);}
          if(  (tmpPerigee[3]-jetDir.Theta())*Impact[1] < 0 ){ Impact[1] = -std::abs(Impact[1]);}
@@ -531,8 +526,7 @@ namespace InDet{
 		 m_curTup->chg[i]=tmpPerigee[4]<0. ? 1: -1;
                  m_curTup->ibl[i]=hitIBL[i];
 		 m_curTup->bl[i]=hitBL[i];
-		 TLorentzVector TLV; 
-                 TLV.SetPtEtaPhiE(selectedTracks[i]->pt(),selectedTracks[i]->eta(),selectedTracks[i]->phi(),selectedTracks[i]->e());
+		 TLorentzVector TLV=selectedTracks[i]->p4();
 		 m_curTup->pTvsJet[i]=TLV.Perp(jetDir.Vect());
 		 TLorentzVector normJ;  normJ.SetPtEtaPhiM(1.,jetDir.Eta(),jetDir.Phi(),0.);
 		 m_curTup->prodTJ[i]=std::sqrt(TLV.Dot(normJ));
@@ -589,10 +583,8 @@ namespace InDet{
              vrtVrtDist(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Signif3D);
 	     tmpVrt.signif3D=Signif3D;
              vrtVrtDist2D(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, tmpVrt.signif2D);
-//---
-	     if(!m_multiWithPrimary) {  // Should not be used for multi-vertex with primary mode
-	       if(getVrtScore(i,j,trkScore)*(1.-TMath::Prob(Signif3D*Signif3D,3)) < m_cutBVrtScore) continue;
-	     }
+//This selection should not be used in the multi-vertex with primary mode
+	     if(!m_multiWithPrimary)if(getVrtScore(i,j,trkScore)*(1.-TMath::Prob(Signif3D*Signif3D,3)) < m_cutBVrtScore) continue;
 //---
              TVector3 SVmPV(tmpVrt.fitVertex.x()-primVrt.x(),tmpVrt.fitVertex.y()-primVrt.y(),tmpVrt.fitVertex.z()-primVrt.z());
              tmpVrt.dRSVPV=jetDir.DeltaR(TLorentzVector(SVmPV, 1.)); //DeltaR SV-PV vs jet
@@ -604,7 +596,7 @@ namespace InDet{
 	     if(vPos<-100.) continue;                                              /* Secondary vertex is too far behind primary*/
 //
 // Check pixel hits vs vertex positions.
-             if(m_useVertexCleaning){    if(!Check2TrVertexInPixel(selectedTracks[i],selectedTracks[j],tmpVrt.fitVertex,tmpVrt.errorMatrix)) continue;     }
+             if(m_useVertexCleaning && !Check2TrVertexInPixel(selectedTracks[i],selectedTracks[j],tmpVrt.fitVertex,tmpVrt.errorMatrix)) continue;
 //--------
 //
              double signif3Dproj=vrtVrtDist( primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, jetDir);
@@ -695,11 +687,6 @@ namespace InDet{
 	     all2TrVrt.push_back(tmpVrt);      //
 //-----------------------------------------------
              if(m_fillHist){  m_hb_r2d->Fill( tmpVrt.fitVertex.perp(), m_w_1); }
-	     //if(m_useMaterialRejection && Dist2D>m_beampipeR-2.){
-             //if(m_materialMap){
-             //  if(m_materialMap->inMaterial(tmpVrt.fitVertex)) badTracks=4;
-             //  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" MaterialMap test="<< badTracks<<endreq;
-             //}
 //
 //  Creation of tracks from V0 list
 //	     
@@ -803,38 +790,37 @@ namespace InDet{
         getPixelLayers( p2, blTrk[1] , l1Trk[1], l2Trk[1], nLays[1] );    // Very close to PV. Both b-layer hits are mandatory.
         getPixelProblems(p1, blP[0], l1P[0] );
         getPixelProblems(p2, blP[1], l1P[1] );
-        double xDif=fitVertex.x()-m_xLayerB, yDif=fitVertex.y()-m_yLayerB ; 
-        double Dist2DBL=std::sqrt(xDif*xDif+yDif*yDif);
-        if      (Dist2DBL < m_rLayerB-vrtRadiusError(fitVertex, vrtErr)) {       //----------------------------------------- Inside B-layer
+        double xvt=fitVertex.x(),  yvt=fitVertex.y(); 
+        double radiusError=vrtRadiusError(fitVertex, vrtErr);
+        double Dist2DBL=std::hypot(xvt-m_xLayerB, yvt-m_yLayerB);
+        if      (Dist2DBL < m_rLayerB-radiusError) {       //----------------------------------------- Inside B-layer
           if( blTrk[0]==0 && blTrk[1]==0) return false;  // No b-layer hits at all, but all expected
 	  if( blTrk[0]<1  && l1Trk[0]<1 ) return false;
 	  if( blTrk[1]<1  && l1Trk[1]<1 ) return false;
           if(  nLays[0]           <2 )    return false;  // Less than 2 layers on track 0
           if(  nLays[1]           <2 )    return false;  // Less than 2 layers on track 1
 	  return true;
-        }else if(Dist2DBL > m_rLayerB+vrtRadiusError(fitVertex, vrtErr)){      //----------------------------------------- Outside b-layer
+        }else if(Dist2DBL > m_rLayerB+radiusError){      //----------------------------------------- Outside b-layer
           if( blTrk[0]>0 && blP[0]==0 && blTrk[1]>0 && blP[1]==0 ) return false;  // Good hit in b-layer is present
         }
 // 
 // L1 and L2 are considered only if vertex is in acceptance
 //
 	if(std::abs(fitVertex.z())<400.){
-          xDif=fitVertex.x()-m_xLayer1, yDif=fitVertex.y()-m_yLayer1 ;
-	  double Dist2DL1=std::sqrt(xDif*xDif+yDif*yDif);
-          xDif=fitVertex.x()-m_xLayer2, yDif=fitVertex.y()-m_yLayer2 ; 
-	  double Dist2DL2=std::sqrt(xDif*xDif+yDif*yDif);
-          if      (Dist2DL1 < m_rLayer1-vrtRadiusError(fitVertex, vrtErr)) {   //------------------------------------------ Inside 1st-layer
+          double Dist2DL1=std::hypot(xvt-m_xLayer1, yvt-m_yLayer1);
+          double Dist2DL2=std::hypot(xvt-m_xLayer2, yvt-m_yLayer2);
+          if      (Dist2DL1 < m_rLayer1-radiusError) {   //------------------------------------------ Inside 1st-layer
 	     if( l1Trk[0]==0 && l1Trk[1]==0 )     return false;  // No L1 hits at all
              if( l1Trk[0]<1  && l2Trk[0]<1  )     return false;  // Less than 1 hits on track 0
              if( l1Trk[1]<1  && l2Trk[1]<1  )     return false;  // Less than 1 hits on track 1
              return true;
-          }else if(Dist2DL1 > m_rLayer1+vrtRadiusError(fitVertex, vrtErr)) {  //------------------------------------------- Outside 1st-layer
+          }else if(Dist2DL1 > m_rLayer1+radiusError) {  //------------------------------------------- Outside 1st-layer
 	     if( l1Trk[0]>0 && l1P[0]==0 && l1Trk[1]>0 && l1P[1]==0 )       return false;  //  Good L1 hit is present
           }
           
-          if      (Dist2DL2 < m_rLayer2-vrtRadiusError(fitVertex, vrtErr)) {  //------------------------------------------- Inside 2nd-layer
+          if      (Dist2DL2 < m_rLayer2-radiusError) {  //------------------------------------------- Inside 2nd-layer
 	     if( (l2Trk[0]+l2Trk[1])==0 )  return false;           // At least one L2 hit must be present
-          }else if(Dist2DL2 > m_rLayer2+vrtRadiusError(fitVertex, vrtErr)) {  
+          }else if(Dist2DL2 > m_rLayer2+radiusError) {  
 	  //   if( (l2Trk[0]+l2Trk[1])>0  )  return false;           // L2 hits are present
 	  }     
         } else {

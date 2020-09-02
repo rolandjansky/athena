@@ -76,11 +76,13 @@ namespace InDet{
     return tl;
   }
 
-  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string& ) const {
-/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *wrkVrtSet, const std::string name) const {
-    int nGoodV=0;
-    for(int iv=0; iv<(int)wrkVrtSet->size(); iv++) {
-      std::cout<<name
+  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *wrkVrtSet, const std::string& name) const {
+   int nGoodV=0;
+   for(int iv=0; iv<(int)wrkVrtSet->size(); iv++) {
+      std::ostringstream ostr1,ostr2;
+      for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {ostr1<<(*wrkVrtSet)[iv].selTrk[kk]<<", ";}
+      for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {ostr2<<momAtVrt((*wrkVrtSet)[iv].trkAtVrt[kk]).Perp()<<", ";}
+      ATH_MSG_DEBUG(name
       <<"= "<<(*wrkVrtSet)[iv].vertex[0]
       <<", "<<(*wrkVrtSet)[iv].vertex[1]
       <<", "<<(*wrkVrtSet)[iv].vertex[2]
@@ -90,15 +92,10 @@ namespace InDet{
       <<"  Mass="<<(*wrkVrtSet)[iv].vertexMom.M()
       <<"  detached="<<(*wrkVrtSet)[iv].detachedTrack
       <<"  proj.dist="<<(*wrkVrtSet)[iv].projectedVrt
-      <<" trk=";
-      for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {
-                std::cout<<", "<<(*wrkVrtSet)[iv].selTrk[kk];}
-      //for(int kk=0; kk<(int)(*wrkVrtSet)[iv].selTrk.size(); kk++) {
-      //          std::cout<<", "<<momAtVrt((*wrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
-      std::cout<<'\n';
+      <<" trk="<<ostr1.str()<<" trk Pt="<<ostr2.str());
       if((*wrkVrtSet)[iv].Good)nGoodV++;
     }
-    std::cout<<name<<" N="<<nGoodV<<'\n';*/
+   ATH_MSG_DEBUG(name<<" N="<<nGoodV);
   }
 
                /*  Technicalities */
@@ -402,11 +399,11 @@ namespace InDet{
 
 //  Function returns a transverse momentum of track w/r some direction
 //
-  double InDetVKalVxInJetTool::pTvsDir(const Amg::Vector3D &Dir, const std::vector< double >& inpTrk) 
+  double InDetVKalVxInJetTool::pTvsDir(const Amg::Vector3D &dir, const std::vector< double >& inpTrk) 
   const
   {
-     double Norm=std::sqrt(Dir.x()*Dir.x() + Dir.y()*Dir.y() + Dir.z()*Dir.z());
-     double sx=Dir.x()/Norm; double sy=Dir.y()/Norm; double sz=Dir.z()/Norm;
+     double norm=std::hypot(dir.x(),dir.y(),dir.z());
+     double sx=dir.x()/norm; double sy=dir.y()/norm; double sz=dir.z()/norm;
 
      double px=0.,py=0.,pz=0.; double scale;
      double api=1./std::abs(inpTrk[2]);
@@ -420,20 +417,20 @@ namespace InDet{
      px -= sx*scale;
      py -= sy*scale; 
      pz -= sz*scale;
-     return std::sqrt( px*px +py*py + pz*pz );
+     return std::hypot(px,py,pz);
    }
 
-  TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const Trk::Perigee*>& InpTrk) 
+  TLorentzVector InDetVKalVxInJetTool::totalMom(const std::vector<const Trk::Perigee*>& inpTrk) 
   const
   {
-     AmgVector(5) VectPerig; VectPerig.setZero();
+     AmgVector(5) vectPerig; vectPerig.setZero();
      double px=0.,py=0.,pz=0.,ee=0.;
-     for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       if( InpTrk[i] == NULL ){ continue; } 
-       VectPerig = InpTrk[i]->parameters(); 
-       double api=1./std::abs(VectPerig[4]);
-       CxxUtils::sincos phi  (VectPerig[2]);
-       CxxUtils::sincos theta(VectPerig[3]);
+     for (int i = 0; i < (int)inpTrk.size(); ++i) {
+       if(!inpTrk[i]) continue;
+       vectPerig = inpTrk[i]->parameters(); 
+       double api=1./std::abs(vectPerig[4]);
+       CxxUtils::sincos phi  (vectPerig[2]);
+       CxxUtils::sincos theta(vectPerig[3]);
        px += phi.cs * theta.sn*api;
        py += phi.sn * theta.sn*api;
        pz +=          theta.cs*api;
@@ -470,7 +467,7 @@ namespace InDet{
 //-- Perigee in xAOD::TrackParticle
 //
 
-  const Trk::Perigee* InDetVKalVxInJetTool::GetPerigee( const xAOD::TrackParticle* i_ntrk) const
+  const Trk::Perigee* InDetVKalVxInJetTool::getPerigee( const xAOD::TrackParticle* i_ntrk) const
   {
        return &(i_ntrk->perigeeParameters());
   }
