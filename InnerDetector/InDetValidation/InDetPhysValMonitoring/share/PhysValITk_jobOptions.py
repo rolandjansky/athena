@@ -98,16 +98,12 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
       if (layoutOption!=""): 
          SLHC_Flags.LayoutOption=layoutOption
       from InDetRecExample.InDetJobProperties import InDetFlags
-      include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       if (layoutDescr!=""):
          include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
       else:
          include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
       include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
-      if geoTag=="ATLAS-P2-ITK-10" or geoTag=="ATLAS-P2-ITK-09" :
-         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
-      else:
-         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')
+      include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       break
    
 # Just turn on the detector components we need
