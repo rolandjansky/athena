@@ -56,6 +56,12 @@ class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
     SG::WriteHandleKey<xAOD::MuonContainer> m_muonContainerKey {
 	this, "MuonContName", "MuonEFInfo", "Name of output objects for EF" };
 
+    SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonIso20Key {
+	this, "ptcone02Name", "Muons.ptcone02", "Isolation for ptcone 0.2" };
+
+    SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonIso30Key {
+	this, "ptcone03Name", "Muons.ptcone03", "Isolation for ptcone 0.3" };
+
 
     // Require that EF muons are combined
     Gaudi::Property<bool> m_requireCombined { this, "requireCombinedMuon", true, "Require that EF Muons are combined"};

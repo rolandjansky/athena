@@ -32,18 +32,24 @@ class TrigMuonEFTrackIsolationHypoTool: public ::AthAlgTool {
     EFIsolationMuonInfo( TrigCompositeUtils::Decision* d, 
                          const TrigRoiDescriptor* r, 
                          const xAOD::Muon* f,
-                         const TrigCompositeUtils::Decision* previousDecision )
+                         const TrigCompositeUtils::Decision* previousDecision,
+			 const double cone20,
+			 const double cone30 )
     : decision( d ), 
       roi( r ),
       muEFIso( f ),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
-			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+			   TrigCompositeUtils::decisionIDs( previousDecision ).end() ),
+      ptcone20(cone20),
+      ptcone30(cone30)
       {}
       
       TrigCompositeUtils::Decision* decision;
       const TrigRoiDescriptor* roi;
       const xAOD::Muon* muEFIso;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+      const double ptcone20;
+      const double ptcone30;
     };
 
     virtual StatusCode initialize() override;    

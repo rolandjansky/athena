@@ -4,6 +4,7 @@
 
 #include "TrigMuonEFTrackIsolationAlgMT.h"
 #include "xAODMuon/MuonAuxContainer.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 TrigMuonEFTrackIsolationAlgMT::TrigMuonEFTrackIsolationAlgMT( const std::string& name, 
                                                               ISvcLocator* pSvcLocator )
@@ -31,6 +32,8 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::initialize()
   ATH_CHECK( m_trackParticleKey.initialize() );
   ATH_CHECK( m_efMuonContainerKey.initialize() );
   ATH_CHECK( m_muonContainerKey.initialize() );
+  ATH_CHECK( m_muonIso20Key.initialize() );
+  ATH_CHECK( m_muonIso30Key.initialize() );
 
 
 
@@ -84,6 +87,7 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   // get input objects
   const xAOD::TrackParticleContainer *idTrackParticles = nullptr;
   const xAOD::MuonContainer *efMuonContainer = nullptr;
+
   auto idTrackHandle = SG::makeHandle( m_trackParticleKey, ctx );
   if( !idTrackHandle.isValid() ) {
     ATH_MSG_ERROR("Failed to retrieve inner detector track particles");
@@ -110,11 +114,14 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
   std::vector<double> dzvals; // for monitoring
   std::vector<double> drvals; // for monitoring
   std::vector<double> selfremoval;
-
+  
   SG::WriteHandle<xAOD::MuonContainer> muonOutput(m_muonContainerKey);
   ATH_CHECK(muonOutput.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>())); 
   ATH_MSG_DEBUG("Record EF isolation muon : " << m_muonContainerKey.key());
   muonContainer = muonOutput.ptr();
+
+  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone20(m_muonIso20Key);
+  SG::WriteDecorHandle<xAOD::MuonContainer, double> muonptCone30(m_muonIso30Key);
 
   for ( auto muon : *efMuonContainer ) {
     const xAOD::Muon::MuonType muonType = muon->muonType();
@@ -142,22 +149,12 @@ StatusCode TrigMuonEFTrackIsolationAlgMT::execute()
       ATH_MSG_WARNING("Isolation will not be set for this muon. result.isFailure: "<<result.isFailure()<<" isoResults.size: "<<isoResults.size());
     } 
     else { // isolation tool was ok - store results
-      const float ptcone20 = isoResults[0]; 	
-      const float ptcone30 = isoResults[1]; 
-      ini_cone2.push_back(ptcone20*1e-3); // convert to GeV
-      ini_cone3.push_back(ptcone30*1e-3); // convert to GeV
-
       muonContainer->push_back( new xAOD::Muon(*muon) );
       xAOD::Muon* outputmuon = muonContainer->back();
-
-      // set isolation info into output muon object
-      if ( m_useVarIso ) {
-	outputmuon->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
-	outputmuon->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
-      } else {
-	outputmuon->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
-	outputmuon->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
-      }
+      muonptCone20(*outputmuon) = isoResults[0]; 	
+      muonptCone30(*outputmuon) = isoResults[1]; 
+      ini_cone2.push_back(isoResults[0]*1e-3); // convert to GeV
+      ini_cone3.push_back(isoResults[1]*1e-3); // convert to GeV
     }
   }//loop over muons
   
