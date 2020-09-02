@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
 #*****************************************************************
 #
 # """topOptions file for Tile Reconstruciton and Monitoring in Athena""" 
@@ -5,6 +9,8 @@
 #=================================================================
 
 # MonitorOutput="EXPERT"
+
+from __future__ import print_function
 
 from os import system, popen
 
@@ -89,10 +95,10 @@ rec.doLArg = False
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if athenaCommonFlags.isOnline() or doOnline or doStateless:
     athenaCommonFlags.isOnline = True
-    print 'athenaCommonFlags.isOnline = True : Online Mode'
+    print('athenaCommonFlags.isOnline = True : Online Mode')
     if doStateless:
         athenaCommonFlags.isOnlineStateless = True
-        print 'athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode'
+        print('athenaCommonFlags.isOnlineStateless = True : Stateless Online Mode')
 
 
 #-----------------
@@ -132,11 +138,11 @@ if not athenaCommonFlags.isOnline():
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
 
-    print 'InputDirectory is ' + str(InputDirectory)
-    print 'RunNumber is ' + str(FormattedRunNumber)
-    print 'FullFileName is ' + str(FileNameVec)
-    print 'Skip Events is ' + str(EvtMin)
-    print 'Max events is ' + str(EvtMax)
+    print('InputDirectory is ' + str(InputDirectory))
+    print('RunNumber is ' + str(FormattedRunNumber))
+    print('FullFileName is ' + str(FileNameVec))
+    print('Skip Events is ' + str(EvtMin))
+    print('Max events is ' + str(EvtMax))
 
     athenaCommonFlags.FilesInput = FileNameVec
     svcMgr.EventSelector.Input = FileNameVec
@@ -376,7 +382,7 @@ if doAtlantis:
         ToolSvc += theStreamToFileTool
         theEventData2XML.StreamTools += [ theStreamToFileTool ]
 
-    print theEventData2XML
+    print(theEventData2XML)
 
 #-----------------------
 # Perfomance monitor
