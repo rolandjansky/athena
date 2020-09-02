@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_LengthIntegrator_H
@@ -62,6 +62,40 @@ namespace G4UA
       // Holder for G4 math tools
       G4Pow* m_g4pow;
 
+      //Tree for material information
+      TTree* m_tree;
+
+      //Tree Branches
+      int   m_genNPart;
+      float m_genEta;
+      float m_genPhi;
+      float m_genZ;
+      float m_genR;
+      
+      //X0 Branches
+      float m_total_X0;
+      float m_total_L0;
+
+      std::vector<double> m_collected_X0;
+      std::vector<double> m_collected_L0;
+
+      std::vector<float> m_collected_hitr;
+      std::vector<float> m_collected_hitz;
+
+      std::vector<float> m_collected_density;
+      std::vector<std::string> m_collected_material;
+      std::vector<std::string> m_collected_volume;
+      
+      std::vector<std::string> m_collected_groupedmaterial;
+      std::vector<std::string> m_collected_volumetype;
+
+      bool m_splitModerator;
+      bool m_splitPP1;
+
+      void fillNtuple();
+      std::string getMaterialClassification(std::string name);
+      std::string getVolumeType(std::string s);
+
       // Add elements and values into the map
       void addToDetThickMap(std::string, double, double);
 
@@ -89,6 +123,8 @@ namespace G4UA
       std::map<std::string, TProfile*> m_etaMapRL;
       /// Rad-length profile hist in phi
       std::map<std::string, TProfile*> m_phiMapRL;
+
+
 
       /// Int-length profile hist in R-Z
       TProfile2D* m_rzProfIL;
