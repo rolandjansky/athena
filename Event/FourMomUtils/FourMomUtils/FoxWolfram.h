@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FOURMOMUTILS_FOXWOLFRAM_H
@@ -17,8 +17,8 @@ namespace FourMomUtils
 
   typedef INavigable4MomentumCollection::const_iterator I4MomIter_t;
 
-  bool foxWolfram( const I4MomIter_t iBeg,
-       const I4MomIter_t iEnd,
+  bool foxWolfram( const I4MomIter_t& iBeg,
+       const I4MomIter_t& iEnd,
                    std::vector<double>& H, unsigned int order = 5 );
 
   inline
