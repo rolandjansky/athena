@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTGC_Cabling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/TGCcablingInterface
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          PRIVATE
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          MuonSpectrometer/MuonIdHelpers
-                          Tools/PathResolver )
-
 # Component(s) in the package:
 atlas_add_library( MuonTGC_CablingLib
                    src/*.cxx
