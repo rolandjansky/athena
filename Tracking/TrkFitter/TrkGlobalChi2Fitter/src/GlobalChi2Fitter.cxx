@@ -209,6 +209,17 @@ namespace Trk {
       m_caloMaterialProvider.disable();
     }
 
+    /*
+     * Doing a hole search only makes sense if we are also creating a track
+     * summary, because the track summary is the only way for us to export the
+     * hole search information out of the fitter. For this reason, we disable
+     * the hole search in the case that track summaries are disabled.
+     */
+    if (m_holeSearch.value() && !m_createSummary.value()) {
+      ATH_MSG_WARNING("Hole search requested but track summaries disabled, disabling hole search.");
+      m_holeSearch.set(false);
+    }
+
     ATH_MSG_INFO("fixed momentum: " << m_p);
 
     return StatusCode::SUCCESS;

@@ -791,6 +791,7 @@ namespace Trk {
     Gaudi::Property<bool> m_useCaloTG {this, "UseCaloTG", false};
     Gaudi::Property<bool> m_rejectLargeNScat {this, "RejectLargeNScat", false};
     Gaudi::Property<bool> m_createSummary {this, "CreateTrackSummary", true};
+    Gaudi::Property<bool> m_holeSearch {this, "DoHoleSearch", false};
 
     Gaudi::Property<double> m_outlcut {this, "OutlierCut", 5.0};
     Gaudi::Property<double> m_p {this, "Momentum", 0.0};
