@@ -131,7 +131,7 @@ namespace InDet {
     /// do not always use the full size. See data members below for the 
     /// actual binning paramaters, which are determined in buildFramework. 
     //@{
-    enum Size {arraySizePhi=53,     ///< capacity of the 1D phi arrays 
+    enum Size {arraySizePhi=200,     ///< capacity of the 1D phi arrays 
                arraySizeZ=11,       ///< capacity of the 1D z arrays
                arraySizePhiZ=arraySizePhi*arraySizeZ,   ///< capacity for the 2D phi-z arrays 
                arraySizeNeighbourBins=9,  ///< array size to store neighbouring phi-z-regions in the seed finding
@@ -174,6 +174,10 @@ namespace InDet {
     /// maxSeedsForSpacePoint above 
     BooleanProperty m_alwaysKeepConfirmedPixelSeeds{this, "alwaysKeepConfirmedPixelSeeds", false};
     BooleanProperty m_alwaysKeepConfirmedStripSeeds{this, "alwaysKeepConfirmedStripSeeds", false};
+    /// This flag will make the buildFrameWork method determine an optimal phi binning of the search regions 
+    /// based on the pt and IP cuts, assuming PPP and/or SSS passes are being run. 
+    /// Not recommended for use with Large-R Tracking, where unnecessarily large regions may result. 
+    BooleanProperty m_optimisePhiBinning{this, "optimisePhiBinning", true};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};
     FloatProperty m_r1maxv{this, "maxVRadius1", 60.};
@@ -303,6 +307,21 @@ namespace InDet {
     * @param[out] data: Event data, receives update to the x/y/zbeam members 
     **/
     void buildBeamFrameWork(EventData& data) const;
+
+    /** Determine the expected azimuthal trajectory displacement
+     *  in phi in presence of the magnetic field for a particle 
+     *  with momentum pTmin and impact parameter maxd0, 
+     *  moving from a radial coordinate Rmin outward to Rmax.
+     *  This method is used to determine the optimal binning 
+     *  of the phi-z regions we consider in the seed making,
+     *  to ensure we contain the hits from our softest tracks
+     *  in a set of consecutive bins.
+     *  @param[in] pTmin: minimum pt cut applied in MeV
+     *  @param[in] maxD0: maximum d0 allowed 
+     *  @param[in] Rmin: starting radius for trajectory displacement
+     *  @param[in] Rmax: end radius for trajectory displacement
+     **/
+    float azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const; 
 
     /** Create a SiSpacePointForSeed from the space point. 
     * This will also add the point to the data object's
