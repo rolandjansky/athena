@@ -6,7 +6,6 @@
 #include "InDetGeoModelUtils/GenericTubeMaker.h"
 #include "InDetGeoModelUtils/TubeVolData.h"
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
-//#include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -18,14 +17,14 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include <string>
 #include <sstream>
 #include <iostream>
 
 namespace InDetDD {
-  ExtraMaterial::ExtraMaterial(IRDBRecordset_ptr xMatTable, const AbsMaterialManager* matManager)
+  ExtraMaterial::ExtraMaterial(IRDBRecordset_ptr xMatTable, const StoredMaterialManager* matManager)
     : m_xMatTable(xMatTable),
     m_matManager(matManager)
   {}

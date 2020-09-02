@@ -4,7 +4,7 @@
 
 #include "BCM_GeoModel/BCM_Module.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -15,7 +15,7 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-GeoPhysVol* BCM_Module::Build(const AbsMaterialManager* mat_mgr, const BCM_ModuleParameters* parameters, MsgStream* /*msg*/)
+GeoPhysVol* BCM_Module::Build(const StoredMaterialManager* mat_mgr, const BCM_ModuleParameters* parameters, MsgStream* /*msg*/)
 {
   //module outside dimensions
   
