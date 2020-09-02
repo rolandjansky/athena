@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNNEvaluator.h"
@@ -143,15 +143,15 @@ StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) const {
     return StatusCode::SUCCESS;
 }
 
-TauJetRNN *TauJetRNNEvaluator::get_rnn_0p() {
+const TauJetRNN* TauJetRNNEvaluator::get_rnn_0p() const {
     return m_net_0p.get();
 }
 
-TauJetRNN *TauJetRNNEvaluator::get_rnn_1p() {
+const TauJetRNN* TauJetRNNEvaluator::get_rnn_1p() const {
     return m_net_1p.get();
 }
 
-TauJetRNN *TauJetRNNEvaluator::get_rnn_3p() {
+const TauJetRNN* TauJetRNNEvaluator::get_rnn_3p() const {
     return m_net_3p.get();
 }
 
