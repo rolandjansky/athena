@@ -1494,7 +1494,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 				for(int idp = 1; idp != 2 + 1; idp++ ){
 
           bool isValid=false;
-          Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, ieta, iphi, ir, iz, idp, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+          Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, ieta, iphi, ir, iz, idp, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
           if (!isValid) continue;
 				  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);
 	      
@@ -3316,7 +3316,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 			  // need to pay attention to BME case - not yet considered here .... 
 
       bool isValid=false;
-      Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
       if (!isValid) continue;
 			  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);
 			  if (rpc) {
