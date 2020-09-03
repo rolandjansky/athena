@@ -23,7 +23,7 @@ namespace Trk {
     m_measurement(rhs.m_measurement != nullptr ? std::unique_ptr<const MeasurementBase>(rhs.m_measurement->clone()) : nullptr), 
     m_tsType(rhs.m_tsType), 
     m_trackpar(std::unique_ptr<const TrackParameters>(rhs.m_trackpar != nullptr ? rhs.m_trackpar->clone() : nullptr)),
-    m_materialEffects(std::unique_ptr<GXFMaterialEffects>(rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs. m_materialEffects) : nullptr)),
+    m_materialEffects(rhs.m_materialEffects != nullptr ? std::make_unique<GXFMaterialEffects>(*rhs. m_materialEffects) : nullptr),
     m_derivs(rhs.m_derivs),
     m_covariancematrix(rhs.m_covariancematrix),
     m_covariance_set(rhs.m_covariance_set),
@@ -62,12 +62,12 @@ namespace Trk {
   }
 
   GXFTrackState::GXFTrackState(
-    const TrackParameters * trackpar,
+    std::unique_ptr<const TrackParameters> trackpar,
     TrackState::TrackStateType tsType
   ):
     m_measurement(nullptr),
     m_tsType(tsType), 
-    m_trackpar(std::unique_ptr<const TrackParameters>(trackpar != nullptr ? trackpar->clone() : nullptr)),
+    m_trackpar(std::move(trackpar)),
     m_materialEffects(nullptr), 
     m_jacobian {}, 
     m_derivs(), 
@@ -83,13 +83,13 @@ namespace Trk {
   }
 
   GXFTrackState::GXFTrackState(
-    GXFMaterialEffects * mef,
-    const TrackParameters * trackpar
+    std::unique_ptr<GXFMaterialEffects> mef,
+    std::unique_ptr<const TrackParameters> trackpar
   ):
     m_measurement(nullptr),
     m_tsType(TrackState::Scatterer), 
-    m_trackpar(std::unique_ptr<const TrackParameters>(trackpar != nullptr ? trackpar->clone() : nullptr)),
-    m_materialEffects(std::unique_ptr<GXFMaterialEffects>(mef)), 
+    m_trackpar(std::move(trackpar)),
+    m_materialEffects(std::move(mef)), 
     m_jacobian {}, 
     m_derivs(), 
     m_covariancematrix(),
@@ -102,7 +102,7 @@ namespace Trk {
   {
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
     
-    if (mef->sigmaDeltaTheta() == 0) {
+    if (m_materialEffects->sigmaDeltaTheta() == 0) {
       m_tsType = TrackState::Brem;
     }
   }
@@ -115,10 +115,6 @@ namespace Trk {
   const MeasurementBase *GXFTrackState::measurement(void) {
     return m_measurement.get();
   }  
-  
-  const MeasurementBase *GXFTrackState::takeMeasurement(void) {
-    return m_measurement.get();
-  }
 
   void GXFTrackState::setTrackParameters(std::unique_ptr<const TrackParameters> par) {
     m_trackpar = std::move(par);
@@ -188,10 +184,6 @@ namespace Trk {
   }
 
   const FitQualityOnSurface *GXFTrackState::fitQuality(void) {
-    return m_fitqual.get();
-  }
-  
-  const FitQualityOnSurface *GXFTrackState::takeFitQuality(void) {
     return m_fitqual.get();
   }
 
