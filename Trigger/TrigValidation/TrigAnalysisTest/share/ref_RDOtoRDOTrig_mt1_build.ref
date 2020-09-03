@@ -757,6 +757,9 @@ TrigSignatureMoniMT                                 INFO -- #2803198799 Features
 TrigSignatureMoniMT                                 INFO HLT_xe100_trkmht_L1XE50 #1055916731
 TrigSignatureMoniMT                                 INFO -- #1055916731 Events         10         10         0          0          0          0          0          0          0          0          0          0          7          -          7
 TrigSignatureMoniMT                                 INFO -- #1055916731 Features                             0          0          0          0          0          0          0          0          0          0          7          -
+TrigSignatureMoniMT                                 INFO HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50 #451622546
+TrigSignatureMoniMT                                 INFO -- #451622546 Events          10         10         0          0          0          0          0          0          0          0          0          0          6          -          6
+TrigSignatureMoniMT                                 INFO -- #451622546 Features                              0          0          0          0          0          0          0          0          0          0          6          -
 TrigSignatureMoniMT                                 INFO HLT_xe110_mht_L1XE50 #3030733259
 TrigSignatureMoniMT                                 INFO -- #3030733259 Events         10         10         0          0          0          0          0          0          0          0          0          0          6          -          6
 TrigSignatureMoniMT                                 INFO -- #3030733259 Features                             0          0          0          0          0          0          0          0          0          0          6          -
@@ -802,3 +805,6 @@ TrigSignatureMoniMT                                 INFO -- #531141817 Features 
 TrigSignatureMoniMT                                 INFO HLT_xe65_cell_xe110_tcpufit_L1XE50 #115518400
 TrigSignatureMoniMT                                 INFO -- #115518400 Events          10         10         0          0          0          0          0          0          0          0          0          0          5          -          5
 TrigSignatureMoniMT                                 INFO -- #115518400 Features                              0          0          0          0          0          0          0          0          0          0          5          -
+TrigSignatureMoniMT                                 INFO HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50 #302256132
+TrigSignatureMoniMT                                 INFO -- #302256132 Events          10         10         0          0          0          0          0          0          0          0          0          0          4          -          4
+TrigSignatureMoniMT                                 INFO -- #302256132 Features                              0          0          0          0          0          0          0          0          0          0          4          -
