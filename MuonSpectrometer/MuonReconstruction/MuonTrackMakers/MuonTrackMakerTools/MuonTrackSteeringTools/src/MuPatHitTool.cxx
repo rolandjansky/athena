@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHitTool.h"
@@ -13,14 +13,10 @@
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "SortMuPatHits.h"
 #include "TrkEventPrimitives/ResidualPull.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
@@ -34,8 +30,7 @@ static constexpr unsigned int arraySize = 1000;
 namespace Muon {
 
 MuPatHitTool::MuPatHitTool(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t, n, p),
-      m_magFieldProperties(Trk::NoField)
+    : AthAlgTool(t, n, p), m_magFieldProperties(Trk::NoField)
 {
     declareInterface<MuPatHitTool>(this);
 }

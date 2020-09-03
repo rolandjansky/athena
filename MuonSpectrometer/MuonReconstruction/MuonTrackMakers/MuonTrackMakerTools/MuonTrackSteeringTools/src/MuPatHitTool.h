@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHITTOOL_H
@@ -14,6 +14,10 @@
 #include "MuPatHit.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
 class MsgStream;
@@ -27,9 +31,6 @@ class IResidualPullCalculator;
 
 namespace Muon {
 
-class IMdtDriftCircleOnTrackCreator;
-class IMuonClusterOnTrackCreator;
-class IMuonCompetingClustersOnTrackCreator;
 class MuonEDMPrinterTool;
 class MuonSegment;
 
