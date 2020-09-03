@@ -94,7 +94,7 @@ TEST_F ( CSCSensitiveDetectortest, ProcessHits )
   ASSERT_EQ(a->begin()->getHitStart(), Amg::Vector3D(0,0,1));
   ASSERT_EQ(a->begin()->getHitEnd(), Amg::Vector3D(0,0,2));
   ASSERT_EQ(a->begin()->particleID(), 1);
-  ASSERT_EQ(a->begin()->CSCid(), -82944);
+  ASSERT_EQ(a->begin()->CSCid(), 147456);
   ASSERT_EQ(a->begin()->kineticEnergy(), 1.5);
   ASSERT_EQ(a->begin()->particleLink(), plink);
 
