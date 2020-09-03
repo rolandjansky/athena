@@ -313,6 +313,9 @@ TrigSignatureMoniMT                                 INFO -- #1151767619 Features
 TrigSignatureMoniMT                                 INFO HLT_j460_a10r_L1J20 #3875082669
 TrigSignatureMoniMT                                 INFO -- #3875082669 Events         19         19         0          0          0          0          0          0          0          0          0          0          0          -          0
 TrigSignatureMoniMT                                 INFO -- #3875082669 Features                             0          0          0          0          0          0          0          0          0          0          0          -
+TrigSignatureMoniMT                                 INFO HLT_j460_a10sd_lcw_nojcalib_L1J100 #3093997295
+TrigSignatureMoniMT                                 INFO -- #3093997295 Events         3          3          0          0          0          0          0          0          0          0          0          0          0          -          0
+TrigSignatureMoniMT                                 INFO -- #3093997295 Features                             0          0          0          0          0          0          0          0          0          0          0          -
 TrigSignatureMoniMT                                 INFO HLT_j460_a10t_lcw_jes_30smcINF_L1J100 #2296827117
 TrigSignatureMoniMT                                 INFO -- #2296827117 Events         3          3          0          0          0          0          0          0          0          0          0          0          0          -          0
 TrigSignatureMoniMT                                 INFO -- #2296827117 Features                             0          0          0          0          0          0          0          0          0          0          0          -
