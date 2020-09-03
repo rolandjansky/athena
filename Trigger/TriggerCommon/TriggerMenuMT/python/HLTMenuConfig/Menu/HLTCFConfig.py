@@ -94,17 +94,18 @@ def createCFTree(CFseq):
         seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg])
         return seqAndWithFilter
 
-    stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algoritms from al lthe sequences in a parallel sequence
+    stepReco = parOR(CFseq.step.name + CFNaming.RECO_POSTFIX)  # all reco algorithms from all the sequences in a parallel sequence
     seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
 
-    recoSeq_list=set()
-    hypo_list=set()
+    recoSeqSet=set()
+    hypoSet=set()
     for menuseq in CFseq.step.sequences:
-        menuseq.addToSequencer(recoSeq_list, hypo_list)
-
-    stepReco += [recoseq for recoseq in recoSeq_list]
-    seqAndView += [hypo for hypo in hypo_list]
+        menuseq.addToSequencer(recoSeqSet, hypoSet)
+  
+    #list(dict.fromkeys()) is guaranteed to respect ordering from python 3.7 onwards
+    stepReco += list(dict.fromkeys([recoseq for recoseq in recoSeqSet]))
+    seqAndView += list(dict.fromkeys([hypo for hypo in hypoSet]))
        
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
