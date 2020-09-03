@@ -17,10 +17,9 @@
 
 Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string& t, const std::string& n,
                                                                const IInterface* p)
-    : AthAlgTool(t, n, p), m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool")
+    : AthAlgTool(t, n, p)
 {
     declareInterface<IMooSegmentCombinationFinder>(this);
-    declareProperty("HoughPatternFinder", m_houghPatternFinder);
 }
 
 //================ Initialisation =================================================

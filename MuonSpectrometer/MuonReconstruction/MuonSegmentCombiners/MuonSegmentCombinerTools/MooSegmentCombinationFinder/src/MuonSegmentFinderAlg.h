@@ -45,34 +45,122 @@ class MuonSegmentFinderAlg : public AthAlgorithm {
 
 
   private:
-    ServiceHandle<Muon::IMuonIdHelperSvc>            m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;  //<! helper printer tool
-    ToolHandle<Muon::IMuonPatternCalibration>        m_patternCalibration;
-    ToolHandle<Muon::IMuonPatternSegmentMaker>       m_patternSegmentMaker;
-    ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMaker;
-    ToolHandle<Muon::IMuonClusterSegmentFinder>      m_clusterSegMaker;
-    ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_mmClusterCreator;  //<! pointer to mm cluster rio ontrack creator
-    ToolHandle<Muon::IMuonClusterSegmentFinderTool>  m_clusterSegMakerNSW;
-    ToolHandle<Muon::IMuonTruthSummaryTool>          m_truthSummaryTool;
-    ToolHandle<ICscSegmentFinder>                    m_csc2dSegmentFinder;
-    ToolHandle<ICscSegmentFinder>                    m_csc4dSegmentFinder;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{
+        this,
+        "EDMPrinter",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };  //<! helper printer tool
+    ToolHandle<Muon::IMuonPatternCalibration> m_patternCalibration{
+        this,
+        "MuonPatternCalibration",
+        "Muon::MuonPatternCalibration/MuonPatternCalibration",
+    };
+    ToolHandle<Muon::IMuonPatternSegmentMaker> m_patternSegmentMaker{
+        this,
+        "MuonPatternSegmentMaker",
+        "Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker",
+    };
+    ToolHandle<Muon::IMuonSegmentMaker> m_segmentMaker{
+        this,
+        "SegmentMaker",
+        "Muon::DCMathSegmentMaker/DCMathSegmentMaker",
+    };
+    ToolHandle<Muon::IMuonClusterSegmentFinder> m_clusterSegMaker{
+        this,
+        "MuonClusterSegmentFinder",
+        "Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder",
+    };
+    ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool{
+        this,
+        "MuonSegmentOverlapRemovalTool",
+        "Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool",
+    };
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{
+        this,
+        "ClusterCreator",
+        "Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator",
+    };  //<! pointer to muon cluster rio ontrack creator
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_mmClusterCreator{
+        this,
+        "MMClusterCreator",
+        "Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator",
+    };  //<! pointer to mm cluster rio ontrack creator
+    ToolHandle<Muon::IMuonClusterSegmentFinderTool> m_clusterSegMakerNSW{
+        this,
+        "MuonClusterSegmentFinderTool",
+        "Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool",
+    };
+    ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{
+        this,
+        "MuonTruthSummaryTool",
+        "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool",
+    };
+    ToolHandle<ICscSegmentFinder> m_csc2dSegmentFinder{
+        this,
+        "Csc2dSegmentMaker",
+        "Csc2dSegmentMaker/Csc2dSegmentMaker",
+    };
+    ToolHandle<ICscSegmentFinder> m_csc4dSegmentFinder{
+        this,
+        "Csc4dSegmentMaker",
+        "Csc4dSegmentMaker/Csc4dSegmentMaker",
+    };
 
 
-    SG::WriteHandleKey<Trk::SegmentCollection>    m_segmentCollectionKey{this, "SegmentCollectionName", "MuonSegments",
-                                                                      "Muon Segments"};
-    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey{this, "CSC_clusterkey", "CSC_Clusters", "CSC PRDs"};
-    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrdsKey{this, "MDT_PRDs", "MDT_DriftCircles", "MDT PRDs"};
-    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrdsKey{this, "RPC_PRDs", "RPC_Measurements", "RPC PRDs"};
-    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrdsKey{this, "TGC_PRDs", "TGC_Measurements", "TGC PRDs"};
-    SG::ReadHandleKey<MuonPatternCombinationCollection> m_patternCollKey{this, "MuonLayerHoughCombisKey",
-                                                                         "MuonLayerHoughCombis", "Hough combinations"};
-    SG::ReadHandleKey<PRD_MultiTruthCollection>         m_tgcTruth{this, "TGCTruth", "TGC_TruthMap",
-                                                           "TGC PRD Multi-truth Collection"};
-    SG::ReadHandleKey<PRD_MultiTruthCollection>         m_rpcTruth{this, "RPCTruth", "RPC_TruthMap",
-                                                           "RPC PRD Multi-truth Collection"};
+    SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey{
+        this,
+        "SegmentCollectionName",
+        "MuonSegments",
+        "Muon Segments",
+    };
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey{
+        this,
+        "CSC_clusterkey",
+        "CSC_Clusters",
+        "CSC PRDs",
+    };
+    SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrdsKey{
+        this,
+        "MDT_PRDs",
+        "MDT_DriftCircles",
+        "MDT PRDs",
+    };
+    SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrdsKey{
+        this,
+        "RPC_PRDs",
+        "RPC_Measurements",
+        "RPC PRDs",
+    };
+    SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrdsKey{
+        this,
+        "TGC_PRDs",
+        "TGC_Measurements",
+        "TGC PRDs",
+    };
+    SG::ReadHandleKey<MuonPatternCombinationCollection> m_patternCollKey{
+        this,
+        "MuonLayerHoughCombisKey",
+        "MuonLayerHoughCombis",
+        "Hough combinations",
+    };
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_tgcTruth{
+        this,
+        "TGCTruth",
+        "TGC_TruthMap",
+        "TGC PRD Multi-truth Collection",
+    };
+    SG::ReadHandleKey<PRD_MultiTruthCollection> m_rpcTruth{
+        this,
+        "RPCTruth",
+        "RPC_TruthMap",
+        "RPC PRD Multi-truth Collection",
+    };
 
     void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segs,
                                 const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,

@@ -69,10 +69,17 @@ class MuonCurvedSegmentCombiner : virtual public IMuonCurvedSegmentCombiner,
     unsigned int missedHits(Muon::MuonSegment* segment);
 
   private:
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
 
-    ToolHandle<MuonEDMPrinterTool> m_printer;
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };
 
     bool m_debug;
     bool m_doCosmics;

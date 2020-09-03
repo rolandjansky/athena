@@ -105,7 +105,8 @@ class MooSegmentCombinationFinder : virtual public IMooSegmentCombinationFinder,
                                                        "Csc2dSegmentMaker/Csc2dSegmentMaker"};
     ToolHandle<ICscSegmentFinder>           m_csc4dSegmentFinder{this, "Csc4dSegmentMaker",
                                                        "Csc4dSegmentMaker/Csc4dSegmentMaker"};
-    ToolHandle<IMuonHoughPatternFinderTool> m_houghPatternFinder;
+    ToolHandle<IMuonHoughPatternFinderTool> m_houghPatternFinder{this, "HoughPatternFinder",
+                                                       "Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"};
     ToolHandle<IMuonPatternSegmentMaker>    m_patternSegmentMaker{this, "MdtSegmentMaker",
                                                                "Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"};
     ToolHandle<IMuonCurvedSegmentCombiner>  m_curvedSegmentCombiner{

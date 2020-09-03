@@ -7,7 +7,6 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -19,10 +18,7 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
       m_keyCsc("CSC_Clusters"),
       m_keyMdt("MDT_DriftCircles"),
       m_patternCombiLocation("MuonHoughPatternCombinations"),
-      m_segmentLocation("MooreSegments"),
-      m_segmentFinder("Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder", this),
-      m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
-      m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
+      m_segmentLocation("MooreSegments")
 {
     declareProperty("UseRPC", m_useRpc = true);
     declareProperty("UseTGC", m_useTgc = true);
@@ -44,11 +40,6 @@ MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* p
 
     declareProperty("MuonPatternCombinationLocation", m_patternCombiLocation);
     declareProperty("MuonSegmentOutputLocation", m_segmentLocation);
-
-    declareProperty("SegmentFinder", m_segmentFinder);
-    declareProperty("MuonClusterSegmentFinderTool", m_clusterSegMaker);
-    declareProperty("SegmentOverlapRemovalTool", m_overlapRemovalTool,
-                    "tool to removal overlaps in segment combinations");
 }
 
 MooSegmentFinderAlg::~MooSegmentFinderAlg() {}

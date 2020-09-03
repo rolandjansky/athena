@@ -15,13 +15,13 @@
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "MuonRecToolInterfaces/HoughDataPerSec.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 class MsgStream;
 
 namespace Muon {
-class IMuonClusterSegmentFinder;
 class IMooSegmentCombinationFinder;
 class IMuonSegmentOverlapRemovalTool;
 }  // namespace Muon
@@ -74,9 +74,22 @@ class MooSegmentFinderAlg : public AthAlgorithm {
     SG::WriteHandleKey<Muon::HoughDataPerSectorVec>      m_houghDataPerSectorVecKey{
         this, "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
-    ToolHandle<Muon::IMooSegmentCombinationFinder>   m_segmentFinder;  //<! pointer to the segment finder
-    ToolHandle<Muon::IMuonClusterSegmentFinder>      m_clusterSegMaker;
-    ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;
+    ToolHandle<Muon::IMooSegmentCombinationFinder> m_segmentFinder{
+        this,
+        "SegmentFinder",
+        "Muon::MooSegmentCombinationFinder/MooSegmentCombinationFinder",
+    };  //<! pointer to the segment finder
+    ToolHandle<Muon::IMuonClusterSegmentFinder> m_clusterSegMaker{
+        this,
+        "MuonClusterSegmentFinderTool",
+        "Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder",
+    };
+    ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool{
+        this,
+        "SegmentOverlapRemovalTool",
+        "Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool",
+        "tool to removal overlaps in segment combinations",
+    };
 };
 
 template <class T, class Y>

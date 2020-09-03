@@ -22,33 +22,9 @@
 
 using HepGeom::Transform3D;
 MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration", this),
-      m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker", this),
-      m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker", this),
-      m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
-      m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this),
-      m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
-      m_mmClusterCreator("Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator", this),
-      m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool", this),
-      m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool", this),
-      m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker", this),
-      m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker", this)
+    : AthAlgorithm(name, pSvcLocator)
 {
-    // tools
-    declareProperty("EDMPrinter", m_printer);
-    declareProperty("MuonPatternCalibration", m_patternCalibration);
-    declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
-    declareProperty("SegmentMaker", m_segmentMaker);
-    declareProperty("ClusterCreator", m_clusterCreator);
-    declareProperty("MMClusterCreator", m_mmClusterCreator);
-    declareProperty("MuonClusterSegmentFinderTool", m_clusterSegMakerNSW);
-    declareProperty("MuonTruthSummaryTool", m_truthSummaryTool);
-    declareProperty("Csc2dSegmentMaker", m_csc2dSegmentFinder);
-    declareProperty("Csc4dSegmentMaker", m_csc4dSegmentFinder);
     declareProperty("PrintSummary", m_printSummary = false);
-    declareProperty("MuonClusterSegmentFinder", m_clusterSegMaker);
     //
     declareProperty("doTGCClust", m_doTGCClust = false);
     declareProperty("doRPCClust", m_doRPCClust = false);
@@ -74,6 +50,7 @@ MuonSegmentFinderAlg::initialize()
         m_truthSummaryTool.disable();
 
     ATH_CHECK(m_clusterCreator.retrieve());
+    ATH_CHECK(m_mmClusterCreator.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
 
     if (!m_csc2dSegmentFinder.empty())

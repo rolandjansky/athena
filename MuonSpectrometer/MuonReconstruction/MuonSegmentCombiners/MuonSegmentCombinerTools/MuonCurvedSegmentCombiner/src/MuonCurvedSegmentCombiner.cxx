@@ -25,7 +25,7 @@
 
 Muon::MuonCurvedSegmentCombiner::MuonCurvedSegmentCombiner(const std::string& t, const std::string& n,
                                                            const IInterface* p)
-    : AthAlgTool(t, n, p), m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+    : AthAlgTool(t, n, p)
 {
     declareInterface<IMuonCurvedSegmentCombiner>(this);
     declareInterface<IMuonSegmentPairFittingTool>(this);
@@ -2105,8 +2105,8 @@ Muon::MuonCurvedSegmentCombiner::fit2Segments(Muon::MuonSegment& seg, Muon::Muon
 
     // Error definitions
     //  double scf = 1; // pt = 100 GeV scf = 1;  pt 5 GeV scf = 20*20
-    double ers2 = 0.1 * 0.1 + scf * scf + scfn * scfn;                       // error squared position
-    double ebs2 = 50 * 50 * fabs(sin(thetas) * sin(thetase)) + ers2;         // error squared beam position
+    double ers2  = 0.1 * 0.1 + scf * scf + scfn * scfn;                      // error squared position
+    double ebs2  = 50 * 50 * fabs(sin(thetas) * sin(thetase)) + ers2;        // error squared beam position
     double ets21 = era1 * era1 + 0.002 * 0.002 * (scf * scf + scfn * scfn);  // error squared angle
     double ets22 = era2 * era2 + 0.002 * 0.002 * (scf * scf + scfn + scfn);  // error squared angle
 
