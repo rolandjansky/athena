@@ -17,5 +17,3 @@ atlas_add_component( TrigGenericAlgs
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
-atlas_install_joboptions( share/*.py )
-
