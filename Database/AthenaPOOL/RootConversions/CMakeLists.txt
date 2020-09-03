@@ -1,16 +1,7 @@
-################################################################################
-# Package: RootConversions
-################################################################################
-# Author: scott snyder <snyder@bnl.gov>
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RootConversions )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/RootUtils
-                          AtlasTest/TestTools )
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Tree TreePlayer Core MathCore Hist pthread )
