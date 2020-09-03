@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonAGDDBase )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/AGDD/AGDDControl
-                          DetectorDescription/AGDD/AGDDKernel
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/AGDD/AGDDModel
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          MuonSpectrometer/MuonGeoModel )
-
 find_package( GeoModelCore )
 
 # Component(s) in the package:
