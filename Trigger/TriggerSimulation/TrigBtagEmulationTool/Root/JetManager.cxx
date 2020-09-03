@@ -108,7 +108,7 @@ template<typename T> bool JetManager::getFromCombo(std::unique_ptr< DataVector< 
   return true;
 }
 
-bool JetManager::getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticleContainer > >err& tpContainers,const Trig::Combination& combo,std::string key) {
+bool JetManager::getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticleContainer > >& tpContainers,const Trig::Combination& combo,std::string key) {
   const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > trackParticleContainerFeatures = combo.containerFeature<xAOD::TrackParticleContainer>( key.c_str() );
 
   for ( const Trig::Feature< xAOD::TrackParticleContainer >& feature : trackParticleContainerFeatures ) {
