@@ -9,7 +9,7 @@
 #define TAU_ANALYSIS_ALGORITHMS__TAU_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <TauAnalysisAlgorithms/DiTauEfficiencyCorrectionsAlg.h>
-#include <TauAnalysisAlgorithms/DiTauSmearingAlg.h>
+//#include <TauAnalysisAlgorithms/DiTauSmearingAlg.h>
 #include <TauAnalysisAlgorithms/DiTauTruthMatchingAlg.h>
 #include <TauAnalysisAlgorithms/TauEfficiencyCorrectionsAlg.h>
 #include <TauAnalysisAlgorithms/TauSmearingAlg.h>
