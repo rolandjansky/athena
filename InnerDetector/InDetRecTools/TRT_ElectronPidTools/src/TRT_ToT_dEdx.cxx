@@ -183,9 +183,9 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool us
   const Trk::TrackParameters* trkP = trackState->trackParameters();
   if(trkP==nullptr)return false; 
 
-  double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
-  double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
+  double Trt_Rtrack = std::abs(trkP->parameters()[Trk::locR]);
+  double Trt_RHit = std::abs(driftcircle->localParameters()[Trk::driftRadius]);
+  double error = std::sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
   Identifier DCId = driftcircle->identify();
 
   if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return false; //Outliers
@@ -495,7 +495,7 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
     Resolution = dEdxCorrection->resolutionElectron[gasType][0]+dEdxCorrection->resolutionElectron[gasType][1]*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][2]*(nUsedHits+0.5)*(nUsedHits+0.5)+dEdxCorrection->resolutionElectron[gasType][3]*(nUsedHits+0.5)*(nUsedHits+0.5)*(nUsedHits+0.5);
   }
 
-  double prob =exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
+  double prob = std::exp( -0.5 * ( ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) * 
                              ( ( dEdx_obs - dEdx_pred ) / (Resolution*dEdx_pred) ) ))  ; 
 
   ATH_MSG_DEBUG("getProb():: return "<<prob<<"");
@@ -555,13 +555,13 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   if(pTrk<100)return 0; 
   if(m_divideByL){    
     if(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]))<=0) return 0;
-    return dEdxCorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType])  * 
-      (dEdxCorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType] ) 
+    return dEdxCorrection->paraDivideByLengthDedxP1[gasType]/std::pow( std::sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType])  * 
+      (dEdxCorrection->paraDivideByLengthDedxP2[gasType] - std::pow( std::sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType] ) 
        - log(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
   } 
     if(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) )<=0)return 0; 
-    return dEdxCorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType])  * 
-      (dEdxCorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType] ) 
+    return dEdxCorrection->paraDedxP1[gasType]/std::pow( std::sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType])  * 
+      (dEdxCorrection->paraDedxP2[gasType] - std::pow( std::sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType] ) 
        - log(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) ) ) );
   
   //return 0;  
@@ -720,7 +720,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, doub
   int hitPart =  m_trtId->barrel_ec(DCId);
   int StrawLayer = m_trtId->straw_layer(DCId);
   int Layer = m_trtId->layer_or_wheel(DCId);
-  double hitRtrack = fabs(trkP->parameters()[Trk::locR]);
+  double hitRtrack = std::abs(trkP->parameters()[Trk::locR]);
   EGasType gasType = gasTypeInStraw(itr);  
   if(gasType==kUnset) {
     ATH_MSG_ERROR("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: Gas type in straw is kUnset! Return ToT = 0");
@@ -734,7 +734,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, doub
   double hitZ = driftcircle->globalPosition().z();
   double trackx =  driftcircle->globalPosition().x();
   double tracky =  driftcircle->globalPosition().y();
-  double hitPosR = sqrt(trackx*trackx+tracky*tracky);
+  double hitPosR = std::sqrt(trackx*trackx+tracky*tracky);
   
   /** @todo implement possiblity to set the scaling factor run-by-run from database, 
       should probably be done later on track- level */
@@ -781,7 +781,7 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
    * T(r,z) = T0(r) +   ---  exp|----------|
    *                    v(r)     \  s(r)   /
    */ 
-  double z = fabs(zPosition);
+  double z = std::abs(zPosition);
   int sign=1;
   if(zPosition<0)sign=-1;
   double l = 704.6;
@@ -795,7 +795,7 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   if (not inRange(expArg, -600.0,600.0)){
     return expArg>0 ? std::numeric_limits<double>::infinity():0.;
   }
-  return T0+(z/v)*exp(expArg);
+  return T0+(z/v)*std::exp(expArg);
 }
 
 double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRadius,double zPosition, int StrawLayer) const
@@ -803,7 +803,7 @@ double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRad
   /**
    *  T(r,z) = T0(r)+ b(r)*|z|
    */
-  double z = fabs(zPosition);
+  double z = std::abs(zPosition);
   int sign=1;
   if(zPosition<0)sign=-1;
   double T0 = fitFuncPol_corrRZ(gasType, 0,driftRadius,0,StrawLayer,sign,1);
@@ -899,7 +899,7 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
     return 0;
   }
 
-  double r = fabs(driftRadius);
+  double r = std::abs(driftRadius);
   double a,b,c,d,e,f,g,h,i;  
   if(sign >0) Layer+=14;
   if(m_isData){
@@ -981,11 +981,11 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
       g = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(6)*30*3+Layer*30+Strawlayer];
     }
   }
-  double z = fabs(zPosition);
-  double r = fabs(driftRadius);
+  double z = std::abs(zPosition);
+  double r = std::abs(driftRadius);
   double T0neg=a;
   double T0pos=b;  
-  double T1 = exp(-c*r*r)+d*r;
+  double T1 = std::exp(-c*r*r)+d*r;
   double slope = e*r+f*r*r+g*r*r*r;  
   double result;
   result = T0neg+T1+slope*z;
@@ -1131,22 +1131,22 @@ double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface*
   const Trk::TrackParameters* trkP = trackState->trackParameters();
   if(trkP==nullptr) return 0.;
 
-  double Trt_Rtrack = fabs(trkP->parameters()[Trk::locR]);
+  double Trt_Rtrack = std::abs(trkP->parameters()[Trk::locR]);
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double Trt_HitPhi = trkP->parameters()[Trk::phi];
   Identifier DCId = driftcircle->identify();
-  int HitPart =  identifier->barrel_ec(DCId);
+  int HitPart = std::abs(identifier->barrel_ec(DCId));
   const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
   double strawphi = element->center(DCId).phi();
 
   double length=0;
-  if (std::abs(HitPart)==1) { //Barrel
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./fabs(sin(Trt_HitTheta));
-  } else if (std::abs(HitPart)==2) { //EndCap
-    length = 2*sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./sqrt(1-sin(Trt_HitTheta)*sin(Trt_HitTheta)*cos(Trt_HitPhi-strawphi)*cos(Trt_HitPhi-strawphi));
+  if (HitPart == 1) { //Barrel
+    length = 2*std::sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./std::abs(std::sin(Trt_HitTheta));
+  } else if (HitPart == 2) { //EndCap
+    length = 2*std::sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./std::sqrt(1-std::sin(Trt_HitTheta)*std::sin(Trt_HitTheta)*std::cos(Trt_HitPhi-strawphi)*std::cos(Trt_HitPhi-strawphi));
   } else {
-    //ATH_MSG_FATAL ("std::abs(HitPart)= " << std::abs(HitPart) << ". Must be 1(Barrel) or 2(Endcap)");
-    throw std::exception();
+    // This should never happen
+    throw std::runtime_error("Unknown barrel/endcap identifier: " + std::to_string(HitPart) + ". Must be 1(Barrel) or 2(Endcap)");
   }
 
   return length;
