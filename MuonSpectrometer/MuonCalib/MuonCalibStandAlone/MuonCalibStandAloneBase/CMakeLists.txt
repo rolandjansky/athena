@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibStandAloneBase )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibFitters
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonCalib/MuonCalibITools
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
-                          MuonSpectrometer/MuonCalib/MuonCalibTools
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

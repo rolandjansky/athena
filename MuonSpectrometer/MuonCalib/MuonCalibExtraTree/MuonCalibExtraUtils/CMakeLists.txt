@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibExtraUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier )
-
 # External dependencies:
 find_package( Eigen )
 
