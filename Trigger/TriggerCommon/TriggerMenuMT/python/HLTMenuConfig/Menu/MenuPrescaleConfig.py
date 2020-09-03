@@ -37,13 +37,14 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales_trigvalid_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_mc_prescale
         else:
+            #print("Prescales attributes are: ",Prescales.__dict__.keys())
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
 
     elif menu_name.startswith('Physics_pp_run3_v1'):
         log.info('Physics_pp_run3_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -56,8 +57,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     elif menu_name.startswith('PhysicsP1_pp_run3_v1'):
         log.info('PhysicsP1_pp_run3_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -70,8 +71,8 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     elif menu_name.startswith('MC_pp_run3_v1'):
         log.info('MC_pp_run3_v1 menu setup')
-        from TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 import setupMenu, Prescales
-        setupMenu()
+        from TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 import setupMenu
+        Prescales = setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics

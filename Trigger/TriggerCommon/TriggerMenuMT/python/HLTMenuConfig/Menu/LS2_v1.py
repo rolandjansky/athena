@@ -23,6 +23,8 @@ def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
+    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import Prescales
+
     log = logging.getLogger( __name__ )
     log.info('setupMenu ...')
 
@@ -311,7 +313,10 @@ def setupMenu():
     # ---- Defining specific prescales to this menu ----
     # --------------------------------------------------
 
-    Prescales = mc_menu.Prescales
+    #Prescales = mc_menu.Prescales
+    Prescales = Prescales()
+    
+    #print("Prescales attributes are: ",Prescales.__dict__.keys())
 
     ## Cosmics
 
@@ -321,12 +326,11 @@ def setupMenu():
 
     Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
 
-    Prescales.HLTPrescales_trigvalid_mc_prescale = {}
-
     disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
     
     # --------------------------------------------------
 
     return Prescales
+
 
 

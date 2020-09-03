@@ -146,6 +146,8 @@ def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
+    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import Prescales
+
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
     log.info('setupMenu ...')
 
@@ -153,5 +155,6 @@ def setupMenu():
     addP1Signatures()
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
+    Prescales = Prescales()
 
-Prescales = physics_menu.Prescales
+    return Prescales

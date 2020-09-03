@@ -142,6 +142,7 @@ def setupMenu():
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
+    return Prescales
 
 class Prescales(object):
     #   Item name             | Prescale
@@ -163,5 +164,9 @@ class Prescales(object):
 
     L1Prescales_cosmics  = {}
     HLTPrescales_cosmics = {}
+
+    L1Prescales_trigvalid_mc_prescale  = {}
+    HLTPrescales_trigvalid_mc_prescale = {}
+
     chain_list=[]
 
