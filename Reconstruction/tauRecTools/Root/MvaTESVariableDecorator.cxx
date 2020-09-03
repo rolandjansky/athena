@@ -7,6 +7,7 @@
 #include "tauRecTools/HelperFunctions.h"
 
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #define GeV 1000
 
@@ -23,7 +24,7 @@ MvaTESVariableDecorator::~MvaTESVariableDecorator() {
 
 StatusCode MvaTESVariableDecorator::initialize() {
 
-  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_aveIntPerXKey.initialize() );
 
   ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   
@@ -40,14 +41,12 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger
   int mu = 0;
-  SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
-  if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_ERROR ( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
-    mu = 0.;
+  SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+  if (!eventInfoDecorHandle.isPresent()) {
+    ATH_MSG_WARNING ( "EventInfo decoration not available! Will set mu=0." );
   }
   else {
-    const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-    mu = eventInfo->averageInteractionsPerCrossing();
+    mu = eventInfoDecorHandle(0);
   } 
 
   int nVtxPU = 0;
@@ -55,13 +54,13 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     // Get the primary vertex container from StoreGate
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
+      ATH_MSG_WARNING ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
     }
     else {
       const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
       for (auto xVertex : *vertexContainer){
-	if (xVertex->vertexType() == xAOD::VxType::PileUp)
-	  ++nVtxPU;
+        if (xVertex->vertexType() == xAOD::VxType::PileUp)
+        ++nVtxPU;
       }
     }
   }
