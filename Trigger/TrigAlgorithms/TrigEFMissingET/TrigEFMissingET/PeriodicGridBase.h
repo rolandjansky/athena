@@ -82,6 +82,8 @@ namespace HLT
       {
       public:
         Tower(std::size_t index);
+        virtual ~Tower() = default;
+
         /// The grid which owns this tower
         virtual const PeriodicGridBase *grid() const = 0;
 
