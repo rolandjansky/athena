@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "GeoModelSvc/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 
 #include "GeoModelKernel/GeoBox.h"
@@ -21,6 +20,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -709,10 +709,6 @@ void ALFA_DetectorFactory::create(GeoPhysVol* pWorld)
 	if (m_pDetectorStore->retrieve(pMaterialManager, std::string("MATERIALS"))!=StatusCode::SUCCESS){
 		LogStream<<MSG::INFO<<"Could not load material manager"<<endmsg;
 		return;
-	}
-	else{
-		//ostream* outmat=new ofstream("materials.txt",ios_base::out);
-		//pMaterialManager->printAll(cout);
 	}
 
 	//define materials

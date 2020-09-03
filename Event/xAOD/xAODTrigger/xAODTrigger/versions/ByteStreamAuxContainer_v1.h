@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
 #define XAODTRIGGER_VERSIONS_BYTESTREAMAUXCONTAINER_V1_H
@@ -13,6 +13,7 @@
 // EDM include(s):
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainers/tools/threading.h"
+#include "CxxUtils/checker_macros.h"
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
 #endif
@@ -154,13 +155,13 @@ namespace xAOD {
       /// @{
 
       /// Variable holding integer auxiliary variables
-      mutable std::map< std::string, std::vector< int > > m_int;
+      mutable std::map< std::string, std::vector< int > > m_int ATLAS_THREAD_SAFE;
       /// Variable holding float auxiliary variables
-      mutable std::map< std::string, std::vector< float > > m_float;
+      mutable std::map< std::string, std::vector< float > > m_float ATLAS_THREAD_SAFE;
       /// Variable holding vector of integer auxiliary variables
-      mutable std::map< std::string, std::vector< std::vector< int > > > m_vecInt;
+      mutable std::map< std::string, std::vector< std::vector< int > > > m_vecInt ATLAS_THREAD_SAFE;
       /// Variable holding vector of float auxiliary variables
-      mutable std::map< std::string, std::vector< std::vector< float > > > m_vecFloat;
+      mutable std::map< std::string, std::vector< std::vector< float > > > m_vecFloat ATLAS_THREAD_SAFE;
 
       /// @}
 
@@ -168,11 +169,11 @@ namespace xAOD {
       /// @{
 
       /// Internal list of auxiliary variables
-      mutable auxid_set_t m_auxids;
+      mutable auxid_set_t m_auxids ATLAS_THREAD_SAFE;
       /// Internal list of static managed variables
       std::vector< SG::IAuxTypeVector* > m_staticVecs;
       /// Internal list of dynamic managed variables
-      mutable std::vector< SG::IAuxTypeVector* > m_dynamicVecs;
+      mutable std::vector< SG::IAuxTypeVector* > m_dynamicVecs ATLAS_THREAD_SAFE;
       /// Has the container been locked?
       bool m_locked;
       /// Record which variables are decorations.

@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConvertingStreamerInfo.h,v 1.1 2008-03-21 21:08:01 ssnyder Exp $
 /**
  * @file RootConversions/TConvertingStreamerInfo.h
  * @author scott snyder <snyder@bnl.gov>
@@ -129,7 +127,7 @@ private:
   ErrorHandlerFunc_t m_oldhand;
 
   /// Hook to get this object back from the static @c errhand.
-  static TConvertingStreamerInfo* s_self;
+  static thread_local TConvertingStreamerInfo* s_self;
 
 
   TConvertingStreamerInfo& operator= (const TConvertingStreamerInfo&);

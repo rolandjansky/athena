@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef BeamPipeDetectorFactory_h
-#define BeamPipeDetectorFactory_h 1
+#ifndef BEAMPIPEGEOMODEL_BEAMPIPEDETECTORFACTORY_H
+#define BEAMPIPEGEOMODEL_BEAMPIPEDETECTORFACTORY_H
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 #include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
@@ -11,10 +11,10 @@
 #include <string>
 
 class StoreGateSvc;
-class AbsMaterialManager;
+class StoredMaterialManager;
 class GeoShape;
 
-class BeamPipeDetectorFactory : public GeoVDetectorFactory  
+class BeamPipeDetectorFactory final : public GeoVDetectorFactory  
 {
  public:
   
@@ -26,10 +26,10 @@ class BeamPipeDetectorFactory : public GeoVDetectorFactory
   ~BeamPipeDetectorFactory();
   
   // Creation of geometry:
-  virtual void create(GeoPhysVol *world);
+  virtual void create(GeoPhysVol *world) override;
   
   // Access to the results:
-  virtual const BeamPipeDetectorManager * getDetectorManager() const;
+  virtual const BeamPipeDetectorManager * getDetectorManager() const override;
   
   // Set version Tag and Node
   void setTagNode(std::string tag, std::string node);
@@ -69,7 +69,7 @@ class BeamPipeDetectorFactory : public GeoVDetectorFactory
   // The manager:
   BeamPipeDetectorManager     * m_detectorManager;
    
-  const AbsMaterialManager * m_materialManager;
+  const StoredMaterialManager * m_materialManager;
 
   StoreGateSvc             * m_detectorStore;
   IRDBAccessSvc            * m_access;

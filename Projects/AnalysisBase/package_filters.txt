@@ -67,7 +67,6 @@
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-#+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils

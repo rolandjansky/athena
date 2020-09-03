@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConvertingStreamerInfo.cxx,v 1.5 2009-05-12 19:09:54 ssnyder Exp $
 /**
  * @file RootConversions/src/TConvertingStreamerInfo.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -13,6 +11,7 @@
 
 #include "RootConversions/TConvertingStreamerInfo.h"
 #include "RootConversions/TConverterRegistry.h"
+#include "CxxUtils/checker_macros.h"
 #include "TStreamerElement.h"
 #include "TMemberStreamer.h"
 #include "TROOT.h"
@@ -22,10 +21,11 @@
 #include <vector>
 #include <cassert>
 #include <memory>
+#include <mutex>
 
 
 /// Hook to get this object back from the static @c errhand.
-TConvertingStreamerInfo* TConvertingStreamerInfo::s_self;
+thread_local TConvertingStreamerInfo* TConvertingStreamerInfo::s_self;
 
 
 /**
@@ -42,7 +42,10 @@ TConvertingStreamerInfo::TConvertingStreamerInfo()
  */
 void TConvertingStreamerInfo::Initialize()
 {
-  static bool initialized = false;
+  static bool initialized ATLAS_THREAD_SAFE = false;
+  static std::mutex initmutex;
+  std::lock_guard<std::mutex> lock (initmutex);
+
   if (initialized)
     return;
   initialized = true;

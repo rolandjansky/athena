@@ -33,6 +33,9 @@ public:
   virtual StatusCode preGeometryConfigure() const override final;
   virtual StatusCode postGeometryConfigure() const override final;
 
+private:
+  Gaudi::Property<bool> m_isTestBeam{this, "TestBeam", false, "Should additional materials used by Test Beam simulation be created."};
+
 };
 
 #endif // G4ATLASTOOLS_MaterialDescriptionTool_H

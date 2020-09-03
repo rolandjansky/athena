@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef InDetGeoModelUtils_ExtraMaterial
-#define InDetGeoModelUtils_ExtraMaterial
+#ifndef INDETGEOMODELUTILS_EXTRAMATERIAL
+#define INDETGEOMODELUTILS_EXTRAMATERIAL
 
 #include <cmath>
 #include <string>
@@ -12,7 +12,7 @@
 
 class GeoPhysVol;
 class GeoFullPhysVol;
-class AbsMaterialManager;
+class StoredMaterialManager;
 
 namespace InDetDD {
 
@@ -21,7 +21,7 @@ class DistortedMaterialManager;
 class ExtraMaterial
 {
 public:
-  ExtraMaterial(IRDBRecordset_ptr xMatTable, const AbsMaterialManager * matManager);
+  ExtraMaterial(IRDBRecordset_ptr xMatTable, const StoredMaterialManager * matManager);
   ExtraMaterial(const InDetDD::DistortedMaterialManager * manager);
   void add(GeoPhysVol * parent, const std::string & parentName, double zPos = 0);
   void add(GeoFullPhysVol * parent, const std::string & parentName, double zPos = 0);
@@ -29,7 +29,7 @@ public:
 private:
   void add(GeoPhysVol * parent, GeoFullPhysVol * fullparent, const std::string & parentName, double zPos);
   IRDBRecordset_ptr  m_xMatTable;
-  const AbsMaterialManager * m_matManager;
+  const StoredMaterialManager * m_matManager;
 };
 
 } // end namespace

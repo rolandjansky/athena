@@ -78,7 +78,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         tools = []
         try:
-            tools.append(taualgs.getJetSeedBuilder(seed_collection_name=tauFlags.tauRecSeedJetCollection()))
+            tools.append(taualgs.getJetSeedBuilder())
 
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags

@@ -59,8 +59,7 @@ def generateEmuMenu():
     log = logging.getLogger('EmuMenuTest')
     log.debug("generateEmuMenu")
 
-    # overwrite LS2_v1 menu
-    TriggerFlags.triggerMenuSetup = 'LS2_v1'
+    # overwrite LS2_v1 
     LS2_v1.setupMenu = LS2_emu_v1.setupMenu
 
     # switch on only TestSlice

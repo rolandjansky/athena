@@ -164,12 +164,12 @@ StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackConta
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const{
+StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&){
+StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
