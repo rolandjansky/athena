@@ -217,7 +217,7 @@ namespace InDet {
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
 
       void initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const;
-      void fillStatistic(SiCombinatorialTrackFinderData_xk& data, std::array<bool,NumberOfStats>& information) const; 
+      virtual void fillStatistic(SiCombinatorialTrackFinderData_xk& data, std::array<bool,NumberOfStats>& information) const override;
 
     };
 

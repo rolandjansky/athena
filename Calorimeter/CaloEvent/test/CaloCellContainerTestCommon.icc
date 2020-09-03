@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloEvent/test/CaloCellContainerTestCommon.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -17,16 +15,10 @@
 
 #include "TestTools/random.h"
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-
-
-//using Athena_test::randi;
-Athena_test::URNG stlrand;
-
 
 void fill_cells1 (CellVector selected_cells[],
-                  CellContainer& cont)
+                  CellContainer& cont,
+                  Athena_test::URNG& stlrand)
 {
   CellVector all_cells;
   for (int i=0; i < CaloCell_ID::NSUBCALO; i++) {
@@ -42,7 +34,8 @@ void fill_cells1 (CellVector selected_cells[],
 
 
 void fill_cells2 (CellVector selected_cells[],
-                  CellContainer& cont)
+                  CellContainer& cont,
+                  Athena_test::URNG& stlrand)
 {
   CellVector all_cells;
   for (int i=0; i < CaloCell_ID::NSUBCALO; i++) {
@@ -60,7 +53,8 @@ void fill_cells2 (CellVector selected_cells[],
 }
 
 
-void check_cells (const CaloCell_ID& helper,
+void check_cells (Athena_test::URNG& stlrand,
+                  const CaloCell_ID& helper,
                   const CellVector& all_cells,
                   CellVector selected_cells[],
                   CellContainer& cont,
@@ -128,9 +122,9 @@ void check_cells (const CaloCell_ID& helper,
 
   const int ntry = 100;
   for (int i = 0; i < ntry; i++) {
-    int subcalo = Athena_test::randi (CaloCell_ID::NSUBCALO);
+    int subcalo = Athena_test::randi_seed (stlrand.seed, CaloCell_ID::NSUBCALO);
     if (selected_cells[subcalo].size() == 0) continue;
-    int ndx = Athena_test::randi (selected_cells[subcalo].size());
+    int ndx = Athena_test::randi_seed (stlrand.seed, selected_cells[subcalo].size());
     const CaloCell* cell = selected_cells[subcalo][ndx];
     int hashid = cell->caloDDE()->calo_hash();
     assert (cont.findCell (hashid) == cell);
@@ -168,7 +162,8 @@ void check_cells (const CaloCell_ID& helper,
 
 
 
-typedef void selfcn_t (const CellVector& cells,
+typedef void selfcn_t (Athena_test::URNG& stlrand,
+                       const CellVector& cells,
                        CellVector selected_cells[]);
 
 
@@ -176,7 +171,8 @@ typedef void selfcn_t (const CellVector& cells,
 void test_gen (const CaloCell_ID& helper,
                selfcn_t* selfcn,
                const CellVector& cells,
-               bool total);
+               bool total,
+               Athena_test::URNG& stlrand);
 
 
 //============================================================================
@@ -184,7 +180,8 @@ void test_gen (const CaloCell_ID& helper,
 //
 
 
-void select_cells1 (const CellVector& cells,
+void select_cells1 (Athena_test::URNG& /*stlrand*/,
+                    const CellVector& cells,
                     CellVector selected_cells[])
 {
   for (size_t i = 0; i < cells.size(); i++) {
@@ -194,10 +191,11 @@ void select_cells1 (const CellVector& cells,
 }
 
 
-void test1 (const CaloCell_ID& helper, const CellVector& cells)
+void test1 (const CaloCell_ID& helper, const CellVector& cells,
+            Athena_test::URNG& stlrand)
 {
   std::cout << "test1\n";
-  test_gen (helper, select_cells1, cells, true);
+  test_gen (helper, select_cells1, cells, true, stlrand);
 }
 
 
@@ -206,7 +204,8 @@ void test1 (const CaloCell_ID& helper, const CellVector& cells)
 //
 
 
-void select_cells2gen (const CellVector& cells,
+void select_cells2gen (Athena_test::URNG& stlrand,
+                       const CellVector& cells,
                        CellVector selected_cells[],
                        int n = 100)
 {
@@ -214,36 +213,40 @@ void select_cells2gen (const CellVector& cells,
   for (int i = 0; i < n; i++) {
     int ndx;
     do {
-      ndx = Athena_test::randi (cells.size());
+      ndx = Athena_test::randi_seed (stlrand.seed, cells.size());
     } while (std::find (all_cells.begin(), all_cells.end(), cells[ndx]) != 
              all_cells.end());
     all_cells.push_back (cells[ndx]);
     selected_cells[cells[ndx]->caloDDE()->getSubCalo()].push_back (cells[ndx]);
   }
 }
-void select_cells2 (const CellVector& cells,
+void select_cells2 (Athena_test::URNG& stlrand,
+                    const CellVector& cells,
                     CellVector selected_cells[])
 {
-  select_cells2gen (cells, selected_cells, 100);
+  select_cells2gen (stlrand, cells, selected_cells, 100);
 }
-void select_cells2a (const CellVector& cells,
+void select_cells2a (Athena_test::URNG& stlrand,
+                     const CellVector& cells,
                      CellVector selected_cells[])
 {
-  select_cells2gen (cells, selected_cells, 1000);
+  select_cells2gen (stlrand, cells, selected_cells, 1000);
 }
-void select_cells2z (const CellVector& cells,
+void select_cells2z (Athena_test::URNG& stlrand,
+                     const CellVector& cells,
                      CellVector selected_cells[])
 {
-  select_cells2gen (cells, selected_cells, 0);
+  select_cells2gen (stlrand, cells, selected_cells, 0);
 }
 
 
-void test2 (const CaloCell_ID& helper, const CellVector& cells)
+void test2 (const CaloCell_ID& helper, const CellVector& cells,
+            Athena_test::URNG& stlrand)
 {
   std::cout << "test2\n";
-  test_gen (helper, select_cells2, cells, false);
-  test_gen (helper, select_cells2a, cells, false);
-  test_gen (helper, select_cells2z, cells, false);
+  test_gen (helper, select_cells2, cells, false, stlrand);
+  test_gen (helper, select_cells2a, cells, false, stlrand);
+  test_gen (helper, select_cells2z, cells, false, stlrand);
 }
 
 
@@ -252,7 +255,8 @@ void test2 (const CaloCell_ID& helper, const CellVector& cells)
 //
 
 
-void select_cells3 (const CellVector& cells,
+void select_cells3 (Athena_test::URNG& /*stlrand*/,
+                    const CellVector& cells,
                     CellVector selected_cells[])
 {
   for (size_t i = 0; i < cells.size(); i++) {
@@ -263,10 +267,11 @@ void select_cells3 (const CellVector& cells,
 }
 
 
-void test3 (const CaloCell_ID& helper, const CellVector& cells)
+void test3 (const CaloCell_ID& helper, const CellVector& cells,
+            Athena_test::URNG& stlrand)
 {
   std::cout << "test3\n";
-  test_gen (helper, select_cells3, cells, false);
+  test_gen (helper, select_cells3, cells, false, stlrand);
 }
 
 

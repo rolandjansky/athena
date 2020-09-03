@@ -14,6 +14,10 @@
 
 #include "G4Material.hh"
 
+
+matList  Geo2G4MaterialFactory::m_geoMaterialToG4Material;
+matNames Geo2G4MaterialFactory::m_geoMaterialNameToObject;
+
 Geo2G4MaterialFactory::Geo2G4MaterialFactory(): m_msg("Geo2G4MaterialFactory")
 {
 }
@@ -100,9 +104,9 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
     }
   }
   if ( copyIndex.size() > 1 ) {
-    ATH_MSG_INFO ( "Details of all G4Materials named " << g4MaterialName << " in the G4MaterialTable.");
+    ATH_MSG_WARNING ( "Details of all G4Materials named " << g4MaterialName << " in the G4MaterialTable.");
     for (const auto& index : copyIndex) {
-      ATH_MSG_INFO ( "G4Material at position "<< index<<" in the G4MaterialTable: \n" << *(theMaterialTable[index]));
+      ATH_MSG_WARNING ( "G4Material at position "<< index<<" in the G4MaterialTable: \n" << *(theMaterialTable[index]));
     }
   }
 
@@ -111,11 +115,11 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
 
   // Check if we have the situation when on GeoModel side two different
   // materials share the same name.
-  // Print an INFO message if so.
+  // Print a WARNING message if so.
   if(m_geoMaterialNameToObject.find(geoMaterialName)==m_geoMaterialNameToObject.end())
     m_geoMaterialNameToObject[geoMaterialName] = geoMaterial;
   else if(m_geoMaterialNameToObject[geoMaterialName] != geoMaterial) {
-    ATH_MSG_INFO ( "!!! On GeoModel side two different materials share the name: " << geoMaterialName );
+    ATH_MSG_WARNING ( "!!! On GeoModel side two different materials share the name: " << geoMaterialName );
   }
 
   return g4Material;

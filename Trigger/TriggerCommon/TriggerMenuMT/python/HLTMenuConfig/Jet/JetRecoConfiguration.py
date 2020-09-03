@@ -75,7 +75,7 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,pfoPrefix=None):
     minpt = {
-        "a4":  5000,
+        "a4":  7000,
         "a10": 50000,
         "a10r": 50000,
         "a10t": 50000,

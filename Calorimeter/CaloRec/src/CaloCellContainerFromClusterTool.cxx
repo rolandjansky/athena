@@ -47,7 +47,7 @@ CaloCellContainerFromClusterTool::CaloCellContainerFromClusterTool(const std::st
 StatusCode CaloCellContainerFromClusterTool::initialize() {
 
   //If old interface "CaloClusterName" is used, add it to the set:
-  if (m_caloClusterName.size()) {
+  if (!m_caloClusterName.empty()) {
     m_clusterKeys.emplace_back (m_caloClusterName);
   }
 

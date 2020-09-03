@@ -26,9 +26,10 @@
 #define JETREC_JETCALOQUALITYTOOL_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "JetInterface/IJetDecorator.h"
 #include "JetUtils/JetCaloCalculations.h"
-#include "StoreGate/WriteDecorHandleKeyArray.h"
+#include "AsgDataHandles/WriteDecorHandleKeyArray.h"
 
 #include <vector>
 #include <string>
@@ -36,7 +37,7 @@
 
 class JetCaloQualityTool: public asg::AsgTool,
                           virtual public IJetDecorator {
-  ASG_TOOL_CLASS0(JetCaloQualityTool)
+  ASG_TOOL_CLASS1(JetCaloQualityTool,IJetDecorator)
   
 public:
   JetCaloQualityTool(const std::string & name);

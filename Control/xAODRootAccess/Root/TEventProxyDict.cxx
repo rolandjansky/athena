@@ -109,6 +109,15 @@ namespace xAODPrivate {
          return const_cast< void* >( result );
       }
 
+      /// Return the object, cast to type.
+      void* cast( CLID,
+                  const std::type_info& tinfo,
+                  SG::IRegisterTransient* irt,
+                  bool isConst) override
+      {
+         return THolderBucket::cast (tinfo, irt, isConst);
+      }
+
       /// Give up ownership of the bucket's contents. A no-op.
       void relinquish() override {}
       /// Lock the held object. A no-op.

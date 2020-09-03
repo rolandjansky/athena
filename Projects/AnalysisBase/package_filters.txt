@@ -11,9 +11,7 @@
 - PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/TauAnalysisAlgorithms
-- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
-- Reconstruction/Jet/JetMomentTools
 
 
 
@@ -58,7 +56,7 @@
 - Event/xAOD/.*AthenaPool
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
-#+ Event/xAOD/xAODTruthCnv
++ Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 + ForwardDetectors/ZDC/ZdcAnalysis
@@ -68,7 +66,7 @@
 + MuonSpectrometer/MuonStationIndex
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
-#+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
++ PhysicsAnalysis/AnalysisCommon/AnalysisUtils
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
@@ -101,7 +99,7 @@
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
-#+ Reconstruction/Jet/JetReclustering
++ Reconstruction/Jet/JetReclustering
 - Reconstruction/Jet/JetRec.+
 - Reconstruction/Jet/JetSimTools
 - Reconstruction/Jet/JetValidation
@@ -115,6 +113,7 @@
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRecEvent
++ Reconstruction/egamma/egammaUtils
 + Reconstruction/tauRecTools
 + Reconstruction/PanTau/PanTauAlgs
 + Tools/ART

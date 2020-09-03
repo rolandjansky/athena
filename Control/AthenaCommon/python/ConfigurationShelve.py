@@ -222,15 +222,14 @@ def storeJobOptionsCatalogue( cfg_fname ):
  # get the values for all other components (these may contain duplicates of
  # the ones above in svcs, and there may even be conflicts)
    import AthenaPython.PyAthena as PyAthena
-   josvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'IJobOptionsSvc' )
-
-   clients = list( josvc.getClients() )
-   for client in clients:
-      props = josvc.getProperties( client )
-      for prop in props:
-         n = prop.name()
-         v = prop.toString()
-         jocat[ client ][ n ] = v
+   josvc = PyAthena.py_svc( 'JobOptionsSvc',iface="Gaudi::Interfaces::IOptionsSvc")
+   allProps=josvc.items() #a std::tuple<string,string>
+   for prop in allProps: 
+      cn=str(prop._0).split(".")
+      v=str(prop._1)
+      client=".".join(cn[:-1])
+      n=cn[-1]
+      jocat[ client ][ n ] = v
 
  # take care of some ancient history
    for k in ( 'Go', 'Exit' ):

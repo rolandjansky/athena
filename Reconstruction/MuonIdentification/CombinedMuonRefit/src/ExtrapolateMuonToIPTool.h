@@ -19,7 +19,7 @@
 #include <atomic>
 
 /**
-   Tool to extrapolate tracks in the muon system to the IP. Internally uses IMuonTrackThroughCalo for 
+   Tool to extrapolate tracks in the muon system to the IP. Internally uses IMuonTrackThroughCalo for
    the back extrapolation.
 
    @author Camilla Maiani
@@ -49,22 +49,33 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
       @param   muonTrack the moun inpu track
       @return  Track at the IP, ownership is passed to the caller, return zero if back extrapolation failed
   */
-  Trk::Track* extrapolate(const Trk::Track& muonTrack) const; 
+  Trk::Track* extrapolate(const Trk::Track& muonTrack) const;
 
  private:
-  
-  /** find measured parameters closest to IP to start back extrapolation */ 
+
+  /** find measured parameters closest to IP to start back extrapolation */
   const Trk::TrackParameters* findMeasuredParametersClosestToIP( const Trk::Track& track ) const;
 
   std::unique_ptr<const Trk::Perigee> createPerigee( const Trk::TrackParameters& pars ) const;
 
-  ToolHandle<Trk::IExtrapolator>   m_extrapolator;              //!< Extrapolator
-  ToolHandle<Trk::IExtrapolator>   m_muonExtrapolator;              //!< MuonExtrapolator
-  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
-    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-    "Handle to the service providing the IMuonEDMHelperSvc interface" };               //!< muon EDM helper tool
-  ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
-  ToolHandle<Trk::ITrackSummaryTool> m_trackSummary {this,"TrackSummaryTool","Trk::TrackSummaryTool/MuidTrackSummaryTool"};
+  ToolHandle<Trk::IExtrapolator> m_extrapolator {
+    this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator", "Extrapolator",
+  }; //!< Extrapolator
+  ToolHandle<Trk::IExtrapolator> m_muonExtrapolator {
+    this, "MuonExtrapolator", "Trk::Extrapolator/MuonExtrapolator", "MuonExtrapolator",
+  }; //!< MuonExtrapolator
+  ToolHandle<Muon::MuonEDMPrinterTool> m_printer {
+    this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "muon EDM printer tool",
+  }; //!< muon EDM printer tool
+  ToolHandle<Trk::ITrackSummaryTool> m_trackSummary {
+    this, "TrackSummaryTool", "Trk::TrackSummaryTool/MuidTrackSummaryTool",
+  };
+
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {
+    this, "edmHelper",
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+    "Handle to the service providing the IMuonEDMHelperSvc interface",
+  }; //!< muon EDM helper tool
 
   mutable std::atomic_uint m_nextrapolations;
   mutable std::atomic_uint m_failedClosestPars;

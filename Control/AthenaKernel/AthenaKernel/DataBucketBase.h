@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_DATABUCKETBASE_H
@@ -61,13 +61,30 @@ class DataBucketBase : public DataObject
    * @brief Return the contents of the @c DataBucket,
    *        converted to type given by @a std::type_info.  Note that only
    *        derived->base conversions are allowed here.
-   * @param clid The @a std::type_info of the type to which to convert.
+   * @param tinfo The @a std::type_info of the type to which to convert.
    * @param irt To be called if we make a new instance.
    * @param isConst True if the object being converted is regarded as const.
    */
   virtual void* cast (const std::type_info& tinfo,
                       SG::IRegisterTransient* irt = 0,
                       bool isConst = true) = 0;
+
+  /**
+   * @brief Return the contents of the @c DataBucket,
+   *        converted to type given by @a clid.  Note that only
+   *        derived->base conversions are allowed here.
+   * @param clid The class ID to which to convert.
+   * @param tinfo The @a std::type_info of the type to which to convert.
+   * @param irt To be called if we make a new instance.
+   * @param isConst True if the object being converted is regarded as const.
+   *
+   * This allows the callee to choose whether to use clid or tinfo.
+   * By default, this uses type_info.
+   */
+  virtual void* cast (CLID clid,
+                      const std::type_info& tinfo,
+                      SG::IRegisterTransient* irt = 0,
+                      bool isConst = true);
 
   /**
    * @brief Give up ownership of the  @c DataBucket contents.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -31,23 +31,23 @@ using CLHEP::deg;
 CaloTowerMonitor::CaloTowerMonitor(const std::string& name,
 				   ISvcLocator* pService)
   : AthAlgorithm(name,pService),
-    m_nTowers(0),
-    m_nTowersVsEta(0),
-    m_nTowersVsPhi(0),
-    m_cellsInEtaVsPhi(0),
-    m_nCellsInTower(0),
-    m_nCellsInTowerVsEta(0),
-    m_nCellsInTowerVsPhi(0),
-    m_eTowers(0),
-    m_eTowersVsEta(0),
-    m_eTowersVsPhi(0),
-    m_eLogTowers(0),
-    m_etTowers(0),
-    m_etTowersVsEta(0),
-    m_etTowersVsPhi(0),
-    m_etLogTowers(0),
-    m_etaTowerVsCell(0),
-    m_phiTowerVsCell(0)
+    m_nTowers(nullptr),
+    m_nTowersVsEta(nullptr),
+    m_nTowersVsPhi(nullptr),
+    m_cellsInEtaVsPhi(nullptr),
+    m_nCellsInTower(nullptr),
+    m_nCellsInTowerVsEta(nullptr),
+    m_nCellsInTowerVsPhi(nullptr),
+    m_eTowers(nullptr),
+    m_eTowersVsEta(nullptr),
+    m_eTowersVsPhi(nullptr),
+    m_eLogTowers(nullptr),
+    m_etTowers(nullptr),
+    m_etTowersVsEta(nullptr),
+    m_etTowersVsPhi(nullptr),
+    m_etLogTowers(nullptr),
+    m_etaTowerVsCell(nullptr),
+    m_phiTowerVsCell(nullptr)
 {
   m_collectionNames.resize(0);
   declareProperty("InputTowerCollections",m_collectionNames);

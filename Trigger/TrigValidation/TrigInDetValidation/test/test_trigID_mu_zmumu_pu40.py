@@ -86,24 +86,33 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
-comp.flag = 'L2muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
 test.check_steps.append(comp)
-
-comp2=TrigInDetCompStep('Comp_EFmuon')
-comp2.flag = 'EFmuon'
+  
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
 test.check_steps.append(comp2)
 
-comp3=TrigInDetCompStep('Comp_L2muon_off')
-comp3.flag = 'L2muon'
+comp3=TrigInDetCompStep('Comp_L2muon_off','L2','muon')
 comp3.type = 'offl'
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('Comp_EFmuon_off')
-comp4.flag = 'EFmuon'
+comp4=TrigInDetCompStep('Comp_EFmuon_off','EF','muon')
 comp4.type = 'offl'
 test.check_steps.append(comp4)
 
+comp5=TrigInDetCompStep('Comp_L2muonLowpt','L2','muon',lowpt=True)
+test.check_steps.append(comp5)
+  
+comp6=TrigInDetCompStep('Comp_EFmuonLowpt','EF','muon',lowpt=True)
+test.check_steps.append(comp6)
+
+comp7=TrigInDetCompStep('Comp_L2muonLowpt_off','L2','muon',lowpt=True)
+comp7.type = 'offl'
+test.check_steps.append(comp7)
+  
+comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
+comp8.type = 'offl'
+test.check_steps.append(comp8)
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)

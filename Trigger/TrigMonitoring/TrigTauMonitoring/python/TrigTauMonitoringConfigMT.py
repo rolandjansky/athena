@@ -75,7 +75,23 @@ class TrigTauMonAlgBuilder:
     self.configureHistograms()
 
 
+  def getTrigInfo( self, trigger ):
 
+    class TrigTauInfo(object):
+
+      def __init__(self, trigger):
+        self.__chain = trigger
+
+      def chain(self):
+        return self.__chain
+
+      def isL1Item(self):
+        return True if self.chain().startswith('L1') else False
+
+      def isRNN(self):
+        return True if "RNN" in self.chain() else False
+
+    return TrigTauInfo(trigger)
 
 
   def get_monitoring_mode(self):
@@ -119,7 +135,24 @@ class TrigTauMonAlgBuilder:
   def setDefaultProperties(self):
     
     # This will be removed for future.
-    monitoring_tau = ['HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM']
+    monitoring_tau = [
+    'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau80_medium1_tracktwo_L1TAU60',
+    'HLT_tau0_perf_ptonly_L1TAU100',
+    'HLT_tau160_idperf_track_L1TAU100',
+    'HLT_tau160_idperf_tracktwo_L1TAU100',
+    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau160_medium1_tracktwo_L1TAU100',
+    'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
+    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
+    ]
 
     self.tauList = monitoring_tau
 
@@ -149,8 +182,11 @@ class TrigTauMonAlgBuilder:
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
     for trigger in triggers:
-      self.bookRNNInputVars( monAlg, trigger, online=True )
-      self.bookRNNInputVars( monAlg, trigger, online=False )
+      info = self.getTrigInfo(trigger)
+
+      if info.isRNN() is True:
+        self.bookRNNInputVars( monAlg, trigger, online=True )
+        self.bookRNNInputVars( monAlg, trigger, online=False )
 
 
   #

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: D3PDMakerTest/python/dumptuple1.py
@@ -31,7 +31,7 @@ getattr(cppyy.gbl, 'map<string,string>')
 
 
 from RootUtils import PyROOTFixes
-PyROOTFixes.enable_tree_speedups()
+PyROOTFixes.enable_tree_fixes()
 
 from PyUtils.fprint import fprintln
 

@@ -33,6 +33,12 @@ if hasattr(runArgs, "skipEvents"):
 if hasattr(runArgs, "maxEvents"):
   athenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)
 
+# Digitization flags
+from Digitization.DigitizationFlags import digitizationFlags
+if hasattr(runArgs, "PileUpPremixing"):
+  merRDOLog.info("Doing pile-up premixing")
+  digitizationFlags.PileUpPremixing = runArgs.PileUpPremixing
+
 #from AthenaCommon.GlobalFlags import globalflags
 #if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
 #if hasattr(runArgs,"conditionsTag"): globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag )
@@ -145,7 +151,6 @@ if hasattr(runArgs, "outputRDO_MRGFile"):
 else:
   outputFile = "DidNotSetOutputName.root"
 
-from Digitization.DigitizationFlags import digitizationFlags
 if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
   from OverlayCommonAlgs.OverlayFlags import overlayFlags
   eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"

@@ -59,6 +59,7 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
 
    // input data
    SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetInputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
+   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfo", "EventInfo", "Event Info Object Key"};
 
    // properties
    Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" };

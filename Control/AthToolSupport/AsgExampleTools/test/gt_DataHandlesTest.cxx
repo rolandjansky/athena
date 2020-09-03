@@ -137,6 +137,18 @@ namespace asg
     ASSERT_SUCCESS (config.makeTool (tool, cleanup));
     tool->runTest ();
   }
+
+
+
+  // do a write decor handle test
+  TEST_F (DataHandlesTest, write_decor_handle)
+  {
+    std::string writeDecorKey = "deco_" + makeUniqueName();
+    config.setPropertyFromString ("writeDecorKey", "Muons." + writeDecorKey);
+    config.setPropertyFromString ("doWriteDecorName", writeDecorKey);
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
 }
 
 ATLAS_GOOGLE_TEST_MAIN

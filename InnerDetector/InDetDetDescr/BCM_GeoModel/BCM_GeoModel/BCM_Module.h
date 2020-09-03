@@ -5,15 +5,15 @@
 ///////////////////////////////////////////////////////////////////
 // BCM_Module.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef BCMMODULE_H
-#define BCMMODULE_H
+#ifndef BCMGEOMODEL_BCMMODULE_H
+#define BCMGEOMODEL_BCMMODULE_H
 
 #include "BCM_GeoModel/BCM_Wall.h"
 #include "BCM_GeoModel/BCM_ModuleParameters.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>
 
-class AbsMaterialManager;
+class StoredMaterialManager;
 
   /** @class BCM_Module 
 
@@ -24,7 +24,7 @@ class AbsMaterialManager;
 class BCM_Module
 {
  public:
-  GeoPhysVol* Build(const AbsMaterialManager* mat_mgr, const BCM_ModuleParameters* parameters, MsgStream* msg);
+  GeoPhysVol* Build(const StoredMaterialManager* mat_mgr, const BCM_ModuleParameters* parameters, MsgStream* msg);
 };
 
 #endif

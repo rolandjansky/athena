@@ -48,7 +48,7 @@ TruthParticleBase::operator=( const TruthParticleBase& rhs )
   return *this;
 }
 
-TruthParticleBase::TruthParticleBase( const HepMC::GenParticle* mc ) :
+TruthParticleBase::TruthParticleBase( const HepMC::GenParticlePtr mc ) :
   m_charge     ( -999. ),
   m_genParticle(   mc  ),
   m_abc        ()

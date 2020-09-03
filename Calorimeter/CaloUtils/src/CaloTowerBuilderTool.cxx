@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -76,7 +76,7 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
     unsigned int ci = firstC.hash();
     double weightC = firstC.weight();
     int cndx = cells->findIndex(ci);
-    const CaloCell* cellPtr = 0;
+    const CaloCell* cellPtr = nullptr;
     if (cndx >= 0)
       cellPtr = (*cells)[cndx];
     // get weights
@@ -234,7 +234,7 @@ StatusCode CaloTowerBuilderTool::execute (CaloTowerContainer* theContainer)
 // protected
 StatusCode CaloTowerBuilderTool::checkSetup(MsgStream& /*log*/) {
   // any calos registered
-  if (m_caloIndices.size() == 0) {
+  if (m_caloIndices.empty()) {
     ATH_MSG_ERROR("no match in requested calorimeter ranges ("
         << m_includedCalos.size() << " requested)");
     // print out requested keys

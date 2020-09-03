@@ -40,6 +40,8 @@ namespace LVL1 {
 
     virtual StatusCode finalize() override;
 
+    // make algorithm is clonable
+    bool isClonable() const;
 
   private:
 

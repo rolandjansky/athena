@@ -16,7 +16,7 @@ void Trk::IdentifierExtractor::extract(std::vector<Identifier>& ids, const std::
   vector<const Trk::MeasurementBase*>::const_iterator it    = measurements.begin();
   vector<const Trk::MeasurementBase*>::const_iterator itEnd = measurements.end();
   ids.clear();
-  for (; it!=itEnd ; it++)
+  for (; it!=itEnd ; ++it)
   {
     Identifier id = extract(*it);
     if( id.is_valid() ) { ids.push_back(id);}

@@ -72,32 +72,6 @@ def createL1PrescalesFileFromMenu( flags ):
         log.info("Generated default L1 prescale set %s", outfile.name)
 
 
-# Creates an HLT Prescale file from the menu
-# this is a temporary solution, in the final version the HLTPrescalesSet file should come from the menu
-def createHLTPrescalesFileFromMenu( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    menuFN = getHLTMenuFileName( flags )
-    with open(menuFN,'r') as fh:
-        data = json.load(fh, object_pairs_hook = odict)
-        pso = odict()
-        pso['filetype'] = 'hltprescale'
-        pso['name'] = data['name']
-        pso['prescales'] = odict()
-        ps = pso['prescales']
-        for name, chain in data['chains'].items():
-            ps[name] = odict([
-                ("name", name),
-                ("counter", chain['counter']),
-                ("hash", chain['nameHash']),
-                ("prescale", 1),
-                ("enabled", 1)
-            ])
-    psFN = getHLTPrescalesSetFileName( flags )
-    with open(psFN, 'w') as outfile:
-        json.dump(pso, outfile, indent = 4)
-        log.info("Generated default HLT prescale set %s", outfile.name)
-
-
 def getTrigConfigFromFlag( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     tcflag = flags.Trigger.triggerConfig

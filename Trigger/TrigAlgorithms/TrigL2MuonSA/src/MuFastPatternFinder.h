@@ -15,6 +15,7 @@
 #include "MdtData.h"
 #include "TrackData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "NswPatternFinder.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -55,7 +56,14 @@ class MuFastPatternFinder: public AthAlgTool
 			      TrigL2MuonSA::MdtHits&        mdtHits,
 			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
 
+      StatusCode findPatterns(const TrigL2MuonSA::MuonRoad& muonRoad,
+			      TrigL2MuonSA::MdtHits&        mdtHits,
+			      TrigL2MuonSA::StgcHits&       stgcHits,
+			      TrigL2MuonSA::MmHits&         mmHits,
+			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
    private:
+      ToolHandle<NswPatternFinder>  m_nswPatternFinder {this, "NswPatternFinder", "TrigL2MuonSA::NswPatternFinder"};
+
       // MDT calibration service
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool{this, "CalibrationTool", "MdtCalibrationTool"};
 

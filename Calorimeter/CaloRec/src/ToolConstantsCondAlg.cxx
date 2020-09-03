@@ -61,7 +61,7 @@ StatusCode ToolConstantsCondAlg::execute (const EventContext& ctx) const
     const unsigned chNbr = m_blobTool->nameToChannelNumber (key);
     // Check that this channel actually exits
     const std::string& chanName = coolFolder->chanName (chNbr);
-    if (chanName.size()>0 && key!=chanName) {
+    if (!chanName.empty() && key!=chanName) {
       ATH_MSG_ERROR( "Channel name does not match! Expected " << key << " found " << chanName );
       return StatusCode::FAILURE;
     }

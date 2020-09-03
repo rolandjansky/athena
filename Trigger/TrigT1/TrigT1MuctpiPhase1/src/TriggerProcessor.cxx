@@ -52,8 +52,7 @@ namespace LVL1MUCTPIPHASE1 {
 
     //initialize the vector to hold the threshold multiplicities
     int nThresholds = m_thresholds.size();
-    std::vector<int> multiplicities;
-    for (int i=0;i<nThresholds;i++) multiplicities.push_back(0);
+    std::vector<int> multiplicities(nThresholds, 0);
 
 
     // Barrel + EC + Fwd

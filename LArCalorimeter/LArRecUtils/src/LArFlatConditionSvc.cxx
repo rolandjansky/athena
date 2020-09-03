@@ -229,8 +229,6 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type,
   const CLID clid=tad->clID();
   const std::string& key=tad->name();
 
-  ATH_MSG_DEBUG("updateAddress called for clid/key " << clid << "/" << key);
-
   std::vector<objInfo_t>::const_iterator objIt=m_objInfo.begin();
   std::vector<objInfo_t>::const_iterator objIt_e=m_objInfo.end();
   
@@ -239,8 +237,7 @@ StatusCode LArFlatConditionSvc::updateAddress(StoreID::type,
     //ATH_MSG_DEBUG("Ignore this clid/key");
     return(StatusCode::FAILURE);
   }
-  ATH_MSG_DEBUG("Feel responsible for clid/key " << clid << "/" << key);
-  
+  ATH_MSG_DEBUG("Creating address for clid/key " << clid << " " << key);
 
   if (m_initializing) {
     ATH_MSG_DEBUG("updateAddress: Still in initialization phase. Do nothing");

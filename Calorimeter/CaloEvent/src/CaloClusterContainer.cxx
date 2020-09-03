@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -44,25 +44,5 @@ CaloClusterContainer::~CaloClusterContainer()
 void CaloClusterContainer::print()
 {
   std::cout << " Size of CaloClusterContainer is " << size() << std::endl;
-}
-
-void CaloClusterContainer::push_back(const CaloCluster * theCluster)
-{
-
-  if (ownPolicy()==SG::OWN_ELEMENTS){
-    std::cout << "ERROR Should not push_back const cluster in OWN CaloClusterContainer." << std::endl;
-  }
-
-  CaloCluster * theNonConstCluster = const_cast<CaloCluster*>(theCluster);
-  
-  DataVector<CaloCluster>::push_back(theNonConstCluster) ;
-  
-}
-
-void CaloClusterContainer::push_back(CaloCluster * theCluster)
-{
-
-  DataVector<CaloCluster>::push_back(theCluster) ;
-  
 }
 

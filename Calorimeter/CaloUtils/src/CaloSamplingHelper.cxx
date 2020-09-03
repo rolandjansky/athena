@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -50,7 +50,7 @@ const std::string& CaloSamplingHelper::getSamplingName(const CaloSampling::CaloS
   //[&theSample] defines the lambda function and says that it depends on the external variable theSampling (captured by reference)
   //(std::pair<std::string,CaloSampling::CaloSample> i) is the parameter of the function
   //{return (i.second==theSample);} Is the code of the function
-  auto it=std::find_if(m_lookUp.begin(),m_lookUp.end(),[&theSample](std::pair<std::string,CaloSampling::CaloSample> i) {return (i.second==theSample);});
+  auto it=std::find_if(m_lookUp.begin(),m_lookUp.end(),[&theSample](const std::pair<std::string,CaloSampling::CaloSample>& i) {return (i.second==theSample);});
   if (it==m_lookUp.end())
     return m_unknown;
   else

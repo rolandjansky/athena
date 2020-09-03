@@ -78,6 +78,9 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_overThrOccupGainGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellDetailOccMapOvThrGain",
                                                                          Tile::MAX_ROS - 1, Tile::MAX_GAIN, nL1Triggers);
 
+  m_nCellsGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellsNumberLB",
+                                                  Tile::MAX_ROS, nL1Triggers);
+
   m_nCellsOverThrGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellOccOvThrBCID",
                                                          Tile::MAX_ROS, nL1Triggers);
 
@@ -817,6 +820,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     }
 
     for (int l1TriggerIdx : l1TriggersIndices) {
+      auto monCellsNumber = Monitored::Scalar<float>("nCells", nCells[partition]);
+      fill(m_tools[m_nCellsGroups[partition][l1TriggerIdx]], lumiBlock, monCellsNumber);
+
       auto monBCID = Monitored::Scalar<unsigned int>("BCID", bcid);
       auto monCellsNumberOvThr = Monitored::Scalar<float>("nCells", nCellsOverThreshold[partition]);
       fill(m_tools[m_nCellsOverThrGroups[partition][l1TriggerIdx]], monBCID, monCellsNumberOvThr);

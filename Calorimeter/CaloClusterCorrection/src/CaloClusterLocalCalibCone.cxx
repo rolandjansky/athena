@@ -49,8 +49,8 @@ CaloClusterLocalCalibCone::CaloClusterLocalCalibCone(const std::string& type,
     m_recoStatus(CaloRecoStatus::UNKNOWNSTATUS),
     m_hadWeightFileName(""),
     m_signalOverNoiseCut(2),
-    m_hadWeightFile(0),
-    m_noiseTool(0)
+    m_hadWeightFile(nullptr),
+    m_noiseTool(nullptr)
 { 
   m_etaBins.resize(0);
   m_caloIndices.resize(0);
@@ -85,7 +85,7 @@ StatusCode CaloClusterLocalCalibCone::initialize()
    
   //---- retrieve the noise tool ----------------
    
-  IToolSvc* p_toolSvc = 0;// Pointer to Tool Service
+  IToolSvc* p_toolSvc = nullptr;// Pointer to Tool Service
   StatusCode sc = service("ToolSvc", p_toolSvc);
   if (sc.isFailure()) {
     msg(MSG::FATAL)
@@ -127,7 +127,7 @@ StatusCode CaloClusterLocalCalibCone::initialize()
   }
 
   // do some sanity checks on the properties given
-  if ( m_hadWeightFileName == "" ) {
+  if ( m_hadWeightFileName.empty() ) {
     msg(  MSG::ERROR )
         << "You need to specify name of the file holding the data "
 	<< "with the property HadWeightFileName in order to use this tool!"
@@ -141,14 +141,14 @@ StatusCode CaloClusterLocalCalibCone::initialize()
 	<< endmsg;
     return StatusCode::FAILURE;
   }
-  if ( m_caloIndices.size() == 0 ) {
+  if ( m_caloIndices.empty() ) {
     msg(MSG::ERROR)
         << "You need to specify the calorimeter indices with the property "
 	<< "CaloIndices in order to use this tool!"
 	<< endmsg;
     return StatusCode::FAILURE;
   }
-  if ( m_samplingIndices.size() == 0 ) {
+  if ( m_samplingIndices.empty() ) {
     msg(MSG::ERROR)
         << "You need to specify the sampling indices with the property "
 	<< "SamplingIndices in order to use this tool!"
@@ -172,7 +172,7 @@ StatusCode CaloClusterLocalCalibCone::initialize()
   return sc;
 }
 
-StatusCode CaloClusterLocalCalibCone::initDataFromFile(std::string hadWeightFileName)
+StatusCode CaloClusterLocalCalibCone::initDataFromFile(const std::string& hadWeightFileName)
 {
   
   // Find the full path to filename:
@@ -196,7 +196,7 @@ StatusCode CaloClusterLocalCalibCone::initDataFromFile(std::string hadWeightFile
 	m_data[isamp][ieta]=(TProfile2D *)m_hadWeightFile->Get(sname.str().c_str());
       }
       else 
-	m_data[isamp][ieta] = 0;
+	m_data[isamp][ieta] = nullptr;
     }
   }
   
@@ -209,7 +209,7 @@ CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
 {
   // make jets
   std::vector<TLorentzVector *> jets;
-  std::vector<TLorentzVector *> pjet(clusColl->size(),0);
+  std::vector<TLorentzVector *> pjet(clusColl->size(),nullptr);
   // assume clusters are ordered in E_T
   // loop over cluster collection and add each cluster to the map for 
   // each member cell
@@ -326,7 +326,7 @@ CaloClusterLocalCalibCone::~CaloClusterLocalCalibCone()
   if ( m_hadWeightFile ) {
     m_hadWeightFile->Close();
     delete m_hadWeightFile;
-    m_hadWeightFile = 0;
+    m_hadWeightFile = nullptr;
   }
 }
 

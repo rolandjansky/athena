@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -89,14 +89,14 @@ CaloDmEnergy::CaloDmEnergy(const CaloDmDescrManager *dmMgr):
   m_max_dmhit(1000000),
   m_max_cluster(10000), m_apars_alpha(0.5), m_apars_r0(0.2),
   m_apars_clust_min_ener(200.0),m_apars_clust_min_ecalib(10.0), m_apars_cone_cut(0.5),
-  m_caloDmNeighbours(0),
-  m_caloDM_ID(0),
-  m_caloCell_ID(0),
-  m_id_helper(0)
+  m_caloDmNeighbours(nullptr),
+  m_caloDM_ID(nullptr),
+  m_caloCell_ID(nullptr),
+  m_id_helper(nullptr)
 {
   m_caloDmDescrManager = dmMgr;
-  m_CalibrationContainerNamesDM.push_back("LArCalibrationHitDeadMaterial");
-  m_CalibrationContainerNamesDM.push_back("TileCalibrationDMHitCnt");
+  m_CalibrationContainerNamesDM.emplace_back("LArCalibrationHitDeadMaterial");
+  m_CalibrationContainerNamesDM.emplace_back("TileCalibrationDMHitCnt");
   m_nclusters = 0;
   initialize().ignore();
 }
@@ -218,7 +218,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
     m_dmcls_area_etotal[i_cls].resize(DMA_MAX,0.0);
   }
 
-  if( m_nclusters == 0 || m_CaloDmCellVector.size() == 0) {
+  if( m_nclusters == 0 || m_CaloDmCellVector.empty()) {
     log << MSG::WARNING << " No data to process. Number of clusters: " << m_nclusters 
         << " m_CaloDmCellVector.size(): " << m_CaloDmCellVector.size()
         << std::endl;
@@ -296,7 +296,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   ****************************************************** */
   for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!= m_CaloDmCellVector.end(); it++){
     CaloDmCell *dmCell = (*it);
-    if( !dmCell->m_cls_index.size() ){ // DM cells assigned to clusters by previous procedure will be skipped
+    if( dmCell->m_cls_index.empty() ){ // DM cells assigned to clusters by previous procedure will be skipped
        xAOD::CaloClusterContainer::const_iterator ic;
       nc=0;
       for(ic=theClusters->begin(); ic != theClusters->end(); ic++){
@@ -327,7 +327,7 @@ int CaloDmEnergy::assign2clusters(std::vector<const CaloCalibrationHitContainer 
   ****************************************************** */
   for(std::vector<CaloDmCell *>::iterator it=m_CaloDmCellVector.begin(); it!= m_CaloDmCellVector.end(); it++){
     CaloDmCell *dmCell = (*it);
-    if(dmCell->m_cls_index.size()) m_dmcls_sum_etotal += dmCell->energyTotal();
+    if(!dmCell->m_cls_index.empty()) m_dmcls_sum_etotal += dmCell->energyTotal();
     for(unsigned int i_cls=0; i_cls<dmCell->m_cls_index.size(); i_cls++){
       int cls_indx = dmCell->m_cls_index[i_cls];
       // Since one DM cell could belong to many clusters, weight for given cluster are calculated
@@ -418,7 +418,7 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
   }
   m_CaloDmCellVector.clear();
   m_CaloDmCellContainer.clear();
-  m_CaloDmCellContainer.resize(m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash_max(), 0);
+  m_CaloDmCellContainer.resize(m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash_max(), nullptr);
 
   int dmhit_n = 0;
   int dmhit_ntotal = 0;

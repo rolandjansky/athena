@@ -3317,10 +3317,7 @@ struct DataBucketTrait<DataVector<T>, U>
  */
 template <class T>
 struct Bases<DataVector<T, DataModel_detail::NoBase> > {
-  typedef SG::AuxVectorBase Base1;
-  typedef NoBase Base2;          
-  typedef NoBase Base3;      
-  typedef NoBase Base4;      
+  using bases = BaseList<SG::AuxVectorBase>;
 };                               
 template <class T>
 struct TopBase<DataVector<T, DataModel_detail::NoBase> > {

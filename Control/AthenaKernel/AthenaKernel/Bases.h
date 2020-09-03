@@ -15,7 +15,7 @@
  * [<CENSORED> Qt defines `foreach' as a macro, so we can't use that name!]
  *
  * For this to work, the @c Bases class must be specialized for each
- * class @c T.  This is usually done using the @c SG_BASE macros
+ * class @c T.  This is usually done using the @c SG_BASES macro
  * defined in BaseInfo.h.
  */
 
@@ -58,6 +58,12 @@ struct BaseType<Virtual<T> >
 
 
 /**
+ * @brief Marker to indicate a nonexistent base class.
+ */
+struct NoBase {};
+
+
+/**
  * @brief Represent a list of base classes.
  *
  * This generic definition is used only for the case of an empty
@@ -67,6 +73,10 @@ template <class... T>
 struct BaseList
 {
 public:
+  // First base in the list.
+  using Base1 = NoBase;
+
+
   /**
    * @brief Iterate over base classes.
    * @param f Object to call for each base class.
@@ -87,12 +97,6 @@ public:
 
 
 /**
- * @brief Marker to indicate a nonexistent base class.
- */
-struct NoBase {}; // Temporary for back-compatibility.
-
-
-/**
  * @brief Traits class to hold derivation information.
  *
  * The @a bases typedef gives a @c BaseList which holds the list
@@ -106,11 +110,6 @@ struct Bases
 {
 public:
   using bases = BaseList<>;
-
-  typedef NoBase Base1; // Temporary for back-compatibility.
-  typedef NoBase Base2;
-  typedef NoBase Base3;
-  typedef NoBase Base4;
 };
 
 
@@ -121,6 +120,10 @@ template <class BASE, class... REST>
 struct BaseList<BASE, REST...>
 {
 public:
+  // First base in the list.
+  using Base1 = BASE;
+
+
   /**
    * @brief Iterate over base classes.
    * @param f Object to call for each base class.

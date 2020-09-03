@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCondBlobAlgs/CaloCoolIdTool.h"
@@ -14,7 +14,7 @@ CaloCoolIdTool::CaloCoolIdTool(const std::string& type,
 			       const std::string& name, 
 			       const IInterface* parent) : 
   AthAlgTool(type, name, parent),
-  m_calo_id(0)
+  m_calo_id(nullptr)
 {
 declareInterface<ICaloCoolIdTool>( this ); 
 }

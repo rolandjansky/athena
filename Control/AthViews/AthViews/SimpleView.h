@@ -40,6 +40,12 @@ class SimpleView : public IProxyDict
     SimpleView( std::string Name, bool AllowFallThrough = true, std::string const& storeName = "StoreGateSvc" );
     virtual ~SimpleView();
 
+   /**
+    * @brief Construct a key as used in the parent store.
+    * @brief key The key as used in the view.
+    */
+   std::string viewKey (const std::string& key) const;
+
     /**
     * @brief links to the previously used views
     * through these parent views additional data objects become available

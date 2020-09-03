@@ -32,10 +32,10 @@ Updated:  June, 2004    (sss)
 #include "GaudiKernel/StatusCode.h"
  
 
-#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "GaudiKernel/MsgStream.h"
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 using xAOD::CaloCluster;
 using CLHEP::pi;

@@ -1,32 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MSVertexRecoAlg/MSVertexRecoAlg.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "MSVertexUtils/Tracklet.h"
 #include "MSVertexUtils/MSVertex.h"
-
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
 MSVertexRecoAlg::MSVertexRecoAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_vertexTrackletTool("Muon::MSVertexTrackletTool/MSVertexTrackletTool", this),
-  m_vertexRecoTool("Muon::MSVertexRecoTool/MSVertexRecoTool", this)
-{
-  declareProperty("MSVertexTrackletTool", m_vertexTrackletTool);
-  declareProperty("MSVertexRecoTool", m_vertexRecoTool);
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-MSVertexRecoAlg::~MSVertexRecoAlg() {}
-
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -69,14 +55,5 @@ StatusCode MSVertexRecoAlg::execute (const EventContext& ctx) const {
 
   ATH_MSG_DEBUG ("Found " << tracklets.size() << " tracklets and " << vertices.size() << " vertices in the MS");
 
-  return StatusCode::SUCCESS;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-StatusCode MSVertexRecoAlg::finalize() {
-  
   return StatusCode::SUCCESS;
 }

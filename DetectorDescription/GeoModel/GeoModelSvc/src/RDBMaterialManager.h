@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _RDBMATERIALMANAGER_H_
-#define _RDBMATERIALMANAGER_H_
+#ifndef GEOMODELSVC_RDBMATERIALMANAGER_H
+#define GEOMODELSVC_RDBMATERIALMANAGER_H
+
 //---------------------------------------------------------//
 //                                                         //
 // class RDBMaterialManager  This is a material manager   //
@@ -23,8 +24,7 @@
 class GeoMaterial;
 class ISvcLocator;
 
-
-class RDBMaterialManager: public StoredMaterialManager {
+class RDBMaterialManager final : public StoredMaterialManager {
 
  public:
 
@@ -35,45 +35,34 @@ class RDBMaterialManager: public StoredMaterialManager {
   virtual ~RDBMaterialManager();
 
   // Query the material:
-  virtual       GeoMaterial *getMaterial(const std::string &name) ;
-  virtual const GeoMaterial *getMaterial(const std::string &name) const;
+  virtual const GeoMaterial *getMaterial(const std::string &name) const override;
  
-
   // Query the elements:
-  virtual const GeoElement *getElement(const std::string & name) const;
-  virtual       GeoElement *getElement(const std::string & name);
+  virtual const GeoElement *getElement(const std::string & name) const override;
 
   // Query the elements (by atomic number):
-  virtual const GeoElement *getElement(unsigned int atomicNumber) const;
-  virtual       GeoElement *getElement(unsigned int atomicNumber);
+  virtual const GeoElement *getElement(unsigned int atomicNumber) const override;
 
   // Add new material
-  virtual void addMaterial(const std::string& space, GeoMaterial* material);
-  virtual void addMaterial(const std::string& space, GeoMaterial* material) const;
+  virtual void addMaterial(const std::string& space, GeoMaterial* material) const override;
 
-  virtual StoredMaterialManager::MaterialMapIterator begin() const;
-  virtual StoredMaterialManager::MaterialMapIterator end() const;
+  virtual StoredMaterialManager::MaterialMapIterator begin() const override;
+  virtual StoredMaterialManager::MaterialMapIterator end() const override;
 
   // Number of materials in the manager
-  virtual size_t size();
+  virtual size_t size() override;
 
-  virtual std::ostream & printAll(std::ostream & o=std::cout) const;
+  virtual std::ostream & printAll(std::ostream & o=std::cout) const override;
 
  private:
   static bool s_specialMaterials;
 
   StatusCode readMaterialsFromDB(ISvcLocator* pSvcLocator);
 
-  void buildSpecialMaterials();
   void buildSpecialMaterials() const;
 
-  GeoElement *searchElementVector (const std::string & name);
   GeoElement *searchElementVector (const std::string & name) const;
-  
-  GeoElement *searchElementVector (const unsigned int atomicNumber);
   GeoElement *searchElementVector (const unsigned int atomicNumber) const;
-  
-  GeoMaterial *searchMaterialMap (const std::string & name);
   GeoMaterial *searchMaterialMap (const std::string & name) const;
   
   // For DataBase connection and Query

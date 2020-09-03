@@ -154,7 +154,7 @@ LArVectorProxy TestData::data (const HWIdentifier& id) const
 class TestOFC : public ILArOFC
 {
 public:
-  typedef LArVectorProxy OFCRef_t;
+  using OFCRef_t = LArVectorProxy;
 
   TestOFC (size_t nofc, const std::vector<HWIdentifier>& hwids)
     : m_data (1234, nofc, hwids)
@@ -367,7 +367,7 @@ void test1 (ISvcLocator* svcloc,
 
   CondCont<CaloBCIDLumi>* cc_lumimc = nullptr;
   assert( conditionStore->retrieve (cc_lumimc, "CaloBCIDLumiMC").isSuccess() );
-  const CaloBCIDLumi* lumimc = 0;
+  const CaloBCIDLumi* lumimc = nullptr;
   const EventIDRange* range_lumimc = nullptr;
   assert (cc_lumimc->find (mixed (50, 50), lumimc, &range_lumimc));
   assert (range_lumimc->start().lumi_block() == 20);
@@ -385,7 +385,7 @@ void test1 (ISvcLocator* svcloc,
 
   CondCont<CaloBCIDLumi>* cc_lumidata = nullptr;
   assert( conditionStore->retrieve (cc_lumidata, "CaloBCIDLumiData").isSuccess() );
-  const CaloBCIDLumi* lumidata = 0;
+  const CaloBCIDLumi* lumidata = nullptr;
   const EventIDRange* range_lumidata = nullptr;
   assert (cc_lumidata->find (mixed (50, 50), lumidata, &range_lumidata));
   assert (range_lumidata->start().lumi_block() == 20);

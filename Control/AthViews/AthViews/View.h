@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHVIEWS_VIEW_H
@@ -29,6 +29,16 @@ public:
   virtual ~View ();
   View (const View&) = delete;
   View& operator= (const View&) = delete;
+
+   /**
+    * @brief Construct a key as used in the parent store.
+    * @brief key The key as used in the view.
+    */
+   std::string viewKey (const std::string& key) const
+   {
+     return m_implementation->viewKey (key);
+   }
+
 
 #ifdef ATHVIEWS_DEBUG
   void impl ( DebugView* impl ) { m_implementation = impl; }

@@ -636,7 +636,7 @@ SamplingHelper_CaloCellList::calculate
 {
   m_calc.fill (m_list.begin(), m_list.end(),
                eta, phi, deta, dphi, sampling,
-               dofill ? m_cluster : 0);
+               dofill ? m_cluster : nullptr);
   // use the calo frame to gather the cells
   m_etam = m_calc.etamr();
   m_phim = m_calc.phimr();

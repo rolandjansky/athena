@@ -21,13 +21,11 @@ namespace Trk {
     m_deltae = 0;
     m_iskink = false;
     m_ismeasuredeloss = true;
-    m_owneloss = false;
     m_x0 = 0;
     m_sintheta = 1;
   } 
   
   GXFMaterialEffects::GXFMaterialEffects(const MaterialEffectsOnTrack * meot) {
-    m_owneloss = false;
     m_sigmadeltae = 0;
     
     if (meot->energyLoss() != nullptr) {
@@ -36,9 +34,8 @@ namespace Trk {
       m_sigmadeltaeneg = meot->energyLoss()->sigmaMinusDeltaE();
       
       if (meot->scatteringAngles() == nullptr) {
-        m_eloss = meot->energyLoss()->clone();
+        m_eloss = std::unique_ptr<EnergyLoss>(meot->energyLoss()->clone());
         m_sigmadeltae = meot->energyLoss()->sigmaDeltaE();
-        m_owneloss = true;
       } else {
         m_eloss = nullptr;
       }
@@ -76,7 +73,7 @@ namespace Trk {
   }
 
   GXFMaterialEffects::GXFMaterialEffects(GXFMaterialEffects & rhs) {
-    m_eloss = rhs.m_eloss != nullptr ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
+    m_eloss = std::unique_ptr<EnergyLoss>(rhs.m_eloss != nullptr ? rhs.m_eloss->clone() : nullptr);
     m_scatphi = rhs.m_scatphi;
     m_scattheta = rhs.m_scattheta;
     m_sigmascatphi = rhs.m_sigmascatphi;
@@ -91,15 +88,13 @@ namespace Trk {
     m_ismeasuredeloss = rhs.m_ismeasuredeloss;
     m_surf = rhs.m_surf;
     m_matprop = rhs.m_matprop;
-    m_owneloss = rhs.m_owneloss;
     m_measscatphi = rhs.m_measscatphi;
     m_sintheta = rhs.m_sintheta;
-    m_owneloss = rhs.m_owneloss;
   }
 
   GXFMaterialEffects & GXFMaterialEffects::operator =(GXFMaterialEffects & rhs) {
     if (this != &rhs) {
-      m_eloss = rhs.m_eloss != nullptr ? (rhs.m_owneloss ? rhs.m_eloss->clone() : rhs.m_eloss) : nullptr;
+      m_eloss = std::unique_ptr<EnergyLoss>(rhs.m_eloss != nullptr ? rhs.m_eloss->clone() : nullptr);
       m_scatphi = rhs.m_scatphi;
       m_scattheta = rhs.m_scattheta;
       m_sigmascatphi = rhs.m_sigmascatphi;
@@ -116,16 +111,9 @@ namespace Trk {
       m_matprop = rhs.m_matprop;
       m_measscatphi = rhs.m_measscatphi;
       m_sintheta = rhs.m_sintheta;
-      m_owneloss = rhs.m_owneloss;
     }
     
     return *this;
-  }
-
-  GXFMaterialEffects::~GXFMaterialEffects() {
-    if (m_owneloss) {
-      delete m_eloss;
-    }
   }
 
   void GXFMaterialEffects::setScatteringAngles(double scatphi, double scattheta) {
@@ -138,7 +126,7 @@ namespace Trk {
     m_sigmascattheta = scatsigmatheta;
   }
 
-  double GXFMaterialEffects::x0() {
+  double GXFMaterialEffects::x0() const {
     return m_x0;
   }
 
@@ -146,51 +134,47 @@ namespace Trk {
     m_x0 = x0;
   }
 
-  double GXFMaterialEffects::deltaPhi() {
+  double GXFMaterialEffects::deltaPhi() const {
     return m_scatphi;
   }
 
-  double GXFMaterialEffects::measuredDeltaPhi() {
+  double GXFMaterialEffects::measuredDeltaPhi() const {
     return m_measscatphi;
   }
 
-  double GXFMaterialEffects::deltaTheta() {
+  double GXFMaterialEffects::deltaTheta() const {
     return m_scattheta;
   }
 
-  double GXFMaterialEffects::sigmaDeltaPhi() {
+  double GXFMaterialEffects::sigmaDeltaPhi() const {
     return m_sigmascatphi;
   }
 
-  double GXFMaterialEffects::sigmaDeltaTheta() {
+  double GXFMaterialEffects::sigmaDeltaTheta() const {
     return m_sigmascattheta;
   }
 
-  double GXFMaterialEffects::deltaE() {
+  double GXFMaterialEffects::deltaE() const {
     return m_deltae;
   }
 
-  void GXFMaterialEffects::setEloss(Trk::EnergyLoss * eloss) {
-    if (m_owneloss) {
-      delete m_eloss;
-    }
-    m_eloss = eloss;
-    m_owneloss = true;
+  void GXFMaterialEffects::setEloss(std::unique_ptr<Trk::EnergyLoss> eloss) {
+    m_eloss = std::move(eloss);
   }
 
-  double GXFMaterialEffects::sigmaDeltaE() {
+  double GXFMaterialEffects::sigmaDeltaE() const {
     return m_sigmadeltae;
   }
 
-  double GXFMaterialEffects::sigmaDeltaEPos() {
+  double GXFMaterialEffects::sigmaDeltaEPos() const {
     return m_sigmadeltaepos;
   }
 
-  double GXFMaterialEffects::sigmaDeltaENeg() {
+  double GXFMaterialEffects::sigmaDeltaENeg() const {
     return m_sigmadeltaeneg;
   }
 
-  double GXFMaterialEffects::sigmaDeltaEAve() {
+  double GXFMaterialEffects::sigmaDeltaEAve() const {
     if (m_eloss != nullptr) {
       return m_eloss->sigmaDeltaE();
     }
@@ -217,7 +201,7 @@ namespace Trk {
     m_measscatphi = measdf;
   }
 
-  double GXFMaterialEffects::delta_p() {
+  double GXFMaterialEffects::delta_p() const {
     return m_deltap;
   }
 
@@ -229,7 +213,7 @@ namespace Trk {
     m_iskink = iskink;
   }
 
-  bool GXFMaterialEffects::isKink() {
+  bool GXFMaterialEffects::isKink() const {
     return m_iskink;
   }
 
@@ -237,11 +221,11 @@ namespace Trk {
     m_ismeasuredeloss = ismeasuredeloss;
   }
 
-  bool GXFMaterialEffects::isMeasuredEloss() {
+  bool GXFMaterialEffects::isMeasuredEloss() const {
     return m_ismeasuredeloss;
   }
 
-  const Surface *GXFMaterialEffects::surface() {
+  const Surface *GXFMaterialEffects::surface() const {
     return m_surf;
   }
 
@@ -249,36 +233,29 @@ namespace Trk {
     m_surf = surf;
   }
 
-  MaterialEffectsBase *GXFMaterialEffects::makeMEOT() {
-    ScatteringAngles *scatangles = nullptr;
+  std::unique_ptr<MaterialEffectsBase> GXFMaterialEffects::makeMEOT() {
+    std::unique_ptr<ScatteringAngles> scatangles;
 
     if (m_sigmascattheta != 0) {
-      scatangles = new ScatteringAngles(m_scatphi, m_scattheta, m_sigmascatphi, m_sigmascattheta);
+      scatangles = std::make_unique<ScatteringAngles>(m_scatphi, m_scattheta, m_sigmascatphi, m_sigmascattheta);
     }
     
     std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
     typePattern.set(MaterialEffectsBase::FittedMaterialEffects);
-    const Trk::EnergyLoss * neweloss = nullptr;
+    std::unique_ptr<const Trk::EnergyLoss> neweloss;
     
     if (m_deltae != 0) {
       if (m_eloss != nullptr) {
-        neweloss = m_eloss;
-        if (!m_owneloss) {
-          neweloss = neweloss->clone();
-        }
+        neweloss.reset(m_eloss->clone());
       } else {
-        neweloss = new Trk::EnergyLoss(m_deltae, m_sigmadeltae, m_sigmadeltaeneg, m_sigmadeltaepos);
+        neweloss = std::make_unique<Trk::EnergyLoss>(m_deltae, m_sigmadeltae, m_sigmadeltaeneg, m_sigmadeltaepos);
       }
     }
     
-    MaterialEffectsOnTrack *meot = new MaterialEffectsOnTrack(m_x0, scatangles, neweloss, *m_surf, typePattern);
-                                 
-    m_owneloss = false;
-    
-    return meot;
+    return std::make_unique<MaterialEffectsOnTrack>(m_x0, scatangles.release(), neweloss.release(), *m_surf, typePattern);
   }
 
-  const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() {
+  const Trk::MaterialProperties * GXFMaterialEffects::materialProperties() const {
     return m_matprop;
   }
 

@@ -43,7 +43,7 @@ namespace G4UA
       : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
                      "CalibrationDefaultProcessing"),
         m_config(config),
-        m_defaultSD(0)
+        m_defaultSD(nullptr)
     {
     }
 
@@ -63,7 +63,7 @@ namespace G4UA
     void CalibrationDefaultProcessing::UserSteppingAction(const G4Step* a_step)
     {
       // Do we have a sensitive detector?
-      if ( m_defaultSD != 0 ) {
+      if ( m_defaultSD != nullptr ) {
         // We only want to perform the default processing if no other
         // calibration processing has occurred for this step.
         AtlasG4EventUserInfo* atlasG4EvtUserInfo = dynamic_cast<AtlasG4EventUserInfo*>(

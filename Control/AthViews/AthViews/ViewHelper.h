@@ -225,7 +225,10 @@ namespace ViewHelper
         }
 
         //Declare remapping
-        m_sg->remap( ClassID_traits< DataVector< T > >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
+        m_sg->remap( ClassID_traits< DataVector< T > >::ID(),
+                     inputView->viewKey (queryHandle.name()),
+                     queryHandle.name(),
+                     offset );
         offset += queryHandle->size();
       }
 
@@ -274,7 +277,7 @@ namespace ViewHelper
   template<typename T>
   ElementLink<T> makeLink( const SG::View* view, const SG::ReadHandle<T>& handle, size_t index )
   {
-    return ElementLink<T>( view->name() + "_" + handle.key(), index );
+    return ElementLink<T>( view->viewKey (handle.key()), index );
   }
 
 } // EOF namspace ViewHelper

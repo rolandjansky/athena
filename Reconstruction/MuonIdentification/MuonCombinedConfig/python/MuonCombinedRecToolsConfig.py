@@ -573,7 +573,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     kwargs.setdefault("Cleaner"                      , acc.popPrivateTools() )
     result.merge(acc)
 
-    if flags.Detector.GeometryCSC:
+    if flags.Detector.GeometryCSC and not flags.Muon.MuonTrigger:
         acc = CscClusterOnTrackCreatorCfg(flags)
         kwargs.setdefault("CscRotCreator"                 , acc.popPrivateTools() )
         result.merge(acc)
@@ -663,10 +663,14 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     else:
         kwargs.setdefault("MuonErrorOptimizer", "")
 
-    from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
-    acc = MuonChamberHoleRecoveryToolCfg(flags)
-    kwargs.setdefault("MuonHoleRecovery"                 , acc.popPrivateTools())
-    result.merge(acc)
+
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("MuonHoleRecovery"                 , "")
+    else:
+        from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
+        acc = MuonChamberHoleRecoveryToolCfg(flags)
+        kwargs.setdefault("MuonHoleRecovery"                 , acc.popPrivateTools())
+        result.merge(acc)
 
     if flags.Muon.doSegmentT0Fit:
         kwargs.setdefault("MdtRotCreator"                 , "" )
@@ -833,15 +837,13 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonTagTight",       CompFactory.CaloMuonTag() )
     result.addPublicTool(kwargs['CaloMuonTagLoose'])
     result.addPublicTool(kwargs['CaloMuonTagTight'])
-
     acc = CaloMuonLikelihoodToolCfg(flags)
     kwargs.setdefault("CaloMuonLikelihoodTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonLikelihoodTool'])
-
+    result.merge(acc)
     acc = CaloMuonScoreToolCfg(flags)
     kwargs.setdefault("CaloMuonScoreTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonScoreTool'])
-
     result.merge(acc)
     acc = TrackDepositInCaloToolCfg(flags)
     trackDepositInCaloTool = acc.popPrivateTools()

@@ -142,9 +142,9 @@ class TestChainConfiguration(ChainConfigurationBase):
 
     def Step_mu32(self):
         return self.getStep(3,"mu32",[ muCfg322 ])
-
+   
     def Step_mu41(self):
-        return self.getStep(4,"mu11",[ muCfg411 ])
+        return self.getStep(4,"mu41",[ muCfg411 ])
 
     def Step_empty1(self):
         return self.getEmptyStep(1,'empty')

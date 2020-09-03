@@ -39,7 +39,7 @@
 
 using namespace TruthHelper;
 
-//typedef std::vector<const HepMC::GenParticlePtr>  MCParticleCollection ;
+//typedef std::vector<HepMC::ConstGenParticlePtr>  MCParticleCollection ;
 
 CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)

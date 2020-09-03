@@ -236,23 +236,6 @@ def muEFSASequence():
 
 
 
-def muEFMSSequence():
-    
-    (muonEFSAonlySequence, efsaViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFSAAlgSequence, ConfigFlags)
-
-    # setup EFSA hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFHypoAlg
-    trigMuonEFSAHypo = TrigMuonEFHypoAlg( "TrigMuonEFMSonlyHypoAlg" )
-    trigMuonEFSAHypo.MuonDecisions = sequenceOut
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFMSonlyHypoToolFromDict
-    
-    return MenuSequence( Sequence    = muonEFSAonlySequence,
-                         Maker       = efsaViewsMaker,
-                         Hypo        = trigMuonEFSAHypo,
-                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict )
-
-
 ######################
 ###  EFCB seq ###
 ######################

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: StringPool_test.cxx,v 1.2 2007-12-10 22:20:04 ssnyder Exp $
 /**
  * @file  SGTools/StringPool_test.cxx
  * @author scott snyder
@@ -14,7 +12,9 @@
 #undef NDEBUG
 
 #include "SGTools/StringPool.h"
+#include "SGTools/exceptions.h"
 #include "CxxUtils/crc64.h"
+#include "TestTools/expect_exception.h"
 #include <vector>
 #include <string>
 #include <cstdlib>
@@ -32,12 +32,16 @@ const char* const teststrings[] = {
 };
 
 
-std::string randstring()
+std::string randstring (unsigned int maxlen = 255)
 {
+  static const std::string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const unsigned int nchars = chars.size();
+
   char buf[256];
-  int len = std::rand() % 256;
+  if (maxlen > 255) maxlen = 255;
+  int len = std::rand() % (maxlen+1);
   for (int i = 0; i < len; i++)
-    buf[i] = (char)(std::rand() % 256);
+    buf[i] = chars[std::rand() % nchars];
   return std::string (buf, len);
 }
 
@@ -143,8 +147,38 @@ void test1()
 }
 
 
+// Test collisions.
+void test2()
+{
+  std::cout << "test2\n";
+
+  SG::StringPool sp;
+  SG::StringPool::sgkey_t key = sp.stringToKey ("HLTNav_ComboHypo_merged_Step3_Step3_1muEFSA_Step3_1muEFSA_MuonEFSAHypoAux.", 187169987);
+  assert (key == 522984112);
+  EXPECT_EXCEPTION (SG::ExcSgkeyCollision,
+                    sp.stringToKey ("IMfastCalo_view_159_EMCaloRoIs", 33347479););
+
+  
+  SG::StringPool sp2;
+  SG::sgkey_t key2 = sp2.stringToKey ("_VMtjBTTT0Qu", 1100298357);
+  assert (key2 == 144365170);
+  SG::sgkey_t key3 = sp2.stringToKey ("_mb5bDYMzXCvoNT9N1", 1837139737);
+  assert (key3 == 144365171);
+
+#if 0
+  // Fragment used to find hash collisions.
+  while (true) {
+    std::string s = "_" + randstring(20);
+    unsigned i = std::rand();
+    sp2.stringToKey (s, i);
+  }
+#endif
+}
+
+
 int main()
 {
   test1();
+  test2();
   return 0;
 }
