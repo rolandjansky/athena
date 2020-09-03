@@ -70,7 +70,7 @@ unsigned int JetManager::btaggingSize() const { return m_btagging_Containers->si
 unsigned int JetManager::primaryVertexSize() const { return m_primaryVertex_Containers->size(); }
 unsigned int JetManager::trackParticleSize() const { return m_trackParticle_Containers.size(); }
 
-StatusCode JetManager::retrieveByNavigation() {
+StatusCode JetManager::retrieveByNavigation(bool getTracks) {
   clear();
   ATH_MSG_DEBUG( "Retrieving via Navigation ..." );
 
@@ -81,7 +81,9 @@ StatusCode JetManager::retrieveByNavigation() {
     getFromCombo( m_jet_Containers            ,combo ,std::get< EventElement::JET >( m_keys ) );
     getFromCombo( m_btagging_Containers       ,combo ,std::get< EventElement::BTAG >( m_keys ) );
     getFromCombo( m_primaryVertex_Containers  ,combo ,std::get< EventElement::PRIM_VTX >( m_keys ) );
-    getTPfromCombo( m_trackParticle_Containers,combo ,std::get< EventElement::TRK_PARTICLE >( m_keys ) );
+    if(getTracks) {
+      getTPfromCombo( m_trackParticle_Containers,combo ,std::get< EventElement::TRK_PARTICLE >( m_keys ) );
+    }
   }
 
   jetCopy( m_jet_Containers );
@@ -506,6 +508,11 @@ StatusCode JetManager::retrieveByContainer() {
 
       }
       
+      if(matchedJet==nullptr) {
+	ATH_MSG_WARNING("Matched jet pointer is invalid...");
+	continue;
+      }
+
       // Check if the linked Jet has already been found
       bool isJetUnique = true;
       for ( const xAOD::Jet *j : *m_jet_Containers.get() )

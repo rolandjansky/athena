@@ -58,7 +58,7 @@ namespace Trig {
     void setContainers(std::string,std::string);
     void setKeys(std::string,std::string,std::string,std::string);
 
-    StatusCode retrieveByNavigation();
+    StatusCode retrieveByNavigation(bool getTracks=false);
     StatusCode retrieveByContainer();
 
     std::vector< std::unique_ptr< TrigBtagEmulationJet > > getJets();
