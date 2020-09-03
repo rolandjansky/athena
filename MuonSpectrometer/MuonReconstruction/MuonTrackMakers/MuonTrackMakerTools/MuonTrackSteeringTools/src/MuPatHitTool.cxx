@@ -35,17 +35,9 @@ namespace Muon {
 
 MuPatHitTool::MuPatHitTool(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t, n, p),
-      m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
-      m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-      m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
-      m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_magFieldProperties(Trk::NoField)
 {
     declareInterface<MuPatHitTool>(this);
-    declareProperty("MdtRotCreator", m_mdtRotCreator);
-    declareProperty("CscRotCreator", m_cscRotCreator);
 }
 
 MuPatHitTool::~MuPatHitTool() {}

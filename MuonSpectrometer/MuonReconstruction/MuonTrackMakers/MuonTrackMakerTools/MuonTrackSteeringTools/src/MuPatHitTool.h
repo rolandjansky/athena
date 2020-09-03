@@ -166,19 +166,48 @@ class MuPatHitTool : public AthAlgTool {
     */
     MuPatHitIt insert(MuPatHitList& list, MuPatHitIt& pos, MuPatHit* hit) const;
 
-    ToolHandle<Trk::IPropagator>              m_propagator;
-    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator;  //<! tool to calibrate MDT hits
-    ToolHandle<IMuonClusterOnTrackCreator>    m_cscRotCreator;  //<! tool to calibrate CSC hits
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>
-                                             m_compClusterCreator;  //<! tool to create competing clusters on track
-    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;      //<! tool to calculate residuals and pulls
-    ToolHandle<MuonEDMPrinterTool>           m_printer;             //<! tool to print EDM objects
+    ToolHandle<Trk::IPropagator> m_propagator{
+        this,
+        "AtlasRungeKuttaPropagator",
+        "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator",
+    };
+    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
+        this,
+        "MdtRotCreator",
+        "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator",
+    };  //<! tool to calibrate MDT hits
+    ToolHandle<IMuonClusterOnTrackCreator> m_cscRotCreator{
+        this,
+        "CscRotCreator",
+        "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator",
+    };  //<! tool to calibrate CSC hits
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator{
+        this,
+        "TriggerChamberClusterOnTrackCreator",
+        "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator",
+    };  //<! tool to create competing clusters on track
+    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{
+        this,
+        "ResidualPullCalculator",
+        "Trk::ResidualPullCalculator/ResidualPullCalculator",
+    };  //<! tool to calculate residuals and pulls
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };  //<! tool to print EDM objects
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc{
-        this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-        "Handle to the service providing the IMuonEDMHelperSvc interface"};  //<! multipurpose helper tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
+        this,
+        "edmHelper",
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        "Handle to the service providing the IMuonEDMHelperSvc interface",
+    };  //<! multipurpose helper tool
 
     Trk::MagneticFieldProperties m_magFieldProperties;  //!< magnetic field properties
 
