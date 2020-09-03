@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonMDT_Cabling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          Event/EventInfo
-                          Event/EventInfoMgt
-                          MuonSpectrometer/MuonCablings/MuonCablingData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface 
-			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-			  MuonSpectrometer/MuonConditions/MuonCondCabling/MDT_CondCabling
-			  Tools/PathResolver )
-
 # Component(s) in the package:
 atlas_add_library( MuonMDT_CablingLib
                    src/*.cxx
