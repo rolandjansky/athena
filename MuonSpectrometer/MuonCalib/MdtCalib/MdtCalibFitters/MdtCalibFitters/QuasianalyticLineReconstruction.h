@@ -119,6 +119,9 @@ public:
 	void setTimeOut(const double & time_out);
 					///< set the time-out for the track
 					///< finding to time_out (in seconds)
+    void setMaxRadius(const double& maxR);
+					///< set the max innerRadius, default for MDT
+					///< sMDT 7.1mm, MDT 14.6mm
 // methods required by the base class "IMdtSegmentFitter" //
 	bool fit(MuonCalibSegment & r_segment) const;
 	                                ///< reconstruction of the track using
