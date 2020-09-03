@@ -23,6 +23,16 @@ StatusCode TrigTauMonitorAlgorithm::initialize() {
   ATH_CHECK( m_hltTauJetCaloOnlyKey.initialize() );
   ATH_CHECK( m_trigDecTool.retrieve() );
 
+  for(const auto& trigName:m_trigInputList)
+  {
+     if(getTrigInfoMap().count(trigName) != 0){
+       ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+     }else {
+       m_trigList.push_back(trigName);
+       setTrigInfo(trigName);
+     }
+  }
+
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -37,13 +47,15 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     return StatusCode::SUCCESS; 
   }
   
-  ATH_MSG_DEBUG("Chains for Analysis " << m_trigInputList);
+  ATH_MSG_DEBUG("Chains for Analysis " << m_trigList);
 
   std::vector< std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision*>> pairObjs;
 
-  for(const auto& trigger : m_trigInputList){
+  for(const auto& trigger : m_trigList){
 
-    if ( executeNavigation( ctx, trigger,25,"mediumRNN", pairObjs).isFailure() )                                                            
+    const TrigInfo info = getTrigInfo(trigger);
+
+    if ( executeNavigation( ctx, info.trigName,info.HLTthr,info.trigWP, pairObjs).isFailure() )                
     {                                                                                                                                                       
        ATH_MSG_WARNING("executeNavigation failed");                                                                                                       
        return StatusCode::SUCCESS;                                                                                                                         
@@ -107,6 +119,8 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
 void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger) const
 {
 
+  const TrigInfo info = getTrigInfo(trigger);
+
   // Offline
   std::vector<const xAOD::TauJet*> tau_vec;
   for( auto pairObj: pairObjs )
@@ -115,7 +129,20 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
   }
     
   // Offline
-  fillRNNInputVars( trigger, tau_vec, false );
+  if(info.isRNN) fillRNNInputVars( trigger, tau_vec, false );
+
+  tau_vec.clear();
+
+  auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions ,"HLT_TrigTauRecMerged_MVA" ); 
+  for( auto &featLinkInfo : vec ){
+    const auto *feat = *(featLinkInfo.link);
+    if(!feat) continue;
+    // If not pass, continue
+    tau_vec.push_back(feat);
+  }
+  if(info.isRNN) fillRNNInputVars( trigger, tau_vec, true );
+
+  
 
 }
 
@@ -165,7 +192,51 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
                                                     }return detail;});
   auto ptDetectorAxis     = Monitored::Collection("ptDetectorAxis", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     return TMath::Log10(std::min(tau->ptDetectorAxis() / 1000.0, 100.0));});
-
+  
   fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis);
   
 }
+
+
+TrigInfo TrigTauMonitorAlgorithm::getTrigInfo(const std::string trigger) const{ 
+  return m_trigInfo.at(trigger); 
+}
+
+
+void TrigTauMonitorAlgorithm::setTrigInfo(const std::string trigger)
+{ 
+
+  std::string idwp="",type="",l1item="",l1type="";
+  float hlthr=0.,l1thr=0.;
+  bool isRNN=false,isBDT=false,isPerf=false,isL1=false;
+
+  size_t l=trigger.length();
+  size_t pos=trigger.find("_");
+  std::string substr =trigger.substr(pos+1,l);
+  std::vector<std::string> names;
+  names.push_back(trigger.substr(0,pos));
+
+  while(substr.find("_")!=std::string::npos)
+  {
+    pos = substr.find("_");
+    names.push_back(substr.substr(0,pos));
+    substr = substr.substr(pos+1,substr.length());    
+  }
+
+  names.push_back(substr);
+
+  hlthr = std::stof(names[1].substr(3,names[1].length()));
+  idwp=names[2];
+
+  if(idwp=="perf" || idwp=="idperf") isPerf=true;
+  else if(idwp.find("RNN")!=std::string::npos) isRNN=true;
+  else isBDT=true;
+
+  type=names[4];
+  if(names[0].find("L1")!=std::string::npos) isL1=true;
+
+  TrigInfo info{trigger,idwp,l1item,l1type,type,isL1,isRNN,isBDT,isPerf,hlthr,l1thr,false};
+
+  m_trigInfo[trigger] = info;
+}
+

@@ -998,7 +998,9 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     /* Create trailer */
     ROIB::Trailer muCTPITrail( m_lvl1muCTPIRoIs.size(), errorStat );
     /* Create MuCTPIResult object */
-    m_lvl1muCTPIResult = new ROIB::MuCTPIResult( muCTPIHead, muCTPITrail, m_lvl1muCTPIRoIs );
+    //explicity copy for m_lvl1muCTPIRoIs
+    m_lvl1muCTPIResult = new ROIB::MuCTPIResult( std::move(muCTPIHead), std::move(muCTPITrail), std::vector<ROIB::MuCTPIRoI>(m_lvl1muCTPIRoIs) );
+
     /* Dump object if requested */
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG( m_lvl1muCTPIResult->dump() );
@@ -1068,7 +1070,7 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     }
 
     // create MuCTPI RDO
-    m_daqmuCTPIResult = new MuCTPI_RDO( candidateMultiplicity, dataWord );
+    m_daqmuCTPIResult = new MuCTPI_RDO( std::move(candidateMultiplicity), std::move(dataWord) );
 
     // print contents
     if (msgLvl(MSG::DEBUG)) {

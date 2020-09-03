@@ -189,7 +189,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
                     # assign the corresponding persistent class based of the name of the metadata container
                     if regexEventStreamInfo.match(class_name):
-                        if class_name.endswith('_p2'):
+                        if class_name.endswith('_p1'):
+                            persistent_instances[name] = ROOT.EventStreamInfo_p1()
+                        elif class_name.endswith('_p2'):
                             persistent_instances[name] = ROOT.EventStreamInfo_p2()
                         else:
                             persistent_instances[name] = ROOT.EventStreamInfo_p3()
@@ -731,15 +733,17 @@ def promote_keys(meta_dict):
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
 
-                if len(md['eventTypes']):
+                if 'eventTypes' in md and len(md['eventTypes']):
                     et = md['eventTypes'][0]
                     md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
                     md['mc_channel_number'] = et.get('mc_channel_number', 0)
                     md['eventTypes'] = et['type']
 
-
-                md['lumiBlockNumbers'] = md['lumiBlockNumbers']
-                md['processingTags'] = md[key]['processingTags']
+                if 'lumiBlockNumbers' in md[key]:
+                    md['lumiBlockNumbers'] = md[key]['lumiBlockNumbers']
+                
+                if 'processingTags' in md[key]:
+                    md['processingTags'] = md[key]['processingTags']
 
                 meta_dict[filename].pop(key)
                 break

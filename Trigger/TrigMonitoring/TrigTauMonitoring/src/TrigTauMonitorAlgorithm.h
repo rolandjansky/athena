@@ -10,6 +10,7 @@
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "TrigTauInfo.h"
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -23,7 +24,20 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
+
+
  private:
+
+  std::map<std::string,TrigInfo> m_trigInfo;
+
+  std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; }
+
+  TrigInfo getTrigInfo(const std::string) const;
+
+  void setTrigInfo(const std::string);
+
+  /*! List of triggers to study */
+  std::vector<std::string> m_trigList;
 
   /*! List of triggers from menu */
   Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};

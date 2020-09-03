@@ -292,5 +292,7 @@ def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", *
     return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
 
 def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
-    ## kwargs.setdefault("SomeProperty", aValue)
+    from G4AtlasApps.SimFlags import simFlags
+    if hasattr(simFlags, 'Eta') or hasattr(simFlags, 'LArTB_H1TableYPos'): #FIXME Ugly hack
+        kwargs.setdefault("TestBeam", True)
     return CfgMgr.MaterialDescriptionTool(name, **kwargs)

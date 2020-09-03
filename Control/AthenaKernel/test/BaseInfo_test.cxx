@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  AthenaKernel/test/BaseInfo_test.cxx
  * @author scott snyder
@@ -38,8 +36,8 @@ struct CC : public BB
   CC (int the_x=0) : BB(the_x) {}
 };
 
-SG_BASE(BB, AA);
-SG_BASE(CC, BB);
+SG_BASES(BB, AA);
+SG_BASES(CC, BB);
 
 CLASS_DEF (AA, 1111, 2)
 CLASS_DEF (BB, 1112, 2)
@@ -69,13 +67,13 @@ CLASS_DEF (N, 1115, 2)
 CLASS_DEF (O, 1116, 2)
 CLASS_DEF (P, 1117, 2)
 
-SG_BASE (N, SG_VIRTUAL (M));
-SG_BASE (O, SG_VIRTUAL (M));
-SG_BASES2 (P, SG_VIRTUAL (N), SG_VIRTUAL (O));
+SG_BASES (N, SG_VIRTUAL (M));
+SG_BASES (O, SG_VIRTUAL (M));
+SG_BASES (P, SG_VIRTUAL (N), SG_VIRTUAL (O));
 
 struct X1 {};
 struct X2 : public X1 {};
-SG_BASE (X2, X1);
+SG_BASES (X2, X1);
 
 struct Q : virtual public M
 {
@@ -89,20 +87,20 @@ struct R : virtual public N, virtual public O, virtual public Q
 CLASS_DEF (Q, 1118, 2)
 CLASS_DEF (R, 1119, 2)
 
-SG_BASE (Q, SG_VIRTUAL (M));
-SG_BASES3 (R, SG_VIRTUAL (N),
-           SG_VIRTUAL (O),
-           SG_VIRTUAL (Q));
+SG_BASES (Q, SG_VIRTUAL (M));
+SG_BASES (R, SG_VIRTUAL (N),
+          SG_VIRTUAL (O),
+          SG_VIRTUAL (Q));
 
 
 struct I1 : public AA {};
 struct I2 : public AA {};
-SG_BASE (I1, AA);
-SG_BASE (I2, AA);
+SG_BASES (I1, AA);
+SG_BASES (I2, AA);
 CLASS_DEF (I2, 1120, 2)
 
 struct J : public AA, virtual public X1, public M {};
-SG_BASE(J, AA);
+SG_BASES(J, AA);
 SG_ADD_BASE(J, SG_VIRTUAL(X1));
 SG_ADD_BASE(J, M);
 
@@ -246,12 +244,12 @@ int test1()
   assert (SG::BaseInfoBase::find (99999) == 0);
   assert (SG::BaseInfoBase::find (typeid(int)) == 0);
 
-  assert (typeid(SG::BaseType<SG::Bases<BB>::Base1>::type) == typeid(AA));
-  assert (typeid(SG::BaseType<SG::Bases<BB>::Base1>::is_virtual) ==
+  assert (typeid(SG::BaseType<SG::Bases<BB>::bases::Base1>::type) == typeid(AA));
+  assert (typeid(SG::BaseType<SG::Bases<BB>::bases::Base1>::is_virtual) ==
           typeid(std::false_type));
 
-  assert (typeid(SG::BaseType<SG::Bases<N>::Base1>::type) == typeid(M));
-  assert (typeid(SG::BaseType<SG::Bases<N>::Base1>::is_virtual) ==
+  assert (typeid(SG::BaseType<SG::Bases<N>::bases::Base1>::type) == typeid(M));
+  assert (typeid(SG::BaseType<SG::Bases<N>::bases::Base1>::is_virtual) ==
           typeid(std::true_type));
 
   std::vector<CLID> exp3 = list_of

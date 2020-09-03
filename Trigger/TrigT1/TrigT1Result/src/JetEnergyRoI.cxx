@@ -23,10 +23,6 @@ namespace ROIB {
   {
   }
 
-  JetEnergyRoI::~JetEnergyRoI() {
-
-  }
-
   void JetEnergyRoI::update() {
     /// This was obselete a long time ago
     m_roIWord = RoIFormatUpdater::UpdateJetEnergyRoI( m_roIWord );

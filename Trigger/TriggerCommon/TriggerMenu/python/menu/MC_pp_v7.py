@@ -3569,10 +3569,10 @@ chain_list=ps_online_list+ps_cosmic_list+ps_minb_list
 if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
-Prescales.HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0, -1] ])))
+Prescales.HLTPrescales.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0, -1] ])))
 
 chain_list=ps_larnoiseburst_rerun_list
-Prescales.HLTPrescales.update(dict(map(None,chain_list,len(chain_list)*[ [0, 0, 1] ])))
+Prescales.HLTPrescales.update(dict(zip(chain_list,len(chain_list)*[ [0, 0, 1] ])))
 ######################################################
 
 ######################################################
@@ -3592,10 +3592,10 @@ chain_list=ps_online_list+ps_cosmic_list+ps_calibmon_list+ps_beamspot_list
 if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
-Prescales.HLTPrescales_loose_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_loose_mc_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 
 chain_list=ps_rerun_list
-Prescales.HLTPrescales_loose_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [0, 0, 1] ])))
+Prescales.HLTPrescales_loose_mc_prescale.update(dict(zip(chain_list,len(chain_list)*[ [0, 0, 1] ])))
 ######################################################
 
 ######################################################
@@ -3608,7 +3608,7 @@ chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_Bphys_list#+ps_Jpsi_list #
 if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
-Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 
 ######################################################
 # TIGHT mc prescales
@@ -3619,7 +3619,7 @@ chain_list=ps_perform_list+ps_Bphys_list#+ps_Jpsi_list # enabling JPSI ee again 
 
 #Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales_loose_mc_prescale)
 #chain_list=ps_eb_list+ps_fwdphys_list+ps_minb_list+ps_ftk_list+ps_perform_list
-Prescales.HLTPrescales_tight_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_tight_mc_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 
 ######################################################

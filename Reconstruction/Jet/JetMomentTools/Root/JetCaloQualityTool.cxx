@@ -7,7 +7,7 @@
 
 #include "JetMomentTools/JetCaloQualityTool.h"
 #include "xAODJet/JetAccessorMap.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 
 #include <iostream>
@@ -19,7 +19,6 @@ using namespace jet;
 JetCaloQualityTool::JetCaloQualityTool(const std::string& name)
   : asg::AsgTool(name)
 {
-  declareInterface<IJetDecorator>(this);
 } 
 
 
@@ -89,7 +88,7 @@ StatusCode JetCaloQualityTool::initialize() {
 #define ADDCALCULATOR( klass ) klass *c = new klass();  m_jetCalculations.addCalculator(c)
 
   // convert names passed as property into calo calculators
-  for( std::string & calcN : m_calculationNames){
+  for( const std::string & calcN : m_calculationNames){
 
     if ( calcN == "LArQuality") {
       ADDCALCULATOR( jet::JetCalcQuality );
@@ -128,7 +127,7 @@ StatusCode JetCaloQualityTool::initialize() {
   }
 
   // Define OOT calculators.
-  for( double & timeCut : m_timingTimeCuts){
+  for( const double timeCut : m_timingTimeCuts){
     
     // build the moment name from the base-name and the value of the timing cut
     std::stringstream s;

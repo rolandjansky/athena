@@ -1,15 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Specialist reconstruction and bytestream transforms
 #  @author atlas-comp-jt-dev@cern.ch
-#  @version $Id: overlayTransformUtils.py 744063 2016-04-29 22:49:04Z ahaas $
 
 from __future__ import print_function
 
-import os
-import re
-import subprocess
-import sys
 import tarfile
 
 import logging

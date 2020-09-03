@@ -6,6 +6,8 @@
 #define  TRIGL2MUONSA_TRACKDATA_H
 
 #include "MdtData.h"
+#include "MmData.h"
+#include "StgcData.h"
 #include "SuperPointData.h"
 
 #define NCHAMBER 11
@@ -56,8 +58,10 @@ class TrackPattern
     
  public:
     TrigL2MuonSA::MdtHits    mdtSegments[NCHAMBER]; // MDT hits associated with the track
+    TrigL2MuonSA::MmHits     mmSegment; // MM hits associated with the track
+    TrigL2MuonSA::StgcHits   stgcSegment; // sTGC hits associated with the track
     TrigL2MuonSA::SuperPoint superPoints[NCHAMBER]; // Super points at each station
-    
+
     double pt;
     double charge;
 

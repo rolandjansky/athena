@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -15,8 +15,8 @@ using std::abs;
 using std::exp;
 
 double
-forwardTerm( const I4MomIter_t iBeg,
-       const I4MomIter_t iEnd,
+forwardTerm( const I4MomIter_t& iBeg,
+       const I4MomIter_t& iEnd,
        double central, bool useThreeD )
 {
   double Q = 0;

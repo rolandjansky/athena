@@ -194,6 +194,12 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
 
+    if 'EventInfo' not in ConfigFlags.Input.Collections:
+        from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+        acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
+                                     inputKey='McEventInfo',
+                                     outputKey='EventInfo'))
+
     acc.merge( TileDigitsMakerOutputCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)

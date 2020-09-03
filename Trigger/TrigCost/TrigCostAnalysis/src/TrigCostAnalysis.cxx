@@ -83,7 +83,7 @@ StatusCode TrigCostAnalysis::start() {
   }
 
   // As an initial guess, 25 should be a good uper maximum for the number of expected View instances.
-  ATH_CHECK( checkUpdateMaxView(25) );
+  ATH_CHECK( checkUpdateMaxView(60) );
   return StatusCode::SUCCESS;
 }
 

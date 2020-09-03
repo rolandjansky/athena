@@ -30,7 +30,6 @@
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
 - PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw

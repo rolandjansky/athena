@@ -16,8 +16,9 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"

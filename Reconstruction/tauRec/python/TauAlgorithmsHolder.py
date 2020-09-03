@@ -54,7 +54,7 @@ def getAtlasExtrapolator():
 
 ########################################################################
 # JetSeedBuilder
-def getJetSeedBuilder(seed_collection_name):
+def getJetSeedBuilder():
     _name = sPrefix + 'JetSeedBuilder'
     
     if _name in cached_instances:

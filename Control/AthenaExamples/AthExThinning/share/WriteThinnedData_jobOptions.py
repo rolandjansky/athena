@@ -72,8 +72,8 @@ OUTPUT1 = os.path.join(
 )
 
 
-outStreams = [createOutputStream ('StreamUSR_0', fileName = OUTPUT),
-              createOutputStream ('StreamUSR_1', fileName = OUTPUT1)]
+outStreams = [createOutputStream ('StreamUSR_0', fileName = OUTPUT, noTag=True),
+              createOutputStream ('StreamUSR_1', fileName = OUTPUT1, noTag=True)]
 
 for outStream in outStreams:
    outStream.ItemList += [ ##

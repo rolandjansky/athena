@@ -1175,6 +1175,10 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
         concrete_type = 'LCTopo'
         if 'EM' in cluster_calib: concrete_type = 'EMTopo'
 
+        if merge_param == '10':
+          ptmin       = 50.0 * GeV
+          ptminFilter = 50.0 * GeV
+
         self.jetBuildTool = _getJetBuildTool2(
             float(int(merge_param))/10.,
             ptmin=ptmin,
@@ -1206,8 +1210,8 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  name,
                  alg="AntiKt",
                  merge_param="10",
-                 ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV,
+                 ptmin=50.0 * GeV,
+                 ptminFilter=50.0 * GeV,
                  jet_calib='subjes',
                  cluster_calib='LC',
                  do_minimalist_setup=True,
@@ -1281,8 +1285,8 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
                  name,
                  alg='AntiKt',
                  merge_param='10',
-                 ptmin=7.0 * GeV,
-                 ptminFilter=7.0 * GeV,
+                 ptmin=50.0 * GeV,
+                 ptminFilter=50.0 * GeV,
                  jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
                  do_minimalist_setup=True,

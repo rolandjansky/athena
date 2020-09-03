@@ -49,7 +49,7 @@ public:
   /// Default constructor
   MuCTPI_RIO();
   /// Destructor
-  ~MuCTPI_RIO();
+  ~MuCTPI_RIO() = default;
 
   /// Function setting the BCID of the object
   void setBCID( const uint16_t bcId ) { m_bcId = bcId; }
@@ -89,7 +89,7 @@ public:
   /// Get the number of status words as it was specified in the <strong>trailer</strong>
   uint32_t getHeaderNumberStatusWords() const { return m_headerNStatusWords; }
   /// Get the status words from the payload
-  std::vector< uint32_t > getHeaderStatusWords() const { return m_headerStatusWords; }
+  const std::vector< uint32_t >& getHeaderStatusWords() const { return m_headerStatusWords; }
 
   /// Set the ROD ID specidied in the header
   void headerSourceId( uint32_t val ) { m_headerSourceId = val; }
@@ -167,8 +167,9 @@ private:
 
 
   /// Candidate multiplicity in MuCTPI_RIO::N_SUM number of p<sub>T</sub> thresholds
-  uint16_t m_sum[ N_SUM ];
+  std::array<uint16_t, N_SUM> m_sum;
 
+public:
   /**
    *   $Date: 2007-07-05 13:26:22 $
    *
@@ -196,7 +197,7 @@ private:
            const uint16_t secID, const uint16_t sysId, const uint16_t hemisphere, const uint16_t roiNum, 
 	   const bool accepted, const bool first, const bool duplicatedRoI, const bool duplicatedSector);
     /// Destructor
-    ~MyRoI();
+    ~MyRoI() = default;
 
     /// Function dumping the stored information to the message stream
     void dumpData() const;
@@ -234,7 +235,7 @@ private:
 
 
   }; // class MyRoI
-
+private:
   /// Variable holding the custom RoIs
   std::vector< MyRoI > m_roI;
 

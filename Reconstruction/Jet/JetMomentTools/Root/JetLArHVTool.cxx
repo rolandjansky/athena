@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "JetUtils/JetDistances.h"
 
 #include "JetMomentTools/JetLArHVTool.h"
@@ -11,7 +11,6 @@
 JetLArHVTool::JetLArHVTool(const std::string& name)
   : asg::AsgTool(name)
 {
-  declareInterface<IJetDecorator>(this);
 }
 
 

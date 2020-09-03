@@ -29,6 +29,10 @@
 #include "MdtRegion.h"
 #include "CscDataPreparator.h"
 #include "CscData.h"
+#include "StgcDataPreparator.h"
+#include "StgcData.h"
+#include "MmDataPreparator.h"
+#include "MmData.h"
 
 #include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "PtEndcapLUTSvc.h"
@@ -66,7 +70,9 @@ class MuFastDataPreparator: public AthAlgTool {
 			 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			 TrigL2MuonSA::MdtHits&      mdtHits_normal,
 			 TrigL2MuonSA::MdtHits&      mdtHits_overlap,
-			 TrigL2MuonSA::CscHits&      cscHits);
+			 TrigL2MuonSA::CscHits&      cscHits,
+			 TrigL2MuonSA::StgcHits&     stgcHits,
+			 TrigL2MuonSA::MmHits&       mmHits);
   
   void setOptions(const TrigL2MuonSA::MuFastDataPreparatorOptions& options);
 
@@ -80,7 +86,9 @@ class MuFastDataPreparator: public AthAlgTool {
   void setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,
 			     bool use_RoIBasedDataAccess_RPC,
 			     bool use_RoIBasedDataAccess_TGC,
-			     bool use_RoIBasedDataAccess_CSC);
+			     bool use_RoIBasedDataAccess_CSC,
+			     bool use_RoIBasedDataAccess_STGC,
+			     bool use_RoIBasedDataAccess_MM);
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
@@ -99,6 +107,8 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<TgcDataPreparator>   m_tgcDataPreparator{this, "TGCDataPreparator", "TrigL2MuonSA::TgcDataPreparator"};
   ToolHandle<MdtDataPreparator>   m_mdtDataPreparator{this, "MDTDataPreparator", "TrigL2MuonSA::MdtDataPreparator"};
   ToolHandle<CscDataPreparator>   m_cscDataPreparator{this, "CSCDataPreparator", "TrigL2MuonSA::CscDataPreparator"};
+  ToolHandle<StgcDataPreparator>  m_stgcDataPreparator{this,"STGCDataPreparator","TrigL2MuonSA::StgcDataPreparator"};
+  ToolHandle<MmDataPreparator>    m_mmDataPreparator{this,  "MMDataPreparator",  "TrigL2MuonSA::MmDataPreparator"};
 
   ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{"TrigL2MuonSA::RpcRoadDefiner"};
   ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{"TrigL2MuonSA::TgcRoadDefiner"};

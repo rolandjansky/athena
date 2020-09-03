@@ -824,8 +824,8 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
       }
       //-ForCosmics
     }
-    if(digitCollection==NULL) {
-      ATH_MSG_ERROR( "Trying to use NULL pointer digitCollection" );
+    if(!digitCollection) {
+      ATH_MSG_ERROR( "Trying to use nullptr digitCollection" );
       return false;
     }
       

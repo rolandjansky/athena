@@ -24,9 +24,6 @@ CscCalibTool::CscCalibTool
   declareProperty( "timeOffset", m_timeOffset = 46.825 );
 
   declareProperty( "IsOnline"  , m_onlineHLT = true); // This will be fed from jO
-  
-  // acceptable range for time offset for a successfull fit
-  declareProperty( "TimeOffsetRange", m_timeOffsetRange = 1.0); 
  
   // new latency starting from 2010...
   declareProperty( "Latency", m_latency = 100 ); // ns.....
@@ -76,7 +73,6 @@ StatusCode CscCalibTool::initialize() {
   ATH_MSG_DEBUG ( "Bipolar function integrationNumber(N_2)   =" << m_integrationNumber2);
   ATH_MSG_DEBUG ( "SamplingTime                              =" << m_samplingTime);
   ATH_MSG_DEBUG ( "Signalwidth                               =" << m_signalWidth);
-  ATH_MSG_DEBUG ( "Parabola time offset                      =" << m_timeOffsetRange);
   ATH_MSG_DEBUG ( "timeOffset  (digitization)                =" << m_timeOffset);
   ATH_MSG_DEBUG ( "Is OnlineAccess (HLT) ??                  =" << m_onlineHLT);
   ATH_MSG_DEBUG ( "Force the use of the 2 sample charge?     =" << m_use2Samples);
@@ -471,7 +467,7 @@ bool CscCalibTool::findCharge(const float samplingTime, const unsigned int sampl
   
   double timeOffset = -0.5*bb/aa;
 
-  ATH_MSG_VERBOSE("WP " << timeOffset << " " << m_timeOffsetRange); 
+  ATH_MSG_VERBOSE("WP " << timeOffset); 
   /** if the time offset is out of range **/ 
   if ( ( maxIndex == 0 && timeOffset < -2.0 )
        || ( maxIndex == 3 && timeOffset > 2.0) ) {

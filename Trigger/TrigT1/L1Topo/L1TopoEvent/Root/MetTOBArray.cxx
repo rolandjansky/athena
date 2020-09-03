@@ -1,9 +1,4 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  MetTOBArray.cxx
-//  TopoCore
-//  Created by Joerg Stelzer on 11/17/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/MetTOBArray.h"
 

@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 if not 'InputDirectory' in dir():
     InputDirectory = "."    
      
@@ -31,8 +37,8 @@ if not 'FileNameVec' in dir():
         FileNameVec = [ FileName ]
 
 
-print "Input files:"
-print FileNameVec
+print("Input files:")
+print(FileNameVec)
 
 if not 'doOnline' in dir():
     doOnline = False 

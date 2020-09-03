@@ -69,7 +69,7 @@ if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():
    outStream.ItemList += [ "TileRawChannelContainer#*" ]
-   if overlayFlags.isDataOverlay() or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+   if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
        outStream.ItemList += [ "TileDigitsContainer#*" ]
    else:
        outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]

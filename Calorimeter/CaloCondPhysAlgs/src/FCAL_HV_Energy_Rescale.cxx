@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // FCAL_HV_Energy_Rescale.cxx 
@@ -83,7 +83,7 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
 
   //Blob Definition Vector
   std::vector<std::vector<float> > defVec;
-  defVec.push_back(std::vector<float>(1,1));
+  defVec.emplace_back(1,1);
   flt->init(defVec,hashMax,1);
 
   CHECK(detStore()->record(attrList,m_folder));

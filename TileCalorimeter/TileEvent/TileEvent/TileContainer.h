@@ -92,10 +92,6 @@ namespace SG {
   template <class T>
   struct Bases<TileContainer<T> > {
     using bases = BaseList<DataVector<T> >;
-    typedef DataVector<T> Base1;
-    typedef NoBase Base2;
-    typedef NoBase Base3;
-    typedef NoBase Base4;
   };
 }
 

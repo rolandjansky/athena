@@ -193,11 +193,7 @@ void TruthParticleBase::setCharge( const ChargeType charge )
 inline 
 void TruthParticleBase::setGenParticle(  HepMC::ConstGenParticlePtr mc )
 {
-#ifdef HEPMC3
-//FIXME
-#else
   m_genParticle = mc;
-#endif
 }
 
 #endif //> MCPARTICLEEVENT_TRUTHPARTICLEBASE_H

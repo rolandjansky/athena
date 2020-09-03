@@ -6,7 +6,7 @@ from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
 Analysis__JetSecVertexingAlg=CompFactory.Analysis.JetSecVertexingAlg
 
-def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
+def JetSecVertexingAlgCfg(ConfigFlags, BTaggingCollection, JetCollection, PrimaryVertexCollectionName="", SVFinder="", Associator="", **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -18,6 +18,7 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNam
     acc = ComponentAccumulator()
 
     jetcol = JetCollection
+    btagname = BTaggingCollection
 
     if SVFinder == 'JetFitter':
         JetSVLink = 'JFVtx'
@@ -28,7 +29,6 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNam
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
-    btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
     options = {}
     options.setdefault('SecVtxFinderxAODBaseName', SVFinder)
     options.setdefault('vxPrimaryCollectionName', PrimaryVertexCollectionName)

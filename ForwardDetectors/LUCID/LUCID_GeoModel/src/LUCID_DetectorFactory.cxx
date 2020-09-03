@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
@@ -72,9 +71,7 @@ void LUCID_DetectorFactory::create(GeoPhysVol* world) {
 
   m_detectorManager = new LUCID_DetectorManager();
   
-  const StoredMaterialManager* materialManagerTmp = 0;
-  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManagerTmp, std::string("MATERIALS"))) return; 
-  m_materialManager = materialManagerTmp;
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) return; 
   
   buildMaterials(); 
   calcTubeParams();

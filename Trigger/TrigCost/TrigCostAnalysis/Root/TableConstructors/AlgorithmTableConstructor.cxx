@@ -12,6 +12,8 @@ AlgorithmTableConstructor::AlgorithmTableConstructor(const std::string& name) : 
   addExpectedHistogram("Time_perEvent");
   addExpectedHistogram("Time_perEventFractional");
   addExpectedHistogram("AlgCalls_perEvent");
+  addExpectedHistogram("RoIID_perCall");
+  addExpectedHistogram("InEventView_perCall");
 
   getBaseEntry().addColumn("name", "Name", "Algorithms name");
   getBaseEntry().addColumn("events", "Raw Active Events", "Raw underlying statistics on number of events processed with the alg active");

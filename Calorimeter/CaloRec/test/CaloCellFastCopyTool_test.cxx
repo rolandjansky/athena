@@ -14,20 +14,22 @@
 
 
 #include "../src/CaloCellFastCopyTool.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "CaloDetDescr/CaloDetDescriptor.h"
+#include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloConstCellContainer.h"
-#include "CaloDetDescr/CaloDetDescriptor.h"
-#include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloHelpersTest.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/setupStoreGate.h"
-#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/setupStoreGate.h"
 #include <map>
+#include <utility>
+
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -133,10 +135,10 @@ public:
     if (!m_detStore->contains<CaloCell_ID>("CaloCell_ID"))
       assert(m_detStore->record(m_caloID, "CaloCell_ID"));
 
-    m_tileGap3Hashes.push_back(186886); // TileGap3
-    m_tileGap3Hashes.push_back(186887); // TileGap3
+    m_tileGap3Hashes.emplace_back(186886); // TileGap3
+    m_tileGap3Hashes.emplace_back(186887); // TileGap3
     m_allHashes = m_tileGap3Hashes;
-    m_allHashes.push_back(186885); // TileGap1
+    m_allHashes.emplace_back(186885); // TileGap1
 
     if (!m_evtStore->contains<CaloCellContainer>("AllCalo")) {
       CaloCellContainer* cellCont;
@@ -185,7 +187,7 @@ public:
     testViewNotAvoidingDuplicatesIsFindCellFast("CopyToolTest[1]", true);
   }
 
-  void testViewNotAvoidingDuplicatesIsFindCellFast(std::string toolName,
+  void testViewNotAvoidingDuplicatesIsFindCellFast(const std::string& toolName,
                                                    bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -249,7 +251,7 @@ public:
   }
 
 
-  void testViewAvoidingDuplicatesIsFindCellFast(std::string toolName,
+  void testViewAvoidingDuplicatesIsFindCellFast(const std::string& toolName,
                                                 bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -317,7 +319,7 @@ public:
     testViewNotAvoidingDuplicatesIsFindCellFastConst("CopyToolTest[14]", true);
   }
 
-  void testViewNotAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
+  void testViewNotAvoidingDuplicatesIsFindCellFastConst(const std::string& toolName,
                                                         bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -352,7 +354,7 @@ public:
   }
 
 
-  void testViewAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
+  void testViewAvoidingDuplicatesIsFindCellFastConst(const std::string& toolName,
                                                      bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -387,7 +389,7 @@ public:
   }
 
   
-  void testCloneNotAvoidingDuplicatesIsFindCellFast(std::string toolName,
+  void testCloneNotAvoidingDuplicatesIsFindCellFast(const std::string& toolName,
                                                     bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -457,7 +459,7 @@ public:
   }
 
   
-  void testCloneAvoidingDuplicatesIsFindCellFast(std::string toolName,
+  void testCloneAvoidingDuplicatesIsFindCellFast(const std::string& toolName,
                                                  bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -532,7 +534,7 @@ public:
   }
 
   
-  void testCloneNotAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
+  void testCloneNotAvoidingDuplicatesIsFindCellFastConst(const std::string& toolName,
                                                          bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -602,7 +604,7 @@ public:
   }
 
   
-  void testCloneAvoidingDuplicatesIsFindCellFastConst(std::string toolName,
+  void testCloneAvoidingDuplicatesIsFindCellFastConst(const std::string& toolName,
                                                       bool isFindCellFast)
   {
     const CaloCellContainer* srcCont(nullptr);
@@ -677,7 +679,7 @@ public:
   }
 
 
-  void testOverFullContainerIsFindCellFast(std::string toolName,
+  void testOverFullContainerIsFindCellFast(const std::string& toolName,
                                            bool isFindCellFast)
   {
     // Initialize destination container
@@ -715,7 +717,7 @@ public:
       std::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Get initialized tool to be tested.
-    includeSamplings.push_back("TileGap1");
+    includeSamplings.emplace_back("TileGap1");
     avoidDuplicates = true;
     tool = std::unique_ptr<CaloCellFastCopyTool>
       (getInitializedTool(toolName,
@@ -743,11 +745,11 @@ public:
 private:
 
   CaloCellFastCopyTool*
-  getInitializedTool(std::string name,
+  getInitializedTool(const std::string& name,
                      std::vector<std::string>& includeSamplings,
                      bool avoidDuplicates = false,
                      bool isFindCellFast = false,
-                     std::string caloCellName = "AllCalo")
+                     const std::string& caloCellName = "AllCalo")
   {
     CaloCellFastCopyTool* tool = new CaloCellFastCopyTool("CaloCellFastCopyTool", name, m_alg);
     tool->addRef();

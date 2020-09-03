@@ -245,7 +245,11 @@ StatusCode AlignCondAthTest::checkRpcGeometry(const MuonGM::MuonDetectorManager*
       for( int i3 = 0;i3<manager->NRpcStatPhi; ++i3 ){
   	for( int i4 = 0;i4<manager->NDoubletR; ++i4 ){
   	  for( int i5 = 0;i5<manager->NDoubletZ; ++i5 ){
-  	    const MuonGM::RpcReadoutElement* detEl = manager->getRpcReadoutElement(i1,i2,i3,i4,i5);
+        int stationName = manager->rpcStationName(i1);
+        bool isValid=false;
+        Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(stationName, i2, i3, i4, i5, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+        if (!isValid) continue;
+  	    const MuonGM::RpcReadoutElement* detEl = manager->getRpcReadoutElement(rpcId);
   	    if( !detEl ) continue;
 	    const std::vector<const Trk::Surface*>& Nsurf = detEl->surfaces();
    

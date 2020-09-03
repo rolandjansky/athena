@@ -1,20 +1,26 @@
 {
     "L2muon":{ 
-        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF"
+        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon"
     },
     "EFmuon":{ 
-        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig"  
+        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_RoI_L2SAMuonforEF"  
     },
-    "L2ele":{ 
+    "L2muonLowpt":{ 
+        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon"
+    },
+    "EFmuonLowpt":{ 
+        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon  HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_RoI_L2SAMuonforEF"  
+    },
+    "L2electron":{ 
         "chains" : "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF"
     },
-    "EFele":{ 
+    "EFelectron":{ 
         "chains" : "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_IDTrig"
     },
-    "L2eleLowpt":{ 
+    "L2electronLowpt":{ 
         "chains" : "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF"
     },
-    "EFeleLowpt":{ 
+    "EFelectronLowpt":{ 
         "chains" : "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig"  
     },
     "L2tau":{ 
@@ -30,7 +36,10 @@
         "chains" : "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig"
     },
     "L2FS":{ 
-        "chains" : "HLT_IDTrack_FS_FTF"
+        "chains" : "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
+    },
+    "L2fsjet":{ 
+        "chains" : "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS"
     },
     "L2mb":{ 
         "chains" : "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_FTF"

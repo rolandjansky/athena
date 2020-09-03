@@ -394,7 +394,7 @@ namespace LVL1MUCTPIPHASE1 {
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
-      const std::vector<unsigned int>& ctpData = m_theMuctpi->getCTPData();
+      std::vector<unsigned int> ctpData = m_theMuctpi->getCTPData();
     //TEMPORARILY REMOVED UNTIL MUCTPICTP UPDATED TO VECTOR!
       //LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
       //CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
@@ -414,23 +414,19 @@ namespace LVL1MUCTPIPHASE1 {
       }
 
       // data word
-      int candSize = daqData.size();
-      std::vector<unsigned int> dataWords;
-      for( int iData = 0; iData < candSize; ++iData) {
-	dataWords.push_back(daqData[iData]);
-      }
+      std::vector<unsigned int> dataWords= daqData;
 
       // create MuCTPI RDO
-      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( ctpData, dataWords );
+      auto muCTPI_RDO = std::make_unique< MuCTPI_RDO >( std::move(ctpData), std::move(dataWords) );
       SG::WriteHandle<MuCTPI_RDO> wh_muctpi_rdo(m_MuCTPI_RDOWriteKey);
-      ATH_CHECK(wh_muctpi_rdo.record(std::make_unique<MuCTPI_RDO>(*muCTPI_RDO)));
+      ATH_CHECK(wh_muctpi_rdo.record(std::move(muCTPI_RDO)));
       ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate");
 
       // create MuCTPI xAOD
       auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
       ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(), std::make_unique<xAOD::MuonRoIAuxContainer>()));
       ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_MuCTPI_xAODWriteKey.key());
-      for (const unsigned int word : dataWords) {
+      for (const unsigned int word : daqData) {
         xAODRoIs->push_back(new xAOD::MuonRoI);
         // RB: dummy values just to have the objects for downstream code development
         xAODRoIs->back()->initialize(word, 99, 99, "DummyThreshold", 99);
@@ -440,7 +436,7 @@ namespace LVL1MUCTPIPHASE1 {
       ATH_MSG_DEBUG("Getting the output for L1Topo");
       LVL1::MuCTPIL1Topo* l1topo = new LVL1::MuCTPIL1Topo(m_theMuctpi->getL1TopoData(bcidOffset).getCandidates());
       SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey);
-      ATH_CHECK(wh_l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(*l1topo)));
+      ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topo)));
     }
 
     /// if we have a bcid offset, then just get the topo output and put it on storegate
@@ -451,16 +447,16 @@ namespace LVL1MUCTPIPHASE1 {
 
       if (bcidOffset == -2){
 	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_m2);
-	ATH_CHECK(wh_l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(*l1topoBC)));
+	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
       } else if (bcidOffset == -1){
 	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_m1);
-	ATH_CHECK(wh_l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(*l1topoBC)));
+	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
       } else if (bcidOffset == +1){
 	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_p1);
-	ATH_CHECK(wh_l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(*l1topoBC)));
+	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
       } else if (bcidOffset == +2){
 	SG::WriteHandle<LVL1::MuCTPIL1Topo> wh_l1topo(m_MuCTPIL1TopoKey_p2);
-	ATH_CHECK(wh_l1topo.record(std::make_unique<LVL1::MuCTPIL1Topo>(*l1topoBC)));
+	ATH_CHECK(wh_l1topo.record(std::unique_ptr<LVL1::MuCTPIL1Topo>(l1topoBC)));
       }
 
     }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadWeight.h"
@@ -58,7 +58,7 @@ const struct CaloHadWeight::HadData * CaloHadWeight::getHadData(const float & et
   if ( iBin > -1 && iBin < (int)m_data.size() ) 
     return (& m_data[iBin]);
   else
-    return 0;
+    return nullptr;
 }
 
 

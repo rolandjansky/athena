@@ -277,14 +277,14 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
       // now get a list of the in and out of time muon ROIS:
       if( (l1accept_type==2 ||  l1accept_type==4 || l1accept_type==6 || l1accept_type==7) ){
 	//loop over in time RoIs
-	for(auto it : *(roiVectors->inTimeRois)){
+	for(const auto& it : *(roiVectors->inTimeRois)){
 
 	  if ( ((it).pt() <6  )) continue;
 
 	  //// need to reject the long L1 signals.. reject rois which are the same as in the BCID before:
 	  bool overlapsintime=false;
 	  //loop over out of time rois
-	  for(auto itoot : *(roiVectors->outOfTimeRois)){
+	  for(const auto& itoot : *(roiVectors->outOfTimeRois)){
 	    if ( (itoot).second != -1 ) continue; // if its not one BCID before continue
 	    if( ((itoot).first).getSectorID() == (it).getSectorID() &&
 		((itoot).first).getSectorAddress() == (it).getSectorAddress() ){
@@ -316,7 +316,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
       if ( other_type==2 ||  other_type==4 || other_type==6 || other_type==7){
 
 	//loop over out of time rois
-	for(auto it : *(roiVectors->outOfTimeRois)){
+	for(const auto& it : *(roiVectors->outOfTimeRois)){
 	  if (abs((it).second) !=1) continue;
 	  if ( ((it).first).pt() < 6 ) continue;
 
@@ -324,7 +324,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	  if( (it).second == +1 ) { // if this ROI is actually a late ROI.. for early ones we don't do anything
 	    bool overlapsintime=false;
 	    //loop over in time rois
-	    for(auto itintime : *(roiVectors->inTimeRois)){
+	    for(const auto& itintime : *(roiVectors->inTimeRois)){
 	      if( ((it).first).getSectorID() == (itintime).getSectorID() &&
 		  ((it).first).getSectorAddress() == (itintime).getSectorAddress() ){
 		overlapsintime=true;

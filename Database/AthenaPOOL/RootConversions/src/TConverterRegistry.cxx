@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TConverterRegistry.cxx,v 1.6 2008-11-04 12:42:10 ssnyder Exp $
 /**
  * @file TConverterRegistry.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -17,6 +15,7 @@
 #include "RootConversions/TConverterRegistry.h"
 #include "RootConversions/TVirtualConverter.h"
 #include "RootConversions/TConverterStreamer.h"
+#include "CxxUtils/checker_macros.h"
 #include "TMemberStreamer.h"
 #include "TClass.h"
 #include "TROOT.h"
@@ -51,6 +50,7 @@ void TConverterRegistry::AddConverter (TVirtualConverter* conv)
 void TConverterRegistry::AddConverter (TVirtualConverter* conv,
                                        bool takeown)
 {
+  lock_t lock (fMutex);
   // Make sure the branch element is properly initialized.
   TConvertingBranchElement_init();
 
@@ -100,6 +100,7 @@ bool TConverterRegistry::AddConverter (const char* convname)
 TVirtualConverter* TConverterRegistry::GetConverter (const char* name,
                                                      int checksum) const
 {
+  lock_t lock (fMutex);
   MapType::const_iterator i = fMap.find (name);
   if (i != fMap.end()) {
     CheckSumMap::const_iterator i2 = i->second.find (checksum);
@@ -114,6 +115,7 @@ void TConverterRegistry::AddStreamerConverter (const std::string& from_type,
                                                const std::string& to_type,
                                                TMemberStreamer* streamer)
 {
+  lock_t lock (fMutex);
   std::string key = from_type + "-" + to_type;
   SMapType::const_iterator i = fSMap.find (key);
   if (i != fSMap.end())
@@ -126,6 +128,7 @@ TMemberStreamer*
 TConverterRegistry::GetStreamerConverter (const std::string& from_type,
                                           const std::string& to_type) const
 {
+  lock_t lock (fMutex);
   std::string key = from_type + "-" + to_type;
   SMapType::const_iterator i = fSMap.find (key);
   if (i != fSMap.end())
@@ -141,7 +144,7 @@ TConverterRegistry* TConverterRegistry::Instance()
 {
   // Do it like this so that the object gets destroyed automatically
   // at program termination.
-  static TConverterRegistry instance;
+  static TConverterRegistry instance ATLAS_THREAD_SAFE;
   return &instance;
 }
 

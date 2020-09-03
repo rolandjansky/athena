@@ -122,8 +122,8 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-    if(MuonDetMgr==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    if(!MuonDetMgr){
+      ATH_MSG_ERROR("nullptr to the read MuonDetectorManager conditions object");
       return StatusCode::FAILURE; 
     } 
 
@@ -678,20 +678,6 @@ if ( m_doCoolDB ) {
  	      // and add the digit to the collection
  	      Identifier prdcoll_id = *it_list;
 
- 	      //    // RPC digits do not hold anymore time of flight : digit time (and RDO time) is TOF subtracted
- 	      //    // recalculate the time of flight in case it was not in the RDOs
- 	      //    if (time==0) {
- 	      //      // get the digit position
- 	      //      const MuonGM::RpcReadoutElement* descriptor =
- 	      //  MuonDetMgr->getRpcReadoutElement(stripOfflineId);
- 	      //
- 	      //      const HepGeom::Point3D<double> stripPos = descriptor->stripPos(stripOfflineId);
- 	      //      // TEMP : set the time of flight from the digit position
- 	      //      // temporary solution
- 	      //      time = static_cast<int> ( stripPos.distance()/(299.7925*CLHEP::mm/CLHEP::ns) );
- 	      //
- 	      //
- 
  	      std::vector<std::string>   rpclayersectorsidename = RpcGM::RpcLayerSectorSideName(m_idHelperSvc->rpcIdHelper(),prdcoll_id, 0)  ;
  	      std::string		 sector_dphi_layer	= rpclayersectorsidename[12]		 ;
 	
@@ -770,8 +756,8 @@ StatusCode RpcLv1RawDataValAlg::bookHistogramsRecurrent()
     // MuonDetectorManager from the conditions store
     SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
     const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-    if(MuonDetMgr==nullptr){
-      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    if(!MuonDetMgr){
+      ATH_MSG_ERROR("nullptr to the read MuonDetectorManager conditions object");
       return StatusCode::FAILURE; 
     } 
      
@@ -1777,21 +1763,30 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
   // MuonDetectorManager from the conditions store
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
   const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
-  if(MuonDetMgr==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+  if(!MuonDetMgr){
+    ATH_MSG_ERROR("nullptr to the read MuonDetectorManager conditions object");
     return; 
   } 
-
-  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcRElement_fromIdFields( kName, 1 , istatPhi+1, ir, 1, idblPhi+1 );    
+  bool isValid=false;
+  Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, 1, istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+  if (!isValid) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir);
+  }
+  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);    
   
-  if(rpc != NULL ){  
+  if(rpc){  
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
-  } 
-  rpc = MuonDetMgr->getRpcRElement_fromIdFields( kName, -1 , istatPhi+1, ir, 1, idblPhi+1 );    
+  }
+  isValid=false;
+  rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, -1, istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+  if (!isValid) {
+    ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir);
+  }
+  rpc = MuonDetMgr->getRpcReadoutElement(rpcId);    
   
-  if(rpc != NULL ){  
+  if(rpc){  
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(MuonDetMgr,m_idHelperSvc->rpcIdHelper(),idr, 0)  ;
     NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18]; 
@@ -1829,10 +1824,13 @@ void RpcLv1RawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const
 	  if(std::abs(ieta-8)==7&&ir==1&&kName==2)continue;	
 	  if(isec==12&&std::abs(ieta-8)==6&&ir==1&&kName==2)continue;
 	  if(std::abs(ieta-8)==7&&ir==2)irc=1; 
-	  if(isec==12&&std::abs(ieta-8)==6&&ir==2)irc=1;	 
-											   
-    	  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcRElement_fromIdFields(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1);  
-    	  if( rpc == NULL ) continue;   
+	  if(isec==12&&std::abs(ieta-8)==6&&ir==2)irc=1;
+
+  isValid=false;
+  rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
+  if (!isValid) continue;			   
+    	  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);  
+    	  if(!rpc) continue;   
 	  
     	  if  ( iz+1 != rpc->getDoubletZ() ) { 
     	    continue ;

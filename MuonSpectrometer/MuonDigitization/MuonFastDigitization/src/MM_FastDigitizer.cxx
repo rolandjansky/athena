@@ -17,6 +17,7 @@
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include <sstream>
 #include <iostream>
@@ -85,14 +86,11 @@ MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLoc
     m_surfcentx(0.),
     m_surfcenty(0.),
     m_surfcentz(0.),
-    m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_rndmSvc("AtRndmGenSvc", name ),
-    m_rndmEngine(0),m_inputObjectName("MicromegasSensitiveDetector"),
+    m_inputObjectName("MicromegasSensitiveDetector"),
     m_sdoName("MMfast_SDO")
 {
   declareProperty("InputObjectName", m_inputObjectName  =  "MicromegasSensitiveDetector", "name of the input object");
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
-  declareProperty("RndmSvc",     m_rndmSvc,        "Random Number Service used in Muon digitization");
   declareProperty("UseTimeShift", m_useTimeShift = true,        "Use time shift");
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy to produce a PRD"  );
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
@@ -126,13 +124,7 @@ StatusCode MM_FastDigitizer::initialize() {
 
   // getting our random numbers stream
   ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-  ATH_CHECK( m_rndmSvc.retrieve() );
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_rndmSvc.retrieve());
 
   m_file = new TFile("MM_plots.root","RECREATE");
   m_ntuple = new TTree("a","a");
@@ -196,6 +188,8 @@ StatusCode MM_FastDigitizer::execute() {
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
+
+  CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, Gaudi::Hive::currentContextEvt());
 
   MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelperSvc->mmIdHelper().module_hash_max());
   std::string key = "MM_Measurements";
@@ -341,7 +335,7 @@ StatusCode MM_FastDigitizer::execute() {
       resolution = .07;
     else
       resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
-    double sp = CLHEP::RandGauss::shoot(m_rndmEngine, 0, resolution);
+    double sp = CLHEP::RandGauss::shoot(rndmEngine, 0, resolution);
 
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
     
@@ -350,15 +344,12 @@ StatusCode MM_FastDigitizer::execute() {
     // smeared local position
    Amg::Vector2D posOnSurf(hitOnSurface.x()+sp,hitOnSurface.y());
 
-//    int digiMode = 0;
     // for large angles project perpendicular to surface
     if( fabs(inAngle_XZ) > 70 ){
       posOnSurf[0]=(slpos.x()+sp);
-//      digiMode = 1;
       // if using timing information use hit position after shift
     }else if( m_useTimeShift && !m_microTPC ){
       posOnSurf[0]=(hitAfterTimeShiftOnSurface.x()+sp);
-//      digiMode = 2;
     }
     
     ////// fill first part of ntuple
@@ -511,7 +502,7 @@ StatusCode MM_FastDigitizer::execute() {
           cov->setIdentity();
           (*cov.get())(0,0) = resolution*resolution;
 
-          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(m_rndmEngine, 0., 5.);
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(rndmEngine, 0., 5.);
           Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
 
           stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);
@@ -580,3 +571,12 @@ float MM_FastDigitizer::RadsToDegrees(float Radians)
   float Degrees = Radians * (180.) / M_PI;
   return Degrees;
 }
+
+CLHEP::HepRandomEngine* MM_FastDigitizer::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  std::string rngName = name()+streamName;
+  rngWrapper->setSeed( rngName, ctx );
+  return rngWrapper->getEngine(ctx);
+}
+
