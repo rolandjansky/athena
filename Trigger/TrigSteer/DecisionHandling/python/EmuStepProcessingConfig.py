@@ -305,6 +305,10 @@ def generateChainsManually():
                 ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
                 ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
 
+            makeChain(name='HLT_3TestChain6_muv1_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[
+                ChainStep("Step1_2mu",   [mu11], multiplicity=[3]),
+                ChainStep("Step2_2mu",   [mu21], multiplicity=[3]) ]),
+
             makeChain(name='HLT_TestChain6_muv1_TestChain10_muv1_L12MU6',       L1Thresholds=["MU6", "MU6"], ChainSteps=[
                 ChainStep("Step1_2muAs",   [mu11,mu11], multiplicity=[1,1]),
                 ChainStep("Step2_2muAs",   [mu21,mu21], multiplicity=[1,1]) ]),

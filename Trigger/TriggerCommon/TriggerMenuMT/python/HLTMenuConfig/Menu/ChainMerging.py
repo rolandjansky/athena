@@ -172,7 +172,6 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
 
-
             stepSeq.append(emptySeq)
             stepMult.append(1)
             # we need a chain dict here, use the one corresponding to this leg of the chain
