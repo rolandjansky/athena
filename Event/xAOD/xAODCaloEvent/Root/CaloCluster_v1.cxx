@@ -907,4 +907,10 @@ namespace xAOD {
     return true;
   }
 
+size_t CaloCluster_v1::size() const { 
+    const CaloClusterCellLink* cl= getCellLinks();
+    if (!cl) return 0;
+    return cl->size(); 
+  }
+
 } // namespace xAOD
