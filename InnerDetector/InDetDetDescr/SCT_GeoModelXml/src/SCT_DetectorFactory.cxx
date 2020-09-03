@@ -246,7 +246,7 @@ void SCT_DetectorFactory::doNumerology() {
 //
     if (m_options->alignable()) {
         msg(MSG::INFO) << "Set up alignment directories" << endmsg;
-        const std::string topFolder("/Indet/Align");
+        const std::string topFolder("/Indet/AlignITk");
         const std::string barrelBase("/SCTB");
         const std::string endcapBase("/SCTE");
         std::string baseName("");
