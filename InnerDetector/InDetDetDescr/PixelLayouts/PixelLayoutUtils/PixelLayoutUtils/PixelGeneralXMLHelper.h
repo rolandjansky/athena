@@ -59,6 +59,7 @@ class PixelGeneralXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   bool isEndcapPresentA() const;
   bool isEndcapPresentC() const;
   bool isBCMPrimePresent() const;
+  bool propagateDeadEdgeToSensorPosition() const;
     
  private:
 

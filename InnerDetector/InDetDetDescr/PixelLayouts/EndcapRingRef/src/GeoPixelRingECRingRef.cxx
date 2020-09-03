@@ -3,6 +3,7 @@
 */
 #include "EndcapRingRef/GeoPixelRingECRingRef.h"
 #include "EndcapRingRef/PixelRingSupportXMLHelper.h"
+#include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 
 #include "PixelGeoModelModule/GeoDetModulePixel.h"
 #include "PixelGeoModel/PixelGeoBuilder.h"
@@ -62,7 +63,6 @@ GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringR
     m_readoutEta(iRing),
     m_pixelModuleSvc("PixelModuleSvc","PixelModuleSvc"),
     m_pixelDesignSvc("PixelDesignSvc","PixelDesignSvc")	
-
 {
   m_bPrebuild = false;
 }
@@ -82,11 +82,18 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   m_pixelModuleSvc->initModuleMap(basics);
   m_pixelDesignSvc->initModuleMap(basics);
 
+ // Pixel general envelope XML reader
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
+  bool buildDeadEdges  = genDBHelper.propagateDeadEdgeToSensorPosition();
+ 
   // Open link to the xml file that describes the rings
   PixelRingSupportXMLHelper ringHelper(basics);
 
   // Get ringmodule from PixelModuelSvc
   GeoDetModulePixel* ringModule = m_pixelModuleSvc->getModule(basics,2,m_layer,m_moduleType);
+
+  // needed for backward compatibility
+  double activeSensorLength = buildDeadEdges ? ringModule->getModuleChipLength() : ringModule->getModuleSensorLength();
 
   // Compute module radial min max size
   double rmin = m_radius;
@@ -97,7 +104,7 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 
   m_halfLength = ringModule->Thickness()/2.;
 
-  double edge = fabs(  ringModule->Length()-ringModule->getModuleChipLength() );
+  double edge = buildDeadEdges ? fabs(  ringModule->Length()-ringModule->getModuleChipLength() ) : 0.;
   m_ringRMin = rmin- 0.5*edge*cos(m_inclination)- 0.001;
   m_ringRMax = rmax+0.5*edge*cos(m_inclination)+0.001;
   
@@ -105,7 +112,7 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + ringModule->getModuleSensorLength()*.5*sin(m_inclination);
 
  // This is the radius of the center of the active sensor 
-  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5*cos(m_inclination);
+  double moduleRadius = m_radius + 0.5*cos(m_inclination)*activeSensorLength;
   double moduleHalfLength = ringModule->Length()*.5;
   rmin = moduleRadius-moduleHalfLength*cos(m_inclination);
 
@@ -139,15 +146,20 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   GeoDetModulePixel* ringModule = m_pixelModuleSvc->getModule(basics,2,m_layer,m_moduleType);
   InDetDD::PixelModuleDesign* ringModuleDesign = m_pixelDesignSvc->getDesign(basics,m_moduleType);
 
+  // needed for backward compatibility
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
+  bool buildDeadEdges  = genDBHelper.propagateDeadEdgeToSensorPosition();
+  double activeSensorLength = buildDeadEdges ? ringModule->getModuleChipLength() : ringModule->getModuleSensorLength();
+
   double zModuleShift = m_ringZShift;
   double halflength = m_halfLength+.001;
   if(m_front_back==1) zModuleShift*=-1;
-  zModuleShift += zshift + ringModule->getModuleChipLength()*.5*sin(m_inclination);
+  zModuleShift += zshift + 0.5*sin(m_inclination)*activeSensorLength;
   if (m_inclination!=0) zModuleShift+= -ringModule->getModuleSensorThick()*.5*cos(m_inclination); 
  
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5*cos(m_inclination) + rshift
-    - ringModule->getModuleSensorThick()*.5*sin(m_inclination);
+  double moduleRadius = m_radius + rshift + 0.5*cos(m_inclination)*activeSensorLength
+    - ringModule->getModuleSensorThick()*0.5*sin(m_inclination);
 
   // build ring envelope if needed
   GeoFullPhysVol* ringPhys = envelope;
@@ -314,14 +326,19 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
   // Open link to the xml file that describes the rings
   PixelRingSupportXMLHelper ringHelper(basics);
 
-  // Get ringmodule from PixelModuelSvc
+ // Get ringmodule from PixelModuelSvc
   GeoDetModulePixel* ringModule = m_pixelModuleSvc->getModule(basics,2,m_layer,m_moduleType);
   InDetDD::PixelModuleDesign* ringModuleDesign = m_pixelDesignSvc->getDesign(basics,m_moduleType);
+
+  // needed for backward compatibility
+  PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
+  bool buildDeadEdges  = genDBHelper.propagateDeadEdgeToSensorPosition();
+  double activeSensorLength = buildDeadEdges ? ringModule->getModuleChipLength() : ringModule->getModuleSensorLength();
 
   double halflength = m_halfLength+.001;
 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleChipLength()*.5;
+  double moduleRadius = m_radius + activeSensorLength*.5;
 
   int nmodules = m_numModules;
 
