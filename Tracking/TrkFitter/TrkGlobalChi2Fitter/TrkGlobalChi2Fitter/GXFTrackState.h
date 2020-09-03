@@ -19,6 +19,12 @@
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 
+/**
+ * These headers, as well as other headers in the TrkGlobalChi2Fitter package
+ * use modern C++11 memory ownership semantics expressed through smart
+ * pointers. See GlobalChi2Fitter.h for more information.
+ */
+
 namespace Trk {
 
   class MeasurementBase;
@@ -32,20 +38,18 @@ namespace Trk {
     GXFTrackState(GXFTrackState &);
 
     GXFTrackState(std::unique_ptr<const MeasurementBase>, std::unique_ptr<const TrackParameters>);
-    GXFTrackState(const TrackParameters *, TrackState::TrackStateType = TrackState::Hole);
-    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar);
+    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackState::TrackStateType = TrackState::Hole);
+    GXFTrackState(std::unique_ptr<GXFMaterialEffects>, std::unique_ptr<const TrackParameters>);
     GXFTrackState & operator=(GXFTrackState &) = delete;
 
     void setMeasurement(std::unique_ptr<const MeasurementBase>);
     const MeasurementBase *measurement(void);
-    const MeasurementBase *takeMeasurement(void);
 
     TrackState::TrackStateType trackStateType();
     void setTrackStateType(TrackState::TrackStateType);
     
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
     const TrackParameters *trackParameters(void);
-    const TrackParameters *takeTrackParameters(void);
     
     GXFMaterialEffects *materialEffects();
     const Surface *surface() const;
@@ -61,7 +65,6 @@ namespace Trk {
 
     void setFitQuality(std::unique_ptr<const FitQualityOnSurface>);
     const FitQualityOnSurface *fitQuality(void);
-    const FitQualityOnSurface *takeFitQuality(void);
 
     TrackState::MeasurementType measurementType();
     void setMeasurementType(TrackState::MeasurementType);
@@ -120,10 +123,6 @@ namespace Trk {
   }
 
   inline const TrackParameters *GXFTrackState::trackParameters(void) {
-    return m_trackpar.get();
-  }
-  
-  inline const TrackParameters *GXFTrackState::takeTrackParameters(void) {
     return m_trackpar.get();
   }
 
