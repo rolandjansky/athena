@@ -3,12 +3,10 @@
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
 ## @author Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: OutputStreamAthenaPool.py,v 1.10 2009-04-27 18:19:34 gemmeren Exp $
 ###############################################################
 
 from __future__ import print_function
 
-from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
@@ -48,7 +46,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder         
+         from .OutputStreamAthenaPoolConf import EventInfoTagBuilder
          EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
          from AthenaCommon.GlobalFlags  import globalflags
          if globalflags.InputFormat() == 'bytestream':

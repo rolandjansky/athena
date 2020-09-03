@@ -1,36 +1,22 @@
-################################################################################
-# Package: AthenaPoolExampleData
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolExampleData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/AthenaKernel
-                          Control/Navigation
-                          GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( AthenaPoolExampleData
                    src/*.cxx
                    PUBLIC_HEADERS AthenaPoolExampleData
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaKernel GaudiKernel Navigation )
 
 atlas_add_dictionary( AthenaPoolExampleDataDict
                       AthenaPoolExampleData/AthenaPoolExampleDataDict.h
                       AthenaPoolExampleData/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks Navigation GaudiKernel AthenaPoolExampleData
+                      LINK_LIBRARIES AthenaPoolExampleData
                       NAVIGABLES ExampleHitContainer )
 
