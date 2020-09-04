@@ -42,7 +42,7 @@ if( XAOD_STANDALONE )
    atlas_add_test( testJobData
       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
-   # atlas_add_test( testJobFullSim
+   # atlas_add_test( testJobFullSim    #testJobFullSim and testJobFastSim are temporarily removed awaiting TauTruthMatchigToolMigration (ATLASG-1548) 
    #    SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
    #    PROPERTIES TIMEOUT 600 )
    # atlas_add_test( testJobFastSim
