@@ -37,6 +37,10 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, s
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.Configurable import Configurable
 
+from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
+import re
+
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -280,7 +284,45 @@ def matrixDisplay( allCFSeq ):
     log.info( "="*90 )
 
 
+def sequenceScanner( HLTNode ):
+    """ Checks the alignement of sequences and steps in the tree"""
+    # +-- AthSequencer/HLTAllSteps
+    #   +-- AthSequencer/Step1_filter
+    #   +-- AthSequencer/Step1_reco
 
+    from collections import defaultdict
+    _seqMapInStep = defaultdict(set)
+    _status = True
+
+    def _mapSequencesInSteps(seq, stepIndex):
+        """ Recursively finds the steps in which sequences are used"""
+        if not isSequence(seq):
+            return stepIndex
+        name = compName(seq)                
+        match=re.search('^Step([0-9])_filter',name)
+        if match:
+            stepIndex = match.group(1)
+            log.debug("sequenceScanner: This is another step: %s %s", name, stepIndex)            
+        for c in getSequenceChildren( seq ):
+            if isSequence(c):
+                stepIndex = _mapSequencesInSteps(c, stepIndex)
+                _seqMapInStep[compName(c)].add(stepIndex)
+        return stepIndex
+
+    # do the job:
+    final_step=_mapSequencesInSteps(HLTNode, 0)
+
+    for alg, steps in _seqMapInStep.items():
+        if len(steps)> 1:
+            log.error("sequenceScanner: Sequence %s is expected in more than one step: %s", alg, steps)
+            match=re.search('Step([0-9])',alg)
+            if match:
+                candidateStep=match.group(1)
+                log.error("sequenceScanner:         ---> candidate good step is %s", candidateStep)
+            _status=False     
+
+    log.debug("sequenceScanner: scanned %s steps with status %d", final_step, _status)
+    return _status
    
 
 def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
@@ -292,8 +334,6 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
         log.info("Configuring empty decisionTree")
         return []
 
-    # add chains to multiplicity map (new step here, as this was originally in the __init__ of Chain class
-
     (finalDecisions, CFseq_list) = createDataFlow(chains, allDicts)
     if not newJO:
         createControlFlow(HLTNode, CFseq_list)
@@ -301,10 +341,13 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import createControlFlowNewJO
         createControlFlowNewJO(HLTNode, CFseq_list)
 
+    sequenceScanner( HLTNode )
+    
     # decode and attach HypoTools:
     for chain in chains:
         chain.createHypoTools()
 
+    # create dot graphs
     log.debug("finalDecisions: %s", finalDecisions)
     if create_dot():
         all_DataFlow_to_dot(HLTNodeName, CFseq_list)
