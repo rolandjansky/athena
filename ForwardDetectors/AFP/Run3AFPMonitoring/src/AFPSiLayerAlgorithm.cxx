@@ -16,16 +16,15 @@
 
 #include <vector>
 
+	std::vector<std::vector<std::vector<unsigned int>>> clusterCounter (1000, std::vector<std::vector<unsigned int>> (4, std::vector <unsigned int> (4)));
+	std::vector<std::vector<std::vector<unsigned int>>> clusterCounterFront (1000, std::vector<std::vector<unsigned int>> (4, std::vector <unsigned int> (4)));
+	std::vector<std::vector<std::vector<unsigned int>>> clusterCounterEnd (1000, std::vector<std::vector<unsigned int>> (4, std::vector <unsigned int> (4)));
+	std::vector<std::vector<std::vector<unsigned int>>> clusterCounterMiddle (1000, std::vector<std::vector<unsigned int>> (4, std::vector <unsigned int> (4)));
 
-	unsigned int clusterCounter[1000][4][4];
-	unsigned int clusterCounterFront[1000][4][4];
-	unsigned int clusterCounterEnd[1000][4][4];
-	unsigned int clusterCounterMiddle[1000][4][4];
-	
-	unsigned int clusterCounterStation[1000][4];
-	unsigned int clusterCounterStationFront[1000][4];
-	unsigned int clusterCounterStationEnd[1000][4];
-	unsigned int clusterCounterStationMiddle[1000][4];
+	std::vector<std::vector<unsigned int>> clusterCounterStation(1000, std::vector<unsigned int>(4));
+	std::vector<std::vector<unsigned int>> clusterCounterStationFront(1000, std::vector<unsigned int>(4));
+	std::vector<std::vector<unsigned int>> clusterCounterStationEnd(1000, std::vector<unsigned int>(4));
+	std::vector<std::vector<unsigned int>> clusterCounterStationMiddle(1000, std::vector<unsigned int>(4));
 
 	int previouslb = 0;
 	int previouslbFront = 0;
@@ -50,29 +49,39 @@
 	std::vector<int> frontBCIDsVector;
 	std::vector<int> middleBCIDsVector;
 	std::vector<int> endBCIDsVector;
-		
-	bool isInList(int bcid, int* arr)
+	
+	bool isInListVector(const int bcid, const std::vector<int>&arr)
 	{
-		int i=0;
-		while(arr[i] != -1)
-		{
-			if(bcid == arr[i])
-			{
-				return true;
-			}
-			i++;
-		}
-		return false;
+		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
 	}
 	
-	bool isInListVector(int bcid, std::vector<int> arr)
+	void fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, auto &cluster, std::map<std::string,int> &mapa)
 	{
-		for(int i=0; i<arr.size(); i++)
+		using namespace Monitored;
+		if(lbA > previouslbStationA && previouslbStationA != 0)
 		{
-			if(arr[i] == bcid)
-				return true;
+			for(int i = 0; i < 4; i++)
+			{
+				clustersPerStationA = clusterCounterStationA[previouslbStationA][i]*1.0;
+				if(muPerBCIDA != 0)
+				{
+					clustersPerStationA = clustersPerStationA/(muPerBCIDA*counterForEventsStationA*4);
+				}
+				else{clustersPerStationA = -0.1;}
+
+				fill(m_tools[mapa.at(m_stationnames.at(i))], lbA, clustersPerStationA);
+			}
+			previouslbStationA=lbA;
+			++clusterCounterStationA[lbA][cluster.station];
+			counterForEventsStationA=1;
 		}
-		return false;
+		else if (clusterCounterStationA[lbA][cluster.station] == 0)
+		{
+			++clusterCounterStationA[lbA][cluster.station];
+			previouslbStationA = lbA;
+		}
+		else if (lbA==previouslbStationA)
+		{++clusterCounterStationA[lbA][cluster.station];}
 	}
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
@@ -98,23 +107,8 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 	ATH_CHECK(m_afpHitContainerKey.initialize());
 	
-	
-	for(int a=0; a<1000; a++)
-	{
-		for(int b=0;b<4;b++)
-		{
-			for(int c=0; c<4; c++)
-			{
-				clusterCounter[a][b][c] = 0;
-			}
-		}
-	}
-	
-
-	// BCX key
-	std::cout << "BunchCrossingKey initialization!...\n\n";
+	ATH_MSG_INFO( "BunchCrossingKey initialization" );
 	ATH_CHECK(m_bunchCrossingKey.initialize());
-	std::cout << "\n\n";
 	ATH_MSG_INFO( "initialization completed" );
 	return AthMonitorAlgorithm::initialize();
 }
@@ -129,11 +123,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		ATH_MSG_ERROR( "Unable to retrieve BunchCrossing conditions object" );
 	}
 	const BunchCrossingCondData* bcData{*bcidHdl};
-
-	if(!bcData->isFilled(temp))
-	{
-		std::cout << "\nNOT Filled: " << temp << std::endl;
-	}
 
 	// Classifying bunches by position in train (Front, Middle, End)
 	if(bcData->isFilled(temp))
@@ -160,16 +149,12 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			}
 		}
 	}
-
-	static unsigned int numberOfClusterStationPlane[4][4] = { {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} };
-	//static unsigned int lumiBlocks[100];
 	
 	// Declare the quantities which should be monitored:
 	auto lb = Monitored::Scalar<int>("lb", 0);
 	auto muPerBCID = Monitored::Scalar<float>("muPerBCID", 0.0);
 	auto run = Monitored::Scalar<int>("run",0);
 	auto weight = Monitored::Scalar<float>("weight", 1.0);
-	//auto previouslb = Monitored::Scalar<int>("previouslb", 0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
 	auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 1.0);
@@ -204,10 +189,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	fill("AFPSiLayerTool", lb, muPerBCID);
 	
 
-	++counterForEvents;		// Counter for the all BCIDs
+	++counterForEvents;		
 	++counterForEventsStation;
-
-	int tempbcid = GetEventInfo(ctx)->bcid();
 	
 	SG::ReadHandle<xAOD::AFPSiHitContainer> afpHitContainer(m_afpHitContainerKey, ctx);
 	if(! afpHitContainer.isValid())
@@ -253,34 +236,13 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	}
 
 // Clusters:
-// Old approach
-	for(int i = 0; i < 4; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			clustersPerPlane2 = numberOfClusterStationPlane[i][j]*1.0;
-			if(muPerBCID != 0)
-			{
-				clustersPerPlane2 /= (muPerBCID*counterForEvents);
-			}
-			else
-			{
-				clustersPerPlane2 = -0.1;
-			}
-			//std::cout <<"\t"<< clustersPerPlane2 << std::endl;
-			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane2);
-		}
-	}
 
-// New approach:
 	for(const auto& cluster : fast.clusters()) 
 	{
 		clusterX = cluster.x;
 		clusterY = cluster.y;
-		fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX); // Swap after suggestion
-		
+		fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX); 
 		lb = GetEventInfo(ctx)->lumiBlock();
-		++numberOfClusterStationPlane[cluster.station][cluster.layer];
 		
 		// Time for fill - current and previous lb are different, and the previouslb is not -1 (it means - this is not the first lb)
 		if(lb > previouslb && previouslb != 0)
@@ -304,15 +266,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 				
 			previouslb = lb;
 			++clusterCounter[lb][cluster.station][cluster.layer];
-			counterForEvents=1;
-			
-			for(int i=0; i<4; i++)
-			{
-				for(int j=0; j<4; j++)
-				{
-					numberOfClusterStationPlane[i][j] = 0;
-				}
-			}
+			counterForEvents = 1;
 		}
 			
 			// First time in lumiblock (in plane)
@@ -333,7 +287,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	// =============== Stations all BCIDs ===============
 	for(const auto& cluster : fast.clusters()) 
 	{
+		
 		lb = GetEventInfo(ctx)->lumiBlock();
+		/*
 		if(lb > previouslbStation && previouslbStation != 0)
 		{
 			for(int i=0; i<4; i++)
@@ -356,6 +312,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		}
 		else if (lb==previouslbStation)
 		{++clusterCounterStation[lb][cluster.station];}
+		*/
+		fillSynchHistograms(lb, previouslbStation, clustersPerStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster, m_TrackGroup);
+		
 	}
 	// ========== Front Station ==========
 	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
@@ -467,7 +426,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			// Time for fill - current and previous lb are different, and the previouslbFront is not -1 (it means - this is not the first lb)
 			if(lb > previouslbFront && previouslbFront != 0)
 			{
-				//std::cout << "\tlb!=previouslbFront" << std::endl;
 				for(int i=0; i<4; i++)
 				{
 					for(int j=0; j<4; j++)
@@ -513,7 +471,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			// Time for fill - current and previous lb are different, and the previouslbEnd is not -1 (it means - this is not the first lb)
 			if(lb > previouslbEnd && previouslbEnd != 0)
 			{
-				//std::cout << "\tlb!=previouslbEnd" << std::endl;
 				for(int i=0; i<4; i++)
 				{
 					for(int j=0; j<4; j++)
@@ -583,7 +540,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			// First time in lumiblock (in plane)
 			else if(clusterCounterMiddle[lb][cluster.station][cluster.layer] == 0) 
 			{
-				++clusterCounterMiddle[lb][cluster.station][cluster.layer];				
+				++clusterCounterMiddle[lb][cluster.station][cluster.layer];
 				previouslbMiddle = lb;
 			}
 			

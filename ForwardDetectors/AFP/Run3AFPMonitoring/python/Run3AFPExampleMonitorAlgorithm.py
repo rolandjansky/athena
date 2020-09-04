@@ -57,7 +57,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('lb,clustersPerPlaneFront', title='(Front BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneFront', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerPlaneEnd', title='(End BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneEnd', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerPlaneMiddle', title='(Middle BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneMiddle', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
-    array.defineHistogram('lb,clustersPerPlane2', title='Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clustersPerEvent / <mu>', type='TProfile', path='clustersPerPlane2', xbins=1000, xmin=-0.5, xmax=999.5)
+    #array.defineHistogram('lb,clustersPerPlane2', title='Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clustersPerEvent / <mu>', type='TProfile', path='clustersPerPlane2', xbins=1000, xmin=-0.5, xmax=999.5)
 
 
     array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/')
@@ -101,7 +101,7 @@ if __name__=='__main__':
     #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000001.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000002.xAOD.root']
     ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput52-212k-337371-Aut.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput53-337371-Aut-test.root'
     
     ConfigFlags.lock()
 
@@ -117,6 +117,6 @@ if __name__=='__main__':
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run()
+    cfg.run(1000)
 
 

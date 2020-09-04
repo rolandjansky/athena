@@ -114,14 +114,18 @@ template <class T> std::vector<T> AFPFastReco::findAround(T init, std::list<T>& 
 		for (auto& b : toJoin) 
 		{
 			bool isNew = false;
-        	for (auto& a : element)
-          		if (areNeighbours(a, b)) isNew = true;
+			for (auto& a : element)
+			if (areNeighbours(a, b)) 
+			{
+				isNew = true;
+				break;
+ 			}
 
-        	if (isNew) 
+			if (isNew) 
 			{
 				newNeighbours.push_back(b);
 				element.push_back(b);
-        	}
+			}
 		}
 
 		for (auto& t : newNeighbours)

@@ -22,7 +22,7 @@ public:
 	virtual ~AFPSiLayerAlgorithm();
 	virtual StatusCode initialize() override;
 	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
-	
+
 private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 

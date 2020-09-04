@@ -34,8 +34,8 @@ atlas_depends_on_subdirs(
         MuonSpectrometer/MuonAlignment/MuonAlignmentData
         
         Event/EventContainers
-        Tools/PathResolver
-        Control/StoreGate
+        #Tools/PathResolver
+        #Control/StoreGate
 )
 
 # External dependencies:
