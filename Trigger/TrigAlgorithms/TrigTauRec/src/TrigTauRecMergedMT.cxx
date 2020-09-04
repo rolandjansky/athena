@@ -159,13 +159,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   // Get RoiDescriptor
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roIInputKey, ctx );
   if ( not roisHandle.isValid() ) {
-    calo_errors.push_back(NoROIDescr);
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("No roisHandle found");
+    return StatusCode::FAILURE;
   }
 
   if(roisHandle->size() == 0){
-    ATH_MSG_DEBUG("RoIHandle size = Zero");
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("RoIHandle size = Zero");
+    return StatusCode::FAILURE;
   }
   const TrigRoiDescriptor *roiDescriptor = roisHandle->at(0);
 
@@ -173,9 +173,8 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     ATH_MSG_DEBUG(" RoI " << *roiDescriptor);
   }
   else {
-    ATH_MSG_DEBUG("Failed to find RoiDescriptor ");
-    calo_errors.push_back(NoROIDescr);
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("Failed to find RoiDescriptor ");
+    return StatusCode::FAILURE;
   }
 
   // get TauJetContainer from SG
@@ -185,13 +184,13 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   if (!m_trigTauJetKey.key().empty() && m_clustersKey.key().empty()) {
     SG::ReadHandle<xAOD::TauJetContainer> tauInputHandle(m_trigTauJetKey, ctx);
     pTauContainer = tauInputHandle.cptr();
-    ATH_MSG_DEBUG("Tau Calo Only Container Size" << pTauContainer->size());
+    ATH_MSG_DEBUG("Input TauJet Container size: " << pTauContainer->size());
   }
 
   if (!m_trigTauTrackInKey.key().empty() && m_clustersKey.key().empty()) {
     SG::ReadHandle<xAOD::TauTrackContainer> tauTrackInputHandle(m_trigTauTrackInKey, ctx);
     pTauTrackContainer = tauTrackInputHandle.cptr();
-    ATH_MSG_DEBUG("Tau Track Container Size" << pTauTrackContainer->size());
+    ATH_MSG_DEBUG("Tau Track Container Size " << pTauTrackContainer->size());
   }
 
 

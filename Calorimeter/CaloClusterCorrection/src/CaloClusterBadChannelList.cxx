@@ -54,7 +54,7 @@ void CaloClusterBadChannelList::makeCorrection (const Context& /*myctx*/,
          // in case cell is bad, add explicitly the dead bit to the status
          CaloBadChannel::BitWord myword = status.packedData();
          if (isBad && !status.dead()) {
-            status.setBit(CaloBadChannel::deadBit,myword,true);
+            CaloBadChannel::setBit(CaloBadChannel::deadBit,myword,true);
          }
          ATH_MSG_DEBUG(" bad channel found eta,phi,layer,status " << eta << " " << phi << " " << layer << " " << myword);
 	 badChanList.emplace_back(eta,phi,layer,myword);

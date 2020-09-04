@@ -58,6 +58,8 @@ namespace InDet {
     bool isvertex{false};   ///< whether or not we contain a non-empty vertex list
     bool checketa{false};   ///< whether to apply eta cuts
 
+    int maxSeedsPerSP{0};   ///<Number of Seeds allowed to be built per central Seed
+    bool keepAllConfirmedSeeds{false};   ///<Do we keep an unlimited number of confirmed seeds per central SP?
     int iteration{0};   ///< iteration currently being run 
     int iteration0{0};
     int r_first{0}; ///< points to the index of the highest occupied radius bin 

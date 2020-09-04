@@ -23,6 +23,9 @@ Check Lorentz Angle is in correct direction...
 
 */
 
+namespace {
+    static constexpr float electronsToFC = 1./6241.;
+}
 
 /*******************************************************************************/
 MM_StripsResponseSimulation::MM_StripsResponseSimulation():
@@ -68,6 +71,8 @@ void MM_StripsResponseSimulation::initHistos()
 	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
 	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
 	m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
+	m_mapOfHistograms["totalEffectiveCharge"] = new TH1F("totalEffectiveCharge","totalEffectiveCharge",400,0,200);
+	m_mapOf2DHistograms["totalEffectiveChargeVsTheta"] = new TH2F("totalEffectiveChargeVsTheta","totalEffectiveChargeVsTheta",17,0,35,300,0,300);
 
 	m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
 	m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
@@ -265,7 +270,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 			tmpEffectiveNElectrons+= effectiveCharge;
 		}
 
-		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons*1e-4 );
+		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons / m_avalancheGain);
 
 		//---
 		m_IonizationClusters.push_back(IonizationCluster);
@@ -297,11 +302,16 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 
 
-	// Output diagnostic hists and graphs
-	//
-	m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
-	m_mapOfHistograms["nElectrons"]->Fill( stripResponseObject.getNElectrons() );
-	m_mapOfHistograms["lorentzAngle"]->Fill( lorentzAngle );
+    // Output diagnostic hists and graphs
+    //
+    m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
+    m_mapOfHistograms["nElectrons"]->Fill(stripResponseObject.getNElectrons());
+    m_mapOfHistograms["totalEffectiveCharge"]->Fill(stripResponseObject.getTotalCharge() * electronsToFC);
+    m_mapOf2DHistograms["totalEffectiveChargeVsTheta"]->Fill(std::abs(incidentAngleXZ),
+                                                   stripResponseObject.getTotalCharge() * electronsToFC);
+    ATH_MSG_DEBUG("incidentAngleXZ" << incidentAngleXZ << "charge [fC]"
+                  << stripResponseObject.getTotalCharge() / 6241.);
+    m_mapOfHistograms["lorentzAngle"]->Fill(lorentzAngle);
 
 	if(m_writeEventDisplays){
 		if(m_outputFile) m_outputFile->cd();

@@ -7,8 +7,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Test.TestDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TrigUpgradeTest.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
-from TrigUpgradeTest.HLTSignatureHypoTools import dimuDrComboHypoTool
+from DecisionHandling.HLTSignatureConfig import  muMenuSequence, elMenuSequence, gamMenuSequence
+from DecisionHandling.HLTSignatureHypoTools import dimuDrComboHypoTool
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -120,9 +120,6 @@ class TestChainConfiguration(ChainConfigurationBase):
         }
         return stepDictionary
 
-
-    
-
     ## Muons    
     
     def Step_mu11(self):
@@ -145,9 +142,9 @@ class TestChainConfiguration(ChainConfigurationBase):
 
     def Step_mu32(self):
         return self.getStep(3,"mu32",[ muCfg322 ])
-
+   
     def Step_mu41(self):
-        return self.getStep(4,"mu11",[ muCfg411 ])
+        return self.getStep(4,"mu41",[ muCfg411 ])
 
     def Step_empty1(self):
         return self.getEmptyStep(1,'empty')

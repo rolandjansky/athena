@@ -19,7 +19,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
+#include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 
 /// Tool handle template parameters
 #include "IRegionSelector/IRegSelTool.h"
@@ -95,8 +95,9 @@ private:
   SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "DataObjectName", "SCT_RDOs", "SCT RDOs"};
   SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey{this, "ClustersName", "SCT_Clusters", "SCT cluster container"};
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey{this, "ClustersLinkName_", "SCT_Clusters", "SCT cluster container link name (don't set this)"};
-  SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
+  SG::WriteHandleKey<IDCInDetBSErrContainer> m_flaggedCondDataKey{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
   SG::UpdateHandleKey<SCT_ClusterContainerCache> m_clusterContainerCacheKey; //!< For HLT cache
+  SG::UpdateHandleKey<IDCInDetBSErrContainer_Cache> m_flaggedCondCacheKey; //!< For HLT cache
   //@}
 
   /**

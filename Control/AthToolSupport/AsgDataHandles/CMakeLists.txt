@@ -1,15 +1,9 @@
-################################################################################
-# Package: AsgDataHandles
-################################################################################
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgDataHandles )
 
 if( NOT XAOD_STANDALONE )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC Control/StoreGate )
 
 # Component(s) in the package:
 atlas_add_library( AsgDataHandlesLib INTERFACE
@@ -19,11 +13,6 @@ atlas_add_library( AsgDataHandlesLib INTERFACE
    LINK_LIBRARIES StoreGateLib )
 
 else()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC Control/AthToolSupport/AsgMessaging
-          Control/xAODRootAccessInterfaces )
 
 # Component(s) in the package:
 atlas_add_library( AsgDataHandlesLib

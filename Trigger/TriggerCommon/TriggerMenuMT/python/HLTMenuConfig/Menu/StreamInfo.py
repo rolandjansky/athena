@@ -39,6 +39,9 @@ _all_streams = [
     StreamInfo('CosmicCalo', 'physics', True, True),
     StreamInfo('IDCosmic', 'physics', True, True),
     StreamInfo('ZeroBias', 'physics', True, True),
+    StreamInfo('Background', 'physics', True, True),
+    StreamInfo('Standby', 'physics', True, True),
+    StreamInfo('L1Calo', 'physics', True, True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS

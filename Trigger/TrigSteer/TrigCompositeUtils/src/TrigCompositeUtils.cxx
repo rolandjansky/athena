@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "AthContainers/AuxElement.h"
@@ -275,94 +276,46 @@ namespace TrigCompositeUtils {
     return output;
   }
 
-  void recursiveGetDecisionsInternal(const Decision* start, 
-    const size_t location, 
-    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+  void recursiveGetDecisionsInternal(const Decision* node, 
+    const Decision* comingFrom, 
+    NavGraph& navGraph, 
     const DecisionID id,
     const bool enforceDecisionOnNode) {
 
     // Does this Decision satisfy the chain requirement?
     DecisionIDContainer idSet = {id};
-    if (enforceDecisionOnNode && id != 0 && !isAnyIDPassing(start, idSet)) {
+    if (enforceDecisionOnNode && id != 0 && !isAnyIDPassing(node, idSet)) {
       return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
     }
 
-    // This Decision object is part of this linear path through the Navigation
-    const DecisionContainer* container = dynamic_cast<const DecisionContainer*>( start->container() );
-    ElementLink<DecisionContainer> startLink = ElementLink<DecisionContainer>(*container, start->index());
-    linkVector.at(location).push_back( startLink ); 
+    // This Decision object is part of this path through the Navigation
+    navGraph.addNode(node, comingFrom);
     
     // Continue to the path(s) by looking at this Decision object's seed(s)
-    if ( hasLinkToPrevious(start) ) {
-      const ElementLinkVector<DecisionContainer> seedsVector = getLinkToPrevious(start);
-
-      // If there is more than one seed then we need to fork.
-      // Each fork implies copying the (linear) vector of links up to this point.
-      // As this forking may have happened more than once before, we need to remember which seed 
-      // corresponds to which fork. Done here via a map.
-      std::unordered_map<size_t,size_t> mapSeedToLinkVector;
-      for (size_t seed = 0; seed < seedsVector.size(); ++seed) {
-        if (seed == 0) {
-          mapSeedToLinkVector.insert( std::make_pair(seed, location) );
-        } else {
-          linkVector.push_back( linkVector.at(location) );
-          mapSeedToLinkVector.insert( std::make_pair(seed, linkVector.size() - 1) );
-        }
-      }
-
+    if ( hasLinkToPrevious(node) ) {
       // Do the recursion
-      for (size_t seed = 0; seed < seedsVector.size(); ++seed) {
-        const Decision* seedDecision = *(seedsVector.at(seed)); // Dereference ElementLink
-        size_t linkVectorLocation = mapSeedToLinkVector.find(seed)->second;
+      for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
+        const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, linkVectorLocation, linkVector, id, true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, id, /*enforceDecisionOnNode*/ true);
       }
     }
     return;
   }
 
   void recursiveGetDecisions(const Decision* start, 
-    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    NavGraph& navGraph, 
     const DecisionID id,
     const bool enforceDecisionOnStartNode) {
 
-    // Note: we do not require linkVector to be an empty vector. We can append to it.
-    linkVector.push_back( ElementLinkVector<DecisionContainer>() ); // Our starting point
-    const size_t startingElement = linkVector.size() - 1;
-    recursiveGetDecisionsInternal(start, startingElement, linkVector, id, enforceDecisionOnStartNode);
-    // Writing finished.
-    // Now - remove defunct branches. These are zero length entries or entries which did not propagate all the way up to the root nodes
-    // (this occurs when the decision ID was not valid along a prospective branch)
-    std::vector<ElementLinkVector<DecisionContainer>>::iterator vecIt = linkVector.begin();
-    std::advance(vecIt, startingElement);
-    // vecIt is an iterator which now corresponds to the first element added by this call to recursiveGetDecisions
-    for (; vecIt != linkVector.end();) {
-      bool shouldRemove = false;
-      if (vecIt->size() == 0) {
-        // No Decision ELs were added to the inner ElementLinkVector.
-        shouldRemove = true;
-      } else {
-        ElementLink<DecisionContainer> finalDecision = vecIt->back();
-        DecisionIDContainer idSet = {id};
-        if (hasLinkToPrevious(*finalDecision)) {
-          // If the back Decision is not L1 (hence has links), then it's not from the top of the graph. And the path should be removed.
-          shouldRemove = true;
-        } else if (id != 0 && !isAnyIDPassing(*finalDecision, idSet)) {
-          // The final hop to this L1 node was not valid for the chain in question
-          shouldRemove = true;
-        }
-      } 
-      if (shouldRemove) {
-        vecIt = linkVector.erase(vecIt);
-      } else {
-        ++vecIt;
-      }
-    }
+    // Note: we do not require navGraph to be an empty graph. We can extend it.
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, id, enforceDecisionOnStartNode);
+    
     return;
   }
 
 
-  std::string dump( const Decision*  tc, std::function< std::string( const Decision* )> printerFnc ) {
+  std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {

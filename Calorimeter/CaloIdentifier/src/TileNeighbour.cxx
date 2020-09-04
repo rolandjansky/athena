@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,7 +25,7 @@
 #include <fstream>
 #include <iomanip>
 
-#include <string.h>
+#include <cstring>
 
 using namespace LArNeighbours;
 
@@ -66,7 +66,7 @@ TileNeighbour::~TileNeighbour(void)
 {
 }
 
-int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
+int TileNeighbour::initialize(const Tile_Base_ID* tileID, const std::string& filename)
 {
   MsgStream log(tileID->m_msgSvc, "TileNeighbour" );
   MSG::Level logLevel = log.level();
@@ -77,7 +77,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
   std::string file = PathResolver::find_file (filename, "DATAPATH");
   log << MSG::INFO << "Reading file  " << file << endmsg;
   std::ifstream fin;
-  if (file != "") {
+  if (!file.empty()) {
     fin.open(file.c_str());
   }
   else {
@@ -120,8 +120,8 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
       bool lastelem = ( token[toklen] == ';' );
       token[toklen] = 0; // remove "," or ";"
       log << token << "  ";
-      if (strcmp(token,"none"))
-        newCell.neighbours[column].push_back(token);
+      if (strcmp(token,"none") != 0)
+        newCell.neighbours[column].emplace_back(token);
       if (lastelem) {
         ++column;
         if (4 == column) break;
@@ -143,7 +143,7 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
   unsigned int curSize = allCells.size();
   for (unsigned int i=0; i<curSize; ++i) {
 
-    std::string::size_type pos = allCells[i].name.find( "-", 0 );
+    std::string::size_type pos = allCells[i].name.find( '-', 0 );
     if ( std::string::npos != pos ) { // it is not D0 cell
 
       Cell newCell;
@@ -157,11 +157,11 @@ int TileNeighbour::initialize(const Tile_Base_ID* tileID, std::string filename)
         unsigned int nb_size=allCells[i].neighbours[j].size();
         for (unsigned int k=0; k<nb_size; ++k) {
           tmpName = allCells[i].neighbours[j][k];
-          pos = tmpName.find( "-", 0 );
+          pos = tmpName.find( '-', 0 );
           if ( std::string::npos != pos ) {
             tmpName.replace(pos,1,"+");
           } else {
-            pos = tmpName.find( "+", 0 );
+            pos = tmpName.find( '+', 0 );
             if ( std::string::npos != pos ) {
               tmpName.replace(pos,1,"-");
             }
@@ -579,7 +579,7 @@ void TileNeighbour::get_id(std::string & strName, Identifier & id, const Tile_Ba
     int sm;
     int tw;
 
-    std::string::size_type pos = strName.find( "-", 0 );
+    std::string::size_type pos = strName.find( '-', 0 );
     if ( std::string::npos != pos ) sd = -1; else sd = 1;
 
     sscanf(name+2,"%80d",&tw);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
@@ -10,13 +10,13 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <string>
-#include <set>
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
+#include <set>
 #include <sstream>
-#include <math.h>
 #include <stdexcept>
+#include <string>
 
 #include "CxxUtils/StrFormat.h"
 
@@ -169,7 +169,7 @@ int   LArMiniFCAL_ID::get_neighbours(const IdentifierHash id, const LArNeighbour
   if( dictionaryVersion() == "fullAtlas" ) {
 
     if ( (option & LArNeighbours::all2D) == LArNeighbours::all2D ){
-      if ( m_neighbors_2d_vec[(unsigned int)id].size() > 0 ) { 
+      if ( !m_neighbors_2d_vec[(unsigned int)id].empty() ) { 
 	neighbourList.insert(neighbourList.end(),
 			     m_neighbors_2d_vec[(unsigned int)id].begin(),
 			     m_neighbors_2d_vec[(unsigned int)id].end());
@@ -177,7 +177,7 @@ int   LArMiniFCAL_ID::get_neighbours(const IdentifierHash id, const LArNeighbour
     }
     
     if ( (option & LArNeighbours::prevInSamp) ){
-      if ( m_neighbors_3d_prev_vec[(unsigned int)id].size() > 0 ) { 
+      if ( !m_neighbors_3d_prev_vec[(unsigned int)id].empty() ) { 
 	neighbourList.insert(neighbourList.end(),
 			     m_neighbors_3d_prev_vec[(unsigned int)id].begin(),
 			     m_neighbors_3d_prev_vec[(unsigned int)id].end());
@@ -185,7 +185,7 @@ int   LArMiniFCAL_ID::get_neighbours(const IdentifierHash id, const LArNeighbour
     }
     
     if ( (option & LArNeighbours::nextInSamp) ){
-      if ( m_neighbors_3d_next_vec[(unsigned int)id].size() > 0 ) { 
+      if ( !m_neighbors_3d_next_vec[(unsigned int)id].empty() ) { 
 	neighbourList.insert(neighbourList.end(),
 			     m_neighbors_3d_next_vec[(unsigned int)id].begin(),
 			     m_neighbors_3d_next_vec[(unsigned int)id].end());
@@ -665,7 +665,7 @@ int         LArMiniFCAL_ID::init_neighbors_from_file(const std::string& filename
   log << MSG::INFO << "Reading file " << file << endmsg;
 
   std::ifstream fin;
-  if (file != "") {
+  if (!file.empty()) {
     fin.open(file.c_str());
   }
   else {
@@ -704,11 +704,11 @@ int         LArMiniFCAL_ID::init_neighbors_from_file(const std::string& filename
     do {  
       fin.getline(aLine,sizeof(aLine)-1);
       sLine = std::string(aLine);
-    } while (sLine == "" && !fin.eof());
-    isComment = ( sLine.find("#") != std::string::npos );
+    } while (sLine.empty() && !fin.eof());
+    isComment = ( sLine.find('#') != std::string::npos );
   }
   do {
-    while ( sLine == "" && !fin.eof()) {
+    while ( sLine.empty() && !fin.eof()) {
       fin.getline(aLine,sizeof(aLine)-1);
       sLine = std::string(aLine);
     }
@@ -748,7 +748,7 @@ int         LArMiniFCAL_ID::init_neighbors(const IdDictMgr& dict_mgr)
     f2d     = dict_mgr.find_metadata("FCAL2DNEIGHBORS");
     f3dnext = dict_mgr.find_metadata("FCAL3DNEIGHBORSNEXT");
     f3dprev = dict_mgr.find_metadata("FCAL3DNEIGHBORSPREV");
-    if (!f2d.size() || !f3dnext.size() || !f3dprev.size()) {
+    if (f2d.empty() || f3dnext.empty() || f3dprev.empty()) {
         if(m_msgSvc) {
             log << MSG::ERROR << "init_neighbours: cannot find neighbours files: " 
                 << " f2d: " << f2d << " f3dnext: " << f3dnext << " f3dprev: " << f3dprev

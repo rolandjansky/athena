@@ -34,7 +34,7 @@ class CaloDetDescrManager;
 class CalibHitToCaloCell : public AthAlgorithm {
 public:
 
-    CalibHitToCaloCell(std::string name, ISvcLocator* pSvcLocator);
+    CalibHitToCaloCell(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~CalibHitToCaloCell();                         
     

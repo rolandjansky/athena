@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -62,18 +62,18 @@ GetLCDeadMaterialTree::GetLCDeadMaterialTree(const std::string& name,
                            ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
     m_HadDMCoeffInitFile("CaloHadDMCoeff_init_v2.txt"),
-    m_outputTree(0),
+    m_outputTree(nullptr),
     m_outputFileName("DeadMaterialTree.root"),
-    m_outputFile(0),
+    m_outputFile(nullptr),
     m_clusterCollName("CaloTopoCluster"),
-    m_HadDMCoeff(0),
-    m_data(0),
+    m_HadDMCoeff(nullptr),
+    m_data(nullptr),
     m_doSaveCalibClusInfo(false),
     m_isTestbeam(false),
     m_energyMin(200*MeV),
     //m_energyMax(2*TeV),
-    m_calo_dd_man(0),
-    m_calo_id(0)
+    m_calo_dd_man(nullptr),
+    m_calo_id(nullptr)
 {
 
   // dead material zone description
@@ -162,7 +162,7 @@ StatusCode GetLCDeadMaterialTree::initialize()
   /* ********************************************
   output file&tree
   ******************************************** */
-  m_data = new CaloHadDMCoeffData(0);
+  m_data = new CaloHadDMCoeffData(nullptr);
 
   m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
@@ -212,7 +212,7 @@ StatusCode GetLCDeadMaterialTree::execute()
   /* ********************************************
   reading TBEventInfo
   ******************************************** */
-  const TBEventInfo* theTBEventInfo = 0;
+  const TBEventInfo* theTBEventInfo = nullptr;
   if(m_isTestbeam) {
     ATH_CHECK(  evtStore()->retrieve(theTBEventInfo,"TBEventInfo") );
   }
@@ -220,7 +220,7 @@ StatusCode GetLCDeadMaterialTree::execute()
   /* ********************************************
   reading primary particle
   ******************************************** */
-  const McEventCollection* truthEvent=0;
+  const McEventCollection* truthEvent=nullptr;
   ATH_CHECK( evtStore()->retrieve(truthEvent, "TruthEvent") );
   HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
   const HepMC::GenParticle * gen  = *pit;
@@ -312,7 +312,7 @@ StatusCode GetLCDeadMaterialTree::execute()
       const xAOD::CaloCluster * theClusterCalib = pClusCollCalib->at(iClus);
 
       // reco status
-      CaloRecoStatus recoStatus = theClusterCalib->recoStatus();
+      const CaloRecoStatus& recoStatus = theClusterCalib->recoStatus();
 
       (*m_data->m_cls_recostat)[iClus] = recoStatus.getStatusWord();
 

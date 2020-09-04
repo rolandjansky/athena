@@ -7,7 +7,6 @@
 
 #include "Pythia8/SigmaProcess.h"
 
-#include <boost/smart_ptr.hpp>
 
 #include <map>
 #include <string>
@@ -16,14 +15,12 @@ namespace Pythia8_UserProcess{
   
   using Pythia8::Sigma2Process;
     
-  using std::string;
-  using std::map;
   
   class UserProcessFactory{
     
   public:
     
-    static Sigma2Process* create(const string &procName);
+    static Sigma2Process* create(const std::string &procName);
     
   private:
     
@@ -41,7 +38,7 @@ namespace Pythia8_UserProcess{
     class Creator: public ICreator{
       
     public:
-      Creator(const string &name){
+      Creator(const std::string &name){
         m_name = name;
         UserProcessFactory::s_creators()[name] = this;
       }
@@ -58,12 +55,12 @@ namespace Pythia8_UserProcess{
       
     private:
       
-      string m_name;
+      std::string m_name;
       
     };
     
   private:
-    static map<string, const ICreator*> &s_creators();
+    static std::map<std::string, const ICreator*> &s_creators();
     
   };
 }

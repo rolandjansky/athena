@@ -1026,9 +1026,6 @@ if ROOT.gApplication.GetName() != "TRint":
 #reg.AddConverter ("TrigInDetTrackTruthMap_old_cnv")
 
 
-# Enable TTree speedups.
-PyROOTFixes.enable_tree_speedups()
-
 # Enable container conversions.
 import ROOT
 ROOT.TConvertingStreamerInfo.Initialize()

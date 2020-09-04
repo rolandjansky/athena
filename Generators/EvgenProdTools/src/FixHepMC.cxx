@@ -200,17 +200,17 @@ StatusCode FixHepMC::finalize() {
 //@{
 
 // Identify PDG ID = 0 particles, usually from HEPEVT padding
-bool FixHepMC::isPID0(const HepMC::GenParticlePtr p) {
+bool FixHepMC::isPID0(HepMC::ConstGenParticlePtr p) {
   return p->pdg_id() == 0;
 }
 
 // Identify non-transportable stuff _after_ hadronisation
-bool FixHepMC::isNonTransportableInDecayChain(const HepMC::GenParticlePtr p) {
+bool FixHepMC::isNonTransportableInDecayChain(HepMC::ConstGenParticlePtr p) {
   return !MC::PID::isTransportable(p->pdg_id()) && MC::fromDecay(p);
 }
 
 // Identify internal "loop" particles
-bool FixHepMC::isLoop(const HepMC::GenParticlePtr p) {
+bool FixHepMC::isLoop(HepMC::ConstGenParticlePtr p) {
   if (p->production_vertex() == p->end_vertex() && p->end_vertex() != NULL) return true;
   if (m_loopByBC && p->production_vertex()) {
     /// @todo Use new particle MC::parents(...) tool

@@ -1,21 +1,7 @@
-################################################################################
-# Package: AthenaPoolTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/PersistentDataModel
-                          Event/EventInfo
-                          Event/ByteStreamData
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODCutFlow
-                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthenaPoolTools
@@ -23,7 +9,7 @@ atlas_add_component( AthenaPoolTools
                      src/MetadataTest.cxx
                      src/RequireUniqueEvent.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo GaudiKernel xAODCutFlow ByteStreamData)
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel ByteStreamData EventInfo GaudiKernel PersistentDataModel StoreGateLib xAODCutFlow xAODEventInfo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

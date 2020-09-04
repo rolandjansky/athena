@@ -108,6 +108,7 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     std::vector<std::vector<int>> m_moduleCorrGroups;
     std::vector<std::vector<int>> m_chanTimeGroups;
     std::vector<std::vector<int>> m_digiTimeGroups;
+    std::vector<std::vector<int>> m_nCellsGroups;
     std::vector<std::vector<int>> m_nCellsOverThrGroups;
     std::vector<std::vector<int>> m_detailOccupGroups;
     std::vector<std::vector<int>> m_overThrOccupGroups;

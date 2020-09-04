@@ -35,6 +35,7 @@
 #include "GeoModelUtilities/GeoGetIds.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "IRegionSelector/RegSelEnums.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -43,13 +44,14 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector("RegSelSvc", name ), 
+   m_regionSelector("RegSelTool/RegSelTool_MDT",this),
    m_robDataProvider("ROBDataProviderSvc", name), 
    m_recMuonRoIUtils(),
    m_use_mdtcsm(true),
    m_BMGpresent(false),
    m_BMGid(-1)
 {
+  declareProperty("RegSel_MDT", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -71,7 +73,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
 
   // Locate RegionSelector
   ATH_CHECK( m_regionSelector.retrieve());
-  ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
 
   // Locate ROBDataProvider
   ATH_CHECK( m_robDataProvider.retrieve() );
@@ -191,8 +192,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     
     std::vector<IdentifierHash> mdtHashList;
     mdtHashList.clear();
-    if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-    else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+    if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+    else {
+      TrigRoiDescriptor fullscan_roi( true );
+      m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+    }
     ATH_MSG_DEBUG("size of the hashids in getMdtHits " << mdtHashList.size());
     
     if (roi) delete roi;
@@ -306,19 +310,20 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
 
       const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
       
-      m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+      m_regionSelector->HashIDList(*iroi, mdtHashList);
       ATH_MSG_DEBUG("mdtHashList.size()=" << mdtHashList.size());
       
-      m_regionSelector->DetROBIDListUint(MDT, *iroi, v_robIds);
+      m_regionSelector->ROBIDList(*iroi, v_robIds);
       
     } else {
       
       ATH_MSG_DEBUG("Use full data access");
       
-      m_regionSelector->DetHashIDList(MDT, mdtHashList);
+      TrigRoiDescriptor fullscan_roi( true );
+      m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
       ATH_MSG_DEBUG("mdtHashList.size()=" << mdtHashList.size());
      
-      m_regionSelector->DetROBIDListUint(MDT, v_robIds);
+      m_regionSelector->ROBIDList(fullscan_roi, v_robIds);
     }
 
     ATH_CHECK( collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad, muDetMgr) );
@@ -719,8 +724,8 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
        for(int i_type=0; i_type<2; i_type++) {
          idList.clear();
          ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
-	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 roi2, idList);
+	 m_regionSelector->HashIDList(static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
+				      roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();
@@ -790,8 +795,8 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
 	 idList.clear();
 	 ATH_MSG_DEBUG( "chamber/sector=" << chamber << "/" << i_sector );
 	 
-	 m_regionSelector->DetHashIDList(MDT,static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
-					 roi2, idList);
+	 m_regionSelector->HashIDList(static_cast<TYPEID>(mdtRegion.chamberType[chamber][i_sector][i_type]),
+				      roi2, idList);
 	 ATH_MSG_DEBUG( "...chamberType=" << mdtRegion.chamberType[chamber][i_sector][i_type] );
 	 ATH_MSG_DEBUG( "...size IDlist=" << idList.size() );
 	 std::vector<IdentifierHash>::const_iterator it = idList.begin();

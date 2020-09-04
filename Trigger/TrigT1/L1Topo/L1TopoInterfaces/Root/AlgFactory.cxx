@@ -1,17 +1,11 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  AlgFactory.cxx
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/20/12.
-
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoCommon/Exception.h"
 
 using namespace std;
 
-TCS::AlgFactory* TCS::AlgFactory::fg_instance = 0;
+thread_local TCS::AlgFactory* TCS::AlgFactory::fg_instance = 0;
 
 TCS::AlgFactory&
 TCS::AlgFactory::instance()
@@ -24,6 +18,7 @@ void
 TCS::AlgFactory::destroy_instance()
 {
    delete fg_instance;
+   fg_instance = nullptr;
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,28 +13,20 @@
 
 #include "MuonTGC_Cabling/MuonTGC_CablingSvc.h"
 
-#include <cmath>
-#include <fstream>
-
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 #include "MuonTGC_Cabling/TGCChannelASDIn.h"
 #include "MuonTGC_Cabling/TGCChannelASDOut.h"
 #include "MuonTGC_Cabling/TGCModuleSLB.h"
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
+#include <cmath>
+#include <fstream>
+
 ///////////////////////////////////////////////////////////////
-MuonTGC_CablingSvc::MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc)
-  : ITGCcablingSvc(name, svc),
-    m_idHelper(0),
-    m_cabling(0),
-    m_condDataTool("TGCCablingDbTool")
-{
+MuonTGC_CablingSvc::MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc) :
+    ITGCcablingSvc(name, svc),
+    m_cabling(nullptr) {
   declareProperty("AsideId", m_AsideId=103);
   declareProperty("CsideId", m_CsideId=104);
   declareProperty("rodId", m_rodId);  //obsolete
@@ -45,12 +37,7 @@ MuonTGC_CablingSvc::MuonTGC_CablingSvc(const std::string& name, ISvcLocator* svc
 }
 
 ///////////////////////////////////////////////////////////////
-MuonTGC_CablingSvc::~MuonTGC_CablingSvc(void)
-{}
-
-///////////////////////////////////////////////////////////////
-StatusCode  MuonTGC_CablingSvc::queryInterface(const InterfaceID& riid,
-					       void** ppvIF)
+StatusCode  MuonTGC_CablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 {
   if(ITGCcablingSvc::interfaceID().versionMatch(riid)) {
     *ppvIF = dynamic_cast<ITGCcablingSvc*>(this);
@@ -81,20 +68,9 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
 { 
   ATH_MSG_INFO("for 1/12 sector initialize");
 
-  // TgcIdHelper
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("DetectorStore service not found !");
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_idHelper, "TGCIDHELPER");
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Could not get TgcIdHelper !");
-    return sc;
-  }
+  StoreGateSvc* detStore=nullptr;
+  ATH_CHECK(serviceLocator()->service("DetectorStore", detStore));
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // private databases
   std::string dbASDToPP = PathResolver::find_file(m_databaseASDToPP, "DATAPATH");
@@ -168,11 +144,7 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
 					      dbPPToSL,
 					      dbSLBToROD);
   
-  sc = m_condDataTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve TGCCablingDbTool");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_condDataTool.retrieve());
   std::string folderName = m_condDataTool->getFolderName();
 
   bool isContained = detStore->contains<CondAttrListCollection>(folderName);
@@ -181,8 +153,7 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
     return StatusCode::FAILURE;
   } 
 
-  sc = m_cabling->updateCableASDToPP();
-  if(!sc.isSuccess()) {
+  if(!m_cabling->updateCableASDToPP().isSuccess()) {
     ATH_MSG_WARNING("updateCableASDToPP failed");
     return StatusCode::SUCCESS;
   }
@@ -194,8 +165,7 @@ StatusCode MuonTGC_CablingSvc::initialize(void)
 StatusCode MuonTGC_CablingSvc::finalize(void)
 {
   delete m_cabling;
-  m_cabling = 0;
-
+  m_cabling = nullptr;
   return StatusCode::SUCCESS;
 }
 
@@ -482,18 +452,18 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
 						  int & channelNumber) const
 {
   // get station name in string format : T1F,T1E,T2F...
-  const int iStation  =  m_idHelper->stationName(offlineId);
+  const int iStation  =  m_idHelperSvc->tgcIdHelper().stationName(offlineId);
   const int stationType = (iStation - 39)/2;
 
   if((stationType <1) || (stationType >4)) return false; 
   
   // eta and phi
-  int iEta = m_idHelper->stationEta(offlineId);
-  int iPhi = m_idHelper->stationPhi(offlineId);
+  int iEta = m_idHelperSvc->tgcIdHelper().stationEta(offlineId);
+  int iPhi = m_idHelperSvc->tgcIdHelper().stationPhi(offlineId);
   
   // forward/endcap
   enum {FORWARD, ENDCAP};
-  const int regionType  = m_idHelper->isForward(offlineId) ? FORWARD : ENDCAP;
+  const int regionType  = m_idHelperSvc->tgcIdHelper().isForward(offlineId) ? FORWARD : ENDCAP;
   
   // octant index and module index
   const int sectorEI[] = {-1,  1,  2,   3,  4,  5,   6,  7,  8,   10,  11,  
@@ -534,7 +504,7 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
   const int rIndex = std::abs(iEta);
   
   // Gas gap
-  const int iGasGap = m_idHelper->gasGap(offlineId);
+  const int iGasGap = m_idHelperSvc->tgcIdHelper().gasGap(offlineId);
 
   // convert to ASD-Out index
   
@@ -581,11 +551,11 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
   layerNumber = iGasGap + lyr_offset[stationType];
 
   // wire (0) or strip (1)
-  wireOrStrip = m_idHelper->isStrip(offlineId);
+  wireOrStrip = m_idHelperSvc->tgcIdHelper().isStrip(offlineId);
 
 
   // Offline ID channel
-  int channel = m_idHelper->channel(offlineId);
+  int channel = m_idHelperSvc->tgcIdHelper().channel(offlineId);
 
   // Offline ID cahnnel -> Online ID channel
   // T11S : EI @ phi=2,11,13,14,15,19,20,21
@@ -795,7 +765,7 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
   }
 
 
-  offlineId = m_idHelper->channelID(stationNameStr,
+  offlineId = m_idHelperSvc->tgcIdHelper().channelID(stationNameStr,
 				    stationEta,
 				    stationPhi,
 				    gasGap,
@@ -975,15 +945,15 @@ bool MuonTGC_CablingSvc::getReadoutIDfromElementID(const Identifier & elementID,
 						   int & rodID) const 
 {
   // get station name in string format : T1F,T1E,T2F...
-  const int iStation = m_idHelper->stationName(elementID);
+  const int iStation = m_idHelperSvc->tgcIdHelper().stationName(elementID);
   const int stationType = (iStation - 39)/2;
 
-  int iEta = m_idHelper->stationEta(elementID);
-  int iPhi = m_idHelper->stationPhi(elementID);
+  int iEta = m_idHelperSvc->tgcIdHelper().stationEta(elementID);
+  int iPhi = m_idHelperSvc->tgcIdHelper().stationPhi(elementID);
        
   // forward/endcap
   enum {FORWARD, ENDCAP};
-  const int regionType = m_idHelper->isForward(elementID) ? FORWARD : ENDCAP;
+  const int regionType = m_idHelperSvc->tgcIdHelper().isForward(elementID) ? FORWARD : ENDCAP;
  
   // SideType
   subdetectorID = (iEta > 0) ? m_AsideId.value() : m_CsideId.value();
@@ -1056,7 +1026,7 @@ bool MuonTGC_CablingSvc::getElementIDfromReadoutID(Identifier & elementID,
     return false;
   }
   
-  elementID = m_idHelper->elementID(offlineID);
+  elementID = m_idHelperSvc->tgcIdHelper().elementID(offlineID);
   return true;
 }
 

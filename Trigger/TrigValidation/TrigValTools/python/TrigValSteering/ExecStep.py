@@ -6,7 +6,6 @@
 Definitions of exec steps (main job) in Trigger ART tests
 '''
 
-import sys
 import os
 
 from TrigValTools.TrigValSteering.Step import Step
@@ -71,10 +70,7 @@ class ExecStep(Step):
         self.log.debug('Configuring type for step %s', self.name)
         # Check if type or executable is specified
         if self.type is None and self.executable is None:
-            self.log.error('Cannot configure a step without specified type '
-                           'or executable')
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('Cannot configure a step without specified type or executable')
 
         # Configure executable from type
         known_types = ['athena', 'athenaHLT', 'Reco_tf', 'Trig_reco_tf']
@@ -87,9 +83,7 @@ class ExecStep(Step):
         elif self.type == 'other' or self.type is None:
             self.type = 'other'
         else:
-            self.log.error('Cannot determine type of step %s', self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('Cannot determine type of this step')
 
         # Ensure no log duplication for transforms
         if self.executable.endswith('_tf.py'):
@@ -100,12 +94,9 @@ class ExecStep(Step):
     def configure_input(self):
         self.log.debug('Configuring input for step %s', self.name)
         if self.input is None:
-            self.log.error(
-                'Input not provided for step %s. To configure '
-                'a step without input, use an empty string',
-                self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort(
+                'Input not provided for this step. To configure'
+                'a step without input, use an empty string')
 
         # Step with no input
         if len(self.input) == 0:
@@ -115,18 +106,14 @@ class ExecStep(Step):
         if is_input_defined(self.input):
             self.input_object = get_input(self.input)
             if self.input_object is None:
-                self.log.error('Failed to load input with keyword %s', self.input)
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('Failed to load input with keyword %s', self.input)
             return
 
         # Try to interpret explicit paths
         input_paths = self.input.split(',')
         for path in input_paths:
             if not os.path.isfile(path):
-                self.log.error('The provided input does not exist: %s', self.input)
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('The provided input does not exist: %s', self.input)
         self.log.debug('Using explicit input: %s', self.input)
 
     def configure_job_options(self):
@@ -143,21 +130,14 @@ class ExecStep(Step):
             if self.job_options is None:
                 return
             else:
-                self.log.error('Transform %s does not accept job options',
-                               self.type)
-                self.report_result(1, 'TestConfig')
-                sys.exit(1)
+                self.misconfig_abort('Transform %s does not accept job options', self.type)
         elif self.job_options is None or len(self.job_options) == 0:
-            self.log.error('Job options not provided for step %s', self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('Job options not provided for this step')
         # Check if job options exist
         if check_job_options(self.job_options):
             self.log.debug('Job options file exists: %s', self.job_options)
         else:
-            self.log.error('Failed to find job options file %s for step %s', self.job_options, self.name)
-            self.report_result(1, 'TestConfig')
-            sys.exit(1)
+            self.misconfig_abort('Failed to find job options file %s', self.job_options)
 
     def configure_args(self, test):
         self.log.debug('Configuring args for step %s', self.name)
@@ -181,10 +161,7 @@ class ExecStep(Step):
                 athenaopts += ' --perfmon'
 
         # Default threads/concurrent_events/forks
-        if test.package_name == 'TrigUpgradeTest':
-            if self.threads is None:
-                self.threads = 1
-        elif test.package_name == 'TrigP1Test' and self.type == 'athenaHLT':
+        if test.package_name == 'TrigP1Test' and self.type == 'athenaHLT':
             if self.threads is None:
                 self.threads = 1
             if self.concurrent_events is None:
@@ -256,12 +233,10 @@ class ExecStep(Step):
                 self.args += ' --file={}'.format(input_str)
             elif self.type.endswith('_tf'):
                 if self.input_object is None:
-                    self.log.error(
+                    self.misconfig_abort(
                         'Cannot build inputXYZFile string for transform '
                         ' from explicit input path. Use input=\'\' and '
                         'specify the input explicitly in args')
-                    self.report_result(1, 'TestConfig')
-                    sys.exit(1)
                 if self.type == 'Trig_reco_tf' and '--prodSysBSRDO True' in self.args:
                     self.args += ' --inputBS_RDOFile={}'.format(input_str)
                 else:

@@ -127,9 +127,10 @@ class L1Decoder(CompFactory.L1Decoder) :
         ctpUnpacker = CompFactory.CTPUnpackingTool()
 
         self.ctpUnpacker = ctpUnpacker
+        from TrigEDMConfig.TriggerEDMRun3 import recordable
         self.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool",
                                                                Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
-                                                               OutputTrigRoIs = mapThresholdToL1RoICollection("FSNOSEED") ) ]
+                                                               OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
             unpackers, rerunUnpackers = createCaloRoIUnpackers()
@@ -151,7 +152,7 @@ class L1Decoder(CompFactory.L1Decoder) :
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 
-def L1DecoderCfg(flags):
+def L1DecoderCfg(flags, seqName = None):
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior += 1
 
@@ -160,50 +161,58 @@ def L1DecoderCfg(flags):
     #from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring
 
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName = seqName)
 
     decoderAlg = CompFactory.L1Decoder()
     decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
-                                               MonTool = CTPUnpackingMonitoring(512, 200) )
+                                                           MonTool = CTPUnpackingMonitoring(512, 200),
+                                                           UseNewConfig = flags.Trigger.readLVL1FromJSON )
+    #Transient bytestream
+    if flags.Input.Format == "POOL":
+        transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
+        decoderAlg.ExtraInputs += [transTypeKey]
 
 
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED"),
+                                  OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
-    decoderAlg.roiUnpackers += [ CompFactory.FSRoIsUnpackingTool("FSRoIsUnpackingTool", Decisions=mapThresholdToL1DecisionCollection("FSNOSEED") ) ]
+    if flags.Trigger.doCalo:
+        unpackers, rerunUnpackers = createCaloRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
-    unpackers, rerunUnpackers = createCaloRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
-
-    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
-    acc.merge( TGCCablingConfigCfg( flags ) )
-    acc.merge( RPCCablingConfigCfg( flags ) )
-    unpackers, rerunUnpackers = createMuonRoIUnpackers()
-    decoderAlg.roiUnpackers += unpackers
-    decoderAlg.rerunRoiUnpackers += rerunUnpackers
+    if flags.Trigger.doMuon:
+        unpackers, rerunUnpackers = createMuonRoIUnpackers()
+        decoderAlg.roiUnpackers += unpackers
+        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
-    acc.merge( TrigConfigSvcCfg( flags ) )
-    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
+    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
 
     if flags.Input.Format == "BS":
         # Add the algorithm decoding ByteStream into xAOD (Run-3 L1) and/or RoIBResult (legacy L1)
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
-        acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
+        acc.merge( L1TriggerByteStreamDecoderCfg(flags), sequenceName = seqName )
 
     # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
     if flags.Trigger.enableL1Phase1:
-        acc.addEventAlgo( getL1TriggerResultMaker() )
+        acc.addEventAlgo( getL1TriggerResultMaker(), sequenceName = seqName )
+
+    from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
+    acc.merge( TrigConfigSvcCfg( flags ) )
+    acc.merge( HLTPrescaleCondAlgCfg( flags ) )
+
 
     Configurable.configurableRun3Behavior -= 1
 
-    return acc,decoderAlg
+    return acc
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -213,8 +222,11 @@ if __name__ == "__main__":
     ConfigFlags.Trigger.L1Decoder.forceEnableAllChains= True
     ConfigFlags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()
-    acc, alg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(alg)
+    acc = L1DecoderCfg( ConfigFlags )
+    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
+    acc.merge( TGCCablingConfigCfg( ConfigFlags ) )
+    acc.merge( RPCCablingConfigCfg( ConfigFlags ) )
+
 
     f=open("L1DecoderConf.pkl","wb")
     acc.store(f)

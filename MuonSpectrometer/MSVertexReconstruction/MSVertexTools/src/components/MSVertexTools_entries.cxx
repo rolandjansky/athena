@@ -1,8 +1,6 @@
 #include "../MSVertexTrackletTool.h"
 #include "../MSVertexRecoTool.h"
 
-using namespace Muon;
-
-DECLARE_COMPONENT( MSVertexTrackletTool )
-DECLARE_COMPONENT( MSVertexRecoTool )
+DECLARE_COMPONENT( Muon::MSVertexTrackletTool )
+DECLARE_COMPONENT( Muon::MSVertexRecoTool )
 

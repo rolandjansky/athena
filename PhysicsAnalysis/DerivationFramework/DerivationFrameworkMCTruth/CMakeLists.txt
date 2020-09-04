@@ -7,6 +7,7 @@ atlas_subdir( DerivationFrameworkMCTruth )
 find_package( FastJet )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Hist )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( DerivationFrameworkMCTruth

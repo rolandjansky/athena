@@ -11,7 +11,7 @@
 namespace TXC {
   
    struct TopoConfigElement {
-      TopoConfigElement() {}
+      TopoConfigElement() = default;
       TopoConfigElement(const std::string & name, const std::string & value) : name(name), value(value) {}
       std::string name {""};
       std::string value {""};
@@ -21,7 +21,11 @@ namespace TXC {
    public:
     
       // default constructor
-      L1TopoConfigGlobal();
+      L1TopoConfigGlobal() =default;
+
+      //move constructor to allow faster vector filling
+      L1TopoConfigGlobal(L1TopoConfigGlobal&&) noexcept = default;
+      L1TopoConfigGlobal& operator=(L1TopoConfigGlobal&& ) noexcept = default;
 
       // destructor
       virtual ~L1TopoConfigGlobal();

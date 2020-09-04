@@ -52,7 +52,7 @@ namespace Pythia8{
 	id1Now   = 2;
 	particlePtr->channel(0).product(0, id1Now);
       }
-      if (abs(id2Now) < 11 || abs(id2Now) > 16) {
+      if (std::abs(id2Now) < 11 || std::abs(id2Now) > 16) {
 	std::cout << "ERROR in ResonanceLQ::init:unallowed input lepton flavour reset to e-" << std::endl; 
 	id2Now   = 11;
 	particlePtr->channel(0).product(1, id2Now);
@@ -66,7 +66,7 @@ namespace Pythia8{
       
       particlePtr->setChargeType(chargeLQ); 
       
-      string nameLQ = "LQ_" + particleDataPtr->name(id1Now) + ","
+      std::string nameLQ = "LQ_" + particleDataPtr->name(id1Now) + ","
 	+ particleDataPtr->name(id2Now);
       
       particlePtr->setNames(nameLQ, nameLQ + "bar"); 

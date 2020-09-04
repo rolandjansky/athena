@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -17,11 +17,7 @@ from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import pr
 # so let's make them functions already now
 #----------------------------------------------------------------
 
-
 def electronFastCaloCfg( flags ):
-    return fastCaloMenuSequence("Electron", doRinger=False)
-
-def electronFastCaloRingerCfg( flags ):
     return fastCaloMenuSequence("Electron", doRinger=True)
 
 def fastElectronSequenceCfg( flags ):
@@ -32,6 +28,15 @@ def precisionCaloSequenceCfg( flags ):
 
 def precisionElectronSequenceCfg( flags ):
     return precisionElectronMenuSequence()
+
+# this must be moved to the HypoTool file:
+def diElectronMassComboHypoToolFromDict(chainDict):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDielectronMassHypoTool
+    name = chainDict['chainName']
+    tool= TrigEgammaDielectronMassHypoTool(name)
+    tool.LowerMassElectronClusterCut = 50000
+    tool.UpperMassElectronClusterCut = 130000
+    return tool
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -53,22 +58,22 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # --------------------
 
         stepDictionary = {
-                'etcut1step': ['getFastCaloNoRinger'],
-                'etcut'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
-                'lhloose'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhvloose'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhmedium'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhtight'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'etcutnoringer'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
-                'lhloosenoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhvloosenoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhmediumnoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
-                'lhtightnoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'etcut1step': ['getFastCalo'],
+                'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'etcutnoringer'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloosenoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloosenoringer'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmediumnoringer'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightnoringer'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 }
 
         log.debug('electron chain part = ' + str(self.chainPart))
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['L2IDAlg'] + self.chainPart['isoInfo']
-        
+
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
 
@@ -91,12 +96,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     # Configuration of electron steps
     # --------------------
 
-    def getFastCaloRinger(self):
-        stepName       = "FastCaloRinger_electron"
-        fastCaloRingerCfg    = electronFastCaloRingerCfg
-        return self.getStep(1,stepName,[ fastCaloRingerCfg ])
-
-    def getFastCaloNoRinger(self):
+    def getFastCalo(self):
         stepName       = "FastCalo_electron"
         fastCaloCfg    = electronFastCaloCfg
         return self.getStep(1,stepName,[ fastCaloCfg])
@@ -110,6 +110,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         return self.getStep(3,stepName,[ precisionCaloSequenceCfg])
 
     def getPrecisionElectron(self):
-        stepName = "precision_electron"
-        return self.getStep(4,stepName,[ precisionElectronSequenceCfg])
+        if "Zee" in self.chainName:
+            stepName = "precision_topoelectron"
+            return self.getStep(4,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronMassComboHypoToolFromDict])
+        else:
+            stepName = "precision_electron"
+            return self.getStep(4,stepName,[ precisionElectronSequenceCfg])
 

@@ -10,11 +10,9 @@
 namespace MuonCombined {
 
 MuonDressingTool::MuonDressingTool (const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool")
+    AthAlgTool(type, name, parent)
 {
   declareInterface<xAOD::IMuonDressingTool>(this);
-  declareProperty("MuonHitSummaryTool", m_hitSummaryTool );
 }
 
 StatusCode MuonDressingTool::initialize() {

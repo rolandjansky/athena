@@ -865,13 +865,13 @@ int RpcIdHelper::stationPhiMin(const Identifier& id) const {
 // Private validation of levels
 
 bool RpcIdHelper::validElement(const Identifier& id, int stationName, int stationEta, 
-				      int stationPhi, int doubletR) const
+				      int stationPhi, int doubletR, bool noPrint) const
 {
     std::string name = stationNameString(stationName);
 
     if ('B' != name[0])
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationName=" << name
             << endmsg;
 	return false;
@@ -879,7 +879,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if (stationEta < stationEtaMin(id) ||
         stationEta > stationEtaMax(id)    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationEta=" << stationEta
             << " for stationName=" << name
             << " stationEtaMin=" << stationEtaMin(id)
@@ -890,7 +890,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((stationPhi < stationPhiMin(id)) ||
         (stationPhi > stationPhiMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid stationPhi=" << stationPhi
             << " for stationName=" << name
             << " stationPhiMin=" << stationPhiMin(id)
@@ -901,7 +901,7 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
     if ((doubletR < doubletRMin(id)) ||
         (doubletR > doubletRMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid doubletR=" << doubletR
             << " for stationName=" << name
             << " doubletRMin=" << doubletRMin(id)
@@ -917,14 +917,14 @@ bool RpcIdHelper::validElement(const Identifier& id, int stationName, int statio
 bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int stationEta, 
 				      int stationPhi, int doubletR, int doubletZ, 
 				      int doubletPhi, int gasGap, int measuresPhi, 
-				      int strip) const
+				      int strip, bool noPrint) const
 {
     if (! validElement(id, stationName, stationEta, stationPhi, doubletR)) return false;
 
     if ((doubletZ < doubletZMin(id)) ||
         (doubletZ > doubletZMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid doubletZ=" << doubletZ
             << " doubletZMin=" << doubletZMin(id)
             << " doubletZMax=" << doubletZMax(id)
@@ -934,7 +934,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     if ((doubletPhi < doubletPhiMin(id)) ||
         (doubletPhi > doubletPhiMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid doubletPhi=" << doubletPhi
             << " doubletPhiMin=" << doubletPhiMin(id)
             << " doubletPhiMax=" << doubletPhiMax(id)
@@ -944,7 +944,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     if ((gasGap < gasGapMin(id)) ||
         (gasGap > gasGapMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid gasGap=" << gasGap
             << " gasGapMin=" << gasGapMin(id)
             << " gasGapMax=" << gasGapMax(id)
@@ -954,7 +954,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     if ((measuresPhi < measuresPhiMin(id)) ||
         (measuresPhi > measuresPhiMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid measuresPhi=" << measuresPhi
             << " measuresPhiMin=" << measuresPhiMin(id)
             << " measuresPhiMax=" << measuresPhiMax(id)
@@ -964,7 +964,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
     if ((strip < stripMin(id)) ||
         (strip > stripMax(id))    )
     {
-        (*m_Log) << MSG::WARNING
+        if (!noPrint) (*m_Log) << MSG::WARNING
             << "Invalid strip=" << strip
             << " stripMin=" << stripMin(id)
             << " stripMax=" << stripMax(id)

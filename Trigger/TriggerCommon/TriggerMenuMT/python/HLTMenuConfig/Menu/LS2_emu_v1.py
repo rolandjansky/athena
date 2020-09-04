@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #------------------------------------------------------------------------#
 #------------------------------------------------------------------------#
@@ -24,6 +24,7 @@ def setupMenu():
     # be aware that it is necessary to leave at least one chain in the muon slice
     # otherwise athenaHLT will seg-fault 
     #---------------------------------------------------------------------
+
     log = logging.getLogger( __name__ )
     log.info('Executing menu....')
 
@@ -48,6 +49,7 @@ def setupMenu():
         ChainProp(name='HLT_TestChain5_ev1_TestChain8_ev1_L12EM3',      stream=['Main'], groups=['RATE:Test','BW:Other']),
 #        ChainProp(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6', stream=['Main'], groups=['RATE:Test','BW:Other']   ),
         ChainProp(name='HLT_2TestChain6_muv1_L12MU6',                   stream=['Main'], groups=['RATE:Test','BW:Other']   ),
+        ChainProp(name='HLT_3TestChain6_muv1_L12MU6',                   stream=['Main'], groups=['RATE:Test','BW:Other']   ),
         ChainProp(name='HLT_TestChain6_muv1_TestChain10_muv1_L12MU6',   stream=['Main'], groups=['RATE:Test','BW:Other']  ),        
         ChainProp(name='HLT_2TestChain6_muEmpty1_L12MU6',               stream=['Main'], groups=['RATE:Test','BW:Other']), #may differ from manual
         ChainProp(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L1MU6_EM5',   stream=['Main'], groups=['RATE:Test','BW:Other'] ), 
@@ -85,6 +87,9 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
     addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
+    return Prescales
+
+    return Prescales
 
 class Prescales(object):
     #   Item name             | Prescale

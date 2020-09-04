@@ -70,21 +70,37 @@ BFieldMesh<T>::getCache(double z,
     ++iphi;
   }
   // store the bin edges
-  cache.setRange(
-    mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
-  // store the B field at the 8 corners
+  cache.setRange(mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
+
+
+  // store the B field at the 8 corners in cache
   const int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
-  std::array<BFieldVector<T>, 8> field = {
-    m_field[im0],
-    m_field[im0 + 1],
-    m_field[im0 + m_roff],
-    m_field[im0 + m_roff + 1],
-    m_field[im0 + m_zoff],
-    m_field[im0 + m_zoff + 1],
-    m_field[im0 + m_zoff + m_roff],
-    m_field[im0 + m_zoff + m_roff + 1]
-  };
-  cache.setField(field, scaleFactor);
+  const double sf = scaleFactor;
+  double field1[3][8] = { { sf * m_field[im0][0],
+                            sf * m_field[im0 + m_roff][0],
+                            sf * m_field[im0 + m_zoff][0],
+                            sf * m_field[im0 + m_zoff + m_roff][0],
+                            sf * m_field[im0 + 1][0],
+                            sf * m_field[im0 + m_roff + 1][0],
+                            sf * m_field[im0 + m_zoff + 1][0],
+                            sf * m_field[im0 + m_zoff + m_roff + 1][0] },
+                          { sf * m_field[im0][1],
+                            sf * m_field[im0 + m_roff][1],
+                            sf * m_field[im0 + m_zoff][1],
+                            sf * m_field[im0 + m_zoff + m_roff][1],
+                            sf * m_field[im0 + 1][1],
+                            sf * m_field[im0 + m_roff + 1][1],
+                            sf * m_field[im0 + m_zoff + 1][1],
+                            sf * m_field[im0 + m_zoff + m_roff + 1][1] },
+                          { sf * m_field[im0][2],
+                            sf * m_field[im0 + m_roff][2],
+                            sf * m_field[im0 + m_zoff][2],
+                            sf * m_field[im0 + m_zoff + m_roff][2],
+                            sf * m_field[im0 + 1][2],
+                            sf * m_field[im0 + m_roff + 1][2],
+                            sf * m_field[im0 + m_zoff + 1][2],
+                            sf * m_field[im0 + m_zoff + m_roff + 1][2] } };
+  cache.setField(field1);
   // store the B scale
   cache.setBscale(m_scale);
 }

@@ -1,18 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArSim/LArFakeHitProducer.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 
 
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
-
-#include "StoreGate/StoreGate.h" 
 
 
 // Constructor
@@ -39,7 +37,7 @@ StatusCode LArFakeHitProducer::hitConstruction(){
     ATH_MSG_DEBUG(" Filled the container, size = "<< cont->size() );
 
 
-    ATH_CHECK( StoreGate::instance().record(cont,"LArHitFake") );
+    ATH_CHECK( evtStore()->record(cont,"LArHitFake") );
     return StatusCode::SUCCESS;
 }
 

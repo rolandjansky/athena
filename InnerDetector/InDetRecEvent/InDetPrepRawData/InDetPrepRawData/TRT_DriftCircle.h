@@ -19,6 +19,7 @@
 // Base class
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
+#include "InDetRawData/TRT_LoLumRawData.h"
 
 class TRT_DriftCircleContainerCnv;
 class TRT_DriftCircleContainerCnv_p0;
@@ -41,13 +42,13 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	TRT_DriftCircle(const TRT_DriftCircle &) =default;
 	TRT_DriftCircle &operator=(const TRT_DriftCircle &)=default;
 	TRT_DriftCircle &operator=(TRT_DriftCircle &&)=default;
-        /** Constructor with parameters:
-	compact id of the DriftCircle,
-	the driftRadius and its error
-	the RDO dataword with additional validity bit
-	this class owns the pointers passed (except the TRT_BaseElement),
-        */
-	TRT_DriftCircle(
+  /** Constructor with parameters:
+	 *  compact id of the DriftCircle, 
+	 *  the driftRadius and its error
+	 *  the RDO dataword with additional validity bit 
+	 *  this class owns the pointers passed (except the TRT_BaseElement),
+   */
+	TRT_DriftCircle( 
 		const Identifier &clusId,
 		const Amg::Vector2D& driftRadius,
 		const std::vector<Identifier>& rdoList,
@@ -91,39 +92,39 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	virtual bool highLevel() const ;
 
 	/** returns true if the first bin is high */
-        virtual bool firstBinHigh() const;
+  virtual bool firstBinHigh() const; 
 
 	/** returns true if the last bin is high */
-        virtual bool lastBinHigh() const;
-
+  virtual bool lastBinHigh() const; 
+	
 	/** returns  Time over threshold in ns  */
 	virtual double timeOverThreshold() const ;
 
-        /** returns number of high bins between LE and TE (these included) */
-	virtual int numberOfHighsBetweenEdges() const;
-        /** returns number of low bins between LE and TE (these included) */
-	virtual int numberOfLowsBetweenEdges() const;
+  /** returns number of high bins between LE and TE (these included) */
+	virtual int numberOfHighsBetweenEdges() const;                                             
+  
+  /** returns number of low bins between LE and TE (these included) */
+	virtual int numberOfLowsBetweenEdges() const;                                             
   /** returns the raw driftTime */
   virtual double rawDriftTime() const;
-
+	
   /** returns the raw driftTime,
-   * the passed boolean indicates if the drift time is valid or not.
+	 * the passed boolean indicates if the drift time is valid or not.
    * depreciated for 13.0.20 and later */
   virtual double driftTime(bool& valid) const;
 
-  /** return true if the corrected drift time is OK */
-  virtual bool driftTimeValid() const;
-
-  /** return the detector element corresponding to this PRD */
-  virtual const InDetDD::TRT_BaseElement* detectorElement() const override final;
+	/** return true if the corrected drift time is OK */
+  virtual bool driftTimeValid() const; 
+        
+	/** return the detector element corresponding to this PRD */
+	virtual const InDetDD::TRT_BaseElement* detectorElement() const override final;
 
   /** Interface method checking the type*/
   virtual bool type(Trk::PrepRawDataType::Type type) const override final;
 
-
   // modifiers
 
-  /** set driftTimeValid flag */
+	/** set driftTimeValid flag */
   virtual void setDriftTimeValid(bool valid);
 
   //analysers
@@ -133,6 +134,7 @@ class TRT_DriftCircle :   public Trk::PrepRawData
     by a tool that can be configured for different gas
     speeds etc */
   virtual bool isNoise() const;
+
 
   //debug printers
 
@@ -147,12 +149,10 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	// not const because of DataPool
 	const InDetDD::TRT_BaseElement* m_detEl;
   unsigned int m_word;
-
 };
 
  MsgStream&    operator << (MsgStream& stream,    const TRT_DriftCircle& prd);
  std::ostream& operator << (std::ostream& stream, const TRT_DriftCircle& prd);
-
 }
 
 #include "InDetPrepRawData/TRT_DriftCircle.icc"

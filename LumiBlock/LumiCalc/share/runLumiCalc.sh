@@ -1,22 +1,23 @@
 #!/bin/bash
-export release=20.7.8.6
+export release=latest
+export MyTestArea=/var/www/lumicalc
 
 echo `date`
 echo Working directory is `pwd`
 echo Setting up release $release
 
-export MyTestArea=/var/www/lumicalc
-export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
-#echo   $AtlasSetup/scripts/asetup.sh --help
-#source $AtlasSetup/scripts/asetup.sh --help
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh ""
 
-echo   $AtlasSetup/scripts/asetup.sh --release=$release --testarea=$MyTestArea
-source $AtlasSetup/scripts/asetup.sh --release=$release --testarea=$MyTestArea
+echo asetup --release=$release --testarea=$MyTestArea --branch=master Athena
+asetup --release=$release --testarea=$MyTestArea --branch=master Athena
 
-chmod +x /var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc
+echo   source $MyTestArea/build/*/setup.sh
+source $MyTestArea/build/*/setup.sh
+
 echo which iLumiCalc: `which iLumiCalc`
-echo Executing /var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc $*
-/var/www/lumicalc/LumiBlock/LumiCalc/x86_64-slc6-gcc49-opt/iLumiCalc $*
+echo Executing `which iLumiCalc` $*
+`which iLumiCalc` $*
 
 echo Done
 echo `date`

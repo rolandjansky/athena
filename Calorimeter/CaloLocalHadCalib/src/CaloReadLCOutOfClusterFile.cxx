@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloLocalHadCalib/CaloReadLCOutOfClusterFile.h"
@@ -25,7 +25,7 @@ CaloReadLCOutOfClusterFile::CaloReadLCOutOfClusterFile(const std::string & name,
 CaloReadLCOutOfClusterFile::~CaloReadLCOutOfClusterFile() {}
 
 
-StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfClusterFileName,
+StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(const std::string& theLCOutOfClusterFileName,
                                                         CaloLocalHadCoeff& data)
 {
   // Find the full path to filename:
@@ -46,16 +46,16 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
     bool allValid(true);
 
     std::vector<std::string> keys;
-    keys.push_back(std::string("_iside_"));
-    keys.push_back(std::string("_iphi_"));
-    keys.push_back(std::string("_ilogE_"));
+    keys.emplace_back("_iside_");
+    keys.emplace_back("_iphi_");
+    keys.emplace_back("_ilogE_");
 	  
     std::vector<std::string> names;
-    names.push_back(std::string("side"));
-    names.push_back(std::string("phi"));
-    names.push_back(std::string("log10(E_clus (MeV))"));
-    names.push_back(std::string(prof->GetXaxis()->GetTitle()));
-    names.push_back(std::string(prof->GetYaxis()->GetTitle()));
+    names.emplace_back("side");
+    names.emplace_back("phi");
+    names.emplace_back("log10(E_clus (MeV))");
+    names.emplace_back(prof->GetXaxis()->GetTitle());
+    names.emplace_back(prof->GetYaxis()->GetTitle());
 	  
     std::vector<int> types;
     types.push_back(CaloLocalHadDefs::DIM_EQUI);	  

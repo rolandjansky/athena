@@ -13,6 +13,7 @@
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
 #include "EventInfo/EventInfo.h"
+#include "EventInfoUtils/EventInfoFromxAOD.h"
 #include "TrigSteeringEvent/ScoutingInfo.h"
 #include "eformat/SourceIdentifier.h"
 
@@ -511,16 +512,36 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
    // recording
    ////////////////////////////////////////////////////////////////////
 
-
-   // put it all to SG EventInfo object
-   // get EventInfo
-   const EventInfo* constEventInfo(0);
-   StatusCode sc = evtStore()->retrieve(constEventInfo);
-   if(sc.isFailure()){
-      ATH_MSG_FATAL("Can't get EventInfo object for update of the StreamTag and TriggerInfo");
+   // Retrieve xAOD::EventInfo
+   const xAOD::EventInfo* constxEventInfo(0);
+   if (evtStore()->retrieve(constxEventInfo).isFailure()) {
+      ATH_MSG_FATAL("Can't get xAOD::EventInfo object");
       return HLT::FATAL;
    }
 
+   // Create old EventInfo if not present in the event store
+   StatusCode sc = StatusCode::SUCCESS;
+   const EventInfo* constEventInfo{nullptr};
+   if (evtStore()->retrieve(constEventInfo).isFailure()) {
+      sc = evtStore()->record<EventInfo>(
+         std::make_unique<EventInfo>(
+            new EventID(eventIDFromxAOD(constxEventInfo)),
+            new EventType(eventTypeFromxAOD(constxEventInfo))
+         ), "EventInfo"
+      );
+      if (sc.isFailure()) {
+         ATH_MSG_FATAL("Can't record EventInfo created from xAOD::EventInfo");
+         return HLT::FATAL;
+      }
+      ATH_MSG_DEBUG("Recorded EventInfo created from xAOD::EventInfo");
+   }
+
+   // Get the EventInfo to update StreamTag and TriggerInfo
+   if(!constEventInfo && evtStore()->retrieve(constEventInfo).isFailure()){
+      ATH_MSG_FATAL("Can't get EventInfo object for update of the StreamTag and TriggerInfo");
+      return HLT::FATAL;
+   }
+   ATH_MSG_DEBUG("Retrieved EventInfo for updating with EventID " << *(constEventInfo->event_ID()));
    ATH_MSG_VERBOSE("Updating TriggerInfo");
 
    EventInfo* eventInfo = const_cast<EventInfo*>(constEventInfo);
@@ -603,14 +624,6 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
   //// Recording in xAODEventInfo
   ////////////////////////////////
   // put it all to SG xAOD::EventInfo object
- 
-  const xAOD::EventInfo* constxEventInfo(0);
-  sc = evtStore()->retrieve(constxEventInfo);
-  
-  if (sc.isFailure()) {   
-    ATH_MSG_FATAL("Can't get xAOD::EventInfo object for update of the StreamTag");
-    return HLT::FATAL;
-  }
   
 
 #if 0

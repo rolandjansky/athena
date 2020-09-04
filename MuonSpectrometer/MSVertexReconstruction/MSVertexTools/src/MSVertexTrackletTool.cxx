@@ -45,16 +45,10 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  MSVertexTrackletTool::MSVertexTrackletTool (const std::string& type, const std::string& name,
-					      const IInterface* parent)
-    : 
-    AthAlgTool(type, name, parent),
-    m_mdtTESKey("MDT_DriftCircles"),
-    m_TPContainer("MSonlyTracklets")
-  {
+  MSVertexTrackletTool::MSVertexTrackletTool (const std::string& type, const std::string& name, const IInterface* parent) : 
+      AthAlgTool(type, name, parent) {
     declareInterface<IMSVertexTrackletTool>(this);    
 
-    declareProperty("xAODTrackParticleContainer", m_TPContainer );
     // max residual for tracklet seeds
     declareProperty("SeedResidual",m_SeedResidual = 5);
     // segment fitter chi^2 cut
@@ -67,13 +61,11 @@ namespace Muon {
     declareProperty("EndcapDeltaAlpha",m_EndcapDeltaAlphaCut = 0.015);
     // tight tracklet requirement (affects efficiency - disabled by default)
     declareProperty("TightTrackletRequirement",m_tightTrackletRequirement = false);
-    declareProperty("mdtTES", m_mdtTESKey);
     
   }
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
-
 
   StatusCode MSVertexTrackletTool::initialize() {
     
@@ -83,23 +75,6 @@ namespace Muon {
 
     return StatusCode::SUCCESS;
   }
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-  MSVertexTrackletTool::~MSVertexTrackletTool() {
-    
-  }
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-  
-
-  StatusCode MSVertexTrackletTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
  

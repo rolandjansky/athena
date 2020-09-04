@@ -29,7 +29,7 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> saLinkInfo = TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(muDecision, "feature");
     ATH_CHECK( saLinkInfo.isValid() );
     const ElementLink<xAOD::L2StandAloneMuonContainer> saEL = saLinkInfo.link;
-    float saELPt = (*saEL)->pt();
+
 
 
     // basic EDM variables
@@ -41,45 +41,22 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     cbEta = (*muEL)->eta();
     cbPhi = (*muEL)->phi();
 
-
-    // get L2SA track
     auto saPt = Monitored::Scalar<float>(m_group+"_saPt",-999.);
     auto saEta = Monitored::Scalar<float>(m_group+"_saEta",-999.);
     auto saPhi = Monitored::Scalar<float>(m_group+"_saPhi",-999.);
 
-    const xAOD::L2StandAloneMuon* samu = nullptr;
+    saPt = (*saEL)->pt();
+    saEta = (*saEL)->eta();
+    saPhi = (*saEL)->phi();
+
+
+    // get L2SA track
+    const xAOD::L2StandAloneMuon* SATrack = nullptr;
+    float SATrackPt = -999.;
     if( (*muEL)->muSATrackLink().isValid() ) {
-      samu = (*muEL)->muSATrack();
-      saPt  = samu->pt();
-      saEta = samu->eta();
-      saPhi = samu->phi();
+      SATrack    = (*muEL)->muSATrack();
+      SATrackPt  = SATrack->pt();
     }
-
-
-    // MF error
-    // SA and CB ContainerSize Error cannot occur, so removed it (change point from Run 2 monitoring)
-    std::vector<int> vec_MF_error;
-    vec_MF_error.clear();
-    auto MF_error = Monitored::Collection(m_group+"_MF_error",vec_MF_error);
-
-    bool error = false;
-    if( samu ){
-      if(fabs(saELPt - saPt) > ZERO_LIMIT){
-        vec_MF_error.push_back(1);
-        error = true;
-      }
-    } else{
-      vec_MF_error.push_back(1);
-      error = true;
-    }
-    if(fabs(saELPt) < ZERO_LIMIT){
-      vec_MF_error.push_back(2);
-      error = true;
-    }
-    if(!error)  vec_MF_error.push_back(0);
-
-    fill(m_group, MF_error);
-    if(error) continue;
 
 
     // CB and Offline matching
@@ -89,13 +66,13 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto L2CB_failure = Monitored::Scalar<bool>(m_group+"_L2CB_failure",false);
     bool off_cb_match = false;
     bool off_sa_match = false;
-    L2SA_success = (fabs(saPt) > ZERO_LIMIT)? true:false;
-    L2CB_success = (fabs(cbPt) > ZERO_LIMIT)? true:false;
+    L2SA_success = (std::abs(saPt) > ZERO_LIMIT)? true:false;
+    L2CB_success = (std::abs(cbPt) > ZERO_LIMIT)? true:false;
 
 
     // matching to offline
-    const xAOD::Muon* RecMuonCBmatchL2SA = m_matchTool->matchL2SAtoOff(ctx, saEta, saPhi);
-    const xAOD::Muon* RecMuonCBmatchL2CB = m_matchTool->matchL2CBtoOff(ctx, cbEta, cbPhi);
+    const xAOD::Muon* RecMuonCBmatchL2SA = m_matchTool->matchL2SAtoOff(ctx, (*saEL));
+    const xAOD::Muon* RecMuonCBmatchL2CB = m_matchTool->matchL2CBtoOff(ctx, (*muEL));
     if( RecMuonCBmatchL2SA && L2SA_success) off_sa_match = true;
     if( RecMuonCBmatchL2CB && L2CB_success) off_cb_match = true;
 
@@ -119,8 +96,8 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto dPhi_toSA = Monitored::Scalar<float>(m_group+"_dPhi_toSA",-999.);
     auto dR_toSA = Monitored::Scalar<float>(m_group+"_dR_toSA",-999.);
   
-    if( (*muEL)->muSATrackLink().isValid() && fabs(saPt) > ZERO_LIMIT ){
-      ptratio_toSA = fabs(cbPt / saPt);
+    if( (*muEL)->muSATrackLink().isValid() && std::abs(saPt) > ZERO_LIMIT ){
+      ptratio_toSA = std::abs(cbPt / saPt);
       dEta_toSA = cbEta - saEta;
       dPhi_toSA = xAOD::P4Helpers::deltaPhi(cbPhi, saPhi);
       dR_toSA = sqrt(dEta_toSA*dEta_toSA + dPhi_toSA*dPhi_toSA);
@@ -147,7 +124,7 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     }
 
     fill(m_group, trkPt);
-    if( fabs(trkPt) > ZERO_LIMIT)  fill(m_group, trkEta, trkPhi, trkZ0, trkChi2);
+    if( std::abs(trkPt) > ZERO_LIMIT)  fill(m_group, trkEta, trkPhi, trkZ0, trkChi2);
 
 
     // comparison L2muComb (IDTrack) vs L2MuonSA
@@ -156,14 +133,38 @@ StatusCode L2muCombMonMT :: fillVariablesPerChain(const EventContext &ctx, const
     auto dPhi_TrktoSA = Monitored::Scalar<float>(m_group+"_dPhi_TrktoSA",-999.);
     auto dR_TrktoSA = Monitored::Scalar<float>(m_group+"_dR_TrktoSA",-999.);
     
-    if( (*muEL)->idTrackLink().isValid() && fabs(saPt) > ZERO_LIMIT ){
-      ptratio_TrktoSA = fabs(cbPt / saPt);
+    if( (*muEL)->idTrackLink().isValid() && std::abs(saPt) > ZERO_LIMIT ){
+      ptratio_TrktoSA = std::abs(cbPt / saPt);
       dEta_TrktoSA = cbEta - saEta;
       dPhi_TrktoSA = xAOD::P4Helpers::deltaPhi(cbPhi, saPhi);
       dR_TrktoSA = sqrt(dEta_TrktoSA*dEta_TrktoSA + dPhi_TrktoSA*dPhi_TrktoSA);
       
       fill(m_group, ptratio_TrktoSA, dEta_TrktoSA, dPhi_TrktoSA, dR_TrktoSA);
     } 
+
+
+    // Muon Feature error
+    std::vector<int> vec_MF_error;
+    vec_MF_error.clear();
+    auto MF_error = Monitored::Collection(m_group+"_MF_error",vec_MF_error);
+
+    bool error = false;
+    if( SATrack ){
+      if(std::abs(saPt - SATrackPt) > ZERO_LIMIT){
+        vec_MF_error.push_back(2);
+        error = true;
+      }
+    } else{
+      vec_MF_error.push_back(1);
+      error = true;
+    }
+    if(std::abs(saPt) < ZERO_LIMIT){
+      vec_MF_error.push_back(3);
+      error = true;
+    }
+    if(!error)  vec_MF_error.push_back(0);
+
+    fill(m_group, MF_error);
 
   }
 
@@ -201,7 +202,7 @@ StatusCode L2muCombMonMT :: fillVariablesPerOfflineMuonPerChain(const EventConte
 
   // pt resolution
   float cbPt  = (*muEL)->pt()/1e3;
-  if ( fabs(offPt) > ZERO_LIMIT && fabs(cbPt) > ZERO_LIMIT ) ptresol = fabs(cbPt)/fabs(offPt) - 1.;
+  if ( std::abs(offPt) > ZERO_LIMIT && std::abs(cbPt) > ZERO_LIMIT ) ptresol = std::abs(cbPt)/std::abs(offPt) - 1.;
   fill(m_group, offEta, ptresol);
 
 

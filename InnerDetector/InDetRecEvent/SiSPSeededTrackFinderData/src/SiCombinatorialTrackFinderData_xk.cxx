@@ -105,6 +105,10 @@ namespace InDet {
     return m_roadbug;
   }
 
+  std::array<bool,SiCombinatorialTrackFinderData_xk::kNCombStats>& SiCombinatorialTrackFinderData_xk::statistic()  {
+    return m_statistic;
+  }
+
   bool& SiCombinatorialTrackFinderData_xk::heavyIon() {
     return m_heavyIon;
   }

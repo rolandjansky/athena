@@ -19,7 +19,7 @@ TEST2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TE
                                                                  #expression = "EventInfo.eventNumber")
 
 ToolSvc += TEST2StringSkimmingTool
-print TEST2StringSkimmingTool
+printfunc(TEST2StringSkimmingTool)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  

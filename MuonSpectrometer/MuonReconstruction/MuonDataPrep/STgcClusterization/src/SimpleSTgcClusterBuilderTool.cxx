@@ -87,7 +87,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
 
         double maxCharge = -1.0;
         double totalCharge  = 0.0;
-        for ( auto it : cluster ) {
+        for ( const auto& it : cluster ) {
           rdoList.push_back(it.identify());
           elementsCharge.push_back(it.charge());
           elementsChannel.push_back(m_idHelperSvc->stgcIdHelper().channel(it.identify()));
@@ -119,7 +119,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         ATH_MSG_DEBUG("Cluster size: " << cluster.size());
         if ( cluster.size() > 1 ) {
           double weight = 0.0;
-          for ( auto it : cluster ) {
+          for ( const auto& it : cluster ) {
             isStrip ? weight = it.charge() : weight = 1.0; 
             ATH_MSG_DEBUG("isStrip: " << isStrip << " weight: " << weight);
             //sigmaSq += weight*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
@@ -138,7 +138,7 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
-        ATH_MSG_INFO("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
+        ATH_MSG_DEBUG("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
         
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
             rdoList, covN, cluster.at(0).detectorElement(),
@@ -239,7 +239,7 @@ void SimpleSTgcClusterBuilderTool::dumpStrips( std::vector<Muon::sTgcPrepData>& 
 {
 
   ATH_MSG_INFO("====> Dumping all strips:  ");
-  for ( auto it : stripsVect ) {
+  for ( const auto& it : stripsVect ) {
     Identifier stripId = it.identify(); 
     ATH_MSG_INFO("Strip identifier: " << m_idHelperSvc->stgcIdHelper().show_to_string(stripId) ); 
   }

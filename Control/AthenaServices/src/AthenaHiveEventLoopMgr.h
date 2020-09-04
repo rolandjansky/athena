@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -118,7 +118,7 @@ protected:
   /// @property Name of TimeKeeper to use. NONE or empty string (default) means no time limit control on event loop
   StringProperty    m_timeKeeperName;
   /// @property update handler:sets up the time keeper
-  void setupTimeKeeper(Property&);
+  void setupTimeKeeper(Gaudi::Details::PropertyBase&);
 
   /// @property Failure mode 
   IntegerProperty m_failureMode;
@@ -139,7 +139,7 @@ protected:
   tool_store m_tools;         ///< internal tool store
 
   /// property update handler:sets up the Pre-selection tools
-  void setupPreSelectTools(Property&);
+  void setupPreSelectTools(Gaudi::Details::PropertyBase&);
 
   /// @property configure the policy wrt handling of when 'clear-event-store'
   /// has to happen: BeginEvent xor EndEvent.
@@ -151,7 +151,7 @@ protected:
 
   /// property update handler:set the clear-store policy value and check its
   /// value.
-  void setClearStorePolicy(Property& clearStorePolicy);
+  void setClearStorePolicy(Gaudi::Details::PropertyBase& clearStorePolicy);
 
   /// Dump out histograms as needed
   virtual StatusCode writeHistograms(bool force=false);

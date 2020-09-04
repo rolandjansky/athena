@@ -18,7 +18,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 
 #include "CLHEP/Random/Ranlux64Engine.h"
 

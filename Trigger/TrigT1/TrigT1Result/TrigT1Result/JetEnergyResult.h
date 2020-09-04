@@ -25,10 +25,9 @@ namespace ROIB {
 
   public:
     /* Constructor with header, trailer and RoI vector */
-    JetEnergyResult( const Header&, const Trailer&, const std::vector< JetEnergyRoI >& );
+    JetEnergyResult( Header&&, Trailer&&, std::vector< JetEnergyRoI >&& );
     /* Empty constructor */
     JetEnergyResult();
-    ~JetEnergyResult();
 
     /* Member function returning the header */
     const Header& header() const;

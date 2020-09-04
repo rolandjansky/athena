@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // $Id: TrackCaloCluster_v1.h $
 #ifndef XAODPFLOW_VERSIONS_TRACKCALOCLUSTER_V1_H
@@ -73,8 +73,8 @@ namespace xAOD {
     /// The \f$\phi\f$ parameter is returned by either the phi() or the phi0() methods, the difference just being whether it is returned as a float or a double (it is stored as a float)
     /// @{
     void setParameters(float pt, float eta, float phi, float m, TrackCaloCluster_v1::Taste taste, 
-		       const ElementLink<xAOD::TrackParticleContainer> particle, 
-		       const std::vector< ElementLink< xAOD::CaloClusterContainer > > clusters);       
+		       const ElementLink<xAOD::TrackParticleContainer>& particle, 
+		       const std::vector< ElementLink< xAOD::CaloClusterContainer > >& clusters);       
     /// @}
     
     /// @name Links       

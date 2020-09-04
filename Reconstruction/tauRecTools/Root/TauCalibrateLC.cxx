@@ -5,6 +5,7 @@
 #include "tauRecTools/TauCalibrateLC.h"
 
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #include "TFile.h"
 #include "TF1.h"
@@ -32,7 +33,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 StatusCode TauCalibrateLC::initialize() {
 
   if (inTrigger()) {
-    ATH_CHECK( m_eventInfoKey.initialize() );
+    ATH_CHECK( m_aveIntPerXKey.initialize() );
   }
   else {
     ATH_CHECK( m_vertexInputContainer.initialize() );
@@ -152,16 +153,15 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
     
     // Obtain pileup
     if (inTrigger())  { // online: retrieved from EventInfo 
-      SG::ReadHandle<xAOD::EventInfo> eventInfoHandle( m_eventInfoKey );
-      if (!eventInfoHandle.isValid()) {
-        ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventInfoHandle.key() << ", will set nVertex = " << m_averageNPV );
+      SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+      if (!eventInfoDecorHandle.isPresent()) {
+        ATH_MSG_WARNING ( "EventInfo decoration not available! Will set nVertex = " << m_averageNPV );
         nVertex = m_averageNPV;
       }
       else {
-        const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
-        nVertex = eventInfo->averageInteractionsPerCrossing();
+        nVertex = eventInfoDecorHandle(0);
         ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
-      }
+      } 
     }  
     else { // offline: count the primary vertex container
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );

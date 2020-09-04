@@ -66,7 +66,9 @@ svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-# Load "user algorithm" top algorithms to be run, and the libraries that house them
+# Create xAOD::EventInfo
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg("EventInfoCnvAlg")
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1" , "SimplePoolReplica1.root" )

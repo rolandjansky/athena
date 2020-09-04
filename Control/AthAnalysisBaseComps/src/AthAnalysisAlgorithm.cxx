@@ -42,7 +42,7 @@ AthAnalysisAlgorithm::AthAnalysisAlgorithm( const std::string& name
 
 AthAnalysisAlgorithm::~AthAnalysisAlgorithm() { }
 
-void AthAnalysisAlgorithm::updateEvtStore(Property& prop) {
+void AthAnalysisAlgorithm::updateEvtStore(Gaudi::Details::PropertyBase& prop) {
   evtStore().release().ignore(); 
   evtStore().setTypeAndName(prop.toString());
 }

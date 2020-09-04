@@ -280,7 +280,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
   std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
   sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
   for( const std::pair< const InDet::PixelCluster* const, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
-    sorted.push_back( pixelTrackItem );
+    sorted.emplace_back(pixelTrackItem );
   }
   std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,
                                               const std::pair< const InDet::PixelCluster*, const Trk::Track* > &b) {
@@ -312,8 +312,8 @@ void
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) const
 {
    auto parseFileName=[](const std::string & fullname){
-     auto dotPosition = fullname.rfind(".");
-     auto slashPosition = fullname.rfind("/");
+     auto dotPosition = fullname.rfind('.');
+     auto slashPosition = fullname.rfind('/');
      auto stringLength = dotPosition - slashPosition;
      return fullname.substr(slashPosition, stringLength);
    };

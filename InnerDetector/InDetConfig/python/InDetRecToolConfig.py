@@ -23,15 +23,11 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **
   result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
   return result
 
-def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   result = ComponentAccumulator()
-  if 'Extrapolator' not in kwargs:
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
 
-  if ('SctSummaryTool' not in kwargs):
-    if flags.Detector.SCTOn:
+  if 'SctSummaryTool' not in kwargs:
+    if flags.Detector.RecoSCT:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
       kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
@@ -43,11 +39,29 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
+  kwargs.setdefault("UsePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("UseSCT", flags.Detector.RecoSCT)
+
+  indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
+  result.setPrivateTools(indet_boundary_check_tool)
+  return result
+
+
+def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+  result = ComponentAccumulator()
+  if 'Extrapolator' not in kwargs:
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
+  if 'BoundaryCheckTool' not in kwargs:
+    tmpAcc = InDetBoundaryCheckToolCfg(flags)
+    kwargs.setdefault('BoundaryCheckTool', tmpAcc.popPrivateTools())
+    result.merge(tmpAcc)
+
   if flags.Beam.Type == "cosmics" :
     kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "usePixel"                     , flags.Detector.PixelOn)
-  kwargs.setdefault( "useSCT"                       , flags.Detector.SCTOn)
   kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
 
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
@@ -408,7 +422,7 @@ def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
   
   acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTool() )
+  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTools() )
   result.merge(acc)
 
   result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )

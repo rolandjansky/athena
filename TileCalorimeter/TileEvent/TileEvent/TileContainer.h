@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -91,10 +91,7 @@ CLASS_DEF(TileMuonReceiverContainer, 2954, 0)
 namespace SG {
   template <class T>
   struct Bases<TileContainer<T> > {
-    typedef DataVector<T> Base1;
-    typedef NoBase Base2;
-    typedef NoBase Base3;
-    typedef NoBase Base4;
+    using bases = BaseList<DataVector<T> >;
   };
 }
 

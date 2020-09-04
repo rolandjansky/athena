@@ -402,6 +402,9 @@ namespace xAOD {
       int      cscHitsCapacity() const;
       void     setCscHitsCapacity( int value );
 
+      void     setStgcClustersCapacity( const int value );
+      void     setMmClustersCapacity( const int value );
+
       void     setCapacities( int rpc, int tgc, int mdt, int csc );
 
       /// Get RPC hits
@@ -471,7 +474,44 @@ namespace xAOD {
       void         setCscHit( int isOutlier, int chamber, uint32_t stationName,
                               int stationEta, int stationPhi, int chamberLayer, int wireLayer, int measuresPhi, int strip,
                               float eta, float phi, float r, float z, int charge, float time, float residual );
-     
+
+      /// Get sTGC clusters
+      const std::vector< unsigned int >& stgcClusterLayer() const;
+      const std::vector< int >&          stgcClusterIsOutlier() const;
+      const std::vector< int >&          stgcClusterType() const;
+      const std::vector< float >&        stgcClusterEta() const;
+      const std::vector< float >&        stgcClusterPhi() const;
+      const std::vector< float >&        stgcClusterR() const;
+      const std::vector< float >&        stgcClusterZ() const;
+      const std::vector< float >&        stgcClusterResidualR() const;
+      const std::vector< float >&        stgcClusterResidualPhi() const;
+      const std::vector< int >&          stgcClusterStationEta() const;
+      const std::vector< int >&          stgcClusterStationPhi() const;
+      const std::vector< int >&          stgcClusterStationName() const;
+      /// Set sTGC hits
+      void setStgcCluster(const unsigned int layer, const int isOutlier, const int type,
+			  const float eta, const float phi, const float r, const float z,
+			  const float residualR, const float residualPhi,
+			  const int stationEta, const int stationPhi, const int stationName );
+
+      /// Get MM clusters
+      const std::vector< unsigned int >& mmClusterLayer() const;
+      const std::vector< int >&          mmClusterIsOutlier() const;
+      const std::vector< float >&        mmClusterEta() const;
+      const std::vector< float >&        mmClusterPhi() const;
+      const std::vector< float >&        mmClusterR() const;
+      const std::vector< float >&        mmClusterZ() const;
+      const std::vector< float >&        mmClusterResidualR() const;
+      const std::vector< float >&        mmClusterResidualPhi() const;
+      const std::vector< int >&          mmClusterStationEta() const;
+      const std::vector< int >&          mmClusterStationPhi() const;
+      const std::vector< int >&          mmClusterStationName() const;
+      /// Set MM hits
+      void setMmCluster(const unsigned int layer, const int isOutlier,
+			const float eta, const float phi, const float r, const float z,
+			const float residualR, const float residualPhi,
+			const int stationEta, const int stationPhi, const int stationName );
+
       /// @}
 
    }; // class L2StandAloneMuon_v2

@@ -73,7 +73,7 @@ class HepMcReaderTool : virtual public IIOHepMcTool,
   /** @brief Method to configure the front-end to read out the
    *  @c HepMC::GenEvent.
    */
-  void setupFrontend( Property& ioFrontendURL );
+  void setupFrontend( Gaudi::Details::PropertyBase& ioFrontendURL );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

@@ -143,7 +143,7 @@ StatusCode HepMcReaderTool::read( HepMC::GenEvent* evt )
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-void HepMcReaderTool::setupFrontend( Property& /*prop*/ )
+void HepMcReaderTool::setupFrontend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
   // defaults
   std::string protocol = "ascii";

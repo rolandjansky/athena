@@ -30,11 +30,7 @@ namespace ROIB {
 
   public:
     //! Constructor with header, trailer and RDO
-    L1TopoResult( const Header&, const Trailer&, const L1TopoRDO&);
-    //! Default constructor
-    L1TopoResult();
-    //! Destructor
-    ~L1TopoResult();
+    L1TopoResult( Header&&, Trailer&&, L1TopoRDO&&) noexcept;
 
     //! Get methods
 

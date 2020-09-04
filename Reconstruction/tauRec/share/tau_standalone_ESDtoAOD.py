@@ -35,3 +35,7 @@ tauFlags.isStandalone.set_Value_and_Lock(True)
 UserAlgs = ["tauRec/tauRec_jobOptions.py"]
 
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr( condSeq, "LumiBlockMuWriter" ):
+  include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")

@@ -22,7 +22,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/Array.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -206,9 +206,9 @@ StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
   while (ispec < m_corrspecs.size()) {
     // Starting a new tool.
     Tool tool;
-    tool.collproc = 0;
-    tool.clusproc = 0;
-    tool.setcellcontname = 0;
+    tool.collproc = nullptr;
+    tool.clusproc = nullptr;
+    tool.setcellcontname = nullptr;
 
     // -- Name.
     tool.name = m_corrspecs[ispec++];
@@ -325,7 +325,7 @@ StatusCode CaloRunClusterCorrections::parseKeeplist()
     }
 
     // Find the tool in our vector.
-    Tool* tool = 0;
+    Tool* tool = nullptr;
     for (size_t itool = 0; itool < m_tools.size(); itool++) {
       if (m_tools[itool].name == toolname) {
         tool = &m_tools[itool];
@@ -437,7 +437,7 @@ StatusCode CaloRunClusterCorrections::createTools ATLAS_NOT_THREAD_SAFE /*Binds 
 void
 CaloRunClusterCorrections::registerCallbacks ATLAS_NOT_THREAD_SAFE /*Registers callback*/ ()
 {
-  if (m_folderName.size()) { //COOL inline storage
+  if (!m_folderName.empty()) { //COOL inline storage
 
     StatusCode sc=m_coolInlineTool.retrieve(); 
     if (sc.isFailure()) {
@@ -530,7 +530,7 @@ CaloRunClusterCorrections::updateTools ATLAS_NOT_THREAD_SAFE /*callbacks*/ (IOVS
 {
   REPORT_MESSAGE(MSG::DEBUG) << "In IOV Callback method updateTools";
 
-  if (m_folderName.size()>0) {
+  if (!m_folderName.empty()) {
     //COOL-inline case
     if (std::find(keys.begin(),keys.end(),m_folderName)==keys.end()) {
        REPORT_MESSAGE(MSG::DEBUG)
@@ -669,7 +669,7 @@ CaloRunClusterCorrections::clsnameFromDBConstants ATLAS_NOT_THREAD_SAFE (Tool& t
 StatusCode CaloRunClusterCorrections::fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& tool)
 {
   const Tool& ctool = tool;
-  typedef CaloRec::ToolConstants::Maptype Maptype;
+  using Maptype = CaloRec::ToolConstants::Maptype;
   const Maptype& map = ctool.dbconstants->map();
   if (map.empty()) {
     // If there are no constants, then the prefix setting can't matter...
@@ -771,10 +771,10 @@ CaloRunClusterCorrections::orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMis
       // Tool is being initialized from JO.  Find the order property from JOS.
       tool.order = -1;
       std::string fullname = this->name() + "." + tool.name;
-      const std::vector<const Property*>* props =
+      const std::vector<const Gaudi::Details::PropertyBase*>* props =
         m_jos->getProperties (fullname);
       for (size_t iprop = 0; iprop < props->size(); iprop++) {
-        const Property& prop = *(*props)[iprop];
+        const Gaudi::Details::PropertyBase& prop = *(*props)[iprop];
         if (prop.name() == "order") {
           tool.order = std::atoi (prop.toString().c_str());
           break;

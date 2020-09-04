@@ -33,7 +33,7 @@ namespace TXC {
       L1TopoMenu(const std::string & name, const std::string & version);
 
       // assignment constructor
-      L1TopoMenu(L1TopoMenu&& o);
+      L1TopoMenu(L1TopoMenu&& o) noexcept = default;
 
       L1TopoMenu(const L1TopoMenu&) = delete;
 
@@ -63,7 +63,7 @@ namespace TXC {
       void setSMK(const unsigned int& smk) {m_smk = smk; }
     
       //! \brief add algorithm
-      void addAlgorithm(const TXC::L1TopoConfigAlg &alg);
+      void addAlgorithm(TXC::L1TopoConfigAlg &&alg);
 
       //! \brief add output
       void addL1TopoXMLOutput(const TXC::OutputListElement & output) { m_outputlist.addOutputListElement(output); }
@@ -75,7 +75,7 @@ namespace TXC {
       //! \brief print menu
       void print() const;
 
-      L1TopoMenu& operator=(L1TopoMenu&& o);
+      L1TopoMenu& operator=(L1TopoMenu&& o) noexcept = default;
       
       void writeXML(const std::string& xmlfile);
 

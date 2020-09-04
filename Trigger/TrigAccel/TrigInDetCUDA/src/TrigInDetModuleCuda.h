@@ -25,7 +25,7 @@ class TrigInDetModuleCuda : public TrigAccel::WorkFactory {
   ~TrigInDetModuleCuda();
 
   bool configure();
-  
+
   TrigAccel::Work* createWork(int, std::shared_ptr<TrigAccel::OffloadBuffer>);
 
   const std::vector<int> getProvidedAlgs();
@@ -36,35 +36,28 @@ class TrigInDetModuleCuda : public TrigAccel::WorkFactory {
     
   private:
 
-    inline void checkError() const {
+    inline void checkError(int code = 0) const {
       cudaError_t error = cudaGetLastError();
       if(error != cudaSuccess) {
-	printf("CUDA error: %s\n", cudaGetErrorString(error));
-	exit(-1);
+        printf("%d CUDA error %d: %s\n", getpid(), code, cudaGetErrorString(error));
+        exit(-1);
       }
     };
+    
+    void getNumberOfGPUs();
     
     //data structures
 
     //1. "const" data: managed by the Factory
+
+    unsigned char* m_h_detmodel;
     
-    std::map<unsigned int, unsigned char*> m_d_detmodels;
-    
-    int m_maxNumberOfContexts;//Factory setting
     int m_maxDevice;
-
-    bool m_usePinnedMemory; 
-    bool m_useWriteCombinedMemory; 
-    bool m_linkOutputToShm;
-
-    // host / device pairs for each device
-
-    tbb::concurrent_queue<SeedMakingDeviceContext*> m_seedMakingDcQueue;
 
     // data context allocation / de-allocation
     
-    SeedMakingDeviceContext* createSeedMakingContext(int);
-    void deleteSeedMakingContext(SeedMakingDeviceContext*);
+    SeedMakingDeviceContext* createSeedMakingContext(int) const;
+    void deleteSeedMakingContext(SeedMakingDeviceContext*) const;
 
     bool m_dumpTimeLine;
     

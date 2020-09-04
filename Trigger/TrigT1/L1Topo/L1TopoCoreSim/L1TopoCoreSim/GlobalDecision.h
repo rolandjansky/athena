@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  GlobalDecision.h
-//  L1TopoCoreSimulation
-//  Created by Joerg Stelzer on 11/25/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef L1TopoCoreSimulation_GlobalDecision
-#define L1TopoCoreSimulation_GlobalDecision
+#ifndef L1TopoCoreSim_GlobalDecision
+#define L1TopoCoreSim_GlobalDecision
 
 #include "TrigConfBase/TrigConfMessaging.h"
 

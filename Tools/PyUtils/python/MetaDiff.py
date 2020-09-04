@@ -186,7 +186,7 @@ def compare(obj1, obj2, parent_key=None, ordered=False, diff_format="simple"):
                     print_diff_dict_keys(parent_key, obj1, obj2, diff_format)
                 ]
             else:
-                for key in sorted(set(obj1.keys() + obj2.keys())):
+                for key in sorted(set(obj1.keys()) | set(obj2.keys())):
                     if parent_key:
                         child_key = "{}/{}".format(parent_key, key)
                     else:

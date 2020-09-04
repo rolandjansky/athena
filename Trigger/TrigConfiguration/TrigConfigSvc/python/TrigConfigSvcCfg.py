@@ -4,7 +4,7 @@ from PyUtils.Decorators import memoize
 from AthenaCommon.Logging import logging
 from collections import OrderedDict as odict
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, conf2toConfigurable
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 import json
 
 def getHLTPrescaleFolderName():
@@ -12,65 +12,45 @@ def getHLTPrescaleFolderName():
 
 
 # L1 Json file name 
-def getL1MenuFileName( flags=None ):
-    if flags is None:
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        l1MenuFileName = 'L1Menu_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-    else:
-        l1MenuFileName = 'L1Menu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+def getL1MenuFileName( flags ):
+    l1MenuFileName = 'L1Menu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     l1MenuFileName = l1MenuFileName.replace(".xml",".json").replace("LVL1config", "L1Menu")
     l1MenuFileName = l1MenuFileName.replace("_newJO","")
     return l1MenuFileName
 
 
 # HLT Json file name 
-def getHLTMenuFileName( flags=None ):
-    if flags is None:
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        hltMenuFileName = 'HLTMenu_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-    else:
-        hltMenuFileName = 'HLTMenu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+def getHLTMenuFileName( flags ):
+    hltMenuFileName = 'HLTMenu_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     hltMenuFileName = hltMenuFileName.replace(".xml",".json").replace("HLTconfig", "HLTMenu").replace("HLTmenu", "HLTMenu")
     hltMenuFileName = hltMenuFileName.replace("_newJO","")
     return hltMenuFileName
 
 # L1 Prescales set json file name
-def getL1PrescalesSetFileName( flags=None ):
-    if flags is None:
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        l1PrescalesSetFileName = 'L1PrescalesSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-    else:
-        l1PrescalesSetFileName = 'L1PrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+def getL1PrescalesSetFileName( flags ):
+    l1PrescalesSetFileName = 'L1PrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return l1PrescalesSetFileName
 
 
 # HLT Prescales set json file name
-def getHLTPrescalesSetFileName( flags=None ):
-    if flags is None:
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        hltPrescalesSetFileName = 'HLTPrescalesSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-    else:
-        hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+def getHLTPrescalesSetFileName( flags ):
+    hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return hltPrescalesSetFileName
 
 # L1 Bunchgroups set json file name
-def getBunchGroupSetFileName( flags=None ):
-    if flags is None:
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        bunchGroupSetFileName = 'BunchGroupSet_'+tf.triggerMenuSetup()+'_'+tf.menuVersion()+'.json'
-    else:
-        bunchGroupSetFileName = 'BunchGroupSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+def getBunchGroupSetFileName( flags ):
+    bunchGroupSetFileName = 'BunchGroupSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return bunchGroupSetFileName
 
 
 # HLT Job options json file name
-def getHLTJobOptionsFileName( flags=None ):
+def getHLTJobOptionsFileName( ):
     return 'HLTJobOptions.json'
 
 
 # Creates an L1 Prescale file from the menu
 # this is a temporary solution, in the final version the L1PrescalesSet file should come from the menu
-def createL1PrescalesFileFromMenu( flags=None ):
+def createL1PrescalesFileFromMenu( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     menuFN = getL1MenuFileName( flags )
     with open(menuFN,'r') as fh:
@@ -92,41 +72,10 @@ def createL1PrescalesFileFromMenu( flags=None ):
         log.info("Generated default L1 prescale set %s", outfile.name)
 
 
-# Creates an HLT Prescale file from the menu
-# this is a temporary solution, in the final version the HLTPrescalesSet file should come from the menu
-def createHLTPrescalesFileFromMenu( flags=None ):
+def getTrigConfigFromFlag( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    menuFN = getHLTMenuFileName( flags )
-    with open(menuFN,'r') as fh:
-        data = json.load(fh, object_pairs_hook = odict)
-        pso = odict()
-        pso['filetype'] = 'hltprescale'
-        pso['name'] = data['name']
-        pso['prescales'] = odict()
-        ps = pso['prescales']
-        for name, chain in data['chains'].items():
-            ps[name] = odict([
-                ("name", name),
-                ("counter", chain['counter']),
-                ("hash", chain['nameHash']),
-                ("prescale", 1),
-                ("enabled", 1)
-            ])
-    psFN = getHLTPrescalesSetFileName( flags )
-    with open(psFN, 'w') as outfile:
-        json.dump(pso, outfile, indent = 4)
-        log.info("Generated default HLT prescale set %s", outfile.name)
-
-
-def getTrigConfigFromFlag( flags=None ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    if flags is None: # old-style TriggerFlags
-        from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-        tcflag = tf.triggerConfig() if tf.triggerConfig.statusOn else None
-        log.info("Parsing old-style trigger flags 'triggerConfig': %s", tcflag)
-    else:
-        tcflag = flags.Trigger.triggerConfig
-        log.info("Parsing new-style trigger flag 'triggerConfig': %s", tcflag)
+    tcflag = flags.Trigger.triggerConfig
+    log.info("Parsing new-style trigger flag 'triggerConfig': %s", tcflag)
     if tcflag is None:
         tcflag = "FILE"
     source, dbconn, keys = (tcflag+":::").split(":")[:3]
@@ -152,16 +101,12 @@ def getTrigConfigFromFlag( flags=None ):
 
 # L1 menu generation
 @memoize
-def generateL1Menu( flags=None ):
+def generateL1Menu( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
     fileName = getL1MenuFileName( flags )
-    if flags:
-        TriggerFlags.triggerMenuSetup = flags.Trigger.triggerMenuSetup
-    menuName = TriggerFlags.triggerMenuSetup() if flags is None else flags.Trigger.triggerMenuSetup
-    log.info("Generating L1 menu %s", menuName)
+    log.info("Generating L1 menu %s", flags.Trigger.triggerMenuSetup)
     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
-    l1cfg = L1MenuConfig( menuName = menuName )
+    l1cfg = L1MenuConfig( menuName = flags.Trigger.triggerMenuSetup)
     outfile = l1cfg.writeJSON(outputFile = fileName)
     if outfile is not None:
         log.info("Wrote L1 menu file %s", outfile)
@@ -170,18 +115,18 @@ def generateL1Menu( flags=None ):
 
 # configuration of L1ConfigSvc
 @memoize
-def getL1ConfigSvc( flags = None ):
+def getL1ConfigSvc( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     from AthenaCommon.Logging import log
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
     # generate menu file
-    generatedFile = generateL1Menu( flags=flags )
+    generatedFile = generateL1Menu( flags )
 
     # configure config svc
     TrigConf__LVL1ConfigSvc = CompFactory.getComp("TrigConf::LVL1ConfigSvc")
     l1ConfigSvc = TrigConf__LVL1ConfigSvc("LVL1ConfigSvc")
 
     l1ConfigSvc.ConfigSource = "XML"
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
     l1XMLFile = TriggerFlags.inputLVL1configFile() if flags is None else flags.Trigger.LVL1ConfigFile
     # check if file exists in this directory otherwise add the package to aid path resolution
     # also a '/' in the file name indicates that no package needs to be added
@@ -208,7 +153,7 @@ def getL1ConfigSvc( flags = None ):
 
 # configuration of HLTConfigSvc
 @memoize
-def getHLTConfigSvc( flags = None ):
+def getHLTConfigSvc( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
     TrigConf__HLTConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")
     hltConfigSvc = TrigConf__HLTConfigSvc("HLTConfigSvc")
@@ -225,40 +170,6 @@ def getHLTConfigSvc( flags = None ):
     log.info( "Configured HLTConfigSvc with run 2 style input file : %s", hltXMLFile  )
     log.info( "Configured HLTConfigSvc with InputType='file' and JsonFileName=%s", hltJsonFileName )
     return hltConfigSvc
-
-
-# configuration of CondAlg providing the HLTPrescalesSet
-@memoize
-def setupHLTPrescaleCondAlg( flags = None ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
-    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
-
-    tc = getTrigConfigFromFlag( flags )
-    hltPrescaleCondAlg.Source = tc["source"]
-    if tc["source"] == "COOL":
-        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
-    elif tc["source"] == "DB":
-        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
-        hltPrescaleCondAlg.HLTPsk    = tc["hltpsk"]
-    elif tc["source"] == "FILE":
-        hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
-    else:
-        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
-
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if tc["source"] == "COOL" or athenaCommonFlags.isOnline():
-        if flags is None: # old style config
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolder( "TRIGGER", getHLTPrescaleFolderName(), className="AthenaAttributeList" )
-            log.info("Adding folder %s to conddb", getHLTPrescaleFolderName() )
-    # add the hltPrescaleCondAlg to condseq
-    if flags is None: # old style config
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSequence = AthSequencer("AthCondSeq")
-        condSequence += conf2toConfigurable( hltPrescaleCondAlg )
-        log.info("Adding HLTPrescaleCondAlg to AthCondSeq")
-    return hltPrescaleCondAlg
 
 
 # provide L1 config service in new JO
@@ -285,14 +196,29 @@ def TrigConfigSvcCfg( flags ):
 
 def HLTPrescaleCondAlgCfg( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
+    log.info("Setting up HLTPrescaleCondAlg")
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addCondAlgo( setupHLTPrescaleCondAlg( flags ) )
+    TrigConf__HLTPrescaleCondAlg = CompFactory.getComp("TrigConf::HLTPrescaleCondAlg")
+    hltPrescaleCondAlg = TrigConf__HLTPrescaleCondAlg("HLTPrescaleCondAlg")
+
     tc = getTrigConfigFromFlag( flags )
-    if tc["source"] == "COOL":
+    hltPrescaleCondAlg.Source = tc["source"]
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         acc.merge(addFolders(flags, getHLTPrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
         log.info("Adding folder %s to CompAcc", getHLTPrescaleFolderName() )
+    if tc["source"] == "COOL":
+        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
+    elif tc["source"] == "DB":
+        hltPrescaleCondAlg.TriggerDB = tc["dbconn"]
+        hltPrescaleCondAlg.HLTPsk    = tc["hltpsk"]
+    elif tc["source"] == "FILE":
+        hltPrescaleCondAlg.Filename = getHLTPrescalesSetFileName( flags )
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
+    acc.addCondAlgo(hltPrescaleCondAlg)
     return acc
 
 

@@ -73,17 +73,17 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
       return StatusCode::FAILURE;  
     }
     
-    const std::vector<const Property*>* dataFlowProps 
+    const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps 
         = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
 
-    const std::vector<const Property*>* eventSelProps 
+    const std::vector<const Gaudi::Details::PropertyBase*>* eventSelProps 
         = (jobOptionsSvc)? jobOptionsSvc->getProperties("EventSelector") :
                      TrigConfSvc->getProperties("EventSelector"); 
     
     if     ( dataFlowProps != 0 ) has_bytestream = true;
     else if( eventSelProps != 0 )
     {
-        for (std::vector<const Property*>::const_iterator 
+        for (std::vector<const Gaudi::Details::PropertyBase*>::const_iterator 
             cur  = eventSelProps->begin();
       cur != eventSelProps->end(); cur++) {
       

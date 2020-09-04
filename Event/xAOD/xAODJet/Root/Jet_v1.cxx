@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -13,7 +13,7 @@ namespace xAOD {
 
   Jet_v1::Jet_v1()
     : IParticle() 
-    , m_fastJetLink(NULL) 
+    , m_fastJetLink(nullptr) 
   {
   }
 
@@ -21,7 +21,7 @@ namespace xAOD {
   
   
   Jet_v1::Jet_v1(const Jet_v1& o ) : IParticle( o )
-                                   , m_fastJetLink(NULL)
+                                   , m_fastJetLink(nullptr)
   {
     makePrivateStore( o );
     if( o.m_fastJetLink  ) m_fastJetLink = o.m_fastJetLink->clone();    
@@ -32,7 +32,7 @@ namespace xAOD {
 
     if( ( ! hasStore() ) && ( ! container() ) ) makePrivateStore();
     this->IParticle::operator=( o );
-    if( (o.m_fastJetLink) && (m_fastJetLink==NULL) ) m_fastJetLink = o.m_fastJetLink->clone();    
+    if( (o.m_fastJetLink) && (m_fastJetLink==nullptr) ) m_fastJetLink = o.m_fastJetLink->clone();    
     return *this;
   }
 
@@ -230,12 +230,12 @@ namespace xAOD {
 
   void Jet_v1::reset() {
     if(m_fastJetLink) delete m_fastJetLink; 
-    m_fastJetLink = NULL;
+    m_fastJetLink = nullptr;
   }
 
   const fastjet::PseudoJet * Jet_v1::getPseudoJet() const {
     if(m_fastJetLink) return m_fastJetLink->pseudoJet;
-    return NULL;
+    return nullptr;
   }
 
   static const SG::AuxElement::Accessor<int> inputAcc("InputType");
@@ -273,7 +273,7 @@ namespace xAOD {
      } else if( btagAcc2.isAvailable( *this ) && btagAcc2( *this ).isValid() ) {
         return *( btagAcc2( *this ) );
      }
-     return 0;
+     return nullptr;
   }
 
   const ElementLink< BTaggingContainer >& Jet_v1::btaggingLink() const {

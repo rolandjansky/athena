@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IDCInDetBSErrContainerCnv_p1.h"
@@ -23,9 +23,12 @@ void  IDCInDetBSErrContainerCnv_p1::persToTrans(const InDetBSErrContainer64_p1* 
 
 //================================================================
 IDCInDetBSErrContainer* IDCInDetBSErrContainerCnv_p1::createTransient(const InDetBSErrContainer64_p1* persObj, MsgStream& log) {
-  auto maxhash = std::max_element(persObj->m_bsErrs.begin(), persObj->m_bsErrs.end());
-  size_t g = maxhash->first;
-  std::unique_ptr<IDCInDetBSErrContainer> trans = std::make_unique<IDCInDetBSErrContainer>(g + 1, std::numeric_limits<uint64_t>::min());
+  size_t g = 0;
+  if (persObj->m_bsErrs.begin()!=persObj->m_bsErrs.end()) {
+    auto maxhash = std::max_element(persObj->m_bsErrs.begin(), persObj->m_bsErrs.end());
+    g = maxhash->first + 1;
+  }
+  std::unique_ptr<IDCInDetBSErrContainer> trans = std::make_unique<IDCInDetBSErrContainer>(g, std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min());
   persToTrans(persObj, trans.get(), log);
   return trans.release();
 }

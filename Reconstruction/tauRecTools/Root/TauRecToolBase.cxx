@@ -27,11 +27,11 @@ std::string TauRecToolBase::find_file(const std::string& fname) const {
 StatusCode TauRecToolBase::readConfig() {
   // Sanity check to see if property ConfigPath is declared for a tool. Might be
   // removed once all tools are updated to have a config path declared.
-  // in athena getProperties returns std::vector<Property*>
+  // in athena getProperties returns std::vector<Gaudi::Details::PropertyBase*>
   // in rc     getProperties returns std::map<std::string,Property*>
 #ifndef XAOD_STANDALONE
   bool configPathDeclared = false;
-  for (Property* property : getProperties())
+  for (Gaudi::Details::PropertyBase* property : getProperties())
   {
     if (property->name() == "ConfigPath")
     {
@@ -164,12 +164,12 @@ StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackConta
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const{
+StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&){
+StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }

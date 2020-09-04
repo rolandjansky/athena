@@ -165,7 +165,7 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
  */
 void PerfMonMTSvc::startSnapshotAud(const std::string& stepName, const std::string& compName) {
   // Last thing to be called before the event loop begins
-  if (compName == "AthRegSeq" && stepName == "Start") {
+  if (compName == "AthOutSeq" && stepName == "Start") {
     m_measurement_snapshots.capture_snapshot();
     m_snapshotData[EXECUTE].addPointStart_snapshot(m_measurement_snapshots);
   }
@@ -544,9 +544,25 @@ void PerfMonMTSvc::report2JsonFile() {
     report2JsonFile_EventLevel(j);  // Event-level
   }
 
-  // Write
+  // Write and close the JSON file
   std::ofstream o(m_jsonFileName);
   o << std::setw(4) << j << std::endl;
+  o.close();
+
+  // Compress the JSON file into tar.gz
+  auto cmd = "tar -czf " + m_jsonFileName + ".tar.gz " + m_jsonFileName + ";";
+  int rc = std::system(cmd.c_str());
+  if(rc!=0) {
+    ATH_MSG_WARNING("Couldn't compress the JSON file...");
+    return;
+  }
+
+  // Remove the uncompressed JSON file to save disk-space
+  rc = std::remove(m_jsonFileName.toString().c_str());
+  if(rc!=0) {
+    ATH_MSG_WARNING("Couldn't remove the uncompressed JSON file...");
+    return;
+  }
 }
 
 /*

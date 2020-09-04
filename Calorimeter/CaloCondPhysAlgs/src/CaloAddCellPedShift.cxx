@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloAddCellPedShift.h"
@@ -18,9 +18,9 @@
 //Constructor
 CaloAddCellPedShift::CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(0),
-  m_calo_id(0),
-  m_onlineID(0),
+  m_thistSvc(nullptr),
+  m_calo_id(nullptr),
+  m_onlineID(nullptr),
   m_caloCoolIdTool("CaloCoolIdTool"),
   m_iCool(0),
   m_SubHash(0),
@@ -38,7 +38,7 @@ CaloAddCellPedShift::CaloAddCellPedShift(const std::string& name, ISvcLocator* p
   m_ped1(0),
   m_ped1corr(0),
   m_ped2(0),
-  m_tree(0)
+  m_tree(nullptr)
 
 {
    declareProperty("inputFile",m_fname);

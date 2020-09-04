@@ -143,9 +143,17 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
 
     /// set the spacepoint iterator to the beginning of the space-point list  
     data.i_spforseed = data.l_spforseed.begin();
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for strip seeds
+    data.maxSeedsPerSP = m_maxOneSizeSSS;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedStripSeeds;
   } ///< end if-statement for iteration 0 
   else {  /// for the second iteration (PPP pass), don't redo the full init required the first time 
     data.r_first = 0;     ///< reset the first radial bin 
+    // Set the seed multiplicity strategy of the event data to the one configured
+    // by the user for pixel seeds
+    data.maxSeedsPerSP = m_maxOneSizePPP;
+    data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedPixelSeeds;
     /// call fillLists to repopulate the candidate space points and exit 
     fillLists(data);
     return;
@@ -953,21 +961,46 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
 
   /// The max Nb. of bins possible is given by the binning enum 
   const int   nPhiBinsMax = arraySizePhi;
-  const float inverseSizePhiMax = static_cast<float>(nPhiBinsMax)/twoPi; ///< for run-3: 53 : 6.28 ~ 8.43, bin size 0.118
+  const float inverseSizePhiMax = static_cast<float>(nPhiBinsMax)/twoPi; ///< for run-3: 200 : 6.28 ~ 31.8, bin size 0.0314
 
-  /// the minumum allowed granularity is given by a magic number. 
-  /// best guess: 100 MeV min track pt? 
-  const float inverseSizePhiMin = 100./60.;     ///< 1.67, bin size 0.6
+  /// the minumum allowed phi-granularity is the one we would need 
+  /// to reconstruct 100 MeV tracks. 
+  /// The approximate formula below estimates the maximum curvature
+  /// we expect in a 2T magnetic field, assuming we want to contain
+  /// all Si hits from our track in the phi slice we are looking at
+  /// - very conservative indeed, as we never need SCT and PIX at the 
+  /// same time! 
+  constexpr float inverseSizePhiMin = 100./60.;     ///< 1.67, bin size 0.6
 
-  /// minimum expected pt. 
-  float ptm = 400.;
-  /// if we cut below 400 MeV, adapt the ptm 
-  if (!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
-
-  /// binning driven by the min pt we expect  
-  /// likely driven by the phi rotation we expect between 2 SP at miminum pt (max curvature) 
-  m_inverseBinSizePhi = ptm /60.;
-  /// for example 400. / 60 = 6.67, bin size 0.15
+  /// derive the optimum bin size in phi for our needs. 
+  /// We do this by checking the size needed for each of the passes we run, 
+  /// and then pick the larger one (more conservative). 
+  /// This is slightly less optimal than using separate settings per pass, but avoids 
+  /// having to book and store in memory two distinct R-phi-Z maps.
+  
+  if (m_optimisePhiBinning){
+    /// case 1: PPP seeds, if we use them
+    constexpr float radiusPixelStart = 33.; /// approximate lowest R location of pixel hits (driven by barrel)
+    constexpr float radiusPixelEnd = 150.;  /// approximate largest R location of pixel hits (driven by endcap)
+    /// The factor 3 we divide by is motivated by the fact that we combine sets of
+    /// three consecutive phi bins in the seed making step. So each individual bin should 
+    /// be approximately a third of the maximum expected azimutal deflection
+    const float binSizePhi_PPP = m_pixel ? azimuthalStep(m_ptmin,m_maxdImpact,radiusPixelStart,radiusPixelEnd)/3. : 0.; 
+    /// case 2: SSS seeds, if we use them
+    constexpr float radiusSctStart = 295.; ; /// approximate lowest R location of strip hits (driven by barrel)
+    constexpr float radiusSctEnd = 560.; /// approximate largest R location of strip hits (driven by endcap)
+    const float binSizePhi_SSS = m_sct ? azimuthalStep(m_ptmin,m_maxdImpactSSS,radiusSctStart,radiusSctEnd)/3. : 0.; 
+    /// pick the larger of the two and invert
+    m_inverseBinSizePhi = 1./std::max(binSizePhi_PPP, binSizePhi_SSS); 
+  }
+  else {
+    /// this is the default phi binning as operated in release 21 - optimised for 
+    /// a trajectory with 400 MeV, from the origin, and Rmin = 0 / Rmax = 600mm   float ptm = 400.;
+    float ptm = 400.; 
+    /// if we cut below 400 MeV, adapt the ptm 
+    if (!m_dbm && m_ptmin < ptm) ptm = m_ptmin;
+    m_inverseBinSizePhi = ptm /60.;
+  }
 
   /// truncate the bin size to fall within our thresholds
   if      (m_inverseBinSizePhi > inverseSizePhiMax) m_inverseBinSizePhi = inverseSizePhiMax;
@@ -1315,7 +1348,32 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
 
   data.state = 0;
 }
-   
+
+
+
+float InDet::SiSpacePointsSeedMaker_ATLxk::azimuthalStep(const float pTmin,const float maxd0,const float Rmin,const float Rmax) const
+{
+  /// here we approximate the largest curvature
+  /// that can be expected for the seeds we build
+  /// using R[mm] ~ pT[MeV] / (0.3 * B[T]), with B == 2T
+  float Rm = pTmin/.6;
+
+  /// for LRT, the maximum allowed d0 may be larger than 
+  /// the radius at which the innermost hit is possible.
+  /// In that case, our "worst case" trajectory
+  /// generating the largest phi displacement
+  ///  will be the one with a hit at Rmin and 
+  /// d0 == Rmin.
+  float worstCaseD0 = maxd0;
+  if (maxd0 > Rmin) worstCaseD0 = Rmin; 
+
+  float sI = std::abs(std::asin(worstCaseD0/Rmin) - std::asin(worstCaseD0/Rmax)); 
+  float sF = std::abs(std::asin(Rmax/(2.*Rm))-std::asin(Rmin/(2.*Rm)));
+  return sI+sF; 
+}
+
+
+                                                                                          
 ///////////////////////////////////////////////////////////////////
 // Erase space point information
 ///////////////////////////////////////////////////////////////////
@@ -2096,13 +2154,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
   }
   /// There are three cases where we simply add our new seed to the list and push it into the map: 
     /// a) we have not yet reached our max number of seeds 
-  if (data.nOneSeeds < m_maxOneSize
+  if (data.nOneSeeds < data.maxSeedsPerSP
     /// b) we have reached the max number but always want to keep confirmed seeds 
     /// and the new seed is a confirmed one, with worse quality than the worst one so far 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
     /// c) we have reached the max number but always want to keep confirmed seeds 
     ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed 
-      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
+      || (data.keepAllConfirmedSeeds  && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
     ){
     data.OneSeeds_Pro[data.nOneSeeds].set(p1,p2,p3,z);
     data.mapOneSeeds_Pro.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_Pro[data.nOneSeeds]));
@@ -2140,6 +2198,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 
   /// sort common SP by curvature 
   if(data.CmSp.size() > 2) std::sort(data.CmSp.begin(), data.CmSp.end(), comCurvature());
+      
+  float bottomR=SPb->radius();
+  float bottomZ=SPb->z();
 
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_otherSP;
   std::vector<std::pair<float,InDet::SiSpacePointForSeed*>>::iterator it_commonTopSP = data.CmSp.begin(), ie = data.CmSp.end();
@@ -2151,6 +2212,25 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     /// the seed quality is set to d0 initially 
     float seedQuality    = (*it_commonTopSP).second->param();
     float originalSeedQuality   = (*it_commonTopSP).second->param();
+
+    if(m_maxdImpact > 50){      //This only applies to LRT
+
+      float topR=(*it_commonTopSP).second->radius();
+      float topZ=(*it_commonTopSP).second->z();
+
+      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
+      float eta1=-std::log(std::tan(.5*theta1));
+
+      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
+      float theta0=std::atan2((*it_commonTopSP).second->param(),Zot);
+      float eta0=-std::log(std::tan(.5*theta0));
+
+      float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
+      //calculate weighted average of d0 and deltaEta, normalized by their maximum values
+      float f=std::min(0.5,originalSeedQuality/200.);  //0.5 and 200 are parameters chosen from a grid scan to optimize efficiency
+      seedQuality*=(1-f)/300.;
+      seedQuality+=f*deltaEta/2.5;
+    }
 
     bool                topSPisPixel = !(*it_commonTopSP).second->spacepoint->clusterList().second;
     
@@ -2378,8 +2458,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 }
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
-  int seedArrayPerSPSize = m_maxOneSize; 
-  if (m_alwaysKeepConfirmedSeeds)  seedArrayPerSPSize = 50; 
+  int seedArrayPerSPSize = (m_maxOneSizePPP>m_maxOneSizeSSS ? m_maxOneSizePPP : m_maxOneSizeSSS); 
+  if (m_alwaysKeepConfirmedStripSeeds || m_alwaysKeepConfirmedPixelSeeds)  seedArrayPerSPSize = 50; 
   data.initialize(EventData::ATLxk,
                   m_maxsizeSP,
                   seedArrayPerSPSize,

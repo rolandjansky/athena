@@ -143,14 +143,22 @@ InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
 
 SCTHitEffMonTool.FlaggedConditionTool = InDetSCT_FlaggedConditionTool
 SCTHitEffMonTool.ChronoTime = False
+
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+SCT_MonBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+  name="SCT_MonBoundaryCheckTool",
+  SctSummaryTool=SCT_MonConditionsSummaryTool
+)
+ToolSvc += SCT_MonBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 
 SCT_MonHoleSearch = InDet__InDetTrackHoleSearchTool(name ="SCT_MonHoleSearch",
                                                     Extrapolator = InDetExtrapolator,
                                                     ExtendedListOfHoles = True,
                                                     Cosmics =InDetFlags.doCosmics(),
-                                                    SctSummaryTool=SCT_MonConditionsSummaryTool)
-   
+                                                    BoundaryCheckTool=SCT_MonBoundaryCheckTool)
+
 ToolSvc += SCT_MonHoleSearch
 if (InDetFlags.doPrintConfigurables()):
    print      SCT_MonHoleSearch

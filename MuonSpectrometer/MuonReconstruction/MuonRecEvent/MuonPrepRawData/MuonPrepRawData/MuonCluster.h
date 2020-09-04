@@ -43,9 +43,9 @@ namespace Muon
     For use by POOL only - do not use! */
     MuonCluster();
     MuonCluster(const MuonCluster &);
-    MuonCluster(MuonCluster &&);
+    MuonCluster(MuonCluster &&) noexcept = default;
     MuonCluster &operator=(const MuonCluster &);
-    MuonCluster &operator=(MuonCluster &&);
+    MuonCluster &operator=(MuonCluster &&) noexcept = default;
 
     /** @brief Full constructor.
        @param RDOId The channel identifier of the central measurement of the cluster.

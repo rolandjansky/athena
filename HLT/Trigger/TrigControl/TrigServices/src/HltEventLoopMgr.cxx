@@ -186,6 +186,9 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_CHECK(m_evtSelector->createContext(m_evtSelContext)); // create an EvtSelectorContext
   ATH_CHECK(m_outputCnvSvc.retrieve());
   ATH_CHECK(m_ioCompMgr.retrieve());
+  if (m_monitorScheduler) {
+    ATH_CHECK(m_schedulerMonSvc.retrieve());
+  }
 
   //----------------------------------------------------------------------------
   // Initialise tools
@@ -250,7 +253,8 @@ StatusCode HltEventLoopMgr::finalize()
                  m_detectorStore,
                  m_inputMetaDataStore,
                  m_evtSelector,
-                 m_outputCnvSvc);
+                 m_outputCnvSvc,
+                 m_schedulerMonSvc);
 
   releaseTool(m_coolHelper,
               m_hltResultMaker,
@@ -265,6 +269,43 @@ StatusCode HltEventLoopMgr::finalize()
 }
 
 // =============================================================================
+// Implementation of ITrigEventLoopMgr::prepareForStart
+// =============================================================================
+StatusCode HltEventLoopMgr::prepareForStart(const ptree& pt)
+{
+  try {
+    const auto& rparams = pt.get_child("RunParams");
+    m_sorHelper = std::make_unique<TrigSORFromPtreeHelper>(msgSvc(), m_detectorStore, m_sorPath, rparams);
+  }
+  catch(ptree_bad_path& e) {
+    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
+    return StatusCode::FAILURE;
+  }
+
+  // Override run/timestamp if needed
+  if (m_forceRunNumber > 0) {
+    m_sorHelper->setRunNumber(m_forceRunNumber);
+    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
+  }
+  if (m_forceSOR_ns > 0) {
+    m_sorHelper->setSORtime_ns(m_forceSOR_ns);
+    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
+  }
+
+  // Set our "run context" (invalid event/slot)
+  m_currentRunCtx.setEventID( m_sorHelper->eventID() );
+  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                           m_currentRunCtx.eventID().run_number()));
+
+  // Some algorithms expect a valid context during start()
+  ATH_MSG_DEBUG("Setting context for start transition: " << m_currentRunCtx.eventID());
+  Gaudi::Hive::setCurrentContext(m_currentRunCtx);
+
+  return StatusCode::SUCCESS;
+}
+
+
+// =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
 StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
@@ -276,9 +317,9 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
 
-    ATH_CHECK(clearTemporaryStores());  // do the necessary resets
-    ATH_CHECK( processRunParams(pt) );  // update SOR in det store
-    ATH_CHECK( updateMagField(pt) );    // update magnetic field
+    ATH_CHECK( clearTemporaryStores() );                 // do the necessary resets
+    ATH_CHECK( m_sorHelper->fillSOR(m_currentRunCtx) );  // update SOR in det store
+    ATH_CHECK( updateMagField(pt) );                     // update magnetic field
 
     auto& soral = getSorAttrList();
 
@@ -305,14 +346,6 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 
     ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
-  }
-  catch(const ptree_bad_path & e)
-  {
-    ATH_MSG_ERROR("Bad ptree path: \"" << e.path<ptree::path_type>().dump() << "\" - " << e.what());
-  }
-  catch(const ptree_bad_data & e)
-  {
-    ATH_MSG_ERROR("Bad ptree data: \"" << e.data<ptree::data_type>() << "\" - " << e.what());
   }
   catch(const std::runtime_error& e)
   {
@@ -411,6 +444,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 StatusCode HltEventLoopMgr::executeRun(int maxevt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->startMonitoring());
+
   StatusCode sc = StatusCode::SUCCESS;
   try {
     sc = nextEvent(maxevt);
@@ -424,6 +460,8 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
     ATH_MSG_FATAL("Event loop failed, unknown exception caught");
     sc = StatusCode::FAILURE;
   }
+
+  if (m_monitorScheduler) ATH_CHECK(m_schedulerMonSvc->stopMonitoring());
 
   // Stop the timer thread
   {
@@ -732,36 +770,6 @@ void HltEventLoopMgr::updateDFProps()
   getDFProp( "DF_Pid", wpid, false );
   if (!wid.empty()) m_workerID = std::stoi(wid);
   if (!wpid.empty()) m_workerPID = std::stoi(wpid);
-}
-
-// =============================================================================
-StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
-{
-  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-
-  const auto& rparams = pt.get_child("RunParams");
-  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath, rparams);
-
-  // Override run/timestamp if needed
-  if (m_forceRunNumber > 0) {
-    sorhelp.setRunNumber(m_forceRunNumber);
-    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
-  }
-  if (m_forceSOR_ns > 0) {
-    sorhelp.setSORtime_ns(m_forceSOR_ns);
-    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
-  }
-
-  // Set our "run context" (invalid event/slot)
-  m_currentRunCtx.setEventID( sorhelp.eventID() );
-  m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
-                                                           m_currentRunCtx.eventID().run_number()));
-
-  // Fill SOR parameters from ptree and inform IOVDbSvc
-  ATH_CHECK( sorhelp.fillSOR(m_currentRunCtx) );
-
-  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return StatusCode::SUCCESS;
 }
 
 // =============================================================================

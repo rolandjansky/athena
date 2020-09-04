@@ -250,9 +250,8 @@ protected:
 
       m_first = false;
       
-      m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
-
-      if (m_provider->msg().level() <= MSG::VERBOSE) {
+      if ( m_provider->msg().level() <= MSG::VERBOSE ) {
+	m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 	
 	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 	
@@ -278,8 +277,10 @@ protected:
         /// get chain
         ChainString& chainName = (*chainitr);
 
-        m_provider->msg(MSG::INFO) << "process chain " << chainName << endmsg;
-	
+	if (m_provider->msg().level() <= MSG::VERBOSE) {
+	  m_provider->msg(MSG::VERBOSE) << "process chain " << chainName << endmsg;
+	}	
+
 	if ( chainName.head() == "" ) { 
 	  
 	  std::string selectChain;
@@ -338,10 +339,10 @@ protected:
       // m_chainNames.insert( m_chainNames.end(), chains.begin(), chains.end() );
       m_chainNames = chains;
       
-      for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endmsg;
-      
-      //      for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "loop():: Analyse chain " << m_chainNames[ic] << std::endl;
-      
+      if(m_provider->msg().level() <= MSG::VERBOSE) {
+	for ( size_t ic=m_chainNames.size() ; ic-- ;  ) m_provider->msg(MSG::VERBOSE) << "Analyse chain " << m_chainNames[ic] << endmsg;
+      }      
+
     } /// end of first event setup
     
    
@@ -514,38 +515,12 @@ protected:
     std::vector<double> refbeamspot;
     std::vector<double> testbeamspot;
 
+    /// fetch offline vertices ...
 
-
-    //std::vector<TIDA::Vertex> vertices;
-    
     m_provider->msg(MSG::VERBOSE) << "fetching AOD Primary vertex container" << endmsg;
 
-    const xAOD::VertexContainer* xaodVtxCollection = 0;
-
-    if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
-      m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endmsg;
-    }
-    
-    if ( xaodVtxCollection!=0 ) { 
-        
-      m_provider->msg(MSG::VERBOSE) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endmsg;
-
-      xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
-      for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
-	if ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) {
-	  vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
-					    (*vtxitr)->y(),
-					    (*vtxitr)->z(),
-					    /// variances
-					    (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-					    (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-					    (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-					    (*vtxitr)->nTrackParticles(),
-					    /// quality
-					    (*vtxitr)->chiSquared(),
-					    (*vtxitr)->numberDoF() ) );
-	}
-      }
+    if ( !this->select( vertices, "PrimaryVertices" ) ) { 
+      m_provider->msg(MSG::VERBOSE) << "could not retrieve vertex collection " "PrimaryVertices" << std::endl;
     }
 
     /// add the truth particles if needed
@@ -680,6 +655,18 @@ protected:
 
         chain.back().addTracks(testtracks);
 	
+	if ( vtx_name!="" ) { 
+	  
+	  /// MT Vertex access
+
+	  m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer with key " << vtx_name << endmsg;
+
+	  std::vector<TIDA::Vertex> tidavertices;
+
+	  if ( this->select( tidavertices, vtx_name ) ) chain.back().addVertices( tidavertices );	 
+	}
+	
+
         if ( roiInfo ) delete roiInfo;
 
       }
@@ -696,7 +683,8 @@ protected:
 	  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainname, 
 								    decisiontype, 
 								    roi_key, 
-								    TrigDefs::lastFeatureOfType, 
+								    // TrigDefs::lastFeatureOfType, 
+								    TrigDefs::allFeaturesOfType, 
 								    "roi" );
 			  			 
 	//	const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;
@@ -718,6 +706,9 @@ protected:
 	  //	  std::cout << "\troi: get link " << roi_key << " ..." << std::endl;
 
 	  const ElementLink<TrigRoiDescriptorCollection> roi_link = roi_info.link;
+
+	  /// check this is not a spurious TDT match
+	  if ( roi_key!="" && roi_link.dataID()!=roi_key ) continue;
 
 	  const TrigRoiDescriptor* const* roiptr = roi_link.cptr();
 
@@ -757,50 +748,16 @@ protected:
 	  /// now get the vertices 
 	  
 	  if ( vtx_name!="" ) { 
-	    
-	    m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endmsg;
 
-	    
-	    std::pair< xAOD::VertexContainer::const_iterator, 
-		       xAOD::VertexContainer::const_iterator > vtx_itrpair = this->template getCollection<xAOD::VertexContainer>( roi_link, vtx_name );
-	    
-	    if ( vtx_itrpair.first == vtx_itrpair.second ) { 
-	      m_provider->msg(MSG::WARNING) << "\tNo xAOD::Vertex for chain " << chainName << " for key " << vtx_name << endmsg;
-	    }
-	    else {
-	      
-	      m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << (vtx_itrpair.second - vtx_itrpair.first) 
-					 << "\t" << vtx_name << endmsg;
-	            
-	      xAOD::VertexContainer::const_iterator vtxitr = vtx_itrpair.first; 
-	            
-	      for (  ; vtxitr!=vtx_itrpair.second  ;  vtxitr++ ) {
-		
-		/// leave this code commented so that we have a record of the change - as soon as we can 
-		/// fix the missing track multiplicity from the vertex this will need to go back  
-		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
-		if ( (*vtxitr)->vertexType()!=0  || vtx_name=="EFHistoPrmVtx" ) {
- 
-		  m_provider->msg(MSG::VERBOSE) << "\tvertex " << chainConfig << " " << (*vtxitr) << "\t name" << vtx_name << endmsg;
-		
-		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
-							(*vtxitr)->y(),
-							(*vtxitr)->z(),
-							/// variances
-							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-							(*vtxitr)->nTrackParticles(),
-							/// quality
-							(*vtxitr)->chiSquared(),
-							(*vtxitr)->numberDoF() ) );
-		  
-		}
-	      }
-	    }
+	    std::vector<TIDA::Vertex> tidavertices;
+
+	    this->select( vertices, roi_link, vtx_name );
+
+	    chain.back().addVertices( tidavertices );
 	    
 	  } /// retrieve online vertices
 	  
+
 #if 0
 	  if ( dbg ) { 
 	    std::cout << "\tTIDA analysis for chain: " << chainname << "\t key: " << key << "\t" << **roiptr << std::endl;

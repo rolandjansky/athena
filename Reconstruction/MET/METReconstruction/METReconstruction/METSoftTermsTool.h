@@ -31,11 +31,9 @@
 #include "xAODTracking/TrackParticleFwd.h"
 
 // PFlow EDM and helpers
-#include "xAODPFlow/PFO.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "PFlowUtils/IRetrievePFOTool.h"
 
-namespace CP {
-  class IRetrievePFOTool;
-}
 
 namespace met{
 
@@ -91,17 +89,17 @@ namespace met{
     METSoftTermsTool();
     // Use Case - Clusters OR Tracks OR PFOs
     std::string m_inputType;
-    unsigned short m_st_objtype; // should make this an enum somewhere
+    unsigned short m_st_objtype{0}; // should make this an enum somewhere
     // Cluster selection
     bool m_cl_vetoNegE;
     bool m_cl_onlyNegE;
     // temporary, until a track-vertex association tool is available
     //std::string m_pv_inputkey;
-    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey;
-    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey;
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey;
+    SG::ReadHandleKey<xAOD::VertexContainer>  m_pv_inputkey{this,"InputPVKey","PrimaryVertices",""};
+    SG::ReadHandleKey<xAOD::CaloClusterContainer>  m_caloClusterKey{""};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trackParticleKey{""};
 
-    ToolHandle<CP::IRetrievePFOTool> m_pfotool;
+    ToolHandle<CP::IRetrievePFOTool> m_pfotool{this,"PFOTool","",""};
   }; 
 
 }

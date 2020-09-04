@@ -14,7 +14,6 @@ ApplicationMgr Ready
 [ RUN      ] HepMcParticleLink_test.old_test
 *** HepMcParticleLink_test starts ***
 ClassIDSvc           INFO  getRegistryEntries: read 817 CLIDRegistry entries for module ALL
-Testing HepMcParticleLink streamer Event index 0, Barcode 10005, McEventCollection CollectionNotSet(a) --- Event index 1, Barcode 10005, McEventCollection CollectionNotSet(a)
 HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
 *** HepMcParticleLink_test OK ***
 [       OK ] HepMcParticleLink_test.old_test (53 ms)

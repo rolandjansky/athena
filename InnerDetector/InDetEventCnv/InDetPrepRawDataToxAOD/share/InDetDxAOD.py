@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #################
 ### Steering options
 #################
@@ -105,8 +107,8 @@ if dumpPixInfo:
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
     IDDerivationSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
-        print PixelChargeToTConversionSetter
-        print PixelChargeToTConversionSetter.properties()
+        print(PixelChargeToTConversionSetter)
+        print(PixelChargeToTConversionSetter.properties())
 
 #Setup SCT extension efficiency algorithm if running pixel tracklets
 #if InDetFlags.doTrackSegmentsPixel():
@@ -130,8 +132,8 @@ if makeSplitTracks:
     OutputTrackCollection = "Tracks_splitID")
     IDDerivationSequence +=splittercomb
     if (printIdTrkDxAODConf):
-        print splittercomb
-        print splittercomb.properties()
+        print(splittercomb)
+        print(splittercomb.properties())
 
     # Create xAOD::TrackParticles out of them
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
@@ -155,7 +157,6 @@ if makeSplitTracks:
     xAODSplitTrackParticleCnvAlg.AddTruthLink = False #isIdTrkDxAODSimulation
     if (isIdTrkDxAODSimulation):
         xAODSplitTrackParticleCnvAlg.TrackTruthContainerName = 'SplitTrackTruth'
-    xAODSplitTrackParticleCnvAlg.PrintIDSummaryInfo = True
     IDDerivationSequence += xAODSplitTrackParticleCnvAlg
 
 
@@ -246,7 +247,7 @@ if TrtZSel or TrtJSel:
                                                                      expression = expression)
         
         ToolSvc += Z_SkimmingTool
-        print Z_SkimmingTool
+        print(Z_SkimmingTool)
         
     if TrtJSel:
         triggersE = [
@@ -316,7 +317,7 @@ if TrtZSel or TrtJSel:
                                                                         expression = expression)
 
         ToolSvc += JPSI_SkimmingTool
-        print JPSI_SkimmingTool
+        print(JPSI_SkimmingTool)
 
 
 if skimmingExpression: 
@@ -345,7 +346,7 @@ if DRAWZSel:
   DRAW_ZMUMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_SkimmingTool",
                                                                         expression = draw_zmumu)
   ToolSvc += DRAW_ZMUMU_SkimmingTool
-  print DRAW_ZMUMU_SkimmingTool
+  print(DRAW_ZMUMU_SkimmingTool)
 
 
 #################
@@ -369,8 +370,8 @@ if dumpTrtInfo:
 
     IDDerivationSequence += xAOD_TRT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_TRT_PrepDataToxAOD
-        print xAOD_TRT_PrepDataToxAOD.properties()
+        print(xAOD_TRT_PrepDataToxAOD)
+        print(xAOD_TRT_PrepDataToxAOD.properties())
 
     # to store dEdx info
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import TRT_ToT_dEdx
@@ -383,7 +384,7 @@ if dumpTrtInfo:
 
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
     InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
-    print InDetNewTrackingCutsPixel
+    print(InDetNewTrackingCutsPixel)
 
     if not hasattr(topSequence,'InDetTrackCollectionMerger') :
         from InDetRecExample import TrackingCommon
@@ -395,7 +396,7 @@ if dumpTrtInfo:
                                                                 OutputLevel=INFO
         )
         topSequence += InDetPRD_Association
-        print InDetPRD_Association
+        print(InDetPRD_Association)
 
 if dumpSctInfo:
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
@@ -409,8 +410,8 @@ if dumpSctInfo:
 
     IDDerivationSequence += xAOD_SCT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_SCT_PrepDataToxAOD
-        print xAOD_SCT_PrepDataToxAOD.properties()
+        print(xAOD_SCT_PrepDataToxAOD)
+        print(xAOD_SCT_PrepDataToxAOD.properties())
 
 if dumpPixInfo:
     from IOVDbSvc.CondDB import conddb
@@ -453,8 +454,8 @@ if dumpPixInfo:
 
     IDDerivationSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
-        print xAOD_PixelPrepDataToxAOD
-        print xAOD_PixelPrepDataToxAOD.properties()
+        print(xAOD_PixelPrepDataToxAOD)
+        print(xAOD_PixelPrepDataToxAOD.properties())
 
 
 #################
@@ -500,8 +501,8 @@ if dumpTrtInfo:
 ToolSvc += DFTSOS
 augmentationTools+=[DFTSOS]
 if (printIdTrkDxAODConf):
-    print DFTSOS
-    print DFTSOS.properties()
+    print(DFTSOS)
+    print(DFTSOS.properties())
 
 # If requested, decorate also split tracks (for cosmics)
 if makeSplitTracks:
@@ -531,8 +532,8 @@ if dumpBytestreamErrors:
     ToolSvc += DFEI
     augmentationTools+=[DFEI]
     if (printIdTrkDxAODConf):
-        print DFEI
-        print DFEI.properties()
+        print(DFEI)
+        print(DFEI.properties())
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
@@ -549,8 +550,8 @@ if dumpUnassociatedHits:
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
     ToolSvc += unassociatedHitsGetterTool
     if (printIdTrkDxAODConf):
-        print unassociatedHitsGetterTool
-        print unassociatedHitsGetterTool.properties()
+        print(unassociatedHitsGetterTool)
+        print(unassociatedHitsGetterTool.properties())
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
     unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='unassociatedHitsDecorator',
@@ -561,8 +562,8 @@ if dumpUnassociatedHits:
     ToolSvc += unassociatedHitsDecorator
     augmentationTools+=[unassociatedHitsDecorator]
     if (printIdTrkDxAODConf):
-        print unassociatedHitsDecorator
-        print unassociatedHitsDecorator.properties()
+        print(unassociatedHitsDecorator)
+        print(unassociatedHitsDecorator.properties())
 
 # Add LArCollisionTime augmentation tool
 if dumpLArCollisionTime:
@@ -580,8 +581,8 @@ if dumpLArCollisionTime:
         ToolSvc += lArCollisionTimeDecorator
         augmentationTools+=[lArCollisionTimeDecorator]
         if (printIdTrkDxAODConf):
-            print lArCollisionTimeDecorator
-            print lArCollisionTimeDecorator.properties()
+            print(lArCollisionTimeDecorator)
+            print(lArCollisionTimeDecorator.properties())
 
 
 #====================================================================
@@ -606,7 +607,7 @@ if skimmingExpression:
 #  TrigSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TrigSkimmingTool", expression = minimumbiasTrig)
 #  ToolSvc += TrigSkimmingTool
 #  skimmingTools.append(TrigSkimmingTool)
-#  print "InDetDxAOD.py TrigSkimmingTool: ", TrigSkimmingTool
+#  print("InDetDxAOD.py TrigSkimmingTool: ", TrigSkimmingTool)
 
 #====================================================================
 # Thinning Tools
@@ -670,8 +671,8 @@ IDDerivationSequence += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_KER
 
 topSequence += IDDerivationSequence 
 if (printIdTrkDxAODConf):
-    print IDDerivationSequence 
-    print IDDerivationSequence.properties()
+    print(IDDerivationSequence )
+    print(IDDerivationSequence.properties())
 
 
 #################
@@ -809,8 +810,8 @@ if dumpTriggerInfo:
         from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
         SlimmingHelper = SlimmingHelper("SlimmingHelper")
         SlimmingHelper.AllVariables += ["HLT_xAOD__ElectronContainer_egamma_Electrons","HLT_xAOD__MuonContainer_MuonEFInfo"]
-        print SlimmingHelper
+        print(SlimmingHelper)
         SlimmingHelper.AppendContentToStream(IDTRKVALIDStream)
 
 if (printIdTrkDxAODConf):
-    print IDTRKVALIDStream
+    print(IDTRKVALIDStream)

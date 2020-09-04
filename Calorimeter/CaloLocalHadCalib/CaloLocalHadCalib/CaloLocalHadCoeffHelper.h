@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_CALOLOCALHADCOEFFHELPER_H
@@ -23,7 +23,7 @@ class CaloLocalHadCoeffHelper {
     void PrintData(const CaloLocalHadCoeff *data, std::ostream &fout);
     void PrintData(const CaloLocalHadCoeff *data, const char *fname);
 
-    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * coeff, std::string sname, int &indx) const;
+    const CaloLocalHadCoeff::LocalHadArea * getAreaFromName(const CaloLocalHadCoeff * coeff, const std::string& sname, int &indx) const;
 
   private:
     CaloLocalHadCoeff::LocalHadDimension *parse_dim(std::string &sLine);

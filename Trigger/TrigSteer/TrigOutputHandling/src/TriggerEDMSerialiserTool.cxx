@@ -205,21 +205,25 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
 
   for (SG::auxid_t auxVarID : selected ) {
 
-    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
     const std::string decorationName = SG::AuxTypeRegistry::instance().getName(auxVarID);
     const std::type_info* tinfo = auxStoreIO->getIOType (auxVarID);
-
+    const std::string typeName = SG::AuxTypeRegistry::instance().getVecTypeName(auxVarID);
+    const std::string fullTypeName = System::typeinfoName( *tinfo );
 
     ATH_CHECK( tinfo != nullptr );
     TClass* cls = TClass::GetClass (*tinfo);
     ATH_CHECK( cls != nullptr );
     ATH_MSG_DEBUG( "" );
-    ATH_MSG_DEBUG( "Streaming " << decorationName << " of type " << typeName  << " aux ID " << auxVarID << " class " << cls->GetName() );
+    ATH_MSG_DEBUG( "Streaming '" << decorationName << "' of type '" << typeName 
+      << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  {
-      ATH_MSG_ERROR( "Can not obtain CLID of: " << typeName );
-      return StatusCode::FAILURE;
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() ) { // First try
+      if ( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid).isFailure() ) { // Second try
+        ATH_MSG_ERROR("Unable to obtain CLID for either typeName:" << typeName << " or fullTypeName:" << fullTypeName);
+        ATH_MSG_ERROR("Please check if this is something which should obtain a CLID via TriggerEDMCLIDs.h");
+        return StatusCode::FAILURE;
+      }
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 

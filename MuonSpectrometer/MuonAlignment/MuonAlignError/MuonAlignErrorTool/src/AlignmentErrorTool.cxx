@@ -8,13 +8,13 @@
 ////////////////////////////////////////////////////////////////////
 
 #include "MuonAlignErrorTool/AlignmentErrorTool.h"
+
 #include "MuonAlignErrorBase/AlignmentTranslationDeviation.h"
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-
 #include "PathResolver/PathResolver.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -24,21 +24,13 @@
 
 using namespace MuonAlign;
 
-AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p)
-: AthAlgTool(t,n,p),
-  m_idTool("MuonCalib::IdToFixedIdTool")
-{
+AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
-  declareProperty("idTool", m_idTool);
-}
-
-AlignmentErrorTool::~AlignmentErrorTool() {
 }
 
 AlignmentErrorTool::deviationSummary_t::deviationSummary_t()
 : traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.) { 
-}
-AlignmentErrorTool::deviationSummary_t::~deviationSummary_t() {
 }
 
 StatusCode AlignmentErrorTool::initialize() {
@@ -54,24 +46,14 @@ StatusCode AlignmentErrorTool::initialize() {
 
 }
 
-
-
-StatusCode AlignmentErrorTool::finalize() {
-
-  ATH_MSG_INFO("AlignmentErrorTool::finalize()");
-  //ATH_MSG_DEBUG("Currently we have " << AlignmentErrorTool::deviationSummary_t::i_instance << " deviation vectors");
-
-  return StatusCode::SUCCESS;
-}
-
 void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::vector<Trk::AlignmentDeviation*>& deviations) const {
 
   ATH_MSG_DEBUG("AlignmentErrorTool::makeAlignmentDeviations()");
 
   SG::ReadCondHandle<MuonAlignmentErrorData> readHandle{m_readKey};
   const MuonAlignmentErrorData* readCdo{*readHandle};
-  if(readCdo==nullptr){
-    ATH_MSG_ERROR("Null pointer to the read conditions object");
+  if(!readCdo){
+    ATH_MSG_ERROR("nullptr to the read conditions object");
     return;
   }
   std::vector<deviationStr> devStrVec;
@@ -209,7 +191,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   
   for(unsigned int iDev=0; iDev < devSumVec.size(); iDev++) {
 
-     if ( new_deviationsVec[iDev] == NULL )
+     if (!new_deviationsVec[iDev])
         continue;
 
      std::vector<const Trk::RIO_OnTrack*> v1 = devSumVec[iDev]->hits;
@@ -220,7 +202,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
      for(unsigned int jDev=iDev+1; jDev < devSumVec.size(); jDev++) {
 
-        if ( new_deviationsVec[jDev] == NULL )
+        if (!new_deviationsVec[jDev])
            continue;
 
         bool match = false;
@@ -245,7 +227,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
            // NOW PREPARE TO ERASE ONE OF THE TWO COPIES //
 	   delete new_deviationsVec[jDev];
-           new_deviationsVec[jDev] = NULL;
+           new_deviationsVec[jDev] = nullptr;
 
            // ASSIGN NEW TRASLATION/ROTATION TO THE REMAINING COPY //
            new_deviationsVec[iDev]->traslation = new_traslation;
@@ -263,7 +245,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   for(unsigned int iDev=0; iDev < new_deviationsVec.size(); iDev++) {
 
      // THIS HAPPENS IF A MERGING HAD BEEN DONE
-     if ( new_deviationsVec[iDev] == NULL ) {
+     if (!new_deviationsVec[iDev]) {
         continue;
      }
 

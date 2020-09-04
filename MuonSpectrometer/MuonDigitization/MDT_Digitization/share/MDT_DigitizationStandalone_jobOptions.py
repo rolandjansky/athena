@@ -13,8 +13,8 @@ EventSelector = Service( "EventSelector" )
 EventSelector.InputCollection = "NewPoolTry"
 theApp.Dlls += [ "MDT_Digitization"]
 theApp.Dlls += [ "GaudiAlg" ,"GaudiAud"]
-#ApplicationMgr.DLLs += { "EventHdrAthenaRoot", "MuonSimHitAthenaRoot"};
-#ApplicationMgr.DLLs   += { "RootSvcModules" , "AthenaRootCnvSvc"  };
+#ApplicationMgr.Dlls += { "EventHdrAthenaRoot", "MuonSimHitAthenaRoot"};
+#ApplicationMgr.Dlls   += { "RootSvcModules" , "AthenaRootCnvSvc"  };
 #ApplicationMgr.ExtSvc += { "RootSvc" };
 include( "MuonDetMgrDetDescrCnv/MuonDetMgrDetDescrCnv_joboptions.py" )
 

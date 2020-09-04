@@ -4,6 +4,18 @@ from __future__ import print_function
 from AthenaCommon.Logging import logging
 logDigitizationReadMetadata = logging.getLogger( 'DigitizationReadMetadata' )
 
+def checkLegacyEventInfo(inputlist):
+    """ Check for legacy EventInfo """
+    present = False
+    for entry in inputlist:
+        if entry[0] != 'EventInfo':
+            continue
+
+        print(entry)
+        present = True
+
+    return present
+
 def hitColls2SimulatedDetectors(inputlist):
     """Build a dictionary from the list of containers in the metadata"""
     simulatedDetectors = []
@@ -194,6 +206,11 @@ def buildDict(inputtype, inputfile):
         else :
             from Digitization.DigitizationFlags import digitizationFlags
             digitizationFlags.experimentalDigi += ['OldTileCalibHitContainers']
+        ## Check for legacy EventInfo
+        if 'eventdata_items' in f.infos.keys():
+            metadatadict['LegacyEventInfo'] = checkLegacyEventInfo(f.infos['eventdata_items'])
+        else:
+            metadatadict['LegacyEventInfo'] = False
         ##End of Patch for older hit files
         logDigitizationReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logDigitizationReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
@@ -301,6 +318,12 @@ def signalMetaDataCheck(metadatadict):
             else:
                 logDigitizationReadMetadata.info("All sub-detectors were simulated, so none needed to be switched off in digitization.")
             DetFlags.Print()
+
+    # Check for legacy EventInfo presence
+    if not skipCheck('LegacyEventInfo'):
+        if metadatadict['LegacyEventInfo']:
+            from Digitization.DigitizationFlags import digitizationFlags
+            digitizationFlags.experimentalDigi += ['LegacyEventInfo']
 
     ## Any other checks here
     logDigitizationReadMetadata.info("Completed checks of Digitization properties against Signal Simulation MetaData.")

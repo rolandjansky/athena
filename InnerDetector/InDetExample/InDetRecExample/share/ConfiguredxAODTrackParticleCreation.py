@@ -50,8 +50,7 @@ class ConfiguredxAODTrackParticleCreation:
                                                                   TrackContainerName = InputTrackCollection,
                                                                   xAODContainerName = OutputTrackParticleContainer,
                                                                   xAODTrackParticlesFromTracksContainerName = OutputTrackParticleContainer,
-                                                                  TrackParticleCreator = InDetxAODParticleCreatorTool,
-                                                                  PrintIDSummaryInfo = True)
+                                                                  TrackParticleCreator = InDetxAODParticleCreatorTool)
 
          if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
              xAODTrackParticleCnvAlg.AddTruthLink = True

@@ -18,10 +18,10 @@ Updated:  March 12, 2005   (MB)
 ********************************************************************/
 
 #include "CaloTopoEMphimod.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <math.h> 
+#include <cmath> 
 
 using CLHEP::pi;
 

@@ -21,7 +21,7 @@
 #include "PixelConditionsData/PixelModuleData.h"
 
 #include "GaudiKernel/ICondSvc.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 class PixelConfigCondAlg : public AthReentrantAlgorithm {

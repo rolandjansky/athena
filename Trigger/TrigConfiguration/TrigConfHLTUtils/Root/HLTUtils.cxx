@@ -38,9 +38,12 @@ namespace HashChecking {
     HashMap& hashes = AllHashesByCategory[category];
     if ( hashes[hash] == "" )
       hashes[hash] = s;
-    else if ( hashes[hash] != s )
-      throw std::domain_error("Hashes the same for category: "+category
-			      + " and elements "+ hashes[hash] + " "+ s );
+    else if ( hashes[hash] != s ) {
+      std::stringstream ss;
+      ss << "Hashes the same for category: "<<category
+            << " and elements "<< hashes[hash] << " " << s;
+      throw std::domain_error( ss.str() );
+    }
   }
 }
 

@@ -74,7 +74,7 @@ GetNewDaughter( std::string name_ )
   if( i != m_daughters.end() ) {
     return i->second;
   }
-  
+
   MiniConfigTreeNode* node = new MiniConfigTreeNode( name_, this );
   node->SetAttribKeywordPropagateDown(this->m_propagateDown);
   NodeMap_t::value_type nodeVal( name_, node );
@@ -103,7 +103,7 @@ GetParent() const
 }
 
 
-std::map<std::string,MiniConfigTreeNode*> 
+std::map<std::string,MiniConfigTreeNode*>
 MiniConfigTreeNode::
 GetDaughters() const
 {
@@ -117,7 +117,7 @@ GetNode( std::string name_ ) const
   if( m_daughters.size() == 0 ) {
     return this;
   }
-  
+
   std::string::size_type k = name_.find_first_of('/');
   if( k != std::string::npos ) {
     std::string dName( name_, 0, k );
@@ -132,7 +132,7 @@ GetNode( std::string name_ ) const
     }
     return GetNode( pName );
   }
-  
+
   NodeIter_t i = m_daughters.find( name_ );
   if( i == m_daughters.end() ) {
     return this;
@@ -167,7 +167,7 @@ GetAttribute( std::string attName, bool calledFromDaughter ) const
   return i->second.first;
 }
 
-// Like GetAttributes, but only returns attributes of *this* node, 
+// Like GetAttributes, but only returns attributes of *this* node,
 // not inherited ones
 std::string
 MiniConfigTreeNode::
@@ -227,6 +227,18 @@ Accept( const Visitor& visitor ) const
 
 void
 MiniConfigTreeNode::
+Accept(Writer& writer )
+{
+  writer.Write(this);
+  NodeIter_t daugEnd = m_daughters.end();
+  for( NodeIter_t i = m_daughters.begin(); i != daugEnd; ++i ) {
+    MiniConfigTreeNode* node = i->second;
+    node->Accept(writer);
+  }
+}
+
+void
+MiniConfigTreeNode::
 SetAttribKeywordPropagateDown( bool propagateDown )
 {
   this->m_propagateDown = propagateDown;
@@ -240,4 +252,3 @@ GetAttribKeywordPropagateDown() const
 }
 
 } // namespace dqi
-

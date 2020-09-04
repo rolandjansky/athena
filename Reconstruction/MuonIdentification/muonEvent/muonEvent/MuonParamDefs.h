@@ -87,7 +87,7 @@ namespace MuonParameters {
       author.push_back("CaloLikelihood");
       author.push_back("MuTagIMO");
       author.push_back("MuonCombinedRefit");
-      author.push_back("ExtrapolateMuonToIP"); // 20
+      author.push_back("ExtrapolateMuonToIP");  // 20
     }
       
     /**The member*/ 

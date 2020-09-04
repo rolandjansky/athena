@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file PerfMonTests.IoTestsLib
 ## @date April 2009
@@ -12,6 +12,7 @@ a set of simple minded functions to test ROOT I/O (from python)
 """
 
 from array import array as carray
+from builtins import range
 
 import random
 # set some dummy seed, for reproducibility
@@ -62,7 +63,7 @@ def comp_delta(d, verbose=False):
 def import_ROOT():
     import sys
     # for ROOT...
-    if not '-b' in sys.argv:
+    if '-b' not in sys.argv:
         sys.argv.insert(1, '-b')
     import ROOT
     return ROOT
@@ -85,8 +86,8 @@ def io_test1_write(fname, nevts=1000, sz=1000, dtype='i'):
     from random import randint
     
     fill = t.Fill
-    for i in xrange(nevts):
-        for j in xrange(sz):
+    for i in range(nevts):
+        for j in range(sz):
             data[j] = randint(0, sz)
         fill()
 
@@ -106,7 +107,7 @@ def io_test1_read(fname, verbose=False):
     tot_bytes = 0
     get_entry = t.GetEntry
     start = pymon()
-    for ievt in xrange(nevts):
+    for ievt in range(nevts):
         # copy next entry into memory and verify
         nb = get_entry(ievt)
         if nb <= 0:
@@ -144,10 +145,10 @@ def io_test2_write(fname, nevts=1000, sz=1000, dtype='i'):
     from random import randint
     
     fill = t.Fill
-    for i in xrange(nevts):
+    for i in range(nevts):
         jmax = randint(1, sz)
         n[0] = jmax
-        for j in xrange(jmax):
+        for j in range(jmax):
             data[j] = randint(0, sz)
         fill()
 
@@ -167,7 +168,7 @@ def io_test2_read(fname, verbose=False):
     tot_bytes = 0
     get_entry = t.GetEntry
     start = pymon()
-    for ievt in xrange(nevts):
+    for ievt in range(nevts):
         # copy next entry into memory and verify
         nb = get_entry(ievt)
         if nb <= 0:
@@ -206,7 +207,7 @@ if __name__ == "__main__":
                        nevts=100000, sz=1000,
                        dtype='i')
     mon_data['io_test1-ints'] = []
-    for _ in xrange(nreads):
+    for _ in range(nreads):
         mon_data['io_test1-ints'].append(comp_delta(io_test1_read(fname=fname)))
 
     # io_test1 - floats
@@ -215,7 +216,7 @@ if __name__ == "__main__":
                        nevts=100000, sz=1000,
                        dtype='f')
     mon_data['io_test1-flts'] = []
-    for _ in xrange(nreads):
+    for _ in range(nreads):
         mon_data['io_test1-flts'].append(comp_delta(io_test1_read(fname=fname)))
 
     # -----
@@ -228,7 +229,7 @@ if __name__ == "__main__":
                        nevts=100000, sz=1000,
                        dtype='i')
     mon_data['io_test2-ints'] = []
-    for _ in xrange(nreads):
+    for _ in range(nreads):
         mon_data['io_test2-ints'].append(comp_delta(io_test2_read(fname=fname)))
 
     # io_test2 - floats
@@ -237,7 +238,7 @@ if __name__ == "__main__":
                        nevts=100000, sz=1000,
                        dtype='f')
     mon_data['io_test2-flts'] = []
-    for _ in xrange(nreads):
+    for _ in range(nreads):
         mon_data['io_test2-flts'].append(comp_delta(io_test2_read(fname=fname)))
 
 

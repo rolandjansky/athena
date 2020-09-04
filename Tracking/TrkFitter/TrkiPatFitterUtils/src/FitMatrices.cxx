@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,24 +38,24 @@ namespace Trk{
 FitMatrices::FitMatrices(bool constrainedAlignmentEffects)
     :	m_columnsDM			(0),
 	m_constrainedAlignmentEffects	(constrainedAlignmentEffects),
-	m_covariance			(0),
-	m_derivativeMatrix		(0),
-	m_finalCovariance		(0),
+	m_covariance			(nullptr),
+	m_derivativeMatrix		(nullptr),
+	m_finalCovariance		(nullptr),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),
-	m_measurements			(0),
+	m_measurements			(nullptr),
 	m_numberDoF			(0),
 	m_numberDriftCircles		(0),
 	m_numberPerigee			(5),
-	m_parameters			(0),
-	m_perigee			(0),
+	m_parameters			(nullptr),
+	m_perigee			(nullptr),
 	m_perigeeDifference		(Amg::MatrixX(1,m_numberPerigee)),
-	m_perigeeWeight			(0),
-	m_residuals			(0),
+	m_perigeeWeight			(nullptr),
+	m_residuals			(nullptr),
 	m_rowsDM			(0),
 	m_usePerigee			(false),
-	m_weight			(0),
-	m_weightedDifference		(0)
+	m_weight			(nullptr),
+	m_weightedDifference		(nullptr)
 {}
 
 FitMatrices::~FitMatrices(void)
@@ -163,8 +163,8 @@ FitMatrices::fullCovariance (void)
     if (failure)
     {
         delete m_covariance;
-        m_covariance    = 0;
-        return 0;
+        m_covariance    = nullptr;
+        return nullptr;
     }
 
     // back convert curved fits to Tracking units (MeV)
@@ -367,9 +367,9 @@ FitMatrices::releaseMemory (void)
     delete m_derivativeMatrix;
     delete m_weight;
     delete m_weightedDifference;
-    m_derivativeMatrix		= 0;
-    m_weight			= 0;
-    m_weightedDifference	= 0;
+    m_derivativeMatrix		= nullptr;
+    m_weight			= nullptr;
+    m_weightedDifference	= nullptr;
 }
     
 int
@@ -644,9 +644,9 @@ FitMatrices::setDimensions (std::vector<FitMeasurement*>&	measurements,
     
     // we don't have any fit results yet
     delete m_covariance;
-    m_covariance	= 0;
+    m_covariance	= nullptr;
     delete m_finalCovariance;
-    m_finalCovariance	= 0;
+    m_finalCovariance	= nullptr;
     
     // reallocate to get correct matrix sizes
     if (! m_derivativeMatrix || ! m_weight || numberParameters != m_columnsDM)

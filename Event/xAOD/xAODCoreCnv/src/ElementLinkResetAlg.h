@@ -1,10 +1,10 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLinkResetAlg.h 751107 2016-05-31 11:23:23Z krasznaa $
+// $Id: ElementLinkResetAlg.h 788434 2016-12-07 14:46:53Z krasznaa $
 #ifndef XAODCORECNV_ELEMENTLINKRESETALG_H
 #define XAODCORECNV_ELEMENTLINKRESETALG_H
 
@@ -35,8 +35,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 751107 $
-    * $Date: 2016-05-31 13:23:23 +0200 (Tue, 31 May 2016) $
+    * $Revision: 788434 $
+    * $Date: 2016-12-07 15:46:53 +0100 (Wed, 07 Dec 2016) $
     */
    class ElementLinkResetAlg : public AthAlgorithm {
 
@@ -51,7 +51,8 @@ namespace xAODMaker {
 
    private:
       /// Function reseting all the ElementLinks in one specific container
-      StatusCode reset( const SG::IConstAuxStore& store );
+      StatusCode reset( const SG::IConstAuxStore& store,
+                        const std::string& key );
 
       /// StoreGate keys of the auxiliary objects to be processed
       std::vector< std::string > m_keys;

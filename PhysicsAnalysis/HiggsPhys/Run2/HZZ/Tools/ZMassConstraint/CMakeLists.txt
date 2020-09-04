@@ -35,8 +35,7 @@ atlas_add_library( ZMassConstraintLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EventPrimitives xAODBase xAODEgamma
    xAODMuon
-   PRIVATE_LINK_LIBRARIES ElectronPhotonFourMomentumCorrectionLib
-   MuonMomentumCorrectionsLib )
+   PRIVATE_LINK_LIBRARIES MuonMomentumCorrectionsLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ZMassConstaint

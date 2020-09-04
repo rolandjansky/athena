@@ -6,7 +6,7 @@
 //
 //  Old interface of VKalVrt.
 //  Fully implemented also in Reconstruction/VKalVrt/VKalVrtFitSvc
-//  
+//
 //---------------------------------------------------------------
 #ifndef TRKVKALVRTFITTER_ITRKVKALVRTFITTER_H
 #define TRKVKALVRTFITTER_ITRKVKALVRTFITTER_H
@@ -20,14 +20,11 @@
 //
 #include  "TrkVKalVrtFitter/IVKalState.h"
 #include  "TrkTrack/Track.h"
-#include  "xAODTracking/TrackParticleContainer.h" 
-#include  "xAODTracking/NeutralParticleContainer.h" 
+#include  "xAODTracking/TrackParticleContainer.h"
+#include  "xAODTracking/NeutralParticleContainer.h"
 #include  "xAODTracking/VertexContainer.h"
 
 #include <vector>
-namespace MagField{
-   class IMagFieldSvc;
-}
 
 
 namespace Trk{
@@ -47,7 +44,7 @@ class IExtrapolator;
       * Context aware method
       */
       virtual std::unique_ptr<IVKalState> makeState(const EventContext& ctx) const = 0;
-      
+
      /*
       * For non-migrated clients which should always use the context aware method
       */
@@ -92,7 +89,7 @@ class IExtrapolator;
         double& Chi2,
         IVKalState& istate,
         bool ifCovV0 = false) const = 0;
-     
+
       //------
       virtual StatusCode VKalVrtCvtTool(const Amg::Vector3D& Vertex,
                                         const TLorentzVector& Momentum,
@@ -102,7 +99,7 @@ class IExtrapolator;
                                         std::vector<double>& CovPerigee,
                                         IVKalState& istate) const = 0;
       //.........................................................................................
-   
+
       virtual StatusCode VKalVrtFitFast(const std::vector<const Track*>& list,
                                         Amg::Vector3D& Vertex,
                                         IVKalState& istate) const = 0;
@@ -110,7 +107,7 @@ class IExtrapolator;
         const std::vector<const xAOD::TrackParticle*>& list,
         Amg::Vector3D& Vertex,
         IVKalState& istate) const = 0;
-    
+
       virtual StatusCode VKalVrtFitFast(
         const std::vector<const TrackParameters*>& list,
         Amg::Vector3D& Vertex,
@@ -123,10 +120,10 @@ class IExtrapolator;
 
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights,
                                            const IVKalState& istate) const = 0;
-  
+
       virtual StatusCode VKalGetFullCov(long int, std::vector<double>& CovMtx,
                                         const IVKalState& istate, bool = false) const =0;
-      
+
       virtual StatusCode VKalGetMassError(double& Mass, double& MassError,
                                           const IVKalState& istate) const =0;
 
@@ -137,23 +134,23 @@ class IExtrapolator;
 
       virtual void setMassForConstraint(double, const std::vector<int>&,
                                         IVKalState& istate) const =0;
-    
+
       virtual void setRobustness(int, IVKalState& istate) const =0;
-     
+
       virtual void setRobustScale(double, IVKalState& istate) const =0;
-    
+
       virtual void setCnstType(int, IVKalState& istate) const =0;
-      
+
       virtual void setVertexForConstraint(const xAOD::Vertex &,
                                           IVKalState& istate) const=0;
-      
+
       virtual void setVertexForConstraint(double,double,double,
                                           IVKalState& istate) const =0;
-      
+
       virtual void setCovVrtForConstraint(double,double,double,
                                           double,double,double,
                                           IVKalState& istate) const=0;
-      
+
       virtual void setMassInputParticles( const std::vector<double>&,
                                           IVKalState& istate) const=0;
 //----------------------------------------------------------------------------------------------------

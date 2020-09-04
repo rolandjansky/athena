@@ -12,10 +12,10 @@
 
 #include <memory>
 
-typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
-typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
-typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t;
-typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
+using TruthLink_t = ElementLink<xAOD::TruthParticleContainer>;
+using ClusterLink_t = ElementLink<xAOD::CaloClusterContainer>;
+using ElectronLink_t = ElementLink<xAOD::ElectronContainer>;
+using PhotonLink_t = ElementLink<xAOD::PhotonContainer>;
 
 egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name,
                                                      ISvcLocator* pSvcLocator)

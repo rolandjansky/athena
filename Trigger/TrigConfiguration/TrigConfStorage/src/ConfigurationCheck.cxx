@@ -1159,7 +1159,7 @@ public:
 
          if( ch->level()=="EF" ) continue; // chains we do not care about in this check
          if( ch->lower_chain_name() == "") continue; // unseeded
-         if( ch->lower_chain_name().find(",") != string::npos) continue; // multi seeded 
+         if( ch->lower_chain_name().find(',') != string::npos) continue; // multi seeded 
 
          if( matches_any(exc_regex, ch->chain_name()) ) continue; // listed in exception
 

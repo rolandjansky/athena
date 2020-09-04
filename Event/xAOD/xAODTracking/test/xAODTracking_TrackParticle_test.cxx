@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -46,7 +46,7 @@ void fill( xAOD::TrackParticle& tp ) {
       { 6.0, 7.0, 8.0, 9.0, 10.0, 11.0 }
    };
    std::vector< std::vector< float > > parametersVec;
-   if( ! parametersVec.size() ) {
+   if( parametersVec.empty() ) {
       for( int i = 0; i < 2; ++i ) {
          std::vector< float > temp( parameters[ i ],
                                     parameters[ i ] + 6 );

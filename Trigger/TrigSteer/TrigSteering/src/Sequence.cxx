@@ -19,6 +19,7 @@
 #include "TrigSteering/Sequence.h"
 
 #include <algorithm>
+#include <utility>
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/TECreateAlgo.h"
 #include "TrigInterfaces/AlgoConfig.h"
@@ -47,7 +48,7 @@ Sequence::Sequence(std::vector<unsigned int> inputTypes,
    m_execErrorCode(OK),
    m_firstAlgo(firstAlgo),
    m_nextAlgos(algos),
-   m_inputTeTypes(inputTypes),
+   m_inputTeTypes(std::move(inputTypes)),
    m_outputTeType(outputType),
    m_config(config),
    m_topoStartFrom(topoTypes),

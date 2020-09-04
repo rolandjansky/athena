@@ -740,6 +740,7 @@ StatusCode SCTHitEffMonAlg::fillHistograms(const EventContext& ctx) const {
       auto sideHashAcc{Monitored::Scalar<int>("sideHash", sideHash)};
       auto isFirstBCIDAcc{Monitored::Scalar<bool>("isFirstBCID", (BCIDpos <= 0))};
 
+      //fill the histograms
       fill(regionNames[isub].data(), effAcc, ineffAcc, ietaAcc, iphiAcc, layerAcc, lumiAcc, isFirstBCIDAcc);
       fill("SCTHitEffMonitor", effAcc, lumiAcc, isubAcc, sideHashAcc, isFirstBCIDAcc);
 

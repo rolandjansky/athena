@@ -114,7 +114,7 @@ LArVectorProxy TestData::data (const HWIdentifier& id) const
 class TestOFC : public ILArOFC
 {
 public:
-  typedef LArVectorProxy OFCRef_t;
+  using OFCRef_t = LArVectorProxy;
 
   TestOFC (size_t nofc, const std::vector<HWIdentifier>& hwids)
     : m_data (1234, nofc, hwids)

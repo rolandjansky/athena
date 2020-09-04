@@ -72,7 +72,7 @@ namespace Simulation
       std::string                     m_randomEngineName;         //!< Name of the random number stream
 
       StringProperty m_bunchShapeProp;
-      void BunchShapeHandler(Property&);
+      void BunchShapeHandler(Gaudi::Details::PropertyBase&);
       enum BunchShape{GAUSS,FLAT,NSHAPES};
       BunchShape m_bunchShape; // GAUSS or FLAT
       double m_bunchLength; //!< Parameter in the Z distribution of the beamspot

@@ -2,16 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 27.10.2007, AUTHOR: OLIVER KORTNER
-// Modified: 26.11.2007 by O. Kortner, fix for segment refinement.
-//           13.12.2007 by O. Kortner, time-out added.
-//           07.08.2008 by O. Kortner, bug fix when hits are disabled.
-//				 19.11.2008 by I. Potrap: 1) several bugs have been fixed;
-//												  2) external fitter(DCLS) replaced by
-//													  internal code of linear-least-chi2-fit
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #ifndef StraightPatRecH
 #define StraightPatRecH
 
@@ -29,30 +19,19 @@
 ///
 /// \date 27.10.2007, 13.12.2007
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// CLHEP //
-//#include "CLHEP/config/CLHEP.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-//#include "CLHEP/Units/PhysicalConstants.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-
-// STL //
-#include <vector>
-
-// MuonCalib //
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
+
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MdtCalibFitters/DCSLFitter.h"
-//#include "MdtCalibFitters/FourCasesFitter.h"
+#include "CxxUtils/checker_macros.h"
 
+#include <vector>
 
 namespace MuonCalib {
 
-class StraightPatRec : public IMdtPatRecFitter {
+class ATLAS_NOT_THREAD_SAFE StraightPatRec : public IMdtPatRecFitter {
 
 public:
 // Constructors //

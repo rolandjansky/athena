@@ -123,6 +123,7 @@ private:
   TH1* m_h_barcode;
   TH1* m_h_eventIndex;
   TH1* m_h_charge;
+  TH1* m_h_TruthMatchedRDOs;
 
   TTree* m_tree;
   std::string m_ntupleFileName;

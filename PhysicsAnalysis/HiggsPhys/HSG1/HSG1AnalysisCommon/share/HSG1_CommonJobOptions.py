@@ -60,7 +60,7 @@ ToolSvc.PAUhggUserDataTool.DumpNtuple = DumpNtuple
 theJob.PAUanalysis.OutputLevel = INFO
 theJob.PAUanalysis.EgDetailContainerName = PhotonsDetailsContainerName
 
-# theJob.PAUanalysis.UsePAUtruthMatchingTool = True 
+# theJob.PAUanalysis.UsePAUtruthMatchingTool = True
 
 # here if you want to set which process you are analysing...
 
@@ -165,7 +165,7 @@ InDetConversionVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InDet
 #                                                    IterationPrecision     = 1.e-5,
                                                     )
 
-ToolSvc += InDetConversionVxFitterTool 
+ToolSvc += InDetConversionVxFitterTool
 print      InDetConversionVxFitterTool
 
 #next instruction no more useful but keep it for a while
@@ -212,7 +212,7 @@ print      InDetConversionVxFitterToolBis
 #
 from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__SeedNewtonTrkDistanceFinder
 InDetConversionTrkDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name = 'InDetConversionTrkDistanceFinder')
-ToolSvc += InDetConversionTrkDistanceFinder 
+ToolSvc += InDetConversionTrkDistanceFinder
 print      InDetConversionTrkDistanceFinder
 
 # Straight line propagator needed to clean-up single track conversions
@@ -233,10 +233,7 @@ print      InDetConversionHelper
 #
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
 InDetConversionTrackSelector = InDet__InDetConversionTrackSelectorTool(name             = "ConversionTrackSelector",
-                                                                       ##TrackSummaryTool = InDetTrackSummaryTool,
-                                                                       ##Extrapolator     = InDetExtrapolator,
-                                                                       TrackSummaryTool = theAtlasTrackSummaryTool,
-                                                                       Extrapolator     = theAtlasExtrapolator, 
+                                                                       Extrapolator     = theAtlasExtrapolator,
                                                                        maxSiD0          = 10000.,    #50.,      #50.0,   # 10000.,
                                                                        maxTrtD0         = 10000.,    #100.,     #100.,   # 10000.,
                                                                        maxSiZ0          = 10000.,   #350.0,  # 10000.,
@@ -247,12 +244,12 @@ InDetConversionTrackSelector = InDet__InDetConversionTrackSelectorTool(name     
                                                                        RatioCut3        = 0.1)      #0.05)   # 0.,                                                                   maxSiD0          = 50.0,
 
 #                                                                       maxTrtD0         = 100.,
-#                                                                       maxSiZ0          = 10000., 
-#                                                                       maxTrtZ0         = 10000., 
+#                                                                       maxSiZ0          = 10000.,
+#                                                                       maxTrtZ0         = 10000.,
 #                                                                       minPt            = 500.0,
 #                                                                       RatioCut1        = 0.,  #0.5,
 #                                                                       RatioCut2        = 0.,  #0.1,
-#                                                                       RatioCut3        = 0.)  #0.05)  
+#                                                                       RatioCut3        = 0.)  #0.05)
 
 ToolSvc += InDetConversionTrackSelector
 print      InDetConversionTrackSelector
@@ -369,7 +366,7 @@ InDetConversionFinderToolsBis = InDet__InDetConversionFinderTools(name          
                                                                  RemoveTrtTracks            = False,
                                                                  IsConversion               = True)
 ToolSvc += InDetConversionFinderToolsBis
-print      InDetConversionFinderToolsBis 
+print      InDetConversionFinderToolsBis
 ############################################################################################################
 
 from TrkMagFieldTools.TrkMagFieldToolsConf import Trk__MagneticFieldTool
@@ -491,8 +488,8 @@ from PhotonAnalysisUtils.PhotonAnalysisUtilsConf import PAUphotonCorrectionTool
 ToolSvc += PAUphotonCorrectionTool()
 ToolSvc.PAUphotonCorrectionTool.OutputLevel = INFO
 
-if not 'doReRunEgamma' in dir(): #to be used by PAUphotonSelector only 
-    doReRunEgamma = False 
+if not 'doReRunEgamma' in dir(): #to be used by PAUphotonSelector only
+    doReRunEgamma = False
 
 from PhotonAnalysisUtils.PhotonAnalysisUtilsConf import PAUphotonSelector
 ToolSvc += PAUphotonSelector()
@@ -502,12 +499,12 @@ ToolSvc.PAUphotonSelector.PhotonContainer = PhotonContainerMerged
 ToolSvc.PAUphotonSelector.TrackIsolationTool = NewTrackIsolationTool
 ToolSvc.PAUphotonSelector.UsePhotonRecoveryTool = usePhotonRecoveryTool
 ToolSvc.PAUphotonSelector.UsePAUconversionFlagTool = usePAUconversionFlagTool
-ToolSvc.PAUphotonSelector.EgDetailContainerName = PhotonsDetailsContainerName 
-ToolSvc.PAUphotonSelector.RemovePhotonWithoutEgDetail = doReRunEgamma 
+ToolSvc.PAUphotonSelector.EgDetailContainerName = PhotonsDetailsContainerName
+ToolSvc.PAUphotonSelector.RemovePhotonWithoutEgDetail = doReRunEgamma
 
 #FANTI ToolSvc.PAUphotonSelector.LoopOverElectronContainer = LoopOverElectronContainer
 # --- Photon selection:
-#ToolSvc.PAUphotonSelector.GammaTypeNames = [ "unconv" ] # default is [ "unconv" , "conv1" , "conv2" ] 
+#ToolSvc.PAUphotonSelector.GammaTypeNames = [ "unconv" ] # default is [ "unconv" , "conv1" , "conv2" ]
 #ToolSvc.PAUphotonSelector.PtIsolationCut = ...    # Pt cut in MeV (default is 4000; negative value for not using isolation tool)
 #ToolSvc.PAUphotonSelector.PhotonIDbyCuts = ...    # photon ID (default==0 use isem(PhotonTight); >0 use G.Unal's itune ; -1 use likelihood)
 #ToolSvc.PAUphotonSelector.PhotonIDlogLHcut = ...  # set cut for photon ID loglikelihood (default==9.4; works if PhotonIDbyCuts==-1)
@@ -524,7 +521,7 @@ if doESD:
     from McParticleTools.McParticleToolsConf import TruthParticleCnvTool
     TruthParticleCnvTool.McEvents = MCEventCollection
     TruthParticleCnvTool.TruthParticlesOutput = MCParticleContainer
-    
+
 from PhotonAnalysisUtils.PhotonAnalysisUtilsConf import PAUtruthTool
 ToolSvc += PAUtruthTool()
 ToolSvc.PAUtruthTool.OutputLevel = INFO

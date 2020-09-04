@@ -51,11 +51,6 @@ namespace Muon
     if (RIO.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
   }
 
-  MuonCluster::MuonCluster(MuonCluster&& RIO):
-    PrepRawData(std::move(RIO))
-  { 
-    m_globalPosition = std::move(RIO.m_globalPosition);
-  }
 
   //assignment operator
   MuonCluster& MuonCluster::operator=(const MuonCluster& RIO)
@@ -65,16 +60,6 @@ namespace Muon
       Trk::PrepRawData::operator=(RIO);
       if (RIO.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
       else if (m_globalPosition) m_globalPosition.release().reset();
-    }
-    return *this;
-  }
-  
-  MuonCluster& MuonCluster::operator=(MuonCluster&& RIO)
-  {
-    if (&RIO !=this)
-    {
-      Trk::PrepRawData::operator=(std::move(RIO));
-      m_globalPosition = std::move(RIO.m_globalPosition);
     }
     return *this;
   }

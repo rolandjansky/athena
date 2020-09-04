@@ -37,8 +37,8 @@
 
 ************************************************************************** */
 CaloDmDescrManager::CaloDmDescrManager()
-  : m_caloDM_ID (0),
-    m_id_helper (0)
+  : m_caloDM_ID (nullptr),
+    m_id_helper (nullptr)
 {
   initialize();
 }
@@ -279,7 +279,7 @@ m_caloDM_ID->lar_zone_hash_max() + m_caloDM_ID->tile_zone_hash_max()
 ************************************************************************** */
 void CaloDmDescrManager::build_element_vector()
 {
-  if(m_DmElementVector.size()) {
+  if(!m_DmElementVector.empty()) {
     std::cout << "CaloDmDescrManager::build_element_list() -> Warning! Non empty list."
         << " m_DmElementVector.size(): " << m_DmElementVector.size()
         << std::endl;
@@ -347,13 +347,13 @@ CaloDmDescrElement* CaloDmDescrManager::build_element(const Identifier& id, cons
 /* **************************************************************************
 Load private Dead Material Regions definition from text file
 ************************************************************************** */
-StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
+StatusCode CaloDmDescrManager::load_regions(const std::string& DmRegionFileName)
 {
   MsgStream log(Athena::getMessageSvc(), "CaloDmDescrManager");
 
   char cLine[MAX_BUFFER_LEN];
 
-  if(m_DmRegionVector.size()) {
+  if(!m_DmRegionVector.empty()) {
     log << MSG::WARNING << "CaloDmDescrManager::build_element_list() -> Warning! Non empty list."
         << " m_DmRegionVector.size(): " << m_DmRegionVector.size()
         << endmsg;
@@ -370,7 +370,7 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
     return StatusCode::FAILURE;
   }
 
-  m_DmRegionVector.resize(m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash_max(), 0);
+  m_DmRegionVector.resize(m_caloDM_ID->lar_region_hash_max() + m_caloDM_ID->tile_region_hash_max(), nullptr);
   std::string sLine;
   while(fin.getline(cLine,sizeof(cLine)-1)){
     if( strlen(cLine)==0 ||  cLine[0] == '#' || cLine[0] == '\n') continue;
@@ -629,11 +629,11 @@ CaloCell_ID::CaloSample CaloDmDescrManager::get_calo_sample(const std::string &S
     return CaloCell_ID::Unknown;
   }
   char dummy;
-  if(SamplingName.find("(") == std::string::npos || SamplingName.find(")") != SamplingName.size()-1 ){
+  if(SamplingName.find('(') == std::string::npos || SamplingName.find(')') != SamplingName.size()-1 ){
     std::cout << "CaloDmDescrManager::get_calo_sample() -> Can't parse calorimeter sampling '" << SamplingName << "' string! Something with brackets..." << std::endl;
     return CaloCell_ID::Unknown;
   }
-  std::string sEtaRange(SamplingName,SamplingName.find("(")+1);
+  std::string sEtaRange(SamplingName,SamplingName.find('(')+1);
   std::istringstream iEtaRange( sEtaRange.c_str() );
   if(iEtaRange >> etaMin >> dummy >> etaMax) {
     return nsmp;

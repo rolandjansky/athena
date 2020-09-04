@@ -62,6 +62,8 @@ def _createCfgFlags():
         import os
         if "AthSimulation_DIR" in os.environ:
             return "AthSimulation"
+        if "AthGeneration_DIR" in os.environ:
+            return "AthGeneration"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -182,6 +184,11 @@ def _createCfgFlags():
         return createEgammaConfigFlags()
     _addFlagsCategory(acf, "Egamma", __egamma, 'egammaConfig' )
 
+    def __met():
+        from METReconstruction.METConfigFlags import createMETConfigFlags
+        return createMETConfigFlags()
+    _addFlagsCategory(acf,"MET",__met, 'METReconstruction')
+
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags
         return createPFConfigFlags()
@@ -197,6 +204,11 @@ def _createCfgFlags():
         dqf = createDQConfigFlags()
         return dqf
     _addFlagsCategory(acf, "DQ", __dq, 'AthenaMonitoring' )
+
+    def __perfmon():
+        from PerfMonComps.PerfMonConfigFlags import createPerfMonConfigFlags
+        return createPerfMonConfigFlags()
+    _addFlagsCategory(acf, "PerfMon", __perfmon, 'PerfMonComps')
 
     return acf
 

@@ -1,11 +1,13 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "CxxUtils/features.h"
-#include "CxxUtils/vectorize.h"
+#include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include <limits>
+
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -22,11 +24,7 @@
  * @date 26th November 2019
  *
  * Implementation of KLGaussianMixtureReduction
- *
  */
-
-/// This enables -ftree-vectorize in gcc (since we compile with -O2)
-ATH_ENABLE_VECTORIZATION;
 
 namespace {
 using namespace GSFUtils;
@@ -102,6 +100,7 @@ recalculateDistances(const Component1D* componentsIn,
 {
   const Component1D* components = static_cast<const Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
+
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
 
@@ -146,6 +145,7 @@ calculateAllDistances(const Component1D* componentsIn,
     __builtin_assume_aligned(componentsIn, alignment));
   float* distances =
     static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
     const Component1D componentI = components[i];
@@ -182,7 +182,7 @@ namespace GSFUtils {
 
 /**
  * Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged.
  */
 std::vector<std::pair<int32_t, int32_t>>
 findMerges(Component1D* componentsIn,
@@ -195,19 +195,17 @@ findMerges(Component1D* componentsIn,
   const int32_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
   // Create a trianular mapping for the pairwise distances
-  std::vector<triangularToIJ> convert;
-  convert.reserve(nn);
-
+  // We now that the size is nn
+  std::vector<triangularToIJ> convert(nn);
   for (int32_t i = 1; i < n; ++i) {
     const int indexConst = (i - 1) * i / 2;
     for (int32_t j = 0; j < i; ++j) {
-      int32_t index = indexConst + j;
-      convert[index] = { i, j };
+      convert[indexConst + j] = { i, j };
     }
   }
-  // We need to work with multiple of 8, in principle this is a requirement
-  // of aligned_alloc (although not in POSIX ) i.e allocation should be multiple
-  // of the requested size.
+  // We work with a  multiple of 8*floats (32 bytes).
+  // Ensures also that the  size parameter passed to aligned alloc
+  // is an integral multiple of alignment (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
   AlignedDynArray<float, alignment> distances(
     nn2, std::numeric_limits<float>::max());
@@ -241,243 +239,162 @@ findMerges(Component1D* componentsIn,
 
 /**
  * findMinimumIndex
+ * Assume that the number of elements is a multiple
+ * of 8 and is to be used for sizeable inputs.
  *
- * For FindMinimumIndex at x86_64 we have
- * AVX2,SSE4.1,SSE2  versions
- * These assume that the number of elements is a multiple
- * of 8 and are to be used for sizeable inputs.
+ * It uses the CxxUtils:vec class which provides
+ * a degree of portability.
  *
- * We also provide a default "scalar" implementation
+ * avx2 gives us lanes 8 float wide
+ * SSE4.1 gives us efficient blend
+ * so we employ function multiversioning
+ *
+ * For non-sizeable inputs
+ * std::distance(array, std::min_element(array, array + n))
+ * can be good enough instead of calling this function.
+ *
+ * Note than the above "STL"  code in gcc
+ * (up to 10.2 at least) this emits
+ * a cmov which make it considerable slower
+ * than the clang when the branch can
+ * be well predicted.
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-#include <immintrin.h>
-/*
- * AVX2 intrinsics used :
- *
- * _mm256_set1_epi32
- * Broadcast 32-bit integer a to all elements of dst.
- *
- * _mm256_setr_epi32
- * Set packed 32-bit integers in dst with the supplied values in reverse order.
- *
- * _mm256_load_ps
- * Load 256-bits (composed of 8 packed single-precision (32-bit) floating-point
- * elements) from memory into dst. mem_addr must be aligned on a 32-byte
- * boundary or a general-protection exception may be generated.
- *
- * _mm256_add_epi32
- * Add packed 32-bit integers in a and b, and store the results in dst.
- *
- * _mm256_cmp_ps
- * Compare packed single-precision (32-bit) floating-point elements in a and b
- * based on the comparison operand specified by imm8, and store the results in
- * dst.
- *
- * _mm256_min_ps
- * Compare packed single-precision (32-bit) floating-point elements in a and
- * b, and store packed minimum values in dst.
- *
- * _mm256_blendv_epi8
- * Blend packed 8-bit integers from a and b using mask, and store the results
- * in dst.
- */
-__attribute__((target("avx2")))
-int32_t
+__attribute__((target("avx2"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
+  using namespace CxxUtils;
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  const __m256i increment = _mm256_set1_epi32(8);
-  __m256i indicesIn = _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7);
-  __m256i minindices = indicesIn;
-  __m256 minvalues = _mm256_load_ps(array);
+  const vec<int, 8> increment = { 8, 8, 8, 8, 8, 8, 8, 8 };
+  vec<int, 8> indicesIn = { 0, 1, 2, 3, 4, 5, 6, 7 };
+  vec<int, 8> minindices = indicesIn;
+  vec<float, 8> minvalues{};
+  vec<float, 8> values{};
+  vload(minvalues, array);
   for (int i = 8; i < n; i += 8) {
     // Load next 8 elements
-    const __m256 values = _mm256_load_ps(array + i);
+    vload(values, array + i);
     // increment the indices
-    indicesIn = _mm256_add_epi32(indicesIn, increment);
+    indicesIn = indicesIn + increment;
     // Get a mask indicating when an element is less than the ones we have
-    __m256i lt =
-      _mm256_castps_si256(_mm256_cmp_ps(values, minvalues, _CMP_LT_OS));
-    // b lend select the indices to update
-    minindices = _mm256_blendv_epi8(minindices, indicesIn, lt);
-    minvalues = _mm256_min_ps(values, minvalues);
+    vec<int, 8> lt = values < minvalues;
+    // blend select the indices to update
+    vselect(minindices, indicesIn, minindices, lt);
+    vmin(minvalues, values, minvalues);
   }
   // Do the final calculation scalar way
-  alignas(alignment) float distances[8];
-  alignas(alignment) int32_t indices[8];
-  _mm256_store_ps(distances, minvalues);
-  _mm256_store_si256((__m256i*)(indices), minindices);
-  int32_t minIndex = indices[0];
-  float minDistance = distances[0];
+  int32_t minIndex = minindices[0];
+  float minDistance = minvalues[0];
   for (int i = 1; i < 8; ++i) {
-    if (distances[i] < minDistance) {
-      minIndex = indices[i];
-      minDistance = distances[i];
+    if (minvalues[i] < minDistance) {
+      minIndex = minindices[i];
+      minDistance = minvalues[i];
     }
   }
   return minIndex;
 }
-/*
- * SSE intrinsics used
- * _mm_set1_epi32
- * Broadcast 32-bit integer a to all elements of dst.
- *
- * _mm_setr_epi32
- * Set packed 32-bit integers in dst with the supplied values in reverse order.
- *
- * _mm_load_ps
- * Set packed 32-bit integers in dst with the supplied values in reverse order.
- *
- * _mm_add_epi32 (a,b)
- * Add packed 32-bit integers in a and b, and store the results in dst.
- *
- * _mm_min_ps (a,b)
- * Compare packed single-precision (32-bit) floating-point elements in a and
- * b, and store packed minimum values in dst.
- *
- * _mm_cmplt_ps ( a, b)
- * Compare packed single-precision (32-bit) floating-point elements in a and b
- * for less-than, and store the results in dst.
- *
- * _mm_castps_si128
- * Cast vector of type __m128 to type __m128i. This intrinsic is only used
- * for compilation and does not generate any instructions, thus it has zero
- * latency.
- */
-__attribute__((target("sse4.1")))
-int32_t
+__attribute__((target("sse4.1"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
+  using namespace CxxUtils;
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   // Do 2 vectors of 4 elements , so 8 at time
-  const __m128i increment = _mm_set1_epi32(8);
-  __m128i indices1 = _mm_setr_epi32(0, 1, 2, 3);
-  __m128i indices2 = _mm_setr_epi32(4, 5, 6, 7);
-  __m128i minindices1 = indices1;
-  __m128i minindices2 = indices2;
-  __m128 minvalues1 = _mm_load_ps(array);
-  __m128 minvalues2 = _mm_load_ps(array + 4);
-
+  const vec<int, 4> increment = { 8, 8, 8, 8 };
+  vec<int, 4> indices1 = { 0, 1, 2, 3 };
+  vec<int, 4> indices2 = { 4, 5, 6, 7 };
+  vec<int, 4> minindices1 = indices1;
+  vec<int, 4> minindices2 = indices2;
+  vec<float, 4> minvalues1;
+  vec<float, 4> minvalues2;
+  vload(minvalues1, array);
+  vload(minvalues2, array + 4);
+  vec<float, 4> values1;
+  vec<float, 4> values2;
   for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time in 2 vectors of size 4
-    const __m128 values1 = _mm_load_ps(array + i);     // first 4
-    const __m128 values2 = _mm_load_ps(array + i + 4); // second 4
-    // Handle the first 4
-    indices1 = _mm_add_epi32(indices1, increment);
-    __m128i lt1 = _mm_castps_si128(_mm_cmplt_ps(values1, minvalues1));
-    minindices1 = _mm_blendv_epi8(minindices1, indices1, lt1);
-    minvalues1 = _mm_min_ps(values1, minvalues1);
-    // Handle the second 4
-    indices2 = _mm_add_epi32(indices2, increment);
-    __m128i lt2 = _mm_castps_si128(_mm_cmplt_ps(values2, minvalues2));
-    minindices2 = _mm_blendv_epi8(minindices2, indices2, lt2);
-    minvalues2 = _mm_min_ps(values2, minvalues2);
+    // Load 8 elements at a time
+    vload(values1, array + i);     // first 4
+    vload(values2, array + i + 4); // second 4
+    // 1
+    indices1 = indices1 + increment;
+    vec<int, 4> lt1 = values1 < minvalues1;
+    vselect(minindices1, indices1, minindices1, lt1);
+    vmin(minvalues1, values1, minvalues1);
+    // 2
+    indices2 = indices2 + increment;
+    vec<int, 4> lt2 = values2 < minvalues2;
+    vselect(minindices2, indices2, minindices2, lt2);
+    vmin(minvalues2, values2, minvalues2);
   }
-
   // Compare //1 with //2
-  __m128i lt = _mm_castps_si128(_mm_cmplt_ps(minvalues1, minvalues2));
-  minindices1 = _mm_blendv_epi8(minindices2, minindices1, lt);
-  minvalues1 = _mm_min_ps(minvalues2, minvalues1);
-
-  // Do the final 4 scalar way
-  alignas(alignment) float distances[4];
-  alignas(alignment) int32_t indices[4];
-  _mm_store_ps(distances, minvalues1);
-  _mm_store_si128((__m128i*)(indices), minindices1);
-
-  int32_t minIndex = indices[0];
-  float minDistance = distances[0];
-  for (int i = 1; i < 4; ++i) {
-    if (distances[i] < minDistance) {
-      minIndex = indices[i];
-      minDistance = distances[i];
+  vec<int, 4> lt = minvalues1 < minvalues2;
+  vselect(minindices1, minindices1, minindices2, lt);
+  vmin(minvalues1, minvalues1, minvalues2);
+  /*
+   * Do the final calculation scalar way
+   */
+  size_t minIndex = minindices1[0];
+  float minvalue = minvalues1[0];
+  for (size_t i = 1; i < 4; ++i) {
+    const float value = minvalues1[i];
+    if (value < minvalue) {
+      minvalue = value;
+      minIndex = minindices1[i];
     }
   }
-  return minIndex;
-}
-/*
- * SSE2 does not have a blend/select instruction.
- * To create one
- * We AND &
- * - a with the NOT of the mask
- * - b with the mask
- * - The we OR the above 2
- */
-static inline __m128i
-SSE2_mm_blendv_epi8(__m128i a, __m128i b, __m128i mask)
-{
-  return _mm_or_si128(_mm_andnot_si128(mask, a), _mm_and_si128(mask, b));
-}
-__attribute__((target("sse2")))
-int32_t
-findMinimumIndex(const float* distancesIn, const int n)
-{
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  // Do 2 vectors of 4 elements, so 8 at a time
-  const __m128i increment = _mm_set1_epi32(8);
-  __m128i indices1 = _mm_setr_epi32(0, 1, 2, 3);
-  __m128i indices2 = _mm_setr_epi32(4, 5, 6, 7);
-  __m128i minindices1 = indices1;
-  __m128i minindices2 = indices2;
-  __m128 minvalues1 = _mm_load_ps(array);
-  __m128 minvalues2 = _mm_load_ps(array + 4);
-
-  for (int i = 8; i < n; i += 8) {
-    // Load 8 elements at a time in 2 vectors of size 4
-    const __m128 values1 = _mm_load_ps(array + i);     // first 4
-    const __m128 values2 = _mm_load_ps(array + i + 4); // second 4
-    // Handle the first 4
-    indices1 = _mm_add_epi32(indices1, increment);
-    __m128i lt1 = _mm_castps_si128(_mm_cmplt_ps(values1, minvalues1));
-    minindices1 = SSE2_mm_blendv_epi8(minindices1, indices1, lt1);
-    minvalues1 = _mm_min_ps(values1, minvalues1);
-    // Handle the second 4
-    indices2 = _mm_add_epi32(indices2, increment);
-    __m128i lt2 = _mm_castps_si128(_mm_cmplt_ps(values2, minvalues2));
-    minindices2 = SSE2_mm_blendv_epi8(minindices2, indices2, lt2);
-    minvalues2 = _mm_min_ps(values2, minvalues2);
-  }
-
-  // Compare //1 with //2
-  __m128i lt = _mm_castps_si128(_mm_cmplt_ps(minvalues1, minvalues2));
-  minindices1 = SSE2_mm_blendv_epi8(minindices2, minindices1, lt);
-  minvalues1 = _mm_min_ps(minvalues2, minvalues1);
-
-  // Do the final 4 scalar way
-  alignas(alignment) float distances[4];
-  alignas(alignment) int32_t indices[4];
-  _mm_store_ps(distances, minvalues1);
-  _mm_store_si128((__m128i*)(indices), minindices1);
-
-  int32_t minIndex = indices[0];
-  float minDistance = distances[0];
-  for (int i = 1; i < 4; ++i) {
-    if (distances[i] < minDistance) {
-      minIndex = indices[i];
-      minDistance = distances[i];
-    }
-  }
-
   return minIndex;
 }
 #endif // end of x86_64 versions
-// Always fall back to a simple default version with no intrinsics
 __attribute__((target("default")))
 #endif // HAVE_FUNCTION_MULTIVERSIONING
 int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
+  using namespace CxxUtils;
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
-  float minDistance = array[0];
-  int32_t minIndex = 0;
-  for (int i = 0; i < n; ++i) {
-    const float value = array[i];
-    if (value < minDistance) {
-      minIndex = i;
-      minDistance = value;
+  const vec<int, 4> increment = { 8, 8, 8, 8 };
+  vec<int, 4> indices1 = { 0, 1, 2, 3 };
+  vec<int, 4> indices2 = { 4, 5, 6, 7 };
+  vec<int, 4> minindices1 = indices1;
+  vec<int, 4> minindices2 = indices2;
+  vec<float, 4> minvalues1;
+  vec<float, 4> minvalues2;
+  vload(minvalues1, array);
+  vload(minvalues2, array + 4);
+  vec<float, 4> values1;
+  vec<float, 4> values2;
+  for (int i = 8; i < n; i += 8) {
+    // Load 8 elements at a time
+    vload(values1, array + i);     // first 4
+    vload(values2, array + i + 4); // second 4
+    // 1
+    indices1 = indices1 + increment;
+    vec<int, 4> lt1 = values1 < minvalues1;
+    vselect(minindices1, indices1, minindices1, lt1);
+    vmin(minvalues1, values1, minvalues1);
+    // 2
+    indices2 = indices2 + increment;
+    vec<int, 4> lt2 = values2 < minvalues2;
+    vselect(minindices2, indices2, minindices2, lt2);
+    vmin(minvalues2, values2, minvalues2);
+  }
+  // Compare //1 with //2
+  vec<int, 4> lt = minvalues1 < minvalues2;
+  vselect(minindices1, minindices1, minindices2, lt);
+  vmin(minvalues1, minvalues1, minvalues2);
+  /*
+   * Do the final calculation scalar way
+   */
+  size_t minIndex = minindices1[0];
+  float minvalue = minvalues1[0];
+  for (size_t i = 1; i < 4; ++i) {
+    const float value = minvalues1[i];
+    if (value < minvalue) {
+      minvalue = value;
+      minIndex = minindices1[i];
     }
   }
   return minIndex;
 }
+
 } // end namespace GSFUtils

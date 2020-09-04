@@ -15,18 +15,13 @@
  **
  **************************************************************************/
 
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigEFMultiMuHypo.h"
 
-#include <math.h>
 #include "xAODTrigger/TrigPassBits.h"
 
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODMuon/Muon.h"
-#include "xAODTracking/TrackParticle.h"
 
 #include "xAODTrigBphys/TrigBphys.h"
 #include "xAODTrigBphys/TrigBphysContainer.h"
@@ -141,11 +136,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
 
   //  create vector for TrigEFBphys particles
-    //const TrigEFBphysContainer* trigBphysColl = 0;
     const xAOD::TrigBphysContainer* trigBphysColl = 0;
-
-//  const TrigEFBContainer* trigBphysColl = 0;
-//  const VxContainer* VertexColl;
 
   HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, m_bphysCollectionKey );
 
@@ -176,7 +167,6 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigBphysContainer>(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
-    //    for (TrigEFBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
     for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
         
         if ((*bphysIter)->particleType() == xAOD::TrigBphys::MULTIMU ) {

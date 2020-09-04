@@ -18,7 +18,7 @@
 #include "G4VSolid.hh"
 
 // Truth-related includes
-#include "MCTruth/EventInformation.h"
+#include "MCTruth/AtlasG4EventUserInfo.h"
 #include "MCTruth/TrackHelper.h"
 
 // ISF includes
@@ -58,7 +58,7 @@ bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int subDetVo
 {
   AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, subDetVolLevel, m_geoIDSvc);
 
-  auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+  auto* atlasG4EvtUserInfo = static_cast<AtlasG4EventUserInfo*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
   // This is pretty ugly and but necessary because the Geant4TruthIncident
   // requires an ISFParticle at this point.
@@ -73,7 +73,7 @@ bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int subDetVo
   int myBCID = 0;
   ISF::ISFParticle myISFParticle(myPos, myMom, myMass, myCharge, myPdgCode, myTime, origin, myBCID);
 
-  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, eventInfo);
+  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, atlasG4EvtUserInfo);
 
   m_truthSvc->registerTruthIncident(truth);
   return false;

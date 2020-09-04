@@ -4036,7 +4036,7 @@ class Prescales:
         'tau8_cosmic_track',
         'tilecalib_laser',
         ]
-    HLTPrescales_cosmics.update(dict(map(None,chain_list,len(chain_list)*[ [1, 0, 0] ])))
+    HLTPrescales_cosmics.update(dict(zip(chain_list,len(chain_list)*[ [1, 0, 0] ])))
 
 
 ######################################################
@@ -4396,6 +4396,6 @@ chain_list=[
     'zdcpeb_L1ZDC_A_C',
     'timeburner',
     ]
-Prescales.HLTPrescales_tight_physics_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
+Prescales.HLTPrescales_tight_physics_prescale.update(dict(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ])))
 ######################################################
 

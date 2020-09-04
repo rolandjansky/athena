@@ -11,6 +11,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTBSErrCacheKey   = "SctBSErrCache"
+  SCTFlaggedCondCacheKey = "SctFlaggedCondCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
@@ -26,6 +27,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
                                               SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
+                                              SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
 
@@ -198,6 +200,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                   ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                       # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
                                                                   ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
@@ -353,6 +356,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
 
@@ -438,8 +442,7 @@ if __name__ == "__main__":
     #from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     #acc.merge( MainServicesCfg( ConfigFlags ) )
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
-    acc.addEventAlgo(l1DecoderAlg)
+    l1DecoderAcc = L1DecoderCfg( ConfigFlags )
     acc.merge(l1DecoderAcc)
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))

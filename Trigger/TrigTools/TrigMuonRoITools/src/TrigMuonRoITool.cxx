@@ -131,7 +131,7 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi() {
     }
     
     // create MuCTPi RDO (DAQ  muCTPi Result)
-    daqmuCTPIResult = new MuCTPI_RDO( candidateMultiplicity, dataWord );
+    daqmuCTPIResult = new MuCTPI_RDO( std::move(candidateMultiplicity), std::move(dataWord) );
   }
   
   // Retrieve the MuCTPi RDO via data handle

@@ -445,7 +445,7 @@ namespace LVL1MUCTPI {
 	}
       }
     }    
-    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
+    CHECK( saveOutput_MuCTPI_RDO(can, std::move(dataWord)) );
 
     return StatusCode::SUCCESS;
   }
@@ -492,7 +492,7 @@ namespace LVL1MUCTPI {
     uint32_t can;
     std::vector< uint32_t > dataWord;
     CHECK( updateMuCTPI_RDO(can, dataWord) );
-    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
+    CHECK( saveOutput_MuCTPI_RDO(can, std::move(dataWord)) );
 
     return StatusCode::SUCCESS;
   }
@@ -527,7 +527,7 @@ namespace LVL1MUCTPI {
     uint32_t can;
     std::vector< uint32_t > dataWord;
     CHECK( updateMuCTPI_RDO(can, dataWord) );
-    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
+    CHECK( saveOutput_MuCTPI_RDO(can, std::move(dataWord)) );
 
     return StatusCode::SUCCESS;
   }
@@ -643,10 +643,10 @@ namespace LVL1MUCTPI {
   /**
    *Here we save the actual RDO, after all BCID offsets have been processed
    */
-  StatusCode L1Muctpi::saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord)
+  StatusCode L1Muctpi::saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >&& dataWord)
   {
     if(!m_rdoOutputLocId.empty()){
-      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, std::move(dataWord) );
       auto rdoHandle = SG::makeHandle(m_rdoOutputLocId);
       ATH_CHECK(rdoHandle.record(std::unique_ptr<MuCTPI_RDO>(muCTPI_RDO)));
       ATH_MSG_DEBUG( "MuCTPI_RDO object recorded with key: "

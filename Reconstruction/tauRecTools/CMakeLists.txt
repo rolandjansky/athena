@@ -28,6 +28,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauJetBDTEvaluator.h
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
+  tauRecTools/TauDecayModeNNClassifier.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )

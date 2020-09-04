@@ -3,6 +3,7 @@
 */
 
 #include "MuonTruthDecorationAlg.h"
+
 #include "xAODMuon/MuonSegment.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -24,30 +25,7 @@ namespace Muon {
   // Constructor with parameters:
   MuonTruthDecorationAlg::MuonTruthDecorationAlg(const std::string &name, ISvcLocator *pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_truthClassifier("MCTruthClassifier/MCTruthClassifier"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-    m_muonMgr(0)
-  {  
-    
-    // Get parameter values from jobOptions file
-    declareProperty("TruthParticleContainerName"    , m_truthParticleContainerName = "TruthParticles");
-    declareProperty("MuonTruthParticleContainerName", m_muonTruthParticleContainerName = "MuonTruthParticles");
-    declareProperty("MuonTruthSegmentName"          , m_muonTruthSegmentContainerName = "MuonTruthSegments" );
-    declareProperty("TrackRecordCollectionNames"    , m_trackRecordCollectionNames={"CaloEntryLayer","MuonEntryLayer","MuonExitLayer"});
-
-    //remove NSW by default for now, can always be changed in the configuration
-    declareProperty("PRD_TruthMaps",m_PRD_TruthNames={"CSC_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"}); 
-
-    declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames="CSC_SDO");
-    //remove NSW by default for now, can always be changed in the configuration
-    declareProperty("SDOs",      m_SDO_TruthNames={"RPC_SDO","TGC_SDO","MDT_SDO"});
-
-    declareProperty("MCTruthClassifier",   m_truthClassifier);
-    declareProperty("MuonEDMPrinterTool",  m_printer);
-    declareProperty("Extrapolator",        m_extrapolator);
-    declareProperty("CreateTruthSegments", m_createTruthSegment = true );
-    declareProperty("BarcodeOffset",       m_barcodeOffset = 1000000 );
+    m_muonMgr(nullptr) {  
   }
 
   // Initialize method:

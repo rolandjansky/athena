@@ -292,8 +292,8 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
 
   if (!m_trt_dEdxTool.empty()) {
     if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
       eProbability.push_back(fvalue);
       information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
     }
@@ -355,8 +355,8 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
 
   if (!m_trt_dEdxTool.empty()) {
     if (summary.get(Trk::numberOfTRTHits)+summary.get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track, m_TRTdEdx_DivideByL, m_TRTdEdx_useHThits, m_TRTdEdx_corrected) : 0.0);
+      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
+      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
       eProbability.push_back(fvalue);
       if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
         ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "

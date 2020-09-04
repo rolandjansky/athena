@@ -8,6 +8,7 @@
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "ByteStreamData/RawEvent.h" 
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // default constructor
 Muon::MdtCsmContByteStreamTool::MdtCsmContByteStreamTool
@@ -49,29 +50,27 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   
   FullEventAssembler<MDT_Hid2RESrcID>::RODDATA*  theROD ;
   
-  MdtCsmContainer::const_iterator it_coll = cont->begin(); 
-  MdtCsmContainer::const_iterator it_coll_end = cont->end(); 
-  
   std::map<uint32_t, MdtROD_Encoder> mapEncoder; 
+
+  const MuonGM::MuonDetectorManager* mdm = nullptr;
+  ATH_CHECK( detStore()->retrieve (mdm,"Muon") );
+  const MdtIdHelper& mdtIdHelper = *mdm->mdtIdHelper();
   
   ATH_MSG_DEBUG(" number of collections "<< cont->size());
-  for( ; it_coll!=it_coll_end;++it_coll) {
-    Identifier coll_id = (*it_coll)->identify(); 
+  for (const MdtCsm* csm : *cont) {
+    Identifier coll_id = csm->identify(); 
     uint32_t rodId = m_hid2re->getRodID(coll_id); 
-    mapEncoder[rodId].add(*it_coll);
+    mapEncoder.try_emplace (rodId, mdtIdHelper).first->second.add(csm);
   } 
-  
-  std::map<uint32_t,MdtROD_Encoder>::iterator it     = mapEncoder.begin(); 
-  std::map<uint32_t,MdtROD_Encoder>::iterator it_end = mapEncoder.end();
   
   // MdtCsm_Encoder has collected all the csm, now can fill the
   // ROD block data. 
   
   ATH_MSG_DEBUG(" start to fill Rod ");
-  
-  for (; it!=it_end;++it) { 
-    theROD  = m_fea.getRodData( (*it).first ); 
-    ((*it).second).fillROD( *theROD ) ; 
+
+  for (auto& p : mapEncoder) {
+    theROD  = m_fea.getRodData( p.first ); 
+    p.second.fillROD( *theROD ) ; 
   } 
   
   ATH_MSG_DEBUG(" filling the Raw Event ... ");

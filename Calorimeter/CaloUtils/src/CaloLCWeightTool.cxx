@@ -26,7 +26,6 @@
 #include "CaloEvent/CaloPrefetch.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
@@ -38,8 +37,7 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
     m_signalOverNoiseCut(2),
     m_useHadProbability(false),
     m_interpolate(false),
-    m_calo_id(nullptr),
-    m_calo_dd_man(nullptr)
+    m_calo_id(nullptr)
 {
 
   declareInterface<IClusterCellWeightTool>(this);
@@ -80,10 +78,8 @@ StatusCode CaloLCWeightTool::initialize()
 
   ATH_CHECK( m_key.initialize() );
 
-  // pointer to detector manager:
-  ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();
-   
+  ATH_CHECK( detStore()->retrieve( m_calo_id, "CaloCell_ID") );
+
   m_sampnames.reserve(CaloSampling::Unknown);
   for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
      m_sampnames.push_back(CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
@@ -96,14 +92,14 @@ StatusCode CaloLCWeightTool::initialize()
 
 StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster, const EventContext& ctx) const
 {
-  const CaloLocalHadCoeff* data(0);
+  const CaloLocalHadCoeff* data(nullptr);
   SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key, ctx);
 
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
   const CaloNoise* noiseCDO=*noiseHdl;
 
   data = *rch;
-  if(data==0) {
+  if(data==nullptr) {
     ATH_MSG_ERROR("Unable to access conditions object");
     return StatusCode::FAILURE;
   }

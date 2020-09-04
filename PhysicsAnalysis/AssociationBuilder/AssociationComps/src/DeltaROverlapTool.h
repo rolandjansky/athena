@@ -74,7 +74,7 @@ class DeltaROverlapTool : public OverlapBaseTool
 
   /** Call-back method to configure the "XyzDeltaR" properties (min/max)
    */
-  void setupDeltaR( Property& deltaR );
+  void setupDeltaR( Gaudi::Details::PropertyBase& deltaR );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
@@ -102,7 +102,7 @@ class DeltaROverlapTool : public OverlapBaseTool
 // Inline methods: 
 /////////////////////////////////////////////////////////////////// 
 
-inline void DeltaROverlapTool::setupDeltaR( Property& /*maxDeltaR*/ )
+inline void DeltaROverlapTool::setupDeltaR( Gaudi::Details::PropertyBase& /*maxDeltaR*/ )
 {
   m_filter = AssociationComps::DeltaROverlapFilter( m_minDeltaR.value(), m_maxDeltaR.value() );
   return;

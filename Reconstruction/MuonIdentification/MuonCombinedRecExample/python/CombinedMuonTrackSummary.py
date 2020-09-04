@@ -21,13 +21,20 @@ atlasExtrapolator              = getPublicTool('AtlasExtrapolator')
 muonTrackSummaryHelper         = getPublicTool('MuonTrackSummaryHelperTool')
 
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+CombinedMuonIDBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="CombinedMuonIDBoundaryCheckTool",
+    UsePixel=DetFlags.haveRIO.pixel_on(),
+    UseSCT=DetFlags.haveRIO.SCT_on()
+)
+ToolSvc += CombinedMuonIDBoundaryCheckTool
+
 # load InDetHoleSearchTool
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 ToolSvc += InDet__InDetTrackHoleSearchTool( \
   name                         = "CombinedMuonIDHoleSearch",
   Extrapolator                 = atlasExtrapolator,
-  usePixel                     = DetFlags.haveRIO.pixel_on(),
-  useSCT                       = DetFlags.haveRIO.SCT_on(),
+  BoundaryCheckTool            = CombinedMuonIDBoundaryCheckTool,
   CountDeadModulesAfterLastHit = True)
 
 import InDetRecExample.TrackingCommon as TrackingCommon
@@ -113,5 +120,5 @@ if DetFlags.haveRIO.SCT_on():
   sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
   sct_ConditionsSummaryToolSetup.setup()
   InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-  ToolSvc.CombinedMuonIDHoleSearch.SctSummaryTool = InDetSCT_ConditionsSummaryTool
+  ToolSvc.CombinedMuonIDBoundaryCheckTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
 

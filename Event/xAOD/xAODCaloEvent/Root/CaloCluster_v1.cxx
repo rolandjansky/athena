@@ -23,8 +23,8 @@
 namespace xAOD {
 
    CaloCluster_v1::CaloCluster_v1()
-     : IParticle(), 
-       m_samplingPattern(0), 
+     : IParticle(),
+       m_samplingPattern(0),
        m_cellLinks(nullptr)
    {
      setSignalState(CALIBRATED);
@@ -32,9 +32,9 @@ namespace xAOD {
 
 
   CaloCluster_v1::CaloCluster_v1(const CaloCluster_v1& other)
-    : IParticle(), //IParticel does not have a copy constructor. AuxElement has one with same behavior as default ctor
-      m_samplingPattern(other.samplingPattern()), 
-      m_cellLinks(nullptr), 
+    : IParticle(other),
+      m_samplingPattern(other.samplingPattern()),
+      m_cellLinks(nullptr),
       m_recoStatus(other.m_recoStatus) {
     setSignalState(other.signalState());
     this->makePrivateStore(other);
@@ -49,7 +49,7 @@ namespace xAOD {
     } //end if have element link to CaloClusterCellLink
 #endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
   }
-  
+
 
   CaloCluster_v1& CaloCluster_v1::operator=(const xAOD::CaloCluster_v1& other) {
     if (this == &other) {
@@ -155,7 +155,7 @@ namespace xAOD {
       aEta = 710.0;
     }
     const double sinTh = 1.0 / std::cosh( aEta );
-    
+
     // Calculate pT from these two:
     return p * sinTh;
   }
@@ -242,7 +242,7 @@ namespace xAOD {
       return -999;
       }
    }
- 
+
 
   double CaloCluster_v1::pt() const {
     return pt(m_signalState);
@@ -252,7 +252,7 @@ namespace xAOD {
   {
     return eta (m_signalState);
   }
-  
+
   double CaloCluster_v1::phi() const
   {
     return phi (m_signalState);
@@ -261,21 +261,21 @@ namespace xAOD {
   double CaloCluster_v1::m() const {
     return m(m_signalState);
    }
-  
+
    double CaloCluster_v1::e() const {
     return e(m_signalState);
    }
 
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  eta0, setEta0 )			 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  phi0, setPhi0 )			 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  time, setTime )			 
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  eta0, setEta0 )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  phi0, setPhi0 )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  time, setTime )
 
   void CaloCluster_v1::setBadChannelList(const CaloClusterBadChannelList& bcl) {
     static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
     accBCL(*this)=bcl;
  }
-    
+
    const CaloClusterBadChannelList& CaloCluster_v1::badChannelList() const {
     static const Accessor<xAOD::CaloClusterBadChannelList> accBCL("BadChannelList");
     return accBCL(*this);
@@ -299,7 +299,7 @@ namespace xAOD {
   void CaloCluster_v1::setRawM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accRawM("rawM");
     accRawM(*this)=value;
-  }  
+  }
 
   //----------------------------------------------------------------
 
@@ -321,7 +321,7 @@ namespace xAOD {
   void CaloCluster_v1::setCalM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accCalM("calM");
     accCalM(*this)=value;
-  }  
+  }
 
   //----------------------------------------------------------------
 
@@ -343,21 +343,21 @@ namespace xAOD {
   void CaloCluster_v1::setAltM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accAltM("altM");
     accAltM(*this)=value;
-  } 
+  }
 
-  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawE)	           		 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawE)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawEta)
-  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawPhi)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawM)
-	           		 
+
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altE)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altEta)
-  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altPhi)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  altM)
 
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calE)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calEta)
-  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calPhi)	           	 
+  AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calPhi)
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  calM)
 
 
@@ -365,12 +365,12 @@ namespace xAOD {
     static const Accessor<unsigned> acc("clusterSize");
     return (CaloCluster_v1::ClusterSize)acc(*this);
   }
-   
+
   void  CaloCluster_v1::setClusterSize(CaloCluster_v1::ClusterSize sc) {
     static const Accessor<unsigned> acc("clusterSize");
     acc(*this)=sc;
   }
-  
+
 
   void CaloCluster_v1::setE(CaloCluster_v1::flt_t theE) {
     switch (m_signalState) {
@@ -403,7 +403,7 @@ namespace xAOD {
        break;
      }
      }
-  
+
   void CaloCluster_v1::setPhi(CaloCluster_v1::flt_t thePhi) {
     switch (m_signalState) {
     case CALIBRATED:
@@ -436,12 +436,12 @@ namespace xAOD {
        break;
      }
      }
- 
+
   bool CaloCluster_v1::setSignalState( CaloCluster_v1::State s)  {
     m_signalState=s;
     return true;
   }
-  
+
   CaloCluster_v1::GenVecFourMom_t CaloCluster_v1::genvecP4(const CaloCluster_v1::State s) const {
     switch (s) {
     case CALIBRATED:
@@ -461,7 +461,7 @@ namespace xAOD {
   double CaloCluster_v1::rapidity() const {
     return genvecP4().Rapidity();
   }
-  
+
   CaloCluster_v1::FourMom_t CaloCluster_v1::p4() const {
     return p4(m_signalState);
   }
@@ -471,13 +471,13 @@ namespace xAOD {
     CaloCluster_v1::FourMom_t p4;
     switch(s) {
     case CALIBRATED:
-      p4.SetPtEtaPhiM(pt(s),calEta(),calPhi(),calM());   
+      p4.SetPtEtaPhiM(pt(s),calEta(),calPhi(),calM());
       break;
     case UNCALIBRATED:
-      p4.SetPtEtaPhiM(pt(s),rawEta(),rawPhi(), rawM());  
+      p4.SetPtEtaPhiM(pt(s),rawEta(),rawPhi(), rawM());
       break;
     case ALTCALIBRATED:
-      p4.SetPtEtaPhiM(pt(s),altEta(),altPhi(), altM());  
+      p4.SetPtEtaPhiM(pt(s),altEta(),altPhi(), altM());
       break;
     default:
       break;
@@ -485,25 +485,25 @@ namespace xAOD {
     return p4;
   }
 
-  
+
   Type::ObjectType CaloCluster_v1::type() const {
     return Type::CaloCluster;
   }
-  
-  
+
+
   float CaloCluster_v1::getSamplVarFromAcc(const Accessor< std::vector <float > >& acc , const CaloSample sampling, const float errorvalue) const {
     const std::vector<float>& vec=acc(*this);
-    const unsigned idx=sampVarIdx(sampling); 
+    const unsigned idx=sampVarIdx(sampling);
     if (idx<vec.size() ) {
       return vec[idx];
     }
-    
+
       //std::cout <<Sampling " << sampling << ", Pattern=" << std::hex <<m_samplingPattern << std::dec << ", index=" << idx << " size=" << vec.size() << std::endl;
       return errorvalue;
   }
 
   bool CaloCluster_v1::setSamplVarFromAcc(const Accessor< std::vector <float > >& acc, const CaloSample sampling, const float value) {
-    const unsigned idx=sampVarIdx(sampling); 
+    const unsigned idx=sampVarIdx(sampling);
     std::vector<float>& vec=acc(*this);
     //std::cout << "Set sampling var. Sampling " << sampling << ", index=" << idx << " size=" << vec.size() << std::endl;
     if (idx==CaloSampling::Unknown) {
@@ -512,7 +512,7 @@ namespace xAOD {
     }
 
     if (vec.size()<nSamples())
-      vec.resize(nSamples());  
+      vec.resize(nSamples());
     vec[idx]=value;
     return true;
   }
@@ -527,14 +527,14 @@ namespace xAOD {
     static const Accessor< std::vector <float > > eAcc("e_sampl");
     return setSamplVarFromAcc(eAcc,sampling,theEnergy);
   }
-  
+
 
   float CaloCluster_v1::etaSample(const CaloSample sampling) const {
     static const Accessor< std::vector <float > > etaAcc("eta_sampl");
     if (!etaAcc.isAvailable( *this )){
       return -999;
     }
-    
+
       return getSamplVarFromAcc(etaAcc,sampling);
   }
 
@@ -549,7 +549,7 @@ namespace xAOD {
     if (!phiAcc.isAvailable( *this )){
       return -999;
     }
-    
+
       return getSamplVarFromAcc(phiAcc,sampling);
   }
 
@@ -557,7 +557,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > phiAcc("phi_sampl");
     return setSamplVarFromAcc(phiAcc,sampling,phi);
   }
-  
+
 
 
   float CaloCluster_v1::energy_max(const CaloSample sampling) const {
@@ -572,7 +572,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > emaxAcc("emax_sampl");
     return setSamplVarFromAcc(emaxAcc,sampling,eMax);
   }
-  
+
   float CaloCluster_v1::etamax(const CaloSample sampling) const {
     static const Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
     if (!etamaxAcc.isAvailable( *this )){
@@ -585,7 +585,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > etamaxAcc("etamax_sampl");
     return setSamplVarFromAcc(etamaxAcc,sampling,etaMax);
   }
-  
+
   float CaloCluster_v1::phimax(const CaloSample sampling) const {
     static const Accessor< std::vector <float > > phimaxAcc("phimax_sampl");
     if (!phimaxAcc.isAvailable( *this )){
@@ -599,7 +599,7 @@ namespace xAOD {
     return setSamplVarFromAcc(phimaxAcc,sampling,phiMax);
   }
 
-  
+
   float CaloCluster_v1::etasize(const CaloSample sampling) const {
     static const Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
     if (!etasizeAcc.isAvailable( *this )){
@@ -612,7 +612,7 @@ namespace xAOD {
     static const Accessor< std::vector <float > > etasizeAcc("etasize_sampl");
     return setSamplVarFromAcc(etasizeAcc,sampling,etaSize);
   }
-  
+
   float CaloCluster_v1::phisize(const CaloSample sampling) const {
     static const Accessor< std::vector <float > > phisizeAcc("phisize_sampl");
     if (!phisizeAcc.isAvailable( *this )){
@@ -637,7 +637,7 @@ namespace xAOD {
     }
     if (this->hasSampling(endcapSample)) {
       energy+=eSample(endcapSample);
-    } 
+    }
     return energy;
   }
 
@@ -651,7 +651,7 @@ namespace xAOD {
       //cluster spans barren and endcap
        float eBarrel=eSample(barrelSample);  //Check for errorcode? Should not happen...
        float eEndcap=eSample(endcapSample);
-       
+
        float etaBarrel=etaSample(barrelSample);
        float etaEndcap=etaSample(endcapSample);
        float eSum=eBarrel + eEndcap;
@@ -745,7 +745,7 @@ namespace xAOD {
  void CaloCluster_v1::insertMoment( MomentType type, double value ) {
    ( *( momentAccessorV1( type ) ) )( *this ) = value;
  }
-  
+
 
   /** for debugging only ...
   std::vector<std::pair<std::string,float> > CaloCluster_v1::getAllMoments() {
@@ -756,7 +756,7 @@ namespace xAOD {
       const std::string& auxName=SG::AuxTypeRegistry::instance().getName(ai);
       const float v=container()->getData<float>(ai,idx);
       //std::cout << "Index=" <<idx << ", Auxid=" << ai << ", Name=" << auxName << " value=" << v << std::endl;
-      retval.push_back(std::make_pair(auxName,v));      
+      retval.push_back(std::make_pair(auxName,v));
     }
     return retval;
   }
@@ -765,8 +765,8 @@ namespace xAOD {
   unsigned int CaloCluster_v1::getClusterEtaSize() const{
     const unsigned clustersize=clusterSize();
     unsigned int size = 0;
-    if(clustersize==SW_55ele || 
-       clustersize==SW_55gam || 
+    if(clustersize==SW_55ele ||
+       clustersize==SW_55gam ||
        clustersize==SW_55Econv){
       size = 5;
     }else if(clustersize==SW_35ele ||
@@ -779,16 +779,16 @@ namespace xAOD {
     }else if(clustersize==SW_7_11){
       size = 7;
     }
-    
+
     return size;
-    
+
   }
 
   unsigned int CaloCluster_v1::getClusterPhiSize() const{
     const ClusterSize clustersize=clusterSize();
     unsigned int size = 0;
-    if(clustersize==SW_55ele || 
-       clustersize==SW_55gam || 
+    if(clustersize==SW_55ele ||
+       clustersize==SW_55gam ||
        clustersize==SW_55Econv ||
        clustersize==SW_35ele ||
        clustersize==SW_35gam ||
@@ -804,11 +804,11 @@ namespace xAOD {
     }
     return size;
   }
-  
 
 
 
-  
+
+
 
 #if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
@@ -822,7 +822,7 @@ namespace xAOD {
     static const Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     const CaloClusterCellLinkContainer& ref=*cccl;
     ElementLink<CaloClusterCellLinkContainer> el(ref,idx,sg);
-    accCellLinks(*this)=el;    
+    accCellLinks(*this)=el;
     return true;
   }
 
@@ -841,7 +841,7 @@ namespace xAOD {
     if (el.isValid()){
       return *el;
     }
-    
+
       return nullptr;
   }
 
@@ -875,7 +875,7 @@ namespace xAOD {
       if( accSisterCluster.isAvailableWritable( *this ) ) {
          accSisterCluster( *this ).toPersistent();
       }
-      
+
       // Return gracefully:
         }
 

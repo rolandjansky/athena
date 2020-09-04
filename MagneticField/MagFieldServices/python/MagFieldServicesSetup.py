@@ -34,22 +34,15 @@ def AtlasFieldCacheCondAlg(name="AtlasFieldCacheCondAlg",**kwargs):
     kwargs.setdefault( "LockMapCurrents", True )
   else:
     kwargs.setdefault( "UseDCS", True )
-    # kwargs.setdefault( "UseDCS", False )
-    # kwargs.setdefault( "UseSoleCurrent", 12000 )
-    # kwargs.setdefault( "UseToroCurrent", 20400 )
   return CfgMgr.MagField__AtlasFieldCacheCondAlg(name,**kwargs)
 
 def AtlasFieldMapCondAlg(name="AtlasFieldMapCondAlg",**kwargs):
   if athenaCommonFlags.isOnline():
-    # The following are the defaults - added here to be clear
+    # For old tests, must update field from defautl jobOpt
     kwargs.setdefault( "UseMapsFromCOOL", False )
-    # kwargs.setdefault( "MapSoleCurrent", 7730 )
-    # kwargs.setdefault( "MapToroCurrent", 20400 )
-  else:
-    # The following are the defaults - added here to be clear
-    kwargs.setdefault( "UseMapsFromCOOL", True )
-    # kwargs.setdefault( "MapSoleCurrent", 7730 )
-    # kwargs.setdefault( "MapToroCurrent", 20400 )
+    # online has the map loaded at start (for the future - uncomment if needed)
+    # kwargs.setdefault( "LoadMapOnStart", True )
+
   return CfgMgr.MagField__AtlasFieldMapCondAlg(name,**kwargs)
 
 

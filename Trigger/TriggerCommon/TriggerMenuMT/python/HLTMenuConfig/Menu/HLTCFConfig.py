@@ -98,13 +98,14 @@ def createCFTree(CFseq):
     seqAndView = seqAND(CFseq.step.name + CFNaming.VIEW_POSTFIX, [stepReco])  # include in seq:And to run in views: add here the Hypo
     seqAndWithFilter = seqAND(CFseq.step.name, [filterAlg, seqAndView])  # add to the main step+filter
 
-    already_connected = []
+    recoSeq_list=set()
+    hypo_list=set()
     for menuseq in CFseq.step.sequences:
-        stepReco, seqAndView, already_connected = menuseq.addToSequencer(
-            stepReco,
-            seqAndView,
-            already_connected)
+        menuseq.addToSequencer(recoSeq_list, hypo_list)
 
+    stepReco += [recoseq for recoseq in recoSeq_list]
+    seqAndView += [hypo for hypo in hypo_list]
+       
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
 
@@ -127,9 +128,8 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
 
     # find main HLT top sequence (already set up in runHLT_standalone)
-    from AthenaCommon.CFElements import findSubSequence
-    hltBeginSeq = findSubSequence(topSequence, "HLTBeginSeq")
-    l1decoder = [ d for d in hltBeginSeq.getChildren() if d.getType() == "L1Decoder" ]
+    from AthenaCommon.CFElements import findSubSequence,findAlgorithm
+    l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
@@ -140,9 +140,6 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     hltTop += hltEndSeq
 
     hltFinalizeSeq = seqAND("HLTFinalizeSeq")
-
-    # TODO - this is not currently used, but can host any algs which need to run conditional on the HLT accepting the event
-    hltAcceptedEventAlgsSeq = parOR("HLTAcceptedEventAlgsSeq")
 
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
@@ -175,14 +172,14 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     appendCAtoAthena( summaryAcc )
 
     # B) Then (if true), we run the accepted event algorithms.
-    hltFinalizeSeq += hltAcceptedEventAlgsSeq
+    # Add any required algs to hltFinalizeSeq here
 
     # More collections required to configure the algs below
-    decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
+    decObj = collectDecisionObjects( hypos, filters, l1decoder, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
 
     Configurable.configurableRun3Behavior=1
-    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
+    monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder )
     Configurable.configurableRun3Behavior=0
     hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
@@ -215,10 +212,10 @@ def matrixDisplayOld( allCFSeq ):
     def __getHyposOfStep( s ):
         if len(s.step.sequences):
             if len(s.step.sequences)==1:
-                if type(s.step.sequences[0].hypo) is list:
-                    return s.step.sequences[0].hypo[0].tools
-                else:
-                    return s.step.sequences[0].hypo.tools
+                ## if type(s.step.sequences[0].hypo) is list:
+                ##     return s.step.sequences[0].hypo[0].tools
+                ## else:
+                return s.step.sequences[0].hypo.tools
             else:
                 return list(s.step.combo.getChains())
         return []
@@ -334,7 +331,7 @@ def createDataFlow(chains, allDicts):
 
     # loop over chains
     for chain in chains:
-        log.info("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
+        log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
 
         lastCFseq = None
         for nstep, chainStep in enumerate( chain.steps ):
