@@ -121,9 +121,9 @@
 + Tools/PathResolver
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
-#+ Trigger/TrigAnalysis/TrigDecisionTool
-#+ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-#+ Trigger/TrigAnalysis/TriggerMatchingTool
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
++ Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfHLTData
 + Trigger/TrigConfiguration/TrigConfHLTUtils
