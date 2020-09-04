@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNN.h"
@@ -15,8 +15,7 @@
 
 
 TauJetRNN::TauJetRNN(const std::string &filename, const Config &config)
-    : asg::AsgMessaging("TauJetRNN"), m_config(config), m_graph(nullptr),
-    m_scalar_map(nullptr), m_track_map(nullptr), m_cluster_map(nullptr) {
+    : asg::AsgMessaging("TauJetRNN"), m_config(config), m_graph(nullptr) {
     // Load the json file defining the network
     std::ifstream input_file(filename);
     lwt::GraphConfig lwtnn_config;
@@ -60,24 +59,18 @@ TauJetRNN::TauJetRNN(const std::string &filename, const Config &config)
         for (const auto &in : scalar_node->variables) {
             m_scalar_inputs.push_back(in.name);
         }
-        // Insert key into input map and set the scalar vector pointer
-        m_scalar_map = &m_input_map[config.input_layer_scalar];
     }
 
     if (has_track_node) {
         for (const auto &in : track_node->variables) {
             m_track_inputs.push_back(in.name);
         }
-        // Insert key into input sequence map and set the track map pointer
-        m_track_map = &m_input_sequence_map[config.input_layer_tracks];
     }
 
     if (has_cluster_node) {
         for (const auto &in : cluster_node->variables) {
             m_cluster_inputs.push_back(in.name);
         }
-        // Insert key into input sequence map and set the cluster map pointer
-        m_cluster_map = &m_input_sequence_map[config.input_layer_clusters];
     }
 
     // Configure the network
@@ -97,36 +90,51 @@ TauJetRNN::~TauJetRNN() {}
 
 float TauJetRNN::compute(const xAOD::TauJet &tau,
                          const std::vector<const xAOD::TauTrack *> &tracks,
-                         const std::vector<const xAOD::CaloCluster *> &clusters) {
+                         const std::vector<const xAOD::CaloCluster *> &clusters) const {
+    InputMap scalarInputs;
+    InputSequenceMap vectorInputs;
+    if (!calculateInputVariables(tau, tracks, clusters, scalarInputs, vectorInputs)) {
+        return -1111.0;
+    }
+    // Compute the network outputs
+    const auto outputs = m_graph->compute(scalarInputs, vectorInputs);
+    // Return value of the output neuron
+    return outputs.at(m_config.output_node);
+}
+
+bool TauJetRNN::calculateInputVariables(const xAOD::TauJet &tau,
+                  const std::vector<const xAOD::TauTrack *> &tracks,
+                  const std::vector<const xAOD::CaloCluster *> &clusters,
+                  std::map<std::string, std::map<std::string, double>>& scalarInputs,
+                  std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const {
+    scalarInputs.clear();
+    vectorInputs.clear();
     // Populate input (sequence) map with input variables
     for (const auto &varname : m_scalar_inputs) {
-        if (!m_var_calc->compute(varname, tau, (*m_scalar_map)[varname])) {
+        if (!m_var_calc->compute(varname, tau,
+                                 scalarInputs[m_config.input_layer_scalar][varname])) {
             ATH_MSG_WARNING("Error computing '" << varname
                             << "' returning default");
-            return -1111.0;
+            return false;
         }
     }
 
     for (const auto &varname : m_track_inputs) {
         if (!m_var_calc->compute(varname, tau, tracks,
-                                 (*m_track_map)[varname])) {
+                                 vectorInputs[m_config.input_layer_tracks][varname])) {
             ATH_MSG_WARNING("Error computing '" << varname
                             << "' returning default");
-            return -1111.0;
+            return false;
         }
     }
 
     for (const auto &varname : m_cluster_inputs) {
         if (!m_var_calc->compute(varname, tau, clusters,
-                                 (*m_cluster_map)[varname])) {
+                                 vectorInputs[m_config.input_layer_clusters][varname])) {
             ATH_MSG_WARNING("Error computing '" << varname
                             << "' returning default");
-            return -1111.0;
+            return false;
         }
     }
-
-    // Compute the network outputs
-    const auto outputs = m_graph->compute(m_input_map, m_input_sequence_map);
-    // Return value of the output neuron
-    return outputs.at(m_config.output_node);
+    return true;
 }

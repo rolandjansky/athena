@@ -36,6 +36,9 @@ namespace Muon {
     virtual StatusCode calibrateStrip(const double time,  const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const override;
     virtual StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const override;
 
+    double pdoToCharge(const int pdoCounts, const Identifier& stripID) const;
+    int chargeToPdo(const float charge, const Identifier& stripID) const;
+
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 

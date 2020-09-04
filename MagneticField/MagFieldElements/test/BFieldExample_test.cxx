@@ -191,7 +191,7 @@ public:
 
       // do interpolation (cache3d has correct scale factor)
       zone.getCache(z, r, phi, cache3d, 1);
-      cache3d.getB(xyz, r1, phi, bxyz, 0);
+      cache3d.getB(xyz, r1, phi, bxyz, nullptr);
 
       std::cout << "get field std: i, bxyz " << i << " " << bxyz[0] << ", "
                 << bxyz[1] << ", " << bxyz[2] << " fractional diff gt 10^-5: "

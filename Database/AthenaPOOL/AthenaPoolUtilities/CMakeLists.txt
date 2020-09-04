@@ -1,19 +1,7 @@
-# $Id: CMakeLists.txt 758198 2016-06-28 15:18:49Z mnowak $
-################################################################################
-# Package: AthenaPoolUtilities
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolUtilities )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaKernel
-   Control/AthContainers
-   Control/CxxUtils
-   Database/AthenaPOOL/DBDataModel
-   Database/PersistentDataModel )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -24,8 +12,7 @@ atlas_add_library( AthenaPoolUtilities
    INTERFACE
    PUBLIC_HEADERS AthenaPoolUtilities
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel AthContainers DBDataModel
-   PersistentDataModel )
+   LINK_LIBRARIES ${CORAL_LIBRARIES} AthContainers AthenaKernel CollectionBase CxxUtils DBDataModel GaudiKernel PersistentDataModel )
 
 atlas_add_dictionary( AthenaPoolUtilitiesCoralDict
    AthenaPoolUtilities/AthenaPoolUtilitiesCoralDict.h

@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( AmdcStand )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/Amdcsimrec/AmdcCore )
-
 set_source_files_properties( src/*.F90
                              PROPERTIES
                              LANGUAGE "Fortran"

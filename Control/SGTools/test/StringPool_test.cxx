@@ -32,12 +32,16 @@ const char* const teststrings[] = {
 };
 
 
-std::string randstring()
+std::string randstring (unsigned int maxlen = 255)
 {
+  static const std::string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const unsigned int nchars = chars.size();
+
   char buf[256];
-  int len = std::rand() % 256;
+  if (maxlen > 255) maxlen = 255;
+  int len = std::rand() % (maxlen+1);
   for (int i = 0; i < len; i++)
-    buf[i] = (char)(std::rand() % 256);
+    buf[i] = chars[std::rand() % nchars];
   return std::string (buf, len);
 }
 
@@ -153,6 +157,22 @@ void test2()
   assert (key == 522984112);
   EXPECT_EXCEPTION (SG::ExcSgkeyCollision,
                     sp.stringToKey ("IMfastCalo_view_159_EMCaloRoIs", 33347479););
+
+  
+  SG::StringPool sp2;
+  SG::sgkey_t key2 = sp2.stringToKey ("_VMtjBTTT0Qu", 1100298357);
+  assert (key2 == 144365170);
+  SG::sgkey_t key3 = sp2.stringToKey ("_mb5bDYMzXCvoNT9N1", 1837139737);
+  assert (key3 == 144365171);
+
+#if 0
+  // Fragment used to find hash collisions.
+  while (true) {
+    std::string s = "_" + randstring(20);
+    unsigned i = std::rand();
+    sp2.stringToKey (s, i);
+  }
+#endif
 }
 
 

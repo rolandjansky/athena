@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
@@ -24,7 +24,7 @@ def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
 
 def generateChains( flags, chainDict ):
 
-    stepName = getChainStepName('Jet', 1)
+    stepName = 'Jet'
     stepReco, stepView = createStepView(stepName)
 
     acc = ComponentAccumulator()

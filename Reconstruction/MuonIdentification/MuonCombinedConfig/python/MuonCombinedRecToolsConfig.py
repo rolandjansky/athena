@@ -837,15 +837,13 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonTagTight",       CompFactory.CaloMuonTag() )
     result.addPublicTool(kwargs['CaloMuonTagLoose'])
     result.addPublicTool(kwargs['CaloMuonTagTight'])
-
     acc = CaloMuonLikelihoodToolCfg(flags)
     kwargs.setdefault("CaloMuonLikelihoodTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonLikelihoodTool'])
-
+    result.merge(acc)
     acc = CaloMuonScoreToolCfg(flags)
     kwargs.setdefault("CaloMuonScoreTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonScoreTool'])
-
     result.merge(acc)
     acc = TrackDepositInCaloToolCfg(flags)
     trackDepositInCaloTool = acc.popPrivateTools()

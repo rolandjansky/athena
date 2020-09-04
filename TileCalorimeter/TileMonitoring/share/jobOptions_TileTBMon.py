@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -8,6 +8,7 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
+from __future__ import print_function
 
 from os import system, popen
 from AthenaCommon.Logging import logging
@@ -30,10 +31,10 @@ if TestOnline:
     storeHisto = True;
 
 if not 'TileFELIX' in dir():
-     if 'PublishName' in dir():
-         TileFELIX = True
-     else:
-         TileFELIX = False
+    if 'PublishName' in dir():
+        TileFELIX = True
+    else:
+        TileFELIX = False
 
 
 if not 'UseDemoCabling' in dir():
@@ -192,7 +193,7 @@ if not athenaCommonFlags.isOnline() or TestOnline:
             FileNameVec = [ InputDirectory+'/'+FileName ]
             FormattedRunNumber = RunNumber
     else:
-       FormattedRunNumber = RunNumber
+        FormattedRunNumber = RunNumber
 
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
@@ -423,7 +424,7 @@ if doMonitoring:
         
         topSequence.TileTBMonManager.AthenaMonTools += [ TileDigiNoiseMon ];
 
-    print topSequence.TileTBMonManager
+    print(topSequence.TileTBMonManager)
 
 
 import os

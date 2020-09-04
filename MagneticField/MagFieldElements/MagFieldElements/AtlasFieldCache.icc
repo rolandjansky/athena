@@ -51,10 +51,8 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
 {
   // Allow for the case of no map for testing
   if (m_fieldMap == nullptr) {
-    // constant ATLAS magnetic field if no map has been set - for testing
-    constexpr double TEST_BFIELD = 1.997;
-    bxyz[0] = bxyz[1] = 0;
-    bxyz[2] = TEST_BFIELD;
+    // return 0 bfield if map is missing
+    bxyz[0] = bxyz[1] = bxyz[2] = 0;
     if (deriv) {
       for (int i = 0; i < 9; i++) {
         deriv[i] = 0.;

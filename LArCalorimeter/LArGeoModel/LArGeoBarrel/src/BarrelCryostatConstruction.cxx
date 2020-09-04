@@ -34,7 +34,6 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"

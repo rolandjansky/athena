@@ -53,9 +53,10 @@ monitoring_tau_pp = [
     'tau160_medium1_tracktwoEF_L1TAU100',
     'tau200_medium1_tracktwoEF_L1TAU100',
     'tau200_mediumRNN_tracktwoMVA_L1TAU100',
-    'tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
-    'tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
-    'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'    
+    # Will keep this commented out for now
+    #'tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
+    #'tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
+    #'tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'    
 ]
 
 monitoring_tau_validation = [

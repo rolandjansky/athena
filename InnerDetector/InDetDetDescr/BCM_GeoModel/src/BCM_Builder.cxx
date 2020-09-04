@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_GeoModel/BCM_Builder.h"
@@ -12,7 +12,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -103,9 +102,9 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
 //  ATH_MSG_INFO("BCMBuilder building...");  //commented out by D.Dobos on request by M.Elsing
   
   const StoredMaterialManager * materialManager;
-  const AbsMaterialManager * mat_mgr = 0;
-  if (StatusCode::SUCCESS == detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
-    mat_mgr = materialManager;
+  if (StatusCode::SUCCESS != detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
+    ATH_MSG_ERROR("Failed to retrieve Material Manager");
+    return StatusCode::FAILURE;
   }
 
   //create geometry manager
@@ -248,8 +247,8 @@ StatusCode InDetDD::BCM_Builder::build(GeoVPhysVol* pv)
       
       GeoNameTag* tag = new GeoNameTag("BCM Module"); 
       tag->ref();
-      if (mat_mgr){
-        GeoVPhysVol* bcmModPhys = bcm.Build(mat_mgr, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
+      if (materialManager){
+        GeoVPhysVol* bcmModPhys = bcm.Build(materialManager, parameters, (msgLvl(MSG::INFO) ? &msg(MSG::INFO) : NULL));
         Phys->add(tag);
         Phys->add(new GeoIdentifierTag(k));
         Phys->add(xform);

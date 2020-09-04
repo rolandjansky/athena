@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  GeneralTOP.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__GeneralTOP__
-#define __TopoCore__GeneralTOP__
+#ifndef L1TopoEvent_GeneralTOP
+#define L1TopoEvent_GeneralTOP
 
 #include <iostream>
 
@@ -56,7 +51,6 @@ namespace TCS {
       // destructor
       ~GenericTOB();
 
-
       static GenericTOB* createOnHeap(const GenericTOB &);
       static void clearHeap();
 
@@ -83,8 +77,6 @@ namespace TCS {
 
       inputTOBType_t tobType() const { return m_tobType; }
 
-      static unsigned int instances() { return fg_instances; }
-
    private:
       unsigned int m_Et { 0 };
       unsigned int m_EtNarrow { 0 };
@@ -102,12 +94,8 @@ namespace TCS {
       
       inputTOBType_t   m_tobType { NONE };
 
-      static unsigned int fg_instances;
+      static thread_local  Heap<TCS::GenericTOB> fg_heap;
+   };  
+}
 
-      static Heap<TCS::GenericTOB> fg_heap;
-   };
-   
-} // end of namespace TCS
-
-
-#endif /* defined(__TopoCore__GeneralTOP__) */
+#endif

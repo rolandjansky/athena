@@ -212,10 +212,10 @@ def matrixDisplayOld( allCFSeq ):
     def __getHyposOfStep( s ):
         if len(s.step.sequences):
             if len(s.step.sequences)==1:
-                if type(s.step.sequences[0].hypo) is list:
-                    return s.step.sequences[0].hypo[0].tools
-                else:
-                    return s.step.sequences[0].hypo.tools
+                ## if type(s.step.sequences[0].hypo) is list:
+                ##     return s.step.sequences[0].hypo[0].tools
+                ## else:
+                return s.step.sequences[0].hypo.tools
             else:
                 return list(s.step.combo.getChains())
         return []

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUJETRNN_H
@@ -51,19 +51,17 @@ public:
     // Compute the signal probability in [0, 1] or a default value
     float compute(const xAOD::TauJet &tau,
                   const std::vector<const xAOD::TauTrack *> &tracks,
-                  const std::vector<const xAOD::CaloCluster *> &clusters);
+                  const std::vector<const xAOD::CaloCluster *> &clusters) const;
 
-    // retrieve scalar RNN inputs for tau trigger monitoring
-    const std::map<std::string, std::map<std::string, double> >* getScalarInputs() {
-      return &m_input_map;
-    }
-    // retrieve vector RNN inputs for tau trigger monitoring
-    const std::map<std::string, std::map<std::string, std::vector<double>> >* getVectorInputs() {
-      return &m_input_sequence_map;
-    }
+    // Compute all input variables and store them in the maps that are passed by reference
+    bool calculateInputVariables(const xAOD::TauJet &tau,
+                  const std::vector<const xAOD::TauTrack *> &tracks,
+                  const std::vector<const xAOD::CaloCluster *> &clusters,
+                  std::map<std::string, std::map<std::string, double>>& scalarInputs,
+                  std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const;
 
     // Getter for the variable calculator
-    TauJetRNNUtils::VarCalc *variable_calculator() {
+    const TauJetRNNUtils::VarCalc* variable_calculator() const {
         return m_var_calc.get();
     }
 
@@ -87,15 +85,6 @@ private:
     std::vector<std::string> m_scalar_inputs;
     std::vector<std::string> m_track_inputs;
     std::vector<std::string> m_cluster_inputs;
-
-    // Maps to hold input values for lwtnn
-    InputMap m_input_map;
-    InputSequenceMap m_input_sequence_map;
-
-    // Pointers to contents of the input (sequence) map
-    VariableMap *m_scalar_map;
-    VectorMap *m_track_map;
-    VectorMap *m_cluster_map;
 
     // Variable calculator to calculate input variables on the fly
     std::unique_ptr<TauJetRNNUtils::VarCalc> m_var_calc;

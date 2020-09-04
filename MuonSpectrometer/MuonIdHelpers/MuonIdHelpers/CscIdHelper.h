@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -86,13 +86,13 @@ class CscIdHelper : public MuonIdHelper
   // Identifier builders
 
   Identifier elementID(int stationName, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(std::string stationNameStr, int stationEta,
+  Identifier elementID(const std::string& stationNameStr, int stationEta,
 		       int stationPhi, bool check=false, bool* isValid=0) const;
   Identifier elementID(const Identifier& channelID) const;
   Identifier channelID(int stationName, int stationEta,
 		       int stationPhi, int chamberLayer, int wireLayer,
 		       int measuresPhi, int strip, bool check=false, bool* isValid=0) const;
-  Identifier channelID(std::string stationNameStr, int stationEta,
+  Identifier channelID(const std::string& stationNameStr, int stationEta,
 		       int stationPhi, int chamberLayer, int wireLayer,
 		       int measuresPhi, int strip, bool check=false, bool* isValid=0) const;
   Identifier channelID(const Identifier& id, int chamberLayer, int wireLayer,
@@ -245,7 +245,7 @@ CLASS_DEF(CscIdHelper, 4171, 1)
   return result;
 }
 
-inline Identifier CscIdHelper::elementID(std::string stationNameStr,
+inline Identifier CscIdHelper::elementID(const std::string& stationNameStr,
 					 int stationEta, int stationPhi, bool check, bool* isValid) const
 {
   Identifier id;
@@ -283,7 +283,7 @@ inline Identifier CscIdHelper::channelID(int stationName, int stationEta, int st
   return result;
 }
 
-inline Identifier CscIdHelper::channelID(std::string stationNameStr, int stationEta,
+inline Identifier CscIdHelper::channelID(const std::string& stationNameStr, int stationEta,
 					 int stationPhi, int chamberLayer, int wireLayer,
 					 int measuresPhi, int strip, bool check, bool* isValid) const
 {

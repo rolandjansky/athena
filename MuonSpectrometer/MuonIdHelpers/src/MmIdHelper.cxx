@@ -18,8 +18,9 @@
 
 /*******************************************************************************/ 
 // Constructor/Destructor
-MmIdHelper::MmIdHelper() : MuonIdHelper("MmIdHelper") {
-    m_GASGAP_INDEX = 6;
+MmIdHelper::MmIdHelper() : MuonIdHelper("MmIdHelper"),
+                           m_GASGAP_INDEX (6)
+{
 }
 /*******************************************************************************/ 
 // Initialize dictionary

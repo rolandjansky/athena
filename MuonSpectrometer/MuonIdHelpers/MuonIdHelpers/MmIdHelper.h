@@ -73,11 +73,11 @@ class MmIdHelper : public MuonIdHelper {
 
   // Identifier builders
   Identifier elementID(int stationName, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const;
-  Identifier elementID(std::string stationNameStr, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const ;
+  Identifier elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check=false, bool* isValid=0) const ;
   Identifier elementID(const Identifier& channelID) const ;
   
   Identifier channelID(int stationName, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check=false, bool* isValid=0) const ;
-  Identifier channelID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check=false, bool* isValid=0) const ;
+  Identifier channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check=false, bool* isValid=0) const ;
   Identifier channelID(const Identifier& id, int multilayer, int gasGap, int channel, bool check=false, bool* isValid=0) const ;
   
   Identifier parentID (const Identifier& id) const;
@@ -197,7 +197,7 @@ CLASS_DEF(MmIdHelper, 4175, 1)
   return result;
 }
 /*******************************************************************************/ 
-inline Identifier MmIdHelper::elementID(std::string stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
+inline Identifier MmIdHelper::elementID(const std::string& stationNameStr, int stationEta, int stationPhi, bool check, bool* isValid) const {
   Identifier id;
   int stationName = stationNameIndex(stationNameStr);
   id = elementID(stationName, stationEta, stationPhi, check, isValid);
@@ -227,7 +227,7 @@ inline Identifier MmIdHelper::channelID(int stationName, int stationEta, int sta
   return result;
 }
 /*******************************************************************************/ 
-inline Identifier MmIdHelper::channelID(std::string stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check, bool * isValid) const {
+inline Identifier MmIdHelper::channelID(const std::string& stationNameStr, int stationEta, int stationPhi, int multilayer, int gasGap, int channel, bool check, bool * isValid) const {
   Identifier id;
   int stationName = stationNameIndex(stationNameStr);
   id = channelID(stationName, stationEta, stationPhi, multilayer, gasGap, channel, check, isValid);

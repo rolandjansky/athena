@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMomUtils/JetBroadening.h"
@@ -14,7 +14,7 @@ namespace FourMomUtils {
 using std::abs;
 using std::exp;
 
-bool jetBroadening( const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+bool jetBroadening( const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
         double& wideJetBroadening, double& totalJetBroadening,
         CLHEP::Hep3Vector thrust, bool useThreeD )
 {

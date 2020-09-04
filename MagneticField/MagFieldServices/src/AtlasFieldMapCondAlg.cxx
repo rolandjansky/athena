@@ -260,9 +260,21 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
         fullMapFilename = m_fullMapFilename;
         soleMapFilename = m_soleMapFilename;
         toroMapFilename = m_toroMapFilename;
-        cache.m_mapSoleCurrent = m_mapSoleCurrent;
-        cache.m_mapToroCurrent = m_mapToroCurrent;
-
+        if (m_mapSoleCurrent < m_soleMinCurrent) {
+            cache.m_mapSoleCurrent = 0;
+            ATH_MSG_INFO("updateFieldMap: requested solenoid current in JobOpt " << m_mapSoleCurrent << " is below allowed minimum " << m_soleMinCurrent << " setting to 0");
+        }
+        else {
+            cache.m_mapSoleCurrent = m_mapSoleCurrent;
+        }
+        if (m_mapToroCurrent < m_toroMinCurrent) {
+            cache.m_mapToroCurrent = 0;
+            ATH_MSG_INFO("updateFieldMap: requested toroid current in JobOpt " << m_mapToroCurrent << " is below allowed minimum " << m_toroMinCurrent << " setting to 0");
+        }
+        else {
+            cache.m_mapToroCurrent = m_mapToroCurrent;
+        }
+        
         // Create a range for the current run
         EventIDBase start, stop;
         start.set_run_number(ctx.eventID().run_number());

@@ -59,8 +59,7 @@ def generateEmuMenu():
     log = logging.getLogger('EmuMenuTest')
     log.debug("generateEmuMenu")
 
-    # overwrite LS2_v1 menu
-    TriggerFlags.triggerMenuSetup = 'LS2_v1'
+    # overwrite LS2_v1 
     LS2_v1.setupMenu = LS2_emu_v1.setupMenu
 
     # switch on only TestSlice
@@ -304,6 +303,10 @@ def generateChainsManually():
             makeChain(name='HLT_2TestChain6_muv1_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[
                 ChainStep("Step1_2mu",   [mu11], multiplicity=[2]),
                 ChainStep("Step2_2mu",   [mu21], multiplicity=[2]) ]),
+
+            makeChain(name='HLT_3TestChain6_muv1_L12MU6',       L1Thresholds=["MU6"], ChainSteps=[
+                ChainStep("Step1_2mu",   [mu11], multiplicity=[3]),
+                ChainStep("Step2_2mu",   [mu21], multiplicity=[3]) ]),
 
             makeChain(name='HLT_TestChain6_muv1_TestChain10_muv1_L12MU6',       L1Thresholds=["MU6", "MU6"], ChainSteps=[
                 ChainStep("Step1_2muAs",   [mu11,mu11], multiplicity=[1,1]),

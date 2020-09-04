@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBEXTENDEDSEGMENT_H
 #define MUONCALIBEXTENDEDSEGMENT_H
 
 #include "MuonCalibEventBase/MuonCalibSegment.h"
+
 #include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
 #include "MuonCalibExtraUtils/MuonCalibLayerMapping.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibRawHitAssociationMap.h"
-
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 #include <map>
@@ -27,7 +28,7 @@ namespace MuonCalib {
 
      @author niels.van.eldik@cern.ch
   */
-  class MuonCalibExtendedSegment : public MuonCalibSegment {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibExtendedSegment : public MuonCalibSegment {
   public:
     /**  Constructor taking input track. */
     MuonCalibExtendedSegment( const MuonCalibSegment& segment );
