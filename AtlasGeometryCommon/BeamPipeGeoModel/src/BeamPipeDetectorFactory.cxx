@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamPipeDetectorFactory.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoPcon.h"  
 #include "GeoModelKernel/GeoTube.h"  
@@ -17,8 +17,6 @@
 #include "GeoModelKernel/GeoDefinitions.h"  
 
 #include "StoreGate/StoreGateSvc.h"
-
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -33,7 +31,7 @@
 
 
 BeamPipeDetectorFactory::BeamPipeDetectorFactory(StoreGateSvc *detStore,
-				       IRDBAccessSvc *pAccess)
+						 IRDBAccessSvc *pAccess)
   :m_detectorManager(0),
    m_materialManager(0),
    m_detectorStore(detStore),
@@ -49,11 +47,9 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
 {
   m_detectorManager=new BeamPipeDetectorManager();
 
-  const StoredMaterialManager * materialManagerTmp = 0;
-  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManagerTmp, std::string("MATERIALS"))) {
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) {
     return; 
   } 
-  m_materialManager = materialManagerTmp;
   
   IRDBRecordset_ptr atlasMother = m_access->getRecordsetPtr("AtlasMother",m_versionTag,m_versionNode);
   IRDBRecordset_ptr bpipeGeneral = m_access->getRecordsetPtr("BPipeGeneral",m_versionTag,m_versionNode);

@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonAlignErrorBase )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 

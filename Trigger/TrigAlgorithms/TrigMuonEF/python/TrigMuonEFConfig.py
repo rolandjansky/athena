@@ -879,3 +879,5 @@ class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFConf.TrigMuonEFTrackIsolationA
         # Use offline isolation variables
         self.useVarIso = True
         self.MuonContName = "Muons"
+        self.ptcone02Name = "Muons.ptcone02"
+        self.ptcone03Name = "Muons.ptcone03"

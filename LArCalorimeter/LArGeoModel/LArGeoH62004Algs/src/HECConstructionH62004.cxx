@@ -4,7 +4,6 @@
 
 #include "HECConstructionH62004.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoBox.h"  
 #include "GeoModelKernel/GeoPcon.h"  

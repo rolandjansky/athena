@@ -36,7 +36,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
         elif 'TriggerValidation_mc_prescale' in menu_name:
-            disableChains(TriggerFlags, HLTPrescales, "Online")
+            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
             L1Prescales = Prescales.L1Prescales_trigvalid_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_trigvalid_mc_prescale
         else:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMomUtils/FoxWolfram.h"
@@ -17,7 +17,7 @@ using std::exp;
 using std::cos;
 
 bool
-foxWolfram( const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+foxWolfram( const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
       std::vector<double>& H, unsigned int order )
 {
   // this is the vector of results

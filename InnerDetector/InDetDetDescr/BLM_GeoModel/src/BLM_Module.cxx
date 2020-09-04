@@ -4,7 +4,7 @@
 
 #include "BLM_GeoModel/BLM_Module.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -15,7 +15,7 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-GeoPhysVol* BLM_Module::Build(const AbsMaterialManager* mat_mgr, const BLM_ModuleParameters* parameters, MsgStream* msg)
+GeoPhysVol* BLM_Module::Build(const StoredMaterialManager* mat_mgr, const BLM_ModuleParameters* parameters, MsgStream* msg)
 {
   double CuThick = 0.015;
   double LamelThick15 = 1;

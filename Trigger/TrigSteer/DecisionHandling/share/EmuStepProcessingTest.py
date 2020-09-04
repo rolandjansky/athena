@@ -42,6 +42,17 @@ for option in defaultOptions:
 
 TriggerFlags.generateMenuDiagnostics=True
 
+from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup= 'LS2_v1'
+
+svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags))
+svcMgr += conf2toConfigurable( getL1ConfigSvc(ConfigFlags))
+
+
 topSequence = AlgSequence()
 
 if opt.doMenu is True:
@@ -51,14 +62,7 @@ else:
 
 generateJSON()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = "LS2_v1"
-svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags))
-svcMgr += conf2toConfigurable( getL1ConfigSvc(ConfigFlags))
 
 
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr

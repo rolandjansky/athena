@@ -1,20 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  DataArray.h
-//  L1TopoEvent
-//  Created by Joerg Stelzer on 11/22/12.
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoEvent__DataArray__
-#define __L1TopoEvent__DataArray__
-
-/** @brief base class for TOB arrays
- **/
+#ifndef L1TopoEvent_DataArray
+#define L1TopoEvent_DataArray
 
 #include <iostream>
 
 namespace TCS {
-   
+
+   /** @brief base class for TOB arrays
+    */
    class DataArray {
    public:
       // constructor
@@ -31,9 +25,7 @@ namespace TCS {
       std::string m_name;
    };
 
-std::ostream & operator<< (std::ostream & o, const TCS::DataArray&);
+   std::ostream & operator<< (std::ostream & o, const TCS::DataArray&);
 }
 
-
-
-#endif /* defined(__L1TopoEvent__DataArray__) */
+#endif

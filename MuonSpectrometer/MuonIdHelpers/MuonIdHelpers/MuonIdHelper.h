@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -305,9 +305,6 @@ class MuonIdHelper : public AtlasDetectorID
 
  protected:
 
-  // Gaudi message service
-  IMessageSvc* m_msgSvc;
-
   // Check values down to station level
 
   bool validStation(int stationName, int technology) const;
@@ -320,8 +317,8 @@ class MuonIdHelper : public AtlasDetectorID
 
  private:
 
-  //Copy construcor - do not use!
-  inline MuonIdHelper(const MuonIdHelper & other) : AtlasDetectorID(other) {}
+  //Copy constructor - do not use!
+  inline MuonIdHelper(const MuonIdHelper & other) = delete;
   inline MuonIdHelper & operator=(const MuonIdHelper &right);
 
   // vectors for stationNames and technologies

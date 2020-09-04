@@ -73,7 +73,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "StoreGate/StoreGateSvc.h"

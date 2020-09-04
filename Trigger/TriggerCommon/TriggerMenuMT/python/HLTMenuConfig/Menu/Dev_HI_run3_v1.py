@@ -10,7 +10,6 @@
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-#from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import MinBiasGroup
 

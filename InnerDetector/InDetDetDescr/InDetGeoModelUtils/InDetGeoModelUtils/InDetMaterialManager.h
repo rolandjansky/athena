@@ -13,7 +13,7 @@
 
 class GeoMaterial;
 class GeoElement;
-class AbsMaterialManager;
+class StoredMaterialManager;
 class StoreGateSvc;
 class IGeometryDBSvc;
 
@@ -186,7 +186,7 @@ private:
   };
   
   
-  const AbsMaterialManager * retrieveManager(const StoreGateSvc* detStore);
+  const StoredMaterialManager * retrieveManager(const StoreGateSvc* detStore);
   const GeoMaterial* getAdditionalMaterial(const std::string & materialName) const; 
   bool compareDensity(double d1, double d2) const;
   void addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string & space);
@@ -217,7 +217,7 @@ private:
   void createMaterial(const MaterialDef & material);
   double getExtraScaleFactor(const std::string & materialName);
 
-  const AbsMaterialManager *m_materialManager;
+  const StoredMaterialManager *m_materialManager;
   std::string m_managerName;
 
   typedef std::map<std::string, const GeoMaterial *> MaterialStore;

@@ -1,12 +1,8 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  TopoInputEvent.cxx
-//  L1TopoEvent
-//  Created by Joerg Stelzer on 11/21/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/TopoInputEvent.h"
 #include <fstream>
+#include <pthread.h>
 
 using namespace std;
 using namespace TCS;
@@ -25,11 +21,8 @@ TopoInputEvent::TopoInputEvent(const string & clusterName,
    m_muons(muonName,32),
    m_lateMuons(lateMuonName,32),
    m_muonsNextBC(muonNextBCName,32),
-   m_met(metName,1),
-   m_runNo(0), m_evtNo(0), m_lumiB(0), m_BCID(0)
-{
-   setMET(MetTOB(0,0,0)); // default MET
-}
+   m_met(metName,1)
+{}
 
 TopoInputEvent::~TopoInputEvent() {}
 
@@ -144,7 +137,6 @@ TCS::TopoInputEvent::clear() {
    m_evtNo = 0;
    m_lumiB = 0;
    m_BCID  = 0;
-
    setMET(MetTOB(0,0,0)); // default MET
 
    m_overflowFromMuonInput = false;

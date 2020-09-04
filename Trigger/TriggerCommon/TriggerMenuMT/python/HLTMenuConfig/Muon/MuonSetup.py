@@ -984,6 +984,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
   trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.ptcone02Name = Muons+".ptcone02"
+  trigEFmuIso.ptcone03Name = Muons+".ptcone03"
 
   efmuisoRecoSequence += trigEFmuIso
 

@@ -1,31 +1,7 @@
-################################################################################
-# Package: AthenaRootComps
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaRootComps )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/SGTools
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthenaPython
-                          Control/DataModelRoot
-                          Control/RootUtils
-                          Control/StoreGate
-                          Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/FileCatalog
-                          Database/APR/PersistencySvc
-                          Database/AthenaRoot/AthenaRootKernel
-                          Database/PersistentDataModel
-                          Database/AthenaPOOL/PoolSvc
-                          Event/EventInfo
-			  Event/xAOD/xAODEventInfo
-                          GaudiKernel
-			  Control/xAODRootAccess)
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Core Graf Tree MathCore Hist pthread )
@@ -33,24 +9,28 @@ find_package( Xrootd )
 find_package( Boost )
 
 # Component(s) in the package:
+atlas_add_library( AthenaRootCompsLib
+                   AthenaRootComps/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS AthenaRootComps
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel )
+
 atlas_add_component( AthenaRootComps
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities FileCatalog PersistencySvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo PoolSvcLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaRootCompsLib AthenaRootKernel DataModelRoot EventInfo FileCatalog GaudiKernel PersistentDataModel PoolSvcLib RootUtils SGTools StoreGateLib xAODCore xAODEventInfo xAODRootAccess )
 
 # Install files from the package:
-atlas_install_headers( AthenaRootComps )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/tests/*.py )
 atlas_install_scripts( test/*.sh test/ref.* test/*.py )
-
 
 atlas_add_test( test_athena_ntuple_dumper_multiple
                 SCRIPT test/test_athena_ntuple_dumper_multiple.sh
                 POST_EXEC_SCRIPT nopost.sh
                 PROPERTIES TIMEOUT 600 )
-
 
 atlas_add_test( test_athena_ntuple_dumper_varhandles_nooutput
                 SCRIPT test/test_athena_ntuple_dumper_varhandles_nooutput.sh

@@ -5,12 +5,12 @@
 #ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
 #define TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
 
-// tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
 
-// xAOD include(s)
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+
 
 class MvaTESVariableDecorator
 : public TauRecToolBase
@@ -28,8 +28,15 @@ class MvaTESVariableDecorator
 
  private:
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
+      "AveIntPerXKey", 
+      "EventInfo.AveIntPerXDecor",
+      "Decoration for Average Interaction Per Crossing"};
+  
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer {this,
+      "Key_vertexInputContainer",
+      "PrimaryVertices",
+      "input vertex container key"};
 
   bool m_incShowerSubtr;
 };

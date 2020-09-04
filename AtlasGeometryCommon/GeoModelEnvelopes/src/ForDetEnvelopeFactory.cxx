@@ -4,7 +4,7 @@
 
 #include "ForDetEnvelopeFactory.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
+#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoTube.h"  
 #include "GeoModelKernel/GeoLogVol.h"  
@@ -15,8 +15,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include <vector>
 
@@ -34,11 +32,9 @@ ForDetEnvelopeFactory::~ForDetEnvelopeFactory()
 
 void ForDetEnvelopeFactory::create(GeoPhysVol *world)
 {
-  const StoredMaterialManager * materialManagerTmp = 0;
-  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManagerTmp, std::string("MATERIALS"))) {
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) {
     return; 
   } 
-  m_materialManager = materialManagerTmp;
   
   // Get the materials  
   const GeoMaterial* air = m_materialManager->getMaterial("std::Air");
