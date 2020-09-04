@@ -322,11 +322,16 @@ TrigConf::L1Menu::algorithmFromTriggerline(const std::string & triggerlineName) 
       category = triggerlineName.substr(0,pos);
       outputName = triggerlineName.substr(pos+1);
    }
+   const static std::vector<string> topoTypes {"TOPO", "R2TOPO", "MULTTOPO", "MUTOPO"};
+   if( std::none_of(cbegin(topoTypes), cend(topoTypes), [&category](const std::string & str){return str==category;}) ) {
+      std::string msg = "L1Menu::algorithmFromTriggerLine(" + triggerlineName + "): triggerline " + triggerlineName + " is not produced by a topo algorithm.";
+      throw std::runtime_error(msg);
+   }
    try {
       return * m_algorithmsByOutput.at(category).at(outputName);
    }
    catch(std::exception & ex) {
-      std::cerr << "No output " << outputName << " defined by any algorithm of category " << category << " in the L1 menu. (It was asked for " << triggerlineName << ")" << std::endl;
+      std::cerr << "L1Menu::algorithmFromTriggerLine(): No output " << outputName << " defined by any algorithm of category " << category << " in the L1 menu. (It was asked for " << triggerlineName << ")" << std::endl;
       throw;
    }
 }

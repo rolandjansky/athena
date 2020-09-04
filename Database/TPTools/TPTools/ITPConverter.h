@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_ITPConverter_H
@@ -54,7 +54,8 @@ public:
   /** return the top-level converter for this elemental TP converter
       @return TopLevelTPCnvBas
   */
-  virtual TopLevelTPCnvBase*	topConverter() const { return 0; }
+  virtual TopLevelTPCnvBase*	topConverter() { return 0; }
+  virtual const TopLevelTPCnvBase*	topConverter() const { return 0; }
 
   /** Return TP typeID for persistent objects produced by this converter
       @return TPObjRef::typeID_t&

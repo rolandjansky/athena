@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCondInterface )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonAlignment/MuonAlignmentData )
-
 # External dependencies:
 find_package( Eigen )
 

@@ -42,7 +42,10 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     PartPropSvc = CompFactory.PartPropSvc
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV"))
     if flags.Detector.Overlay and not flags.Input.isMC:
-        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200"))
+        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", tag="TRTCondDigVers-Collisions-01", db="OFLP200",
+                             className = 'AthenaAttributeList'))
+    else:
+        kwargs.setdefault ('DigVersContainerKey', '')
     # default arguments
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Kr", TRT_PAI_Process_KrToolCfg(flags))

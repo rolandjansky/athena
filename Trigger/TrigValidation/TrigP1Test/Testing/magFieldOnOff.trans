@@ -4,11 +4,13 @@ x solCur=7730;torCur=20500;exec(open('setMagFieldCurrents.py').read())
 f
 b
 x import os;os.system('oh_cp -p%s -s.+ -f run_1.root' % os.environ['TDAQ_PARTITION'])
-x solCur=0;torCur=0;exec(open('setMagFieldCurrents.py').read())
+x solCur=0;torCur=0;run=360027;exec(open('setMagFieldCurrents.py').read())
+x os.remove('raw.data'); os.symlink('magField1._0001.data','raw.data')
 f
 b
 x import os;os.system('oh_cp -p%s -s.+ -f run_2.root' % os.environ['TDAQ_PARTITION'])
-x solCur=7730;torCur=20500;exec(open('setMagFieldCurrents.py').read())
+x solCur=7730;torCur=20500;run=360028;exec(open('setMagFieldCurrents.py').read())
+x os.remove('raw.data'); os.symlink('magField2._0001.data','raw.data')
 f
 b
 x import os;os.system('oh_cp -p%s -s.+ -f run_3.root' % os.environ['TDAQ_PARTITION'])

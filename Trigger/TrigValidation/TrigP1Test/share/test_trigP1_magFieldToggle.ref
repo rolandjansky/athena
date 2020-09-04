@@ -1,0 +1,132 @@
+AtlasFieldCacheCondAlg                     1   0    INFO updateCurrentFromParameters: Update from job options: Range of input/output is {[360026,l:0,b:4294967295] - [360027,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor 1/1, EventRange {[360026,l:0,b:4294967295] - [360027,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: solenoid zone id  7000
+MagFieldCondReader                         1   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         1   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         2   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         2   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         3   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         3   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         4   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         4   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         5   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         5   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         6   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         6   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         7   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         7   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         8   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         8   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         9   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         9   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        10   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        10   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        11   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        11   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        12   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        12   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        13   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        13   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        14   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        14   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        15   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        15   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        16   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        16   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        17   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        17   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        18   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        18   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        19   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        19   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        20   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        20   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+AtlasFieldCacheCondAlg                     1   0    INFO updateCurrentFromParameters: Update from job options: Range of input/output is {[360027,l:0,b:4294967295] - [360028,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor 1/1, EventRange {[360027,l:0,b:4294967295] - [360028,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: no map read (currents == 0
+MagFieldCondReader                         1   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         1   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         2   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         2   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         3   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         3   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         4   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         4   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         5   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         5   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         6   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         6   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         7   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         7   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         8   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         8   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                         9   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                         9   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        10   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        10   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        11   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        11   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        12   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        12   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        13   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        13   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        14   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        14   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        15   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        15   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        16   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        16   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        17   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        17   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        18   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        18   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        19   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        19   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+MagFieldCondReader                        20   0    INFO Field status: solenoid=0, toroids=0
+MagFieldCondReader                        20   0    INFO Field xyz: 100, 100, 100, 0, 0, 1.997
+AtlasFieldCacheCondAlg                     1   0    INFO updateCurrentFromParameters: Update from job options: Range of input/output is {[360028,l:0,b:4294967295] - [360029,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor 1/1, EventRange {[360028,l:0,b:4294967295] - [360029,l:0,b:4294967295]}
+AtlasFieldCacheCondAlg                     1   0    INFO execute: solenoid zone id  7000
+MagFieldCondReader                         1   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         1   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         2   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         2   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         3   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         3   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         4   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         4   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         5   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         5   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         6   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         6   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         7   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         7   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         8   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         8   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                         9   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                         9   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        10   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        10   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        11   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        11   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        12   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        12   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        13   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        13   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        14   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        14   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        15   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        15   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        16   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        16   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        17   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        17   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        18   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        18   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        19   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        19   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+MagFieldCondReader                        20   0    INFO Field status: solenoid=1, toroids=1
+MagFieldCondReader                        20   0    INFO Field xyz: 100, 100, 100, 1.58913e-06, -2.49264e-07, 0.00199734
+AtlasFieldCacheCondAlg                              INFO Initialize: Key  ( 'AtlasFieldCacheCondObj' , 'ConditionStore+fieldCondObj' )  has been succesfully registered 
+AtlasFieldCacheCondAlg                              INFO Initialize: Will update current from parameters
+AtlasFieldCacheCondAlg                              INFO Initialize: useDCS, useSoleCurrent, useToroCurrent. 0,  'UseSoleCurrent':7730.0000,  'UseToroCurrent':20400.000 LockMapCurrents 1

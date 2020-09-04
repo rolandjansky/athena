@@ -47,7 +47,7 @@ public:
     StatusCode doFCal();
     void TruthImpactPosition(McEventCollection::const_iterator);
 
-    void FCalCalibAnalysis(const std::string name, const CaloCalibrationHit *CalibHit);
+    void FCalCalibAnalysis(const std::string& name, const CaloCalibrationHit *CalibHit);
     void FCalClusterCenter(const LArHitContainer *container);
     void FCalHitCenter(const LArHitContainer *container);
     void FillCellInfo(const GeoLArHit &fcalhit, std::vector<double> *cell_E,

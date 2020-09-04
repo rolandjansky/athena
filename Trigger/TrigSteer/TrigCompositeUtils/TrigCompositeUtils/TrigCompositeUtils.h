@@ -18,6 +18,12 @@
 #include "AsgTools/CurrentContext.h"
 #include "AsgTools/EventStoreType.h"
 #include "AsgMessaging/MsgStream.h"
+#include "AsgMessaging/MessageCheck.h"
+
+
+#ifdef XAOD_STANDALONE
+#include "AsgTools/SgTEvent.h"
+#endif
 
 #include "AthContainers/AuxElement.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -29,6 +35,8 @@
 #include "NavGraph.h"
 
 namespace TrigCompositeUtils {
+
+  ANA_MSG_HEADER (msgRejected)
 
   /// alias types, for readability and to simplify future evolution
   typedef SG::WriteHandle<DecisionContainer> DecisionWriteHandle;

@@ -14,13 +14,7 @@
 
 #include "MuidTrackBuilder/OutwardsCombinedMuonTrackBuilder.h"
 
-#include <cmath>
-#include <iomanip>
-
 #include "AthenaKernel/Units.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
-#include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -32,9 +26,8 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "VxVertex/RecVertex.h"
 
-
-namespace Units = Athena::Units;
-
+#include <cmath>
+#include <iomanip>
 
 namespace Rec {
 
@@ -42,9 +35,6 @@ namespace Rec {
 OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder(const std::string& type, const std::string& name,
                                                                    const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
-      m_calorimeterVolume(nullptr),
-      m_indetVolume(nullptr),
       m_allowCleanerVeto(true),
       m_cleanCombined(true),
       m_recoverCombined(false),
@@ -61,18 +51,10 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder(const std::st
     declareProperty("AddIDMSerrors", m_addIDMSerrors);
 }
 
-
-OutwardsCombinedMuonTrackBuilder::~OutwardsCombinedMuonTrackBuilder(void) {}
-
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-
-
 StatusCode
 OutwardsCombinedMuonTrackBuilder::initialize()
 {
-    ATH_MSG_INFO("Initializing OutwardsCombinedMuonTrackBuilder"
-                 << " - package version " << PACKAGE_VERSION);
+    ATH_MSG_INFO("Initializing OutwardsCombinedMuonTrackBuilder" << " - package version " << PACKAGE_VERSION);
 
     msg(MSG::INFO) << " with options: ";
     if (m_allowCleanerVeto) msg(MSG::INFO) << " AllowCleanerVeto";
@@ -80,71 +62,36 @@ OutwardsCombinedMuonTrackBuilder::initialize()
     msg(MSG::INFO) << endmsg;
 
     if (!m_cleaner.empty()) {
-        if (m_cleaner.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_cleaner);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_cleaner);
-        }
+        ATH_CHECK(m_cleaner.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_cleaner);
     }
 
     if (!m_muonHoleRecovery.empty()) {
-        if (m_muonHoleRecovery.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_muonHoleRecovery);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_muonHoleRecovery);
-        }
+        ATH_CHECK(m_muonHoleRecovery.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_muonHoleRecovery);
     }
 
     if (!m_muonErrorOptimizer.empty()) {
-        if (m_muonErrorOptimizer.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_muonErrorOptimizer);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_muonErrorOptimizer);
-        }
+        ATH_CHECK(m_muonErrorOptimizer.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_muonErrorOptimizer);
     }
 
     if (!m_fitter.empty()) {
-        if (m_fitter.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_fitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_fitter);
-        }
+        ATH_CHECK(m_fitter.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_fitter);
     }
 
     if (!m_trackSummary.empty()) {
-        if (m_trackSummary.retrieve().isFailure()) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_trackSummary);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_trackSummary);
-        }
+        ATH_CHECK(m_trackSummary.retrieve());
+        ATH_MSG_INFO("Retrieved tool " << m_trackSummary);
     }
 
-    if (m_trackingVolumesSvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
-        m_calorimeterVolume =
-            new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-
-        m_indetVolume = new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
-    }
-
+    ATH_CHECK(m_trackingVolumesSvc.retrieve());
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
+    m_calorimeterVolume = std::make_unique<const Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+    m_indetVolume = std::make_unique<const Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
     return StatusCode::SUCCESS;
 }
-
-
-StatusCode
-OutwardsCombinedMuonTrackBuilder::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-
 
 /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
 Trk::Track*
@@ -285,7 +232,7 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrac
             if (meot) {
                 const Trk::EnergyLoss* energyLoss = meot->energyLoss();
                 if (energyLoss) {
-                    Eloss += fabs(energyLoss->deltaE());
+                    Eloss += std::abs(energyLoss->deltaE());
 
                     ATH_MSG_DEBUG("OutwardsCombinedMuonFit ID Eloss found r "
                                   << ((**t).trackParameters())->position().perp() << " z "
@@ -374,10 +321,8 @@ OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRe
         return nullptr;
     }
 
-    ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
-
     // fit
-    Trk::Track* fittedTrack = fitter->fit(track, false, particleHypothesis);
+    Trk::Track* fittedTrack = m_fitter->fit(track, false, particleHypothesis);
     if (!fittedTrack) return nullptr;
 
     // track cleaning
@@ -448,10 +393,8 @@ OutwardsCombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::T
         return nullptr;
     }
 
-    ToolHandle<Trk::ITrackFitter> fitter = m_fitter;
-
     // fit
-    Trk::Track* fittedTrack = fitter->fit(indetTrack, extrapolatedTrack, false, particleHypothesis);
+    Trk::Track* fittedTrack = m_fitter->fit(indetTrack, extrapolatedTrack, false, particleHypothesis);
 
     if (!fittedTrack) {
         return nullptr;
@@ -621,7 +564,7 @@ OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
         if ((**t).trackParameters()) {
             if (p == -1.) {
-                p = (**t).trackParameters()->momentum().mag() / Units::GeV;
+                p = (**t).trackParameters()->momentum().mag() / Gaudi::Units::GeV;
             }
             if (m_indetVolume->inside((**t).trackParameters()->position())) {
                 continue;
@@ -706,10 +649,10 @@ OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
                     if (scat) {
                         double sigmaDeltaPhi =
-                            sqrt((scat->sigmaDeltaPhi()) * (scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);
+                            std::sqrt((scat->sigmaDeltaPhi()) * (scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);
 
                         double sigmaDeltaTheta =
-                            sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
+                            std::sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
 
                         const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
 

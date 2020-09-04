@@ -84,7 +84,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   //  G4DynamicParticle* OrgPart = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
   G4DynamicParticle* IncidentRhadron = const_cast<G4DynamicParticle*>(aTrack.GetDynamicParticle());
   CustomParticle* CustomIncident = static_cast<CustomParticle*>(IncidentRhadron->GetDefinition());
-  const G4ThreeVector aPosition = aTrack.GetPosition();
+  const G4ThreeVector& aPosition = aTrack.GetPosition();
   const G4int theIncidentPDG = IncidentRhadron->GetDefinition()->GetPDGEncoding();
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
   std::vector<G4ParticleDefinition*> theParticleDefinitions;

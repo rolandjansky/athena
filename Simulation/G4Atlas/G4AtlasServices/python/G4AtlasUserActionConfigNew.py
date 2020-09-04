@@ -22,9 +22,11 @@ from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolC
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["FullG4MT"]:
-        tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
+        result.merge(EntryLayerToolMTCfg(flags))
+        tool = result.getPublicTool("ISF_EntryLayerToolMT")
     else:
-        tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
+        result.merge(EntryLayerToolCfg(flags))
+        tool = result.getPublicTool("ISF_EntryLayerTool")
     kwargs.setdefault("EntryLayerTool", tool)
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
@@ -59,7 +61,7 @@ def TrackProcessorUserActionToolCfg(flags, name="ISFG4TrackProcessorUserActionTo
 
 
 def PassBackG4TrackProcessorUserActionToolCfg(flags, name="PassBackG4TrackProcessorUserActionTool", **kwargs):
-    return TrackProcessorUserActionToolCfg(name, **kwargs)
+    return TrackProcessorUserActionToolCfg(flags, name, **kwargs)
 
 
 def AFII_G4TrackProcessorUserActionToolCfg(flags, name="AFII_G4TrackProcessorUserActionTool", **kwargs):

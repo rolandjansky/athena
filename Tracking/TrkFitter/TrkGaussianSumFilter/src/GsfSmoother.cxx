@@ -6,14 +6,12 @@
  * @file   GsfSmoother.cxx
  * @date   Wednesday 9th March 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Implementation code for the class GsfSmoother
+ * @brief  Implementation code for the smoothing part of the GSF fitter
  */
-
-#include "TrkGaussianSumFilter/GsfSmoother.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+#include "TrkGaussianSumFilter/GaussianSumFitter.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
@@ -24,50 +22,21 @@
 #include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
-Trk::GsfSmoother::GsfSmoother(const std::string& type,
-                              const std::string& name,
-                              const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_updator{}
-  , m_combineWithFitter(false)
-{
-  declareInterface<IGsfSmoother>(this);
-  declareProperty("CombineStateWithFitter", m_combineWithFitter);
-}
-
-StatusCode
-Trk::GsfSmoother::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::GsfSmoother::configureTools(
-  const ToolHandle<IMultiStateExtrapolator>& extrapolator)
-{
-  m_extrapolator = extrapolator;
-  return StatusCode::SUCCESS;
-}
-
 Trk::SmoothedTrajectory*
-Trk::GsfSmoother::fit(const EventContext& ctx,
-                      Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
-                      const ForwardTrajectory& forwardTrajectory,
-                      const ParticleHypothesis particleHypothesis,
-                      const Trk::CaloCluster_OnTrack* ccot) const
+Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
+  Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
+  const ForwardTrajectory& forwardTrajectory,
+  const ParticleHypothesis particleHypothesis,
+  const Trk::CaloCluster_OnTrack* ccot) const
 {
-  if (!m_extrapolator) {
-    ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return nullptr;
-  }
   // Check that the forward trajectory is filled
   if (forwardTrajectory.empty()) {
     ATH_MSG_ERROR(
       "Attempting to smooth an empty forward trajectory... Exiting!");
     return nullptr;
   }
-
-  /* Instansiate the return trajectory. This is a vectory of TrackStateOnSurface
+  /* Instantiate the returned trajectoy. This is a vector of TrackStateOnSurface
      object In the GSF Smoother these TrackStateOnSurface objects are the base
      class for the MultiComponentStateOnSurface. This memory should be freed by
      the fitter / smoother master method */
@@ -365,7 +334,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
 }
 
 Trk::MultiComponentState
-Trk::GsfSmoother::combine(
+Trk::GaussianSumFitter::combine(
   const Trk::MultiComponentState& forwardsMultiState,
   const Trk::MultiComponentState& smootherMultiState) const
 {
@@ -463,10 +432,11 @@ Trk::GsfSmoother::combine(
 }
 
 Trk::MultiComponentState
-Trk::GsfSmoother::addCCOT(const EventContext& ctx,
-                          const Trk::TrackStateOnSurface* currentState,
-                          const Trk::CaloCluster_OnTrack* ccot,
-                          Trk::SmoothedTrajectory* smoothedTrajectory) const
+Trk::GaussianSumFitter::addCCOT(
+  const EventContext& ctx,
+  const Trk::TrackStateOnSurface* currentState,
+  const Trk::CaloCluster_OnTrack* ccot,
+  Trk::SmoothedTrajectory* smoothedTrajectory) const
 {
 
   const Trk::MultiComponentStateOnSurface* currentMultiStateOS = nullptr;

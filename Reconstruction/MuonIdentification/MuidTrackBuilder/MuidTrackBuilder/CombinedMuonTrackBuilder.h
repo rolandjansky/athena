@@ -15,15 +15,12 @@
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 
-
-#include <atomic>
-
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-// For magneticfield
+
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
@@ -47,21 +44,19 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
 
+#include <atomic>
 
 class CaloEnergy;
 class MessageHelper;
 
 namespace Trk {
-class PerigeeSurface;
-class PseudoMeasurementOnTrack;
-class RecVertex;
-class TrackStateOnSurface;
-class TrackingVolume;
-class Volume;
-}  // namespace Trk
+    class PerigeeSurface;
+    class PseudoMeasurementOnTrack;
+    class RecVertex;
+    class TrackStateOnSurface;
+}
 
 namespace Rec {
-
 
 class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
@@ -268,8 +263,8 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     // Read handle for conditions object to get the field cache
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
         this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;  // init with callback
-    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc;
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};  // init with callback
+    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
 
     Trk::MagneticFieldProperties m_magFieldProperties;
 

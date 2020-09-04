@@ -255,21 +255,27 @@ class L1MenuConfig(object):
         log.info("Reading TriggerMenuMT.Menu.Menu_%s", self.menuToLoad)
         menumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s' % self.menuToLoad, globals(), locals(), ['defineMenu'], 0)
         menumodule.defineMenu()
-        log.info("... L1 menu '%s' contains:", self.menuToLoad)
+        log.info("... L1 menu '%s' contains %i items", self.menuToLoad, len(L1MenuFlags.items()))
 
         log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs", self.menuToLoad)
         topomenumodule = __import__('TriggerMenuMT.L1.Menu.Menu_%s_inputs' % self.menuToLoad, globals(), locals(), ['defineMenu'], 0)
-        topomenumodule.defineInputsMenu()
+        topomenumodule.defineInputsMenu() # this adds the inputs definition (boards) to L1MenuFlags.boards
+        connectorCount = 0
         algoCount = 0
         for boardName, boardDef in L1MenuFlags.boards().items():
             if "connectors" in boardDef:
+                connectorCount += len(boardDef["connectors"])
                 for c in boardDef["connectors"]:
                     if "thresholds" in c:
                         algoCount += len(c["thresholds"])
-                    else:
+                    elif "algorithmGroups" in c:
                         for t in c["algorithmGroups"]:
                             algoCount += len(t["algorithms"])
-        log.info("... L1Topo menu '%s' contains %i algorithms", self.menuToLoad, algoCount)
+                    else:
+                        for t in c["signalGroups"]:
+                            algoCount += len(t["signals"])
+        log.info("... L1Topo menu '%s' contains %i boards (%s)", self.menuToLoad, len(L1MenuFlags.boards()), ', '.join(L1MenuFlags.boards().keys()))
+        log.info("    with %i connectors and %i input signals", connectorCount, algoCount)
 
         try:
             log.info("Reading TriggerMenuMT.Menu.Menu_%s_inputs_legacy", self.menuToLoad)
@@ -483,10 +489,8 @@ class L1MenuConfig(object):
         list_of_undefined_thresholds = []
         # new thresholds
         for (boardName, boardDef) in L1MenuFlags.boards().items():
-            if boardName.startswith("Ctpin"):
-                continue
             for connDef in boardDef["connectors"]:
-                if connDef["format"] != "multiplicity":
+                if connDef["type"] == "ctpin" or connDef["format"] != "multiplicity":
                     continue
                 for thrName in connDef["thresholds"]:
                     if type(thrName) == tuple:
@@ -500,11 +504,29 @@ class L1MenuConfig(object):
                     else:
                         self.l1menu.addThreshold( threshold )
 
+        # signals from merger boards like AlfaCtpin
+        for (boardName, boardDef) in L1MenuFlags.boards().items():
+            for connDef in boardDef["connectors"]:
+                if connDef["format"] != "simple":
+                    continue
+                for sGrp in connDef["signalGroups"]:
+                    for thrName in sGrp["signals"]:
+                        if type(thrName) == tuple:
+                            (thrName, _) = thrName
+                        if thrName is None or thrName in self.l1menu.thresholds:
+                            continue
+                        threshold = self.getDefinedThreshold(thrName)
+                        if threshold is None:
+                            log.error('Threshold %s is required in menu on board %s, connector %s, but it is not defined', (thrName, boardName, connDef['name']) )
+                            list_of_undefined_thresholds += [ thrName ]
+                        else:
+                            self.l1menu.addThreshold( threshold )
+
         # ctpin thresholds
         for (boardName, boardDef) in allBoards:
-            if not boardName.startswith("Ctpin"):
-                continue
             for connDef in boardDef["connectors"]:
+                if connDef["type"] != "ctpin":
+                    continue
                 for entry in connDef["thresholds"]:
                     if type(entry) == dict:
                         # section that defines topo legacy thresholds 
@@ -614,13 +636,17 @@ class L1MenuConfig(object):
         # assign mapping to thresholds according to their use in the menu
         self.mapThresholds()
 
-        # update the prescales that are not 1
-        #self.updateItemPrescales()
+        # ------------------
+        # CTP
+        # ------------------
+        self.l1menu.ctp.checkConnectorAvailability(self.l1menu.connectors, self.menuToLoad)
 
         # set the ctp monitoring (only now after the menu is defined)
         self.l1menu.setupCTPMonitoring()
 
+        # ------------------
         # final consistency check
+        # ------------------
         self.l1menu.check()
 
 

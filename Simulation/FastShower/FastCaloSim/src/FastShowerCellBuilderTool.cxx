@@ -195,7 +195,7 @@ FastShowerCellBuilderTool::~FastShowerCellBuilderTool()
   }
 }
 
-void FastShowerCellBuilderTool::LoadParametrizationsFromDir(std::string dir)
+void FastShowerCellBuilderTool::LoadParametrizationsFromDir(const std::string& dir)
 {
   TString curdir=gSystem->pwd();
   TString dirname=dir.c_str();
@@ -521,7 +521,7 @@ StatusCode FastShowerCellBuilderTool::OpenParamSource(std::string insource)
     }
     insource.erase(0,3);
 
-    std::string::size_type strpos=insource.find(":");
+    std::string::size_type strpos=insource.find(':');
     if(strpos==std::string::npos) {
       ATH_MSG_WARNING("Could not parse string for database entry : "<< insource);
       return StatusCode::SUCCESS;
@@ -530,7 +530,7 @@ StatusCode FastShowerCellBuilderTool::OpenParamSource(std::string insource)
     ATH_MSG_DEBUG("  folder "<< cool_folder);
     insource.erase(0,strpos+1);
 
-    strpos=insource.find(":");
+    strpos=insource.find(':');
     std::string str_cool_channel=insource.substr(0,strpos);
     if(strpos==std::string::npos) {
       ATH_MSG_WARNING("Could not parse string for database entry "<< insource);

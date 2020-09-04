@@ -82,16 +82,7 @@ namespace Trk {
     
     if (rhs.m_caloelossstate != nullptr) {
       for (auto & state : m_states) {
-        GXFMaterialEffects *meff = state->materialEffects();
-        const TrackParameters *par = state->trackParameters();
-        
-        if (
-          (meff != nullptr) && (par != nullptr) && meff->sigmaDeltaE() > 0 && 
-          meff->sigmaDeltaPhi() == 0 && 
-          (par->position().perp() > 1400 || std::abs(par->position().z()) > 3700)
-        ) {
-          m_caloelossstate = state.get();
-        }
+        conditionalSetCalorimeterEnergyLossState(state.get());
       }
     }
     
@@ -141,19 +132,30 @@ namespace Trk {
       
       if (rhs.m_caloelossstate != nullptr) {
         for (auto & state : m_states) {
-          GXFMaterialEffects *meff = state->materialEffects();
-          const TrackParameters *par = state->trackParameters();
-          if (
-            (meff != nullptr) && (par != nullptr) && meff->sigmaDeltaE() > 0 && meff->sigmaDeltaPhi() == 0 && 
-            (par->position().perp() > 1400 || std::abs(par->position().z()) > 3700)
-          ) {
-            m_caloelossstate = state.get();
-          }
+          conditionalSetCalorimeterEnergyLossState(state.get());
         }
       }
       m_upstreammat = rhs.m_upstreammat;
     }
     return *this;
+  }
+
+  void GXFTrajectory::conditionalSetCalorimeterEnergyLossState(GXFTrackState * state) {
+    constexpr double perpThreshold = 1400;
+    constexpr double zThreshold = 3700;
+
+    const GXFMaterialEffects *meff = state->materialEffects();
+    const TrackParameters *par = state->trackParameters();
+
+    if (
+      meff != nullptr &&
+      par != nullptr &&
+      meff->sigmaDeltaE() > 0 &&
+      meff->sigmaDeltaPhi() == 0 &&
+      (par->position().perp() > perpThreshold || std::abs(par->position().z()) > zThreshold)
+    ) {
+      m_caloelossstate = state;
+    }
   }
 
   bool GXFTrajectory::addMeasurementState(std::unique_ptr<GXFTrackState> state, int index) {
@@ -213,7 +215,6 @@ namespace Trk {
   }
 
   void GXFTrajectory::addMaterialState(std::unique_ptr<GXFTrackState> state, int index) {
-    const TrackParameters *par = state->trackParameters();
     GXFMaterialEffects *meff = state->materialEffects();
     
     if (state->trackStateType() == TrackState::Scatterer) {
@@ -226,13 +227,7 @@ namespace Trk {
     
     if (meff->sigmaDeltaE() > 0) {
       m_nbrems++;
-      
-      if (
-        (par != nullptr) && meff->sigmaDeltaPhi() == 0 && 
-        (par->position().perp() > 1400 || std::abs(par->position().z()) > 3700)
-      ) {
-        m_caloelossstate = state.get();
-      }
+      conditionalSetCalorimeterEnergyLossState(state.get());
     }
     
     m_toteloss += std::abs(meff->deltaE());

@@ -252,7 +252,7 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
       double eKin = sqrt( mom*mom+mass*mass) - mass;
       // the rest of information needs adjustment once full sim hits available
       double energyDeposit = 1.;
-      const Amg::Vector3D pos=parm->position();
+      const Amg::Vector3D& pos=parm->position();
       const Amg::Vector3D unitMom=parm->momentum().normalized();
 
       MMSimHit nswMMHit = MMSimHit(simID,timeInfo, pos, 

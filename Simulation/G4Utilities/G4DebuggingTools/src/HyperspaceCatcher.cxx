@@ -85,7 +85,7 @@ namespace G4UA
     if (!hs && m_config.treatmentLevel<=2) return;
 
     G4Track *tr = aStep->GetTrack();
-    G4ThreeVector mom = tr->GetMomentumDirection();
+    const G4ThreeVector& mom = tr->GetMomentumDirection();
 
     std::cout << "Caught a " << tr->GetDefinition()->GetParticleName() << " at (" << myPos.x()
               << ", " << myPos.y() << ", " << myPos.z() << ") to (" << mom.x() << ", " << mom.y()

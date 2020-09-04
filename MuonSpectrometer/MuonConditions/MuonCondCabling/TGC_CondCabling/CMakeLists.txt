@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( TGC_CondCabling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Tools/PathResolver 
-                          External/AtlasCOOL)
-
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel)
 

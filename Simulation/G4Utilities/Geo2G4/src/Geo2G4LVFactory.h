@@ -14,7 +14,7 @@ class Geo2G4LVFactory
 {
  public:
   Geo2G4LVFactory();
-  G4LogicalVolume* Build(const PVConstLink,
+  G4LogicalVolume* Build(const PVConstLink&,
 			 bool&) const;
 };
 

@@ -14,7 +14,7 @@ Geo2G4AssemblyFactory::Geo2G4AssemblyFactory()
 {
 }
 
-Geo2G4AssemblyVolume* Geo2G4AssemblyFactory::Build(const PVConstLink thePhys,
+Geo2G4AssemblyVolume* Geo2G4AssemblyFactory::Build(const PVConstLink& thePhys,
                                                    bool& descend)
 {
   const GeoLogVol* theLog = thePhys->getLogVol();

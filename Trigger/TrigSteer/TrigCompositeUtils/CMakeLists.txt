@@ -4,19 +4,16 @@
 atlas_subdir( TrigCompositeUtils )
 
 # Set up the (non-)standalone compilation.
-set( extra_srcs )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-  set( extra_srcs src/*.cxx )
-  set( extra_libs GaudiKernel AthenaKernel AthLinks StoreGateLib AthContainers
-    xAODTrigger )
+  set( extra_libs GaudiKernel AthenaKernel AthLinks StoreGateLib AthContainers )
 endif()
 
 # Add the package's dual use library.
 atlas_add_library( TrigCompositeUtilsLib
-  TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx ${extra_srcs}
+  TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib TrigDecisionInterface xAODTrigger ${extra_libs} )
+  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib AsgTools TrigDecisionInterface xAODBase xAODTrigger ${extra_libs}  )
 
 # Install files from the package.
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
