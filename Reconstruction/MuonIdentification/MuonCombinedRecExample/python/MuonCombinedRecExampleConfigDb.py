@@ -7,10 +7,10 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
      addTypesOnlyToSkip
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-
+from InDetRecExample.InDetKeys import InDetKeys
+from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
 # combined tools
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
-addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
 
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonInsideOutRecoTool","MuonInsideOutRecoTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuonCandidateTrackBuilderTool","MuonCandidateTrackBuilderTool")
@@ -40,12 +40,52 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","MuonInsideOutRecoAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlStauAlg","MuGirlStauAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg",
+                                    "MuonCombinedInDetCandidateAlg_LargeD0",
+                                    TrackParticleLocation=[InDetKeys.xAODLargeD0TrackParticleContainer()],
+                                    InDetCandidateLocation="InDetCandidates_LargeD0",
+                                    DoSiliconAssocForwardMuons=False)
+
+
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg", "MuonCombinedAlg_LargeD0",
+                                                                        InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                        CombinedTagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0"],
+                                                                        MuidCombinedTracksLocation="MuidCombinedTracks_LargeD0",
+                                                                        MuidMETracksLocation="MuidMETracks_LargeD0")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetExtensionAlg","MuonCombinedInDetExtensionAlg")
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg_LargeD0",
+                                                                        InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                        TagMap="segmentTagMap_LargeD0",
+                                                                        MuonSegmentLocation="MuonSegments")
+
+
+
+
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg_LargeD0",
+                                                                      MuonContainerLocation="Muons_LargeD0",
+                                                                      InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                      ExtrapolatedLocation="ExtraPolatedMuon_LargeD0",
+                                                                      ExtrapolatedTrackLocation="ExtraPolatedMuonTrack_LargeD0",
+                                                                      MSOnlyExtrapolatedLocation="MSOnlyExtraPolatedMuons_LargeD0",
+                                                                      MSOnlyExtrapolatedTrackLocation="MSOnlyExtraPolatedMuonTrack_LargeD0",
+                                                                      CombinedLocation="CombinedMuon_LargeD0",
+                                                                      SegmentContainerName="MuonSegments_LargeD0",
+                                                                      TrackSegmentContainerName="TrakMuonSegments_LargeD0",
+                                                                      TagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0","segmentTagMap_LargeD0"],
+                                                                      BuildSlowMuon= False,
+                                                                      MakeClusters=False    )
+
+
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")
 
 # tracking tools
@@ -106,5 +146,3 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonTrackQuery","MuonTrackQ
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidSegmentRegionRecoveryTool","MuidSegmentRegionRecoveryTool")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilder","CombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.CombinedMuonTrackBuilderFit","CombinedMuonTrackBuilderFit")
-
-
