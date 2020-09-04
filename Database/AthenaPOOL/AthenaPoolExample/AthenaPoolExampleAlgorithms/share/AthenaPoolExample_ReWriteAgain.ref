@@ -1,17 +1,17 @@
-Fri Aug 28 11:01:23 CEST 20?0
+Fri Sep  4 09:53:38 CEST 20?0
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5549 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5557 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on atpc002 on Fri Aug 28 11:01:31 20?0
+                                          running on atpc002 on Fri Sep  4 09:53:46 20?0
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
@@ -33,7 +33,7 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-08-27T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-09-03T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
 DBReplicaSvc         INFO Total of 10 servers found for host atpc002.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
@@ -200,6 +200,7 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.ThinningCacheTo
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' ) 
+  + OUTPUT  ( 'DataHeader' , 'StoreGateSvc+Stream1' ) 
   + OUTPUT  ( 'SG::CompressionInfo' , 'StoreGateSvc+CompressionInfo_Stream1' ) 
   + OUTPUT  ( 'SG::SelectionVetoes' , 'StoreGateSvc+SelectionVetoes_Stream1' ) 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
@@ -1917,10 +1918,10 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 21
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 62
-cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 65
 fRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.161(+-    1.26)/       0/      10 [ms] #= 62
-cObj_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.159(+-    1.25)/       0/      10 [ms] #= 63
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.154(+-    1.23)/       0/      10 [ms] #= 65
 cRepR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=  0.0694(+-    0.83)/       0/      10 [ms] #=144
+cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.317(+-    1.75)/       0/      10 [ms] #= 63
 ChronoStatSvc        INFO Time User   : Tot=  270 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
