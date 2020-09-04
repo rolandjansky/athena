@@ -36,8 +36,11 @@ endif()
 set( AtlasAuthentication_native_version "v18" )
 set( AtlasAuthentication_home
    "${ATLAS_EXTERNAL}/AtlasAuth/${AtlasAuthentication_native_version}" )
-atlas_install_xmls( ${AtlasAuthentication_home}/authentication.xml )
-
+if (EXISTS ${AtlasAuthentication_home}/authentication.xml )
+   atlas_install_xmls( ${AtlasAuthentication_home}/authentication.xml )
+else()
+   message(WARNING "The required authentication file ${AtlasAuthentication_home}/authentication.xml does not exist!")
+endif()
 # Configure the environment setup module:
 configure_file(
    ${CMAKE_CURRENT_SOURCE_DIR}/AtlasAuthenticationEnvironmentConfig.cmake.in
