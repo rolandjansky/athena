@@ -9,7 +9,7 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
+#from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -23,8 +23,6 @@ def setupMenu():
 
     from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
-    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import Prescales
-
     log = logging.getLogger( __name__ )
     log.info('setupMenu ...')
 
@@ -314,23 +312,23 @@ def setupMenu():
     # --------------------------------------------------
 
     #Prescales = mc_menu.Prescales
-    Prescales = Prescales()
+    #Prescales = Prescales()
     
     #print("Prescales attributes are: ",Prescales.__dict__.keys())
 
     ## Cosmics
 
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
+    #addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
     ## Trigger Validation (disabling high CPU chains)
 
-    Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
+    #Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
 
-    disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
+    #disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
     
     # --------------------------------------------------
 
-    return Prescales
+    #return Prescales
 
 
 

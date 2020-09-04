@@ -10,7 +10,7 @@
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
+#from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import MinBiasGroup
 
@@ -67,6 +67,3 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
 
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-Prescales = HIp1_menu.Prescales

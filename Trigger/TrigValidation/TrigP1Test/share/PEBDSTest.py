@@ -30,7 +30,6 @@ DataScoutingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
 
 # Override the setupMenu function from LS2_v1
 def myMenu():
-    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import Prescales
     log.debug('Executing myMenu')
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -60,10 +59,6 @@ def myMenu():
         # Standard chain (full HLT result and full detector data saved)
         ChainProp(name='HLT_2mu6_L12MU6', stream=['Main'], groups=['RATE:SingleMuon', 'BW:Muon']),
     ]
-
-    Prescales = Prescales()
-
-    return Prescales
 
 LS2_v1.setupMenu = myMenu
 
