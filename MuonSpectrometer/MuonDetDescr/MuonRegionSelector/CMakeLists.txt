@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonRegionSelector )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/RegSelLUT
-                          GaudiKernel
-                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
-                          MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          PRIVATE
-                          DetectorDescription/Identifier
-                          DetectorDescription/IRegionSelector
-                          MuonSpectrometer/MuonCablings/MuonCablingData
-                          MuonSpectrometer/MuonCablings/CSCcabling
-                          MuonSpectrometer/MuonCablings/MuonTGC_Cabling
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
