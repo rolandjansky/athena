@@ -14,7 +14,7 @@ from PixelG4_SD.PixelG4_SDToolConfig import PixelSensorSDCfg
 from PixelG4_SD.PixelG4_SDToolConfig import PixelSensor_CTBCfg
 
 from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensorSDCfg
-from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSDCfg
+from SCT_G4_SD.SCT_G4_SDToolConfig import SLHC_SctSensorSD_GmxCfg #Change name?
 from SCT_G4_SD.SCT_G4_SDToolConfig import SctSensor_CTBCfg
 
 from TRT_G4_SD.TRT_G4_SDToolConfig import TRTSensitiveDetectorCfg
@@ -98,15 +98,29 @@ def generateTrackFastSimSensitiveDetectorList(ConfigFlags):
     return SensitiveDetectorList
 
 
+def generateITkSensitiveDetectorList(ConfigFlags):
+
+    result = ComponentAccumulator()
+    SensitiveDetectorList=[]
+
+    if ConfigFlags.Detector.SimulateITkPixel:
+        accITkPixel, toolITkPixel = PixelSensorSDCfg(ConfigFlags)
+        SensitiveDetectorList += [ toolITkPixel ]
+        result.merge(accITkPixel)
+    if ConfigFlags.Detector.SimulateITkStrip:
+        accITkStrip,toolITkStrip = SLHC_SctSensorSD_GmxCfg(ConfigFlags) #This tool should be renamed, and maybe moved to separate package?
+        SensitiveDetectorList += [ toolITkStrip ]
+        result.merge(accITkStrip)
+    return result, SensitiveDetectorList #List of tools here now! (CALL IT TOOL LIST?)
+
 def generateInDetSensitiveDetectorList(ConfigFlags):
 
     result = ComponentAccumulator()
     SensitiveDetectorList=[]
 
-    isUpgrade = ConfigFlags.GeoModel.Run=="RUN4"
     #EDIT THIS LATER(geoflags...)...!!
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (ConfigFlags.GeoModel.Run=="UNDEFINED" )#and geoFlags.isIBL()) #isIBL may cause issues later....
-    isRUN1 = not (isRUN2 or isUpgrade)
+    isRUN1 = not (isRUN2)
 
     if ConfigFlags.Detector.SimulatePixel:
         if isRUN1 or isRUN2:
@@ -121,15 +135,10 @@ def generateInDetSensitiveDetectorList(ConfigFlags):
         SensitiveDetectorList += [ toolPixel ]
         result.merge(accPixel)
     if ConfigFlags.Detector.SimulateSCT:
-        if isUpgrade:
-            accSCT, toolSCT = SLHC_SctSensorSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ toolSCT ]
-            result.merge(accSCT)
-        else:
-            accSCT,toolSCT = SctSensorSDCfg(ConfigFlags)
-            SensitiveDetectorList += [ toolSCT ]
-            result.merge(accSCT)
-    if ConfigFlags.Detector.SimulateTRT and not isUpgrade:
+        accSCT,toolSCT = SctSensorSDCfg(ConfigFlags)
+        SensitiveDetectorList += [ toolSCT ]
+        result.merge(accSCT)
+    if ConfigFlags.Detector.SimulateTRT:
         accTRT, toolTRT = TRTSensitiveDetectorCfg(ConfigFlags)
         SensitiveDetectorList += [ toolTRT ]
         result.merge(accTRT)
@@ -246,9 +255,13 @@ def generateSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList=[]
     SensitiveDetectorList += generateEnvelopeSensitiveDetectorList(ConfigFlags) # to update
 
-    acc_InDetSensitiveDetector, InDetSensitiveDetectorList = generateInDetSensitiveDetectorList(ConfigFlags)
-    SensitiveDetectorList += InDetSensitiveDetectorList
+    if ConfigFlags.Detector.SimulateID:
+        acc_InDetSensitiveDetector, InDetSensitiveDetectorList = generateInDetSensitiveDetectorList(ConfigFlags)
+        SensitiveDetectorList += InDetSensitiveDetectorList
 
+    if ConfigFlags.Detector.SimulateITk:
+        acc_ITkSensitiveDetector, ITkSensitiveDetectorList = generateITkSensitiveDetectorList(ConfigFlags)
+        SensitiveDetectorList += ITkSensitiveDetectorList
 
     acc_CaloSensitiveDetector = generateCaloSensitiveDetectorList(ConfigFlags)
     SensitiveDetectorList+=result.popToolsAndMerge(acc_CaloSensitiveDetector)
@@ -260,7 +273,10 @@ def generateSensitiveDetectorList(ConfigFlags):
     SensitiveDetectorList += generateTrackFastSimSensitiveDetectorList(ConfigFlags)
     SensitiveDetectorList += generateFwdSensitiveDetectorList(ConfigFlags)
 
-    result.merge(acc_InDetSensitiveDetector)
+    if ConfigFlags.Detector.SimulateID:
+        result.merge(acc_InDetSensitiveDetector)
+    if ConfigFlags.Detector.SimulateITk:
+        result.merge(acc_ITkSensitiveDetector)
 
     result.setPrivateTools(SensitiveDetectorList)
     return result
