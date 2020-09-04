@@ -116,7 +116,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
     elif menu_name.startswith('LS2_emu_v1'):
         log.info('LS2_v1 menu setup')
         from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1 import setupMenu
-        Prescales = setupMenu()
+        setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
