@@ -375,6 +375,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
     kwargs.setdefault('MuonTrackBuilder', 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault('MuonSegmentTrackBuilder', CfgGetter.getPublicTool("MooMuonTrackBuilder"))
     return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
 def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):

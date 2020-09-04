@@ -13,18 +13,8 @@
 namespace Muon {
 
   MuonCandidateTrackBuilderTool::MuonCandidateTrackBuilderTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_reOrderMeasurements(true),
-    m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder")
-  {
-    declareInterface<IMuonCandidateTrackBuilderTool>(this);
-
-    declareProperty("MuonSegmentTrackBuilder",    m_muonTrackBuilder );
-    declareProperty("MuonEDMPrinterTool",         m_printer );    
-    declareProperty("ReOrderMeasurements",        m_reOrderMeasurements);    
-    declareProperty("MuonTrackBuilder",           m_trackFitter );    
+    AthAlgTool(type,name,parent) {
+    declareInterface<IMuonCandidateTrackBuilderTool>(this);   
   }
 
   StatusCode MuonCandidateTrackBuilderTool::initialize() {

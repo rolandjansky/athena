@@ -5,7 +5,6 @@
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 #define MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 
-#include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -17,24 +16,21 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 
-namespace MuonCombined {
-class IMuonCombinedInDetExtensionTool;
-}
+#include <string>
 
 class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
   public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);
-
-    ~MuonCombinedInDetExtensionAlg();
+    ~MuonCombinedInDetExtensionAlg()=default;
 
     StatusCode initialize();
     StatusCode execute();
-    StatusCode finalize();
 
   private:
-    ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools;
-    SG::ReadHandleKey<InDetCandidateCollection>                    m_indetCandidateCollectionName{
+    ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{this,"MuonCombinedInDetExtensionTools",{}};
+    SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{
         this,
         "InDetCandidateLocation",
         "InDetCandidates",
@@ -101,10 +97,11 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
         "Segment collection",
     };
 
-    bool m_usePRDs;
-    bool m_hasCSC;
-    bool m_hasSTGC;
-    bool m_hasMM;
+    Gaudi::Property<bool> m_usePRDs{this, "usePRDs", false};
+    Gaudi::Property<bool> m_hasCSC{this, "HasCSC", true};
+    Gaudi::Property<bool> m_hasSTGC{this, "HasSTgc", true};
+    Gaudi::Property<bool> m_hasMM{this, "HasMM", true};
+
 };
 
 
