@@ -42,12 +42,12 @@ if( XAOD_STANDALONE )
    atlas_add_test( testJobData
       SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
       PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFullSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFastSim
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-      PROPERTIES TIMEOUT 600 )
+   # atlas_add_test( testJobFullSim
+   #    SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+   #    PROPERTIES TIMEOUT 600 )
+   # atlas_add_test( testJobFastSim
+   #    SCRIPT TauAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+   #    PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
