@@ -40,14 +40,15 @@ namespace Trk {
                                                       virtual public ITrackAmbiguityScoreProcessorTool
   {
   public:
-    enum class EStatType {
+    enum class ScoreCategory {
       kNtracks,
       kNcandidates,
       kNcandScoreZero,
       kNcandDouble,
+      kNaccept,
       kNCounter
     };
-    using TrackStat3 = AmbiCounter<EStatType>;
+    using Counter = AmbiCounter<ScoreCategory>;
       // public types
       typedef std::multimap< TrackScore, const Track* > TrackScoreMap;
       typedef std::vector<const PrepRawData*> PrdSignature;
@@ -56,11 +57,10 @@ namespace Trk {
       // default methods
       DenseEnvironmentsAmbiguityScoreProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~DenseEnvironmentsAmbiguityScoreProcessorTool();
-      virtual StatusCode initialize() override;
-      virtual StatusCode finalize  () override;
+      virtual StatusCode initialize() override final;
+      virtual StatusCode finalize  () override final;
 
-      virtual void process(std::vector<const Track*>* tracks,
-                           TracksScores* trackScoreTrackMap) const override;
+      virtual void process(const TrackCollection & tracks, TracksScores* trackScoreTrackMap) const override final;
 
       /** statistics output to be called by algorithm during finalize. */
       void statistics() override;
@@ -72,7 +72,7 @@ namespace Trk {
          @param tracks the TrackCollection is looped over, 
          and each Trk::Track is added to the various caches. 
          The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(std::vector<const Track*>* tracks,
+      void addNewTracks(const TrackCollection & tracks,
                         TracksScores* trackScoreTrackMap) const;
 
       /**  Find SiS Tracks that share hits in the track score map*/
@@ -122,7 +122,7 @@ namespace Trk {
 
       std::vector<float>     m_etaBounds;           //!< eta intervals for internal monitoring
       mutable std::mutex m_statMutex;
-      mutable TrackStat3  m_stat ATLAS_THREAD_SAFE;
+      mutable Counter  m_stat ATLAS_THREAD_SAFE;
   };
 } //end ns
 
