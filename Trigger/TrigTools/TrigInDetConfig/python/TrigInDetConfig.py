@@ -304,12 +304,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   InDet__MergedPixelsTool=CompFactory.InDet.MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool"+ signature,
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-                                                  )
+                                                  globalPosAlg            = InDetClusterMakerTool)
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
     InDetMergedPixelsTool.CheckDuplicatedRDO = True
