@@ -140,8 +140,9 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         }
         
 	for(int idbz=1; idbz!= 4; idbz++){
-      Identifier rpcId = rpcIdHelper.channelID(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
-      if (!rpcId.is_valid()) continue;
+      bool isValid = false;
+      Identifier rpcId = rpcIdHelper.channelID(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1, 1, 1, 1, false, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, isValid
+      if (!isValid) continue;
     	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
     	if(rpc){	
 		
