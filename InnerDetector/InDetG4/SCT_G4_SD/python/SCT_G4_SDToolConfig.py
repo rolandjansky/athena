@@ -30,9 +30,9 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
 
 def SLHC_SctSensorSDCfg(ConfigFlags, name="SLHC_SctSensorSD", **kwargs):
 
-    kwargs.setdefault("LogicalVolumeNames", ["SCT::BRLSensor","SCT::BRLSensorSS","SCT::BRLSensorMS",
-                                             "SCT::ECSensor0","SCT::ECSensor1","SCT::ECSensor2",
-                                             "SCT::ECSensor3","SCT::ECSensor4","SCT::ECSensor5"])
+    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensor","ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
+                                             "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
+                                             "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
     return SctSensorSDCfg(ConfigFlags, name, **kwargs)
 
 
