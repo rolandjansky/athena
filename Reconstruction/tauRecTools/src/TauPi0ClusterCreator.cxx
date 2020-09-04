@@ -60,9 +60,6 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     pTau.setProtoPi0PFOLinks(empty);
     pTau.setHadronicPFOLinks(empty);
 
-    // Any tau needs to have PanTauCellBasedProto 4mom. Set it to 0 before nTrack cut
-    pTau.setP4(xAOD::TauJetParameters::PanTauCellBasedProto, 0.0, 0.0, 0.0, 0.0);
-
     // only run shower subtraction on 1-5 prong taus 
     if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
         return StatusCode::SUCCESS;

@@ -65,6 +65,18 @@ def generateDecisionTree(chains):
         acc.addSequence(seq, parentName = allRecoSeqName )
         return seq
 
+    @memoize
+    def getComboSequences( stepNumber, stepName ):
+        """
+        """
+        singleMenuSeqName = getSingleMenuSeq( stepNumber, stepName ).name
+
+        stepComboName = "Combo{}{}".format(stepNumber,stepName)
+        acc.addSequence( seqAND(stepComboName), parentName=singleMenuSeqName )
+
+        stepComboRecoName ="ComboReco{}{}".format(stepNumber, stepName)
+        acc.addSequence( parOR(stepComboRecoName), parentName=stepComboName )
+        return acc.getSequence(stepComboName), acc.getSequence(stepComboRecoName)
 
     @memoize
     def getFilterAlg( stepNumber, stepName ):
@@ -161,39 +173,19 @@ def generateDecisionTree(chains):
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
             getFilterAlg( stepCounter, step.name )
-            recoSeqName = getSingleMenuSeq( stepCounter, step.name ).name
-
+            menuSeqName = getSingleMenuSeq( stepCounter, step.name ).name
             if step.isCombo:
-                # add merged reco sequence
-                stepRecoName = step.name + CFNaming.RECO_POSTFIX
-                stepViewName = step.name + CFNaming.VIEW_POSTFIX
-
-                acc.addSequence( seqAND(stepViewName), parentName=recoSeqName )
-                acc.addSequence( parOR(stepRecoName), parentName=stepViewName )
+                # add sequences that allows reconstructions to be run in parallel, followed (in sequence) by the combo hypo
+                comboSeq, comboRecoSeq = getComboSequences( stepCounter, step.name )
 
                 for sequence in step.sequences:
-                    for stepView in sequence.ca.getSequence().Members:
-                        for viewMember in stepView.Members:
-                            if isHypoBase(viewMember):
-                                # add hypo alg to view sequence
-                                acc.addEventAlgo( viewMember, sequenceName=stepViewName )
-                            else:
-                                # add reco sequence to merged _reco
-                                for recoAlg in viewMember.Members:
-                                    acc.addSequence( recoAlg, parentName=stepRecoName )
+                    acc.merge( sequence.ca, sequenceName=comboRecoSeq.name)
 
-                    # elements from ca were moved above to the appropriate sequences
-                    # so sequence and algorithms are considered as merged
-                    sequence.ca._algorithms = {}
-                    sequence.ca._sequence.Members = []
-                    acc.merge(sequence.ca, sequenceName=recoSeqName)
-
-                # create combo hypo
-                comboHypo = CompFactory.ComboHypo( step.combo.Alg.getName() )
-                acc.addEventAlgo( comboHypo, sequenceName=stepViewName )
-
+                comboHypo = CompFactory.ComboHypo( "CH"+step.name )
+                acc.addEventAlgo( comboHypo, sequenceName=comboSeq.name )
+                pass
             else:
-                acc.merge( step.sequences[0].ca, sequenceName=recoSeqName )
+                acc.merge( step.sequences[0].ca, sequenceName=menuSeqName )
 
 
     # cleanup settings made by Chain & related objects (can be removed in the future)

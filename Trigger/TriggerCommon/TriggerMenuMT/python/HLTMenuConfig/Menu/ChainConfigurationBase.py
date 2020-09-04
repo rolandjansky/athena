@@ -45,6 +45,8 @@ class ChainConfigurationBase(object):
 
     def getStep(self, stepID, stepPartName, sequenceCfgArray, comboHypoCfg=ComboHypoCfg, comboTools=[]):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        if self.mult >1 :
+            stepName = 'Step%d'%stepID + '_N' + stepPartName
         log.debug("Configuring step " + stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:

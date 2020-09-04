@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 '''
 @file TileCellMonitorAlgorithm.py
@@ -218,6 +218,13 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xvalue = 'timeDiff', title = titleTimeDiffSamp, path = 'Tile/Cell',
                              xbins = 50, xmin = -10., xmax = 10., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = True, perGain = False)
+
+    # Configure histograms with number of Tile cells vs lumiBlock per partition
+    titleCellsNumber = 'Tile Cells number per luminosity block;LumiBlock;Number of reconstructed cells'
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellsNumberLB',
+                             xvalue = 'lumiBlock', value = 'nCells', title = titleCellsNumber, path = 'Tile/Cell',
+                             xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = l1Triggers,
+                             subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)
 
     # 22) Configure histograms with number of Tile cells over threshold vs BCID per partition
     titleCellsOvThrBCID = 'Tile Cell Occupancy over Threshold %s MeV' % (kwargs['EnergyThresholdForTime'] / MeV)

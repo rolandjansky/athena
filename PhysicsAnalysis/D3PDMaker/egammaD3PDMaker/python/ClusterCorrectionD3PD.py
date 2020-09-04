@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDMaker/python/ClusterCorrectionD3PD.py
 # @author scott snyder <snyder@bnl.gov>
@@ -25,23 +24,25 @@ def addCluster (alg, typ, eta_size, phi_size, prefix):
     prealg = AlgSequence (D3PDMakerFlags.PreD3PDAlgSeqName())
     getter = make_CorrectionClusterGetter(typ, eta_size, phi_size)(seq = prealg)
     sgkey = getter.outputKey()
-    runner = [c for c in getter.caloClusterMakerHandle().getChildren()
-              if c.getName().startswith ('CaloRunClusterCorrections')][0]
-    tokeep = ['rfac', 'etaoffb1', 'gap', 'calhits', 'phimod', 'etamod']
-    keeplist = []
-    for c in tokeep:
-        keeplist.append (c)
-        keeplist.append ('pre' + c + '_' + sgkey)
-    runner.KeepList = keeplist
+    # Needs to be redone now that CaloRunClusterCorrections is gone.
+    # Leave this commented out for now.
+    #runner = [c for c in getter.caloClusterMakerHandle().getChildren()
+    #          if c.getName().startswith ('CaloRunClusterCorrections')][0]
+    #tokeep = ['rfac', 'etaoffb1', 'gap', 'calhits', 'phimod', 'etamod']
+    #keeplist = []
+    #for c in tokeep:
+    #    keeplist.append (c)
+    #    keeplist.append ('pre' + c + '_' + sgkey)
+    #runner.KeepList = keeplist
 
     alg += CorrectionClusterD3PDObject (10,
                                         sgkey = sgkey,
                                         prefix = prefix)
 
-    for c in tokeep:
-        alg += CorrectionClusterD3PDObject (10,
-                                            sgkey = 'pre' + c + '_' + sgkey,
-                                            prefix = prefix + 'pre' + c + '_')
+    #for c in tokeep:
+    #    alg += CorrectionClusterD3PDObject (10,
+    #                                        sgkey = 'pre' + c + '_' + sgkey,
+    #                                        prefix = prefix + 'pre' + c + '_')
     return
     
 

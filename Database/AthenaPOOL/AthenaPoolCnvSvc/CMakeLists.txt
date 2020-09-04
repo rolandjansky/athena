@@ -1,33 +1,7 @@
-# $Id: CMakeLists.txt 790790 2016-12-21 22:31:42Z gemmeren $
-################################################################################
-# Package: AthenaPoolCnvSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolCnvSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/CxxUtils
-   Control/DataModelRoot
-   Control/SGTools
-   Database/APR/StorageSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   Database/AthenaPOOL/PoolSvc
-   Database/PersistentDataModel
-   Database/TPTools
-   GaudiKernel
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthContainersInterfaces
-   Control/AthContainersRoot
-   Control/RootUtils
-   Control/StoreGate )
 
 # External dependencies:
 find_package( Boost )
@@ -39,10 +13,8 @@ atlas_add_library( AthenaPoolCnvSvcLib
    PUBLIC_HEADERS AthenaPoolCnvSvc
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthContainersRoot AthLinks AthenaBaseComps PoolSvcLib
-   AthenaKernel CxxUtils DataModelRoot RootUtils SGTools StorageSvc AthenaPoolUtilities
-   PersistentDataModel TPTools GaudiKernel StoreGateLib
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+   LINK_LIBRARIES ${Boost_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel AthenaPoolUtilities CxxUtils DataModelRoot GaudiKernel PersistentDataModel PoolSvcLib StorageSvc TPTools
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainersInterfaces AthContainersRoot RootUtils SGTools StoreGateLib )
 
 atlas_add_component( AthenaPoolCnvSvc
    src/components/*.cxx
@@ -62,51 +34,46 @@ atlas_add_test( exceptions_test
 atlas_add_test( TPCnvElt_test
    SOURCES test/TPCnvElt_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib )
 
 atlas_add_test( TPCnvList_test
    SOURCES test/TPCnvList_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib )
 
 atlas_add_test( T_AthenaPoolCreateFuncs_test
    SOURCES test/T_AthenaPoolCreateFuncs_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaPoolCnvSvcLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib )
 
 atlas_add_test( T_AthenaPoolViewVectorCnv_test
    SOURCES test/T_AthenaPoolViewVectorCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks SGTools GaudiKernel
-   TestTools AthenaPoolCnvSvcLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( T_AthenaPoolxAODCnv_test
    SOURCES test/T_AthenaPoolxAODCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
-   CxxUtils AthenaPoolCnvSvcLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( T_AthenaPoolAuxContainerCnv_test
    SOURCES test/T_AthenaPoolAuxContainerCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel AthContainers SGTools
-   TestTools CxxUtils AthenaPoolCnvSvcLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( T_AthenaPoolTPCnvCnv_test
    SOURCES test/T_AthenaPoolTPCnvCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
-   CxxUtils AthenaPoolCnvSvcLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( T_AuxContainerCopyTPCnv_test
    SOURCES test/T_AuxContainerCopyTPCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PersistentDataModel SGTools TestTools
-   CxxUtils AthenaPoolCnvSvcLib )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

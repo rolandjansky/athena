@@ -4,7 +4,7 @@
 
 #include "tauRecTools/TauWPDecorator.h"
 
-#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <algorithm>
 #include "TFile.h"
@@ -141,7 +141,7 @@ double TauWPDecorator::transformScore(double score, double cutLow, double effLow
 
 StatusCode TauWPDecorator::initialize() {
 
-  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_aveIntPerXKey.initialize() );
 
   // 0p is for trigger only
   if (!m_file0p.empty()) {
@@ -186,14 +186,13 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
      yVariable = std::abs(acc_absEta(pTau));
   } 
   else {
-    SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
-    if (!eventinfoInHandle.isValid()) {
-        ATH_MSG_ERROR("Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", mu is set to be .0");
+    SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+    if (!eventInfoDecorHandle.isPresent()) {
+      ATH_MSG_WARNING ( "EventInfo decoration not available! Will set yVariable=0." );
     }
     else {
-        const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-        yVariable = eventInfo->averageInteractionsPerCrossing();
-    }
+      yVariable = eventInfoDecorHandle(0);
+    } 
   }
 
   int nProng = pTau.nTracks();

@@ -69,10 +69,9 @@ bool TrigMuonEFTrackIsolationHypoTool::decideOnSingleObject(TrigMuonEFTrackIsola
 {
    ATH_MSG_DEBUG("Decision ...");
 
-   std::vector<float> ini_ptcone02(0);
-   std::vector<float> ini_ptcone03(0);
-   auto fex_ptcone02 = Monitored::Collection("PtCone02", ini_ptcone02);
-   auto fex_ptcone03 = Monitored::Collection("PtCone03", ini_ptcone03);
+   float ptcone20(-1), ptcone30(-1);
+   auto fex_ptcone02 = Monitored::Scalar("PtCone02", ptcone20);
+   auto fex_ptcone03 = Monitored::Scalar("PtCone03", ptcone30);
 
    auto monitorIt    = Monitored::Group( m_monTool, fex_ptcone02, fex_ptcone03 );
 
@@ -108,26 +107,9 @@ bool TrigMuonEFTrackIsolationHypoTool::decideOnSingleObject(TrigMuonEFTrackIsola
      return result;
    }
 
-   float ptcone20(-1), ptcone30(-1);
-   bool res = false; 
-   if ( m_useVarIso ) {
-     res = pMuon->isolation( ptcone20, xAOD::Iso::IsolationType::ptvarcone20 );
-     if ( !res ) ATH_MSG_WARNING("Problem accessing ptvarcone20, " << ptcone20);
-   } else {
-     res = pMuon->isolation( ptcone20, xAOD::Iso::IsolationType::ptcone20 );
-     if ( !res ) ATH_MSG_WARNING("Problem accessing ptcone20, " << ptcone20);
-   }
-   if( m_useVarIso ){
-     res = pMuon->isolation( ptcone30, xAOD::Iso::IsolationType::ptvarcone30 );
-     if ( !res ) ATH_MSG_WARNING("Problem accessing ptvarcone30, " << ptcone30);
-   } else {
-     res = pMuon->isolation( ptcone30, xAOD::Iso::IsolationType::ptcone30 );
-     if ( !res ) ATH_MSG_WARNING("Problem accessing ptcone30, " << ptcone30);
-   }
- 
-   // monitoring
-   ini_ptcone02.push_back(ptcone20/1000.0);
-   ini_ptcone03.push_back(ptcone30/1000.0);
+   ptcone20 = input.ptcone20; 
+   ptcone30 = input.ptcone30; 
+
    
    bool goodmu=true;
    

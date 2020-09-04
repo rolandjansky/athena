@@ -874,7 +874,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                     // Get a handle on the compression information for this store
                     std::string key = item_key;
                     key.erase (key.size()-4, 4);
-                    SG::ThinningInfo::compression_map_t& compMap = compInfo[key];
 
                     // Build the compression list, retrieve the relevant AuxIDs and
                     // store it in the relevant map that is going to be inserted into
@@ -882,16 +881,15 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                     xAOD::AuxCompression compression;
                     compression.setCompressedAuxIDs( comp_attr_map );
                     for( const auto& it : compression.getCompressedAuxIDs( allVars ) ) {
-                      if( it.second.size() > 0 ) // insert only if the set is non-empty
-                        compMap[ it.first ] = it.second;
-                    }
+                      if( it.second.size() > 0 ) { // insert only if the set is non-empty
+                        compInfo[ key ][ it.first ] = it.second;
+                        ATH_MSG_DEBUG( "Container " << key << " has " << it.second.size() <<
+                                       " variables that'll be lossy float compressed"
+                                       " with " << it.first << " mantissa bits" );
+                      }
+                    } // End of loop over variables to be lossy float compressed
+                  } // End of lossy float compression logic
 
-                    for( const auto& it : compMap ) {
-                      ATH_MSG_DEBUG( "Lossy float compression level " << it.first <<
-                                     " contains " << it.second.size() <<  " elements"
-                                     " for container " << key );
-                    }
-                  }
                }
 
                added = true;

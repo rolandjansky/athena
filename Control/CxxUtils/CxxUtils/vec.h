@@ -448,10 +448,7 @@ template<typename VEC>
 inline void
 vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 {
-// clang supports the ternary operator (:?)for GCC vector types
-// only for llvm version 10 and above.
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = mask[i] ? a[i] : b[i];
@@ -469,8 +466,7 @@ template<typename VEC>
 inline void
 vmin(VEC& dst, const VEC& a, const VEC& b)
 {
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = a[i] < b[i] ? a[i] : b[i];
@@ -488,8 +484,7 @@ template<typename VEC>
 inline void
 vmax(VEC& dst, const VEC& a, const VEC& b)
 {
-#if (defined(__clang__) && ((__clang_major__ < 10) || defined(__APPLE__))) ||  \
-  !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; i++) {
     dst[i] = a[i] > b[i] ? a[i] : b[i];
@@ -509,7 +504,7 @@ template<typename VEC>
 inline void
 vpermute(VEC& dst, const VEC& src, const mask_type_t<VEC>& mask)
 {
-#if defined(__clang__) || !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+#if !HAVE_GCC_INTRINSICS || !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
   // clang can vectorize this at O2
   constexpr size_t N = vec_size<VEC>();
   for (size_t i = 0; i < N; ++i) {

@@ -9,7 +9,7 @@
 
 #include "xAODTau/TauDefs.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
 
 #include <utility>
 #include <memory>
@@ -96,7 +96,10 @@ class TauWPDecorator : public TauRecToolBase {
     std::vector<float> m_decorWPEffs1p; //!< Efficiency of each WP to be docorated for 1-prong taus
     std::vector<float> m_decorWPEffs3p; //!< Efficiency of each WP to be docorated for 3-prong taus
     
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
+        "AveIntPerXKey", 
+        "EventInfo.AveIntPerXDecor",
+        "Decoration for Average Interaction Per Crossing"};
     
     typedef std::pair<double, std::shared_ptr<TH2> > m_pair_t;
 
