@@ -43,17 +43,15 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   # temporarily disable these until AnalysisBase is fully functional
-
-   # atlas_add_test( testJobData
-   #    SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
-   #    PROPERTIES TIMEOUT 600 )
-   # atlas_add_test( testJobFullSim
-   #    SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-   #    PROPERTIES TIMEOUT 600 )
-   # atlas_add_test( testJobFastSim
-   #    SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-   #    PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobData
+      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFullSim
+      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFastSim
+      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py
