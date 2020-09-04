@@ -24,6 +24,8 @@
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigNavStructure/TriggerElement.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 #include "TrigDecisionTool/CacheGlobalMemory.h"
@@ -55,8 +57,10 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
   m_confChains(nullptr),
   m_expressStreamContainer(nullptr),
   m_decisionKeyPtr(nullptr),
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
   m_oldDecisionKeyPtr(nullptr),
   m_oldEventInfoKeyPtr(nullptr),
+#endif
   m_navigationKeyPtr(nullptr),
   m_bgCode(0)
 {}
@@ -334,9 +338,12 @@ bool Trig::CacheGlobalMemory::assert_decision() {
 
   // here we unpack the decision. Note: the navigation will be unpacked only on demand (see navigation())
   bool contains_xAOD_decision = false;
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
   bool is_l1result_configured = false;
   bool contains_decision = false;
   bool contains_old_event_info = false;
+#endif
   
   if(!m_unpacker){
     ATH_MSG_INFO("decision not set on first (?) assert. deciding how to unpack");
@@ -352,7 +359,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
       contains_xAOD_decision = decisionReadHandle.isValid();
     }
 
-#ifndef XAOD_ANALYSIS
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
 
     if (!m_oldDecisionKeyPtr->empty()) {
       SG::ReadHandle<TrigDec::TrigDecision> oldDecisionReadHandle = SG::makeHandle(*m_oldDecisionKeyPtr, context);
@@ -391,12 +398,9 @@ bool Trig::CacheGlobalMemory::assert_decision() {
   }//if(!m_unpacker)
 
   if(!m_unpacker){
-    ATH_MSG_ERROR("No source of Trigger Decision in file. "
-      << "(Looked for xAOD::TrigDecision? "
-      << (m_decisionKeyPtr->empty() ? "NO" : "YES")
-      << ", has xAOD::TrigDecision? " 
-      << (contains_xAOD_decision ? "YES" : "NO")
-      << ". Looked for old TrigDec::TrigDecision? "
+    std::stringstream extra;
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+    extra << ". Looked for old TrigDec::TrigDecision? "
       << (m_oldDecisionKeyPtr->empty() ? "NO" : "YES")
       << ", has TrigDec::TrigDecision? " 
       << (contains_decision ? "YES" : "NO")
@@ -405,7 +409,14 @@ bool Trig::CacheGlobalMemory::assert_decision() {
       << ". Looked for old EventInfo? "
       << (m_oldEventInfoKeyPtr->empty() ? "NO" : "YES")
       << ", has old EventInto? "  
-      << (contains_old_event_info ? "YES" : "NO")
+      << (contains_old_event_info ? "YES" : "NO");
+#endif
+    ATH_MSG_ERROR("No source of Trigger Decision in file. "
+      << "(Looked for xAOD::TrigDecision? "
+      << (m_decisionKeyPtr->empty() ? "NO" : "YES")
+      << ", has xAOD::TrigDecision? " 
+      << (contains_xAOD_decision ? "YES" : "NO")
+      << extra.str()
       << ". Check UseRun1DecisionFormat and UseOldEventInfoDecisionFormat flags if reading pre-xAOD or BS input).");
     throw std::runtime_error("Trig::CacheGlobalMemory::assert_decision(): No source of Trigger Decision in file.");
   }
