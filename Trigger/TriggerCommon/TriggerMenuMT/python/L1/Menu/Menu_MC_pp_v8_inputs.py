@@ -11,6 +11,7 @@ def defineInputsMenu():
     ctpinBoards = odict() # Ctpin/Slot9 (CTPCAL, NIM1, NIM2)
     topoBoards = odict()  # Topo1, Topo2, Topo3
     muctpiBoard = odict() # MuCTPi
+    alfaBoard = odict() # ALFA
 
 
     #-----------------------------------
@@ -320,6 +321,39 @@ def defineInputsMenu():
         ]
     })
 
+
+    alfaBoard["AlfaCtpin"] = odict()
+    alfaBoard["AlfaCtpin"]["connectors"] = []
+    alfaBoard["AlfaCtpin"]["connectors"].append({
+        "name" : "AlfaCtpin",
+        "format" : "simple",
+        "nbitsDefault" : 1,
+        "type" : "electrical",
+        "legacy" : False,
+        "signalGroups" : [
+            {
+                "clock" : 0,
+                "signals" : [
+                    (None,2), "ALFA_B7R1L", "ALFA_A7R1L", "ALFA_A7L1L", "ALFA_B7L1L",
+                    (None,2), "ALFA2_B7R1L", "ALFA2_A7R1L", "ALFA2_A7L1L", "ALFA2_B7L1L",
+                    (None,2), "ALFA3_B7R1L", "ALFA3_A7R1L", "ALFA3_A7L1L", "ALFA3_B7L1L",
+                    (None,2), "ALFA4_B7R1L", "ALFA4_A7R1L", "ALFA4_A7L1L", "ALFA4_B7L1L"
+                ]
+            },
+            {
+                "clock" : 1,
+                "signals" : [
+                    (None,2), "ALFA_B7R1U", "ALFA_A7R1U", "ALFA_A7L1U", "ALFA_B7L1U",
+                    (None,2), "ALFA2_B7R1U", "ALFA2_A7R1U", "ALFA2_A7L1U", "ALFA2_B7L1U",
+                    (None,2), "ALFA3_B7R1U", "ALFA3_A7R1U", "ALFA3_A7L1U", "ALFA3_B7L1U",
+                    (None,2), "ALFA4_B7R1U", "ALFA4_A7R1U", "ALFA4_A7L1U", "ALFA4_B7L1U",
+                    (None,2), "ALFA_B7R1U_OD", "ALFA_A7R1U_OD", "ALFA_A7L1U_OD", "ALFA_B7L1U_OD"
+                ]
+            }
+        ]
+    })
+
+
     L1MenuFlags.boards().clear()
 
     L1MenuFlags.boards().update( topoBoards )   # Topo1, Topo2, Topo3
@@ -327,4 +361,6 @@ def defineInputsMenu():
     L1MenuFlags.boards().update( muctpiBoard )  # MuCTPi
 
     L1MenuFlags.boards().update( ctpinBoards )  # CTPIN/Slot9 NIM1, NIM2, CALREQ
+
+    L1MenuFlags.boards().update( alfaBoard )  # ALFA
 
