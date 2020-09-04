@@ -14,7 +14,6 @@
  *             Arantxa Ruiz (aranzazu.ruiz.martinez@cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 
