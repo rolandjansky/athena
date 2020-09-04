@@ -24,7 +24,7 @@ StatusCode RegionCreator::initialize()
   if (m_regionName.empty()) {
     m_regionName = this->name();
     // re-initialize m_regionName in order to take the real tool name rather than the path to it
-    size_t ipos=m_regionName.value().find_last_of(".");
+    size_t ipos=m_regionName.value().find_last_of('.');
     size_t length=m_regionName.value().size();
     if (ipos<length) {
       ATH_MSG_VERBOSE( "m_regionName: " << m_regionName.value() << " needs to be reset.");

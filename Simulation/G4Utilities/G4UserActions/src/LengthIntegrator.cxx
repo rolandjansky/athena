@@ -189,7 +189,7 @@ namespace G4UA
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
 
     // Loop over volumes
-    for (auto& it : m_detThickMap) {
+    for (const auto& it : m_detThickMap) {
 
       // If histos already exist, then fill them
       if (m_etaMapRL.find(it.first) != m_etaMapRL.end()) {
@@ -406,8 +406,8 @@ namespace G4UA
     G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
     G4Material* mat = lv->GetMaterial();
 
-    std::string volName = lv->GetName();
-    std::string matName = mat->GetName();
+    const std::string& volName = lv->GetName();
+    const std::string& matName = mat->GetName();
 
     double radl = mat->GetRadlen();
     double intl = mat->GetNuclearInterLength();
@@ -457,7 +457,7 @@ namespace G4UA
 
   /// note that this should be called from a section protected by a mutex, since it talks to the THitSvc
 
-  TProfile2D* LengthIntegrator::getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax, TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle){
+  TProfile2D* LengthIntegrator::getOrCreateProfile(const std::string& regName, const TString& histoname, const TString& xtitle, int nbinsx, float xmin, float xmax,const TString& ytitle, int nbinsy,float ymin, float ymax,const TString& ztitle){
 
     if(m_hSvc->exists(regName)){
       TH2* histo=nullptr;
@@ -484,7 +484,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Add elements and values to the map
   //---------------------------------------------------------------------------
-  void LengthIntegrator::addToDetThickMap(std::string name, double thickstepRL, double thickstepIL)
+  void LengthIntegrator::addToDetThickMap(const std::string& name, double thickstepRL, double thickstepIL)
   {
     auto it=m_detThickMap.find(name);
     if(it!=m_detThickMap.end()){

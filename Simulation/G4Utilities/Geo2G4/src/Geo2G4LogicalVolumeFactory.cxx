@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4LogicalVolumeFactory.h"
@@ -24,8 +24,7 @@ G4LogicalVolume *Geo2G4LogicalVolumeFactory::Build(const GeoLogVol* theLog) cons
   //
   // Get Material from GeoModel
   //
-  std::string n= theLog->getName();
-  G4LogicalVolume *theG4Log=0;
+  G4LogicalVolume *theG4Log{};
   G4Material* theG4Mat=theMaterialFactory.Build(theLog->getMaterial());
 
   G4VSolid * theG4Solid = theSolidFactory.Build(theLog->getShape(),theLog->getName());

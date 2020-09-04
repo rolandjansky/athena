@@ -113,7 +113,7 @@ StatusCode MultiParticleGunPileup::callGenerator() {
       //evt->set_event_number(ievt); //Maybe dangerous to do this since the first event gets stacked last
       // Make and fill particles
       std::vector<SampledParticle> particles = m_partSampler->shoot();
-      for (auto p : particles){
+      for (const auto& p : particles){
 	// Debug printout of particle properties
 	std::cout << ievt << " DEBUG0," <<  p.m_pid << ", " << p.m_mom.E()<< ", " << p.m_mom.Pt()<< ", " << p.m_mom.M() << std::endl;
 	std::cout << ievt << " DEBUG1 (px,py,pz,E) = (" << p.m_mom.Px()<< ", " << p.m_mom.Py()<< ", " << p.m_mom.Pz()<< ", " << p.m_mom.E() <<")" << std::endl;

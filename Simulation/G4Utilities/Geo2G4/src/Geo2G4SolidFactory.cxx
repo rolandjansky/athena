@@ -54,6 +54,7 @@
 #include <iostream>
 #include <map>
 #include <cmath>
+#include <utility>
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -152,7 +153,7 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
   double* rInner(nullptr);
   double* rOuter(nullptr);
 
-  std::string n = name;
+  std::string n = std::move(name);
 
   //
   // The Box
@@ -376,7 +377,8 @@ G4VSolid *Geo2G4SolidFactory::Build(const GeoShape* geoShape, std::string name) 
       G4TwoVector off(0,0);
       std::vector<G4TwoVector> polygon;
 
-      for(int i=0; i<nVertices; i++)
+      polygon.reserve(nVertices);
+for(int i=0; i<nVertices; i++)
         polygon.push_back(G4TwoVector(theBrep->getXVertex(nVertices-1-i),theBrep->getYVertex(nVertices-1-i)));
 
       theSolid = new G4ExtrudedSolid(n,polygon,dz,off,1,off,1);
