@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( Epos_i )
 
+#set( CRMC_LCGVERSION 1.5.6 )
+#set( CRMC_LCGROOT /afs/cern.ch/user/e/ewelina/workarea/AthGeneration/epos/crmc.v1.5.6.r4962/installed )
+# /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorModules
