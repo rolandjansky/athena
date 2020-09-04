@@ -19,7 +19,22 @@
 #include <cstdint>
 #include "nlohmann/json.hpp"
 
+// Boost Function Fragment (begin)
+
+#include <stdlib.h>     /* getenv */
+#include <iostream>
+#include <boost/parameter/name.hpp>
+#include <boost/parameter/preprocessor.hpp>
+
+//
+BOOST_PARAMETER_NAME(page)
+BOOST_PARAMETER_NAME(size)
+//
+
+// Boost Function Fragment (end)
+
 namespace Crest {
+
 // AUXILIARY CLASS to store URL request parameters
   class urlParameters
   {
@@ -84,6 +99,7 @@ namespace Crest {
       GET = 0, POST = 1, PUT = 2, DELETE = 3
     };
   public:
+
 // ===================================
 // CONSTRUCTORS
 
@@ -182,11 +198,8 @@ namespace Crest {
  * @param since - since.
  * @param js - payloads in the JSON format.
  */
-    std::string storeBatchPayloadRequest(const std::string& tag, uint64_t endtime, const std::string& js); // method to
-                                                                                                           // store
-                                                                                                           // payloads
-                                                                                                           // in batch
-                                                                                                           // mode
+    std::string storeBatchPayloadRequest(const std::string& tag, uint64_t endtime, const std::string& js); 
+
 
 
 // ==========================================
@@ -621,10 +634,9 @@ namespace Crest {
  * <br> Example how to use these parameters: <br>
  * <pre>
  *    std::string name58 = "test_MvG3b";
- *    uint64_t endtime58 = 92233;
- *    std::string str58 =
- *"[{\"payloadHash\":\"aaa\",\"since\":0},{\"payloadHash\":\"bbb\",\"since\":9223372036854775806}]";
- *    myCrestClientM.storeBatchPayloads(name58, endtime58, str58);
+ *    uint64_t endtime58 = 200;
+ *    std::string str58 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    myCrestClient.storeBatchPayloads(name58, endtime58, str58);
  * </pre>
  */
     void storeBatchPayloads(const std::string& tag_name, uint64_t endtime, const std::string& iovsetupload);
@@ -639,10 +651,10 @@ namespace Crest {
  * <br> Example how to use these parameters: <br>
  * <pre>
  *    std::string name58 = "test_MvG3a";
- *    uint64_t endtime58 = 92233;
- *    nlohmann::json js59 =
- *nlohmann::json::array({{{"payloadHash","aaa"},{"since",0}},{{"payloadHash","bbb"},{"since",9223372036854775806}}});
- *    myCrestClientM.storeBatchPayloads(name58, endtime58, js59)
+ *    uint64_t endtime58 = 200;
+ *    std::string str58 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+ *    nlohmann::json js58 = myCrestClient.getJson(str58);
+ *    myCrestClient.storeBatchPayloads(name58, endtime58, js58)
  * </pre>
  */
     void storeBatchPayloads(const std::string& tag_name, uint64_t endtime, nlohmann::json& js);
@@ -873,38 +885,35 @@ namespace Crest {
  */
     std::string getBlobInStreamFs(const std::string& hash, std::ofstream& out);
 
-/**
- * This auxillary method stores several payloads in batch mode in the file storage.
- * (This method is an analogue of the store_batch_payloads method in Python)
- * @param tag_name - tag name.
- * @param endtime - end time.
- * @param iovsetupload - iov data as a string.
- * <br> Example how to use these parameters: <br>
- * <pre>
- *    std::string name39 = "test_M";
- *    uint64_t endtime = 200;
- *    std::string js39 =  "{\"niovs\": 2,\"format\":
- *\"PYLD_JSON\",\"iovsList\":[{\"since\":800,\"payload\":\"vvv\"},{\"since\":900,\"payload\":\"www\"}]}";
- * </pre>
- */
-    void storeBatchPayloadsFs(const std::string& tag_name, uint64_t endtime, const std::string& iovsetupload);
 
 /**
- * This auxillary method stores several payloads in batch mode in the file storage.
- * (This method is an analogue of the store_batch_payloads method in Python)
- * @param tag_name - tag name.
- * @param endtime - end time.
- * @param iovsetupload - iov data as a JSON object.
- * <br> Example how to use these parameters: <br>
- * <pre>
- *    std::string name39 = "test_M";
- *    uint64_t endtime = 200;
- *    std::string js39 =  "{\"niovs\": 2,\"format\":
- *\"PYLD_JSON\",\"iovsList\":[{\"since\":800,\"payload\":\"vvv\"},{\"since\":900,\"payload\":\"www\"}]}";
- *    json js40 = myCrestClientF.getJson(str39);
- * </pre>
- */
-    void storeBatchPayloadsFs(const std::string& tag_name, uint64_t endtime, nlohmann::json& js);
+* This auxillary method stores several payloads in batch mode in the file storage.
+* (This method is an analogue of the store_batch_payloads method in Python)
+* @param tag_name - tag name.
+* @param iovsetupload - iov data as a string. 
+* <br> Example how to use these parameters: <br>
+* <pre>
+*    std::string name39 = "test_M";
+*    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+*    myCrestClient.storeBatchPayloadsFs(name39, str39);
+* </pre>
+*/
+void storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload);
+
+/**
+* This auxillary method stores several payloads in batch mode in the file storage.
+* (This method is an analogue of the store_batch_payloads method in Python)
+* @param tag_name - tag name.
+* @param iovsetupload - iov data as a JSON object. 
+* <br> Example how to use these parameters: <br>
+* <pre>
+*    std::string name39 = "test_M";
+*    std::string str39 = "[{\"payloadHash\":\"aaa\",\"since\":100},{\"payloadHash\":\"bbb\",\"since\":150}]";
+*    nlohmann::json js39 = myCrestClient.getJson(str39);
+*    myCrestClient.storeBatchPayloadsFs(name39, js39);
+* </pre>
+*/
+void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
 
 
 /**
@@ -1058,5 +1067,52 @@ namespace Crest {
  */
     void createTagMetaInfoIOVDbSvc(const std::string& tagname, nlohmann::json& js);
 
+
+// Boost Function Fragment (begin)
+
+
+/**
+ * This method returns the tag list. It is a verion of this method with all parameters.
+ * (This method is an analogue of the list_tags method in Python)
+ */
+  nlohmann::json listTags(int size, int page);
+
+/**
+ * This method returns the tag list. It has boost parameters, all of them are optional.
+ * (This method is an analogue of the list_tags method in Python)
+ * @param _size - page size, a number of tags per a page, optional parameter, default value is 1000,
+ * @param _page - page number optional parameter, default value is 0.
+ * If you dont use the optional parameter names, you have to use the same parameter order.
+ * Example: <br>
+ * <pre>
+ *   nlohmann::json list1 = myCrestClient.listTagsParams();
+ *   nlohmann::json list2 = myCrestClient.listTagsParams(100,200);
+ *   nlohmann::json list2 = myCrestClient.listTagsParams(_page=3,_size=5);
+ * </pre>
+ *
+ *  nlohmann::json listTagsParams(int _size, int _page);
+ */
+BOOST_PARAMETER_MEMBER_FUNCTION(
+   (nlohmann::json), 
+   listTagsParams,
+   tag, 
+   (required 
+   )
+   (optional 
+     (size, (int) , 1000)
+     (page, (int) , 0)
+   )
+)
+{
+
+   return listTags(size, page); 
+}
+
+
+// Boost Function Fragment (end)
+
   };
-} // namespace
+
+} // namespace 
+
+
