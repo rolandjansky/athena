@@ -64,7 +64,7 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
 
-   static const std::string noSpecialImp[] = { "JET", "XS", "jJ", "gXE", "jXE", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ZB" };
+   static const std::string noSpecialImp[] = { "JET", "XS", "jJ", "gXE", "jXE", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ZB", "ALFA" };
    bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) !=
      std::end(noSpecialImp);
 
