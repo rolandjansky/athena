@@ -6,7 +6,6 @@
 #define MUON_MUONLAYERAMBIGUITYSOLVERTOOL_H
 
 #include "MuonCombinedToolInterfaces/IMuonLayerAmbiguitySolverTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -53,14 +52,15 @@ namespace Muon {
 
     bool match( const MuonCandidate& candidate, const MuonLayerIntersection& layerIntersection ) const;
 
+    ToolHandle<IMuonSegmentSelectionTool> m_segmentSelector{this,"MuonSegmentSelectionTool","Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"};
+    ToolHandle<IMuonSegmentMatchingTool> m_segmentMatchingTool{this,"MuonSegmentMatchingTool","Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
+    ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this,"MuonSegmentTrackBuilder","Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
 
-    unsigned int m_maxSeeds; // maximum number of seeds to be tried
-    int          m_seedQualityThreshold; // seed quality threshold
-    int          m_minSegmentQuality; // minimum quality for a segment to be considered
-    ToolHandle<IMuonSegmentSelectionTool> m_segmentSelector;
-    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingTool;
-    ToolHandle<IMuonSegmentTrackBuilder>  m_muonTrackBuilder; 
-    ToolHandle<MuonEDMPrinterTool>        m_printer;
+    Gaudi::Property<unsigned int> m_maxSeeds {this, "MaxSeeds", 30, "maximum number of seeds to be tried"};
+    Gaudi::Property<int> m_seedQualityThreshold {this, "SeedQualityThreshold", 2, "seed quality threshold"};
+    Gaudi::Property<int> m_minSegmentQuality {this, "MinimumSegmentQuality", 1, "minimum quality for a segment to be considered"};
+
   };
 }
 
