@@ -2290,6 +2290,18 @@ class WriteDAOD_BPHY21Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY21Stream)
 listAODtoDPD.append(WriteDAOD_BPHY21Stream.StreamName)
 
+class WriteDAOD_BPHY22Stream (JobProperty):
+     """BPHY22 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY22'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY22.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY22Stream)
+listAODtoDPD.append(WriteDAOD_BPHY22Stream.StreamName)
 
 ######################################
 # Defined by the MCP group
