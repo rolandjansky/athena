@@ -10,7 +10,6 @@
 
 - PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms
-- PhysicsAnalysis/Algorithms/TauAnalysisAlgorithms
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 
 
