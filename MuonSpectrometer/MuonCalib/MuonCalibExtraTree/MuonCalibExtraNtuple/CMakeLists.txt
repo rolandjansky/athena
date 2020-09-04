@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibExtraNtuple )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonCalib/MuonCalibStandAlone/CalibNtupleReader
-                          PRIVATE
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonCalib/MuonCalibExtraTree/MuonCalibExtraTreeEvent
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
