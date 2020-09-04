@@ -140,5 +140,3 @@ def setupMenu():
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
  
-
-

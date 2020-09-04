@@ -8,7 +8,6 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-#from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 from TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 import addP1Signatures
 
 def setupMenu():
