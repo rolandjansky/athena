@@ -210,7 +210,7 @@ class TrigInDetCompStep(RefComparisonStep):
         else:
             self.args += self.ref_file + ' ' 
 
-        self.args += self.chains + ' ' + ' -d ' + self.output_dir
+        self.args += self.chains + ' -d ' + self.output_dir
 
         print( "TIDAComparitor " + self.args ) 
 

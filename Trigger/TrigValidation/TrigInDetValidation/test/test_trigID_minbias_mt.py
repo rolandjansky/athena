@@ -79,7 +79,7 @@ if ((not exclude) or postproc ):
 comp=TrigInDetCompStep('Comp_L2mb','L2','minbias')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmb','EF','minbiasb')
+comp2=TrigInDetCompStep('Comp_EFmb','EF','minbias')
 test.check_steps.append(comp2)
 
 # CPU cost steps
