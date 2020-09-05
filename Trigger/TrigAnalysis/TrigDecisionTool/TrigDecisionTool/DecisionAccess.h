@@ -33,6 +33,8 @@
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+
 namespace HLT {
   class Chain;
 }
@@ -111,6 +113,7 @@ namespace Trig {
     /// @name Run 3 functions
     /// @{
 
+
     /**
      * @brief Runs 3+. Returns all features related to given chain group
      * @param[in] group Chain group to return features for.
@@ -155,7 +158,7 @@ namespace Trig {
      **/
     template<class CONTAINER, class FEATURE_CONTAINER>
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
-    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+    associateToEventView(typename SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::LinkInfo<FEATURE_CONTAINER> linkInfo,
                          const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
@@ -169,7 +172,7 @@ namespace Trig {
      **/
     template<class CONTAINER>
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
-    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+    associateToEventView(typename SG::ReadHandle<CONTAINER>& inViewContainer,
                          const TrigCompositeUtils::Decision* decisionObject,
                          const std::string& roiName = TrigCompositeUtils::roiString()) const;
 
@@ -182,7 +185,7 @@ namespace Trig {
      **/
     template<class CONTAINER>
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
-    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+    associateToEventView(typename SG::ReadHandle<CONTAINER>& inViewContainer,
                          const ElementLink<TrigRoiDescriptorCollection>& matchROI) const;
 
     /**
@@ -200,7 +203,7 @@ namespace Trig {
      **/
     template<class CONTAINER>
     std::pair< typename CONTAINER::const_iterator, typename CONTAINER::const_iterator > 
-    associateToEventView(SG::ReadHandle<CONTAINER>& inViewContainer,
+    associateToEventView(typename SG::ReadHandle<CONTAINER>& inViewContainer,
                          const uint32_t matchIndex,
                          const uint32_t matchKey = 0,
                          const bool isFullscan = false) const;

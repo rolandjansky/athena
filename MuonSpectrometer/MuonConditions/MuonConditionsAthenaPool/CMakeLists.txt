@@ -6,18 +6,6 @@
 # Declare the package name:
 atlas_subdir( MuonConditionsAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
-   MuonSpectrometer/MuonConditions/MuonByteStreamErrors
-   PRIVATE
-   GaudiKernel
-   AtlasTest/TestTools
-   Database/AthenaPOOL/AthenaPoolCnvSvc )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( MuonConditionsAthenaPoolPoolCnv src/*.cxx
    FILES MuonByteStreamErrors/RpcByteStreamErrorContainer.h

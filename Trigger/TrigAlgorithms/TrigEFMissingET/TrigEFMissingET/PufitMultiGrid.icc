@@ -233,7 +233,8 @@ namespace HLT
 
     template <typename Grid>
     template <std::size_t I>
-    PufitMultiGridSet<Grid>::Element<I> &PufitMultiGridSet<Grid>::Element<I>::operator+=(
+    typename PufitMultiGridSet<Grid>::template Element<I>&
+    PufitMultiGridSet<Grid>::Element<I>::operator+=(
         const SignedKinematics &kin)
     {
       for (Grid &grid : parent.grids)
@@ -243,7 +244,8 @@ namespace HLT
 
     template <typename Grid>
     template <std::size_t I>
-    PufitMultiGridSet<Grid>::Element<I> &PufitMultiGridSet<Grid>::Element<I>::operator-=(
+    typename PufitMultiGridSet<Grid>::template Element<I>&
+    PufitMultiGridSet<Grid>::Element<I>::operator-=(
         const SignedKinematics &kin)
     {
       for (Grid &grid : parent.grids)
@@ -253,7 +255,8 @@ namespace HLT
 
     template <typename Grid>
     template <std::size_t I, typename, typename>
-    PufitMultiGridSet<Grid>::Element<I> PufitMultiGridSet<Grid>::get()
+    typename PufitMultiGridSet<Grid>::template Element<I>
+    PufitMultiGridSet<Grid>::get()
     {
       return Element<I>(*this);
     }

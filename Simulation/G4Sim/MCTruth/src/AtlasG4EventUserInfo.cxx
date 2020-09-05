@@ -28,7 +28,7 @@ void AtlasG4EventUserInfo::SetNrOfPrimaryVertices(int nr)
 {
 	m_nrOfPrimaryVertices=nr;
 }
-void AtlasG4EventUserInfo::SetVertexPosition(const G4ThreeVector vtx)
+void AtlasG4EventUserInfo::SetVertexPosition(const G4ThreeVector& vtx)
 {
 	m_vertexPosition=vtx;
 }

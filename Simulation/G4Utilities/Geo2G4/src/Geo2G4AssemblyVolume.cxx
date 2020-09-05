@@ -72,7 +72,7 @@ Geo2G4AssemblyVolume::~Geo2G4AssemblyVolume()
 void Geo2G4AssemblyVolume::AddPlacedVolume( G4LogicalVolume*  pVolume,
                                         G4ThreeVector&    translation,
                                         G4RotationMatrix* pRotation,
-                                        int copyNo, G4String userC) 
+                                        int copyNo, const G4String& userC) 
 {
   G4RotationMatrix*  toStore  = new G4RotationMatrix;
   
@@ -89,7 +89,7 @@ void Geo2G4AssemblyVolume::AddPlacedVolume( G4LogicalVolume*  pVolume,
 //
 void Geo2G4AssemblyVolume::AddPlacedVolume( G4LogicalVolume*  pVolume,
                                         G4Transform3D&    transformation,
-                                        int copyNo, G4String userC) 
+                                        int copyNo, const G4String& userC) 
 {
   // Decompose transformation
   G4Scale3D     scale;

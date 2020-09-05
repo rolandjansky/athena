@@ -122,6 +122,10 @@ def G4AtlasAlgOutputCfg(ConfigFlags):
                      "TRTUncompressedHitCollection#*",
                      "TrackRecordCollection#CaloEntryLayer"]
 
+    if ConfigFlags.Detector.SimulateITk:
+        ItemList += ["SiHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
     if ConfigFlags.Detector.SimulateCalo:
         ItemList += ["CaloCalibrationHitContainer#*",
                      "LArHitContainer#*",

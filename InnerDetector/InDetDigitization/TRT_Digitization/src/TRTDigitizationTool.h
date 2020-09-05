@@ -29,7 +29,9 @@
 // For magneticfield
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
@@ -105,12 +107,11 @@ private:
                             Identifier& layerID,
                             bool& statusok ) const;
 
-  StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
-  StatusCode ConditionsDependingInitialization();
+  StatusCode ConditionsDependingInitialization (const EventContext& ctx);
 
   StatusCode lateInitialize(const EventContext& ctx);
   StatusCode processStraws(const EventContext& ctx,
-                           const TimedHitCollection<TRTUncompressedHit>& thpctrt,
+                           TimedHitCollection<TRTUncompressedHit>& thpctrt,
                            std::set<int>& sim_hitids,
                            std::set<Identifier>& simhitsIdentifiers,
                            CLHEP::HepRandomEngine *rndmEngine,
@@ -168,10 +169,9 @@ private:
   // const  ComTime* m_ComTime{};
   double m_cosmicEventPhase{0.0};     // local replacement for the comTime service
   const HepPDT::ParticleDataTable* m_particleTable{};
-  int m_dig_vers_from_condDB{-1};
-  std::string m_digverscontainerkey{"/TRT/Cond/DigVers"};
+  SG::ReadCondHandleKey<AthenaAttributeList> m_digverscontainerkey
+  { this, "DigVersContainerKey", "/TRT/Cond/DigVers", "" };
   bool m_first_event{true};
-  bool m_condDBdigverfoldersexists{false};
 
   bool m_HardScatterSplittingSkipper{false};
 

@@ -33,7 +33,7 @@ public:
    unsigned int l1psk { 0 };
    unsigned int hltpsk { 0 };
    unsigned int bgsk { 0 };
-   std::string  dbalias { "TRIGGERDBDEV2" };
+   std::string  dbalias { "TRIGGERDBDEV1" };
 
    // output
    bool         write { false }; // flag to enable writing

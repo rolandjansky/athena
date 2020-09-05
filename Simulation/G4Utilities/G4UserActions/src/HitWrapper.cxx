@@ -2,6 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <cmath>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -120,7 +121,7 @@ namespace G4UA
       //TRTUncompressedHitCollection * trt = const_cast< TRTUncompressedHitCollection * > (&*trtC);
       for (TRTUncompressedHitCollection::iterator hit=trt->begin();hit!=trt->end();++hit){
 	//std::cout << "Wrapping TRT hit with time " << (*hit).globalTime() << std::endl;
-	(*hit).SetGlobalTime( fmod( (*hit).GetGlobalTime() , m_config.time ) );
+	(*hit).SetGlobalTime( std::fmod( (*hit).GetGlobalTime() , m_config.time ) );
       }
     }
 

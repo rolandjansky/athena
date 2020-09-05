@@ -35,7 +35,7 @@ public:  // with description
   void AddPlacedVolume( G4LogicalVolume* pPlacedVolume,
                         G4ThreeVector& translation,
                         G4RotationMatrix* rotation,
-                        int copyNo=0,G4String userComment="");
+                        int copyNo=0,const G4String& userComment="");
   //
   // Place the given volume 'pPlacedVolume' inside the assembly.
   //
@@ -67,7 +67,7 @@ public:  // with description
 
   void AddPlacedVolume( G4LogicalVolume* pPlacedVolume,
                         G4Transform3D&   transformation,
-                        int copyNo=0,G4String userComment="");
+                        int copyNo=0,const G4String& userComment="");
   //
   // The same as previous, but takes complete 3D transformation in space
   // as its argument.

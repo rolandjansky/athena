@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
@@ -22,47 +22,34 @@ Trk::TrkAmbiguityScore::~TrkAmbiguityScore(void)
 
 //-----------------------------------------------------------------------
 StatusCode
-Trk::TrkAmbiguityScore::initialize()
-{
-  ATH_MSG_INFO( "TrkAmbiguityScore::initialize(). " );
-
+Trk::TrkAmbiguityScore::initialize(){
+  ATH_MSG_VERBOSE( "TrkAmbiguityScore::initialize(). " );
   ATH_CHECK(m_scoreTool.retrieve( DisableTool{m_scoreTool.empty()} ));
-
   ATH_CHECK(m_scoredTracksKey.initialize());
   ATH_CHECK(m_originTracksKey.initialize());
-
   return StatusCode::SUCCESS;
 }
 
 //-------------------------------------------------------------------------
 StatusCode
-Trk::TrkAmbiguityScore::execute(const EventContext& ctx) const
-{
+Trk::TrkAmbiguityScore::execute(const EventContext& ctx) const{
   std::vector<SG::ReadHandle<TrackCollection>> handles = m_originTracksKey.makeHandles(ctx);
-  size_t totalsize = 0;
-  for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
-     if (!trackColHandle.isValid())
-       msg(MSG::WARNING) << "Could not retrieve tracks from "<< trackColHandle.key() << endmsg;
-     totalsize += trackColHandle->size();
+  ATH_MSG_DEBUG(handles.size() << " handles are requested");
+  if (handles.size() > 1){
+    ATH_MSG_WARNING("More than one collection has been requested. Only the first collection is taken");
   }
-
-  std::vector<const Track*> originTracks;
-  originTracks.reserve(totalsize);
-  for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
-    for(const Track* trk: *trackColHandle ) {
-       if (std::find(originTracks.begin(), originTracks.end(),trk) == originTracks.end()) {
-          originTracks.push_back(trk);
-       }
-    }
+  auto & theTrackCollectionHandle = handles.at(0);
+  if (not theTrackCollectionHandle.isValid()){
+    ATH_MSG_FATAL( "Could not retrieve tracks from "<< theTrackCollectionHandle.key() );
+    return StatusCode::FAILURE;
   }
-
+  const auto & theTrackCollection = *theTrackCollectionHandle;
   std::unique_ptr<TracksScores> scoredTracks(new TracksScores);
   if (m_scoreTool.isEnabled()){
-    m_scoreTool->process(&originTracks, scoredTracks.get());
-  }
-  else{
-    scoredTracks->reserve(originTracks.size());
-    for(const Track* trk: originTracks ){
+    m_scoreTool->process(theTrackCollection, scoredTracks.get());
+  } else {
+    scoredTracks->reserve(theTrackCollection.size());
+    for(const Track* trk: theTrackCollection ){
       scoredTracks->push_back( std::pair<const Track*, float>(trk, 0));//TODO: logpT
     }
   }

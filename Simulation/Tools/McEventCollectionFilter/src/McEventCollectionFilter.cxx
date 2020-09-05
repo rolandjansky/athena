@@ -200,7 +200,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   //to set geantino vertex as a truth primary vertex
   HepMC::GenVertexPtr hScatVx = genEvt->barcode_to_vertex(-3);
   if(hScatVx!=nullptr) {
-    HepMC::FourVector pmvxpos=hScatVx->position();
+    const HepMC::FourVector& pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
@@ -239,7 +239,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
                                                                     thePart->status());
       HepMC::suggest_barcode(thePart_new, m_elecBarcode[i]);
 
-      HepMC::FourVector pos= vx->position();
+      const HepMC::FourVector& pos= vx->position();
       HepMC::GenVertexPtr vx_new = HepMC::newGenVertexPtr(pos);
       vx_new->add_particle_out(thePart_new);
       evt->add_vertex(vx_new);

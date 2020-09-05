@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCREATORALG_H
@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <string>
+
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -26,20 +27,19 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include <string>
 
 class MuonCreatorAlg : public AthAlgorithm
 {
  public:
   MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  ~MuonCreatorAlg();
+  ~MuonCreatorAlg()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
-
   ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool{this,"MuonCreatorTool","MuonCombined::MuonCreatorTool/MuonCreatorTool","Muon creator tool"};
   SG::WriteHandleKey<xAOD::MuonContainer> m_muonCollectionName{this,"MuonContainerLocation", "Muons", "Muon Container"};
   SG::WriteHandleKey<xAOD::SlowMuonContainer> m_slowMuonCollectionName{this, "SlowMuonContainerLocation", "SlowMuons", "Slow Muon Container"};
@@ -56,9 +56,10 @@ class MuonCreatorAlg : public AthAlgorithm
   SG::WriteHandleKey<Trk::SegmentCollection> m_segTrkContainerName{this,"TrackSegmentContainerName","MuonSegments","Track segments"};
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{this, "ClusterContainerName", "MuonClusterCollection", "Clusters"};
   SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterContainerLinkName{this,"CaloClusterCellLinkName","MuonClusterCollection","Cluster links"};
-  bool m_buildSlowMuon;
-  bool m_doSA;
-  bool m_makeClusters;
+
+  Gaudi::Property<bool> m_buildSlowMuon{this, "BuildSlowMuon", false};
+  Gaudi::Property<bool> m_doSA{this, "CreateSAmuons", false};
+  Gaudi::Property<bool> m_makeClusters{this, "MakeClusters", true};
 
   // Monitoring tool
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

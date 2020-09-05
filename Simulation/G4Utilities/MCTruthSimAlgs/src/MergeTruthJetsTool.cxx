@@ -117,7 +117,7 @@ StatusCode MergeTruthJetsTool::mergeEvent(const EventContext& /*ctx*/)
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeTruthJetsTool::record(const xAOD::JetContainer* pjets, std::string jetcontainername) const
+StatusCode MergeTruthJetsTool::record(const xAOD::JetContainer* pjets, const std::string& jetcontainername) const
 {
   const xAOD::JetAuxContainer* pjetsaux =
     dynamic_cast<const xAOD::JetAuxContainer*>(pjets->getConstStore());

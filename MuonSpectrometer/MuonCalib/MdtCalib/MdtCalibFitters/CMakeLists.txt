@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( MdtCalibFitters )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
