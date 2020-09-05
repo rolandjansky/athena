@@ -45,7 +45,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidate
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg",
                                     "MuonCombinedInDetCandidateAlg_LargeD0",
                                     TrackParticleLocation=[InDetKeys.xAODLargeD0TrackParticleContainer()],
-                                    InDetCandidateLocation="InDetCandidates_LargeD0",
+                                    InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
                                     DoSiliconAssocForwardMuons=False)
 
 
@@ -53,7 +53,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidate
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg", "MuonCombinedAlg_LargeD0",
-                                                                        InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                        InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
                                                                         CombinedTagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0"],
                                                                         MuidCombinedTracksLocation="MuidCombinedTracks_LargeD0",
                                                                         MuidMETracksLocation="MuidMETracks_LargeD0")
@@ -62,7 +62,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetExtension
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg_LargeD0",
-                                                                        InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                        InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
                                                                         TagMap="segmentTagMap_LargeD0",
                                                                         MuonSegmentLocation="MuonSegments")
 
@@ -72,13 +72,13 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSe
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg_LargeD0",
-                                                                      MuonContainerLocation="Muons_LargeD0",
-                                                                      InDetCandidateLocation="InDetCandidates_LargeD0",
+                                                                      MuonContainerLocation=MuonCbKeys.FinalMuonsLargeD0(),
+                                                                      InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
                                                                       ExtrapolatedLocation="ExtraPolatedMuon_LargeD0",
                                                                       ExtrapolatedTrackLocation="ExtraPolatedMuonTrack_LargeD0",
                                                                       MSOnlyExtrapolatedLocation="MSOnlyExtraPolatedMuons_LargeD0",
                                                                       MSOnlyExtrapolatedTrackLocation="MSOnlyExtraPolatedMuonTrack_LargeD0",
-                                                                      CombinedLocation="CombinedMuon_LargeD0",
+                                                                      CombinedLocation=MuonCbKeys.CombinedFitTracksLargeD0(),
                                                                       SegmentContainerName="MuonSegments_LargeD0",
                                                                       TrackSegmentContainerName="TrakMuonSegments_LargeD0",
                                                                       TagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0","segmentTagMap_LargeD0"],

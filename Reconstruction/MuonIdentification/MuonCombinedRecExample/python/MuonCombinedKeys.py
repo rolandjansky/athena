@@ -36,11 +36,11 @@ class InDetTrackParticles(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TrackParticleCandidate'
 
-class ExtrapolatedInDetParticles(JobProperty):
-    """StoreGate key for association object of ID particles plus vector of extrpolated TrackPars"""
+class InDetTrackParticlesLargeD0(JobProperty):
+    """StoreGate key for ID track particles with large radius tracking"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'MuonCandidateTracks'
+    StoredValue  = 'TrackParticleCandidateLRT'
 
 ## classes for track collections
 class SpectrometerTracks(JobProperty): # clarify with MS if to be replaced by jobPr. in MuonRecExample
@@ -60,6 +60,12 @@ class CombinedFitTracks(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'CombinedMuonTracks'
+
+class CombinedFitTracksLargeD0(JobProperty):
+    """StoreGate key for tracks from combined fit using large d0 inner tracking particles"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'CombinedMuonTracksLRT'
 
 class RefittedExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks with refitted extrapolation using the MS part of the combined track"""
@@ -162,6 +168,13 @@ class FinalMuons(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'Muons'
 
+class FinalMuonsLargeD0(JobProperty):
+    """StoreGate key for final muon collection with large radius InDetTracks after overlap removal and dressing"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuonsLRT'
+
+
 class FinalCaloMuons(JobProperty):
     """StoreGate key for final muon collection from calorimeter tagging"""
     statusOn     = True
@@ -210,6 +223,8 @@ class InternalMuTagTracksContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'InternalMuTagTracksContainer'
 
+
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the MuonCombined flag container
@@ -222,7 +237,7 @@ class MuonCombinedContainerKeys(JobPropertyContainer):
         print("MuonCombinedKeys: Locking all keys except one thing")
         # MuonCombinedKeys.lock_JobProperties()
         [k.lock() for k in MuonCombinedKeys.__dict__.values() if hasattr(k,'is_locked') and not isinstance(k,type(MuonCombinedKeys.OneThing))]
-        return 
+        return
     pass
 
 ##-----------------------------------------------------------------------------
@@ -234,7 +249,6 @@ jobproperties.add_Container(MuonCombinedContainerKeys)
 ## 4th step
 ## adding ID flags to the MuonCombinedContainerKeys container
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InDetTrackParticles)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedInDetParticles)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SpectrometerTracks)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSTracks)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(CombinedFitTracks)
@@ -262,6 +276,12 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuons)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SegmentTagMuonSegments)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InternalMuTagTracksContainer)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyTracks)
+# Large d0 tracking muons
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(FinalMuonsLargeD0)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(InDetTrackParticlesLargeD0)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(CombinedFitTracksLargeD0)
+
+
 
 ##-----------------------------------------------------------------------------
 ## 5th step

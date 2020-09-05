@@ -75,7 +75,6 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
 
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
-    print (kwargs)
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 
 def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
