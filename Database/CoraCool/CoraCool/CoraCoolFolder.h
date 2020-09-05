@@ -78,7 +78,7 @@ class CoraCoolFolder {
 		   const_iterator begin,
 		   const_iterator end,
 		   const cool::ChannelId& channelId=0,
-		   const std::string tagName="",
+		   const std::string& tagName="",
 		   const bool userTagOnly=false);
 
   // setup storage buffer for bulk insertion via repeated storeObject calls
@@ -95,7 +95,7 @@ class CoraCoolFolder {
 		       const cool::ValidityKey& until,
 		       const coral::Attribute& fkey,
 		       const cool::ChannelId& channelId=0,
-		       const std::string tagName="",
+		       const std::string& tagName="",
 		       const bool userTagOnly=false);
 
   // add a reference to COOL to an existing stored payload object
@@ -104,7 +104,7 @@ class CoraCoolFolder {
 		       const cool::ValidityKey& until,
 		       const int ifkey,
 		       const cool::ChannelId& channelId=0,
-		       const std::string tagName="",
+		       const std::string& tagName="",
 		       const bool userTagOnly=false);
 
   // add more payload AttributeLists to the CORAL payload table
@@ -117,7 +117,7 @@ class CoraCoolFolder {
   // find the one object valid at a given time/channel and tag
   CoraCoolObjectPtr findObject(const cool::ValidityKey& pointInTime,
 			       const cool::ChannelId& channelId=0, 
-			       const std::string tagName="");
+			       const std::string& tagName="");
 
   // return an iterator to a set of objects identified by a point in time
   // and a channel specification (and optionally a tag)
