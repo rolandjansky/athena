@@ -376,7 +376,7 @@
   <y title="Entries"/>
 </h>
 <h id="residualx_pixel_barrel" type="TH1F" title="Residual: Pixel Barrel X">
-  <x title="x residual(#mum)" n="100" lo="-100.0" hi="100.0"/> 
+  <x title="x residual(#mum)" n="100" lo="-100.0" hi="100.0"/>
   <y title="Entries"/>
 </h>
 <h id="residualx_pixel_barrel_1hit" type="TH1F" title="Residual: Pixel Barrel X 1 hit">
@@ -388,7 +388,7 @@
   <y title="Entries"/>
 </h>
 <h id="residualx_sct_barrel" type="TH1F" title="Residual: SCT Barrel X">
-  <x title="x residual(#mum)" n="1200" lo="-600" hi="600"/> 
+  <x title="x residual(#mum)" n="1200" lo="-600" hi="600"/>
   <y title="Entries"/>
 </h>
 <h id="residualx_sct_barrel_1hit" type="TH1F" title="Residual: SCT Barrel X 1 hit">
@@ -401,7 +401,7 @@
 </h>
 <!-- endcaps -->
 <h id="residualx_pixel_endcap" type="TH1F" title="Residual: Pixel Endcap X">
-  <x title="x residual(#mum)" n="100" lo="-100.0" hi="100.0"/> 
+  <x title="x residual(#mum)" n="100" lo="-100.0" hi="100.0"/>
   <y title="Entries"/>
 </h>
 <h id="residualx_pixel_endcap_1hit" type="TH1F" title="Residual: Pixel Endcap X 1 hit">
@@ -413,7 +413,7 @@
   <y title="Entries"/>
 </h>
 <h id="residualx_sct_endcap" type="TH1F" title="Residual: SCT Endcap X">
-  <x title="x residual(#mum)" n="1200" lo="-600" hi="600"/> 
+  <x title="x residual(#mum)" n="1200" lo="-600" hi="600"/>
   <y title="Entries"/>
 </h>
 <h id="residualx_sct_endcap_1hit" type="TH1F" title="Residual: SCT Endcap X 1 hit">
@@ -439,7 +439,7 @@
   <y title="Entries"/>
 </h>
 <h id="residualy_pixel_barrel" type="TH1F" title="Residual: Pixel Barrel Y">
-  <x title="y residual(#mum)" n="100" lo="-1000.0" hi="1000.0"/> 
+  <x title="y residual(#mum)" n="100" lo="-1000.0" hi="1000.0"/>
   <y title="Entries"/>
 </h>
 <h id="residualy_pixel_barrel_1hit" type="TH1F" title="Residual: Pixel Barrel Y 1 hit">
@@ -464,7 +464,7 @@
 </h>
 <!-- endcaps -->
 <h id="residualy_pixel_endcap" type="TH1F" title="Residual: Pixel Endcap Y">
-  <x title="y residual(#mum)" n="100" lo="-1000.0" hi="1000.0"/> 
+  <x title="y residual(#mum)" n="100" lo="-1000.0" hi="1000.0"/>
   <y title="Entries"/>
 </h>
 <h id="residualy_pixel_endcap_1hit" type="TH1F" title="Residual: Pixel Endcap Y 1 hit">
@@ -625,7 +625,7 @@
 <h id="efficiency_vs_eta" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h> 
+</h>
 <h id="efficiency_vs_pt" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -674,7 +674,7 @@
 <h id="fakerate_vs_eta" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
-</h> 
+</h>
 <h id="fakerate_vs_pt" type="TEfficiency" title="Fractions of reco-tracks with matching probability &lt; 50%">
   <x title="p_{T} [GeV]" n="100" lo="0" hi="50.0"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
@@ -945,7 +945,7 @@
   <x title="reco_{z_{0} #times sin} - truth_{z_{0} #times sin}" n="100" lo="-&Z0SINRES;" hi="&Z0SINRES;"/>
   <y title="Number of Entries"/>
 </h>
-     
+
 <h id="sigma_d0" type="TH1F" title="#sigma(d_{0})">
   <x title="#sigma(d_{0}) [mm]" n="100" lo="0" hi="&D0RES;"/>
   <y title="Number of Entries"/>
@@ -1059,7 +1059,7 @@
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="reco_{z_{0} #times sin} - truth_{z_{0} #times sin} [mm]" n="1000" lo="-&Z0SINRES;" hi="&Z0SINRES;"/>
 </h>
-    
+
 
 <h id="pullHelper_eta_d0" type="TH2F" title="pull vs #eta for d_{0}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
@@ -1471,82 +1471,82 @@
 <h id="sigma_vs_eta_d0" type="TProfile" title="#sigma(d_{0}) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma(d_{0}) [mm}" lo="-1.5" hi="1.5"/>
-</h> 
+</h>
 
 <h id="sigma_vs_eta_z0" type="TProfile" title="#sigma(z_{0}) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma(z_{0}) [mm]" lo="-10.0" hi="10.0"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_qoverp" type="TProfile" title="#sigma_{qoverp} vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma_{qoverp}" lo="-2.5e-5" hi="2.5e-5"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_ptqopt" type="TProfile" title="p_{T} #times #sigma(q/p_{T}) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="p_{T} #times #sigma(q/p_{T})" lo="-15.0" hi="15.0"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_pt" type="TProfile" title="#sigma_{pt} vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma_{pt}" lo="0.0" hi="100"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_theta" type="TProfile" title="#sigma(#theta) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma(#theta)" lo="-0.01" hi="0.01"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_phi" type="TProfile" title="#sigma(#phi) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma(#phi) [rads]" lo="-0.01" hi="0.01"/>
-</h>  
+</h>
 
 <h id="sigma_vs_eta_z0sin" type="TProfile" title="#sigma(z_{0} #times sin) vs #eta">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="#sigma(z_{0} #times sin)" lo="-0.2" hi="0.2"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_d0" type="TProfile" title="#sigma(d_{0}) vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma(d_{0}) [mm]" lo="-1.5" hi="1.5"/>
-</h> 
+</h>
 
 <h id="sigma_vs_pt_z0" type="TProfile" title="#sigma(z_{0}) vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma(z_{0}) [mm]" lo="-10.0" hi="10.0"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_qoverp" type="TProfile" title="#sigma_{qoverp} vs pT">
   <x title="p_{T} [GeV]"  n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma_{qoverp}" lo="-2.5e-5" hi="2.5e-5"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_ptqopt" type="TProfile" title="p_{T} #times #sigma(q/p_{T}} vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="p_{T} #times #sigma(q/p_{T})" lo="-15.0" hi="15.0"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_pt" type="TProfile" title="#sigma_{pt} vs pT">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma_{pt}" lo="-100.0" hi="100.0"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_theta" type="TProfile" title="#sigma(#theta) vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma(#theta) [rads]" lo="-0.01" hi="0.01" />
-</h>  
+</h>
 
 <h id="sigma_vs_pt_phi" type="TProfile" title="#sigma(phi) vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma(#phi) [rads]" lo="-0.01" hi="0.01"/>
-</h>  
+</h>
 
 <h id="sigma_vs_pt_z0sin" type="TProfile" title="#sigma(z_{0} #times sin) vs p_{T}">
   <x title="p_{T} [GeV]" n="&NETA;" lo="0.0" hi="100"/>
   <y title="#sigma(z_{0} #times sin)" lo="-0.2" hi="0.2"/>
-</h>  
+</h>
 
 
 <!-- End of standard resolution plots-->
@@ -1606,7 +1606,7 @@
   <x title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
   <y title="Number of Entries"/>
 </h>
-  
+
 <h id="reco_author" type="TH1F" title="reco_{author}">
   <x title="reco_{author}" n="52" lo="0" hi="52"/>
   <y title="Number of Entries"/>
@@ -1619,6 +1619,16 @@
 <h id="reco_phi_vs_eta" type="TH2F" title="reco p_{T} vs #eta">
   <x title="reco_{#phi}" n="100" lo="-&PI;" hi="&PI;"/>
   <y title="reco_{#eta}" n="100" lo="-&ETA;" hi="&ETA;"/>
+</h>
+
+<h id="reco_d0_vs_z0" type="TH2F" title="reco d_{T} vs z_{0}">
+  <x title="reco_{d_0}" n="100" lo="-20" hi="20"/>
+  <y title="reco_{z_{0}}" n="100" lo="-250" hi="250"/>
+</h>
+
+<h id="reco_d0_vs_z0sin" type="TH2F" title="reco d_{T} vs z_{0} sin #theta">
+  <x title="reco_{d_0}" n="100" lo="-20" hi="20"/>
+  <y title="reco_{z_{0} sin #theta}" n="100" lo="-10" hi="10"/>
 </h>
 
 <h id="truth_d0" type="TH1F" title="truth_{d_{0}}">
@@ -1870,7 +1880,7 @@
 <h id="efficiency_vs_dR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
   <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h> 
+</h>
 
 <h id="efficiency_vs_smalldR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
   <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
@@ -1886,7 +1896,7 @@
 <h id="fakerate_vs_dR" type="TEfficiency" title="Fake rate versus #DeltaR">
   <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
-</h> 
+</h>
 
 <h id="fakerate_vs_smalldR" type="TEfficiency" title="Fake rate versus #DeltaR">
   <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>

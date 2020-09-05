@@ -45,6 +45,10 @@ InDetPerfPlot_TrackParameters::InDetPerfPlot_TrackParameters(InDetPlotBase* pPar
   m_reco_pt_vs_eta{},
   m_reco_phi_vs_eta{},
 
+  m_reco_d0_z0{},
+  m_reco_d0_z0sin{},
+
+
   m_truth_pt_vs_eta{},
   m_truth_phi_vs_eta{} {
 }
@@ -76,10 +80,13 @@ InDetPerfPlot_TrackParameters::initializePlots() {
   book(m_truth_pt,     "truth_pt");
   book(m_truth_lowpt,     "truth_lowpt");
   book(m_truth_prodR,  "truth_prodR");
-  book(m_truth_prodZ,  "truth_prodZ"); 
+  book(m_truth_prodZ,  "truth_prodZ");
 
   book(m_reco_pt_vs_eta, "reco_pt_vs_eta");
   book(m_reco_phi_vs_eta, "reco_phi_vs_eta");
+
+  book(m_reco_d0_z0, "reco_d0_vs_z0");
+  book(m_reco_d0_z0sin, "reco_d0_vs_z0sin");
 
   book(m_truth_pt_vs_eta, "truth_pt_vs_eta");
   book(m_truth_phi_vs_eta, "truth_phi_vs_eta");
@@ -92,7 +99,7 @@ InDetPerfPlot_TrackParameters::fill(const xAOD::TruthParticle& particle) {
   // quantities with xAOD::TruthParticle accessors:
   float eta = particle.eta();
   float pt = particle.pt() / Gaudi::Units::GeV;
-  
+
   float d0 = (particle.isAvailable<float>("d0")) ? particle.auxdata<float>("d0") : -9999.;
   float z0 = (particle.isAvailable<float>("z0")) ? particle.auxdata<float>("z0") : -9999.;
   float theta = (particle.isAvailable<float>("theta")) ? particle.auxdata<float>("theta") : -9999.;
@@ -110,7 +117,7 @@ InDetPerfPlot_TrackParameters::fill(const xAOD::TruthParticle& particle) {
   if(qOverP > -9000.) fillHisto(m_truth_qoverp, qOverP);
   if(prodR > -9000.) fillHisto(m_truth_prodR, prodR);
   if(prodZ > -9000.) fillHisto(m_truth_prodZ, prodZ);
-  
+
   fillHisto(m_truth_eta, eta);
   fillHisto(m_truth_pt, pt);
   fillHisto(m_truth_lowpt, pt);
@@ -126,15 +133,15 @@ InDetPerfPlot_TrackParameters::fill(const xAOD::TrackParticle& particle) {
   float pt = particle.pt() / Gaudi::Units::GeV;
   float eta = particle.eta();
   float phi = particle.phi0();
-  
+
   float chi2 = particle.chiSquared();
   float ndof = particle.numberDoF();
   float chi2Overndof = ndof > 0 ? chi2 / ndof : 0;
-  
+
 
   fillHisto(m_reco_d0, particle.d0());
   fillHisto(m_reco_z0, particle.z0());
-  fillHisto(m_reco_z0sin, particle.z0()* particle.theta());
+  fillHisto(m_reco_z0sin, particle.z0()* std::sin(particle.theta()));
 
   fillHisto(m_reco_phi, phi);
   fillHisto(m_reco_theta, particle.theta());
@@ -146,13 +153,16 @@ InDetPerfPlot_TrackParameters::fill(const xAOD::TrackParticle& particle) {
   fillHisto(m_reco_pt_vs_eta, pt, eta);
   fillHisto(m_reco_phi_vs_eta, phi, eta);
 
+  fillHisto(m_reco_d0_z0,    particle.d0(), particle.z0());
+  fillHisto(m_reco_d0_z0sin, particle.d0(), particle.z0()*std::sin(particle.theta()));
+
   fillHisto(m_reco_chi2, chi2);
   fillHisto(m_reco_ndof, ndof);
   fillHisto(m_reco_chi2Overndof, chi2Overndof);
 
   std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
   for(unsigned int i = 0; i < xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo; i++){
-    if(patternInfo.test(i)) fillHisto(m_reco_author, i);  
+    if(patternInfo.test(i)) fillHisto(m_reco_author, i);
   }
 
 }
