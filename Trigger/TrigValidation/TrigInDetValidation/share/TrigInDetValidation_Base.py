@@ -54,14 +54,20 @@ rdo2aod.timeout = 18*3600
 rdo2aod.input = Input    # defined in TrigValTools/share/TrigValInputs.json  
 
 
+
+# Run athena analysis to produce TrkNtuple
+
 test = Test.Test()
 test.art_type = 'grid'
 if (not exclude):
     test.exec_steps = [rdo2aod]
-    test.exec_steps.append(TrigInDetAna()) # Run analysis to produce TrkNtuple
+    test.exec_steps.append(TrigInDetAna())
     test.check_steps = CheckSteps.default_check_steps(test)
 
-# Run Tidardict
+
+
+# Run TIDArdict
+
 if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
     if ( TrackReference == "Truth" ) : 
@@ -71,9 +77,12 @@ if ((not exclude) or postproc ):
 
     test.check_steps.append(rdict)
 
+
+
+
+# Now the comparitor steps
  
 for slice in Slices :
-  # Now the comparitor steps
   comp1=TrigInDetCompStep('Comp_L2'+slice,'L2',slice)
   test.check_steps.append(comp1)
 
@@ -82,7 +91,10 @@ for slice in Slices :
     test.check_steps.append(comp2)
 
 
+
+
 # CPU cost steps
+
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 

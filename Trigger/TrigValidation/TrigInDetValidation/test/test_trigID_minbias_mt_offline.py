@@ -29,11 +29,11 @@
 Slices  = ['minbias']
 RunEF   = False
 Events  = 8000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Threads = 4 
+Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Truth'
+TrackReference = 'Offline'
 
 
 from AthenaCommon.Include import include 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for minbias_mt
+# art-description: art job for minbias
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 4
@@ -53,8 +53,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['minbias']
 rdo2aod.max_events = 8000 
-rdo2aod.threads = 4
-rdo2aod.concurrent_events = 4
+rdo2aod.threads = 1 # TODO: change to 4
+rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
@@ -79,7 +79,7 @@ if ((not exclude) or postproc ):
 comp=TrigInDetCompStep('Comp_L2mb','L2','minbias')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmb','EF','minbiasb')
+comp2=TrigInDetCompStep('Comp_EFmb','EF','minbias')
 test.check_steps.append(comp2)
 
 # CPU cost steps
