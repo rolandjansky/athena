@@ -17,12 +17,14 @@ namespace coral {
 class PCDio
 {
  public:
-  PCDio(std::string connString, std::string tableName, int verbose);
+  PCDio(const std::string& connString,
+        const std::string& tableName,
+        int verbose);
   ~PCDio();
 
   void init(coral::AccessMode access_mode);
-  void load(std::string tag, int revision);
-  void save(std::string tag, int revision, std::string sources);
+  void load(const std::string& tag, int revision);
+  void save(const std::string& tag, int revision, const std::string& sources);
 
  private:
   std::string m_connString;
