@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,11 +39,14 @@
 // performance test
 #include <time.h>
 #include <vector>
+#include <cmath> // isnan
 
 namespace {
 const double solenoidRadius = 1075.;
 const double solenoidZhalf = 2820.;
 }
+
+using std::isnan;
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
