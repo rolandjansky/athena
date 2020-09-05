@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-# art-description: art job for minbias
+# art-description: art job for minbias_offline
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
