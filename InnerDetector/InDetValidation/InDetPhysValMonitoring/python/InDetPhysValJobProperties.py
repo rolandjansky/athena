@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
-## purpose Python module to hold common flags to configure the InDetPhysValMonitoring 
+## purpose Python module to hold common flags to configure the InDetPhysValMonitoring
 ##
 
 from __future__ import print_function
@@ -43,6 +43,11 @@ class InDetPhysValFlagsJobProperty(JobProperty):
           return self.statusOn and self.StoredValue
        else:
           return self.StoredValue
+
+class doValidateLargeD0Tracks(InDetPhysValFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 class doValidateDBMTracks(InDetPhysValFlagsJobProperty):
     statusOn     = True
@@ -138,7 +143,7 @@ class InDetPhysValJobProperties(JobPropertyContainer):
     if  hasattr(InDetFlags,'doDBM') and not InDetFlags.doDBM() :
         self.checkThenSet(self.doValidateDBMTracks,  False)
     print (self)
-    
+
   def printInfo(self) :
       pass
 
@@ -150,7 +155,7 @@ jobproperties.add_Container(InDetPhysValJobProperties)
 _list_InDetPhysValJobProperties = [
     Enabled,
     doValidateDBMTracks,
-    doValidateGSFTracks,    
+    doValidateGSFTracks,
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
     doValidateTracksInJets,
@@ -158,7 +163,8 @@ _list_InDetPhysValJobProperties = [
     validateExtraTrackCollections,
     doPhysValOutput,
     doExpertOutput,
-    setTruthStrategy
+    setTruthStrategy,
+    doValidateLargeD0Tracks
 ]
 
 for j in _list_InDetPhysValJobProperties:
