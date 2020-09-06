@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISOLATIONTOOL_CALOISOLATIONTOOL_H
@@ -80,7 +80,8 @@ namespace xAOD {
       bool neutralEflowIsolation( CaloIsolation& result, 
 				  const IParticle& tp, 
 				  const std::vector<Iso::IsolationType>& cones, 
-				  CaloCorrection corrections) override;
+				  CaloCorrection corrections) const override;
+
       using INeutralEFlowIsolationTool::neutralEflowIsolation;
 
   private:
@@ -108,25 +109,41 @@ namespace xAOD {
 #endif
       ) const;
 
-      /** cast for TrackParticle (topoetcone muon)*/    
-      bool caloTopoClusterIsolation( CaloIsolation& result,  const TrackParticle& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections, const CaloClusterContainer* container,
-                                     const CaloCluster* fwdClus,
-                                     const Egamma* egObj,
-                                     double coneCoreSize,
-                                     derefMap_t& derefMap) const;
+      /** cast for TrackParticle (topoetcone muon)*/
+      bool caloTopoClusterIsolation(
+        CaloIsolation& result,
+        const TrackParticle& tp,
+        const std::vector<Iso::IsolationType>& cones,
+        CaloCorrection corrections,
+        const CaloClusterContainer* container,
+        const CaloCluster* fwdClus,
+        const Egamma* egObj,
+        double coneCoreSize,
+        derefMap_t& derefMap) const;
 
-      /** cast for egamma (topoetcone egamma)*/    
-      bool caloTopoClusterIsolation( CaloIsolation& result, const Egamma& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections, const CaloClusterContainer* container,
-                                     double coreConeSize) const;
+      /** cast for egamma (topoetcone egamma)*/
+      bool caloTopoClusterIsolation(
+        CaloIsolation& result,
+        const Egamma& tp,
+        const std::vector<Iso::IsolationType>& cones,
+        CaloCorrection corrections,
+        const CaloClusterContainer* container,
+        double coreConeSize) const;
 
-      /** cast for egamma (pflowetcone egamma)*/       
-      bool neutralEflowIsolation(CaloIsolation& result, const Egamma& eg, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections,
-                                 double coneCoreSize);
+      /** cast for egamma (pflowetcone egamma)*/
+      bool neutralEflowIsolation(CaloIsolation& result,
+                                 const Egamma& eg,
+                                 const std::vector<Iso::IsolationType>& cones,
+                                 CaloCorrection corrections,
+                                 double coneCoreSize) const ;
 
-      /** cast for egamma (pflowetcone egamma)*/       
-      bool neutralEflowIsolation(CaloIsolation& result, const TrackParticle& tp, const std::vector<Iso::IsolationType>& cones, CaloCorrection corrections,
+      /** cast for egamma (pflowetcone egamma)*/
+      bool neutralEflowIsolation(CaloIsolation& result,
+                                 const TrackParticle& tp,
+                                 const std::vector<Iso::IsolationType>& cones,
+                                 CaloCorrection corrections,
                                  double coneCoreSize,
-                                 derefMap_t& derefMap);
+                                 derefMap_t& derefMap) const;
 
       // etcone computation for TrackParticle
 #ifndef XAOD_ANALYSIS
@@ -153,40 +170,60 @@ namespace xAOD {
                              const CaloCluster* fwdClus,
                              const Egamma* egObj,
                              double coneCoreSize) const;
-            
-      // sum of topo cluster in a cone
-      bool topoClustCones (CaloIsolation& result, float eta, float phi, 
-			   std::vector<float>& m_coneSizes,
-			   const std::vector<const CaloCluster*>& clusts) const; 
 
-      /// Correct the topo cluster isolation using sum of topo cluster in core region.
-      bool correctIsolationEnergy_TopoCore (CaloIsolation& result, float eta, float phi, 
-					  float dEtaMax_core, float dPhiMax_core, float dR2Max_core,
-                                            const std::vector<const CaloCluster*>& clusts, bool onlyEM,
-                                            const CaloCluster* fwdClus,
-                                            const Egamma* egObj) const;
+      // sum of topo cluster in a cone
+      bool topoClustCones(CaloIsolation& result,
+                          float eta,
+                          float phi,
+                          std::vector<float>& m_coneSizes,
+                          const std::vector<const CaloCluster*>& clusts) const;
+
+      /// Correct the topo cluster isolation using sum of topo cluster in core
+      /// region.
+      bool correctIsolationEnergy_TopoCore(
+        CaloIsolation& result,
+        float eta,
+        float phi,
+        float dEtaMax_core,
+        float dPhiMax_core,
+        float dR2Max_core,
+        const std::vector<const CaloCluster*>& clusts,
+        bool onlyEM,
+        const CaloCluster* fwdClus,
+        const Egamma* egObj) const;
 
       // pflow etcone computation (common for TrackParticle and Egamma)
-      bool pflowConeIsolation(CaloIsolation& result, float eta, float phi, 
-			      std::vector<float>& m_coneSizes,
+      bool pflowConeIsolation(CaloIsolation& result,
+                              float eta,
+                              float phi,
+                              std::vector<float>& m_coneSizes,
                               bool coreEMonly,
-			      const PFOContainer* container,
-                              double coneCoreSize);
+                              const PFOContainer* container,
+                              double coneCoreSize) const;
 
       // sum of pt of pflow objects in a cone
-      bool pflowObjCones (CaloIsolation& result, float eta, float phi, 
-			  std::vector<float>& m_coneSizes,
-			  const std::vector<const PFO*>& clusts); 
+      bool pflowObjCones(CaloIsolation& result,
+                         float eta,
+                         float phi,
+                         std::vector<float>& m_coneSizes,
+                         const std::vector<const PFO*>& clusts) const;
 
       /// Correct the pflow isolation using sum of pflow objects in core region.
-      bool correctIsolationEnergy_pflowCore (CaloIsolation& result, float eta, float phi, 
-					     float detaMax, float dphiMax, float dR2Max,
-					     const std::vector<const PFO*>& clusts, bool onlyEM = false); 
+      bool correctIsolationEnergy_pflowCore(
+        CaloIsolation& result,
+        float eta,
+        float phi,
+        float detaMax,
+        float dphiMax,
+        float dR2Max,
+        const std::vector<const PFO*>& clusts,
+        bool onlyEM = false) const;
 
       // core eg 5x7 egamma subtraction
-      bool correctIsolationEnergy_Eeg57 (CaloIsolation& result, 
-					 const std::vector<Iso::IsolationType>& isoTypes, 
-					 const Egamma* eg) const;
+      bool correctIsolationEnergy_Eeg57(
+        CaloIsolation& result,
+        const std::vector<Iso::IsolationType>& isoTypes,
+        const Egamma* eg) const;
       // core for muon subtraction
       bool correctIsolationEnergy_MuonCore(CaloIsolation& result,
                                            const TrackParticle& tp,
@@ -205,7 +242,7 @@ namespace xAOD {
       bool EDCorrection(CaloIsolation& result, 
 			const std::vector<Iso::IsolationType>& isoTypes,
 			float eta,
-			std::string type,
+			const std::string& type,
                         const CaloCluster* fwdClus) const;
 
       // init result structure
