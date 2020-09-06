@@ -20,15 +20,15 @@ class DetectorFactoryBase : public GeoVDetectorFactory
 { 
 
 public:
-  DetectorFactoryBase(const InDetDD::AthenaComps * athenaComps)
+  DetectorFactoryBase(InDetDD::AthenaComps * athenaComps)
     : m_athenaComps(athenaComps)
   {}
 
-  StoreGateSvc * detStore ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->detStore();}
+  StoreGateSvc * detStore () {return m_athenaComps->detStore();}
 
   const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 
-  IRDBAccessSvc * rdbAccessSvc ATLAS_NOT_THREAD_SAFE () const {return m_athenaComps->rdbAccessSvc();}
+  IRDBAccessSvc * rdbAccessSvc() {return m_athenaComps->rdbAccessSvc();}
   
   const IGeometryDBSvc * geomDB() const {return m_athenaComps->geomDB();}
 
@@ -38,11 +38,11 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
-  const InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
+  InDetDD::AthenaComps *  getAthenaComps() {return m_athenaComps;}
 
 private:
   
-  const InDetDD::AthenaComps *  m_athenaComps;
+  InDetDD::AthenaComps *  m_athenaComps;
 
 };
 
