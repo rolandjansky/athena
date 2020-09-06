@@ -249,7 +249,7 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   // Start angle could eventually come from the database...
   // double startAngle = gmt_mgr->PixelECStartPhi();
   double startAngle = m_phiOffset;
-  if (endcapSide<0) startAngle +=deltaPhi;     //  to match staggering
+  if (buildDeadEdges && endcapSide<0) startAngle +=deltaPhi;     //  to match staggering
   int endcapId = (endcapSide>0)? 2 : -2;
  
   // loop over modules
