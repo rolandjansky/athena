@@ -5,27 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuidCaloScatteringTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Reconstruction/MuonIdentification/MuidInterfaces
-                          Tracking/TrkDetDescr/TrkDetDescrInterfaces
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives
-                          Reconstruction/MuonIdentification/MuidEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExUtils
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions
-			  )
-
 # External dependencies:
 find_package( Eigen )
 
