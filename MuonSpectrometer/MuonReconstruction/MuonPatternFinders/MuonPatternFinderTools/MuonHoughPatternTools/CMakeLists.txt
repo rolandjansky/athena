@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonHoughPatternTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonDataPrep/MuonClusterization
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonHoughPatternEvent
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLayerHough
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
-                          PRIVATE
-                          Control/CxxUtils
-                          Control/StoreGate
-                          Event/EventPrimitives
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTruth
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkTruthData 
-                          Generators/AtlasHepMC )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

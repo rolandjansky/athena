@@ -5,21 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTrigCoinData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Control/AthLinks
-                          Control/CxxUtils
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/EventContainers
-                          Event/EventPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Tracking/TrkDetDescr/TrkSurfaces )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
