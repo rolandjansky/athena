@@ -10,7 +10,7 @@ atlas_subdir( IsolationTool )
 set( extra_lib )
 set( extra_lib_private )
 if( NOT XAOD_STANDALONE )
-  set( extra_lib TrkParametersIdentificationHelpers CaloRecLib RecoToolInterfaces ParticlesInConeToolsLib)
+  set( extra_lib TrkParametersIdentificationHelpers CaloRecLib ParticlesInConeToolsLib)
   set( extra_lib_private CaloEvent CaloUtilsLib TrkCaloExtension TrkParameters TrackToCaloLib )
 endif()
 
@@ -25,7 +25,7 @@ atlas_add_library( IsolationToolLib
    LINK_LIBRARIES AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma
    xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking
    AsgDataHandlesLib InDetTrackSelectionToolLib
-   IsolationCorrectionsLib
+   IsolationCorrectionsLib RecoToolInterfaces
    ${extra_lib}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils
    ${extra_lib_private}

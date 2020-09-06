@@ -365,7 +365,7 @@ namespace xAOD {
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;
-      bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& clusts );
+      bool particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& clusts ) const;
 #endif // XAOD_ANALYSIS
       float Phi_mpi_pi(float x) const { 
         while (x >= M_PI) x -= 2.*M_PI;

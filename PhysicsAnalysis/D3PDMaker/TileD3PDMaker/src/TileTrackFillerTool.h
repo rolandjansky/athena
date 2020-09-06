@@ -18,7 +18,7 @@
 
 // TRACK TOOL INCLUDES
 #include "TrackTools.h"
-#include "TrackToVertex/TrackToVertex.h"
+#include "ITrackToVertex/ITrackToVertex.h"
 
 // MONTE CARLO INCLUDES
 #include "AtlasHepMC/GenParticle.h"

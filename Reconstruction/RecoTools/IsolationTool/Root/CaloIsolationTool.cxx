@@ -1384,7 +1384,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
     return true;
   }
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ){
+  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ) const{
     /// retrieve container
     const PFOContainer* Clusters = 0;
     std::string m_ClusterLocation = "JetETMissNeutralParticleFlowObjects";
