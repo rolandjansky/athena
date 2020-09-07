@@ -229,9 +229,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
         int ShiftEtaStripsDoubletZ[4];
 		for(int idbz=0; idbz!= 3; idbz++){
           ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
-          bool isValid=false;
-          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
-          if (!isValid) {
+          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+          if (!id.is_valid()) {
             ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
             continue;
           }
@@ -256,11 +255,11 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  // the phi strip numeber increases going from HV side to RO side
 		  float stripzmin   =      0 ;
 		  float stripzmax   = -10000 ;
-		  for(int ieta=0; ieta!= 17; ieta++){
+          // the RpcIdHelper stationEta ranges from -8 to 8
+		  for(int ieta=-8; ieta<9; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
-              bool isValid=false;
-              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1, true, &isValid, true); // last 7 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
-              if (!isValid) {
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName,ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+              if (!id.is_valid()) {
                 ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
                 continue;
               }
