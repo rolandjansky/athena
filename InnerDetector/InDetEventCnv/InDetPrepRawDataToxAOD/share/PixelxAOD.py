@@ -94,8 +94,6 @@ xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = True
 xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
 #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
 #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
-if InDetFlags.doSLHC():
-    xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
 IDDerivationSequence += xAOD_PixelPrepDataToxAOD
 if (printIdTrkDxAODConf):
