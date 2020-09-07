@@ -63,6 +63,20 @@ StatusCode TruthClassificationTool::classify(const xAOD::Electron &electron,
 {
   namespace MC = MCTruthPartClassifier;
 
+  if (!m_truthPdgId.isAvailable(electron))
+  {
+    ANA_MSG_ERROR("Electron does not have the 'truthPdgId' decoration.");
+    return StatusCode::FAILURE;
+  }
+
+  if (!m_firstMotherTruthType.isAvailable(electron)
+    || !m_firstMotherTruthOrigin.isAvailable(electron)
+    || !m_firstMotherPdgId.isAvailable(electron))
+  {
+    ANA_MSG_ERROR("Electron does not have one or more 'firstEgMother' decorations.");
+    return StatusCode::FAILURE;
+  }
+
   int type = m_truthType(electron);
   int origin = m_truthOrigin(electron);
   int pdgId = m_truthPdgId(electron);
