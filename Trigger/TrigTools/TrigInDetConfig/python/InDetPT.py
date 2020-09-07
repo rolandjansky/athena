@@ -17,10 +17,10 @@ from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 def makeInDetPrecisionTracking( whichSignature, 
                                 verifier = False, 
-                                inputFTFtracks='TrigFastTrackFinder_Tracks',  #FIXME: Obsolete
-                                outputTrackPrefixName = "HLT_ID", #FIXME: Obsolete
-                                rois = 'EMViewRoIs', 
-                                doTRTextension = True ) :   #FIXME: Obsolete, this should go into Slice settings now
+                                inputFTFtracks='TrigFastTrackFinder_Tracks',  #TODO: Obsolete, remove in the next MR
+                                outputTrackPrefixName = "HLT_ID",             #TODO: Obsolete, remove in the next MR
+                                rois = 'EMViewRoIs',                          #TODO: obsolete, should go into slice settings in the next MR
+                                doTRTextension = True ) :                     #TODO: Obsolete, this should go into Slice settings in the next MR
 
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
@@ -49,13 +49,13 @@ def makeInDetPrecisionTracking( whichSignature,
   #outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
   outPTTracks             = configSetting.trkTracksPT() #"%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-  outPTTrackParticles     = configSetting.tracksPT()  #"%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  outPTTrackParticles     = configSetting.tracksPT( doRecord = configSetting.isRecordable() ) #"%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #Therefore, we have to adapt output names of the algorithm which produces last collection
   #However, this condition should be handled internally in configuration of the algs once TRT is configured with builders as well
-  if configSetting.doTRT:
+  if configSetting.doTRT():
      nameExtTrackCollection = outPTTracks
   else:
      nameAmbiTrackCollection = outPTTracks
@@ -69,7 +69,7 @@ def makeInDetPrecisionTracking( whichSignature,
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
     verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                             ( 'TrackCollection' , 'StoreGateSvc+' + configSetting.tracksFTF() )]
+                             ( 'TrackCollection' , 'StoreGateSvc+' + configSetting.trkTracksFTF() )]
   
   from AthenaCommon.AppMgr import ToolSvc
 
@@ -84,9 +84,10 @@ def makeInDetPrecisionTracking( whichSignature,
                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                 doSharedHits           = True,
                                                 doHolesInDet           = True )
+
   
   #OBSOLETE but keep Parameter_config
-  if configSetting.doTRT:
+  if configSetting.doTRT():
       if "electron" in whichSignature  or "tau" in whichSignature :
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
@@ -114,12 +115,9 @@ def makeInDetPrecisionTracking( whichSignature,
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
 
-  print('MAT ALGS')
-  for alg in ptAlgs:
-      print(alg)
-
+  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
   #TODO:implement builders and getters for TRT
-  if configSetting.doTRT:
+  if configSetting.doTRT():
 
             proxySignature = whichSignature
             if "tau" in whichSignature :
@@ -246,7 +244,6 @@ def makeInDetPrecisionTracking( whichSignature,
             #TODO In Run2 option for cosmic
             #InDetTrigExtensionFitter = InDetTrigTrackFitter
             from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
             InDetTrigExtScoringTool = InDet__InDetAmbiScoringTool(name               = '%sExtScoringTool%s'%(algNamePrefix, signature),
                                                                   Extrapolator       = InDetTrigExtrapolator,
                                                                   SummaryTool        = SummaryTool_config,
@@ -265,7 +262,7 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                                   )
 
-            InDetTrigExtScoringTool.minPt = InDetTrigSliceSettings[('pTmin', proxySignature)]
+            InDetTrigExtScoringTool.minPt = configSetting.pTmin() # InDetTrigSliceSettings[('pTmin', proxySignature)] #TODO check
 
             ToolSvc += InDetTrigExtScoringTool
 
@@ -295,6 +292,8 @@ def makeInDetPrecisionTracking( whichSignature,
   #                      Track particle conversion algorithm
   #
   #
+  #TODO: convert into builders/getters
+  #Monitoring has been removed in the recent MR, put back in
   """ Use the finalised track collection and convert it to container of xAOD Track Particles  """
   
   
@@ -334,7 +333,7 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                       # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
                                                                         ConvertTracks = True,  #Turn on  retrieve of TrackCollection, false by default
                                                                         TrackContainerName                        = outPTTracks,
-                                                                        xAODTrackParticlesFromTracksContainerName = recordable( outPTTrackParticles ), 
+                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles, #recordable( outPTTrackParticles ), 
                                                                         TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
                                                                        ## Properties below are used for: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm

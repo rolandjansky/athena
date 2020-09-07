@@ -297,12 +297,16 @@ def vertexFinder_builder( signature, inputTracks, outputVertices ) :
     return  [ vertexFinder ]
 
 
-
 # old function for backwards compatability
-
+#TODO inputTrackCollection is obsolete, remove in the next MR iteration
 def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection ) :
+    #Load signature configuration (containing cut values, names of collections, etc)
+    from .InDetTrigConfigSettings import getInDetTrigConfig
+    #Remap only temporary until signatures fix their naming
+    configSetting = getInDetTrigConfig( whichSignature, doRemap = False )
+
     return vertexFinder_builder( signature      = whichSignature, 
-                                 inputTracks    = inputTrackCollection,
+                                 inputTracks    = configSetting.tracksFTF(),
                                  outputVertices = outputVtxCollection )
     
 

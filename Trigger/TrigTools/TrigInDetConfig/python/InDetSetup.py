@@ -312,7 +312,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, configSetting.name() )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = configSetting.trkTracksFTF() #Original: "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator, will be removed eventually
+      theFTF.TracksName     = configSetting.trkTracksFTF() 
       theFTF.doCloneRemoval = configSetting.doCloneRemoval()
 
       viewAlgs.append(theFTF)
@@ -324,7 +324,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = configSetting.trkTracksFTF(),#"TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
+                                                                TrackName = configSetting.trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
       

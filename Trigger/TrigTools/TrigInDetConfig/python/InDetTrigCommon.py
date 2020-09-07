@@ -364,7 +364,7 @@ def ambiguityScoreAlg_builder(name, config):
                                                                      config = config )
 
       return Trk__TrkAmbiguityScore(   name                    = name,
-                                       TrackInput              = [ config.trkTracksFTF()  ],
+                                       TrackInput              = [ config.trkTracksFTF()  ], 
                                        TrackOutput             = get_scoredmap( get_name_suffix( config.name() ) ),
                                        AmbiguityScoreProcessor = ambiguityScoreProcessor,
                                     )

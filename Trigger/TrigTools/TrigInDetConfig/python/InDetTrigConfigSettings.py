@@ -43,8 +43,7 @@ def makeRecordable(getName):
       return recordCollection
             
 
-
-#Remap which eventually will be dropped once naming is aligned with signature settings
+#FTF Remap which eventually will be dropped once naming is aligned with signature settings
 remap  = {
     "Muon"     : "muon",
     "MuonFS"   : "muon",
@@ -56,6 +55,12 @@ remap  = {
     "Tau"      : "tau",
     "TauCore"  : "tauCore",
     "TauIso"   : "tauIso",
+    #These extra tau collections might be eventually removed completely 
+    "TauId"    : "tau",
+    "TauTrk"   : "tau",
+    "TauTrkTwo": "tauIso",
+    "TauEF"    : "tauIso",
+
     "Jet"      : "bjet",
     "JetFS"    : "fullScan",
     "FS"       : "fullScan",
@@ -69,14 +74,13 @@ remap  = {
 }
 
 
+
+#-------------------------
 # Start using already decided naming conventions
 # NB: this is only needed at the moment since the signature menu code is 
 #     inconcistent in what flags they pass the ID Trigger configuration 
 #     for the FTF And precision tracking. Once that is tidied up, this
 #     should be removed
-
-#def remapSuffix( signature ):
-#   suffix_map = {
 #      'electron':  'Electron',
 #      'muon':      'Muon',
 #      'muonFS':    'MuonFS',
@@ -88,24 +92,54 @@ remap  = {
 #      'tauEF':     'Tau',
 #      'tauTrk':    'Tau',
 #      'tauTrkTwo': 'Tau'
-#   }
-#
-#   if signature in suffix_map :
-#      return suffix_map[ signature ]
-#  
-#   return signature
+
+
+#Need remapping for retrieving correct collections 
+#for PT
+#https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Tau/TauRecoSequences.py#L272-281
+def remapPTTauSuffix( signature ):
+   #Everything being remapped to the same output collection
+   suffix_map = {
+      'TauId'    : 'Tau',
+      'TauEF'    : 'Tau',
+      'TauTrk'   : 'Tau',
+      'TauTrkTwo': 'Tau',
+      'TauIso'   : 'Tau'
+   }
+
+   if signature in suffix_map :
+      return suffix_map[ signature ]
+  
+   return signature
+
+#for FTF
+#https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TriggerCommon/TriggerMenuMT/python/HLTMenuConfig/Tau/TauRecoSequences.py#L197-198
+def remapFTFTauSuffix( signature ):
+   suffix_map = {
+      'TauId'    : 'Tau',
+      'TauTrk'   : 'Tau',
+      'Tau'      : 'TauIso',
+      'TauTrkTwo': 'TauIso',
+      'TauEF'    : 'TauIso',
+   }
+
+   if signature in suffix_map :
+      return suffix_map[ signature ]
+  
+   return signature
+#-------------------------
 
 
 def getInDetTrigConfig( name, doRemap = True ) :
    
-    #Use remapping if needed, eventually we should get rid of this by aligning nomenclature between signatures and ID
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import remap
     signature = name
 
-    #doRemap is only temporary parameter as FTF and PT gets different signature naming ...
-    if doRemap: 
+    #Use remapping if needed, eventually we should get rid of this by aligning nomenclature between signatures and ID
+    #doRemap is only temporary parameter as FTF and PT gets different signature naming ... (need to unify this)
+    #For Tau since both PT and FTF are close together they are already treated the same way (that is why Tau in name condition), however rest of the signatures are not
+    if doRemap or 'Tau' in name: 
       signature = remap[name]
-    #Crash if signature is not amongst one of the selected ones
+
     assert(signature is not None), 'Signature name: {} is not amongst commonly used ones, please contact IDTrig group (hn-atlas-inner-detector-trigger@cern.ch) if you would like to add new one'.format(signature)
 
     if signature in _ConfigSettings :
@@ -152,7 +186,8 @@ class _Settings :
         self._roiBaseName         = "HLT_Roi"
         self._tracksBaseName      = "HLT_IDTrack" # TrackParticles
         self._trkTracksBaseName   = "HLT_IDTrkTrack" # TrkTrack collection, This will eventually replace FTFBaseName
-        self._suffix              = "" #Signature name suffix (e.g Electron,Muon,...) not necessarily the same as name! 
+        self._signatureSuffix     = "" #Signature name suffix (e.g Electron,Muon,...) not necessarily the same as name! 
+        self._signatureSuffixFTF  = "" #An extra suffix for signature cases where suffix is different between Fast tracking and precision tracking
         self._trkTracksFTFBaseName= "TrigFastTrackFinder_Tracks" # Base Name of the track collection being produced by FTF, full name is appended by signature suffix, this is just temporary name and will be replaced by HLT_IDTrkTrack_Signature
 
 
@@ -163,8 +198,8 @@ class _Settings :
    return self._name
 
   #If signature name provided separate by underscore to be used for nomenclature
-  def suffix(self):
-      return '' if not self._name else '_' + self._suffix 
+  def signatureSuffix(self):
+      return '' if not self._name else '_' + self._signatureSuffix 
 
   def isSignature(self, signature):
       return (self._name == signature)
@@ -222,6 +257,10 @@ class _Settings :
    #Expected: HLT_Tracks_Electron
    return self._trackCollection
 
+   
+  def signatureSuffixFTF(self): 
+      #If FTF suffix empty string return general suffix
+      return '_' + (self._signatureSuffixFTF if self._signatureSuffixFTF else self._signatureSuffix)
 
   #------------------------
   #TrkTracks getters
@@ -229,21 +268,21 @@ class _Settings :
   #AS might not be very descriptive, should we switch to AmbiSol at least?
   @makeRecordable
   def trkTracksAS(self, doRecord = False):
-   return '{}{}_AS'.format( self._trkTracksBaseName, self.suffix() )
+   return '{}{}_AS'.format( self._trkTracksBaseName, self.signatureSuffix() )
 
   #TE might not be very descriptive, should we switch to TRTExt at least?
   @makeRecordable
   def trkTracksTE(self, doRecord = False):
-   return '{}{}_TE'.format( self._trkTracksBaseName, self.suffix() )
+   return '{}{}_TE'.format( self._trkTracksBaseName, self.signatureSuffix() )
 
   #IDTrig might not be very descriptive but it is used convention probably since Run1...
   @makeRecordable
   def trkTracksPT(self, doRecord = False):
-   return '{}{}_IDTrig'.format( self._trkTracksBaseName, self.suffix() )
+   return '{}{}_IDTrig'.format( self._trkTracksBaseName, self.signatureSuffix() )
 
   @makeRecordable
   def trkTracksFTF(self, doRecord = False):
-   return '{}{}'.format( self._trkTracksFTFBaseName, self.suffix() )
+   return '{}{}_FTF'.format( self._trkTracksFTFBaseName, self.signatureSuffixFTF() )
 
   #------------------------
   #Track Particle getters
@@ -251,11 +290,11 @@ class _Settings :
   #IDTrig might not be very descriptive but it is used convention probably since Run1...
   @makeRecordable
   def tracksPT(self, doRecord = True ) :
-   return '{}{}_IDTrig'.format( self._tracksBaseName, self.suffix() )
+   return '{}{}_IDTrig'.format( self._tracksBaseName, self.signatureSuffix() )
 
   @makeRecordable
   def tracksFTF(self, doRecord = True) :
-   return '{}{}_FTF'.format( self._tracksBaseName, self.suffix() )
+   return '{}{}_FTF'.format( self._tracksBaseName, self.signatureSuffixFTF() )
 
   def doTRT(self) :
    return self._doTRT
@@ -297,7 +336,7 @@ class _Settings_electron( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "electron"
-        self._suffix              = "Electron"
+        self._signatureSuffix              = "Electron"
         self._doCloneRemoval      = False
         self._checkRedundantSeeds = True
 
@@ -310,7 +349,7 @@ class _Settings_muon( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "muon"
-        self._suffix              = "Muon"
+        self._signatureSuffix     = "Muon"
         self._d0SeedMax           = 10.0
         self._doResMon            = True
         self._doSpPhiFiltering    = False
@@ -323,7 +362,7 @@ class _Settings_muonCore( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "muonCore"
-        self._suffix              = "MuonCore"
+        self._signatureSuffix     = "MuonCore"
         self._d0SeedMax           = 10.0
         self._doSpPhiFiltering    = False
         self._checkRedundantSeeds = True
@@ -336,7 +375,7 @@ class _Settings_muonIso( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "muonIso"
-        self._suffix              = "MuonIso"
+        self._signatureSuffix     = "MuonIso"
         self._etaHalfWidth        = 0.35
         self._phiHalfWidth        = 0.35
 
@@ -346,7 +385,8 @@ class _Settings_muonFS( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "muonFS"
-        self._suffix              = "MuonFS"
+        self._signatureSuffix     = "MuonFS"
+        #self._signatureSuffixFTF  = "Muon" #This is for cases where FTF suffix is different from PT suffix
 
         self._d0SeedMax           = 10.0
         self._doResMon            = True
@@ -360,7 +400,7 @@ class _Settings_muonLate( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "muonLate"
-        self._suffix              = "MuonLate"
+        self._signatureSuffix     = "MuonLate"
         self._d0SeedMax           = 10.0
         self._doResMon            = True
         self._doSpPhiFiltering    = False
@@ -370,27 +410,36 @@ class _Settings_muonLate( _Settings ) :
         self._doTRT               = False
 
 
+class _Settings_jet( _Settings ) :     
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name               = "jet"
+        self._signatureSuffix    = "Jet"
+        self._signatureSuffixFTF = "FS"  #Jets are taking FS tracks
+        #TODO: check these values
+        self._etaHalfWidth       = 0.4 
+        self._phiHalfWidth       = 0.4 
+        self._doTRT              = False
+
 # bjet 
 
 class _Settings_bjet( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "bjet"
-        self._suffix          = "Bjet"
+        self._signatureSuffix = "Bjet"
         self._etaHalfWidth    = 0.4
         self._phiHalfWidth    = 0.4
-
-        self._doTRT               = False
+        self._doTRT           = False
 
 class _Settings_bjetVtx( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "bjetVtx"
-        self._suffi           = "BjetVtx"
+        self._signatureSuffix = "BjetVtx"
         self._pTmin           = 5.*GeV
         self._etaHalfWidth    = 0.1
         self._phiHalfWidth    = 0.1
-
         self._doTRT               = False
 
 # fullscan 
@@ -398,21 +447,23 @@ class _Settings_bjetVtx( _Settings ) :
 class _Settings_fullScan( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name            = "fullScan"
-        self._suffix          = "FS"
-        self._doFullScan      = True
-        self._etaHalfWidth    = 3
-        self._phiHalfWidth    = 3.14159
+        self._name               = "fullScan"
+        self._signatureSuffix    = "FS"
+        self._signatureSuffixFTF = "FS"
+        self._doFullScan         = True
+        self._etaHalfWidth       = 3
+        self._phiHalfWidth       = 3.14159
 
-        self._doTRT               = False
+        self._doTRT              = False
 
 # beamspot 
 
 class _Settings_beamSpot( _Settings ) :     
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name            = "beamSpot"
-        self._suffix          = "BeamSpot"
+        self._name               = "beamSpot"
+        self._signatureSuffix    = "BeamSpot"
+        self._signatureSuffixFTF = "FS"
         self._doFullScan      = True
         self._doZFinder       = True
         self._dRdoubletMax    = 200 
@@ -430,7 +481,7 @@ class _Settings_minBias( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "minBias"
-        self._suffix          = "MinBias"
+        self._signatureSuffix = "MinBias"
         self._doFullScan      = True
         self._pTmin           = 0.2*GeV # TODO: double check
         self._etaHalfWidth    = 3
@@ -445,7 +496,7 @@ class _Settings_cosmic( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "cosmic"
-        self._suffix          = "Cosmic"
+        self._signatureSuffix = "Cosmic"
         self._doFullScan      = True
         self._d0SeedMax       = 1000.0
         self._d0SeedPPSMax    = 1000.0
@@ -460,7 +511,7 @@ class _Settings_bphysics( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "bphysics"
-        self._suffix              = "Bphys"
+        self._signatureSuffix     = "Bphys"
         self._d0SeedMax           = 10. 
         self._doSpPhiFiltering    = False
         self._etaHalfWidth        = 0.75
@@ -475,17 +526,19 @@ class _Settings_tauCore( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "tauCore"
-        self._suffix          = "TauCore"
+        self._signatureSuffix = "TauCore"
 
-        self._doTRT               = True
+        self._doTRT           = True
+        self._isRecordable    = False
 
 class _Settings_tauIso( _Settings ) : 
     def __init__( self ) : 
         _Settings.__init__(self)
-        self._name            = "tauIso"
-        self._suffix          = "TauIso"
-        self._etaHalfWidth    = 0.4
-        self._phiHalfWidth    = 0.4
+        self._name               = "tauIso"
+        self._signatureSuffix    = "Tau" #The name sig suffix is revert back to Tau
+        self._signatureSuffixFTF = "TauIso" #This is for cases where FTF suffix is different from PT suffix
+        self._etaHalfWidth       = 0.4
+        self._phiHalfWidth       = 0.4
 
         self._doTRT               = True
 
@@ -493,12 +546,43 @@ class _Settings_tau( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name            = "tau"
-        self._suffix          = "Tau"
+        self._signatureSuffix = "Tau"
         self._pTmin           = 0.8*GeV 
         self._etaHalfWidth    = 0.4
         self._phiHalfWidth    = 0.4
 
         self._doTRT               = True
+
+#FIXME: these should be redundant! Remove later on once taus are fixed
+class _Settings_tauId( _Settings_tau ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name            = "tau"
+        self._signatureSuffix = "Tau"
+        self._isRecordable    = False
+
+class _Settings_tauTrk( _Settings_tau ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name            = "tau"
+        self._signatureSuffix = "Tau"
+        self._isRecordable    = False
+
+class _Settings_tauTrkTwo( _Settings_tau ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name               = "tau"
+        self._signatureSuffix    = "Tau"
+        self._signatureSuffixFTF = "TauIso" #This is for cases where FTF suffix is different from PT suffix
+        self._isRecordable       = False
+
+class _Settings_tauEF( _Settings_tau ) : 
+    def __init__( self ) : 
+        _Settings.__init__(self)
+        self._name               = "tau"
+        self._signatureSuffix    = "Tau"
+        self._signatureSuffixFTF = "TauIso" #This is for cases where FTF suffix is different from PT suffix
+        self._isRecordable       = False
 
 # overall map for use, ie 
 
@@ -513,19 +597,21 @@ _ConfigSettings = {
     "electron"  : _Settings_electron(),
     "photon"    : _Settings(name="photon"),
     
-    "tau"       : _Settings_tau(),
+    #Mess in signature names between FTF and PT 
+    #For instance in FTF tau is being called as tauIso but in PT it is called as tau (so retrieval of two different configurations)
+    "tau"       : _Settings_tau(), #TauIso being passed as tau...
     "tauCore"   : _Settings_tauCore(),
     "tauIso"    : _Settings_tauIso(),
     #FIXME
     #Need to be careful here, collections below are probably unnecessary, need to make sure if that is the case and we (tau group)need to remove them 
-    "tauId"     : _Settings_tau(), #Does this need separate setting?
-    "tauTrk"    : _Settings_tau(), #Does this need separate setting?
-    "tauTrkTwo" : _Settings_tau(), #Does this need separate setting?
-    "tauEF"     : _Settings_tau(), #Does this need separate setting?
+    "tauId"     : _Settings_tauId(),      #Does this need separate setting?
+    "tauTrk"    : _Settings_tauTrk(),     #Does this need separate setting?
+    "tauTrkTwo" : _Settings_tauTrkTwo(),  #Does this need separate setting?
+    "tauEF"     : _Settings_tauEF(),      #Does this need separate setting?
 
+    "jet"       : _Settings_jet(),
     "bjet"      : _Settings_bjet(),
     "bjetVtx"   : _Settings_bjetVtx(),
-
 
     "beamSpot"  : _Settings_beamSpot(),
     
