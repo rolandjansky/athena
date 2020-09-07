@@ -53,7 +53,7 @@ TRT_DetDescrDB_ParameterInterface::~TRT_DetDescrDB_ParameterInterface() {
 }
 
 //_________________________________________________________________________________________
-void TRT_DetDescrDB_ParameterInterface::SetValues ATLAS_NOT_THREAD_SAFE () { // Thread unsafe AthenaComps::rdbAccessSvc const method is used.
+void TRT_DetDescrDB_ParameterInterface::SetValues() {
 
   /////////////////////////////////////////////////////////////////////////////////////////
   //                                 Initialize Services                                 //
