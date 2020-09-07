@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCoolMultChanCnv.icc
@@ -22,6 +22,8 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/StorableConversions.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include <exception>
 #include <string>
@@ -111,9 +113,10 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createObj(IOpaqu
 //__________________________________________________________________________
 template <class COLL_T, class ELEM_T, class ELEM_P>
 StatusCode
-T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl(COLL_T* obj, IOpaqueAddress*& pAddr,
-								  CondAttrListCollection*& attrListColl,
-								  Token*& implToken)
+T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::objectToAttrListColl ATLAS_NOT_THREAD_SAFE
+  (COLL_T* obj, IOpaqueAddress*& pAddr,
+   CondAttrListCollection*& attrListColl,
+   Token*& implToken)
 {
     ATH_MSG_DEBUG("Creating a CondAttrListCollection from a collection");
 
@@ -209,7 +212,8 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
     }
     CondAttrListCollection* coll = 0;
     Token* token = 0;
-    StatusCode sc = objectToAttrListColl(obj, pAddr, coll, token);
+    // Ok, because it's just creating a new list.
+    StatusCode sc ATLAS_THREAD_SAFE = objectToAttrListColl(obj, pAddr, coll, token);
     if (sc != StatusCode::SUCCESS || !token) {
 	ATH_MSG_ERROR("Unable to get objects and fill CondAttrListCollection with tokens");
 	return(StatusCode::FAILURE);
