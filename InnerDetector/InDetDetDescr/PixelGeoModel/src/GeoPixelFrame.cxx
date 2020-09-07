@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build the global support frame
@@ -18,7 +18,9 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <algorithm>
 
-GeoPixelFrame::GeoPixelFrame()
+GeoPixelFrame::GeoPixelFrame(InDetDD::PixelDetectorManager* ddmgr,
+                             PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
 {
 }
 

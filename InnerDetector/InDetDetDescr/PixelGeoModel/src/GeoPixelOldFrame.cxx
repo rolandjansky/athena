@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -20,7 +20,9 @@
 
 // Satisfy interface
 
-GeoPixelOldFrame::GeoPixelOldFrame()
+GeoPixelOldFrame::GeoPixelOldFrame(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
 {
   m_legacyManager = m_gmt_mgr->legacyManager();
 }

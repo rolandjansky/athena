@@ -8,11 +8,12 @@
 #include "GeoVPixelFactory.h"
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelDiskSupports : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelDiskSupports : public GeoVPixelFactory {
 
  public:
-  GeoPixelDiskSupports();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDiskSupports(InDetDD::PixelDetectorManager* ddmgr,
+                       PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   int NCylinders(){return m_rmin.size();}
   void SetCylinder(int n) {m_nframe = n;}

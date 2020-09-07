@@ -46,7 +46,7 @@ public:
   virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const = 0;
 
   // Legacy tables
-  virtual PixelLegacyManager * legacyManager() const;
+  virtual PixelLegacyManager * legacyManager();
 
  // 
   // VERSION INFORMATION
@@ -603,7 +603,8 @@ public:
   virtual int EmptyRowConnections(int index)=0;
 
   // CommonItems for Det Elements
-  virtual InDetDD::SiCommonItems * commonItems() const=0;
+  virtual InDetDD::SiCommonItems * commonItems()=0;
+  virtual const InDetDD::SiCommonItems * commonItems() const=0;
   virtual void setCommonItems(InDetDD::SiCommonItems * commonItems)=0; 
 
    // ID helper

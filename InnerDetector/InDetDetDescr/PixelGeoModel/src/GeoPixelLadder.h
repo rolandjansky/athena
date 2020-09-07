@@ -10,12 +10,14 @@ class GeoLogVol;
 class GeoPixelSiCrystal;
 class GeoPixelStaveSupport;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelLadder : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelLadder : public GeoVPixelFactory {
  public:
-  GeoPixelLadder(GeoPixelSiCrystal& theSensor,
+  GeoPixelLadder(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal& theSensor,
 		 GeoPixelStaveSupport * staveSupport);
 	virtual ~GeoPixelLadder();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double thickness() const {return m_thickness;}
   double thicknessP() const {return m_thicknessP;}
   double thicknessN() const {return m_thicknessN;}
