@@ -97,6 +97,9 @@ TrigSignatureMoniMT                                 INFO -- #628534730 Features 
 TrigSignatureMoniMT                                 INFO HLT_costmonitor_CostMonDS_L1All #843341480
 TrigSignatureMoniMT                                 INFO -- #843341480 Events          20         20         20         -          -          -          -          -          -          -          -          -          -          -          20
 TrigSignatureMoniMT                                 INFO -- #843341480 Features                              20         -          -          -          -          -          -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO HLT_cscmon_L1All #1000936179
+TrigSignatureMoniMT                                 INFO -- #1000936179 Events         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20
+TrigSignatureMoniMT                                 INFO -- #1000936179 Features                             -          -          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_e140_lhloose_L1EM22VHI #3471067710
 TrigSignatureMoniMT                                 INFO -- #3471067710 Events         6          6          0          0          0          0          -          -          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                 INFO -- #3471067710 Features                             0          0          0          0          -          -          -          -          -          -          -          -
