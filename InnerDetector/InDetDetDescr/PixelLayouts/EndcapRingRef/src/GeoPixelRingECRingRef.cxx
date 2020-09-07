@@ -108,8 +108,8 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   m_ringRMin = rmin- 0.5*edge*cos(m_inclination)- 0.001;
   m_ringRMax = rmax+0.5*edge*cos(m_inclination)+0.001;
   
-  m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - ringModule->getModuleSensorLength()*.5*sin(m_inclination);
-  m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + ringModule->getModuleSensorLength()*.5*sin(m_inclination);
+  m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - 0.5*edge*sin(m_inclination);
+  m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + (ringModule->getModuleSensorLength()-0.5*edge)*sin(m_inclination);
 
  // This is the radius of the center of the active sensor 
   double moduleRadius = m_radius + 0.5*cos(m_inclination)*activeSensorLength;
