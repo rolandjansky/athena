@@ -73,9 +73,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                           "\", allowed values are Tight, Medium, Loose, " +
                           "VeryLoose, HighPt, LowPtEfficiency")
 
-    if not splitWP[1] in ["Iso", "NonIso"] :
-        raise ValueError ('invalid muon isolation \"' + splitWP[1] +
-                          '\", allowed values are Iso, NonIso')
+    isoWP = splitWP[1]
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "MuonAnalysisSequence" + postfix )
@@ -148,11 +146,12 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])})
 
     # Set up the isolation calculation algorithm:
-    if splitWP[1] != 'NonIso' :
+    if isoWP != 'NonIso' :
         alg = createAlgorithm( 'CP::MuonIsolationAlg',
                                'MuonIsolationAlg' + postfix )
         addPrivateTool( alg, 'isolationTool', 'CP::IsolationSelectionTool' )
         alg.isolationDecoration = 'isolated_muon' + postfix + ',as_bits'
+        alg.isolationTool.MuonWP = isoWP
         seq.append( alg, inputPropName = 'muons', outputPropName = 'muonsOut',
                     stageName = 'selection',
                     metaConfig = {'selectionDecorNames' : [alg.isolationDecoration],
