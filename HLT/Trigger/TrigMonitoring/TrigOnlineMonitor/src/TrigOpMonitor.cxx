@@ -12,7 +12,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "GaudiKernel/DirSearchPath.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "eformat/DetectorMask.h"
 #include "eformat/SourceIdentifier.h"
 
@@ -351,22 +351,21 @@ void TrigOpMonitor::fillSubDetHist()
 {
   // Retrieve the enabled ROBs/SubDets list from DataFlowConfig which is a special object
   // used online to hold DF properties passed from TDAQ to HLT as run parameters
-  SmartIF<IJobOptionsSvc> jobOptionsSvc = service<IJobOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
+  auto jobOptionsSvc = service<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
   if (!jobOptionsSvc.isValid()) {
     ATH_MSG_WARNING("Could not retrieve JobOptionsSvc, will not fill SubDetectors histogram");
     return;
   }
-  const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_ROB_IDs");
+
   Gaudi::Property<std::vector<uint32_t>> enabledROBsProp("EnabledROBs",{});
   std::set<uint32_t> enabledROBs;
-  if (prop && enabledROBsProp.assign(*prop)) {
+  if (enabledROBsProp.fromString(jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs","[]")).isSuccess()) {
     enabledROBs.insert(enabledROBsProp.value().begin(), enabledROBsProp.value().end());
     ATH_MSG_DEBUG("Retrieved a list of " << enabledROBs.size()
                   << " ROBs from DataFlowConfig.DF_Enabled_ROB_IDs");
   }
   else {
-    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc. This is fine if running "
-                  << "offline, but should not happen online");
+    ATH_MSG_ERROR("Could not parse DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc");
   }
 
   // Retrieve detector mask from detector store
