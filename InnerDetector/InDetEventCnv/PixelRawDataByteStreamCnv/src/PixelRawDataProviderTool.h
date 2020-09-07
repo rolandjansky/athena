@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDERTOOL_H
@@ -41,6 +41,8 @@ class PixelRawDataProviderTool : virtual public IPixelRawDataProviderTool, publi
 		      IPixelRDO_Container* rdoIdc,
 		      IDCInDetBSErrContainer& decodingErrors) const final;
 
+  //! Size of IDCInDetBSErrContainer
+  int SizeOfIDCInDetBSErrContainer() const final;
 
 private: 
   

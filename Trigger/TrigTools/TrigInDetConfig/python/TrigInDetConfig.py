@@ -199,6 +199,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'PixelBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                   ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
