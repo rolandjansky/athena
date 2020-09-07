@@ -14,7 +14,7 @@ public:
                     PixelGeometryManager* mgr);
   virtual GeoVPhysVol* Build() override;
 
-  GeoVPhysVol* SetParametersAndBuild(std::string,std::string);
+  GeoVPhysVol* SetParametersAndBuild(const std::string&,const std::string&);
   double GetPositionAlongZAxis() const { return m_zPosition; }
 
   double GetInnerRadius() const { return m_innerRadius; }

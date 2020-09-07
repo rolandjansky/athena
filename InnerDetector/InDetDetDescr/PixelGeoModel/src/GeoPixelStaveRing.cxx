@@ -25,19 +25,18 @@ using namespace std;
 
 GeoPixelStaveRing::GeoPixelStaveRing(InDetDD::PixelDetectorManager* ddmgr,
                                      PixelGeometryManager* mgr)
-  : GeoVPixelFactory (ddmgr, mgr)
+  : GeoVPixelFactory (ddmgr, mgr),
+    m_physVol (nullptr),
+    m_zPosition (0),
+    m_innerRadius (0),
+    m_outerRadius (0),
+    m_ringPosition ("AC"),
+    m_ringName ("staveRing")
 {
-  m_ringName="staveRing";
-  m_ringPosition="AC";
-  
-  m_zPosition =0;
-  m_innerRadius = 0.;
-  m_outerRadius = 0.;
-
-  m_physVol = 0;
 }
 
-GeoVPhysVol* GeoPixelStaveRing::SetParametersAndBuild(std::string ringName, std::string ringPos)
+GeoVPhysVol* GeoPixelStaveRing::SetParametersAndBuild(const std::string& ringName,
+                                                      const std::string& ringPos)
 {
   m_ringName=ringName;
   m_ringPosition=ringPos;
