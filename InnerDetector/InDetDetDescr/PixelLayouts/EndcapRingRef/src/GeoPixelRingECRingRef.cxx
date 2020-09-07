@@ -107,7 +107,8 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   double edge = buildDeadEdges ? fabs(  ringModule->Length()-ringModule->getModuleChipLength() ) : 0.;
   m_ringRMin = rmin- 0.5*edge*cos(m_inclination)- 0.001;
   m_ringRMax = rmax+0.5*edge*cos(m_inclination)+0.001;
-  
+
+  // asymmetric span calculated w.r.t. the upper edge of sensor active area (xml input)  
   m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - 0.5*edge*sin(m_inclination);
   m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + (ringModule->getModuleSensorLength()-0.5*edge)*sin(m_inclination);
 
