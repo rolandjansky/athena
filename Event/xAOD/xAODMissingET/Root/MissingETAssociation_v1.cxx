@@ -644,8 +644,7 @@ namespace xAOD {
 	const TruthParticle* tp = static_cast<const TruthParticle*>(obj);
 	if(fabs(tp->charge())>0.)
 	  trkOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
-	if(!tp->isMuon())
-	  calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
+	calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
       }
       else calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
     }
