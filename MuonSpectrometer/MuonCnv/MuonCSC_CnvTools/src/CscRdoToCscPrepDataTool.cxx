@@ -71,7 +71,12 @@ StatusCode CscRdoToCscPrepDataTool::decode(std::vector<IdentifierHash>& givenIdh
   } else {
 
     ATH_MSG_DEBUG ("CSC PrepData Container is already in StoreGate ");
-    
+    const Muon::CscStripPrepDataContainer* outputCollection_c = 0;
+    if (evtStore()->retrieve (outputCollection_c, m_outputCollectionKey.key()).isFailure())
+    {
+      return StatusCode::FAILURE;
+    }
+    m_outputCollection = const_cast<Muon::CscStripPrepDataContainer*> (outputCollection_c);
     if (m_fullEventDone) {
       ATH_MSG_DEBUG("Whole event has already been decoded; nothing to do");
       return StatusCode::SUCCESS;
