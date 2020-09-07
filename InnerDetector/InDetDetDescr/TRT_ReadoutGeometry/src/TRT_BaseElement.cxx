@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetReadoutGeometry/SurfaceCache.h"
@@ -41,12 +41,12 @@ namespace InDetDD {
 
     TRT_BaseElement::TRT_BaseElement(const TRT_BaseElement&right, const GeoAlignmentStore* geoAlignmentStore):
     Trk::TrkDetElementBase(right.getMaterialGeom()),
-      m_geoAlignStore(geoAlignmentStore)
+    m_id (right.m_id),
+    m_idHash (right.m_idHash),
+    m_idHelper (right.m_idHelper),
+    m_conditions (right.m_conditions),
+    m_geoAlignStore(geoAlignmentStore)
     {
-        m_id            = right.m_id;
-        m_idHash        = right.m_idHash;
-        m_idHelper      = right.m_idHelper;
-        m_conditions    = right.m_conditions;
     }    
 
     Identifier TRT_BaseElement::identify() const
