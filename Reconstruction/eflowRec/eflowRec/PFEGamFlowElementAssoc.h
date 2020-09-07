@@ -7,7 +7,7 @@
  * Header file for class PFEGamFlowElementAssoc
  *                                                                                                                                                                                     
  *  Created on: 13.03.19                                                                                                                                                            
- *      Author: J. C. MacDonald                                                                                                                                                      
+ *      Author: J. C. MacDonald & Upgraded by M.T. Anthony                                                                                                                                                      
  */
 
 #ifndef PFEGAMFLOWELEMENTASSOC_H
@@ -19,7 +19,7 @@
 
 #include "StoreGate/WriteDecorHandle.h"
 // this should be obsolete, but keeping atm to avoid crashes
-#include "xAODPFlow/PFOContainer.h" // old EDM
+//#include "xAODPFlow/PFOContainer.h" // old EDM
 #include "xAODPFlow/FlowElementContainer.h" // Container to replace it
 /**                                                                                                                                                                                     
 This is the algorithm, which inherits from AthAlgorithm, that adds element links 
