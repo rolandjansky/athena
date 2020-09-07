@@ -506,7 +506,7 @@ namespace Trk {
     cache.m_calomat = tmp;
     cache.m_extmat = tmp2;
     cache.m_idmat = tmp4;
-    return std::move(track);
+    return track;
   }
 
   Track *GlobalChi2Fitter::mainCombinationStrategy(
@@ -2383,7 +2383,7 @@ namespace Trk {
       incrementFitStatus(S_SUCCESSFUL_FITS);
     }
     
-    return std::move(track);
+    return track;
   }
 
   // extend a track fit to include an additional set of PrepRawData objects
@@ -2644,7 +2644,7 @@ namespace Trk {
     }
     cache.m_matfilled = false;
     
-    return std::move(track);
+    return track;
   }
 
   void GlobalChi2Fitter::makeProtoState(
@@ -4777,7 +4777,7 @@ namespace Trk {
       return nullptr;
     }
     
-    return std::move(per);
+    return per;
   }
 
   Track *GlobalChi2Fitter::myfit(
