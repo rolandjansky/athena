@@ -13,7 +13,6 @@
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 //================ Constructor =================================================
 

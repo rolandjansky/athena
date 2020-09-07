@@ -15,7 +15,6 @@
 
 #include "LWHists/TH1F_LW.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"

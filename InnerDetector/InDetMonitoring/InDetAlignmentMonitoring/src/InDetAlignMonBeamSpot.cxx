@@ -9,7 +9,6 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 //#include "GaudiKernel/MsgStream.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
