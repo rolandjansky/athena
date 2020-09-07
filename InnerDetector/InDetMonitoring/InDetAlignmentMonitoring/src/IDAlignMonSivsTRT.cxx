@@ -16,7 +16,6 @@
 #include "TProfile.h"
 #include "TMath.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 
 

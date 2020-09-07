@@ -16,7 +16,6 @@
 
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
