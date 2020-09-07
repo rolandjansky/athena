@@ -204,7 +204,6 @@ def getKernel_GenericSimulatorMT(name="ISF_Kernel_GenericSimulatorMT", **kwargs)
     kwargs.setdefault("ParticleKillerTool", "ISF_ParticleKillerTool" )
     kwargs.setdefault("GeoIDSvc", "ISF_GeoIDSvc" )
     kwargs.setdefault("InputConverter", "ISF_InputConverter")
-    kwargs.setdefault("OutputLevel", 1)
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
     #kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
