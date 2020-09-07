@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon.Constants import DEBUG
+
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
@@ -101,6 +103,7 @@ def precisionPhotonMenuSequence(name):
 
     thePrecisionPhotonHypo = TrigEgammaPrecisionPhotonHypoAlgMT(name+"precisionPhotonHypo")
     thePrecisionPhotonHypo.Photons = sequenceOut
+    thePrecisionPhotonHypo.OutputLevel = DEBUG
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionPhotonViewsMaker, 

@@ -2,6 +2,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Constants import DEBUG
+
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Egamma.PhotonDef")
@@ -29,6 +31,14 @@ def precisionPhotonCaloSequenceCfg( flags ):
 
 def precisionPhotonSequenceCfg( flags ):
     return precisionPhotonMenuSequence('Photon')
+
+def diphotonDPhiHypoToolFromDict(chainDict):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaDiphotonDPhiHypoTool
+    name = chainDict['chainName']
+    tool= TrigEgammaDiphotonDPhiHypoTool(name)
+    tool.ThresholdDPhiCut = 1.5
+    tool.OutputLevel = DEBUG
+    return tool
 
 #----------------------------------------------------------------
 # Class to configure chain
@@ -95,5 +105,9 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         return self.getStep(3,stepName,[ precisionPhotonCaloSequenceCfg])
             
     def getPrecisionPhoton(self):
-        stepName = "PhotonPrecision"
-        return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])
+        if "dPhi15" in self.chainName:
+            stepName = "precision_topophoton"
+            return self.getStep(4,stepName,sequenceCfgArray=[precisionPhotonSequenceCfg], comboTools=[diphotonDPhiHypoToolFromDict])
+        else:
+            stepName = "precision_photon"
+            return self.getStep(4,stepName,[ precisionPhotonSequenceCfg])

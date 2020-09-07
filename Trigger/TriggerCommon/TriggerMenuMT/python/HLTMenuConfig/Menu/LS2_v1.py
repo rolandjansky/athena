@@ -155,6 +155,9 @@ def setupMenu():
     
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
+
+        #ATR-21882
+        ChainProp(name='HLT_2g15_tight_dPhi15_L12EM3', groups=MultiPhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
