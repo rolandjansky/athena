@@ -228,8 +228,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   //2***
   // cool db strip index
   
-  //std::cout <<" NetaStripsTotSideC "<< NetaStripsTotSideC << " NetaStripsTotSideA "<< NetaStripsTotSideA << " ShiftPhiTot_db " << ShiftPhiTot_db << std::endl;
-  
   if(irpcmeasuresPhi==0) {
     strip_dbindex = ( ShiftEtaStripsTot + irpcstrip ) * EtaStripSign ;
   }
@@ -334,6 +332,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	}    
  
 	for(int iz   =      1; iz   !=   lastdoubletZ+1; iz++	){ 
+
     Identifier rpcId = rpcIdHelper.channelID(iname, keta, iphi, ir, iz, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
     if (!rpcId.is_valid()) continue;
 	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
@@ -373,13 +372,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   rpcstriptot.push_back(panel_dbindex         );
   rpcstriptot.push_back(tower_dbindex         );   //24
   rpcstriptot.push_back(ShiftStripPhiAtlas    );   //25
-  
-      //std::cout << "----------------"<< std::endl;
-    
-      //std::cout << "NphiStripsTotSideA "<<NphiStripsTotSideA<< " NphiStripsTotSideC "<<NphiStripsTotSideC<< " " <<irpcmeasuresPhi <<std::endl;
-      //std::cout << "NetaStripsTotSideA "<<NetaStripsTotSideA<< " NetaStripsTotSideC "<<NetaStripsTotSideC<<" ShiftEtaStripsTot "<< ShiftEtaStripsTot<< std::endl;
-      //std::cout << "NetaPanelsTotSideA "<<NetaPanelsTotSideA<< " NetaPanelsTotSideC "<<NetaPanelsTotSideC<<" ShiftEtaPanelsTot "<< ShiftEtaPanelsTot<< std::endl;
-     
   
   return  rpcstriptot ;
 
