@@ -28,8 +28,6 @@
 
 #include <sstream>
 
-using namespace std;
-
 
 BSignalFilter::BSignalFilter(const std::string& name, ISvcLocator* pSvcLocator) :
   GenFilter(name, pSvcLocator)
@@ -457,7 +455,7 @@ void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::strin
   for( auto thisChild = firstChild; thisChild != lastChild++; ++thisChild)
     {
       childCnt++;
-      stringstream childCntSS; childCntSS << childCnt;
+      std::stringstream childCntSS; childCntSS << childCnt;
       childIDStr = treeIDStr + childCntSS.str();
       PrintChild( (*thisChild), childIDStr, fromFinalB );
       FindAllChildren( (*thisChild),childIDStr,fromFinalB,foundSignal,passedAllCuts,p1,p2,(pID==m_B_pdgid) || fromSelectedB);
@@ -606,7 +604,7 @@ void BSignalFilter::PrintChild(HepMC::ConstGenParticlePtr child,
 {
   int pID = child->pdg_id();
   // ** Find name **
-  const HepPDT::ParticleData* pData = particleData(abs(pID));
+  const HepPDT::ParticleData* pData = particleData(std::abs(pID));
   std::string pName = "unknown particle";
   if (pData){
     pName = pData->name();

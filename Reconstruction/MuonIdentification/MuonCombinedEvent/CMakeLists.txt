@@ -5,26 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCombinedEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthLinks
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          Reconstruction/MuonIdentification/MuidEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkParameters
-			  MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
-                          PRIVATE
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          Tracking/TrkEvent/TrkTrack )
-
 # External dependencies:
 find_package( Eigen )
 

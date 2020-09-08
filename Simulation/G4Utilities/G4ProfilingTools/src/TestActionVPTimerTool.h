@@ -49,7 +49,7 @@ namespace G4UA
     //  void TimerPrint(std::ofstream&,
     //            std::pair<VolTree, volData>,
     //            const int depth = 0) const;           //!< (Modifiable) print function for a map element
-    void TreeOut(VolTree, const double tAtlas, int depth = 0);
+    void TreeOut(const VolTree&, const double tAtlas, int depth = 0);
 
   }; // class TestActionVPTimerTool
 

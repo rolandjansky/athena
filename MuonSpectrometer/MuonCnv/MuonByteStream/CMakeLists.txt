@@ -5,29 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonByteStream )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/IRegionSelector
-			  Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          GaudiKernel
-                          MuonSpectrometer/MuonCnv/MuonCSC_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Control/StoreGate
-                          Control/AthViews
-                          Trigger/TrigSteer/ViewAlgs
-                          MuonSpectrometer/MuonCablings/CSCcabling
-                          MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          MuonSpectrometer/MuonCnv/MuonMDT_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonRPC_CnvTools
-                          MuonSpectrometer/MuonIdHelpers
-			  MuonSpectrometer/MuonAlignment/MuonAlignmentData
-                          MuonSpectrometer/MuonRDO )
-
 # External dependencies:
 find_package( tdaq-common )
 find_package( CLHEP )

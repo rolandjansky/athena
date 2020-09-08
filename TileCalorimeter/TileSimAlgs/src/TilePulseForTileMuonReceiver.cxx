@@ -255,8 +255,8 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
   std::vector<float> digitsBuffer(m_nSamples);
 
   // Prepare RNG service
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
 
   /////////////////////////////////////////////////////////////////////////////////
   // (a.0) iterate over collections in the HIT container: access 'ros' and 'drawer'

@@ -158,7 +158,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            return; 
        }
        // create entry/exit point
-       Amg::Vector3D gpos1 = pars.position();
+       const Amg::Vector3D& gpos1 = pars.position();
        Amg::Vector3D gpos2 = gpos1 + pars.momentum().unit();
        // get the rotation
        const Amg::Transform3D& sTransform = hitSurface.transform();      

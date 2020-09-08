@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonClusterization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Event/EventPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 

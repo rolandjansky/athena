@@ -17,26 +17,12 @@ namespace Muon {
       int quality2 = m_segmentSelector->quality(*lay2.segment);
       return quality1 > quality2;
     }
-    
-   
     const ToolHandle<IMuonSegmentSelectionTool>& m_segmentSelector;
   };
 
   MuonLayerAmbiguitySolverTool::MuonLayerAmbiguitySolverTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
-    m_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"),
-    m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-  {
+    AthAlgTool(type,name,parent) {
     declareInterface<IMuonLayerAmbiguitySolverTool>(this);
-    declareProperty("MaxSeeds",                   m_maxSeeds=30 );   
-    declareProperty("SeedQualityThreshold",       m_seedQualityThreshold = 2 ); 
-    declareProperty("MinimumSegmentQuality",      m_minSegmentQuality = 1 );
-    declareProperty("MuonSegmentSelectionTool",   m_segmentSelector );
-    declareProperty("MuonSegmentMatchingTool",    m_segmentMatchingTool );
-    declareProperty("MuonSegmentTrackBuilder",    m_muonTrackBuilder );
-    declareProperty("MuonEDMPrinterTool",m_printer );    
   }
 
   StatusCode MuonLayerAmbiguitySolverTool::initialize() {

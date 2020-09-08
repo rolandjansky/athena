@@ -6,54 +6,6 @@
 # Declare the package name:
 atlas_subdir( MuonEventTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthAllocators
-   Control/AthLinks
-   Control/DataModelAthenaPool
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/Identifier
-   GaudiKernel
-   Generators/GeneratorObjectsTPCnv
-   MuonSpectrometer/MuonDigitContainer
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonChamberT0s
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-   MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
-   MuonSpectrometer/MuonRDO
-   MuonSpectrometer/MuonSimData
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkRIO_OnTrack
-   Tracking/TrkEventCnv/TrkEventCnvTools
-   Tracking/TrkEventCnv/TrkEventTPCnv
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthenaKernel
-   Control/StoreGate
-   Database/TPTools
-   DetectorDescription/AGDD/AGDDKernel
-   DetectorDescription/AtlasDetDescr
-   DetectorDescription/GeoPrimitives
-   DetectorDescription/IdDict
-   DetectorDescription/IdDictDetDescr
-   DetectorDescription/IdDictParser
-   Event/EventPrimitives
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-   InnerDetector/InDetDetDescr/PixelReadoutGeometry
-   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-   InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-   MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-   MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-   MuonSpectrometer/MuonIdHelpers
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkMeasurementBase
-   Tracking/TrkEvent/TrkPseudoMeasurementOnTrack )
-
 find_package( GeoModelCore )
 
 # Component(s) in the package:

@@ -169,11 +169,6 @@ StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackC
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
-  ATH_MSG_ERROR("function not implemented");
-  return StatusCode::FAILURE;
-}
-
 StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloClusterContainer& /*shotClusterContainer*/, xAOD::PFOContainer& /*PFOContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;

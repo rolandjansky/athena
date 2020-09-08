@@ -207,9 +207,9 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
 	double pz = (*part).GetPz();
 	double e  = (*part).GetE();
 	// mass fix implemented only for muons
-	if(abs(pid)==13) {
+	if(std::abs(pid)==13) {
           float mass = m_inputParameters.muonMass();//0.1056583715;// starlightConstants::muonMass;
-	  e  = sqrt(px*px + py*py + pz*pz + mass*mass);
+	  e  = std::sqrt(px*px + py*py + pz*pz + mass*mass);
 	}
 	ATH_MSG_DEBUG( "saving particle " << ipart  );
 

@@ -18,7 +18,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "Gaudi/Property.h"
 
 #include "TrigInterfaces/AlgoConfig.h"

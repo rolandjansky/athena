@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonLayerHough )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-                          Control/AthenaKernel
-                          MuonSpectrometer/MuonStationIndex
-                          GaudiKernel
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Gpad Graf Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf3d Html Postscript Gui GX11TTF GX11 )

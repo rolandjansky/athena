@@ -9,13 +9,13 @@
  * @brief  Implementation code for the Forward GsfFitter  part
  */
 
-#include "TrkGaussianSumFilter/GaussianSumFitter.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/FitQuality.h"
+#include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/Surface.h"

@@ -269,7 +269,7 @@ G4mplAtlasIonisationWithDeltaModel::SampleSecondaries(std::vector<G4DynamicParti
   const G4double phi = CLHEP::twopi * G4UniformRand() ;
 
   G4ThreeVector deltaDirection(sint*cos(phi),sint*sin(phi), cost);
-  G4ThreeVector direction = dp->GetMomentumDirection();
+  const G4ThreeVector& direction = dp->GetMomentumDirection();
   deltaDirection.rotateUz(direction);
 
   // create G4DynamicParticle object for delta ray

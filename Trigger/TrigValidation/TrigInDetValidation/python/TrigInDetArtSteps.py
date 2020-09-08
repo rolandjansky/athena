@@ -91,6 +91,9 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += 'doMinBiasSlice=True;'
 
+        if ( flags=='' ) : 
+            print( "ERROR: no chains configured" )
+
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
@@ -190,6 +193,8 @@ class TrigInDetCompStep(RefComparisonStep):
 
         self.chains = data_object['chains']
 
+        # what is all this doing ? does it need to be so complicated ?
+
         if (self.test=='ttbar'):
             self.output_dir = self.output_dir+"-"+self.slice
 
@@ -200,13 +205,12 @@ class TrigInDetCompStep(RefComparisonStep):
         self.args += self.input_file + ' ' 
 
         if (self.reference == None):
-            # if no referenc found, use input file as reference - athout it doesn't matter - could use --noref
+            # if no reference found, use input file as reference - athout it doesn't matter - could use --noref
             self.args += self.input_file + ' ' 
         else:
             self.args += self.ref_file + ' ' 
 
-        self.args += self.chains + ' ' 
-        self.args += ' -d ' + self.output_dir
+        self.args += self.chains + ' -d ' + self.output_dir
 
         print( "TIDAComparitor " + self.args ) 
 

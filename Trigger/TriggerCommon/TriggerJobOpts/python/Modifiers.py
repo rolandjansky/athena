@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -232,14 +232,18 @@ class SolenoidOff(_modifier):
     Turn solenoid field OFF
     """
     def postSetup(self):
-        svcMgr.AtlasFieldSvc.UseSoleCurrent = 0
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldMapCondAlg.MapSoleCurrent = 0
 
 class ToroidsOff(_modifier):
     """
     Turn toroid fields OFF
     """
     def postSetup(self):
-        svcMgr.AtlasFieldSvc.UseToroCurrent = 0
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldMapCondAlg.MapToroCurrent = 0
 
 class BFieldFromDCS(_modifier):
     """
@@ -249,7 +253,9 @@ class BFieldFromDCS(_modifier):
         from IOVDbSvc.CondDB import conddb
         conddb._SetAcc("DCS_OFL","COOLOFL_DCS")
         conddb.addFolder("DCS_OFL","/EXT/DCS/MAGNETS/SENSORDATA")
-        svcMgr.AtlasFieldSvc.UseDCS = True
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        condSeq.AtlasFieldCacheCondAlg.UseDCS = True
 
 class BFieldAutoConfig(_modifier):
     """

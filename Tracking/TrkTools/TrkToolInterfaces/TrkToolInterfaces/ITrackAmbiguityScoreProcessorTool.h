@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRKAMBIGUITYSCOREPROCESSORTOOL_H
@@ -14,7 +14,7 @@ static const InterfaceID IID_ITrackAmbiguityScoreProcessorTool("Trk::ITrackAmbig
 
 namespace Trk {
 
-/** @brief Interface for resolving hit assoication ambiguities in a given track collection.
+/** @brief Interface for resolving hit association ambiguities in a given track collection.
 
 The TrkAmbiguityScoreProcessor attempts to improve the 'score' of an event, where the score of an event is the summed scores of all the tracks it contains. 
 
@@ -28,11 +28,9 @@ class ITrackAmbiguityScoreProcessorTool : virtual public IAlgTool
 	@param tracks collection of tracks which will have ambiguities resolved. Will not be modified.
 	@return  map of score and track. Ownership is passed on 
 	(i.e. client handles deletion)*/
-        virtual void process(std::vector<const Track*>* tracks , TracksScores* scoredTracks) const = 0;
-
-        /** Print statistics at the end of the processing.
-        */
-        virtual void statistics() = 0;
+  virtual void process(const TrackCollection & tracks , TracksScores* scoredTracks) const = 0;
+  //Print statistics at the end of the processing.
+  virtual void statistics() = 0;
 
 };
 

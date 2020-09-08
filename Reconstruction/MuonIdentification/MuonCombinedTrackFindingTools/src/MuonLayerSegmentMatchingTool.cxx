@@ -11,24 +11,14 @@
 namespace Muon {
 
   MuonLayerSegmentMatchingTool::MuonLayerSegmentMatchingTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_extrapolator("Trk::Extrapolation/AtlasExtrapolator"),
-    m_matchingTool("MuTagMatchingTool/MuTagMatchingTool")
-  {
+    AthAlgTool(type,name,parent) {
     declareInterface<IMuonLayerSegmentMatchingTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("Extrapolator",m_extrapolator );    
-    declareProperty("MatchTool",m_matchingTool );    
   }
 
   StatusCode MuonLayerSegmentMatchingTool::initialize() {
-
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_matchingTool.retrieve());
-
     return StatusCode::SUCCESS;
   }
 

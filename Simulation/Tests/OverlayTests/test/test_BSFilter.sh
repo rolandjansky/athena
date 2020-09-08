@@ -21,7 +21,7 @@ BSOverlayFilter_tf.py \
 --inputFilterFile trigs_tar.txt
 echo "art-result: $? BSFilter"
 
-rm -f *.RAW
+rm -f ./*.RAW
 echo "art-result: $? rmRAW"
 
 

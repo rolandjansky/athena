@@ -433,7 +433,7 @@ namespace G4UA{
               {
                 //if (!shortstep) G4cout <<"ZH process step ok: "<<results.size()<<G4endl;
 
-                for (auto larhit: results)
+                for (const auto& larhit: results)
                   {
                     et += larhit.energy;
                     //std::cout <<"ZH Hit: "<<i<<" E: "<<larhit.energy<<" in: "<<(std::string) larhit.id <<std::endl;

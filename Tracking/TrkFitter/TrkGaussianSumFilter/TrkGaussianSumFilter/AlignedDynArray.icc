@@ -17,7 +17,7 @@ inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n)
   , m_size(n)
 {
 
-  const  size_t bufferSize = n * sizeof(T);
+  const size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
   std::uninitialized_default_construct(m_buffer, m_buffer + m_size);
 }
@@ -28,7 +28,7 @@ inline AlignedDynArray<T, ALIGNMENT>::AlignedDynArray(const size_type n,
   : m_buffer(nullptr)
   , m_size(n)
 {
-  const  size_t bufferSize = n * sizeof(T);
+  const size_t bufferSize = n * sizeof(T);
   m_buffer = static_cast<T*>(std::aligned_alloc(ALIGNMENT, bufferSize));
   std::uninitialized_fill(m_buffer, m_buffer + m_size, value);
 }
@@ -85,7 +85,8 @@ AlignedDynArray<T, ALIGNMENT>::buffer() const noexcept
 
 template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::reference
-AlignedDynArray<T, ALIGNMENT>::operator[](const std::size_t pos) noexcept
+AlignedDynArray<T, ALIGNMENT>::operator[](
+  const AlignedDynArray<T, ALIGNMENT>::size_type pos) noexcept
 {
   return m_buffer[pos];
 }
@@ -109,7 +110,6 @@ template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
 AlignedDynArray<T, ALIGNMENT>::begin() const noexcept
 {
-
   return const_iterator(buffer());
 }
 

@@ -80,7 +80,7 @@ namespace iParSim {
       std::string m_filenameMC12MuonPtBins;
       std::string m_filenameMC12MuonEtaBins;
 
-      bool getBinsFromFile(std::string ptFile, std::string etaFile);
+      bool getBinsFromFile(const std::string& ptFile, const std::string& etaFile);
       
       int getEtaBin(const double) const;
       

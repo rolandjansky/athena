@@ -30,6 +30,7 @@ CLASS_DEF( std::vector<unsigned int> ,   177480351 , 1 )
 CLASS_DEF( std::vector<unsigned long> ,      18868981 , 1 )
 CLASS_DEF( std::vector<unsigned long long> , 35119468 , 1 )
 
+CLASS_DEF( std::vector<std::vector<bool> > ,              255356807 , 1 )
 CLASS_DEF( std::vector<std::vector<char> > ,               70698075 , 1 )
 CLASS_DEF( std::vector<std::vector<short> > ,              24204906 , 1 )
 CLASS_DEF( std::vector<std::vector<int> > ,                23262399 , 1 )

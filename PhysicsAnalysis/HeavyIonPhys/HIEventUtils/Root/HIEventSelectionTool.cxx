@@ -12,10 +12,6 @@
 #include <iomanip>
 #include <iostream>
 
-#ifndef ROOTCORE
-#include "GaudiKernel/IJobOptionsSvc.h"
-#endif
-
 namespace HI
 {
 

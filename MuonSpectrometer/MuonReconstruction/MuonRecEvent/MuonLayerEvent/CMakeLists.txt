@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonLayerEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Event/xAOD/xAODCore
-                          MuonSpectrometer/MuonStationIndex
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Tracking/TrkEvent/TrkParameters
-                          PRIVATE
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack )
-
 # Component(s) in the package:
 atlas_add_library( MuonLayerEvent
                    src/*.cxx
