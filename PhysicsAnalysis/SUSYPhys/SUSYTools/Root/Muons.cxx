@@ -43,9 +43,9 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
   const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
-  const static SG::AuxElement::Decorator<float>     acc_dRJet("dRJet");
+  const static SG::AuxElement::ConstAccessor<float> acc_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_DFCommonJetDr("DFCommonJetDr");
-  const static SG::AuxElement::Decorator<float>     acc_DFCommonJetDr("DFCommonJetDr");
+  const static SG::AuxElement::ConstAccessor<float> acc_DFCommonJetDr("DFCommonJetDr");
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
