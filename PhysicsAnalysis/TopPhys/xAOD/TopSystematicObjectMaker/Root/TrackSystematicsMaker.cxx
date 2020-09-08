@@ -222,7 +222,7 @@ namespace top {
     ATH_MSG_DEBUG(" top::TrackSystematicsMaker execute:");
 
 
-    if (!m_config->isMC()) {
+    if (!m_config->isMC() && executeNominal) {
 
       // Create a shallow copy of InDetTrackParticles:                                                                                                                                                   
       const xAOD::TrackParticleContainer *tp(nullptr);
@@ -242,6 +242,9 @@ namespace top {
       }
 
 
+      return StatusCode::SUCCESS;
+    }
+    if (!m_config->isMC() && !executeNominal) {
       return StatusCode::SUCCESS;
     }
 
