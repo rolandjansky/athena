@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthVertex_v1.cxx 624338 2014-10-27 15:08:55Z krasznaa $
@@ -63,13 +63,13 @@ namespace xAOD {
       // Check that the variable exists, and that it has enough elements in it:
       if( ( ! incomingParticleLinksAcc.isAvailable( *this ) ) ||
           ( incomingParticleLinksAcc( *this ).size() <= index ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Retrieve the link object and check its validity:
       const TPLink_t& ipl = incomingParticleLinksAcc( *this )[ index ];
       if( ! ipl.isValid() ) {
-         return 0;
+         return nullptr;
       }
 
       // Finally, de-reference the link:
@@ -113,13 +113,13 @@ namespace xAOD {
       // Check that the variable exists, and that it has enough elements in it:
       if( ( ! outgoingParticleLinksAcc.isAvailable( *this ) ) ||
           ( outgoingParticleLinksAcc( *this ).size() <= index ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Retrieve the link object and check its validity:
       const TPLink_t& opl = outgoingParticleLinksAcc( *this )[ index ];
       if( ! opl.isValid() ) {
-         return 0;
+         return nullptr;
       }
       
       // Finally, de-reference the link:

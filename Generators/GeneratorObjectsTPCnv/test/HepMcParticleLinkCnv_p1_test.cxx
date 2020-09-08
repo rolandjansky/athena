@@ -170,21 +170,21 @@ void test1()
   assert ( genPartList.size() == 13 );
   // HepMcParticleLinks pointing at GenParticles in the first GenEvent in the McEventCollection
   // By event_number
-  const HepMC::GenParticlePtr particle1 = genPartList.at(0);
+  HepMC::ConstGenParticlePtr particle1 = genPartList.at(0);
   HepMcParticleLink trans1a(HepMC::barcode(particle1),particle1->parent_event()->event_number());
   testit (trans1a);
   // By position
   HepMcParticleLink trans1b(HepMC::barcode(particle1),0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION);
   testit (trans1b);
   // HepMcParticleLinks pointing at GenParticles in other GenEvents in the McEventCollection
-  const HepMC::GenParticlePtr particle2 = genPartList.at(7);
+  HepMC::ConstGenParticlePtr particle2 = genPartList.at(7);
   HepMcParticleLink trans2(HepMC::barcode(particle2),particle2->parent_event()->event_number());
   testit (trans2);
-  const HepMC::GenParticlePtr particle3 = genPartList.at(8);
+  HepMC::ConstGenParticlePtr particle3 = genPartList.at(8);
   HepMcParticleLink trans3(HepMC::barcode(particle3),particle3->parent_event()->event_number());
   testit (trans3);
   // HepMcParticleLinks pointing at filtered pileup truth
-  const HepMC::GenParticlePtr particle4 = genPartList.at(12);
+  HepMC::ConstGenParticlePtr particle4 = genPartList.at(12);
   HepMcParticleLink trans4(HepMC::barcode(particle4),particle4->parent_event()->event_number());
   testit (trans4);
   // HepMcParticleLinks pointing at delta-ray (barcode=0 - not recorded in McEventCollection) using event_number

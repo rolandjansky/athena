@@ -68,7 +68,7 @@ bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash
   }
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   if (!errCont.isValid()) {
-    ATH_MSG_ERROR("BSErrContainer is not valid!");
+    ATH_MSG_ERROR("BSErrContainer is not valid !" << name() << " of name " << m_BSErrContReadKey.key());
     return true;
   }
   if (m_pixelID->wafer_hash_max()==2048) {   // RUN-2 setup

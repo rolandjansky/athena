@@ -159,6 +159,7 @@ public:
   virtual const CLID& clID() const override { return m_clid; }
   virtual void* object() override { return m_obj; }
   virtual const std::type_info& tinfo() const override { return typeid(Foo); }
+  using DataBucketBase::cast;
   virtual void* cast (CLID, SG::IRegisterTransient*, bool) override { std::abort(); }
   virtual void* cast (const std::type_info&, SG::IRegisterTransient*, bool) override { std::abort(); }
   virtual void relinquish() override { std::abort(); }

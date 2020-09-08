@@ -140,7 +140,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
     decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
   } else {
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max(), std::numeric_limits<int>::min() );
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min() );
   }
 
 

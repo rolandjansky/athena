@@ -1565,7 +1565,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	
         double e = (thisjet->e())/Gaudi::Units::GeV;
         double et = 0., epsilon = 1.e-3;
-        if(thisjet->pt() > epsilon) et = (thisjet->pt())/Gaudi::Units::GeV;
+        if(thisjet->p4().Et() > epsilon) et = (thisjet->p4().Et())/Gaudi::Units::GeV;
         if(et < epsilon) et = 0;
         double eta = thisjet->eta();
         double phi = thisjet->phi();
@@ -1670,9 +1670,9 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
             double e = (thisjet->e())/Gaudi::Units::GeV;
             double et = 0., epsilon = 1.e-3;
-            if(thisjet->pt() > epsilon) et = (thisjet->pt())/Gaudi::Units::GeV;
+            if(thisjet->p4().Et() > epsilon) et = (thisjet->p4().Et())/Gaudi::Units::GeV;
             if(et < epsilon) et = 0;
-            ATH_MSG_DEBUG( lvl << " thisjet->pt() =  " << et );
+            ATH_MSG_DEBUG( lvl << " thisjet->pt().Et() =  " << et );
             double  eta     = thisjet->eta();
             double  phi     = thisjet->phi();
 	    float  emfrac  =1;
@@ -1781,7 +1781,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
           double e = (j->e())/Gaudi::Units::GeV;
           double et = 0., epsilon = 1.e-3;
 
-          if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
+          if(j->p4().Et() > epsilon) et = (j->p4().Et())/Gaudi::Units::GeV;
 
            ATH_MSG_DEBUG("jet et = "<<et);
 
@@ -1840,7 +1840,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
         double e = ((*j)->e())/Gaudi::Units::GeV;
         double et = 0., epsilon = 1.e-3;
 
-        if((*j)->pt() > epsilon) et = ((*j)->pt())/Gaudi::Units::GeV;
+        if((*j)->p4().Et() > epsilon) et = ((*j)->p4().Et())/Gaudi::Units::GeV;
 
         ATH_MSG_DEBUG("jet et = "<<et);
 
@@ -2956,7 +2956,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
         for (auto j : *jcont.cptr()) {
       
           double et = 0., epsilon = 1.e-3;
-          if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
+          if(j->p4().Et() > epsilon) et = (j->p4().Et())/Gaudi::Units::GeV;
           if(et < epsilon) et = 0;
 
           TLorentzVector v_HLT;
@@ -2998,7 +2998,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
         ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
 
         double et = 0., epsilon = 1.e-3;
-        if((*j)->pt() > epsilon) et = ((*j)->pt())/Gaudi::Units::GeV;
+        if((*j)->p4().Et() > epsilon) et = ((*j)->p4().Et())/Gaudi::Units::GeV;
         if(et < epsilon) et = 0;
 
         TLorentzVector v_HLT;

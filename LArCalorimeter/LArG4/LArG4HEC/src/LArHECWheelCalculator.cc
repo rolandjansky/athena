@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHECWheelCalculator.h"
@@ -21,8 +21,8 @@
 #include "G4TouchableHistory.hh"
 #include "LArG4Code/LArG4BirksLaw.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "AthenaKernel/Units.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "globals.hh"
 #include <cmath>
@@ -64,7 +64,8 @@ StatusCode LArHECWheelCalculator::initialize()
   if(m_doHV)
     {
       const LArDetectorManager *manager=nullptr;
-      StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+      ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArHECWheelCalculator");
+      ATH_CHECK(detStore.retrieve() );
       ATH_CHECK(detStore->retrieve(manager));
       m_DetectorManager=manager->getHecManager();
     }

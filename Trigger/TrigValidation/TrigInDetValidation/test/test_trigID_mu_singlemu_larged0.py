@@ -55,7 +55,7 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 5000 # TODO increase to 20k 
+rdo2aod.max_events = 20000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
@@ -83,12 +83,10 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
-comp.flag = 'L2muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmuon')
-comp2.flag = 'EFmuon'
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
 test.check_steps.append(comp2)
 
 # CPU cost steps

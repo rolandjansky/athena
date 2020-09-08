@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TruthParticle_v1.cxx 690336 2015-08-20 10:54:57Z abuckley $
@@ -73,7 +73,7 @@ namespace xAOD {
 
    const TruthVertex* TruthParticle_v1::prodVtx() const {
 
-      return hasProdVtx() ? *prodVtxLink() : 0;
+      return hasProdVtx() ? *prodVtxLink() : nullptr;
    }
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthParticle_v1,
@@ -88,7 +88,7 @@ namespace xAOD {
 
    const TruthVertex* TruthParticle_v1::decayVtx() const {
 
-      return hasDecayVtx() ? *decayVtxLink() : 0;
+      return hasDecayVtx() ? *decayVtxLink() : nullptr;
    }
 
    AUXSTORE_OBJECT_SETTER_AND_GETTER( TruthParticle_v1,

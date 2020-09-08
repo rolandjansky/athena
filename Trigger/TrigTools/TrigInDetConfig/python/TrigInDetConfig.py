@@ -146,21 +146,6 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   return acc
 
 
-# def (flags, **kwargs):
-#   acc = ComponentAccumulator()
-
-#   tool = CompFactory.
-#   acc.addPublicTool( tool )
-#   return acc
-
-
-# def (flags, **kwargs):
-#   acc = ComponentAccumulator()
-
-#   tool = CompFactory.
-#   acc.addPublicTool( tool )
-#   return acc
-
 
 def InDetTestPixelLayerToolCfg(flags, **kwargs):
   acc = ComponentAccumulator()
@@ -187,8 +172,8 @@ def InDetHoleSearchToolCfg(flags, **kwargs):
 
 #  acc.merge( InDetTestPixelLayerToolCfg( flags, **kwargs ) )
 
-#  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-#  acc.merge( InDetExtrapolatorCfg( flags, name = "TrigInDetExtrapolator" ) )
+  from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+  acc.merge( InDetExtrapolatorCfg( flags, name = "TrigInDetExtrapolator" ) )
 
   name = kwargs.pop("name", "InDetTrigHoleSearchTool")
   tool = CompFactory.InDet.InDetTrackHoleSearchTool(name,
@@ -258,6 +243,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTBSErrCacheKey   = "SctBSErrCache"
+  SCTFlaggedCondCacheKey = "SctFlaggedCondCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
@@ -273,6 +259,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
                                               SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
+                                              SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
 
@@ -467,7 +454,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
-                                                                  ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
+                                                                  ('xAOD::EventInfo', 'EventInfo'),
+                                                                  ('TrigRoiDescriptorCollection', roisKey),
                                                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )] )
 
   acc.addEventAlgo(verifier)
@@ -622,6 +611,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
   InDetSCT_Clusterization.OutputLevel = DEBUG

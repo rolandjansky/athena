@@ -15,6 +15,8 @@ testChains = {
 
     "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF",  
     "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig", 
+    "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF",  
+    "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_IDTrig", 
  
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF",
     "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore",

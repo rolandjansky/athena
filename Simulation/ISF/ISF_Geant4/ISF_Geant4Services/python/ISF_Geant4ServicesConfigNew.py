@@ -25,7 +25,6 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
         tool = acc.popToolsAndMerge(Geant4ToolCfg(flags))
         kwargs.setdefault("SimulatorTool", tool)
     kwargs.setdefault("Identifier", "Geant4")
-    kwargs.setdefault("FullGeant4", False)
     Geant4SimService = CompFactory.iGeant4.Geant4SimSvc(name, **kwargs)
     acc.addService(Geant4SimService)
     return acc
@@ -34,7 +33,6 @@ def Geant4SimCfg(flags, name="ISFG4SimSvc", **kwargs):
 def FullGeant4SimCfg(flags, name="ISF_FullGeant4SimSvc", **kwargs):
     acc = FullGeant4ToolCfg(flags)
     kwargs.setdefault("SimulatorTool", acc.popPrivateTools())
-    kwargs.setdefault("FullGeant4", True)
     acc.merge(Geant4SimCfg(name, **kwargs))
     return acc
 
@@ -49,7 +47,6 @@ def LongLivedGeant4SimCfg(flags, name="ISF_LongLivedGeant4SimSvc", **kwargs):
 def PassBackGeant4SimCfg(flags, name="ISF_PassBackGeant4SimSvc", **kwargs):
     acc = PassBackGeant4ToolCfg(flags)
     kwargs.setdefault("SimulatorTool", acc.popPrivateTools())
-    kwargs.setdefault("FullGeant4", False)
     acc.merge(Geant4SimCfg(name, **kwargs))
     return acc
 

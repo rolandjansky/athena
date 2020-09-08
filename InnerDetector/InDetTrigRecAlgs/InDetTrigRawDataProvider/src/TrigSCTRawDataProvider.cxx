@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigSCTRawDataProvider.h"
@@ -129,7 +129,7 @@ namespace InDet {
 
     m_bsErrCont = nullptr;
     if (!evtStore()->transientContains<IDCInDetBSErrContainer>(m_bsErrCont_Key)) {
-      m_bsErrCont = new IDCInDetBSErrContainer(m_id->wafer_hash_max(), std::numeric_limits<int>::min());
+      m_bsErrCont = new IDCInDetBSErrContainer(m_id->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min());
       if (evtStore()->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
         return StatusCode::FAILURE;

@@ -92,14 +92,17 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
-            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
-            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            if not InDetFlags.doHeavyIon():
+               InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
+               InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointPixels = NewTrackingCuts.MaxSeedsPerSP_Pixels()
+               InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedStripSeeds = NewTrackingCuts.KeepAllConfirmedStripSeeds()
+               InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedPixelSeeds = NewTrackingCuts.KeepAllConfirmedPixelSeeds()
 
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
-            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
-            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
+            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedStripSeeds = NewTrackingCuts.KeepAllConfirmedStripSeeds()
             InDetSiSpacePointsSeedMaker.maxdRadius = 150
             InDetSiSpacePointsSeedMaker.seedScoreBonusConfirmationSeed = -2000  #let's be generous
 

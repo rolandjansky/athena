@@ -10,12 +10,17 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
+
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT   = True
 flags.Detector.GeometryTRT   = True
 flags.Detector.GeometryID    = True
 flags.Detector.GeometryBpipe = True
 flags.Detector.GeometryCavern = False
+flags.Detector.GeometryPixel = True
+flags.Detector.GeometrySCT   = True
+flags.Detector.GeometryTRT   = True
+
 flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True
 flags.Detector.GeometryMDT   = True
@@ -98,6 +103,9 @@ acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
+
+acc.foreach_component("*HLTTop/*InDetPixelRawDataProvider_Electron*").OutputLevel = DEBUG 
+acc.foreach_component("*PixelByteStreamErrorsTool").OutputLevel = DEBUG 
 
 
 

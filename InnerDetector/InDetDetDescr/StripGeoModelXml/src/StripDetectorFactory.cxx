@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripDetectorFactory.h"
@@ -44,12 +44,13 @@ StripDetectorFactory::StripDetectorFactory(InDetDD::AthenaComps *athenaComps,
      m_commonItems(commonItems),
      m_options(&options) {
 //
-//    Create the detector manager
+//    Create the detector manager... should allow the name to be set
 //
-    m_detectorManager = new InDetDD::SCT_DetectorManager(detStore());
+    m_detectorManager = new InDetDD::SCT_DetectorManager(detStore(),m_options->detectorName());
 //
 //   Set Detector Manager SCT version information
 //
+//At some point we may want to decouple also this DB stuff, and make this ITkStrip specific?
     DecodeVersionKey versionKey(geoDbTagSvc(), "SCT");
     IRDBRecordset_ptr switchSet = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord *switches = (*switchSet)[0];
