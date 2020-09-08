@@ -55,6 +55,9 @@ namespace TrigConf {
       /** Accessor to the groups this chain belongs to */
       std::vector<std::string> groups() const;
 
+      /** Accessor to the sequencers this chain belongs to */
+      std::vector<std::string> sequencers() const;
+
    private:
       void update() override;
 
