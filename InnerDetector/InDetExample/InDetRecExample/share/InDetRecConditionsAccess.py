@@ -271,7 +271,10 @@ if DetFlags.haveRIO.SCT_on():
         pass
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    if globalflags.DataSource() == "data":
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    else:
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200)
     sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
     sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
     sct_ConfigurationConditionsToolSetup.setup()
