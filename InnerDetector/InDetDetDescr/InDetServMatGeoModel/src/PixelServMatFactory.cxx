@@ -41,7 +41,7 @@ PixelServMatFactory::~PixelServMatFactory()
 
 
 //## Other Operations (implementation)
-void PixelServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
+void PixelServMatFactory::create(GeoPhysVol *mother)
 {
   msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg; 
   

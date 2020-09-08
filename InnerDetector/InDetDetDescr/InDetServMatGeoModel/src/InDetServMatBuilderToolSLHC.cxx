@@ -53,7 +53,7 @@ InDetServMatBuilderToolSLHC::~InDetServMatBuilderToolSLHC()
 
 
 //================ Initialize =================================================
-StatusCode InDetServMatBuilderToolSLHC::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe build method is used.
+StatusCode InDetServMatBuilderToolSLHC::initialize()
 {
   
   StatusCode sc = AlgTool::initialize();
@@ -106,13 +106,13 @@ const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC:
   return m_services;
 }
 
-void InDetServMatBuilderToolSLHC::geoInit ATLAS_NOT_THREAD_SAFE () // Thread unsafe InDetServMatGeometryManager constructor is used.
+void InDetServMatBuilderToolSLHC::geoInit()
 {
   m_geoMgr = new InDetServMatGeometryManager(m_athenaComps);
 }
 
 
-void InDetServMatBuilderToolSLHC::build ATLAS_NOT_THREAD_SAFE () // 
+void InDetServMatBuilderToolSLHC::build()
 {
   // Do nothing if services are not to be built.
   geoInit();
