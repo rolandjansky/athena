@@ -100,8 +100,8 @@ namespace asg {
         return itool->second;
 
       if (name.substr(0, 8) != "ToolSvc.") {
-        itool = s_tools.find( "ToolSvc." + name );
-        if( itool != s_tools.end() )
+        itool = tools().find( "ToolSvc." + name );
+        if( itool != tools().end() )
           return itool->second;
       }
 
