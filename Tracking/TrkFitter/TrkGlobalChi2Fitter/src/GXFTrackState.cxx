@@ -246,7 +246,7 @@ namespace Trk {
     m_tsType[t] = v;
   }
 
-  bool GXFTrackState::getStateType(TrackStateOnSurface::TrackStateOnSurfaceType t) {
+  bool GXFTrackState::getStateType(TrackStateOnSurface::TrackStateOnSurfaceType t) const {
     return m_tsType.test(t);
   }
 }

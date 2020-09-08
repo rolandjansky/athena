@@ -84,9 +84,35 @@ namespace Trk {
     bool measuresPhi();
     void setMeasuresPhi(bool);
 
-    void resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType, bool v=true);
-    void setStateType(TrackStateOnSurface::TrackStateOnSurfaceType, bool v=true);
-    bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType);
+    /**
+     * @brief Set a specific type, wiping all others.
+     *
+     * When called, this method will set the bit for a specific type to true or
+     * false. It will also set all other type bits to false.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Set a specific type bit.
+     *
+     * This method sets a specific bit in the type bitfield to the specified
+     * value, and does not touch any of the other bits.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void setStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Retrieve the value of a specific type bit.
+     *
+     * @param[in] type The track state type bit to set.
+     * @return A boolean value indicating whether or not the type bit is set.
+     */
+    bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
 
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
