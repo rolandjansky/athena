@@ -12,7 +12,6 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,EgammaStreamersGroup,TauStreamersGroup,JetStreamersGroup,METStreamersGroup,MinBiasGroup
 
@@ -144,14 +143,10 @@ def addP1Signatures():
 
 def setupMenu():
 
-    from TriggerJobOpts.TriggerFlags          import TriggerFlags
     from AthenaCommon.Logging                 import logging
     log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1.py' )
     log.info('setupMenu ...')
 
     physics_menu.setupMenu()
     addP1Signatures()
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
 
-
-Prescales = physics_menu.Prescales

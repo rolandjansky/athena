@@ -8,7 +8,6 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 PhysicsStream="Main"
 SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
@@ -144,29 +143,4 @@ def setupMenu():
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
-
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-
-class Prescales(object):
-    #   Item name             | Prescale
-    #----------------------------------------------------------
-    L1Prescales = {}
-
-    #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Chains only need adding if have a Prescale value different from 1 (default)
-    #   - If the current pass_through value is non-zero,
-    #     the value given here will be used as pass_through rate
-    #     Assuming that pass through chains are configured so
-    #     in the slice files and won't change. Also prescale
-    #     and pass_through will not be used together.
-    #   - If only the first value is specified,
-    #     the default value of pass-through (=0) will be used
-    #----------------------------------------------------------
-    HLTPrescales = {
-        }
-
-    L1Prescales_cosmics  = {}
-    HLTPrescales_cosmics = {}
-    chain_list=[]
 
