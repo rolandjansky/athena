@@ -20,7 +20,6 @@
 #undef NDEBUG
 #include <cassert>
 
-using namespace std;
 
 int main() {
   StringParse s("1234 foo 5.678   1234argh 5.678bleurgh");
@@ -31,7 +30,7 @@ int main() {
   assert(s.intpiece(1) == 1234);
 
   assert(s.piece(2) == "foo");
-  assert(s.piece<string>(2) == "foo");
+  assert(s.piece<std::string>(2) == "foo");
 
   assert(s.piece(3) == "5.678");
   assert(std::abs(s.piece<double>(3) - 5.678) < 1e-6);

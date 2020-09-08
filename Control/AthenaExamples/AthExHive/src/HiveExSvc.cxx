@@ -4,7 +4,6 @@
 
 #include "HiveExSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "GaudiKernel/EventContext.h"
 

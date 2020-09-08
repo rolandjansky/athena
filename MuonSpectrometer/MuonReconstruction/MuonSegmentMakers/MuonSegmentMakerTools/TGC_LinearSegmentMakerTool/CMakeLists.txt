@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( TGC_LinearSegmentMakerTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLinearSegmentMakerUtilities
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkRoad
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkExtrapolation/TrkExUtils )
-
 # External dependencies:
 find_package( Eigen )
 

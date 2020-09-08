@@ -47,11 +47,11 @@ public:
       deltaCovariances.reserve(6);
     }
 
-    Cache(Cache&&) noexcept= default;
-    Cache& operator=(Cache&&) noexcept= default;
-    Cache(const Cache&) noexcept= default;
-    Cache& operator=(const Cache&) noexcept= default;
-    ~Cache() noexcept= default;
+    Cache(Cache&&) noexcept = default;
+    Cache& operator=(Cache&&) noexcept = default;
+    Cache(const Cache&) noexcept = default;
+    Cache& operator=(const Cache&) noexcept = default;
+    ~Cache() noexcept = default;
 
     std::vector<double> weights;
     std::vector<double> deltaPs;

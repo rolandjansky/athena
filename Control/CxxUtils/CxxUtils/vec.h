@@ -65,11 +65,13 @@
  *                         copies to @c dst[i]  the min(a[i],b[i])
  *  - @c CxxUtils::vmax    (VEC& dst, const VEC& a, const VEC& b)
  *                         copies to @c dst[i]  the max(a[i],b[i])
- *  - @c CxxUtils::vpermute (VEC& dst, const VEC& src,
- *                          const mask_type_t<VEC>& mask)
+ *  - @c CxxUtils::vpermute<mask> (VEC& dst, const VEC& src)
  *                          Fills dst with permutation of src
- *                          according to
- *                          dst[i] = src[mask[i] % N];
+ *                          according to mask.
+ *                          Mask is a list of integers that specifies the elements
+ *                          that should be extracted and returned in src.
+ *                          dst[i] = src[mask[i]] where mask[i] is the ith integer
+ *                          is the mask.
  *
  *
  * In terms of expected performance it might be  advantageous to
@@ -109,8 +111,8 @@ namespace CxxUtils {
 #ifndef WANT_VECTOR_FALLBACK
 # define WANT_VECTOR_FALLBACK 0
 #endif
-#if (!HAVE_VECTOR_SIZE_ATTRIBUTE) || WANT_VECTOR_FALLBACK!=0
 
+#if (!HAVE_VECTOR_SIZE_ATTRIBUTE) || WANT_VECTOR_FALLBACK!=0
 
 /**
  * @brief Fallback vectorized class.
@@ -320,6 +322,7 @@ ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
 #endif // !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
 
 
+
 #if HAVE_VECTOR_SIZE_ATTRIBUTE
 
 /// Define a nice alias for a built-in vectorized type.
@@ -333,6 +336,7 @@ template <typename T, size_t N>
 using vec = vec_fb<T, N>;
 
 #endif
+
 
 
 /**
@@ -494,24 +498,46 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
 #endif
 }
 
+/*
+ * Need for static asserts on argument
+ * packs
+ */
+namespace bool_pack_helper {
+template<bool...>
+struct bool_pack;
+template<bool... bs>
+using all_true = std::is_same<bool_pack<bs..., true>, bool_pack<true, bs...>>;
+}
+
 /**
  * @brief vpermute function.
- * move any element of a vector src into any or multiple position inside dst,
- * Follows the GCC __builtin_shuffle(vec,mask) conventions,
- * therefore the elements of mask are considered modulo N
+ * move any element of a vector src
+ * into any or multiple position inside dst.
+ *
+ * We try to wrap both 
+ * gcc's __builtin_shuffle
+ * and 
+ * clang's __builtin_shufflevector
+ *
  */
-template<typename VEC>
+template<size_t... Indices, typename VEC>
 inline void
-vpermute(VEC& dst, const VEC& src, const mask_type_t<VEC>& mask)
+vpermute(VEC& dst, const VEC& src)
 {
-#if !HAVE_GCC_INTRINSICS || !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
-  // clang can vectorize this at O2
+
   constexpr size_t N = vec_size<VEC>();
-  for (size_t i = 0; i < N; ++i) {
-    dst[i] = src[mask[i] % N];
-  }
+  static_assert((sizeof...(Indices) == N),
+                "Number of indices different than vector size");
+  static_assert(
+    bool_pack_helper::all_true<(Indices >= 0 && Indices < N)...>::value,
+    "permute indices outside allowed range");
+
+#if !HAVE_VECTOR_SIZE_ATTRIBUTE || WANT_VECTOR_FALLBACK
+  dst = VEC{ src[Indices]... };
+#elif defined(__clang__)
+  dst = __builtin_shufflevector(src, src, Indices...);
 #else // gcc
-  dst = __builtin_shuffle(src, mask);
+  dst = __builtin_shuffle(src, mask_type_t<VEC>{ Indices... });
 #endif
 }
 

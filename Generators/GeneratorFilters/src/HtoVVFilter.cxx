@@ -79,7 +79,7 @@ StatusCode HtoVVFilter::filterEvent() {
     }
 #else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
+      if (std::abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
         HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);
         HepMC::GenVertex::particle_iterator thisMother = firstMother;
@@ -100,12 +100,12 @@ StatusCode HtoVVFilter::filterEvent() {
           ATH_MSG_DEBUG(" child " << (*thisChild)->pdg_id());
           if (!okPDGChild1) {
             for (size_t i = 0; i < m_PDGChild1.size(); ++i)
-              if (abs((*thisChild)->pdg_id()) == m_PDGChild1[i]) okPDGChild1 = true;
+              if (std::abs((*thisChild)->pdg_id()) == m_PDGChild1[i]) okPDGChild1 = true;
             if (okPDGChild1) break;
           }
           if (!okPDGChild2) {
             for (size_t i = 0; i < m_PDGChild2.size(); ++i)
-              if (abs((*thisChild)->pdg_id()) == m_PDGChild2[i]) okPDGChild2 = true;
+              if (std::abs((*thisChild)->pdg_id()) == m_PDGChild2[i]) okPDGChild2 = true;
             if (okPDGChild2) break;
           }
         }

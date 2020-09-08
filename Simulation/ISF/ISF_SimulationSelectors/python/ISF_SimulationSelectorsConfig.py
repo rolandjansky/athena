@@ -5,62 +5,85 @@ Elmar Ritsch, 04/02/2013
 """
 
 from AthenaCommon import CfgMgr
-
 from ISF_SimulationSelectors import SimulationFlavor
 ### DefaultSimSelector configurations
+
+def usesSimKernelMT():
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    return (ISF_Flags.Simulator.get_Value() in ['FullG4MT', 'PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'FullG4MT_LongLived'])
 
 def getDefaultSimSelector(name="ISF_DefaultSimSelector", **kwargs):
     return CfgMgr.ISF__DefaultSimSelector(name, **kwargs )
 
 def getDefaultParticleKillerSelector(name="ISF_DefaultParticleKillerSelector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return getDefaultSimSelector(name, **kwargs )
 
 def getPileupParticleKillerSelector(name="ISF_PileupParticleKillerSelector", **kwargs):
     kwargs.setdefault("PileupBCID"   , [1] )
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.ParticleKiller)
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
 def getDefaultGeant4Selector(name="ISF_DefaultGeant4Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_Geant4SimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultAFIIGeant4Selector(name="ISF_DefaultAFIIGeant4Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_AFIIGeant4SimSvc')
     return getDefaultGeant4Selector(name, **kwargs )
 
 def getDefaultLongLivedGeant4Selector(name="ISF_DefaultLongLivedGeant4Selector", **kwargs):
-    kwargs.setdefault("Simulator"   , 'ISF_LongLivedGeant4SimSvc')
+    if usesSimKernelMT():
+        kwargs.setdefault("Simulator"   , 'ISF_LongLivedGeant4SimSvc')
     return getDefaultGeant4Selector(name, **kwargs )
 
 def getDefaultAFII_QS_Geant4Selector(name="ISF_DefaultAFII_QS_Geant4Selector", **kwargs):
-    kwargs.setdefault("Simulator"   , 'ISF_AFII_QS_Geant4SimSvc')
+    if usesSimKernelMT():
+        kwargs.setdefault("Simulator"   , 'ISF_AFII_QS_Geant4SimSvc')
     return getDefaultGeant4Selector(name, **kwargs )
 
 def getFullGeant4Selector(name="ISF_FullGeant4Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_FullGeant4SimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getPassBackGeant4Selector(name="ISF_PassBackGeant4Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_PassBackGeant4SimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.Geant4)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFastCaloSimSelector(name="ISF_DefaultFastCaloSimSelector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultLegacyAFIIFastCaloSimSelector(name="ISF_DefaultLegacyAFIIFastCaloSimSelector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_LegacyAFIIFastCaloSimSvc')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSim)
     return getDefaultSimSelector(name, **kwargs )
 
 def getDefaultFastCaloSimV2Selector(name="ISF_DefaultFastCaloSimV2Selector", **kwargs):
+    if usesSimKernelMT():
+        kwargs.setdefault('Simulator', '')
     kwargs.setdefault("Simulator"   , 'ISF_FastCaloSimSvcV2')
     kwargs.setdefault('SimulationFlavor', SimulationFlavor.FastCaloSimV2)
     return getDefaultSimSelector(name, **kwargs )

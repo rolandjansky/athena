@@ -6,7 +6,6 @@
 #include <cassert>
 #include <cmath>
 
-//using namespace MC;
 
 
 GenAnalysis::GenAnalysis(const std::string& name, ISvcLocator* pSvcLocator)

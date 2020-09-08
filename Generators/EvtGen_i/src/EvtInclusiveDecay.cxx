@@ -678,7 +678,7 @@ double EvtInclusiveDecay::invMass(HepMC::ConstGenParticlePtr p1, HepMC::ConstGen
   double dimuPx = p2Px + p1Px;
   double dimuPy = p2Py + p1Py;
   double dimuPz = p2Pz + p1Pz;
-  double invMass = sqrt(dimuE*dimuE - dimuPx*dimuPx - dimuPy*dimuPy - dimuPz*dimuPz);
+  double invMass = std::sqrt(dimuE*dimuE - dimuPx*dimuPx - dimuPy*dimuPy - dimuPz*dimuPz);
   
   return invMass;
 }

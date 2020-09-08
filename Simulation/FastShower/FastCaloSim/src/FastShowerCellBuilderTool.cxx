@@ -2516,7 +2516,7 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
   // geantinos not handled by PdgToParticleHypothesis - fix there
   if ( pdgId == 999 ) pHypothesis = Trk::geantino;
 
-  HepMC::GenVertex *vtx = part.production_vertex();
+  auto vtx = part.production_vertex();
   Amg::Vector3D pos(0.,0.,0.);    // default
 
   if (vtx) {

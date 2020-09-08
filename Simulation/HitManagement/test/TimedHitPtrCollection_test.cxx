@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
+#include <atomic>
 #include "HitManagement/TimedHitPtrCollection.h"
 #include "HitManagement/AthenaHitsVector.h"
 
@@ -23,14 +24,14 @@ struct TestHit {
   ~TestHit() {--HOWMANY;}
   float t;
   int id;
-  static unsigned int HOWMANY;
+  static std::atomic<unsigned int> HOWMANY;
 };
 float hitTime(const TestHit& h) { return h.t; }
 bool operator < (const TestHit& lhs, const TestHit& rhs) {
   return (lhs.id < rhs.id);
 }
 
-unsigned int TestHit::HOWMANY=0;
+std::atomic<unsigned int> TestHit::HOWMANY=0;
 
 
 #include "TestTools/initGaudi.h"

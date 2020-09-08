@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( RpcClusterization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          PRIVATE
-                          MuonSpectrometer/MuonIdHelpers )
-
 # Component(s) in the package:
 atlas_add_component( RpcClusterization
                      src/*.cxx

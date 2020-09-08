@@ -13,7 +13,6 @@
 #include "GaudiKernel/FileIncident.h"
 
 #include "GaudiKernel/IOpaqueAddress.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/AttribStringParser.h"
 

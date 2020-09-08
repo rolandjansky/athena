@@ -251,7 +251,7 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 	weight = -1.0;
       }
     } else {
-      weight = weight * pow(m_mjjlow/mjj, m_alpha) / m_prob2low;
+      weight = weight * std::pow(m_mjjlow/mjj, m_alpha) / m_prob2low;
       ATH_MSG_DEBUG("WEIGHTING:: " << mjj << "\t" << weight);
     }
   }

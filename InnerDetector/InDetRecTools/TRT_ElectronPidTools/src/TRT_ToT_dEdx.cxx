@@ -186,7 +186,6 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool us
   double Trt_Rtrack = std::abs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = std::abs(driftcircle->localParameters()[Trk::driftRadius]);
   double error = std::sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
-  Identifier DCId = driftcircle->identify();
 
   if (trackState->type(Trk::TrackStateOnSurface::Outlier)) return false; //Outliers
   if (m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only

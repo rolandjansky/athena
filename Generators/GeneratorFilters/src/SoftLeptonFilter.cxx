@@ -30,7 +30,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
           }
           int parentID=firstParent->pdg_id();
           auto theParent=firstParent;
-          while(abs(parentID)==15||parentID==pitr->pdg_id()) {
+          while(std::abs(parentID)==15||parentID==pitr->pdg_id()) {
             auto parentDecayVtx = theParent->production_vertex();
             auto firstGrandParent = parentDecayVtx->particles_in().front();
             if (!firstGrandParent) {
@@ -41,7 +41,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
             theParent=firstGrandParent;
           }
           // Exclude gauge and Higgs boson decays
-          if (abs(parentID) > 37) {
+          if (std::abs(parentID) > 37) {
             ATH_MSG_DEBUG("Found a lepton " << pitr->pdg_id()
                           << " from " << parentID
                           << " PT="   << pitr->momentum().perp()
@@ -67,7 +67,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
           }
           int parentID((*firstParent)->pdg_id());
           HepMC::GenVertex::particle_iterator theParent=firstParent;
-          while(abs(parentID)==15||parentID==(*pitr)->pdg_id()) {
+          while(std::abs(parentID)==15||parentID==(*pitr)->pdg_id()) {
             HepMC::GenVertex * parentDecayVtx = (*theParent)->production_vertex();
             HepMC::GenVertex::particle_iterator firstGrandParent = parentDecayVtx->particles_begin(HepMC::parents);
             if (*firstGrandParent==0) {
@@ -78,7 +78,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
             theParent=firstGrandParent;
           }
           // Exclude gauge and Higgs boson decays
-          if (abs(parentID) > 37) {
+          if (std::abs(parentID) > 37) {
             ATH_MSG_DEBUG("Found a lepton " << (*pitr)->pdg_id()
                           << " from " << parentID
                           << " PT="   << (*pitr)->momentum().perp()

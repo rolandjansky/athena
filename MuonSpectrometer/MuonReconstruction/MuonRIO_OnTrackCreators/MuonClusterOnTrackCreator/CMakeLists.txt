@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonClusterOnTrackCreator )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Event/EventPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonDataPrep/CscClusterization
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPrepRawData )
-
 # Component(s) in the package:
 atlas_add_component( MuonClusterOnTrackCreator
                      src/*.cxx

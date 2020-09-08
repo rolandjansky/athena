@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2019, 2020 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -1092,6 +1092,11 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  *
  *  nlohmann::json listTagsParams(int _size, int _page);
  */
+#ifdef __clang__
+// Suppress clang warning about unused argument from boost code.
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 BOOST_PARAMETER_MEMBER_FUNCTION(
    (nlohmann::json), 
    listTagsParams,
@@ -1107,6 +1112,9 @@ BOOST_PARAMETER_MEMBER_FUNCTION(
 
    return listTags(size, page); 
 }
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
 
 
 // Boost Function Fragment (end)

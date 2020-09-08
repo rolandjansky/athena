@@ -180,7 +180,7 @@ double JetForwardFilter::evaluatePDF(double x, double y, int gausIndex) {
   double valC = std::pow(y-muY, 2)/std::pow(sigmaY, 2);
   double valD = 2.0*rho*(x-muX)*(y-muY)/(sigmaX*sigmaY);
 
-  double pdf = normFactor*exp( (-1.0/valA)*(valB+valC-valD)  );
+  double pdf = normFactor*std::exp( (-1.0/valA)*(valB+valC-valD)  );
   return pdf;
 }
 

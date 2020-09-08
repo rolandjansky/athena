@@ -6,7 +6,7 @@
  * @file   GsfBetheHeitlerEffects.h
  * @date   Friday 18th February 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Bethe-Heitler material effects for electrons, used in the GSF 
+ * @brief  Bethe-Heitler material effects for electrons, used in the GSF
  */
 
 #ifndef Trk_GsfBetheHeitlerEffects_H

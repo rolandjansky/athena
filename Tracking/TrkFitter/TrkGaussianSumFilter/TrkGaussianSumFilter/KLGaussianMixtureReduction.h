@@ -125,12 +125,10 @@ findMerges(Component1D* componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2")))
-int32_t
+__attribute__((target("avx2"))) int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 
-__attribute__((target("sse4.1")))
-int32_t
+__attribute__((target("sse4.1"))) int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 #endif // x86_64 specific targets
 

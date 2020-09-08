@@ -6,10 +6,9 @@
 
 #include "EvgenProdTools/FixHepMC.h"
 #include "TruthUtils/HepMCHelpers.h"
-using namespace std;
 
 
-FixHepMC::FixHepMC(const string& name, ISvcLocator* pSvcLocator)
+FixHepMC::FixHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   : GenBase(name, pSvcLocator)
   , m_loopKilled(0)
   , m_pdg0Killed(0)
