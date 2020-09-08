@@ -10,10 +10,9 @@
 // For find
 #include <algorithm>
 
-using namespace std;
 
 
-TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
+TestHepMC::TestHepMC(const std::string& name, ISvcLocator* pSvcLocator)
   : GenBase(name, pSvcLocator),
     m_thistSvc("THistSvc", name)
 {
@@ -225,7 +224,7 @@ StatusCode TestHepMC::initialize() {
   int susyPdgID;
   if (!susyFile.fail()){
     while(getline(susyFile,line)){
-      stringstream ss1(line);
+      std::stringstream ss1(line);
       ss1 >> susyPdgID;
       m_SusyPdgID_tab.push_back(susyPdgID);
     }
@@ -271,11 +270,11 @@ StatusCode TestHepMC::execute() {
     double totalPz = 0;
     double totalE  = 0;
     double nonG4_energy = 0;
-    vector<int> negEnPart;
-    vector<int> tachyons;
-    vector<int> unstNoEnd;
-    vector<int> unDecPi0;
-    vector<int> undisplaceds;
+    std::vector<int> negEnPart;
+    std::vector<int> tachyons;
+    std::vector<int> unstNoEnd;
+    std::vector<int> unDecPi0;
+    std::vector<int> undisplaceds;
 
     // Check beams and work out per-event beam energy
 #ifdef HEPMC3
@@ -466,7 +465,7 @@ StatusCode TestHepMC::execute() {
         } // The particle has a data table (so a lifetime)
         else{
           int susyPart = 0;
-          vector<int>::size_type count = 0;
+          std::vector<int>::size_type count = 0;
           while (susyPart==0 && (count < m_SusyPdgID_tab.size() )){
             // no warning for SUSY particles from the list susyParticlePdgid.txt
             if (m_SusyPdgID_tab[count] == std::abs(ppdgid)) {
@@ -489,7 +488,7 @@ StatusCode TestHepMC::execute() {
       if ((pstatus == 1 ) && (!pitr->end_vertex()) && (!m_nonint.operator()(pitr)) && (!pid.isNucleus()) && (first_dig != 9) ) {
 
         int known_byG4 = 0;
-        vector<int>::size_type count =0;
+        std::vector<int>::size_type count =0;
 
         while (known_byG4==0 && count < m_G4pdgID_tab.size()){
           if(ppdgid == m_G4pdgID_tab[count]) known_byG4=1;
@@ -649,9 +648,9 @@ StatusCode TestHepMC::execute() {
 
     // Negative energy particles
     if (!negEnPart.empty()) {
-      stringstream ss;
+      std::stringstream ss;
       ss << "NEGATIVE ENERGY PARTICLES FOUND : BARCODES =";
-      for (vector<int>::const_iterator b = negEnPart.begin(); b != negEnPart.end(); ++b){
+      for (std::vector<int>::const_iterator b = negEnPart.begin(); b != negEnPart.end(); ++b){
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
@@ -664,9 +663,9 @@ StatusCode TestHepMC::execute() {
 
     // Tachyons
     if (!tachyons.empty()) {
-      stringstream ss;
+      std::stringstream ss;
       ss << "PARTICLES WITH |E| < |Pi| (i=x,y,z) FOUND : BARCODES =";
-      for (vector<int>::const_iterator b = tachyons.begin(); b != tachyons.end(); ++b){
+      for (std::vector<int>::const_iterator b = tachyons.begin(); b != tachyons.end(); ++b){
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
@@ -679,9 +678,9 @@ StatusCode TestHepMC::execute() {
 
     // Unstable particles with no decay vertex
     if (!unstNoEnd.empty()) {
-      stringstream ss;
+      std::stringstream ss;
       ss << "Unstable particle with no decay vertex found: BARCODES =";
-      for (vector<int>::const_iterator b = unstNoEnd.begin(); b != unstNoEnd.end(); ++b){
+      for (std::vector<int>::const_iterator b = unstNoEnd.begin(); b != unstNoEnd.end(); ++b){
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
@@ -694,9 +693,9 @@ StatusCode TestHepMC::execute() {
 
     // Undecayed pi0
     if (!unDecPi0.empty()) {
-      stringstream ss;
+      std::stringstream ss;
       ss << "pi0 with no decay vertex found: BARCODES =";
-      for (vector<int>::const_iterator b = unDecPi0.begin(); b != unDecPi0.end(); ++b){
+      for (std::vector<int>::const_iterator b = unDecPi0.begin(); b != unDecPi0.end(); ++b){
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
@@ -709,9 +708,9 @@ StatusCode TestHepMC::execute() {
 
     // Undisplaced decay daughters of displaced vertices
     if (!undisplaceds.empty()) {
-      stringstream ss;
+      std::stringstream ss;
       ss << "Undisplaced decay vertices from displaced particle: BARCODES =";
-      for (vector<int>::const_iterator b = undisplaceds.begin(); b != undisplaceds.end(); ++b){
+      for (std::vector<int>::const_iterator b = undisplaceds.begin(); b != undisplaceds.end(); ++b){
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());

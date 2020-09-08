@@ -260,16 +260,16 @@ bool EvtDecay::isGoodB(const int pID, const int stat ) const {
 
 	case 0:
 		if( (stat == 1) &&
-		   ((abs(pID) == 511) || 
-		    (abs(pID) == 521) ||
-		    (abs(pID) == 531) ||
-		    (abs(pID) == 541) || 
-		    (abs(pID) == 5122) ||
-		    (abs(pID) == 5132) ||
-		    (abs(pID) == 5232) ||
-		    (abs(pID) == 5112) ||
-		    (abs(pID) == 5212) ||
-		    (abs(pID) == 5222) ))
+		   ((std::abs(pID) == 511) || 
+		    (std::abs(pID) == 521) ||
+		    (std::abs(pID) == 531) ||
+		    (std::abs(pID) == 541) || 
+		    (std::abs(pID) == 5122) ||
+		    (std::abs(pID) == 5132) ||
+		    (std::abs(pID) == 5232) ||
+		    (std::abs(pID) == 5112) ||
+		    (std::abs(pID) == 5212) ||
+		    (std::abs(pID) == 5222) ))
 			{ return true; }
 		else	{ return false; }
 		break;
