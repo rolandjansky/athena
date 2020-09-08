@@ -169,6 +169,7 @@ if args.stage == 1:
 
       doKeep = False
       doProgress = False
+      
       for path in args.packages: # For each package in the list of merge-packages
         pathSplit = path.rstrip('/').split('/') # Explode path
         if level == len(pathSplit) and path == responsibleRule:
