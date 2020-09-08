@@ -161,7 +161,7 @@ void InDetServMatBuilderToolSLHC::build()
   fixMissingMaterials();
 
   typedef  std::vector<ServiceVolume*>::const_iterator iter;
-  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); i++) {
+  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); ++i) {
     /*
     msg(MSG::INFO) << "Calling ServiceVolume->dump() for the " << n++ << "th time" << endmsg;
     (**i).dump();  // for DEBUG only
@@ -219,7 +219,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
   param->setZmax(vol.zMax());
   param->setZsymm(true);
   for (std::vector<ServiceMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
-    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ++ient) {
       /*
       msg(MSG::INFO) << "Inside components loop, comp = " << ient->name 
 		     << " number " << ient->number 

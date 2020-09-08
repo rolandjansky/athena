@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef StaveServices_H
@@ -17,7 +17,7 @@ class StaveServices {
 public:
 
   StaveServices( DetType::Type type, DetType::Part part, int layer,
-		 int nhv, int ndcs, int ndata, std::vector<int> lvGauge) :
+		 int nhv, int ndcs, int ndata, const std::vector<int>& lvGauge) :
     m_type( type), m_part(part), m_layer(layer), 
     m_numHV(nhv), m_numDCS( ndcs), m_numData( ndata), m_lvGauge( lvGauge) {}
   
