@@ -1,17 +1,10 @@
-# -*- coding: utf-8 -*-
 #####################################################################
 # CreateMisalignment.py
 #####################################################################
 # JobOptions for CreateMisalignAlg which creates a misaligned
 # copy of the geometry database to introduce misalignments at reconstruction
 # level
-#
-# NB: Mode1:Misalignment by 6 parameters currently moves whole InnerDetector
-#
-# Author: Roland Haertel    rhaertel@mppmu.mpg.de
-#         Tobias Goettfert  tobias.goettfert@cern.ch
-#
-# Date: 18-03-2008
+# To be used as postInclude to reconstruction jobs, or any job where the geometry is loaded
 #
 #####################################################################
 ## parameters
@@ -36,9 +29,6 @@ userSuffix = "_p01"
 OutFiles = 'MisalignmentSet%s%s' % (MisalignmentMode, userSuffix)
 
 #####################################################################
-
-#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-#athenaCommonFlags.EvtMax     =  1
 theApp.EvtMax = 2
 #####################################################################
 

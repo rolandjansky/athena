@@ -370,14 +370,5 @@ void SCT_GmxInterface::addAlignable(int level, map<string, int> &index, GeoVFull
             exit(999);
         break;
     }
-    /*
-    std::cout<<"NS: level "<<level<<" number of child volumes "<<fpv->getNChildVols()<<std::endl;
-    for (unsigned int i=0;i<fpv->getNChildVols();i++){
-      std::cout<<"NS: child "<<i<<std::endl;
-      HepGeom::Transform3D defTf = fpv->getDefXToChildVol(i);
-      std::cout<<"NS: name "<<fpv->getNameOfChildVol(i);
-      std::cout<<" "<<defTf(0,0)<<" "<<defTf(0,1)<<" "<<defTf(0,2)<<" "<<defTf(1,0)<<" "<<defTf(1,1)<<" "<<defTf(1,2)<<" "<<defTf(2,0)<<" "<<defTf(2,1)<<" "<<defTf(2,2)<<" "<<defTf(3,0)<<" "<<defTf(3,1)<<" "<<defTf(3,2)<<std::endl;
-    }
-    */
     m_detectorManager->addAlignableTransform(level, id, transform, fpv);
 }

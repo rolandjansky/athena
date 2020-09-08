@@ -4,6 +4,7 @@
 # JobOptions for CreateMisalignAlg which creates a misaligned
 # copy of the geometry database to introduce misalignments at reconstruction
 # level
+# This is configured to run with ITk geometries
 #
 #####################################################################
 ## parameters
@@ -28,9 +29,6 @@ InFile = 'NominalAlignment'
 OutFiles = 'MisalignmentSet%s' % (MisalignmentMode)
 
 #####################################################################
-
-#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-#athenaCommonFlags.EvtMax     =  1
 theApp.EvtMax = 1
 #####################################################################
 
