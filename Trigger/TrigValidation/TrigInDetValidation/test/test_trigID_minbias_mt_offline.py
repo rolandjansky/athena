@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-# art-description: art job for minbias
+# art-description: art job for minbias_mt_offline
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -29,11 +29,11 @@
 Slices  = ['minbias']
 RunEF   = False
 Events  = 8000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Threads = 4 
+Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Truth'
+TrackReference = 'Offline'
 
 
 from AthenaCommon.Include import include 
