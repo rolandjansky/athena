@@ -12,8 +12,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "xAODMuon/MuonContainer.h"
 
 class IDPerfMuonRefitter : public AthAlgorithm
 {
@@ -47,7 +48,8 @@ class IDPerfMuonRefitter : public AthAlgorithm
   int m_N_MuonsRefit;
   int m_N_MuonRefitFailures;
 
-  PerfMonServices::CONTAINERS m_container;
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey
+  { this, "MuonContainerKey", "Muons", "" };
 
 };
 //==============================================================================
