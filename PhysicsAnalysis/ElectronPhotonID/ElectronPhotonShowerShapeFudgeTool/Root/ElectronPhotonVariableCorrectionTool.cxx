@@ -143,7 +143,7 @@ const StatusCode ElectronPhotonVariableCorrectionTool::applyToFlagMatchesToolHol
         // get ApplyTo flag
         ElectronPhotonVariableCorrectionBase::EGammaObjects confFileType = toolHolder.at(tool_itr)->isAppliedTo();
         // skip all further tests if should be applied to all objects
-        if ((confFileType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects)) continue;
+        if (confFileType == ElectronPhotonVariableCorrectionBase::EGammaObjects::allEGammaObjects) continue;
         // continue if ApplyTo flag matches toolholder
         if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::convertedPhotons && toolHolder.at(tool_itr)->applyToConvertedPhotons()) continue;
         if (toolHolderType == ElectronPhotonVariableCorrectionBase::EGammaObjects::unconvertedPhotons && toolHolder.at(tool_itr)->applyToUnconvertedPhotons()) continue;
