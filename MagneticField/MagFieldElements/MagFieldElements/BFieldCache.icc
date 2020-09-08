@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+#include "CxxUtils/vec.h"
 #include <cmath>
 inline void
 BFieldCache::invalidate()
@@ -29,9 +30,13 @@ BFieldCache::setRange(double zmin,
 
 // set field array, filled externally
 inline void
-BFieldCache::setField(double field[][8])
+BFieldCache::setField(const CxxUtils::vec<double, 8>& field1,
+                      const CxxUtils::vec<double, 8>& field2,
+                      const CxxUtils::vec<double, 8>& field3)
 {
-  std::copy(&field[0][0], &field[0][0] + 3 * 8, &m_field[0][0]);
+  CxxUtils::vstore(&m_field[0][0], field1);
+  CxxUtils::vstore(&m_field[1][0], field2);
+  CxxUtils::vstore(&m_field[2][0], field3);
 }
 
 inline void

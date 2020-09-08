@@ -2,6 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/vec.h"
 //
 // Reserve space in the vectors to avoid unnecessary memory re-allocations.
 //
@@ -70,37 +71,48 @@ BFieldMesh<T>::getCache(double z,
     ++iphi;
   }
   // store the bin edges
-  cache.setRange(mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
-
-
+  cache.setRange(
+    mz[iz], mz[iz + 1], mr[ir], mr[ir + 1], mphi[iphi], mphi[iphi + 1]);
   // store the B field at the 8 corners in cache
   const int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
   const double sf = scaleFactor;
-  double field1[3][8] = { { sf * m_field[im0][0],
-                            sf * m_field[im0 + m_roff][0],
-                            sf * m_field[im0 + m_zoff][0],
-                            sf * m_field[im0 + m_zoff + m_roff][0],
-                            sf * m_field[im0 + 1][0],
-                            sf * m_field[im0 + m_roff + 1][0],
-                            sf * m_field[im0 + m_zoff + 1][0],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][0] },
-                          { sf * m_field[im0][1],
-                            sf * m_field[im0 + m_roff][1],
-                            sf * m_field[im0 + m_zoff][1],
-                            sf * m_field[im0 + m_zoff + m_roff][1],
-                            sf * m_field[im0 + 1][1],
-                            sf * m_field[im0 + m_roff + 1][1],
-                            sf * m_field[im0 + m_zoff + 1][1],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][1] },
-                          { sf * m_field[im0][2],
-                            sf * m_field[im0 + m_roff][2],
-                            sf * m_field[im0 + m_zoff][2],
-                            sf * m_field[im0 + m_zoff + m_roff][2],
-                            sf * m_field[im0 + 1][2],
-                            sf * m_field[im0 + m_roff + 1][2],
-                            sf * m_field[im0 + m_zoff + 1][2],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][2] } };
-  cache.setField(field1);
+  /*
+   * The typical case is that we convert from short to double
+   * (explicitly or implicitly) in order to multiply with the double sf
+   */
+  CxxUtils::vec<double, 8> field1 = {
+    static_cast<double>(m_field[im0][0]),
+    static_cast<double>(m_field[im0 + m_roff][0]),
+    static_cast<double>(m_field[im0 + m_zoff][0]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][0]),
+    static_cast<double>(m_field[im0 + 1][0]),
+    static_cast<double>(m_field[im0 + m_roff + 1][0]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][0]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][0])
+  };
+
+  CxxUtils::vec<double, 8> field2 = {
+    static_cast<double>(m_field[im0][1]),
+    static_cast<double>(m_field[im0 + m_roff][1]),
+    static_cast<double>(m_field[im0 + m_zoff][1]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][1]),
+    static_cast<double>(m_field[im0 + 1][1]),
+    static_cast<double>(m_field[im0 + m_roff + 1][1]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][1]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][1])
+  };
+
+  CxxUtils::vec<double, 8> field3 = {
+    static_cast<double>(m_field[im0][2]),
+    static_cast<double>(m_field[im0 + m_roff][2]),
+    static_cast<double>(m_field[im0 + m_zoff][2]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][2]),
+    static_cast<double>(m_field[im0 + 1][2]),
+    static_cast<double>(m_field[im0 + m_roff + 1][2]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][2]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][2])
+  };
+  cache.setField(sf * field1, sf * field2, sf * field3);
   // store the B scale
   cache.setBscale(m_scale);
 }
@@ -157,14 +169,16 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
   }
   // get the B field at the 8 corners
   int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
-  const std::array<BFieldVector<T>, 8> field = { m_field[im0],
-                                           m_field[im0 + 1],
-                                           m_field[im0 + m_roff],
-                                           m_field[im0 + m_roff + 1],
-                                           m_field[im0 + m_zoff],
-                                           m_field[im0 + m_zoff + 1],
-                                           m_field[im0 + m_zoff + m_roff],
-                                           m_field[im0 + m_zoff + m_roff + 1] };
+  const std::array<BFieldVector<T>, 8> field = {
+    m_field[im0],
+    m_field[im0 + 1],
+    m_field[im0 + m_roff],
+    m_field[im0 + m_roff + 1],
+    m_field[im0 + m_zoff],
+    m_field[im0 + m_zoff + 1],
+    m_field[im0 + m_zoff + m_roff],
+    m_field[im0 + m_zoff + m_roff + 1]
+  };
   // fractional position inside this mesh
   const double fz = (z - mz[iz]) / (mz[iz + 1] - mz[iz]);
   const double gz = 1.0 - fz;
@@ -194,9 +208,9 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
     const double sr = m_scale / (mr[ir + 1] - mr[ir]);
     const double sphi = m_scale / (mphi[iphi + 1] - mphi[iphi]);
 
-    std::array<double,3> dBdz;
-    std::array<double,3> dBdr;
-    std::array<double,3> dBdphi;
+    std::array<double, 3> dBdz;
+    std::array<double, 3> dBdr;
+    std::array<double, 3> dBdphi;
     for (int j = 0; j < 3; ++j) { // Bz, Br, Bphi components
       dBdz[j] = sz * (gr * (gphi * (field[4][j] - field[0][j]) +
                             fphi * (field[5][j] - field[1][j])) +
@@ -279,5 +293,4 @@ BFieldMesh<T>::memSize() const
   size += sizeof(BFieldVector<T>) * m_field.capacity();
   return size;
 }
-
 
