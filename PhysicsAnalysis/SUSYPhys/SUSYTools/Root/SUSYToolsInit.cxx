@@ -504,7 +504,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon calibration tool
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MuonMomentumCorrectionsSubgroup#CP_MuonCalibrationAndSmearingToo
-  
+
   if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
     m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
     ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("calibrationMode", m_muCalibrationMode) );
@@ -516,7 +516,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("doExtraSmearing", m_muHighPtExtraSmear) );
     ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
   } else  ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
-  
+
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon selection tool
 

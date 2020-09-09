@@ -42,10 +42,8 @@ namespace ST {
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
-  const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
-  const static SG::AuxElement::ConstAccessor<float> acc_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_DFCommonJetDr("DFCommonJetDr");
-  const static SG::AuxElement::ConstAccessor<float> acc_DFCommonJetDr("DFCommonJetDr");
+  const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
@@ -103,21 +101,12 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_passedHighPtCuts(input) = false;
   dec_passSignalID(input) = false;
 
-  // decorations for muon efficiency corrections
-  if (((!acc_dRJet.isAvailable(input))||(!acc_DFCommonJetDr.isAvailable(input))) && (!m_muEffCorrForce1D)) {
-     if ((!acc_dRJet.isAvailable(input)) && acc_DFCommonJetDr.isAvailable(input)) {
-        dec_dRJet(input) = acc_DFCommonJetDr(input);     
-     } else if (acc_dRJet.isAvailable(input)||(!acc_DFCommonJetDr.isAvailable(input))) {
-        dec_DFCommonJetDr(input) = acc_dRJet(input);
-     } else {
-        dec_dRJet(input) = -2.0;
-        dec_DFCommonJetDr(input) = -2.0;
-     }
-  } else if (m_muEffCorrForce1D) {
-    dec_dRJet(input) = -2.0;
+  if (m_muEffCorrForce1D) {
     dec_DFCommonJetDr(input) = -2.0;
+  } else if (!input.isAvailable<float>("DFCommonJetDr")) {
+    dec_dRJet(input) = -2.0;
   }
-  
+
   // don't bother calibrating or computing WP
   if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
 
