@@ -102,10 +102,37 @@ bool ElectronSelectorHelpers::passBLayerRequirement(const xAOD::TrackParticle *t
 }
 
 
-// ==================================================================
 bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType type, const uint8_t criterion){
 
   // helper to check if ambiguity type is one of several that are stored in a bitmask
-  return criterion & 0x1<<type;
+  //
+  // Christos Rel 22 new ambi.
+  //
+  // The issue is that the "criterion" encodes what should
+  // pass only.
+  //
+  // If it was not stored in the GroupData and need to keep compatibility
+  // this would have been trivial but ....
+  //
+  // We want reject types/values/enums/"bits" 5,6.
+  // One way would have been  a mask
+  // 0b1100000 (96)
+  // and check
+  // (mask & 0x1<<type) !=0
+  // This would have been consistent with the rest of e/gamma
+  // but this is not what is going on here.
+  //
+  // What seems we check is 0b11111 (31) i.e we do not specify explicitly the bit
+  // to cut on. Which ofcourse now break due to additional info at position 7
+  // which we want to keep.
+  //
+  // For now hand solve and keep compatibility with existing tooling
+  // But prb we need a better convention
+  //
+  // Add 128 to the criterion (31) so we get b10011111 and bit 7 passes.
+  // so we return true for types 0,1,2,3,4,7 we reject 5,6
+  // Still cpecifying what to reject has some advantages
+  //
+  return (128+criterion) & 0x1<<type;
 
 }
