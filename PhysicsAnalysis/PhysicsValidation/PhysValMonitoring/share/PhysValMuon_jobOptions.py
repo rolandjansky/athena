@@ -8,7 +8,7 @@ tool1 = MuonPhysValMonitoring__MuonPhysValMonitoringTool( name = 'muphysval' )
 tool1.IsData = not recFlags.doTruth()
 
 #
-tool1.MuonContainerName = 'MuonsLRT'
+tool1.MuonContainerName = 'Muons'
 tool1.SlowMuonContainerName = ''
 tool1.MuonTruthParticleContainerName = 'MuonTruthParticles'
 tool1.DoBinnedResolutionPlots = True
