@@ -533,13 +533,15 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 
 
 
-	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell,m_seedThresholdOnTAbs))); //time cut is applied here
+	  bool passTimeCut_seedCell = (!m_seedCutsInT || passCellTimeCut(pCell,m_seedThresholdOnTAbs));
+	  bool passedSeedAndTimeCut = (passedSeedCut && passTimeCut_seedCell); //time cut is applied here
 
 	  bool passedNeighborAndTimeCut = (passedNeighborCut &&
-					   (!m_cutOOTseedFromNeighbour || passedSeedAndTimeCut) && //exclude Out-Of-Time seeds from neighbouring stage as well (if required)
 					   (!m_neighCutsInT || passCellTimeCut(pCell,m_neighborThresholdOnTAbs))); //actual neighbour time cut (if required)
+	  if(m_cutOOTseedFromNeighbour && passedSeedCut && !passTimeCut_seedCell) passedNeighborAndTimeCut=false; //exclude Out-Of-Time seeds from neighbouring stage as well (if required)
 
-	  bool passedCellAndTimeCut = (passedCellCut && (!m_cutOOTseedFromCell || passedSeedAndTimeCut)); //exclude Out-Of-Time seeds from cluster (if required)
+	  bool passedCellAndTimeCut = passedCellCut;
+	  if(m_cutOOTseedFromCell && passedSeedCut && !passTimeCut_seedCell) passedCellAndTimeCut=false; //exclude Out-Of-Time seeds from cluster (if required)
 				       
 
 	  if ( passedCellAndTimeCut || passedNeighborAndTimeCut || passedSeedAndTimeCut ) {
@@ -566,7 +568,7 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	    }
 #endif
 	    HashCell hashCell(tmpClusterCell);
-	    if ( passedNeighborCut || passedSeedAndTimeCut ) {
+	    if ( passedNeighborAndTimeCut || passedSeedAndTimeCut ) {
 	      HashCluster *tmpCluster =
                 new (tmpclus_pool.allocate()) HashCluster (tmplist_pool);
 	      tmpClusterCell->setCaloTopoTmpHashCluster(tmpCluster);
