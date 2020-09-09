@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -357,9 +357,6 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          # parameters for CaloIsoCorrected variable
-                                                          maxPileUpCorrection = 4000., #MeV
-                                                          pileUpAlpha = 1.0,
                                                           VertexCorrection = doVertexCorrection
                                                         )
     
