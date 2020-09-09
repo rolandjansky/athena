@@ -149,5 +149,9 @@ namespace xAOD {
   };
 
 }
+// Declare IParticle as a base class of FlowElement_v1:
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::FlowElement_v1, xAOD::IParticle );
+
 
 #endif
