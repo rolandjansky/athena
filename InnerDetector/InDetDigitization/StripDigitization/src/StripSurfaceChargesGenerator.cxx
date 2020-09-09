@@ -198,8 +198,7 @@ StatusCode StripSurfaceChargesGenerator::initialize() {
     // m_distortionsTool.disable();
   }
 
-  // std::string potentialFileName = PathResolver::find_file("ITKStripSensor/SCTPotential.csv", "CALIBPATH");
-  std::string potentialFileName("/afs/cern.ch/work/y/yiliu/public/ITKStripSensor/SCTPotential.csv");
+  std::string potentialFileName("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/StripDigitization/SCTPotential.csv");
   ATH_MSG_INFO("Load ITK sensor E-potential from file: "+ potentialFileName);
   if(!loadPotenticalFile(potentialFileName, m_pot_deltax, m_pot_deltay, m_pot_nstepx, m_pot_nstepy, m_potentialVec)){
     return StatusCode::FAILURE;
