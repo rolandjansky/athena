@@ -9,22 +9,18 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Guards.h"
 #include "GaudiKernel/IOpaqueAddress.h"
+#include "GaudiKernel/IProperty.h"
 #include "AthenaKernel/IOVRange.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 #include "AthenaKernel/IAddressProvider.h"
-
 #include "FileCatalog/IFileCatalog.h"
-
-
 #include "EventInfo/TagInfo.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
 #include "IOVDbParser.h"
-
 #include "IOVDbFolder.h"
 #include "IOVDbSvc.h"
 
@@ -33,19 +29,6 @@
 
 // helper function for getting jobopt properties
 namespace {
-  template<typename Prop_t>
-  bool 
-  fetchProp( const std::vector<const Gaudi::Details::PropertyBase*>* properties, Prop_t& p ){
-    if (properties) {
-      for ( const auto & pThisProperty: *properties ) {
-        if ( pThisProperty->name()==p.name() ) {
-          return (pThisProperty->load(p));
-        }
-      }
-    }
-    return false;
-  }
-
   bool
   refersToConditionsFolder(const TagInfo::NameTagPair & thisPair){
     return thisPair.first.front() == '/';
@@ -771,22 +754,16 @@ StatusCode IOVDbSvc::checkEventSel() {
   // if so, we can set IOV time already to allow conditons retrieval
   // in the initialise phase, needed for setting up simulation
 
-  // access jobOptionSvc and get properties of EventSelector
-  ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc",name());
-  if (!joSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL( "Could not retrieve [" << joSvc.typeAndName() << "]" );
-    return StatusCode::FAILURE;
-  }
-  typedef std::vector<const Gaudi::Details::PropertyBase*> Properties_t;
-  const Properties_t* evtSelProps=joSvc->getProperties("EventSelector");
-  // do not return FAILURE if the EventSelector cannot be found, as this
-  // happens online when we have no EventSelector
-  if (0==evtSelProps) {
-    ATH_MSG_DEBUG( "Could not retrieve properties of 'EventSelector' from ["<< joSvc.typeAndName() << "]" );
+  SmartIF<IProperty> evtSel = service<IProperty>("EventSelector", /*createIf=*/ false);
+  if (!evtSel.isValid()) {
+    // do not return FAILURE if the EventSelector cannot be found, as this
+    // happens online when we have no EventSelector
+    ATH_MSG_DEBUG( "Could not retrieve 'EventSelector'" );
     return StatusCode::SUCCESS;
   }
+
   BooleanProperty bprop("OverrideRunNumber",false);
-  if (fetchProp<BooleanProperty>(evtSelProps,bprop)) {
+  if (evtSel->getProperty(&bprop)) {
     if (bprop.value()) {
       // if flag is set, extract Run,LB and time
       ATH_MSG_INFO(  "Setting run/LB/time from EventSelector override in initialize" );
@@ -797,21 +774,21 @@ StatusCode IOVDbSvc::checkEventSel() {
           m_par_forceLumiblockNumber.value()!=0)
         ATH_MSG_WARNING( "forceRunNumber property also set" );
       IntegerProperty iprop1("RunNumber",0);
-      if (fetchProp<IntegerProperty>(evtSelProps,iprop1)) {
+      if (evtSel->getProperty(&iprop1)) {
         run=iprop1.value();
       } else {
         ATH_MSG_ERROR( "Unable to get RunNumber from EventSelector");
         allGood=false;
       }
       IntegerProperty iprop2("FirstLB",0);
-      if (fetchProp<IntegerProperty>(evtSelProps,iprop2)) {
+      if (evtSel->getProperty(&iprop2)) {
         lumib=iprop2.value();
       } else {
         ATH_MSG_ERROR( "Unable to get FirstLB from EventSelector");
         allGood=false;
       }
       IntegerProperty iprop3("InitialTimeStamp",0);
-      if (fetchProp<IntegerProperty>(evtSelProps,iprop3)) {
+      if (evtSel->getProperty(&iprop3)) {
         time=iprop3.value();
       } else {
         ATH_MSG_ERROR("Unable to get InitialTimeStamp from EventSelector" );
