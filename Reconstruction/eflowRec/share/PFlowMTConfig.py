@@ -250,6 +250,8 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
 
+jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
+print("RUN_FE_NOW_PLS")
 #Add new FlowElement creators
 if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
@@ -263,3 +265,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
+
+  from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
+  PFMuonFlowElementAssoc=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
+  topSequence += PFMuonFlowElementAssoc

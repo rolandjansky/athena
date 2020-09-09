@@ -8,9 +8,10 @@
 #include "xAODMuon/Muon.h"
 #include "xAODPFlow/FlowElementContainer.h" 
 #include "xAODPFlow/FlowElement.h" 
+#include <typeinfo> // temp debug to check object
 
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t; 
-typedef ElementLink<xAOD::FlowElement> FlowElementLink_t; 
+typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
 //
 //      Algorithm created by M.T. Anthony
 //
@@ -55,13 +56,16 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   // Get container for muons
   SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey);
   // get container for charged flow elements
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorHandle);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey);
   
 
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonChargedFEWriteDecorKey.contHandleKey()); // readhandle for muon
   SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_ChargedFEmuonWriteDecorKey.contHandleKey());
   
+  //now init some Flow element link containers
+  std::vector<std::vector<FlowElementLink_t> > muonChargedFEVec(muonReadHandle->size());
+
   //Loop over the Flow Elements 
 
   //////////////////////////////
@@ -77,20 +81,34 @@ StatusCode PFMuonFlowElementAssoc::execute() {
     for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
       // retrieve a link to an ID track where possible
       const ElementLink<xAOD::TrackParticleContainer> muonTrackContLink=muon->inDetTrackParticleLink();
-      //catch for case where muon does not contain an ID track
-      if(muonTrackContLink->size()>0){
-	// loop over tracks: should be one element at most
-	for (xAOD::TrackParticle* muontrack: *muonTrackContLink){
-	  size_t muontrackindex=muontrack->index();
-	  if(muontrackindex==FETrackIndex){
-	    
-	  }//end of matching block
-	}// end of loop over tracks
-      }// end of size check on muonTrackContLink
+      const xAOD::TrackParticleContainer* TrkCont=muonTrackContLink.getDataPtr();
+      if(TrkCont->size()>0){
+	for(const xAOD::TrackParticle* MuonTrkParticle: *TrkCont){
+	  size_t MuonTrkIndex=MuonTrkParticle->index();
+	  if(MuonTrkIndex==FETrackIndex){
+	    // Add Muon element link to a vector
+	    // index() is the unique index of the muon in the muon container
+	    feMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
+	    // Add flow element link to a vector
+	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	    muonChargedFEVec.at(muon->index()).push_back(FlowElementLink_t(*ChargedFEReadHandle,FE->index()));
+	  } // matching block
+	} // TrkCont loop
+      } // Size check
     }// end of muon loop
     
-    
+    // Add vector of muon element links as decoration to FlowElement container
+    ChargedFEmuonWriteDecorHandle(*FE) = feMuonLinks;
   } // end of charged Flow Element loop
+
+
+  //////////////////////////////////////////////////
+  //   WRITE OUTPUT: ADD HANDLES TO MUON CONTAINERS
+  //////////////////////////////////////////////////
+  // Add the vectors of the Flow Element Links as decoations to the muon container
+  for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
+    muonChargedFEWriteDecorHandle(*muon)=muonChargedFEVec.at(muon->index());
+  } // end of muon loop
 
   ATH_MSG_DEBUG("Execute completed successfully");   
   
