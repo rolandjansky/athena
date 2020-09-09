@@ -20,14 +20,12 @@ CaloCell_Base_ID::CaloCell_Base_ID(const LArEM_Base_ID*   em_id,
                                    const LArFCAL_Base_ID* fcal_id, 
                                    const LArMiniFCAL_ID*  minifcal_id,
                                    const Tile_Base_ID*    tile_id,
-                                   const HGTD_ID*         hgtd_id,
 				   bool supercell)
   : m_emHelper(em_id),
     m_hecHelper(hec_id),
     m_fcalHelper(fcal_id),
     m_minifcalHelper(minifcal_id),
     m_tileHelper(tile_id),
-    m_hgtdHelper(hgtd_id),
     m_cell_hash_max(0),
     m_region_hash_max(0),
     m_caloNeighbours (0),
@@ -38,7 +36,6 @@ CaloCell_Base_ID::CaloCell_Base_ID(const LArEM_Base_ID*   em_id,
   m_helpers[LARFCAL] = fcal_id;
   m_helpers[TILE] = tile_id;
   m_helpers[LARMINIFCAL] = minifcal_id;
-  m_helpers[HGTD] = hgtd_id;
 
   for (int i=0; i < NSUBCALO; i++) {
     if (i == 0) {

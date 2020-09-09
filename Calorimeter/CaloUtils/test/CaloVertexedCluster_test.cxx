@@ -103,7 +103,6 @@ CaloDetDescriptor* make_dd ()
   LArFCAL_ID* fcal_id = new LArFCAL_ID;
   LArMiniFCAL_ID* minifcal_id = new LArMiniFCAL_ID;
   TileID*     tile_id = new TileID;
-  HGTD_ID*     hgtd_id = new HGTD_ID;
 
   IdDictParser parser;
   parser.register_external_entity ("LArCalorimeter",
@@ -118,14 +117,12 @@ CaloDetDescriptor* make_dd ()
   minifcal_id->initialize_from_dictionary (idd);
   tile_id->set_do_neighbours (false);
   tile_id->initialize_from_dictionary (idd);
-  hgtd_id->initialize_from_dictionary (idd);
 
   CaloCell_ID* calo_helper = new CaloCell_ID (em_id,
                                               hec_id,
                                               fcal_id,
                                               minifcal_id,
-                                              tile_id,
-					      hgtd_id);
+                                              tile_id);
   calo_helper->initialize_from_dictionary (idd);
   Identifier reg_id = calo_helper->region_id (CaloCell_ID::LAREM,
                                               1, // + barrel

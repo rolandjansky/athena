@@ -61,15 +61,7 @@ check_cell_id_decoding(IdDictMgr& idd)
     }
     const TileID* tile_p = &tile_id;
 
-    HGTD_ID hgtd_id;
-    if(hgtd_id.initialize_from_dictionary (idd)) {
-	std::cout << "check_cell_id_decoding - cannot init hgtd from dict" << std::endl;
-	std::cout << "no error set: HGTD is optional " << std::endl;
-	//	error = true;
-    }
-    const HGTD_ID* hgtd_p = &hgtd_id;
-
-    CaloCell_ID* calo_id = new CaloCell_ID(em_p, hec_p, fcal_p, minifcal_p, tile_p, hgtd_p);
+    CaloCell_ID* calo_id = new CaloCell_ID(em_p, hec_p, fcal_p, minifcal_p, tile_p);
     if(calo_id->initialize_from_dictionary (idd)) {
 	std::cout << "check_cell_id_decoding - cannot init calocell from dict" << std::endl;
 	error = true;
@@ -555,15 +547,7 @@ check_cell_neighbours(IdDictMgr& idd)
     }
     const TileID* tile_p = &tile_id;
 
-    HGTD_ID hgtd_id;
-    if(hgtd_id.initialize_from_dictionary (idd)) {
-	std::cout << "check_cell_id_decoding - cannot init hgtd from dict" << std::endl;
-	std::cout << "no error set: HGTD is optional " << std::endl;
-	//	error = true;
-    }
-    const HGTD_ID* hgtd_p = &hgtd_id;
-
-    CaloCell_ID* calo_id = new CaloCell_ID(em_p, hec_p, fcal_p, minifcal_p, tile_p, hgtd_p);
+    CaloCell_ID* calo_id = new CaloCell_ID(em_p, hec_p, fcal_p, minifcal_p, tile_p);
     if(calo_id->initialize_from_dictionary (idd)) {
 	std::cout << "check_cell_id_decoding - cannot init calocell from dict" << std::endl;
 	error = true;

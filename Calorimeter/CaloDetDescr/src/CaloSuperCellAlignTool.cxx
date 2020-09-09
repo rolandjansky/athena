@@ -207,8 +207,6 @@ CaloSuperCellAlignTool::updateElements (CaloSuperCellDetDescrManager* mgr,
           cell_idhelper->sample(id) == 2 &&
           idhelper->sample(elt->identify()) != 2)
         continue;
-      if (cell_idhelper->sub_calo(id) == CaloCell_Base_ID::HGTD )
-        continue;
       const CaloDetDescrElement* fromelt = cellmgr->get_element (id);
       assert (fromelt != 0);
       fromelts.push_back (fromelt);

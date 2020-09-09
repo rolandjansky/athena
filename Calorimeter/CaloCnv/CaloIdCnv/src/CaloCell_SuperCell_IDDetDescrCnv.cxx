@@ -44,14 +44,12 @@ StatusCode make_CaloIDHelper (ISvcLocator* svcloc,
   GET_HELPER (LArFCAL_SuperCell_ID, fcal_id);
   GET_HELPER (LArMiniFCAL_ID, minifcal_id);
   GET_HELPER (Tile_SuperCell_ID, tile_id);
-  GET_HELPER (HGTD_ID, hgtd_id);
 
   // create the helper
   idhelper = new CaloCell_SuperCell_ID (em_id,
                                         hec_id,
                                         fcal_id,
                                         minifcal_id,
-                                        tile_id,
-                                        hgtd_id);
+                                        tile_id);
   return StatusCode::SUCCESS;
 }

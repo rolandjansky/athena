@@ -94,9 +94,6 @@ void CaloSuperCellIDTool::initIDMap ()
   m_superCellIndex.resize (sc_helper->calo_region_hash_max(), -1);
   m_superCellIndexEnd.resize (sc_helper->calo_region_hash_max(), -1);
 
-  // for the HGTD need the helpers
-  const HGTD_ID* hgtd_helper  = cell_helper->hgtd_idHelper();
-
   // Loop over all offline regions.
   BOOST_FOREACH (const Identifier& cell_reg, cell_helper->reg_range()) {
     if (cell_helper->is_em(cell_reg) ||
@@ -189,33 +186,6 @@ void CaloSuperCellIDTool::initIDMap ()
       elt.m_cell_ietamax = cell_helper->eta_max (cell_reg);
       elt.m_sc_ietamin = sc_helper->eta_min (sc_reg);
       elt.m_sc_ietamax = sc_helper->eta_max (sc_reg);
-      addMapEntry (elt);
-    }
-    else if (cell_helper->is_hgtd(cell_reg)) {
-      
-      IDMapElt elt;
-      elt.m_cell_reg = cell_helper->calo_region_hash (cell_reg);
-
-      int sub_calo     = cell_helper->sub_calo (cell_reg);
-      int posNegEndcap = hgtd_helper->barrel_ec(cell_reg);
-      int sampling     = hgtd_helper->sampling(cell_reg);
-      int granularity  = hgtd_helper->granularity(cell_reg);
-      int xIndex       = hgtd_helper->x_index(cell_reg);
-      int yIndex       = hgtd_helper->y_index(cell_reg);
-
-      Identifier sc_id = sc_helper->cell_id(sub_calo,posNegEndcap, sampling, granularity, xIndex, yIndex );
-      elt.m_sc_reg = sc_helper->calo_region_hash (sc_id);
-      elt.m_etadiv = 1;
-      elt.m_phidiv = 1;
-      elt.m_cell_ietamin = -1200;
-      elt.m_cell_ietamax =  1200;
-      
-      elt.m_cell_ieta_adj = 0;
-      elt.m_sc_ieta_adj   = 0;
-      
-      elt.m_sc_ietamin = elt.m_cell_ietamin;
-      elt.m_sc_ietamax = elt.m_cell_ietamax;
-      
       addMapEntry (elt);
     }
   }
@@ -433,20 +403,6 @@ CaloSuperCellIDTool::offlineToSuperCellID (const Identifier& id) const
                                tower,
                                sample_sc);
   }
-  else if (cell_helper->is_hgtd(id) ) {
-      int sub_calo     = cell_helper->sub_calo (id);
-      
-      const HGTD_ID* hgtd_helper  = cell_helper->hgtd_idHelper();
-      int posNegEndcap = hgtd_helper->barrel_ec(id);
-      int sampling     = hgtd_helper->sampling(id);
-      int granularity  = hgtd_helper->granularity(id);
-      int xIndex       = hgtd_helper->x_index(id);
-      int yIndex       = hgtd_helper->y_index(id);
-
-      const CaloCell_Base_ID* sc_helper   =
-	m_calo_id_manager->getCaloCell_SuperCell_ID();
-      return sc_helper->cell_id(sub_calo,posNegEndcap, sampling, granularity, xIndex, yIndex );
-  }
 
   return Identifier();
 }
@@ -552,19 +508,6 @@ CaloSuperCellIDTool::superCellToOfflineID (const Identifier& id) const
       if(tile_helper->cell_id(reg_id, module, tower, TileID::SAMP_D, cell_id))
         out.push_back (cell_id);
     }
-  }
-  else if (sc_helper->is_hgtd(id) ) {
-      int sub_calo     = sc_helper->sub_calo (id);
-      
-      const HGTD_ID* hgtd_helper  = sc_helper->hgtd_idHelper();
-      int posNegEndcap = hgtd_helper->barrel_ec(id);
-      int sampling     = hgtd_helper->sampling(id);
-      int granularity  = hgtd_helper->granularity(id);
-      int xIndex       = hgtd_helper->x_index(id);
-      int yIndex       = hgtd_helper->y_index(id);
-
-      const CaloCell_Base_ID* cell_helper = m_calo_id_manager->getCaloCell_ID();
-      out.push_back(cell_helper->cell_id(sub_calo,posNegEndcap, sampling, granularity, xIndex, yIndex ));
   }
 
   return out;

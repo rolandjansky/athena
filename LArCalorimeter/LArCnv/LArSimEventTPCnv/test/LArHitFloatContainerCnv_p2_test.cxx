@@ -96,14 +96,12 @@ const CaloCell_ID& make_dd (ISvcLocator* svcLoc)
   LArFCAL_ID* fcal_id = make_helper<LArFCAL_ID> (idd, false);
   LArMiniFCAL_ID* minifcal_id = make_helper<LArMiniFCAL_ID> (idd, false);
   TileID* tile_id = make_helper<TileID> (idd, false);
-  HGTD_ID* hgtd_id = make_helper<HGTD_ID> (idd, false);
 
   CaloCell_ID* calo_id = new CaloCell_ID (em_id,
                                           hec_id,
                                           fcal_id,
                                           minifcal_id,
-                                          tile_id,
-					  hgtd_id);
+                                          tile_id);
   assert (calo_id->initialize_from_dictionary (idd) == 0);
 
   CaloIdManager* mgr = new CaloIdManager;

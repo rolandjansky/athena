@@ -38,9 +38,6 @@ CaloCell_Base_ID::region_id   	(const int subCalo,
   else if( subCalo == TILE ) {
     return m_tileHelper->region_id(barec_or_posneg, sampling_or_fcalmodule);
   } 
-  else if( subCalo == HGTD ) {
-    return m_hgtdHelper->region_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy);
-  } 
   else {
     return(result);
   }
@@ -71,9 +68,6 @@ CaloCell_Base_ID::cell_id (const int subCalo,
   else if( subCalo == TILE ) {
     return m_tileHelper->cell_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
   } 
-  else if( subCalo == HGTD ) {
-    return m_hgtdHelper->channel_id(barec_or_posneg, sampling_or_fcalmodule, region_or_dummy, eta, phi);
-  } 
   else {
     return(result);
   }
@@ -99,9 +93,6 @@ CaloCell_Base_ID::region_id ( const Identifier cellId ) const
   } 
   else if(m_emHelper->is_tile(cellId)) {
     return m_tileHelper->region_id(cellId);
-  } 
-  else if( m_emHelper->is_lar_hgtd(cellId)) {
-    return m_hgtdHelper->region_id(cellId);
   } 
   else {
     return(result);
@@ -192,9 +183,6 @@ CaloCell_Base_ID::subcalo_region_hash (const Identifier regionId, int& subCalo) 
   else     if (is_tile(regionId)) {
     subCalo = TILE ;
   }
-  else     if (is_hgtd(regionId)) {
-    subCalo = HGTD ;
-  }
   std::vector<Identifier>::const_iterator it = std::lower_bound(m_region_vec.begin(),m_region_vec.end(),regionId);
   if ( it != m_region_vec.end() ){
     return (it - m_region_vec.begin() - m_reg_min[subCalo]);
@@ -218,7 +206,6 @@ CaloCell_Base_ID::subcalo_cell_hash (const Identifier cellId, int& subCalo) cons
   case LARFCAL:
   case TILE:
   case LARMINIFCAL:
-  case HGTD:
     return m_helpers[subCalo]->channel_hash (cellId);
   default:
     return NOT_VALID;
@@ -272,10 +259,6 @@ inline  void CaloCell_Base_ID::calo_cell_hash_range (const Identifier id, Identi
     caloCellMin = m_cell_min[TILE];
     caloCellMax = m_cell_max[TILE];
   } 
-  else if(m_emHelper->is_lar_hgtd(id)) {
-    caloCellMin = m_cell_min[HGTD];
-    caloCellMax = m_cell_max[HGTD];
-  } 
   else {
     caloCellMin = NOT_VALID;
     caloCellMax = NOT_VALID;
@@ -305,10 +288,6 @@ inline  void CaloCell_Base_ID::calo_reg_hash_range (const Identifier id, Identif
   else if(m_emHelper->is_tile(id)) {
     caloRegMin = m_reg_min[TILE];
     caloRegMax = m_reg_max[TILE];
-  } 
-  else if(m_emHelper->is_lar_hgtd(id)) {
-    caloRegMin = m_reg_min[HGTD];
-    caloRegMax = m_reg_max[HGTD];
   } 
   else {
     caloRegMin = NOT_VALID;
@@ -348,9 +327,6 @@ inline IdentifierHash CaloCell_Base_ID::subcalo_cell_hash   ( const IdentifierHa
   else if(caloHash < m_cell_max[LARMINIFCAL] ) {
     subCalo = LARMINIFCAL;
   }
-  else if(caloHash < m_cell_max[HGTD] ) {
-    subCalo = HGTD;
-  }
   else {
     subCalo = NOT_VALID;
     return(NOT_VALID);
@@ -375,9 +351,6 @@ inline IdentifierHash CaloCell_Base_ID::subcalo_region_hash   ( const Identifier
   }
   else if(caloHash < m_reg_max[LARMINIFCAL] ) {
     subCalo = LARMINIFCAL;
-  }
-  else if(caloHash < m_reg_max[HGTD] ) {
-    subCalo = HGTD;
   }
   else {
     subCalo = NOT_VALID;
@@ -571,19 +544,6 @@ inline bool CaloCell_Base_ID::is_minifcal(const IdentifierHash caloHash) const
 }
 
 //----------------------------------------------------------------------------
-inline bool CaloCell_Base_ID::is_hgtd(const Identifier id) const
-{
-  return m_emHelper->is_lar_hgtd(id);
-}
-
-//----------------------------------------------------------------------------
-inline bool CaloCell_Base_ID::is_hgtd(const IdentifierHash caloHash) const
-{
-  bool result=false;
-  if(caloHash >= m_cell_min[HGTD] && caloHash < m_cell_max[HGTD] ) result=true;
-  return result;
-}
-//----------------------------------------------------------------------------
 inline bool CaloCell_Base_ID::is_tile(const ExpandedIdentifier& id) const
 {
   return m_emHelper->is_tile(id);
@@ -658,9 +618,6 @@ inline int CaloCell_Base_ID::sub_calo         (const Identifier id)const
   else if(m_emHelper->is_tile(id)) {
     return TILE;
   } 
-  else if( m_emHelper->is_lar_hgtd(id)) {
-    return HGTD;
-  } 
   else {
     return(NOT_VALID);
   }
@@ -685,9 +642,6 @@ inline int CaloCell_Base_ID::sub_calo         (const IdentifierHash caloHash)con
   else if(caloHash < m_cell_max[LARMINIFCAL] ) {
     result = LARMINIFCAL;
   }
-  else if(caloHash < m_cell_max[HGTD] ) {
-    result = HGTD;
-  }
   return result;
 }
 
@@ -706,9 +660,6 @@ inline int CaloCell_Base_ID::pos_neg         (const Identifier id)const
   } 
   else if(m_emHelper->is_lar_fcal(id)) {
     return m_fcalHelper->pos_neg(id);
-  } 
-  if(m_emHelper->is_lar_hgtd(id)) {
-    return m_hgtdHelper->barrel_ec(id);
   } 
   else {
     return(NOT_VALID);
@@ -741,9 +692,6 @@ inline int CaloCell_Base_ID::sampling             (const Identifier id)const
   } 
   else if(m_emHelper->is_lar_fcal(id)) {
     return m_fcalHelper->module(id);
-  } 
-  else if(m_emHelper->is_lar_hgtd(id)) {
-    return m_hgtdHelper->sampling(id);
   } 
   else {
     return(NOT_VALID);
@@ -1016,9 +964,6 @@ inline int CaloCell_Base_ID::GetSubCaloName(const std::string SubCaloName )const
   else if(SubCaloName=="TILE"){
     return(TILE);
   }
-  else if(SubCaloName=="HGTD"){
-    return(HGTD);
-  }
   else{
     return(NOT_VALID);
   }
@@ -1042,8 +987,6 @@ CaloCell_Base_ID::get_subcalo (Identifier id) const
     return LARFCAL;
   else if (m_emHelper->is_tile (id))
     return TILE;
-  else if (m_emHelper->is_lar_hgtd (id) )
-    return HGTD;
 
   return NOT_VALID;
 }
