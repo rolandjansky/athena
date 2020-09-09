@@ -351,3 +351,10 @@ bool PixelRoutingServiceXMLHelper::splitLayersInPhi(int index) const
     return getInt("PixelSvcRoute",index,"splitLayersInPhi");
   return false;
 }
+
+int PixelRoutingServiceXMLHelper::phiSplitStepInSectors(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"phiSplitStepInSectors") > 0)
+    return getInt("PixelSvcRoute",index,"phiSplitStepInSectors");
+  return 1;
+}

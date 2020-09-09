@@ -118,6 +118,7 @@ void RoutingDyn::createRouteFromXML(int iRoute)
   float refPhi = m_svcRoutingXMLHelper->getPhiRefFirstSector(iRoute);
   float sectorWidth = m_svcRoutingXMLHelper->getSectorVolumeWidth(iRoute);
   bool splitLayers = m_svcRoutingXMLHelper->splitLayersInPhi(iRoute);
+  int phiStepInSectors = m_svcRoutingXMLHelper->phiSplitStepInSectors(iRoute);
 
   int nbSegment = r.size()-1;
   for(int iseg=0 ; iseg<nbSegment; iseg++) {
@@ -128,7 +129,7 @@ void RoutingDyn::createRouteFromXML(int iRoute)
     bool bFirst=(iseg==0);
     bool bLast=(iseg==nbSegment-1);
     RouteParameter param(iRoute,iseg,bBarrel,r[iseg],r[iseg+1], z[iseg],z[iseg+1], layerList, svcThick, bFirst, bLast, svcType, isPhiRouting, EOScardLength, zShift,
-			 nSectors, refPhi, sectorWidth, splitLayers);
+			 nSectors, refPhi, sectorWidth, splitLayers, phiStepInSectors);
     createRouteSegment(param);
   }
 }
@@ -222,7 +223,7 @@ void RoutingDyn::organizePredefinedRouteSegment(const HSvcRoute& route)
     }
 
     if (svcVol[0]->getNumSectors()>1 || svcVol[0]->splitLayersInPhi()) newCyl->splitIntoSectors( svcVol[0]->getNumSectors(), svcVol[0]->getRefPhiSector(),
-												 svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi());  
+												 svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi(),svcVol[0]->getPhiStep());  
    
     newRoute.addVolume(newCyl);	
     addVolume(newCyl);
@@ -357,7 +358,7 @@ void RoutingDyn::organizePredefinedRouteSegment(const VSvcRoute& route)
 	}
 
 	if (svcVol[0]->getNumSectors()>1 || svcVol[0]->splitLayersInPhi()) newDisk->splitIntoSectors( svcVol[0]->getNumSectors(), svcVol[0]->getRefPhiSector(),
-												 svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi());  
+												      svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi(), svcVol[0]->getPhiStep());  
   	      
 
 	newRoute.addVolume(newDisk);	
@@ -443,6 +444,7 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
   int segId = param.getSegmentId();
   int nSectors = param.getNumSectors();
   bool splitLayers = param.splitLayersInPhi();
+  int phiStepInSectors = param.phiStep();
   std::string r1 = param.getR1(); 
   std::string r2 = param.getR2();
   std::string z1 = param.getZ1();
@@ -520,7 +522,7 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
     else
       svcVol->addLayer(m_eplc[layer]);
  
-    if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers);  
+    if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers, phiStepInSectors);  
     
     if(bSvcGrouped)
       route.addVolume(svcVol);
@@ -549,6 +551,7 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
   int segId = param.getSegmentId();
   int nSectors = param.getNumSectors();
   bool splitLayers = param.splitLayersInPhi();
+  int phiStepInSectors = param.phiStep();
    std::string r1 = param.getR1(); 
   std::string r2 = param.getR2();
   std::string z1 = param.getZ1();
@@ -629,7 +632,7 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
     else
       svcVol->addLayer(m_eplc[layer]);
 
-     if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers);  
+    if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers, phiStepInSectors);  
 
     if(bSvcGrouped)
       route.addVolume(svcVol);
