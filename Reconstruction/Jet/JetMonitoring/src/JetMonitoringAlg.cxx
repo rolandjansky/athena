@@ -11,7 +11,6 @@ JetMonitoringAlg::JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLo
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this), m_failureOnMissingContainer(true)
 {
-
     declareProperty("JetContainerName",m_jetContainerKey);
     declareProperty("FillerTools", m_jetFillerTools);
     declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
@@ -28,7 +27,7 @@ StatusCode JetMonitoringAlg::initialize() {
   ATH_CHECK( m_jetFillerTools.retrieve() );
 
   // print out what we have 
-  ATH_MSG_INFO( " Scheduled Histo fillers/selectors : ");
+  ATH_MSG_INFO( "Scheduled Histo fillers/selectors : ");
   for(const auto& t: m_jetFillerTools){
     ATH_MSG_INFO( "--> "<< t->name() );
   }
@@ -40,6 +39,30 @@ StatusCode JetMonitoringAlg::initialize() {
 
 StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
 
+  if (isPassed(m_triggerChain)) { //trigger was fired - retrieve only jets passing the chain
+    ATH_MSG_DEBUG("JetMonitoringAlg::fillHistograms(const EventContext&) -> if (isPassed("<<m_triggerChain<<")) was passed!");
+   
+    ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
+    const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = getTrigDecisionTool()->features<xAOD::JetContainer>( m_triggerChain );
+    for(const auto& jetLinkInfo : fc) {
+      if (!jetLinkInfo.isValid()) {
+        ATH_MSG_ERROR("Invalid ElementLink to online jet");
+        continue;
+      }
+      ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
+      const xAOD::Jet *trigjet = dynamic_cast<const xAOD::Jet*>(*j);
+      tmpCont.push_back( trigjet );
+    }
+    const xAOD::JetContainer * trigJetsCont = tmpCont.asDataVector();
+    if (trigJetsCont->empty()) {
+      ATH_MSG_WARNING("Empty trigger jet container for chain "<<m_triggerChain);
+      return StatusCode::SUCCESS;
+    }
+    for(const auto& t: m_jetFillerTools){
+      ATH_MSG_DEBUG( " now run "<< t->name() );
+      ATH_CHECK( t->processJetContainer(*this, *trigJetsCont, ctx) );
+    }
+  } else {
   // retrieve the jet container
   SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerKey, ctx);    
   if (! jets.isValid() ) {
@@ -51,13 +74,13 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
       return StatusCode::SUCCESS;
     }
   }
-
+ 
   // call each histograming tool on the container
   for(const auto& t: m_jetFillerTools){
     ATH_MSG_DEBUG( " now run "<< t->name() );
     ATH_CHECK( t->processJetContainer(*this, *jets, ctx) );
   }
-  
+ }
   return StatusCode::SUCCESS;
 }
 

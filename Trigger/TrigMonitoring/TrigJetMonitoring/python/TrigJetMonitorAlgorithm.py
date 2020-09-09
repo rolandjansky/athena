@@ -92,9 +92,9 @@ from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHis
 
 # All offline jet collections
 ExtraOfflineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
-  HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;Entries" ),
+  "EMFrac",
+  "HECFrac",
+  "Jvt",
   "JVFCorr",
   "JvtRpt",
   "NumTrkPt1000[0]",
@@ -105,11 +105,11 @@ ExtraOfflineHists = [
 
 # All online small-R jet collections
 ExtraSmallROnlineHists = [
-  HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
-  HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
-  HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
-  HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
   HistoSpec('et:GeV;eta',  (100,0,750, 50,-5,5) , title='#eta vs E_{T};E_{T} [GeV];#eta;Entries'),
+  "EMFrac",
+  "HECFrac",
+  "DetectorEta",
+  "ActiveArea", 
   "EM3Frac",
   "Tile0Frac",
 ]
@@ -223,7 +223,9 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
 
-    EventHistoSpec('njetsPt20', (20,0,20), title='NJetsPt20;NJetsPt20;Entries' ),
+    EventHistoSpec('njets', (25,0,25), title='NJets;NJets;Entries' ),
+    EventHistoSpec('njetsPt20', (25,0,25), title='NJetsPt20;NJetsPt20;Entries' ),
+    EventHistoSpec('njetsPt50', (25,0,25), title='NJetsPt50;NJetsPt50;Entries' ),
     # Jet multiplicity histograms can be added by using an EventHistoSpec
     # Their specifications (pT cut, ET cut, eta cuts) must be defined in the knownEventVar dictionary within JetStandardHistoSpecs.py
     # The following line is an example for a jet multiplicity histogram with ET>40 GeV, 1.0<|eta|<2.0, and binning of (10,0,10):
@@ -329,6 +331,10 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            "eta",
            "et",
            "phi",
+           EventHistoSpec('njets', (25,0,25), title='njets;njets;Entries' ),
+           EventHistoSpec('njetsEt20Eta0_32', (25,0,25), title='njetsEt20Eta0_32;njetsEt20Eta0_32;Entries' ),
+           EventHistoSpec('njetsEt50Eta0_32', (25,0,25), title='njetsEt50Eta0_32;njetsEt50Eta0_32;Entries' ),
+           EventHistoSpec('njetsEt100Eta0_32', (25,0,25), title='njetsEt100Eta0_32;njetsEt100Eta0_32;Entries' ),
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
@@ -337,7 +343,30 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
                                                    # so we use retrieveVarToolConf("pt") which returns a full specification for the "pt" histo variable.
                     ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg),
    )
-
+   if 'j460' in chain:
+     trigConf.appendHistos(
+       SelectSpec( 'highEt', '460<et:GeV', chainFolder, FillerTools = ["m"] ),
+     )
+   if '2j330' in chain:
+     trigConf.appendHistos(
+       EventHistoSpec('njetsEt330Eta0_32', (25,0,25), title='njetsEt330Eta0_32;njetsEt330Eta0_32;Entries' ),
+     )
+   elif '5j70' in chain:
+     trigConf.appendHistos(
+       EventHistoSpec('njetsEt70Eta0_24', (25,0,25), title='njetsEt70Eta0_24;njetsEt70Eta0_24;Entries' ),
+     )
+   elif '3j200' in chain:
+     trigConf.appendHistos(
+       EventHistoSpec('njetsEt200Eta0_32', (25,0,25), title='njetsEt200Eta0_32;njetsEt200Eta0_32;Entries' ),
+     )
+   elif 'j80_j60' in chain:
+     trigConf.appendHistos(
+       EventHistoSpec('njetsEt60Eta0_32', (25,0,25), title='njetsEt60Eta0_32;njetsEt60Eta0_32;Entries' ),
+     )
+   elif 'j260_320eta490' in chain:
+     trigConf.appendHistos(
+       EventHistoSpec('njetsEt260Eta32_49', (25,0,25), title='njetsEt260Eta32_49;njetsEt260Eta32_49;Entries' ),
+     )
    if 'smc' in chain:
      trigConf.appendHistos(
              SelectSpec( 'm50', '50<m', chainFolder, FillerTools = [

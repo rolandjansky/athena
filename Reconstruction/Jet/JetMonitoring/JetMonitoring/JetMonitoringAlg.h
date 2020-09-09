@@ -39,6 +39,7 @@ private:
   ToolHandleArray<IJetHistoFiller> m_jetFillerTools;
 
   bool m_failureOnMissingContainer;
+  Gaudi::Property<std::string> m_triggerChain {this,"TriggerChain", ""};
   
 };
 #endif
