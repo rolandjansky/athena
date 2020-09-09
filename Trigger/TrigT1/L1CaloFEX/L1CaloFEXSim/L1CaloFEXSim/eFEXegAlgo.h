@@ -38,7 +38,7 @@ namespace LVL1 {
     eFEXegAlgo(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() ;
+    virtual StatusCode initialize() override;
     
     /** Destructor */
     virtual ~eFEXegAlgo();
@@ -63,9 +63,6 @@ namespace LVL1 {
     bool m_seed_UnD = false; 
     unsigned int m_seedID = 999;
     int m_eFEXegAlgoTowerID[3][3];
-    float m_reta;
-    float m_rhad;
-    float m_wstot;
     bool m_haveseed;
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXegAlgo_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
