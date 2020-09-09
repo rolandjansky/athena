@@ -40,8 +40,8 @@ public:
                        BFieldCacheZR& cache,
                        double scaleFactor = 1.0) const;
   // accessors
-  double min(size_t i);
-  double max(size_t i);
+  double min(size_t i) const;
+  double max(size_t i) const;
   double zmin() const;
   double zmax() const;
   double rmin() const;
