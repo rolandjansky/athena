@@ -12,15 +12,17 @@
 
 #include <AsgExampleTools/DataHandleTestTool.h>
 
+#ifdef XAOD_STANDALONE
 #include <AsgDataHandles/ReadHandle.h>
 #include <AsgDataHandles/ReadDecorHandle.h>
 #include <AsgDataHandles/WriteDecorHandle.h>
 #include <AsgDataHandles/WriteHandle.h>
+#endif
 #include <AsgTesting/UnitTest.h>
 #include <gtest/gtest.h>
 #include <map>
 
-#ifndef SIMULATIONBASE
+#ifdef XAOD_STANDALONE
 #include <xAODMuon/MuonAuxContainer.h>
 #endif
 
@@ -53,7 +55,7 @@ namespace asg
   StatusCode DataHandleTestTool ::
   initialize ()
   {
-#ifndef SIMULATIONBASE
+#ifdef XAOD_STANDALONE
     ANA_CHECK (m_readKey.initialize ());
     ANA_CHECK (m_readDecorKey.initialize ());
     if (!m_writeKey.empty())
@@ -70,7 +72,7 @@ namespace asg
   void DataHandleTestTool ::
   runTest ()
   {
-#ifndef SIMULATIONBASE
+#ifdef XAOD_STANDALONE
     const xAOD::MuonContainer *muonsStore {nullptr};
     ASSERT_SUCCESS (evtStore()->retrieve (muonsStore, "Muons"));
     ASSERT_NE (0u, muonsStore->size());
