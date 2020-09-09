@@ -176,11 +176,13 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
             topSequence += getAlgorithm("MuonInsideOutRecoAlg")
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
-            #if InDetFlags.doR3LargeD0():
-            #    topSequence += getAlgorithm("MuGirlAlg_LargeD0")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuGirlAlg_LargeD0")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
             topSequence += getAlgorithm("MuonCaloTagAlg")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuonCaloTagAlg_LargeD0")
 
         if muonCombinedRecFlags.doMuonSegmentTagger():
             getPublicTool("MuonSegmentTagTool")

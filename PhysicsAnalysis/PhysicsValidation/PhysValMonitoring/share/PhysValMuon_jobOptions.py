@@ -8,9 +8,9 @@ tool1 = MuonPhysValMonitoring__MuonPhysValMonitoringTool( name = 'muphysval' )
 tool1.IsData = not recFlags.doTruth()
 
 #
-tool1.MuonContainerName = 'Muons';
-tool1.SlowMuonContainerName = '';
-tool1.MuonTruthParticleContainerName = 'MuonTruthParticles';
+tool1.MuonContainerName = 'MuonsLRT'
+tool1.SlowMuonContainerName = ''
+tool1.MuonTruthParticleContainerName = 'MuonTruthParticles'
 tool1.DoBinnedResolutionPlots = True
 
 #comment out if you don't need any of the following containers
@@ -55,7 +55,7 @@ tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8, 9 ]
 
 #Select Muon Categories... (origin of muons, empty: all categories, 0: ALL, 1: PROMPT, 2: IN-FLIGHT, 3: NON-ISOLATED, 4: REST)
 #tool1.SelectMuonCategories = [ 0, 1, 2, 3, 4 ] # all possible categories
-tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official validation tasks; overriden when in data mode
+tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official validation tasks overriden when in data mode
 
 from IsolationSelection.IsolationSelectionConf import CP__IsolationSelectionTool
 IsolationTool = CP__IsolationSelectionTool( "IsolationSelectionTool",

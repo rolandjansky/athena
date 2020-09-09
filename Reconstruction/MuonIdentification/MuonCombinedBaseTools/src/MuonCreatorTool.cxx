@@ -274,7 +274,7 @@ namespace MuonCombined {
     // skip all muons without extrapolated track
     if( !candidate.extrapolatedTrack() ) {
       ATH_MSG_DEBUG("MuonCreatorTool::create(...) No extrapolated track - aborting. Will not create Muon.");
-      return 0; // Do we really want to do this?
+      return nullptr; // Do we really want to do this?
     }
     
     // Create the xAOD object:
@@ -291,13 +291,13 @@ namespace MuonCombined {
     if(!muon->extrapolatedMuonSpectrometerTrackParticleLink().isValid()){
       ATH_MSG_DEBUG("Creation of track particle for SA muon failed, removing it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
     
     if( !dressMuon(*muon) ){
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
 
     //make sure we can extrapolate the track back through the calo, otherwise it's not a muon
@@ -308,18 +308,24 @@ namespace MuonCombined {
     if(!caloExtension){
       ATH_MSG_DEBUG("failed to get a calo extension for this SA muon, discard it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
     if( caloExtension->caloLayerIntersections().empty()){
       ATH_MSG_DEBUG("failed to retrieve any calo layers for this SA muon, discard it");
       outputData.muonContainer->pop_back();
-      return 0;
+      return nullptr;
     }
 
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
-    if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
-
+    if (m_useCaloCells) collectCells(*muon,outputData.clusterContainer);
+    if (m_requireIDTracks){
+        if (!muon->trackParticle(xAOD::Muon::TrackParticleType:: InnerDetectorTrackParticle)){
+            ATH_MSG_DEBUG("The muon does not have any associated ID track although it should have. Discard it");
+            outputData.muonContainer->pop_back();
+            return nullptr;
+        }
+    }
     return muon;
   }
 

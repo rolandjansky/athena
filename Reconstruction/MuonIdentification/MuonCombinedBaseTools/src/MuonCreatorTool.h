@@ -182,6 +182,10 @@ namespace MuonCombined {
     Gaudi::Property<bool> m_segLowBeta {this, "AssociateSegmentsToLowBetaMuons", false, "associate segments to MuGirlLowBeta muons"};
     Gaudi::Property<bool> m_useCaloCells {this, "UseCaloCells", true};
     Gaudi::Property<bool> m_doSA {this, "MakeSAMuons", false};
+    /// In case of running the muon reconstruction with LRT tracks this property 
+    /// removes the overlap of muons in the container in which in any case
+    /// no ID track is available
+    Gaudi::Property<bool> m_requireIDTracks{this,"RequireIDTrack", false};
 
     Gaudi::Property<float> m_sigmaCaloNoiseCut {this, "SigmaCaloNoiseCut", 3.4};
   };

@@ -154,6 +154,12 @@ class MuGirlMuons(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'MuGirlCombinedMuonContainer'
 
+class MuGirlMuonsLargeD0(JobProperty):
+    """StoreGate key for muon container from MuGirl algorithm"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'MuGirlCombinedMuonContainerLRT'
+
 
 ## final muon collections
 class ESD_Muons(JobProperty):
@@ -280,6 +286,8 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyTracks
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(FinalMuonsLargeD0)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InDetTrackParticlesLargeD0)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(CombinedFitTracksLargeD0)
+jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlMuonsLargeD0)
+
 
 
 
