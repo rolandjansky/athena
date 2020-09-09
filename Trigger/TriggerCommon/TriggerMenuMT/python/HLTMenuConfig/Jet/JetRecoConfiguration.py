@@ -75,12 +75,13 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
 # Could/should adjust higher for large-R
 def defineJets(jetRecoDict,clustersKey=None,pfoPrefix=None):
     minpt = {
-        "a4":  5000,
+        "a4":  7000,
         "a10": 50000,
         "a10r": 50000,
         "a10t": 50000,
+        "a10sd": 50000,
     }
-    radius = float(jetRecoDict["recoAlg"].lstrip("a").rstrip("tr"))/10
+    radius = float(jetRecoDict["recoAlg"].lstrip("a").rstrip("trsd"))/10
     jetConstit = defineJetConstit(jetRecoDict,clustersKey,pfoPrefix)
     jetDef = JetDefinition( "AntiKt", radius, jetConstit, ptmin=minpt[jetRecoDict["recoAlg"]])
     return jetDef
@@ -91,11 +92,12 @@ def defineReclusteredJets(jetRecoDict):
     return rcJetDef
 
 def defineGroomedJets(jetRecoDict,ungroomedDef,ungroomedJetsName):
-    from JetRecConfig.JetGrooming import JetTrimming
-    # Only actually one type now, but leave open possibility of others
+    from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
+    groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     groomDef = {
-        "t":JetTrimming(ungroomedDef,ungroomedJetsName,smallR=0.2,ptfrac=0.05)
-        }[jetRecoDict["recoAlg"][-1]]
+        "sd":JetSoftDrop(ungroomedDef,ungroomedJetsName,zcut=0.1,beta=1.0),
+        "t" :JetTrimming(ungroomedDef,ungroomedJetsName,smallR=0.2,ptfrac=0.05),
+    }[groomAlg]
     return groomDef
 
 ##########################################################################################
@@ -166,5 +168,5 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                          getModSpec("Calib",calibSpec),
                          getModSpec("Sort")]
 
-    filtercut = {"a4":5000, "a10":50000, "a10r": 50000, "a10t":100000}[jetalg]
+    filtercut = {"a4":7000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[jetalg]
     return calibMods + [getModSpec("Filter",filtercut)]

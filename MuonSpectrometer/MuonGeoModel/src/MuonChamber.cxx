@@ -1390,31 +1390,32 @@ GeoVPhysVol* MuonChamber::build(
       int stationPhi = fi+1;
       int doubletR   = 1;
       int nfields    = 6;
-      int doubletZ   = 0;
+      int doubletZ   = 1;
 
       if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
       ndbz[doubletR-1]++;
 
       float zdivision=100.;// point between doubletZ=1 and 2;
-      if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
+      if (stname.find("BI")!=std::string::npos && std::abs(zi)==7) zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
 
-      if (zi <= 0 && !is_mirrored) {
-        // the special cases
-        doubletZ = 1;
-        if (zpos<-zdivision*Gaudi::Units::mm)    doubletZ=2;
-        if (fabs(xpos) > 100.*Gaudi::Units::mm && ndbz[doubletR-1] > 2) {
-          doubletZ = 3;
-          nfields++;
+      // do the following check for all RPCs but the BI (station1-6) ones
+      if (stname.find("BI")==std::string::npos || std::abs(zi)==7) {
+        if (zi <= 0 && !is_mirrored) {
+          if (zpos < -zdivision*Gaudi::Units::mm) doubletZ=2;
+        } else {
+          if (zpos > zdivision*Gaudi::Units::mm) doubletZ=2;
         }
-        if (fabs(xpos) > 100.*Gaudi::Units::mm ) ndbz[doubletR-1]--;
       } else {
-        doubletZ = 1;
-        if (zpos > zdivision*Gaudi::Units::mm) doubletZ=2;
-        if (fabs(xpos) > 100.*Gaudi::Units::mm && ndbz[doubletR-1] > 2) {
+        doubletZ = ndbz[doubletR-1];
+      }
+
+      // BMS (BOG) RPCs can have |xpos|=950 (|xpos|=350)
+      if (std::abs(xpos) > 100.*Gaudi::Units::mm) {
+        if (ndbz[doubletR-1] > 2) {
           doubletZ = 3;
           nfields++;
         }
-        if (fabs(xpos) > 100.*Gaudi::Units::mm ) ndbz[doubletR-1]--;
+        ndbz[doubletR-1]--;
       }
 
       int dbphi = 1;

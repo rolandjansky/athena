@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,18 +16,18 @@
 //
 //-----------------------------------------------------------------------
 #include "CaloLocalHadCalib/CaloHadDMCoeffFit.h"
-#include "CaloLocalHadCalib/GetLCDefs.h"
-#include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
-#include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
+#include "AthenaKernel/Units.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
+#include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
+#include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
+#include "CaloLocalHadCalib/GetLCDefs.h"
 #include "CaloLocalHadCalib/GetLCSinglePionsPerf.h"
-#include "AthenaKernel/Units.h"
-#include <math.h>
+#include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <algorithm>
 
 #include <CLHEP/Vector/LorentzVector.h>
 
@@ -60,8 +60,8 @@ CaloHadDMCoeffFit::CaloHadDMCoeffFit() :
   m_energyMin(200*MeV), m_weightMax(5.0), m_NormalizationType("Lin"),
   m_NormalizationTypeNumber(0)
 {
-  m_data = 0;
-  m_HadDMCoeff = 0;
+  m_data = nullptr;
+  m_HadDMCoeff = nullptr;
   m_HadDMHelper = new CaloLocalHadCoeffHelper();
   m_distance_cut = 1.5;
 }
@@ -124,14 +124,14 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 
   if( !m_data->GetEntries() ) {
     std::cout << "CaloHadDMCoeffFit::process -> Error! No entries in DeadMaterialTree." << std::endl;
-    return 0;
+    return nullptr;
   }
 
   m_data->GetEntry(0);
   if(m_data->m_narea != m_HadDMCoeff->getSizeAreaSet()) {
     std::cout << "CaloHadDMCoeffFit::process -> Error! Different numbers of areas for DM definition" << std::endl;
     std::cout << "m_data->m_narea:" << m_data->m_narea << " m_HadDMCoeff->getSizeAreaSet():" << m_HadDMCoeff->getSizeAreaSet() << std::endl;
-    return 0;
+    return nullptr;
   }
 
   clear();
@@ -216,10 +216,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
   // creation of histograms
   // --------------------------------------------------------------------------
   std::cout << "CaloHadDMCoeffFit::process() -> Info. Creation of histograms..." << std::endl;
-  m_h2_DmVsPrep.resize(m_HadDMCoeff->getSizeCoeffSet(), 0);
-  m_hp_DmVsPrep.resize(m_HadDMCoeff->getSizeCoeffSet(), 0);
-  m_h1_engDmOverClus.resize(m_HadDMCoeff->getSizeCoeffSet(), 0);
-  m_hp2_DmWeight.resize(m_HadDMCoeff->getSizeCoeffSet(), 0);
+  m_h2_DmVsPrep.resize(m_HadDMCoeff->getSizeCoeffSet(), nullptr);
+  m_hp_DmVsPrep.resize(m_HadDMCoeff->getSizeCoeffSet(), nullptr);
+  m_h1_engDmOverClus.resize(m_HadDMCoeff->getSizeCoeffSet(), nullptr);
+  m_hp2_DmWeight.resize(m_HadDMCoeff->getSizeCoeffSet(), nullptr);
 
   char hname[1024];
   int nch_dms=40;
@@ -249,7 +249,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
 
       // creation of histograms for inverted dm weight .vs. log10(ener), log10(lambda)
       int refbin = getFirstEnerLambdaBin(i_size);
-      TProfile2D *hp2=0;
+      TProfile2D *hp2=nullptr;
       if(refbin == i_size) {
          std::cout << " creating histos:" << hname << " refbin:" << refbin << std::endl;
         const CaloLocalHadCoeff::LocalHadDimension *dimEner = area->getDimension(CaloLocalHadCoeffHelper::DIM_ENER);
@@ -367,7 +367,7 @@ CaloLocalHadCoeff * CaloHadDMCoeffFit::process(CaloHadDMCoeffData *myData, CaloL
   CaloLocalHadCoeff *new_data = new CaloLocalHadCoeff(*m_HadDMCoeff);
 
   m_FitData.clear();
-  m_FitData.resize(m_HadDMCoeff->getSizeCoeffSet(), 0);
+  m_FitData.resize(m_HadDMCoeff->getSizeCoeffSet(), nullptr);
 
   for(int i_size=0; i_size<(int)new_data->getSizeCoeffSet(); i_size++){
     const CaloLocalHadCoeff::LocalHadArea *dmArea = m_HadDMCoeff->getAreaFromBin(i_size);
@@ -666,7 +666,7 @@ void CaloHadDMCoeffFit::make_report(std::string &sreport)
                     std::cout << "Panic! iBin == -1, i_frac:" << i_frac << " i_ener:" << i_ener << " i_lambda:" << i_lambda << " i_eta:" << i_eta << std::endl;
                     return;
                   }
-                  TH1 *hh = 0;
+                  TH1 *hh = nullptr;
                   if(k==0) {
                     hh = m_h2_DmVsPrep[iBin];
                   }else{

@@ -16,17 +16,12 @@
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
 #include <vector>
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
-{
-  declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
-  declareProperty("CreateSAmuons", m_doSA=false);
-  declareProperty("MakeClusters",m_makeClusters=true);
+  AthAlgorithm(name,pSvcLocator) {
 }
-
-MuonCreatorAlg::~MuonCreatorAlg(){}
 
 StatusCode MuonCreatorAlg::initialize()
 {
@@ -200,11 +195,5 @@ StatusCode MuonCreatorAlg::execute()
                                       cbtrks_eta, cbtrks_phi);
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MuonCreatorAlg::finalize()
-{
   return StatusCode::SUCCESS;
 }

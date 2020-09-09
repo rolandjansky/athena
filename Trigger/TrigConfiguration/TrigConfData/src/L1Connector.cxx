@@ -42,16 +42,20 @@ TrigConf::L1Connector::update()
    }
 
    // triggerlines
+   bool hasMultipleFPGAs = ! hasChild("triggerlines.clock0"); // connector from merger board (no fpga)
    if(m_type == ConnectorType::ELECTRICAL) {
-      m_maxFpga = m_maxClock = 2;
+      m_maxClock = 2;
+      m_maxFpga = hasMultipleFPGAs ? 2 : 1;
    }
 
    for( size_t fpga = 0; fpga < m_maxFpga; ++fpga ) {
       for( size_t clock = 0; clock < m_maxClock; ++clock ) {
          std::string path = "triggerlines";
          if( m_type == ConnectorType::ELECTRICAL ) {
-            path += ".fpga";
-            path += std::to_string(fpga);
+            if(hasMultipleFPGAs) {
+               path += ".fpga";
+               path += std::to_string(fpga);
+            }
             path += ".clock";
             path += std::to_string(clock);            
          }

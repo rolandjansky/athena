@@ -96,7 +96,7 @@ public:
   typedef std::vector<HepMC::ConstGenParticlePtr> MCparticleCollection ;
 
 private:
-  void LoadParametrizationsFromDir(std::string dir);
+  void LoadParametrizationsFromDir(const std::string& dir);
   void LoadParametrizationsFromFile(TDirectory& infile,MSG::Level level=MSG::INFO);
   StatusCode OpenParamSource(std::string insource);
 

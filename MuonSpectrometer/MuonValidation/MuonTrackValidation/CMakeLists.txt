@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTrackValidation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonIdHelpers
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkValidation/TrkValInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

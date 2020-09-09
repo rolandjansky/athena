@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -57,7 +57,7 @@ class CaloSubdetNames
   std::string alignVolName(CaloSubdetNames::ALIGNVOL alvol);
   /** @brief Matching between names and enum
    */  
-  CaloSubdetNames::ALIGNVOL alignVolEnum(std::string reconame);
+  CaloSubdetNames::ALIGNVOL alignVolEnum(const std::string& reconame);
  
 
  private:

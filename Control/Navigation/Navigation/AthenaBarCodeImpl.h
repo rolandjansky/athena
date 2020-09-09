@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENABARCODEIMPL_H
@@ -23,6 +23,7 @@
 #include <inttypes.h>
 
 #include <iosfwd>
+#include <atomic>
 
 #include <AthenaKernel/IAthenaBarCode.h> //for static const data memebers
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,8 @@ public:
   virtual ~AthenaBarCodeImpl() = default;
   
   AthenaBarCodeImpl();
+  AthenaBarCodeImpl (const AthenaBarCodeImpl&);
+  AthenaBarCodeImpl& operator= (const AthenaBarCodeImpl&);
   
 public:
   //Public setter and getters
@@ -85,7 +88,8 @@ public:
   static void setDefaultHash (const char* jobid);
   
 protected:
-  void setBits(unsigned short startbit,unsigned short nbits,AthenaBarCode_t id) const; 
+  void setBits(unsigned short startbit,unsigned short nbits,AthenaBarCode_t id,
+               AthenaBarCode_t& bc) const; 
   AthenaBarCode_t getBits(unsigned short startbit,unsigned short nbits) const ;
   void initABC() const ;
 
@@ -94,18 +98,20 @@ private:
   AthenaBarCode_t combineWithUUIDHash(const AthenaBarCode_t &) const;
   static AthenaBarCode_t hashUUID(const char *);
   
-  void setUUIDHash(AthenaBarCode_t uuidhash) const;
+  void setUUIDHash(AthenaBarCode_t uuidhash);
   AthenaBarCode_t hasUUIDHash() const;
   AthenaBarCode_t getUUIDHash() const;
+
+  static AthenaBarCode_t getDefaultHash (const char* jobid = nullptr);
+  static AthenaBarCode_t makeDefaultHash (const char* jobid);
   
   //data fields
-  static AthenaBarCode_t m_defaultHash;
-  static AthenaBarCode_t m_barcodeCounter;
-  mutable AthenaBarCode_t m_barcode;
+  static std::atomic<AthenaBarCode_t> m_barcodeCounter;
+  mutable std::atomic<AthenaBarCode_t> m_barcode;
   
 };
 
-inline void AthenaBarCodeImpl::setUUIDHash(AthenaBarCode_t uuidhash) const {
+inline void AthenaBarCodeImpl::setUUIDHash(AthenaBarCode_t uuidhash) {
   m_barcode = combineWithUUIDHash(uuidhash);
 }
 

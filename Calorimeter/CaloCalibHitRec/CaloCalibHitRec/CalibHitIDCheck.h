@@ -29,7 +29,7 @@ class CalibHitIDCheck : public AthAlgorithm {
 
  public:
 
-  CalibHitIDCheck(std::string name, ISvcLocator* pSvcLocator);
+  CalibHitIDCheck(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~CalibHitIDCheck();
 
   StatusCode initialize();

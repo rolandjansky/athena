@@ -18,7 +18,7 @@
 #include "../src/RpcFitResult.h"
 #include "../src/RpcPatFinder.h"
 #include "../src/RecMuonRoIUtils.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -62,7 +62,7 @@ class RpcDataPreparator: public AthAlgTool
       void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
-      ServiceHandle<IRegSelSvc> m_regionSelector;
+      ToolHandle<IRegSelTool> m_regionSelector;
       SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

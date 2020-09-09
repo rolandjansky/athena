@@ -5,12 +5,12 @@
 #ifndef MUONTRACKINGGEOMETRY_MUONSTATIONBUILDER_H
 #define MUONTRACKINGGEOMETRY_MUONSTATIONBUILDER_H
 
-#include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 #include "TrkDetDescrInterfaces/IDetachedTrackingVolumeBuilder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumeHelper.h"
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -57,20 +57,19 @@ namespace Muon {
       void identifyPrototype(const Trk::TrackingVolume*, int, int, Amg::Transform3D ) const;
       void getNSWStationsForTranslation(const GeoVPhysVol* pv, std::string name, Amg::Transform3D , std::vector<std::pair<std::pair<const GeoLogVol*,Trk::MaterialProperties*>,std::vector<Amg::Transform3D> > >& vols, std::vector<std::string>& volNames ) const;
   
-      const MuonGM::MuonDetectorManager* m_muonMgr;               //!< the MuonDetectorManager
+      const MuonGM::MuonDetectorManager* m_muonMgr;
       Gaudi::Property<std::string>  m_muonMgrLocation{this,"MuonDetManagerLocation","MuonMgr"}; //!< the location of the Muon Manager
 
-      ToolHandle<Muon::MuonStationTypeBuilder>  m_muonStationTypeBuilder
-	{this,"StationTypeBuilder","Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"}; //!< Helper Tool to create TrackingVolume Arrays
-      ToolHandle<Trk::ITrackingVolumeHelper>    m_trackingVolumeHelper{this,"TrackingVolumeHelper","Trk::TrackingVolumeHelper/TrackingVolumeHelper"};   //!< Helper Tool to create TrackingVolumes
+      ToolHandle<Muon::MuonStationTypeBuilder> m_muonStationTypeBuilder{this,"StationTypeBuilder","Muon::MuonStationTypeBuilder/MuonStationTypeBuilder"}; //!< Helper Tool to create TrackingVolume Arrays
+      ToolHandle<Trk::ITrackingVolumeHelper> m_trackingVolumeHelper{this,"TrackingVolumeHelper","Trk::TrackingVolumeHelper/TrackingVolumeHelper"};   //!< Helper Tool to create TrackingVolumes
 
-      Trk::Material                   m_muonMaterial;               //!< the material
-      std::unique_ptr<Trk::GeoShapeConverter>             m_geoShapeConverter;          //!< shape converter
-      std::unique_ptr<Trk::GeoMaterialConverter>          m_materialConverter;          //!< material converter
-      Gaudi::Property<bool>               m_buildBarrel{this,"BuildBarrelStations",true};
-      Gaudi::Property<bool>               m_buildEndcap{this,"BuildEndcapStations",true};
-      Gaudi::Property<bool>               m_buildCsc{this,"BuildCSCStations",true};
-      Gaudi::Property<bool>               m_buildTgc{this,"BuildTGCStations",true};  
+      Trk::Material m_muonMaterial;               //!< the material
+      std::unique_ptr<Trk::GeoShapeConverter> m_geoShapeConverter;          //!< shape converter
+      std::unique_ptr<Trk::GeoMaterialConverter> m_materialConverter;          //!< material converter
+      Gaudi::Property<bool> m_buildBarrel{this,"BuildBarrelStations",true};
+      Gaudi::Property<bool> m_buildEndcap{this,"BuildEndcapStations",true};
+      Gaudi::Property<bool> m_buildCsc{this,"BuildCSCStations",true};
+      Gaudi::Property<bool> m_buildTgc{this,"BuildTGCStations",true};  
     };
 
 

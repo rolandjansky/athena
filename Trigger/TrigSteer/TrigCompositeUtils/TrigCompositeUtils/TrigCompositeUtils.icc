@@ -246,7 +246,7 @@ namespace TrigCompositeUtils {
         }
       }
     }
-
+    
     // Copy the fetched links into the return vector
     for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
       typename std::vector<LinkInfo<CONTAINER>>::iterator vecIt = std::find_if(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } );
@@ -256,7 +256,7 @@ namespace TrigCompositeUtils {
       } else {
         // Link already existed - if the link's state in the return vector is INACTIVE but is ACTIVE here,
         // then we need to change it to ACTIVE as this denotes one-or-more of the requested chains were active for the object.
-        if (vecIt->state == ActiveState::INACTIVE) {
+        if (vecIt->state == ActiveState::INACTIVE and state == ActiveState::ACTIVE) {
           vecIt->state = ActiveState::ACTIVE;
         }
       }
@@ -279,8 +279,8 @@ namespace TrigCompositeUtils {
     }
 
     // If we encounter this node again in the future, we don't need to explore it again as it's now fully explored.
-    fullyExploredFrom.insert( navGraphNode );
 
+    fullyExploredFrom.insert( navGraphNode );
     return;
   }
 

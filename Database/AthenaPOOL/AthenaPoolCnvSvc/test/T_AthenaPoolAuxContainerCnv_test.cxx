@@ -35,8 +35,8 @@
 using namespace AthenaPoolCnvSvcTest;
 
 
-std::string YAuxCont_v1_guid = "BEE3C14E-149E-4366-9E24-8A32C419A3B4";
-std::string YAuxCont_v2_guid = "170BFEE4-F6B2-4AF4-919B-7EB3986656FA";
+const std::string YAuxCont_v1_guid = "BEE3C14E-149E-4366-9E24-8A32C419A3B4";
+const std::string YAuxCont_v2_guid = "170BFEE4-F6B2-4AF4-919B-7EB3986656FA";
 
 
 class TestCnvSvc
@@ -133,7 +133,9 @@ void test1_checkThinned (const YAuxCont_v2* pers,
 
 
 // Writing
-void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
+void test1 (ISvcLocator* svcloc,
+            SGTest::TestStore& store,
+            TestCnvSvc& /*testsvc*/)
 {
   std::cout << "test1\n";
   const size_t N = 10;
@@ -141,7 +143,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
   DataVector<Y_v2>* vec = new DataVector<Y_v2>;
   for (size_t i = 0; i < N; i++)
     vec->push_back (new Y_v2(i));
-  SGTest::store.record (vec, "vec");
+  store.record (vec, "vec");
 
   T_AthenaPoolAuxContainerCnv<YAuxCont_v2, YAuxContCnv_v1> cnv (svcloc);
   assert (static_cast<AthenaPoolConverter&>(cnv).initialize().isSuccess());
@@ -157,7 +159,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
     x2[i] = i*2;
     l2[i] = Link_t ("vec", i);
   }
-  SGTest::store.record (trans2, "store");
+  store.record (trans2, "store");
 
   YAuxCont_v2* pers2a = cnv.createPersistentWithKey (trans2, "store");
   assert (pers2a->size() == trans2->size());
@@ -170,11 +172,11 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
   }
 
   SG::sgkey_t sgkey_store =
-    SGTest::store.stringToKey ("store",
-                               ClassID_traits<YAuxCont_v2>::ID());
+    store.stringToKey ("store",
+                       ClassID_traits<YAuxCont_v2>::ID());
   SG::sgkey_t sgkey_vec =
-    SGTest::store.stringToKey ("vec",
-                               ClassID_traits<DataVector<Y_v2> >::ID());
+    store.stringToKey ("vec",
+                       ClassID_traits<DataVector<Y_v2> >::ID());
 
   SG::ThinningCache cache;
   SG::ThinningDecisionBase dec_store;
@@ -291,9 +293,9 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& testsvc)
 int main()
 {
   CxxUtils::ubsan_suppress ([]() {TInterpreter::Instance(); });
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
   ISvcLocator* pSvcLoc = nullptr;
-  if (!Athena_test::initGaudi("test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("AthenaPoolCnvSvc/test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }
@@ -306,7 +308,7 @@ int main()
   
   gSystem->Load("libAthenaPoolCnvSvcTestDict");
 
-  test1 (pSvcLoc, *svc);
+  test1 (pSvcLoc, *testStore, *svc);
   test2 (pSvcLoc, *svc);
   return 0;
 }

@@ -14,6 +14,8 @@
 #include "TrigDecisionTool/DecisionUnpackerAthena.h"
 #include "TrigDecisionTool/DecisionObjectHandleAthena.h"
 #include "TrigNavigation/NavigationCore.h"
+#include "TrigDecisionEvent/TrigDecision.h"
+
 
 namespace Trig {
   DecisionUnpackerAthena::DecisionUnpackerAthena(SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey) : m_handle(new DecisionObjectHandleAthena(olddeckey)){

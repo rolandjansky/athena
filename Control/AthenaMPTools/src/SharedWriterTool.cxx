@@ -7,6 +7,7 @@
 
 #include "AthenaKernel/IEventShare.h"
 #include "AthenaKernel/IDataShare.h"
+#include "AthenaKernel/IAthenaSharedWriterSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -78,6 +79,24 @@ int SharedWriterTool::makePool(int /*maxevt*/, int nprocs, const std::string& to
     }
     else {
       m_writer = writeClientsProp.value().size();
+    }
+    propertyName = "StreamMetaDataOnly";
+    bool streamMetaDataOnly(false);
+    BooleanProperty streamMetaDataOnlyProp(propertyName,streamMetaDataOnly);
+    if(propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
+      ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
+    }
+    else {
+      IService* poolSvc;
+      if(serviceLocator()->service("PoolSvc", poolSvc).isFailure() || poolSvc==0) {
+        ATH_MSG_ERROR("Error retrieving PoolSvc");
+      }
+      else if(streamMetaDataOnlyProp.value()) {
+        propertyServer = dynamic_cast<IProperty*>(poolSvc);
+        if (propertyServer==0 || propertyServer->setProperty("FileOpen", "update").isFailure()) {
+          ATH_MSG_ERROR("Could not change PoolSvc FileOpen Property");
+        }
+      }
     }
   }
 
@@ -219,12 +238,11 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   ATH_MSG_INFO("Exec function in the AthenaMP Shared Writer PID=" << getpid());
   bool all_ok=true;
 
-  StatusCode sc = m_cnvSvc->commitOutput("", false);
-  while(sc.isSuccess() || sc.isRecoverable()) {
-    if (sc.isRecoverable()) {
-       usleep(100);
-    }
-    sc = m_cnvSvc->commitOutput("", false);
+  IAthenaSharedWriterSvc* sharedWriterSvc;
+  StatusCode sc = serviceLocator()->service("AthenaRootSharedWriterSvc", sharedWriterSvc);
+  if(sc.isFailure() || sharedWriterSvc==0) {
+    ATH_MSG_ERROR("Error retrieving AthenaRootSharedWriterSvc");
+    all_ok=false;
   }
   AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_cnvSvc);
   if (cnvSvc == 0 || !cnvSvc->disconnectOutput("").isSuccess()) {

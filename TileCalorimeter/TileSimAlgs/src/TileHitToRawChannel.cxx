@@ -167,8 +167,8 @@ StatusCode TileHitToRawChannel::execute() {
 
   ATH_MSG_DEBUG( "Executing TileHitToRawChannel" );
 
-  ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATHRNG::RNGWrapper* rngWrapper = m_atRndmGenSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
 
   // step1: read hits from TES
   SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);

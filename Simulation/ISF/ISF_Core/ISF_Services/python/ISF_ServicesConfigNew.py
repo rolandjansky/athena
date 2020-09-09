@@ -70,13 +70,14 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     result = ComponentAccumulator()
     if "EntryLayerTool" not in kwargs:
-        tool = result.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
+        result.merge(EntryLayerToolCfg(ConfigFlags))
+        tool = result.getPublicTool("ISF_EntryLayerTool")
         kwargs.setdefault("EntryLayerTool", tool)
         kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     # assume "GeoIDSvc" has been set alongside "EntryLayerTool"
     kwargs.setdefault("AlwaysUseGeoIDSvc", False)
-    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.ISF.ValidationMode)
-    kwargs.setdefault("ValidationOutput", ConfigFlags.ISF.ValidationMode)
+    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.Sim.ISF.ValidationMode)
+    kwargs.setdefault("ValidationOutput", ConfigFlags.Sim.ISF.ValidationMode)
     kwargs.setdefault("ValidationStreamName", "ParticleBroker")
 
     baracc = BarcodeSvcCfg(ConfigFlags)
@@ -98,7 +99,8 @@ def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
 
 def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kwargs):
     result = AFIIEntryLayerToolCfg(ConfigFlags)
-    kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
+    tool = result.getPublicTool("ISF_AFIIEntryLayerTool")
+    kwargs.setdefault("EntryLayerTool", tool)
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     result.merge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
     return result

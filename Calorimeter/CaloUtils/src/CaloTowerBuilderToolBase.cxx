@@ -35,7 +35,7 @@ StatusCode CaloTowerBuilderToolBase::initialize ATLAS_NOT_THREAD_SAFE () {
 
   bool LArDD = true;
 
-  IProperty* propertyServer(0);
+  IProperty* propertyServer(nullptr);
   StatusCode sc = serviceLocator()->service("GeoModelSvc", propertyServer);
   if (sc.isSuccess()) {
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Flag class for Pileup Overlay building
@@ -107,7 +107,7 @@ for jpname in dir():
     import inspect
     if inspect.isclass(jp):
         if issubclass(jp, JobProperty) and jp is not JobProperty:
-            overlayflaglog.debug("Adding OverlayFlag '%s' to Overlay_Flags container" % jpname)
+            overlayflaglog.debug("Adding OverlayFlag '%s' to Overlay_Flags container", jpname)
             jobproperties.Overlay_Flags.add_JobProperty(jp)
 
 ## Short-cut alias (standard naming)

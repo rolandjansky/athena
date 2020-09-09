@@ -287,7 +287,7 @@ StatusCode JetFilterWithTruthPhoton::filterEvent() {
 	    double deta = std::abs(MCTruthPhotonList[ig]->momentum().pseudoRapidity()-FoundJet.pseudoRapidity());
 	    double dphi = std::abs(MCTruthPhotonList[ig]->momentum().phi()-FoundJet.phi());
 	    if (dphi > M_PI) dphi = 2.*M_PI - dphi;
-	    double dR = sqrt(deta*deta+dphi*dphi);
+	    double dR = std::sqrt(deta*deta+dphi*dphi);
 	    if (dR < m_dRphotonjet) {
 	      sumPt += MCTruthPhotonList[ig]->momentum().perp();
 	    }

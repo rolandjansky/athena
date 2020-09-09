@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p5.cxx
@@ -17,34 +17,13 @@
 // GeneratorObjectsTPCnv includes
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p5.h"
 #include "HepMcDataPool.h"
-
 #include "GenInterfaces/IHepMCWeightSvc.h"
+#include "McEventCollectionCnv_utils.h"
 
-namespace {
-  // helper method to compute the number of particles and vertices in a
-  // whole McEventCollection
-  std::pair<unsigned int,unsigned int>
-  nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
-    unsigned int nParts = 0;
-    unsigned int nVerts = 0;
-    const McEventCollection::const_iterator itrEnd = mcEvents->end();
-    for ( McEventCollection::const_iterator itr = mcEvents->begin();
-          itr != itrEnd;
-          ++itr ) {
-      nParts += (*itr)->particles_size();
-      nVerts += (*itr)->vertices_size();
-    }
-
-    return std::make_pair( nParts, nVerts );
-  }
-}
 
 ///////////////////////////////////////////////////////////////////
-// Public methods:
-///////////////////////////////////////////////////////////////////
-
 // Constructors
-////////////////
+///////////////////////////////////////////////////////////////////
 
 McEventCollectionCnv_p5::McEventCollectionCnv_p5() :
   Base_t( ),
@@ -66,16 +45,14 @@ McEventCollectionCnv_p5::operator=( const McEventCollectionCnv_p5& rhs )
   return *this;
 }
 
+///////////////////////////////////////////////////////////////////
 // Destructor
-///////////////
+///////////////////////////////////////////////////////////////////
 
 McEventCollectionCnv_p5::~McEventCollectionCnv_p5()
 {
 }
 
-///////////////////////////////////////////////////////////////////
-// Const methods:
-///////////////////////////////////////////////////////////////////
 
 void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
                                            McEventCollection* transObj,
@@ -365,13 +342,6 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// Non-const methods:
-///////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////
-// Protected methods:
-///////////////////////////////////////////////////////////////////
 
 HepMC::GenVertexPtr
 McEventCollectionCnv_p5::createGenVertex( const McEventCollection_p5& persEvt,
@@ -444,10 +414,6 @@ McEventCollectionCnv_p5::createGenParticle( const GenParticle_p5& persPart,
   // optimization.  (If this is a performance issue for platforms
   // other than x86, one could change to double for those platforms.)
   if ( 0 == persPart.m_recoMethod ) {
-    //    p->m_momentum.setVectM(Hep4Vector( persPart.m_px,
-    //					persPart.m_py,
-    //					persPart.m_pz ),
-    //                            persPart.m_m );
 
     p->m_momentum.setPx( persPart.m_px);
     p->m_momentum.setPy( persPart.m_py);
@@ -535,9 +501,6 @@ int McEventCollectionCnv_p5::writeGenParticle( const HepMC::GenParticle& p,
     (m2 < 0) &&   //  isSpacelike
     !(std::abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
 
-  //  const bool useP2M2 = !isTimelike () &&
-  //                        mom.isSpacelike() &&
-  //                       !mom.isLightlike();
   const short recoMethod = ( !useP2M2
                              ? 0
                              : ( ene >= 0. //*GeV

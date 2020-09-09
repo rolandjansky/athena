@@ -7,7 +7,6 @@
 
 #include "Pythia8/SigmaProcess.h"
 
-#include <boost/smart_ptr.hpp>
 
 #include <map>
 #include <string>

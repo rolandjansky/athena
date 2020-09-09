@@ -18,8 +18,6 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
       viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 

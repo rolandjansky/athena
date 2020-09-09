@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloLocalHadCalib/CaloReadLCJetEnergyScaleFile.h"
@@ -48,15 +48,15 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
       bool allValid(true);
 
       std::vector<std::string> keys;
-      keys.push_back(std::string("ieta_inv_"));
+      keys.emplace_back("ieta_inv_");
 	  
       std::vector<std::string> names;
-      names.push_back(std::string("|eta|"));
-      names.push_back(std::string("side"));
-      names.push_back(std::string("phi"));
+      names.emplace_back("|eta|");
+      names.emplace_back("side");
+      names.emplace_back("phi");
       // the next two should actually come from the histograms
-      names.push_back(std::string("log10(E_jet (MeV))"));
-      names.push_back(std::string("frac_low_E_clus"));
+      names.emplace_back("log10(E_jet (MeV))");
+      names.emplace_back("frac_low_E_clus");
       //    names.push_back(std::string(prof->GetXaxis()->GetTitle()));
       //    names.push_back(std::string(prof->GetYaxis()->GetTitle()));
       

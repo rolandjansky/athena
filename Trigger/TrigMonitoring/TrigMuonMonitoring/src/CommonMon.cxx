@@ -8,7 +8,6 @@
  *             Kunihiro Nagano (nagano@mail.cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "AthenaMonitoring/AthenaMonManager.h"

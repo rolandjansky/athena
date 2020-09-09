@@ -8,6 +8,7 @@
 //#include "LUCID_SimEvent/LUCID_SimHit.h"
 #include "AtlasHepMC/GenParticle.h"
 
+#include <cmath>
 #include <string>
 #include <cmath>
 #include <TH2D.h>
@@ -71,10 +72,10 @@ StatusCode LucidHitsTestTool::processEvent() {
   for (LUCID_SimHitCollection::const_iterator hi=(*iter).begin(); hi != (*iter).end(); ++hi) {
     m_x_v_y_edep->Fill( hi->GetX() , hi->GetY() , hi->GetEnergy() );
     m_x_v_y_hits->Fill( hi->GetX() , hi->GetY() );
-    m_R_v_z_edep->Fill( std::sqrt( hi->GetX()*hi->GetX() + hi->GetY()*hi->GetY() ) , fabs( hi->GetZ() ) , hi->GetEnergy() );
-    m_R_v_z_hits->Fill( std::sqrt( hi->GetX()*hi->GetX() + hi->GetY()*hi->GetY() ) , fabs( hi->GetZ() ) );
+    m_R_v_z_edep->Fill( std::sqrt( hi->GetX()*hi->GetX() + hi->GetY()*hi->GetY() ) , std::abs( hi->GetZ() ) , hi->GetEnergy() );
+    m_R_v_z_hits->Fill( std::sqrt( hi->GetX()*hi->GetX() + hi->GetY()*hi->GetY() ) , std::abs( hi->GetZ() ) );
     m_x_v_y_post->Fill( hi->GetEPX() , hi->GetEPY() );
-    m_R_v_z_post->Fill( std::sqrt( hi->GetEPX()*hi->GetEPX() + hi->GetEPY()*hi->GetEPY() ) , fabs( hi->GetEPZ() ) );
+    m_R_v_z_post->Fill( std::sqrt( hi->GetEPX()*hi->GetEPX() + hi->GetEPY()*hi->GetEPY() ) , std::abs( hi->GetEPZ() ) );
 
     m_pdgid->Fill( hi->GetPdgCode() );
     m_time_edep->Fill( hi->GetPreStepTime() , hi->GetPostStepTime() , hi->GetEnergy() );

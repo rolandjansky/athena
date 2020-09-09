@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOLOCALHADCALIB_CALOHADDMCOEFFHELPER_H
@@ -30,7 +30,7 @@ class CaloHadDMCoeffHelper {
 
     const CaloHadDMCoeff2::HadDMArea * getHadDMAreaFromBin(CaloHadDMCoeff2 * m_coeff, int iBin) const;
     int getBin(CaloHadDMCoeff2 * m_coeff, const int n_area, int ifrac, int iener, int ilambda, int ieta) const;
-    const CaloHadDMCoeff2::HadDMArea * getHadDMAreaFromName(CaloHadDMCoeff2 * m_coeff, std::string sname) const;
+    const CaloHadDMCoeff2::HadDMArea * getHadDMAreaFromName(CaloHadDMCoeff2 * m_coeff, const std::string& sname) const;
 
   private:
     int parse_dim(std::string &sLine, CaloHadDMCoeff2::HadDMDimension &dim);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -37,22 +37,22 @@
 CaloIdManager::CaloIdManager(void)
     :
     m_isInitialized(false),
-    m_cell_id(0),
-    m_dm_id(0),
-    m_lvl1_id(0),
-    m_em_id(0),
-    m_fcal_id(0),
-    m_minifcal_id(0),
-    m_hec_id(0),
-    m_tile_id(0),
-    m_ttonline_id(0),
-    m_cell_supercell_id(0),
-    m_em_supercell_id(0),
-    m_hec_supercell_id(0),
-    m_fcal_supercell_id(0),
-    m_tile_supercell_id(0),
-    m_jTower_id(0),
-    m_gTower_id(0)
+    m_cell_id(nullptr),
+    m_dm_id(nullptr),
+    m_lvl1_id(nullptr),
+    m_em_id(nullptr),
+    m_fcal_id(nullptr),
+    m_minifcal_id(nullptr),
+    m_hec_id(nullptr),
+    m_tile_id(nullptr),
+    m_ttonline_id(nullptr),
+    m_cell_supercell_id(nullptr),
+    m_em_supercell_id(nullptr),
+    m_hec_supercell_id(nullptr),
+    m_fcal_supercell_id(nullptr),
+    m_tile_supercell_id(nullptr),
+    m_jTower_id(nullptr),
+    m_gTower_id(nullptr)
 {
 }
 

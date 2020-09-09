@@ -52,7 +52,11 @@ namespace CP
 #ifndef XAOD_STANDALONE
     // only recording nominal event selection for now
     if (m_passed && m_sys.empty() && m_combiner.m_params.m_cutID != 0)
-      m_combiner.m_params.m_cutFlowSvc->addEvent (m_combiner.m_params.m_cutID);
+    {
+      // FIX ME: this is passing an event weight of 1, which is
+      // probably not the correct thing to do.
+      m_combiner.m_params.m_cutFlowSvc->addEvent (m_combiner.m_params.m_cutID, 1.);
+    }
 #endif
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -46,7 +46,7 @@ xAOD::CaloClusterContainer* CaloClusterStoreHelper::makeContainer(StoreGateSvc* 
   if (pStoreGate->overwrite(clusColl, clusCollKey).isFailure()) {
     msg << MSG::ERROR << "Failed to record xAOD::CaloClusterContainer with key" << clusCollKey <<endmsg;
     delete clusColl;
-    return NULL;
+    return nullptr;
   }
 
   xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
@@ -54,7 +54,7 @@ xAOD::CaloClusterContainer* CaloClusterStoreHelper::makeContainer(StoreGateSvc* 
     msg << MSG::ERROR << "Failed to record xAOD::CaloClusterAuxContainer with key " << clusCollKey+"Aux." << endmsg;
     delete aux;
     delete clusColl;
-    return NULL;
+    return nullptr;
   }
   clusColl->setStore( aux );
   

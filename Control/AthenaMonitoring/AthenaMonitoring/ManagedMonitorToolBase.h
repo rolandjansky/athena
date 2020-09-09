@@ -56,7 +56,6 @@ class IDQFilterTool;
 //#include "../src/AthMonBench.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"

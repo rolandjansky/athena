@@ -1023,7 +1023,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainName, 
 									    decisiontype, 
 									    roi_key, 
-									    TrigDefs::lastFeatureOfType, 
+									    //   TrigDefs::lastFeatureOfType, 
+									    TrigDefs::allFeaturesOfType, 
 									    "roi" );
 		 
 		/// leave this here for the moment until we know everything is working ...

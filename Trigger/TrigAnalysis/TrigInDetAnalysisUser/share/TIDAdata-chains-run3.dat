@@ -6,12 +6,14 @@ testChains = {
     //  "Truth",
 
 
-    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF",
+    //"HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF",
     "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon",
-    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig",
-    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF",
-    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuonforEF",
-    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig",
+    //"HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig",
+    "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuon",
+    //"HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF",
+    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon",
+    //"HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig",
+    "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuonforEF",
 
     "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF",  
     "HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig", 
@@ -30,7 +32,8 @@ testChains = {
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF",
     "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig",
 
-    "HLT_IDTrack_FS_FTF",
+    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS",
+    "HLT_j45_ftf_L1J15:HLT_IDTrack_FS_FTF:HLT_FSRoI:HLT_IDVertex_FS",
 
     "HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_FTF",
 

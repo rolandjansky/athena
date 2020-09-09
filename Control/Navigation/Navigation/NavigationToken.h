@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATIONTOKEN_H
@@ -159,7 +159,7 @@ class NavigationToken : public INavigationToken
    { };
 
  // constructor with navigation selector argument
- NavigationToken( const INavigationSelector<CHILD,CHILDPAR>* thisSelector,
+ NavigationToken( INavigationSelector<CHILD,CHILDPAR>* thisSelector,
                   size_t size_hint = 10,
                   const HASH& hf = HASH()) :
    m_data (size_hint, hf),
@@ -169,7 +169,7 @@ class NavigationToken : public INavigationToken
    { };
 
  // constructor with navigation condition argument
- NavigationToken( const INavigationCondition* thisCondition,
+ NavigationToken( INavigationCondition* thisCondition,
                   size_t size_hint = 0,
                   const HASH& hf = HASH()) :
    m_data (size_hint, hf),
@@ -179,8 +179,8 @@ class NavigationToken : public INavigationToken
    { };
 
  // constructor with navigation condition and selector
- NavigationToken( const INavigationSelector<CHILD,CHILDPAR>* thisSelector, 
-		  const INavigationCondition* thisCondition,
+ NavigationToken( INavigationSelector<CHILD,CHILDPAR>* thisSelector, 
+		  INavigationCondition* thisCondition,
                   size_t size_hint = 0,
                   const HASH& hf = HASH()) :
    m_data (size_hint, hf),
@@ -297,8 +297,8 @@ class NavigationToken : public INavigationToken
  tokenStore  m_data;
 
  // internal pointer to associated navigation processor
- const INavigationCondition*       m_navCondition;
- const INavigationSelector<CHILD,CHILDPAR>* m_navSelector;
+ INavigationCondition*       m_navCondition;
+ INavigationSelector<CHILD,CHILDPAR>* m_navSelector;
 
   // Used to cache dynamic_cast results.
   const std::type_info*     m_lastReject;

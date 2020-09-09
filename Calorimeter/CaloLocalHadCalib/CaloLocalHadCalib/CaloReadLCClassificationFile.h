@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -20,7 +20,7 @@ class CaloReadLCClassificationFile : public AthAlgorithm
   StatusCode initialize(); 
   StatusCode execute();
   StatusCode finalize();
-  StatusCode initDataFromFile(std::string theLCClassificationFileName,
+  StatusCode initDataFromFile(const std::string& theLCClassificationFileName,
                               CaloLocalHadCoeff& data);
 
  private:

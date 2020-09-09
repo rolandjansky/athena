@@ -22,7 +22,6 @@
 
 // Local include(s):
 #include "xAODCore/AuxSelection.h"
-#include "xAODCore/AuxCompression.h"
 
 // Forward declaration(s):
 namespace SG {
@@ -197,8 +196,6 @@ namespace xAOD {
       void regAuxVar1( auxid_t auxid, const std::string& name,
                        CONT& vec );
 
-      /// Attributes compression implementation
-      AuxCompression  m_compression;
       /// Internal list of all available variables
       auxid_set_t m_auxids;
       /// Internal list of all managed variables

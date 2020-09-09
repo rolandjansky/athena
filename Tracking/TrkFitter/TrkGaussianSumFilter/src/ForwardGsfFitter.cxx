@@ -6,87 +6,26 @@
  * @file   ForwardGsfFitter.cxx
  * @date   Wednesday 9th March 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * @brief  Implementation code for ForwardGsfFitter class
+ * @brief  Implementation code for the Forward GsfFitter  part
  */
-
-#include "TrkGaussianSumFilter/ForwardGsfFitter.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
-
-#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/FitQuality.h"
+#include "TrkGaussianSumFilter/GaussianSumFitter.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type,
-                                        const std::string& name,
-                                        const IInterface* parent)
-  : AthAlgTool(type, name, parent)
-  , m_updator{}
-  , m_cutChiSquaredPerNumberDOF(50.)
-  , m_overideMaterialEffects(4)
-  , m_overideParticleHypothesis(nonInteracting)
-  , m_overideMaterialEffectsSwitch(false)
-{
-
-  declareInterface<IForwardGsfFitter>(this);
-  declareProperty("StateChi2PerNDOFCut", m_cutChiSquaredPerNumberDOF);
-  declareProperty("OverideForwardsMaterialEffects",
-                  m_overideMaterialEffectsSwitch);
-  declareProperty("MaterialEffectsInForwardFitter", m_overideMaterialEffects);
-}
-
-StatusCode
-Trk::ForwardGsfFitter::initialize()
-{
-
-  ATH_MSG_DEBUG("A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF
-                                         << " will be applied");
-  Trk::ParticleSwitcher particleSwitcher;
-  m_overideParticleHypothesis =
-    particleSwitcher.particle[m_overideMaterialEffects];
-  if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
-                 "jobOptions... New "
-                 "Trk::ParticleHypothesis: "
-                 << m_overideMaterialEffects);
-  }
-
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::ForwardGsfFitter::finalize()
-{
-  ATH_MSG_INFO("Finalisation of " << name() << " was successful");
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::ForwardGsfFitter::configureTools(
-  const ToolHandle<IMultiStateExtrapolator>& extrapolator,
-  const ToolHandle<IRIO_OnTrackCreator>& rioOnTrackCreator)
-{
-  m_extrapolator = extrapolator;
-  m_rioOnTrackCreator = rioOnTrackCreator;
-  ATH_MSG_INFO("Configuration of " << name() << " was successful");
-
-  return StatusCode::SUCCESS;
-}
-
 /*
  * Forwards fit on a set of PrepRawData
  */
-
 std::unique_ptr<Trk::ForwardTrajectory>
-Trk::ForwardGsfFitter::fitPRD(
+Trk::GaussianSumFitter::fitPRD(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   const Trk::PrepRawDataSet& inputPrepRawDataSet,
@@ -167,7 +106,7 @@ Trk::ForwardGsfFitter::fitPRD(
  * Forwards fit on a set of Measurements
  */
 std::unique_ptr<Trk::ForwardTrajectory>
-Trk::ForwardGsfFitter::fitMeasurements(
+Trk::GaussianSumFitter::fitMeasurements(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   const Trk::MeasurementSet& inputMeasurementSet,
@@ -242,7 +181,7 @@ Trk::ForwardGsfFitter::fitMeasurements(
  *   StepForwardFit() private method
  */
 bool
-Trk::ForwardGsfFitter::stepForwardFit(
+Trk::GaussianSumFitter::stepForwardFit(
   const EventContext& ctx,
   Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   ForwardTrajectory* forwardTrajectory,

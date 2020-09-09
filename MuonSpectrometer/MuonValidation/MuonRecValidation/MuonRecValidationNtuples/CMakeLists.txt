@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonRecValidationNtuples )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          PRIVATE
-                          MuonSpectrometer/MuonStationIndex )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

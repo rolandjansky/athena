@@ -7,7 +7,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence, tauFTFCoreMVASequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFCoreSequence, tauFTFIsoSequence, tauFTFIdSequence, tauFTFTrackSequence, tauFTFTrackTwoSequence, tauEFSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -120,28 +120,10 @@ def tauIdTrackSeq():
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
 
-# ===============================================================================================
-#                                                                                                                                           
-# ===============================================================================================
 
-def tauTwoStepTrackSeqCoreMVA():
-
-    (sequence, ftfCoreMVAViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFCoreMVASequence,ConfigFlags)    
-
-    from TrigTauHypo.TrigTauHypoConf import  TrigTrackPreSelHypoAlgMT
-    fastTrkHypo = TrigTrackPreSelHypoAlgMT("TrackPreSelHypoAlg_RejectEmptyMVA")
-    fastTrkHypo.trackcollection = sequenceOut
-
-    from TrigTauHypo.TrigTauHypoTool import TrigTauTrackHypoToolFromDict
-
-    return  MenuSequence( Sequence    = sequence,
-                          Maker       = ftfCoreMVAViewsMaker,
-                          Hypo        = fastTrkHypo,
-                          HypoToolGen = TrigTauTrackHypoToolFromDict )
-
-# ===============================================================================================                                                                               
-#                                                                                                                                                                               
-# ===============================================================================================                                                                              
+# ===============================================================================================                                
+#    Fast track core + RejectEmpty Hypo step (tracktwo, tracktwoEF, tracktwoMVA)                                                              
+# ===============================================================================================                                                   
 
 def tauTwoStepTrackSeqCore():
 

@@ -32,6 +32,11 @@ namespace HLT { namespace MET {
   {
     // Retrieve the inputs
     auto jets = SG::makeHandle(m_jetKey, context);
+    if (!jets.isValid())
+    {
+      ATH_MSG_ERROR("Failed to retrieve " << m_jetKey);
+      return StatusCode::FAILURE;
+    }
 
     // Prepare the output values
     std::array<METComponent, 4> mhtSums;

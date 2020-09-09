@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCombinedTimingTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODMuon
-                          GaudiKernel
-                          Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkSpaceTimePoint
-                          Tracking/TrkTools/TrkToolInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

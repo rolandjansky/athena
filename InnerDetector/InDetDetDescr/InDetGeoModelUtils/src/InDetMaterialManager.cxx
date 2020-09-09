@@ -4,7 +4,6 @@
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoElement.h"
@@ -83,7 +82,7 @@ InDetMaterialManager::~InDetMaterialManager() {
   }
 }
 
-const AbsMaterialManager*
+const StoredMaterialManager*
 InDetMaterialManager::retrieveManager(const StoreGateSvc* detStore) {
   const StoredMaterialManager* theGeoMaterialManager = nullptr;
 

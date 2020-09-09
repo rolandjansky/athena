@@ -169,7 +169,7 @@ class AugmentedPoolStream( AugmentedStreamBase ):
         #event-by-event stream
         from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
         self.Stream = AthenaPoolOutputStream( StreamName, FileName, asAlg, noTag=noTag )
-        if isVirtual == True:
+        if isVirtual is True:
             self.Stream.WriteOnExecute=False
             self.Stream.WriteOnFinalize=False
 
@@ -264,8 +264,6 @@ class AugmentedByteStream( AugmentedStreamBase ):
         #General setup
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
 
         # BS OutputStream Tool
         from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc,ByteStreamOutputStreamCopyTool
@@ -277,10 +275,9 @@ class AugmentedByteStream( AugmentedStreamBase ):
         outDir+="/"
 
         # BS output Svc
-        from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageOutputSvc
         self.bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+StreamName,
-                                                    OutputDirectory=outDir,
-                                                    SimpleFileName=FileName )
+                                                         OutputDirectory=outDir,
+                                                         SimpleFileName=FileName )
         svcMgr += self.bsOutputSvc
 
         # Set BS OutputSvc/InputSvc to BS OutputStream Tool
@@ -372,7 +369,7 @@ class AugmentedRootStream( AugmentedStreamBase ):
         AugmentedStreamBase.__init__( self, StreamName )
 
         # Check if the user specified a tree name or not:
-        if TreeName == None:
+        if TreeName is None:
             TreeName = StreamName
 
         # Remember the file and tree names just for bookkeeping:
@@ -595,7 +592,7 @@ class MultipleStreamManager:
                      actual stream, or an algorithm.
         """
         # Check if a file name was specified or not:
-        if FileName == None:
+        if FileName is None:
             FileName = StreamName + ".root"
         # Use the common function for creating the stream:
         return self.NewStream( StreamName, FileName, type='root', asAlg = asAlg,
@@ -647,12 +644,7 @@ class MultipleStreamManager:
         return self.StreamList[index]
 
     def StreamExists(self, StreamName):
-        try:
-            index=self.StreamDict[StreamName]
-        except KeyError:
-            return False
-
-        return True
+        return StreamName in self.StreamDict
 
     def Print(self):
         print("**** MultipleStreamManager INFOS ****")

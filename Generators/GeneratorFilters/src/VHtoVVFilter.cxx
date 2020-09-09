@@ -82,7 +82,7 @@ StatusCode VHtoVVFilter::filterEvent() {
             ATH_MSG_DEBUG(" child " << thisChild->pdg_id());
             if (!okPDGHVChild1) {
               for (size_t i = 0; i < m_PDGHVChild1.size(); ++i)
-                if (abs(thisChild->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
+                if (std::abs(thisChild->pdg_id()) == m_PDGHVChild1[i]) okPDGHVChild1 = true;
               if (okPDGHVChild1) break;
             }
             if (!okPDGHVChild2) {

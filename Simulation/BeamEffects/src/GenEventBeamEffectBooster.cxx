@@ -142,7 +142,7 @@ namespace Simulation
 
     // Now set-up rotation-boost matrix
     const CLHEP::HepLorentzVector psum = pp1 + pp2;
-    const CLHEP::HepLorentzVector dir = pp1;
+    const CLHEP::HepLorentzVector& dir = pp1;
     // Boost psum back on the direction of dir, adapted from bstback & fromCMframe PYTHIA8, credit to T.Sjostrand
     const double betaX = -psum.x() / psum.t();
     const double betaY = -psum.y() / psum.t();

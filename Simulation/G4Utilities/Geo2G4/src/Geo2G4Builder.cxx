@@ -31,8 +31,9 @@
 
 #include <map>
 #include <iostream>
+#include <utility>
 
-Geo2G4Builder::Geo2G4Builder(std::string detectorName)
+Geo2G4Builder::Geo2G4Builder(const std::string& detectorName)
   : m_detectorName(detectorName)
   , m_motherTransform(GeoTrf::Transform3D::Identity())
   , m_matAir(nullptr)
@@ -175,7 +176,7 @@ VolumeBuilder*  Geo2G4Builder::GetVolumeBuilder(std::string bname)
   Geo2G4SvcAccessor accessor;
   Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
 
-  m_theBuilder=g->GetVolumeBuilder(bname);
+  m_theBuilder=g->GetVolumeBuilder(std::move(bname));
   return m_theBuilder;
 }
 

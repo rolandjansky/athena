@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -126,16 +126,16 @@ namespace Reco {
        static const InterfaceID& interfaceID() { return IID_ITrackToVertexAssociator; };
       
        /** Interface method for use with TrackParticle  - AOD */
-       virtual const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::TrackParticleBase& part) const = 0;
+       virtual const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::TrackParticleBase& part) const = 0;
        
        /** Interface method for use with Track  - ESD */
-       virtual const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::Track& trk) const = 0;
+       virtual const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::Track& trk) const = 0;
 
        /** Interface method for use with charged TPs - work horse */
-       virtual const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::TrackParameters& pars) const = 0;
+       virtual const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::TrackParameters& pars) const = 0;
 
        /** Interface method for use with neutral TPs */
-       virtual const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::NeutralParameters& pars) const = 0;                                                                
+       virtual const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::NeutralParameters& pars) const = 0;                                                      
   };
 
 } 

@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibDbOperations )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibUtils
-                          MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneBase
-                          PRIVATE
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibRt
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers )
-
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

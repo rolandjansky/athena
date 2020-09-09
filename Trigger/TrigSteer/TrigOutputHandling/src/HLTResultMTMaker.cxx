@@ -4,7 +4,6 @@
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include <sstream>
 
 // Local helpers
@@ -71,21 +70,18 @@ StatusCode HLTResultMTMaker::initialize() {
 
   // Initialise the enabled ROBs/SubDets list from DataFlowConfig config and extra properties.
   // DataFlowConfig is a special object used online to hold DF properties passed from TDAQ to HLT as run parameters.
-  const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_ROB_IDs");
   Gaudi::Property<std::vector<uint32_t>> enabledROBsProp("EnabledROBs",{});
-  if (prop && enabledROBsProp.assign(*prop)) {
+  if (enabledROBsProp.fromString(m_jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs","[]")).isSuccess()) {
     m_enabledROBs.insert(enabledROBsProp.value().begin(), enabledROBsProp.value().end());
     ATH_MSG_DEBUG("Retrieved a list of " << m_enabledROBs.size()
                   << " ROBs from DataFlowConfig.DF_Enabled_ROB_IDs");
   }
   else {
-    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc. This is fine if running "
-                  << "offline, but should not happen online");
+    ATH_MSG_ERROR("Could not parse DataFlowConfig.DF_Enabled_ROB_IDs from JobOptionsSvc");
   }
 
-  prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_Enabled_SubDet_IDs");
   Gaudi::Property<std::vector<uint32_t>> enabledSubDetsProp("EnabledSubDets",{});
-  if (prop && enabledSubDetsProp.assign(*prop)) {
+  if (enabledSubDetsProp.fromString(m_jobOptionsSvc->get("DataFlowConfig.DF_Enabled_SubDet_IDs","[]")).isSuccess()) {
     // Need to convert from uint32_t to eformat::SubDetector representable by uint8_t
     for (const uint32_t id : enabledSubDetsProp.value()) {
       m_enabledSubDets.insert( static_cast<eformat::SubDetector>(id & 0xFF) );
@@ -94,8 +90,7 @@ StatusCode HLTResultMTMaker::initialize() {
                   << " SubDets from DataFlowConfig.DF_Enabled_SubDet_IDs");
   }
   else {
-    ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_Enabled_SubDet_IDs from JobOptionsSvc. This is fine if running "
-                  << "offline, but should not happen online");
+    ATH_MSG_ERROR("Could not parse DataFlowConfig.DF_Enabled_SubDet_IDs from JobOptionsSvc");
   }
 
   if (m_enabledROBs.empty() && m_enabledSubDets.empty()) {

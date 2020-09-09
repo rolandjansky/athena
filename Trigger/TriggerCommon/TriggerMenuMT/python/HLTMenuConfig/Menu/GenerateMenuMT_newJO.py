@@ -75,6 +75,9 @@ def generateMenu( flags ):
             counter += 1
             mainChainDict['chainCounter'] = counter
 
+            #set default chain prescale
+            mainChainDict['prescale'] = 1
+
             allChainDicts.append(mainChainDict)
 
             chainDicts = splitInterSignatureChainDict(mainChainDict)
@@ -123,6 +126,9 @@ def generateMenu( flags ):
     # # generate JOSON representation of the config
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
     generateJSON_newJO( allChainDicts, menuChains, menuAcc.getSequence("HLTAllSteps") )
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON_newJO as generatePrescaleJSON_newJO
+    generatePrescaleJSON_newJO( allChainDicts, menuChains )
 
     return menuAcc
 

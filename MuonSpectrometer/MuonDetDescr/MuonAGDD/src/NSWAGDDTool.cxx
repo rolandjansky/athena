@@ -18,25 +18,14 @@ using namespace MuonGM;
 
 NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AGDDToolBase(type,name,parent),
-    m_outPREsqlName("")
-{
-	declareProperty( "ReadAGDD",   		m_readAGDD    = true,           "read description from DB");
-	declareProperty( "DumpAGDD",		m_dumpAGDD    = false,          "write out parsed XML");
-	declareProperty( "OutputFileACTVERS",	m_outFileActV = 0,		"active version number");
-	declareProperty( "OutputFileACTVNAME",	m_outFileActN = "",		"active version string");
-	declareProperty( "OutputFileALGVERS",	m_outFileAlgV = 0,		"alignment version number");
-	declareProperty( "OutputFileALGVNAME",	m_outFileAlgN = "",		"alignment version string");
-	declareProperty( "OutputFilePASVERS",	m_outFilePasV = 0,		"passive structure version number");
-	declareProperty( "OutputFilePASVNAME",	m_outFilePasN = "",		"passive structure version string");
-	declareProperty( "OutputFileFORMAT",	m_outFileForm = "AGDDXML",	"format of output file");
-	declareProperty( "OutputFileType",	m_outFileType = "NSWD", 	"name for database table");
-	declareProperty( "OutputFileName",	m_DBFileName = "", "specify name for DB text file");
-	declareProperty( "AGDDtoGeoSvcName", m_agdd2GeoSvcName = "AGDDtoGeoSvc", "specify name of AGDDtoGeoSvc");
+    m_outFileInName(""),
+    m_outPREsqlName("") {
 }
 
 StatusCode NSWAGDDTool::initialize()
 {
-	ATH_MSG_INFO("this is NSWAGDDTool::initialize()!!!!");
+	ATH_CHECK(AGDDToolBase::initialize());
+	ATH_MSG_INFO("NSWAGDDTool::initialize");
 
 	if( m_xmlFiles.size() == 1 && m_writeDBfile )
 	{
@@ -47,8 +36,6 @@ StatusCode NSWAGDDTool::initialize()
 
 	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
 	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
-
-    ATH_CHECK(AGDDToolBase::initialize());
 
 	if (m_DBFileName.empty()) {
 		m_DBFileName = "Generated_" + m_outFileType + "_pool.txt";
@@ -70,8 +57,7 @@ StatusCode NSWAGDDTool::initialize()
 
 StatusCode NSWAGDDTool::construct() 
 {
-	ATH_MSG_INFO("this is NSWAGDDTool::construct()!!!!");
-	ATH_MSG_INFO(" Name = "<<name());
+	ATH_MSG_INFO(name()<<"::construct()");
 	
 	MuonAGDDToolHelper theHelper;
 	theHelper.setAGDDtoGeoSvcName(m_agdd2GeoSvcName);
@@ -94,7 +80,6 @@ StatusCode NSWAGDDTool::construct()
 	}
 	
 	m_controller->UseGeoModelDetector("Muon");
-	
 	m_controller->BuildAll();
 	
 	// part needed to build the NSW RO geometry

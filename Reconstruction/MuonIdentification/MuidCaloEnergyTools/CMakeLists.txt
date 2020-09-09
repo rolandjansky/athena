@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuidCaloEnergyTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Reconstruction/MuonIdentification/MuidInterfaces
-                          PRIVATE
-                          Control/AthenaKernel
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Calorimeter/CaloUtils
-                          Reconstruction/MuonIdentification/MuidEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkTrack )
-
 # External dependencies:
 find_package( CLHEP )
 

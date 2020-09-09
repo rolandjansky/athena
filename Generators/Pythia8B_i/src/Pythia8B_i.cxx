@@ -16,7 +16,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 // Pointer On AtRndmGenSvc
 IAtRndmGenSvc*  Pythia8B_i::p_AtRndmGenSvc  = 0;

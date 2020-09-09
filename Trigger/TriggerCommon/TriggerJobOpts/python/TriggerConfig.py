@@ -337,9 +337,9 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID(), DataScoutingInfo.getDataScoutingResultID('CostMonDS')]
         if typeNameAux not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID(), DataScoutingInfo.getDataScoutingResultID('CostMonDS')]
 
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 

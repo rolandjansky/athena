@@ -191,7 +191,7 @@ StatusCode CaloCell2ClusterMapper::execute(const EventContext& ctx) const {
               if (((unsigned int) myHashId) == iHash)
                 break;
               else
-                pCell = 0;
+                pCell = nullptr;
             }
           }
           if (pCell)

@@ -375,6 +375,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
     kwargs.setdefault('MuonTrackBuilder', 'TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault('MuonSegmentTrackBuilder', CfgGetter.getPublicTool("MooMuonTrackBuilder"))
     return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
 
 def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):
@@ -879,3 +880,5 @@ class TrigMuonEFTrackIsolationMTConfig (TrigMuonEFConf.TrigMuonEFTrackIsolationA
         # Use offline isolation variables
         self.useVarIso = True
         self.MuonContName = "Muons"
+        self.ptcone02Name = "Muons.ptcone02"
+        self.ptcone03Name = "Muons.ptcone03"

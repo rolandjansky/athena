@@ -1,7 +1,7 @@
 // dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TPCONVERTER_H
@@ -188,7 +188,12 @@ public:
   
 
   /// @copydoc ITPConverter::topConverter()
-  virtual TopLevelTPCnvBase*	topConverter() const {
+  virtual TopLevelTPCnvBase*	topConverter() {
+     return m_topConverter;
+  }
+
+  /// @copydoc ITPConverter::topConverter()
+  virtual const TopLevelTPCnvBase*	topConverter() const {
      return m_topConverter;
   }
 

@@ -10,7 +10,6 @@
 
 - PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms
-- PhysicsAnalysis/Algorithms/TauAnalysisAlgorithms
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
 
 
@@ -67,7 +66,6 @@
 + PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-#+ PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/CutBookkeeperUtils
 + PhysicsAnalysis/AnalysisCommon/FsrUtils
 + PhysicsAnalysis/AnalysisCommon/HDF5Utils
@@ -122,9 +120,9 @@
 + Tools/PathResolver
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
-#+ Trigger/TrigAnalysis/TrigDecisionTool
-#+ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
-#+ Trigger/TrigAnalysis/TriggerMatchingTool
++ Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
++ Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
 + Trigger/TrigConfiguration/TrigConfHLTData
 + Trigger/TrigConfiguration/TrigConfHLTUtils
