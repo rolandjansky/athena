@@ -74,6 +74,22 @@ TrigConf::HLTMenu::streams() const
 }
 
 
+std::map<std::string, std::vector<std::string>>
+TrigConf::HLTMenu::sequencers() const
+{
+   std::map<std::string, std::vector<std::string>> result;
+   const auto & sequencers = getObject("sequencers");
+
+   for( auto & sequence : sequencers.getKeys() ) {
+      for( auto & alg : sequencers.getList(sequence) ) {
+         result[sequence].emplace_back(alg.getValue<std::string>());
+      }
+   }
+
+   return result;
+}
+
+
 void
 TrigConf::HLTMenu::printMenu(bool full) const
 {

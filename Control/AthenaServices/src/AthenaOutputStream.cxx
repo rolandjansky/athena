@@ -604,7 +604,7 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    bool doCommit = false;
-   if (m_events % m_autoSend.value() == 0 && outputFN.find("?pmerge=") != std::string::npos) {
+   if (m_autoSend.value() > 0 && m_events % m_autoSend.value() == 0) {
       doCommit = true;
       ATH_MSG_DEBUG("commitOutput sending data.");
    }
@@ -1155,6 +1155,9 @@ StatusCode AthenaOutputStream::io_finalize() {
    if (!incSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
+   }
+   if (m_dataStore->clearStore().isSuccess()) {
+      ATH_MSG_WARNING("Cannot clear the DataStore");
    }
    incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;

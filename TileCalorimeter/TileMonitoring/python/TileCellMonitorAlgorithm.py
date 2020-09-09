@@ -42,6 +42,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
     kwargs.setdefault('NegativeEnergyThreshold', -2000.0 * MeV)
     kwargs.setdefault('EnergyBalanceThreshold', 3)
     kwargs.setdefault('TimeBalanceThreshold', 25 * ns)
+    kwargs.setdefault('fillChannelTimeHistograms', True)
     kwargs.setdefault('fillTimeAndEnergyDiffHistograms', False)
 
     if flags.Beam.Type in ('cosmics', 'singlebeam'):
@@ -202,6 +203,15 @@ def TileCellMonitoringConfig(flags, **kwargs):
                              xbins = 1000, xmin = -0.5, xmax = 999.5, type='TProfile', run = run, triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, perGain = False,
                              opt = 'kAddBinsDynamically')
+
+    if kwargs['fillChannelTimeHistograms']:
+        # Configure histograms with Tile channel time per partition and sample
+        titleChanTimeSamp = 'Channel Time, E_{ch} > %s MeV;time [ns]' % (kwargs['EnergyThresholdForTime'] / MeV)
+        addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileChannelTime',
+                                 xvalue = 'time', title = titleChanTimeSamp, path = 'Tile/Cell',
+                                 xbins = 121, xmin = -60.5, xmax = 60.5, type='TH1D',
+                                 run = run, triggers = l1Triggers, subDirectory = True,
+                                 perPartition = True, perSample = True, perGain = False)
 
     # 20) Configure histograms with energy difference between Tile cells' PMTs per partition and sample
     addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEneDiff', xvalue = 'energyDiff',

@@ -60,6 +60,9 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     Gaudi::Property<bool> m_fillTimeHistograms{this,
         "fillTimeHistograms", false, "Force filling timing histograms"};
 
+    Gaudi::Property<bool> m_fillChannelTimeHistograms{this,
+        "fillChannelTimeHistograms", true, "Fill histograms with channel time per sample"};
+
     Gaudi::Property<bool> m_fillTimeAndEnergyDiffHistograms{this, "fillTimeAndEnergyDiffHistograms", true,
          "Fill histograms with time and energy difference between two PMTs of the same Cell"};
 
@@ -116,6 +119,7 @@ class TileCellMonitorAlgorithm : public TileMonitorAlgorithm {
     std::vector<std::vector<int>> m_overThr300GeVOccupGroups;
     std::vector<std::vector<std::vector<int>>> m_overThrOccupGainGroups;
 
+    std::vector<std::vector<std::vector<int>>> m_chanTimeSampGroups;
     std::vector<std::vector<std::vector<int>>> m_eneDiffSampGroups;
     std::vector<std::vector<std::vector<int>>> m_timeDiffSampGroups;
 
