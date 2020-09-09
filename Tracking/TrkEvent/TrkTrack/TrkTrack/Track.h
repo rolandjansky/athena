@@ -93,8 +93,6 @@ namespace Trk
     class Track
     {
       public:
-           
-       friend class TrackSummaryTool;						     	    
        friend class TrackSlimmingTool;  					     	    
  
        Track (); //!<needed by POOL. DO NOT USE YOURSELF!			            
@@ -233,7 +231,7 @@ namespace Trk
        /**
         * Set the track summary pointer. The Trk::Track takes ownership
         */
-       void setTrackSummary(Trk::TrackSummary* input);
+       void setTrackSummary(std::unique_ptr<Trk::TrackSummary> input);
         	
        /**
         * reset all caches
@@ -323,7 +321,7 @@ namespace Trk
        /**									   
         * Datamember to cache the TrackSummary  				   
         */									   
-       Trk::TrackSummary* m_trackSummary; 
+       std::unique_ptr<Trk::TrackSummary> m_trackSummary;
        
        /**									   
         * This is aclass which stores the identity of where the track 	   

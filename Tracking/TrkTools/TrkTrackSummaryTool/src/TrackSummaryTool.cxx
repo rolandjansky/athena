@@ -136,12 +136,14 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
 void Trk::TrackSummaryTool::computeAndReplaceTrackSummary(Trk::Track &track,
                                                           const Trk::PRDtoTrackMap *prd_to_track_map,
                                                           bool suppress_hole_search) const {
-   delete track.m_trackSummary;
-   track.m_trackSummary = nullptr;
-   track.m_trackSummary = createSummary(track,
-                                        prd_to_track_map,
-                                        m_doHolesInDet & !suppress_hole_search,
-                                        m_doHolesMuon  & !suppress_hole_search).release();
+  track.setTrackSummary(
+    createSummary(
+      track,
+      prd_to_track_map,
+      m_doHolesInDet & !suppress_hole_search,
+      m_doHolesMuon  & !suppress_hole_search
+    )
+  );
 }
 
 std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& track) const
@@ -338,7 +340,7 @@ Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track,
 {
   // first check if track has summary already.
   computeAndReplaceTrackSummary(track, prd_to_track_map, true /*suppress hole search*/);
-  m_idTool->updateExpectedHitInfo(track, *track.m_trackSummary); /*Needed for expected B-Layer*/
+  m_idTool->updateExpectedHitInfo(track, *track.trackSummary()); /*Needed for expected B-Layer*/
 }
 
 void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
