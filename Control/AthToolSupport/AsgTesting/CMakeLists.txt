@@ -13,13 +13,12 @@ find_package( GMock )
 atlas_add_library( AsgTestingLib
    AsgTesting/*.h AsgTesting/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgTesting
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgTools
+   LINK_LIBRARIES AsgTools ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_test( gt_UnitTest_test
    SOURCES test/gt_UnitTest_test.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTestingLib
+   LINK_LIBRARIES AsgTestingLib
    EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
