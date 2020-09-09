@@ -5,10 +5,16 @@ atlas_subdir( AsgTools )
 
 # Dependencies are taken based on what environment we are in:
 if( XAOD_STANDALONE )
+   set( deps Control/AthToolSupport/AsgMessaging Control/xAODRootAccessInterfaces Control/xAODRootAccess )
    set( libs AsgMessagingLib xAODRootAccessInterfaces xAODRootAccess )
 else()
-   set( libs AsgMessagingLib AthenaBaseComps AthenaKernel GaudiKernel )
+   set( deps Control/AthToolSupport/AsgMessaging Control/xAODRootAccess Control/AthenaBaseComps Control/SGTools Database/IOVDbDataModel
+      GaudiKernel )
+   set( libs AsgMessagingLib AthenaBaseComps SGTools IOVDbDataModel GaudiKernel )
 endif()
+
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC ${deps} )
 
 # Decide which sources to use:
 if( XAOD_STANDALONE )
