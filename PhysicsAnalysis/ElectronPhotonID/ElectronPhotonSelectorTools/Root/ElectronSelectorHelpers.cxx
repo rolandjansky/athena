@@ -110,31 +110,24 @@ bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType t
   //
   // The issue is that the "criterion" encodes what should
   // pass only.
-  //
   // If it was not stored in the GroupData and need to keep compatibility
   // this would have been trivial but ....
   //
-  // We want reject types/values/enums/"bits" 5,6.
+  // We want reject types
+  //  ambiguousVertexEoverPBetterThanTrackEoverP=6,
+  //  photon=7,
   //
-  // One way would have been  a mask
-  // 0b1100000 (96)
-  // and check
-  // (mask & 0x1<<type) !=0
-  // This would have been consistent with the rest of e/gamma
-  // but this is not what is going on here.
-  //
-  // What seems we check is 0b11111 (31) e.g we do not specify explicitly the bit
-  // to cut on. Which of course now breaks due to additional type 7
-  // which we want to keep.
+  // What pass is 0b11111 (31) e.g we do not specify explicitly the bit
+  // to cut on. Which of course now breaks.
+  // The magic 31 comes from config files which will be updated
+  // at some stage for new tunes.
+  // And the code below pass for types 0,1,2,3,4 (the 5 bits sets)
+  // 2^0 + 2^1  + 2^2 +2^3 +2^4 = 1+2+4+8+16 = 31
   //
   // For now solve ad-hoc and keep compatibility with existing config
-  // tooling in GroupArea/PHYS/Derivation etc.
+  // tooling in GroupArea/PHYS/Derivation etc by adding 32
   //
-  // But prb we need a better convention
   //
-  // For now add 128 to the criterion  so we get b10011111 and bit 7 passes.
-  // So we return true for types 0,1,2,3,4,7 we reject 5,6
-  //
-  return (128+criterion) & 0x1<<type;
+  return (32+criterion) & 0x1<<type;
 
 }
