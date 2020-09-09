@@ -43,6 +43,11 @@ nucone10 = 8
 getattr (ROOT.xAOD, 'TrackParticleContainer_v1', None)
 getattr (ROOT.xAOD, 'Jet_v1', None)
 
+#Typed nullptr:
+jetAssocNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.JetAssociationBase)
+muonNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.Analysis.Muon)
+
+
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]
@@ -2930,7 +2935,8 @@ def dump_PhotonAssociation (a, f):
 def dump_MuonAssociation (a, f):
     dump_JetAssociationBase (a, f)
     muo = a.muon()
-    if muo:
+    fprint(f,muo,type(muo))
+    if muo != muonNull:
         fprint (f, a.getMuonWeight (muo))
         dump_Fourvec (muo, f)
     return
@@ -2995,7 +3001,7 @@ def dump_Jet (j, f):
     fprint (f, '\n      assoc ')
     for ak in j.getAssociationKeys():
         ass = j.getAssociationBase(ak)
-        if not ass: continue
+        if ass == jetAssocNull : continue
         fprint (f, '\n         ', ak)
         if isinstance (ass, PyAthena.Analysis.ElectronAssociation):
             dump_ElectronAssociation (ass, f)
@@ -3010,8 +3016,8 @@ def dump_Jet (j, f):
         else:
             fprint (f, ass)
     ti = j.jetTagInfoVector()
+    fprint (f, '\n      tag info:')
     if ti:
-        fprint (f, '\n      tag info:')
         #ROOT.SetOwnership (ti, True)
         ti = list(ti)
         ti.sort (key=_infoType)
