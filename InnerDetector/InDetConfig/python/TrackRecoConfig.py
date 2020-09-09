@@ -132,11 +132,7 @@ def MergedPixelsToolCfg(flags, **kwargs) :
             # new splitter tool & remember splitter tool    
             clusterSplitterTool=CompFactory.InDet.TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
       
-      if clusterSplitProbTool is not None: kwargs.setdefault("SplitProbTool", clusterSplitProbTool )
-      if clusterSplitterTool is not None: kwargs.setdefault("ClusterSplitter", clusterSplitterTool )
       # --- now load the framework for the clustering
-      #InDetClusterMakerTool = CompFactory.InDet.ClusterMakerTool(name                 = "InDetClusterMakerTool")
-      #acc.addPublicTool(InDetClusterMakerTool)
       accbuf = ClusterMakerToolCfg(flags)
       InDetClusterMakerTool = accbuf.getPrimary()
       kwargs.setdefault("globalPosAlg", InDetClusterMakerTool )
