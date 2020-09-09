@@ -481,17 +481,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise muon calibration tool
-
-  if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
-    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
-    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("calibrationMode", m_muCalibrationMode) );
-    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
-  } else  ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
-  
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise muon selection tool
+  // Check muon baseline ID
 
   std::string muQualBaseline = "";
   switch (m_muIdBaseline) {
@@ -510,6 +500,25 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     return StatusCode::FAILURE;
     break;
   }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise muon calibration tool
+  // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MuonMomentumCorrectionsSubgroup#CP_MuonCalibrationAndSmearingToo
+
+  if (!m_muonCalibrationAndSmearingTool.isUserConfigured()) {
+    m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationPeriodTool/MuonCalibrationAndSmearingTool");
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("calibrationMode", m_muCalibrationMode) );
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("OutputLevel", this->msg().level()) );
+    int IdBaselineInt = m_muIdBaseline;
+    if (IdBaselineInt == 4) {
+      ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("do2StationsHighPt", true) );
+    }
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.setProperty("doExtraSmearing", m_muHighPtExtraSmear) );
+    ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
+  } else  ATH_CHECK( m_muonCalibrationAndSmearingTool.retrieve() );
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise muon selection tool
 
   if (!m_muonSelectionToolBaseline.isUserConfigured()) {
     toolName = "MuonSelectionTool_Baseline_" + muQualBaseline;
