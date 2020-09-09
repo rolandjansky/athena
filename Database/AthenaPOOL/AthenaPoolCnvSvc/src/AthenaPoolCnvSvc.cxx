@@ -36,53 +36,31 @@
 //______________________________________________________________________________
 // Initialize the service.
 StatusCode AthenaPoolCnvSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthCnvSvc::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize ConversionSvc base class.");
-      return(StatusCode::FAILURE);
-   }
-
    // Initialize DataModelCompatSvc
    ServiceHandle<IService> dmcsvc("DataModelCompatSvc", this->name());
-   if (!dmcsvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get DataModelCompatSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK(dmcsvc.retrieve());
    // Retrieve PoolSvc
-   if (!m_poolSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get PoolSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK(m_poolSvc.retrieve());
    // Retrieve ChronoStatSvc
-   if (!m_chronoStatSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ChronoStatSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK(m_chronoStatSvc.retrieve());
    // Retrieve ClassIDSvc
-   if (!m_clidSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get ClassIDSvc.");
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK(m_clidSvc.retrieve());
    // Retrieve InputStreamingTool (if configured)
    if (!m_inputStreamingTool.empty()) {
-      if (!m_inputStreamingTool.retrieve().isSuccess()) {
-         ATH_MSG_FATAL("Cannot get Input AthenaIPCTool");
-         return(StatusCode::FAILURE);
-      }
+      ATH_CHECK(m_inputStreamingTool.retrieve());
    }
    // Retrieve OutputStreamingTool (if configured)
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
-      if (!m_outputStreamingTool.retrieve().isSuccess()) {
-         ATH_MSG_FATAL("Cannot get Output AthenaIPCTool");
-         return(StatusCode::FAILURE);
-      }
+      ATH_CHECK(m_outputStreamingTool.retrieve());
    }
    if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
       // Retrieve AthenaSerializeSvc
-      if (!m_serializeSvc.retrieve().isSuccess()) {
-         ATH_MSG_FATAL("Cannot get AthenaSerializeSvc.");
-         return(StatusCode::FAILURE);
+      ATH_CHECK(m_serializeSvc.retrieve());
+      if (!m_outputStreamingTool.empty() && m_makeStreamingToolClient.value() == -1) {
+         // Initialize AthenaRootSharedWriter
+         ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
+         ATH_CHECK(arswsvc.retrieve());
       }
    }
    // Extracting MaxFileSizes for global default and map by Database name.
@@ -158,7 +136,7 @@ StatusCode AthenaPoolCnvSvc::finalize() {
 
    m_cnvs.clear();
    m_cnvs.shrink_to_fit();
-   return(::AthCnvSvc::finalize());
+   return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
 StatusCode AthenaPoolCnvSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -314,6 +292,9 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       }
    }
 
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+      outputConnection = outputConnection + "?pmerge=localhost:1095";
+   }
    unsigned int contextId = outputContextId(outputConnection);
    try {
       if (!m_poolSvc->connect(pool::ITransaction::UPDATE, contextId).isSuccess()) {
@@ -335,6 +316,15 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       m_domainAttr.push_back(maxFileSize);
       // Extracting OUTPUT POOL ItechnologySpecificAttributes for Domain, Database and Container.
       extractPoolAttributes(m_poolAttr, &m_containerAttr, &m_databaseAttr, &m_domainAttr);
+      for (std::vector<std::vector<std::string> >::iterator iter = m_databaseAttr.begin(), last = m_databaseAttr.end();
+                      iter != last; ++iter) {
+         const std::string& opt = (*iter)[0];
+         std::string data = (*iter)[1];
+         const std::string& file = (*iter)[2];
+         if (opt == "TREE_AUTO_FLUSH" && data != "int" && data != "DbLonglong" && data != "double" && data != "string") {
+            m_fileFlushSetting[file] = atoi(data.c_str());
+         }
+      }
    }
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
       ATH_MSG_DEBUG("connectOutput failed process POOL domain attributes.");
@@ -575,6 +565,14 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_ERROR("connectOutput FAILED extract file name and technology.");
       return(StatusCode::FAILURE);
    }
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+      m_fileCommitCounter[outputConnection] = m_fileCommitCounter[outputConnection] + 1;
+      if (m_fileFlushSetting[outputConnection] > 0 && m_fileCommitCounter[outputConnection] % m_fileFlushSetting[outputConnection] == 0) {
+         doCommit = true;
+         ATH_MSG_DEBUG("commitOutput sending data.");
+      }
+      outputConnection = outputConnection + "?pmerge=localhost:1095";
+   }
    unsigned int contextId = outputContextId(outputConnection);
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
       ATH_MSG_DEBUG("commitOutput failed process POOL domain attributes.");
@@ -648,7 +646,12 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectio
       }
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
-   return m_poolSvc->disconnect(outputContextId(outputConnection));
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+      outputConnection = outputConnection + "?pmerge=localhost:1095";
+   }
+   unsigned int contextId = outputContextId(outputConnection);
+   StatusCode sc = m_poolSvc->disconnect(contextId);
+   return sc;
 }
 
 //______________________________________________________________________________
@@ -787,6 +790,9 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
             token = m_poolSvc->registerForWrite(placement, obj, classDesc);
          }
       } else {
+         if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
+            placement->setFileName(placement->fileName() + "?pmerge=localhost:1095");
+         }
          if (m_persSvcPerOutput) {
             char text[32];
             ::sprintf(text, "[CTXT=%08X]", m_poolSvc->getOutputContext(placement->fileName()));
@@ -1168,9 +1174,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 {
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
 }
-//______________________________________________________________________________
-AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {
-}
 //__________________________________________________________________________
 void AthenaPoolCnvSvc::extractPoolAttributes(const StringArrayProperty& property,
 		std::vector<std::vector<std::string> >* contAttr,
@@ -1265,8 +1268,8 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
          std::string data = (*iter)[1];
          const std::string& file = (*iter)[2];
          const std::string& cont = (*iter)[3];
-         if (!fileName.empty() && (file == fileName || (file.substr(0, 1) == "*"
-		         && file.find("," + fileName + ",") == std::string::npos))) {
+         if (!fileName.empty() && (file == fileName.substr(0, fileName.find("?"))
+	         || (file.substr(0, 1) == "*" && file.find("," + fileName + ",") == std::string::npos))) {
             if (data == "int" || data == "DbLonglong" || data == "double" || data == "string") {
                if (doGet) {
                   if (!m_poolSvc->getAttribute(opt, data, pool::DbType(pool::ROOTTREE_StorageType).type(), fileName, cont, contextId).isSuccess()) {

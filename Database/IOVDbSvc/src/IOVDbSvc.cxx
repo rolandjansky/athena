@@ -646,6 +646,7 @@ void IOVDbSvc::handle( const Incident& inc) {
       }
       if (m_par_managePoolConnections && m_poolPayloadRequested) {
         // reset POOL connection to close all open conditions POOL files
+        m_par_managePoolConnections.set(false);
         m_poolPayloadRequested=false;
         if (StatusCode::SUCCESS==m_h_poolSvc->disconnect(m_poolSvcContext)) {
           ATH_MSG_DEBUG( "Successfully closed input POOL connections");
