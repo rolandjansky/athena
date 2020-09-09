@@ -2935,7 +2935,6 @@ def dump_PhotonAssociation (a, f):
 def dump_MuonAssociation (a, f):
     dump_JetAssociationBase (a, f)
     muo = a.muon()
-    fprint(f,muo,type(muo))
     if muo != muonNull:
         fprint (f, a.getMuonWeight (muo))
         dump_Fourvec (muo, f)
