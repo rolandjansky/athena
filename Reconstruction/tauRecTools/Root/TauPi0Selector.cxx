@@ -7,18 +7,15 @@
 // package:     Reconstruction/tauRec
 // authors:     Benedict Winter, Will Davey
 // date:        2012-10-09
-//
 //-----------------------------------------------------------------------------
 
 #include "tauRecTools/TauPi0Selector.h"
-
-using std::string;
 
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0Selector::TauPi0Selector( const string& name ) :
+TauPi0Selector::TauPi0Selector(const std::string& name) :
     TauRecToolBase(name)
 {
     declareProperty("ClusterEtCut",             m_clusterEtCut);
@@ -34,29 +31,19 @@ TauPi0Selector::~TauPi0Selector()
 {
 }
 
-StatusCode TauPi0Selector::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0Selector::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     // decay mode enum
     auto kDecayModeProto = xAOD::TauJetParameters::PanTau_DecayModeProto;
     // Clear vector of cell-based pi0 PFO Links. Required when rerunning on xAOD level.
     pTau.clearProtoPi0PFOLinks();
-    // Set proto decay mode to "not set". Will be overwritten for taus with 1-5 tracks
-    pTau.setPanTauDetail(kDecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_NotSet);
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
     //---------------------------------------------------------------------
     if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
+        // Set proto decay mode to "not set". Will be overwritten for taus with 1-5 tracks
+        pTau.setPanTauDetail(kDecayModeProto, xAOD::TauJetParameters::DecayMode::Mode_NotSet);
         return StatusCode::SUCCESS;
     }
 
@@ -153,8 +140,8 @@ TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau) const
         const xAOD::PFO* pi0PFO = (*pi0PFOLink);
         // assign neutral pion mass
         double mass = 134.9766;
-        double p  = std::sqrt(pow(pi0PFO->e(),2) - pow(mass,2));
-        double pt = p/cosh(pi0PFO->eta());
+        double p  = std::sqrt(std::pow(pi0PFO->e(),2) - std::pow(mass,2));
+        double pt = p/std::cosh(pi0PFO->eta());
         TLorentzVector pi0_corrP4;
         pi0_corrP4.SetPtEtaPhiM(pt,pi0PFO->eta(),pi0PFO->phi(),mass);
         p4+=pi0_corrP4;

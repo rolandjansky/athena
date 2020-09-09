@@ -47,13 +47,6 @@ StatusCode TauVertexVariables::initialize() {
 }
 
 //-----------------------------------------------------------------------------
-// Finalizer
-//-----------------------------------------------------------------------------
-StatusCode TauVertexVariables::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) const {
@@ -82,7 +75,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
       }
     }
     else if (pTau.vertexLink()) { // offline: obtain tau vertex by link
-      vxcand = *(pTau.vertexLink()) ;
+      vxcand = pTau.vertex() ;
       //check if vertex has a valid type (skip if vertex has type NoVtx)
       if (vxcand->vertexType() != xAOD::VxType::NoVtx) {
 	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
@@ -152,7 +145,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // get the starting point for the fit using Trk::Tracks
-  Amg::Vector3D seedPoint = m_SeedFinder->findSeed(origTracks);
+  const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
   ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << TMath::Sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
 
   // fitting the vertex itself
@@ -163,7 +156,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // get the transverse flight path significance
-  float trFlightPS = trFlightPathSig(pTau, *xAODvertex);
+  double trFlightPS = trFlightPathSig(pTau, *xAODvertex);
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(trFlightPS));
   ATH_MSG_VERBOSE("transverse flight path significance="<<trFlightPS);
 
@@ -187,7 +180,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const {
 
   const xAOD::Vertex* pVertex = nullptr;
-  if (pTau.vertexLink()) pVertex = *pTau.vertexLink();
+  if (pTau.vertexLink()) pVertex = pTau.vertex();
   if (!pVertex) {
     ATH_MSG_WARNING("No primary vertex information for calculation of transverse flight path significance");
     return -11111.;
