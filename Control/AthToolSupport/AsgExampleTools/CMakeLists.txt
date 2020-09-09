@@ -98,12 +98,13 @@ if( XAOD_STANDALONE )
 
 endif()
 
-if (NOT SIMULATIONBASE)
-   if (NOT XAOD_STANDALONE)
-     set (extra_libs POOLRootAccessLib)
-   else()
-     set (extra_libs )
-   endif()
+if (XAOD_STANDALONE)
+#if (NOT SIMULATIONBASE)
+#   if (NOT XAOD_STANDALONE)
+#     set (extra_libs POOLRootAccessLib)
+#   else()
+#     set (extra_libs )
+#   endif()
 
    atlas_add_test( gt_DataHandlesTest
       SOURCES test/gt_DataHandlesTest.cxx
