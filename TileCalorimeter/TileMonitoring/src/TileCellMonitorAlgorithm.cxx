@@ -90,6 +90,11 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_overThrEtaPhiGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEtaPhiOvThr",
                                                          MAX_SAMP, nL1Triggers);
 
+  if (m_fillChannelTimeHistograms) {
+    m_chanTimeSampGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileChannelTime",
+                                                                       Tile::MAX_ROS - 1, MAX_SAMP, nL1Triggers);
+  }
+
   m_eneDiffSampGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellEneDiff",
                                                                     Tile::MAX_ROS - 1, MAX_SAMP, nL1Triggers);
 
@@ -212,6 +217,7 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   std::vector<float> overThrOccupEta[MAX_SAMP];
   std::vector<float> overThrOccupPhi[MAX_SAMP];
 
+  std::vector<float> sampChanTime[Tile::MAX_ROS - 1][SAMP_ALL];
   std::vector<float> sampEnergyDiff[Tile::MAX_ROS - 1][MAX_SAMP];
   std::vector<float> sampTimeDiff[Tile::MAX_ROS - 1][MAX_SAMP];
 
@@ -468,6 +474,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
               chanTimeDrawer[partition1].push_back(drawer);
               chanTimeChannel[partition1].push_back(channel1);
               chanTimeDigitizer[partition1].push_back(getDigitizer(channel1));
+              if (m_fillChannelTimeHistograms) {
+                sampChanTime[partition1][sample].push_back(time1);
+              }
             }
 
             if (isOkChannel2 && energy2 > m_energyThresholdForTime) {
@@ -475,6 +484,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
               chanTimeDrawer[partition2].push_back(drawer);
               chanTimeChannel[partition2].push_back(channel2);
               chanTimeDigitizer[partition2].push_back(getDigitizer(channel2));
+              if (m_fillChannelTimeHistograms) {
+                sampChanTime[partition2][sample].push_back(time2);
+              }
             }
           }
 
@@ -781,6 +793,18 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
         auto monWeight = Monitored::Collection("weight", overThrOccupGainWeight[partition][gain]);
         for (int l1TriggerIdx : l1TriggersIndices) {
           fill(m_tools[m_overThrOccupGainGroups[partition][gain][l1TriggerIdx]], monModule, monChannel, monWeight);
+        }
+      }
+    }
+
+    if (m_fillChannelTimeHistograms) {
+      for (unsigned int sample = 0; sample < SAMP_ALL; ++sample) {
+        if (!sampChanTime[partition][sample].empty()) {
+          auto monChanTime = Monitored::Collection("time", sampChanTime[partition][sample]);
+          for (int l1TriggerIdx : l1TriggersIndices) {
+            fill(m_tools[m_chanTimeSampGroups[partition][sample][l1TriggerIdx]], monChanTime);
+            fill(m_tools[m_chanTimeSampGroups[partition][SAMP_ALL][l1TriggerIdx]], monChanTime);
+          }
         }
       }
     }

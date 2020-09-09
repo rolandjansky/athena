@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// constructor
+#include "CxxUtils/vec.h"
 template<class T>
 BFieldMesh<T>::BFieldMesh(double zmin,
                           double zmax,
@@ -16,16 +16,6 @@ BFieldMesh<T>::BFieldMesh(double zmin,
 {
   m_min = { zmin, rmin, phimin };
   m_max = { zmax, rmax, phimax };
-}
-
-template<class T>
-void
-BFieldMesh<T>::reserve(int nz, int nr, int nphi, int nfield)
-{
-  m_mesh[0].reserve(nz);
-  m_mesh[1].reserve(nr);
-  m_mesh[2].reserve(nphi);
-  m_field.reserve(nfield);
 }
 
 template<class T>
@@ -114,31 +104,43 @@ BFieldMesh<T>::getCache(double z,
   // store the B field at the 8 corners in cache
   const int im0 = iz * m_zoff + ir * m_roff + iphi; // index of the first corner
   const double sf = scaleFactor;
-  double field1[3][8] = { { sf * m_field[im0][0],
-                            sf * m_field[im0 + m_roff][0],
-                            sf * m_field[im0 + m_zoff][0],
-                            sf * m_field[im0 + m_zoff + m_roff][0],
-                            sf * m_field[im0 + 1][0],
-                            sf * m_field[im0 + m_roff + 1][0],
-                            sf * m_field[im0 + m_zoff + 1][0],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][0] },
-                          { sf * m_field[im0][1],
-                            sf * m_field[im0 + m_roff][1],
-                            sf * m_field[im0 + m_zoff][1],
-                            sf * m_field[im0 + m_zoff + m_roff][1],
-                            sf * m_field[im0 + 1][1],
-                            sf * m_field[im0 + m_roff + 1][1],
-                            sf * m_field[im0 + m_zoff + 1][1],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][1] },
-                          { sf * m_field[im0][2],
-                            sf * m_field[im0 + m_roff][2],
-                            sf * m_field[im0 + m_zoff][2],
-                            sf * m_field[im0 + m_zoff + m_roff][2],
-                            sf * m_field[im0 + 1][2],
-                            sf * m_field[im0 + m_roff + 1][2],
-                            sf * m_field[im0 + m_zoff + 1][2],
-                            sf * m_field[im0 + m_zoff + m_roff + 1][2] } };
-  cache.setField(field1);
+  /*
+   * The typical case is that we convert from short to double
+   * (explicitly or implicitly) in order to multiply with the double sf
+   */
+  CxxUtils::vec<double, 8> field1 = {
+    static_cast<double>(m_field[im0][0]),
+    static_cast<double>(m_field[im0 + m_roff][0]),
+    static_cast<double>(m_field[im0 + m_zoff][0]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][0]),
+    static_cast<double>(m_field[im0 + 1][0]),
+    static_cast<double>(m_field[im0 + m_roff + 1][0]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][0]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][0])
+  };
+
+  CxxUtils::vec<double, 8> field2 = {
+    static_cast<double>(m_field[im0][1]),
+    static_cast<double>(m_field[im0 + m_roff][1]),
+    static_cast<double>(m_field[im0 + m_zoff][1]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][1]),
+    static_cast<double>(m_field[im0 + 1][1]),
+    static_cast<double>(m_field[im0 + m_roff + 1][1]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][1]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][1])
+  };
+
+  CxxUtils::vec<double, 8> field3 = {
+    static_cast<double>(m_field[im0][2]),
+    static_cast<double>(m_field[im0 + m_roff][2]),
+    static_cast<double>(m_field[im0 + m_zoff][2]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff][2]),
+    static_cast<double>(m_field[im0 + 1][2]),
+    static_cast<double>(m_field[im0 + m_roff + 1][2]),
+    static_cast<double>(m_field[im0 + m_zoff + 1][2]),
+    static_cast<double>(m_field[im0 + m_zoff + m_roff + 1][2])
+  };
+  cache.setField(sf * field1, sf * field2, sf * field3);
   // store the B scale
   cache.setBscale(m_scale);
 }
@@ -168,6 +170,16 @@ void
 BFieldMesh<T>::scaleBscale(double factor)
 {
   m_scale = factor * m_nomScale;
+}
+
+template<class T>
+void
+BFieldMesh<T>::reserve(int nz, int nr, int nphi, int nfield)
+{
+  m_mesh[0].reserve(nz);
+  m_mesh[1].reserve(nr);
+  m_mesh[2].reserve(nphi);
+  m_field.reserve(nfield);
 }
 
 template<class T>
