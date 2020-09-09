@@ -122,8 +122,11 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
   std::vector<double> ringDiskZpos;
   std::vector<int> ringDiskId;
   std::vector<int> ringId;
+  std::vector<int> ringROL;    // readout layer
 
   msg << MSG::DEBUG << "Created new ServicesDynTracker() # endcap layers " << m_ndisks << endmsg;
+
+  int rolMax = 0;
 
   for (int iDisc = 0; iDisc < m_ndisks; iDisc++) {
 
@@ -172,11 +175,14 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
       ringDisk.push_back(iDisc);
       std::vector<double> zOffset = discTmp->zoffset;
       std::vector<double> ringPos = discTmp->ringpos;
+      std::vector<int> ringReadoutLayer = discTmp->readoutLayer;
       int numRing = (int)ringPos.size();
       for(int j=0; j<numRing; j++){
 	ringDiskZpos.push_back(ringPos[j]+zOffset[j]);
 	ringDiskId.push_back(iDisc);
 	ringId.push_back(j);
+        ringROL.push_back(ringReadoutLayer[j]);
+        if (ringReadoutLayer[j]>rolMax) rolMax = ringReadoutLayer[j] ;
       }
     }
   }
@@ -196,7 +202,14 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
       os<<"Disc trk layer indices "<<iDisc<<" : ";
       trkLayerNumber.push_back(os.str());
     }
-    
+
+    std::vector<std::string> trkROLayerNumber;
+    for (int iROL = 0; iROL <= rolMax; iROL++){
+      std::ostringstream os;
+      os<<"Disc trk readout layer indices "<<iROL<<" : ";
+      trkROLayerNumber.push_back(os.str());
+    }
+   
     int iCmpt=0;
     // Looping over all the ring defined in the discs
     for(int i=0; i<(int)sortedRingDiskZpos.size(); i++){
@@ -215,6 +228,19 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	    }
 	  }
       }
+      // repeat operation for readout layers
+      std::vector<int> roLayIndexList;
+      std::vector<int> roRingIndexList;
+      for (int iROL = 0; iROL <= rolMax; iROL++) {
+	for(int k=0; k<(int)ringDiskZpos.size(); k++)
+	  if(ringROL[k]==iROL) {
+	    double tmp= fabs(zPos-ringDiskZpos[k]);
+	    if(tmp<0.001) {
+	      roLayIndexList.push_back(iROL); 
+	      roRingIndexList.push_back(ringId[k]);
+	    }
+	  }
+      }
       
       for(int  iDisc = 0; iDisc < (int)discIndexList.size(); iDisc++) {
 	
@@ -228,6 +254,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	std::vector<double> rInner = discTmp->innerRadius;
 	std::vector<std::string> modType = discTmp->modtype;
 	std::vector<int> nSectors = discTmp->nsectors;
+	std::vector<int> roLayer = discTmp->readoutLayer;
 	//	int numRing = (int)zOffset.size();
 	
 	zPos = ringPos[ringIndex]+zOffset[ringIndex];
@@ -237,7 +264,13 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	double rMax=ComputeRMax(rMin, 0.0001, endcapModule->Length(), endcapModule->Width());
 	int nbModTot = nSectors[ringIndex];
 	int nbChipPerModule = endcapModule->ChipNumber();
+
+        // ordering readout layer
+	std::ostringstream osl;
+	osl<<" "<<iCmpt;
+	trkROLayerNumber[roLayer[ringIndex]]+=osl.str();
 	
+        // ordering GM layers
 	std::ostringstream os;
 	os<<" "<<iCmpt;
 	trkLayerNumber[discIndex]+=os.str();
@@ -246,10 +279,15 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 				       1,
 				       suffix,
 				       nbModTot, nbChipPerModule);
+
+
       }
     }
     
     for (int iDisc = 0; iDisc < m_ndisks; iDisc++) msg<<MSG::DEBUG<<trkLayerNumber[iDisc]<<endmsg;
+    
+    msg<<MSG::DEBUG<<"Ring assignement to readout layers: "<<endmsg;
+    for (int iROL = 0; iROL <=rolMax ; iROL++) msg<<MSG::DEBUG<<trkROLayerNumber[iROL]<<endmsg;
   }
   
 	
