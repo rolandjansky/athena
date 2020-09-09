@@ -1,41 +1,42 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHITTOOL_H
 #define MUPATHITTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "MuPatHit.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
 #include <mutex>
 #include <vector>
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuPatHit.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 class MsgStream;
 
 namespace Trk {
-  class IPropagator;
-  class Track;
-  class MeasurementBase;
-  class IResidualPullCalculator;
-}
+class IPropagator;
+class Track;
+class MeasurementBase;
+class IResidualPullCalculator;
+}  // namespace Trk
 
 namespace Muon {
 
-  class IMdtDriftCircleOnTrackCreator;
-  class IMuonClusterOnTrackCreator;
-  class IMuonCompetingClustersOnTrackCreator;
-  class MuonEDMPrinterTool;
-  class MuonSegment;
+class MuonEDMPrinterTool;
+class MuonSegment;
 
-  static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool",1,0);
+static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool", 1, 0);
 
-  class MuPatHitTool : public AthAlgTool {
+class MuPatHitTool : public AthAlgTool {
   public:
     /** default AlgTool constructor */
     MuPatHitTool(const std::string&, const std::string&, const IInterface*);
@@ -50,28 +51,31 @@ namespace Muon {
     StatusCode finalize();
 
     /** @brief access to tool interface */
-    static const InterfaceID& interfaceID() { return IID_MuPatHitTool; }
+    static const InterfaceID& interfaceID()
+    {
+        return IID_MuPatHitTool;
+    }
 
     /** @brief insert a MuPatHit into a sorted list, ownership of the MuPatHit is taken by the routine
         @param hit the hit
         @param hitList the list
         @return true if insertion succeded
     */
-    bool insert( MuPatHit* hit, MuPatHitList& hitList ) const;
+    bool insert(MuPatHit* hit, MuPatHitList& hitList) const;
 
     /** @brief create a MCTBList from a MuonSegment
         @param seg the MuonSegment
         @param hitList the list to be filled
         @return true if creation succeded
     */
-    bool create( const MuonSegment& seg, MuPatHitList& hitList ) const;
+    bool create(const MuonSegment& seg, MuPatHitList& hitList) const;
 
     /** @brief create a MuPatHitList from a Track
         @param track the input track
         @param hitList the list to be filled
         @return true if creation succeded
     */
-    bool create( const Trk::Track& track, MuPatHitList& hitList ) const;
+    bool create(const Trk::Track& track, MuPatHitList& hitList) const;
 
     /** @brief create a MuPatHitList from a Track
         @param pars the input parameters
@@ -79,7 +83,8 @@ namespace Muon {
         @param hitList the list to be filled
         @return true if creation succeded
     */
-    bool create( const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec, MuPatHitList& hitList ) const;
+    bool create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
+                MuPatHitList& hitList) const;
 
     /** @brief merge two MuPatHitLists into a new one
         @param hitList1 the first  list
@@ -87,14 +92,14 @@ namespace Muon {
         @param outList  the resulting list
         @return true if merge succeded
     */
-    bool merge( const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList ) const;
+    bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const;
 
     /** @brief merge two MuPatHitLists into a new one. The first list will be added to the second
         @param hitList1 the first  list
         @param hitList2 the second list
         @return true if merge succeded
     */
-    bool merge( const MuPatHitList& hitList1, MuPatHitList& hitList2 ) const;
+    bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const;
 
     /** @brief extract a sorted vector of MeasurementBase objects
         @param hitList the input  list
@@ -103,23 +108,24 @@ namespace Muon {
         @param getReducedTrack switch to extract reduced track
         @return true if the extraction succeded
     */
-    bool extract( const MuPatHitList& hitList, std::vector<const Trk::MeasurementBase*>& measVec,
-                  bool usePreciseHits = true, bool getReducedTrack = false ) const;
+    bool extract(const MuPatHitList& hitList, std::vector<const Trk::MeasurementBase*>& measVec,
+                 bool usePreciseHits = true, bool getReducedTrack = false) const;
 
     /** @brief check whether the list is correctly sorted */
-    bool isSorted( const MuPatHitList& hitList ) const;
+    bool isSorted(const MuPatHitList& hitList) const;
 
     /** print the list of hits, with optional parts of the printout (position,direction,momentum) */
-    std::string print( const MuPatHitList& hitList, bool printPos = true, bool printDir = true, bool printMom = true ) const;
+    std::string print(const MuPatHitList& hitList, bool printPos = true, bool printDir = true,
+                      bool printMom = true) const;
 
     /** remove hit with a give Identifier */
-    bool remove( const Identifier& id, MuPatHitList& hitList ) const;
+    bool remove(const Identifier& id, MuPatHitList& hitList) const;
 
     /** remove hit containing give measurement (uses pointer comparison) */
-    bool remove( const Trk::MeasurementBase& meas, MuPatHitList& hitList ) const;
+    bool remove(const Trk::MeasurementBase& meas, MuPatHitList& hitList) const;
 
     /** update hit list for a give track */
-    bool update( const Trk::Track& track, MuPatHitList& hitList ) const;
+    bool update(const Trk::Track& track, MuPatHitList& hitList) const;
 
     /** clean up MCTB hits allocated up to now */
     void cleanUp() const;
@@ -131,7 +137,7 @@ namespace Muon {
      * is not likely to get accepted there.
      * To be moved there as soon as release 16 is open
      */
-    std::string printData( const Trk::MeasurementBase& measurement ) const;
+    std::string printData(const Trk::MeasurementBase& measurement) const;
 
     /** @brief print identifier part of Muon MeasurementBase to string.
      *
@@ -140,18 +146,18 @@ namespace Muon {
      * is not likely to get accepted there.
      * To be moved there as soon as release 16 is open
      */
-    std::string printId( const Trk::MeasurementBase& measurement ) const;
+    std::string printId(const Trk::MeasurementBase& measurement) const;
 
   private:
-
     /** @brief get hit type */
-    MuPatHit::Type getHitType( const Identifier& id ) const;
+    MuPatHit::Type getHitType(const Identifier& id) const;
 
     /** @brief get hit info */
-    void getHitInfo( const Trk::MeasurementBase& meas, MuPatHit::Info& hitInfo ) const;
+    void getHitInfo(const Trk::MeasurementBase& meas, MuPatHit::Info& hitInfo) const;
 
     /** @brief calculate broad measurement for a give precise measurement */
-    const Trk::MeasurementBase* createBroadMeasurement( const Trk::MeasurementBase& preciseMeas, const MuPatHit::Info& hitInfo) const;
+    const Trk::MeasurementBase* createBroadMeasurement(const Trk::MeasurementBase& preciseMeas,
+                                                       const MuPatHit::Info&       hitInfo) const;
 
     /** @brief insert a hit into a sorted list
         @param  list the list into which the hit should be inserted
@@ -159,27 +165,60 @@ namespace Muon {
         @param  hit  the actual hit that should be inserted
         @return      the position at which the hit was inserted
     */
-    MuPatHitIt insert( MuPatHitList& list, MuPatHitIt& pos, MuPatHit* hit ) const;
+    MuPatHitIt insert(MuPatHitList& list, MuPatHitIt& pos, MuPatHit* hit) const;
 
-    ToolHandle<Trk::IPropagator>                      m_propagator;
-    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator;      //<! tool to calibrate MDT hits
-    ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator;      //<! tool to calibrate CSC hits
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
-    ToolHandle<Trk::IResidualPullCalculator>          m_pullCalculator;     //<! tool to calculate residuals and pulls
-    ServiceHandle<Muon::IMuonIdHelperSvc>             m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper",
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
-    Trk::MagneticFieldProperties                      m_magFieldProperties; //!< magnetic field properties
+    ToolHandle<Trk::IPropagator> m_propagator{
+        this,
+        "AtlasRungeKuttaPropagator",
+        "Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator",
+    };
+    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
+        this,
+        "MdtRotCreator",
+        "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator",
+    };  //<! tool to calibrate MDT hits
+    ToolHandle<IMuonClusterOnTrackCreator> m_cscRotCreator{
+        this,
+        "CscRotCreator",
+        "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator",
+    };  //<! tool to calibrate CSC hits
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator{
+        this,
+        "TriggerChamberClusterOnTrackCreator",
+        "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator",
+    };  //<! tool to create competing clusters on track
+    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{
+        this,
+        "ResidualPullCalculator",
+        "Trk::ResidualPullCalculator/ResidualPullCalculator",
+    };  //<! tool to calculate residuals and pulls
+    ToolHandle<MuonEDMPrinterTool> m_printer{
+        this,
+        "Printer",
+        "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool",
+    };  //<! tool to print EDM objects
 
-    mutable std::vector<MuPatHit*> m_hitsToBeDeleted ATLAS_THREAD_SAFE;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{
+        this,
+        "edmHelper",
+        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
+        "Handle to the service providing the IMuonEDMHelperSvc interface",
+    };  //<! multipurpose helper tool
+
+    Trk::MagneticFieldProperties m_magFieldProperties;  //!< magnetic field properties
+
+    mutable std::vector<MuPatHit*> m_hitsToBeDeleted                   ATLAS_THREAD_SAFE;
     mutable std::vector<const Trk::TrackParameters*> m_parsToBeDeleted ATLAS_THREAD_SAFE;
-    mutable std::mutex m_hitsMutex;
-    mutable std::mutex m_parsMutex;
-  };
+    mutable std::mutex                                                 m_hitsMutex;
+    mutable std::mutex                                                 m_parsMutex;
+};
 
-}
+}  // namespace Muon
 
 
 #endif

@@ -67,7 +67,26 @@ namespace InDet{
 
         ATH_CHECK(createContainer(m_PixRDOCacheKey, m_pix_idHelper->wafer_hash_max(), ctx));
 
-        ATH_CHECK(createValueContainer(m_PixBSErrCacheKey,  m_pix_idHelper->wafer_hash_max(), ctx, std::numeric_limits<uint64_t>::min()));
+        //=========================================================
+        //  Size of Pixel BS Error container
+        //
+        //  The error would be stored not only for module but also each FE (x16) per module.
+        //  In addition, IBL FEI4 provides error counter between trigger, this also extends 
+        //  the size beyond nominal module + FE ID. These numbers come from the hardware 
+        //  specification so that there is no easy way to document in the header file.
+        //  Rather, put the hardcoded number here since m_pix_idHelper does not have it.
+        //
+        //      Total number of pixel modules: 2048
+        //      Number of FE chips per module:   16
+        //     -------------------------------------
+        //          2048 x 17 (module + FE) = 34816
+        //
+        //      IBL extra error information  : 
+        //          280(module) x 2(FE) x 32(error counter) = 35840
+        //     -------------------------------------
+        //                             Total : 70656
+        //=========================================================
+        ATH_CHECK(createValueContainer(m_PixBSErrCacheKey, 70656, ctx, std::numeric_limits<uint64_t>::min()));
 
         return StatusCode::SUCCESS;
     }

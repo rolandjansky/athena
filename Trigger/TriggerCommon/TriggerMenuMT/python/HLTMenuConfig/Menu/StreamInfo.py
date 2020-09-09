@@ -46,6 +46,7 @@ _all_streams = [
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS
     StreamInfo('IDMonitoring', 'monitoring', True, True),
+    StreamInfo('CSC', 'monitoring', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),

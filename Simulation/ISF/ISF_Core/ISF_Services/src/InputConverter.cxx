@@ -142,7 +142,7 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
     if (eventPtr == nullptr) { continue; }
 
     ATH_MSG_DEBUG("Starting conversion of GenEvent with"
-                  " signal_process_id=" << eventPtr->signal_process_id() <<
+                  " signal_process_id=" << HepMC::signal_process_id(eventPtr) <<
                   " and event_number=" << eventPtr->event_number() );
 
     // new collection containing all gen particles that passed filters
@@ -262,7 +262,7 @@ ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOL
   const double pTime = pVertex->position().t() / Gaudi::Units::c_light;
   /// particle origin (TODO: add proper GeoID, collision/cosmics)
   DetRegionSvcIDPair origin(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
-  const auto pBarcode = genPart.barcode();
+  const auto pBarcode = HepMC::barcode(genPart);
   auto tBinding = std::make_unique<ISF::TruthBinding>(genPartPtr);
 
   auto *parentEvent = genPart.parent_event();
@@ -445,14 +445,14 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
     for ( auto daughterIter=genpart.end_vertex()->particles_out_const_begin();
           daughterIter!=genpart.end_vertex()->particles_out_const_end(); ++daughterIter ) {
       if(m_quasiStableParticlesIncluded) {
-        ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<genpart.barcode()<<": " << **daughterIter );
+        ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
       }
       else {
-        ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<genpart.barcode()<<": " << **daughterIter );
+        ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
       }
       G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
       if(!daughterG4Particle) {
-        ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<genpart.barcode() <<
+        ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<HepMC::barcode(genpart) <<
                       " due to errors - will not return G4Particle.");
         return nullptr;
       }
@@ -556,14 +556,14 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       for ( auto daughterIter=genpart->end_vertex()->particles_out_const_begin();
             daughterIter!=genpart->end_vertex()->particles_out_const_end(); ++daughterIter ) {
         if(m_quasiStableParticlesIncluded) {
-          ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<genpart->barcode()<<": " << **daughterIter );
+          ATH_MSG_VERBOSE ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
         }
         else {
-          ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<genpart->barcode()<<": " << **daughterIter );
+          ATH_MSG_WARNING ( "Attempting to add daughter particle of "<<HepMC::barcode(genpart)<<": " << **daughterIter );
         }
         G4PrimaryParticle *daughterG4Particle = this->getG4PrimaryParticle( **daughterIter );
         if(!daughterG4Particle) {
-          ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<genpart->barcode() <<
+          ATH_MSG_ERROR("Bailing out of loop over daughters of particle with barcode: "<<HepMC::barcode(genpart) <<
                         " due to errors - will not return G4Particle.");
           return nullptr;
         }

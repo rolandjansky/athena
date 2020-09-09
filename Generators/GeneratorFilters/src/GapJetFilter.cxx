@@ -30,7 +30,6 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
 
 // Pt  High --> Low
 class High2LowByJetClassPt
@@ -122,7 +121,7 @@ GapJetFilter::filterInitialize()
   msg(MSG::INFO) << "Fit param. c7 = " << m_c7 << endmsg;
   msg(MSG::INFO) << "Max. weighted gap = " << m_gapf << endmsg;
 
-  m_xsgapf = m_c0*exp(m_c1+m_c2*m_gapf)+m_c3*exp(m_c4+m_c5*m_gapf)+m_c6*pow(m_gapf,m_c7);
+  m_xsgapf = m_c0*std::exp(m_c1+m_c2*m_gapf)+m_c3*std::exp(m_c4+m_c5*m_gapf)+m_c6*std::pow(m_gapf,m_c7);
 
   //Setup the random number generator for weighting
   m_myRandGen = new TRandom3();
@@ -269,7 +268,7 @@ GapJetFilter::filterEvent()
          rapgap_cl = 4.9 + cl_mineta;
        }
 
-   double xsgap = m_c0*exp(m_c1+m_c2*rapgap_cl)+m_c3*exp(m_c4+m_c5*rapgap_cl)+m_c6*pow(rapgap_cl,m_c7);
+   double xsgap = m_c0*std::exp(m_c1+m_c2*rapgap_cl)+m_c3*std::exp(m_c4+m_c5*rapgap_cl)+m_c6*std::pow(rapgap_cl,m_c7);
 
    //cout<<"xsgapf2 = "<<std::setprecision(10) <<m_xsgapf<<endl;
 

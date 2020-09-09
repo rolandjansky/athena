@@ -29,7 +29,8 @@ PartialEventBuildingIdentifiers = [
     'RPCPEBSecondaryReadout',
     'SCTPEB',
     'TilePEB',
-    'AlfaPEB'
+    'AlfaPEB',
+    'CSCPEB'
 ]
 
 

@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaMonitoring
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonCalib/CscCalib/CscCalibData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

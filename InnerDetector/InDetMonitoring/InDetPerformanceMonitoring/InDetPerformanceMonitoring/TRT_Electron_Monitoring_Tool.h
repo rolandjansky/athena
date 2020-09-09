@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_ELECTRON_MONITORING_TOOL_H
@@ -104,19 +104,19 @@ public:
 	void bookGeoHistograms( lw_geo_hists_t &hists, const std::string& name);
 	void bookPCandHistograms( MonGroup &monGroup, lw_partcand_hists_t &hists, const std::string& name);
 
-	void loopOverConversions(std::vector<Trk::Track*> &v_usedTrks);
+	void loopOverConversions(std::vector<const Trk::Track*> &v_usedTrks);
 	bool conversionQualityCuts(const xAOD::TrackParticle* trkTag, const xAOD::TrackParticle* trkProbe);
 
-	void loopOverRecElectrons(std::vector<Trk::Track*> &v_usedTrks);
+	void loopOverRecElectrons(std::vector<const Trk::Track*> &v_usedTrks);
 	bool electronQualityCuts(const xAOD::Electron *electron);
 
-	void loopOverMuons(std::vector<Trk::Track*> &v_usedTrks);
+	void loopOverMuons(std::vector<const Trk::Track*> &v_usedTrks);
 	bool muonQualityCuts(const xAOD::Muon *muon);
 
-	void loopOverTracks(std::vector<Trk::Track*> &v_usedTrks);
-	bool pionQualityCuts(xAOD::TrackParticle *trk, std::vector<Trk::Track*> &v_usedTrks);
+	void loopOverTracks(std::vector<const Trk::Track*> &v_usedTrks);
+	bool pionQualityCuts(const xAOD::TrackParticle *trk, std::vector<const Trk::Track*> &v_usedTrks);
 
-	bool fillAllHistograms( xAOD::TrackParticle *trk, float mass=0, int PCand=0 );
+	bool fillAllHistograms( const xAOD::TrackParticle *trk, float mass=0, int PCand=0 );
 	int myBarrelEC(int m_barrel_ec);
 	bool isGasInCorOuter(int det, int phi, int layer);
 

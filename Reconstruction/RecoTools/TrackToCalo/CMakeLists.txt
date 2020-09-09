@@ -5,48 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrackToCalo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloGeoHelpers
-                          DetectorDescription/GeoPrimitives
-                          Event/xAOD/xAODCaloEvent
-                          GaudiKernel
-                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
-                          Reconstruction/RecoEvent/ParticleCaloExtension
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecTools
-                          Reconstruction/RecoTools/ITrackToVertex
-                          Tracking/TrkEvent/TrkCaloExtension
-                          Tracking/TrkEvent/TrkParametersIdentificationHelpers
-			  Tracking/TrkExtrapolation/TrkExUtils
-			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-			  PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Calorimeter/CaloUtils
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          Event/EventKernel
-                          Event/FourMomUtils
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODMuon
-			  Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODTruth
-                          Reconstruction/RecoTools/ParticlesInConeTools
-                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrackLink
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-			  Control/CxxUtils )
-
 # External dependencies:
 find_package( Eigen )
 

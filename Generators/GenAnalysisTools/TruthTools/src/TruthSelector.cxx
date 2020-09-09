@@ -72,7 +72,7 @@ bool TruthSelector::selectParticle (HepMC::ConstGenParticlePtr particle, double 
     if (pdgCode == 0) return false;
 
     // charged particle
-    const HepPDT::ParticleData*    particleData    = m_particleDataTable->particle(abs(pdgCode));
+    const HepPDT::ParticleData*    particleData    = m_particleDataTable->particle(std::abs(pdgCode));
     if (! particleData || particleData->charge() == 0.) return false;
 
     // momentum and eta cut-offs

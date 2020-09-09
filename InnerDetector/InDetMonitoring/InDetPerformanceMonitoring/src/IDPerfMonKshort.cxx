@@ -19,7 +19,6 @@
 #include "TRandom.h"
 
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 

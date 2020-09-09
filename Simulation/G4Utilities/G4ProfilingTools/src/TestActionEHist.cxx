@@ -53,8 +53,8 @@ namespace G4UA
 
       // Set Particle label and empty trajectory
       G4ParticleDefinition* pDef = aTrack->GetDefinition();
-      G4String pName    = pDef->GetParticleName();
-      G4String pSubType = pDef->GetParticleSubType();
+      const G4String& pName    = pDef->GetParticleName();
+      const G4String& pSubType = pDef->GetParticleSubType();
       if (pName == "neutron" || pName == "proton" ) { m_p_tag = pName; }
       else if (pSubType =="e" || pSubType == "pi" ) { m_p_tag = pSubType; }
       else { m_p_tag = pDef->GetParticleType(); }
@@ -154,7 +154,7 @@ namespace G4UA
   }
 
   // Call or create histogram & fill it; returns fill status
-  void TestActionEHist::BuildHists(string vol_tag, string part_tag, int& hLeft,
+  void TestActionEHist::BuildHists(const string& vol_tag, const string& part_tag, int& hLeft,
                                    double xfill, double weight, const int nbins,
                                    const int binsize)
   {
@@ -176,7 +176,7 @@ namespace G4UA
   }
 
   // Call or create directory & cd into it; returns directory-change status
-  bool TestActionEHist::BuildDirs(string vol_tag, string dirTitle, int& dLeft)
+  bool TestActionEHist::BuildDirs(const string& vol_tag, const string& dirTitle, int& dLeft)
   {
     bool enter = false;
     TDirectory* dExists = (TDirectory*)gDirectory->FindObjectAny(vol_tag.c_str());

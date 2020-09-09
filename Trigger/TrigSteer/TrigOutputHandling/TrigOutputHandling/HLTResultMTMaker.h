@@ -14,8 +14,8 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/WriteHandle.h"
 
-// Forward declarations
-class IJobOptionsSvc;
+// Gaudi includes
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 /** @class HLTResultMTMaker
  *  @brief Tool to create the HLTResultMT at the end of each event
@@ -76,7 +76,7 @@ private:
 
   // ------------------------- Other private members ---------------------------
   /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
-  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc;
   /// List of enabled ROBs retrieved during initialisation
   std::set<uint32_t> m_enabledROBs;
   /// List of enabled SubDets retrieved during initialisation

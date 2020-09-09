@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloClusterMatching/TopoClusterMap.h"
@@ -85,7 +85,7 @@ void TopoClusterMap::SortGridVectors() {
 
 void TopoClusterMap::SortGridVector(int eta_key, int phi_key) {
 
-  if (m_map[eta_key][phi_key].size()>0) 
+  if (!m_map[eta_key][phi_key].empty()) 
     sort( m_map[eta_key][phi_key].begin(), m_map[eta_key][phi_key].end(), CompareClusterET );
 }
 

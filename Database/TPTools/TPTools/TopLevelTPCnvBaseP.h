@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TopLevelTPCnvBaseP_H
@@ -49,19 +49,19 @@ public:
   // ---------------  internals - "non-public" use
 
   /// @copydoc TopLevelTPCnvBase::hasTLPersObject()
-  virtual bool	hasTLPersObject() const {
+  virtual bool	hasTLPersObject() const override {
      return m_tlPersObject;
   }
 
   /// @copydoc TopLevelTPCnvBase::createTLPersObject()
-  virtual void	createTLPersObject() {
+  virtual void	createTLPersObject() override {
      m_tlPersObject = new TL_PERS();
      setPStorage( m_tlPersObject );     
   }
 
   /// @copydoc TopLevelTPCnvBase::deleteTLPersObject()
   // cppcheck-suppress virtualCallInConstructor
-  virtual void	deleteTLPersObject() {
+  virtual void	deleteTLPersObject() override {
      if( m_tlPersObject ) {
 	delete m_tlPersObject;
 	clearTLPersObject();
@@ -69,7 +69,12 @@ public:
   }
   
   /// @return pointer to the persistent object owned by this converter
-  TL_PERS*	getTLPersObject() const {
+  TL_PERS*	getTLPersObject() {
+     return m_tlPersObject;
+  }
+
+  /// @return pointer to the persistent object owned by this converter
+  const TL_PERS*	getTLPersObject() const {
      return m_tlPersObject;
   }
 
@@ -81,17 +86,22 @@ public:
   }
 
   /// @copydoc TopLevelTPCnvBase::getTLPersObjectAsVoid()
-  virtual void*	getTLPersObjectAsVoid() const {
+  virtual void*	getTLPersObjectAsVoid() override {
+     return getTLPersObject();
+  }     
+
+  /// @copydoc TopLevelTPCnvBase::getTLPersObjectAsVoid()
+  virtual const void*	getTLPersObjectAsVoid() const override {
      return getTLPersObject();
   }     
 
   /// @copydoc TopLevelTPCnvBase::clearTLPersObject()
-  virtual void		clearTLPersObject() {
+  virtual void		clearTLPersObject() override {
      m_tlPersObject = 0;
   }
 
   /// @copydoc TopLevelTPCnvBase::setTLPersObject()
-  virtual void	setTLPersObject( void *persObj ) {
+  virtual void	setTLPersObject( void *persObj ) override {
      if( m_tlPersObject )   delete m_tlPersObject; 
      m_tlPersObject = reinterpret_cast<TL_PERS*>( persObj );
      setPStorage( m_tlPersObject  );
@@ -99,10 +109,10 @@ public:
 
 
   /// @copydoc TopLevelTPCnvBase::getTokenListVar()
-  virtual TPCnvTokenList_p1*	getTokenListVar() { return 0; }
+  virtual TPCnvTokenList_p1*	getTokenListVar() override { return 0; }
 
   /// @copydoc TopLevelTPCnvBase::getTokenListVarFrom()
-  virtual TPCnvTokenList_p1* 	getTokenListVarFrom( void *persObj ) {
+  virtual TPCnvTokenList_p1* 	getTokenListVarFrom( void *persObj ) override {
      // avoid setting up the pointer to persistent object
      // (can lead to deleting it twice, if the user deletes too)
      TL_PERS	*tmp = m_tlPersObject;

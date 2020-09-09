@@ -29,6 +29,9 @@
 
 # Some analysis packages that are not part of Athena
 - Control/AthLinksSA
++ PhysicsAnalysis/Algorithms/MuonAnalysisAlgorithms
++ PhysicsAnalysis/Algorithms/SelectionHelpers
++ PhysicsAnalysis/Algorithms/SystematicsHandles
 - PhysicsAnalysis/Algorithms/.*
 - PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*

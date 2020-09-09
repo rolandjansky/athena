@@ -149,11 +149,6 @@ def MergedPixelsToolCfg(flags, **kwargs) :
       kwargs.setdefault("PixelConditionsSummaryTool", conditionssummarytool ) 
       acc.merge(accbuf)
 
-      kwargs.setdefault("MinimalSplitSize", 0 )
-      kwargs.setdefault("MaximalSplitSize", 49 )
-      kwargs.setdefault("MinimalSplitProbability", 0 )
-      kwargs.setdefault("DoIBLSplitting", True )
-
       # Enable duplcated RDO check for data15 because duplication mechanism was used.
       if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
           kwargs.setdefault("CheckDuplicatedRDO", True )

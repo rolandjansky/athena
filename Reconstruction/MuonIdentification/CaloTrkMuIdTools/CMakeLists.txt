@@ -5,32 +5,6 @@
 # Declare the package name:
 atlas_subdir( CaloTrkMuIdTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloInterface
-                          Calorimeter/CaloTrackingGeometry
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Reconstruction/MuonIdentification/ICaloTrkMuIdTools
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
-                          Control/AthenaKernel
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloUtils
-                          Event/xAOD/xAODCaloEvent
-                          Reconstruction/RecoEvent/ParticleCaloExtension
-                          TileCalorimeter/TileDetDescr
-                          Tools/PathResolver
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkCaloExtension
-                          Tracking/TrkEvent/TrkEventPrimitives )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

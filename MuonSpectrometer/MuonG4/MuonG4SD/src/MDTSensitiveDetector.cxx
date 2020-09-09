@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
@@ -128,11 +128,11 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
 {
   // attributes of the MDT identifier construction
   std::string stationName;
-  int         stationEta=0;
-  int         stationPhi=0;
-  int         multilayer=0;
-  int         tubeLayer=0;
-  int         tube=0;
+  int         stationEta=1;
+  int         stationPhi=1;
+  int         multilayer=1;
+  int         tubeLayer=1;
+  int         tube=1;
 
   bool isAssembly = false;
   // scan geometry tree to identify the tube

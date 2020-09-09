@@ -5,17 +5,16 @@
 #ifndef MUON_MUONLAYERSEGMENTMATCHINGTOOL_H
 #define MUON_MUONLAYERSEGMENTMATCHINGTOOL_H
 
+#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
-
 #include "MuonLayerEvent/MuonSystemExtension.h"
 
+#include <string>
 #include <vector>
 
 namespace Muon {
@@ -38,10 +37,10 @@ namespace Muon {
     /** match segment to intersection */
     bool match( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment ) const;
 
-    /** tool handles */
-    ToolHandle<MuonEDMPrinterTool>                    m_printer; 
-    ToolHandle<Trk::IExtrapolator>                    m_extrapolator; 
-    ToolHandle<IMuTagMatchingTool>                    m_matchingTool; 
+    ToolHandle<MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"Extrapolator","Trk::Extrapolation/AtlasExtrapolator"};
+    ToolHandle<IMuTagMatchingTool> m_matchingTool{this,"MatchTool","MuTagMatchingTool/MuTagMatchingTool"};
+
   };
 }
 

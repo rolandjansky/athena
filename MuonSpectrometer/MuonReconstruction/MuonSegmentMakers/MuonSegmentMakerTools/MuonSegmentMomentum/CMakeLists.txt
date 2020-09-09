@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSegmentMomentum )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkExtrapolation/TrkExUtils )
-
 # External dependencies:
 find_package( Eigen )
 

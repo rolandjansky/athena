@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1Topo_LVL1_L1TopoSimulationTest_h
@@ -41,7 +41,7 @@ namespace LVL1 {
     virtual StatusCode finalize() override;
 
     // make algorithm is clonable
-    bool isClonable() const;
+    virtual bool isClonable() const override;
 
   private:
 

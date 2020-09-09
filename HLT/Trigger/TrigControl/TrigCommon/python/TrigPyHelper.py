@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################################
 ## @file   TrigPyHelper.py
@@ -30,7 +30,7 @@ class TrigApp(object):
          already exist in the JobOptionsCatalogue.
          Example: trigApp.changeJobProperties('.*', 'OutputLevel', DEBUG)"""
       
-      jobOptSvc = InterfaceCast(gbl.IJobOptionsSvc)(Helper.service(gbl.Gaudi.svcLocator(), "JobOptionsSvc"))
+      jobOptSvc = InterfaceCast(gbl.Gaudi.Interfaces.IOptionsSvc)(Helper.service(gbl.Gaudi.svcLocator(), "JobOptionsSvc"))
       if not jobOptSvc:
          self.log.error("Cannot find JobOptionsSvc")
          return
@@ -39,14 +39,16 @@ class TrigApp(object):
       reClient = re.compile(clientName)
       reProp = re.compile(propertyName)
 
-      ## Loop over all clients/properties
-      for client in jobOptSvc.getClients():
-         for prop in jobOptSvc.getProperties(client):      
-            if reClient.match(client) and reProp.match(prop.name()):
-               self.log.info("Changing %s.%s from '%s' to '%s'",
-                             client, prop.name(), prop.value(), newValue)
-               iprop = iProperty(client)
-               setattr(iprop, prop.name(), newValue)
+      ## Loop over all properties
+      ## (cannot figure out how to use IOptionsSvc::broadcast from Python)
+      for p in jobOptSvc.items():
+         name = p._0
+         value = p._1
+         client, prop = name.split('.',1)
+         if reClient.match(client) and reProp.match(prop):
+            self.log.info("Changing %s.%s from '%s' to '%s'", client, prop, value, newValue)
+            iprop = iProperty(client)
+            setattr(iprop, prop, newValue)
                
       return
 

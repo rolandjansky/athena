@@ -33,8 +33,7 @@ if 'ATHENA_NPROC_NUM' in os.environ:
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
-#rdo2aod.max_events = 500
-rdo2aod.max_events = 10
+rdo2aod.max_events = 500
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
 rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
 

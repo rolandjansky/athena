@@ -173,7 +173,7 @@ bool TConvertingStreamerInfo::patch (const std::string& field,
  */
 bool TConvertingStreamerInfo::parse (const std::string& smsg)
 {
-  if (smsg.find ("Cannot convert ") != 0) return false;
+  if (smsg.substr (0, 15) != "Cannot convert ") return false;
 
   std::string::size_type ifrom = smsg.find (" from type:");
   if (ifrom == std::string::npos) return false;

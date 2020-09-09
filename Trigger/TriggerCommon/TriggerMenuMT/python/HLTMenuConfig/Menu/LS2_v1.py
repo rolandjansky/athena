@@ -9,7 +9,6 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -172,6 +171,9 @@ def setupMenu():
         ChainProp(name='HLT_xe110_tcpufit_L1XE50', groups=SingleMETGroup),
         # MultiMET Chain
         ChainProp(name='HLT_xe30_cell_xe30_tcpufit_L1XE10', l1SeedThresholds=['XE10']*2, groups=MultiMETGroup), #must be FS seeded
+        # ATR-21934
+        ChainProp(name='HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50',l1SeedThresholds=['XE50']*3, mergingStrategy='parallel',  groups=MultiMETGroup),
+        ChainProp(name='HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50', l1SeedThresholds=['XE50']*3, mergingStrategy='parallel',  groups=MultiMETGroup),
     ]
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
@@ -204,6 +206,7 @@ def setupMenu():
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_lcw_nojcalib_L1J100', groups=SingleJetGroup),
 
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
@@ -302,31 +305,12 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
+       ChainProp(name='HLT_cscmon_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
+
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    # --------------------------------------------------
-    # ---- Defining specific prescales to this menu ----
-    # --------------------------------------------------
-
-    Prescales = mc_menu.Prescales
-
-    ## Cosmics
-
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-    ## Trigger Validation (disabling high CPU chains)
-
-    Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-
-    Prescales.HLTPrescales_trigvalid_mc_prescale = {}
-
-    disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
-    
-    # --------------------------------------------------
-
-    return Prescales
 
 

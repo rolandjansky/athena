@@ -101,7 +101,7 @@ JetChainParts = {
     'trigType'     : ['j'],
     'extra'        : [],
     'cleaning'     : ['noCleaning',],
-    'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t'],
+    'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
     'dataType'     : ['tc','pf','sktc','cssktc','csskpf'],
     'calib'        : ['em', 'lcw'],
     'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
@@ -220,7 +220,7 @@ MuonChainParts_Default = {
 #==========================================================
 # Bphysics
 #==========================================================
-AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu']
+AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau']
 
 # ---- Bphysics Dictinary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)

@@ -725,10 +725,11 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
     if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     muEFCBRecoSequence += ViewVerifyTrk
 
@@ -984,6 +985,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
   trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.ptcone02Name = Muons+".ptcone02"
+  trigEFmuIso.ptcone03Name = Muons+".ptcone03"
 
   efmuisoRecoSequence += trigEFmuIso
 

@@ -99,6 +99,8 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
         "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number service to use
+    /// Random Stream Name
+    Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_PulseForTileMuonReceiver", ""};
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
         "TileCondToolNoiseSample", "TileCondToolNoiseSample", "Tile sample noise tool"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file  DataModelAthenaPool/test/NavigableCnv_p2_test.cxx
@@ -140,7 +140,7 @@ void test2()
 int main()
 {
   std::cout << "DataModelAthenaPool/NavigableCnv_p2_test\n";
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
   test1();
   test2();
   return 0;

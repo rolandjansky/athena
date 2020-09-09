@@ -10,7 +10,6 @@
 #include "EventStorage/pickDataReader.h"
 #include "EventStorage/DataReader.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "Gaudi/Property.h"
 
 #include "PersistentDataModel/DataHeader.h"

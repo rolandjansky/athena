@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtVertex(const Rec::TrackParticl
 
   // retrieve the reconstructed Vertex from the TrackParticle
   const Trk::VxCandidate* vxCandidate = tp.reconstructedVertex();
-  if (vxCandidate!=0) {
+  if (vxCandidate!=nullptr) {
      // create a global position from this
      const Trk::RecVertex& reconVertex = vxCandidate->recVertex();
      const Amg::Vector3D& vertexPosition = reconVertex.position();
@@ -260,7 +260,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
 const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const Rec::TrackParticle& /*tp*/) const
 {
  ATH_MSG_WARNING(" Method not implemented!! ");
-  return 0;
+  return nullptr;
   //return m_extrapolator->extrapolate(tp, *m_beamLine);
 }
 
@@ -283,7 +283,7 @@ const Trk::TrackParameters* Reco::TrackToVertex::trackAtBeamline(const xAOD::Tra
   *amgTransf *= Amg::AngleAxis3D(tiltx, Amg::Vector3D(1.,0.,0.));
  // preparation
   Trk::PerigeeSurface persf(amgTransf);
-  const Trk::TrackParameters* vertexPerigee = 0;
+  const Trk::TrackParameters* vertexPerigee = nullptr;
   // retrieve the Perigee from the track particle
   const Trk::Perigee& trackparPerigee = tp.perigeeParameters();
   if ( trackparPerigee.associatedSurface() == persf) {

@@ -104,9 +104,9 @@ if not hasattr(runArgs,"outputEVNT_TR_MRGFile"):
 Out = runArgs.outputEVNT_TR_MRGFile
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-  StreamEVGEN = AthenaPoolOutputStream( "StreamEVGEN", Out, True )
+  StreamEVGEN = AthenaPoolOutputStream( "StreamEVGEN", Out, asAlg=True, noTag=True )
 except:
-  StreamEVGEN = AthenaPoolOutputStream( "StreamEVGEN", "DidNotSetOutputName.root", True )
+  StreamEVGEN = AthenaPoolOutputStream( "StreamEVGEN", "DidNotSetOutputName.root", asAlg=True, noTag=True )
 StreamEVGEN.TakeItemsFromInput=True
 StreamEVGEN.ForceRead=True  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem

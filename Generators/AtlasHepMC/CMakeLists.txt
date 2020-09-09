@@ -4,6 +4,7 @@ atlas_subdir( AtlasHepMC )
 
 # External(s) needed by the package.
 find_package( HepMC COMPONENTS HepMC HepMCfio )
+find_package( hepmc3 COMPONENTS HepMC3 HepMC3search )
 
 if (HEPMC3_USE)
 # Component(s) in the package.

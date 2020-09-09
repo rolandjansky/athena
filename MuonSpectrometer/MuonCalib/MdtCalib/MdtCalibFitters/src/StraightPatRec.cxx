@@ -411,7 +411,7 @@ double StraightPatRec::chi2(void) const {
 //:: METHOD chi2PerDegreesOfFreedom ::
 //::::::::::::::::::::::::::::::::::::
 
-double StraightPatRec::chi2PerDegreesOfFreedom(void) const{
+double StraightPatRec::chi2PerDegreesOfFreedom(void) const {
 
 	if (m_nb_track_hits<3) {
 		return -1;

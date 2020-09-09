@@ -7,6 +7,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 import json
 
+def getL1PrescaleFolderName():
+    return "/TRIGGER/LVL1/Lvl1ConfigKey <tag>HEAD</tag>"
+
 def getHLTPrescaleFolderName():
     return "/TRIGGER/HLT/PrescaleKey <tag>HEAD</tag>"
 
@@ -193,6 +196,32 @@ def TrigConfigSvcCfg( flags ):
     acc.addService( getHLTConfigSvc( flags ) )
     return acc
 
+def L1PrescaleCondAlgCfg( flags ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    log.info("Setting up L1PrescaleCondAlg")
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    TrigConf__L1PrescaleCondAlg = CompFactory.getComp("TrigConf::L1PrescaleCondAlg")
+    l1PrescaleCondAlg = TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlg")
+
+    tc = getTrigConfigFromFlag( flags )
+    l1PrescaleCondAlg.Source = tc["source"]
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, getL1PrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
+        log.info("Adding folder %s to CompAcc", getL1PrescaleFolderName() )
+    if tc["source"] == "COOL":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+    elif tc["source"] == "DB":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+        l1PrescaleCondAlg.L1Psk    = tc["l1psk"]
+    elif tc["source"] == "FILE":
+        l1PrescaleCondAlg.Filename = getL1PrescalesSetFileName( flags )
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
+    acc.addCondAlgo(l1PrescaleCondAlg)
+    return acc
 
 def HLTPrescaleCondAlgCfg( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')

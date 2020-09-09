@@ -23,7 +23,6 @@
 // FrameWork includes
 #include "StoreGate/ThinningHandle.h"
 #include "Gaudi/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 ///////////////////////////////////////////////////////////////////

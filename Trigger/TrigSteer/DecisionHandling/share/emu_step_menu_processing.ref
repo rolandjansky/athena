@@ -98,6 +98,9 @@ TrigSignatureMoniMT                                 INFO -- #2176116418 Features
 TrigSignatureMoniMT                                 INFO HLT_2TestChain6_muv1_L12MU6 #1408409992
 TrigSignatureMoniMT                                 INFO -- #1408409992 Events         2          2          1          1          1          1          1          
 TrigSignatureMoniMT                                 INFO -- #1408409992 Features                             6          6          6          6          
+TrigSignatureMoniMT                                 INFO HLT_3TestChain6_muv1_L12MU6 #2217088100
+TrigSignatureMoniMT                                 INFO -- #2217088100 Events         0          0          0          0          0          0          0          
+TrigSignatureMoniMT                                 INFO -- #2217088100 Features                             0          0          0          0          
 TrigSignatureMoniMT                                 INFO HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 #2764921170
 TrigSignatureMoniMT                                 INFO -- #2764921170 Events         1          1          0          1          -          -          1          
 TrigSignatureMoniMT                                 INFO -- #2764921170 Features                             0          3          -          -          

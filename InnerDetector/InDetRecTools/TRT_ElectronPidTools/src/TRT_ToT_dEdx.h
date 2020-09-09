@@ -70,7 +70,6 @@ private:
       , "AveIntPerXKey"
       , "EventInfo.AveIntPerXDecor"
       , "Decoration for Average Interaction Per Crossing"};
-  SG::ReadCondHandleKey<InDetDD::TRT_DetElementContainer> m_trtDetEleContKey{this, "TRTDetEleContKey", "TRT_DetElementContainer", "Key of TRT_DetElementContainer for TRT"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;
 
@@ -309,6 +308,8 @@ public:
 
   void  showDEDXSetup() const;
 
+// static methods
+static double calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier);
   
 };
 
