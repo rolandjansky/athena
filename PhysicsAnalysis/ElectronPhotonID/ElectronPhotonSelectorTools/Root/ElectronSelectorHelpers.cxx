@@ -115,6 +115,7 @@ bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType t
   // this would have been trivial but ....
   //
   // We want reject types/values/enums/"bits" 5,6.
+  //
   // One way would have been  a mask
   // 0b1100000 (96)
   // and check
@@ -122,16 +123,17 @@ bool ElectronSelectorHelpers::passAmbiguity(xAOD::AmbiguityTool::AmbiguityType t
   // This would have been consistent with the rest of e/gamma
   // but this is not what is going on here.
   //
-  // What seems we check is 0b11111 (31) i.e we do not specify explicitly the bit
-  // to cut on. Which ofcourse now break due to additional info at position 7
+  // What seems we check is 0b11111 (31) e.g we do not specify explicitly the bit
+  // to cut on. Which of course now breaks due to additional type 7
   // which we want to keep.
   //
-  // For now hand solve and keep compatibility with existing tooling
+  // For now solve ad-hoc and keep compatibility with existing config
+  // tooling in GroupArea/PHYS/Derivation etc.
+  //
   // But prb we need a better convention
   //
-  // Add 128 to the criterion (31) so we get b10011111 and bit 7 passes.
-  // so we return true for types 0,1,2,3,4,7 we reject 5,6
-  // Still cpecifying what to reject has some advantages
+  // For now add 128 to the criterion  so we get b10011111 and bit 7 passes.
+  // So we return true for types 0,1,2,3,4,7 we reject 5,6
   //
   return (128+criterion) & 0x1<<type;
 
