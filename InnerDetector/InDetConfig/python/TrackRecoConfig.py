@@ -87,51 +87,6 @@ def PixelGangedAmbiguitiesFinderCfg(flags) :
 ##------------------------------------------------------------------------------
 def MergedPixelsToolCfg(flags, **kwargs) :
       acc = ComponentAccumulator()
-      clusterSplitProbTool = None
-      clusterSplitterTool  = None
-      # FIXME - should we just not set InDet.doPixelClusterSplitting if flags.InDet.doTIDE_Ambi?
-      if flags.InDet.doPixelClusterSplitting and not flags.InDet.doTIDE_Ambi: 
-         # --- Neutral Network version
-         if flags.InDet.pixelClusterSplittingType == 'NeuralNet':
-            useBeamConstraint = flags.InDet.useBeamConstraint
-
-            from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleTool
- 
-            # --- new NN prob tool
-            NnClusterizationFactory = CompFactory.InDet.NnClusterizationFactory(   name                         = "NnClusterizationFactory",
-                                                                        PixelLorentzAngleTool        = PixelLorentzAngleTool( flags ),
-                                                                        useToT                       = flags.InDet.doNNToTCalibration,
-                                                                        NnCollectionReadKey          = "PixelClusterNN",
-                                                                        NnCollectionWithTrackReadKey = "PixelClusterNNWithTrack")
-            MultiplicityContent = [1 , 1 , 1]
-            if flags.InDet.doSLHC:
-                PixelClusterSplitProbTool=CompFactory.InDet.TruthPixelClusterSplitProbTool
-            else:
-                PixelClusterSplitProbTool=CompFactory.InDet.NnPixelClusterSplitProbTool
-            NnPixelClusterSplitProbTool=PixelClusterSplitProbTool(name                     = "NnPixelClusterSplitProbTool",
-                                                                           PriorMultiplicityContent = MultiplicityContent,
-                                                                           NnClusterizationFactory  = NnClusterizationFactory,
-                                                                           useBeamSpotInfo          = useBeamConstraint)
-            # --- remember this prob tool  
-            clusterSplitProbTool = NnPixelClusterSplitProbTool
-            # --- new NN splitter
-            if flags.InDet.doSLHC :
-                PixelClusterSplitter=CompFactory.InDet.TruthPixelClusterSplitter
-            else:
-                PixelClusterSplitter=CompFactory.InDet.NnPixelClusterSplitter
-            NnPixelClusterSplitter=PixelClusterSplitter(    name                                = "NnPixelClusterSplitter",
-                                                            NnClusterizationFactory             = NnClusterizationFactory,
-                                                            ThresholdSplittingIntoTwoClusters   = 0.5, ##InDet.pixelClusterSplitProb1, ###0.5, # temp.
-                                                            ThresholdSplittingIntoThreeClusters = 0.25, ##InDet.pixelClusterSplitProb2, ###0.25, # temp.
-                                                            SplitOnlyOnBLayer                   = False,
-                                                            useBeamSpotInfo                     = useBeamConstraint)
-            # remember splitter tool  
-            clusterSplitterTool = NnPixelClusterSplitter
-         # --- Neutral Network version ?
-         elif flags.InDet.pixelClusterSplittingType == 'AnalogClus':      
-            # new splitter tool & remember splitter tool    
-            clusterSplitterTool=CompFactory.InDet.TotPixelClusterSplitter (name = "TotPixelClusterSplitter")
-      
       # --- now load the framework for the clustering
       accbuf = ClusterMakerToolCfg(flags)
       InDetClusterMakerTool = accbuf.getPrimary()
