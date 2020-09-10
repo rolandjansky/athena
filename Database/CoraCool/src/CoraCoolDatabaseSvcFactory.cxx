@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolDatabaseSvcFactory.cxx
@@ -10,7 +10,7 @@
 #include "CoraCool/CoraCoolDatabaseSvc.h"
 #include "CoraCool/CoraCoolDatabaseSvcFactory.h"
 
-CoraCoolDatabaseSvc& CoraCoolDatabaseSvcFactory::databaseService() {
+CoraCoolDatabaseSvc& CoraCoolDatabaseSvcFactory::databaseService ATLAS_NOT_THREAD_SAFE () {
   static cool::Application app;
   static CoraCoolDatabaseSvc coradbsvc(app.connectionSvc(),
 				       app.databaseService());
