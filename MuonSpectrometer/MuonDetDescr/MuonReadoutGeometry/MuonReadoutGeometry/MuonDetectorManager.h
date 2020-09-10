@@ -53,28 +53,28 @@ namespace MuonGM {
 
   /**
      The MuonDetectorManager stores the transient representation of the Muon Spectrometer geometry
-     and provides access to all main blocks of information needed by generic clients of the 
+     and provides access to all main blocks of information needed by generic clients of the
      geometry:
-     XxxReadoutElements, MuonStations, MuonIdHelpers, geometryVersion, etc. 
+     XxxReadoutElements, MuonStations, MuonIdHelpers, geometryVersion, etc.
      More details below.
   */
 
   class MuonDetectorManager: public GeoVDetectorManager {
 
   public:
-    
+
     // Constructor:
     MuonDetectorManager();
 
     // Destructor:
     ~MuonDetectorManager();
-  
+
     // Gets the number of tree tops:  required:
     virtual unsigned int getNumTreeTops() const;
-  
+
     // Gets the ith tree top:  required:
     virtual PVConstLink getTreeTop(unsigned int i) const;
-  
+
     // Add a tree top:
     void addTreeTop( PVLink);
 
@@ -90,12 +90,12 @@ namespace MuonGM {
 
     // storeTgcReadoutParams
     void storeTgcReadoutParams(std::unique_ptr<const TgcReadoutParams> x);
-    
+
     // storeCscInternalAlignmentParams
     void storeCscInternalAlignmentParams(const CscInternalAlignmentPar& x);
 
     void storeMdtAsBuiltParams(const MdtAsBuiltPar& x);
-    
+
     // access to Readout Elements
     const MdtReadoutElement* getMdtReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
     const RpcReadoutElement* getRpcReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
@@ -138,30 +138,30 @@ namespace MuonGM {
     const MdtDetectorElement* getMdtDetectorElement(IdentifierHash id)  const;//!< access via data-collection hash id
 
     // access to Detector Elements (via hash id ) - NOTICE Detector Elements have the granularity of the EDM digit collections
-    const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;     
+    const RpcDetectorElement* getRpcDetectorElement(IdentifierHash id) const;
     const TgcDetectorElement* getTgcDetectorElement(IdentifierHash id) const;
     const CscDetectorElement* getCscDetectorElement(IdentifierHash id) const;
 
     inline unsigned int nMuonStation() const; //!< Number of MuonStations
 
-    inline unsigned int nMdtRE() const;//!< Number of Mdt ReadoutElements 
-    inline unsigned int nsTgcRE() const;//!< Number of sTgc ReadoutElements 
-    inline unsigned int nMMRE() const;//!< Number of MM ReadoutElements 
-    inline unsigned int nCscRE() const;//!< Number of Csc ReadoutElements 
-    inline unsigned int nRpcRE() const;//!< Number of Rpc ReadoutElements 
-    inline unsigned int nTgcRE() const;//!< Number of Tgc ReadoutElements 
+    inline unsigned int nMdtRE() const;//!< Number of Mdt ReadoutElements
+    inline unsigned int nsTgcRE() const;//!< Number of sTgc ReadoutElements
+    inline unsigned int nMMRE() const;//!< Number of MM ReadoutElements
+    inline unsigned int nCscRE() const;//!< Number of Csc ReadoutElements
+    inline unsigned int nRpcRE() const;//!< Number of Rpc ReadoutElements
+    inline unsigned int nTgcRE() const;//!< Number of Tgc ReadoutElements
 
-    inline unsigned int nMdtDE() const;//!< Number of Mdt DetectorElements 
-    inline unsigned int nCscDE() const;//!< Number of Csc DetectorElements 
-    inline unsigned int nRpcDE() const;//!< Number of Rpc DetectorElements 
-    inline unsigned int nTgcDE() const;//!< Number of Tgc DetectorElements 
-    
-    // Geometry versioning    
-    inline std::string geometryVersion() const; //!< it can be Rome-Initial or P03, or ... it's the name of the layout 
+    inline unsigned int nMdtDE() const;//!< Number of Mdt DetectorElements
+    inline unsigned int nCscDE() const;//!< Number of Csc DetectorElements
+    inline unsigned int nRpcDE() const;//!< Number of Rpc DetectorElements
+    inline unsigned int nTgcDE() const;//!< Number of Tgc DetectorElements
+
+    // Geometry versioning
+    inline std::string geometryVersion() const; //!< it can be Rome-Initial or P03, or ... it's the name of the layout
     inline void setGeometryVersion(std::string version);
     inline std::string get_DBMuonVersion() const;//!< the name of the MuonSpectrometer tag (in the geometry DB) actually accessed
     inline void set_DBMuonVersion(std::string );
-    
+
     // Access to identifier helpers
     inline const MdtIdHelper* mdtIdHelper() const;
     inline const CscIdHelper* cscIdHelper() const;
@@ -169,14 +169,14 @@ namespace MuonGM {
     inline const TgcIdHelper* tgcIdHelper() const;
     inline const sTgcIdHelper* stgcIdHelper() const;
     inline const MmIdHelper* mmIdHelper() const;
-      
+
     // Setting the identifier helpers
     inline void set_mdtIdHelper(const MdtIdHelper* idh);
     inline void set_cscIdHelper(const CscIdHelper* idh);
     inline void set_rpcIdHelper(const RpcIdHelper* idh);
     inline void set_tgcIdHelper(const TgcIdHelper* idh);
     inline void set_stgcIdHelper(const sTgcIdHelper* idh);
-    inline void set_mmIdHelper(const MmIdHelper* idh);    
+    inline void set_mmIdHelper(const MmIdHelper* idh);
 
     // Generic Technology descriptors
     inline void setGenericMdtDescriptor(const GenericMDTCache& mc);
@@ -216,7 +216,7 @@ namespace MuonGM {
     inline int  CscIlinesFlag () const {return m_controlCscIlines;}
     inline void setCscFromGM(bool x) {m_useCscIlinesFromGM = x;}
     inline bool CscFromGM() const {return m_useCscIlinesFromGM;}
-    
+
     enum readoutElementHashMax
       {
         MdtRElMaxHash = 2500,
@@ -233,7 +233,7 @@ namespace MuonGM {
       };
     enum MdtGMRanges
       {
-        NMdtStatType     = 26, 
+        NMdtStatType     = 26,
         NMdtStatEta      = 17,
         NMdtStEtaOffset  = 8,
         NMdtStatPhi      = 8,
@@ -264,14 +264,14 @@ namespace MuonGM {
         NCscStEtaOffset  = 1,
         NCscStatPhi      = 8,
         NCscChamberLayer = 2
-      };    
+      };
     enum sTgcGMRanges
       {
-        NsTgStatEta      = 6, /// 3 x 2 sides (-3,-2,-1 and 1,2,3) 
+        NsTgStatEta      = 6, /// 3 x 2 sides (-3,-2,-1 and 1,2,3)
         NsTgStEtaOffset  = 3, /// needed offest to map (-3,-2,-1,1,2,3) to (0,1,2,3,4,5)
-        NsTgStatPhi      = 16, // large and small sector together 
+        NsTgStatPhi      = 16, // large and small sector together
         NsTgChamberLayer = 2
-      };    
+      };
     enum mmGMRanges
       {
         NMMcStatEta      = 4, /// 2 x 2 sides (-2,-1 and 1,2)
@@ -281,9 +281,9 @@ namespace MuonGM {
       };
 
     // Add a MuonStation to the list
-    void addMuonStation(MuonStation* mst); 
-    const MuonStation* getMuonStation (std::string stName, int eta, int phi) const; 
-    MuonStation* getMuonStation (std::string stName, int eta, int phi); 
+    void addMuonStation(MuonStation* mst);
+    const MuonStation* getMuonStation (std::string stName, int eta, int phi) const;
+    MuonStation* getMuonStation (std::string stName, int eta, int phi);
     //<! access to the MuonStation by StationName, Jzz, Jff (amdb indices!!!! not stationPhi and Eta)
     std::string muonStationKey(std::string stName, int statEtaIndex, int statPhiIndex) const;
 
@@ -324,7 +324,7 @@ namespace MuonGM {
     inline ciCscInternalAlignmentMap CscALineMapEnd() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapBegin() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
-    StatusCode updateAlignment(const ALineMapContainer& a); 
+    StatusCode updateAlignment(const ALineMapContainer& a);
     StatusCode updateDeformations(const BLineMapContainer& a);
     StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer& a);
     StatusCode initCSCInternalAlignmentMap();
@@ -370,12 +370,12 @@ namespace MuonGM {
     int m_controlAlines;
     int m_applyMdtDeformations;
     int m_applyMdtAsBuiltParams;
-    bool m_useCscIntAlign;    
+    bool m_useCscIntAlign;
     int m_controlCscIlines;
     bool m_useCscIlinesFromGM;
-    
+
     std::vector<PVLink> m_envelope;  // Tree-top...
-    
+
     GenericCSCCache m_genericCSC;
     GenericMDTCache m_genericMDT;
     GenericRPCCache m_genericRPC;
@@ -396,7 +396,7 @@ namespace MuonGM {
     const sTgcIdHelper* m_stgcIdHelper;
     const MmIdHelper* m_mmIdHelper;
 
-    // 115.6 kBytes.  
+    // 115.6 kBytes.
     MdtReadoutElement*   m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
     CscReadoutElement*   m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
     RpcReadoutElement*   m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
@@ -408,16 +408,16 @@ namespace MuonGM {
     const CscReadoutElement *m_cscArrayByHash[CscRElMaxHash];
     const RpcReadoutElement *m_rpcArrayByHash[RpcRElMaxHash];
     const TgcReadoutElement *m_tgcArrayByHash[TgcRElMaxHash];
-    
+
     std::map< std::string, MuonStation * > m_MuonStationMap;
-    
+
     unsigned int m_n_mdtRE;
     unsigned int m_n_cscRE;
     unsigned int m_n_rpcRE;
     unsigned int m_n_tgcRE;
-    unsigned int m_n_stgRE;    
+    unsigned int m_n_stgRE;
     unsigned int m_n_mmcRE;
-    
+
     unsigned int m_n_mdtDE;
     unsigned int m_n_cscDE;
     unsigned int m_n_rpcDE;
@@ -425,7 +425,7 @@ namespace MuonGM {
 
     // pointers to the XxxDetectorElements (with granularity a la EDM)
     std::vector<std::unique_ptr<const TgcReadoutParams> > m_TgcReadoutParamsVec;
-    
+
     MdtDetectorElement* m_mdtDEArray[MdtDetElMaxHash];
     RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
     TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];
@@ -435,7 +435,11 @@ namespace MuonGM {
     BLineMapContainer m_bLineContainer;
     CscInternalAlignmentMapContainer m_cscALineContainer;
     MdtAsBuiltMapContainer m_AsBuiltParamsMap;
+    /// RPC name caches
+    std::map<int,int> m_rpcStatToIdx;
+    std::map<int,init> m_rpcIdxToStat;
     
+
   };
 
   const MdtIdHelper*  MuonDetectorManager::mdtIdHelper() const {return m_mdtIdHelper;}
@@ -498,37 +502,37 @@ namespace MuonGM {
   void MuonDetectorManager::setCutoutsBogFlag (int flag) {m_includeCutoutsBog = flag;}
   int MuonDetectorManager::IncludeCutoutsBogFlag () const {return m_includeCutoutsBog;}
 
-  std::string MuonDetectorManager::geometryVersion() const 
+  std::string MuonDetectorManager::geometryVersion() const
     {return m_geometryVersion;}
 
-  void 
-    MuonDetectorManager::setGeometryVersion(std::string version) 
+  void
+    MuonDetectorManager::setGeometryVersion(std::string version)
   {m_geometryVersion = version;}
 
-  std::string MuonDetectorManager::get_DBMuonVersion() const 
+  std::string MuonDetectorManager::get_DBMuonVersion() const
     {return m_DBMuonVersion;}
 
   void MuonDetectorManager::set_DBMuonVersion(std::string version)
-  {m_DBMuonVersion = version;}  
+  {m_DBMuonVersion = version;}
 
-  unsigned int MuonDetectorManager::nMuonStation() const {return m_MuonStationMap.size();} 
+  unsigned int MuonDetectorManager::nMuonStation() const {return m_MuonStationMap.size();}
   unsigned int MuonDetectorManager::nMdtRE() const  {return m_n_mdtRE;}
-  unsigned int MuonDetectorManager::nCscRE() const  {return m_n_cscRE;}    
-  unsigned int MuonDetectorManager::nRpcRE() const  {return m_n_rpcRE;}    
-  unsigned int MuonDetectorManager::nTgcRE() const  {return m_n_tgcRE;}    
+  unsigned int MuonDetectorManager::nCscRE() const  {return m_n_cscRE;}
+  unsigned int MuonDetectorManager::nRpcRE() const  {return m_n_rpcRE;}
+  unsigned int MuonDetectorManager::nTgcRE() const  {return m_n_tgcRE;}
   unsigned int MuonDetectorManager::nsTgcRE() const {return m_n_stgRE;}
   unsigned int MuonDetectorManager::nMMRE() const   {return m_n_mmcRE;}
 
   unsigned int MuonDetectorManager::nMdtDE() const  {return m_n_mdtDE;}
-  unsigned int MuonDetectorManager::nCscDE() const  {return m_n_cscDE;}    
-  unsigned int MuonDetectorManager::nRpcDE() const  {return m_n_rpcDE;}    
-  unsigned int MuonDetectorManager::nTgcDE() const  {return m_n_tgcDE;}  
+  unsigned int MuonDetectorManager::nCscDE() const  {return m_n_cscDE;}
+  unsigned int MuonDetectorManager::nRpcDE() const  {return m_n_rpcDE;}
+  unsigned int MuonDetectorManager::nTgcDE() const  {return m_n_tgcDE;}
 
-  const ALineMapContainer* 
+  const ALineMapContainer*
     MuonDetectorManager::ALineContainer() const
     {return &m_aLineContainer;}
 
-  const BLineMapContainer* 
+  const BLineMapContainer*
     MuonDetectorManager::BLineContainer() const
     {return &m_bLineContainer;}
 
@@ -536,7 +540,7 @@ namespace MuonGM {
     MuonDetectorManager::CscInternalAlignmentContainer() const
     {return  &m_cscALineContainer;}
 
-  const MdtAsBuiltMapContainer* 
+  const MdtAsBuiltMapContainer*
     MuonDetectorManager::MdtAsBuiltContainer() const
     {return &m_AsBuiltParamsMap;}
 
@@ -557,7 +561,7 @@ namespace MuonGM {
   void MuonDetectorManager::setNSWABLinesAsciiSideA(const std::string& str) {m_NSWABLinesAsciiSideA = str;}
   void MuonDetectorManager::setNSWABLinesAsciiSideC(const std::string& str) {m_NSWABLinesAsciiSideC = str;}
 
-    
+
 } // namespace MuonGM
 
 #ifndef GAUDI_NEUTRAL
