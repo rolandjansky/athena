@@ -51,7 +51,7 @@ try:
   import numpy as np
 except:
   print("[ERROR], looks like the YODA, YAML, LHAPDF or NUMPy packages are not installed. Please run this command and try again:")
-  print("setupPMGSystematicsTool.sh")
+  print("source setupPMGSystematicsTool.sh")
   exit(1)
 import cPickle as pickle
 import os, sys, re
@@ -240,7 +240,7 @@ def getXS(dsid, campaign=15, userFile=None):
     campaign=14
   # this triggers a search in the manual, local XS file
   if campaign>16 or campaign < 15:
-    dataDir=os.environ["SYSTTOOLSPATH"]+"/data/"
+    dataDir=os.environ["SYSTTOOLSPATH"]+"/data/PMGSystematicsTools"
     if userFile is None:
       pmgXSFile="%s/PMGxsecDB_manual.txt" %dataDir
     else:
@@ -1458,7 +1458,7 @@ def makeSystematicsPlotsWithROOT(mergedSystDict, outdir, nominalName="Nominal", 
      aos_ratio[aoNameNoRef][fn]= arrayDictToTGraph(ao,False, setYErrorsToZero, nfr)
      
      # this is the best guess as to where the reference data might be !
-     dataDir=os.environ["SYSTTOOLSPATH"]+"/data/"
+     dataDir=os.environ["SYSTTOOLSPATH"]+"/data/PMGSystematicsTools"
      rivetAnalysis=aoName.split("/")[1] if len(aoName.split("/"))>1 else ""
      pathInRivetEnv="%s/Rivet/%s.yoda"%(RIVET_ANALYSIS_PATH ,rivetAnalysis)
      # for the first file, also get the .plot which will be needed to format
@@ -1893,7 +1893,7 @@ def getCombinationRecipe(systWeights,  combinationRecipeFile=None, combinationRe
     if combinationRecipeFile is not None:
       data=yaml.load(open(combinationRecipeFile,'r'))
     else:
-      data=yaml.load(open('%s/data/Syst_Database.yaml'%dataBaseDir,'r'))
+      data=yaml.load(open('%s/data/PMGSystematicsTools/Syst_Database.yaml'%dataBaseDir,'r'))
     for recipe, details in data.items():
       if combinationRecipeName is not None:
         if recipe==combinationRecipeName:
