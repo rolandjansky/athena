@@ -15,14 +15,11 @@
 
 #include <boost/scoped_ptr.hpp>
 
-using std::vector;
-using std::string;
-
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0CreateROI::TauPi0CreateROI(   const string& name ) :
+TauPi0CreateROI::TauPi0CreateROI(const std::string& name) :
      TauRecToolBase(name)
 {
 }
@@ -44,6 +41,7 @@ StatusCode TauPi0CreateROI::initialize() {
     return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
 StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) {
 
     //---------------------------------------------------------------------
@@ -67,7 +65,7 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
     pCellContainer = caloCellInHandle.cptr();
     
     // get only EM cells within dR<0.4
-    vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
+    std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
     emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
     boost::scoped_ptr<CaloCellList> pCells(new CaloCellList(pCellContainer,emSubCaloBlocks)); 
     pCells->select(pTau.eta(), pTau.phi(), 0.4); // TODO: change hardcoded 0.4 to tau cone variable, (or func. from TauJet)?
@@ -95,10 +93,6 @@ StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellCont
         }
     }
 
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0CreateROI::finalize() {
     return StatusCode::SUCCESS;
 }
 

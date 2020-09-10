@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonByteStreamErrors )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

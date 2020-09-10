@@ -30,18 +30,18 @@
  * The reasons for accepting an event are stored in the output as a
  * TrigComposite for offline debugging.
  *
- * $Id: $
  */
 
 #include "TrigInterfaces/AllTEAlgo.h"
 
 #include "GaudiKernel/HistoProperty.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 
 #include <vector>
 #include <map>
 
 class ITHistSvc;
-class IROBDataProviderSvc;
 class TH1F;    /// for monitoring purposes
 class TH2F;    /// for monitoring purposes
 class TProfile;/// for monitoring purposes
@@ -53,10 +53,6 @@ class L1TopoTOB;
 
 namespace HLT {
 class IScaler;
-}
-
-namespace TrigConf {
-class IL1TopoConfigSvc;
 }
 
 class AcceptL1TopoMonitor : public HLT::AllTEAlgo {

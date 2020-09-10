@@ -385,8 +385,12 @@ def defineMenu():
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
         'L1_CEP-CJ50.ETA21',
-        
-        'L1_ALFA_ANY'
+
+        #ATR-21371
+        'L1_ALFA_ANY',
+        'L1_ALFA_ELAST15', 'L1_ALFA_ELAST18',
+        'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L', # L1_ALFA_Calib
+        'L1_ALFA_SYST9', 'L1_ALFA_SYST10', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', # L1_ALFA_SYS, L1_ALFA_SYS_Calib
 
         ]
     

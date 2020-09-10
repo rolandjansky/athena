@@ -50,7 +50,7 @@ public:
 private:
   /// JetContainer Loop
   virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
-  StatusCode record(const xAOD::JetContainer* pjets, std::string jetcontainername) const;
+  StatusCode record(const xAOD::JetContainer* pjets, const std::string& jetcontainername) const;
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
   Gaudi::Property<std::string> m_inputJetCollKey{this, "InputTruthJetCollKey", "AntiKt4TruthJets", ""};
   Gaudi::Property<std::string> m_inTimeOutputJetCollKey{this, "InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets", ""};

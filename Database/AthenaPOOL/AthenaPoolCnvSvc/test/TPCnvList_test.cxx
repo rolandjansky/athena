@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaPoolCnvSvc/test/TPCnvList_test.cxx
@@ -65,9 +65,9 @@ public:
 };
 
 
-std::string X_guid = "CAE53A87-64AD-4576-A203-1A4142E1E10F";
-std::string X_p1_guid = "6AD63B61-BE75-40FC-B0C6-DD3C7801D871";
-std::string X_p2_guid = "0AAC9C99-726D-4CF4-B9F9-00B6674C57DD";
+const std::string X_guid = "CAE53A87-64AD-4576-A203-1A4142E1E10F";
+const std::string X_p1_guid = "6AD63B61-BE75-40FC-B0C6-DD3C7801D871";
+const std::string X_p2_guid = "0AAC9C99-726D-4CF4-B9F9-00B6674C57DD";
 
 
 class TestConverter

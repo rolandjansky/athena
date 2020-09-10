@@ -43,6 +43,8 @@ TrigConf::L1Board::update()
       m_boardType = BoardType::CTPIN;
    } else if( boardType == "TOPO" ) {
       m_boardType = BoardType::TOPO;
+   } else if( boardType == "MERGER" ) {
+      m_boardType = BoardType::MERGER;
    } else {
       throw std::runtime_error("Unknown board type " + boardType);
    }
@@ -76,6 +78,8 @@ TrigConf::L1Board::type() const
       return "MUCTPI";
    case BoardType::TOPO:
       return "TOPO";
+   case BoardType::MERGER:
+      return "MERGER";
    }
    return "";
 }

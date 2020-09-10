@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuidEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Tracking/TrkEvent/TrkParameters
-                          PRIVATE
-                          Reconstruction/Particle
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex )
-
 # External dependencies:
 find_package( CLHEP )
 

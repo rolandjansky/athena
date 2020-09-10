@@ -18,6 +18,7 @@
 #define BFIELDCACHE_H
 
 #include "CxxUtils/restrict.h"
+#include "CxxUtils/vec.h"
 #include "MagFieldElements/BFieldVector.h"
 
 class BFieldCache
@@ -36,8 +37,10 @@ public:
                 double phimin,
                 double phimax);
 
-  // set field array, filled externally
-  void setField(double field[][8]);
+  // set the 3x8 field array.
+  void setField(const CxxUtils::vec<double, 8>& field1,
+                const CxxUtils::vec<double, 8>& field2,
+                const CxxUtils::vec<double, 8>& field3);
 
   // set the multiplicative factor for the field vectors
   void setBscale(double bscale);
@@ -54,7 +57,7 @@ public:
             double* ATH_RESTRICT deriv = nullptr) const;
 
 private:
- // bin range in z
+  // bin range in z
   double m_zmin = 0.0;
   double m_zmax = 0.0;
   // bin range in r
@@ -62,12 +65,12 @@ private:
   double m_rmax = 0.0;
   // bin range in phi
   double m_phimin = 0.0;
-  double m_phimax = -1.0;         
+  double m_phimax = -1.0;
   // 1/(bin size) in z, r, phi
   double m_invz;
   double m_invr;
-  double m_invphi; 
-  double m_scale;                  // unit of m_field in kT
+  double m_invphi;
+  double m_scale;                   // unit of m_field in kT
   alignas(16) double m_field[3][8]; // (Bz,Br,Bphi) at 8 corners of the bin
 };
 

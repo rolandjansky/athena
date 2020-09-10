@@ -32,13 +32,13 @@ Track::info()
 inline const Trk::TrackSummary*
 Track::trackSummary() const
 {
-  return m_trackSummary;
+  return m_trackSummary.get();
 }
 
 inline Trk::TrackSummary*
 Track::trackSummary()
 {
-  return m_trackSummary;
+  return m_trackSummary.get();
 }
 
 }

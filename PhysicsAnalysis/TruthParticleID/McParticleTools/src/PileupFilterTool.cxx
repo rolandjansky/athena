@@ -573,7 +573,7 @@ StatusCode PileupFilterTool::rebuildLinks( const HepMC::GenEvent * mcEvt,
 		// create a GenVertex which will be the decay vertex of our
 		// GenParticle and the production vertex of the GenParticle
 		// we just found
-		HepMC::GenVertex * linkVtx = new HepMC::GenVertex();
+		HepMC::GenVertexPtr linkVtx = HepMC::newGenVertexPtr();
 		outEvt->add_vertex( linkVtx );
 		linkVtx->add_particle_in( mcPart );
 		linkVtx->add_particle_out( *itrPart );

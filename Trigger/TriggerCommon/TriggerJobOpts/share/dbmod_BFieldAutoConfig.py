@@ -16,4 +16,4 @@ if '_run_number' in globals() and globals()['_run_number']<222222:
 f = "'<db>COOLOFL_DCS/%s</db> /EXT/DCS/MAGNETS/SENSORDATA'" % db
 log.info("Adding folder %s to IOVDbSvc", f)
 iProperty('IOVDbSvc').Folders.push_back(f)
-iProperty('AtlasFieldSvc').UseDCS = True
+iProperty('AtlasFieldCacheCondAlg').UseDCS = True

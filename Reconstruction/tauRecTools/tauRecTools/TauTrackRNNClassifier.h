@@ -18,6 +18,8 @@
 #include "tauRecTools/lwtnn/LightweightGraph.h"
 #include "tauRecTools/lwtnn/parse_json.h"
 
+#include <memory>
+
 /**
  * @brief Implementation of a TrackClassifier based on an MVA 
  * 
@@ -53,7 +55,7 @@ public:
   // retrieve all track classifier sub tools
   virtual StatusCode initialize() override;
  // pass all tracks in the tau cone to all track classifier sub tools
-  virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const override;
+  virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const override;
 
  private:
   ToolHandleArray<TrackRNN> m_vClassifier {this, "Classifiers", {}};
@@ -77,7 +79,6 @@ class TrackRNN
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
   
   // executes MVA object to get the BDT score, makes the decision and resets
   // classification flags
@@ -102,8 +103,7 @@ private:
   unsigned int m_nMaxNtracks;
 
 private:
-  lwtDev::LightweightGraph* m_RNNClassifier; //!
-  lwtDev::GraphConfig m_NNconfig; //!
+  std::unique_ptr<lwtDev::LightweightGraph> m_RNNClassifier; //!
 
 }; // class TrackRNN
 

@@ -5,31 +5,6 @@
 # Declare the package name:
 atlas_subdir( CscSegmentMakers )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          Event/xAOD/xAODEventInfo
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonDataPrep/CscClusterization
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkRoad
-                          Tracking/TrkEvent/TrkSegment )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HITMANAGEMENT_TIMEDHITCOLLECTION
@@ -46,16 +46,16 @@ public:
 
   ///sets an iterator range with the hits of current detector element
   ///returns a bool when done
-  bool nextDetectorElement(const_iterator& b, const_iterator& e) const;
+  bool nextDetectorElement(const_iterator& b, const_iterator& e);
 
   //FIXME elementID type std::pair<const_iterator, const_iterator> detectorElement(????) const;
   
 
 private:
-  void sortVector() const;
-  mutable TimedVector m_hits;
-  mutable const_iterator m_currentHit; ///< of current detector element;
-  mutable bool m_sorted; ///< flag the fact that the collection has been sorted
+  void sortVector();
+  TimedVector m_hits;
+  const_iterator m_currentHit; ///< of current detector element;
+  bool m_sorted; ///< flag the fact that the collection has been sorted
 };
 
 #include "TimedHitCollection.icc"

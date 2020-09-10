@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -33,8 +33,8 @@
 using namespace AthenaPoolCnvSvcTest;
 
 
-std::string YCont_v1_guid = "05309E49-5567-4790-BE56-2E541E0B4B24";
-std::string YCont_v2_guid = "0CC6B32E-6C95-4B0E-B97A-9B9040A8A9BE";
+const std::string YCont_v1_guid = "05309E49-5567-4790-BE56-2E541E0B4B24";
+const std::string YCont_v2_guid = "0CC6B32E-6C95-4B0E-B97A-9B9040A8A9BE";
 
 
 class TestCnvSvc
@@ -198,12 +198,13 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
 int main()
 {
   CxxUtils::ubsan_suppress ([]() {TInterpreter::Instance(); });
-  SGTest::initTestStore();
   ISvcLocator* pSvcLoc = nullptr;
-  if (!Athena_test::initGaudi("test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("AthenaPoolCnvSvc/test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }
+
+  std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
 
   TestCnvSvc* svc = new TestCnvSvc ("AthenaPoolCnvSvc", pSvcLoc);
   ISvcManager* mgr = dynamic_cast<ISvcManager*> (pSvcLoc);

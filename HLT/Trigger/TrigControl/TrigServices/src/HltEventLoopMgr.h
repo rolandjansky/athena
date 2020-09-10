@@ -28,6 +28,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/SmartIF.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
@@ -46,7 +47,6 @@ class IAlgorithm;
 class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IIncidentSvc;
-class IJobOptionsSvc;
 class IScheduler;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
@@ -175,7 +175,7 @@ private:
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
-  ServiceHandle<IJobOptionsSvc>      m_jobOptionsSvc;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc>      m_jobOptionsSvc;
   ServiceHandle<StoreGateSvc>        m_evtStore;
   ServiceHandle<StoreGateSvc>        m_detectorStore;
   ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;

@@ -38,10 +38,10 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : AthAlgTool(type, name, parent)
+  , m_updator{}
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction(nullptr)
   , m_inputPreparator(nullptr)
-  , m_updator{}
   , m_cutChiSquaredPerNumberDOF(50.)
   , m_overideMaterialEffects(4)
   , m_overideParticleHypothesis(nonInteracting)
@@ -70,10 +70,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
 StatusCode
 Trk::GaussianSumFitter::initialize()
 {
-
   StatusCode sc;
-  // Request the GSF smoother - hardwired type and instance name for the GSF
-  ATH_CHECK(m_gsfSmoother.retrieve());
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
 
@@ -81,7 +78,6 @@ Trk::GaussianSumFitter::initialize()
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used
   // in fit
   if (m_rioOnTrackCreator.retrieve().isFailure()) {
-
     if (!m_refitOnMeasurementBase) {
       ATH_MSG_FATAL("Attempting to use PrepRawData with no RIO_OnTrack creator "
                     "tool provided... Exiting!");
@@ -108,13 +104,6 @@ Trk::GaussianSumFitter::initialize()
                  "jobOptions... New "
                  "Trk::ParticleHypothesis: "
                  << m_overideMaterialEffects);
-  }
-
-  // Configure smoother
-  sc = m_gsfSmoother->configureTools(m_extrapolator);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Could not configure the GSF smoother... Exiting!");
-    return StatusCode::FAILURE;
   }
 
   m_inputPreparator = std::make_unique<TrackFitInputPreparator>();
@@ -322,8 +311,8 @@ Trk::GaussianSumFitter::fit(
   }
 
   // Perform GSF smoother operation
-  SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit(
-    ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
+  SmoothedTrajectory* smoothedTrajectory =
+    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -482,8 +471,8 @@ Trk::GaussianSumFitter::fit(
 
   // Perform GSF smoother operation
 
-  SmoothedTrajectory* smoothedTrajectory = m_gsfSmoother->fit(
-    ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
+  SmoothedTrajectory* smoothedTrajectory =
+    fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {

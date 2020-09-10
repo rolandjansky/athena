@@ -31,12 +31,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
 
         self.L2InputTE = self.chainL1Item 
 
-        if ('robrequest' in self.monType):
-            self.setupROBRequestMonChains()
-        elif 'mistimemon' in self.chainName:
-            # ('mistimemonl1bccorr' in self.monType or 'mistimemonl1bccorrnomu' in self.monType or 'mistimemoncaltimenomu' in self.monType or 'mistimemoncaltime' in self.monType):
-            self.setupL1BCCorrMonChains(self.chainName)
-        elif ('timeburner' in self.monType):
+        if ('timeburner' in self.monType):
             self.setupTimeBurnerChain()
         elif ('idmon' in self.monType):
             self.setupIdmonTrkFS()
@@ -69,114 +64,6 @@ class L2EFChain_Monitoring(L2EFChainDef):
            
     def defineTErenaming(self):
         self.TErenamingMap=self.TErenamingDict
-
-
-    ####################################
-    ####################################
-    def setupROBRequestMonChains(self):
-        from TrigGenericAlgs.TrigGenericAlgsConf import ROBRequestAlgo
-        ROBRequester = ROBRequestAlgo("DummyROBRequest")
-        self.L2sequenceList += [[ '' , [ROBRequester],  'L2_DummyROBRequest']]
-        self.L2signatureList += [ [['L2_DummyROBRequest']] ]
-
-    ####################################
-    ####################################
-    def setupL1BCCorrMonChains(self,chainname):
-        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import L1CorrelationAlgoConfig
-        l1correlation_output = ''
-        if 'mistimemonj400' in chainname:
-            L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgoNoMuonCBCIncl")
-            L1CorrAlgo.noMuon = True
-            # The following bool configures the chain to not look at the L1 decision in the current BCID.. only in the one before or after.
-            # useful only if configured e.g. with J400 alone
-            L1CorrAlgo.currentBCinclusive = True
-            L1CorrAlgo.m_l1itemlist = ["L1_J400"]
-
-            l1correlation_output='EF_DummyL1CorrAlgoNoMuonCBCIncl'
-
-            self.EFsequenceList += [[ '' , [L1CorrAlgo], l1correlation_output ]]
-            self.EFsignatureList += [ [[ l1correlation_output ]] ]
-            
-        elif "nomu" in chainname:
-            L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgoNoMuon")
-            L1CorrAlgo.noMuon = True
-            L1CorrAlgo.currentBCinclusive = False
-            L1CorrAlgo.m_l1itemlist = ["L1_EM22VHI","L1_J120","L1_J400"]
-
-            l1correlation_output='EF_DummyL1CorrAlgoNoMuon'
-
-            self.EFsequenceList += [[ '' , [L1CorrAlgo], l1correlation_output ]]
-            self.EFsignatureList += [ [[l1correlation_output]] ]
-        else:
-            L1CorrAlgo = L1CorrelationAlgoConfig("L1CorrAlgo")
-            L1CorrAlgo.noMuon = False
-            L1CorrAlgo.currentBCinclusive = False
-            L1CorrAlgo.m_l1itemlist = ["L1_EM22VHI","L1_MU20","L1_J120","L1_J400"]
-
-            l1correlation_output='EF_DummyL1CorrAlgo'
-
-            self.EFsequenceList += [[ '' , [L1CorrAlgo], l1correlation_output ]]
-            self.EFsignatureList += [ [[l1correlation_output]] ]
-       
-
-        if not ('caltime' in chainname) :
-            return
-
-        ## Afterwards set up caloclustering to access timing information
-        ###  Stole that one here from MissingETDef.py it prepares the caloclustering
-        ### In priniciple it should only be executed after the first algorithm fired.
-        ### From some offline tests it seems that this is the case
-
-        # chain = ['j0', '',  [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
-        
-        # from TriggerMenu.menu import DictFromChainName
-        # theDictFromChainName = DictFromChainName.DictFromChainName()
-        # jetChainDict = theDictFromChainName.getChainDict(chain)
-        
-        # from TriggerMenu.jet.JetDef import generateHLTChainDef
-        # jetChainDict['chainCounter'] = 9151
-        # jetChainDef = generateHLTChainDef(jetChainDict)
-
-        # #        obtaining DummyUnseededAllTEAlgo/RoiCreator
-        # input0=jetChainDef.sequenceList[0]['input']
-        # output0 =jetChainDef.sequenceList[0]['output']
-        # algo0 =jetChainDef.sequenceList[0]['algorithm']
-
-        # #        obtaining TrigCaloCellMaker/FS, TrigCaloClusterMaker, TrigHLTEnergyDensity
-        # input1=jetChainDef.sequenceList[1]['input']
-        # output1 =jetChainDef.sequenceList[1]['output']
-        # algo1 =jetChainDef.sequenceList[1]['algorithm']
-
-        # self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
-        # self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
-        # self.EFsequenceList +=[[ input1,algo1,  output1 ]]            
-
-        # self.EFsignatureList += [ [[output0]] ]
-        # self.EFsignatureList += [ [[output1]] ]
-
-        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import DetectorTimingAlgoConfig
-
-        ### Now also retrieve triggertowers
-        from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
-        theL1BS = TrigL1BSTowerMaker()
-        self.EFsequenceList += [[self.L2InputTE,
-                                 [theL1BS],
-                                 'L2_l1bs_step1_mistime']]
-        self.EFsignatureList += [ [['L2_l1bs_step1_mistime']] ]
-
-        
-        
-        ### For matching the clusters to the L1 ROIs pass also hardcoded EM20VH and J120 ROIs into the algorithm at positions 1 and 2
-        if "nomu" in chainname:
-            DetectorTimingAlg = DetectorTimingAlgoConfig("ootmonitorDetTimeAlgNoMuon")
-            self.EFsequenceList +=[[ [ l1correlation_output, 'L2_l1bs_step1_mistime'] , [DetectorTimingAlg] , 'EF_ootimemon_detectortimeNoMuon'  ]]
-            self.EFsignatureList += [ [['EF_ootimemon_detectortimeNoMuon']] ]
-
-        else:
-
-            DetectorTimingAlg = DetectorTimingAlgoConfig("ootmonitorDetTimeAlg")
-            self.EFsequenceList +=[[ [ l1correlation_output, 'L2_l1bs_step1_mistime'] , [DetectorTimingAlg] , 'EF_ootimemon_detectortime'  ]]
-            self.EFsignatureList += [ [['EF_ootimemon_detectortime']] ]
 
 
     ####################################

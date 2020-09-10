@@ -7,7 +7,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // #include "valgrind/callgrind.h"

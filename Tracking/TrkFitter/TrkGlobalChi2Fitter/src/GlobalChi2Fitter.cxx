@@ -439,7 +439,7 @@ namespace Trk {
         
         if (
           pseudostate->measurementType() != TrackState::Pseudo ||
-          pseudostate->trackStateType() != TrackState::Fittable
+          !pseudostate->getStateType(TrackStateOnSurface::Measurement)
         ) {
           continue;
         }
@@ -506,7 +506,7 @@ namespace Trk {
     cache.m_calomat = tmp;
     cache.m_extmat = tmp2;
     cache.m_idmat = tmp4;
-    return std::move(track);
+    return track;
   }
 
   Track *GlobalChi2Fitter::mainCombinationStrategy(
@@ -1196,7 +1196,7 @@ namespace Trk {
         largegap = true;
       }
       
-      if (trajectory.trackStates().back()->trackStateType() == TrackState::Fittable) {
+      if (trajectory.trackStates().back()->getStateType(TrackStateOnSurface::Measurement)) {
         previousz = trajectory.trackStates().back()->position().z();
       }
     }
@@ -1736,7 +1736,7 @@ namespace Trk {
               trajectory.trackStates().back()->measuresPhi()
             )
           ) && 
-          trajectory.trackStates().back()->trackStateType() == TrackState::Fittable
+          trajectory.trackStates().back()->getStateType(TrackStateOnSurface::Measurement)
         ) {
           outlierstates.push_back(trajectory.trackStates().back().get());
           trajectory.setOutlier((int) trajectory.trackStates().size() - 1, true);
@@ -2112,7 +2112,7 @@ namespace Trk {
           );
 
           if (matEffects == electron) {
-            state->setTrackStateType(TrackState::Scatterer);
+            state->resetStateType(TrackStateOnSurface::Scatterer);
             meff->setDeltaE(oldde);
             if (!meff->isKink()) {
               meff->setSigmaDeltaE(0);
@@ -2383,7 +2383,7 @@ namespace Trk {
       incrementFitStatus(S_SUCCESSFUL_FITS);
     }
     
-    return std::move(track);
+    return track;
   }
 
   // extend a track fit to include an additional set of PrepRawData objects
@@ -2644,7 +2644,7 @@ namespace Trk {
     }
     cache.m_matfilled = false;
     
-    return std::move(track);
+    return track;
   }
 
   void GlobalChi2Fitter::makeProtoState(
@@ -2933,7 +2933,7 @@ namespace Trk {
         ptsos->setMeasuresPhi(measphi);
         
         if (isoutlier && !cache.m_reintoutl) {
-          ptsos->setTrackStateType(TrackState::GeneralOutlier);
+          ptsos->resetStateType(TrackStateOnSurface::Outlier);
         }
         
         // @TODO here index really is supposed to refer to the method argument index ?
@@ -3923,7 +3923,6 @@ namespace Trk {
 
     for (auto & state : states) {
       TrackState::MeasurementType meastype = state->measurementType();
-      TrackState::TrackStateType tstype = state->trackStateType();
       const TrackParameters *tp = state->trackParameters();
       GXFMaterialEffects *meff = state->materialEffects();
       
@@ -3936,7 +3935,7 @@ namespace Trk {
         continue;
       }
       
-      if (tstype == TrackState::Fittable || tstype == TrackState::GeneralOutlier) {
+      if (state->getStateType(TrackStateOnSurface::Measurement) || state->getStateType(TrackStateOnSurface::Outlier)) {
         if (firsthit == nullptr) {
           firsthit = state->measurement();
           if (cache.m_acceleration) {
@@ -4006,7 +4005,7 @@ namespace Trk {
           }
         }
       }
-      if (tstype == TrackState::Scatterer || tstype == TrackState::Brem) {
+      if (state->getStateType(TrackStateOnSurface::Scatterer) || state->getStateType(TrackStateOnSurface::BremPoint)) {
         if (meff->deltaE() == 0) {
           if (firstcalopar == nullptr) {
             firstcalopar = state->trackParameters();
@@ -4777,7 +4776,7 @@ namespace Trk {
       return nullptr;
     }
     
-    return std::move(per);
+    return per;
   }
 
   Track *GlobalChi2Fitter::myfit(
@@ -4883,7 +4882,7 @@ namespace Trk {
         int scatindex = 0;
         
         for (std::vector<std::unique_ptr<GXFTrackState>>::iterator it = trajectory.trackStates().begin(); it != trajectory.trackStates().end(); it++) {
-          if ((**it).trackStateType() == TrackState::Scatterer) {
+          if ((**it).getStateType(TrackStateOnSurface::Scatterer)) {
             if (
               scatindex == trajectory.numberOfScatterers() / 2 || 
               (**it).materialEffects()->deltaE() == 0
@@ -5356,11 +5355,10 @@ namespace Trk {
     for (int hitno = 0; hitno < (int) states.size(); hitno++) {
       std::unique_ptr<GXFTrackState> & state = states[hitno];
       const TrackParameters *currenttrackpar = state->trackParameters();
-      TrackState::TrackStateType statetype = state->trackStateType();
       TrackState::MeasurementType hittype = state->measurementType();
       const MeasurementBase *measbase = state->measurement();
 
-      if (statetype == TrackState::Fittable) {
+      if (state->getStateType(TrackStateOnSurface::Measurement)) {
         if (
           hittype == TrackState::Pseudo && 
           it <= 100 && 
@@ -5415,7 +5413,7 @@ namespace Trk {
           
           measno++;
         }
-      } else if (statetype == TrackState::GeneralOutlier) {
+      } else if (state->getStateType(TrackStateOnSurface::Outlier)) {
         double *errors = state->measurementErrors();
         for (int i = 0; i < 5; i++) {
           if (errors[i] > 0) {
@@ -5426,7 +5424,7 @@ namespace Trk {
       }
       
       if (
-        statetype == TrackState::Scatterer && 
+        state->getStateType(TrackStateOnSurface::Scatterer) && 
         ((trajectory.prefit() == 0) || state->materialEffects()->deltaE() == 0)
       ) {
         double deltaphi = state->materialEffects()->deltaPhi();
@@ -5664,7 +5662,6 @@ namespace Trk {
         continue;
       } 
       
-      TrackState::TrackStateType statetype = state->trackStateType();
       TrackState::MeasurementType hittype = state->measurementType();
       const MeasurementBase *measbase = state->measurement();
 
@@ -5673,7 +5670,7 @@ namespace Trk {
       int bremmin = (bremno < nbremupstream) ? bremno : nbremupstream;
       int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
 
-      if (statetype == TrackState::Fittable) {
+      if (state->getStateType(TrackStateOnSurface::Measurement)) {
         Amg::MatrixX & derivatives = state->derivatives();
         double sinstereo = 0;
         
@@ -5743,7 +5740,7 @@ namespace Trk {
           
           measno++;
         }
-      } else if (statetype == TrackState::GeneralOutlier) {
+      } else if (state->getStateType(TrackStateOnSurface::Outlier)) {
         double *errors = state->measurementErrors();
         for (int i = 0; i < 5; i++) {
           if (errors[i] > 0) {
@@ -5751,7 +5748,7 @@ namespace Trk {
           }
         }
       } else if (
-        statetype == TrackState::Scatterer &&
+        state->getStateType(TrackStateOnSurface::Scatterer) &&
         ((trajectory.prefit() == 0) || state->materialEffects()->deltaE() == 0)
       ) {
         scatno++;
@@ -6226,9 +6223,8 @@ namespace Trk {
     
     for (int stateno = 0; stateno < (int) states.size(); stateno++) {
       std::unique_ptr<GXFTrackState> & state = states[stateno];
-      TrackState::TrackStateType statetype = state->trackStateType();
       
-      if (statetype == TrackState::Fittable) {  // Hit is not (yet) an outlier
+      if (state->getStateType(TrackStateOnSurface::Measurement)) {  // Hit is not (yet) an outlier
         TrackState::MeasurementType hittype = state->measurementType();
 
         if (hittype == TrackState::TRT) {
@@ -6339,7 +6335,7 @@ namespace Trk {
         }
       }
       
-      if (statetype == TrackState::Fittable || statetype == TrackState::GeneralOutlier) {
+      if (state->getStateType(TrackStateOnSurface::Measurement) || state->getStateType(TrackStateOnSurface::Outlier)) {
         hitno++;
         measno += state->numberOfMeasuredParameters();
       }
@@ -6412,9 +6408,8 @@ namespace Trk {
       
       for (int stateno = 0; stateno < (int) states.size(); stateno++) {
         std::unique_ptr<GXFTrackState> & state = states[stateno];
-        TrackState::TrackStateType statetype = state->trackStateType();
         
-        if (statetype == TrackState::Fittable) {
+        if (state->getStateType(TrackStateOnSurface::Measurement)) {
           TrackState::MeasurementType hittype = state->measurementType();
 
           if ((hittype == TrackState::Pixel || hittype == TrackState::SCT) && state->hasTrackCovariance()) {
@@ -6464,7 +6459,7 @@ namespace Trk {
           }
         }
 
-        if (statetype == TrackState::Fittable || statetype == TrackState::GeneralOutlier) {
+        if (state->getStateType(TrackStateOnSurface::Measurement) || state->getStateType(TrackStateOnSurface::Outlier)) {
           hitno++;
           measno += state->numberOfMeasuredParameters();
         }
@@ -6858,15 +6853,14 @@ namespace Trk {
 
     GXFMaterialEffects *gxfmeff = state.materialEffects();
     std::unique_ptr<const MaterialEffectsBase> mateff = nullptr;
-    TrackState::TrackStateType tstype = state.trackStateType();
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
 
     if (state.hasTrackCovariance()) {
       state.setTrackCovariance(nullptr);
     }
     
-    if ((gxfmeff != nullptr) && (tstype == TrackState::Scatterer || tstype == TrackState::Brem)) {
-      if (tstype == TrackState::Scatterer) {
+    if ((gxfmeff != nullptr) && (state.getStateType(TrackStateOnSurface::Scatterer) || state.getStateType(TrackStateOnSurface::BremPoint))) {
+      if (state.getStateType(TrackStateOnSurface::Scatterer)) {
         typePattern.set(TrackStateOnSurface::Scatterer);
       }
       
@@ -6882,7 +6876,7 @@ namespace Trk {
         mateff = state.materialEffects()->makeMEOT();
       }
     } else {
-      if (tstype == TrackState::Fittable) {
+      if (state.getStateType(TrackStateOnSurface::Measurement)) {
         typePattern.set(TrackStateOnSurface::Measurement);
         
         ATH_MSG_DEBUG("FitQualityOnSurface chi2: " << fitQual->chiSquared() << " / " << fitQual->numberDoF());
@@ -6899,8 +6893,10 @@ namespace Trk {
           
           fitQual = std::make_unique<FitQualityOnSurface>(newchi2, ndf);
         }
-      } else if (tstype == TrackState::GeneralOutlier) {
+      } else if (state.getStateType(TrackStateOnSurface::Outlier)) {
         typePattern.set(TrackStateOnSurface::Outlier);
+      } else if (state.getStateType(TrackStateOnSurface::Perigee)) {
+        typePattern.set(TrackStateOnSurface::Perigee);
       }
     }
 
@@ -6917,7 +6913,7 @@ namespace Trk {
     
     for (auto & hit : oldtrajectory.trackStates()) {
       if (
-        hit->trackStateType() == TrackState::Fittable && (
+        hit->getStateType(TrackStateOnSurface::Measurement) && (
           (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
           (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
         )
@@ -6936,7 +6932,7 @@ namespace Trk {
     
     for (auto & hit : oldtrajectory.trackStates()) {
       if (
-        hit->trackStateType() == TrackState::Fittable && (
+        hit->getStateType(TrackStateOnSurface::Measurement) && (
           (dynamic_cast<const RIO_OnTrack *>(hit->measurement()) != nullptr) || 
           (dynamic_cast<const CompetingRIOsOnTrack *>(hit->measurement()) != nullptr)
         )
@@ -7116,7 +7112,7 @@ namespace Trk {
     return per;
   }
 
-  std::unique_ptr<const TrackStateOnSurface> GlobalChi2Fitter::makeTrackFindPerigee(
+  std::unique_ptr<GXFTrackState> GlobalChi2Fitter::makeTrackFindPerigee(
     const EventContext & ctx,
     Cache &cache,
     GXFTrajectory &oldtrajectory,
@@ -7128,12 +7124,9 @@ namespace Trk {
       return nullptr;
     }
 
-    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-    typePattern.set(TrackStateOnSurface::Perigee);
-
     ATH_MSG_DEBUG("Final perigee: " << *per << " pos: " << per->position() << " pT: " << per->pT());
 
-    return std::make_unique<const TrackStateOnSurface>(nullptr, per.release(), nullptr, nullptr, typePattern);
+    return std::make_unique<GXFTrackState>(std::move(per), TrackStateOnSurface::Perigee);
   }
 
   std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
@@ -7148,11 +7141,21 @@ namespace Trk {
     if (m_fillderivmatrix) {
       makeTrackFillDerivativeMatrix(cache, oldtrajectory);
     }
-        
-    for (auto & hit : oldtrajectory.trackStates()) {
+
+    GXFTrajectory tmptrajectory(oldtrajectory);
+
+    std::unique_ptr<GXFTrackState> perigee_ts = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
+
+    if (perigee_ts == nullptr) {
+      return nullptr;
+    }
+
+    tmptrajectory.addBasicState(std::move(perigee_ts), cache.m_acceleration ? 0 : tmptrajectory.numberOfUpstreamStates());
+
+    for (auto & hit : tmptrajectory.trackStates()) {
       if (
         hit->measurementType() == TrackState::Pseudo &&
-        hit->trackStateType() == TrackState::GeneralOutlier
+        hit->getStateType(TrackStateOnSurface::Outlier)
       ) {
         if (hit->hasTrackCovariance()) {
           hit->setTrackCovariance(nullptr);
@@ -7164,7 +7167,7 @@ namespace Trk {
       trajectory->push_back(trackState.release());
     }
 
-    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(oldtrajectory.chi2(), oldtrajectory.nDOF());
+    std::unique_ptr<const FitQuality> qual = std::make_unique<const FitQuality>(tmptrajectory.chi2(), tmptrajectory.nDOF());
 
     ATH_MSG_VERBOSE("making Trk::Track...");
     
@@ -7176,25 +7179,13 @@ namespace Trk {
       info = TrackInfo(TrackInfo::GlobalChi2Fitter, Trk::electron);
       info.setTrackProperties(TrackInfo::BremFit);
 
-      if (matEffects == electron && oldtrajectory.hasKink()) {
+      if (matEffects == electron && tmptrajectory.hasKink()) {
         info.setTrackProperties(TrackInfo::BremFitSuccessful);
       }
     }
     
-    if (oldtrajectory.m_straightline) {
+    if (tmptrajectory.m_straightline) {
       info.setTrackProperties(TrackInfo::StraightTrack);
-    }
-    
-    std::unique_ptr<const TrackStateOnSurface> pertsos = makeTrackFindPerigee(ctx, cache, oldtrajectory, matEffects);
-
-    if (pertsos == nullptr) {
-      return nullptr;
-    }
-        
-    if (!cache.m_acceleration) {
-      trajectory->insert(trajectory->begin() + oldtrajectory.numberOfUpstreamStates(), pertsos.release());
-    } else {
-      trajectory->insert(trajectory->begin(), pertsos.release());
     }
 
     return std::make_unique<Track>(info, trajectory.release(), qual.release());
@@ -7555,8 +7546,7 @@ namespace Trk {
       ) {
         state = states[hitno].get();
         
-        TrackState::TrackStateType tstype = state->trackStateType();
-        bool fillderivmat = (tstype != TrackState::Scatterer && tstype != TrackState::Brem);
+        bool fillderivmat = (!state->getStateType(TrackStateOnSurface::Scatterer) && !state->getStateType(TrackStateOnSurface::BremPoint));
        
         if (fillderivmat && state->derivatives().cols() != nfitpars) {
           state->derivatives().resize(5, nfitpars);
@@ -7594,7 +7584,7 @@ namespace Trk {
             if (
               i == scatno + (forward ? -1 : 1) &&
               prevstate != nullptr && 
-              prevstate->trackStateType() == TrackState::Scatterer && 
+              prevstate->getStateType(TrackStateOnSurface::Scatterer) &&
               (!trajectory.prefit() || prevstate->materialEffects()->deltaE() == 0)
             ) {
               jacscat[i].block(0, jmin, 4, jcnt) = jac.block(0, jmin, 4, jcnt);
@@ -7653,7 +7643,7 @@ namespace Trk {
         }
 
         if (
-          tstype == TrackState::Scatterer &&
+          state->getStateType(TrackStateOnSurface::Scatterer) &&
           (!trajectory.prefit() || states[hitno]->materialEffects()->deltaE() == 0)
         ) {
           scatno += (forward ? 1 : -1);
@@ -7708,7 +7698,7 @@ namespace Trk {
       int index = indices[stateno];
       std::unique_ptr<GXFTrackState> & state = states[index];
       if (state->materialEffects() != nullptr) {
-        if (state->trackStateType() == TrackState::Scatterer) {
+        if (state->getStateType(TrackStateOnSurface::Scatterer)) {
           if (index >= nstatesupstream) {
             scatno++;
           } else {
@@ -7732,8 +7722,8 @@ namespace Trk {
       AmgMatrix(5, 5) & trackerrmat = state->trackCovariance();
 
       if ((prevstate != nullptr) &&
-          (prevstate->trackStateType() == TrackState::Fittable ||
-           prevstate->trackStateType() == TrackState::GeneralOutlier)
+          (prevstate->getStateType(TrackStateOnSurface::Measurement) ||
+           prevstate->getStateType(TrackStateOnSurface::Outlier))
           && !onlylocal) {
         Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
         AmgMatrix(5, 5) & prevcov = states[indices[stateno - 1]]->trackCovariance();
@@ -7756,7 +7746,7 @@ namespace Trk {
         bool errorok = true;
         for (int i = 0; i < 5; i++) {
           if (measurement->localParameters().contains(paraccessor.pardef[i])) {
-            if (state->trackStateType() == TrackState::Fittable
+            if (state->getStateType(TrackStateOnSurface::Measurement)
                 && trackerrmat(i, i) > meascov(j, j)) {
               errorok = false;
               double scale = sqrt(meascov(j, j) / trackerrmat(i, i));
@@ -7808,7 +7798,7 @@ namespace Trk {
         );
         state->setTrackParameters(std::move(trackpar));
         std::unique_ptr<const FitQualityOnSurface> fitQual = nullptr;
-        if (state->trackStateType() == TrackState::Fittable) {
+        if (state->getStateType(TrackStateOnSurface::Measurement)) {
           if (errorok && trajectory.nDOF() > 0) {
             fitQual.reset(m_updator->fullStateFitQuality(
               *state->trackParameters(),

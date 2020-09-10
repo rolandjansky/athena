@@ -29,6 +29,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]
@@ -46,8 +47,9 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from .OutputStreamAthenaPoolConf import EventInfoTagBuilder
-         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
+         EventInfoTagBuilder = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter,
+                                                   Tool=EventInfoAttListTool())
          from AthenaCommon.GlobalFlags  import globalflags
          if globalflags.InputFormat() == 'bytestream':
             #No event-tag input in bytestream

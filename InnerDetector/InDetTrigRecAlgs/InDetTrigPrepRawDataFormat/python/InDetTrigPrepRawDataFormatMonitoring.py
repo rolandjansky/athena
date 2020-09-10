@@ -81,7 +81,7 @@ class PixelTrigPrepRawDataFormatMonitorBase(TrigGenericMonitoringToolConfig):
                                          title="Number Det Elements in ROI",
                                          xbins = 100, xmin=0., xmax=maxid)]
         
-    self.Histograms += [ defineHistogram('PixBSErr',
+    self.Histograms += [ defineHistogram('PixelByteStreamErrs',
                                          type='TH1F',
                                          title="Pix BS decoding errors", 
                                          xbins = 10, xmin=0., xmax=20,

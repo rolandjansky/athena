@@ -9,7 +9,6 @@
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales,disableChains
 
 import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
@@ -302,35 +301,15 @@ def setupMenu():
     TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
         ChainProp(name='HLT_noalg_mb_L1RD2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),
         ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
-        ChainProp(name='HLT_noalg_L1MBTS_1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup), #ATR-21740
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
+       ChainProp(name='HLT_cscmon_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
+
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    # --------------------------------------------------
-    # ---- Defining specific prescales to this menu ----
-    # --------------------------------------------------
-
-    Prescales = mc_menu.Prescales
-
-    ## Cosmics
-
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-    ## Trigger Validation (disabling high CPU chains)
-
-    Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-
-    Prescales.HLTPrescales_trigvalid_mc_prescale = {}
-
-    disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
-    
-    # --------------------------------------------------
-
-    return Prescales
 
 

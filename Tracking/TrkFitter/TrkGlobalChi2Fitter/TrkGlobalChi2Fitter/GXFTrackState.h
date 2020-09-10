@@ -14,6 +14,7 @@
 #define TRK_GXFTRACKSTATE_H
 
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "CLHEP/Matrix/Matrix.h"
@@ -38,16 +39,13 @@ namespace Trk {
     GXFTrackState(GXFTrackState &);
 
     GXFTrackState(std::unique_ptr<const MeasurementBase>, std::unique_ptr<const TrackParameters>);
-    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackState::TrackStateType = TrackState::Hole);
+    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackStateOnSurface::TrackStateOnSurfaceType);
     GXFTrackState(std::unique_ptr<GXFMaterialEffects>, std::unique_ptr<const TrackParameters>);
     GXFTrackState & operator=(GXFTrackState &) = delete;
 
     void setMeasurement(std::unique_ptr<const MeasurementBase>);
     const MeasurementBase *measurement(void);
 
-    TrackState::TrackStateType trackStateType();
-    void setTrackStateType(TrackState::TrackStateType);
-    
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
     const TrackParameters *trackParameters(void);
     
@@ -86,9 +84,39 @@ namespace Trk {
     bool measuresPhi();
     void setMeasuresPhi(bool);
 
+    /**
+     * @brief Set a specific type, wiping all others.
+     *
+     * When called, this method will set the bit for a specific type to true or
+     * false. It will also set all other type bits to false.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Set a specific type bit.
+     *
+     * This method sets a specific bit in the type bitfield to the specified
+     * value, and does not touch any of the other bits.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void setStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Retrieve the value of a specific type bit.
+     *
+     * @param[in] type The track state type bit to set.
+     * @return A boolean value indicating whether or not the type bit is set.
+     */
+    bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
+
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
-    TrackState::TrackStateType m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
+    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
     std::unique_ptr<const TrackParameters> m_trackpar;  //!< track parameters
     std::unique_ptr<GXFMaterialEffects> m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
     Eigen::Matrix<double, 5, 5> m_jacobian;    //!< Transport jacobian wrt previous state
@@ -132,10 +160,6 @@ namespace Trk {
 
   inline TrackState::MeasurementType GXFTrackState::measurementType() {
     return m_mType;
-  }
-
-  inline TrackState::TrackStateType GXFTrackState::trackStateType() {
-    return m_tsType;
   }
 
   inline void GXFTrackState::setMeasurementType(TrackState::MeasurementType mt) {

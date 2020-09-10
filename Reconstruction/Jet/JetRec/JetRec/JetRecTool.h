@@ -79,18 +79,6 @@ public:
   /// Initialization. Check all tools here.
   StatusCode initialize() override;
 
-  // FIX ME: This method is removed in AnalysisBase, because tools
-  // don't finalize in AnalysisBase.  In AnalysisBase tools are
-  // generally meant to be stateless, so it makes less sense for them
-  // to be finalized, and that aside there is nobody around that can
-  // guarantee that `finalize` does get called anyways.  If this does
-  // anything more than print out accounting-info this tool should
-  // probably be turned into a service (or an algorithm).
-#ifndef XAOD_STANDALONE
-  /// Finalization. Write summary report.
-  StatusCode finalize() override;
-#endif
-
   /// Retrieve inputs with tools and construct new
   /// jet collection.
   virtual const xAOD::JetContainer* build() const override;

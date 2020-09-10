@@ -213,11 +213,11 @@ def generateChainsManually():
         step_empy= ChainStep("Step2_mu1empty", multiplicity=[])
 
         MuChains  = [
-            makeChain(name='HLT_TestChain8_muv1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
+            makeChain(name='HLT_TestChain8_muv1step_L1MU6',  L1Thresholds=["MU6"],   ChainSteps=[step_mu11]),
             makeChain(name='HLT_TestChain8_muv1_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
             makeChain(name='HLT_TestChain20_muv1_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
-            makeChain(name='HLT_TestChain10_muv2_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
-            makeChain(name='HLT_TestChain6_muEmpty2_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
+            makeChain(name='HLT_TestChain10_muv2_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ), 
+            makeChain(name='HLT_TestChain6_muEmpty2_L1MU6',  L1Thresholds=["MU6"],   ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
             ]
             
 

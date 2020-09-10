@@ -46,7 +46,7 @@ StatusCode TauTrackRNNClassifier::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauTrackRNNClassifier::executeRNNTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const {
+StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const {
 
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
@@ -105,14 +105,6 @@ TrackRNN::TrackRNN(const std::string& sName)
 //______________________________________________________________________________
 TrackRNN::~TrackRNN()
 {
-}
-
-//______________________________________________________________________________
-StatusCode TrackRNN::finalize()
-{
-  delete m_RNNClassifier;
-  m_RNNClassifier = nullptr;
-  return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
@@ -224,17 +216,16 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
 //______________________________________________________________________________
 StatusCode TrackRNN::addWeightsFile()
 {
-
   std::string sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << sInputWeightsPath);
 
   std::ifstream nn_config_istream(sInputWeightsPath);
   
-  m_NNconfig = lwtDev::parse_json_graph(nn_config_istream);
+  lwtDev::GraphConfig NNconfig = lwtDev::parse_json_graph(nn_config_istream);
   
-  m_RNNClassifier = new lwtDev::LightweightGraph(m_NNconfig, m_NNconfig.outputs.begin()->first);
+  m_RNNClassifier = std::make_unique<lwtDev::LightweightGraph>(NNconfig, NNconfig.outputs.begin()->first);
 
-  if(m_RNNClassifier==0) {
+  if(!m_RNNClassifier) {
     ATH_MSG_FATAL("Couldn't configure neural network!");
     return StatusCode::FAILURE;
   }
@@ -245,7 +236,6 @@ StatusCode TrackRNN::addWeightsFile()
 //______________________________________________________________________________
 StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, const xAOD::TauJet& xTau, tauRecTools::VectorMap& valueMap) const
 {
-
   // initialize map with values
   valueMap.clear();
   unsigned int n_timeSteps = vTracks.size();

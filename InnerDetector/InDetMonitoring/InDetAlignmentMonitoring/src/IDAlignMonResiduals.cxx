@@ -24,7 +24,6 @@
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "StoreGate/ReadHandle.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"

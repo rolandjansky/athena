@@ -168,5 +168,5 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                          getModSpec("Calib",calibSpec),
                          getModSpec("Sort")]
 
-    filtercut = {"a4":5000, "a10":50000, "a10r": 50000, "a10t":100000, "a10sd":50000}[jetalg]
+    filtercut = {"a4":7000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[jetalg]
     return calibMods + [getModSpec("Filter",filtercut)]

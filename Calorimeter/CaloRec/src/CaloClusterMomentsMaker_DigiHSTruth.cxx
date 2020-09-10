@@ -3,7 +3,6 @@
 */
 //-----------------------------------------------------------------------
 // File and Version Information:
-// $Id: CaloClusterMomentsMaker.cxx,v 1.23 2009-04-22 19:50:46 ssnyder Exp $
 //
 // Description: see CaloClusterMomentsMaker.h
 // 
@@ -158,12 +157,8 @@ CaloClusterMomentsMaker_DigiHSTruth::CaloClusterMomentsMaker_DigiHSTruth(const s
   declareProperty("LArHVFraction",m_larHVFraction,"Tool Handle for LArHVFraction");
   declareProperty("WeightingOfNegClusters", m_absOpt);
 
-  /// Not used anymore (with xAOD), but required to when configured from 
-  /// COOL via CaloRunClusterCorrections.
+  /// Not used anymore (with xAOD), but required when configured from COOL.
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
-  /// Not used by this tool, but required to use this
-  /// with CaloRunClusterCorrections.
-  declareProperty("order", m_order = 0);
 }
 
 //###############################################################################

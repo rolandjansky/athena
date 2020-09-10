@@ -11,8 +11,9 @@
  **/
 
 #include "AthenaBaseComps/AthFilterAlgorithm.h"
+#include "AthenaKernel/IAthenaSharedWriterSvc.h"
 
-class IConversionSvc;
+#include "GaudiKernel/IConversionSvc.h"
 
 /** @class AthenaSharedWriter
  *  @brief This class provides an example for writing event data objects to Pool.
@@ -22,7 +23,7 @@ public: // Constructor and Destructor
    /// Standard Service Constructor
    AthenaSharedWriter(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor
-   virtual ~AthenaSharedWriter();
+   virtual ~AthenaSharedWriter() = default;
 
 public:
 /// Gaudi Service Interface method implementations:
@@ -32,10 +33,10 @@ public:
 
 private: // properties
    IntegerProperty m_numberOfClients{this,"NumberOfClients",1};
-   IntegerProperty m_autoSend{this,"AutoSend",-1};
 
 private:
-   IConversionSvc* m_cnvSvc;
+   ServiceHandle<IConversionSvc> m_cnvSvc{this,"AthenaPoolCnvSvc","AthenaPoolCnvSvc"};
+   ServiceHandle<IAthenaSharedWriterSvc> m_sharedWriterSvc{this,"AthenaRootSharedWriterSvc","AthenaRootSharedWriterSvc"};
 };
 
 #endif

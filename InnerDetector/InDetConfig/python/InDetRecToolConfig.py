@@ -152,7 +152,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
       SCTConfigurationFolderPath=''
 
-  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+"Chip",
+  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip"),
                "ModuleFolder"  : SCTConfigurationFolderPath+"Module",
                "MurFolder"     : SCTConfigurationFolderPath+"MUR"}
   cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags,name, cond_kwargs=cond_kwargs)
@@ -243,7 +243,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   return result
 
 def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs={}, **kwargs):
-  cond_kwargs.setdefault("ChannelFolder","/SCT/DAQ/Config/Chip")
+  cond_kwargs.setdefault("ChannelFolder", "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip")
   cond_kwargs.setdefault("ModuleFolder","/SCT/DAQ/Config/Module")
   cond_kwargs.setdefault("MurFolder","/SCT/DAQ/Config/MUR")
   cond_kwargs.setdefault("dbInstance","SCT")
@@ -299,14 +299,15 @@ def getSCTDAQConfigFolder(flags) :
 def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
   result = ComponentAccumulator()
   config_folder_prefix = getSCTDAQConfigFolder(flags)
-  kwargs.setdefault("ReadKeyChannel", config_folder_prefix+"Chip")
+  channelFolder = config_folder_prefix+("ChipSlim" if flags.Input.isMC else "Chip")
+  kwargs.setdefault("ReadKeyChannel", channelFolder)
   kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
   kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
 
   result.merge(addFoldersSplitOnline(flags,
                                            detDb="SCT",
-                                           online_folders=config_folder_prefix+"Chip",
-                                           offline_folders=config_folder_prefix+"Chip",
+                                           online_folders=channelFolder,
+                                           offline_folders=channelFolder,
                                            className='CondAttrListVec',
                                            splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
