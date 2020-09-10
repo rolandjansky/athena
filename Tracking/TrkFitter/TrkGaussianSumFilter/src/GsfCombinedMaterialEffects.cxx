@@ -8,7 +8,6 @@
  * @brief         Implementation code for GsfCombinedMaterialEffects class
  */
 
-
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
 #include "GaudiKernel/ToolHandle.h"
@@ -71,19 +70,14 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Computing combined material effects, P : "
-                << componentParameters.first->momentum().norm() << " W "
-                << componentParameters.second);
-
   // Reset everything before computation
   cache.reset();
 
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
 
-  /* ========================================================================
-     Retrieve multiple scattering corrections
-     ======================================================================== */
-
+  /*
+   * 1.  Retrieve multiple scattering corrections
+   */
   IMultiStateMaterialEffects::Cache cache_multipleScatter;
   this->scattering(cache_multipleScatter,
                    componentParameters,
@@ -102,11 +96,10 @@ Trk::GsfCombinedMaterialEffects::compute(
     cache_multipleScatter.deltaCovariances.push_back(std::move(newCov));
   }
 
-  /* ========================================================================
-     Retrieve energy loss corrections
-     ======================================================================== */
-
-  IMultiStateMaterialEffects::Cache cache_energyLoss;
+  /*
+   * 2. Retrieve energy loss corrections
+   */
+  Trk::GSFEnergyLossCache cache_energyLoss;
   if (particleHypothesis == electron) {
     m_betheHeitlerEffects->compute(cache_energyLoss,
                                    componentParameters,
@@ -126,14 +119,12 @@ Trk::GsfCombinedMaterialEffects::compute(
   if (cache_energyLoss.weights.empty()) {
     cache_energyLoss.weights.push_back(1.);
     cache_energyLoss.deltaPs.push_back(0.);
-    AmgSymMatrix(5) newCov;
-    newCov.setZero();
-    cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
+    cache_energyLoss.deltaQOvePCov.push_back(0.);
   }
-  /* ========================================================================
-     Combine the multiple scattering and energy loss components
-     ======================================================================== */
-  ATH_MSG_DEBUG("Combining the energy loss and multiple scattering components");
+
+  /*
+   * 3. Combine the multiple scattering and energy loss components
+   */
 
   // Iterators over the multiple scattering components
   auto multipleScatter_weightsIterator = cache_multipleScatter.weights.begin();
@@ -150,15 +141,15 @@ Trk::GsfCombinedMaterialEffects::compute(
     // Iterators over the energy loss components
     auto energyLoss_weightsIterator = cache_energyLoss.weights.begin();
     auto energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
-    auto energyLoss_deltaCovariancesIterator =
-      cache_energyLoss.deltaCovariances.begin();
+    auto energyLoss_deltaQOvePCovIterator =
+      cache_energyLoss.deltaQOvePCov.begin();
 
     // Loop over energy loss components
 
     for (; energyLoss_weightsIterator != cache_energyLoss.weights.end();
          ++energyLoss_weightsIterator,
          ++energyLoss_deltaPsIterator,
-         ++energyLoss_deltaCovariancesIterator) {
+         ++energyLoss_deltaQOvePCovIterator) {
 
       double combinedWeight =
         (*multipleScatter_weightsIterator) * (*energyLoss_weightsIterator);
@@ -168,14 +159,16 @@ Trk::GsfCombinedMaterialEffects::compute(
       cache.deltaPs.push_back(combinedDeltaP);
 
       if (measuredCov) {
+        //Start from the multiple Scattering detla
         AmgSymMatrix(5) summedCovariance =
-          (*multipleScatter_deltaCovariancesIterator) +
-          (*energyLoss_deltaCovariancesIterator);
+          (*multipleScatter_deltaCovariancesIterator);
+        //Add to it the QoverP cov from energy loss
+        summedCovariance(Trk::qOverP, Trk::qOverP) +=
+          (*energyLoss_deltaQOvePCovIterator);
         cache.deltaCovariances.push_back(std::move(summedCovariance));
       }
     } // end for loop over energy loss components
   }   // end for loop over multiple scattering components
-  ATH_MSG_DEBUG("Successfully included combined material effects");
 }
 
 void
@@ -229,7 +222,7 @@ Trk::GsfCombinedMaterialEffects::scattering(
 
 void
 Trk::GsfCombinedMaterialEffects::energyLoss(
-  IMultiStateMaterialEffects::Cache& cache,
+  Trk::GSFEnergyLossCache& cache,
   const ComponentParameters& componentParameters,
   const MaterialProperties& materialProperties,
   double pathLength,
@@ -250,17 +243,17 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   double pathcorrection = pathLength / materialProperties.thickness();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
 
-  EnergyLoss* energyLoss = m_EnergyLossUpdator->energyLoss(materialProperties,
-                                                           globalMomentum.mag(),
-                                                           pathcorrection,
-                                                           direction,
-                                                           particleHypothesis,
-                                                           true);
+  std::unique_ptr<EnergyLoss> energyLoss(
+    m_EnergyLossUpdator->energyLoss(materialProperties,
+                                    globalMomentum.mag(),
+                                    pathcorrection,
+                                    direction,
+                                    particleHypothesis,
+                                    true));
 
   // update for mean energy loss
   const double deltaE = energyLoss ? energyLoss->deltaE() : 0;
   const double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
-  delete energyLoss;
 
   // Calculate the pathlength encountered by the track
   const double p = globalMomentum.mag();
@@ -271,12 +264,7 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   // Calculate energy loss values uncertainty
   const double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
-  // Update diagonal and off-diagonal covariance matrix elements
-  AmgSymMatrix(5) deltaCov;
-  deltaCov.setZero();
-  deltaCov(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
-
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(deltaE);
-  cache.deltaCovariances.push_back(std::move(deltaCov));
+  cache.deltaQOvePCov.push_back(sigmaQoverP * sigmaQoverP);
 }
