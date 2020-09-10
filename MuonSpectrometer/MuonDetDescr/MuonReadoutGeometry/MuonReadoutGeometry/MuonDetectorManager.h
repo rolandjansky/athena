@@ -173,7 +173,7 @@ namespace MuonGM {
     // Setting the identifier helpers
     inline void set_mdtIdHelper(const MdtIdHelper* idh);
     inline void set_cscIdHelper(const CscIdHelper* idh);
-    inline void set_rpcIdHelper(const RpcIdHelper* idh);
+    void set_rpcIdHelper(const RpcIdHelper* idh);
     inline void set_tgcIdHelper(const TgcIdHelper* idh);
     inline void set_stgcIdHelper(const sTgcIdHelper* idh);
     inline void set_mmIdHelper(const MmIdHelper* idh);
