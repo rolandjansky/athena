@@ -12,7 +12,7 @@
 
 // PyROOT includes
 #include <TPython.h>
-#include <TPyException.h>
+#include "CPyCppyy/PyException.h"
 #ifndef ROOT_TPyException
 # define ROOT_TPyException 1 /* there was a typo in TPyException-v20882 */
 #endif
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-#define ObjectProxy_ASVOIDPTR(o) (TPython::ObjectProxy_AsVoidPtr(o))
+#define CPPInstance_ASVOIDPTR(o) (TPython::CPPInstance_AsVoidPtr(o))
 
 namespace PyROOT {
 
@@ -48,7 +48,7 @@ void throw_py_exception (bool display = true)
     // and print
     PyErr_Print();
   }
-  throw PyROOT::TPyException();
+  throw CPyCppyy::PyException();
 }
 
 } //> namespace PyROOT

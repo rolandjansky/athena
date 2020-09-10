@@ -272,7 +272,6 @@ def loadJobOptionsCatalogue( cfg_fname ):
    """Load properties from a pickle file, previously dumped by
    storeConfiguration, back into the JobOptionsSvc.
    """
-
  # read jobopt catalogue dump and pycomps back in
    cfg = open( cfg_fname, 'rb' )
 

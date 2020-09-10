@@ -6,26 +6,17 @@ mlog = logging.getLogger( 'ElectronRingerSelectorDefs.py' )
 from AthenaCommon.Configurable import Configurable
 
 # Import from Ringer utilities:
-import cppyy
-
-try :
-  cppyy.loadDictionary('RingerSelectorToolsEnumsDict')
-except RuntimeError as e:
-  mlog.error("Could not load RingerSelectorEnumsTools dictionary from cppyy.")
-  raise RuntimeError(e)
-
-from ROOT import Ringer
+import ROOT
+ROOT.gSystem.Load('libRingerSelectorToolsEnumsDict.so')
 from ROOT.Ringer import ElectronTAccept_v1
+
 from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgElectronRingerSelector
 from CaloRingerAlgs.CaloRingerKeys import outputElectronRingSetsConfKey
 
-# Import from CutID utilities:
-try :
-  cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-except RuntimeError as e:
-  mlog.error("Could not load ElectronPhotonSelectorTools dictionary from cppyy.")
-  raise RuntimeError(e)
+# Import egammaPID
+ROOT.gSystem.Load('libElectronPhotonSelectorToolsDict.so')
 from ROOT import egammaPID
+
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu
 from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors \
     import ConfiguredAsgElectronIsEMSelector

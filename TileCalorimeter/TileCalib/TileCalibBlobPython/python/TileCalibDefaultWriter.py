@@ -67,8 +67,6 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 self.__tilePrefixOfl  = TileCalibTools.getTilePrefix(True,True)
                 self.__tilePrefixOnl  = TileCalibTools.getTilePrefix(False)
                 #=== force the creation of template classes
-                cppyy.makeClass('std::vector<float>')
-                cppyy.makeClass('std::vector<unsigned int>')
         except Exception as e:
             self.log().critical( e )
 

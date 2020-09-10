@@ -119,7 +119,7 @@ def tree_find_type (dhe, tree):
               dhe.transtype = br.GetClassName()
               break
         if obj:
-            clsname = obj.__class__.__cppname__
+            clsname = obj.__class__.__cpp_name__
             if clsname.startswith ('ROOT.'):
                 clsname = clsname[5:]
             dhe.transtype = clsname
