@@ -8,7 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 import pprint
 from AthenaCommon.Logging import logging
