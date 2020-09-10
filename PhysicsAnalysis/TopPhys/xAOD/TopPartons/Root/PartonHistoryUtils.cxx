@@ -55,16 +55,38 @@ namespace PartonHistoryUtils {
     /// check if higgs decays into tau, W or Z
     const bool isZ = (result.decay1_pdgId == 23 || result.decay2_pdgId == 23) ? true : false;
     const bool isW = (std::abs(result.decay1_pdgId) == 24 || std::abs(result.decay2_pdgId) == 24) ? true : false;
-    const bool isTau = (std::abs(result.decay1_pdgId) == 15 || std::abs(result.decay2_pdgId) == 15) ? true : false;
 
-    if (!isZ && !isW && !isTau) return result;
+    /// Function to translate the result of the investigation into an integer status
+    /// status -1 = problem with the truth record
+    /// status  1 = tau decays hadronically
+    /// status  0 = tau decays leptonically
+    auto tauHadronicIndex = [&result](const xAOD::TruthParticle* particle) {
+      bool isOk(false);
+      const bool isHadronic = TauIsHadronic(particle, isOk);
+      if (!isOk) {
+        return -1;
+      }
+
+      if (isHadronic) return 1;
+
+      return 0;
+    };
+
+    if (std::fabs(result.decay1_pdgId) == 15) {
+      result.tau_decay1_isHadronic = tauHadronicIndex(higgs_fsr->child(0));
+    }
+    if (std::fabs(result.decay2_pdgId) == 15) {
+      result.tau_decay2_isHadronic = tauHadronicIndex(higgs_fsr->child(1));
+    }
+
+    if (!isZ && !isW) return result;
 
     const xAOD::TruthParticle* decay1 = findAfterFSR(higgs->child(0));
     if (decay1->nChildren() != 2) return result;
     const xAOD::TruthParticle* decay2 = findAfterFSR(higgs->child(1));
     if (decay2->nChildren() != 2) return result;
 
-    /// decays if W/Z/tau
+    /// decays of W/Z
     result.decay1_from_decay1_vector = decay1->child(0)->p4();
     result.decay2_from_decay1_vector = decay1->child(1)->p4();
     result.decay1_from_decay1_pdgId  = decay1->child(0)->pdgId();
@@ -75,38 +97,87 @@ namespace PartonHistoryUtils {
     result.decay1_from_decay2_pdgId  = decay2->child(0)->pdgId();
     result.decay2_from_decay2_pdgId  = decay2->child(1)->pdgId();
 
-    if (!isTau) return result;
-
-    // identify which decay is W
-    const bool firstIsW1 = std::abs(result.decay1_from_decay1_pdgId == 24) ? true : false;
-    const bool firstIsW2 = std::abs(result.decay1_from_decay2_pdgId == 24) ? true : false;
-    const xAOD::TruthParticle *W1(nullptr);
-    const xAOD::TruthParticle *W2(nullptr);
-    if (firstIsW1) {
-      W1 = findAfterFSR(decay1->child(0));
-    } else {
-      W1 = findAfterFSR(decay1->child(1));
+    if (std::fabs(result.decay1_from_decay1_pdgId) == 15) {
+      result.tau_decay1_from_decay1_isHadronic = tauHadronicIndex(decay1->child(0));
     }
-
-    if (firstIsW2) {
-      W2 = findAfterFSR(decay2->child(0));
-    } else {
-      W2 = findAfterFSR(decay2->child(1));
+    if (std::fabs(result.decay2_from_decay1_pdgId) == 15) {
+      result.tau_decay2_from_decay1_isHadronic = tauHadronicIndex(decay1->child(1));
     }
-
-    if (W1->nChildren() != 2) return result;
-    result.decay1_from_W_from_tau1_vector = W1->child(0)->p4();
-    result.decay2_from_W_from_tau1_vector = W1->child(1)->p4();
-    result.decay1_from_W_from_tau1_pdgId = W1->child(0)->pdgId();
-    result.decay2_from_W_from_tau1_pdgId = W1->child(1)->pdgId();
+    if (std::fabs(result.decay1_from_decay2_pdgId) == 15) {
+      result.tau_decay1_from_decay2_isHadronic = tauHadronicIndex(decay2->child(0));
+    }
+    if (std::fabs(result.decay2_from_decay2_pdgId) == 15) {
+      result.tau_decay2_from_decay2_isHadronic = tauHadronicIndex(decay2->child(1));
+    }
     
-    if (W2->nChildren() != 2) return result;
-    result.decay1_from_W_from_tau2_vector = W2->child(0)->p4();
-    result.decay2_from_W_from_tau2_vector = W2->child(1)->p4();
-    result.decay1_from_W_from_tau2_pdgId = W2->child(0)->pdgId();
-    result.decay2_from_W_from_tau2_pdgId = W2->child(1)->pdgId();
-
     return result;
+  }
+  
+  bool TauIsHadronic(const xAOD::TruthParticle* tau, bool &isOk) {
+
+    if (!tau) {
+      isOk = false;
+      return false;
+    }
+
+    if (std::fabs(tau->pdgId()) != 15) {
+      isOk = false;
+      return false;
+    }
+
+    const xAOD::TruthParticle* afterFsr = findAfterFSR(tau);
+
+    if (afterFsr->nChildren() != 2) {
+      isOk = false;
+      return false;
+    }
+
+    const xAOD::TruthParticle* child1 = findAfterFSR(afterFsr->child(0));
+    const xAOD::TruthParticle* child2 = findAfterFSR(afterFsr->child(1));
+
+    if (std::fabs(child1->pdgId()) == 16) {
+      // it means the other particle ahs to be W
+      if (std::fabs(child2->pdgId()) != 24) {
+        isOk = false;
+        return false;
+      }
+      
+      // child2 is W
+      if (child2->nChildren() != 2) {
+        isOk = false;
+        return false;
+      }
+
+      isOk = true;
+
+      // everything is fine, check if the W decays hadronically or leptonically
+      if (std::fabs(child2->child(0)->pdgId()) < 16) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      // it means the other particle has to be nu
+      if (std::fabs(child2->pdgId()) != 16) {
+        isOk = false;
+        return false;
+      }
+      
+      // child1 is W
+      if (child1->nChildren() != 2) {
+        isOk = false;
+        return false;
+      }
+
+      isOk = true;
+
+      // everything is fine, check if the W decays hadronically or leptonically
+      if (std::fabs(child1->child(0)->pdgId()) < 16) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }
 }

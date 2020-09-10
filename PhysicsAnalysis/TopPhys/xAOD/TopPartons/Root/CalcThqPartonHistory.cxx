@@ -24,6 +24,8 @@ namespace top {
       tH.decay2_p4 = higgs.decay2_vector;
       tH.decay1_pdgId = higgs.decay1_pdgId;
       tH.decay2_pdgId = higgs.decay2_pdgId;
+      tH.tau_decay1_isHadronic = higgs.tau_decay1_isHadronic;
+      tH.tau_decay2_isHadronic = higgs.tau_decay2_isHadronic;
       tH.decay1_from_decay1_p4 = higgs.decay1_from_decay1_vector;
       tH.decay2_from_decay1_p4 = higgs.decay2_from_decay1_vector;
       tH.decay1_from_decay1_pdgId = higgs.decay1_from_decay1_pdgId;
@@ -32,14 +34,10 @@ namespace top {
       tH.decay2_from_decay2_p4 = higgs.decay2_from_decay2_vector;
       tH.decay1_from_decay2_pdgId = higgs.decay1_from_decay2_pdgId;
       tH.decay2_from_decay2_pdgId = higgs.decay2_from_decay2_pdgId;
-      tH.decay1_from_W_from_tau1_p4 = higgs.decay1_from_W_from_tau1_vector;
-      tH.decay2_from_W_from_tau1_p4 = higgs.decay2_from_W_from_tau1_vector;
-      tH.decay1_from_W_from_tau2_p4 = higgs.decay1_from_W_from_tau2_vector;
-      tH.decay2_from_W_from_tau2_p4 = higgs.decay2_from_W_from_tau2_vector;
-      tH.decay1_from_W_from_tau1_pdgId = higgs.decay1_from_W_from_tau1_pdgId;
-      tH.decay2_from_W_from_tau1_pdgId = higgs.decay2_from_W_from_tau1_pdgId;
-      tH.decay1_from_W_from_tau2_pdgId = higgs.decay1_from_W_from_tau2_pdgId;
-      tH.decay2_from_W_from_tau2_pdgId = higgs.decay2_from_W_from_tau2_pdgId;
+      tH.tau_decay1_from_decay1_isHadronic = higgs.tau_decay1_from_decay1_isHadronic;
+      tH.tau_decay2_from_decay1_isHadronic = higgs.tau_decay2_from_decay1_isHadronic;
+      tH.tau_decay1_from_decay2_isHadronic = higgs.tau_decay1_from_decay2_isHadronic;
+      tH.tau_decay2_from_decay2_isHadronic = higgs.tau_decay2_from_decay2_isHadronic;
 
       return true;
     }
@@ -119,6 +117,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_pt") = tH.decay1_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_phi") = tH.decay1_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_pdgId") = tH.decay1_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay1_isHadronic") = tH.tau_decay1_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_eta", tH.decay1_p4);
 
         //Higgs-decay2-Variables
@@ -126,6 +125,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_pt") = tH.decay2_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_phi") = tH.decay2_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay2_pdgId") = tH.decay2_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay2_isHadronic") = tH.tau_decay1_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay2_eta", tH.decay2_p4);
 
         //Higgs-decay1- from decay1-Variables
@@ -133,6 +133,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay1_pt") = tH.decay1_from_decay1_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay1_phi") = tH.decay1_from_decay1_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_from_decay1_pdgId") = tH.decay1_from_decay1_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay1_from_decay1_isHadronic") = tH.tau_decay1_from_decay1_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_from_decay1_eta", tH.decay1_from_decay1_p4);
 
         //Higgs-decay2- from decay1-Variables
@@ -140,6 +141,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay1_pt") = tH.decay2_from_decay1_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay1_phi") = tH.decay2_from_decay1_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay2_from_decay1_pdgId") = tH.decay2_from_decay1_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay2_from_decay1_isHadronic") = tH.tau_decay2_from_decay1_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay2_from_decay1_eta", tH.decay2_from_decay1_p4);
 
         //Higgs-decay1- from decay2-Variables
@@ -147,6 +149,7 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay2_pt") = tH.decay1_from_decay2_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay2_phi") = tH.decay1_from_decay2_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_from_decay2_pdgId") = tH.decay1_from_decay2_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay1_from_decay2_isHadronic") = tH.tau_decay1_from_decay2_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_from_decay2_eta", tH.decay1_from_decay2_p4);
 
         //Higgs-decay2- from decay2-Variables
@@ -154,35 +157,8 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay2_pt") = tH.decay2_from_decay2_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay2_phi") = tH.decay2_from_decay2_p4.Phi();
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay2_from_decay2_pdgId") = tH.decay2_from_decay2_pdgId;
+        ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay2_from_decay2_isHadronic") = tH.tau_decay2_from_decay2_isHadronic;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay2_from_decay2_eta", tH.decay2_from_decay2_p4);
-
-        //Higgs-decay1- from W from tau1-Variables
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau1_m") = tH.decay1_from_W_from_tau1_p4.M();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau1_pt") = tH.decay1_from_W_from_tau1_p4.Pt();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau1_phi") = tH.decay1_from_W_from_tau1_p4.Phi();
-        ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_from_W_from_tau1_pdgId") = tH.decay1_from_W_from_tau1_pdgId;
-        fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_from_W_from_tau1_eta", tH.decay1_from_W_from_tau1_p4);
-
-        //Higgs-decay2- from W from tau1-Variables
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau1_m") = tH.decay2_from_W_from_tau1_p4.M();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau1_pt") = tH.decay2_from_W_from_tau1_p4.Pt();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau1_phi") = tH.decay2_from_W_from_tau1_p4.Phi();
-        ThqPartonHistory->auxdecor< int >("MC_Higgs_decay2_from_W_from_tau1_pdgId") = tH.decay2_from_W_from_tau1_pdgId;
-        fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay2_from_W_from_tau1_eta", tH.decay2_from_W_from_tau1_p4);
-
-        //Higgs-decay1- from W from tau2-Variables
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau2_m") = tH.decay1_from_W_from_tau2_p4.M();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau2_pt") = tH.decay1_from_W_from_tau2_p4.Pt();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_W_from_tau2_phi") = tH.decay1_from_W_from_tau2_p4.Phi();
-        ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_from_W_from_tau2_pdgId") = tH.decay1_from_W_from_tau2_pdgId;
-        fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_from_W_from_tau2_eta", tH.decay1_from_W_from_tau2_p4);
-
-        //Higgs-decay2- from W from tau2-Variables
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau2_m") = tH.decay2_from_W_from_tau2_p4.M();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau2_pt") = tH.decay2_from_W_from_tau2_p4.Pt();
-        ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_W_from_tau2_phi") = tH.decay2_from_W_from_tau2_p4.Phi();
-        ThqPartonHistory->auxdecor< int >("MC_Higgs_decay2_from_W_from_tau2_pdgId") = tH.decay2_from_W_from_tau2_pdgId;
-        fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay2_from_W_from_tau2_eta", tH.decay2_from_W_from_tau2_p4);
 
       }
     }

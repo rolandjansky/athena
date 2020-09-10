@@ -18,8 +18,10 @@ namespace PartonHistoryUtils {
     int decay1_pdgId;
     TLorentzVector decay2_vector;
     int decay2_pdgId;
+    int tau_decay1_isHadronic;
+    int tau_decay2_isHadronic;
 
-    /// subsequent decays of W/Z/tau
+    /// subsequent decays of W/Z
     TLorentzVector decay1_from_decay1_vector;
     int decay1_from_decay1_pdgId;
     TLorentzVector decay2_from_decay1_vector;
@@ -28,16 +30,10 @@ namespace PartonHistoryUtils {
     int decay1_from_decay2_pdgId;
     TLorentzVector decay2_from_decay2_vector;
     int decay2_from_decay2_pdgId;
-
-    /// W from tau decays
-    TLorentzVector decay1_from_W_from_tau1_vector;
-    int decay1_from_W_from_tau1_pdgId;
-    TLorentzVector decay2_from_W_from_tau1_vector;
-    int decay2_from_W_from_tau1_pdgId;
-    TLorentzVector decay1_from_W_from_tau2_vector;
-    int decay1_from_W_from_tau2_pdgId;
-    TLorentzVector decay2_from_W_from_tau2_vector;
-    int decay2_from_W_from_tau2_pdgId;
+    int tau_decay1_from_decay1_isHadronic;
+    int tau_decay2_from_decay1_isHadronic;
+    int tau_decay1_from_decay2_isHadronic;
+    int tau_decay2_from_decay2_isHadronic;
   };
 
   ///Return particle after FSR (before the decay vertex)
@@ -51,6 +47,9 @@ namespace PartonHistoryUtils {
   
   /// Store higgs decay information
   HiggsDecay AnalyzeHiggsDecay(const xAOD::TruthParticle* higgs);
+  
+  /// Check if tau decays hadronically or not
+  bool TauIsHadronic(const xAOD::TruthParticle* tau, bool &isOk);
 }
 }
 

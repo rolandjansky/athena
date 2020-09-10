@@ -29,6 +29,8 @@ namespace top {
       TLorentzVector decay2_p4;
       int decay1_pdgId;
       int decay2_pdgId;
+      int tau_decay1_isHadronic;
+      int tau_decay2_isHadronic;
       TLorentzVector decay1_from_decay1_p4;
       TLorentzVector decay2_from_decay1_p4;
       int decay1_from_decay1_pdgId;
@@ -37,14 +39,10 @@ namespace top {
       TLorentzVector decay2_from_decay2_p4;
       int decay1_from_decay2_pdgId;
       int decay2_from_decay2_pdgId;
-      TLorentzVector decay1_from_W_from_tau1_p4;
-      TLorentzVector decay2_from_W_from_tau1_p4;
-      TLorentzVector decay1_from_W_from_tau2_p4;
-      TLorentzVector decay2_from_W_from_tau2_p4;
-      int decay1_from_W_from_tau1_pdgId;
-      int decay2_from_W_from_tau1_pdgId;
-      int decay1_from_W_from_tau2_pdgId;
-      int decay2_from_W_from_tau2_pdgId;
+      int tau_decay1_from_decay1_isHadronic;
+      int tau_decay2_from_decay1_isHadronic;
+      int tau_decay1_from_decay2_isHadronic;
+      int tau_decay2_from_decay2_isHadronic;
     } tH;
     //Storing parton history for ttbar resonance analysis
     CalcThqPartonHistory(const CalcThqPartonHistory& rhs) = delete;
