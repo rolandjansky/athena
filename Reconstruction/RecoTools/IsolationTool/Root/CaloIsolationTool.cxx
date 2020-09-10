@@ -110,11 +110,12 @@ namespace xAOD {
       ATH_CHECK(m_IsoLeakCorrectionTool.retrieve());
 
     // initialize the read handles (for now do all of them in all cases)
-    ATH_CHECK(m_tpEDCentral.initialize());
-    ATH_CHECK(m_tpEDForward.initialize());
-    ATH_CHECK(m_tpEDveryForward.initialize());
-    ATH_CHECK(m_efEDCentral.initialize());
-    ATH_CHECK(m_efEDForward.initialize());
+    
+    ATH_CHECK(m_tpEDCentral.initialize(m_InitializeReadHandles));
+    ATH_CHECK(m_tpEDForward.initialize(m_InitializeReadHandles));
+    ATH_CHECK(m_tpEDveryForward.initialize(m_InitializeReadHandles));
+    ATH_CHECK(m_efEDCentral.initialize(m_InitializeReadHandles));
+    ATH_CHECK(m_efEDForward.initialize(m_InitializeReadHandles));
 
     // Exit function
     return StatusCode::SUCCESS;
