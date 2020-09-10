@@ -437,7 +437,7 @@ namespace MuonGM {
     MdtAsBuiltMapContainer m_AsBuiltParamsMap;
     /// RPC name caches
     std::map<int,int> m_rpcStatToIdx;
-    std::map<int,init> m_rpcIdxToStat;
+    std::map<int,int> m_rpcIdxToStat;
     
 
   };
