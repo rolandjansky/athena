@@ -109,7 +109,8 @@ StatusCode HltROBDataProviderSvc::initialize()
     if ((jobOptionsSvc.retrieve()).isFailure()) {
       ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
-      if (m_enabledROBs.fromString(jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs","[]")).isSuccess()) {
+      if (jobOptionsSvc->has("DataFlowConfig.DF_Enabled_ROB_IDs") &&
+          m_enabledROBs.fromString(jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs")).isSuccess()) {
         robOKSconfigFound = true;
         ATH_MSG_INFO(" ---> Read from OKS                                                = "
                      << MSG::dec << m_enabledROBs.value().size() << " enabled ROB IDs.");

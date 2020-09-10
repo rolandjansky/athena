@@ -212,6 +212,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
   sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
   sct_ConfigurationConditionsToolSetup.setToolName("InDetSCT_ConfigurationConditionsTool_" + signature)
+  if globalflags.DataSource() == 'geant4':
+     sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim") # For MC (OFLP200)
   sct_ConfigurationConditionsToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ConfigurationConditionsToolSetup.getTool().getFullName())
 

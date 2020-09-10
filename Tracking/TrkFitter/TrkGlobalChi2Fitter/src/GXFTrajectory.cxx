@@ -181,7 +181,7 @@ namespace Trk {
       }
     }
     
-    if (state->trackStateType() == TrackState::Fittable) {
+    if (state->getStateType(TrackStateOnSurface::Measurement)) {
       m_ndof += nmeas;
     } else {
       m_nmeasoutl += nmeas;
@@ -217,7 +217,7 @@ namespace Trk {
   void GXFTrajectory::addMaterialState(std::unique_ptr<GXFTrackState> state, int index) {
     GXFMaterialEffects *meff = state->materialEffects();
     
-    if (state->trackStateType() == TrackState::Scatterer) {
+    if (state->getStateType(TrackStateOnSurface::Scatterer)) {
       m_nscatterers++;
       
       if (meff->deltaE() == 0) {
@@ -245,7 +245,7 @@ namespace Trk {
       int previousbrems = 0;
       
       for (int i = 0; i < index; i++) {
-        if (m_states[i]->trackStateType() == TrackState::Scatterer) {
+        if (m_states[i]->getStateType(TrackStateOnSurface::Scatterer)) {
           previousscats++;
         }
         
@@ -317,7 +317,7 @@ namespace Trk {
         m_nupstreamstates++;
         
         if (
-          (**it2).trackStateType() == TrackState::Scatterer && 
+          (**it2).getStateType(TrackStateOnSurface::Scatterer) &&
           (**it2).materialEffects()->sigmaDeltaTheta() != 0
         ) {
           m_nupstreamscatterers++;
@@ -352,11 +352,11 @@ namespace Trk {
   }
 
   void GXFTrajectory::setOutlier(int index, bool isoutlier) {
-    if (isoutlier && m_states[index]->trackStateType() == TrackState::GeneralOutlier) {
+    if (isoutlier && m_states[index]->getStateType(TrackStateOnSurface::Outlier)) {
       return;
     }
     
-    if (!isoutlier && m_states[index]->trackStateType() == TrackState::Fittable) {
+    if (!isoutlier && m_states[index]->getStateType(TrackStateOnSurface::Measurement)) {
       return;
     }
     
@@ -371,13 +371,13 @@ namespace Trk {
     
     if (isoutlier) {
       m_ndof -= nmeas;
-      m_states[index]->setTrackStateType(TrackState::GeneralOutlier);
+      m_states[index]->resetStateType(TrackStateOnSurface::Outlier);
       m_nmeasoutl += nmeas;
       m_noutl++;
       m_states[index]->setFitQuality(nullptr);
     } else {
       m_ndof += nmeas;
-      m_states[index]->setTrackStateType(TrackState::Fittable);
+      m_states[index]->resetStateType(TrackStateOnSurface::Measurement);
       m_nmeasoutl -= nmeas;
       m_noutl--;
     }
@@ -500,7 +500,7 @@ namespace Trk {
       m_scatteringsigmas.reserve(numberOfScatterers());
       m_scatteringangles.reserve(numberOfScatterers());
       for (auto & state : m_states) {
-        if ((*state).trackStateType() == TrackState::Scatterer
+        if ((*state).getStateType(TrackStateOnSurface::Scatterer)
             && ((m_prefit == 0) || (*state).materialEffects()->deltaE() == 0)) {
           double scatphi = (*state).materialEffects()->deltaPhi();
           double scattheta = (*state).materialEffects()->deltaTheta();
@@ -534,7 +534,7 @@ namespace Trk {
     m_scatteringangles = scatteringangles;
     int scatno = 0;
     for (auto & state : m_states) {
-      if ((*state).trackStateType() == TrackState::Scatterer
+      if ((*state).getStateType(TrackStateOnSurface::Scatterer)
           && ((m_prefit == 0) || (*state).materialEffects()->deltaE() == 0)) {
         double scatphi = scatteringangles[scatno].first;
         double scattheta = scatteringangles[scatno].second;
@@ -639,7 +639,7 @@ namespace Trk {
     for (auto & hit : trackStates()) {
       if (
         hit->measurementType() == TrackState::Pseudo &&
-        hit->trackStateType() == TrackState::GeneralOutlier
+        hit->getStateType(TrackStateOnSurface::Outlier)
       ) {
         continue;
       }

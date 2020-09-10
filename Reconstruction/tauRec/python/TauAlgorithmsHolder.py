@@ -309,9 +309,6 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          # parameters for CaloIsoCorrected variable
-                                                          maxPileUpCorrection = 4000., #MeV
-                                                          pileUpAlpha = 1.0,
                                                           VertexCorrection = True,
                                                           IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                        )

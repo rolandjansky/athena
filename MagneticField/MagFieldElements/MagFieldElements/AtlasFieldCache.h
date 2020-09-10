@@ -23,7 +23,6 @@
 #include "MagFieldElements/BFieldMeshZR.h"
 #include "MagFieldElements/BFieldZone.h"
 
-#include <iostream>
 #include <memory>
 namespace MagField {
 

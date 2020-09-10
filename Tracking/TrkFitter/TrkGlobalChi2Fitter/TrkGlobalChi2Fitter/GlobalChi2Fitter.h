@@ -549,7 +549,7 @@ namespace Trk {
       const ParticleHypothesis
     ) const;
 
-    std::unique_ptr<const TrackStateOnSurface> makeTrackFindPerigee(
+    std::unique_ptr<GXFTrackState> makeTrackFindPerigee(
       const EventContext &,
       Cache &,
       GXFTrajectory &,

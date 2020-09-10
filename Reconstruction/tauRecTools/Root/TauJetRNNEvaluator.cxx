@@ -177,7 +177,7 @@ StatusCode TauJetRNNEvaluator::get_tracks(
 StatusCode TauJetRNNEvaluator::get_clusters(
     const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) const {
 
-    const xAOD::Jet *jet_seed = *tau.jetLink();
+    const xAOD::Jet *jet_seed = tau.jet();
     if (!jet_seed) {
         ATH_MSG_ERROR("Tau jet link is invalid.");
         return StatusCode::FAILURE;

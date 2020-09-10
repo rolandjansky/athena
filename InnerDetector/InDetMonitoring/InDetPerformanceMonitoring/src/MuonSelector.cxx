@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -17,13 +17,13 @@
 
 // This files header
 #include "InDetPerformanceMonitoring/MuonSelector.h"
-// Package Headers
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
 // ATLAS headers
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
@@ -31,7 +31,7 @@
 #include <cmath>
 
 // Static declarations
-unsigned int MuonSelector::s_uNumInstances;
+std::atomic<unsigned int> MuonSelector::s_uNumInstances;
 
 //==================================================================================
 // Public Methods
@@ -39,8 +39,8 @@ unsigned int MuonSelector::s_uNumInstances;
 
 MuonSelector::MuonSelector()
 {
-  ++s_uNumInstances;
-  m_xSampleName     = "MuID_" + std::to_string(s_uNumInstances);
+  unsigned int inst = ++s_uNumInstances;
+  m_xSampleName     = "MuID_" + std::to_string(inst);
   m_pxMuon = nullptr;
   m_bLock  = false;
   m_coneSize        = 0.4;
@@ -64,18 +64,19 @@ MuonSelector::MuonSelector()
   m_doIsoSelection  = false;
   m_doPtSelection   = true;
   m_doIPSelection   = true;
-  m_msgStream =  new MsgStream(PerfMonServices::getMessagingService(), "InDetPerformanceMonitoring" );
+  ServiceHandle<IMessageSvc> msgSvc ("MessageSvc", "MuonSelector");
+  m_msgStream =  new MsgStream(msgSvc.get(), "InDetPerformanceMonitoring" );
 }
 
 
 
 MuonSelector::~MuonSelector()
 {
-  --s_uNumInstances;
   delete m_msgStream;
 }
 
-bool MuonSelector::passSelection( const xAOD::Muon* pxMuon )
+bool MuonSelector::passSelection( const xAOD::Muon* pxMuon,
+                                  const xAOD::VertexContainer& vxContainer )
 { 
   auto issueCutMessage = [this](const std::string & cutName){
    auto msg= std::string("Haven't passed the ")+cutName +std::string(" selection.");
@@ -97,7 +98,7 @@ bool MuonSelector::passSelection( const xAOD::Muon* pxMuon )
       issueCutMessage("pT");
       return false;
     }
-    if (m_doIPSelection and not passIPCuts()){
+    if (m_doIPSelection and not passIPCuts(vxContainer)){
       issueCutMessage("impact parameter");
       return false;
     }
@@ -119,11 +120,6 @@ void MuonSelector::Init()
   PARENT::Init();
 }
 
-
-bool MuonSelector::Reco()
-{
-  return true;
-}
 
 //==================================================================================
 // Protected Methods
@@ -221,7 +217,7 @@ bool MuonSelector::passIsolCuts()
 }
 
 
-bool MuonSelector::passIPCuts()
+bool MuonSelector::passIPCuts(const xAOD::VertexContainer& vxContainer)
 {
   float extd0 = 0.0 ;
   float extz0 = 0.0 ;
@@ -236,14 +232,8 @@ bool MuonSelector::passIPCuts()
   }
   else
     return false;
-  const xAOD::VertexContainer *  vxContainer{};
-  vxContainer = PerfMonServices::getContainer<xAOD::VertexContainer>( PerfMonServices::VTX_COLLECTION );
-  if (!vxContainer){
-    if(m_doDebug) (*m_msgStream)<<MSG::INFO << " NO vertex collection "<< endmsg;
-    return false;
-  }
-  if ( vxContainer->size()>1 ) {
-    const xAOD::Vertex* PV  = (*vxContainer)[0];
+  if ( vxContainer.size()>1 ) {
+    const xAOD::Vertex* PV  = vxContainer[0];
     Amg::Vector3D newPos = PV->position();
     if(m_doDebug) (*m_msgStream)<<MSG::INFO << " the PV of this event: " << newPos << endmsg;
 

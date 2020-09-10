@@ -159,7 +159,7 @@ public:
    /// Standard Service Constructor
    AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLocator);
    /// Destructor
-   virtual ~AthenaPoolCnvSvc();
+   virtual ~AthenaPoolCnvSvc() = default;
 
 private: // member functions
    /// Extract POOL ItechnologySpecificAttributes for Domain, Database and Container from property.
@@ -210,6 +210,8 @@ private: // properties
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;
    std::vector<unsigned int> m_contextAttr;
+   std::map<std::string, int> m_fileCommitCounter;
+   std::map<std::string, int> m_fileFlushSetting;
    /// Input PoolAttributes, vector with names and values of technology specific attributes for POOL
    StringArrayProperty m_inputPoolAttr{this,"InputPoolAttributes",{}};
    std::vector<std::vector<std::string> > m_inputAttr;

@@ -11,6 +11,9 @@
 //
 #include "MagFieldElements/AtlasFieldCache.h"
 
+#include <cmath>
+#include <iostream>
+
 void
 MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
                                     double* ATH_RESTRICT bxyz,
@@ -89,7 +92,7 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
   const double x = xyz[0];
   const double y = xyz[1];
   const double z = xyz[2];
-  const double r = sqrt(x * x + y * y);
+  const double r = std::sqrt(x * x + y * y);
 
   // test if the cache was initialized and the ZR cache is valid for current
   // position

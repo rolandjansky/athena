@@ -10,8 +10,7 @@
 #include "TFile.h"
 #include "TH2.h"
 
-
-
+//______________________________________________________________________________
 TauWPDecorator::TauWPDecorator(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("UseEleBDT", m_electronMode = false);
@@ -34,13 +33,11 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   declareProperty("DecorWPCutEffs3P", m_decorWPEffs3p);
 }
 
-
-
+//______________________________________________________________________________
 TauWPDecorator::~TauWPDecorator() {
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   // Find and open file
   std::string fileName;
@@ -91,8 +88,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   return StatusCode::SUCCESS;  
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::storeLimits(int nProng) {
   std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
   if (nProng == 0) {
@@ -131,14 +127,14 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
 double TauWPDecorator::transformScore(double score, double cutLow, double effLow, double cutHigh, double effHigh) const {
   double efficiency = effLow + (score - cutLow)/(cutHigh - cutLow) * (effHigh - effLow);
   double scoreTrans = 1.0 - efficiency;
   return scoreTrans;
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::initialize() {
 
   ATH_CHECK( m_aveIntPerXKey.initialize() );
@@ -172,8 +168,7 @@ StatusCode TauWPDecorator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const { 
   // obtain the dependent variables of the efficiency 
   // -- x variable is tau pt
@@ -303,11 +298,5 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
     }
   }
   
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TauWPDecorator::finalize() {
   return StatusCode::SUCCESS;
 }
