@@ -15,3 +15,7 @@ if [ -e /usr/lib64/atlas/libsatlas.so ]; then
    fi
    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$workaroundLib"
 fi
+toolpath=`which systematicsTool.py`
+tooldir=`dirname $toolpath`
+export SYSTTOOLSPATH=`dirname ${tooldir}` 
+export PYTHONPATH=$PYTHONPATH:${tooldir}
