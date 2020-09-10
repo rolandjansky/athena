@@ -451,7 +451,6 @@ namespace MuonGM {
 
   void MuonDetectorManager::set_mdtIdHelper(const MdtIdHelper* idh) {m_mdtIdHelper = idh;}
   void MuonDetectorManager::set_cscIdHelper(const CscIdHelper* idh) {m_cscIdHelper = idh;}
-  void MuonDetectorManager::set_rpcIdHelper(const RpcIdHelper* idh) {m_rpcIdHelper = idh;}
   void MuonDetectorManager::set_tgcIdHelper(const TgcIdHelper* idh) {m_tgcIdHelper = idh;}
   void MuonDetectorManager::set_stgcIdHelper(const sTgcIdHelper* idh) {m_stgcIdHelper = idh;}
   void MuonDetectorManager::set_mmIdHelper(const MmIdHelper* idh) {m_mmIdHelper = idh;}

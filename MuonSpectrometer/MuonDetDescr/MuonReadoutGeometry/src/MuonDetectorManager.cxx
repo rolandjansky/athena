@@ -1867,7 +1867,7 @@ const RpcDetectorElement* MuonDetectorManager::getRpcDetectorElement(IdentifierH
 }
 
 unsigned int MuonDetectorManager::rpcStationTypeIdx(const int stationName) const {
-  std::map<int,int>::const_iterator itr = m_rpcStatToIdx.find(satationName);
+  std::map<int,int>::const_iterator itr = m_rpcStatToIdx.find(stationName);
   if (itr != m_rpcStatToIdx.end()) return itr->second;
   return RpcStatType::UNKNOWN;
 }
@@ -1880,32 +1880,32 @@ int MuonDetectorManager::rpcStationName(const int stationIndex) const {
 void MuonDetectorManager::set_rpcIdHelper(const RpcIdHelper* idh) {
     m_rpcIdHelper = idh;
     m_rpcStatToIdx.clear();
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BML"),  RpcStatType::BML);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMS"),  RpcStatType::BMS);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOL"),  RpcStatType::BOL);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOS"),  RpcStatType::BOS);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMF"),  RpcStatType::BMF);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOF"),  RpcStatType::BOF);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOG"),  RpcStatType::BOG);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BME"),  RpcStatType::BME);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIR"),  RpcStatType::BIR);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIM"),  RpcStatType::BIM);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIL"),  RpcStatType::BIL);
-    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIS"),  RpcStatType::BIS);
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BML"),  RpcStatType::BML));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMS"),  RpcStatType::BMS));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOL"),  RpcStatType::BOL));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOS"),  RpcStatType::BOS));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BMF"),  RpcStatType::BMF));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOF"),  RpcStatType::BOF));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BOG"),  RpcStatType::BOG));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BME"),  RpcStatType::BME));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIR"),  RpcStatType::BIR));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIM"),  RpcStatType::BIM));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIL"),  RpcStatType::BIL));
+    m_rpcStatToIdx.insert(std::pair<int,int>(m_rpcIdHelper->stationNameIndex("BIS"),  RpcStatType::BIS));
 
     m_rpcIdxToStat.clear();
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BML, m_rpcIdHelper->stationNameIndex("BML"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMS, m_rpcIdHelper->stationNameIndex("BMS"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOL, m_rpcIdHelper->stationNameIndex("BOL"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOS, m_rpcIdHelper->stationNameIndex("BOS"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMF, m_rpcIdHelper->stationNameIndex("BMF"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOF, m_rpcIdHelper->stationNameIndex("BOF"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOG, m_rpcIdHelper->stationNameIndex("BOG"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BME, m_rpcIdHelper->stationNameIndex("BME"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIR, m_rpcIdHelper->stationNameIndex("BIR"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIM, m_rpcIdHelper->stationNameIndex("BIM"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIL, m_rpcIdHelper->stationNameIndex("BIL"));
-    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIS, m_rpcIdHelper->stationNameIndex("BIS"));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BML, m_rpcIdHelper->stationNameIndex("BML")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMS, m_rpcIdHelper->stationNameIndex("BMS")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOL, m_rpcIdHelper->stationNameIndex("BOL")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOS, m_rpcIdHelper->stationNameIndex("BOS")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BMF, m_rpcIdHelper->stationNameIndex("BMF")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOF, m_rpcIdHelper->stationNameIndex("BOF")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BOG, m_rpcIdHelper->stationNameIndex("BOG")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BME, m_rpcIdHelper->stationNameIndex("BME")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIR, m_rpcIdHelper->stationNameIndex("BIR")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIM, m_rpcIdHelper->stationNameIndex("BIM")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIL, m_rpcIdHelper->stationNameIndex("BIL")));
+    m_rpcIdxToStat.insert(std::pair<int,int>(RpcStatType::BIS, m_rpcIdHelper->stationNameIndex("BIS")));
 }
 
 } // namespace MuonGM
