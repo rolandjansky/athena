@@ -29,13 +29,15 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( lwtnn REQUIRED )
 
 # Libraries in the package:
 atlas_add_library( TrackVertexAssociationToolLib
    Root/*.cxx
    PUBLIC_HEADERS TrackVertexAssociationTool
+   PRIVATE_INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
    LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking AsgDataHandlesLib
-   PRIVATE_LINK_LIBRARIES xAODEventInfo )
+   PRIVATE_LINK_LIBRARIES xAODEventInfo ${LWTNN_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrackVertexAssociationTool
