@@ -19,17 +19,21 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 import sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lxp",["local"])
+    opts, args = getopt.getopt(sys.argv[1:],"lxpn:",["local"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l(--local)    run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
     print("-p             run post-processing, even if -x is set")
+    print("")
+    print("-n  N          run only on N events per job")
 
 
-local=False
-exclude=False
-postproc=False
+LEvents  = 0
+local    = False
+exclude  = False
+postproc = False
+
 for opt,arg in opts:
     if opt in ("-l", "--local"):
         local=True
@@ -37,7 +41,8 @@ for opt,arg in opts:
         exclude=True
     if opt=="-p":
         postproc=True
-
+    if opt=="-n":
+        LEvents=arg
 
 
 rdo2aod = TrigInDetReco()
@@ -45,10 +50,16 @@ rdo2aod = TrigInDetReco()
 # test specific variables ...
 
 rdo2aod.slices            = Slices
-rdo2aod.max_events        = Events 
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 
+
+# allow command line to override programed number of events to process
+
+if LEvents != 0 : 
+    rdo2aod.max_events        = LEvents 
+else :
+    rdo2aod.max_events        = Events 
 
 
 rdo2aod.perfmon = False
