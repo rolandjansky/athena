@@ -11,6 +11,8 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "lwtnn/NNLayerConfig.hh"
 #include "lwtnn/LightweightNeuralNetwork.hh"
 #include "lwtnn/LightweightGraph.hh"
@@ -224,7 +226,11 @@ bool MVATrackVertexAssociationTool::initializeNetwork() {
   m_inputEval.load(m_inputMap);
 
   // Load our input file 
-  std::ifstream netFile(m_fileName);
+  std::string fileName = PathResolverFindCalibFile(m_fileName);
+  if (fileName.empty()) {
+    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not find input network file: " + m_fileName);
+  }
+  std::ifstream netFile(fileName);
 
   // For sequential:
   if (m_isSequential) {
