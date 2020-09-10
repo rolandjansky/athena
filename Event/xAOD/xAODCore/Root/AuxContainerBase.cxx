@@ -18,7 +18,6 @@
 #include "xAODCore/tools/ReadStats.h"
 
 #include "CxxUtils/checker_macros.h"
-#include "CxxUtils/FloatCompressor.h"
 
 using namespace std;
 
@@ -26,7 +25,6 @@ namespace xAOD {
 
    AuxContainerBase::AuxContainerBase( bool allowDynamicVars )
       : SG::IAuxStore(),
-        m_compression(),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
         m_locked( false ),
@@ -54,13 +52,12 @@ namespace xAOD {
    {
       // Keep the source unmutable during copy
       guard_t guard( parent.m_mutex );
-      m_compression = parent.m_compression;
       m_name = parent.m_name;
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
-         // cppcheck-suppress copyCtorPointerCopying
          m_ownsStore = false;
+         // cppcheck-suppress copyCtorPointerCopying
          m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_auxids = m_store->getAuxIDs();
@@ -74,7 +71,6 @@ namespace xAOD {
    ///
    AuxContainerBase::AuxContainerBase( SG::IAuxStore* store )
       : SG::IAuxStore(),
-        m_compression(),
         m_auxids(), m_vecs(),
         m_store( store ),
         m_storeIO( 0 ), m_ownsStore( false ),
@@ -113,7 +109,6 @@ namespace xAOD {
 
       // Keep the objects locked during copy
       std::scoped_lock  lck{m_mutex, rhs.m_mutex};
-      m_compression = rhs.m_compression;
 
       // Clean up after the old dynamic store:
       if( m_store && m_ownsStore ) {

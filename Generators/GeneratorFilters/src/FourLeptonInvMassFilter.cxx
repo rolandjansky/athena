@@ -44,7 +44,7 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	  
       // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta
       int pdgId1((*pitr1)->pdg_id());
-      if (!(abs(pdgId1) == 11 || abs(pdgId1) == 13)) continue;	  
+      if (!(std::abs(pdgId1) == 11 || std::abs(pdgId1) == 13)) continue;	  
       if (!((*pitr1)->momentum().perp() >= m_minPt && std::abs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
       
       // Loop over all remaining particles in the event
@@ -56,7 +56,7 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	
 	// Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  
 	int pdgId2((*pitr2)->pdg_id());
-	if (!(abs(pdgId2) == 11 || abs(pdgId2) == 13)) continue;	     
+	if (!(std::abs(pdgId2) == 11 || std::abs(pdgId2) == 13)) continue;	     
 	if (!((*pitr2)->momentum().perp() >= m_minPt && std::abs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 	
 	// Loop over all remaining particles in the event
@@ -68,7 +68,7 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	  
 	  // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  	      
 	  int pdgId3((*pitr3)->pdg_id());
-	  if (!(abs(pdgId3) == 11 || abs(pdgId3) == 13)) continue;	    
+	  if (!(std::abs(pdgId3) == 11 || std::abs(pdgId3) == 13)) continue;	    
 	  if (!((*pitr3)->momentum().perp() >= m_minPt && std::abs((*pitr3)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 	  
 	  // Loop over all remaining particles in the event
@@ -80,7 +80,7 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	    
 	    // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  	      
 	    int pdgId4((*pitr4)->pdg_id());
-	    if (!(abs(pdgId4) == 11 || abs(pdgId4) == 13)) continue;	    
+	    if (!(std::abs(pdgId4) == 11 || std::abs(pdgId4) == 13)) continue;	    
 	    if (!((*pitr4)->momentum().perp() >= m_minPt && std::abs((*pitr4)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 	    
 	    // 4lepton vector

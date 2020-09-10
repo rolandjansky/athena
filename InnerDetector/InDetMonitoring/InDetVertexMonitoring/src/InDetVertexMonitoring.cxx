@@ -10,7 +10,6 @@
 #include "TMath.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 

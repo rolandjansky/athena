@@ -95,6 +95,10 @@ namespace TXC {
       // destructor
       virtual ~L1TopoConfigOutputList() {};
     
+      //move constructors
+      L1TopoConfigOutputList(L1TopoConfigOutputList&&) noexcept = default;
+      L1TopoConfigOutputList& operator=(L1TopoConfigOutputList&&) noexcept = default;
+
       // get all OutputList elements
       const std::vector<OutputListElement> & getOutputList() const { return m_outputListElements; }
    

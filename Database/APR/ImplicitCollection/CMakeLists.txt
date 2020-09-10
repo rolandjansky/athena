@@ -1,29 +1,17 @@
-################################################################################
-# Package: ImplicitCollection
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ImplicitCollection )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaKernel
-                          Database/APR/CollectionBase
-                          Database/APR/POOLCore
-                          Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
-                          Database/PersistentDataModel
-                          GaudiKernel )
-
 # External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( CORAL COMPONENTS CoralBase )
 
 # Component(s) in the package:
 atlas_add_library( ImplicitCollection
                    src/*.cpp
                    NO_PUBLIC_HEADERS
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel CollectionBase POOLCore PersistencySvc StorageSvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel CollectionBase POOLCore PersistencySvc PersistentDataModel StorageSvc )
 
 # Component list generation:
 atlas_generate_componentslist( ImplicitCollection )

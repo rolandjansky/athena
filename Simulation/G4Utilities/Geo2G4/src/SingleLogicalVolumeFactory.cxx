@@ -25,7 +25,7 @@ G4LogicalVolume *SingleLogicalVolumeFactory::Build(const GeoLogVol* theLog) cons
   //
   // Get Material from GeoModel
   //
-  std::string n= theLog->getName();
+  const std::string& n= theLog->getName();
   if (volumeList.find(n) == volumeList.end()) {
     G4LogicalVolume *theG4Log=0;
     G4Material* theG4Mat=theMaterialFactory.Build(theLog->getMaterial());

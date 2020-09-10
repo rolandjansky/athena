@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NAVIGATION_NAVIGABLEVECTOR_H
@@ -93,7 +93,7 @@ public:
   {
     if (i < m_store.size())
       return m_store[i];
-    static data_type null;
+    static const data_type null;
     return null;
   }
 

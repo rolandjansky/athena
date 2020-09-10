@@ -24,7 +24,7 @@ namespace G4UA
 
   //----------------------------------------------------------------------------
   // Formats print string for timer output
-  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
+  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, const std::string& id)
   {
     std::string dprnt = stringify(depth);
     if (depth == -999) dprnt = "      ";
@@ -121,7 +121,7 @@ namespace G4UA
   }
 
   //----------------------------------------------------------------------------
-  void TestActionVPTimerTool::TreeOut(VolTree id, const double tAtlas, int depth)
+  void TestActionVPTimerTool::TreeOut(const VolTree& id, const double tAtlas, int depth)
   {
     VolIt v = m_report.time_index.find(id);
     if (v != m_report.time_index.end()) {

@@ -5,7 +5,6 @@
 #include "UserHooksUtils.h"
 #include "UserSetting.h"
 #include "Pythia8_i/UserHooksFactory.h"
-#include "boost/lexical_cast.hpp"
 #include <stdexcept>
 #include <iostream>
 

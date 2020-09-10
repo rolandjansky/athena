@@ -206,9 +206,15 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
       }
 
       if (0 != pEvt) {
-        p = HepMC::barcode_to_particle(pEvt,barcode());
-        if (p) {
-          m_ptrs.set (sg, p);
+        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        if (pp) {
+#ifdef HEPMC3
+          m_ptrs.set (sg, pp.get());
+          p=pp.get();
+#else
+          m_ptrs.set (sg, pp);
+          p=pp;
+#endif
         }
         if (position != ExtendedBarCode::UNDEFINED) {
           m_extBarcode.makeIndex (pEvt->event_number(), position);
@@ -245,16 +251,20 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
   if (index == ExtendedBarCode::UNDEFINED) {
     const HepMC::GenEvent* pEvt{};
     const IProxyDict* sg{};
-    auto p = m_ptrs.get (sg);
+    auto p __attribute__ ((unused)) = m_ptrs.get (sg);
     if (const McEventCollection* coll = retrieveMcEventCollection (getEventCollection(),sg)) {
       if (position < coll->size()) {
         pEvt = coll->at (position);
       }
       if (pEvt) {
         const int event_number = pEvt->event_number();
-        p = HepMC::barcode_to_particle(pEvt,barcode());
-        if (p) {
-          m_ptrs.set (sg, p);
+        auto pp = HepMC::barcode_to_particle(pEvt,barcode());
+        if (pp) {
+#ifdef HEPMC3
+          m_ptrs.set (sg, pp.get());
+#else
+          m_ptrs.set (sg, pp);
+#endif
         }
         if(event_number>-1) {
           index = static_cast<index_type>(event_number);

@@ -69,7 +69,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         if overlayFlags.isDataOverlay():
             conddb.blockFolder("/TRT/Cond/DigVers")
             #conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
-            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True)
+            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True,
+                             className = 'AthenaAttributeList')
 
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name="TRT_LocalOccupancy", isTrigger= False )

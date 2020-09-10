@@ -143,13 +143,17 @@ def setupMdtCondDB():
     from IOVDbSvc.CondDB import conddb
 
     if mdtCalibFlags.mdtCalibrationSource()=="MDT":
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix, className='CondAttrListCollection')
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix, className='CondAttrListCollection')
+        if not conddb.folderRequested('/MDT/Onl/RT' + mdt_folder_name_appendix) and not conddb.folderRequested('/MDT/RT' + mdt_folder_name_appendix):
+            conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix, className='CondAttrListCollection')
+        if not conddb.folderRequested('/MDT/Onl/T0' + mdt_folder_name_appendix) and not conddb.folderRequested('/MDT/T0' + mdt_folder_name_appendix):
+            conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix, className='CondAttrListCollection')
     else:
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"MDTCalibrationSource": mdtCalibFlags.mdtCalibrationSource()})
-        specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
-        specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
+        if not conddb.folderRequested('/MDT/Onl/RT' + mdt_folder_name_appendix) and not conddb.folderRequested('/MDT/RT' + mdt_folder_name_appendix):
+            specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
+        if not conddb.folderRequested('/MDT/Onl/T0' + mdt_folder_name_appendix) and not conddb.folderRequested('/MDT/T0' + mdt_folder_name_appendix):
+            specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
 
     from AthenaCommon.AlgSequence import AthSequencer
     from MuonCondAlg.MuonCondAlgConf import MdtCalibDbAlg

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArFCAL_ID.h"
@@ -11,13 +11,13 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <string>
-#include <set>
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
+#include <set>
 #include <sstream>
-#include <math.h>
 #include <stdexcept>
+#include <string>
 
 #define MAX_BUFFER_LEN 1024
 

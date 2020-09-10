@@ -105,9 +105,6 @@ StatusCode TauPi0Selector::executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer
         // Set element link to Pi0tagged PFO
         pTau.addProtoPi0PFOLink(ElementLink< xAOD::PFOContainer > (neutralPFO, neutralPFOContainer));
     }
-    // Calculate visTau TLV and store it in pPi0Details.
-    TLorentzVector p4 = getP4(pTau);
-    pTau.setP4(xAOD::TauJetParameters::PanTauCellBasedProto, p4.Pt(),p4.Eta(),p4.Phi(),p4.M());
 
     // Set Proto Decay Mode
     if(pTau.nTracks()==1){

@@ -33,7 +33,7 @@ atlas_add_test( exceptions_test
 atlas_add_test( StringPool_test
                 SOURCES
                 test/StringPool_test.cxx
-                LINK_LIBRARIES SGTools )
+                LINK_LIBRARIES SGTools TestTools )
 
 atlas_add_test( DataProxy_test
                 SOURCES
@@ -58,4 +58,9 @@ atlas_add_test( CurrentEventStore_test
 atlas_add_test( SGFolderItem_test
                 SOURCES
                 test/SGFolderItem_test.cxx
+                LINK_LIBRARIES SGTools )
+
+atlas_add_test( transientKey_test
+                SOURCES
+                test/transientKey_test.cxx
                 LINK_LIBRARIES SGTools )

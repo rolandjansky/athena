@@ -75,7 +75,7 @@ StatusCode iFatras::PlanarClusterProvider::retrieveCollection() {
   
   m_planarClusterContainers->clear();
   m_planarClusterContainers->reserve(m_planarClusterContainerNames.size());
-  for (auto contName : m_planarClusterContainerNames) {
+  for (const auto& contName : m_planarClusterContainerNames) {
     const iFatras::PlanarClusterContainer* curCont = 0;
     if (contName!="" && evtStore()->retrieve(curCont,contName).isFailure()) {
       ATH_MSG_ERROR("Could not retrieve " << contName << ". Aborting." );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloLocalHadCalib/CaloReadLCWeightsFile.h"
@@ -24,7 +24,7 @@ CaloReadLCWeightsFile::CaloReadLCWeightsFile(const std::string & name,
 
 CaloReadLCWeightsFile::~CaloReadLCWeightsFile() {}
 
-StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileName,
+StatusCode CaloReadLCWeightsFile::initDataFromFile(const std::string& theLCWeightFileName,
                                                    CaloLocalHadCoeff& data)
 {
   // Find the full path to filename:
@@ -68,16 +68,16 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 	  bool allValid(true);
 
 	  std::vector<std::string> keys;
-	  keys.push_back(std::string("_iside_"));
-	  keys.push_back(std::string("_ieta_"));
-	  keys.push_back(std::string("_iphi_"));
+	  keys.emplace_back("_iside_");
+	  keys.emplace_back("_ieta_");
+	  keys.emplace_back("_iphi_");
 	  
 	  std::vector<std::string> names;
-	  names.push_back(std::string("side"));
-	  names.push_back(std::string("|eta|"));
-	  names.push_back(std::string("phi"));
-	  names.push_back(std::string(prof->GetXaxis()->GetTitle()));
-	  names.push_back(std::string(prof->GetYaxis()->GetTitle()));
+	  names.emplace_back("side");
+	  names.emplace_back("|eta|");
+	  names.emplace_back("phi");
+	  names.emplace_back(prof->GetXaxis()->GetTitle());
+	  names.emplace_back(prof->GetYaxis()->GetTitle());
 	  
 	  std::vector<int> types;
 	  types.push_back(CaloLocalHadDefs::DIM_EQUI);	  

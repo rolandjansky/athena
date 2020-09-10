@@ -26,7 +26,7 @@ StatusCode ZtoLeptonFilter::filterEvent() {
         }
         // Z children
         for (auto thisChild: pitr->end_vertex()->particles_out()) {
-          if (abs(thisChild->pdg_id()) == 11 || abs(thisChild->pdg_id()) == 13 || abs(thisChild->pdg_id()) == 15) {
+          if (std::abs(thisChild->pdg_id()) == 11 || std::abs(thisChild->pdg_id()) == 13 || std::abs(thisChild->pdg_id()) == 15) {
             return StatusCode::SUCCESS;
           }
         }
@@ -45,7 +45,7 @@ StatusCode ZtoLeptonFilter::filterEvent() {
         HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
         HepMC::GenVertex::particle_iterator thisChild = firstChild;
         for (; thisChild != endChild; ++thisChild) {
-          if (abs((*thisChild)->pdg_id()) == 11 || abs((*thisChild)->pdg_id()) == 13 || abs((*thisChild)->pdg_id()) == 15) {
+          if (std::abs((*thisChild)->pdg_id()) == 11 || std::abs((*thisChild)->pdg_id()) == 13 || std::abs((*thisChild)->pdg_id()) == 15) {
             return StatusCode::SUCCESS;
           }
         }

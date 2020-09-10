@@ -165,15 +165,14 @@ class TrigEgammaMonAlgBuilder:
 
 
   def setDefaultProperties(self):
-    
-    
+   
     # This will be removed for future.
-    monitoring_electron = ['HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
-    monitoring_photon = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3', 'HLT_g5_tight_L1EM3', 'HLT_g25_etcut_L1EM15VH','HLT_g25_loose_L1EM15VH','HLT_g25_medium_L1EM15VH', 'HLT_g25_tight_L1EM15VH', 'HLT_g140_loose_L1EM24VH']
+    monitoring_electron = ['HLT_e5_etcut_L1EM3']
+    monitoring_photon = ['HLT_g25_etcut_L1EM20VH','HLT_g25_loose_L1EM20VH','HLT_g25_medium_L1EM20VH', 'HLT_g25_tight_L1EM20VH', 'HLT_g140_loose_L1EM24VH']
     monitoringTP_electron = ['HLT_e26_lhtight_L1EM22VHI','HLT_e60_lhmedium_L1EM22VHI','HLT_e140_lhloose_L1EM22VHI']
+    #monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose', 'HLT_e26_lhtight_nod0_ivarloose']
 
-
-
+    #from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags, monitoringTP_electron, monitoring_photon , monitoring_electron
     self.electronList = monitoring_electron
     self.photonList   = monitoring_photon
     self.tpList       = monitoringTP_electron
@@ -190,7 +189,7 @@ class TrigEgammaMonAlgBuilder:
   # Create all minitor algorithms
   #
   def configureMonitor( self ):
-
+   
     acc = self.helper.resobj
     EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
     EgammaMatchTool.DeltaR=0.4
@@ -298,6 +297,7 @@ class TrigEgammaMonAlgBuilder:
       self.__logger.info( "Creating the Electron monitor algorithm...")
       self.elMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorElectronAlgorithm, "TrigEgammaMonitorElectronAlgorithm" )
       self.elMonAlg.MatchTool = EgammaMatchTool
+      self.elMonAlg.Analysis = "Electrons"
       self.elMonAlg.ElectronKey = 'Electrons'
       self.elMonAlg.isEMResultNames=self.isemnames
       self.elMonAlg.LHResultNames=self.lhnames
@@ -313,6 +313,7 @@ class TrigEgammaMonAlgBuilder:
 
       self.__logger.info( "Creating the Photon monitor algorithm...")
       self.phMonAlg = self.helper.addAlgorithm( CompFactory.TrigEgammaMonitorPhotonAlgorithm, "TrigEgammaMonitorPhotonAlgorithm" )
+      self.phMonAlg.Analysis = "Photons"
       self.phMonAlg.MatchTool = EgammaMatchTool
       self.phMonAlg.PhotonKey = 'Photons'
       self.phMonAlg.isEMResultNames=self.isemnames
@@ -329,12 +330,12 @@ class TrigEgammaMonAlgBuilder:
 
     if self.activate_zee and self.zeeMonAlg:
       self.setBinning()
-      self.bookEvent( self.zeeMonAlg, self.zeeMonAlg.Analysis )
+      self.bookEvent( self.zeeMonAlg, self.zeeMonAlg.Analysis , True)
       triggers = self.zeeMonAlg.TriggerList; triggers.extend( self.zeeMonAlg.TagTriggerList )
       self.bookExpertHistograms( self.zeeMonAlg, triggers )
     if self.activate_jpsiee and self.jpsieeMonAlg:
       self.setBinning(True)
-      self.bookEvent( self.jpsieeMonAlg, self.jpsieeMonAlg.Analysis )
+      self.bookEvent( self.jpsieeMonAlg, self.jpsieeMonAlg.Analysis, True )
       triggers = self.jpsieeMonAlg.TriggerList; triggers.extend( self.jpsieeMonAlg.TagTriggerList )
       self.bookExpertHistograms( self.jpsieeMonAlg, triggers )
     
@@ -418,21 +419,24 @@ class TrigEgammaMonAlgBuilder:
 
     
 
-  def bookEvent(self, monAlg, analysis):
+  def bookEvent(self, monAlg, analysis, tap=False):
 
-    cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
-    probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
-    tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
-    
     # Create mon group.  The group name should be the path name for map
-    monGroup = self.addGroup( monAlg, 'Event', self.basePath+'/Expert/Event' )
-    monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
-        xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
-    monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
-        xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
-    monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
-        xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
-    monGroup.defineHistogram(analysis+"_Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
+    monGroup = self.addGroup( monAlg, analysis, self.basePath+'/Expert/Event/'+analysis )
+
+    if tap:
+      cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
+      probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+      tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
+
+      monGroup.defineHistogram("CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
+          xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
+      monGroup.defineHistogram("TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+          xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
+      monGroup.defineHistogram("ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+          xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
+      monGroup.defineHistogram("Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, 
+          xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
 
 
   #

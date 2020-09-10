@@ -23,7 +23,7 @@ public:
         void SetNrOfPrimaryParticles(int nr);
         int GetNrOfPrimaryVertices() const;
         void SetNrOfPrimaryVertices(int nr);
-        void SetVertexPosition(const G4ThreeVector);
+        void SetVertexPosition(const G4ThreeVector&);
         const G4ThreeVector GetVertexPosition() const;
         void Print() const {}
 

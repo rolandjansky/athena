@@ -6,7 +6,7 @@
  * @file   GsfCombinedMaterialEffects.h
  * @date   Friday 11th January 2005
  * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
- * Class definition for consideration of multiple scatter and energy 
+ * Class definition for consideration of multiple scatter and energy
  * loss effects from material simultaneously
  */
 

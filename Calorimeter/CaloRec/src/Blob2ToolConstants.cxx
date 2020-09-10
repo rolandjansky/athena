@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloRec/Blob2ToolConstants.h"
@@ -42,7 +42,7 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::strin
 
 StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vector<std::string> & keys) {
 
-  if (keys.size()==0) {
+  if (keys.empty()) {
     msg(MSG::ERROR) << "addFolder: List of keys is empty" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -50,7 +50,7 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
   FOLDEROBJ& fobj=m_data[fn];
 
   //Check if this folder is alreayd konwn
-  const bool newCallback=(fobj.key_tc.size()==0);
+  const bool newCallback=(fobj.key_tc.empty());
 
 
   if (msgLvl(MSG::DEBUG)) {
@@ -66,7 +66,7 @@ StatusCode Blob2ToolConstants::addFolder(const std::string& fn, const std::vecto
   for(;kit!=kit_e;++kit) {
     const std::string& key=*kit;
     //Insert key/ToolConstants pair:
-    if (!fobj.key_tc.insert(std::make_pair(key,(CaloRec::ToolConstants*)NULL)).second)
+    if (!fobj.key_tc.insert(std::make_pair(key,(CaloRec::ToolConstants*)nullptr)).second)
       msg (MSG::DEBUG) << "COOL channel "<< key << " already set up." << endmsg;
     else
       msg (MSG::DEBUG) << "Added COOL channel " << key << endmsg;
@@ -128,7 +128,7 @@ StatusCode Blob2ToolConstants::fillObjects(IOVSVC_CALLBACK_ARGS_K(inlineFN)) {
       const unsigned chNbr=nameToChannelNumber(key);
       //Fixme: Check that this channel actually exits
       const std::string& chanName=fobj.inlineData->chanName(chNbr);
-      if (chanName.size()>0 && key!=chanName) {
+      if (!chanName.empty() && key!=chanName) {
 	msg(MSG::ERROR) << "Channel name does not match! Expected " << key << " found " << chanName << endmsg;
 	return StatusCode::FAILURE;
       }
@@ -184,9 +184,9 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
     
     //typedef std::map<std::string, CaloRec::Arrayrep> T;
     TClass* klass = TClass::GetClass ("std::map<std::string, CaloRec::Arrayrep>");
-    if (klass==NULL) {
+    if (klass==nullptr) {
       msg( MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
-      return 0;
+      return nullptr;
     }
     else
       msg(MSG::DEBUG) << "Got TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
@@ -195,7 +195,7 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
 
     if (buf.WriteObjectAny (&tc->map(), klass) != 1) {
       msg(MSG::ERROR) << "Failed to stream CaloRec::ToolConstants::Maptype " << endmsg;
-      return 0;
+      return nullptr;
     }
     
     blob.resize(buf.Length());
@@ -207,8 +207,8 @@ coral::AttributeList* Blob2ToolConstants::ToolConstantsToAttrList(const CaloRec:
 
 StatusCode Blob2ToolConstants::AttrListToToolConstants(const coral::AttributeList& attrList, CaloRec::ToolConstants& tc) const {
 
-    typedef CaloRec::ToolConstants::Maptype T;
-    T* map=0;
+    using T = CaloRec::ToolConstants::Maptype;
+    T* map=nullptr;
 
     try {
       tc.clsname(attrList["clsname"].data<std::string>());
@@ -222,7 +222,7 @@ StatusCode Blob2ToolConstants::AttrListToToolConstants(const coral::AttributeLis
       }
     
       TClass* klass = TClass::GetClass ("std::map<std::string, CaloRec::Arrayrep>");
-      if (klass==NULL) {
+      if (klass==nullptr) {
 	msg(MSG::ERROR) << "Can't find TClass std::map<std::string, CaloRec::Arrayrep>" << endmsg;
 	return StatusCode::FAILURE;
       }

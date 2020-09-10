@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TVirtualConverter.h,v 1.5 2007-12-04 02:11:02 ssnyder Exp $
 /**
  * @file TVirtualConverter.h
  * @author scott snyder <snyder@bnl.gov>
@@ -163,12 +161,12 @@ public:
   /**
    * @brief Return the transient class, to which we're converting.
    */
-  TClass* GetTransClass () const;
+  TClass* GetTransClass ();
 
   /**
    * @brief Return the persistent class, from which we're converting.
    */
-  TClass* GetPersClass() const;
+  TClass* GetPersClass();
 
   /**
    * @brief Return the checksum of the class from which we're converting.

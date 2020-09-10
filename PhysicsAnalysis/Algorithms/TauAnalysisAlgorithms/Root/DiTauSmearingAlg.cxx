@@ -15,6 +15,7 @@
 //
 // method implementations
 //
+#ifdef TAU_ANALYSIS_ALGORITHMS__DI_TAU_CALIBRATION_AND_SMEARING_ALG_H
 
 namespace CP
 {
@@ -61,3 +62,4 @@ namespace CP
       });
   }
 }
+#endif

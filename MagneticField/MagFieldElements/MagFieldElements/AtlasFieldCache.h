@@ -37,9 +37,10 @@ namespace MagField {
 class AtlasFieldCache
 {
 public:
-  AtlasFieldCache();
-  // ** constructor to setup with field scale and magnetic field service for
-  // first access to field */
+  AtlasFieldCache() = default;
+  /** constructor to setup with field scale
+   * and magnetic field service for
+   * first access to field */
   AtlasFieldCache(double solFieldScale,
                   double torFieldScale,
                   const AtlasFieldMap* fieldMap);
@@ -54,16 +55,17 @@ public:
   /// Temporary flag for switching between 'old' and 'new' magField usage
   bool useNewBfieldCache() { return true; }
 
-  /** get B field value at given position */
-  /** xyz[3] is in mm, bxyz[3] is in kT */
-  /** if deriv[9] is given, field derivatives are returned in kT/mm */
-  inline void getField(const double* ATH_RESTRICT xyz,
-                       double* ATH_RESTRICT bxyz,
-                       double* ATH_RESTRICT deriv = nullptr);
+  /** get B field value at given position
+   * xyz[3] is in mm, bxyz[3] is in kT
+   * if deriv[9] is given, field derivatives are returned in kT/mm
+   * */
+  void getField(const double* ATH_RESTRICT xyz,
+                double* ATH_RESTRICT bxyz,
+                double* ATH_RESTRICT deriv = nullptr);
 
-  inline void getFieldZR(const double* ATH_RESTRICT xyz,
-                         double* ATH_RESTRICT bxyz,
-                         double* ATH_RESTRICT deriv = nullptr);
+  void getFieldZR(const double* ATH_RESTRICT xyz,
+                  double* ATH_RESTRICT bxyz,
+                  double* ATH_RESTRICT deriv = nullptr);
 
   /** status of the magnets */
   bool solenoidOn() const;
@@ -73,7 +75,9 @@ private:
   AtlasFieldCache(const AtlasFieldCache& other) = delete;
   AtlasFieldCache& operator=(const AtlasFieldCache& other) = delete;
 
+  /// fill given magnetic field zone */
   bool fillFieldCache(double z, double r, double phi);
+  /// fill Z-R cache for solenoid */
   bool fillFieldCacheZR(double z, double r);
 
   /// Full 3d field

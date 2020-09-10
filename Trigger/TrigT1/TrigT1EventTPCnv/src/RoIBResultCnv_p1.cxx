@@ -26,29 +26,29 @@ void RoIBResultCnv_p1::persToTrans( const RoIBResult_p1* persObj, ROIB::RoIBResu
 
    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting ROIB::RoIBResult from persistent state..." << endmsg;
 
-   ROIB::MuCTPIResult muc (ROIB::Header (persObj->m_muctpi.m_header),
-                           ROIB::Trailer (persObj->m_muctpi.m_trailer),
+   ROIB::MuCTPIResult muc (ROIB::Header (std::vector< uint32_t >(persObj->m_muctpi.m_header)),
+                           ROIB::Trailer (std::vector< uint32_t >(persObj->m_muctpi.m_trailer)),
                            std::vector<ROIB::MuCTPIRoI> (persObj->m_muctpi.m_roiWords.begin(),
                                                          persObj->m_muctpi.m_roiWords.end()));
 
    ROIB::CTPResult ctp (0,
-                        ROIB::Header (persObj->m_ctp.m_header),
-                        ROIB::Trailer (persObj->m_ctp.m_trailer),
+                        ROIB::Header (std::vector< uint32_t >(persObj->m_ctp.m_header)),
+                        ROIB::Trailer (std::vector< uint32_t >(persObj->m_ctp.m_trailer)),
                         persObj->m_ctp.m_roiWords);
 
 
    std::vector< ROIB::JetEnergyResult > jetvec;
    for (const SubSysResult_p1& jeten : persObj->m_jetenergy) {
-      jetvec.emplace_back ( ROIB::Header(jeten.m_header), 
-                            ROIB::Trailer(jeten.m_trailer),
+      jetvec.emplace_back ( ROIB::Header(std::vector< uint32_t >(jeten.m_header)), 
+                            ROIB::Trailer(std::vector< uint32_t >(jeten.m_trailer)),
                             std::vector<ROIB::JetEnergyRoI> (jeten.m_roiWords.begin(),
                                                              jeten.m_roiWords.end()) );
    }
 
    std::vector< ROIB::EMTauResult > emtauvec;
    for (const SubSysResult_p1& emtau : persObj->m_emtau) {
-     emtauvec.emplace_back ( ROIB::Header(emtau.m_header), 
-                             ROIB::Trailer(emtau.m_trailer),
+     emtauvec.emplace_back ( ROIB::Header(std::vector< uint32_t >(emtau.m_header)), 
+                             ROIB::Trailer(std::vector< uint32_t >(emtau.m_trailer)),
                              std::vector<ROIB::EMTauRoI> (emtau.m_roiWords.begin(),
                                                           emtau.m_roiWords.end()) );
    }

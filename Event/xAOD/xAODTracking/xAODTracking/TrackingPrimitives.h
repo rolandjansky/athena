@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPrimitives.h 576255 2013-12-19 12:54:41Z emoyse $
@@ -489,7 +489,7 @@ template <typename SCALAR, int ROWS, int COLS, int OPTIONS, int MAXROWS, int MAX
 struct Zero<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAXROWS, MAXCOLS> >
 {
   typedef Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAXROWS, MAXCOLS> Matrix;
-  static Matrix zero ATLAS_CHECK_THREAD_SAFETY ()
+  static Matrix zero()
   {
     Matrix m;
     m.setZero();

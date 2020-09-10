@@ -18,7 +18,6 @@
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/DataObject.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 // Athena
 #include "AthenaKernel/IClassIDSvc.h"

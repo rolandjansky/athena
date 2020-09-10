@@ -7,6 +7,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 import json
 
+def getL1PrescaleFolderName():
+    return "/TRIGGER/LVL1/Lvl1ConfigKey <tag>HEAD</tag>"
+
 def getHLTPrescaleFolderName():
     return "/TRIGGER/HLT/PrescaleKey <tag>HEAD</tag>"
 
@@ -70,32 +73,6 @@ def createL1PrescalesFileFromMenu( flags ):
     with open(psFN, 'w') as outfile:
         json.dump(pso, outfile, indent = 4)
         log.info("Generated default L1 prescale set %s", outfile.name)
-
-
-# Creates an HLT Prescale file from the menu
-# this is a temporary solution, in the final version the HLTPrescalesSet file should come from the menu
-def createHLTPrescalesFileFromMenu( flags ):
-    log = logging.getLogger('TrigConfigSvcCfg')
-    menuFN = getHLTMenuFileName( flags )
-    with open(menuFN,'r') as fh:
-        data = json.load(fh, object_pairs_hook = odict)
-        pso = odict()
-        pso['filetype'] = 'hltprescale'
-        pso['name'] = data['name']
-        pso['prescales'] = odict()
-        ps = pso['prescales']
-        for name, chain in data['chains'].items():
-            ps[name] = odict([
-                ("name", name),
-                ("counter", chain['counter']),
-                ("hash", chain['nameHash']),
-                ("prescale", 1),
-                ("enabled", 1)
-            ])
-    psFN = getHLTPrescalesSetFileName( flags )
-    with open(psFN, 'w') as outfile:
-        json.dump(pso, outfile, indent = 4)
-        log.info("Generated default HLT prescale set %s", outfile.name)
 
 
 def getTrigConfigFromFlag( flags ):
@@ -219,6 +196,32 @@ def TrigConfigSvcCfg( flags ):
     acc.addService( getHLTConfigSvc( flags ) )
     return acc
 
+def L1PrescaleCondAlgCfg( flags ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    log.info("Setting up L1PrescaleCondAlg")
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+    TrigConf__L1PrescaleCondAlg = CompFactory.getComp("TrigConf::L1PrescaleCondAlg")
+    l1PrescaleCondAlg = TrigConf__L1PrescaleCondAlg("L1PrescaleCondAlg")
+
+    tc = getTrigConfigFromFlag( flags )
+    l1PrescaleCondAlg.Source = tc["source"]
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.isOnline():
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(flags, getL1PrescaleFolderName(), "TRIGGER_ONL", className="AthenaAttributeList"))
+        log.info("Adding folder %s to CompAcc", getL1PrescaleFolderName() )
+    if tc["source"] == "COOL":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+    elif tc["source"] == "DB":
+        l1PrescaleCondAlg.TriggerDB = tc["dbconn"]
+        l1PrescaleCondAlg.L1Psk    = tc["l1psk"]
+    elif tc["source"] == "FILE":
+        l1PrescaleCondAlg.Filename = getL1PrescalesSetFileName( flags )
+    else:
+        raise RuntimeError("trigger configuration flag 'trigConfig' starts with %s, which is not understood" % tc["source"])
+    acc.addCondAlgo(l1PrescaleCondAlg)
+    return acc
 
 def HLTPrescaleCondAlgCfg( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')

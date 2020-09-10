@@ -10,7 +10,6 @@
 
 
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"

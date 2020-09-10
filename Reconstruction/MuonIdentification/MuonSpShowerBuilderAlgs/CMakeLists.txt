@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSpShowerBuilderAlgs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODMuon
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
-
 # Component(s) in the package:
 atlas_add_library( MuonSpShowerBuilderAlgsLib
                    src/*.cxx

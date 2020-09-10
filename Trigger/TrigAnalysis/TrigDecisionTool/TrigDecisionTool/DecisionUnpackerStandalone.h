@@ -24,7 +24,7 @@
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
-#include "StoreGate/ReadHandleKey.h"
+#include "AsgDataHandles/ReadHandleKey.h"
 
 // Forward declaration(s):
 namespace HLT {

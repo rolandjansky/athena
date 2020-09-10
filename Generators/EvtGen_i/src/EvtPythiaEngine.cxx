@@ -455,7 +455,7 @@ void EvtPythiaEngine::updateParticleLists() {
       // Find the Pythia particle name given the standard PDG code integer
       std::string dataName = _theParticleData.name(PDGCode);
       bool alreadyStored(false);
-      if (_addedPDGCodes.find(abs(PDGCode)) != _addedPDGCodes.end()) {alreadyStored = true;}
+      if (_addedPDGCodes.find(std::abs(PDGCode)) != _addedPDGCodes.end()) {alreadyStored = true;}
 
       if (dataName == " " && alreadyStored == false) {
 

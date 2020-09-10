@@ -39,7 +39,7 @@ namespace LVL1MUCTPI {
    MirodDaqProcessor::MirodDaqProcessor( std::list<unsigned int> daqOut )
       : m_logger( "MirodDaqProcessor" ) {
 
-      m_daqOutputData = daqOut;
+      m_daqOutputData = std::move(daqOut);
    }
 
    // implementation of main action method

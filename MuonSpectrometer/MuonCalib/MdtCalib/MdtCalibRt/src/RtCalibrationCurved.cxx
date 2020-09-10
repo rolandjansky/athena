@@ -109,16 +109,8 @@ RtCalibrationCurved::~RtCalibrationCurved(void) {
   if (m_base_function!=0) {
     delete m_base_function;
   }
-  delete m_multilayer_rt_difference;
-  if (m_tfile!=0) {
+  if (m_tfile) {
     m_tfile->Write();
-    delete m_cut_evolution;
-    delete m_nb_segment_hits;
-    delete m_pull_initial;
-    delete m_pull_final;
-    delete m_residuals_initial;
-    delete m_residuals_final;
-    delete m_tfile;
   }
 
 }
@@ -207,32 +199,19 @@ void RtCalibrationCurved::switch_on_control_histograms(const std::string & file_
 /////////////////////////////////////////////
   m_control_histograms = true;
 
-  m_tfile = new TFile(file_name.c_str(), "RECREATE");
+  m_tfile = std::make_unique<TFile>(file_name.c_str(), "RECREATE");
 
-  m_cut_evolution = new TH1F("m_cut_evolution",
-			     "CUT EVOLUTION",
-			     11, -0.5, 10.5);
+  m_cut_evolution = std::make_unique<TH1F>("m_cut_evolution","CUT EVOLUTION",11, -0.5, 10.5);
+  m_nb_segment_hits = std::make_unique<TH1F>("m_nb_segment_hits","NUMBER OF HITS ON THE REFITTED SEGMENTS",11, -0.5, 10.5);
+  m_pull_initial = std::make_unique<TH1F>("m_pull_initial","INITIAL PULL DISTRIBUTION",200, -5.05, 5.05); 
+  m_residuals_initial = std::make_unique<TH2F>("m_residuals_initial","INITIAL OF THE REFITTED SEGMENTS",100, -0.5, 15.0, 300, -1.5, 1.5);
+  m_residuals_initial_all = std::make_unique<TH2F>("m_residuals_initial_all","INITIAL OF THE REFITTED SEGMENTS BEFORE CONVERGENCE",300, -15.0, 15.0, 1000, -5, 5);
+  m_residuals_final = std::make_unique<TH2F>("m_residuals_final","FINAL OF THE REFITTED SEGMENTS",100, -0.5, 15.0, 300, -1.5, 1.5);
+  m_driftTime_final = std::make_unique<TH2F>("m_driftTime_final","FINAL DRIFTTIME OF THE REFITTED SEGMENTS",300, -15.0, 15.0, 300,-15.0, 15.0);
+  m_driftTime_initial = std::make_unique<TH2F>("m_driftTime_initial","FINAL DRIFTTIME OF THE REFITTED SEGMENTS",300, -15.0, 15.0, 1300, -100, 1200);
+  m_adc_vs_residual_final = std::make_unique<TH2F>("m_adc_resi_initial","FINAL ADC VS RESIDUAL OF THE REFITTED SEGMENTS",1350, 0, 1350, 300,-15,15);
 
-  m_nb_segment_hits = new TH1F("m_nb_segment_hits",
-			       "NUMBER OF HITS ON THE REFITTED SEGMENTS",
-			       11, -0.5, 10.5);
-
-  m_pull_initial = new TH1F("m_pull_initial",
-			    "INITIAL PULL DISTRIBUTION",
-			    200, -5.05, 5.05); 
-// 	m_pull_final = new TH1F("m_pull_final",
-// 				"FINAL PULL DISTRIBUTION",
-// 				200, -5.05, 5.05); 
-
-  m_residuals_initial = new TH2F("m_residuals_initial",
-				 "INITIAL OF THE REFITTED SEGMENTS",
-				 100, -0.5, 15.0, 300, -1.5, 1.5);
-  m_residuals_final = new TH2F("m_residuals_final",
-			       "FINAL OF THE REFITTED SEGMENTS",
-			       100, -0.5, 15.0, 300, -1.5, 1.5);
-
-  delete m_multilayer_rt_difference;
-  m_multilayer_rt_difference=new MultilayerRtDifference(10000, m_tfile);
+  m_multilayer_rt_difference=std::make_unique<MultilayerRtDifference>(10000, m_tfile.get());
   return;
 }
 
@@ -243,10 +222,9 @@ void RtCalibrationCurved::switch_on_control_histograms(const std::string & file_
 //::::::::::::::::::::::::::::::::::::::::::
 void RtCalibrationCurved::switch_off_control_histograms(void) {
   m_control_histograms = false;
-  if (m_tfile!=0) {
+  if (m_tfile) {
     m_tfile->Write();
-    delete m_multilayer_rt_difference;
-    m_multilayer_rt_difference=new MultilayerRtDifference(10000);
+    m_multilayer_rt_difference=std::make_unique<MultilayerRtDifference>(10000);
   }
 
   return;
@@ -309,6 +287,18 @@ void RtCalibrationCurved::noSmoothing(void) {
 //::::::::::::::::::::::::::::
 const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::vector<MuonCalibSegment*> & seg) {
   const IRtRelation *tmp_rt(0);
+  
+/////////////////////
+// Initial RESIDUALS //
+/////////////////////
+  for (unsigned int k=0; k<seg.size(); k++) {
+    for (unsigned int l=0; l<seg[k]->hitsOnTrack(); l++) {
+      double rr = (seg[k]->mdtHOT())[l]->driftRadius();
+      double dd = (seg[k]->mdtHOT())[l]->signedDistanceToTrack();
+      if(m_residuals_final) m_residuals_initial_all->Fill(std::abs(dd), std::abs(rr)-std::abs(dd));
+      m_driftTime_initial->Fill(rr, dd);
+    }
+  }
 
 //////////////////////////
 // AUTOCALIBRATION LOOP //
@@ -352,13 +342,17 @@ const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::ve
 //////////////////////////////////////////////
   if (!m_do_smoothing) {
 // final residuals //
-    double r, d;
+    double r(0);
+    double d(0);
+    double adc(0);
     for (unsigned int k=0; k<seg.size(); k++) {
       for (unsigned int l=0; l<seg[k]->hitsOnTrack(); l++) {
-	r = std::abs((seg[k]->mdtHOT())[l]->driftRadius());
-	d = std::abs((seg[k]->mdtHOT())[l]->signedDistanceToTrack());
-	if(m_residuals_final != NULL)
-	  m_residuals_final->Fill(d, r-d, 1.0);
+      adc = (seg[k]->mdtHOT())[l]->adcCount();
+      r = (seg[k]->mdtHOT())[l]->driftRadius();
+      d = (seg[k]->mdtHOT())[l]->signedDistanceToTrack();
+      if(m_residuals_final) m_residuals_final->Fill(std::abs(d), std::abs(r)-std::abs(d));
+      m_driftTime_final->Fill(r, d);
+      m_adc_vs_residual_final->Fill(adc,std::abs(r)-std::abs(d));
       }
     }
     return getResults();
@@ -419,10 +413,9 @@ const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::ve
       // final residuals //
       for (unsigned int k=0; k<seg.size(); k++) {
 	for (unsigned int l=0; l<seg[k]->hitsOnTrack(); l++) {
-	  double r = std::abs((seg[k]->mdtHOT())[l]->driftRadius());
-	  double d = std::abs((seg[k]->mdtHOT())[l]->signedDistanceToTrack());
-	  if(m_residuals_final != NULL)
-	    m_residuals_final->Fill(d, r-d, 1.0);
+	  double r = (seg[k]->mdtHOT())[l]->driftRadius();
+	  double d = (seg[k]->mdtHOT())[l]->signedDistanceToTrack();
+	  if(m_residuals_final) m_residuals_final->Fill(d, std::abs(r)-std::abs(d), 1.0);
 	}
       }
       return getResults();
@@ -461,10 +454,12 @@ const IMdtCalibrationOutput * RtCalibrationCurved::analyseSegments(const std::ve
 /////////////////////
   for (unsigned int k=0; k<seg.size(); k++) {
     for (unsigned int l=0; l<seg[k]->hitsOnTrack(); l++) {
-      double r = std::abs((seg[k]->mdtHOT())[l]->driftRadius());
-      double d = std::abs((seg[k]->mdtHOT())[l]->signedDistanceToTrack());
-      if(m_residuals_final != NULL)
-	m_residuals_final->Fill(d, r-d, 1.0);
+      double adc = (seg[k]->mdtHOT())[l]->adcCount();
+      double r = (seg[k]->mdtHOT())[l]->driftRadius();
+      double d = (seg[k]->mdtHOT())[l]->signedDistanceToTrack();
+      if(m_residuals_final) m_residuals_final->Fill(d, std::abs(r)-std::abs(d));
+      m_driftTime_final->Fill(r, d);
+      m_adc_vs_residual_final->Fill(adc,std::abs(r)-std::abs(d));
     }
   }
 
@@ -890,7 +885,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
 
       // do not change the r-t and the endpoints //
       if (((k==0 || x_r[k].x2()<0.5) && m_fix_min) || 
-	  ((k==nb_points || x_r[k].x2()>14.1) && m_fix_max)) {
+	  ((k==nb_points || x_r[k].x2()>m_r_max) && m_fix_max)) {
 	r_corr = 0.0;
 	x_r[k].set_error(0.01);
       }
@@ -935,7 +930,7 @@ bool RtCalibrationCurved::analyse(const std::vector<MuonCalibSegment*> & seg) {
       max_k = rt_param.size()-1;
     }
     for (unsigned int k=min_k; k<max_k; k++) {
-      x = (rt_param[k] - 7.6)/7.6;
+      x = (rt_param[k] - 0.5*m_r_max)/(0.5*m_r_max);
       r_corr = m_alpha[0];
       for (unsigned int l=1; l<m_order; l++) {
 	r_corr = r_corr+m_alpha[l]*
@@ -1057,16 +1052,9 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
 /////////////////////////////
 // RESET PRIVATE VARIABLES //
 /////////////////////////////
-  m_rt=NULL;
+  m_rt=nullptr;
   m_r_max = 15.0*CLHEP::mm;
   m_control_histograms = false;
-  m_tfile = 0;
-  m_cut_evolution = 0;
-  m_nb_segment_hits = 0;
-  m_pull_initial = 0;
-  m_pull_final = 0;
-  m_residuals_initial = 0;
-  m_residuals_final = 0;
   m_nb_segments = 0;
   m_nb_segments_used = 0;
   m_iteration = 0;
@@ -1081,7 +1069,7 @@ void RtCalibrationCurved::init(const double & rt_accuracy,
   m_fix_max = fix_max;
   m_max_it = std::abs(max_it);
   m_do_multilayer_rt_scale=do_multilayer_rt_scale;
-  m_multilayer_rt_difference = new MultilayerRtDifference(10000);
+  m_multilayer_rt_difference = std::make_unique<MultilayerRtDifference>(10000);
   
   m_tracker = new CurvedPatRec;
 

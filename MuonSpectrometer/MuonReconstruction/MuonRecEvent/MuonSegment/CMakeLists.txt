@@ -5,21 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSegment )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkSpaceTimePoint
-                          PRIVATE
-                          Control/CxxUtils
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

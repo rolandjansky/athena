@@ -1,0 +1,49 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+inline void
+BFieldZone::appendCond(const BFieldCond& cond)
+{
+  m_cond.push_back(cond);
+}
+
+inline void
+BFieldZone::scaleField(double factor)
+{
+  scaleBscale(factor);
+  for (unsigned i = 0; i < ncond(); i++) {
+    m_cond[i].scaleCurrent(factor);
+  }
+}
+
+inline void
+BFieldZone::addBiotSavart(const double* ATH_RESTRICT xyz,
+                          double* ATH_RESTRICT B,
+                          double* ATH_RESTRICT deriv) const
+{
+  for (unsigned i = 0; i < m_cond.size(); i++) {
+    m_cond[i].addBiotSavart(1, xyz, B, deriv);
+  }
+}
+
+inline int
+BFieldZone::memSize() const
+{
+  return BFieldMesh<short>::memSize() + sizeof(int) +
+         sizeof(BFieldCond) * m_cond.capacity();
+}
+
+inline void
+BFieldZone::adjustMin(int i, double x)
+{
+  m_min[i] = x;
+  m_mesh[i].front() = x;
+}
+
+inline void
+BFieldZone::adjustMax(int i, double x)
+{
+  m_max[i] = x;
+  m_mesh[i].back() = x;
+}
+

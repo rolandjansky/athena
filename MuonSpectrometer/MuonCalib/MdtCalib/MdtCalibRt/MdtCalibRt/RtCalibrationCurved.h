@@ -1,21 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 10.05.2008, AUTHOR: OLIVER KORTNER
-// Modified: 01.03.2009 by O. Kortner, parabolic extrapolation added.
-//           15.03.2009 by O. Kortner, smoothing added.
-//           18.03.2009 by O. Kortner, method performParabolicExtrapolation
-//                                     added.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_RtCalibrationCurvedH
 #define MuonCalib_RtCalibrationCurvedH
-
-//:::::::::::::::::::::::::::::::
-//:: CLASS RtCalibrationCurved ::
-//:::::::::::::::::::::::::::::::
 
 /// \class RtCalibrationCurved
 ///
@@ -28,14 +16,10 @@
 ///
 /// \date 10.05.2008
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// STL //
 #include <vector>
 #include <string>
 #include <list>
+#include <memory>
 
 // CLHEP //
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -252,7 +236,7 @@ private:
     IRtRelation * m_rt_new; // r-t as determined by the autocalibration
     RtCalibrationOutput * m_output; // class holding the results of the
                                     // autocalibration
-    MultilayerRtDifference * m_multilayer_rt_difference;
+    std::unique_ptr<MultilayerRtDifference> m_multilayer_rt_difference;
 // curved-segment fitting //
     double m_r_max; // maximum value for accepted drift radii
     CurvedPatRec *m_tracker; // curved segment finder (used for track fitting)
@@ -290,14 +274,17 @@ private:
                                      // describing the curved line
 
 // control histograms //
-    TFile *m_tfile; // ROOT file
-    TH1F *m_cut_evolution; // cut evolution histogram
-    TH1F *m_nb_segment_hits; // number of hits on the segments
-	TH1F *m_pull_initial; // initial pull distribution
-	TH1F *m_pull_final; // final pull distribution after convergence
-    TH2F *m_residuals_initial; // initial residual distribution
-    TH2F *m_residuals_final; // final residual distribution after convergence
-    
+    std::unique_ptr<TFile> m_tfile; // ROOT file
+    std::unique_ptr<TH1F> m_cut_evolution; // cut evolution histogram
+    std::unique_ptr<TH1F> m_nb_segment_hits; // number of hits on the segments
+    std::unique_ptr<TH1F> m_pull_initial; // initial pull distribution
+    std::unique_ptr<TH1F> m_pull_final; // final pull distribution after convergence
+    std::unique_ptr<TH2F> m_residuals_initial; // initial residual distribution
+    std::unique_ptr<TH2F> m_residuals_initial_all; // initial residual distribution before convergence
+    std::unique_ptr<TH2F> m_residuals_final; // final residual distribution after convergence
+    std::unique_ptr<TH2F> m_driftTime_initial; // final residual distribution after convergence
+    std::unique_ptr<TH2F> m_driftTime_final; // final residual distribution after convergence
+    std::unique_ptr<TH2F> m_adc_vs_residual_final; // final residual distribution after convergence
 
 // private methods //
     void init(const double & rt_accuracy, const unsigned int & func_type,

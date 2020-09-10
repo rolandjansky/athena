@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -41,10 +41,10 @@
 #include "StoreGate/ReadHandle.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include <math.h>
+#include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Geometry/Vector3D.h>
+#include <cmath>
 
 
 using CLHEP::HepLorentzVector;
@@ -58,9 +58,9 @@ CaloCalibClusterMomentsMaker::CaloCalibClusterMomentsMaker(const std::string& ty
 							   const std::string& name,
 							   const IInterface* parent)
   : AthAlgTool(type, name, parent), 
-    m_calo_id(0),
-    m_caloDM_ID(0),
-    m_caloDmDescrManager(0),
+    m_calo_id(nullptr),
+    m_caloDM_ID(nullptr),
+    m_caloDmDescrManager(nullptr),
     m_energyMin(200*MeV),
     m_energyMinCalib(20*MeV),
     m_apars_alpha(0.5),
@@ -92,25 +92,25 @@ CaloCalibClusterMomentsMaker::CaloCalibClusterMomentsMaker(const std::string& ty
   m_validNames.push_back(moment_name_pair(std::string("ENG_CALIB_DEAD_UNCLASS"),xAOD::CaloCluster::ENG_CALIB_DEAD_UNCLASS));
 
   // Name(s) of Moments which can be stored on the AOD - all others go to ESD
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_TOT"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_L"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_M"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_OUT_T"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_L"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_M"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_T"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_EMB0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_EME0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_TILEG3"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TOT"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_EMB0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TILE0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_TILEG3"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_EME0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_HEC0"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_FCAL"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_LEAKAGE"));
-  m_momentsNamesAOD.push_back(std::string("ENG_CALIB_DEAD_UNCLASS"));
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_TOT");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_L");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_M");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_OUT_T");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_L");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_M");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_T");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_EMB0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_EME0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_TILEG3");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TOT");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_EMB0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TILE0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_TILEG3");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_EME0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_HEC0");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_FCAL");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_LEAKAGE");
+  m_momentsNamesAOD.emplace_back("ENG_CALIB_DEAD_UNCLASS");
 
   declareProperty("AODMomentsNames",m_momentsNamesAOD);
   declareProperty("CalibrationHitContainerNames",m_CalibrationHitContainerNames);
@@ -332,7 +332,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
       IdentifierHash myHashMin,myHashMax;
       m_calo_id->calo_cell_hash_range (ic,myHashMin,myHashMax);
       maxHashSize = myHashMax-myHashMin;
-      cellVector[ic].resize(maxHashSize,0);
+      cellVector[ic].resize(maxHashSize,nullptr);
     }
 
     xAOD::CaloClusterContainer::iterator clusIter = theClusColl->begin();
@@ -353,7 +353,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	ClusWeight * myClus = new ClusWeight();
 	myClus->iClus = iClus;
 	myClus->weight = cellIter.weight();
-	myClus->next = 0;
+	myClus->next = nullptr;
 	ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];
 	if ( theList ) {
 	  while ( theList->next ) 
@@ -495,7 +495,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 		    jpO -=  2*m_n_phi_out;
 		  // HepVector3D hitPos(myCDDE->x(),myCDDE->y(),myCDDE->z());
 		  for (unsigned int ii=0;ii<3;ii++) {
-		    std::vector<std::vector <int > > *pClusList=0;
+		    std::vector<std::vector <int > > *pClusList=nullptr;
   
 		    if ( ii == 0 && m_doOutOfClusterL ) 
 		      pClusList = &clusListL;
@@ -541,7 +541,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	for(;chIter!=chIterE;chIter++)  {
 	  Identifier myId = (*chIter)->cellID();
 	  if (m_calo_id->is_lar_dm(myId) || m_calo_id->is_tile_dm(myId)) {
-	    CaloDmDescrElement* myCDDE(0);
+	    CaloDmDescrElement* myCDDE(nullptr);
 	    myCDDE = m_caloDmDescrManager->get_element(myId);
 	    if ( myCDDE ) {
 	      int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
@@ -552,7 +552,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 		if ( jpO >=  m_n_phi_out ) 
 		  jpO -=  2*m_n_phi_out;
 		for (unsigned int ii=0;ii<3;ii++) {
-		  std::vector<std::vector <int > > *pClusList=0;
+		  std::vector<std::vector <int > > *pClusList=nullptr;
 		  if ( ii == 0 && m_doDeadL ) 
 		    pClusList = &clusListL;
 		  else if ( ii == 1 && m_doDeadM ) 
@@ -602,7 +602,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
     // + energy is shared among clusters within certain area
     // + distance to clusters and energy in specific samplings are used as sharing criteria
     // + calculations are done separately for different dead material areas
-    std::vector<std::vector <int > > *pClusList=0;
+    std::vector<std::vector <int > > *pClusList=nullptr;
     if ( m_MatchDmType == kMatchDmLoose ) {
       pClusList = &clusListL;
     } else if ( m_MatchDmType == kMatchDmMedium ) {
@@ -619,7 +619,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
         for(;chIter!=chIterE;chIter++)  {
           Identifier myId = (*chIter)->cellID();
           if (m_calo_id->is_lar_dm(myId) || m_calo_id->is_tile_dm(myId)) {
-            CaloDmDescrElement* myCDDE(0);
+            CaloDmDescrElement* myCDDE(nullptr);
             myCDDE = m_caloDmDescrManager->get_element(myId);
             if ( myCDDE ) {
 
@@ -736,7 +736,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
             - eng_calib_dead_tileg3 - eng_calib_dead_eme0 - eng_calib_dead_hec0 - eng_calib_dead_fcal
             - eng_calib_dead_leakage;
 
-      if ( m_momentsNames.size() > 0 ) {
+      if ( !m_momentsNames.empty() ) {
 	std::vector<double> myMoments(m_validMoments.size(),0);
 	
 	// assign moments 
@@ -817,7 +817,7 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
     for(unsigned int ic=0;ic<CaloCell_ID::NSUBCALO; ic++) {
       for (unsigned int ii = 0;ii<cellVector[ic].size();ii++ ) {
 	ClusWeight * theList = cellVector[ic][ii];
-	ClusWeight * prev = 0;
+	ClusWeight * prev = nullptr;
 	while ( theList) {
 	  while ( theList->next ) {
 	    prev = theList;
@@ -825,11 +825,11 @@ CaloCalibClusterMomentsMaker::execute(const EventContext& ctx,
 	  }
 	  delete theList;
 	  if ( prev ) 
-	    prev->next = 0;
+	    prev->next = nullptr;
 	  else 
-	    cellVector[ic][ii] = 0;
+	    cellVector[ic][ii] = nullptr;
 	  theList = cellVector[ic][ii];
-	  prev = 0;
+	  prev = nullptr;
 	}
       }
     }

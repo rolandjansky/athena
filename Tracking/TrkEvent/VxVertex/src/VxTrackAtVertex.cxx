@@ -314,11 +314,9 @@ VxTrackAtVertex::operator=(const VxTrackAtVertex& rhs)
 }
 
 VxTrackAtVertex::VxTrackAtVertex(VxTrackAtVertex&& rhs) noexcept
+  : m_fitQuality (rhs.m_fitQuality),
+    m_trkWeight (rhs.m_trkWeight)
 {
-
-  m_fitQuality = rhs.m_fitQuality;
-  m_trkWeight = rhs.m_trkWeight;
-
   m_perigeeAtVertex = rhs.m_perigeeAtVertex;
   rhs.m_perigeeAtVertex = nullptr;
 

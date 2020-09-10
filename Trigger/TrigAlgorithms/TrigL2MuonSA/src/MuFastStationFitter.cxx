@@ -40,6 +40,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
    ATH_CHECK( m_ptFromAlphaBeta.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
+   ATH_CHECK( m_nswStationFitter.retrieve() );
+
    return StatusCode::SUCCESS;
 }
 
@@ -120,6 +122,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
     }
 
     ATH_CHECK( superPointFitter(itTrack) );
+
+    ATH_CHECK( m_nswStationFitter->superPointFitter(p_roi, itTrack) );
   }
   // 
   return StatusCode::SUCCESS;
@@ -154,6 +158,8 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
     double bw = muonRoad.bw[3][0];
     double aw = muonRoad.aw[3][0];
     if(exInnerA !=0 ) updateInnSP(itTrack, exInnerA, aw,bw);
+
+    ATH_CHECK( m_nswStationFitter->superPointFitter(p_roi, itTrack) );
 
   }
   // 

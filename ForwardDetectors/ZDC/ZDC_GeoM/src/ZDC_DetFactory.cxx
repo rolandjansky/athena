@@ -4,7 +4,6 @@
 
 #include "ZDC_DetFactory.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"  
 #include "GeoModelKernel/GeoElement.h"  
 #include "GeoModelKernel/GeoBox.h"  

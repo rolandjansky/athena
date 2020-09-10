@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
   DetectorDescription/Identifier
   DetectorDescription/GeoPrimitives
   Database/AthenaPOOL/AthenaPoolUtilities
+  InnerDetector/InDetConditions/InDetByteStreamErrors
   InnerDetector/InDetConditions/PixelCoralClientUtils
   PRIVATE
   Control/AthenaKernel

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,8 +23,7 @@ const CaloPhiRange CaloTowerSeg::s_range;
 CaloTowerSeg::SubSeg CaloTowerSeg::subseg (double eta, double deta,
                                            double phi, double dphi) const
 {
-  typedef SubSeg::index_t index_t;
-  static const CaloPhiRange range;
+  using index_t = SubSeg::index_t;
 
   index_t etamin = this->etaIndex (eta - deta + 0.001);
   if (etamin == CaloTowerSeg::outOfRange)
@@ -34,11 +33,11 @@ CaloTowerSeg::SubSeg CaloTowerSeg::subseg (double eta, double deta,
   if (etamax == CaloTowerSeg::outOfRange)
     etamax = this->neta();
 
-  index_t phimin = this->phiIndex (range.fix (phi - dphi + 0.001));
+  index_t phimin = this->phiIndex (CaloPhiRange::fix (phi - dphi + 0.001));
   if (phimin == CaloTowerSeg::outOfRange)
     phimin = this->phiIndex (this->phimin());
 
-  index_t phimax = this->phiIndex (range.fix (phi + dphi - 0.001));
+  index_t phimax = this->phiIndex (CaloPhiRange::fix (phi + dphi - 0.001));
   if (phimax == CaloTowerSeg::outOfRange)
     phimax = this->phiIndex (this->phimax() - this->dphi()/2);
 
@@ -90,7 +89,7 @@ CaloTowerSeg CaloTowerSeg::SubSeg::segmentation() const
 
   const double phimin = m_parent.phi (m_phimin) - m_parent.dphi()/2;
   const double phimax = m_parent.phi (m_phimax) + m_parent.dphi()/2;
-  
+
   return CaloTowerSeg (neta(), nphi(), etamin, etamax, phimin, phimax);
 }
 

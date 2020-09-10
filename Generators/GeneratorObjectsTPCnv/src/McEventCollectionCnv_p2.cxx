@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p2.cxx
@@ -17,33 +17,11 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p2.h"
 #include "HepMcDataPool.h"
 
-#if 0
-namespace {
-  // helper method to compute the number of particles and vertices in a
-  // whole McEventCollection
-  std::pair<unsigned int,unsigned int>
-  nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
-    unsigned int nParts = 0;
-    unsigned int nVerts = 0;
-    const McEventCollection::const_iterator itrEnd = mcEvents->end();
-    for ( McEventCollection::const_iterator itr = mcEvents->begin();
-          itr != itrEnd;
-          ++itr ) {
-      nParts += (*itr)->particles_size();
-      nVerts += (*itr)->vertices_size();
-    }
-
-    return std::make_pair( nParts, nVerts );
-  }
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////
-// Public methods:
-///////////////////////////////////////////////////////////////////
-
 // Constructors
-////////////////
+///////////////////////////////////////////////////////////////////
+
 McEventCollectionCnv_p2::McEventCollectionCnv_p2() :
   Base_t( )
 {}
@@ -61,16 +39,14 @@ McEventCollectionCnv_p2::operator=( const McEventCollectionCnv_p2& rhs )
   return *this;
 }
 
+///////////////////////////////////////////////////////////////////
 // Destructor
-///////////////
+///////////////////////////////////////////////////////////////////
 
 McEventCollectionCnv_p2::~McEventCollectionCnv_p2()
 {
 }
 
-///////////////////////////////////////////////////////////////////
-// Const methods:
-///////////////////////////////////////////////////////////////////
 
 void McEventCollectionCnv_p2::persToTrans( const McEventCollection_p2* persObj,
                                            McEventCollection* transObj,
@@ -178,13 +154,6 @@ void McEventCollectionCnv_p2::transToPers( const McEventCollection*,
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// Non-const methods:
-///////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////
-// Protected methods:
-///////////////////////////////////////////////////////////////////
 
 HepMC::GenVertexPtr
 McEventCollectionCnv_p2::createGenVertex( const McEventCollection_p2& persEvt,

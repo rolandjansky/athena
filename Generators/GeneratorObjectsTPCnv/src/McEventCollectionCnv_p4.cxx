@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p4.cxx
@@ -21,34 +21,12 @@
 
 #include "GenInterfaces/IHepMCWeightSvc.h"
 
-namespace
-{
-  // helper method to compute the number of particles and vertices in a
-  // whole McEventCollection
-  std::pair<unsigned int,unsigned int>
-  nbrParticlesAndVertices( const McEventCollection* mcEvents )
-  {
-    unsigned int nParts = 0;
-    unsigned int nVerts = 0;
-    const McEventCollection::const_iterator itrEnd = mcEvents->end();
-    for ( McEventCollection::const_iterator itr = mcEvents->begin();
-          itr != itrEnd;
-          ++itr )
-      {
-        nParts += (*itr)->particles_size();
-        nVerts += (*itr)->vertices_size();
-      }
-
-    return std::make_pair( nParts, nVerts );
-  }
-}
+#include "McEventCollectionCnv_utils.h"
 
 ///////////////////////////////////////////////////////////////////
-// Public methods:
-///////////////////////////////////////////////////////////////////
-
 // Constructors
-////////////////
+///////////////////////////////////////////////////////////////////
+
 
 McEventCollectionCnv_p4::McEventCollectionCnv_p4() :
   Base_t( ),
@@ -280,13 +258,6 @@ void McEventCollectionCnv_p4::transToPers( const McEventCollection* transObj,
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// Non-const methods:
-///////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////
-// Protected methods:
-///////////////////////////////////////////////////////////////////
 
 HepMC::GenVertexPtr
 McEventCollectionCnv_p4::createGenVertex( const McEventCollection_p4& persEvt,
@@ -465,9 +436,6 @@ int McEventCollectionCnv_p4::writeGenParticle( const HepMC::GenParticle& p,
     (m2 < 0) &&   //  isSpacelike
     !(std::abs(m2) < 2.0*DBL_EPSILON*ene*ene); // !isLightlike
 
-  //  const bool useP2M2 = !isTimelike () &&
-  //                        mom.isSpacelike() &&
-  //                       !mom.isLightlike();
   const short recoMethod = ( !useP2M2
                              ? 0
                              : ( ene >= 0. //*GeV

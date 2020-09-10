@@ -125,6 +125,8 @@ class ComponentAccumulator(object):
              log = logging.getLogger("ComponentAccumulator")
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
+             import traceback
+             traceback.print_stack()
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
              log.error("Deleting a ComponentAccumulator with dangling private tool(s)")

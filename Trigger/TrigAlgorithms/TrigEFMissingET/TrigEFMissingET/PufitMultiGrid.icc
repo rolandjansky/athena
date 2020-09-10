@@ -1,0 +1,316 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+
+#ifndef TRIGEFMISSINGET_PUFITMULTIGRID_ICC
+#define TRIGEFMISSINGET_PUFITMULTIGRID_ICC
+
+namespace HLT
+{
+  namespace MET
+  {
+    namespace detail
+    {
+      /// Initialise an array (thank you stack overflow https://stackoverflow.com/a/41259045/8434292)
+      template <typename T, std::size_t... Is>
+      constexpr std::array<T, sizeof...(Is)>
+      make_array(const T &value, std::index_sequence<Is...>)
+      {
+        return {{(static_cast<void>(Is), value)...}};
+      }
+    } // namespace detail
+
+    template <std::size_t N>
+    PufitMultiGrid<N>::Tower::Tower(PufitMultiGrid *parent, std::size_t index)
+        : PeriodicGridBase::Tower(index),
+          m_parent(parent)
+    {
+    }
+
+    template <std::size_t N>
+    typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::Tower::operator=(const Tower &other)
+    {
+      applyToAll(&PufitGrid::Tower::operator=, other);
+      return *this;
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::ex(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::ex);
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::ey(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::ey);
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::ez(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::ez);
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::sumEt(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::sumEt);
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::sumE(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::sumE);
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::phi(std::size_t type) const
+    {
+      return kinematics(type).phi();
+    }
+
+    template <std::size_t N>
+    double PufitMultiGrid<N>::Tower::eta(std::size_t type) const
+    {
+      return kinematics(type).eta();
+    }
+
+    template <std::size_t N>
+    bool PufitMultiGrid<N>::Tower::masked() const { return m_mask; }
+
+    template <std::size_t N>
+    void PufitMultiGrid<N>::Tower::mask(bool value)
+    {
+      m_mask = value;
+      for (std::size_t ii = 0; ii < N; ++ii)
+        subTower(ii).mask(value);
+    }
+
+    template <std::size_t N>
+    const PufitMultiGrid<N> *PufitMultiGrid<N>::Tower::grid() const { return m_parent; }
+
+    template <std::size_t N>
+    SignedKinematics PufitMultiGrid<N>::Tower::kinematics(std::size_t type) const
+    {
+      return sumOver(type, &PufitGrid::Tower::kinematics);
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N>::Tower::operator SignedKinematics() const { return kinematics(); }
+
+    template <std::size_t N>
+    typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::Tower::operator+=(const Tower &other)
+    {
+      applyToAll(&PufitGrid::Tower::operator+=, other);
+      return *this;
+    }
+
+    template <std::size_t N>
+    typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::Tower::operator-=(const Tower &other)
+    {
+      applyToAll(&PufitGrid::Tower::operator-=, other);
+      return *this;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N>::PufitMultiGrid(
+        double maxEta,
+        std::size_t nEtaTowers,
+        std::size_t nPhiTowers,
+        bool displaceEta,
+        bool displacePhi)
+        : PufitMultiGrid(
+              GridParameters{maxEta, nEtaTowers, nPhiTowers, displaceEta, displacePhi})
+    {
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N>::PufitMultiGrid(const GridParameters &parameters)
+        : PeriodicGridBase(parameters),
+          m_grids(detail::make_array(PufitGrid(parameters), std::make_index_sequence<N>()))
+    {
+      m_towers.reserve(nTowers());
+      for (std::size_t index = 0; index < nTowers(); ++index)
+        m_towers.emplace_back(this, index);
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N>::PufitMultiGrid(const PufitMultiGrid &other)
+        : PufitMultiGrid(other.parameters())
+    {
+      *this = other;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N> &PufitMultiGrid<N>::operator=(const PufitMultiGrid &other)
+    {
+      if (parameters() != other.parameters())
+        throw std::invalid_argument("Grid parameters do not match");
+      std::copy(other.begin(), other.end(), m_towers.begin());
+      std::copy(other.m_grids.begin(), other.m_grids.end(), m_grids.begin());
+      return *this;
+    }
+
+    template <std::size_t N>
+    void PufitMultiGrid<N>::reset()
+    {
+      std::fill(begin(), end(), Tower(nullptr, -1));
+      for (PufitGrid &grid : m_grids)
+        grid.reset();
+    }
+    template <std::size_t N>
+    typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::operator[](
+        const std::pair<std::size_t, std::size_t> &indices)
+    {
+      return operator[](globalIndex(indices.first, indices.second));
+    }
+    template <std::size_t N>
+    const typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::operator[](
+        const std::pair<std::size_t, std::size_t> &indices) const
+    {
+      return operator[](globalIndex(indices.first, indices.second));
+    }
+
+    template <std::size_t N>
+    typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::operator[](std::size_t index)
+    {
+      return m_towers.at(index);
+    }
+    template <std::size_t N>
+    const typename PufitMultiGrid<N>::Tower &PufitMultiGrid<N>::operator[](std::size_t index) const
+    {
+      return m_towers.at(index);
+    }
+
+    template <std::size_t N>
+    typename std::vector<typename PufitMultiGrid<N>::Tower>::iterator PufitMultiGrid<N>::begin()
+    {
+      return m_towers.begin();
+    }
+    template <std::size_t N>
+    typename std::vector<typename PufitMultiGrid<N>::Tower>::const_iterator PufitMultiGrid<N>::begin() const
+    {
+      return m_towers.begin();
+    }
+    template <std::size_t N>
+    typename std::vector<typename PufitMultiGrid<N>::Tower>::iterator PufitMultiGrid<N>::end()
+    {
+      return m_towers.end();
+    }
+    template <std::size_t N>
+    typename std::vector<typename PufitMultiGrid<N>::Tower>::const_iterator PufitMultiGrid<N>::end() const
+    {
+      return m_towers.end();
+    }
+
+    template <std::size_t N>
+    PufitGrid PufitMultiGrid<N>::get(std::size_t type) const
+    {
+      if (isPow2(type))
+        return m_grids[intLog2(type)];
+      PufitGrid val(parameters());
+      for (std::size_t ii = 0; ii < N; ++ii)
+        if (1 << ii & type)
+          val += m_grids[ii];
+      return val;
+    }
+
+    template <typename Grid>
+    PufitMultiGridSet<Grid>::PufitMultiGridSet(
+        double maxEta, std::size_t nEta, std::size_t nPhi)
+        : grids({Grid(maxEta, nEta, nPhi, false, false),
+                 Grid(maxEta, nEta, nPhi, true, false),
+                 Grid(maxEta, nEta, nPhi, false, true),
+                 Grid(maxEta, nEta, nPhi, true, true)})
+    {
+    }
+
+    template <typename Grid>
+    template <std::size_t I>
+    PufitMultiGridSet<Grid>::Element<I>::Element(PufitMultiGridSet &parent)
+        : parent(parent) {}
+
+    template <typename Grid>
+    template <std::size_t I>
+    typename PufitMultiGridSet<Grid>::template Element<I>&
+    PufitMultiGridSet<Grid>::Element<I>::operator+=(
+        const SignedKinematics &kin)
+    {
+      for (Grid &grid : parent.grids)
+        grid.template get<I>() += kin;
+      return *this;
+    }
+
+    template <typename Grid>
+    template <std::size_t I>
+    typename PufitMultiGridSet<Grid>::template Element<I>&
+    PufitMultiGridSet<Grid>::Element<I>::operator-=(
+        const SignedKinematics &kin)
+    {
+      for (Grid &grid : parent.grids)
+        grid.template get<I>() -= kin;
+      return *this;
+    }
+
+    template <typename Grid>
+    template <std::size_t I, typename, typename>
+    typename PufitMultiGridSet<Grid>::template Element<I>
+    PufitMultiGridSet<Grid>::get()
+    {
+      return Element<I>(*this);
+    }
+
+    template <typename Grid>
+    PufitGridSet PufitMultiGridSet<Grid>::get(std::size_t type) const
+    {
+      PufitGridSet gridSet(grids[0].maxEta, grids[0].nEta, grids[0].nPhi);
+      for (std::size_t ii = 0; ii < 4; ++ii)
+        gridSet.grids[ii] = grids[ii].get(type);
+      return gridSet;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N> &PufitMultiGrid<N>::operator+=(const PufitMultiGrid &other)
+    {
+      if (parameters() != other.parameters())
+        throw std::invalid_argument("Grid parameters do not match");
+      auto itr = m_grids.begin();
+      auto otherItr = other.m_grids.begin();
+      for (; itr != end(); ++itr, ++otherItr)
+        *itr += *otherItr;
+      return *this;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N> &PufitMultiGrid<N>::operator-=(const PufitMultiGrid &other)
+    {
+      if (parameters() != other.parameters())
+        throw std::invalid_argument("Grid parameters do not match");
+      auto itr = m_grids.begin();
+      auto otherItr = other.m_grids.begin();
+      for (; itr != end(); ++itr, ++otherItr)
+        *itr -= *otherItr;
+      return *this;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N> operator+(const PufitMultiGrid<N> &lhs, const PufitMultiGrid<N> &rhs)
+    {
+      PufitMultiGrid<N> ret(lhs);
+      ret += rhs;
+      return ret;
+    }
+
+    template <std::size_t N>
+    PufitMultiGrid<N> operator-(const PufitMultiGrid<N> &lhs, const PufitMultiGrid<N> &rhs)
+    {
+      PufitMultiGrid<N> ret(lhs);
+      ret -= rhs;
+      return ret;
+    }
+
+  } // namespace MET
+} // namespace HLT
+
+#endif //> !TRIGEFMISSINGET_PUFITMULTIGRID_ICC

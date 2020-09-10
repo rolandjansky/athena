@@ -17,7 +17,7 @@ Created  : Feb 2007
 //#include "GaudiKernel/Service.h"
 //#include "GaudiKernel/MsgStream.h"
 
-#include <math.h>
+#include <cmath>
 #include <string>
 
 using CLHEP::millimeter;

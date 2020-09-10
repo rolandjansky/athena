@@ -27,16 +27,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   int irpcgasGap	 =   int(rpcIdHelper.gasGap(prdcoll_id))	  ;
   int irpcmeasuresPhi	 =   int(rpcIdHelper.measuresPhi(prdcoll_id))  ;
   int irpcstrip		 =   int(rpcIdHelper.strip(prdcoll_id))	  ;
-
-  //std::cout << "prd irpcstationName " << irpcstationName<<" irpcstationEta " << irpcstationEta<< " irpcstationPhi " << irpcstationPhi<<" irpcdoubletR " << irpcdoubletR<< " irpcdoubletZ " << irpcdoubletZ <<std::endl;
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
   const MuonGM::RpcReadoutElement* descriptor = muonMgr->getRpcReadoutElement(prdcoll_id);
-  //const MuonGM::RpcReadoutSet*     chamberset = 
-  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
-  // const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
- 		      
+
   std::vector<int>  rpcstriptot  ;
   
   int NphiStrips	    = descriptor -> NphiStrips()* 2		     ;
@@ -145,11 +140,10 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
         }
         
 	for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1 );
-    	if(rpc != NULL ){
-	
-	//std::cout << "loop krpcstationName " << krpcstationName<<" ieta " << ieta<< " irpcstationPhi " << irpcstationPhi<<" krpcdoubletR " << krpcdoubletR<< " idbz " << idbz <<std::endl;
-	
+      Identifier rpcId = rpcIdHelper.channelID(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+      if (!rpcId.is_valid()) continue;
+    	const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
+    	if(rpc){	
 		
 	  if ( idbz != rpc->getDoubletZ() ) continue ;
 	  
@@ -164,7 +158,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	     else{ 
 	      ShiftEtaStripsTot = NetaStripsTotSideA  ;  
 	      ShiftPhiTot_db    = NphiStripsTotSideA  ;
-	      //std::cout << "ShiftPhiTot_db  " <<ShiftPhiTot_db <<std::endl; 
 	      ShiftEtaPanelsTot = NetaPanelsTotSideA  ;
 	     }
 	    }
@@ -176,19 +169,17 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	  if(irpcstationEta<0){
 	   NetaStripsTotSideC  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideC  +=  rpc->NphiStrips()  ;
-	   //std::cout << "-- NphiStripsTotSideC  " <<NphiStripsTotSideC  <<std::endl; 
     	   NetaPanelsTotSideC  ++                     ;
 	  }
 	  else{ 
 	   NetaStripsTotSideA  +=  rpc->NetaStrips()  ;
 	   NphiStripsTotSideA  +=  rpc->NphiStrips()  ;
-	   //std::cout << "** NphiStripsTotSideA  " <<NphiStripsTotSideA  <<std::endl; 
     	   NetaPanelsTotSideA  ++                     ;	
 
 	  }
     	
 	  
-        } //check if rpc!=NULL
+        } //check if rpc is nullptr
       } //for loop in idbz
      } //for loop in krpcstationName
     } // for loop in etastation     
@@ -236,8 +227,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   }
   //2***
   // cool db strip index
-  
-  //std::cout <<" NetaStripsTotSideC "<< NetaStripsTotSideC << " NetaStripsTotSideA "<< NetaStripsTotSideA << " ShiftPhiTot_db " << ShiftPhiTot_db << std::endl;
   
   if(irpcmeasuresPhi==0) {
     strip_dbindex = ( ShiftEtaStripsTot + irpcstrip ) * EtaStripSign ;
@@ -343,22 +332,18 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
 	}    
  
 	for(int iz   =      1; iz   !=   lastdoubletZ+1; iz++	){ 
-	  
-	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcRElement_fromIdFields(iname, keta, iphi, ir, iz, 1);
-	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
+
+    Identifier rpcId = rpcIdHelper.channelID(iname, keta, iphi, ir, iz, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+    if (!rpcId.is_valid()) continue;
+	  const MuonGM::RpcReadoutElement* rpc = muonMgr->getRpcReadoutElement(rpcId);
     
-	  if(rpc == NULL )continue;
+	  if(!rpc)continue;
 	  
 	  panel_dbindex++;
 	  
 	  if(iz==1)tower_dbindex++;
-	  //std::cout <<iname << " "<< keta <<" "<< iphi<<" "<< iz<<" x "<< panel_dbindex<< std::endl; 
 	  
 	}}}}
-        //if(irpcstationName>8&&irpcstationName<11)std::cout <<ShiftEtaPanelsTot<< " ShiftEtaPanelsTot "<< EtaStripSign<< " PlaneTipo "<<PlaneTipo << " Name "<< irpcstationName<<" Eta "<< irpcstationEta<<" Phi "<< irpcstationPhi<<" dR "<< irpcdoubletR << " dZ "<< irpcdoubletZ<<" dPhi "<< irpcdoubletPhi <<" panel_dbindex "<<  panel_dbindex<<" tower_dbindex "<< tower_dbindex<< std::endl;    
-  
-
-
 				    	  
   rpcstriptot.push_back(NphiStrips	      );  // 0
   rpcstriptot.push_back(ShiftPhiStrips	      );  // 1
@@ -387,13 +372,6 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* muonMgr, cons
   rpcstriptot.push_back(panel_dbindex         );
   rpcstriptot.push_back(tower_dbindex         );   //24
   rpcstriptot.push_back(ShiftStripPhiAtlas    );   //25
-  
-      //std::cout << "----------------"<< std::endl;
-    
-      //std::cout << "NphiStripsTotSideA "<<NphiStripsTotSideA<< " NphiStripsTotSideC "<<NphiStripsTotSideC<< " " <<irpcmeasuresPhi <<std::endl;
-      //std::cout << "NetaStripsTotSideA "<<NetaStripsTotSideA<< " NetaStripsTotSideC "<<NetaStripsTotSideC<<" ShiftEtaStripsTot "<< ShiftEtaStripsTot<< std::endl;
-      //std::cout << "NetaPanelsTotSideA "<<NetaPanelsTotSideA<< " NetaPanelsTotSideC "<<NetaPanelsTotSideC<<" ShiftEtaPanelsTot "<< ShiftEtaPanelsTot<< std::endl;
-     
   
   return  rpcstriptot ;
 

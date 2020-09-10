@@ -19,13 +19,14 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "JetInterface/IJetDecorator.h"
 
 
 class JetLArHVTool: public asg::AsgTool,
                     virtual public IJetDecorator{
-  ASG_TOOL_CLASS0(JetLArHVTool)
+  ASG_TOOL_CLASS1(JetLArHVTool,IJetDecorator)
 
 public:
   JetLArHVTool(const std::string & name);

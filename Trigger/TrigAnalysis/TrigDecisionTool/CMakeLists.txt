@@ -15,8 +15,10 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
-      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib TrigConfInterfaces
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent )
+      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib 
+      TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib 
+      TrigCompositeUtilsLib
+      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent  )
 else()
    if( XAOD_ANALYSIS )
       atlas_add_library( TrigDecisionToolLib
@@ -26,8 +28,9 @@ else()
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib  TrigConfInterfaces
-         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
+         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib 
+         TrigConfInterfaces TrigDecisionEvent TrigDecisionInterface
+         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib 
          TrigSteeringEvent AthenaKernel )
    else()
       atlas_add_library( TrigDecisionToolLib
@@ -40,6 +43,7 @@ else()
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
          TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
+         TrigDecisionInterface AsgDataHandlesLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
@@ -67,3 +71,5 @@ endif()
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/checkTriggerEDM.py
    share/checkTriggerProcessingErrors.py )
+atlas_install_joboptions( share/checkR3Trigger.py )
+

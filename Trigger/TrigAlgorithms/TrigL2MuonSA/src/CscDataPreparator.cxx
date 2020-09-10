@@ -21,8 +21,9 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name )
+   m_regionSelector("RegSelTool/RegSelTool_CSC",this)
 {
+  declareProperty("RegSel_CSC", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -58,7 +59,6 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
    
 
    ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
@@ -85,7 +85,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
     // Select RoI hits
     if (m_use_RoIBasedDataAccess) {
       ATH_MSG_DEBUG("Use Csc RoI based data access");
-      m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
+      m_regionSelector->HashIDList( *iroi, cscHashIDs );
     } else {
       ATH_MSG_DEBUG("Use full data access");
       //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector

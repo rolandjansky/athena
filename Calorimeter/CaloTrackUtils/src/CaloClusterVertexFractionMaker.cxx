@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // in contrary to CaloClusterVertexFractionMakerAthAlg this is a CaloClusterCollectionProcessor and not an Athena Algorithm
@@ -38,13 +38,13 @@ CaloClusterVertexFractionMaker::CaloClusterVertexFractionMaker(const std::string
   m_maxClusterEta(2.5),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_vxContainerName("VxPrimaryCandidate"),
-  m_cylinderSurface_atCaloEntrance(0),
-  m_discSurface_atCaloEntrance_positiveZ(0),
-  m_discSurface_atCaloEntrance_negativeZ(0),
-  m_numTracksPerVertex(0),
-  m_trkParticlePt_atOrigin(0),
-  m_trkParticleEta_atCaloEntrance(0),
-  m_trkParticlePhi_atCaloEntrance(0)
+  m_cylinderSurface_atCaloEntrance(nullptr),
+  m_discSurface_atCaloEntrance_positiveZ(nullptr),
+  m_discSurface_atCaloEntrance_negativeZ(nullptr),
+  m_numTracksPerVertex(nullptr),
+  m_trkParticlePt_atOrigin(nullptr),
+  m_trkParticleEta_atCaloEntrance(nullptr),
+  m_trkParticlePhi_atCaloEntrance(nullptr)
 
 {
   declareProperty ( "Extrapolator", m_extrapolator );
@@ -91,7 +91,7 @@ StatusCode
 CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
                                         xAOD::CaloClusterContainer* caloClusterContainer) const
 {
-  const VxContainer* primcontainer(0);
+  const VxContainer* primcontainer(nullptr);
   if ( evtStore()->contains<VxContainer> ( m_vxContainerName ) )
   {
     if ( evtStore()->retrieve ( primcontainer, m_vxContainerName ).isFailure() )
@@ -114,16 +114,16 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
       /** usual complicated procedure to get from the vertex to the track(particle) */
       Trk::ITrackLink*              trklink             = (*vxTrkItr)->trackOrParticleLink();
       Trk::LinkToTrackParticleBase* linkToTrackParticle = dynamic_cast<Trk::LinkToTrackParticleBase*>(trklink);
-      if (linkToTrackParticle != NULL && linkToTrackParticle->isValid()) {
+      if (linkToTrackParticle != nullptr && linkToTrackParticle->isValid()) {
         const Rec::TrackParticle* theTrackParticle = dynamic_cast<const Rec::TrackParticle*>(linkToTrackParticle->cachedElement());
-        if (theTrackParticle != NULL)
+        if (theTrackParticle != nullptr)
         {
-          const Trk::TrackParameters* trackParameters_atCaloEntrance(0);
+          const Trk::TrackParameters* trackParameters_atCaloEntrance(nullptr);
           m_numTracksPerVertex->at(v)++;
           m_trkParticlePt_atOrigin->push_back (theTrackParticle->pt()/1.e3);
 
-          const Trk::TrackParameters* lastTrackParametersInID(0);
-          const std::vector< const Trk::TrackParameters * > trackParametersVector = theTrackParticle->trackParameters();
+          const Trk::TrackParameters* lastTrackParametersInID(nullptr);
+          const std::vector< const Trk::TrackParameters * >& trackParametersVector = theTrackParticle->trackParameters();
           if (trackParametersVector.size() > 1)  lastTrackParametersInID = trackParametersVector.at(trackParametersVector.size()-2);
           else lastTrackParametersInID = trackParametersVector.at(0); // the perigee
 
@@ -141,7 +141,7 @@ CaloClusterVertexFractionMaker::execute(const EventContext& /*ctx*/,
             trackParameters_atCaloEntrance = dynamic_cast<const Trk::AtaCylinder*>(m_extrapolator->extrapolate(*lastTrackParametersInID, *m_cylinderSurface_atCaloEntrance, Trk::alongMomentum, true, Trk::pion));
 //             std::cout << "CaloClusterVertexFractionMaker " << theTrackParticle->eta() << " extrapolate to barrel " << trackParameters_atCaloEntrance << std::endl;
           }
-          if (trackParameters_atCaloEntrance!=0) {
+          if (trackParameters_atCaloEntrance!=nullptr) {
             m_trkParticleEta_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().eta());
             m_trkParticlePhi_atCaloEntrance->push_back(trackParameters_atCaloEntrance->position().phi());
             ATH_MSG_DEBUG( "At calo entrance R(1150mm) " << *trackParameters_atCaloEntrance  );

@@ -166,7 +166,7 @@ def InDetTestPixelLayerToolCfg(flags, **kwargs):
 def InDetHoleSearchToolCfg(flags, **kwargs):
   acc = ComponentAccumulator()
 
-# a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config ) 
+# a possible change in HoleSearchTool impl? - This two tools do not seem to be needed now, leaving them commented out  TODO - decide if can be removed ( also func above creting the config )
 #  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
 #  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
 
@@ -453,6 +453,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'PixelBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                   ('xAOD::EventInfo', 'EventInfo'),
@@ -558,13 +559,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   InDet__MergedPixelsTool=CompFactory.InDet.MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool"+ signature,
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-                                                  )
-  # Enable duplicated RDO check for data15 because duplication mechanism was used.
+                                                  globalPosAlg            = InDetClusterMakerTool)
+  # Enable duplcated RDO check for data15 because duplication mechanism was used.
+
   if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
     InDetMergedPixelsTool.CheckDuplicatedRDO = True
   acc.addPublicTool(InDetMergedPixelsTool)

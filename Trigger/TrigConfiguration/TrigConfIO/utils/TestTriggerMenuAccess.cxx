@@ -7,6 +7,7 @@
 #include <iomanip>
 
 #include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/L1Threshold.h"
@@ -98,7 +99,7 @@ testL1Menu_Boards(const TrigConf::L1Menu & l1menu) {
    cout << "Board " << boardName << " of type " << board.type() << " has " << board.size() << " connectors configured: ";
    for( auto & connName : board.connectorNames() ) { cout << connName << " "; }
    cout << endl;
-   return true;   
+   return true;
 }
 
 
@@ -118,6 +119,12 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
          for( auto & tl : conn.triggerLines() ) {
             cout << "   Triggerline " << tl.name() << " bits=["  << tl.startbit() << ".." << tl.endbit() << "] is a muon threshold " << endl;            
          }
+      } else if( connName == "AlfaCtpin" ) {
+         for( size_t clock : { 0, 1 } ) {
+            for( auto & tl : conn.triggerLines(0, clock) ) {
+               cout << "   Triggerline " << tl.name() << " (clock " << clock << ", bit "  << tl.startbit() << ") is an ALFA threshold " << endl;
+            }
+         }
       } else if( conn.type() == TrigConf::L1Connector::ConnectorType::CTPIN ) {
          for( auto & tl : conn.triggerLines() ) {
             cout << "   Triggerline " << tl.name() << " bits=["  << tl.startbit() << ".." << tl.endbit() << "] is a legacy threshold " << endl;            
@@ -130,8 +137,9 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
                  << "] is produced by topo algorithm " << topoAlg.name() << endl;
          }
       } else if( conn.type() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) {
-         for( size_t fpga : { 0 ,1 } ) {
-            for( size_t clock : { 0 ,1 } ) {
+         cout << "JOERG 3" << endl;
+         for( size_t fpga : { 0, 1 } ) {
+            for( size_t clock : { 0, 1 } ) {
                for( auto & tl : conn.triggerLines(fpga, clock) ) {
                   const string & tlName = tl.name();
                   auto & topoAlg = l1menu.algorithmFromTriggerline(tlName);
@@ -403,7 +411,7 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
 
 
 bool
-testL1Menu(const string & filename, bool printdetail = false)
+testL1Menu(const TrigConf::L1Menu & l1menu, bool printdetail = false)
 {
    cout << endl
         << "==========================" << endl
@@ -414,9 +422,6 @@ testL1Menu(const string & filename, bool printdetail = false)
 
    cout << "Printing detail " << (printdetail ? "yes" : "no") << endl;
    section("Menu loading");
-   TrigConf::L1Menu l1menu;
-   TrigConf::JsonFileLoader fileLoader;
-   fileLoader.loadFile( filename, l1menu);
    cout << "Loaded the L1 menu " << l1menu.name() << endl;
 
    bool result = true;
@@ -431,7 +436,7 @@ testL1Menu(const string & filename, bool printdetail = false)
 
 
 
-bool testHLTMenu(const string & filename) {
+bool testHLTMenu(const TrigConf::HLTMenu & hltmenu) {
 
    cout << "===========================" << endl
         << "=====                 =====" << endl
@@ -439,9 +444,6 @@ bool testHLTMenu(const string & filename) {
         << "=====                 =====" << endl
         << "===========================" << endl << endl;
 
-   TrigConf::HLTMenu hltmenu;
-   TrigConf::JsonFileLoader fileLoader;
-   fileLoader.loadFile( filename, hltmenu);
    cout << "Loaded the HLT menu " << hltmenu.name() << endl;
    cout << "Menu has " << hltmenu.size() << " chains, going to print the first 3." << endl;
    int np = 3;
@@ -496,9 +498,83 @@ bool testHLTMenu(const string & filename) {
    Main function just to get the filename and which type
  */
 
+void usage() {
+
+  cout << "The program needs to be run with the following specifications:\n\n";
+  cout << "TestTriggerMenuAccess <options>\n";
+  cout << "\n";
+  cout << "[Input options]\n";
+  cout << "  -f|--file             file1        ... input json file to test\n";
+  cout << "  --smk                 smk          ... smk \n";
+  cout << "  --db                  dbalias      ... dbalias (default TRIGGERDBDEV1) \n";
+  cout << "[Other options]\n";
+  cout << "  -h|--help                                           ... this help\n";
+  cout << "\n";
+  cout << "If no input is specified, the default LS2_v1 menu file will be taken from the release\n\n";
+}
+
 int main(int argc, char** argv) {
-   string filename(""); 
-   if(argc==1) {
+   bool help { false };
+   string filename{""};
+   unsigned int smk{0};
+   std::string  dbalias {"TRIGGERDBDEV1"};
+   std::vector<std::string> knownParameters { "file", "f", "smk", "db", "help", "h" };
+
+   std::string currentParameter("");
+   std::string listofUnknownParameters = "";
+   std::string listofUnknownArguments = "";
+   for(int i=1; i<argc; i++) {
+
+      std::string currentWord(argv[i]);
+      bool isParam = currentWord[0]=='-'; // string starts with a '-', so it is a parameter name
+
+      // get the parameter name
+      int firstChar = currentWord.find_first_not_of('-');
+      string paramName = currentWord.substr(firstChar);
+
+      // check if the parameter is known
+      if ( isParam && std::find(knownParameters.begin(), knownParameters.end(), paramName) == knownParameters.end() ) {
+         listofUnknownParameters += " " + currentWord;
+         continue;
+      }
+
+      if(isParam) {
+         currentParameter = "";
+         // check the boolean parameters
+         if(paramName == "h" || paramName == "help" ) { help = true; continue; }
+         currentParameter = paramName;
+         continue;
+      }
+
+      // inputs
+      if(currentParameter == "file" || currentParameter == "f") {
+         filename = currentWord;
+         continue;
+      }
+      if(currentParameter == "smk") {
+         smk = stoul(currentWord);
+         continue;
+      }
+      if(currentParameter == "db") {
+         dbalias = currentWord;
+         continue;
+      }
+      listofUnknownArguments += " " + currentWord;
+   }
+
+   if ( not listofUnknownParameters.empty() ) {
+      cerr << "Unknown parameter(s):" << listofUnknownParameters << endl;
+      usage();
+      return 1;
+   }
+
+   if ( not listofUnknownArguments.empty() ) {
+      cerr << "Unknown argument(s):" << listofUnknownArguments << endl;
+      usage();
+      return 1;
+   }
+
+   if( filename.empty() && smk==0 ) {
       // no filename specified, going to take the L1 menu from the release
       const char* env_AV = std::getenv("AtlasVersion");
       const char* env_xmlpath = std::getenv("XMLPATH");
@@ -516,32 +592,41 @@ int main(int argc, char** argv) {
          }
       }
       if(filename == "") {
-         cout << "No filename specified and no default L1 menu file found in the release" << endl;
-         cout << "Please use " << argv[0] << " <filename.json>" << endl;
-         return 1;
-      }
-   } else if (argc==2) {
-      struct stat buffer;
-      if (stat (argv[1], &buffer) == 0) {
-         filename = string(argv[1]);
-      }
-      if(filename == "") {
-         cout << "Can't find file " << argv[1] << endl;
+         cout << "No filename or smk specified and no default L1 menu file found in the release" << endl;
+         usage();
          return 1;
       }
    }
 
-   // file loader
-   TrigConf::JsonFileLoader fileLoader;
-   string filetype = fileLoader.getFileType( filename );
+   if(help) {
+      usage();
+      return 0;
+   }
+
    bool success(false);
-   if(filetype == "l1menu") {
-      success = testL1Menu(filename);
-   } else if(filetype == "hltmenu") {
-      success = testHLTMenu(filename);
+   if(smk!=0) {
+      // load from db
+      TrigConf::L1Menu l1menu;
+      TrigConf::TrigDBMenuLoader dbLoader(dbalias);
+      dbLoader.loadL1Menu( smk, l1menu);
+      success = testL1Menu(l1menu);
    } else {
-      cout << "File " << filename << " is neither an L1 or an HLT menu json file" << endl;
-   }   
+      // load from file
+      TrigConf::JsonFileLoader fileLoader;
+      string filetype = fileLoader.getFileType( filename );
+      if(filetype == "l1menu") {
+         TrigConf::L1Menu l1menu;
+         fileLoader.loadFile( filename, l1menu);
+         success = testL1Menu(l1menu);
+      } else if(filetype == "hltmenu") {
+         TrigConf::HLTMenu hltmenu;
+         fileLoader.loadFile( filename, hltmenu);
+         success = testHLTMenu(hltmenu);
+      } else {
+         cout << "File " << filename << " is neither an L1 or an HLT menu json file" << endl;
+      }
+   }
+
    cout << "Finished " << (success ? "successfully" : "with failures") << endl;
    return success ? 0 : 1;
 }

@@ -82,8 +82,8 @@ public:
                       const std::string& doc = "");
 
   
-//   /// Can get this from the base class.
-//   using Base::operator=;
+  /// Can get this from the base class.
+  using Base::operator=;
 
 
 //   /**

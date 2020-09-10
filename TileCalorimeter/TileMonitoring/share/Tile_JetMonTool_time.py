@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 ReadESD=True
 
 from RecExConfig.RecFlags  import rec
@@ -196,7 +202,7 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 
 if not 'MonitorOutput' in dir():
 #   MonitorOutput="SHIFT"
-   MonitorOutput="Tile"
+    MonitorOutput="Tile"
 
 #**************************************************************
 #
@@ -272,7 +278,7 @@ TileJetMonTool = TileJetMonTool(name                   = 'TileJetMonTool',
 ManagedAthenaTileMon.AthenaMonTools += [ TileJetMonTool ];
 
 
-print ManagedAthenaTileMon;
+print(ManagedAthenaTileMon)
 
 
 # -- use root histos --
@@ -283,7 +289,7 @@ if True:
     svcMgr += THistSvc("THistSvc")
     tTHistSvc = svcMgr.THistSvc
     tTHistSvc.Output = [MonitorOutput+" DATAFILE='"+RootHistOutputFileName+"' OPT='RECREATE'"]
-    print tTHistSvc
+    print(tTHistSvc)
 else:
     from TrigServices.TrigServicesConf import TrigMonTHistSvc
     trigmonTHistSvc = TrigMonTHistSvc("THistSvc")

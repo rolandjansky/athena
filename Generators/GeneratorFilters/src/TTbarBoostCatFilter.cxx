@@ -116,7 +116,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 					// W decay lepton is found. Break loop over the decay product particles
 					// break;
 			      }
-			      if (abs(grandchild_pid) == 12 ||  abs(grandchild_pid) == 14 || abs(grandchild_pid) == 16) {
+			      if (std::abs(grandchild_pid) == 12 ||  std::abs(grandchild_pid) == 14 || std::abs(grandchild_pid) == 16) {
 				nus.push_back(grandchild_mcpart);
 			      }
                 }
@@ -193,13 +193,13 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
 					break;
 			      }
 
-			      if (abs(grandchild_pid) == 11 ||  abs(grandchild_pid) == 13 || abs(grandchild_pid) == 15) {
+			      if (std::abs(grandchild_pid) == 11 ||  std::abs(grandchild_pid) == 13 || std::abs(grandchild_pid) == 15) {
 				leps.push_back(grandchild_mcpart);
 					if (grandchild_mcpart->momentum().perp() >= m_Ptmin) N_pt_above_cut++;
 					// W decay lepton is found. Break loop over the decay product particles
 					// break;
 			      }
-			      if (abs(grandchild_pid) == 12 ||  abs(grandchild_pid) == 14 || abs(grandchild_pid) == 16) {
+			      if (std::abs(grandchild_pid) == 12 ||  std::abs(grandchild_pid) == 14 || std::abs(grandchild_pid) == 16) {
 				nus.push_back(grandchild_mcpart);
 			      }
 

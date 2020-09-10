@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-
 /**
  * @file AthenaKernel/test/TopBase_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -23,8 +20,8 @@ class C2 : public C1 {};
 class C3 : public C2 {};
 
 
-SG_BASE (C2, C1);
-SG_BASE (C3, C2);
+SG_BASES (C2, C1);
+SG_BASES (C3, C2);
 
 
 void test1()

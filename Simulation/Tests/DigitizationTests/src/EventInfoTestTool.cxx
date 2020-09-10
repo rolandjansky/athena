@@ -47,7 +47,7 @@ StatusCode EventInfoTestTool::processEvent() {
   std::vector<xAOD::EventInfo::SubEvent>::const_iterator end =
       pevt->subEvents().end();
   if (it == end) ATH_MSG_INFO("No xAOD::EventInfo::SubEvent found");
-  for (auto sevt : pevt->subEvents()) {
+  for (const auto& sevt : pevt->subEvents()) {
     if (sevt.ptr() != NULL) {
       ATH_MSG_INFO("SubEvent info:");
       ATH_MSG_INFO("  Time         : "

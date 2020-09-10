@@ -53,16 +53,15 @@ namespace ROIB {
 
   public:
      //! default constructor: empty object
-     CTPResult();
+     CTPResult() : m_ctpDataformat(0),
+      m_useRoIB(false),
+      m_l1aBunch(0) {}
 
      //! full constructor with CTP version, header, trailer and vector of data
-     CTPResult(unsigned int ctpVersion,  const Header&, const Trailer&, const std::vector<CTPRoI>& );
+     CTPResult(unsigned int ctpVersion,  Header&&, Trailer&&, std::vector<CTPRoI>&& );
 
      //! full constructor with CTP version, header, trailer and vector of data
-     CTPResult(unsigned int ctpVersion, const Header&, const Trailer&, const std::vector<uint32_t>& );
-
-     //! empty default destructor
-     ~CTPResult();
+     CTPResult(unsigned int ctpVersion, Header&&, Trailer&&, const std::vector<uint32_t>& );
 
      /*
       * Methods: 

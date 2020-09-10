@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
-    ChainStep, Chain, getChainStepName, createStepView
+    ChainStep, Chain, createStepView
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -18,7 +18,7 @@ def generateChains( flags,  chainDict ):
     import pprint
     pprint.pprint( chainDict )
 
-    firstStepName = getChainStepName('Electron', 1)
+    firstStepName = 'FastCaloElectron'
     stepReco, stepView = createStepView(firstStepName)
 
     accCalo = ComponentAccumulator()
@@ -47,7 +47,7 @@ def generateChains( flags,  chainDict ):
     fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict])
 
 
-    secondStepName = getChainStepName('Electron', 2)
+    secondStepName = 'ElectronFTF'
     stepReco, stepView = createStepView(secondStepName)
 
     accTrk = ComponentAccumulator()
