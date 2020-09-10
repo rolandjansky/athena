@@ -10,17 +10,16 @@
  * Implementation of PosteriorWeightsCalculator.cxx
  */
 #include "TrkGaussianSumFilter/PosteriorWeightsCalculator.h"
-#include "TrkEventPrimitives/LocalParameters.h"
-#include "TrkEventPrimitives/ProjectionMatricesSet.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkEventPrimitives/ProjectionMatricesSet.h"
 #include "TrkParameters/TrackParameters.h"
 
 namespace {
 
 using namespace Trk;
 // expansion and reduction matrices set
-static const ProjectionMatricesSet reMatrices(5);
+const ProjectionMatricesSet reMatrices(5);
 
 template<int DIM>
 std::pair<double, double>
@@ -101,7 +100,7 @@ calculateWeight_2D_3(const TrackParameters* componentTrackParameters,
     det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
 }
 
-}//end of anonymous namespace
+} // end of anonymous namespace
 
 std::vector<Trk::ComponentParameters>
 Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
@@ -261,4 +260,3 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
   }
   return returnMultiComponentState;
 }
-

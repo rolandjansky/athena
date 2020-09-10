@@ -16,7 +16,6 @@
 #include "TProfile2D.h"
 #include "TMath.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"

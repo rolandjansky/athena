@@ -131,9 +131,10 @@ int main() {
 
   const SG::CompressionInfo* compInfo = nullptr;
   assert (pStore->retrieve (compInfo, "CompressionInfo_AthenaOutputStream").isSuccess());
-  assert (compInfo->size() == 2); // 2 levels of compression as high/low
+  assert (compInfo->size() == 1); // A single container has variables to be compressed
   auto val = compInfo->find("comp");
   assert (val != compInfo->end());
+  assert (val->second.size() == 2); // 2 levels of compression as high/low
   assert (val->second.at(10).test(foo.auxid()));  // compress foo high
   assert (!val->second.at(10).test(bar.auxid())); // don't compress bar since it's double
   assert (val->second.at(16).test(zzz.auxid()));  // compress zzz low

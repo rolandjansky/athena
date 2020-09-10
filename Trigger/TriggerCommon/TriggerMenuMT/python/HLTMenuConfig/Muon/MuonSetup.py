@@ -397,6 +397,34 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
   from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
   L2TgcDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
 
+
+  ### sTGC RDO data - turn off the data decoding here ###
+  if MuonGeometryFlags.hasSTGC():
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
+    L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
+                                                            StgcPrepDataProvider  = "",
+                                                            StgcPrepDataContainer = "STGC_Measurements",
+                                                            StgcRawDataProvider   = "",
+                                                            DoDecoding           = False,
+                                                            DecodeBS             = False)
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+    L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
+    ToolSvc += L2StgcDataPreparator
+
+
+  ### MM RDO data - turn off the data decoding here ###
+  if MuonGeometryFlags.hasMM():
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
+    L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
+                                                        MmPrepDataProvider  = "",
+                                                        MmPrepDataContainer = "MM_Measurements",
+                                                        # MmRawDataProvider   = "",
+                                                        DoDecoding           = False,
+                                                        DecodeBS             = False)
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
+    L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
+    ToolSvc += L2MmDataPreparator
+
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
   muFastAlg = TrigL2MuonSAMTConfig("Muon")
@@ -404,10 +432,20 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
   if MuonGeometryFlags.hasCSC():
-    MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator
-  MuFastDataPreparator.MDTDataPreparator = L2MdtDataPreparator
-  MuFastDataPreparator.RPCDataPreparator = L2RpcDataPreparator
-  MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
+    MuFastDataPreparator.CSCDataPreparator  = L2CscDataPreparator
+  else:
+    MuFastDataPreparator.CSCDataPreparator  = ""
+  MuFastDataPreparator.MDTDataPreparator  = L2MdtDataPreparator
+  MuFastDataPreparator.RPCDataPreparator  = L2RpcDataPreparator
+  MuFastDataPreparator.TGCDataPreparator  = L2TgcDataPreparator
+  if MuonGeometryFlags.hasSTGC():
+    MuFastDataPreparator.STGCDataPreparator = L2StgcDataPreparator
+  else:
+    MuFastDataPreparator.STGCDataPreparator = ""
+  if MuonGeometryFlags.hasMM():
+    MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
+  else:
+    MuFastDataPreparator.MMDataPreparator   = ""
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
@@ -687,10 +725,11 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
     if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     muEFCBRecoSequence += ViewVerifyTrk
 
@@ -946,6 +985,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
   trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.ptcone02Name = Muons+".ptcone02"
+  trigEFmuIso.ptcone03Name = Muons+".ptcone03"
 
   efmuisoRecoSequence += trigEFmuIso
 

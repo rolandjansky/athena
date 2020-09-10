@@ -823,7 +823,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	} // end if "Shift" (station)
 	vol.next();      
       }      
-      ATH_MSG_INFO( name() << stations.size() <<" station prototypes built " );    
+      ATH_MSG_INFO( name() << " " << stations.size() <<" station prototypes built " );
    }
    
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -1103,10 +1103,11 @@ void Muon::MuonStationBuilder::identifyPrototype(const Trk::TrackingVolume* stat
         // for active layers do a search of associated ROE
         const std::vector<const Trk::Layer*>* layers = vols[iv]->confinedArbitraryLayers();
         int nameIndex = m_idHelperSvc->rpcIdHelper().stationNameIndex(stationNameShort);
-        // if (stationNameShort=="BME") nameIndex=12;              // hack for BME
-        // if (stationNameShort=="BMG") nameIndex=13;              // hack for BMG (even though BMG don't have RPC)
         if (stationNameShort=="BME") continue; // BME chambers do not have RPCs
         if (stationNameShort=="BMG") continue; // BMG chambers do not have RPCs
+        // the following checks are not necessarily needed, since calling channelID with check=true would catch them
+        // However, since these validity checks are slow, let's manually skip the obvious non-existant ones
+        //
         // only BOG7/8 and BMS2/4 have doubletZ=3, the remaing BOG and BOF4 have doubletZ=1
         int doubletZMax=2;
         if (stationNameShort.find("BMS")!=std::string::npos && (std::abs(eta)==2 || std::abs(eta)==4)) doubletZMax=3;

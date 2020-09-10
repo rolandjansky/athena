@@ -246,20 +246,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         CablingMapToFile=False,
         CablingMapFileName=IdMappingDat
     )
-    # Distortion parameters
-    CondArgs.update(
-        DistortionInputSource=4,
-        DistortionVersion=1,
-        DistortionR1=0.1/1000,
-        DistortionR2=0.1/1000,
-        DistortionTwist=0.0005,
-        DistortionMean_R=0.12/1000,
-        DistortionRMS_R=0.08/1000,
-        DistortionMean_twist=-0.0005,
-        DistortionRMS_twist=0.0008,
-        DistortionWriteToFile=False,
-        DistortionFileName="PixelSurveyDistortions.txt"
-    )
+
     # set default kwargs
     CondArgs.update(kwargs)
     acc.addCondAlgo(CompFactory.PixelConfigCondAlg(name, **CondArgs))

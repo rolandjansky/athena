@@ -274,10 +274,9 @@ StatusCode Epos::callGenerator()
 // ---------------------------------------------------------------------- 
 StatusCode Epos::genFinalize() 
 {
-  using namespace std;
   ATH_MSG_INFO("EPOS finalizing.");
 
-  cout << "MetaData: generator = Epos " << endl;
+  std::cout << "MetaData: generator = Epos " << std::endl;
 
     // retrieve information about the total cross-section from Epos
   double xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa;
@@ -286,15 +285,15 @@ StatusCode Epos::genFinalize()
   crmc_xsection_f_(xsigtot, xsigine, xsigela, xsigdd, xsigsd, xsloela, xsigtotaa, xsigineaa, xsigelaaa);
   
   xsigtot *= 1000000;         // [mb] to [nb] conversion
-  cout << "MetaData: cross-section (nb) = " << xsigtot << endl;
+  std::cout << "MetaData: cross-section (nb) = " << xsigtot << std::endl;
   xsigine *= 1000000;        //[mb] to [nb] conversion
-  cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << endl;
+  std::cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << std::endl;
      xsigela *= 1000000;         // [mb] to [nb] conversion
-  cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << endl;
+  std::cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << std::endl;
   xsigdd *= 1000000;         // [mb] to [nb] conversion
-  cout << "MetaData: cross-section dd (nb) = " << xsigdd << endl;
+  std::cout << "MetaData: cross-section dd (nb) = " << xsigdd << std::endl;
   xsigsd *= 1000000;         // [mb] to [nb] conversion
-  cout << "MetaData: cross-section sd (nb) = " << xsigsd << endl;
+  std::cout << "MetaData: cross-section sd (nb) = " << xsigsd << std::endl;
 
   //  m_eposEventInfo.close();
 

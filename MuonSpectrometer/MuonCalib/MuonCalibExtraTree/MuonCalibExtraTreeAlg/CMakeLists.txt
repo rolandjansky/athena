@@ -5,51 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibExtraTreeAlg )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
-                          Tracking/TrkEvent/TrkTrack
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/CxxUtils
-                          Control/AthContainers
-                          Event/EventPrimitives
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          MuonSpectrometer/MuonCalib/MuonCalibEvent
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonCalib/MuonCalibExtraTree/MuonCalibExtraTreeEvent
-                          MuonSpectrometer/MuonCalib/MuonCalibITools
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier
-                          MuonSpectrometer/MuonCalib/MuonCalibNtuple
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibStl
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          TileCalorimeter/TileEvent
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Trigger/TrigConfiguration/TrigConfL1Data
-                          Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

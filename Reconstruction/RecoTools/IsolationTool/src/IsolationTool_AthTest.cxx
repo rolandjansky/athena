@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IsolationTool includes
@@ -12,7 +12,7 @@ static const int NDIFF = xAOD::Iso::ptvarcone20 - xAOD::Iso::ptcone20;
 IsolationTool_AthTest::IsolationTool_AthTest( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator ),
 m_trackIsolationTool(),
 m_caloIsolationTool(),
-m_decorators(xAOD::Iso::numIsolationTypes, 0)
+m_decorators(xAOD::Iso::numIsolationTypes, nullptr)
 {
 
   //declareProperty( "Property", m_nProperty ); //example property declaration
@@ -76,7 +76,7 @@ StatusCode IsolationTool_AthTest::execute() {
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   // retrieve tag (muon) container
-   const xAOD::IParticleContainer* toDecorate = 0;
+   const xAOD::IParticleContainer* toDecorate = nullptr;
    if(evtStore()->retrieve(toDecorate, m_containerName).isFailure()) {
      ATH_MSG_FATAL( "Unable to retrieve " << m_containerName );
      return StatusCode::FAILURE;

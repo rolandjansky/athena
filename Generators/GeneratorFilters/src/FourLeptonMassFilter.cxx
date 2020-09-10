@@ -43,7 +43,7 @@ StatusCode FourLeptonMassFilter::filterEvent() {
 
 	  // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta
 	  int pdgId1((*pitr1)->pdg_id());
-	  if (!(abs(pdgId1) == 11 || abs(pdgId1) == 13)) continue;
+	  if (!(std::abs(pdgId1) == 11 || std::abs(pdgId1) == 13)) continue;
 	  if (!((*pitr1)->momentum().perp() >= m_minPt && std::abs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 
 	  // Loop over all remaining particles in the event
@@ -90,7 +90,7 @@ StatusCode FourLeptonMassFilter::filterEvent() {
                   if (kk == jj || kk == ii) continue;
                   for (int ll = 0; ll < 4; ll++) {
                     if (ll == kk || ll == jj|| ll == ii) continue;
-                    if (!m_allowElecMu && (abs(pdgIds[ii])!=abs(pdgIds[jj]) ||  abs(pdgIds[kk])!=abs(pdgIds[ll]))) continue;
+                    if (!m_allowElecMu && (std::abs(pdgIds[ii])!=abs(pdgIds[jj]) ||  abs(pdgIds[kk])!=abs(pdgIds[ll]))) continue;
                     if (!m_allowSameCharge && (pdgIds[ii]*pdgIds[jj]>0. ||  pdgIds[kk]*pdgIds[ll]>0.)) continue;
 
                     // Leading dilepton pair

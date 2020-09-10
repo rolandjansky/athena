@@ -126,7 +126,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                  ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )]
 
         if globalflags.InputFormat.is_bytestream():
-          verifier.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+          verifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
 

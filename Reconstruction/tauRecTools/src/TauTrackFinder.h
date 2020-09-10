@@ -59,7 +59,6 @@ public:
     //-------------------------------------------------------------
     virtual StatusCode initialize() override;
     virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
-    virtual StatusCode finalize() override;
     
 private:
     //-------------------------------------------------------------

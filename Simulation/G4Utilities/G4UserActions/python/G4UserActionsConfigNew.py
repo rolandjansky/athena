@@ -87,3 +87,14 @@ def HitWrapperToolCfg(ConfigFlags, name="G4UA::HitWrapperTool", **kwargs):
     #         kwargs.setdefault(prop,value)
     result.setPrivateTools(CompFactory.G4UA.HitWrapperTool(name, **kwargs))
     return result
+
+def LengthIntegratorToolCfg(ConfigFlags, name="G4UA::UserActionSvc.LengthIntegratorTool", **kwargs):
+    THistSvc= CompFactory.THistSvc
+    result = ComponentAccumulator()
+    histsvc = THistSvc(name="THistSvc")
+    histsvc.Output = ["lengths DATAFILE='LengthIntegrator.root' OPT='RECREATE'"]
+    result.addService(histsvc)
+    kwargs.setdefault("HistoSvc", "THistSvc")
+    result.setPrivateTools(CompFactory.G4UA.LengthIntegratorTool(name, **kwargs))
+    return result
+

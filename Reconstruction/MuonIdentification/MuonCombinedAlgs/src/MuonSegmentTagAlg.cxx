@@ -1,16 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentTagAlg.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 
 MuonSegmentTagAlg::MuonSegmentTagAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
-{  
+  AthAlgorithm(name,pSvcLocator) {  
 }
-
-MuonSegmentTagAlg::~MuonSegmentTagAlg(){}
 
 StatusCode MuonSegmentTagAlg::initialize()
 {
@@ -51,11 +48,5 @@ StatusCode MuonSegmentTagAlg::execute()
 
   m_muonSegmentTagTool->tag(*indetCandidateCollection,*segments,tagMap.ptr());
   
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MuonSegmentTagAlg::finalize()
-{
   return StatusCode::SUCCESS;
 }

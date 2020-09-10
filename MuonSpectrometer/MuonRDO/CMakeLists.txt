@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonRDO )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier
-                          Event/EventContainers
-                          MuonSpectrometer/MuonCablings/CSCcabling
-                          MuonSpectrometer/MuonIdHelpers
-                          PRIVATE
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/TGCcablingInterface )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

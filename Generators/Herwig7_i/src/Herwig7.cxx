@@ -210,7 +210,7 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   pdfs.second = eh->pdf<ThePEG::PDF>(sub->incoming().second);
   // Get the scale
   ThePEG::Energy2 scale = eh->lastScale();
-  double Q = sqrt(scale/ThePEG::GeV2);
+  double Q = std::sqrt(scale/ThePEG::GeV2);
   // Get the values of the pdfs
   double pdf1 = pdfs.first.xfx(sub->incoming().first ->dataPtr(), scale, x1);
   double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(), scale, x2);

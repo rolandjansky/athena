@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRawDataProviderTool.h"
@@ -43,7 +43,6 @@ StatusCode PixelRawDataProviderTool::finalize() {
 StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecRobs, IPixelRDO_Container* rdoIdc,
 					     IDCInDetBSErrContainer& decodingErrors ) const {
   if (vecRobs.size()==0) { return StatusCode::SUCCESS; }
-
 
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
@@ -111,8 +110,6 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
     // using 1 container per event and subdetector
     StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoIdc, decodingErrors);
 
-
-
     const int issuesMessageCountLimit = 100;
     if (sc==StatusCode::FAILURE) {
       if (m_DecodeErrCount < issuesMessageCountLimit) {
@@ -125,8 +122,28 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
       }
     }
   }
-  if (isNewEvent) {
-    ATH_CHECK(m_decoder->StoreBSError());
-  }
   return StatusCode::SUCCESS; 
+}
+
+int PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer() const {
+  //=========================================================
+  //  Size of Pixel BS Error container
+  //
+  //  The error would be stored not only for module but also each FE (x16) per module.
+  //  In addition, IBL FEI4 provides error counter between trigger, this also extends 
+  //  the size beyond nominal module + FE ID. These numbers come from the hardware 
+  //  specification so that there is no easy way to document in the header file.
+  //  Rather, put the hardcoded number here.
+  //
+  //      Total number of pixel modules: 2048
+  //      Number of FE chips per module:   16
+  //     -------------------------------------
+  //          2048 x 17 (module + FE) = 34816
+  //
+  //      IBL extra error information  : 
+  //          280(module) x 2(FE) x 32(error counter) = 35840
+  //     -------------------------------------
+  //                             Total : 70656
+  //=========================================================
+  return 70656;
 }

@@ -9,6 +9,8 @@
 #include "TrigConfData/DataStructure.h"
 #include "TrigConfData/HLTChain.h"
 
+#include <map>
+
 namespace TrigConf {
 
    /** 
@@ -56,6 +58,9 @@ namespace TrigConf {
 
       /** Accessor to the connected output streams */
       std::vector<DataStructure> streams() const;
+
+      /** Accessor to the sequencers */
+      std::map<std::string, std::vector<std::string>> sequencers() const;
 
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;

@@ -9,7 +9,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthService.h"
@@ -32,14 +32,11 @@ namespace Athena_test {
 
     virtual void SetUp() override {
 
-      ServiceHandle<IJobOptionsSvc> joSvc( "JobOptionsSvc",
-                                           "AthExUnittestAlgTest" );
-      joSvc->addPropertyToCatalogue( "AthExUnittestAlg",
-                                     StringProperty( "MyProperty", Gaudi::Utils::toString( 21 ) ) ).ignore();
-      joSvc->addPropertyToCatalogue( "AthExUnittestAlg",
-                                     StringProperty( "MyTool","AthExUnittestTool/AnotherName" ) ).ignore();
-      joSvc->addPropertyToCatalogue( "AthExUnittestAlg.AnotherName",
-                                     StringProperty( "Property", Gaudi::Utils::toString( 42.0 ) ) ).ignore();
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc( "JobOptionsSvc",
+                                                           "AthExUnittestAlgTest" );
+      joSvc->set( "AthExUnittestAlg.MyProperty", Gaudi::Utils::toString( 21 ) );
+      joSvc->set( "AthExUnittestAlg.MyTool","AthExUnittestTool/AnotherName" );
+      joSvc->set( "AthExUnittestAlg.AnotherName.Property", Gaudi::Utils::toString( 42.0 ) );
       IAlgorithm* ialg= Algorithm::Factory::create( "AthExUnittestAlg",
                                                     "AthExUnittestAlg",
                                                     Gaudi::svcLocator() ).release();

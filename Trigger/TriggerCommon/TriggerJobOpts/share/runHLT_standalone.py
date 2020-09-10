@@ -366,7 +366,7 @@ else:
 # ----------------------------------------------------------------
 # Detector geometry
 # ----------------------------------------------------------------
-# Always enable AtlasFieldSvc
+# Always enable magnetic field
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")

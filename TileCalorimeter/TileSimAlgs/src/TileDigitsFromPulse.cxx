@@ -223,8 +223,8 @@ StatusCode TileDigitsFromPulse::execute() {
 	ATH_MSG_DEBUG("in execute()");
 
 	// Prepare RNG service
-	ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-	rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+	ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
+	rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
 
 	// Create new container for digits
 	auto digitsContainer = std::make_unique<TileMutableDigitsContainer>(true,

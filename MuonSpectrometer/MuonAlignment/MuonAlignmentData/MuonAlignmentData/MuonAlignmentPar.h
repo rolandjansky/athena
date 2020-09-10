@@ -21,7 +21,7 @@ class MuonAlignmentPar {
   Identifier  identify() const {return m_stationId;}
   std::string key()      const {return m_stationKey;}
 
-  void setAmdbId(std::string type, int jff, int jzz, int job);
+  void setAmdbId(const std::string& type, int jff, int jzz, int job);
   void getAmdbId(std::string& type, int& jff, int& jzz, int& job) const;
 
   bool isNew() const        {return m_isNew;}

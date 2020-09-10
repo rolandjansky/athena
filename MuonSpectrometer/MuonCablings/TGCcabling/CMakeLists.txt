@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( TGCcabling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/TGCcablingInterface
-                          PRIVATE
-                          Control/StoreGate
-                          MuonSpectrometer/MuonIdHelpers
-                          Tools/PathResolver )
-
 # Component(s) in the package:
 atlas_add_library( TGCcablingLib
                    src/*.cxx

@@ -23,7 +23,7 @@
 #define TRIGSTEERINGEVENT_Lvl1Result_H
 
 #include <stdint.h>
-#include "AthenaKernel/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 namespace LVL1CTP {
@@ -76,6 +76,7 @@ namespace LVL1CTP {
   };
 
 } // end of namespace
+
 
 CLASS_DEF( LVL1CTP::Lvl1Result, 21091893, 1)
 

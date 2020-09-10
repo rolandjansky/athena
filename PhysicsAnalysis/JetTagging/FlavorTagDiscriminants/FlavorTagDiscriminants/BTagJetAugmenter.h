@@ -16,7 +16,8 @@ class BTagJetAugmenter
 {
 public:
   typedef FlavorTagDiscriminants::FlipTagConfig FlipTagConfig;
-  BTagJetAugmenter(std::string associator, FlipTagConfig flip = FlipTagConfig::STANDARD);
+  BTagJetAugmenter(std::string associator = "BTagTrackToJetAssociator",
+                   FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
   void augmentJfDr(const xAOD::BTagging &btag);

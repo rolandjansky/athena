@@ -7,6 +7,9 @@
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
+#include "AsgTools/CurrentContext.h"
+#include "AsgDataHandles/ReadHandle.h"
+
 // Include for the event store type:
 #ifdef XAOD_STANDALONE
 #   include "AsgTools/SgTEvent.h"

@@ -342,7 +342,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexInsideApplicableRadius_exp
 
   const HepMC::FourVector pos(0., 0., 0., 0.);
   HepMC::GenVertex vtx(pos);
-  auto* part = new HepMC::GenParticle(); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(); // need dynamic allocation as GenVertex takes ownership
   vtx.add_particle_out(part);
 
   ASSERT_TRUE( m_filterTool->pass(*part) );
@@ -355,7 +355,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexOutsideApplicableRadiusAnd
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
   const HepMC::FourVector mom4(1.0*sin(150.*M_PI/180.), 0.0, 1.0*cos(150.*M_PI/180.), 1.0); // rho=1, eta=-1.32
-  auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 100., 0., 0.);
   HepMC::GenVertex vtx(pos);
@@ -371,7 +371,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexWithinApplicableRadiusAndU
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
   const HepMC::FourVector mom4(1.0*sin(150.*M_PI/180.), 0.0, 1.0*cos(150.*M_PI/180.), 1.0); // rho=1, eta=-1.32
-  auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 9.9, 0., 0.);
   HepMC::GenVertex vtx(pos);
@@ -388,7 +388,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexFarForwardInsideApplicable
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
   const HepMC::FourVector mom4(0., 0., 1.0, 1.0); // rho=1, eta=inf
-  auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(0., 0., 9999., 0.);
   HepMC::GenVertex vtx(pos);
@@ -406,7 +406,7 @@ TEST_F(GenParticleGenericFilter_test, productionVertexFarForwardOutsideApplicabl
   EXPECT_TRUE( m_filterTool->initialize().isSuccess() );
 
   const HepMC::FourVector mom4(0., 0., 1.0, 1.0); // rho=1, eta=inf
-  auto* part = new HepMC::GenParticle(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
+  auto part = HepMC::newGenParticlePtr(mom4, /*pdg id=*/11); // need dynamic allocation as GenVertex takes ownership
 
   const HepMC::FourVector pos(1.1, 0., 9999., 0.);
   HepMC::GenVertex vtx(pos);

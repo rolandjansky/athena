@@ -299,7 +299,7 @@ namespace G4UA
   }
 
   // how variables should be dumped in variables map
-  void RadLengthAction::fillVariables(std::vector<double> varvec, std::string name){
+  void RadLengthAction::fillVariables(std::vector<double> varvec, const std::string& name){
     // first three components should be added (deltaenergy, radlength, intlength)
     for(unsigned int i = 0; i<3; i++) variables[name].at(i) += varvec.at(i);
     // other components should be overwritten

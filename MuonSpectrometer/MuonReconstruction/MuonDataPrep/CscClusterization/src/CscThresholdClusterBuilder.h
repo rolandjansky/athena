@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscThresholdClusterBuilder.h
@@ -55,45 +55,48 @@
 // Algorithm to construct CSC clusters from digits.
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CscClusterization/ICscClusterFitter.h"
+#include "CscClusterization/ICscStripFitter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "CscClusterization/ICscStripFitter.h"
 #include "CscClusterization/ICscClusterBuilder.h"
-#include "CscClusterization/ICscClusterFitter.h"
 
 namespace MuonGM {
-  class MuonDetectorManager;
+class MuonDetectorManager;
 }
 class CscIdHelper;
 namespace Muon {
-  class CscPrepData;
-  class CscStripPrepData;
-}
+class CscPrepData;
+class CscStripPrepData;
+}  // namespace Muon
 typedef Muon::CscPrepData MyCscDigit;
 class CscDigit;
 
 class CscThresholdClusterBuilder : public AthAlgorithm {
-  
-public:  // methods
-  
-  // Constructor.
-  CscThresholdClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-  
-  // Destructor.
-  ~CscThresholdClusterBuilder();
-  
-  // Initialization.
-  StatusCode initialize();
-  
-  // Event processing.
-  StatusCode execute();
 
-  // Finalization.
-  StatusCode finalize();
+  public:  // methods
+    // Constructor.
+    CscThresholdClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-private:  // data
-  // Strip fitter.
-  ToolHandle<ICscClusterBuilder> m_cluster_builder;
+    // Destructor.
+    ~CscThresholdClusterBuilder();
+
+    // Initialization.
+    StatusCode initialize();
+
+    // Event processing.
+    StatusCode execute();
+
+    // Finalization.
+    StatusCode finalize();
+
+  private:  // data
+    // Strip fitter.
+    ToolHandle<ICscClusterBuilder> m_cluster_builder{
+        this,
+        "cluster_builder",
+        "CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool",
+    };
 };
 
 #endif

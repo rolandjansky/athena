@@ -9,25 +9,27 @@
  * @brief  Class for fitting according to the Gaussian Sum Filter  formalism
  */
 
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
+#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
+#include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
+#include "TrkGaussianSumFilter/QuickCloseComponentsMultiStateMerger.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/EventContext.h"
-#include "GaudiKernel/ToolHandle.h"
 #include <atomic>
 
 namespace Trk {
 class IMultiStateMeasurementUpdator;
 class MultiComponentStateOnSurface;
-class IForwardGsfFitter;
-class IGsfSmoother;
 class FitQuality;
 class Track;
 
@@ -118,6 +120,52 @@ private:
   //* Calculate the fit quality */
   const Trk::FitQuality* buildFitQuality(const Trk::SmoothedTrajectory&) const;
 
+  /** Gsf smoothe trajectory*/
+  SmoothedTrajectory* fit(
+    const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
+    const ForwardTrajectory&,
+    const ParticleHypothesis particleHypothesis = nonInteracting,
+    const CaloCluster_OnTrack* ccot = nullptr) const;
+
+  /** Method for combining the forwards fitted state and the smoothed state */
+  MultiComponentState combine(const MultiComponentState&,
+                              const MultiComponentState&) const;
+
+  /** Methof to add the CaloCluster onto the track */
+  MultiComponentState addCCOT(
+    const EventContext& ctx,
+    const Trk::TrackStateOnSurface* currentState,
+    const Trk::CaloCluster_OnTrack* ccot,
+    Trk::SmoothedTrajectory* smoothedTrajectory) const;
+
+  /** Forward GSF fit using PrepRawData */
+  std::unique_ptr<ForwardTrajectory> fitPRD(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    const PrepRawDataSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
+  /** Forward GSF fit using MeasurementSet */
+  std::unique_ptr<ForwardTrajectory> fitMeasurements(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    const MeasurementSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
+  /** Progress one step along the fit */
+  bool stepForwardFit(
+    const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&,
+    ForwardTrajectory*,
+    const PrepRawData*,
+    const MeasurementBase*,
+    const Surface&,
+    MultiComponentState&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const;
+
 private:
   ToolHandle<IMultiStateExtrapolator> m_extrapolator{
     this,
@@ -131,16 +179,13 @@ private:
     "Trk::RioOnTrackCreator/RIO_OnTrackCreator",
     ""
   };
-  ToolHandle<IForwardGsfFitter> m_forwardGsfFitter{
+
+  Gaudi::Property<unsigned int> m_maximumNumberOfComponents{
     this,
-    "ForwardGsfFitter",
-    "Trk::ForwardGsfFitter/ForwardGsfFitter",
-    ""
+    "MaximumNumberOfComponents",
+    12,
+    "Maximum number of components"
   };
-  ToolHandle<IGsfSmoother> m_gsfSmoother{ this,
-                                          "GsfSmoother",
-                                          "Trk::GsfSmoother/GsfSmoother",
-                                          "" };
 
   Gaudi::Property<bool> m_StoreMCSOS{
     this,
@@ -170,12 +215,31 @@ private:
                                         true,
                                         "Do Hit Sorting" };
 
+  Gaudi::Property<bool> m_combineWithFitter{
+    this,
+    "CombineStateWithFitter",
+    false,
+    "Combine with forwards state during Smoothing"
+  };
+
+  // Measurement updator
+  GsfMeasurementUpdator m_updator;
+
   PropDirection m_directionToPerigee;
+
   std::unique_ptr<TrkParametersComparisonFunction>
     m_trkParametersComparisonFunction;
+
   std::unique_ptr<TrackFitInputPreparator> m_inputPreparator;
   std::vector<double> m_sortingReferencePoint;
 
+  // For the forward fit part
+  double m_cutChiSquaredPerNumberDOF;
+  int m_overideMaterialEffects;
+  ParticleHypothesis m_overideParticleHypothesis;
+  bool m_overideMaterialEffectsSwitch;
+
+  // Counters for fit statistics
   // Number of Fit PrepRawData Calls
   mutable std::atomic<int> m_FitPRD;
   // Number of Fit MeasurementBase Calls

@@ -4,6 +4,7 @@
 
 #include "TrigMuonEFTrackIsolationHypoAlg.h"
 #include "AthViews/ViewHelper.h"
+#include "StoreGate/ReadDecorHandle.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -24,7 +25,11 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::initialize()
   ATH_CHECK( m_hypoTools.retrieve() );
 
   renounce( m_muonKey );
+  renounce( m_muonIso20Key );
+  renounce( m_muonIso30Key );
   ATH_CHECK( m_muonKey.initialize() );
+  ATH_CHECK( m_muonIso20Key.initialize() );
+  ATH_CHECK( m_muonIso30Key.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -58,15 +63,17 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     auto viewEL = previousDecision->objectLink<ViewContainer>(viewString());
     ATH_CHECK( viewEL.isValid() );
 
-    // get Muon
+    // get Muon and isolation
     auto muonHandle = ViewHelper::makeHandle( *viewEL, m_muonKey, context );
+    SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso20 ( m_muonIso20Key, context );
+    SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso30 ( m_muonIso30Key, context );
     ATH_CHECK( muonHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muonHandle->size() << " ..." );
 
     // It is posisble that no muons are found, in this case we go to the next decision
     if ( muonHandle->size()==0 ) continue;
 
-    // this code only gets muon 0. The EF algorithms can potentially make more than 1 muon, so may need to revisit this
+    // this code only gets muon 0, since we build the views centered on a single muon
     auto muonEL = ViewHelper::makeLink( *viewEL, muonHandle, 0 );
     ATH_CHECK( muonEL.isValid() );
     const xAOD::Muon* muon = *muonEL;
@@ -74,7 +81,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     // create new dicions
     auto newd = newDecisionIn( decisions );
 
-    toolInput.emplace_back( newd, roi, muon, previousDecision );
+    toolInput.emplace_back( newd, roi, muon, previousDecision, muonIso20(*muon), muonIso30(*muon) );
 
     newd -> setObjectLink( featureString(), muonEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );

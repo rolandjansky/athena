@@ -391,7 +391,7 @@ StatusCode MagField::AtlasFieldSvc::initializeMap(AtlasFieldSvcTLS &tls)
         return StatusCode::SUCCESS;
     }
     // find the path to the map file
-    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
+    std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "CALIBPATH" );
     if ( resolvedMapFile.empty() ) {
         ATH_MSG_ERROR( "Field map file " << mapFile << " not found" );
         return StatusCode::FAILURE;

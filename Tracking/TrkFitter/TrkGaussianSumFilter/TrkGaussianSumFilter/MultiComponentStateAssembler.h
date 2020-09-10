@@ -12,7 +12,7 @@
  *  MultiComponentState. The addition of components can be
  *  one at a time through the addComponent method (taking a
  *  single ComponentParameters object) or many at a time,(taking a
- *  MultiComponentState object). It also included 
+ *  MultiComponentState object). It also included
  *  helpers to be used in weighting renormalisation
  *  calculations and the removal of components with
  *  insignificantly small weightings.

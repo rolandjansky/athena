@@ -61,7 +61,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.combined = [
-        ChainProp(name='HLT_e7_mu10_L1EM7_MU10', groups=SingleElectronGroup)
+        ChainProp(name='HLT_e7_mu10_L1EM7_MU10', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e7_mu12_L1EM7_MU10', groups=SingleElectronGroup)
     ]
 
 if __name__ == "__main__":
@@ -93,6 +94,9 @@ if __name__ == "__main__":
     menu = generateMenu( ConfigFlags )
 
     acc.merge(menu)
+
+    acc.printConfig()
+
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )

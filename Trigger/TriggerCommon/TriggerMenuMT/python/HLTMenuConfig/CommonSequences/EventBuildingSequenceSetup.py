@@ -93,6 +93,12 @@ def pebInfoWriterTool(name, eventBuildType):
         tool.addSubDets([SubDetector.FORWARD_ALPHA,
                          SubDetector.TDAQ_CTP
         ])
+    elif 'CSCPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([
+            SubDetector.CSC
+         ])
+
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)

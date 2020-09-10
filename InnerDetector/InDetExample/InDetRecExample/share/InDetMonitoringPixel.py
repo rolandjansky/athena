@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -81,9 +81,6 @@ if doErrorMonAlg:
   pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
   for k, v in kwargsErrMonAlg.items():
     setattr(pixelAthMonAlgErrorMonAlg, k, v)
-  from PixelConditionsTools.PixelConditionsToolsConf import PixelByteStreamErrorsTool
-  # never attempt to write bytestream error objects
-  pixelAthMonAlgErrorMonAlg.PixelByteStreamErrorsTool = PixelByteStreamErrorsTool(ReadingESD = True)
   PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)
 
 topSequence += helper.result()

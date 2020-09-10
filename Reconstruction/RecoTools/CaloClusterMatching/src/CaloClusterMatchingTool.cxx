@@ -156,7 +156,7 @@ namespace ClusterMatching {
     for(const auto& testCluster : testClusters) {
       float sharedEfrac = getClusterSharedEfrac(refCluster, *testCluster);
       if(sharedEfrac>m_minSharedEfrac) {
-	matchedClustersAndE.push_back(std::make_pair(testCluster,sharedEfrac));
+	matchedClustersAndE.emplace_back(testCluster,sharedEfrac);
       }
     }
     return !matchedClustersAndE.empty();
@@ -211,7 +211,7 @@ namespace ClusterMatching {
       if(getMatchedClusters(refCluster, testClusters, matchedClustersAndE)) {
 	std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
 	for(const auto& tcAndE : matchedClustersAndE) {
-	  tcLinks.push_back(ElementLink<CaloClusterContainer>(*pClCont,tcAndE.first->index()));
+	  tcLinks.emplace_back(*pClCont,tcAndE.first->index());
 	  tcSharedE.push_back(tcAndE.second);
 	}
       }
@@ -241,7 +241,7 @@ namespace ClusterMatching {
       const CaloClusterContainer* pClCont = static_cast<const CaloClusterContainer*>(matchedClustersAndE.front().first->container());
       std::sort(matchedClustersAndE.begin(),matchedClustersAndE.end(),gtrthan);
       for(const auto& tcAndE : matchedClustersAndE) {
-	tcLinks.push_back(ElementLink<CaloClusterContainer>(*pClCont,tcAndE.first->index()));
+	tcLinks.emplace_back(*pClCont,tcAndE.first->index());
 	tcSharedE.push_back(tcAndE.second);
       }
     }

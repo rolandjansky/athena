@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -39,9 +39,10 @@ MuonIdHelper::MuonIdHelper(std::string logName): m_station_region_index(0), m_mo
   m_dict                  =  0;
   m_msgSvc                =  0;
   ISvcLocator* svcLocator = Gaudi::svcLocator();
-  StatusCode sc = svcLocator->service("MessageSvc", m_msgSvc);
+  IMessageSvc* msgSvc = nullptr;
+  StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
-  m_Log = std::make_unique<MsgStream>(m_msgSvc, logName.empty() ? "MuonIdHelper" : logName);
+  m_Log = std::make_unique<MsgStream>(msgSvc, logName.empty() ? "MuonIdHelper" : logName);
 }
 
 // Destructor

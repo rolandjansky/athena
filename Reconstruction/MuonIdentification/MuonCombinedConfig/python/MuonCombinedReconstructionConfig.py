@@ -190,9 +190,12 @@ def MuonCombinedAlgCfg( flags, name="MuonCombinedAlg",**kwargs ):
     # CombinedTagMaps must be in a 1-1 correspondence
     # with MuonCombinedTagTools.
     for h in kwargs['MuonCombinedTool'].MuonCombinedTagTools:
-        if h.find('FitTagTool') >= 0:
+    #     print (h)
+    # import sys
+    # sys.exit(1)
+        if str(h).find('FitTagTool') >= 0:
             tagmaps.append ('muidcoTagMap')
-        elif h.find('StacoTagTool') >= 0:
+        elif str(h).find('StacoTagTool') >= 0:
             tagmaps.append ('stacoTagMap')
     kwargs.setdefault("CombinedTagMaps", tagmaps)
     alg = CompFactory.MuonCombinedAlg(name,**kwargs)

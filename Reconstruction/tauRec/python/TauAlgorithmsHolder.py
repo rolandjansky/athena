@@ -54,7 +54,7 @@ def getAtlasExtrapolator():
 
 ########################################################################
 # JetSeedBuilder
-def getJetSeedBuilder(seed_collection_name):
+def getJetSeedBuilder():
     _name = sPrefix + 'JetSeedBuilder'
     
     if _name in cached_instances:
@@ -309,9 +309,6 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          # parameters for CaloIsoCorrected variable
-                                                          maxPileUpCorrection = 4000., #MeV
-                                                          pileUpAlpha = 1.0,
                                                           VertexCorrection = True,
                                                           IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                        )

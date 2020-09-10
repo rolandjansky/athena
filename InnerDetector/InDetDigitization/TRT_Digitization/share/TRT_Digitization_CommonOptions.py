@@ -11,4 +11,4 @@ protectedInclude( "PartPropSvc/PartPropSvc.py" )
 from AthenaCommon.GlobalFlags import globalflags
 if not ( globalflags.isOverlay() and globalflags.DataSource == 'data' ) :
     from IOVDbSvc.CondDB import conddb
-    conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers")
+    conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",className='AthenaAttributeList')

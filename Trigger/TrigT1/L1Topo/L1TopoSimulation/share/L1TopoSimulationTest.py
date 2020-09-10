@@ -7,7 +7,7 @@ import os,psutil,sys
 from AthenaCommon.Logging import logging
 log = logging.getLogger('L1TopoSimulationTest.py')
          
-fmenu ,fTOBs = 'L1Topoconfig_MC_pp_v8_NewNaming.xml','eventdump_new.txt'
+fmenu ,fTOBs = 'L1Topoconfig_MC_pp_v8_OnlyThreadSaveAlgs.xml','eventdump_new.txt'
 
 print ('File for menu :',fmenu)
 print ('File for TOBs :',fTOBs)
@@ -71,10 +71,9 @@ svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREA
 
 #  set algCardinality = 1 to disable cloning for all Algs
 algCardinality = nThreads
-
 #  Cloning can be disable for any alg  
 
-if (algCardinality > 1):   
+if (algCardinality > 1):
    for alg in topSequence:      
       name = alg.name()
       if name in ["L1TopoSimulation"] :

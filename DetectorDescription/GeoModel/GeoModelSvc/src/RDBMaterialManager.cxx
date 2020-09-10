@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RDBMaterialManager.h"
@@ -330,25 +330,6 @@ RDBMaterialManager::~RDBMaterialManager() {
 	
 }
 
-GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name)  
-{
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-	
-  std::map< std::string, GeoMaterial * >::const_iterator m   = m_materialMap.find(std::string(name));
-  std::map< std::string, GeoMaterial * >::const_iterator end = m_materialMap.end();
-  	
-  if (m!=end) {
-    if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search sucess "  << endmsg;	
-    return (*m).second;
-  }
-  else {
-    if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endmsg;	
-    return NULL;
-  }
-}
-
 GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) const
 {
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
@@ -363,26 +344,6 @@ GeoMaterial* RDBMaterialManager::searchMaterialMap(const std::string & name) con
   else {
     if(log.level()==MSG::VERBOSE)
       log << MSG::VERBOSE << " ***** in searchMaterialMap(): search fail "  << endmsg;	
-    return NULL;
-  }
-}
-
-
-GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  
-{ 
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-	
-  NameEquals matchByName(name);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(),matchByName);
-  	
-  if (e!=m_elementVector.end()) {	
-    if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector() search succes "  << endmsg;	
-    return *e;
-  }
-  else {
-    if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector() search fail "  << endmsg;	
     return NULL;
   }
 }
@@ -408,25 +369,6 @@ GeoElement *RDBMaterialManager::searchElementVector(const std::string & name)  c
 }
 
 
-GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNumber)  
-{ 
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-	
-  NumberEquals matchByNumber(atomicNumber);
-  std::vector<GeoElement *>::const_iterator e=std::find_if(m_elementVector.begin(), m_elementVector.end(), matchByNumber);
-  	
-  if (e!=m_elementVector.end()) {
-    if(log.level()==MSG::VERBOSE)  		
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
-    return *e;
-  }
-  else {
-    if(log.level()==MSG::VERBOSE)
-      log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
-    return NULL;
-  }
-}
-
 GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNumber) const
 { 
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
@@ -444,221 +386,6 @@ GeoElement *RDBMaterialManager::searchElementVector(const unsigned int atomicNum
       log << MSG::VERBOSE << " ***** in searchElementVector(atomicNumber) search succes "  << endmsg;
     return NULL;
   }
-}
-
-GeoMaterial* RDBMaterialManager::getMaterial(const std::string & name) {
-	
-  unsigned int  ind, com_ind;
-	
-  std::string material_name;
-  std::string tmp_name;
-  long 	    material_id = 0;
-  double      material_density = 0;
-	
-	
-  std::string component_name;
-  double      component_fraction;
-  int 	    component_id;
-		
-  std::string detector;
-  std::string tmp_det;
-  std::string data_id;
-	
-	
-  std::string matcomponents_table;
-
-  if(!s_specialMaterials)
-  {
-    buildSpecialMaterials();
-    s_specialMaterials = true;
-  }
-	
-  GeoMaterial* pmaterial;
-	
-  GeoMaterial* p_com_material;
-  GeoElement*  p_com_element;
-	
-  IRDBRecordset_ptr tmp_materials;
-  IRDBRecordset_ptr tmp_matcomponents;
-	
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-  if(log.level()<=MSG::DEBUG) 
-    log << MSG::DEBUG  << " ***** getMaterial( ): "  << name << endmsg;	
- 
-
-  pmaterial = NULL;
-  pmaterial = searchMaterialMap( name);
-  if (pmaterial!= NULL) 
-      return pmaterial;
-		
-  if(name.find("std",0) == 0)
-    {
-      detector = "std";
-      tmp_materials = m_stdmaterials;
-      tmp_matcomponents = m_stdmatcomponents;
-      data_id = "STDMATERIALS_DATA_ID";
-    }
-  else if(name.find("trt",0) == 0)
-    {
-      detector = "trt";
-      tmp_materials = m_trtmaterials;
-      tmp_matcomponents = m_trtmatcomponents;
-      data_id = "TRTMATERIALS_DATA_ID";
-    }
-  else if(name.find("LAr",0) == 0)
-    {
-      detector = "LAr";
-      tmp_materials = m_larmaterials;
-      tmp_matcomponents = m_larmatcomponents;
-      data_id = "LARMATERIALS_DATA_ID";
-    }
-  else if(name.find("muo",0) == 0)
-    {
-      detector = "muo";
-      tmp_materials = m_muomaterials;
-      tmp_matcomponents = m_muomatcomponents;
-      data_id = "MUOMATERIALS_DATA_ID";
-    }
-  else if(name.find("pixtb",0) == 0)
-    {
-      detector = "pixtb";
-      tmp_materials = m_pixtbmaterials;
-      tmp_matcomponents = m_pixtbmatcomponents;
-      data_id = "PIXELTBMATERIALS_DATA_ID";
-    }
-  else if(name.find("pix",0) == 0)
-    {
-      detector = "pix";
-      tmp_materials = m_pixmaterials;
-      tmp_matcomponents = m_pixmatcomponents;
-      data_id = "PIXMATERIALS_DATA_ID";
-    }
-  else if(name.find("sct",0) == 0)
-    {
-      detector = "sct";
-      tmp_materials = m_sctmaterials;
-      tmp_matcomponents = m_sctmatcomponents;
-      data_id = "SCTMATERIALS_DATA_ID";
-    }
-  else if(name.find("indet",0) == 0)
-    {
-      detector = "indet";
-      tmp_materials = m_indetmaterials;
-      tmp_matcomponents = m_indetmatcomponents;
-      data_id = "INDETMATERIALS_DATA_ID";
-    }
-  else if(name.find("shield",0) == 0)
-    {
-      detector = "shield";
-      tmp_materials = m_shieldmaterials;
-      tmp_matcomponents = m_shieldmatcomponents;
-      data_id = "SHIELDMATERIALS_DATA_ID";
-    }
-  else if(name.find("tile",0) == 0)
-    {
-      detector = "tile";
-      tmp_materials = m_tilematerials;
-      tmp_matcomponents = m_tilematcomponents;
-      data_id = "TILEMATERIALS_DATA_ID";
-    }
-  else if(name.find("toro",0) == 0)
-    {
-      detector = "toro";
-      tmp_materials = m_toromaterials;
-      tmp_matcomponents = m_toromatcomponents;
-      data_id = "TOROMATERIALS_DATA_ID";
-    }
-  else {return 0 ;}
-	
-  for( ind = 0; ind < tmp_materials->size(); ind++)
-    {
-      const IRDBRecord* rec = (*tmp_materials)[ind];
-      tmp_name = detector+"::"+rec->getString("NAME");
-		
-      if( name == tmp_name){
-
-	material_name  = detector+"::"+rec->getString("NAME");
-	material_id = rec->getLong(data_id);
-	material_density = rec->getDouble("DENSITY");
-        		
-	if(log.level()<=MSG::DEBUG)
-	  log << MSG::DEBUG  << " ***** Material: name id density: "  << material_name <<" " << material_id <<" "<< material_density << endmsg;	
-	break;
-      }
-    }
-		
-  if (ind == tmp_materials->size()) 
-      return NULL;
-
-  pmaterial = new GeoMaterial( material_name,material_density * (GeoModelKernelUnits::gram / Gaudi::Units::cm3));
-
-
-  bool firstComponent = true;
-  bool hasSubMaterial = false;
-  bool calculateFraction = false;
-  double totalFraction = 0.;
-  std::vector < GeoElement* > elementComponents;
-  std::vector <double>        elementFractions;
-
-  for(  com_ind = 0; com_ind <tmp_matcomponents->size(); com_ind++)
-    {
-      const IRDBRecord* com_rec = (*tmp_matcomponents)[com_ind];
-		
-      component_id = com_rec->getLong("MATERIAL_ID");
-      if( component_id == material_id)
-	{
-	  component_name = com_rec->getString("COMPNAME");
-	  component_fraction = com_rec->getDouble("FRACTION");
-			
-	  if(firstComponent)
-	  {
-	    firstComponent = false;
-	    if(component_fraction>=1.)
-	      calculateFraction = true;
-	  }
-
-	  if( CheckElement( component_name) == 1)
-	    {
-	      p_com_element = getElement(component_name);
-
-	      if(calculateFraction)
-	      {
-		totalFraction += component_fraction*p_com_element->getA();
-		elementComponents.push_back(p_com_element);
-		elementFractions.push_back(component_fraction);
-	      }
-	      else
-		pmaterial->add( p_com_element, component_fraction);
-										
-	    }
-	  else{
-	    hasSubMaterial = true;
-	    p_com_material = getMaterial(component_name);
-
-	    pmaterial->add(p_com_material, component_fraction);
-			
-	  }		
-	}
-    }    
-
-  if(calculateFraction && hasSubMaterial && elementComponents.size()>0)
-    std::cerr << material_name << " description should be changed. Please indicate the exact fraction for elements\n";
-
-  if(calculateFraction && !elementComponents.empty()) {
-    const double inv_totalFraction = 1. / totalFraction;
-    for(unsigned i=0; i<elementComponents.size(); i++)
-      pmaterial->add(elementComponents[i],elementFractions[i]*elementComponents[i]->getA() * inv_totalFraction);
-  }
-	
-  // a table to keep the memory allocation, and easy for delete 
-  addMaterial(detector,pmaterial);
-	
-  /*	{
-	printFullMaterial ( pmaterial);
-	printAll( std:: cout);
-	}
-  */	
-  return pmaterial;
 }
 
 const GeoMaterial*  RDBMaterialManager:: getMaterial(const std::string &name) const{
@@ -962,115 +689,6 @@ const GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) cons
   return pelement;
 }
 
-
-GeoElement *RDBMaterialManager::getElement(const std::string & name)  {
-
-  unsigned int ind;
-
-  std::string element_name;
-  std::string element_symbol;
-  std::string tmp_name;
-	
-  double      element_a;
-  double      element_z;
-	
-  GeoElement *pelement;
-
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-  if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(): " << element_name  <<endmsg;
-	
-  pelement = NULL;
-  pelement = searchElementVector( name);
-  if (pelement != NULL) 
-      return pelement;
-
-  for(ind = 0; ind < m_elements->size(); ind++)
-    {
-      const IRDBRecord* rec = (*m_elements)[ind];
-		
-      tmp_name = rec->getString("NAME");
-	
-      if( name == tmp_name)
-	{ 
-	  element_name   = rec->getString("NAME");
-	  element_symbol = rec->getString("SYMBOL");
-	  element_a = rec->getDouble("A");
-	  element_z = rec->getDouble("Z");
-                	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/Gaudi::Units::mole));
-
-	  // a table to keep the memory allocation, and easy for delete 
-	  pelement->ref();
-	  m_elementVector.push_back( pelement);
-	  break;
-			
-	}
-    }
-  if (ind == m_elements->size()) 		return NULL;
-	
-  return pelement;
-}
-
-
-GeoElement *RDBMaterialManager::getElement(unsigned int atomicNumber) {
-  
-  unsigned int ind;
-
-  std::string element_name;
-  std::string element_symbol;
-	
-  double      element_a;
-  double      element_z;
-	
-  GeoElement* pelement(0);
-
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-  if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** getElement(atomicNumber): " << element_name  <<endmsg;	
-	
-  for(ind = 0; ind < m_elements->size(); ind++)
-    {
-      const IRDBRecord* rec = (*m_elements)[ind];
-		
-      if(atomicNumber == rec->getDouble("A"))
-	{ 
-	  element_name   = rec->getString("NAME");
-	  element_symbol = rec->getString("SYMBOL");
-	  element_a = rec->getDouble("A");
-	  element_z = rec->getDouble("Z");
-                	
-	  pelement = new GeoElement( element_name , element_symbol  ,element_z , element_a *(GeoModelKernelUnits::gram/Gaudi::Units::mole));
-
-	  // a table to keep the memory allocation, and easy for delete 
-	  pelement->ref();
-	  m_elementVector.push_back( pelement);
-			
-	  break;
-	}
-    }
-  if (ind == m_elements->size()) 	return NULL;
-	
-  return pelement;
-}
-
-void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) {
-
-  MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
-  if(log.level()==MSG::VERBOSE)
-    log << MSG::VERBOSE << " ***** RDBMaterialManager::addMaterial() "<<endmsg;
-	
-  std::string key = std::string(material->getName());
-  // Check whether we already have materials with the same space::name defined
-  if(m_materialMap.find(key)!=m_materialMap.end())
-    log << MSG::WARNING << " Attempt to redefine material " << key << "!. The existing instance is kept. Please choose another name for new material" << endmsg;
-  else {
-    material->lock();             
-    material->ref();
-    m_materialMap[key]=material;
-  }
-}
-
 void RDBMaterialManager::addMaterial(const std::string & /*space*/, GeoMaterial *material) const {
 	
   MsgStream log(Athena::getMessageSvc(), "GeoModelSvc::RDBMaterialManager"); 
@@ -1123,21 +741,6 @@ std::ostream &  RDBMaterialManager::printAll(std::ostream & o) const
     }
   	  	
   return o;
-}
-
-void RDBMaterialManager::buildSpecialMaterials()
-{
-  // Create special materials
-  GeoElement* ethElement = new GeoElement("Ether","ET",500.0,0.0);
-  ethElement->ref();
-  m_elementVector.push_back(ethElement);
-  GeoMaterial* ether = new GeoMaterial("special::Ether",0.0);	
-  ether->add(ethElement,1.);
-  addMaterial("special",ether);
-  // "Alternative" assembly material
-  GeoMaterial* hu = new GeoMaterial("special::HyperUranium",0.0);	
-  hu->add(ethElement,1.);
-  addMaterial("special",hu);
 }
 
 void RDBMaterialManager::buildSpecialMaterials() const

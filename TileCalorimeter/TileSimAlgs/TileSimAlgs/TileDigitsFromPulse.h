@@ -119,6 +119,8 @@ private:
         "TileRawChannelContainer", "TrueAmp", "Output Tile raw channel container key"};
     
     ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
+    /// Random Stream Name
+    Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_DigitsMaker", ""};
 
     
     //Parameters

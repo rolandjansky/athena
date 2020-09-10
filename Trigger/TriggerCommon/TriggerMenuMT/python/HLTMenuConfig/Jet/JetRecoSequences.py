@@ -40,7 +40,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDic
     recoSeq = parOR( "JetRecSeq_"+jetDefString, [])
 
     recoAlg = jetRecoDict["recoAlg"]
-    doGrooming = recoAlg.endswith("t") # Maybe other grooming strategies
+    doGrooming = recoAlg.endswith("t") or recoAlg.endswith("sd") # trimming or soft drop
     doRecluster = recoAlg.endswith("r")
     jetNamePrefix = "HLT_"
 
@@ -89,7 +89,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'HLT_FSJETRoI', **jetRecoDic
         # Grooming needs to be set up similarly to reclustering
         # --> build ungroomed jets, then add a grooming alg
         ungroomedJetRecoDict = dict(jetRecoDict)
-        ungroomedJetRecoDict["recoAlg"] = ungroomedJetRecoDict["recoAlg"].rstrip("t") # Drop grooming spec
+        ungroomedJetRecoDict["recoAlg"] = ungroomedJetRecoDict["recoAlg"].rstrip("tsd") # Drop grooming spec
         ungroomedJetRecoDict["jetCalib"] = "nojcalib" # No need to calibrate
         ungroomedDef = JetRecoConfiguration.defineJets(ungroomedJetRecoDict)
 

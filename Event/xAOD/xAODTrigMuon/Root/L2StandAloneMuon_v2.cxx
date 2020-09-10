@@ -1141,6 +1141,33 @@ namespace xAOD {
    static const SG::AuxElement::Accessor< std::vector< int > >      cscchAcc( "cscHitCharge" );
    static const SG::AuxElement::Accessor< std::vector< float > >    cscresAcc( "cscHitTime" );
    static const SG::AuxElement::Accessor< std::vector< float > >    csctAcc( "cscHitResidual" );
+
+   /// Object for accessing sTGC clusters
+   static const SG::AuxElement::Accessor< std::vector< unsigned int > > stgclAcc( "stgcClusterLayer" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          stgcioAcc( "stgcClusterIsOutlier" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          stgctyAcc( "stgcClusterType" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgceAcc( "stgcClusterEta" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgcpAcc( "stgcClusterPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgcrAcc( "stgcClusterR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgczAcc( "stgcClusterZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgcrsrAcc( "stgcClusterResidualR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        stgcrspAcc( "stgcClusterResidualPhi" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          stgcseAcc( "stgcClusterStationEta" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          stgcspAcc( "stgcClusterStationPhi" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          stgcsnAcc( "stgcClusterStationName" );
+
+   /// Object for accessing MM clusters
+   static const SG::AuxElement::Accessor< std::vector< unsigned int > > mmlAcc( "mmClusterLayer" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          mmioAcc( "mmClusterIsOutlier" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmeAcc( "mmClusterEta" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmpAcc( "mmClusterPhi" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmrAcc( "mmClusterR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmzAcc( "mmClusterZ" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmrsrAcc( "mmClusterResidualR" );
+   static const SG::AuxElement::Accessor< std::vector< float > >        mmrspAcc( "mmClusterResidualPhi" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          mmseAcc( "mmClusterStationEta" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          mmspAcc( "mmClusterStationPhi" );
+   static const SG::AuxElement::Accessor< std::vector< int > >          mmsnAcc( "mmClusterStationName" );
    ///
    /////////////////////////////////////////////////////////////////////////////
 
@@ -1240,6 +1267,47 @@ namespace xAOD {
         cscresAcc( *this ).reserve( (unsigned int)value );
       }
  
+      return;
+   }
+
+   /// Set size of storage for sTGC clusters
+   void L2StandAloneMuon_v2::setStgcClustersCapacity( const int value ) {
+
+      if ( value > 0 ) {
+         stgclAcc( *this ).reserve( (unsigned int)value );
+         stgcioAcc( *this ).reserve( (unsigned int)value );
+         stgctyAcc( *this ).reserve( (unsigned int)value );
+         stgceAcc( *this ).reserve( (unsigned int)value );
+         stgcpAcc( *this ).reserve( (unsigned int)value );
+         stgcrAcc( *this ).reserve( (unsigned int)value );
+         stgczAcc( *this ).reserve( (unsigned int)value );
+	 stgcrsrAcc( *this ).reserve( (unsigned int)value );
+	 stgcrspAcc( *this ).reserve( (unsigned int)value );
+	 stgcseAcc( *this ).reserve( (unsigned int)value );
+	 stgcspAcc( *this ).reserve( (unsigned int)value );
+	 stgcsnAcc( *this ).reserve( (unsigned int)value );
+      }
+
+      return;
+   }
+
+   /// Set size of storage for MM clusters
+   void L2StandAloneMuon_v2::setMmClustersCapacity( const int value ) {
+
+      if ( value > 0 ) {
+         mmlAcc( *this ).reserve( (unsigned int)value );
+         mmioAcc( *this ).reserve( (unsigned int)value );
+         mmeAcc( *this ).reserve( (unsigned int)value );
+         mmpAcc( *this ).reserve( (unsigned int)value );
+         mmrAcc( *this ).reserve( (unsigned int)value );
+         mmzAcc( *this ).reserve( (unsigned int)value );
+	 mmrsrAcc( *this ).reserve( (unsigned int)value );
+	 mmrspAcc( *this ).reserve( (unsigned int)value );
+	 mmseAcc( *this ).reserve( (unsigned int)value );
+	 mmspAcc( *this ).reserve( (unsigned int)value );
+	 mmsnAcc( *this ).reserve( (unsigned int)value );
+      }
+
       return;
    }
 
@@ -1603,6 +1671,84 @@ namespace xAOD {
       cscchAcc( *this ).push_back( charge );
       csctAcc( *this ).push_back( time );
       cscresAcc( *this ).push_back( residual );
+
+      return;
+   }
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   ///
+   /// Get sTGC object
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< unsigned int >, stgcClusterLayer)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          stgcClusterIsOutlier)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          stgcClusterType)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterEta)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterR)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterZ)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterResidualR)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        stgcClusterResidualPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          stgcClusterStationEta)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          stgcClusterStationPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          stgcClusterStationName)
+
+   /// Set RPC rpc hits
+   void L2StandAloneMuon_v2::setStgcCluster(const unsigned int layer, const int isOutlier, const int type,
+					    const float eta, const float phi, const float r, const float z,
+					    const float residualR, const float residualPhi,
+					    const int stationEta, const int stationPhi, const int stationName ) {
+      // Set the variables:
+      stgclAcc( *this ).push_back( layer );
+      stgcioAcc( *this ).push_back( isOutlier );
+      stgctyAcc( *this ).push_back( type );
+      stgceAcc( *this ).push_back( eta );
+      stgcpAcc( *this ).push_back( phi );
+      stgcrAcc( *this ).push_back( r );
+      stgczAcc( *this ).push_back( z );
+      stgcrsrAcc( *this ).push_back( residualR );
+      stgcrspAcc( *this ).push_back( residualPhi );
+      stgcseAcc( *this ).push_back( stationEta );
+      stgcspAcc( *this ).push_back( stationPhi );
+      stgcsnAcc( *this ).push_back( stationName );
+
+      return;
+   }
+   ///
+   /////////////////////////////////////////////////////////////////////////////
+
+   /////////////////////////////////////////////////////////////////////////////
+   ///
+   /// Get MM object
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< unsigned int >, mmClusterLayer)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          mmClusterIsOutlier)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterEta)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterR)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterZ)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterResidualR)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< float >,        mmClusterResidualPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          mmClusterStationEta)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          mmClusterStationPhi)
+   AUXSTORE_OBJECT_GETTER( L2StandAloneMuon_v2, std::vector< int >,          mmClusterStationName)
+
+   /// Set RPC rpc hits
+   void L2StandAloneMuon_v2::setMmCluster(const unsigned int layer, const int isOutlier,
+					  const float eta, const float phi, const float r, const float z,
+					  const float residualR, const float residualPhi,
+					  const int stationEta, const int stationPhi, const int stationName ) {
+      // Set the variables:
+      mmlAcc( *this ).push_back( layer );
+      mmioAcc( *this ).push_back( isOutlier );
+      mmeAcc( *this ).push_back( eta );
+      mmpAcc( *this ).push_back( phi );
+      mmrAcc( *this ).push_back( r );
+      mmzAcc( *this ).push_back( z );
+      mmrsrAcc( *this ).push_back( residualR );
+      mmrspAcc( *this ).push_back( residualPhi );
+      mmseAcc( *this ).push_back( stationEta );
+      mmspAcc( *this ).push_back( stationPhi );
+      mmsnAcc( *this ).push_back( stationName );
 
       return;
    }

@@ -21,8 +21,6 @@ public:
     TauPi0Selector(const std::string& name);
     ASG_TOOL_CLASS2(TauPi0Selector, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0Selector();
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
 
 private:

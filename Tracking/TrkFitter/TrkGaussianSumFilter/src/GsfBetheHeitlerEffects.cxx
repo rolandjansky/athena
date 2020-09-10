@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      GsfBetheHeitlerEffects.cxx  -  description
-      ------------------------------------------
-begin                : Sunday 20th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Implementation code for the Bethe-Heitler material
-effects in the GSF package
-*********************************************************************************/
+/**
+ * @file GsfBetheHeitlerEffects.cxx
+ * @begin         Sunday 20th February 2005
+ * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
+ * @brief         Implementation code for the Bethe-Heitler material effects in
+ * the GSF.
+ */
 
 #include "TrkGaussianSumFilter/GsfBetheHeitlerEffects.h"
 #include "PathResolver/PathResolver.h"

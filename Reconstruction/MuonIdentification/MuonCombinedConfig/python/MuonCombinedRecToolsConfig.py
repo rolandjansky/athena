@@ -837,15 +837,13 @@ def MuonCaloTagToolCfg(flags, name='MuonCaloTagTool', **kwargs ):
     kwargs.setdefault("CaloMuonTagTight",       CompFactory.CaloMuonTag() )
     result.addPublicTool(kwargs['CaloMuonTagLoose'])
     result.addPublicTool(kwargs['CaloMuonTagTight'])
-
     acc = CaloMuonLikelihoodToolCfg(flags)
     kwargs.setdefault("CaloMuonLikelihoodTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonLikelihoodTool'])
-
+    result.merge(acc)
     acc = CaloMuonScoreToolCfg(flags)
     kwargs.setdefault("CaloMuonScoreTool", acc.popPrivateTools() )
     result.addPublicTool(kwargs['CaloMuonScoreTool'])
-
     result.merge(acc)
     acc = TrackDepositInCaloToolCfg(flags)
     trackDepositInCaloTool = acc.popPrivateTools()
@@ -903,6 +901,15 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     result.setPrivateTools(tool)
     return result
 
+def MuonLayerSegmentMatchingToolCfg(flags, name="MuonLayerSegmentMatchingTool", **kwargs):
+    result = AtlasExtrapolatorCfg(flags)
+    extrap = result.getPrimary()
+    kwargs.setdefault("Extrapolator", extrap)
+
+    tool = CompFactory.Muon.MuonLayerSegmentMatchingTool(name, **kwargs)
+    result.setPrivateTools(tool)
+    return result
+
 def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
 #    if TriggerFlags.MuonSlice.doTrigMuonConfig:
 #       kwargs.setdefault("VertexContainer", "")
@@ -917,9 +924,11 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
     acc.addPublicTool(muon_layer_ambiguity_solver)
     result.merge(acc)
 
-    muon_layer_segment_matching = CompFactory.Muon.MuonLayerSegmentMatchingTool(name="MuonLayerSegmentMatchingTool")
+    acc = MuonLayerSegmentMatchingToolCfg(flags)
+    muon_layer_segment_matching = acc.popPrivateTools()
     kwargs.setdefault("MuonLayerSegmentMatchingTool", muon_layer_segment_matching)
-    result.addPublicTool(muon_layer_segment_matching)
+    acc.addPublicTool(muon_layer_segment_matching)
+    result.merge(acc)
 
     acc = MuonCandidateTrackBuilderToolCfg(flags)
     muon_candidate_track_builder = acc.popPrivateTools()

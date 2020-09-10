@@ -1,14 +1,13 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file GsfCombinedMaterialEffects.cxx
+ * @begin         Friday 11th January 2005
+ * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
+ * @brief         Implementation code for GsfCombinedMaterialEffects class
+ */
 
-/*********************************************************************************
-      GsfCombinedMaterialEffects.cxx  -  description
-      ----------------------------------------------
-begin                : Friday 11th January 2005
-authors              : atkinson,Morley,Anastopoulos
-decription           : Implementation code for GsfCombinedMaterialEffects class
-*********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfCombinedMaterialEffects.h"
 
@@ -72,7 +71,9 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::ParticleHypothesis particleHypothesis) const
 {
 
-  ATH_MSG_DEBUG("Computing combined material effects, P : " << componentParameters.first->momentum().norm() << " W " << componentParameters.second );
+  ATH_MSG_DEBUG("Computing combined material effects, P : "
+                << componentParameters.first->momentum().norm() << " W "
+                << componentParameters.second);
 
   // Reset everything before computation
   cache.reset();
