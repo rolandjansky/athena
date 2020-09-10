@@ -4,12 +4,14 @@
 
 /** @class MdtDigitizationTool
 
-    In the initialize() method, the PileUpMerge and StoreGate services are
-    initialized, and a pointer to an instance of the class MuonDetectorManager
-    is retrieved from the detector store and used to obtain a MdtIdHelper.The MdtDigitContainer is initialized and the simulation
-    identifier helper retrieved, together with the pointer to the digitization
-    tool. Random numbers are obtained in the code from a dedicated stream via
-    AtRndmSvc, which is also initialized in the initialize() method.
+    In the initialize() method, the PileUpMerge and StoreGate services
+    are initialized, and a pointer to an instance of the class
+    MuonDetectorManager is retrieved from the detector store and used
+    to obtain a MdtIdHelper.The MdtDigitContainer is initialized and
+    the simulation identifier helper retrieved, together with the
+    pointer to the digitization tool. Random numbers are obtained in
+    the code from a dedicated stream via AtRndmSvc, which is also
+    initialized in the initialize() method.
 
     In the execute() method, the digits and the SDOs (Simulation Data Object,
     container for simulation data to be preserved after the digitization
@@ -61,6 +63,7 @@
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 //Outputs
 #include "MuonSimData/MuonSimDataCollection.h"
@@ -72,7 +75,6 @@ namespace MuonGM{
   class MdtReadoutElement;
 }
 
-class MdtIdHelper;
 class MdtHitIdHelper;
 class MdtCondDbData;
 
@@ -148,7 +150,7 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   MDT_SortedHitVector        m_hits;
 
-  const MdtIdHelper*         m_idHelper{};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   MdtHitIdHelper*            m_muonHelper{};
 
   MDTSimHit applyDeformations(const MDTSimHit&,const MuonGM::MdtReadoutElement*,const Identifier&);
@@ -228,9 +230,6 @@ class MdtDigitizationTool : public PileUpToolBase {
 
   //pileup truth veto
   Gaudi::Property<bool> m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};
-
-  bool m_BMGpresent{false};
-  int m_BMGid{-1};
 
   ///////////////////////////////////////////////////////////////////
   // Access to the event methods:
