@@ -11,7 +11,7 @@ set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess )
 else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+   set( extra_deps Control/AthenaBaseComps PhysicsAnalysis/D3PDTools/AnaAlgorithm GaudiKernel )
 endif()
 
 # Declare the package's dependencies:
@@ -43,7 +43,7 @@ atlas_add_library( TrackVertexAssociationToolLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrackVertexAssociationTool
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODTracking
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps AnaAlgorithmLib xAODTracking
       TrackVertexAssociationToolLib )
 endif()
 
