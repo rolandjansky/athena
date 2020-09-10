@@ -33,8 +33,7 @@ Threads = 1
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Truth'
-
+TrackReference = [ 'Truth', 'Offline' ]
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

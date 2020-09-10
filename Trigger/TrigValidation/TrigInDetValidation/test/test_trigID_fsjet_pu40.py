@@ -28,12 +28,12 @@
 
 Slices  = ['fsjet']
 RunEF   = False
-Events  = 400 
+Events  = 2000 
 Threads = 1 
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Offline'
+TrackReference = [ 'Truth', 'Offline' ]
 
 
 from AthenaCommon.Include import include 
