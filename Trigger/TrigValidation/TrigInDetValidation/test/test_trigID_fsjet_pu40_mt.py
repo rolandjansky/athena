@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_pu40
+# art-description: art job for fsjet_pu40_mt
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -29,8 +29,8 @@
 Slices  = ['fsjet']
 RunEF   = False
 Events  = 2000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
+Threads = 4 
+Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
 TrackReference = [ 'Truth', 'Offline' ]
