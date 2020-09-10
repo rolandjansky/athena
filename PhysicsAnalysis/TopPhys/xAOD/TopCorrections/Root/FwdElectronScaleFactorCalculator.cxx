@@ -35,7 +35,7 @@ namespace top {
     m_systID_DOWN.insert(CP::SystematicVariation("EL_EFF_FwdID_TOTAL_1NPCOR_PLUS_UNCOR", -1));
 
     m_decor_idSF = "FWDEL_SF_ID_" + m_config->fwdElectronID();
-    m_decor_idSF_loose = "FWDEL_SF_ID_" + m_config->fwdElectronIDLoose();
+    m_decor_idSF_loose = "FWDEL_LOOSE_SF_ID_" + m_config->fwdElectronIDLoose();
 
     return StatusCode::SUCCESS;
   }

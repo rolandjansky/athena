@@ -43,12 +43,17 @@ namespace DerivationFramework {
     std::vector<std::string>  m_cutLevels;
     
     // Set up the decorators
-    std::vector<SG::AuxElement::Decorator< float >*> m_decFCalEtA_Qnx;
-    std::vector<SG::AuxElement::Decorator< float >*> m_decFCalEtA_Qny;
-    std::vector<SG::AuxElement::Decorator< float >*> m_decFCalEtC_Qnx;
-    std::vector<SG::AuxElement::Decorator< float >*> m_decFCalEtC_Qny;
+    std::vector< SG::AuxElement::Decorator< float >> m_decFCalEtA_Qnx;
+    std::vector< SG::AuxElement::Decorator< float >> m_decFCalEtA_Qny;
+    std::vector< SG::AuxElement::Decorator< float >> m_decFCalEtC_Qnx;
+    std::vector< SG::AuxElement::Decorator< float >> m_decFCalEtC_Qny;
     
-    std::vector<SG::AuxElement::Decorator< int >*> m_decTrack_count;
+    std::vector< SG::AuxElement::Decorator< float >> m_decHalfFCalEtA_Qnx;
+    std::vector< SG::AuxElement::Decorator< float >> m_decHalfFCalEtA_Qny;
+    std::vector< SG::AuxElement::Decorator< float >> m_decHalfFCalEtC_Qnx;
+    std::vector< SG::AuxElement::Decorator< float >> m_decHalfFCalEtC_Qny;
+
+    std::vector< SG::AuxElement::Decorator< int >> m_decTrack_count;
   
   }; 
   

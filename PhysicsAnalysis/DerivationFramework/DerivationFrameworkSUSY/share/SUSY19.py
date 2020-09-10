@@ -377,6 +377,20 @@ SeqSUSY19 += JetTagConfig.GetDecoratePromptLeptonAlgs()
 SeqSUSY19 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
+#====================================================================
+# TrackAssociatedCaloSampleDecorator
+#====================================================================
+from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__TrackAssociatedCaloSampleDecorator
+
+SUSY19_TrackAssociatedCaloSampleDecorator = DerivationFramework__TrackAssociatedCaloSampleDecorator(
+  name             = "SUSY19_TrackAssociatedCaloSampleDecorator",
+  ContainerName    = "InDetTrackParticles"
+)
+ToolSvc += SUSY19_TrackAssociatedCaloSampleDecorator
+SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
+  "SUSY19KernelDeco",
+  AugmentationTools = [SUSY19_TrackAssociatedCaloSampleDecorator]
+)
 
 #====================================================================
 # CONTENT LIST  

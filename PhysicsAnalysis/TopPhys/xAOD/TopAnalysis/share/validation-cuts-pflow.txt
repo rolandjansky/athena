@@ -41,7 +41,7 @@ JetCollectionName AntiKt4EMPFlowJets_BTagging201903
 LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
 TauCollectionName TauJets
 PhotonCollectionName Photons
-TrackJetCollectionName AntiKtVR30Rmax4Rmin02TrackJets
+TrackJetCollectionName AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
 JetGhostTrackDecoName GhostTrack
 
 ### Large-R configuration
@@ -129,7 +129,8 @@ UseAodMetaData True
 BoostedJetTagging JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive50 JSSWTopTaggerDNN:DNNTaggerTopQuarkInclusive80 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained50 JSSWTopTaggerDNN:DNNTaggerTopQuarkContained80
 
 ### B-tagging configuration
-BTaggingWP MV2c10:FixedCutBEff_77 MV2c10:Continuous DL1:Continuous DL1r:FixedCutBEff_77
+BTaggingCaloJetWP DL1:Continuous DL1r:FixedCutBEff_77
+BTaggingTrackJetWP DL1:Continuous DL1r:FixedCutBEff_77
 # Example of how to remove systematics from b-tag EV
 
 # Saving bootstrapping weights
@@ -266,7 +267,7 @@ JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET > 30000
 MWT > 30000
-RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
+RECO::KLFITTERRUN kElectron KLFitterBTaggingWP:DL1r:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
@@ -290,30 +291,6 @@ SAVE
 SELECTION ejets_2018
 . EL_2018
 . ejets_basic
-SAVE
-
-SELECTION ejets_MV2c10_2015
-. EL_2015
-. ejets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_MV2c10_2016
-. EL_2016
-. ejets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_MV2c10_2017
-. EL_2017
-. ejets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION ejets_MV2c10_2018
-. EL_2018
-. ejets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
 SELECTION ejets_DL1r_2015
@@ -345,28 +322,28 @@ SAVE
 # ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
 # THESE COMBINE TRACK-JET B-TAGGING WITH KLFITTER ON CALO JETS!!!
 
-SELECTION ejets_tjet_MV2c10_2015
+SELECTION ejets_tjet_DL1r_2015
 . EL_2015
 . ejets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION ejets_tjet_MV2c10_2016
+SELECTION ejets_tjet_DL1r_2016
 . EL_2016
 . ejets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION ejets_tjet_MV2c10_2017
+SELECTION ejets_tjet_DL1r_2017
 . EL_2017
 . ejets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION ejets_tjet_MV2c10_2018
+SELECTION ejets_tjet_DL1r_2018
 . EL_2018
 . ejets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 ########################################################################
 
@@ -392,7 +369,7 @@ JET_N 25000 >= 2
 JET_N 25000 >= 3
 JET_N 25000 >= 4
 MET+MWT > 60000
-RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:MV2c10:FixedCutBEff_77
+RECO::KLFITTERRUN kMuon KLFitterBTaggingWP:DL1r:FixedCutBEff_77
 #KLFITTER > -50.0
 EXAMPLEPLOTS
 #PRINT
@@ -416,30 +393,6 @@ SAVE
 SELECTION mujets_2018
 . MU_2018
 . mujets_basic
-SAVE
-
-SELECTION mujets_MV2c10_2015
-. MU_2015
-. mujets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_MV2c10_2016
-. MU_2016
-. mujets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_MV2c10_2017
-. MU_2017
-. mujets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
-SAVE
-
-SELECTION mujets_MV2c10_2018
-. MU_2018
-. mujets_basic
-JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
 SELECTION mujets_DL1r_2015
@@ -471,28 +424,28 @@ SAVE
 # ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
 # THESE COMBINE TRACK-JET B-TAGGING WITH KLFITTER ON CALO JETS!!!
 
-SELECTION mujets_tjet_MV2c10_2015
+SELECTION mujets_tjet_DL1r_2015
 . MU_2015
 . mujets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION mujets_tjet_MV2c10_2016
+SELECTION mujets_tjet_DL1r_2016
 . MU_2016
 . mujets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION mujets_tjet_MV2c10_2017
+SELECTION mujets_tjet_DL1r_2017
 . MU_2017
 . mujets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 
-SELECTION mujets_tjet_MV2c10_2018
+SELECTION mujets_tjet_DL1r_2018
 . MU_2018
 . mujets_basic
-TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+TJET_N_BTAG DL1r:FixedCutBEff_77 >= 1
 SAVE
 ########################################################################
 

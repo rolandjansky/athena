@@ -344,11 +344,25 @@ if DerivationFrameworkIsMonteCarlo:
   import DerivationFrameworkCore.WeightMetadata
   import DerivationFrameworkCore.LHE3WeightMetadata
 
+# Add the BCID info
+addDistanceInTrain(jetm6Seq)
+
+# Alternative rho definition
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+addCHSPFlowObjects()
+from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
+jetm6Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM6SlimmingHelper = SlimmingHelper("JETM6SlimmingHelper")
+JETM6SlimmingHelper.AppendToDictionary = {
+    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
+}
+
 JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
@@ -379,7 +393,7 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
   "TruthEvents",
-  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"
   ]
 
 JETM6SlimmingHelper.ExtraVariables  = ['CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG']

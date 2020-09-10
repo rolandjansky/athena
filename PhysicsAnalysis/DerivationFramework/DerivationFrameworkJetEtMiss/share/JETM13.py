@@ -119,13 +119,13 @@ JETM13SlimmingHelper.ExtraVariables = [
   ]
 
 
-JETM13SlimmingHelper.AppendToDictionary["UFOCHS"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['UFOCHSAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'UFOCHS.pt.eta.phi.m.taste' ]
+JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste.iparticleLinks.trackParticleLink' ]
 
-JETM13SlimmingHelper.AppendToDictionary["UFOCSSK"] = 'xAOD::TrackCaloClusterContainer'
-JETM13SlimmingHelper.AppendToDictionary['UFOCSSKAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'UFOCSSK.pt.eta.phi.m.taste' ]
+JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste.iparticleLinks.trackParticleLink' ]
 
 
 for truthc in [

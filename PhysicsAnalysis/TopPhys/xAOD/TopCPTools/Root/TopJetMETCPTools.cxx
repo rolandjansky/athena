@@ -71,6 +71,7 @@ namespace top {
 
     declareProperty("JetUpdateJvtTool", m_jetUpdateJvtTool);
     declareProperty("JetSelectfJvtTool", m_jetSelectfJvtTool);
+    declareProperty("TruthJetCollectionForHSTagging", m_truthJetCollForHS = "AntiKt4TruthJets");
 
     declareProperty("JES_data2016_data2015_Recommendation_Dec2016.config", m_jetAntiKt4_MCFS_ConfigFile);
     declareProperty("JetCalibrationSequenceFS", m_jetAntiKt4_MCFS_CalibSequence);
@@ -87,6 +88,10 @@ namespace top {
     if (m_config->isTruthDxAOD()) {
       ATH_MSG_INFO("top::JetMETCPTools: no need to initialise anything on truth DxAOD");
       return StatusCode::SUCCESS;
+    }
+
+    if (m_config->getDerivationStream() == "PHYS") {
+      m_truthJetCollForHS = "AntiKt4TruthDressedWZJets";
     }
 
     if (m_config->useJets()) {
@@ -468,7 +473,7 @@ namespace top {
                  "Failed to set JVT decoration name");
       top::check(jetJvtTool->setProperty("TruthLabel", "AnalysisTop_isHS"),
                  "Failed to set JVT TruthLabel decoration name");
-      top::check(jetJvtTool->setProperty("TruthJetContainerName", m_config->sgKeyTruthJets()),
+      top::check(jetJvtTool->setProperty("TruthJetContainerName", m_truthJetCollForHS),
                  "Failed to set JVT TruthJetContainerName decoration name");
       top::check(jetJvtTool->initialize(), "Failed to initialize JVT tool");
       m_jetJvtTool = jetJvtTool;
@@ -505,7 +510,7 @@ namespace top {
 		   "Failed to set fJVT pass/fail decoration name");
 	top::check(jetfJvtTool->setProperty("TruthLabel", "AnalysisTop_isHS"),
 		   "Failed to set fJVT TruthLabel decoration name");
-	top::check(jetfJvtTool->setProperty("TruthJetContainerName", m_config->sgKeyTruthJets()),
+	top::check(jetfJvtTool->setProperty("TruthJetContainerName", m_truthJetCollForHS),
 		   "Failed to set fJVT TruthJetContainerName decoration name");
 	top::check(jetfJvtTool->initialize(), "Failed to initialize fJVT Efficiency tool");
 	m_jetfJvtTool = jetfJvtTool;

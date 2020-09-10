@@ -177,6 +177,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_muIso_WP(""),
     m_muIsoHighPt_WP(""),
     m_muIsoHighPtThresh(-99.),
+    m_muHighPtExtraSmear(false),
+    m_muEffCorrForce1D(false),
     m_BtagWP(""),
     m_BtagTagger(""),
     m_BtagMinPt(-99.),
@@ -530,6 +532,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "MuonIso", m_muIso_WP);
   declareProperty( "MuonIsoHighPt", m_muIsoHighPt_WP);
   declareProperty( "MuonIsoHighPtThresh", m_muIsoHighPtThresh);
+  declareProperty( "MuonHighPtExtraSmear", m_muHighPtExtraSmear);
+  declareProperty( "MuonEffCorrForce1D", m_muEffCorrForce1D);
   declareProperty( "MuonD0sig", m_mud0sig);
   declareProperty( "MuonZ0", m_muz0);
   declareProperty( "MuonBaselineD0sig", m_mubaselined0sig);
@@ -1333,6 +1337,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_mubaselined0sig, "MuonBaseline.d0sig", rEnv, -99.);
   configFromFile(m_mubaselinez0, "MuonBaseline.z0", rEnv, 0.5);
   configFromFile(m_murequirepassedHighPtCuts, "Muon.passedHighPt", rEnv, false);
+  configFromFile(m_muHighPtExtraSmear, "Muon.HighPtExtraSmear", rEnv, false);
+  configFromFile(m_muEffCorrForce1D, "Muon.EffCorrForce1D", rEnv, false);
   //
   configFromFile(m_muCosmicz0, "MuonCosmic.z0", rEnv, 1.);
   configFromFile(m_muCosmicd0, "MuonCosmic.d0", rEnv, 0.2);

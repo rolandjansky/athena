@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////
@@ -18,58 +18,62 @@
 #include <TH1.h>
 #include <TF1.h>
 #include <TSpline.h>
+#include <TEntryList.h>
+#include <TCut.h>
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <functional>
+#include <memory>
+#include <set>
 
-#include "ZDCDataAnalyzer.h"
+#include "ZdcAnalysis/ZDCDataAnalyzer.h"
 
 class ZDCTreeAnalysis {
 public :
-   TTree          *fChain;   //!pointer to the analyzed TTree or TChain
-   Int_t           fCurrent; //!current Tree number in a TChain
-
-  TFile* _outTFile;
-  TTree* _outTree;
-  bool _doOutput;
+  TTree          *fChain;   //!pointer to the analyzed TTree or TChain
+  Int_t           fCurrent; //!current Tree number in a TChain
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
-   // Declaration of leaf types
-   UInt_t          runNumber;
-   UInt_t          eventNumber;
-   UInt_t          lumiBlock;
-   UInt_t          bcid;
-   ULong64_t       trigger;
-   UInt_t          trigger_TBP;
-   UInt_t          tbp[16];
-   UInt_t          tav[16];
+  // Declaration of leaf types
+  UInt_t          runNumber;
+  UInt_t          eventNumber;
+  UInt_t          lumiBlock;
+  UInt_t          bcid;
+  ULong64_t       trigger;
+  UInt_t          trigger_TBP;
+  UInt_t          tbp[16];
+  UInt_t          tav[16];
 
-   UInt_t          passBits;
-   UShort_t        zdc_raw[2][4][2][2][7];
+  UInt_t          passBits;
+  UShort_t*       zdc_raw;
 
-   Float_t         fcalEt;
-   Int_t           ntrk;
-   Int_t           nvx;
-   Float_t         vx[3];
-   Int_t           vxntrk;
-   Float_t         vxcov[6];
-   UShort_t        mbts_countA;
-   UShort_t        mbts_countC;
-   Float_t         mbts_timeA;
-   Float_t         mbts_timeC;
-   Float_t         mbts_timeDiff;
+  Float_t         fcalEt;
+  Int_t           ntrk;
+  Int_t           nvx;
+  Float_t         vx[3];
+  Int_t           vxntrk;
+  Float_t         vxcov[6];
+  UShort_t        mbts_countA;
+  UShort_t        mbts_countC;
+  Float_t         mbts_timeA;
+  Float_t         mbts_timeC;
+  Float_t         mbts_timeDiff;
 
-   Bool_t          L1_ZDC_A;
-   Float_t         ps_L1_ZDC_A;
-   Bool_t          L1_ZDC_C;
-   Float_t         ps_L1_ZDC_C;
-   Bool_t          L1_ZDC_AND;
-   Float_t         ps_L1_ZDC_AND;
-   Bool_t          L1_ZDC_A_C;
-   Float_t         ps_L1_ZDC_A_C;
+  Bool_t          L1_ZDC_A;
+  Float_t         ps_L1_ZDC_A;
+  Bool_t          L1_ZDC_C;
+  Float_t         ps_L1_ZDC_C;
+  Bool_t          L1_ZDC_AND;
+  Float_t         ps_L1_ZDC_AND;
+  Bool_t          L1_ZDC_A_C;
+  Float_t         ps_L1_ZDC_A_C;
+
+  Float_t         zdc_TotalTruthEnergySum[2][4][2];
+
 
   //  Data for branches that are to be added to the tree
   //
@@ -80,18 +84,26 @@ public :
   //
   // Summary data
   //
-  int zdc_ModuleMask;
-  float  zdc_SumAmp[2];
-  float  zdc_SumCalibAmp[2];
-  float  zdc_AvgTime[2];
-  bool zdc_sideFailed[2];
+  int   zdc_ModuleMask;
+  float zdc_SumAmp[2];
+  float zdc_SumAmpErr[2];
+
+  float zdc_SumCalibAmp[2];
+  float zdc_SumCalibAmpErr[2];
+
+  float zdc_SumPreSampleAmp[2];
+
+  float zdc_AvgTime[2];
+  bool  zdc_sideFailed[2];
 
   // Per-module data
   //
-  std::vector<float>* zdc_samplesSub;
-  std::vector<float>* zdc_samplesDeriv;
-  std::vector<float>* zdc_samplesDeriv2nd;
-  
+  std::vector<int>* zdc_side;
+  std::vector<int>* zdc_module;
+  std::vector<std::vector<float> >* zdc_samplesSub;
+  std::vector<std::vector<float> >* zdc_samplesDeriv;
+  std::vector<std::vector<float> >* zdc_samplesDeriv2nd;
+
   float  zdc_Presample[2][4];
 
   float  zdc_MaxADC[2][4];
@@ -106,204 +118,299 @@ public :
   int    zdc_Status[2][4];
   float  zdc_Amp[2][4];
   float  zdc_FitT0[2][4];
+  float  zdc_FitTau1[2][4];
+  float  zdc_FitTau2[2][4];
   float  zdc_FitChisq[2][4];
   float  zdc_T0Corr[2][4];
+  float  zdc_FitPreAmp[2][4];
+  float  zdc_FitPreT0[2][4];
+  float  zdc_FitPostAmp[2][4];
+  float  zdc_FitPostT0[2][4];
+  float  zdc_FitExpAmp[2][4];
+  float  zdc_ModuleQuality[2][4];
+  float  zdc_Quality[2];
+
+  float  zdc_AmpError[2][4];
+  float  zdc_BkgdMaxFraction[2][4];
 
   float  zdc_CalibAmp[2][4];
   float  zdc_CalibTime[2][4];
 
-  // The object responsible for the actual analysis
-  //
-  ZDCDataAnalyzer* _dataAnalyzer_p;
+  float  zdc_delayedBS[2][4];
+
+  int    zdc_maxAmpModule[2];
+  float  zdc_maxAmp[2];
+  // MC specific branches
+  int    zdc_maxSumTruthEnergyModule[2];
+  float  zdc_maxSumTruthEnergy[2];
+  int    zdc_maxSumTruthEnergyGapModule[2];
+  float  zdc_maxSumTruthEnergyGap[2];
+  float  zdc_sumTruthEnergy[2][4];
+  float  zdc_sumTruthEnergyGap[2][4];
+
+
+
+  int  nSave      = 0;
+  int  index      = 0;
+  int  eventIndex = 0;
+  bool doSavePlot = false;
 
 private:
+  // The object responsible for the actual analysis
+  //
+  ZDCDataAnalyzer* m_dataAnalyzer_p;
+
+  float m_fitTMax = 0;
+
+  // Processing state members
+  //
+  bool m_inLoop;
+  unsigned m_currentEntry;
+  unsigned m_runNumber;
+
+  bool m_haveEntryList;
+  TEntryList* m_entryList;
+  unsigned m_currentSelected;
+
+  TFile* m_OutTFile;
+  TTree* m_OutTree;
+  bool   m_DoOutput;
+
   // Critical construction parameters
   //
-  int _nSample;
-  float _deltaTSample;
-  int _preSampleIdx;
-  std::string _fitFunction;
-  
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinSamples;
-  ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholds;
+  int   m_nSample;
+  float m_deltaTSample;
+  int   m_preSampleIdx;
+
+  static int m_DebugLevel;
+
+  bool saveEvent  = false;
+  bool mcBranches = false;
+
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsLG;
+
+  // Use delayed samples
+  //
+  bool m_useDelayed;
+  float m_delayDeltaT;
+
+  // Members that help with indexing into the zdc_raw array
+  //
+  const int m_zdcrawModuleSize;
 
   // Cut quantities
   //
-  float _HGOverFlowADC[2][4];
-  float _HGUnderFlowADC[2][4];
-  float _DeltaT0CutLow[2][4];
-  float _DeltaT0CutHigh[2][4];
-  float _chisqDivAmpCutHG[2][4];
-  float _chisqDivAmpCutLG[2][4];
+  float m_HGOverFlowADC[2][4];
+  float m_HGUnderFlowADC[2][4];
+  float m_DeltaT0CutLow[2][4];
+  float m_DeltaT0CutHigh[2][4];
+  float m_ChisqDivAmpCutHG[2][4];
+  float m_ChisqDivAmpCutLG[2][4];
 
   //  Per-module calibration factors
   //
-  // Time-dependent 
+  // Time-dependent
   //
-  bool _haveLBDepT0[2][4];
-  TSpline* _moduleT0HGLB[2][4];
-  TSpline* _moduleT0LGLB[2][4];
+  bool m_HaveLBDepT0[2][4];
+  TSpline* m_ModuleT0HGLB[2][4];
+  TSpline* m_ModuleT0LGLB[2][4];
 
-  bool _haveCalibrations;
-  float _modECalib[2][4];
+  bool m_haveCalibrations;
+  float m_ModECalib[2][4];
 
-  bool _haveLBDepECalib[2][4];
-  TSpline* _modECalibLB[2][4];
+  bool m_HaveLBDepECalib[2][4];
+  TSpline* m_modECalibLB[2][4];
 
   // Allow per-module Tau1, tau2 settings
   //
-  bool _haveModuleSettings[2][4];
-  bool _fixTau1[2][4];
-  bool _fixTau2[2][4];
-  float _moduleTau1[2][4];
-  float _moduleTau2[2][4];
-  float _moduleT0LG[2][4];
-  float _moduleT0HG[2][4];
+  bool m_haveModuleSettings[2][4];
+  bool m_FixTau1[2][4];
+  bool m_FixTau2[2][4];
+  float m_ModuleTau1[2][4];
+  float m_ModuleTau2[2][4];
+  float m_ModuleT0LG[2][4];
+  float m_ModuleT0HG[2][4];
 
-  std::array<std::array<float, 4>, 2> _moduleHGGains; 
+  std::array<std::array<float, 4>, 2> m_moduleHGGains;
+  std::array<std::array<std::vector<float>, 4>, 2> m_moduleHGNonLinCorr;
 
   //  Time slewing corrections
   //
-  float _T0SlewCoeffHG[2][4][3];
-  float _T0SlewCoeffLG[2][4][3];
-  
+  float m_T0SlewCoeffHG[2][4][3];
+  float m_T0SlewCoeffLG[2][4][3];
+
   // Bunch information
   //
-  std::vector<std::set<int> > _trains;
-  std::vector<int> _BCIDGap;
-  std::vector<int> _BCIDPosInTrain;
-
-  // Which entry we're reading
-  //
-  bool _inLoop;
-  int _currentEntry;
-  unsigned int _runNumber;
+  std::vector<std::set<int> > m_trains;
+  std::vector<int> m_BCIDGap;
+  std::vector<int> m_BCIDPosInTrain;
 
 private:
-   // List of branches
-   TBranch        *b_runNumber;   //!
-   TBranch        *b_eventNumber;   //!
-   TBranch        *b_lumiBlock;   //!
-   TBranch        *b_bcid;   //!
-   TBranch        *b_trigger;   //!
-   TBranch        *b_trigger_TBP;   //!
-   TBranch        *b_tbp;   //!
-   TBranch        *b_tav;   //!
-   TBranch        *b_decisions;   //!
-   TBranch        *b_prescales;   //!
-   TBranch        *b_passBits;   //!
-
-   TBranch        *b_zdc_raw;   //!
-  //   TBranch        *b_fcalEt;   //!
-  //   TBranch        *b_ntrk;   //!
-  //   TBranch        *b_nvx;   //!
-   // TBranch        *b_vx;   //!
-   // TBranch        *b_vxntrk;   //!
-   // TBranch        *b_vxcov;   //!
-   // TBranch        *b_mbts_countA;   //!
-   // TBranch        *b_mbts_countC;   //!
-   // TBranch        *b_mbts_timeA;   //!
-   // TBranch        *b_mbts_timeC;   //!
-   // TBranch        *b_mbts_timeDiff;   //!
-
-   TBranch        *b_L1_ZDC_A;   //!
-   TBranch        *b_ps_L1_ZDC_A;   //!
-   TBranch        *b_L1_ZDC_C;   //!
-   TBranch        *b_ps_L1_ZDC_C;   //!
-   TBranch        *b_L1_ZDC_AND;   //!
-   TBranch        *b_ps_L1_ZDC_AND;   //!
-   TBranch        *b_L1_ZDC_A_C;   //!
-   TBranch        *b_ps_L1_ZDC_A_C;   //!
-
   void InitInternal();
   void SetupBunchTrains();
 
 public:
-
-  ZDCTreeAnalysis(std::string filename, int nSample = 7, double deltaT = 12.5, int preSamplIdx = 1, std::string fitFunction = "FermiExp");
+  ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int preSamplIdx, std::string fitFunction,
+                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinSamples,
+                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
+                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
+                  bool forceLG = false);
 
   void SetADCOverUnderflowValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& HGOverFlowADC,
-				 const ZDCDataAnalyzer::ZDCModuleFloatArray& HGUnderFlowADC,
-				 const ZDCDataAnalyzer::ZDCModuleFloatArray& LGOverFlowADC)
+                                 const ZDCDataAnalyzer::ZDCModuleFloatArray& HGUnderFlowADC,
+                                 const ZDCDataAnalyzer::ZDCModuleFloatArray& LGOverFlowADC)
   {
-    _dataAnalyzer_p->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
+    m_dataAnalyzer_p->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
   }
 
-  void SetCutValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutHG, 
-		    const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutLG,
-		    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutLowHG, 
-		    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutHighHG,
-		    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutLowLG, 
-		    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutHighLG)
-
+  void EnableDelayed(float deltaT, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
-    _dataAnalyzer_p->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG, 
-				  DeltaT0CutLowHG, DeltaT0CutHighHG, 
-				  DeltaT0CutLowLG, DeltaT0CutHighLG);
+    m_useDelayed = true;
+    m_dataAnalyzer_p->EnableDelayed(deltaT, undelayedDelayedPedestalDiff);
   }
 
-  void SetTauT0Values(const ZDCDataAnalyzer::ZDCModuleBoolArray& fixTau1, 
-		      const ZDCDataAnalyzer::ZDCModuleBoolArray& fixTau2, 
-		      const ZDCDataAnalyzer::ZDCModuleFloatArray& tau1, 
-		      const ZDCDataAnalyzer::ZDCModuleFloatArray& tau2, 
-		      const ZDCDataAnalyzer::ZDCModuleFloatArray& t0HG, 
-		      const ZDCDataAnalyzer::ZDCModuleFloatArray& t0LG) 
+  void EnableDelayed(const ZDCDataAnalyzer::ZDCModuleFloatArray& delayDeltaTArray, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
-    _dataAnalyzer_p->SetTauT0Values(fixTau1, fixTau2, tau1, tau2, t0HG, t0LG);
+    m_useDelayed = true;
+    m_dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
   }
 
-
-  void SetDebugLevel(int debugLevel = 0) 
+  void EnableRepass(const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
   {
-    _dataAnalyzer_p->SetDebugLevel(debugLevel);
+    m_dataAnalyzer_p->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
   }
 
-  void LoadEnergyCalibrations(const std::array<std::array<TSpline*, 4>, 2>&  calibSplines)
+  void SetCutValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutHG,
+                    const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutLG,
+                    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutLowHG,
+                    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutHighHG,
+                    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutLowLG,
+                    const ZDCDataAnalyzer::ZDCModuleFloatArray& DeltaT0CutHighLG)
+
   {
-    _dataAnalyzer_p->LoadEnergyCalibrations(calibSplines);
+    m_dataAnalyzer_p->SetCutValues(chisqDivAmpCutHG, chisqDivAmpCutLG,
+                                   DeltaT0CutLowHG, DeltaT0CutHighHG,
+                                   DeltaT0CutLowLG, DeltaT0CutHighLG);
   }
 
-  void LoadT0Calibrations(const std::array<std::array<TSpline*, 4>, 2>&  calibSplinesHG,
-			   const std::array<std::array<TSpline*, 4>, 2>&  calibSplinesLG)
+  void SetTauT0Values(const ZDCDataAnalyzer::ZDCModuleBoolArray& fixTau1,
+                      const ZDCDataAnalyzer::ZDCModuleBoolArray& fixTau2,
+                      const ZDCDataAnalyzer::ZDCModuleFloatArray& tau1,
+                      const ZDCDataAnalyzer::ZDCModuleFloatArray& tau2,
+                      const ZDCDataAnalyzer::ZDCModuleFloatArray& t0HG,
+                      const ZDCDataAnalyzer::ZDCModuleFloatArray& t0LG)
   {
-    _dataAnalyzer_p->LoadtT0Calibrations(calibSplinesHG, calibSplinesLG);
+    m_dataAnalyzer_p->SetTauT0Values(fixTau1, fixTau2, tau1, tau2, t0HG, t0LG);
+  }
+
+  static void SetDebugLevel(int debugLevel = 0)
+  {
+    m_DebugLevel = debugLevel;
+  }
+
+  static bool msgFunction(unsigned int level, std::string message)
+  {
+    if (level == ZDCMsg::Fatal) {
+      std::cout << message << std::endl;
+      throw;
+    }
+
+    if (level >= (unsigned int) m_DebugLevel) {
+      if (message != "") std::cout << message << std::endl;
+      return true;
+    }
+    else return false;
+  }
+
+  void enableMCBranches(bool enable = false) {
+    mcBranches = enable;
+  }
+
+  void DisableModule(size_t side, size_t module)
+  {
+    m_dataAnalyzer_p->DisableModule(side, module);
+  }
+
+  void SetPeak2ndDerivMinTolerances(size_t tolerance)
+  {
+    m_dataAnalyzer_p->SetPeak2ndDerivMinTolerances(tolerance);
+  }
+
+  void LoadEnergyCalibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplines)
+  {
+    m_dataAnalyzer_p->LoadEnergyCalibrations(calibSplines);
+  }
+
+  void LoadT0Calibrations(std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesHG,
+                          std::array<std::array<std::unique_ptr<TSpline>, 4>, 2>&  calibSplinesLG)
+  {
+    m_dataAnalyzer_p->LoadT0Calibrations(calibSplinesHG, calibSplinesLG);
   }
 
   void SetLBDepT0(int iside, int imod, TSpline* t0SplineLG, TSpline* t0SplineHG);
 
   void SetSlewingCoeff(const std::array<std::array<std::vector<float>, 4>, 2>& HGParamArr,
-		       const std::array<std::array<std::vector<float>, 4>, 2>& LGParamArr)
+                       const std::array<std::array<std::vector<float>, 4>, 2>& LGParamArr)
   {
-    _dataAnalyzer_p->SetTimingCorrParams(HGParamArr, LGParamArr);
+    m_dataAnalyzer_p->SetTimingCorrParams(HGParamArr, LGParamArr);
   }
+
+  void SetNonlinCorrParams(const std::array<std::array<std::vector<float>, 4>, 2>& HGNonlinCorrParams)
+  {
+    m_dataAnalyzer_p->SetNonlinCorrParams(HGNonlinCorrParams);
+  }
+
+  void SetFitTimeMax (float tmax) {m_fitTMax = tmax; m_dataAnalyzer_p->SetFitTimeMax(tmax);}
+  void SetSaveFitFunc(bool  save) {m_dataAnalyzer_p->SetSaveFitFunc(save);}
+  void OutputPlot(bool x = false, int y = 0) {doSavePlot = x; nSave = y;}
+
+  void Dump_setting() {
+    if (m_DebugLevel < 4) {
+      std::cout << "========================================================================================================================" << std::endl;
+      for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 4; j++) {
+          std::cout << "-------------------------------------------------------------------------------------------------------------------" << std::endl;
+          std::cout << "Side: " << i << ", Module: " << j << std::endl;
+          m_dataAnalyzer_p->GetPulseAnalyzer(i, j)->Dump_setting();
+        }
+      }
+      std::cout << "========================================================================================================================" << std::endl;
+    }
+  }
+
 
   void OpenOutputTree(std::string file);
   void CloseOutputTree();
 
-  void PlotFits(std::string canvasSavePath = "");
+  void PlotFits(int side);
 
   virtual ~ZDCTreeAnalysis();
-  virtual Int_t    Cut(Long64_t entry);
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void     Init(TTree *tree);
+  virtual void     Init(TChain *i_chain);
   virtual void     Loop(int numEntries = -1, int startEntry = 0);
   virtual Bool_t   Notify();
   virtual void     Show(Long64_t entry = -1);
 
-  void LoadEntry(int entry) 
+  void LoadEntry(int entry)
   {
     GetEntry(entry);
     DoAnalysis();
   }
-  
-  void LoadNextEntry() 
+
+  void LoadNextEntry()
   {
-    GetEntry(_currentEntry + 1);
+    GetEntry(m_currentEntry + 1);
     DoAnalysis();
   }
 
-  unsigned int GetRunNumber() const {return _runNumber;}
+  int SetSelection(TCut selection);
+  int LoadSelected(unsigned int selEntry);
+  int LoadNextSelected();
+
+  unsigned int GetRunNumber() const {return m_runNumber;}
 
   void DoAnalysis();
 };
@@ -313,24 +420,30 @@ public:
 
 #ifdef ZDCTreeAnalysis_cxx
 
-ZDCTreeAnalysis::ZDCTreeAnalysis(std::string filename, int nSample, double deltaT, int preSamplIdx, std::string fitFunction) : 
-  fChain(0), _outTFile(0), _outTree(0), 
-  _nSample(nSample), _deltaTSample(deltaT),  _preSampleIdx(preSamplIdx),
-  _doOutput(false), _currentEntry(-1), _inLoop(false),
-  _haveCalibrations(false)
+ZDCTreeAnalysis::ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int preSamplIdx, std::string fitFunction,
+                                 const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinSamples,
+                                 const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
+                                 const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
+                                 bool forceLG) :
+  fChain(0), m_OutTFile(0), m_OutTree(0),
+  m_nSample(nSample), m_deltaTSample(deltaT),  m_preSampleIdx(preSamplIdx),
+  m_peak2ndDerivMinSamples(peak2ndDerivMinSamples),
+  m_peak2ndDerivMinThresholdsHG(peak2ndDerivMinThresholdsHG),
+  m_peak2ndDerivMinThresholdsLG(peak2ndDerivMinThresholdsLG),
+  m_useDelayed(false),
+  m_DoOutput(false), m_currentEntry(-1), m_inLoop(false),
+  m_haveCalibrations(false),
+  m_zdcrawModuleSize(m_nSample * 2 * 2) // High/low gain x delayed/undelayed x # samples
 {
 
-  // Open the fiel, extract and initialize the tree 
+  // Open the fiel, extract and initialize the tree
   //
-  TTree* tree;
-  TFile* f = new TFile(filename.c_str());
-  f->GetObject("zdcTree",tree);
-  Init(tree);
+  Init(chain);
 
   // Capture the run number
   //
   GetEntry(1);
-  _runNumber = runNumber;
+  m_runNumber = runNumber;
 
   InitInternal();
 
@@ -338,175 +451,112 @@ ZDCTreeAnalysis::ZDCTreeAnalysis(std::string filename, int nSample, double delta
   //
   SetupBunchTrains();
 
-  // Set the HV gains
-  //
-  _moduleHGGains = {9.51122, 9.51980, 9.51122, 9.51122,
-		    9.51415, 9.5049, 9.51659, 9.51415};
+  ZDCMsg::MessageFunctionPtr msgPtr(new ZDCMsg::MessageFunction(msgFunction));
 
-  _peak2ndDerivMinSamples = {3, 3, 3, 2, 
-			     2, 2, 2, 2};
-
-  _peak2ndDerivMinThresholds = {-7, -7, -7, -7,
-				-7, -7, -7, -7};
-
-  _dataAnalyzer_p = new ZDCDataAnalyzer(_nSample, _deltaTSample, _preSampleIdx, fitFunction,
-					_peak2ndDerivMinSamples, _peak2ndDerivMinThresholds);
-
-/* 81Undelayed */
-/* 81H1: 9.5049 */
-/* 81H2: 9.51659 */
-/* 81H3: 9.50119 */
-/* 81EM: 9.51415 */
-/* 81Delayed */
-/* 81H1: 9.52632 */
-/* 81H2: 9.49662 */
-/* 81H3: 9.50853 */
-/* 81EM: 9.50842 */
-/* 12Undelayed */
-/* 12H1: 9.5198  */
-/* 12H2: 9.51122 */
-/* 12H3: 9.51122 */
-/* 12EM: 9.51122 */
-/* 12Delayed */
-/* 12H1: 9.51237 */
-/* 12H2: 9.50178 */
-/* 12H3: 9.50178 */
-/* 12EM: 9.50178 */
+  m_dataAnalyzer_p = new ZDCDataAnalyzer(msgPtr, m_nSample, m_deltaTSample, m_preSampleIdx, fitFunction,
+                                         m_peak2ndDerivMinSamples,
+                                         m_peak2ndDerivMinThresholdsHG, m_peak2ndDerivMinThresholdsLG,
+                                         forceLG);
 }
 
 ZDCTreeAnalysis::~ZDCTreeAnalysis()
 {
-   if (!fChain) return;
-   delete fChain->GetCurrentFile();
+  if (!fChain) return;
+  delete fChain->GetCurrentFile();
 }
 
 Int_t ZDCTreeAnalysis::GetEntry(Long64_t entry)
 {
 // Read contents of entry.
-   if (!fChain) return 0;
-   int result = fChain->GetEntry(entry);
-   if (result > 0) _currentEntry = entry;
-   return result;
+  if (!fChain) return 0;
+  int result = fChain->GetEntry(entry);
+  if (result > 0) m_currentEntry = entry;
+  return result;
 }
 Long64_t ZDCTreeAnalysis::LoadTree(Long64_t entry)
 {
 // Set the environment to read one entry
-   if (!fChain) return -5;
-   Long64_t centry = fChain->LoadTree(entry);
-   if (centry < 0) return centry;
-   if (fChain->GetTreeNumber() != fCurrent) {
-      fCurrent = fChain->GetTreeNumber();
-      Notify();
-   }
-   return centry;
+  if (!fChain) return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0) return centry;
+  if (fChain->GetTreeNumber() != fCurrent) {
+    fCurrent = fChain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
 }
 
-void ZDCTreeAnalysis::Init(TTree *tree)
+void ZDCTreeAnalysis::Init(TChain *i_chain)
 {
-   // The Init() function is called when the selector needs to initialize
-   // a new tree or chain. Typically here the branch addresses and branch
-   // pointers of the tree will be set.
-   // It is normally not necessary to make changes to the generated
-   // code, but the routine can be extended by the user if needed.
-   // Init() will be called many times when running on PROOF
-   // (once per file to be processed).
+  // The Init() function is called when the selector needs to initialize
+  // a new tree or chain. Typically here the branch addresses and branch
+  // pointers of the tree will be set.
+  // It is normally not necessary to make changes to the generated
+  // code, but the routine can be extended by the user if needed.
+  // Init() will be called many times when running on PROOF
+  // (once per file to be processed).
 
-   // Set object pointer
-   //   decisions = 0;
-   // prescales = 0;
-   // Set branch addresses and branch pointers
-   if (!tree) return;
-   fChain = tree;
-   fCurrent = -1;
-   //   fChain->SetMakeClass(1);
+  // Set object pointer
+  //   decisions = 0;
+  // prescales = 0;
+  // Set branch addresses and branch pointers
+  if (!i_chain) return;
+  fChain = i_chain;
+  fCurrent = -1;
 
-   fChain->SetBranchAddress("runNumber", &runNumber, &b_runNumber);
-   fChain->SetBranchAddress("eventNumber", &eventNumber, &b_eventNumber);
-   fChain->SetBranchAddress("lumiBlock", &lumiBlock, &b_lumiBlock);
-   fChain->SetBranchAddress("bcid", &bcid, &b_bcid);
-   // fChain->SetBranchAddress("trigger", &trigger, &b_trigger);
-   // fChain->SetBranchAddress("trigger_TBP", &trigger_TBP, &b_trigger_TBP);
-   fChain->SetBranchAddress("tbp", tbp, &b_tbp);
+  int zdcRawSize = 2 * 4 * 2 * 2 * m_nSample;
+  zdc_raw = new UShort_t[zdcRawSize];
 
-   // fChain->SetBranchAddress("tav", tav, &b_tav);
-   // //  fChain->SetBranchAddress("decisions", &decisions, &b_decisions);
-   // // fChain->SetBranchAddress("prescales", &prescales, &b_prescales);
-   fChain->SetBranchAddress("passBits", &passBits, &b_passBits);
+  fChain->SetBranchAddress("runNumber"  , &runNumber  );
+  fChain->SetBranchAddress("eventNumber", &eventNumber);
+  fChain->SetBranchAddress("lumiBlock"  , &lumiBlock  );
+  fChain->SetBranchAddress("bcid"       , &bcid       );
+  fChain->SetBranchAddress("tbp"        , tbp         );
+  fChain->SetBranchAddress("passBits"   , &passBits   );
+  fChain->SetBranchAddress("zdc_raw"    , zdc_raw     );
+  fChain->SetBranchAddress("L1_ZDC_A"   , &L1_ZDC_A   );
+  fChain->SetBranchAddress("L1_ZDC_C"   , &L1_ZDC_C   );
+  fChain->SetBranchAddress("L1_ZDC_AND" , &L1_ZDC_AND );
+  fChain->SetBranchAddress("L1_ZDC_A_C" , &L1_ZDC_A_C );
+  fChain->SetBranchAddress("zdc_TotalTruthEnergySum", &zdc_TotalTruthEnergySum);
 
-   // fChain->SetBranchAddress("zdc_amp", zdc_amp, &b_zdc_amp);
-   // fChain->SetBranchAddress("zdc_amp_rp", zdc_amp_rp, &b_zdc_amp_rp);
-   // fChain->SetBranchAddress("zdc_time", zdc_time, &b_zdc_time);
-   fChain->SetBranchAddress("zdc_raw", zdc_raw, &b_zdc_raw);
-   // fChain->SetBranchAddress("zdc_ampHG", zdc_ampHG, &b_zdc_ampHG);
-   // fChain->SetBranchAddress("zdc_ampLG", zdc_ampLG, &b_zdc_ampLG);
-   // fChain->SetBranchAddress("zdc_sumHG", zdc_sumHG, &b_zdc_sumHG);
-   // fChain->SetBranchAddress("zdc_sumLG", zdc_sumLG, &b_zdc_sumLG);
-   // fChain->SetBranchAddress("zdc_ampHG_rp", zdc_ampHG_rp, &b_zdc_ampHG_rp);
-   // fChain->SetBranchAddress("zdc_ampLG_rp", zdc_ampLG_rp, &b_zdc_ampLG_rp);
-   // fChain->SetBranchAddress("zdc_sumHG_rp", zdc_sumHG_rp, &b_zdc_sumHG_rp);
-   // fChain->SetBranchAddress("zdc_sumLG_rp", zdc_sumLG_rp, &b_zdc_sumLG_rp);
-   // fChain->SetBranchAddress("fcalEt", &fcalEt, &b_fcalEt);
-   //   fChain->SetBranchAddress("ntrk", &ntrk, &b_ntrk);
-   // fChain->SetBranchAddress("nvx", &nvx, &b_nvx);
-   // fChain->SetBranchAddress("vx", vx, &b_vx);
-   // fChain->SetBranchAddress("vxntrk", &vxntrk, &b_vxntrk);
-   // fChain->SetBranchAddress("vxcov", vxcov, &b_vxcov);
-   // fChain->SetBranchAddress("mbts_countA", &mbts_countA, &b_mbts_countA);
-   // fChain->SetBranchAddress("mbts_countC", &mbts_countC, &b_mbts_countC);
-   // fChain->SetBranchAddress("mbts_timeA", &mbts_timeA, &b_mbts_timeA);
-   // fChain->SetBranchAddress("mbts_timeC", &mbts_timeC, &b_mbts_timeC);
-   // fChain->SetBranchAddress("mbts_timeDiff", &mbts_timeDiff, &b_mbts_timeDiff);
+  fChain->SetBranchStatus("*", 0);
+  fChain->SetBranchStatus("runNumber"  , 1);
+  fChain->SetBranchStatus("eventNumber", 1);
+  fChain->SetBranchStatus("lumiBlock"  , 1);
+  fChain->SetBranchStatus("bcid"       , 1);
+  fChain->SetBranchStatus("zdc_raw"    , 1);
+  fChain->SetBranchStatus("tbp"        , 1);
 
-   fChain->SetBranchAddress("L1_ZDC_A", &L1_ZDC_A, &b_L1_ZDC_A);
-   //   fChain->SetBranchAddress("ps_L1_ZDC_A", &ps_L1_ZDC_A, &b_ps_L1_ZDC_A);
-   fChain->SetBranchAddress("L1_ZDC_C", &L1_ZDC_C, &b_L1_ZDC_C);
-   //   fChain->SetBranchAddress("ps_L1_ZDC_C", &ps_L1_ZDC_C, &b_ps_L1_ZDC_C);
-   fChain->SetBranchAddress("L1_ZDC_AND", &L1_ZDC_AND, &b_L1_ZDC_AND);
-   //   fChain->SetBranchAddress("ps_L1_ZDC_AND", &ps_L1_ZDC_AND, &b_ps_L1_ZDC_AND);
-   fChain->SetBranchAddress("L1_ZDC_A_C", &L1_ZDC_A_C, &b_L1_ZDC_A_C);
-   //   fChain->SetBranchAddress("ps_L1_ZDC_A_C", &ps_L1_ZDC_A_C, &b_ps_L1_ZDC_A_C);
+  fChain->SetBranchStatus("passBits"   , 1);
 
-   fChain->SetBranchStatus("*", 0);
-   fChain->SetBranchStatus("runNumber", 1); 
-   fChain->SetBranchStatus("eventNumber", 1); 
-   fChain->SetBranchStatus("lumiBlock", 1); 
-   fChain->SetBranchStatus("bcid", 1); 
-   fChain->SetBranchStatus("zdc_raw", 1); 
-   fChain->SetBranchStatus("tbp", 1);
+  fChain->SetBranchStatus("L1_ZDC_A"   , 1);
+  fChain->SetBranchStatus("L1_ZDC_C"   , 1);
+  fChain->SetBranchStatus("L1_ZDC_AND" , 1);
+  fChain->SetBranchStatus("L1_ZDC_A_C" , 1);
 
-   fChain->SetBranchStatus("passBits", 1); 
+  fChain->SetBranchStatus ("zdc_TotalTruthEnergySum", 1);
 
-   fChain->SetBranchStatus("L1_ZDC_A", 1); 
-   fChain->SetBranchStatus("L1_ZDC_C", 1); 
-   fChain->SetBranchStatus("L1_ZDC_AND", 1); 
-   fChain->SetBranchStatus("L1_ZDC_A_C", 1); 
-
-   Notify();
+  Notify();
 }
 
 Bool_t ZDCTreeAnalysis::Notify()
 {
-   // The Notify() function is called when a new file is opened. This
-   // can be either for a new TTree in a TChain or when when a new TTree
-   // is started when using PROOF. It is normally not necessary to make changes
-   // to the generated code, but the routine can be extended by the
-   // user if needed. The return value is currently not used.
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
 
-   return kTRUE;
+  return kTRUE;
 }
 
 void ZDCTreeAnalysis::Show(Long64_t entry)
 {
 // Print contents of entry.
 // If entry is not specified, print current entry
-   if (!fChain) return;
-   fChain->Show(entry);
+  if (!fChain) return;
+  fChain->Show(entry);
 }
-Int_t ZDCTreeAnalysis::Cut(Long64_t entry)
-{
-// This function may be called from Loop.
-// returns  1 if entry is accepted.
-// returns -1 otherwise.
-   return 1;
-}
+
 #endif // #ifdef ZDCTreeAnalysis_cxx

@@ -634,9 +634,7 @@ namespace top {
     std::vector<float> m_jet_eta;
     std::vector<float> m_jet_phi;
     std::vector<float> m_jet_e;
-    std::vector<float> m_jet_mv2c00;
     std::vector<float> m_jet_mv2c10;
-    std::vector<float> m_jet_mv2c20;
     std::vector<float> m_jet_jvt;
     std::vector<float> m_jet_fjvt;
     std::vector<char> m_jet_passfjvt; //Could be useful to check pass/fail when fJVT only used in MET
@@ -675,18 +673,10 @@ namespace top {
     std::vector<uint8_t> m_track_numberDoF;
 
     // R21 b-tagging
-    std::vector<float> m_jet_DL1;
-    std::vector<float> m_jet_DL1r;
-    std::vector<float> m_jet_DL1rmu;
-    std::vector<float> m_jet_DL1_pu;
-    std::vector<float> m_jet_DL1_pc;
-    std::vector<float> m_jet_DL1_pb;
-    std::vector<float> m_jet_DL1r_pu;
-    std::vector<float> m_jet_DL1r_pc;
-    std::vector<float> m_jet_DL1r_pb;
-    std::vector<float> m_jet_DL1rmu_pu;
-    std::vector<float> m_jet_DL1rmu_pc;
-    std::vector<float> m_jet_DL1rmu_pb;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pb;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pc;
+    std::unordered_map<std::string, std::vector<float>> m_jet_DLx_pu;
 
     // fail-JVT jets
     std::vector<float> m_failJvt_jet_pt;
@@ -749,12 +739,12 @@ namespace top {
     std::vector<float> m_tjet_eta;
     std::vector<float> m_tjet_phi;
     std::vector<float> m_tjet_e;
-    std::vector<float> m_tjet_mv2c00;
     std::vector<float> m_tjet_mv2c10;
-    std::vector<float> m_tjet_mv2c20;
-    std::vector<float> m_tjet_DL1;
-    std::vector<float> m_tjet_DL1r;
-    std::vector<float> m_tjet_DL1rmu;
+    std::unordered_map<std::string, SG::AuxElement::ConstAccessor<float>> DLx;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pb;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pc;
+    std::unordered_map<std::string, std::vector<float>> m_tjet_DLx_pu;
     std::unordered_map<std::string, std::vector<char> >  m_tjet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int> >   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case
                                                                              // Continuous WP is used
@@ -832,6 +822,9 @@ namespace top {
     //met
     float m_met_met;
     float m_met_phi;
+    //these are for specific studies on the met, turned off by default, and turned on with the WriteMETBuiltWithLooseObjects option
+    float m_met_met_withLooseObjects;
+    float m_met_phi_withLooseObjects;
 
     //KLFitter
     short m_klfitter_selected;
@@ -1340,9 +1333,7 @@ namespace top {
     const std::vector<float>& jet_eta() const {return m_jet_eta;}
     const std::vector<float>& jet_phi() const {return m_jet_phi;}
     const std::vector<float>& jet_e() const {return m_jet_e;}
-    const std::vector<float>& jet_mv2c00() const {return m_jet_mv2c00;}
     const std::vector<float>& jet_mv2c10() const {return m_jet_mv2c10;}
-    const std::vector<float>& jet_mv2c20() const {return m_jet_mv2c20;}
     const std::vector<float>& jet_jvt() const {return m_jet_jvt;}
     const std::vector<float>& jet_forwardjvt() const {return m_jet_fjvt;}
     const std::vector<char>& jet_passforwardjvt() const {return m_jet_passfjvt;}
@@ -1413,9 +1404,7 @@ namespace top {
     const std::vector<float>& tjet_eta() const {return m_tjet_eta;}
     const std::vector<float>& tjet_phi() const {return m_tjet_phi;}
     const std::vector<float>& tjet_e() const {return m_tjet_e;}
-    const std::vector<float>& tjet_mv2c00() const {return m_tjet_mv2c00;}
     const std::vector<float>& tjet_mv2c10() const {return m_tjet_mv2c10;}
-    const std::vector<float>& tjet_mv2c20() const {return m_tjet_mv2c20;}
     const std::unordered_map<std::string, std::vector<char> >& tjet_isbtagged() const {return m_tjet_isbtagged;}//one
                                                                                                                 // vector
                                                                                                                 // per

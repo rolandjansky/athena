@@ -145,13 +145,13 @@ namespace top {
 
 
     m_decor_triggerEff = "MU_EFF_Trigger_" + m_config->muonQuality();
-    m_decor_triggerEff_loose = "MU_EFF_Trigger_" + m_config->muonQualityLoose();
+    m_decor_triggerEff_loose = "MU_LOOSE_EFF_Trigger_" + m_config->muonQualityLoose();
     m_decor_triggerSF = "MU_SF_Trigger_" + m_config->muonQuality();
-    m_decor_triggerSF_loose = "MU_SF_Trigger_" + m_config->muonQualityLoose();
+    m_decor_triggerSF_loose = "MU_LOOSE_SF_Trigger_" + m_config->muonQualityLoose();
     m_decor_idSF = "MU_SF_ID_" + m_config->muonQuality();
-    m_decor_idSF_loose = "MU_SF_ID_" + m_config->muonQualityLoose();
+    m_decor_idSF_loose = "MU_LOOSE_SF_ID_" + m_config->muonQualityLoose();
     m_decor_isoSF = "MU_SF_Isol_" + m_config->muonIsolationSF();
-    m_decor_isoSF_loose = "MU_SF_Isol_" + m_config->muonIsolationSFLoose();
+    m_decor_isoSF_loose = "MU_LOOSE_SF_Isol_" + m_config->muonIsolationSFLoose();
 
     m_decor_softmuon_idSF = "SOFTMU_SF_ID_" + m_config->softmuonQuality();
 

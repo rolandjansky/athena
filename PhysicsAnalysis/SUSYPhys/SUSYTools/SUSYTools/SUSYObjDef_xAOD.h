@@ -586,6 +586,8 @@ namespace ST {
     std::string m_muIso_WP;
     std::string m_muIsoHighPt_WP;
     double      m_muIsoHighPtThresh;
+    bool        m_muHighPtExtraSmear;
+    bool        m_muEffCorrForce1D;
     std::string m_BtagWP;
     std::string m_BtagTagger;
     double m_BtagMinPt;

@@ -311,12 +311,12 @@ if not "HIGG5D2Jets" in OutputJets:
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet 
 #====================================================================
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets", "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(higg5d2Seq)
-addVRJets(higg5d2Seq, do_ghost=True)
-addVRJets(higg5d2Seq, training='201903') #new trackjet training!
-addVRJets(higg5d2Seq, do_ghost=True, training='201903')
+addVRJets(higg5d2Seq, largeRColls=largeRJetCollections)
+addVRJets(higg5d2Seq, largeRColls=largeRJetCollections, do_ghost=True)
+addVRJets(higg5d2Seq, largeRColls=largeRJetCollections, training='201903') #new trackjet training!
+addVRJets(higg5d2Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d2Seq, ToolSvc)
 

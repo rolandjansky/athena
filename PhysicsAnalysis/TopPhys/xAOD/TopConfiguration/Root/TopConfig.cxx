@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+   Copyrightf (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/AodMetaDataAccess.h"
@@ -85,6 +85,11 @@ namespace top {
     m_FakesMMConfigIFF("$ROOTCOREBIN/data/TopFakes/efficiencies.xml:1T:1F[T]"),
     // Debug level for MM fake estimate using FakeBkgTools from IFF
     m_doFakesMMIFFDebug(false),
+    //options to select if you want to use loose objects for MET rebuilding instead of the tight ones
+    m_useLooseObjectsInMETInLooseTree(false),
+    m_useLooseObjectsInMETInNominalTree(false),
+    //this will write a separate branch with the met built using loose objects
+    m_writeMETBuiltWithLooseObjects(false),
     // Apply overlap removal on loose lepton definitons - not the top recommendation, for studies only
     m_doOverlapRemovalOnLooseLeptonDef(false),
     // do overlap removal also with large-R jets
@@ -312,6 +317,7 @@ namespace top {
     // Particle Level / Truth Configuration
     m_truth_electron{25000., 2.5, true, false},
     m_truth_muon{25000., 2.5, true, false},
+    m_truth_softmuon{4000., 2.5},
     m_truth_photon{25000., 2.5, "SET_ME", "SET_ME"},
     m_truth_jet{25000., 2.5},
     // -----------------------------------------------]]]
@@ -744,19 +750,22 @@ namespace top {
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
-    // check that jets use tagged collectio name for new derivations
+    // check that jets use tagged collection name for new derivations
     // this is due to b-tagging breaking changes in derivations
     if (m_aodMetaData->valid()) {
       try {
         std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
+	ATH_MSG_INFO("Checking jet collection name compatibility, reading (MetaData->TagInfo): " << deriv_rel_name);
         size_t pos = deriv_rel_name.find('-');
         if (pos != std::string::npos) {
           deriv_rel_name = deriv_rel_name.substr(pos + 1);
+	  int deriv_rel;
+	  std::sscanf(deriv_rel_name.c_str(), "21.2.%d", &deriv_rel);
           // check for derivation version due to format breakage with calo jet b-tagging
-          if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
+          if (deriv_rel >= 72) { // 21.2.72.0: release where we need tagged jet collection
             if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
               throw std::runtime_error(
-                      "TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4EMPFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
+				       "TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4EMPFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
             }
           } else { // release does NOT have tagged jet collection
             if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
@@ -767,7 +776,7 @@ namespace top {
           }
           // check for derivation version due to format breakage with track jet b-tagging
           if (this->useTrackJets()) {
-            if (deriv_rel_name >= "21.2.87.0") { // release where we need tagged track jet collection
+            if (deriv_rel >= 87) { // 21.2.87.0: release where we need tagged track jet collection
               if (this->sgKeyTrackJets() == this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
                 throw std::runtime_error(
                         "TopConfig: You are using derivation with release 21.2.87.0 or newer and did not specify tagged track jet collection, e.g. \"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903\". This is necessary for b-tagging to work!");
@@ -782,7 +791,7 @@ namespace top {
           }
 	  // check derivation version due to fJVT info needed at derivation level for PFlow
 	  if (this->useParticleFlowJets() && (settings->retrieve("ForwardJVTinMETCalculation") || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
-	    if (deriv_rel_name < "21.2.97.0") { 
+	    if (deriv_rel < 97) { //21.2.97.0
 	      throw std::runtime_error(
 			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn off fJVT (ForwardJVTWP = \"None\" && ForwardJVTinMETCalculation = \"False\")");
 	    }
@@ -889,6 +898,10 @@ namespace top {
       bool topParticleLevel=true;
       settings->retrieve("TopParticleLevel",topParticleLevel);
       this->setTopParticleLevel(topParticleLevel);
+      
+      settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
+      settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
+      settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {
@@ -1445,6 +1458,29 @@ namespace top {
 
     this->truth_muon_PtCut(std::stof(settings->value("TruthMuonPt")));
     this->truth_muon_EtaCut(std::stof(settings->value("TruthMuonEta")));
+    
+    float truth_softmu_ptcut=4000.;
+    try{
+      truth_softmu_ptcut=std::stof(settings->value("TruthSoftMuonPt"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonPt into float"
+        };
+    }
+    
+    float truth_softmu_etacut=2.5;
+    try{
+      truth_softmu_etacut=std::stof(settings->value("TruthSoftMuonEta"));
+    }
+    catch (...) {
+        throw std::runtime_error {
+                "TopConfig: can't convert provided TruthSoftMuonEta into float"
+        };
+    }
+    
+    this->truth_softmuon_PtCut(truth_softmu_ptcut);
+    this->truth_softmuon_EtaCut(truth_softmu_etacut);
 
     this->truth_photon_PtCut(std::stof(settings->value("TruthPhotonPt")));
     this->truth_photon_EtaCut(std::stof(settings->value("TruthPhotonEta")));
@@ -1532,41 +1568,20 @@ namespace top {
 
     // now get all Btagging WP from the config file, and store them properly in a map.
     // Need function to compare the cut value with the WP and vice versa
+    parse_bTagWPs(settings->value("BTaggingWP"), m_chosen_btaggingWP, m_sgKeyJets + ", " + m_sgKeyTrackJets);
+    parse_bTagWPs(settings->value("BTaggingCaloJetWP"), m_chosen_btaggingWP_caloJet, m_sgKeyJets);
+    parse_bTagWPs(settings->value("BTaggingTrackJetWP"), m_chosen_btaggingWP_trkJet, m_sgKeyTrackJets);
 
-    std::istringstream str_btagging_WP(settings->value("BTaggingWP"));
-
-    std::vector<std::string> all_btagging_WP;
-    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
-              std::istream_iterator<std::string>(),
-              std::back_inserter(all_btagging_WP));
-
-    // loop through all btagging WPs requested
-    for (auto AlgTag : all_btagging_WP) {
-      std::vector<std::string> btagAlg_btagWP;
-      tokenize(AlgTag, btagAlg_btagWP, ":");
-      // DEFAULT algorithm - May remove in future
-      std::string alg = "MV2c10";
-      std::string tag = "";
-      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
-      if (btagAlg_btagWP.size() == 2) {
-        alg = btagAlg_btagWP.at(0);
-        tag = btagAlg_btagWP.at(1);
-      } else if (btagAlg_btagWP.size() == 1) {
-        tag = btagAlg_btagWP.at(0);
+    // check whether user is using the deprecated BTaggingWP option
+    if (m_chosen_btaggingWP.size() > 0) {
+      ATH_MSG_WARNING("You specified b-tagging WPs via BTaggingWP which is obsolete. Please switch to options BTaggingCaloJetWP for specifying EMTopo/EMPFlow b-tagging, and BTaggingTrackJetWP for track-jet b-tagging.");
+      if (m_chosen_btaggingWP_caloJet.size() > 0 || m_chosen_btaggingWP_trkJet.size() > 0) {
+        ATH_MSG_ERROR("You specified b-tagging WPs both via BTaggingWP as well as BTaggingCaloJetWP or BTaggingTrackJetWP. The BTaggingWP option is deprecated and conflicts with the other two options!");
+        throw std::runtime_error("TopConfig: Failed to determine what b-tagging WPs to configure.");
       } else {
-        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
-        continue;
-      }
-
-      ATH_MSG_INFO("BTagging algorithm: " << alg << ", " << tag);
-      std::string formatedWP = FormatedWP(tag);
-      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
-      // take care that no WP is taken twice
-      if (std::find(m_chosen_btaggingWP.begin(), m_chosen_btaggingWP.end(), alg_tag) == m_chosen_btaggingWP.end()) {
-        m_chosen_btaggingWP.push_back(alg_tag);
-        ATH_MSG_INFO("Chosen btag alg, WP: " << alg_tag.first << ", " << alg_tag.second);
-      } else {
-        ATH_MSG_INFO("alg, WP " << alg_tag.first << " " << alg_tag.second << " already choosen");
+        // if deprecated option used, assume both calo and track jet WPs are the same
+        m_chosen_btaggingWP_caloJet = m_chosen_btaggingWP;
+        m_chosen_btaggingWP_trkJet = m_chosen_btaggingWP;
       }
     }
 
@@ -2114,6 +2129,44 @@ namespace top {
     else return raw_WP;
   }
 
+  void TopConfig::parse_bTagWPs(const std::string& btagWPsettingString,
+      std::vector<std::pair<std::string, std::string>>& btagWPlist,
+      const std::string& jetCollectionName) {
+    std::istringstream str_btagging_WP(btagWPsettingString);
+    std::vector<std::string> all_btagging_WP;
+    std::copy(std::istream_iterator<std::string>(str_btagging_WP),
+              std::istream_iterator<std::string>(),
+              std::back_inserter(all_btagging_WP));
+    // loop through all btagging WPs requested
+    for (const auto& AlgTag : all_btagging_WP) {
+      std::vector<std::string> btagAlg_btagWP;
+      tokenize(AlgTag, btagAlg_btagWP, ":");
+      // DEFAULT algorithm - May remove in future
+      std::string alg = "MV2c10";
+      std::string tag = "";
+      // If no ':' delimiter, assume we want default algorithm, and take the WP from the option
+      if (btagAlg_btagWP.size() == 2) {
+        alg = btagAlg_btagWP.at(0);
+        tag = btagAlg_btagWP.at(1);
+      } else if (btagAlg_btagWP.size() == 1) {
+        tag = btagAlg_btagWP.at(0);
+      } else {
+        ATH_MSG_ERROR("Cannot parse b-tagging ALGORITHM_NAME:WP. Incorrect format.");
+        continue;
+      }
+
+      ATH_MSG_INFO("BTagging algorithm: " << alg << "_" << tag << " for collection: " << jetCollectionName);
+      std::string formatedWP = FormatedWP(tag);
+      std::pair<std::string, std::string> alg_tag = std::make_pair(alg, tag);
+      // take care that no WP is taken twice
+      if (std::find(btagWPlist.begin(), btagWPlist.end(), alg_tag) == btagWPlist.end()) {
+        btagWPlist.push_back(alg_tag);
+      } else {
+        ATH_MSG_INFO("This b-tag algorithm was already added!");
+      }
+    }
+  }
+
   void TopConfig::setBTagWP_available(std::string btagging_WP) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
@@ -2128,6 +2181,34 @@ namespace top {
 
   void TopConfig::setBTagWP_calibrated_trkJet(std::string btagging_WP) {
     m_calibrated_btaggingWP_trkJet.push_back(btagging_WP);
+  }
+
+  void TopConfig::setBTagAlgo_available(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used = true;
+      else
+        ATH_MSG_WARNING("Encountered b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools[algo] = toolName;
+      }
+    }
+  }
+
+  void TopConfig::setBTagAlgo_available_trkJet(std::string algo, std::string toolName) {
+    if (algo.find("DL1") == std::string::npos) {
+      if (algo.find("MV2c10") != std::string::npos)
+        m_MV2c10_algo_used_trkJet = true;
+      else
+        ATH_MSG_WARNING("Encountered track-jet b-tagging algorithm that is not considered in the EventSaver: " << algo);
+    } else {
+      auto is_inserted = m_available_btaggingAlgos_trkJet.insert(algo);
+      if (is_inserted.second) {
+        m_algo_selTools_trkJet[algo] = toolName;
+      }
+    }
   }
 
   void TopConfig::addLHAPDFResult(const std::string& pdf_name,

@@ -311,12 +311,12 @@ if not "HIGG2D4Jets" in OutputJets:
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet 
 #====================================================================
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets", "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(higg2d4Seq)
-addVRJets(higg2d4Seq, do_ghost=True)
-addVRJets(higg2d4Seq, training='201903') #new trackjet training!
-addVRJets(higg2d4Seq, do_ghost=True, training='201903')
+addVRJets(higg2d4Seq, largeRColls=largeRJetCollections)
+addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, do_ghost=True)
+addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, training='201903') #new trackjet training!
+addVRJets(higg2d4Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
 #Add ghost links of VR track-jet to PFlow 

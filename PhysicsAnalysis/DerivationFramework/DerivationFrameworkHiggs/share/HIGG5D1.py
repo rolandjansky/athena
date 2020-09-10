@@ -243,18 +243,21 @@ if not "HIGG5D1Jets" in OutputJets:
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
     # add UFO soft drop jets
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultUFOSoftDropJets
-    addDefaultUFOSoftDropJets(higg2d4Seq, "HIGG5D1Jets", dotruth=True)
+    addDefaultUFOSoftDropJets(higg5d1Seq, "HIGG5D1Jets", dotruth=True)
 
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo and UFO with ghost VR-trkjet
 #====================================================================
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets", "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(higg5d1Seq)
-addVRJets(higg5d1Seq, do_ghost=True)
-addVRJets(higg5d1Seq, training='201903') #new trackjet training!
-addVRJets(higg5d1Seq, do_ghost=True, training='201903')
+addVRJets(higg5d1Seq, largeRColls=largeRJetCollections)
+addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, do_ghost=True)
+addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, training='201903') #new trackjet training!
+addVRJets(higg5d1Seq, largeRColls=largeRJetCollections, do_ghost=True, training='201903')
+#Add VR ghostlink to PFlow
+HIGG5Common.addVRSmallJets(higg5d1Seq)
+HIGG5Common.addVRSmallJets(higg5d1Seq, training='201903')
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d1Seq, ToolSvc)
 

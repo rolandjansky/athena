@@ -186,10 +186,15 @@ if DerivationFrameworkIsMonteCarlo:
 # Add the BCID info
 addDistanceInTrain(jetm3Seq)
 
+# Alternative rho definition
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+addCHSPFlowObjects()
+from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
+jetm3Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
-
 addAntiKt4LowPtJets(jetm3Seq,"JETM3")
 
 #====================================================================
@@ -243,6 +248,11 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetForwardPFlow
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
+JETM3SlimmingHelper.AppendToDictionary = {
+    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
+    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
+}
+
 JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",
                                         "MET_Reference_AntiKt4EMTopo",
@@ -277,7 +287,7 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "LVL1JetRoIs",
                                     "JetETMissChargedParticleFlowObjects",
                                     "JetETMissNeutralParticleFlowObjects",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape",
                                     ]
 JETM3SlimmingHelper.ExtraVariables = [
   'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',

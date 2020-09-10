@@ -60,6 +60,10 @@ BTaggingHighLevelAux = [
     "JetFitter_nTracksAtVtx",
     "JetFitter_N2Tpair",
     "JetFitter_deltaR",
+    "JetFitter_deltaphi",
+    "JetFitter_deltaeta",
+    "JetFitter_massUncorr",
+    "JetFitter_dRFlightDir",
     "SV1_NGTinSvx",
     "SV1_masssvx",
     "SV1_isDefaults",
@@ -69,14 +73,21 @@ BTaggingHighLevelAux = [
     "SV1_Lxy",
     "SV1_L3d",
     "SV1_significance3d",
+    "SV1_dstToMatLay",
+    "IP2D_pu",
+    "IP2D_pc",
+    "IP2D_pb",
     "IP2D_bu",
-    "IP2D_isDefaults",
     "IP2D_bc",
     "IP2D_cu",
+    "IP2D_isDefaults",
+    "IP3D_pu",
+    "IP3D_pc",
+    "IP3D_pb",
     "IP3D_bu",
-    "IP3D_isDefaults",
     "IP3D_bc",
     "IP3D_cu",
+    "IP3D_isDefaults",
     "JetFitterSecondaryVertex_nTracks",
     "JetFitterSecondaryVertex_isDefaults",
     "JetFitterSecondaryVertex_mass",
@@ -114,6 +125,7 @@ JetGhostLabelAux = [
     "GhostBHadronsFinalCount",
     "GhostCHadronsFinalCount",
     "GhostTausFinalCount",
+    "HadronGhostTruthLabelID"
 ]
 
 BTaggingExtendedAux = [
@@ -140,7 +152,7 @@ def BTaggingExpertContent(jetcol):
     # deal with name mismatch between PV0TrackJets and BTagging_Track
     btagging = btaggingtmp.replace("PV0Track", "Track")
 
-    jetAllAux = JetStandardAux + JetExtendedAux
+    jetAllAux = JetStandardAux + JetExtendedAux + JetGhostLabelAux
     jetcontent = [ ".".join( [ jetcol + "Aux" ] + jetAllAux ) ]
 
     # add aux variables

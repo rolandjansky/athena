@@ -393,6 +393,11 @@ namespace top {
     registerParameter("DoLoose", "Run Loose selection and dumps the Loose trees : Data (default), MC, Both, False",
                       "Data");
     registerParameter("DoSysts", "Run systematics on given selection: Both (default), Tight, Loose", "Both");
+    
+    registerParameter("UseLooseObjectsInMETInLooseTree","Experimental: use loose objects when rebuilding the MET for the loose tree : True or False (default = False)","False");
+    registerParameter("UseLooseObjectsInMETInNominalTree","Experimental: use loose objects when rebuilding the MET for the nominal tree : True or False (default = False)","False");
+    
+    registerParameter("WriteMETBuiltWithLooseObjects","Write a separate branch with the met built with loose objects in the output for tests: True or False (default = False)","False");
 
     registerParameter("OverlapRemovalLeptonDef",
                       "Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions",
@@ -439,7 +444,12 @@ namespace top {
                       "Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("TruthMuonEta",
                       "Absolute Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
-
+    
+    registerParameter("TruthSoftMuonPt",
+                      "Soft Muon pT cut for [Particle Level / Truth] object selection (in MeV). Default 4 GeV.", "4000");
+    registerParameter("TruthSoftMuonEta",
+                      "Absolute Soft Muon eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5");
+                      
     registerParameter("TruthPhotonPt",
                       "Photon pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.",
                       "25000");
@@ -485,7 +495,19 @@ namespace top {
     registerParameter("BTagCDIPath", "Path to the b-tagging CDI file. Default: Using the hardcoded path.", "Default");
 
     registerParameter("BTaggingWP",
-                      "b-tagging WPs to use in the analysis, separated by commas."
+                      "DEPRECATED OPTION, use BTaggingCaloJetWP and BTaggingTrackJetWP for specifying b-tagging WPs for jet collections using calorimeter information and for track jets respectively.",
+                      " ");
+
+    registerParameter("BTaggingTrackJetWP",
+                      "b-tagging WPs to use for track jet collection in the analysis, separated by commas."
+                      " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
+                      " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
+                      " The specified WPs which are calibrated for all flavours will have scale-factors computed."
+                      " By default, no WP is used.",
+                      " ");
+
+    registerParameter("BTaggingCaloJetWP",
+                      "b-tagging WPs to use for calorimeter jet collection (e.g. EMTopo, EMPFlow) in the analysis, separated by commas."
                       " The format should follow the convention of the b-tagging CP group, e.g. FixedCutBEff_60, FlatBEff_77, Continuous, etc."
                       " For fixed-cut WPs, the simpler format 60%, instead of FixedCutBEff_60, is also tolerated."
                       " The specified WPs which are calibrated for all flavours will have scale-factors computed."

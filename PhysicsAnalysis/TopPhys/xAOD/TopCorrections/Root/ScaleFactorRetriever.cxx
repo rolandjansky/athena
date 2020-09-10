@@ -179,7 +179,7 @@ namespace top {
         }
       }
 
-      if (trigMatch) triggerSFvec.push_back(electronSF_Trigger(*elPtr, electronID, SFSyst));
+      if (trigMatch) triggerSFvec.push_back(electronSF_Trigger(*elPtr, electronID, SFSyst, event.m_isLoose));
     }
 
     // Loop over muons
@@ -193,7 +193,7 @@ namespace top {
         }
       }
 
-      if (trigMatch) triggerSFvec.push_back(muonSF_Trigger(*muPtr, muonID, SFSyst));
+      if (trigMatch) triggerSFvec.push_back(muonSF_Trigger(*muPtr, muonID, SFSyst, event.m_isLoose));
     }
 
     // for the cutflow histograms, in case the lepton triggers have not been checked yet
@@ -220,6 +220,7 @@ namespace top {
     }
 
     std::string decorationName = "EL_SF_";
+    if(event.m_isLoose && SFComp != top::topSFComp::RECO) decorationName = "EL_LOOSE_SF_";
     std::string electronID = "";
     std::string electronIso = "";
 
@@ -259,9 +260,9 @@ namespace top {
       if (sf.size() != sf_aux.size()) ATH_MSG_ERROR(
           "ScaleFactorRetriever::electronSFSystVariationVector error in size of vector of electron SFs");
       double oldSF = 1.;
-      if (SFComp == top::topSFComp::RECO) oldSF = electronSF_Reco(*elPtr, top::topSFSyst::nominal);
-      if (SFComp == top::topSFComp::ID) oldSF = electronSF_ID(*elPtr, electronID, top::topSFSyst::nominal);
-      if (SFComp == top::topSFComp::ISOLATION) oldSF = electronSF_Isol(*elPtr, electronIso, top::topSFSyst::nominal);
+      if (SFComp == top::topSFComp::RECO) oldSF = electronSF_Reco(*elPtr, top::topSFSyst::nominal,event.m_isLoose);
+      if (SFComp == top::topSFComp::ID) oldSF = electronSF_ID(*elPtr, electronID, top::topSFSyst::nominal,event.m_isLoose);
+      if (SFComp == top::topSFComp::ISOLATION) oldSF = electronSF_Isol(*elPtr, electronIso, top::topSFSyst::nominal,event.m_isLoose);
 
       for (unsigned int i = 0; i < sf.size(); i++) {
         sf[i] *= (sf_aux[i] / oldSF);
@@ -298,11 +299,11 @@ namespace top {
           !elPtr->auxdataConst<char>("passPreORSelection")) continue; // in case one want the tight SFs in the loose
                                                                       // tree, need to only take the tight leptons
 
-      reco *= electronSF_Reco(*elPtr, SFSyst);
-      id *= electronSF_ID(*elPtr, electronID, SFSyst);
-      isol *= electronSF_Isol(*elPtr, electronIso, SFSyst);
-      chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst);
-      chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst);
+      reco *= electronSF_Reco(*elPtr, SFSyst,event.m_isLoose);
+      id *= electronSF_ID(*elPtr, electronID, SFSyst,event.m_isLoose);
+      isol *= electronSF_Isol(*elPtr, electronIso, SFSyst,event.m_isLoose);
+      chargeid *= electronSF_ChargeID(*elPtr, electronID, electronIso, SFSyst,event.m_isLoose);
+      chargemisid *= electronSF_ChargeMisID(*elPtr, electronID, electronIso, SFSyst,event.m_isLoose);
     }
 
     sf = reco * id * isol; // *chargeid*chargemisid; // let the charge id scale factors out until further tested by
@@ -338,7 +339,7 @@ namespace top {
     // Loop over electrons
     for (auto elPtr : event.m_fwdElectrons) {
       //currently on ID SFs are supported for fwd electrons
-      id *= fwdElectronSF_ID(*elPtr, fwdElectronID, SFSyst);
+      id *= fwdElectronSF_ID(*elPtr, fwdElectronID, SFSyst, event.m_isLoose);
     }
 
     sf = reco * id * isol;
@@ -356,33 +357,37 @@ namespace top {
   float ScaleFactorRetriever::electronSF_Trigger(const xAOD::Electron& x,
                                                  const top::topSFSyst SFSyst,
                                                  bool isLoose) const {
-    return electronSF_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst);
+    return electronSF_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronEff_Trigger(const xAOD::Electron& x,
                                                   const top::topSFSyst SFSyst,
                                                   bool isLoose) const {
-    return electronEff_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst);
+    return electronEff_Trigger(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronSF_Trigger(const xAOD::Electron& x,
                                                  const std::string& id,
-                                                 const top::topSFSyst SFSyst) const {
+                                                 const top::topSFSyst SFSyst,
+                                                 bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_Trigger_" + id)) {
-      sf = x.auxdataConst<float>("EL_SF_Trigger_" + id);
+    if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id);
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Trigger_UP) {
-      if (x.isAvailable<float>("EL_SF_Trigger_" + id + "_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_Trigger_" + id + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Trigger_DOWN) {
-      if (x.isAvailable<float>("EL_SF_Trigger_" + id + "_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_Trigger_" + id + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_DOWN");
       }
     }
 
@@ -391,22 +396,26 @@ namespace top {
 
   float ScaleFactorRetriever::electronEff_Trigger(const xAOD::Electron& x,
                                                   const std::string& id,
-                                                  const top::topSFSyst SFSyst) const {
+                                                  const top::topSFSyst SFSyst,
+                                                  bool isLoose) const {
     float eff(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_EFF_Trigger_" + id)) {
-      eff = x.auxdataConst<float>("EL_EFF_Trigger_" + id);
+    if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id)) {
+      eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id);
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Trigger_UP) {
-      if (x.isAvailable<float>("EL_EFF_Trigger_" + id + "_UP")) {
-        eff = x.auxdataConst<float>("EL_EFF_Trigger_" + id + "_UP");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_UP")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Trigger_DOWN) {
-      if (x.isAvailable<float>("EL_EFF_Trigger_" + id + "_DOWN")) {
-        eff = x.auxdataConst<float>("EL_EFF_Trigger_" + id + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_DOWN")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_DOWN");
       }
     }
 
@@ -414,22 +423,26 @@ namespace top {
   }
 
   float ScaleFactorRetriever::electronSF_Reco(const xAOD::Electron& x,
-                                              const top::topSFSyst SFSyst) const {
+                                              const top::topSFSyst SFSyst,
+                                              bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_Reco")) {
-      sf = x.auxdataConst<float>("EL_SF_Reco");
+    if (x.isAvailable<float>(prefix+"_SF_Reco")) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Reco");
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Reco_UP) {
-      if (x.isAvailable<float>("EL_SF_Reco_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_Reco_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Reco_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Reco_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Reco_DOWN) {
-      if (x.isAvailable<float>("EL_SF_Reco_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_Reco_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Reco_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Reco_DOWN");
       }
     }
 
@@ -439,33 +452,37 @@ namespace top {
   float ScaleFactorRetriever::electronSF_ID(const xAOD::Electron& x,
                                             const top::topSFSyst SFSyst,
                                             bool isLoose) const {
-    return electronSF_ID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst);
+    return electronSF_ID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
                                                const top::topSFSyst SFSyst,
                                                bool isLoose) const {
-    return fwdElectronSF_ID(x, (isLoose ? m_config->fwdElectronIDLoose() : m_config->fwdElectronID()), SFSyst);
+    return fwdElectronSF_ID(x, (isLoose ? m_config->fwdElectronIDLoose() : m_config->fwdElectronID()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronSF_ID(const xAOD::Electron& x,
                                             const std::string& id,
-                                            const top::topSFSyst SFSyst) const {
+                                            const top::topSFSyst SFSyst,
+                                            bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_ID_" + id)) {
-      sf = x.auxdataConst<float>("EL_SF_ID_" + id);
+    if (x.isAvailable<float>(prefix+"_SF_ID_" + id)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id);
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ID_UP) {
-      if (x.isAvailable<float>("EL_SF_ID_" + id + "_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_ID_" + id + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_ID_" + id + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ID_DOWN) {
-      if (x.isAvailable<float>("EL_SF_ID_" + id + "_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_ID_" + id + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_ID_" + id + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id + "_DOWN");
       }
     }
 
@@ -474,22 +491,26 @@ namespace top {
 
   float ScaleFactorRetriever::fwdElectronSF_ID(const xAOD::Electron& x,
                                                const std::string& id,
-                                               const top::topSFSyst SFSyst) const {
+                                               const top::topSFSyst SFSyst,
+                                               bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="FWDEL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("FWDEL_SF_ID_" + id)) {
-      sf = x.auxdataConst<float>("FWDEL_SF_ID_" + id);
+    if (x.isAvailable<float>(prefix+"_SF_ID_" + id)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id);
     }
 
     if (SFSyst == top::topSFSyst::FWDEL_SF_ID_UP) {
-      if (x.isAvailable<float>("FWDEL_SF_ID_" + id + "_UP")) {
-        sf = x.auxdataConst<float>("FWDEL_SF_ID_" + id + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_ID_" + id + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::FWDEL_SF_ID_DOWN) {
-      if (x.isAvailable<float>("FWDEL_SF_ID_" + id + "_DOWN")) {
-        sf = x.auxdataConst<float>("FWDEL_SF_ID_" + id + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_ID_" + id + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ID_" + id + "_DOWN");
       }
     }
 
@@ -500,28 +521,32 @@ namespace top {
                                               const top::topSFSyst SFSyst,
                                               bool isLoose) const {
     return electronSF_Isol(x, (isLoose ? m_config->electronIsolationSFLoose() : m_config->electronIsolationSF()),
-                           SFSyst);
+                           SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronSF_Isol(const xAOD::Electron& x,
                                               const std::string& iso,
-                                              const top::topSFSyst SFSyst) const {
+                                              const top::topSFSyst SFSyst,
+                                              bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_Iso_" + iso)) {
-      sf = x.auxdataConst<float>("EL_SF_Iso_" + iso);
+    if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso);
     }
 
 
     if (SFSyst == top::topSFSyst::EL_SF_Isol_UP) {
-      if (x.isAvailable<float>("EL_SF_Iso_" + iso + "_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_Iso_" + iso + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_Isol_DOWN) {
-      if (x.isAvailable<float>("EL_SF_Iso_" + iso + "_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_Iso_" + iso + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso + "_DOWN");
       }
     }
 
@@ -532,27 +557,31 @@ namespace top {
                                                   const top::topSFSyst SFSyst,
                                                   bool isLoose) const {
     return electronSF_ChargeID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()),
-                               (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()), SFSyst);
+                               (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronSF_ChargeID(const xAOD::Electron& x,
                                                   const std::string& id, const std::string& iso,
-                                                  const top::topSFSyst SFSyst) const {
+                                                  const top::topSFSyst SFSyst,
+                                                  bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_ChargeID_" + id + "_" + iso)) {
-      sf = x.auxdataConst<float>("EL_SF_ChargeID_" + id + "_" + iso);
+    if (x.isAvailable<float>(prefix+"_SF_ChargeID_" + id + "_" + iso)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_ChargeID_" + id + "_" + iso);
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeID_UP) {
-      if (x.isAvailable<float>("EL_SF_ChargeID_" + id + "_" + iso + "_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeID_" + id + "_" + iso + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeID_" + id + "_" + iso + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeID_" + id + "_" + iso + "_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeID_DOWN) {
-      if (x.isAvailable<float>("EL_SF_ChargeID_" + id + "_" + iso + "_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeID_" + id + "_" + iso + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeID_" + id + "_" + iso + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeID_" + id + "_" + iso + "_DOWN");
       }
     }
     return sf;
@@ -563,39 +592,43 @@ namespace top {
                                                      bool isLoose) const {
     return electronSF_ChargeMisID(x, (isLoose ? m_config->electronIDLoose() : m_config->electronID()),
                                   (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()),
-                                  SFSyst);
+                                  SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::electronSF_ChargeMisID(const xAOD::Electron& x,
                                                      const std::string& id, const std::string& iso,
-                                                     const top::topSFSyst SFSyst) const {
+                                                     const top::topSFSyst SFSyst,
+                                                     bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="EL";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("EL_SF_ChargeMisID_" + id + "_" + iso)) {
-      sf = x.auxdataConst<float>("EL_SF_ChargeMisID_" + id + "_" + iso);
+    if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso);
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeMisID_STAT_UP) {
-      if (x.isAvailable<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_STAT_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_STAT_UP");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_STAT_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_STAT_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeMisID_STAT_DOWN) {
-      if (x.isAvailable<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_STAT_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_STAT_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_STAT_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_STAT_DOWN");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeMisID_SYST_UP) {
-      if (x.isAvailable<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_SYST_UP")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_SYST_UP");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_SYST_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_SYST_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::EL_SF_ChargeMisID_SYST_DOWN) {
-      if (x.isAvailable<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_SYST_DOWN")) {
-        sf = x.auxdataConst<float>("EL_SF_ChargeMisID_" + id + "_" + iso + "_SYST_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_SYST_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_ChargeMisID_" + id + "_" + iso + "_SYST_DOWN");
       }
     }
 
@@ -627,8 +660,8 @@ namespace top {
           !muPtr->auxdataConst<char>("passPreORSelection")) continue; // in case one want the tight SFs in the loose
                                                                       // tree, need to only take the tight leptons
 
-      id *= muonSF_ID(*muPtr, muonID, SFSyst);
-      isol *= muonSF_Isol(*muPtr, muonIso, SFSyst);
+      id *= muonSF_ID(*muPtr, muonID, SFSyst, event.m_isLoose);
+      isol *= muonSF_Isol(*muPtr, muonIso, SFSyst, event.m_isLoose);
 
       if (m_config->applyTTVACut())                                       // if not using TTVA cut, leave SF set to 1.0
         TTVA *= muonSF_TTVA(*muPtr, SFSyst);
@@ -648,39 +681,43 @@ namespace top {
   float ScaleFactorRetriever::muonSF_Trigger(const xAOD::Muon& x,
                                              const top::topSFSyst SFSyst,
                                              bool isLoose) const {
-    return muonSF_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst);
+    return muonSF_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::muonSF_Trigger(const xAOD::Muon& x,
                                              const std::string& id,
-                                             const top::topSFSyst SFSyst) const {
+                                             const top::topSFSyst SFSyst,
+                                             bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="MU";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("MU_SF_Trigger_" + id)) {
-      sf = x.auxdataConst<float>("MU_SF_Trigger_" + id);
+    if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id);
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_STAT_UP) {
-      if (x.isAvailable<float>("MU_SF_Trigger_" + id + "_STAT_UP")) {
-        sf = x.auxdataConst<float>("MU_SF_Trigger_" + id + "_STAT_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_STAT_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_STAT_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_STAT_DOWN) {
-      if (x.isAvailable<float>("MU_SF_Trigger_" + id + "_STAT_DOWN")) {
-        sf = x.auxdataConst<float>("MU_SF_Trigger_" + id + "_STAT_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_STAT_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_STAT_DOWN");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_SYST_UP) {
-      if (x.isAvailable<float>("MU_SF_Trigger_" + id + "_SYST_UP")) {
-        sf = x.auxdataConst<float>("MU_SF_Trigger_" + id + "_SYST_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_SYST_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_SYST_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_SYST_DOWN) {
-      if (x.isAvailable<float>("MU_SF_Trigger_" + id + "_SYST_DOWN")) {
-        sf = x.auxdataConst<float>("MU_SF_Trigger_" + id + "_SYST_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Trigger_" + id + "_SYST_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Trigger_" + id + "_SYST_DOWN");
       }
     }
 
@@ -692,39 +729,43 @@ namespace top {
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const top::topSFSyst SFSyst,
                                               bool isLoose) const {
-    return muonEff_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst);
+    return muonEff_Trigger(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::muonEff_Trigger(const xAOD::Muon& x,
                                               const std::string& id,
-                                              const top::topSFSyst SFSyst) const {
+                                              const top::topSFSyst SFSyst,
+                                              bool isLoose) const {
     float eff(1.);
+    
+    std::string prefix="MU";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("MU_EFF_Trigger_" + id)) {
-      eff = x.auxdataConst<float>("MU_EFF_Trigger_" + id);
+    if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id)) {
+      eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id);
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_STAT_UP) {
-      if (x.isAvailable<float>("MU_EFF_Trigger_" + id + "_STAT_UP")) {
-        eff = x.auxdataConst<float>("MU_EFF_Trigger_" + id + "_STAT_UP");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_STAT_UP")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_STAT_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_STAT_DOWN) {
-      if (x.isAvailable<float>("MU_EFF_Trigger_" + id + "_STAT_DOWN")) {
-        eff = x.auxdataConst<float>("MU_EFF_Trigger_" + id + "_STAT_DOWN");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_STAT_DOWN")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_STAT_DOWN");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_SYST_UP) {
-      if (x.isAvailable<float>("MU_EFF_Trigger_" + id + "_SYST_UP")) {
-        eff = x.auxdataConst<float>("MU_EFF_Trigger_" + id + "_SYST_UP");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_SYST_UP")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_SYST_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Trigger_SYST_DOWN) {
-      if (x.isAvailable<float>("MU_EFF_Trigger_" + id + "_SYST_DOWN")) {
-        eff = x.auxdataConst<float>("MU_EFF_Trigger_" + id + "_SYST_DOWN");
+      if (x.isAvailable<float>(prefix+"_EFF_Trigger_" + id + "_SYST_DOWN")) {
+        eff = x.auxdataConst<float>(prefix+"_EFF_Trigger_" + id + "_SYST_DOWN");
       }
     }
 
@@ -736,13 +777,17 @@ namespace top {
   float ScaleFactorRetriever::muonSF_ID(const xAOD::Muon& x,
                                         const top::topSFSyst SFSyst,
                                         bool isLoose) const {
-    return muonSF_ID(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst);
+    return muonSF_ID(x, (isLoose ? m_config->muonQualityLoose() : m_config->muonQuality()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::muonSF_ID(const xAOD::Muon& x,
                                         const std::string& id,
-                                        const top::topSFSyst SFSyst) const {
-    std::string decoration = "MU_SF_ID_" + id;
+                                        const top::topSFSyst SFSyst,
+                                        bool isLoose) const {
+    std::string decoration = "MU_SF_ID_";
+    if(isLoose) decoration = "MU_LOOSE_SF_ID_";
+    decoration+=id;
+    
     switch (SFSyst) {
     case top::topSFSyst::MU_SF_ID_STAT_UP:
       decoration += "_STAT_UP";
@@ -847,39 +892,43 @@ namespace top {
   float ScaleFactorRetriever::muonSF_Isol(const xAOD::Muon& x,
                                           const top::topSFSyst SFSyst,
                                           bool isLoose) const {
-    return muonSF_Isol(x, (isLoose ? m_config->muonIsolationSFLoose() : m_config->muonIsolationSF()), SFSyst);
+    return muonSF_Isol(x, (isLoose ? m_config->muonIsolationSFLoose() : m_config->muonIsolationSF()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::muonSF_Isol(const xAOD::Muon& x,
                                           const std::string& iso,
-                                          const top::topSFSyst SFSyst) const {
+                                          const top::topSFSyst SFSyst,
+                                          bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="MU";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("MU_SF_Isol_" + iso)) {
-      sf = x.auxdataConst<float>("MU_SF_Isol_" + iso);
+    if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso);
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Isol_SYST_UP) {
-      if (x.isAvailable<float>("MU_SF_Isol_" + iso + "_SYST_UP")) {
-        sf = x.auxdataConst<float>("MU_SF_Isol_" + iso + "_SYST_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SYST_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SYST_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Isol_SYST_DOWN) {
-      if (x.isAvailable<float>("MU_SF_Isol_" + iso + "_SYST_DOWN")) {
-        sf = x.auxdataConst<float>("MU_SF_Isol_" + iso + "_SYST_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_SYST_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_SYST_DOWN");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Isol_STAT_UP) {
-      if (x.isAvailable<float>("MU_SF_Isol_" + iso + "_STAT_UP")) {
-        sf = x.auxdataConst<float>("MU_SF_Isol_" + iso + "_STAT_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_STAT_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_STAT_UP");
       }
     }
 
     if (SFSyst == top::topSFSyst::MU_SF_Isol_STAT_DOWN) {
-      if (x.isAvailable<float>("MU_SF_Isol_" + iso + "_STAT_DOWN")) {
-        sf = x.auxdataConst<float>("MU_SF_Isol_" + iso + "_STAT_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Isol_" + iso + "_STAT_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Isol_" + iso + "_STAT_DOWN");
       }
     }
 
@@ -899,6 +948,7 @@ namespace top {
     // Nominal decoration: if not a TTVA
     // systematic then return the nominal
     std::string decoration = "MU_SF_TTVA";
+    
     switch (SFSyst) {
     case top::topSFSyst::MU_SF_TTVA_STAT_UP:
       decoration += "_STAT_UP";
@@ -989,25 +1039,29 @@ namespace top {
   float ScaleFactorRetriever::photonSF_Isol(const xAOD::Photon& x,
                                             const top::topSFSyst SFSyst,
                                             bool isLoose) const {
-    return photonSF_Isol(x, (isLoose ? m_config->photonIsolationLoose() : m_config->photonIsolation()), SFSyst);
+    return photonSF_Isol(x, (isLoose ? m_config->photonIsolationLoose() : m_config->photonIsolation()), SFSyst, isLoose);
   }
 
   float ScaleFactorRetriever::photonSF_Isol(const xAOD::Photon& x,
                                             const std::string& iso,
-                                            const top::topSFSyst SFSyst) const {
+                                            const top::topSFSyst SFSyst,
+                                            bool isLoose) const {
     float sf(1.);
+    
+    std::string prefix="PH";
+    if(isLoose) prefix+="_LOOSE";
 
-    if (x.isAvailable<float>("PH_SF_Iso_" + iso)) {
-      sf = x.auxdataConst<float>("PH_SF_Iso_" + iso);
+    if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso)) {
+      sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso);
     }
     if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_UP) {
-      if (x.isAvailable<float>("PH_SF_Iso_" + iso + "_UP")) {
-        sf = x.auxdataConst<float>("PH_SF_Iso_" + iso + "_UP");
+      if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso + "_UP")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso + "_UP");
       }
     }
     if (SFSyst == top::topSFSyst::PHOTON_EFF_ISO_DOWN) {
-      if (x.isAvailable<float>("PH_SF_Iso_" + iso + "_DOWN")) {
-        sf = x.auxdataConst<float>("PH_SF_Iso_" + iso + "_DOWN");
+      if (x.isAvailable<float>(prefix+"_SF_Iso_" + iso + "_DOWN")) {
+        sf = x.auxdataConst<float>(prefix+"_SF_Iso_" + iso + "_DOWN");
       }
     }
     return sf;

@@ -29,6 +29,12 @@ find_package( requests )
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
 find_package( AIDA )
 
+# Set up the runtime environment for NumPy.
+set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}"
+   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
+mark_as_advanced( NumPyEnvironment_DIR )
+find_package( NumPyEnvironment )
+
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
 add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
@@ -36,8 +42,6 @@ add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
 # And the same variables for CMake as well:
 set( XAOD_ANALYSIS TRUE CACHE BOOL
    "Flag specifying that this is an analysis release" )
-
-
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

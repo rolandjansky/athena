@@ -142,36 +142,46 @@ def getHIGG5Common() :
         "Muons.clusterLink.EnergyLoss.energyLossType",
         "TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
         (getJetEMTopoName()+".TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
-           ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
-           ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
+         ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
+         ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
         # ("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
         #    ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
-            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
+         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
+        ("AntiKt10UFOCSSKJets.GhostVR30Rmax4Rmin02TrackJet"
+         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag"),
         ("AntiKt4EMPFlowJets"
-            ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810"
-            ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903"),
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903"),
         ("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-            ".PlanarFlow.Angularity.Aplanarity.FoxWolfram0.FoxWolfram2.KtDR.ZCut12"
-            ".GhostTrack.GhostTrackCount.GhostVR30Rmax4Rmin02TrackJet"
-            ".Width"),
+         ".PlanarFlow.Angularity.Aplanarity.FoxWolfram0.FoxWolfram2.KtDR.ZCut12"
+         ".GhostTrack.GhostTrackCount.GhostVR30Rmax4Rmin02TrackJet"
+         ".Width"),
         ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks"
-            ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-        ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
-            ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
-            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
-            ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
-            ".Width"),
+         ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+         ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+         ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
+         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+         ".GhostAntiKt2TrackJet.GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
+         ".Width"),
         ("AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.pt.eta.phi.m.constituentLinks"
-            ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
-            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
-            ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
-            ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
-            ".GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
-            ".Width"),
+         ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+         ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
+         ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
+         ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
+         ".GhostTrack.GhostVR30Rmax4Rmin02TrackJet"
+         ".Width"),
 
         ("AntiKt10TrackCaloClusterJets"
-         ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
+         ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag"
+         ".GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag"),
          "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201810GhostTag",
          "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet_BTagging201903GhostTag",
          "BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag",

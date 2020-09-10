@@ -16,8 +16,8 @@ cutfilepath = ROOT.PathResolver.find_file(cutfilename,
 returnCode = CITest("TOPQ1 DATA",
                     cutfilename,
                     cutfilepath,
-                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p3955/"+
-                    "data16_13TeV.periodC.physics_Main.PhysCont.deriv.DAOD_TOPQ1.p3955/data16_13TeV.periodC.physics_Main.PhysCont.deriv.DAOD_TOPQ1.p3955.test.root",
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p4173/"+
+                    "data16_13TeV.AllYear.physics_Main.PhysCont.DAOD_TOPQ1.grp16_v01_p4173/DAOD_TOPQ1.21542408._000018.pool.root.1",
                     [("#NEvents.*","NEvents 3000")])
 
 if returnCode != 0:

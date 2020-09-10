@@ -42,6 +42,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
+  const static SG::AuxElement::Decorator<float>     dec_DFCommonJetDr("DFCommonJetDr");
   const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
@@ -99,8 +100,13 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_isolHighPt(input) = false;
   dec_passedHighPtCuts(input) = false;
   dec_passSignalID(input) = false;
-  dec_dRJet(input)=-2.0;     
-  
+
+  if (m_muEffCorrForce1D) {
+    dec_DFCommonJetDr(input) = -2.0;
+  } else if (!input.isAvailable<float>("DFCommonJetDr")) {
+    dec_dRJet(input) = -2.0;
+  }
+
   // don't bother calibrating or computing WP
   if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
 
@@ -384,7 +390,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
       if (m_muonEfficiencyBMHighPtSFTool->getEfficiencyScaleFactor( mu, sf_badHighPt ) == CP::CorrectionCode::OutOfValidityRange) {
 	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: BadMuonHighPt getEfficiencyScaleFactor out of validity range");
       }
-      ATH_MSG_VERBOSE( "MuonTTVA ScaleFactor " << sf_badHighPt );
+      ATH_MSG_VERBOSE( "MuonBadMuonHighPt ScaleFactor " << sf_badHighPt );
       sf *= sf_badHighPt;
     }
   }

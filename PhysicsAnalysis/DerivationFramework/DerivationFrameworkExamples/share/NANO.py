@@ -311,7 +311,7 @@ SeqNANO += photonSequence
 # Include, and then set up the muon analysis algorithm sequence:
  
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
-muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, workingPoint = 'Medium.Iso' )
+muonSequence = makeMuonAnalysisSequence( dataType, deepCopyOutput = True, workingPoint = 'Medium.NonIso' )
 muonSequence.configure( inputName = 'Muons',
                         outputName = 'AnalysisMuons_%SYS%' )
 print( muonSequence ) # For debugging
