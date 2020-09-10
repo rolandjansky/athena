@@ -27,7 +27,6 @@ public:
     virtual ~TauPi0ScoreCalculator();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
 
 private:

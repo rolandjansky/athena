@@ -45,13 +45,6 @@ StatusCode TauTrackClassifier::initialize()
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TauTrackClassifier::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-
 //______________________________________________________________________________
 StatusCode TauTrackClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const
 {
@@ -130,66 +123,67 @@ StatusCode TrackMVABDT::finalize()
 //______________________________________________________________________________
 StatusCode TrackMVABDT::initialize()
 {
-  m_mAvailableVars={{"TracksAuxDyn.tauPt", new float(0)}
-                    , {"TracksAuxDyn.jetSeedPt", new float(0)}
-                    , {"TracksAuxDyn.tauEta", new float(0)}
-                    , {"TracksAuxDyn.trackEta", new float(0)}
-                    , {"TracksAuxDyn.z0sinThetaTJVA", new float(0)}
-                    , {"TracksAuxDyn.rConv", new float(0)}
-                    , {"TracksAuxDyn.rConvII", new float(0)}
-                    , {"TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII", new float(0)}
-                    , {"TracksAuxDyn.DRJetSeedAxis", new float(0)}
-                    , {"TracksAuxDyn.dRJetSeedAxis", new float(0)}
-                    , {"TracksAux.d0", new float(0)}
-                    , {"TracksAux.qOverP", new float(0)}
-                    , {"TracksAux.theta", new float(0)}
-                    , {"TracksAux.eProbabilityHT", new float(0)}
-                    , {"TracksAux.numberOfInnermostPixelLayerHits", new float(0)}
-                    , {"TracksAux.numberOfPixelHits", new float(0)}
-                    , {"TracksAux.numberOfPixelDeadSensors", new float(0)}
-                    , {"TracksAux.numberOfPixelSharedHits", new float(0)}
-                    , {"TracksAux.numberOfSCTHits", new float(0)}
-                    , {"TracksAux.numberOfSCTDeadSensors", new float(0)}
-                    , {"TracksAux.numberOfSCTSharedHits", new float(0)}
-                    , {"TracksAux.numberOfTRTHighThresholdHits", new float(0)}
-                    , {"TracksAux.numberOfTRTHits", new float(0)}
-                    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors", new float(0)}
-                    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors", new float(0)}
-
-                    , {"TauTracksAuxDyn.tauPt", new float(0)}
-                    , {"TauTracksAuxDyn.jetSeedPt", new float(0)}
-                    , {"TauTracksAuxDyn.tauEta", new float(0)}
-                    , {"TauTracksAuxDyn.trackEta", new float(0)}
-                    , {"TauTracksAuxDyn.z0sinThetaTJVA", new float(0)}
-                    , {"TauTracksAuxDyn.rConv", new float(0)}
-                    , {"TauTracksAuxDyn.rConvII", new float(0)}
-                    , {"TauTracksAuxDyn.dRJetSeedAxis", new float(0)}
-                    , {"TauTracksAuxDyn.d0", new float(0)}
-                    , {"TauTracksAuxDyn.qOverP", new float(0)}
-                    , {"TauTracksAuxDyn.theta", new float(0)}
-                    , {"TauTracksAuxDyn.eProbabilityHT", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfInnermostPixelLayerHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelSharedHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfSCTHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfSCTSharedHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfTRTHighThresholdHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfTRTHits", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-
-
-                    , {"1/(TauTracksAuxDyn.trackPt)", new float(0)}
-                    , {"fabs(TauTracksAuxDyn.qOverP)", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfContribPixelLayers", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-                    , {"TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-                    , {"TauTracksAux.pt", new float(0)}
+  m_mAvailableVars={
+    {"TracksAuxDyn.tauPt", new float(0)}
+    , {"TracksAuxDyn.jetSeedPt", new float(0)}
+    , {"TracksAuxDyn.tauEta", new float(0)}
+    , {"TracksAuxDyn.trackEta", new float(0)}
+    , {"TracksAuxDyn.z0sinThetaTJVA", new float(0)}
+    , {"TracksAuxDyn.rConv", new float(0)}
+    , {"TracksAuxDyn.rConvII", new float(0)}
+    , {"TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII", new float(0)}
+    , {"TracksAuxDyn.DRJetSeedAxis", new float(0)}
+    , {"TracksAuxDyn.dRJetSeedAxis", new float(0)}
+    , {"TracksAux.d0", new float(0)}
+    , {"TracksAux.qOverP", new float(0)}
+    , {"TracksAux.theta", new float(0)}
+    , {"TracksAux.eProbabilityHT", new float(0)}
+    , {"TracksAux.numberOfInnermostPixelLayerHits", new float(0)}
+    , {"TracksAux.numberOfPixelHits", new float(0)}
+    , {"TracksAux.numberOfPixelDeadSensors", new float(0)}
+    , {"TracksAux.numberOfPixelSharedHits", new float(0)}
+    , {"TracksAux.numberOfSCTHits", new float(0)}
+    , {"TracksAux.numberOfSCTDeadSensors", new float(0)}
+    , {"TracksAux.numberOfSCTSharedHits", new float(0)}
+    , {"TracksAux.numberOfTRTHighThresholdHits", new float(0)}
+    , {"TracksAux.numberOfTRTHits", new float(0)}
+    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors", new float(0)}
+    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors", new float(0)}
+    
+    , {"TauTracksAuxDyn.tauPt", new float(0)}
+    , {"TauTracksAuxDyn.jetSeedPt", new float(0)}
+    , {"TauTracksAuxDyn.tauEta", new float(0)}
+    , {"TauTracksAuxDyn.trackEta", new float(0)}
+    , {"TauTracksAuxDyn.z0sinThetaTJVA", new float(0)}
+    , {"TauTracksAuxDyn.rConv", new float(0)}
+    , {"TauTracksAuxDyn.rConvII", new float(0)}
+    , {"TauTracksAuxDyn.dRJetSeedAxis", new float(0)}
+    , {"TauTracksAuxDyn.d0", new float(0)}
+    , {"TauTracksAuxDyn.qOverP", new float(0)}
+    , {"TauTracksAuxDyn.theta", new float(0)}
+    , {"TauTracksAuxDyn.eProbabilityHT", new float(0)}
+    , {"TauTracksAuxDyn.numberOfInnermostPixelLayerHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelSharedHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfSCTHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
+    , {"TauTracksAuxDyn.numberOfSCTSharedHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfTRTHighThresholdHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfTRTHits", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
+    
+    
+    , {"1/(TauTracksAuxDyn.trackPt)", new float(0)}
+    , {"fabs(TauTracksAuxDyn.qOverP)", new float(0)}
+    , {"TauTracksAuxDyn.numberOfContribPixelLayers", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
+    , {"TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+    , {"TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+    , {"TauTracksAux.pt", new float(0)}
   };
     
   ATH_CHECK(addWeightsFile());
@@ -331,6 +325,5 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
   setVar("TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfSCTHoles;
   setVar("TauTracksAux.pt") = xTrackParticle->pt();
 
-  return StatusCode::SUCCESS;
-  
+  return StatusCode::SUCCESS;  
 }

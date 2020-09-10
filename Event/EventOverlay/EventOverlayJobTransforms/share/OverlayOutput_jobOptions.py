@@ -38,7 +38,7 @@ if DetFlags.overlay.Truth_on():
     if DetFlags.overlay.pixel_on():
         outStream.ItemList += [ 'InDetSimDataCollection#PixelSDO_Map' ]
         if overlayFlags.isDataOverlay():
-            outStream.ItemList += [ 'InDetBSErrContainer#PixelByteStreamErrs' ]
+            outStream.ItemList += [ 'IDCInDetBSErrContainer#PixelByteStreamErrs' ]
 
     if DetFlags.overlay.SCT_on():
         outStream.ItemList += ['InDetSimDataCollection#SCT_SDO_Map']

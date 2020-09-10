@@ -29,12 +29,7 @@ public:
              double rmax,
              double phimin,
              double phimax,
-             double scale)
-    : BFieldMesh<short>(zmin, zmax, rmin, rmax, phimin, phimax, scale)
-    , m_id(id)
-  {
-    ;
-  }
+             double scale);
   // add elements to vectors
   void appendCond(const BFieldCond& cond);
   // compute Biot-Savart magnetic field and add to B[3]
@@ -45,10 +40,10 @@ public:
   // Scaling is done in cachec
   void scaleField(double factor);
   // accessors
-  int id() const { return m_id; }
-  unsigned ncond() const { return m_cond.size(); }
-  const BFieldCond& cond(int i) const { return m_cond[i]; }
-  const std::vector<BFieldCond>* condVector() const { return &m_cond; }
+  int id() const;
+  unsigned ncond() const;
+  const BFieldCond& cond(int i) const;
+  const std::vector<BFieldCond>* condVector() const;
   int memSize() const;
   // adjust the min/max edges to a new value
   void adjustMin(int i, double x);
