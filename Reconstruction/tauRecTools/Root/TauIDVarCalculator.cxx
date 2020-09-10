@@ -114,13 +114,13 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
   // Get Clusters via Jet Seed 
-  const xAOD::Jet *jetSeed = (*tau.jetLink());
+  const xAOD::Jet *jetSeed = tau.jet();
   if (!jetSeed) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   } 
 
-  auto p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
+  const TLorentzVector& p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   float eEMAtEMScaleFixed = 0;
   float eHadAtEMScaleFixed = 0;
   float eHad1AtEMScaleFixed = 0;
@@ -145,8 +145,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
       eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;
  
   if(tau.nTracks() > 0){
-    const xAOD::TrackParticle* track = 0;
-    track = tau.track(0)->track();
+    const xAOD::TrackParticle* track = tau.track(0)->track();
     acc_absEtaLead(tau) = std::abs( track->eta() );
     acc_leadTrackEta(tau) = std::abs( track->eta() );
     acc_absDeltaEta(tau) = std::abs( track->eta() - tau.eta() );
@@ -227,10 +226,5 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   
   acc_centFracCorrected(tau) = tau.pt() < 80. * GeV ? acc_centFrac(tau) + correction : acc_centFrac(tau);
  
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauIDVarCalculator::finalize()
-{
   return StatusCode::SUCCESS;
 }

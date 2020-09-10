@@ -5,17 +5,16 @@
 /** @file MetaDataSvc.cxx
  *  @brief This file contains the implementation for the MetaDataSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: MetaDataSvc.cxx,v 1.46 2008-11-19 23:21:10 gemmeren Exp $
  **/
 
 #include "MetaDataSvc.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/FileIncident.h"
 
@@ -142,21 +141,15 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot register myself with the IoComponentMgr.");
       return(StatusCode::FAILURE);
    }
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
+   ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
-      const std::vector<const Gaudi::Details::PropertyBase*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != nullptr) {
-         for (std::vector<const Gaudi::Details::PropertyBase*>::const_iterator iter = evtselProps->begin(),
-                         last = evtselProps->end(); iter != last; iter++) {
-            if ((*iter)->name() == "InputCollections") {
-               // Get EventSelector to force in-time initialization and FirstInputFile incident
-               ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
-               if (!evtsel.retrieve().isSuccess()) {
-                  ATH_MSG_WARNING("Cannot get EventSelector.");
-               }
-            }
+      if (joSvc->has("EventSelector.InputCollections")) {
+         // Get EventSelector to force in-time initialization and FirstInputFile incident
+         ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
+         if (!evtsel.retrieve().isSuccess()) {
+            ATH_MSG_WARNING("Cannot get EventSelector.");
          }
       }
    }

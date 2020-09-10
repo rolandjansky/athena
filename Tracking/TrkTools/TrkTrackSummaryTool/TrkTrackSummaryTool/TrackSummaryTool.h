@@ -101,7 +101,7 @@ public:
     if (!track.trackSummary()) {
       computeAndReplaceTrackSummary(track, prd_to_track_map, false /*DO NOT suppress hole search*/);
     } else {
-      updateSharedHitCount(track, prd_to_track_map, *track.m_trackSummary);
+      updateSharedHitCount(track, prd_to_track_map, *track.trackSummary());
     }
   }
 
@@ -148,7 +148,7 @@ public:
     if (!track.trackSummary()) {
       computeAndReplaceTrackSummary(track, nullptr, false /*DO NOT suppress hole search*/);
     } else {
-      updateSharedHitCount(track, nullptr, *track.m_trackSummary);
+      updateSharedHitCount(track, nullptr, *track.trackSummary());
     }
   }
 
@@ -191,11 +191,9 @@ private:
                                                                        bool doHolesInDet,
                                                                        bool doHolesMuon) const
   {
-    Trk::TrackSummary* ts = createSummary(track, prd_to_track_map, doHolesInDet, doHolesMuon).release();
     Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-    delete nonConstTrack.m_trackSummary;
-    nonConstTrack.m_trackSummary = ts;
-    return onlyUpdateTrack ? nullptr : new Trk::TrackSummary(*ts);
+    nonConstTrack.setTrackSummary(createSummary(track, prd_to_track_map, doHolesInDet, doHolesMuon));
+    return onlyUpdateTrack ? nullptr : new Trk::TrackSummary(*nonConstTrack.trackSummary());
   }
   /** use this method to update a track. this means a tracksummary is created for
   this track but not returned. the summary can then be obtained from the track.
