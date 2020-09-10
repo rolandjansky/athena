@@ -87,14 +87,10 @@ for ref in TrackReference :
     ext       = ''
     ext1      = ''
 
-
-    print( "number of post processings: ", len(TrackReference) ) 
-
     if   ( ref == 'Truth' ) :
         args      = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
     elif ( ref == 'Offline' ) :
         if len(TrackReference)>1 : 
-            print( "YES, DOING SEPARATE ONLINE BRANCH" )
             hist_file = 'data-hists-offline.root'
             ext       = '_off'
             ext1      = 'offl'
