@@ -17,6 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 namespace Trk {
@@ -55,7 +56,7 @@ private:
                   PropDirection direction = anyDirection,
                   ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  void energyLoss(IMultiStateMaterialEffects::Cache&,
+  void energyLoss(Trk::GSFEnergyLossCache&,
                   const ComponentParameters&,
                   const MaterialProperties&,
                   double,
@@ -75,7 +76,7 @@ private:
     "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",
     ""
   };
-  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{
+  ToolHandle<IBetheHeitlerEffects> m_betheHeitlerEffects{
     this,
     "BetheHeitlerEffects",
     "Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",

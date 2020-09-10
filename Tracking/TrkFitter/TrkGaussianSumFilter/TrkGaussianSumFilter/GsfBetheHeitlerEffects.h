@@ -12,7 +12,7 @@
 #ifndef Trk_GsfBetheHeitlerEffects_H
 #define Trk_GsfBetheHeitlerEffects_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
+#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -23,7 +23,7 @@ namespace Trk {
 
 class GsfBetheHeitlerEffects
   : public AthAlgTool
-  , virtual public IMultiStateMaterialEffects
+  , virtual public IBetheHeitlerEffects
 {
 
 private:
@@ -89,16 +89,16 @@ public:
   /** AlgTool finalise method */
   virtual StatusCode finalize() override final;
 
-  virtual void compute(Cache&,
-                       const ComponentParameters&,
-                       const MaterialProperties&,
-                       double,
+  virtual void compute(Trk::GSFEnergyLossCache& cache,
+                       const ComponentParameters& componentParameters,
+                       const MaterialProperties& materialProperties,
+                       double pathLenght,
                        PropDirection direction = anyDirection,
                        ParticleHypothesis particleHypothesis =
                          nonInteracting) const override final;
 
-private:
   typedef std::vector<ComponentValues> MixtureParameters;
+private:
 
   // Read polynomial fit parameters from a specified file
   bool readParameters();
@@ -111,33 +111,6 @@ private:
 
   // Get mixture parameters
   void getMixtureParametersHighX0(const double, MixtureParameters&) const;
-
-  // Correct weights of components
-  void correctWeights(MixtureParameters&) const;
-
-  // Correct mean for component 1
-  double correctedFirstMean(const double, const MixtureParameters&) const;
-
-  // Correct variance for component 1
-  double correctedFirstVariance(const double, const MixtureParameters&) const;
-
-  // Logistic function - needed for transformation of weight and mean
-  inline double logisticFunction(const double x) const
-  {
-    return (double)1. / (1. + exp(-x));
-  }
-
-  // First moment of the Bethe-Heitler distribution
-  inline double betheHeitlerMean(const double r) const
-  {
-    return (double)exp(-r);
-  }
-
-  // Second moment of the Bethe-Heitler distribution
-  inline double betheHeitlerVariance(const double r) const
-  {
-    return (double)exp(-r * log(3.) / log(2.)) - exp(-2 * r);
-  }
 
 private:
   std::string m_parameterisationFileName;
