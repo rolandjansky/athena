@@ -291,7 +291,7 @@ MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += MUON1Thin_vtxTrk
 MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   MUON1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON1TruthThinningTool",

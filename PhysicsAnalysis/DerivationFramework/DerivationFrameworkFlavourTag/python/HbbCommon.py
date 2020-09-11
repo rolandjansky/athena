@@ -5,8 +5,9 @@
 from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
-    DerivationFrameworkIsMonteCarlo as isMC)
-
+    DerivationFrameworkHasTruth as hasMCTruth)
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsDataOverlay)
 # I wish we didn't need this
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()
@@ -49,7 +50,8 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGh
     subjetlabel = "Ex%s%i%sSubJets" % (subjet_mode, nsubjet, talabel)
 
     # removing truth labels if runining on data
-    if not isMC: ExGhostLabels = ["GhostTrack"]
+    if not hasMCTruth:
+        ExGhostLabels = ["GhostTrack"]
 
     SubjetContainerName = "%sEx%s%i%sSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet, talabel)
     ExKtbbTagToolName = str( "Ex%s%sbbTagTool%i_%s" % (subjet_mode, talabel, nsubjet, JetCollectionName) )
@@ -170,7 +172,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
             from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
             if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
-            if isMC:
+            if hasMCTruth:
                 mods.append(jtm.jetdrlabeler)
 
             jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
@@ -355,7 +357,7 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,
                     vrdr_label]
 
-            if isMC:
+            if hasMCTruth:
                 mods += [jtm.trackjetdrlabeler, gl_tool]
 
             jtm.addJetFinder(
@@ -402,7 +404,7 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
 # Build variable-R calorimeter jets
 ##################################################################
 def addVRCaloJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
-    if isMC and dotruth:
+    if hasMCTruth and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'PV0Track', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="groomed",
@@ -572,7 +574,10 @@ def addHbbTagger(
         logger = Logging.logging.getLogger('HbbTaggerLog')
 
     fat_calibrator_name = get_unique_name(["HbbCalibrator", jet_collection])
-    is_data = not isMC
+    is_data = not hasMCTruth
+    if DerivationFrameworkIsDataOverlay:
+        raise RuntimeError('Do not know how to treat overlay data, cannot run the Hbb tagger')
+
     if not hasattr(ToolSvc, fat_calibrator_name):
         fatCalib = CfgMgr.JetCalibrationTool(
             fat_calibrator_name,
@@ -656,7 +661,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
      getattr(ToolSvc,jetToolName).DoArea = False
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
-     if isMC:
+     if hasMCTruth:
        getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
        getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
@@ -665,7 +670,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
 
    # build subjets
    GhostLabels = ["GhostTrack"]
-   if isMC:
+   if hasMCTruth:
      GhostLabels += ["GhostBHadronsFinal"]
      GhostLabels += ["GhostCHadronsFinal"]
    # N=2 subjets

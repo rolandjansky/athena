@@ -23,12 +23,8 @@ idDxAOD_doPix=True
 idDxAOD_doSct=True
 idDxAOD_doTrt=False
 
-# IsMonteCarlo=(globalflags.DataSource == 'geant4')
-
-if 'DerivationFrameworkIsMonteCarlo' not in dir() :
-  DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
-
-IsMonteCarlo=DerivationFrameworkIsMonteCarlo
+# Proxy for running an un-prescaled trigger menu
+IsMonteCarlo=DerivationFrameworkHasTruth
 
 #====================================================================
 # CP GROUP TOOLS
@@ -63,7 +59,7 @@ augmentationTools.append(IDTIDE1TrackToVertexWrapper)
 _info(IDTIDE1TrackToVertexWrapper)
 
 # Add decoration with truth parameters if running on simulation
-if IsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
     TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
                                                                         DecorationPrefix = "")
@@ -188,7 +184,7 @@ if idDxAOD_doTrt:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
   xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
   xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
-  xAOD_TRT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  xAOD_TRT_PrepDataToxAOD.UseTruthInfo=DerivationFrameworkHasTruth
   _info( "Add TRT xAOD TrackMeasurementValidation: %s" , xAOD_TRT_PrepDataToxAOD)
   IDTIDESequence += xAOD_TRT_PrepDataToxAOD
 
@@ -196,7 +192,7 @@ if idDxAOD_doSct:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_PrepDataToxAOD
   xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
   xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
-  xAOD_SCT_PrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  xAOD_SCT_PrepDataToxAOD.UseTruthInfo=DerivationFrameworkHasTruth
   _info("Add SCT xAOD TrackMeasurementValidation: %s", xAOD_SCT_PrepDataToxAOD)
   IDTIDESequence += xAOD_SCT_PrepDataToxAOD
 
@@ -208,7 +204,7 @@ if idDxAOD_doPix:
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
   xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
-  xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
+  xAOD_PixelPrepDataToxAOD.UseTruthInfo=DerivationFrameworkHasTruth
   _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
   IDTIDESequence += xAOD_PixelPrepDataToxAOD
 
@@ -231,7 +227,7 @@ thinningTools.append(IDTIDE1ThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if IsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   IDTIDE1TruthThinningTool = DerivationFramework__MenuTruthThinning(name = "IDTIDE1TruthThinningTool",
       ThinningService            = "IDTIDE1ThinningSvc",
@@ -337,7 +333,7 @@ IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
 #IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
 #IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
-if IsMonteCarlo:
+if DerivationFrameworkHasTruth:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
   IDTIDE1Stream.AddItem("xAOD::TruthVertexContainer#*")

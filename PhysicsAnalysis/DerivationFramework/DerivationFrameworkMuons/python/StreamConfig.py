@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
 
 def useSmartSlimmingIfSupported(itemPairs, smAllVarlist, addItemList, ContainerNamesAndTypes):
     for i in itemPairs:
@@ -54,7 +54,7 @@ class MuonsDxAODStreamConfigurer:
     MUON4OnlyAllVar = ['PrimaryVertices']
 
 #     if globalflags.DataSource()=='geant4':
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         MUON1OnlyAllVar += ['AntiKt4TruthJets',"TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth"]
 
 #     useSmartSlimmingIfSupported(getMUON0TriggerContainers(), MUON0OnlyAllVar, MUON0OnlyItems)

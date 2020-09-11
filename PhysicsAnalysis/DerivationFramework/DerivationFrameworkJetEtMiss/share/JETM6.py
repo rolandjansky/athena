@@ -28,7 +28,7 @@ jetTriggers = TriggerLists.jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10UFOCSSKJets.pt > 400.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >= 1)'
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10UFOCSSKJets.pt > 180.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >= 1)'
 
 orstr  = ' || '
@@ -282,7 +282,7 @@ OutputJets["JETM6"] = []
 
 addDefaultTrimmedJets(jetm6Seq,"JETM6")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
@@ -317,7 +317,7 @@ largeRJetCollections = []
 for alg in largeRJetAlgs:
   largeRJetCollections.append(alg+"Jets")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
@@ -335,7 +335,7 @@ addRecommendedXbbTaggers(jetm6Seq, ToolSvc)
 # TRUTH3
 #====================================================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles,addTruthCollectionNavigationDecorations
   addStandardTruthContents()
   addTopQuarkAndDownstreamParticles()

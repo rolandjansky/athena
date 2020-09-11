@@ -61,16 +61,10 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG2D4
 
 #generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG2D4',HIGG2D4ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
-
-# Truth particles
-# if DerivationFrameworkIsMonteCarlo:
-#     thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG2D4', HIGG2D4ThinningHelper))
-#     from DerivationFrameworkMCTruth.MCTruthCommon import *
-#     addStandardTruthContents()
 
 # print "HIGG2D4.py thinningTools", thinningTools
 
@@ -167,7 +161,7 @@ if beamEnergy==4000000.0:
     electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
 triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement+metTriggerRequirement
 # 8 TeV MC does not have trigger information
-SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (beamEnergy==4000000.0))
+SkipTriggerRequirement=(DerivationFrameworkHasTruth and (beamEnergy==4000000.0))
 print "HIGG2D4.py SkipTriggerRequirement", SkipTriggerRequirement
 if SkipTriggerRequirement:
     triggerRequirement=[]
@@ -346,7 +340,7 @@ higg2d4Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 #====================================================================
 # SET UP CUSTOM TRUTH3 INFORMATION
 #====================================================================
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   HIGG5Common.getTruth3Collections(higg2d4Seq)
 
 # Main selection
@@ -383,14 +377,14 @@ HIGG2D4SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollec
 HIGG2D4SlimmingHelper.ExtraVariables = ExtraContent
 HIGG2D4SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG2D4SlimmingHelper.AllVariables = ExtraContainers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HIGG2D4SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG2D4SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG2D4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
 slimmed_content=["HIGG2D4Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     slimmed_content+=[
              "AntiKt4TruthJets",
              "AntiKt4TruthDressedWZJets"

@@ -55,7 +55,7 @@ print EXOT2SkimmingTool
 thinningTools = []
 
 #truth thinning: want to keep some parton info so we can study BSM decays
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasxAODTruth:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     EXOT2MCThinningTool = DerivationFramework__MenuTruthThinning(name                = "EXOT2MCThinningTool",
                                                                  ThinningService     = EXOT2ThinningHelper.ThinningSvc(),
@@ -79,11 +79,11 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkHasTruth:
     MCTruthCommon.addStandardTruthContents()
 
 #further truth thinning to ensure useful parton info
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     truth_cond_jets = "(((abs(TruthParticles.pdgId) > 0) && (abs(TruthParticles.pdgId) <= 7) || (abs(TruthParticles.pdgId) == 21)) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     EXOT2TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT2TruthTool2",
@@ -109,7 +109,7 @@ replaceAODReducedJets(reducedJetList,exot2Seq,"EXOT2")
 
 # redo ghost association
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth:
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot2Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=exot2Seq, algname="JetPtAssociationAlg")
 

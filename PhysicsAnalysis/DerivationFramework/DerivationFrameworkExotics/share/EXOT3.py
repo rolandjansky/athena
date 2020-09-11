@@ -451,7 +451,7 @@ exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",      Thi
 # GHOST ASSOCIATION
 #=======================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth:
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",  truthjetalg="AntiKt10TruthJets", sequence=exot3Seq, algname="JetPtAssociationAlg")

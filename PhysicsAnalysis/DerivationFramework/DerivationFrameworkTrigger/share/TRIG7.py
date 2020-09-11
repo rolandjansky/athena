@@ -23,14 +23,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
 #====================================================================
-# DEFAULT IS NO TRUTH - NEED TO ADD IT EXPLICITLY THEN THIN IT BELOW
-#====================================================================
-#if DerivationFrameworkIsMonteCarlo:
-
-#  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-#  addStandardTruthContents()
-
-#====================================================================
 # TRIGGER SKIMMING TOOL - REQUIRE A JET TRIGGER TO HAVE BEEN PASSED
 #====================================================================
 from DerivationFrameworkJetEtMiss import TriggerLists
@@ -162,7 +154,7 @@ thinningTools.append(TRIG7TrigTrackThinningTool)
 #====================================================================
 doTruthThinning = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:  
+if doTruthThinning and DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   TRIG7TruthThinningTool = DerivationFramework__MenuTruthThinning(name               = "TRIG7TruthThinningTool",
                                                                   ThinningService    = TRIG7ThinningHelper.ThinningSvc(),

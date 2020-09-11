@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 
 # Include TRUTH3 containers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 
@@ -179,7 +179,7 @@ addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq
 addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
 addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=False, mods="tcc_groomed")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
@@ -209,7 +209,7 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetForwardPFlow
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     addAntiKt4NoPtCutJets(jetm1Seq,"JETM1")
     ## Add GhostTruthAssociation information ##
     addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
@@ -292,7 +292,7 @@ addJetOutputs(JETM1SlimmingHelper,["SmallR","JETM1"],["AntiKt10UFOCSSKJets",
                ]# veto list,
               )
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     JETM1SlimmingHelper.AllVariables += ["TruthMuons", "TruthElectrons", "TruthPhotons", "TruthEvents"]
     for truthc in ["TruthTop", "TruthBoson"]:
         JETM1SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)

@@ -11,7 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -107,7 +107,7 @@ EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteFirstN           = -1,
                                                          SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   # Re-run MCTruthClassifier
   from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
   EXOT19TruthClassifier = MCTruthClassifier(name                      = "EXOT19TruthClassifier",
@@ -137,7 +137,7 @@ EXOT19TruthTool2 = DerivationFramework__GenericTruthThinning(name               
                                                              PreserveDescendants          = False,
                                                              PreserveGeneratorDescendants = True,
                                                              PreserveAncestors            = True)
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   ToolSvc += EXOT19TruthTool2
   thinningTools.append(EXOT19TruthTool2)
 
@@ -179,7 +179,7 @@ EXOT19SlimmingHelper.StaticContent = EXOT19Content
 EXOT19SlimmingHelper.AllVariables = EXOT19AllVariables
 EXOT19SlimmingHelper.ExtraVariables = EXOT19ExtraVariables
 EXOT19SlimmingHelper.SmartCollections = EXOT19SmartCollections
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   EXOT19SlimmingHelper.AllVariables += EXOT19AllVariablesTruth
   EXOT19SlimmingHelper.ExtraVariables += EXOT19ExtraVariablesTruth
   EXOT19SlimmingHelper.SmartCollections += EXOT19SmartCollectionsTruth

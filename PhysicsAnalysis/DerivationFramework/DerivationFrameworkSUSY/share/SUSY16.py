@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -36,7 +36,8 @@ DerivationFrameworkJob += SeqSUSY16
 muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 4.0*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 photonsRequirements = '(abs(Photons.eta)<2.6) && (Photons.pt > 20*GeV)'
-if not DerivationFrameworkIsMonteCarlo:
+# Note different requirements for events with MC truth (not obvious!)
+if not DerivationFrameworkHasTruth:
   muonsRequirements = '(Muons.pt > 3.0*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 
 
@@ -181,7 +182,7 @@ thinningTools.append(SUSY16MuonCCThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     SUSY16TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY16TruthThinningTool",
@@ -247,7 +248,7 @@ ToolSvc += SUSY16InclusiveTriggerSkimmingTool
 
 # full trigger selection, do it slightly differently for data and MC
 SUSY16TriggerSkimmingTool=None
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     # one muon + jet + met trigger
     SUSY16SoftOneMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY16OneMuonTriggerSkimmingTool",
                                                                                      TriggerListAND = ['HLT_mu4','HLT_xe50_mht','HLT_j110'])
@@ -416,9 +417,6 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY16, algname='JetF
 #==============================================================================
 OutputJets["SUSY16"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY16, "SUSY16")
@@ -513,7 +511,7 @@ SUSY16SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY16SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',

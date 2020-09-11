@@ -10,8 +10,8 @@ from AthenaCommon import Logging
 dfcommontruthlog = Logging.logging.getLogger('DFCommonTruth')
 
 # Execute this only for MC
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-if DerivationFrameworkIsMonteCarlo:
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+if DerivationFrameworkHasTruth:
     dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
     # Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
     # Input file is EVNT

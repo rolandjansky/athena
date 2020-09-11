@@ -16,7 +16,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 # Add Truth MetaData
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #====================================================================
@@ -83,7 +83,7 @@ from PhotonVertexSelection.PhotonVertexSelectionConf import CP__PhotonPointingTo
 from RecExConfig.RecFlags  import rec
 
 STDM2PhotonPointingTool = CP__PhotonPointingTool(name = "STDM2PhotonPointingTool",
-                                                 isSimulation = DerivationFrameworkIsMonteCarlo)
+                                                 isSimulation = DerivationFrameworkHasTruth)
 ToolSvc += STDM2PhotonPointingTool
 
 
@@ -269,7 +269,7 @@ STDM2SlimmingHelper.AppendToDictionary.update({
         "BTagging_AntiKt4EMPFlow":   "xAOD::BTaggingContainer",
         "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer"})
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     STDM2SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth#+ExtraVariablesTruthEventShape
     STDM2SlimmingHelper.AllVariables   += ExtraContainersTruth+ExtraContainersTruthPhotons#["AntiKt6TruthJets", "BTagging_AntiKt6TruthWZ","AntiKt6TruthWZJets"] do not exist for now
     STDM2SlimmingHelper.AllVariables   += ["TruthIsoCentralEventShape", "TruthIsoForwardEventShape"]

@@ -13,7 +13,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 #
 
 #
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -124,7 +124,7 @@ thinningTools.append(JETM7TauTPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:
+if doTruthThinning and DerivationFrameworkHasTruth:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -198,7 +198,7 @@ jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     addMETTruthMap('AntiKt4EMTopo',"JETMX")
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")

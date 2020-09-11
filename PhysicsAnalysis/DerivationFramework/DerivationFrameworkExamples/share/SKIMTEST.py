@@ -75,7 +75,7 @@ SKIMTESTSlimmingHelper.SmartCollections = ["Electrons",
                                       ]
 
 # Truth containers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    SKIMTESTSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                             'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
                                             'MET_TruthRegions':'xAOD::MissingETContainer','MET_TruthRegionsAux':'xAOD::MissingETAuxContainer',

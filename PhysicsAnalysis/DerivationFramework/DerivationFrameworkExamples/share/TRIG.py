@@ -126,7 +126,7 @@ ToolSvc += TRIGSkimmingTool
 #====================================================================
 # Truth collections
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
    addStandardTruthContents()
 

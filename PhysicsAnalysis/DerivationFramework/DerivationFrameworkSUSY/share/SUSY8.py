@@ -16,7 +16,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -119,7 +119,7 @@ thinningTools.append(SUSY8TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY8TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY8TruthThinningTool",
                                                        ThinningService              = SUSY8ThinningHelper.ThinningSvc(),
@@ -271,7 +271,7 @@ SUSY8SlimmingHelper.AppendToDictionary = {
   'TruthBoson':'xAOD::TruthParticleContainer',
   'TruthBosonAux':'xAOD::TruthParticleAuxContainer'
 }
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   SUSY8SlimmingHelper.AllVariables += [
     "TruthElectrons",
     "TruthMuons",

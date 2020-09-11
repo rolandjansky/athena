@@ -87,8 +87,8 @@ if len(BPHY8_f.run_numbers) > 0:
 print "BPHY8: isSimulation = %s" % BPHY8cf.isSimulation
 print "BPHY8: project tag  = %s" % BPHY8cf.projectTag
 print "BPHY8: MC campaign  = %s" % BPHY8cf.mcCampaign
-print "BPHY8: DerivationFrameworkIsMonteCarlo = %s" % \
-    DerivationFrameworkIsMonteCarlo
+print "BPHY8: DerivationFrameworkHasTruth = %s" % \
+    DerivationFrameworkHasTruth
 print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 
 #====================================================================

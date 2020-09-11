@@ -137,7 +137,7 @@ MUON6ThinningTools.append(MUON6ThinningToolForward)
 from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
 theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"], outputCellKey="DFMUONCellContainer")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   MUON6TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON6TruthThinningTool",

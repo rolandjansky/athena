@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -179,7 +179,7 @@ TAUP1SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   TAUP1SlimmingHelper.StaticContent  = ["xAOD::TruthParticleContainer#TruthElectrons",
                                         "xAOD::TruthParticleAuxContainer#TruthElectronsAux.",
                                         "xAOD::TruthParticleContainer#TruthMuons",
@@ -206,7 +206,7 @@ TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1
 
 addOriginCorrectedClusters(TAUP1SlimmingHelper, writeLC=True, writeEM=False)
 
-if globalflags.DataSource() == "geant4":
+if DerivationFrameworkHasTruth:
   TAUP1SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP1
   TAUP1SlimmingHelper.AllVariables              += ExtraContainersTruthTAUP1
 

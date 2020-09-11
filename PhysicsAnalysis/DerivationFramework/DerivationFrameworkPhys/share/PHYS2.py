@@ -43,7 +43,7 @@ DerivationFrameworkJob += SeqPHYS2
 #====================================================================
 # Truth collections
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
    import DerivationFrameworkHiggs.TruthCategories
    # Add charm quark collection
@@ -176,14 +176,14 @@ thinningTools.append(PHYS2DiTauTPThinningTool)
 OutputJets["PHYS2"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    OutputJets["PHYS2"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS2,"PHYS2")
-addDefaultTrimmedJets(SeqPHYS2,"PHYS2",dotruth=DerivationFrameworkIsMonteCarlo)
+addDefaultTrimmedJets(SeqPHYS2,"PHYS2",dotruth=DerivationFrameworkHasTruth)
 
 # Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
+if (DerivationFrameworkHasTruth):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS2,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS2,algname="QGTaggerToolAlg")
@@ -305,7 +305,7 @@ PHYS2SlimmingHelper.IncludeMinBiasTriggerContent = False
 #addJetOutputs(PHYS2SlimmingHelper,["PHYS2"])
 
 # Truth containers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    PHYS2SlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                             'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
                                             'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
@@ -349,8 +349,10 @@ PHYS2SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.
 from DerivationFrameworkPhys.PHYS_MCCompressionList import PHYS_MCCompressionList
 from DerivationFrameworkPhys.PHYS_DataCompressionList import PHYS_DataCompressionList
 PHYS2_compression_list = []
-if (DerivationFrameworkIsMonteCarlo): PHYS2_compression_list = PHYS_MCCompressionList 
-else: PHYS2_compression_list = PHYS_DataCompressionList
+if (DerivationFrameworkHasTruth):
+    PHYS2_compression_list = PHYS_MCCompressionList 
+else:
+    PHYS2_compression_list = PHYS_DataCompressionList
 PHYS2_SeqCompress = CfgMgr.AthSequencer("PHYS2_SeqCompress")
 DerivationFrameworkJob += PHYS2_SeqCompress
 PHYS2_SeqCompress += CfgMgr.DerivationFramework__FloatCompressionAlg("CompressFloatCompression", SGKeys=PHYS2_compression_list)

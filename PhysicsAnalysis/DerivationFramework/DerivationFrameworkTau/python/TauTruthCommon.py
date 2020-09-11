@@ -13,7 +13,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Tau Truth making and matching
 def scheduleTauTruthTools(kernel=None):
     # Ensure that we are running on MC!
-    if not DerivationFrameworkIsMonteCarlo:
+    if not DerivationFrameworkHasTruth:
         return
     # Ensure that we are adding it to something
     if kernel is None:

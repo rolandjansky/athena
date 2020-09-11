@@ -41,7 +41,7 @@ thinningTools = []
 # Thin TruthParticles for truth jet constituents
 #====================================================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
   JETM8TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "JETM8ViewContThinning",
                                                                        ThinningService        = "JETM8ThinningSvc",
@@ -173,7 +173,7 @@ addDefaultTrimmedJets(jetm8Seq,"JETM8")
 
 addTCCTrimmedJets(jetm8Seq,"JETM8")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm8Seq, outputGroup="JETM8", writeUngroomed=False)
@@ -196,7 +196,7 @@ largeRJetCollections = []
 for alg in largeRJetAlgs:
   largeRJetCollections.append(alg+"Jets")
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=jetm8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
@@ -220,7 +220,7 @@ FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'],
 # Add truth information
 #====================================================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   from DerivationFrameworkMCTruth.MCTruthCommon import addTopQuarkAndDownstreamParticles
   from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles

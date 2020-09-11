@@ -174,7 +174,7 @@ thinningTools.append(JETM12CaloClusterThinning)
 # Truth particle thinning
 doTruthThinning = True
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:
+if doTruthThinning and DerivationFrameworkHasTruth:
     truth_cond_status    = "( (TruthParticles.status == 1) && (TruthParticles.barcode < 200000) && (TruthParticles.pt > 8*GeV) )"            # high pt pions for E/p
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))" # Leptons
     truth_expression = '('+truth_cond_status+' || '+truth_cond_Lepton +')'
@@ -233,7 +233,7 @@ OutputJets["JETM12"] = []
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 

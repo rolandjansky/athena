@@ -27,11 +27,9 @@ IDTR1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "IDT
                                                                       ContainerName = "InDetTrackParticles")
 ToolSvc += IDTR1TrackToVertexWrapper 
 print IDTR1TrackToVertexWrapper
-if 'DerivationFrameworkIsMonteCarlo' not in dir() :
-  DerivationFrameworkIsMonteCarlo=( globalflags.DataSource()=='geant4' )
 
 # Add decoration with truth parameters if running on simulation
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
     TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
                                                                         DecorationPrefix = "IDTR1")
@@ -42,7 +40,7 @@ if DerivationFrameworkIsMonteCarlo:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTR1Kernel",
                                                                             AugmentationTools = [IDTR1TrackToVertexWrapper,TruthDecor]
                                                                           )
@@ -70,7 +68,7 @@ allVariables.append("GSFTrackParticles")
 allVariables.append("PrimaryVertices")
 allVariables.append("AntiKt4EMTopoJets")
 allVariables.append("BTagging_AntiKt4EMTopo")
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     allVariables.append("TruthParticles")
     allVariables.append("TruthVertices")
     allVariables.append("TruthEvents") 

@@ -40,7 +40,7 @@ def nameJetsFromAlg(alg):
 ##################################################################
 
 def addDefaultTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
-    if DerivationFrameworkIsMonteCarlo and dotruth:
+    if DerivationFrameworkHasTruth and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, mods="lctopo_groomed",
@@ -88,7 +88,7 @@ def addDefaultUFOJets(sequence,outputlist,doCHS=False):
 
 def addDefaultUFOSoftDropJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
 
-    if DerivationFrameworkIsMonteCarlo and dotruth:
+    if DerivationFrameworkHasTruth and dotruth:
         addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed",
                         algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     
@@ -186,27 +186,27 @@ def addAntiKt10PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt2TruthJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 0.2, "Truth", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 0.4, "Truth", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthWZJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 0.4, "TruthWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthWZJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthDressedWZJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
+    if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
@@ -364,7 +364,11 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb', suffix = 
             configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config',
                                                                        'EtaJES_JMS')
                               })
-        isMC = DerivationFrameworkIsMonteCarlo
+        # Comment from ATLASG-1532 that we currently use the MC calibration for overlay
+        isMC = DerivationFrameworkHasTruth or DerivationFrameworkIsDataOverlay
+        if DerivationFrameworkIsDataOverlay:
+            extjetlog.warning('Using MC calibration for overlay data.')
+
         isAF2 = False
         if isMC:
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()

@@ -11,7 +11,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
@@ -61,7 +61,7 @@ NANOThinningHelper.AppendToStream( NANOStream )
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
 # these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
 
   NANOttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("NANOTTbarPlusBFilterTool")
@@ -252,10 +252,6 @@ if IsSUSYSignal():
 OutputJets["NANO"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
 
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets is not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqNANO, "NANO")
 
@@ -273,9 +269,10 @@ sysLoader.systematicsList= ['']
 SeqNANO += sysLoader
 
 dataType = "data"
-
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   dataType = "mc"
+if DerivationFrameworkIsDataOverlay:
+  raise RuntimeError("Running on overlay is not supported for DAOD_NANO")
 
 # Include, and then set up the pileup analysis sequence:
 from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
@@ -346,16 +343,6 @@ SeqNANO += CfgMgr.DerivationFramework__DerivationKernel(
    SkimmingTools = [NANOSkimmingTool]
    )
 
-
-#==============================================================================
-# Tau truth building/matching
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
-#  addTruthTaus(AugmentationTools)
-
-
 #==============================================================================
 # Augment after skim
 #==============================================================================
@@ -364,7 +351,6 @@ SeqNANO += CfgMgr.DerivationFramework__DerivationKernel(
    AugmentationTools = AugmentationTools,
    ThinningTools = thinningTools,
    )
-
 
 #====================================================================
 # CONTENT LIST  
@@ -436,7 +422,7 @@ NANOSlimmingHelper.AllVariables = [
   ]
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py) 
-if DerivationFrameworkIsMonteCarlo:   
+if DerivationFrameworkHasTruth:   
   NANOSlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson", "TruthWbosonWithDecayParticles", "TruthWbosonWithDecayVertices"]
 
 NANOSlimmingHelper.AppendContentToStream(NANOStream)

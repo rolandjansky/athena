@@ -33,7 +33,8 @@ MUON4_aug_tools.append(MUON4TrackToVertexWrapper)
 MUON4_skimming_tools = []
 
 expression1 = 'count(Muons.pt>0)>0'
-if DerivationFrameworkIsMonteCarlo: expression1 += '||count(MuonTruthParticles.pt>0)>0'
+if DerivationFrameworkHasTruth:
+    expression1 += '||count(MuonTruthParticles.pt>0)>0'
 print expression1
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 MUON4SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "MUON4SkimmingTool1",

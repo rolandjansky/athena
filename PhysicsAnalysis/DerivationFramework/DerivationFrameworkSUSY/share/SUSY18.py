@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -100,7 +100,7 @@ thinningTools.append(SUSY18TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
     #thin special containers
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
@@ -284,7 +284,7 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 
@@ -414,7 +414,7 @@ ExtraTracks= ["InDetTrackParticles.truthOrigin.truthType"]
 
 SUSY18SlimmingHelper.ExtraVariables = ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     SUSY18SlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
 
 
@@ -425,7 +425,7 @@ SUSY18SlimmingHelper.IncludeTauTriggerContent = True
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY18SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer',
                                              'TruthTopAux':'xAOD::TruthParticleAuxContainer',

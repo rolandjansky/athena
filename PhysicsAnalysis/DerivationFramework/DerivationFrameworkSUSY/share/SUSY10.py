@@ -15,7 +15,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
    addStandardTruthContents()
@@ -112,7 +112,7 @@ thinningTools.append(SUSY10MuonCCThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY10TruthThinningTool = DerivationFramework__MenuTruthThinning(
@@ -209,9 +209,6 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY10, algname='JetF
 #==============================================================================
 OutputJets["SUSY10"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets is not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY10, "SUSY10")
@@ -277,7 +274,7 @@ SUSY10SlimmingHelper.IncludeJetTriggerContent   = False
 SUSY10SlimmingHelper.IncludeTauTriggerContent   = False
 SUSY10SlimmingHelper.IncludeBJetTriggerContent  = False
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
   SUSY10SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',

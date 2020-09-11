@@ -15,15 +15,15 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
   scheduleTauTruthTools()
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
+# print "DEBUG is MC ? ",DerivationFrameworkHasTruth
 
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   from DerivationFrameworkHiggs.TruthCategories import *
 
 
@@ -67,18 +67,10 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1
 
 #generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG5D1',HIGG5D1ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
-
-# MC truth thinning (not for data)
-# if DerivationFrameworkIsMonteCarlo :
-#  from DerivationFrameworkHiggs.TruthCategories import *
-#  # thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D1', HIGG5D1ThinningHelper))
-#  #add Truth3 information
-#  # from DerivationFrameworkMCTruth.MCTruthCommon import *
-#  # addStandardTruthContents()
 
 #====================================================================
 # jet selection
@@ -290,7 +282,7 @@ higg5d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 #====================================================================
 # SET UP CUSTOM TRUTH3 INFORMATION
 #====================================================================
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   HIGG5Common.getTruth3Collections(higg5d1Seq)
 
 higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
@@ -339,14 +331,14 @@ HIGG5D1SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D1SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG5D1SlimmingHelper.AllVariables = ExtraContainers
 # HIGG5D1SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     HIGG5D1SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D1SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
 slimmed_content=["HIGG5D1Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     slimmed_content+=[
              "AntiKt4TruthJets",
              "AntiKt4TruthDressedWZJets"
@@ -357,7 +349,6 @@ if DerivationFrameworkIsMonteCarlo :
 HIGG5Common.addJetOutputs(HIGG5D1SlimmingHelper,["HIGG5D1Jets"],slimmed_content,['AntiKt4PV0TrackJets'])
 addOriginCorrectedClusters(HIGG5D1SlimmingHelper, writeLC=True, writeEM=False)
 
-# if not DerivationFrameworkIsMonteCarlo : # for very early data
 #   HIGG5D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEGammaTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeBPhysTriggerContent = True

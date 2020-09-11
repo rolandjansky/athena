@@ -7,8 +7,8 @@
 
 def IsSUSYSignal():
   
-  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-  if not DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+  if not DerivationFrameworkHasTruth:
     return False
 
   import PyUtils.AthFile

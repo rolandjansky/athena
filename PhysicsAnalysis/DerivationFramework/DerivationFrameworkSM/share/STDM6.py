@@ -18,7 +18,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 # Add Truth MetaData
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #===========================================================================================\

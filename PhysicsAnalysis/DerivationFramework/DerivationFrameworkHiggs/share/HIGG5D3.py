@@ -15,7 +15,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
 
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   from DerivationFrameworkHiggs.TruthCategories import *
 
 
@@ -58,7 +58,7 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinnin
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 
 # Truth particles
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D3', HIGG5D3ThinningHelper))
 
 
@@ -228,7 +228,7 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
 
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG5VBF
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     HIGG5D3SkimmingTool = DerivationFramework__SkimmingToolHIGG5VBF(name                    = "HIGG5D3SkimmingTool",
                                                                     JetContainerKey         = "AntiKt4EMTopoJets",
                                                                     # jet multiplicity requirement 2b + 2j
@@ -361,36 +361,10 @@ HIGG5D3SlimmingHelper.AppendToDictionary = {
   }
 
 HIGG5D3SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()
-""" harmonise with HIGG5D1/2
-HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
-                                           "Photons",
-                                           "Muons",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4EMPFlow",
-                                           "AntiKt4EMTopoJets",
-                                           "AntiKt4EMPFlowJets",
-                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                           "AntiKt4TruthJets",
-                                           "AntiKt4EMPFlowJets_BTagging201810",
-                                           "AntiKt4EMPFlowJets_BTagging201903",
-                                           "AntiKt4EMTopoJets_BTagging201810",
-                                           "BTagging_AntiKt4EMPFlow_201810",
-                                           "BTagging_AntiKt4EMPFlow_201903",
-                                           "BTagging_AntiKt4EMTopo_201810",
-                                           "InDetTrackParticles",
-                                           "PrimaryVertices" ]
-if DerivationFrameworkIsMonteCarlo :
-    HIGG5D3SlimmingHelper.SmartCollections += [
-         "AntiKt4TruthJets"
-#          ,"AntiKt4TruthWZJets"
-#          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
-    ]
-"""
-
 
 HIGG5D3SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D3SlimmingHelper.AllVariables = ExtraContainers
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     HIGG5D3SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D3SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
@@ -401,7 +375,7 @@ HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForD
 slimmed_content=["HIGG5D3Jets",
                 "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
                 ]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     slimmed_content+=[
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"

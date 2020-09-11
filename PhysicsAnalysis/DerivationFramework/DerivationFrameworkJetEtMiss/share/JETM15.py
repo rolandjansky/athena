@@ -11,7 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 #
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
   # We probably don't need this since we aren't doing real systematics?
@@ -337,7 +337,7 @@ svcMgr += createThinningSvc( svcName="JETM15ThinningSvc", outStreams=[evtStream]
 doTruthThinning = True
 preserveAllDescendants = False
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkCore.ThinningHelper import ThinningHelper
   JETM15ThinningHelper = ThinningHelper( "JETM15ThinningHelper" )
@@ -404,7 +404,7 @@ JETM15SlimmingHelper.AllVariables = [
 ]
 
 #Do we need small-R truth jets?
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   JETM15SlimmingHelper.AppendToDictionary["AntiKt10TruthJets"]="xAOD::JetContainer"
   JETM15SlimmingHelper.AppendToDictionary["AntiKt10TruthJetsAux"]="xAOD::JetAuxContainer"
   JETM15SlimmingHelper.AllVariables  += ["AntiKt10TruthJets"]

@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -84,7 +84,7 @@ thinningTools.append(SUSY14TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY14TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY14TruthThinningTool",
                                                        ThinningService              = SUSY14ThinningHelper.ThinningSvc(),
@@ -139,7 +139,7 @@ LepTrigexpression = '('+MEttrig_expression+'&&'+objectSelection+')'
 JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=3)'
 
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>15*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=3)'
 
 expression = '('+LepTrigexpression+'&&('+JetEleExpression+'))'
@@ -197,9 +197,6 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY14, algname='JetF
 #==============================================================================
 OutputJets["SUSY14"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY14, "SUSY14")
@@ -271,7 +268,7 @@ SUSY14SlimmingHelper.AppendToDictionary = {'AntiKt10LCTopoTrimmedPtFrac5SmallR20
                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   SUSY14SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 

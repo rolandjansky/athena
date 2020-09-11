@@ -261,8 +261,8 @@ def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"                        : "xAOD::BTaggingContainer"   ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"                     : "xAOD::BTaggingAuxContainer",
       }
-  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-  if add_truth_if_mc and DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+  if add_truth_if_mc and DerivationFrameworkHasTruth:
       common_dict.update( getHIGG5CommonTruthDictionExtionson() )
   return common_dict
 
@@ -299,8 +299,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201903GhostTag",
                                "InDetTrackParticles",
                                "PrimaryVertices"]
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-    if add_truth_if_mc and DerivationFrameworkIsMonteCarlo :
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+    if add_truth_if_mc and DerivationFrameworkHasTruth:
         common_smart_collections += [
             "AntiKt4TruthJets",
             "AntiKt4TruthDressedWZJets"
@@ -380,8 +380,8 @@ def getTruth3Collections(kernel) :
 
 # --- common thinning tools
 def getTruthThinningTool(tool_prefix, thinning_helper) :
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-    if not DerivationFrameworkIsMonteCarlo :
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+    if not DerivationFrameworkHasTruth:
         return None
     # MC truth thinning (not for data)
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs

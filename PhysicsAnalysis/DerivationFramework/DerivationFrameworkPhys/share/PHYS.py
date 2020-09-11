@@ -42,7 +42,7 @@ SeqPHYS = CfgMgr.AthSequencer("SeqPHYS")
 #====================================================================
 # Truth collections
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addHFAndDownstreamParticles,addPVCollection
    import DerivationFrameworkHiggs.TruthCategories
    # Add charm quark collection
@@ -181,18 +181,18 @@ thinningTools.append(PHYSDiTauTPThinningTool)
 OutputJets["PHYS"] = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
    OutputJets["PHYS"].append("AntiKt10TruthSoftDropBeta100Zcut10Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
+add_largeR_truth_jets = DerivationFrameworkHasTruth and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
-add_largeR_truth_SD_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
+add_largeR_truth_SD_jets = DerivationFrameworkHasTruth and not hasattr(SeqPHYS,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
 addDefaultUFOSoftDropJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_SD_jets)
 
 # Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
+if (DerivationFrameworkHasTruth):
    addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg")
@@ -328,7 +328,7 @@ PHYSSlimmingHelper.IncludeMinBiasTriggerContent = False
 #addJetOutputs(PHYSSlimmingHelper,["PHYS"])
 
 # Truth containers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    PHYSSlimmingHelper.AppendToDictionary = {'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
                                             'MET_Truth':'xAOD::MissingETContainer','MET_TruthAux':'xAOD::MissingETAuxContainer',
                                             'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',

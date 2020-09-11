@@ -11,7 +11,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
 #
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth import MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
   MCTruthCommon.addBosonsAndDownstreamParticles(generations=4,rejectHadronChildren=True)
@@ -42,7 +42,7 @@ svcMgr += createThinningSvc( svcName="JETM13ThinningSvc", outStreams=[evtStream]
 # We want to keep all truth jet constituents
 # Also keep the first 10 particles mainly for the HS truth vertex
 jetm13thin = []
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkCore.ThinningHelper import ThinningHelper
   JETM13ThinningHelper = ThinningHelper( "JETM13ThinningHelper" )
