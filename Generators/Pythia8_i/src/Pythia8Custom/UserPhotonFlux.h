@@ -28,13 +28,13 @@ public:
   }
 };
 
-class Nucleus2gamma : public PDF {
+class Nucleus2gamma2 : public PDF {
 
 public:
 
   // Constructor.
   //defaults for m_Z m_min_b=2*nuclear radius are for Pb208 (Z=82, R=6.62fm)
-  Nucleus2gamma(int idBeamIn) : PDF(idBeamIn),
+  Nucleus2gamma2(int idBeamIn) : PDF(idBeamIn),
 				m_Z(82.),
 				m_min_b(13.24),
 				m_min_x(-1)
@@ -109,15 +109,15 @@ class UserPhotonFlux: public AthAlgTool, virtual public IPythia8Custom {
 #ifdef PYTHIA_VERSION_INTEGER
   #if PYTHIA_VERSION_INTEGER > 8300
     typedef shared_ptr<PDF> PDFPtr;
-    typedef shared_ptr<Nucleus2gamma> Nucleus2gammaPtr;
+    typedef shared_ptr<Nucleus2gamma2> Nucleus2gammaPtr;
     #define PNEW(X, Y) make_shared<X>(Y);
   #else
-    typedef Nucleus2gamma* Nucleus2gammaPtr;
+    typedef Nucleus2gamma2* Nucleus2gammaPtr;
     typedef PDF* PDFPtr;
     #define PNEW(X, Y) new X(Y);
   #endif
 #else
-  typedef Nucleus2gamma* Nucleus2gammaPtr;
+  typedef Nucleus2gamma2* Nucleus2gammaPtr;
   typedef PDF* PDFPtr;
   #define PNEW(X, Y) new X(Y);
 #endif
