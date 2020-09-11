@@ -35,6 +35,7 @@ namespace CP {
     m_HighPtSystThreshold(300.00),
     m_useStatComb(false),
     m_SagittaCorrPhaseSpace(false),
+    m_IterWeight(0.5),
     m_doSagittaCorrection(false),
     m_doSagittaMCDistortion(false),
     m_SagittaRelease("sagittaBiasDataAll_03_02_19"),
@@ -56,6 +57,7 @@ namespace CP {
     declareProperty("SagittaRelease", m_SagittaRelease = "sagittaBiasDataAll_03_02_19");
     declareProperty("doSagittaMCDistortion",m_doSagittaMCDistortion=true);
     declareProperty("SagittaCorrPhaseSpace",m_SagittaCorrPhaseSpace=false);
+    declareProperty("SagittaIterWeight", m_IterWeight=0.5);
     declareProperty("sgItersCB",m_sgItersCB=4);
     declareProperty("sgItersID",m_sgItersID=4);
     declareProperty("sgItersME",m_sgItersME=4);
@@ -71,7 +73,7 @@ namespace CP {
     m_SagittaIterations.push_back(0);
     m_SagittaIterations.push_back(0);
     m_sagittasCB=new std::vector <TProfile2D*>();
-    m_sagittasID=new  std::vector <TProfile2D*>();
+    m_sagittasID=new std::vector <TProfile2D*>();
     m_sagittasME=new std::vector <TProfile2D*>();
     m_sagittaPhaseSpaceCB=nullptr;
     m_sagittaPhaseSpaceID=nullptr;
@@ -169,6 +171,7 @@ namespace CP {
     m_SagittaCorrPhaseSpace(tool.m_SagittaCorrPhaseSpace),
     m_doSagittaCorrection(tool.m_doSagittaCorrection),
     m_doNotUseAMGMATRIXDECOR(tool.m_doNotUseAMGMATRIXDECOR),
+    m_IterWeight(tool.m_IterWeight),
     m_SagittaIterations(tool.m_SagittaIterations),
     m_GlobalZScales(tool.m_GlobalZScales){
     declareProperty( "Year", m_year = "Data16" );
@@ -357,6 +360,10 @@ namespace CP {
       else if (m_SagittaRelease.find("sagittaBiasDataAll_03_02_19") != std::string::npos){
         m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4); m_SagittaIterations.push_back(4);
       }
+      else if (m_SagittaRelease.find("sagittaBiasDataAll_10_09_20") != std::string::npos){
+        m_SagittaIterations.push_back(17); m_SagittaIterations.push_back(17); m_SagittaIterations.push_back(17);
+      }
+
 
       else {
         ATH_MSG_WARNING("Unknown SagittaBiasRelease: Number of sagitta iterations set to 0");
@@ -585,7 +592,7 @@ namespace CP {
     if(SgCorrType==MCAST::SagittaCorType::CB) {
       if(muonInfo.ptcb == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasCB->size())  return CorrectionCode::Ok;
-      CorrectionCode corr = CorrectForCharge( sagitta(m_sagittasCB->at(iter),lvCB)*0.5, muonInfo.ptcb, q, isMC,p2PhaseSpaceCB);
+      CorrectionCode corr = CorrectForCharge( sagitta(m_sagittasCB->at(iter),lvCB)*m_IterWeight, muonInfo.ptcb, q, isMC,p2PhaseSpaceCB);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop)  return applySagittaBiasCorrection(MCAST::SagittaCorType::CB, mu, iter, stop, isMC, muonInfo);
@@ -594,7 +601,7 @@ namespace CP {
     else if(SgCorrType == MCAST::SagittaCorType::ID){
       if(muonInfo.ptid == 0 ) return CorrectionCode::Ok;
       if( iter >= m_sagittasID->size())  return CorrectionCode::Ok;
-      CorrectionCode corr = CorrectForCharge(  sagitta(m_sagittasID->at(iter),lvID)*0.5 , muonInfo.ptid, q, isMC,p2PhaseSpaceID);
+      CorrectionCode corr = CorrectForCharge(  sagitta(m_sagittasID->at(iter),lvID)*m_IterWeight, muonInfo.ptid, q, isMC,p2PhaseSpaceID);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop)return applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu, iter, stop, isMC, muonInfo);
@@ -603,7 +610,7 @@ namespace CP {
     else if(SgCorrType == MCAST::SagittaCorType::ME){
       if(muonInfo.ptms == 0 ) return CorrectionCode::Ok;
       if( iter >=  m_sagittasME->size() )  return CorrectionCode::Ok;
-      CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME->at(iter),lvME) *0.5 , muonInfo.ptms, q, isMC,p2PhaseSpaceME);
+      CorrectionCode corr = CorrectForCharge(sagitta(m_sagittasME->at(iter),lvME)*m_IterWeight, muonInfo.ptms, q, isMC,p2PhaseSpaceME);
       iter++;
       if(corr != CorrectionCode::Ok) return corr;
       if(!stop) return applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu, iter, stop, isMC, muonInfo);

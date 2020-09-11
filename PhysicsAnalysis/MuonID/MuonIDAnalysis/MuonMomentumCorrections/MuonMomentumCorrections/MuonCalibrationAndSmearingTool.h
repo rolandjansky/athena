@@ -243,6 +243,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     bool m_doSagittaCorrection;
     bool m_doSagittaMCDistortion;
     bool m_doNotUseAMGMATRIXDECOR;
+    float m_IterWeight;
 
     TProfile2D *m_sagittaPhaseSpaceCB;
     TProfile2D *m_sagittaPhaseSpaceID;
