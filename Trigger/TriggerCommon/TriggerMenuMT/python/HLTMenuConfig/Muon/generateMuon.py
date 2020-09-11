@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -26,7 +26,6 @@ def EFMuonViewDataVerifierCfg():
                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                           ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                           ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                          ( 'Trk::SolenoidParametrization' , 'ConditionStore+SolenoidParametrization' ) #TODO schedule the correct condAlg to produce this
                                       ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
