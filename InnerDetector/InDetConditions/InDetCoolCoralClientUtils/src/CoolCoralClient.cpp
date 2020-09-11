@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////
@@ -801,7 +801,7 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
 
   if(m_verbose) std::cout << "Filling table " << TTC_TABLE  << std::endl;
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
   // ttc_row.toOutputStream( std::cout ) << std::endl;
   //--------
@@ -889,7 +889,7 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
 
   if(m_verbose) std::cout << "Filling table"<< TTCGR_TABLE  << std::endl;
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
   // ttc_row.toOutputStream( std::cout ) << std::endl;
   //--------
@@ -1002,7 +1002,7 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
   //-----------    ROD      ----------------------------------------------------
   if(m_verbose) std::cout << "Filling table"<< ROD_TABLE  << std::endl;
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
   //  rod_row.toOutputStream( std::cout ) << std::endl;
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
@@ -1097,7 +1097,7 @@ void COOLCORALClient::fillTables(const std::string& part_trt){
 	
   if(m_verbose) std::cout << "Filling table"<< DTMROC_TABLE  << std::endl;
   coral::ITableDataEditor& dtmroc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList dtmroc_row;
+  coral::AttributeList dtmroc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_editor.rowBuffer(dtmroc_row);
   //    dtmroc_row.toOutputStream( std::cout ) << std::endl;
   coral::IBulkOperation* dtmroc_bulk= dtmroc_editor.bulkInsert(dtmroc_row,32);
@@ -1340,7 +1340,7 @@ void COOLCORALClient::createConnect(const std::string& part_trt){
 
   if(m_verbose) std::cout << "Filling table " << BCONNECT_TABLE  << std::endl;
   coral::ITableDataEditor& bconn_editor = m_session->nominalSchema().tableHandle(BCONNECT_TABLE ).dataEditor();
-  coral::AttributeList bconn_row;
+  coral::AttributeList bconn_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   bconn_editor.rowBuffer(bconn_row);
 
 
@@ -1496,7 +1496,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   }
 
   std::string conn_cond = "BCONNECT.Partition = :part_nr AND BCONNECT.Crate = :crate_id AND BCONNECT.Slot = :slot_id";
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<int>( "part_nr" );
   conn_condData.extend<int>( "crate_id" );
   conn_condData.extend<int>( "slot_id" );
@@ -1548,7 +1548,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   query0->addToOutputList("Comment" ); 
 
   std::string ttc_cond = "BTTC.ttc_UID = :ttcnr";
-  coral::AttributeList ttc_condData;
+  coral::AttributeList ttc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_condData.extend<int>( "ttcnr" );
     
   query0->setCondition( ttc_cond, ttc_condData);
@@ -1571,7 +1571,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   query1->addToOutputList("TDMdelay");
 
   std::string ttcgr_cond = "BTTCGR.ttcgr_UID = :ttcgr0 OR BTTCGR.ttcgr_UID = :ttcgr1";
-  coral::AttributeList ttcgr_condData;
+  coral::AttributeList ttcgr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_condData.extend<int>( "ttcgr0" );
   ttcgr_condData.extend<int>( "ttcgr1" );
     
@@ -1599,7 +1599,7 @@ int COOLCORALClient::GetTTCdummy(int ttc_id){
   query2->addToOutputList( "Clock_FE" ); 
 
   std::string dtmroc_cond = "BDTMROC.dtmroc_UID >= :roc1 AND BDTMROC.dtmroc_UID <= :roc104";
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "roc1" );
   dtmroc_condData.extend<int>( "roc104" );
 
@@ -1796,7 +1796,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   conn_cond += ".Slot = :slot_id";
 
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<int>( "part_nr" );
   conn_condData.extend<int>( "crate_id" );
   conn_condData.extend<int>( "slot_id" );
@@ -1845,7 +1845,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
   std::string ttc_cond = TTC_TABLE;
   ttc_cond += ".ttc_UID = :ttcnr";
 
-  coral::AttributeList ttc_condData;
+  coral::AttributeList ttc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_condData.extend<int>( "ttcnr" );
     
   query0->setCondition( ttc_cond, ttc_condData);
@@ -1873,7 +1873,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
 
   //"BTTCGR.ttcgr_UID >= :ttcgr0 AND BTTCGR.ttcgr_UID <= :ttcgr1";
 
-  coral::AttributeList ttcgr_condData;
+  coral::AttributeList ttcgr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_condData.extend<int>( "ttcgr0" );
   ttcgr_condData.extend<int>( "ttcgr1" );
     
@@ -1907,7 +1907,7 @@ TTCobj_t* COOLCORALClient::GetTTC(int ttc_id){
 
   //"BDTMROC.dtmroc_UID >= :roc1 AND BDTMROC.dtmroc_UID <= :roc104";
 
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "roc1" );
   dtmroc_condData.extend<int>( "roc104" );
 
@@ -2147,7 +2147,7 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
   rod_cond += ".rod_UID = :rodnr";
 
   //"BROD.rod_UID = :rodnr";
-  coral::AttributeList rod_condData;
+  coral::AttributeList rod_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_condData.extend<int>( "rodnr" );
     
   query0->setCondition( rod_cond, rod_condData);
@@ -2183,7 +2183,7 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
   dtmroc_cond += DTMROC_TABLE;
   dtmroc_cond += ".dtmroc_UID <= :roc104";
   //    std::string dtmroc_cond = "BDTMROC.dtmroc_UID >= :roc1 AND BDTMROC.dtmroc_UID <= :roc104";
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "roc1" );
   dtmroc_condData.extend<int>( "roc104" );
 
@@ -2605,13 +2605,13 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
   // Update the key and use it now
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( "KEYGEN" ).dataEditor();
 
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer.extend<long long>( "Key" );
 
   std::string updateAction = "Key = Key + :offset";
   std::string updateCondition = "Key > :kk";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
   updateData.extend<long long>("offset");
   updateData.extend<long long>("kk");
   updateData[0].data<long long>() = 1;
@@ -2633,7 +2633,7 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 
   std::string conn_cond = "KEYGEN.Key > :kk";
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<long long>( "kk" );
     
   query00->setCondition( conn_cond, conn_condData);
@@ -2657,7 +2657,7 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
   // Update the key and use it now
   coral::ITableDataEditor& cqeditor = m_session->nominalSchema().tableHandle( "C_QUERIES" ).dataEditor();
 
-  coral::AttributeList rowBuffer1;
+  coral::AttributeList rowBuffer1 ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer1.extend<std::string>( "Object" );
   rowBuffer1.extend<long long>( "Key" );
@@ -2708,19 +2708,19 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
   */
 
   cool::RecordSpecification ttc_rec =(ttc_fld->payloadSpecification());
-  coral::AttributeList ttc_cool_row = Record(ttc_rec).attributeList();
+  coral::AttributeList ttc_cool_row ATLAS_THREAD_SAFE = Record(ttc_rec).attributeList(); // ok
   cool::RecordSpecification ttcgr_rec =(ttcgr_fld->payloadSpecification());
-  coral::AttributeList ttcgr_cool_row = Record(ttcgr_rec).attributeList();
+  coral::AttributeList ttcgr_cool_row ATLAS_THREAD_SAFE = Record(ttcgr_rec).attributeList(); // ok
   cool::RecordSpecification rod_rec =(rod_fld->payloadSpecification());
-  coral::AttributeList rod_cool_row = Record(rod_rec).attributeList();
+  coral::AttributeList rod_cool_row ATLAS_THREAD_SAFE = Record(rod_rec).attributeList(); // ok
   cool::RecordSpecification dtmroc_rec =(dtmroc_fld->payloadSpecification());
-  coral::AttributeList dtmroc_cool_row = Record(dtmroc_rec).attributeList();
+  coral::AttributeList dtmroc_cool_row ATLAS_THREAD_SAFE = Record(dtmroc_rec).attributeList(); // ok
 
 
 
   if(m_verbose) std::cout << "Filling table " << TTC_TABLE  << std::endl;
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
   // ttc_row.toOutputStream( std::cout ) << std::endl;
   //--------
@@ -2820,7 +2820,7 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 
   if(m_verbose) std::cout << "Filling table"<< TTCGR_TABLE  << std::endl;
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
   // ttc_row.toOutputStream( std::cout ) << std::endl;
   //--------
@@ -2946,7 +2946,7 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
   //-----------    ROD      ----------------------------------------------------
   if(m_verbose) std::cout << "Filling table"<< ROD_TABLE  << std::endl;
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
   //  rod_row.toOutputStream( std::cout ) << std::endl;
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
@@ -3051,7 +3051,7 @@ void COOLCORALClient::fillFolderTables(const std::string& part_trt, const std::s
 	
   if(m_verbose) std::cout << "Filling table"<< DTMROC_TABLE  << std::endl;
   coral::ITableDataEditor& dtmroc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList dtmroc_row;
+  coral::AttributeList dtmroc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_editor.rowBuffer(dtmroc_row);
   //    dtmroc_row.toOutputStream( std::cout ) << std::endl;
   coral::IBulkOperation* dtmroc_bulk= dtmroc_editor.bulkInsert(dtmroc_row,32);
@@ -3257,7 +3257,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
   conn_cond += ".Slot = :slot_id";
 
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<int>( "part_nr" );
   conn_condData.extend<int>( "crate_id" );
   conn_condData.extend<int>( "slot_id" );
@@ -3314,7 +3314,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
   ttc_cond += TTC_TABLE;
   ttc_cond += ".ttc_iovfk = :ttcio";
     
-  coral::AttributeList ttc_condData;
+  coral::AttributeList ttc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_condData.extend<int>( "ttcnr" );
   ttc_condData.extend<long long>( "ttcio" );
     
@@ -3349,7 +3349,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
 
   //"BTTCGR.ttcgr_UID >= :ttcgr0 AND BTTCGR.ttcgr_UID <= :ttcgr1";
 
-  coral::AttributeList ttcgr_condData;
+  coral::AttributeList ttcgr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_condData.extend<int>( "ttcgr0" );
   ttcgr_condData.extend<int>( "ttcgr1" );
   ttcgr_condData.extend<long long>( "ttcgrio" );
@@ -3387,7 +3387,7 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
 
   //"BDTMROC.dtmroc_UID >= :roc1 AND BDTMROC.dtmroc_UID <= :roc104";
 
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "roc1" );
   dtmroc_condData.extend<int>( "roc104" );
   dtmroc_condData.extend<long long>( "rocio" );
@@ -3598,7 +3598,7 @@ void COOLCORALClient::createAuxTables(){
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( "KEYGEN" ).dataEditor();
 
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer.extend<long long>( "Key" );
 
@@ -3636,13 +3636,13 @@ void COOLCORALClient::UpdateKey(){
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( "KEYGEN" ).dataEditor();
 
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer.extend<long long>( "Key" );
 
   std::string updateAction = "Key = Key + :offset";
   std::string updateCondition = "Key > :kk";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
   updateData.extend<long long>("offset");
   updateData.extend<long long>("kk");
   updateData[0].data<long long>() = 1;
@@ -3696,7 +3696,7 @@ void COOLCORALClient::fillTTC(const TTC_t& ttc){
 
   //    if(m_verbose) std::cout << "Filling table " << TTC_TABLE  << std::endl;
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 
 
@@ -3739,7 +3739,7 @@ void COOLCORALClient::fillROD(const ROD_t& rod){
   gettimeofday(&nunc_time, NULL);
   std::string ROD_TABLE="BROD";
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
   rod_row["rod_UID"].setValue <int> (rod.rod_UID);
   rod_row["rod_iovfk"].setValue <long long> (rod.rod_iovfk);
@@ -3784,7 +3784,7 @@ void COOLCORALClient::fillTTCGR(const TTCGroup_t& ttcgr){
 
   std::string TTCGR_TABLE="BTTCGR";
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
   ttcgr_row["ttcgr_UID"].setValue <int> (ttcgr.ttcgr_UID);
   ttcgr_row["ttcgr_iovfk"].setValue <long long> (ttcgr.ttcgr_iovfk);
@@ -3818,7 +3818,7 @@ void COOLCORALClient::fillROC(const DTMROC_t& roc){
 
   std::string DTMROC_TABLE="BDTMROC";
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
   roc_row["dtmroc_UID"].setValue <int> (roc.dtmroc_UID);
   roc_row["dtmroc_iovfk"].setValue <long long> (roc.dtmroc_iovfk);
@@ -3868,7 +3868,7 @@ void COOLCORALClient::changeROC(const DTMROC_t& roc, const std::string& param, d
     std::string updateAction = param;
     updateAction += " = :newval";
 
-    coral::AttributeList updateData;
+    coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
     updateData.extend<short>("newval");
     updateData.extend<int>("ident");
     updateData.extend<long long>("key");
@@ -3905,7 +3905,7 @@ void COOLCORALClient::fillRODV(const std::vector<ROD_t>& rodv){
 
   //    if(m_verbose) std::cout << "Filling table " << ROD_TABLE  << std::endl;
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row  ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   std::vector<ROD_t>::const_iterator v_iter;
@@ -3972,7 +3972,7 @@ void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
   gettimeofday(&nunc_time, NULL);
   std::string DTMROC_TABLE="BDTMROC";
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
 
@@ -4029,7 +4029,7 @@ void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
   gettimeofday(&nunc_time, NULL);
   std::string TTCGR_TABLE="BTTCGR";
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
   std::vector<TTCGroup_t>::const_iterator v_iter;
@@ -4083,7 +4083,7 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
 
   //    if(m_verbose) std::cout << "Filling table " << TTC_TABLE  << std::endl;
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 
 
@@ -4149,18 +4149,18 @@ void COOLCORALClient::fillBarrel(const Barrel_t& Barrel){
   std::string DTMROC_TABLE="BDTMROC";
 
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
@@ -4354,7 +4354,7 @@ void COOLCORALClient::fillMap(){
 
   if(m_verbose) std::cout << "Filling table " << BCONNECT_TABLE  << std::endl;
   coral::ITableDataEditor& bconn_editor = m_session->nominalSchema().tableHandle(BCONNECT_TABLE ).dataEditor();
-  coral::AttributeList bconn_row;
+  coral::AttributeList bconn_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   bconn_editor.rowBuffer(bconn_row);
 
 
@@ -4418,7 +4418,7 @@ void COOLCORALClient::fillMapV(const std::vector<Mapping_t>& conn_struct){
 
   if(m_verbose) std::cout << "Filling table " << BCONNECT_TABLE  << std::endl;
   coral::ITableDataEditor& bconn_editor = m_session->nominalSchema().tableHandle(BCONNECT_TABLE ).dataEditor();
-  coral::AttributeList bconn_row;
+  coral::AttributeList bconn_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   bconn_editor.rowBuffer(bconn_row);
 
 
@@ -4489,7 +4489,7 @@ int COOLCORALClient::GetIDS(int phi){
   conn_cond += ".phi = :phi_val";
 
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<int>( "phi_val" );
     
   query00->setCondition( conn_cond, conn_condData);
@@ -4610,7 +4610,7 @@ int COOLCORALClient::GetOneTTC(int ttc_id, const std::string& tag, TTC_t &ttc){
   query0->addToOutputList("ttc_tag" );
 
   std::string ttc_cond = "ttc_UID = :ttcnr AND ttc_tag = :tag";
-  coral::AttributeList ttc_condData;
+  coral::AttributeList ttc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_condData.extend<int>( "ttcnr" );
   ttc_condData.extend<std::string>( "tag" );
 
@@ -4679,7 +4679,7 @@ int COOLCORALClient::GetOneTTC(int ttc_id, long long key, const std::string& tag
     
   std::string ttc_cond = "ttc_UID = :ttcnr AND ttc_iovfk = :ttckey";
   ttc_cond += " AND ttc_tag = :tag";
-  coral::AttributeList ttc_condData;
+  coral::AttributeList ttc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_condData.extend<int>( "ttcnr" );
   ttc_condData.extend<long long>( "ttckey" );
   ttc_condData.extend<std::string>( "tag" );
@@ -4745,7 +4745,7 @@ int COOLCORALClient::GetOneTTCGR(int ttcgr_id, const std::string& tag, TTCGroup_
 
   std::string ttcgr_cond = "ttcgr_UID = :ttcgrnr AND ttcgr_tag = :tag";
 
-  coral::AttributeList ttcgr_condData;
+  coral::AttributeList ttcgr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_condData.extend<int>( "ttcgrnr" );
   ttcgr_condData.extend<std::string>( "tag" );
 
@@ -4809,7 +4809,7 @@ int COOLCORALClient::GetOneTTCGR(int ttcgr_id, long long key, const std::string&
     
   std::string ttcgr_cond = "ttcgr_UID = :ttcgrnr AND ttcgr_iovfk = :ttckey";
   ttcgr_cond += " AND ttcgr_tag = :tag";
-  coral::AttributeList ttcgr_condData;
+  coral::AttributeList ttcgr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_condData.extend<int>( "ttcgrnr" );
   ttcgr_condData.extend<long long>( "ttckey" );
   ttcgr_condData.extend<std::string>( "tag" );
@@ -4881,7 +4881,7 @@ int COOLCORALClient::GetOneROD(int rod_id, const std::string& tag, ROD_t &rod){
   query0->addToOutputList("rod_tag");
 
   std::string rod_cond = "rod_UID = :rodnr AND rod_tag = :tag";
-  coral::AttributeList rod_condData;
+  coral::AttributeList rod_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_condData.extend<int>( "rodnr" );
   rod_condData.extend<std::string>( "tag" );
 
@@ -4963,7 +4963,7 @@ int COOLCORALClient::GetOneROD(int rod_id, long long key, const std::string& tag
 	    
   std::string rod_cond = "rod_UID = :rodnr AND rod_iovfk = :rodkey";
   rod_cond += " AND rod_tag = :tag";
-  coral::AttributeList rod_condData;
+  coral::AttributeList rod_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_condData.extend<int>( "rodnr" );
   rod_condData.extend<long long>( "rodkey" );
   rod_condData.extend<std::string>( "tag" );
@@ -5049,7 +5049,7 @@ int COOLCORALClient::GetOneROC(int dtmroc_id, const std::string& tag, DTMROC_t &
   query0->addToOutputList("roc_tag");
 
   std::string dtmroc_cond = "dtmroc_UID = :dtmrocnr AND roc_tag = :tag";
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "dtmrocnr" );
   dtmroc_condData.extend<std::string>( "tag" );
   query0->setCondition( dtmroc_cond, dtmroc_condData);
@@ -5139,7 +5139,7 @@ int COOLCORALClient::GetOneROC(int dtmroc_id, long long key, const std::string& 
 	    
   std::string dtmroc_cond = "dtmroc_UID = :dtmrocnr AND dtmroc_iovfk = :dtmrockey";
   dtmroc_cond += " AND roc_tag = :tag";
-  coral::AttributeList dtmroc_condData;
+  coral::AttributeList dtmroc_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   dtmroc_condData.extend<int>( "dtmrocnr" );
   dtmroc_condData.extend<long long>( "dtmrockey" );
   dtmroc_condData.extend<std::string>( "tag" );
@@ -5257,7 +5257,7 @@ int COOLCORALClient::GetFullIDS(int phi, const std::string& detector){
   conn_cond += ".phi = :phi_val";
 
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<int>( "phi_val" );
     
   query00->setCondition( conn_cond, conn_condData);
@@ -5384,7 +5384,7 @@ void COOLCORALClient::UpdateThr(std::vector<DTMROC*>* chips){
 
     DTMROC* chip = *chip_iter;
 
-    coral::AttributeList rowBuffer;
+    coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
     rowBuffer.extend<short>( "Thresh0_Low_FE" );
     rowBuffer.extend<short>( "Thresh0_High_FE" );
@@ -5397,7 +5397,7 @@ void COOLCORALClient::UpdateThr(std::vector<DTMROC*>* chips){
     std::string updateAction4 = " Thresh1_High_FE = :value";
     std::string updateCondition = "Comment = :kk AND HW_Addr_FE = :ll";
 
-    coral::AttributeList updateData;
+    coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
 
     std::ostringstream inp_com;
     inp_com << (chip->board).phi << "-" << (chip->board).name;
@@ -5475,7 +5475,7 @@ void COOLCORALClient::UpdateFine(std::vector<TTC_Line*>* ttclines){
     conn_cond += BCONNECT_TABLE;
     conn_cond += ".Partition = :part";
 
-    coral::AttributeList conn_condData;
+    coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
     conn_condData.extend<int>( "phi_val" );
     conn_condData.extend<int>( "part" );
     
@@ -5503,7 +5503,7 @@ void COOLCORALClient::UpdateFine(std::vector<TTC_Line*>* ttclines){
     // Update the  fields
     coral::ITableDataEditor& dtmeditor = m_session->nominalSchema().tableHandle( "BTTCGR" ).dataEditor();
 
-    coral::AttributeList rowBuffer;
+    coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
     rowBuffer.extend<short>( "EdgeSelect" );
     rowBuffer.extend<short>( "finebx" );
@@ -5517,7 +5517,7 @@ void COOLCORALClient::UpdateFine(std::vector<TTC_Line*>* ttclines){
 
     std::string updateCondition = "ttcgr_UID = :kk";
     
-    coral::AttributeList updateData;
+    coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
 
     ttcline->group += (int)(ttcline->line/10);
     ttcline->line = (ttcline->line%10);
@@ -5543,7 +5543,7 @@ void COOLCORALClient::UpdateFine(std::vector<TTC_Line*>* ttclines){
     cond << "ttcgr_UID = " << std::dec << ttcgr_id;
 
     coral::IQuery* query = m_session->nominalSchema().tableHandle("BTTCGR").newQuery();
-    coral::AttributeList selectData;
+    coral::AttributeList selectData ATLAS_THREAD_SAFE; // Not shared, so ok.
     query ->setCondition(cond.str(),selectData);
 
     query->addToOutputList("ttcgr_UID");
@@ -5562,8 +5562,8 @@ void COOLCORALClient::UpdateFine(std::vector<TTC_Line*>* ttclines){
     int nRows = 0;
     while ( cursor.next() ) {
       ++nRows;
-      coral::AttributeList sel = cursor.currentRow();
-      
+      const coral::AttributeList& sel = cursor.currentRow();
+
       EdgeSelect_fdb = sel["EdgeSelect"].data<std::string>();
       TDMdelay_fdb   = sel["TDMdelay"].data<std::string>();
       finedx_fdb     = sel["finedx"].data<std::string>();
@@ -5661,7 +5661,7 @@ void COOLCORALClient::UpdateGol(const GOL* golinp,int goltype){
 
   coral::ITableDataEditor& dtmeditor = m_session->nominalSchema().tableHandle( "BROD" ).dataEditor();
 
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   std::string extension = "GolDelay";
   extension += ToString(golinp->gol);
@@ -5676,7 +5676,7 @@ void COOLCORALClient::UpdateGol(const GOL* golinp,int goltype){
 
 
   std::string updateCondition;
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
   
   updateCondition = "RODDetID = :kk";
   
@@ -6067,7 +6067,7 @@ void COOLCORALClient::createHistTables(bool coolswitch){
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( "KEYGEN" ).dataEditor();
 
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer.extend<long long>( "Key" );
 
@@ -6487,25 +6487,25 @@ void COOLCORALClient::fillDetector(const Detector_t& Detector){
 
 
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 	
   coral::IBulkOperation* ttc_bulk= ttc_editor.bulkInsert(ttc_row,4);
 
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
@@ -6645,13 +6645,13 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
   
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( "KEYGEN" ).dataEditor();
   
-  coral::AttributeList rowBuffer;
+  coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, so ok.
   
   rowBuffer.extend<long long>( "Key" );
   
   std::string updateAction = "Key = Key + :offset";
   std::string updateCondition = "Key > :kk";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
   updateData.extend<long long>("offset");
   updateData.extend<long long>("kk");
   updateData[0].data<long long>() = 1;
@@ -6681,25 +6681,25 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
 
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 	
   coral::IBulkOperation* ttc_bulk= ttc_editor.bulkInsert(ttc_row,4);
 
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
@@ -6725,7 +6725,7 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
   std::string conn_cond = "KEYGEN.Key > :kk";
 
-  coral::AttributeList conn_condData;
+  coral::AttributeList conn_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   conn_condData.extend<long long>( "kk" );
     
   query00->setCondition( conn_cond, conn_condData);
@@ -6747,7 +6747,7 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
   // Update the key and use it now
   coral::ITableDataEditor& cqeditor = m_session->nominalSchema().tableHandle( "HISTORY" ).dataEditor();
 
-  coral::AttributeList rowBuffer1;
+  coral::AttributeList rowBuffer1 ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer1.extend<long long>( "RUNNumber" );
   rowBuffer1.extend<std::string>( "TAG" );
@@ -6792,13 +6792,13 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
   ValidityKey until = ValidityKeyMax;
 
   cool::RecordSpecification ttc_rec =(ttc_fld->payloadSpecification());
-  coral::AttributeList ttc_cool_row = Record(ttc_rec).attributeList();
+  coral::AttributeList ttc_cool_row ATLAS_THREAD_SAFE = Record(ttc_rec).attributeList(); // ok
   cool::RecordSpecification ttcgr_rec =(ttcgr_fld->payloadSpecification());
-  coral::AttributeList ttcgr_cool_row = Record(ttcgr_rec).attributeList();
+  coral::AttributeList ttcgr_cool_row ATLAS_THREAD_SAFE = Record(ttcgr_rec).attributeList(); // ok
   cool::RecordSpecification rod_rec =(rod_fld->payloadSpecification());
-  coral::AttributeList rod_cool_row = Record(rod_rec).attributeList();
+  coral::AttributeList rod_cool_row ATLAS_THREAD_SAFE = Record(rod_rec).attributeList();  // ok
   cool::RecordSpecification dtmroc_rec =(dtmroc_fld->payloadSpecification());
-  coral::AttributeList dtmroc_cool_row = Record(dtmroc_rec).attributeList();
+  coral::AttributeList dtmroc_cool_row ATLAS_THREAD_SAFE = Record(dtmroc_rec).attributeList(); // ok
 
 
   for (v_iter0 = (Detector.ttc).begin(); v_iter0 != (Detector.ttc).end(); ++v_iter0) {   
@@ -6975,7 +6975,7 @@ long long COOLCORALClient::GetIoVKey(long long since, long long until, const std
   query_cond += " AND ";
   query_cond += "Time <= :until";
 
-  coral::AttributeList query_condData;
+  coral::AttributeList query_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   query_condData.extend<std::string>( "object" );
   query_condData.extend<long long>( "since" );
   query_condData.extend<long long>( "until" );
@@ -7029,7 +7029,7 @@ long long COOLCORALClient::GetIoVROC(int dtmroc_id,long long time, const std::st
   query_cond += " AND since_time <= :time";
   query_cond += " AND until_time >= :time";
 
-  coral::AttributeList query_condData;
+  coral::AttributeList query_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   query_condData.extend<int>( "dtmroc_id" );
   query_condData.extend<long long>( "time" );
   query_condData.extend<std::string>( "tag" );
@@ -7082,7 +7082,7 @@ long long COOLCORALClient::GetIoVROC(int dtmroc_id,long long since,long long unt
   query_cond += " AND ";
   query_cond += "dtmroc_iovfk <= :until";
 
-  coral::AttributeList query_condData;
+  coral::AttributeList query_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   query_condData.extend<int>( "dtmroc_id" );
   query_condData.extend<long long>( "since" );
   query_condData.extend<long long>( "until" );
@@ -7315,7 +7315,7 @@ void COOLCORALClient::GenIoVROCTable(){
     std::string updcondStr = "until_time = :max AND dtmroc_UID = :uid";
     updcondStr += " AND roc_tag = :tag";
     std::string updateAction = "until_time = :until";
-    coral::AttributeList updateData;
+    coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
     updateData.extend<long long>("max");
     updateData.extend<long long>("until");
     updateData.extend<int>("uid");
@@ -7327,7 +7327,7 @@ void COOLCORALClient::GenIoVROCTable(){
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROCIOV_TABLE ).dataEditor();
 
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::ICursor& cursor0 = query0->execute();
@@ -7386,7 +7386,7 @@ void COOLCORALClient::UpdateIoVROCTable(int uid,long long time, const std::strin
     std::string updcondStr = "until_time = :max AND dtmroc_UID = :uid";
     updcondStr += " AND roc_tag = :tag";
     std::string updateAction = "until_time = :until";
-    coral::AttributeList updateData;
+    coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
     updateData.extend<long long>("max");
     updateData.extend<long long>("until");
     updateData.extend<int>("uid");
@@ -7402,7 +7402,7 @@ void COOLCORALClient::UpdateIoVROCTable(int uid,long long time, const std::strin
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROCIOV_TABLE ).dataEditor();
 
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
     roc_editor.rowBuffer(roc_row);
     roc_row["dtmroc_UID"].setValue <int> (uid);
     roc_row["dtmroc_iovfk"].setValue <long long> (time);
@@ -7419,7 +7419,7 @@ void COOLCORALClient::UpdateIoVROCTable(int uid,long long time, const std::strin
 //------------------------------------------------------
 /// Read TTC information from the DB for one TTC module
 /// identified by an input int (identifier) and print on std out
-int COOLCORALClient::GetTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctime is used.
+int COOLCORALClient::GetTags (){ // Thread unsafe ctime is used.
     
   std::string TAG_TABLE="HISTORY";
 
@@ -7456,12 +7456,13 @@ int COOLCORALClient::GetTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctime is
     
     time_t tempo = row0[2].data<long long>();
 
- 
+
+    char buf[32];
     std::cout << "** \t" 
 	      << row0[1].data<std::string>() << "\t " 
       	      << row0[3].data<long long>() << "\t "
 	      << row0[0].data<long long>() << "\t "
-	      << ctime(&tempo);
+	      << ctime_r(&tempo, buf);
   }
   delete query0;
 
@@ -7517,7 +7518,7 @@ Detector_t COOLCORALClient::GetHistValues(const std::string& tag,long long tstam
 
   std::string cond = "TAG = :tag AND Time = :tstamp";
 
-  coral::AttributeList condData;
+  coral::AttributeList condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   condData.extend<std::string>( "tag" );
   condData.extend<long long>( "tstamp" );
 
@@ -7564,7 +7565,7 @@ Detector_t COOLCORALClient::GetHistValues(const std::string& tag,long long tstam
 
   std::string query_cond = "ttc_iovfk = :key";
 
-  coral::AttributeList query_condData;
+  coral::AttributeList query_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   query_condData.extend<long long>( "key" );
 
   query0->setCondition( query_cond, query_condData);
@@ -7787,25 +7788,25 @@ int COOLCORALClient::fillLastDetector(const Detector_t& Detector){
 
 
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 	
   coral::IBulkOperation* ttc_bulk= ttc_editor.bulkInsert(ttc_row,4);
 
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
@@ -7813,7 +7814,7 @@ int COOLCORALClient::fillLastDetector(const Detector_t& Detector){
   // now deleting
 
   std::string delcondStr = "ttc_UID > :uid ";
-  coral::AttributeList deleteData;
+  coral::AttributeList deleteData ATLAS_THREAD_SAFE; // Not shared, so ok.
   deleteData.extend<int>("uid");
   deleteData[0].data<int>() = 0;
   ttc_editor.deleteRows(delcondStr,deleteData);
@@ -8007,7 +8008,7 @@ void COOLCORALClient::clearCurrentTables(){
   // now deleting
 
   std::string delcondStr = "ttc_UID > :uid";
-  coral::AttributeList deleteData;
+  coral::AttributeList deleteData ATLAS_THREAD_SAFE; // Not shared, so ok.
   deleteData.extend<int>("uid");
   deleteData[0].data<int>() = 0;
   long deletedrows = ttc_editor.deleteRows(delcondStr,deleteData);
@@ -8070,49 +8071,49 @@ void COOLCORALClient::fillHistory(const Detector_t& Detector, const std::string&
 
 
   coral::ITableDataEditor& ttc_editor = m_session->nominalSchema().tableHandle(TTC_TABLE ).dataEditor();
-  coral::AttributeList ttc_row;
+  coral::AttributeList ttc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttc_editor.rowBuffer(ttc_row);
 	
   coral::IBulkOperation* ttc_bulk= ttc_editor.bulkInsert(ttc_row,16);
 
   coral::ITableDataEditor& ttciov_editor = m_session->nominalSchema().tableHandle(TTCIOV_TABLE ).dataEditor();
-  coral::AttributeList ttciov_row;
+  coral::AttributeList ttciov_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttciov_editor.rowBuffer(ttciov_row);
 	
   coral::IBulkOperation* ttciov_bulk= ttciov_editor.bulkInsert(ttciov_row,16);
 
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
-  coral::AttributeList ttcgr_row;
+  coral::AttributeList ttcgr_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
   coral::ITableDataEditor& ttcgriov_editor = m_session->nominalSchema().tableHandle(TTCGRIOV_TABLE ).dataEditor();
-  coral::AttributeList ttcgriov_row;
+  coral::AttributeList ttcgriov_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   ttcgriov_editor.rowBuffer(ttcgriov_row);
 	
   coral::IBulkOperation* ttcgriov_bulk= ttcgriov_editor.bulkInsert(ttcgriov_row,4);
 
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
-  coral::AttributeList rod_row;
+  coral::AttributeList rod_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
 
   coral::ITableDataEditor& rodiov_editor = m_session->nominalSchema().tableHandle(RODIOV_TABLE ).dataEditor();
-  coral::AttributeList rodiov_row;
+  coral::AttributeList rodiov_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rodiov_editor.rowBuffer(rodiov_row);
 
   coral::IBulkOperation* rodiov_bulk= rodiov_editor.bulkInsert(rodiov_row,32);
 
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
-  coral::AttributeList roc_row;
+  coral::AttributeList roc_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   roc_editor.rowBuffer(roc_row);
 
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
 
   coral::ITableDataEditor& rociov_editor = m_session->nominalSchema().tableHandle(DTMROCIOV_TABLE ).dataEditor();
-  coral::AttributeList rociov_row;
+  coral::AttributeList rociov_row ATLAS_THREAD_SAFE; // Not shared, so ok.
   rociov_editor.rowBuffer(rociov_row);
 
   coral::IBulkOperation* rociov_bulk= rociov_editor.bulkInsert(rociov_row,32);
@@ -8141,7 +8142,7 @@ void COOLCORALClient::fillHistory(const Detector_t& Detector, const std::string&
   // Update the key and use it now
   coral::ITableDataEditor& cqeditor = m_session->nominalSchema().tableHandle( "HISTORY" ).dataEditor();
 
-  coral::AttributeList rowBuffer1;
+  coral::AttributeList rowBuffer1 ATLAS_THREAD_SAFE; // Not shared, so ok.
 
   rowBuffer1.extend<long long>( "RUNNumber" );
   rowBuffer1.extend<std::string>( "TAG" );
@@ -8182,7 +8183,7 @@ void COOLCORALClient::fillHistory(const Detector_t& Detector, const std::string&
   std::string updcondStr = "until_time = :max AND ttc_UID = :uid";
   updcondStr += " AND ttc_tag = :tag";
   std::string updateAction = "until_time = :until";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, so ok.
   updateData.extend<long long>("max");
   updateData.extend<long long>("until");
   updateData.extend<int>("uid");
@@ -8448,7 +8449,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
 
   std::string cond = "TAG = :tag AND Time = :tstamp";
 
-  coral::AttributeList condData;
+  coral::AttributeList condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   condData.extend<std::string>( "tag" );
   condData.extend<long long>( "tstamp" );
 
@@ -8586,7 +8587,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
 
   std::string query_cond = "ttc_iovfk = :key";
 
-  coral::AttributeList query_condData;
+  coral::AttributeList query_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   query_condData.extend<long long>( "key" );
 
   query0a->setCondition( query_cond, query_condData);
@@ -9279,7 +9280,7 @@ int COOLCORALClient::DiffHistValues(const std::vector<Detector_t>& Detectors){
 //------------------------------------------------------
 /// Read TTC information from the DB for one TTC module
 /// identified by an input int (identifier) and print on std out
-int COOLCORALClient::GetRichTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctime is used.
+int COOLCORALClient::GetRichTags (){ // Thread unsafe ctime is used.
     
   std::string TAG_TABLE="HISTORY";
 
@@ -9359,12 +9360,13 @@ int COOLCORALClient::GetRichTags ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ctim
     }
     delete query01;
     
- 
+
+    char buf[32];
     std::cout << "** \t" 
 	      << row0[1].data<std::string>() << "\t " 
       	      << row0[3].data<long long>() << "\t "
 	      << row0[0].data<long long>() << "\t "
-	      << ctime(&tempo) << "\t"
+	      << ctime_r(&tempo, buf) << "\t"
 	      << output << std::endl;
     output = "*";
   }
