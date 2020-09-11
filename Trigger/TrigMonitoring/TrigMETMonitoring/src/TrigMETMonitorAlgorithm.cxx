@@ -15,6 +15,10 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_tcpufit_met_key("HLT_MET_tcpufit")
   , m_hlt_trkmht_met_key("HLT_MET_trkmht")
   , m_hlt_pfsum_met_key("HLT_MET_pfsum")
+  , m_hlt_pfopufit_met_key("HLT_MET_pfopufit")
+  , m_hlt_cvfpufit_met_key("HLT_MET_cvfpufit")
+  , m_hlt_mhtpufit_pf_met_key("HLT_MET_mhtpufit_pf_subjesgscIS")
+  , m_hlt_mhtpufit_em_met_key("HLT_MET_mhtpufit_em_subjesgscIS")
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("offline_met_key", m_offline_met_key);
@@ -25,6 +29,10 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key);
   declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key);
   declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key);
+  declareProperty("hlt_pfopufit_key", m_hlt_pfopufit_met_key);
+  declareProperty("hlt_cvfpufit_key", m_hlt_cvfpufit_met_key);
+  declareProperty("hlt_mhtpufit_pf_key", m_hlt_mhtpufit_pf_met_key);
+  declareProperty("hlt_mhtpufit_em_key", m_hlt_mhtpufit_em_met_key);
 
   declareProperty("L1Chain1", m_L1Chain1="L1_XE50");
   declareProperty("HLTChain1", m_HLTChain1="HLT_xe65_cell_L1XE50");
@@ -44,6 +52,10 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_trkmht_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_met_key.initialize() );
+    ATH_CHECK( m_hlt_pfopufit_met_key.initialize() );
+    ATH_CHECK( m_hlt_cvfpufit_met_key.initialize() );
+    ATH_CHECK( m_hlt_mhtpufit_pf_met_key.initialize() );
+    ATH_CHECK( m_hlt_mhtpufit_em_met_key.initialize() );
 
     ATH_CHECK( m_trigDecTool.retrieve() );
 
@@ -92,7 +104,27 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfsum_met_cont(m_hlt_pfsum_met_key, ctx);
     if (! hlt_pfsum_met_cont.isValid() || hlt_pfsum_met_cont->size()==0 ) {
-	ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfsum_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_pfopufit_met_cont(m_hlt_pfopufit_met_key, ctx);
+    if (! hlt_pfopufit_met_cont.isValid() || hlt_pfopufit_met_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_pfopufit_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_cvfpufit_met_cont(m_hlt_cvfpufit_met_key, ctx);
+    if (! hlt_cvfpufit_met_cont.isValid() || hlt_cvfpufit_met_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_cvfpufit_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mhtpufit_pf_met_cont(m_hlt_mhtpufit_pf_met_key, ctx);
+    if (! hlt_mhtpufit_pf_met_cont.isValid() || hlt_mhtpufit_pf_met_cont->size()==0 ) {
+        ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_pf_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_mhtpufit_em_met_cont(m_hlt_mhtpufit_em_met_key, ctx);
+    if (! hlt_mhtpufit_em_met_cont.isValid() || hlt_mhtpufit_em_met_cont->size()==0 ) {
+	ATH_MSG_DEBUG("Container "<< m_hlt_mhtpufit_em_met_key << " does not exist or is empty");
     }
    
 
@@ -165,6 +197,42 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto pfsum_Et_log = Monitored::Scalar<float>("pfsum_Et_log",0.0);
     auto pfsum_sumEt_log = Monitored::Scalar<float>("pfsum_sumEt_log",0.0);
     auto pfsum_phi = Monitored::Scalar<float>("pfsum_phi",0.0);
+    auto pfopufit_Ex = Monitored::Scalar<float>("pfopufit_Ex",0.0);
+    auto pfopufit_Ey = Monitored::Scalar<float>("pfopufit_Ey",0.0);
+    auto pfopufit_Et = Monitored::Scalar<float>("pfopufit_Et",0.0);
+    auto pfopufit_sumEt = Monitored::Scalar<float>("pfopufit_sumEt",0.0);
+    auto pfopufit_Ex_log = Monitored::Scalar<float>("pfopufit_Ex_log",0.0);
+    auto pfopufit_Ey_log = Monitored::Scalar<float>("pfopufit_Ey_log",0.0);
+    auto pfopufit_Et_log = Monitored::Scalar<float>("pfopufit_Et_log",0.0);
+    auto pfopufit_sumEt_log = Monitored::Scalar<float>("pfopufit_sumEt_log",0.0);
+    auto pfopufit_phi = Monitored::Scalar<float>("pfopufit_phi",0.0);
+    auto cvfpufit_Ex = Monitored::Scalar<float>("cvfpufit_Ex",0.0);
+    auto cvfpufit_Ey = Monitored::Scalar<float>("cvfpufit_Ey",0.0);
+    auto cvfpufit_Et = Monitored::Scalar<float>("cvfpufit_Et",0.0);
+    auto cvfpufit_sumEt = Monitored::Scalar<float>("cvfpufit_sumEt",0.0);
+    auto cvfpufit_Ex_log = Monitored::Scalar<float>("cvfpufit_Ex_log",0.0);
+    auto cvfpufit_Ey_log = Monitored::Scalar<float>("cvfpufit_Ey_log",0.0);
+    auto cvfpufit_Et_log = Monitored::Scalar<float>("cvfpufit_Et_log",0.0);
+    auto cvfpufit_sumEt_log = Monitored::Scalar<float>("cvfpufit_sumEt_log",0.0);
+    auto cvfpufit_phi = Monitored::Scalar<float>("cvfpufit_phi",0.0);
+    auto mhtpufit_pf_Ex = Monitored::Scalar<float>("mhtpufit_pf_Ex",0.0);
+    auto mhtpufit_pf_Ey = Monitored::Scalar<float>("mhtpufit_pf_Ey",0.0);
+    auto mhtpufit_pf_Et = Monitored::Scalar<float>("mhtpufit_pf_Et",0.0);
+    auto mhtpufit_pf_sumEt = Monitored::Scalar<float>("mhtpufit_pf_sumEt",0.0);
+    auto mhtpufit_pf_Ex_log = Monitored::Scalar<float>("mhtpufit_pf_Ex_log",0.0);
+    auto mhtpufit_pf_Ey_log = Monitored::Scalar<float>("mhtpufit_pf_Ey_log",0.0);
+    auto mhtpufit_pf_Et_log = Monitored::Scalar<float>("mhtpufit_pf_Et_log",0.0);
+    auto mhtpufit_pf_sumEt_log = Monitored::Scalar<float>("mhtpufit_pf_sumEt_log",0.0);
+    auto mhtpufit_pf_phi = Monitored::Scalar<float>("mhtpufit_pf_phi",0.0);
+    auto mhtpufit_em_Ex = Monitored::Scalar<float>("mhtpufit_em_Ex",0.0);
+    auto mhtpufit_em_Ey = Monitored::Scalar<float>("mhtpufit_em_Ey",0.0);
+    auto mhtpufit_em_Et = Monitored::Scalar<float>("mhtpufit_em_Et",0.0);
+    auto mhtpufit_em_sumEt = Monitored::Scalar<float>("mhtpufit_em_sumEt",0.0);
+    auto mhtpufit_em_Ex_log = Monitored::Scalar<float>("mhtpufit_em_Ex_log",0.0);
+    auto mhtpufit_em_Ey_log = Monitored::Scalar<float>("mhtpufit_em_Ey_log",0.0);
+    auto mhtpufit_em_Et_log = Monitored::Scalar<float>("mhtpufit_em_Et_log",0.0);
+    auto mhtpufit_em_sumEt_log = Monitored::Scalar<float>("mhtpufit_em_sumEt_log",0.0);
+    auto mhtpufit_em_phi = Monitored::Scalar<float>("mhtpufit_em_phi",0.0);
     auto pass_L11 = Monitored::Scalar<float>("pass_L11",0.0);
     auto pass_HLT1 = Monitored::Scalar<float>("pass_HLT1",0.0);
     auto pass_HLT2 = Monitored::Scalar<float>("pass_HLT2",0.0);
@@ -207,7 +275,8 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       TVector3 v(cell_Ex, cell_Ey, cell_Ez);
       cell_eta = v.Eta();
       cell_phi = v.Phi();
-   }
+    }
+    ATH_MSG_DEBUG("cell_Et = " << cell_Et);
 
     // access HLT mht MET values
     if ( hlt_mht_met_cont.isValid() && hlt_mht_met_cont->size() > 0 ) {
@@ -226,6 +295,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       mht_eta = v.Eta();
       mht_phi = v.Phi();
     }
+    ATH_MSG_DEBUG("mht_Et = " << mht_Et);
 
     // access HLT tclcw MET values
     if ( hlt_tc_met_cont.isValid() && hlt_tc_met_cont->size() > 0 ) {
@@ -234,6 +304,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tc_Ey = (hlt_met->ey())/1000.;
       tc_Et = std::sqrt(tc_Ex*tc_Ex + tc_Ey*tc_Ey);
     }
+    ATH_MSG_DEBUG("tc_Et = " << tc_Et);
 
     // access HLT trkmht MET values
     if ( hlt_trkmht_met_cont.isValid() && hlt_trkmht_met_cont->size() > 0 ) {
@@ -251,6 +322,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       TVector3 v(trkmht_Ex, trkmht_Ey, trkmht_Ez);
       trkmht_phi = v.Phi();
     }
+    ATH_MSG_DEBUG("trkmht_Et = " << trkmht_Et);
 
     // access HLT tcpufit MET values
     if ( hlt_tcpufit_met_cont.isValid() && hlt_tcpufit_met_cont->size() > 0 ) {
@@ -272,6 +344,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       tcpufit_eta = v.Eta();
       tcpufit_phi = v.Phi();
     }
+    ATH_MSG_DEBUG("tcpufit_Et = " << tcpufit_Et);
 
     // access HLT pfsum MET values
     if ( hlt_pfsum_met_cont.isValid() && hlt_pfsum_met_cont->size() > 0 ) {
@@ -285,10 +358,83 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       pfsum_Ey_log = signed_log(pfsum_Ey, epsilon);
       pfsum_Et_log = signed_log(pfsum_Et, epsilon);
       pfsum_sumEt_log = signed_log(pfsum_sumEt, epsilon);
-    
+
       TVector3 v(pfsum_Ex, pfsum_Ey, pfsum_Ez);
       pfsum_phi = v.Phi();
     }
+    ATH_MSG_DEBUG("pfsum_Et = " <<pfsum_Et);
+
+    // acccess HLT pfopufit MET values
+    if ( hlt_pfopufit_met_cont.isValid() && hlt_pfopufit_met_cont->size() > 0 ) {
+      hlt_met = hlt_pfopufit_met_cont->at(0);
+      pfopufit_Ex = (hlt_met->ex())/1000.;
+      pfopufit_Ey = (hlt_met->ey())/1000.;
+      float pfopufit_Ez = (hlt_met->ez())/1000.;
+      pfopufit_Et = std::sqrt(pfopufit_Ex*pfopufit_Ex + pfopufit_Ey*pfopufit_Ey);
+      pfopufit_sumEt = (hlt_met->sumEt())/1000.;
+      pfopufit_Ex_log = signed_log(pfopufit_Ex, epsilon);
+      pfopufit_Ey_log = signed_log(pfopufit_Ey, epsilon);
+      pfopufit_Et_log = signed_log(pfopufit_Et, epsilon);
+      pfopufit_sumEt_log = signed_log(pfopufit_sumEt, epsilon);
+    
+      TVector3 v(pfopufit_Ex, pfopufit_Ey, pfopufit_Ez);
+      pfopufit_phi = v.Phi();
+    }
+    ATH_MSG_DEBUG("pfopufit_Et = " << pfopufit_Et);
+
+    // access HLT cvfpufit MET values
+    if ( hlt_cvfpufit_met_cont.isValid() && hlt_cvfpufit_met_cont->size() > 0 ) {
+      hlt_met = hlt_cvfpufit_met_cont->at(0);
+      cvfpufit_Ex = (hlt_met->ex())/1000.;
+      cvfpufit_Ey = (hlt_met->ey())/1000.;
+      float cvfpufit_Ez = (hlt_met->ez())/1000.;
+      cvfpufit_Et = std::sqrt(cvfpufit_Ex*cvfpufit_Ex + cvfpufit_Ey*cvfpufit_Ey);
+      cvfpufit_sumEt = (hlt_met->sumEt())/1000.;
+      cvfpufit_Ex_log = signed_log(cvfpufit_Ex, epsilon);
+      cvfpufit_Ey_log = signed_log(cvfpufit_Ey, epsilon);
+      cvfpufit_Et_log = signed_log(cvfpufit_Et, epsilon);
+      cvfpufit_sumEt_log = signed_log(cvfpufit_sumEt, epsilon);
+
+      TVector3 v(cvfpufit_Ex, cvfpufit_Ey, cvfpufit_Ez);
+      cvfpufit_phi = v.Phi();
+    }
+    ATH_MSG_DEBUG("cvfpufit_Et = " << cvfpufit_Et);
+
+    // access HLT mhtpufit_pf MET values
+    if ( hlt_mhtpufit_pf_met_cont.isValid() && hlt_mhtpufit_pf_met_cont->size() > 0 ) {
+      hlt_met = hlt_mhtpufit_pf_met_cont->at(0);
+      mhtpufit_pf_Ex = (hlt_met->ex())/1000.;
+      mhtpufit_pf_Ey = (hlt_met->ey())/1000.;
+      float mhtpufit_pf_Ez = (hlt_met->ez())/1000.;
+      mhtpufit_pf_Et = std::sqrt(mhtpufit_pf_Ex*mhtpufit_pf_Ex + mhtpufit_pf_Ey*mhtpufit_pf_Ey);
+      mhtpufit_pf_sumEt = (hlt_met->sumEt())/1000.;
+      mhtpufit_pf_Ex_log = signed_log(mhtpufit_pf_Ex, epsilon);
+      mhtpufit_pf_Ey_log = signed_log(mhtpufit_pf_Ey, epsilon);
+      mhtpufit_pf_Et_log = signed_log(mhtpufit_pf_Et, epsilon);
+      mhtpufit_pf_sumEt_log = signed_log(mhtpufit_pf_sumEt, epsilon);
+
+      TVector3 v(mhtpufit_pf_Ex, mhtpufit_pf_Ey, mhtpufit_pf_Ez);
+      mhtpufit_pf_phi = v.Phi();
+    }
+    ATH_MSG_DEBUG("mhtpufit_pf_Et = " << mhtpufit_pf_Et);
+
+    // access HLT mhtpufit_em MET values
+    if ( hlt_mhtpufit_em_met_cont.isValid() && hlt_mhtpufit_em_met_cont->size() > 0 ) {
+      hlt_met = hlt_mhtpufit_em_met_cont->at(0);
+      mhtpufit_em_Ex = (hlt_met->ex())/1000.;
+      mhtpufit_em_Ey = (hlt_met->ey())/1000.;
+      float mhtpufit_em_Ez = (hlt_met->ez())/1000.;
+      mhtpufit_em_Et = std::sqrt(mhtpufit_em_Ex*mhtpufit_em_Ex + mhtpufit_em_Ey*mhtpufit_em_Ey);
+      mhtpufit_em_sumEt = (hlt_met->sumEt())/1000.;
+      mhtpufit_em_Ex_log = signed_log(mhtpufit_em_Ex, epsilon);
+      mhtpufit_em_Ey_log = signed_log(mhtpufit_em_Ey, epsilon);
+      mhtpufit_em_Et_log = signed_log(mhtpufit_em_Et, epsilon);
+      mhtpufit_em_sumEt_log = signed_log(mhtpufit_em_sumEt, epsilon);
+
+      TVector3 v(mhtpufit_em_Ex, mhtpufit_em_Ey, mhtpufit_em_Ez);
+      mhtpufit_em_phi = v.Phi();
+    }
+    ATH_MSG_DEBUG("mhtpufit_em_Et = " << mhtpufit_em_Et);
 
     // efficiency plots
     if (m_trigDecTool->isPassed(m_L1Chain1)) pass_L11 = 1.0;
@@ -333,6 +479,18 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          pfsum_Ex,pfsum_Ey,pfsum_Et,pfsum_sumEt,
          pfsum_Ex_log,pfsum_Ey_log,pfsum_Et_log,pfsum_sumEt_log,
          pfsum_phi,
+         pfopufit_Ex,pfopufit_Ey,pfopufit_Et,pfopufit_sumEt,
+         pfopufit_Ex_log,pfopufit_Ey_log,pfopufit_Et_log,pfopufit_sumEt_log,
+         pfopufit_phi,
+         cvfpufit_Ex,cvfpufit_Ey,cvfpufit_Et,cvfpufit_sumEt,
+         cvfpufit_Ex_log,cvfpufit_Ey_log,cvfpufit_Et_log,cvfpufit_sumEt_log,
+         cvfpufit_phi,
+         mhtpufit_pf_Ex,mhtpufit_pf_Ey,mhtpufit_pf_Et,mhtpufit_pf_sumEt,
+         mhtpufit_pf_Ex_log,mhtpufit_pf_Ey_log,mhtpufit_pf_Et_log,mhtpufit_pf_sumEt_log,
+         mhtpufit_pf_phi,
+         mhtpufit_em_Ex,mhtpufit_em_Ey,mhtpufit_em_Et,mhtpufit_em_sumEt,
+         mhtpufit_em_Ex_log,mhtpufit_em_Ey_log,mhtpufit_em_Et_log,mhtpufit_em_sumEt_log,
+         mhtpufit_em_phi,
          tcpufit_Ex,tcpufit_Ey,tcpufit_Ez,tcpufit_Et,tcpufit_sumEt,tcpufit_sumE,
          tcpufit_Ex_log,tcpufit_Ey_log,tcpufit_Ez_log,tcpufit_Et_log,tcpufit_sumEt_log,tcpufit_sumE_log,
          tcpufit_eta,tcpufit_phi);
