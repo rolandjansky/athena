@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _PixCalibKnowledgeDb_h_
-#define _PixCalibKnowledgeDb_h_
+#ifndef PIXELCORALCLIENTUTILS_PIXCALIBKNOWLEDGEDB_H
+#define PIXELCORALCLIENTUTILS_PIXCALIBKNOWLEDGEDB_H
 
 #include "RelationalAccess/AccessMode.h"
 

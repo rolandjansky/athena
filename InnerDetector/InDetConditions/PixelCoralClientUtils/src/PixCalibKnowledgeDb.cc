@@ -69,7 +69,7 @@ void PixCalibKnowledgeDb::init(coral::AccessMode access_mode)
   if (m_verbose) cout << "Connection established" << endl;
 }
 
-void PixCalibKnowledgeDb::saveCorrespondingConfig ATLAS_NOT_THREAD_SAFE // Thread unsafe coral::AttributeList class and createTable method are used.
+void PixCalibKnowledgeDb::saveCorrespondingConfig
 (long int UNIXTimeInSeconds, long int RunNumber, std::string calibtags_in_string, std::string idTag, std::string connTag, std::string cfgTag, std::string cfgModTag )
 {
 
@@ -87,7 +87,7 @@ void PixCalibKnowledgeDb::saveCorrespondingConfig ATLAS_NOT_THREAD_SAFE // Threa
 
   coral::ITableDataEditor& pixel_editor = m_session->nominalSchema().tableHandle("CALIB_TAGS").dataEditor();
 
-  coral::AttributeList pixel_row;
+  coral::AttributeList pixel_row ATLAS_THREAD_SAFE; // Not shared, ok.
   pixel_row.extend<long int>("UNIXTimeInSeconds");
   pixel_row.extend<long int>("RunNumber");
   pixel_row.extend<std::string>("calibrationTags");
@@ -119,7 +119,7 @@ void PixCalibKnowledgeDb::saveCorrespondingConfig ATLAS_NOT_THREAD_SAFE // Threa
 }
 
 //for reading back calibrationTags corresponding to a given time, not sure if this is needed
-void PixCalibKnowledgeDb::readCorrespondingCalibTag ATLAS_NOT_THREAD_SAFE (long int Utime){ // Thread unsafe coral::AttributeList class is used.
+void PixCalibKnowledgeDb::readCorrespondingCalibTag (long int Utime){
 
   transactionStartReadOnly();
   //build a query
@@ -130,7 +130,7 @@ void PixCalibKnowledgeDb::readCorrespondingCalibTag ATLAS_NOT_THREAD_SAFE (long 
   query->addToOutputList("calibrationTags");
   query->defineOutputType("calibrationTags",coral::AttributeSpecification::typeNameForType<string>());
 
-  coral::AttributeList pixel_knowledgeData;
+  coral::AttributeList pixel_knowledgeData ATLAS_THREAD_SAFE; // Not shared, ok
   string pixel_knowledge = "CALIB_TAGS.UNIXTimeInSeconds <= :Utime";
   pixel_knowledgeData.extend<long int>("Utime");
   pixel_knowledgeData[0].data<long int>() = Utime;
@@ -172,7 +172,7 @@ void PixCalibKnowledgeDb::readCorrespondingCalibTag ATLAS_NOT_THREAD_SAFE (long 
 
 /** part of save(): create new tables
  */
-void PixCalibKnowledgeDb::createTable ATLAS_NOT_THREAD_SAFE () // Thread unsafe createAuxTables method is used.
+void PixCalibKnowledgeDb::createTable ()
 {
   createConfigurationTable();
   createAuxTables();
@@ -204,7 +204,7 @@ void PixCalibKnowledgeDb::createConfigurationTable()
 
 /** part of save(): create key table
  */
-void PixCalibKnowledgeDb::createAuxTables ATLAS_NOT_THREAD_SAFE () // Thread unsafe coral::AttributeList class is used.
+void PixCalibKnowledgeDb::createAuxTables()
 {
   transactionStartUpdate();
   string FK_TABLE = "CALIB_KEYGEN";
@@ -216,7 +216,7 @@ void PixCalibKnowledgeDb::createAuxTables ATLAS_NOT_THREAD_SAFE () // Thread uns
     m_session->nominalSchema().createTable( key_columns );
     // fill the first key
     coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
-    coral::AttributeList rowBuffer;
+    coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, ok.
     rowBuffer.extend<long long>( "KEY" );
     long long& key = rowBuffer[ "KEY" ].data<long long>();
     key = 1000;
@@ -227,14 +227,14 @@ void PixCalibKnowledgeDb::createAuxTables ATLAS_NOT_THREAD_SAFE () // Thread uns
 
 /** part of save(): update the key
  */
-long long PixCalibKnowledgeDb::updateKey ATLAS_NOT_THREAD_SAFE () // Thread unsafe coral::AttributeList class is used.
+long long PixCalibKnowledgeDb::updateKey()
 {
   std::string FK_TABLE = "CALIB_KEYGEN";
   transactionStartUpdate();
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
   std::string updateAction = "KEY = KEY + :offset";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, ok.
   updateData.extend<long long>("offset");
   updateData[0].data<long long>() = 1;
   keyeditor.updateRows( updateAction, "", updateData );
