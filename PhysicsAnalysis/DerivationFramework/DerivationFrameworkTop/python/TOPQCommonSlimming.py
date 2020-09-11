@@ -58,6 +58,8 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.SmartCollections =  [
         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+        "AntiKt10UFOCSSKJets",
+        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
         "AntiKt4EMPFlowJets",
         "AntiKt4EMPFlowJets_BTagging201810",
         "AntiKt4EMPFlowJets_BTagging201903",
@@ -284,7 +286,9 @@ def setup(TOPQname, stream):
                    "AntiKt4EMPFlowJets",
                    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                  ],
+                   "AntiKt10UFOCSSKJets",
+                   "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets", 
+                 ],
                   # Veto the following jet containers in the output
                   ["AntiKt3PV0TrackJets",
                    "AntiKt4PV0TrackJets",

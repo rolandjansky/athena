@@ -128,8 +128,10 @@ replaceAODReducedJets(reducedJetList, TOPQ1Sequence, "TOPQ1")
 
 # If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
 # *AFTER* the other collections are replaced
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
-addDefaultTrimmedJets(TOPQ1Sequence, "TOPQ1")
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets,addDefaultUFOSoftDropJets
+addDefaultTrimmedJets(TOPQ1Sequence,"TOPQ1")
+addDefaultUFOSoftDropJets(TOPQ1Sequence,"TOPQ1",dotruth=True)
+
 
 # add SoftDrop jets
 from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
