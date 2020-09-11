@@ -115,6 +115,19 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("pt", Variables::pt);
     calc->insert("ptDetectorAxis", Variables::ptDetectorAxis);
     calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis);
+    //---added for the eVeto
+    calc->insert("ptJetSeed_log",              Variables::ptJetSeed_log  );
+    calc->insert("absleadTrackEta",            Variables::absleadTrackEta  );
+    calc->insert("leadTrackDeltaEta",          Variables::leadTrackDeltaEta);
+    calc->insert("leadTrackDeltaPhi",          Variables::leadTrackDeltaPhi);
+    calc->insert("EMFracFixed",                Variables::EMFracFixed      );
+    calc->insert("etHotShotWinOverPtLeadTrk",  Variables::etHotShotWinOverPtLeadTrk);
+    calc->insert("hadLeakFracFixed",           Variables::hadLeakFracFixed);
+    calc->insert("PSFrac",                     Variables::PSFrac);
+    calc->insert("ClustersMeanCenterLambda",   Variables::ClustersMeanCenterLambda  );
+    calc->insert("ClustersMeanFirstEngDens",   Variables::ClustersMeanFirstEngDens  );
+    calc->insert("ClustersMeanPresamplerFrac", Variables::ClustersMeanPresamplerFrac);
+    calc->insert("ClustersMeanSecondR",        Variables::ClustersMeanSecondR  );
 
     // Track variable calculator functions
     calc->insert("pt_log", Variables::Track::pt_log);
@@ -129,6 +142,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("nIBLHitsAndExp", Variables::Track::nIBLHitsAndExp);
     calc->insert("nPixelHitsPlusDeadSensors", Variables::Track::nPixelHitsPlusDeadSensors);
     calc->insert("nSCTHitsPlusDeadSensors", Variables::Track::nSCTHitsPlusDeadSensors);
+    calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT);
 
     // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
@@ -138,7 +152,10 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("SECOND_R", Variables::Cluster::SECOND_R);
     calc->insert("SECOND_LAMBDA", Variables::Cluster::SECOND_LAMBDA);
     calc->insert("CENTER_LAMBDA", Variables::Cluster::CENTER_LAMBDA);
-
+    //---added for the eVeto
+    calc->insert("SECOND_LAMBDAOverClustersMeanSecondLambda", Variables::Cluster::SECOND_LAMBDAOverClustersMeanSecondLambda);
+    calc->insert("CENTER_LAMBDAOverClustersMeanCenterLambda", Variables::Cluster::CENTER_LAMBDAOverClustersMeanCenterLambda);
+    calc->insert("FirstEngDensOverClustersMeanFirstEngDens" , Variables::Cluster::FirstEngDensOverClustersMeanFirstEngDens);
     return calc;
 }
 
@@ -242,6 +259,91 @@ bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
     return true;
 }
 
+bool ptJetSeed_log(const xAOD::TauJet &tau, double &out) {
+  out = TMath::Log10(std::max(tau.ptJetSeed()/*tau.auxdata<float>("trk_ptJetSeed")*/, 1e-3));// tau.ptJetSeed()
+  return true;
+}
+
+bool     absleadTrackEta(const xAOD::TauJet &tau, double &out){
+  out = std::max(0.f, tau.auxdata<float>("ABS_ETA_LEAD_TRACK"));
+  return true;
+}
+bool     leadTrackDeltaEta(const xAOD::TauJet &tau, double &out){
+  out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAETA"));
+  return true;
+}
+bool     leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
+  out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAPHI"));
+  return true;
+}
+bool     EMFracFixed(const xAOD::TauJet &tau, double &out){
+  float emFracFized = tau.auxdata<float>("EMFracFixed");
+  out = std::max(emFracFized, 0.0f);
+  return true;
+}
+bool     etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
+  float etHotShotWinOverPtLeadTrk = tau.auxdata<float>("etHotShotWinOverPtLeadTrk");
+  out = std::max(etHotShotWinOverPtLeadTrk, 1e-6f);
+  out = std::log10(out);
+  return true;
+}
+
+bool     hadLeakFracFixed(const xAOD::TauJet &tau, double &out){
+  float hadLeakFracFixed = tau.auxdata<float>("hadLeakFracFixed");
+  out = std::max(0.f, hadLeakFracFixed);
+  return true;
+}
+
+bool     PSFrac(const xAOD::TauJet &tau, double &out){
+  float PSFrac;
+  const auto success = tau.detail(TauDetail::PSSFraction, PSFrac);
+  out = std::max(0.f,PSFrac);
+  
+  return success;
+}
+bool     ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
+  float ClustersMeanCenterLambda;
+  const auto success = tau.detail(TauDetail::ClustersMeanCenterLambda, ClustersMeanCenterLambda);
+  out = std::max(0.f, ClustersMeanCenterLambda);
+
+  return success;
+}
+bool     ClustersMeanEMProbability(const xAOD::TauJet &tau, double &out){
+  float ClustersMeanEMProbability;
+  const auto success = tau.detail(TauDetail::ClustersMeanEMProbability, ClustersMeanEMProbability);
+  out = std::max(0.f, ClustersMeanEMProbability);
+  return success;
+}
+bool     ClustersMeanFirstEngDens(const xAOD::TauJet &tau, double &out){
+  float ClustersMeanFirstEngDens;
+  const auto success = tau.detail(TauDetail::ClustersMeanFirstEngDens, ClustersMeanFirstEngDens);
+  out =  std::max(-10.f, ClustersMeanFirstEngDens);
+  return success;
+}
+bool     ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
+  float ClustersMeanPresamplerFrac;
+  const auto success = tau.detail(TauDetail::ClustersMeanPresamplerFrac, ClustersMeanPresamplerFrac);
+  out = ClustersMeanPresamplerFrac;
+
+  if (std::isnan(std::abs(out))){
+	out = 0.;
+  }
+  out = std::max(0., out);
+
+  return success;
+}
+bool     ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
+  float ClustersMeanSecondLambda;
+  const auto success = tau.detail(TauDetail::ClustersMeanSecondLambda, ClustersMeanSecondLambda);
+  out = std::max(0.f, ClustersMeanSecondLambda);
+
+  return success;
+}
+bool     ClustersMeanSecondR(const xAOD::TauJet &tau, double &out){
+  float clustersMeanSecondR = tau.auxdata<float>("ClustersMeanSecondR");
+  out = std::max(0.f, clustersMeanSecondR);
+  return true;
+}
 
 namespace Track {
 
@@ -334,6 +436,16 @@ bool nSCTHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &
     return success1 && success2;
 }
 
+bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
+			     double &out) {
+
+    double tracksEProbabilityHT;
+    const auto success =  track->summaryValue( tracksEProbabilityHT, 
+					       xAOD::eProbabilityHT);
+    out = tracksEProbabilityHT;
+    return success;
+}
+
 } // namespace Track
 
 
@@ -383,6 +495,106 @@ bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster
     const auto success = cluster.retrieveMoment(MomentType::CENTER_LAMBDA, out);
     out = TMath::Log10(out + 1e-6);
     return success;
+}
+
+bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+  (void)tau;
+  float ClustersMeanSecondLambda = tau.auxdata<float>("ClustersMeanSecondLambda");
+
+  double secondLambda(0);
+  const auto success = cluster.retrieveMoment(MomentType::SECOND_LAMBDA, secondLambda);
+
+  out = secondLambda/ClustersMeanSecondLambda;
+
+  return success;
+}
+
+bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+  (void)tau;
+  float ClustersMeanCenterLambda = tau.auxdata<float>("ClustersMeanCenterLambda");
+
+  double centerLambda(0);
+  const auto success = cluster.retrieveMoment(MomentType::CENTER_LAMBDA, centerLambda);
+  if (ClustersMeanCenterLambda == 0.){
+    out = 250.;
+  }else {
+    out = centerLambda/ClustersMeanCenterLambda;
+  }
+
+  if (std::isnan(std::abs(out))){
+    out = 0.;
+  }
+  if (std::isinf(out)){
+    out = 250.;
+  }
+  out = std::min(out, 250.);
+
+  return success;
+}
+
+
+bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
+  const xAOD::Jet *jet_seed = (*tau.jetLink());
+  if (!jet_seed) {
+    return false;
+  }
+
+  std::size_t nClustersTotal = 0;
+  std::vector<const xAOD::CaloCluster *> clusters;
+
+  xAOD::JetConstituentVector jcv = jet_seed->getConstituents();
+  xAOD::JetConstituentVector::const_iterator it = jcv.begin();
+  xAOD::JetConstituentVector::const_iterator it_end = jcv.end();
+  for (; it != it_end; ++it) {
+    auto cl = dynamic_cast<const xAOD::CaloCluster *>((*it)->rawConstituent());
+    if (!cl) {
+	return false;
+    }
+    clusters.push_back(cl);
+    ++nClustersTotal;
+  }
+
+  // Number of tracks to save
+  std::size_t nClustersSave = nClustersTotal;
+  size_t      n_clusterMax(6);
+  if (n_clusterMax > 0) {
+    nClustersSave = std::min(static_cast<std::size_t>(n_clusterMax),
+			       nClustersTotal);
+  }
+  // Sort clusters in descending et order
+  auto et_cmp = [](const xAOD::CaloCluster *lhs,
+		     const xAOD::CaloCluster *rhs) {
+    return lhs->et() > rhs->et();
+  };
+  std::sort(clusters.begin(), clusters.end(), et_cmp);
+
+  TLorentzVector LC_P4;
+  LC_P4.SetPtEtaPhiM(tau.ptDetectorAxis(), tau.etaDetectorAxis(), tau.phiDetectorAxis(), tau.m());
+  
+  float clE(0.), Etot(0.);
+  using MomentType = xAOD::CaloCluster::MomentType;
+  for (std::size_t i = 0; i < nClustersSave; ++i) {
+    auto cls = clusters[i];
+
+    // gipezzul: 2019-09-16
+    //now evaluate the avarage values for: lambda, second lambda, EMProb, presamplerFrac
+    //DR selection from: https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/tauRecTools/Root/MvaTESVariableDecorator.cxx
+
+    TLorentzVector cluster_P4;
+    cluster_P4.SetPtEtaPhiM(1, cls->eta(), cls->phi(),0);
+    if(LC_P4.DeltaR(cluster_P4)>0.2)            continue;
+    clE = cls->calE();
+    Etot += clE;
+  }
+	
+  // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
+  // divided by ETot to make it dimension-less, 
+  // so we need to evaluate the differance of log10(cluster_firstEngDens) and the ClustersMeanFirstEngDens
+  float min_FirstEng = 1e-10;
+  float cluster_FirstEngDens       = std::max(cluster.getMomentValue(MomentType::FIRST_ENG_DENS), (double)min_FirstEng);
+  out = TMath::Log10(cluster_FirstEngDens/std::max(Etot, min_FirstEng)) - tau.auxdata<float>("ClustersMeanFirstEngDens");
+  
+  return true;
 }
 
 } // namespace Cluster

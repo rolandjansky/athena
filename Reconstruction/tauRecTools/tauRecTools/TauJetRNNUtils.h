@@ -105,6 +105,23 @@ bool ptDetectorAxis(const xAOD::TauJet &tau, double &out);
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out);
 
+//functions to calculate input variables needed for the eVeto RNN
+bool ptJetSeed_log             (const xAOD::TauJet &tau, double &out);
+bool absleadTrackEta           (const xAOD::TauJet &tau, double &out);
+bool leadTrackDeltaEta         (const xAOD::TauJet &tau, double &out);
+bool leadTrackDeltaPhi         (const xAOD::TauJet &tau, double &out);
+bool EMFracFixed               (const xAOD::TauJet &tau, double &out);
+bool etHotShotWinOverPtLeadTrk (const xAOD::TauJet &tau, double &out);
+bool hadLeakFracFixed          (const xAOD::TauJet &tau, double &out);
+bool PSFrac                    (const xAOD::TauJet &tau, double &out);
+bool ClustersMeanCenterLambda  (const xAOD::TauJet &tau, double &out);
+bool ClustersMeanEMProbability (const xAOD::TauJet &tau, double &out);
+bool ClustersMeanFirstEngDens  (const xAOD::TauJet &tau, double &out);
+bool ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out);
+bool ClustersMeanSecondLambda  (const xAOD::TauJet &tau, double &out);
+bool ClustersMeanSecondR       (const xAOD::TauJet &tau, double &out);
+bool EMPOverTrkSysP            (const xAOD::TauJet &tau, double &out);
+
 
 namespace Track {
 
@@ -148,6 +165,9 @@ bool nPixelHitsPlusDeadSensors (
 bool nSCTHitsPlusDeadSensors (
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool eProbabilityHT(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
 
 
@@ -176,6 +196,10 @@ bool SECOND_LAMBDA(
 
 bool CENTER_LAMBDA(
     const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+
+bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
+bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out);
 
 } // namespace Cluster
 } // namespace Variables
