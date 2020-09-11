@@ -401,12 +401,14 @@ namespace Analysis {
                 if (m_Chi2Cut <= 0.0 || chi2 <= m_Chi2Cut) {             
                 	// decorate the candidate with refitted tracks and muons via the BPhysHelper
                 	xAOD::BPhysHelper jpsiHelper(myVxCandidate);
-                	jpsiHelper.setRefTrks();
+                	bool validtrk = jpsiHelper.setRefTrks();
+                    if(!validtrk) ATH_MSG_WARNING("Problem setting tracks " << __FILE__ << ':' << __LINE__);
                 	if (m_mumu || m_mutrk) {
                          theStoredMuons.clear();
                 	     theStoredMuons.push_back((*jpsiItr).muon1);
                 	     if (m_mumu) theStoredMuons.push_back((*jpsiItr).muon2);
-                	     jpsiHelper.setMuons(theStoredMuons,importedMuonCollection);
+                	     bool valid = jpsiHelper.setMuons(theStoredMuons,importedMuonCollection);
+                         if(!valid) ATH_MSG_WARNING("Problem setting muons " << __FILE__ << ':' << __LINE__);
                 	}
                 	// Retain the vertex
                     vxContainer->push_back(myVxCandidate);       
@@ -649,7 +651,7 @@ namespace Analysis {
             if(qOverP1*qOverP2>0.0) sameCh=true; // product charge > 0
             // +ve should be first so swap
             // Don't do it for tag and probe analyses (because tag muon must not change position)
-            if (oppCh && qOverP1<0.0 && !m_doTagAndProbe) {
+            if (oppCh && qOverP1<0.0 && !m_doTagAndProbe && !m_mutrk) {
             	tmpJpsi.trackParticle1 = (*jpsiItr).trackParticle2;
             	tmpJpsi.trackParticle2 = (*jpsiItr).trackParticle1;
             	tmpJpsi.muon1 = (*jpsiItr).muon2;
