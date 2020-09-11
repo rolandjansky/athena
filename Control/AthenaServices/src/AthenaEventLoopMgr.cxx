@@ -714,6 +714,25 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
 	  return StatusCode::FAILURE;
 	}
       }
+    } else {
+      // Ensure we still have old EventInfo
+      const EventInfo* pEventOld = eventStore()->tryConstRetrieve<EventInfo>();
+      if (pEventOld == nullptr) {
+        const xAOD::EventInfo* xAODEvent=eventStore()->tryConstRetrieve<xAOD::EventInfo>();
+        if (xAODEvent == nullptr) {
+          m_msg << MSG::ERROR << "Failed to produce legacy EventInfo from xAODEventInfo" << endmsg;
+          return StatusCode::FAILURE;
+        }
+
+        std::unique_ptr<EventInfo> pEventPtrLegacy = CxxUtils::make_unique<EventInfo>(new EventID(eventIDFromxAOD(xAODEvent)), new EventType(eventTypeFromxAOD(xAODEvent)));
+        StatusCode sc = eventStore()->record(std::move(pEventPtrLegacy), "");
+        if( !sc.isSuccess() )  {
+          m_msg << MSG::ERROR << "Error declaring event data object" << endmsg;
+          return StatusCode::FAILURE;
+        } else {
+          m_msg << MSG::INFO << "Recorded legacy EventInfo for backwards compatibility" << endmsg;
+        }
+      }
     }
   }
   else 
