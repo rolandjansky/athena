@@ -12,7 +12,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 augTools = []
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
    addStandardTruthContents()
    from DerivationFrameworkMCTruth.HFHadronsCommon import *

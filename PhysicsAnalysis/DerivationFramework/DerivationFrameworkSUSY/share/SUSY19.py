@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -109,7 +109,7 @@ thinningTools.append(SUSY19PhotonTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     SUSY19TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY19TruthThinningTool",
@@ -157,8 +157,10 @@ SUSY19TrackIsoTool.TrackSelectionTool.minPt= 1000.
 SUSY19TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += SUSY19TrackIsoTool
 
+if DerivationFrameworkIsDataOverlay:
+    raise RuntimeError('Not sure how to run over overlay data for SUSY19!')
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
-SUSY19IsoCorrectionTool = CP__IsolationCorrectionTool (name = "SUSY19IsoCorrectionTool", IsMC = DerivationFrameworkIsMonteCarlo)
+SUSY19IsoCorrectionTool = CP__IsolationCorrectionTool (name = "SUSY19IsoCorrectionTool", IsMC = DerivationFrameworkHasTruth)
 ToolSvc += SUSY19IsoCorrectionTool
 
 # tool to collect topo clusters in cone
@@ -258,7 +260,7 @@ SUSY19InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( n
 ToolSvc += SUSY19InclusiveTriggerSkimmingTool
 
 SUSY19TriggerSkimmingTool=None
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     # one muon + jet + met trigger
     SUSY19SoftOneMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19OneMuonTriggerSkimmingTool",
                                                                                      TriggerListAND = ['HLT_mu4','HLT_xe50_mht','HLT_j110'])
@@ -432,7 +434,7 @@ SUSY19SlimmingHelper.IncludeBJetTriggerContent = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY19SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',

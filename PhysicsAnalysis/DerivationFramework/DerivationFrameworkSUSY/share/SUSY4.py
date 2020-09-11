@@ -10,7 +10,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addBSMAndDownstreamParticles, addHFAndDownstreamParticles, addPVCollection, addTopQuarkAndDownstreamParticles
   addStandardTruthContents()
   addBSMAndDownstreamParticles()
@@ -96,7 +96,7 @@ thinningTools.append(SUSY4TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY4TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY4TruthThinningTool",
                                                        ThinningService              = SUSY4ThinningHelper.ThinningSvc(),
@@ -245,9 +245,6 @@ SeqSUSY4 += CfgMgr.DerivationFramework__DerivationKernel(
 OutputJets["SUSY4"] = []
 
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY4, "SUSY4")
@@ -345,7 +342,7 @@ SUSY4SlimmingHelper.IncludeEtMissTriggerContent = False
 SUSY4SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
    SUSY4SlimmingHelper.AppendToDictionary = {
       'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets': 'xAOD::JetContainer', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux': 'xAOD::JetAuxContainer',
       #'TruthTop':                   'xAOD::TruthParticleContainer', 'TruthTopAux':                   'xAOD::TruthParticleAuxContainer',
@@ -365,7 +362,7 @@ else:
 
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   SUSY4SlimmingHelper.AllVariables += [
                                       "TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", 
                                       #"TruthTop", # Remove TruthTop as it overlaps with addTopQuarkAndDownstreamParticles()
@@ -380,7 +377,7 @@ if DerivationFrameworkIsMonteCarlo:
 # Extra info for quark-gluon tagging 
 #==============================================================================
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
 	  truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqSUSY4,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 

@@ -13,7 +13,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -252,7 +252,7 @@ TAUP5SlimmingHelper.SmartCollections = ["Electrons",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   TAUP5SlimmingHelper.StaticContent  = ["xAOD::TruthParticleContainer#TruthBoson",
                                         "xAOD::TruthParticleAuxContainer#TruthBosonAux.",
                                         "xAOD::TruthParticleContainer#TruthElectrons",
@@ -282,7 +282,7 @@ TAUP5SlimmingHelper.AppendToDictionary["DiTauJetsLowPtAux"] = 'xAOD::DiTauJetAux
 TAUP5SlimmingHelper.AllVariables += ["DiTauJetsLowPt"] #Add in the ditaus
 TAUP5SlimmingHelper.ExtraVariables += ["DiTauJetsLowPt.LSLMass"] #Add ditau lead+sublead subjet system invariant mass decoration because why not
 
-if globalflags.DataSource() == "geant4":
+if DerivationFrameworkHasTruth:
   TAUP5SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP5
   TAUP5SlimmingHelper.AllVariables              += ExtraContainersTruthTAUP5
 

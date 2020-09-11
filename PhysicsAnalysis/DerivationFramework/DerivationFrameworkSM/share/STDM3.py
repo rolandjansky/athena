@@ -21,7 +21,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 # Add Truth MetaData
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #====================================================================
@@ -244,7 +244,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM3Sequence
 
 #q/g tagging
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
     truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=STDM3Sequence,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)

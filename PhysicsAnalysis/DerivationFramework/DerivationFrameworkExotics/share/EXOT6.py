@@ -31,7 +31,7 @@ augTools.append(TrigMatchAug)
 
 # using now TauTruthCommon, so we use a central Python setup and it is not imported twice
 # Tau truth common is a part of the standard truth tools
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 
@@ -159,7 +159,7 @@ replaceAODReducedJets(reducedJetList,exot6Seq,"EXOT6")
 
 #q/g tagging
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
     truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot6Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)

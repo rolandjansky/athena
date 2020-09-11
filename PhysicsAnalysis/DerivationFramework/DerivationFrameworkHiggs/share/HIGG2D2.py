@@ -11,7 +11,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -161,7 +161,7 @@ else:
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     ToolSvc += HIGG2D2TruthThinningTool
     thinningTools.append(HIGG2D2TruthThinningTool)
 print "HIGG2D2.py thinningTools", thinningTools
@@ -188,7 +188,8 @@ if jobproperties.Beam.energy()==4000000.0:
     electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
 triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
 # 8 TeV MC does not have trigger information
-SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (jobproperties.Beam.energy()==4000000.0))
+# Note presence of MC truth being used as a proxy for MC - should be ok for 8 TeV MC
+SkipTriggerRequirement=(DerivationFrameworkHasTruth and (jobproperties.Beam.energy()==4000000.0))
 print "HIGG2D2.py SkipTriggerRequirement", SkipTriggerRequirement
 if SkipTriggerRequirement:
     triggerRequirement=[]
@@ -269,7 +270,7 @@ HIGG2D2SlimmingHelper.SmartCollections = ["Electrons",
 
 HIGG2D2SlimmingHelper.ExtraVariables = HIGG2D2ExtraContent
 HIGG2D2SlimmingHelper.AllVariables = HIGG2D2ExtraContainers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HIGG2D2SlimmingHelper.ExtraVariables += HIGG2D2ExtraContentTruth
     HIGG2D2SlimmingHelper.AllVariables += HIGG2D2ExtraContainersTruth
 

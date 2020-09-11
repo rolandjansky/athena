@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles
     addStandardTruthContents(DerivationFrameworkJob)
     addBosonsAndDownstreamParticles(DerivationFrameworkJob, -1)
@@ -27,7 +27,7 @@ msg = logging.getLogger( "HDBS2" )
 _info = msg.info
 
 
-_info( "DerivationFrameworkIsMonteCarlo: %s", DerivationFrameworkIsMonteCarlo)
+_info( "DerivationFrameworkHasTruth: %s", DerivationFrameworkHasTruth)
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -325,7 +325,7 @@ HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2RecoKpi.OutputVt
 # ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
 HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2RecoKpi.OutputVtxContainerName]
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticles"]
     HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticlesAux."]
     HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayVerticies"]
@@ -409,7 +409,7 @@ _info( "HDBS2.py thinningTools: %s", thinningTools)
 
 from AthenaCommon.BeamFlags import jobproperties
 _info("HDBS2.py jobproperties.Beam.energy(): %d", jobproperties.Beam.energy())
-SkipTriggerRequirement= DerivationFrameworkIsMonteCarlo
+SkipTriggerRequirement= DerivationFrameworkHasTruth
 # no need to apply trigger requirements on MC 
 _info("HDBS2.py SkipTriggerRequirement: %s", SkipTriggerRequirement)
 TriggerJPSI= []
@@ -569,7 +569,7 @@ HDBS2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 # For J/psi vertex augmentation
 HDBS2SlimmingHelper.StaticContent = HDBS2StaticContent
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HDBS2SlimmingHelper.ExtraVariables += HDBS2ExtraContentTruth
     HDBS2SlimmingHelper.AllVariables += HDBS2ExtraContainersTruth
 
@@ -586,5 +586,5 @@ HDBS2SlimmingHelper.AppendToDictionary = {
 
 
 HDBS2SlimmingHelper.AppendContentToStream(HDBS2Stream)
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HDBS2Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )

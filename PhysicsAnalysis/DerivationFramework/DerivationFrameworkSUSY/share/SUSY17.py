@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -94,7 +94,7 @@ thinningTools.append(SUSY17TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY17TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY17TruthThinningTool",
                                                        ThinningService              = SUSY17ThinningHelper.ThinningSvc(),
@@ -163,7 +163,8 @@ PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')'
 
 JetEleExpression = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>20*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=2)'
 
-if DerivationFrameworkIsMonteCarlo:
+# Note truth info used as a proxy for a different trigger menu
+if DerivationFrameworkHasTruth:
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
 else:
   # prescaled triggers originally from SUSY5
@@ -225,9 +226,6 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY17, algname='JetF
 #==============================================================================
 OutputJets["SUSY17"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically
 replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
@@ -237,7 +235,7 @@ replaceAODReducedJets(reducedJetList, SeqSUSY17, "SUSY17")
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
@@ -316,7 +314,7 @@ SUSY17SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY17SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',

@@ -5,7 +5,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -55,7 +55,7 @@ thinningTools.append(EXOT23TPThinningTool)
 ##====================================================================
 AugmentationTools = []
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     # -- decorate truth particles with track parameters -- #
     # decorator tool
     from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValTruthDecoratorTool

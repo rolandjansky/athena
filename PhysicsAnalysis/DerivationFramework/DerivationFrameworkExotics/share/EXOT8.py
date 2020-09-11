@@ -479,7 +479,7 @@ for alg in largeRJetAlgs:
   largeRJetCollections.append(alg+"Jets")
 
 # Add truth labeling to groomed large-R jet collections
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=exot8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 

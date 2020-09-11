@@ -18,7 +18,7 @@ from DerivationFrameworkSUSY.SUSYCommonFlags import SUSYFlags
 
 #BTaggingFlags.Do2019Retraining = False 
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -44,8 +44,8 @@ DerivationFrameworkJob += SeqSUSY1
 #====================================================================
 from DerivationFrameworkSUSY.SUSY1TriggerList import SUSY1ThinTriggers
 
-
-if SUSYFlags.TurnOffThinning == True and not DerivationFrameworkIsMonteCarlo:
+# Note here using truth information as a proxy for running different triggers (not obvious!)
+if SUSYFlags.TurnOffThinning == True and not DerivationFrameworkHasTruth:
   SUSY1ThinningHelper.TriggerChains = ""
 else:
   SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
@@ -167,7 +167,7 @@ thinningTools.append(SUSY1PhotonThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY1TruthThinningTool",
@@ -323,9 +323,6 @@ OutputJets["SUSY1"] = []
 
 #reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
 reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets","AntiKt4TruthDressedWZJets"]
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets" ]
 
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets flavour tagging not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY1, "SUSY1")
@@ -478,7 +475,7 @@ SUSY1SlimmingHelper.StaticContent = StaticContent
 appendToDictDict = {
   }
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
   appendToDictDict['TruthTop']='xAOD::TruthParticleContainer';
   appendToDictDict['TruthTopAux']='xAOD::TruthParticleAuxContainer';

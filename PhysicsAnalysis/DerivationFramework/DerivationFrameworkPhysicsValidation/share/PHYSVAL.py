@@ -36,7 +36,7 @@ reducedJetList = [ "AntiKt10PV0TrackJets",
                    "AntiKt2PV0TrackJets",
                    "AntiKt4PV0TrackJets"]
 
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    OutputJets["PHYSVAL"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
    reducedJetList.append("AntiKt4TruthWZJets")
    reducedJetList.append("AntiKt10TruthJets")
@@ -74,7 +74,7 @@ addDiTauLowPt()
 #====================================================================
 # Truth collections
 #====================================================================
-if (DerivationFrameworkIsMonteCarlo):
+if DerivationFrameworkHasTruth:
    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
    addStandardTruthContents()
 

@@ -29,6 +29,8 @@ if "AthAnalysisBase" not in os.environ.get("CMTEXTRATAGS",""):
 # Trap for ROOT6 errors
 theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
 
+from AthenaCommon import Logging
+dfmasterlog = Logging.logging.getLogger('DFMaster')
 
 # Trigger navigation slimming
 #from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool, HLT__StreamTrigNavSlimming
@@ -69,32 +71,30 @@ if not hasattr(svcMgr, 'DecisionSvc'):
         svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
 
-# Trigger decision tool
-# SUPERFLUOUS
-#if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-#    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-#    cfg = TriggerConfigGetter('ReadPool')
-#    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-#    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-#    ToolSvc += tdt
-
 # Centrally setting  flags
 jetFlags.useTracks = True
 # MC-related flags
-DerivationFrameworkIsMonteCarlo=False
+DerivationFrameworkHasTruth=False
+DerivationFrameworkHasxAODTruth=False
 DerivationFrameworkSimBarcodeOffset = int(200e3)
-if globalflags.DataSource()=='geant4':
-    print "Switching on jetFlags.useTruth"
+DerivationFrameworkIsDataOverlay=False
+# To establish if this file has truth information, we look for the relevant collections
+from RecExConfig.ObjKeyStore import objKeyStore
+if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ) or \
+   objKeyStore.isInInput( "McEventCollection", "TruthEvent") or \
+   objKeyStore.isInInput( "xAOD::TruthEventContainer","TruthEvents"):
+    DerivationFrameworkHasTruth=True
+    dfmasterlog.info("Switching on jetFlags.useTruth")
     jetFlags.useTruth = True
-    DerivationFrameworkIsMonteCarlo = True
-    try:
-        # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
-        from RecExConfig.ObjKeyStore import objKeyStore
-        # Make sure input file is not EVNT
-        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-            DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
-    except:
-        print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
+    if 'metadata' in inputFileSummary and '/Simulation/Parameters' in inputFileSummary['metadata'] and \
+       'SimBarcodeOffset' in inputFileSummary['metadata']['/Simulation/Parameters']:
+        DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
+    else:
+        dfmasterlog.warning('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
+if objKeyStore.isInInput( "xAOD::TruthEventContainer","TruthEvents"):
+    DerivationFrameworkHasxAODTruth=True
+if globalflags.DataSource() is not 'geant4' and DerivationFrameworkHasTruth:
+    DerivationFrameworkIsDataOverlay=True
 
 def buildFileName(derivationStream):
     return derivationStream.FileName

@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addMiniTruthCollectionLinks,addPVCollection
   addStandardTruthContents()
   addMiniTruthCollectionLinks()
@@ -107,7 +107,7 @@ thinningTools.append(SUSY3TauJetsThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   # Decorate Electron with bkg electron type/origin
   from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier
@@ -215,7 +215,7 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY3, algname='JetFo
 # Tau truth building/matching
 #==============================================================================
 # now part of MCTruthCommon
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
@@ -281,7 +281,7 @@ SUSY3SlimmingHelper.IncludeBJetTriggerContent = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY3SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',

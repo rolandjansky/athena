@@ -14,7 +14,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 
 # write heavy flavour hadron information in MC
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.HFHadronsCommon import *
 
 # utilities used to make jets on-the-fly
@@ -536,7 +536,7 @@ exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel", Thinning
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
     addTruthTaus(augTools)
 

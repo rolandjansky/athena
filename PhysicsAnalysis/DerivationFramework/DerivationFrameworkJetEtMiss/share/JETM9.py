@@ -47,7 +47,7 @@ DerivationFrameworkJob += jetm9Seq
 # Truth particle thinning
 thinningTools = []
 from AthenaCommon.GlobalFlags import globalflags
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     JETM9TruthThinning = DerivationFramework__MenuTruthThinning(name                  = "JETM9TruthThinning",
                                                                 ThinningService            = "JETM9ThinningSvc",

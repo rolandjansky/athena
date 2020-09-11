@@ -50,7 +50,7 @@ HION1SlimmingHelper = SlimmingHelper("HION1SlimmingHelper")
 allVariables = []
 allVariables.append("InDetTrackParticles")
 allVariables.append("PrimaryVertices")
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     allVariables.append("TruthParticles")
     allVariables.append("TruthVertices")
     allVariables.append("TruthEvents") 

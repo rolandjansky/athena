@@ -19,7 +19,7 @@ from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 # Add Truth MetaData
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 stdm9Seq = CfgMgr.AthSequencer("STDM9Sequence")

@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 
@@ -100,7 +100,7 @@ ToolSvc += EXOT0PhotonThinningTool
 thinningTools.append(EXOT0PhotonThinningTool)
 
 # truth thinning
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasxAODTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   EXOT0TruthTool = DerivationFramework__MenuTruthThinning(name                         = "EXOT0TruthTool",
                                                           ThinningService              = EXOT0ThinningHelper.ThinningSvc(),
@@ -215,12 +215,6 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,SeqEXOT0,"EXOT0")
 
-# redo ghost association
-#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
-#if DerivationFrameworkIsMonteCarlo :
-#    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=SeqEXOT0, algname="JetPtAssociationAlg")
-#    addJetPtAssociation(jetalg="AntiKt4EMPFlow",  truthjetalg="AntiKt4TruthJets", sequence=SeqEXOT0, algname="JetPtAssociationAlg")
-
 #b-tagging for pflow jets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqEXOT0) 
@@ -228,7 +222,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqEXOT0)
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
   addTruthTaus(AugmentationTools)
 
@@ -236,7 +230,7 @@ if DerivationFrameworkIsMonteCarlo:
 #==============================================================================
 # background generator filters
 #==============================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   ToolSvc += CfgMgr.DerivationFramework__GenFilterTool("EXOT0GenFilt",SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset)
   AugmentationTools.append(ToolSvc.EXOT0GenFilt)
 
@@ -260,7 +254,7 @@ EXOT0SlimmingHelper.IncludeTauTriggerContent    = False
 EXOT0SlimmingHelper.IncludeEtMissTriggerContent = False
 EXOT0SlimmingHelper.IncludeBJetTriggerContent   = False
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer'}
   EXOT0SlimmingHelper.AppendToDictionary = {'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer'}

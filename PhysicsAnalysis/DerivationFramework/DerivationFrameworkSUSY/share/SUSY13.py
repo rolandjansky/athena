@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -94,7 +94,7 @@ thinningTools.append(SUSY13TauTPThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY13TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY13TruthThinningTool",
                                                        ThinningService              = SUSY13ThinningHelper.ThinningSvc(),
@@ -195,16 +195,6 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY13, algname='JetForwardPFlo
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY13, algname='JetForwardJvtToolBDTAlg')
 
 #==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#
-#  OutputJets["SUSY13"] = []
-#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-#
-#  replaceAODReducedJets(reducedJetList, SeqSUSY13, "SUSY13")
-
-
-#==============================================================================
 # Augment after skim
 #==============================================================================
 SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel(
@@ -257,7 +247,7 @@ SUSY13SlimmingHelper.IncludeBJetTriggerContent   = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   SUSY13SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',

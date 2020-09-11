@@ -13,7 +13,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import addLHE3Weights
 from DerivationFrameworkInDet.InDetCommon import *
 
 # Add Truth MetaData
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
 
 #====================================================================
@@ -48,7 +48,7 @@ STDM11ThinningHelper.AppendToStream( STDM11Stream )
 #====================================================================
 
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
   STDM11TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "STDM11ViewContThinning",
                                                                         ThinningService        = STDM11ThinningHelper.ThinningSvc(),

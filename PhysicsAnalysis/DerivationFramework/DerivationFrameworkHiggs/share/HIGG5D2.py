@@ -15,15 +15,15 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkHasTruth: 
   from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
   scheduleTauTruthTools()
 
 # running on data or MC
 # from AthenaCommon.GlobalFlags import globalflags
-# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
+# print "DEBUG is MC ? ",DerivationFrameworkHasTruth
 
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   from DerivationFrameworkHiggs.TruthCategories import *
 
 #====================================================================
@@ -70,7 +70,7 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2
 
 #generic jet thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   thinningTools.append( HIGG5Common.getTruthThinningTool('HIGG5D2',HIGG5D2ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
   thinningTools.append( HIGG5Common.getAntiKt10TruthWZTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
@@ -349,7 +349,7 @@ higg5d2Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 #====================================================================
 # SET UP CUSTOM TRUTH3 INFORMATION (only for higg5D2Kernel)
 #====================================================================
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
   HIGG5Common.getTruth3Collections(higg5d2Seq)
 
 higg5d2Seq += CfgMgr.DerivationFramework__DerivationKernel(
@@ -400,7 +400,7 @@ HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D2SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG5D2SlimmingHelper.AllVariables = ExtraContainers
 # HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     HIGG5D2SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D2SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
@@ -410,7 +410,7 @@ slimmed_content=["HIGG5D2Jets",
                  "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                  "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
         ]
-if DerivationFrameworkIsMonteCarlo :
+if DerivationFrameworkHasTruth :
     slimmed_content+=[
              "AntiKt4TruthJets",
              "AntiKt4TruthDressedWZJets"

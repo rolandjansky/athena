@@ -20,8 +20,8 @@ def addSoftBVrt(sequencer=None,WP='Loose',postfix=''):
         SoftBVrtLog.warning("No sequencer provided. Skipping")
         #print a message and return 
         return
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
-    if DerivationFrameworkIsMonteCarlo:
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+    if DerivationFrameworkHasTruth:
         from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles
         if not hasattr(sequencer,'SoftVtxBHadMCTruthCommonHFAndDecaysKernel'):
             addHFAndDownstreamParticles(kernel=sequencer, addB=True, addC=False, generations=0, prefix='SoftVtxBHad')

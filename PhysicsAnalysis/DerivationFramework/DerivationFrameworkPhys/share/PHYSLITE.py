@@ -43,7 +43,7 @@ SeqPHYSLITE = CfgMgr.AthSequencer("SeqPHYSLITE")
 #====================================================================
 # TRUTH CONTENT
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
   addStandardTruthContents(SeqPHYSLITE)
   addPVCollection(SeqPHYSLITE)
@@ -64,7 +64,7 @@ if DerivationFrameworkIsMonteCarlo:
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
 # these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
 
   PHYSLITEttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("PHYSLITETTbarPlusBFilterTool")
@@ -210,11 +210,11 @@ thinningTools.append(PHYSLITEVertexThinningTool)
 OutputJets["PHYSLITE"] = ["AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"]
 reducedJetList = ["AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"]
 
-if (DerivationFrameworkIsMonteCarlo):
+if (DerivationFrameworkHasTruth):
    OutputJets["PHYSLITE"].append("AntiKt10TruthSoftDropBeta100Zcut10Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
-add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
+add_largeR_truth_jets = DerivationFrameworkHasTruth and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthSoftDropBeta100Zcut10')
 addDefaultUFOSoftDropJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
 
 # Rebuild the PFlow jets for a consistent set of inputs to MET
@@ -222,7 +222,7 @@ addCHSPFlowObjects()
 addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=SeqPHYSLITE, outputGroup="PHYSLITE", calibOpt="arj:pflow", overwrite=True)
 
 # Add large-R jet truth labeling
-if (DerivationFrameworkIsMonteCarlo):
+if (DerivationFrameworkHasTruth):
    addJetTruthLabel(jetalg="AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 # q/g discrimination
@@ -258,9 +258,10 @@ sysLoader.systematicsList= ['']
 SeqPHYSLITE += sysLoader
 
 dataType = "data"
-
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   dataType = "mc"
+if DerivationFrameworkIsDataOverlay:
+  raise RuntimeError('Do not know how to run PHYSLITE over overlay data!')
 
 #in your c++ code, create a ToolHandle<IPileupReweightingTool>
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
@@ -484,7 +485,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "METAssoc_AnalysisMET.",
   ]
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 

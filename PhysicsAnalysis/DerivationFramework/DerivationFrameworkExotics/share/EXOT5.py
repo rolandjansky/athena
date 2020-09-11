@@ -17,7 +17,7 @@ from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon #add GenFiltMET
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkHasTruth:
   MCTruthCommon.addStandardTruthContents()
 
 #====================================================================
@@ -152,7 +152,7 @@ thinningTools.append(EXOT5PhotonCCThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
     # add STXS inputs
     from DerivationFrameworkHiggs.TruthCategories import *
@@ -504,7 +504,7 @@ lepton_triggers = [
     ]
 triggerVBF = ["HLT_j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF","HLT_j70_j50_0eta490_invm1000j50_dphi24_xe90_pufit_xe50_L1MJJ-500-NFF","HLT_g35_medium_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF", "HLT_e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25", "HLT_mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25", ]
 
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
     EXOT5VBFStringSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name                    = "EXOT5VBFStringSkimmingTool",
                                                                              TriggerListOR           = (triggers+lepton_triggers+triggerVBF) )
     ToolSvc += EXOT5VBFStringSkimmingTool
@@ -599,7 +599,7 @@ exot5Seq += CfgMgr.DerivationFramework__DerivationKernel('EXOT5Kernel', Thinning
 
 # Augment AntiKt4 jets with QG tagging variables
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
   truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=exot5Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
@@ -657,7 +657,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     'xTrigDecision.bgCode.tav.tap.tbp.lvl2PassedRaw.efPassedRaw.lvl2PassedThrough.efPassedThrough.lvl2Prescaled.efPrescaled.lvl2Resurrected.efResurrected'
     ]
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     EXOT5SlimmingHelper.AllVariables = ['TruthVertex']
     EXOT5SlimmingHelper.StaticContent = [
         'xAOD::TruthParticleContainer#EXOT5TruthMuons',

@@ -57,7 +57,7 @@ if globalflags.DataSource()=='geant4':
 
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import *
     addStandardTruthContents()
     addPVCollection()
@@ -258,7 +258,7 @@ OutputJets["HIGG1D1Jets"] = []
 
 # Augment AntiKt4 jets with QG tagging variables
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
     truthjetalg=None    
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG1D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)

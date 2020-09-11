@@ -4,7 +4,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
     derivationFlags, buildFileName, MSMgr, DerivationFrameworkJob,
-    DerivationFrameworkIsMonteCarlo)
+    DerivationFrameworkHasTruth)
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
     DerivationFramework__DerivationKernel)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
@@ -46,7 +46,7 @@ from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import (
     FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
 
@@ -88,7 +88,7 @@ EXOT27AllVariables = [
 OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets","AntiKt4EMPFlowJets_BTagging201903","AntiKt4EMPFlowJets_BTagging201810"]
 
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   EXOT27AllVariables += [
     "TruthParticles",
     "TruthVertices",
@@ -271,7 +271,7 @@ ToolSvc += EXOT27TrackSelection
 
 EXOT27AugmentationTools.append(EXOT27TrackSelection)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     #add STXS inputs
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
     DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
@@ -451,7 +451,7 @@ EXOT27ThinningTools.append(
 # What I have here is extremely simplistic - designed to at least have what I
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
 # code
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   truth_with_descendants = [6, 22, 23, 24, 25, 54]  # pdg id 54: scalar particle in mono-scalar signal model
   truth_sel_with_descendants = "||".join(map("(abs(TruthParticles.pdgId) == {0})".format, truth_with_descendants) )
   EXOT27ThinningTools += [

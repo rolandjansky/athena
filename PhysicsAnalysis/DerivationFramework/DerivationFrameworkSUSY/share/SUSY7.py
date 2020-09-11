@@ -10,7 +10,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
@@ -50,7 +50,7 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
 # these are supposed to mimic the TTbarPlusBFilter, TTbarPlusBBFilter, and TTbarPlusCFilter Filters in https://svnweb.cern.ch/trac/atlasoff/browser/Generators/MC15JobOptions/trunk/common/Filters
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
 
   SUSY7ttbarBfiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusBFilterTool")
@@ -196,7 +196,7 @@ thinningTools.append(SUSY7MuonCCThinningTool)
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY7TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY7TruthThinningTool",
                                                        ThinningService              = SUSY7ThinningHelper.ThinningSvc(),
@@ -356,10 +356,6 @@ if IsSUSYSignal():
 OutputJets["SUSY7"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets" ]
 
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#  reducedJetList += [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-
 # AntiKt2PV0TrackJets is flavour-tagged automatically (AntiKt4PV0TrackJets is not supported in R21)
 replaceAODReducedJets(reducedJetList, SeqSUSY7, "SUSY7")
 
@@ -483,7 +479,7 @@ SUSY7SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContain
                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py) 
-if DerivationFrameworkIsMonteCarlo:   
+if DerivationFrameworkHasTruth:   
   SUSY7SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
 
 

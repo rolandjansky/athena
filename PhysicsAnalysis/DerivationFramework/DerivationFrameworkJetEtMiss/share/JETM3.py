@@ -13,7 +13,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 #
 from DerivationFrameworkJetEtMiss.METCommon import *
 #
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -118,7 +118,7 @@ thinningTools.append(JETM3TPThinningTool)
 doTruthThinning = True
 preserveAllDescendants = False
 from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:
+if doTruthThinning and DerivationFrameworkHasTruth:
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
     truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
     truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5 && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
@@ -178,7 +178,7 @@ addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm3Seq, o
 addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
@@ -209,7 +209,7 @@ for radius in [0.2, 0.6]:
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     addMETTruthMap('AntiKt4EMTopo',"JETMX")
     addMETTruthMap('AntiKt4LCTopo',"JETMX")
     addMETTruthMap('AntiKt4EMPFlow',"JETMX")

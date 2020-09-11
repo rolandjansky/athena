@@ -11,7 +11,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -186,7 +186,7 @@ else:
                                                                       PreserveGeneratorDescendants = True,
                                                                       WriteFirstN                  = -1)
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     ToolSvc += HIGG2D1TruthThinningTool
     thinningTools.append(HIGG2D1TruthThinningTool)
 print "HIGG2D1.py thinningTools", thinningTools
@@ -303,7 +303,7 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
         # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Jets_MET
         HIGG2D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
                                                    "AntiKt4TruthWZJets",
@@ -314,7 +314,7 @@ from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG2D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG2D1SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth
     HIGG2D1SlimmingHelper.AppendToDictionary.update({'TruthTop':'xAOD::TruthParticleContainer',

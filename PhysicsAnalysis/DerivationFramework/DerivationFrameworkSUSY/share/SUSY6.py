@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkTau.TauCommon import *
@@ -215,8 +215,10 @@ TrackIsoToolPdEdxTight.TrackSelectionTool.minPt = 1000.
 TrackIsoToolPdEdxTight.TrackSelectionTool.CutLevel = "Loose"
 ToolSvc += TrackIsoToolPdEdxTight
 
+if DerivationFrameworkIsDataOverlay:
+    raise RuntimeError('Not sure how to run over overlay data for SUSY6')
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
-IsoCorrectionTool = CP__IsolationCorrectionTool("NewLeakageCorrTool", IsMC = DerivationFrameworkIsMonteCarlo)
+IsoCorrectionTool = CP__IsolationCorrectionTool("NewLeakageCorrTool", IsMC = DerivationFrameworkHasTruth)
 ToolSvc += IsoCorrectionTool
 
 # tool to collect topo clusters in cone
@@ -362,7 +364,7 @@ AugmentationTools.append(SUSY6_TrackParticleCaloCellDecorator)
 # TRUTH THINNING
 #====================================================================
 
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
 
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   SUSY6TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY6TruthThinningTool",
@@ -559,7 +561,7 @@ SUSY6SlimmingHelper.IncludeBJetTriggerContent = False
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkIsMonteCarlo:
+if DerivationFrameworkHasTruth:
   SUSY6SlimmingHelper.AppendToDictionary = {
     'TruthTop':'xAOD::TruthParticleContainer',
     'TruthTopAux':'xAOD::TruthParticleAuxContainer',
