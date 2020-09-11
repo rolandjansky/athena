@@ -8,7 +8,7 @@
 #include <TH2F.h>
 #include <TString.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 
 #include "EventInfo/EventInfo.h"
