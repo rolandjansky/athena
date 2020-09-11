@@ -13,7 +13,7 @@
 class TRTParameters;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersOfModulesB // Thread unsafe TRTParameters class is used.
+class TRTParametersOfModulesB
 {
   friend class TRTConstructionOfModulesB;
 
@@ -21,14 +21,14 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfModulesB // Thread unsafe TRTParamete
     TRTParametersOfModulesB();
     ~TRTParametersOfModulesB();
    
-     MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-     bool msgLevel (MSG::Level lvl) const    { return m_msg.get().level() <= lvl; }
+     MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+     bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   private:
     TRTParametersOfModulesB (const TRTParametersOfModulesB&); 
     TRTParametersOfModulesB& operator= (const TRTParametersOfModulesB&); 
     void DefineParameters();
-    void PrintParameters(double*, double*) const;
+    void PrintParameters(MsgStream& msg, double*, double*) const;
 
     double m_baseOfShellTrd1B;
     double m_heightOfShellTrd1B;
@@ -75,10 +75,9 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfModulesB // Thread unsafe TRTParamete
     double* m_xOfHolesForCoolingTubesB;
     double* m_zOfHolesForCoolingTubesB;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
 
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif

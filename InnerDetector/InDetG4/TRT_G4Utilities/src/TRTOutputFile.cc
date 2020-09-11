@@ -1,14 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 #include <fstream>
-
-
-TRTOutputFile* TRTOutputFile::m_pOutputFile = NULL;
-
 
   // Called by GetPointer
 
@@ -31,7 +27,12 @@ TRTOutputFile::~TRTOutputFile()
 
   m_output.close();
 
-  m_pOutputFile = NULL;
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTOutputFile done" << endmsg;
+}
+
+
+TRTOutputFile* TRTOutputFile::GetPointer()
+{
+  static TRTOutputFile f ATLAS_THREAD_SAFE;
+  return &f;
 }
