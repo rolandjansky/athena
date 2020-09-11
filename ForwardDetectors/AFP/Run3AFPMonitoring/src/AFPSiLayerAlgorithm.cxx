@@ -8,7 +8,6 @@
 */
 
 #include "Run3AFPMonitoring/AFPSiLayerAlgorithm.h"
-#include <Run3AFPMonitoring/AFPFastReco.h>
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODForward/AFPStationID.h"
 #include "EventInfo/EventID.h"
@@ -285,7 +284,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		else if (lb==previouslbStation)
 		{++clusterCounterStation[lb][cluster.station];}
 		*/
-		fillSynchHistograms(lb, previouslbStation, clustersPerStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster, m_TrackGroup);
+		fillSynchHistograms(lb, previouslbStation, clustersPerStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster);
+		//void fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster, std::map<std::string,int> &mapa)
 		
 	}
 	// ========== Front Station ==========
@@ -528,8 +528,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	return StatusCode::SUCCESS;
 } // end of fillHistograms
 
-void AFPSiLayerAlgorithm::fillSynchHistograms(const EventContext& ctx, int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPCluster& cluster, std::map<std::string,int> &mapa)
+void AFPSiLayerAlgorithm::fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster) const
 {
+	//using namespace Monitored;
 	if(lbA > previouslbStationA && previouslbStationA != 0)
 	{
 		for(int i = 0; i < 4; i++)
@@ -541,7 +542,7 @@ void AFPSiLayerAlgorithm::fillSynchHistograms(const EventContext& ctx, int &lbA,
 			}
 			else{clustersPerStationA = -0.1;}
 
-			fill(m_tools[mapa.at(m_stationnames.at(i))], lbA, clustersPerStationA);
+			fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lbA, clustersPerStationA);
 		}
 		previouslbStationA=lbA;
 		++clusterCounterStationA[lbA][cluster.station];
