@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -99,7 +99,7 @@ InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase* pParent, const std::string& 
   m_pullwidth_z0_sin_theta{},
   m_pullwidth_qopt{},
   m_paramNames{"d0", "z0", "phi", "theta", "z0*sin(theta)", "qopt"},
-  m_meanWidthMethod(IDPVM::GetMeanWidth::iterRMS_convergence) {
+  m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence) {
 //
 }
 
@@ -359,7 +359,7 @@ InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthPart
 }
 
 void
-InDetPerfPlot_res::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
+InDetPerfPlot_res::Refinement(TH1D* temp, IDPVM::ResolutionHelper::methods p_method,
 			      int var, int j, const std::vector<TH1*>& tvec,
                               const std::vector<TH1*>& rvec) {
   if (temp->GetXaxis()->TestBit(TAxis::kAxisRange)) {
@@ -368,20 +368,20 @@ InDetPerfPlot_res::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
     temp->ResetStats();
   }
 
-  m_getMeanWidth.setResults(temp, p_method);
+  m_resolutionHelper.setResults(temp, p_method);
   // print out any warnings and errors
-  for (auto _it : m_getMeanWidth.getInfos())
+  for (auto _it : m_resolutionHelper.getInfos())
     ATH_MSG_INFO(_it);
-  for (auto _it : m_getMeanWidth.getWarnings())
+  for (auto _it : m_resolutionHelper.getWarnings())
     ATH_MSG_WARNING(_it);
-  for (auto _it : m_getMeanWidth.getErrors())
+  for (auto _it : m_resolutionHelper.getErrors())
     ATH_MSG_ERROR(_it);
   // RMS and RMSerror
-  (rvec[var])->SetBinContent(j, m_getMeanWidth.getRMS());
-  (rvec[var])->SetBinError(j, m_getMeanWidth.getRMSError());
+  (rvec[var])->SetBinContent(j, m_resolutionHelper.getRMS());
+  (rvec[var])->SetBinError(j, m_resolutionHelper.getRMSError());
   // mean and meanerror
-  (tvec[var])->SetBinContent(j, m_getMeanWidth.getMean());
-  (tvec[var])->SetBinError(j, m_getMeanWidth.getMeanError());
+  (tvec[var])->SetBinContent(j, m_resolutionHelper.getMean());
+  (tvec[var])->SetBinError(j, m_resolutionHelper.getMeanError());
 }
 
 void
@@ -408,33 +408,33 @@ InDetPerfPlot_res::finalizePlots() {
         // Create dummy histo w/ content from TH2 in relevant eta bin		
         TH1D* temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);	 
         TH1D* temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
-        Refinement(temp, m_meanWidthMethod, var, j, m_meanPlots, m_resoPlots);
-	if (m_getMeanWidth.getFracUOflow()>0.)
-	  warnUOBinEtaRes.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
-	Refinement(temp_pull, m_meanWidthMethod, var, j, m_pullmeanPlots, m_pullwidthPlots);
-	if (m_getMeanWidth.getFracUOflow()>0.)
-	  warnUOBinEtaPull.push_back(std::make_pair(j,m_getMeanWidth.getFracUOflow()));
+        Refinement(temp, m_resolutionMethod, var, j, m_meanPlots, m_resoPlots);
+        if (m_resolutionHelper.getFracUOflow()>0.)
+	  warnUOBinEtaRes.push_back(std::make_pair(j,m_resolutionHelper.getFracUOflow()));
+        Refinement(temp_pull, m_resolutionMethod, var, j, m_pullmeanPlots, m_pullwidthPlots);
+        if (m_resolutionHelper.getFracUOflow()>0.)
+	  warnUOBinEtaPull.push_back(std::make_pair(j,m_resolutionHelper.getFracUOflow()));
       }
       // print warnings in case of under- and over- flows
       if (!warnUOBinEtaRes.empty()) {
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_meanPlots[var]->GetName(),warnUOBinEtaRes));
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resoPlots[var]->GetName(),warnUOBinEtaRes));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_meanPlots[var]->GetName(),warnUOBinEtaRes));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_resoPlots[var]->GetName(),warnUOBinEtaRes));
       }
       if (!warnUOBinEtaPull.empty()) {
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullmeanPlots[var]->GetName(),warnUOBinEtaPull));
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_pullwidthPlots[var]->GetName(),warnUOBinEtaPull));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_pullmeanPlots[var]->GetName(),warnUOBinEtaPull));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_pullwidthPlots[var]->GetName(),warnUOBinEtaPull));
       }
       auto& mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
       for (unsigned int i = 1; i <= ptBins; i++) {
         TH1D* temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
-        Refinement(temp, m_meanWidthMethod, var, i, m_mean_vs_ptPlots, m_resptPlots);
-	if (m_getMeanWidth.getFracUOflow()>0.)
-	  warnUOBinPtRes.push_back(std::make_pair(i,m_getMeanWidth.getFracUOflow()));
+        Refinement(temp, m_resolutionMethod, var, i, m_mean_vs_ptPlots, m_resptPlots);
+        if (m_resolutionHelper.getFracUOflow()>0.)
+	  warnUOBinPtRes.push_back(std::make_pair(i,m_resolutionHelper.getFracUOflow()));
       }
       // print warnings in case of under- and over- flows
       if (!warnUOBinPtRes.empty()) {
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_mean_vs_ptPlots[var]->GetName(),warnUOBinPtRes));
-	ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(m_resptPlots[var]->GetName(),warnUOBinPtRes));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_mean_vs_ptPlots[var]->GetName(),warnUOBinPtRes));
+	ATH_MSG_WARNING(m_resolutionHelper.reportUOBinVal(m_resptPlots[var]->GetName(),warnUOBinPtRes));
       }
     }
   }
