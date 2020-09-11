@@ -97,8 +97,7 @@ def createDigitizationCfgFlags():
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
     # LHC Bunch Structure (list of non-negative floats)
-    flags.addFlag("Digitization.PileUpBunchSpacing", 25)
-    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Digitization.PileUpBunchSpacing))
+    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Beam.BunchSpacing))
     # Beam Gas input collections
     flags.addFlag("Digitization.PU.BeamGasInputCols", [])
     # LHC bunch spacing, in ns, to use in pileup digitization. Only multiples of 25 allowed.
