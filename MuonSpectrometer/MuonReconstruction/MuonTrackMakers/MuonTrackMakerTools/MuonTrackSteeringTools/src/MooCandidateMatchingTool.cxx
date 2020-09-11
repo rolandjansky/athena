@@ -250,26 +250,22 @@ namespace Muon {
 
     ATH_MSG_DEBUG("Match track/segment: useTightCuts " << useTightCuts);
     // convert segment and track
-    MuPatTrack* candidate = m_candidateTool->createCandidate(&track);
+    std::unique_ptr<Trk::Track> inTrack=std::make_unique<Trk::Track>(track);
+    std::unique_ptr<MuPatTrack> candidate = m_candidateTool->createCandidate(inTrack);
     if( !candidate ) { 
       ATH_MSG_VERBOSE("Failed to create track candidate");
      return false;
     }
 
-    MuPatSegment* segInfo = m_candidateTool->createSegInfo(segment);
+    std::unique_ptr<MuPatSegment> segInfo(m_candidateTool->createSegInfo(segment));
     if( !segInfo ) {
       ATH_MSG_VERBOSE("Failed to create segment candidate");
-      candidate->releaseTrack();
-      delete candidate;
       return false;
     }
 
     // call match
     bool ok = match(*candidate,*segInfo,useTightCuts);
     ATH_MSG_DEBUG("Match track/segment: result " << ok);
-    candidate->releaseTrack();
-    delete candidate;
-    delete segInfo;
     
     // return result
     return ok;

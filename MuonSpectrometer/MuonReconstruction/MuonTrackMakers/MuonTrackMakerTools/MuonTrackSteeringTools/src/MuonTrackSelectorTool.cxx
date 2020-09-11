@@ -33,7 +33,6 @@ namespace Muon {
       m_failedMaxMDTHoleCut(0),
       m_failedMaxHoleCut(0)
   {
-    declareInterface<ITrackSelectorTool>(this);
     declareProperty("Chi2NDofCut",                        m_chi2NDofCut = 20. );
     declareProperty("RemoveSingleStationTracks",          m_removeSingleStationTracks = false );
     declareProperty("MinimumNumberOfMdtHitsPerStation",   m_minMdtHitsPerStation = 3 );
@@ -96,7 +95,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  bool MuonTrackSelectorTool::decision( const Trk::Track& track, const Trk::Vertex* ) const {
+  bool MuonTrackSelectorTool::decision( Trk::Track& track ) const {
     
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -182,14 +181,13 @@ namespace Muon {
     unsigned int nmeasPhi = 0;
     std::map<MuonStationIndex::StIndex,StationData> stations;
 
-    const Trk::TrackSummary* summary = track.trackSummary();
+    Trk::TrackSummary* summary = track.trackSummary();
     Trk::MuonTrackSummary muonSummary;
     if( summary ){
       if( summary->muonTrackSummary() ) muonSummary = *summary->muonTrackSummary();
       else{
-	Trk::TrackSummary* tmpSum = const_cast<Trk::TrackSummary*>(summary);
-	if( tmpSum ) m_trackSummaryTool->addDetailedTrackSummary(track,*tmpSum);
-	if( tmpSum->muonTrackSummary() ) muonSummary = *tmpSum->muonTrackSummary();
+	m_trackSummaryTool->addDetailedTrackSummary(track,*summary);
+	if( summary->muonTrackSummary() ) muonSummary = *summary->muonTrackSummary();
       }
     }else{
       Trk::TrackSummary tmpSummary;
