@@ -115,14 +115,6 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     ATH_MSG_DEBUG("Tau has no tracks");
   }
 
-  float ipSigLeadTrk;
-  float ipZ0SinThetaSigLeadTrk;
-
-  if (pTau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
-    ATH_MSG_VERBOSE("IP significance lead track " << ipSigLeadTrk);
-  if (pTau.detail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, ipZ0SinThetaSigLeadTrk))
-    ATH_MSG_VERBOSE("IP Z0 significance lead track " << ipZ0SinThetaSigLeadTrk);
-
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
   //try to find secondary vertex if more than 1 track and the tau vertex is available
@@ -146,7 +138,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 
   // get the starting point for the fit using Trk::Tracks
   const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
-  ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << TMath::Sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
+  ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << std::sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
 
   // fitting the vertex itself
   xAOD::Vertex* xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
