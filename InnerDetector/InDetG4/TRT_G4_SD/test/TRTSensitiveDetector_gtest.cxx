@@ -32,7 +32,7 @@
 #include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 #include "MCTruth/TrackHelper.h"
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Thread unsafe TRTSensitiveDetector class is tested in this unit test.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // googletest
 
 //set environment
 class GaudiEnvironment : public ::testing::Environment {

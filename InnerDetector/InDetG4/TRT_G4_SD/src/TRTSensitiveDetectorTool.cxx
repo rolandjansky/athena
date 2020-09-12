@@ -18,7 +18,7 @@ TRTSensitiveDetectorTool::TRTSensitiveDetectorTool(const std::string& type, cons
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* TRTSensitiveDetectorTool::makeSD ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTSensitiveDetector class is used.
+G4VSensitiveDetector* TRTSensitiveDetectorTool::makeSD() const
 {
 
   ATH_MSG_DEBUG( "Initializing SD" );
