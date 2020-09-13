@@ -106,7 +106,7 @@ LArWheelCalculator::fill_sincos_parameterization()
     // s4, s5, c4, c5
     // s2, s3, c2, c3
     // s0, s1, c0, c1
-    m_vsincos_par.sincos_parametrization[0][1] = m_sin_parametrization[4];
+    m_vsincos_par.sincos_parametrization[0][0] = m_sin_parametrization[4];
     m_vsincos_par.sincos_parametrization[0][1] = m_sin_parametrization[5];
     m_vsincos_par.sincos_parametrization[0][2] = m_cos_parametrization[4];
     m_vsincos_par.sincos_parametrization[0][3] = m_cos_parametrization[5];
@@ -166,7 +166,7 @@ LArWheelCalculator::fill_sincos_parameterization()
   // s4, s5, c4, c5
   // s2, s3, c2, c3
   // s0, s1, c0, c1
-  m_vsincos_par.sincos_parametrization[0][1] = m_sin_parametrization[4];
+  m_vsincos_par.sincos_parametrization[0][0] = m_sin_parametrization[4];
   m_vsincos_par.sincos_parametrization[0][1] = m_sin_parametrization[5];
   m_vsincos_par.sincos_parametrization[0][2] = m_cos_parametrization[4];
   m_vsincos_par.sincos_parametrization[0][3] = m_cos_parametrization[5];
@@ -195,7 +195,11 @@ LArWheelCalculator::fill_sincos_parameterization()
   for (double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.) {
     CxxUtils::sincos scalpha(parameterized_slant_angle(r));
     double sin_a, cos_a;
+    double sin_a_v, cos_a_v;
     parameterized_sincos(r, sin_a, cos_a);
+    m_vsincos_par.eval(r, sin_a_v, cos_a_v);
+    std::cout << "default: " << r << " " << sin_a << " " << cos_a << std::endl;
+    std::cout << "vec: " << r << " " << sin_a_v << " " << cos_a_v << std::endl;
     double ds = fabs(scalpha.sn - sin_a);
     if (ds > dsin) {
       dsin = ds;
