@@ -12,7 +12,7 @@
 
 using namespace std;
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv) // Thread unsafe PCDio class is used.
+int main (int argc, char **argv)
 {
   if (argc<3 || argv[1][0]!='-') {
     cout << argv[0] << ": tool to talk to pixel coral database." << endl;

@@ -23,7 +23,7 @@ namespace TrigConf {
    class L1Board final : public DataStructure {
    public:
 
-      enum class BoardType { CTPIN, TOPO, MUCTPI };
+      enum class BoardType { CTPIN, TOPO, MUCTPI, MERGER };
 
       /** Constructor */
       L1Board();

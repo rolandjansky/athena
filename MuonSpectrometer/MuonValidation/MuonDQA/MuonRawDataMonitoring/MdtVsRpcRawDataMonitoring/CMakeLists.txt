@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( MdtVsRpcRawDataMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaMonitoring
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonValidation/MuonDQA/MuonDQAUtils
-                          PRIVATE
-                          DetectorDescription/Identifier
-                          MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData )
-
 # tag ROOTGraphicsLibs was not recognized in automatic conversion in cmt2cmake
 
 # Component(s) in the package:

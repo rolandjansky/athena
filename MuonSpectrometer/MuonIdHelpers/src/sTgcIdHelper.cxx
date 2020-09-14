@@ -19,9 +19,10 @@
 
 /*******************************************************************************/
 // Constructor/Destructor
-sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper") {
-    m_GASGAP_INDEX = 6;
-    m_CHANNELTYPE_INDEX = 7;
+sTgcIdHelper::sTgcIdHelper() : MuonIdHelper("sTgcIdHelper"),
+                               m_GASGAP_INDEX (6),
+                               m_CHANNELTYPE_INDEX (7)
+{
 }
 /*******************************************************************************/
 // Initialize dictionary

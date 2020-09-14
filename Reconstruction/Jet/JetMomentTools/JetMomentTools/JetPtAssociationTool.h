@@ -17,11 +17,10 @@
 ///   InputContainer - Name of the matching jet container
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "JetInterface/IJetDecorator.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "xAODJet/JetContainer.h"
 
 class JetPtAssociationTool : public asg::AsgTool,
@@ -66,7 +65,7 @@ private:  // data
 
   /// Properties.
   Gaudi::Property<std::string> m_aname{this, "AssociationName", "", "Key for association vector"};
-  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "Input jet container"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this, "JetContainer", "", "Input jet container"};
 
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocFracKey{this, "AssociationFractionName", "AssociationFraction", "SG key for output AssociationFraction decoration"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocLinkKey{this, "AssociationLinkName", "AssociationLink", "SG key for output AssociationLink decoration"};

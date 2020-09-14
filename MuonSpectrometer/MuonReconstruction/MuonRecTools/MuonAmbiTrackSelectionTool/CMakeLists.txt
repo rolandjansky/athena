@@ -5,21 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonAmbiTrackSelectionTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Control/AthContainers
-                          Control/StoreGate
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack )
-
 # Component(s) in the package:
 atlas_add_component( MuonAmbiTrackSelectionTool
                      src/*.cxx

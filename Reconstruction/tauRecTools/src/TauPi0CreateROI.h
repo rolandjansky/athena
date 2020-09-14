@@ -32,7 +32,6 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, std::vector<CaloCell*>& map) override;
-    virtual StatusCode finalize() override;
 
 private:
     SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};

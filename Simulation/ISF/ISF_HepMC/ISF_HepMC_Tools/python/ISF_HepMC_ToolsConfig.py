@@ -38,8 +38,8 @@ def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
 def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    cppyy.load_library('libAtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID ] )
     return getParticlePositionFilter(name, **kwargs)
@@ -47,8 +47,8 @@ def getParticlePositionFilterID(name="ISF_ParticlePositionFilterID", **kwargs):
 def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    cppyy.load_library('libAtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
@@ -58,8 +58,8 @@ def getParticlePositionFilterCalo(name="ISF_ParticlePositionFilterCalo", **kwarg
 def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    cppyy.load_library('libAtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
@@ -70,8 +70,8 @@ def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
 def getParticlePositionFilterWorld(name="ISF_ParticlePositionFilterWorld", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
-    cppyy.loadDictionary('AtlasDetDescrDict')
-    AtlasRegion = ROOT.AtlasDetDescr
+    cppyy.load_library('libAtlasDetDescrDict')
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
     kwargs.setdefault('CheckRegion'  , [ AtlasRegion.fAtlasID,
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo,

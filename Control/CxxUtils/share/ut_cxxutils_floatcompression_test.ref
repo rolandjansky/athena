@@ -1,0 +1,12 @@
+Original value: 1.2345
+Compressed value: 1.23438 (hex: 3f9e0000)
+Original value: 3.1415
+Compressed value: 3.14062 (hex: 40490000)
+Original value: 2.7182
+Compressed value: 2.7182 (hex: 402df700)
+Original value: 0.5
+Compressed value: 0.5 (hex: 3f000000)
+Original value: 2.3456
+Compressed value: 2.3456 (hex: 40161e4f)
+Original value: 0.1234
+Compressed value: 0.1234 (hex: 3dfcb924)

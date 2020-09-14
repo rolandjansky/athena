@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( MdtCalibData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath
-                          PRIVATE
-                          Control/AthenaKernel
-                          GaudiKernel )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

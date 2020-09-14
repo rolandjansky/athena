@@ -158,7 +158,7 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
       }
     }
     if (removePatch) {
-      CLHEP::HepLorentzVector newPos = nextPos;
+      const CLHEP::HepLorentzVector& newPos = nextPos;
       curVtx->set_position(newPos);
       ATH_MSG_DEBUG("Revised current Vertex");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {

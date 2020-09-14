@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,9 +19,9 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
-#include <assert.h>
 #include <stdexcept>
 
 

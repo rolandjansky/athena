@@ -31,7 +31,6 @@ public:
     virtual ~TauElectronVetoVariables();
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
 private:
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", false, "switch of vertex correction"}; 

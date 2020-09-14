@@ -122,15 +122,6 @@ public:
     BFieldCache cache3d;
     double z{ 0 }, r{ 1250 }, phi{ 1.6 };
 
-    // if (doDebug) std::cout << "do getCache old " << '\n';
-    // zone.m_doNew = false;
-    // zone.getCache(z, r, phi, cache3d, 1);
-    // cache3d.printField();
-    // if (doDebug) std::cout << "do getCache new " << '\n';
-    // zone.m_doNew = true;
-    // zone.getCache(z, r, phi, cache3d, 1);
-    // cache3d.printField();
-
     // get field at steps of 10 mm from 1200 to 1300
     int status{ 0 };
 
@@ -200,7 +191,7 @@ public:
 
       // do interpolation (cache3d has correct scale factor)
       zone.getCache(z, r, phi, cache3d, 1);
-      cache3d.getB(xyz, r1, phi, bxyz, 0);
+      cache3d.getB(xyz, r1, phi, bxyz, nullptr);
 
       std::cout << "get field std: i, bxyz " << i << " " << bxyz[0] << ", "
                 << bxyz[1] << ", " << bxyz[2] << " fractional diff gt 10^-5: "

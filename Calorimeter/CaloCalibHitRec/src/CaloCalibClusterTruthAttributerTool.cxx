@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCalibHitRec/CaloCalibClusterTruthAttributerTool.h"
@@ -49,7 +49,7 @@ StatusCode CaloCalibClusterTruthAttributerTool::calculateTruthEnergies(const xAO
 
   std::vector<std::pair<unsigned int, double > > barcodeTruePtPairs;
 
-  for (const auto& thisEntry : barcodeTruePtMap) barcodeTruePtPairs.push_back(thisEntry);
+  for (const auto& thisEntry : barcodeTruePtMap) barcodeTruePtPairs.emplace_back(thisEntry);
 
   std::sort(barcodeTruePtPairs.begin(),barcodeTruePtPairs.end(),[]( std::pair<unsigned int, double> a, std::pair<unsigned int, double> b) -> bool {return a.second > b.second;} );
 

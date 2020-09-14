@@ -149,6 +149,7 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999);
 
     
   // variables based on HCAL
@@ -183,6 +184,24 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   // E(+/-3)-E(+/-1)/E(+/-1)
   input.photon->showerShapeValue(fracm, xAOD::EgammaParameters::fracs1);
 
+  input.photon->isolationValue(ptcone20, xAOD::Iso::ptcone20);
+
+  input.photon->isolationValue(ptcone30, xAOD::Iso::ptcone30);
+
+  input.photon->isolationValue(ptcone40, xAOD::Iso::ptcone40);
+
+  input.photon->isolationValue(etcone20, xAOD::Iso::etcone20);
+
+  input.photon->isolationValue(etcone30, xAOD::Iso::etcone30);
+
+  input.photon->isolationValue(etcone40, xAOD::Iso::etcone40);
+
+  input.photon->isolationValue(topoetcone20, xAOD::Iso::topoetcone20);
+
+  input.photon->isolationValue(topoetcone30, xAOD::Iso::topoetcone30);
+
+  input.photon->isolationValue(topoetcone40, xAOD::Iso::topoetcone40);
+
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
   ATH_MSG_DEBUG( "  e277   " << e277 ) ;
@@ -195,6 +214,15 @@ bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPho
   ATH_MSG_DEBUG( "  DeltaE " << DeltaE ) ;
   ATH_MSG_DEBUG( "  wtot   " << wtot ) ;
   ATH_MSG_DEBUG( "  fracm  " << fracm ) ;
+  ATH_MSG_DEBUG( " ptcone20 " << ptcone20 ) ;
+  ATH_MSG_DEBUG( " ptcone30 " << ptcone30 ) ;
+  ATH_MSG_DEBUG( " ptcone40 " << ptcone40 ) ;
+  ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
+  ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
+  ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
+  ATH_MSG_DEBUG( " topoetcone20 " << topoetcone20 ) ;
+  ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
+  ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
 
 
  // Decode isEM bits of result to see which bits passed and which bits fialed

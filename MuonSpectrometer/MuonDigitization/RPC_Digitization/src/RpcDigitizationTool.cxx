@@ -932,45 +932,14 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const EventContext& ctx, const Identifier* id, const RPCSimHit* theHit, CLHEP::HepRandomEngine* rndmEngine)
 {
 
-  // ME unused: int stationName = m_idHelper->stationName(*id);
   int stationEta  = m_idHelper->stationEta(*id);
-  // ME unused: int stationPhi  = m_idHelper->stationPhi(*id);
-  // float length; // not used
   float pitch;
-  // float stripWidth; // not used
-  // ME unused: int doubletZ = m_idHelper->doubletZ(*id);
-  // ME unused: int doubletPhi = m_idHelper->doubletPhi(*id);
-  // ME unused: int doubletR = m_idHelper->doubletR(*id);
-  // ME unused: int gasGap =    m_idHelper->gasGap(*id);
   int measuresPhi = m_idHelper->measuresPhi(*id);
   std::vector<int> result(3,0);
 
-
-  //  CLHEP::HepRandomEngine*      engine  =       p_AtRndmGenSvc->GetEngine("RPCDIGI");
-  //    std::cout<<"test1 "<< p_engine->getSeeds()[0]<<" " << p_engine->getSeeds()[1]<<std::endl;
-
-
   const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(*id);
 
-
-  //ATH_MSG_DEBUG ( "in RpcDigitizationTool::PhysicalClusterSize, id is "<<*id) ;
-  //ATH_MSG_DEBUG ( "RpcDigitizationTool::PhysicalClusterSize hit in element (stname, steta, stphi, dr, dZ, dPhi, measphi):
-  //    "<<stationName<< " " <<stationEta<< " "<<stationPhi<< " "<< doubletR<<" " << doubletZ<< " "<<doubletPhi<< " "<<
-  //    measuresPhi);
-  //ATH_MSG_DEBUG ( "RpcDigitizationTool::PhysicalClusterSize, check for ID validity "<< m_idHelper->valid(*id)<< " " <<
-  //  m_idHelper->validElement(*id));
-
-
-  // stripWidth = ele->StripWidth(measuresPhi); // not used.
-
   pitch = ele->StripPitch(measuresPhi);
-
-
-  // if(measuresPhi){
-  //   length = ele->stripPanelSsize(measuresPhi); // not used
-  // } else {
-  //   length = ele->stripPanelZsize(measuresPhi); // not used
-  // }
 
   int nstrip;
   double xstrip;
@@ -979,18 +948,11 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const EventContext& ct
   double cs1[5]; //the contributions to the observed cluster size due to physical cluster size 1 and 2
   double cs2[5];
 
-  // ME unused: double impact;
-  // ME unused: double stripoffset;
-  // ME unused: double dead = (pitch - stripWidth);
-
-
   Amg::Vector3D position=adjustPosition(id, theHit->localPosition());
 
   nstrip=findStripNumber(position,*id, xstrip);
 
   xstrip=xstrip*30./pitch;
-
-  //std::cout <<"xstrip "<< xstrip/30. << std::endl;
 
   cs1[0]=cs[0];
   cs2[0]=0;
@@ -1116,8 +1078,6 @@ std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const I
 
   int nstrips;
   int measuresPhi = m_idHelper->measuresPhi(*id);
-
-  //  HepRandomM_Engine* engine = p_AtRndmGenSvc->GetEngine("RPCDIGI");
 
   const RpcReadoutElement* ele= m_GMmgr->getRpcReadoutElement(*id);
 
@@ -2569,7 +2529,10 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
 	    for( int doubletPhi  =  1 ;  doubletPhi  != 3;  doubletPhi++ ){
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 
-		const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+    bool isValid=false;
+    Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+    if (!isValid) continue;
+		const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 		if(rpc == 0 )continue;
 		Identifier idr = rpc->identify();
 		if(idr == 0 )continue;
@@ -2768,8 +2731,11 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 
-		  const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
-		  if(rpc == 0 )continue;
+      bool isValid=false;
+      Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      if (!isValid) continue;
+		  const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
+		  if(!rpc)continue;
 		  Identifier idr = rpc->identify();
 		  if(idr == 0 )continue;
 		  Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, 1)     ;
@@ -2807,7 +2773,10 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
 	      for( int gasGap      =  1 ;  gasGap	  != 3;  gasGap++     ){
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 
-		  const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+      bool isValid=false;
+      Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+      if (!isValid) continue;
+		  const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 		  if(rpc == 0 )continue;
 		  Identifier idr = rpc->identify();
 		  if(idr == 0 )continue;
@@ -2895,17 +2864,18 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB(const EventContext& ctx) 
 		for( int measphi     =  0 ;  measphi	  != 2;  measphi++    ){
 		  for( int strip       =  1 ;  strip	  !=81;  strip++      ){
 
-		    const RpcReadoutElement* rpc = m_GMmgr->getRpcRElement_fromIdFields(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi);
+        bool isValid=false;
+        Identifier rpcId = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR, doubletZ, doubletPhi, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+        if (!isValid) continue;
+		    const RpcReadoutElement* rpc = m_GMmgr->getRpcReadoutElement(rpcId);
 		    if(rpc == 0 )continue;
 		    Identifier idr = rpc->identify();
 		    if(idr == 0 )continue;
 		    Identifier atlasId = m_idHelper->channelID(idr, doubletZ,doubletPhi , gasGap, measphi, strip)     ;
 		    if(atlasId == 0 )continue;
-		    //if( readCdo->getDeadStripIntMap().find(atlasId).empty() )continue;
 		    int stripstatus	      = readCdo->getDeadStripIntMap      ().find(atlasId)->second ;
 		    if( stripstatus != 1 )continue;
 		    ATH_MSG_VERBOSE( "Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus );
-		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;
 
 		  }}}}}}}}}
   return sc;

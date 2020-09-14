@@ -6,7 +6,7 @@
  * @file   QuickCloseComponentsMultiStateMerger.h
  * @date   Wednesday 3rd September 2008
  * @author Anthony Morley, Christos Anastopoulos
- * 
+ *
  * Functions for merging components of a multi-state based on
  * combination of those which are "close" together as
  * defined by some metric.
@@ -27,8 +27,7 @@ namespace QuickCloseComponentsMultiStateMerger {
 MultiComponentState
 merge(Trk::MultiComponentState&&, const unsigned int maximumNumberOfComponents);
 
-
-/// Method for merging and assembling a state 
+/// Method for merging and assembling a state
 MultiComponentState
 mergeFullDistArray(MultiComponentStateAssembler::Cache& cache,
                    Trk::MultiComponentState&,

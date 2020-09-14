@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  DataArrayImpl.h
-//  L1TopoEvent
-//  Created by Joerg Stelzer on 12/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __L1TopoEvent__DataArrayImpl__
-#define __L1TopoEvent__DataArrayImpl__
+#ifndef L1TopoEvent_DataArrayImpl
+#define L1TopoEvent_DataArrayImpl
 
 #include <iostream>
 #include <vector>
@@ -63,4 +58,4 @@ void TCS::DataArrayImpl<DATA>::push_back(const DATA& tob) {
    m_data.push_back(DATA::createOnHeap(tob));
 }
 
-#endif /* defined(__L1TopoEvent__DataArrayImpl__) */
+#endif

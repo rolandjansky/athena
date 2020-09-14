@@ -3,14 +3,6 @@
 # Declare the package name:
 atlas_subdir( AthenaPoolServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/DataModelRoot
-                          Database/APR/StorageSvc )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core )
 
@@ -24,8 +16,7 @@ atlas_add_library( AthenaPoolServicesLib
 atlas_add_component( AthenaRootStreamerSvc
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps DataModelRoot
-   StorageSvc )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaPoolServicesLib DataModelRoot StorageSvc )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

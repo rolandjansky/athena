@@ -1,61 +1,60 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from TrigEDMConfig.TriggerEDMRun3 import recordable
+
+from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
+from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
+from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
+from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
+from BTagging.BTagTrackAugmenterAlgConfig import BTagTrackAugmenterAlgCfg
+from BTagging.BTagHighLevelAugmenterAlgConfig import BTagHighLevelAugmenterAlgCfg
+from BTagging.HighLevelBTagAlgConfig import HighLevelBTagAlgCfg
 
 def getFlavourTagging( inputJets, inputVertex, inputTracks ):
 
     acc = ComponentAccumulator()
-
-    kwargs = {}
-
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    Analysis__BTagTrackAugmenterAlg=CompFactory.Analysis.BTagTrackAugmenterAlg
-    bTagTrackAugmenter = Analysis__BTagTrackAugmenterAlg( "Analysis__BTagTrackAugmenterAlg" )
-    bTagTrackAugmenter.TrackContainer = inputTracks
-    bTagTrackAugmenter.PrimaryVertexContainer = inputVertex
-    acc.addEventAlgo(bTagTrackAugmenter)
-
-    from BTagging.JetParticleAssociationAlgConfig import JetParticleAssociationAlgCfg
-    from BTagging.JetSecVtxFindingAlgConfig import JetSecVtxFindingAlgCfg
-    from BTagging.JetSecVertexingAlgConfig import JetSecVertexingAlgCfg
-    from BTagging.JetBTaggingAlgConfig import JetBTaggingAlgCfg
     
+    #Output container names as defined in TriggerEDMRun3
+    BTagName = recordable("HLT_BTagging")
 
-    TrackToJetAssociators = ['BTagTrackToJetAssociator', 'BTagTrackToJetAssociatorBB']
+    #Particle to Jet Association
+    TrackToJetAssociators = ['BTagTrackToJetAssociator']
+    kwargs = {}
     kwargs['Release'] = '22'
-    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, 'BTagTrackToJetAssociator', **kwargs))
-    kwargs['Release'] = '21'
-    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, 'BTagTrackToJetAssociatorBB', **kwargs))
-    del kwargs['Release'] 
+    acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, TrackToJetAssociators[0], **kwargs))
 
-    btagname = "HLT_BTagging"
-    btagname_JFVtx = btagname + "_JFVtx"
-    btagname_SecVtx = btagname + "_SecVtx"
-    btagname_jetLink = btagname + ".jetLink"
-
+    #Secondary Vertexing
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
     for k, v in SecVertexingAndAssociators.items():
         if v not in TrackToJetAssociators:
             raise RuntimeError( v + ' is not configured')
         acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v))
-        JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v)
-        SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx")
-        if k == "JetFitter":
-            SecVertexingAlg.BTagJFVtxCollectionName = recordable( btagname_JFVtx )
-        elif k == "SV1":
-            SecVertexingAlg.BTagSVCollectionName = recordable( btagname_SecVtx )
-        acc.merge(JetSecVertexingAlg)
+        acc.merge(JetSecVertexingAlgCfg(ConfigFlags, BTagName, inputJets.replace("Jets",""), inputVertex, k, v))
     
-    JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
-    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_b(Jets)"
-    BTaggingAlg.BTaggingCollectionName = recordable( btagname )
-    BTaggingAlg.BTagJFVtxCollectionName = btagname_JFVtx
-    BTaggingAlg.BTagSVCollectionName = btagname_SecVtx
-    BTaggingAlg.JetLinkName = btagname_jetLink
-    acc.merge(JetBTaggingAlg)
+    #Run Run2 taggers, i.e. IP2D, IP3D, SV1, JetFitter, MV2c10
+    acc.merge(JetBTaggingAlgCfg(ConfigFlags, BTaggingCollection=BTagName, JetCollection=inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList=ConfigFlags.BTagging.Run2TrigTaggers, SetupScheme="Trig", SVandAssoc=SecVertexingAndAssociators))
+
+    #Track Augmenter
+    acc.merge(BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection=inputTracks, PrimaryVertexCollectionName=inputVertex))
+    
+    #Jet Augmenter
+    acc.merge(BTagHighLevelAugmenterAlgCfg(ConfigFlags, JetCollection=inputJets.replace("Jets",""), BTagCollection=BTagName, Associator=TrackToJetAssociators[0]))
+
+    #Run new Run3 taggers, i.e. DL1, RNNIP, DL1r
+    postTagDL2JetToTrainingMap={
+        'AntiKt4EMPFlow': [
+        #'BTagging/201903/smt/antikt4empflow/network.json',
+        'BTagging/201903/rnnip/antikt4empflow/network.json',
+        'BTagging/201903/dl1r/antikt4empflow/network.json',
+        'BTagging/201903/dl1/antikt4empflow/network.json',
+        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+        ]
+    }
+    for jsonFile in postTagDL2JetToTrainingMap['AntiKt4EMPFlow']:
+        acc.merge(HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection=BTagName, TrackCollection=inputTracks, NNFile=jsonFile) )
 
 
-    return [acc,btagname]
+    return [acc,BTagName]
 

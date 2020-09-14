@@ -27,7 +27,7 @@
 #include "MuonCalibEvent/MdtCalibHit.h"
 
 namespace {
-  static constexpr double const twoBySqrt12 = 2/sqrt(12);
+  static double const twoBySqrt12 = 2/std::sqrt(12);
 }
 
 //

@@ -17,7 +17,7 @@ mlog.info("Entering")
 
 import cppyy
 try:
-  cppyy.loadDictionary('RingerSelectorToolsDict')
+  cppyy.load_library('libRingerSelectorToolsDict')
 except RuntimeError as e:
   mlog.error("Couldn't load RingerSelectorTools dictionary from cppyy.")
   raise RuntimeError(e)

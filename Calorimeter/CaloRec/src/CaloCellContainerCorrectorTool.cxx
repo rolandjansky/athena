@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -58,7 +58,7 @@ StatusCode CaloCellContainerCorrectorTool::initialize() {
 
   //check calo number specified
   m_caloSelection = true ;
-  if (m_caloNums.size()==0) {
+  if (m_caloNums.empty()) {
     msg(MSG::WARNING) << " no calo specified for correction. Will do nothing. " << endmsg;
     return StatusCode::SUCCESS;
   } else if  (m_caloNums.size()>nSubCalo ) {

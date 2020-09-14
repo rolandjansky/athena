@@ -52,6 +52,9 @@ namespace InDetDD {
     
     /// Constructor
     SCT_DetectorManager( StoreGateSvc* detStore );
+
+    /// Constructur with name
+    SCT_DetectorManager( StoreGateSvc* detStore, std::string name );
      
     /// Destructor
     virtual ~SCT_DetectorManager();

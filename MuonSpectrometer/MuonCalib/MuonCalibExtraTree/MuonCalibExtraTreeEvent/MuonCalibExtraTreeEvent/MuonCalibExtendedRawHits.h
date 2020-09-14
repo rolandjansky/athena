@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBEXTENDEDRAWHITS_H
@@ -8,7 +8,7 @@
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibExtraUtils/MuonFixedIdManipulator.h"
 #include "MuonCalibExtraUtils/MuonCalibLayerMapping.h"
-
+#include "CxxUtils/checker_macros.h"
 
 namespace MuonCalib {
   
@@ -29,7 +29,7 @@ namespace MuonCalib {
 
      @author niels.van.eldik@cern.ch
   */
-  class MuonCalibExtendedRawHits {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibExtendedRawHits {
   public:
     struct ExtendedChannelInfo {
       std::vector<const MuonCalibRawMdtHit*>       hits;

@@ -5,7 +5,7 @@
 #include <cstring>
 #include <boost/core/demangle.hpp>
 #include <boost/algorithm/string.hpp>
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/System.h"
 #include "AthenaKernel/StorableConversions.h"
@@ -46,15 +46,20 @@ StatusCode TriggerEDMSerialiserTool::initialize() {
 
   // Retrieve the total result size limit from DataFlowConfig which is a special object
   // used online to hold DF properties passed from TDAQ to HLT as run parameters
-  SmartIF<IJobOptionsSvc> jobOptionsSvc = service<IJobOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
+  auto jobOptionsSvc = service<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc", /*createIf=*/ false);
   if (!jobOptionsSvc.isValid()) {
     ATH_MSG_WARNING("Could not retrieve JobOptionsSvc, will not update the EventSizeHardLimitMB property");
   }
   else {
-    const Gaudi::Details::PropertyBase* prop = jobOptionsSvc->getClientProperty("DataFlowConfig", "DF_MaxEventSizeMB");
-    if (prop && m_eventSizeHardLimitMB.assign(*prop)) {
-      ATH_MSG_DEBUG("Updated EventSizeHardLimitMB to " << m_eventSizeHardLimitMB.value()
-                    << " from DataFlowConfig.DF_MaxEventSizeMB");
+    if (jobOptionsSvc->has("DataFlowConfig.DF_MaxEventSizeMB")) {
+      if (m_eventSizeHardLimitMB.fromString(jobOptionsSvc->get("DataFlowConfig.DF_MaxEventSizeMB")).isSuccess()) {
+        ATH_MSG_DEBUG("Updated EventSizeHardLimitMB to " << m_eventSizeHardLimitMB.value()
+                      << " from DataFlowConfig.DF_MaxEventSizeMB");
+      }
+      else {
+        ATH_MSG_ERROR("Could not convert DataFlowConfig.DF_MaxEventSizeMB to integer. Leaving EventSizeHardLimitMB="
+                      << m_eventSizeHardLimitMB.value());
+      }
     }
     else {
       ATH_MSG_DEBUG("Could not retrieve DataFlowConfig.DF_MaxEventSizeMB from JobOptionsSvc. This is fine if running "
@@ -218,8 +223,12 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
       << "' fulltype '" << fullTypeName << "' aux ID '" << auxVarID << "' class '" << cls->GetName() );
 
     CLID clid;
-    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() )  { // First try
-      ATH_CHECK( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid) ); // Second try
+    if ( m_clidSvc->getIDOfTypeName(typeName, clid).isFailure() ) { // First try
+      if ( m_clidSvc->getIDOfTypeInfoName(fullTypeName, clid).isFailure() ) { // Second try
+        ATH_MSG_ERROR("Unable to obtain CLID for either typeName:" << typeName << " or fullTypeName:" << fullTypeName);
+        ATH_MSG_ERROR("Please check if this is something which should obtain a CLID via TriggerEDMCLIDs.h");
+        return StatusCode::FAILURE;
+      }
     }
     ATH_MSG_DEBUG( "CLID " << clid );
 

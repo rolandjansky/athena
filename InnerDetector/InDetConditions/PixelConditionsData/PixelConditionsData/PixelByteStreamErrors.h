@@ -22,6 +22,8 @@ namespace PixelByteStreamErrors {
   //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
   inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  PixelErrorsEnum errType ) { errWord |= makeError( errType ); }
 
+  inline void addServiceRecords(IDCInDetBSErrContainer::ErrorCode& errWord, uint64_t errorCount ) { errWord = errorCount; }
+
 }
 
 

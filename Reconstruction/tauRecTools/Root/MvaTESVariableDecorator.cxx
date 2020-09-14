@@ -7,6 +7,7 @@
 #include "tauRecTools/HelperFunctions.h"
 
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #define GeV 1000
 
@@ -23,14 +24,10 @@ MvaTESVariableDecorator::~MvaTESVariableDecorator() {
 
 StatusCode MvaTESVariableDecorator::initialize() {
 
-  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_aveIntPerXKey.initialize() );
 
   ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
   
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MvaTESVariableDecorator::finalize() {
   return StatusCode::SUCCESS;
 }
 
@@ -40,14 +37,12 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   // Decorate event info
   // need to check mu can be retrieved via EventInfo for Run3 trigger
   int mu = 0;
-  SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
-  if (!eventinfoInHandle.isValid()) {
-    ATH_MSG_ERROR ( "Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", will set mu=0.");
-    mu = 0.;
+  SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+  if (!eventInfoDecorHandle.isPresent()) {
+    ATH_MSG_WARNING ( "EventInfo decoration not available! Will set mu=0." );
   }
   else {
-    const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-    mu = eventInfo->averageInteractionsPerCrossing();
+    mu = eventInfoDecorHandle(0);
   } 
 
   int nVtxPU = 0;
@@ -55,13 +50,13 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     // Get the primary vertex container from StoreGate
     SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
     if (!vertexInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
+      ATH_MSG_WARNING ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
     }
     else {
       const xAOD::VertexContainer* vertexContainer = vertexInHandle.cptr();
       for (auto xVertex : *vertexContainer){
-	if (xVertex->vertexType() == xAOD::VxType::PileUp)
-	  ++nVtxPU;
+        if (xVertex->vertexType() == xAOD::VxType::PileUp)
+        ++nVtxPU;
       }
     }
   }
@@ -86,8 +81,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   TLorentzVector clusters_had_P4;
   clusters_had_P4.SetPtEtaPhiM(0,0,0,0);
 
-  TLorentzVector LC_P4;
-  LC_P4.SetPtEtaPhiM(xTau.ptDetectorAxis(), xTau.etaDetectorAxis(), xTau.phiDetectorAxis(), xTau.m());
+  const TLorentzVector& LC_P4 = xTau.p4(xAOD::TauJetParameters::DetectorAxis);
 
   // Loop through jets, get links to clusters
   std::vector<const xAOD::CaloCluster*> clusterList;
@@ -112,8 +106,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
     if(cl->retrieveMoment(xAOD::CaloCluster::MomentType::EM_PROBABILITY,em_probability)) {
       mean_em_probability += clE*em_probability;
 
-      if(em_probability>0.5) clusters_EM_P4 += (TLorentzVector) cl->p4(xAOD::CaloCluster::State::CALIBRATED);      
-      else clusters_had_P4 += (TLorentzVector) cl->p4(xAOD::CaloCluster::State::CALIBRATED);
+      if(em_probability>0.5) clusters_EM_P4 += cl->p4(xAOD::CaloCluster::State::CALIBRATED);      
+      else clusters_had_P4 += cl->p4(xAOD::CaloCluster::State::CALIBRATED);
     }
     else ATH_MSG_WARNING("Failed to retrieve moment: EM_PROBABILITY");
 
@@ -168,8 +162,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   Pi0_totalP4.SetPtEtaPhiM(0,0,0,0);
   
   for(size_t i=0; i<xTau.nPi0PFOs(); i++){
-    Pi0_totalP4 += (TLorentzVector)xTau.pi0PFO(i)->p4();
-  };
+    Pi0_totalP4 += xTau.pi0PFO(i)->p4();
+  }
   
   double Pi0_totalE = Pi0_totalP4.E();
   
@@ -178,8 +172,8 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   charged_totalP4.SetPtEtaPhiM(0,0,0,0);
   
   for(size_t i=0; i<xTau.nChargedPFOs(); i++){
-    charged_totalP4 += (TLorentzVector)xTau.chargedPFO(i)->p4();
-  };
+    charged_totalP4 += xTau.chargedPFO(i)->p4();
+  }
   
   double charged_totalE = charged_totalP4.E();
   
@@ -190,13 +184,5 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   }
   xTau.setDetail(xAOD::TauJetParameters::PFOEngRelDiff, (float) relDiff);
   
-  // calculate interpolated pT
-  double pt_pantau  = xTau.ptPanTauCellBased();
-  double pt_LC      = xTau.ptDetectorAxis();  
-  double interpolWeight = 0.5 * ( 1. + TMath::TanH( ( pt_LC/GeV - 250. ) / 20. ) );
-  double LC_pantau_interpolPt = interpolWeight*pt_LC + (1.-interpolWeight)*pt_pantau;
-  
-  xTau.setDetail(xAOD::TauJetParameters::LC_pantau_interpolPt, (float) LC_pantau_interpolPt);
-
   return StatusCode::SUCCESS;
 }

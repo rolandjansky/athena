@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCLUSTERNAVIGABLE_H 
@@ -115,7 +115,7 @@ class CaloClusterNavigable : virtual public INavigable
   /** \brief end iterator for public object access */
   virtual object_iter end()    const;
   /** \brief size of object access */
-  virtual unsigned int size()  const;
+  virtual unsigned int nCells()  const;
 
   /** \brief public container access: relational parameter retrieval */
   double getParameter(const CaloCell* pCell) const;
@@ -139,9 +139,6 @@ class CaloClusterNavigable : virtual public INavigable
   /** \brief  fill token for navigation */ 
   virtual void fillToken(INavigationToken& iToken,
 			 const boost::any& rPar) const;
-
-  /** \brief replace container for all cells*/
-  virtual bool replaceCellContainer ATLAS_NOT_CONST_THREAD_SAFE(const CaloCellContainer* newCont) const;
 
   virtual bool isCellLinkValid() const ; 
 
@@ -168,7 +165,7 @@ protected:
   friend class CaloClusterContainerCnv_p7;
   friend class CaloClusterContainerCnvTestMakeCluster;
 
-  CaloCellLink*        getCellLink ATLAS_NOT_CONST_THREAD_SAFE();
+  CaloCellLink*        getCellLink();
   const CaloCellLink*  getCellLink() const;
 
   bool setCellLink(CaloCellLinkContainer* pLink);
@@ -315,7 +312,7 @@ CaloClusterNavigable::object_iter CaloClusterNavigable::end() const
 }
 
 inline
-unsigned int CaloClusterNavigable::size() const
+unsigned int CaloClusterNavigable::nCells() const
 {
 
   const CaloCellLink* link = this->getCellLinkPtr();

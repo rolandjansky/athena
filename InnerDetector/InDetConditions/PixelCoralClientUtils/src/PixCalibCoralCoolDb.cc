@@ -104,7 +104,7 @@ bool PixCalibCoralCoolDb::load(cool::ValidityKey vkx)
   return true;
 }
 
-bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile , long long FK ) // Thread unsafe coral::AttributeList class is used.
+bool PixCalibCoralCoolDb::saveCalibData ( string textfile , long long FK )
 {
   cool::RecordSpecification payloadspec;
   // primary / foreign keys
@@ -178,7 +178,8 @@ bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile 
   cout << "read " << nsave << " channels" << endl;
 
   // prepare data to save in the payload
-  coral::AttributeList data = folder->emptyAttrList();
+  // No sharing, ok.
+  coral::AttributeList data ATLAS_THREAD_SAFE = folder->emptyAttrList();
   data["PrimKey"].data<int>() = 0;
   data["ForeignKey"].data<long long>() = FK;
   coral::Blob& blob = data["data"].data<coral::Blob>();

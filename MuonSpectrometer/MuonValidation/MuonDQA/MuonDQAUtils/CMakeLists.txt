@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonDQAUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Event/EventKernel
-                          GaudiKernel
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-                          PhysicsAnalysis/JetTagging/JetTagEvent
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent
-                          Tools/LWHists
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigSteeringEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )

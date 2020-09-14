@@ -9,7 +9,7 @@ from __future__ import print_function
 # ------------------------------------------------------------
 #
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Logging import logging 
+from AthenaCommon.Logging import logging
 log = logging.getLogger("EFID")
 
 
@@ -19,7 +19,7 @@ class InDetTrigTrackSlimmer_EF( InDet__TrigTrackSlimmer ):
   __slots__ = []
   def __init__(self, name="InDetTrigTrackSlimmer_EF", type="electron"):
     super( InDet__TrigTrackSlimmer, self ).__init__( name )
-    
+
     from AthenaCommon.AppMgr import ToolSvc
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryToolSharedHits
@@ -31,7 +31,7 @@ class InDetTrigTrackSlimmer_EF( InDet__TrigTrackSlimmer ):
        TrkSlimmingName = "InDetTrigTrackSlimmingToolParams"
        keepPars = True
        keepOut=True
-       
+
     #slimming tool
     from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
     InDetTrkSlimmingTool = \
@@ -50,7 +50,7 @@ class InDetTrigTrackSlimmer_EF( InDet__TrigTrackSlimmer ):
 #
 # ------------ Vertex finding
 #
- 
+
 from InDetTrigPriVxFinder.InDetTrigPriVxFinderConf import InDet__TrigVxPrimary
 class TrigVxPrimary_EF( InDet__TrigVxPrimary ):
   __slots__ = []
@@ -61,12 +61,12 @@ class TrigVxPrimary_EF( InDet__TrigVxPrimary ):
     from AthenaCommon.GlobalFlags import GlobalFlags
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
-      
+
     from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
-    
+
     self.VertexFinderTool = InDetTrigPriVxFinderTool
     self.RunWithoutField = False
-    
+
     #monitoring
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderValidationMonitor
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderOnlineMonitor
@@ -79,12 +79,12 @@ class TrigVxPrimary_EF( InDet__TrigVxPrimary ):
     self.AthenaMonTools = [InDetTrigPriVxFinderValidationMonitor(),
                            InDetTrigPriVxFinderOnlineMonitor(),
                            vxtime]
-      
+
 
 #
 # ------------ Vertex finding AllTE
 #
- 
+
 from InDetTrigPriVxFinder.InDetTrigPriVxFinderConf import InDet__TrigVxPrimaryAllTE
 class TrigVxPrimaryAllTE_EF( InDet__TrigVxPrimaryAllTE ):
   __slots__ = []
@@ -94,13 +94,13 @@ class TrigVxPrimaryAllTE_EF( InDet__TrigVxPrimaryAllTE ):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.GlobalFlags import GlobalFlags
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    
-    
+
+
     from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
-    
+
     self.VertexFinderTool = InDetTrigPriVxFinderTool
     self.RunWithoutField = False
-    
+
       #monitoring
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderValidationMonitor
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderOnlineMonitor
@@ -113,7 +113,7 @@ class TrigVxPrimaryAllTE_EF( InDet__TrigVxPrimaryAllTE ):
     self.AthenaMonTools = [InDetTrigPriVxFinderValidationMonitor(name="InDetTrigPriVxFinderAllTEOnlineMonitor"),
                            InDetTrigPriVxFinderOnlineMonitor(name="InDetTrigPriVxFinderAllTEValidationMonitor"),
                            vxtime]
-      
+
 
 from InDetTrigPriVxFinder.InDetTrigPriVxFinderConf import InDet__TrigVxPrimaryAllTE
 class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
@@ -128,7 +128,7 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
 
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool
 
-    from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigLinFactory  
+    from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigLinFactory
     from InDetMultipleVertexSeedFinderUtils.InDetMultipleVertexSeedFinderUtilsConf import InDet__InDetTrackZ0SortingTool
     InDetTrackZ0SortingTool =  InDet__InDetTrackZ0SortingTool(name = "InDetTrigTrackZ0SortingTool_SG")
     ToolSvc += InDetTrackZ0SortingTool
@@ -141,7 +141,7 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
     from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__Trk2DDistanceFinder
     Trk2DDistanceFinder = Trk__Trk2DDistanceFinder(name                = "TrigTrk2DDistanceFinder_SG",
                                                    Trk2dDistanceSeeder = Trk2dDistanceSeeder)
-    
+
     ToolSvc+=Trk2DDistanceFinder
 
     from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__CrossDistancesSeedFinder
@@ -182,11 +182,11 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
                                                        useBeamConstraint = True)
 
     ToolSvc += InDetTrigPriVxFinderTool
-  
+
     self.VertexFinderTool = InDetTrigPriVxFinderTool
     self.RunWithoutField = False
     self.RetrieveTracksFromSG = True
-  
+
       #monitoring
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderValidationMonitor
     from InDetTrigPriVxFinder.InDetTrigPriVxFinderMonitoring import InDetTrigPriVxFinderOnlineMonitor
@@ -199,9 +199,9 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
     self.AthenaMonTools = [InDetTrigPriVxFinderValidationMonitor(name="InDetTrigPriVxFinderAllTEOnlineMonitor"),
                            InDetTrigPriVxFinderOnlineMonitor(name="InDetTrigPriVxFinderAllTEValidationMonitor"),
                            vxtime]
-      
-      
-   
+
+
+
 # ------------ Particle creation
 #
 from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigParticleCreator
@@ -215,10 +215,10 @@ class InDetTrigParticleCreation_EF( InDet__TrigParticleCreator ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
           InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
           InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigHoleSearchTool
-      
+
       InDetTrigPartCreaPrdAssociationTool     = None
       InDetTrigPartCreaTrackSummaryHelperTool = InDetTrigTrackSummaryHelperTool
-      
+
 
       from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorTool,InDetTrigParticleCreatorToolParams
 
@@ -259,7 +259,7 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
           InDetTrigHoleSearchTool,InDetTrigExtrapolator
       from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
 
-         
+
       # load patricle creator tool
       #
 
@@ -277,7 +277,7 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
         creatorTool = InDetTrigParticleCreatorToolFTF
       elif "_IDTrig" in name and type=="electron":
         creatorTool = InDetTrigParticleCreatorToolWithSummaryTRTPid
-        
+
       self.ParticleCreatorTool = creatorTool
 
       if "_IDTrig" in name and (type=="muon" or type=="electron"):
@@ -310,10 +310,10 @@ class InDetTrigVertexxAODCnv_EF( InDet__TrigVertexxAODCnv ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
           InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
           InDetTrigHoleSearchTool,InDetTrigExtrapolator
-      
-         
+
+
 # --- do truth for particle creation
-# ------------------------------------------------------------------------------- 
+# -------------------------------------------------------------------------------
 from InDetTrigTruthAlgs.InDetTrigTruthAlgsConf import InDet__TrigTrackParticleTruthMaker
 class InDetTrigTrackParticleTruthMaker_EF( InDet__TrigTrackParticleTruthMaker ):
    __slots__ = []
@@ -333,7 +333,7 @@ class InDetTrigTrackParticleTruthMaker_EF( InDet__TrigTrackParticleTruthMaker ):
       #trutime.TimerHistLimits = [0,200]
       #self.AthenaMonTools = [TrigTrackParticleTruthValidationMonitor(),
       #                       trutime]
-         
+
 
 # ------------ Conversion Finder
 #
@@ -363,7 +363,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                               InputParticleMasses = [0.511,0.511],
                                                               VertexForConstraint = [0.,0.,0.],
                                                               CovVrtForConstraint = [0.015*0.015,0.,0.015*0.015,0.,0.,10000.*10000.])
-      ToolSvc += InDetTrigConversionVxFitterTool 
+      ToolSvc += InDetTrigConversionVxFitterTool
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionVxFitterTool)
 
@@ -372,7 +372,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__SeedNewtonTrkDistanceFinder
       InDetTrigConversionTrkDistanceFinder = Trk__SeedNewtonTrkDistanceFinder(name = 'InDetTrigConversionTrkDistanceFinder')
 
-      ToolSvc += InDetTrigConversionTrkDistanceFinder 
+      ToolSvc += InDetTrigConversionTrkDistanceFinder
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionTrkDistanceFinder)
 
@@ -382,7 +382,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       InDetTrigConversionHelper = InDet__ConversionFinderUtils(name = "InDetTrigConversionFinderUtils",
                                                                #OutputLevel                = 1
                                                                )
-      
+
       ToolSvc += InDetTrigConversionHelper
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionHelper)
@@ -391,17 +391,16 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       #
       from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
       InDetTrigConversionTrackSelector = InDet__InDetConversionTrackSelectorTool(name   = "InDetTrigConversionTrackSelector",
-                                                                                 TrackSummaryTool = InDetTrigTrackSummaryTool,
-                                                                                 Extrapolator     = InDetTrigExtrapolator, 
+                                                                                 Extrapolator     = InDetTrigExtrapolator,
                                                                                  maxSiD0          = 10000.,  #50.0,
-	                                                                         maxTrtD0         = 10000.,  #100.,
-	                                                                         maxSiZ0          = 10000.,  #350.0,
-	                                                                         maxTrtZ0         = 10000.,  #1400.,
-	                                                                         minPt            = InDetTrigSliceSettings[('pTmin',type)],
-	                                                                         RatioCut1        = 0.0,     #0.5,
-	                                                                         RatioCut2        = 0.1,
-	                                                                         RatioCut3        = 0.1)
-      
+                                                                                 maxTrtD0         = 10000.,  #100.,
+                                                                                 maxSiZ0          = 10000.,  #350.0,
+                                                                                 maxTrtZ0         = 10000.,  #1400.,
+                                                                                 minPt            = InDetTrigSliceSettings[('pTmin',type)],
+                                                                                 RatioCut1        = 0.0,     #0.5,
+                                                                                 RatioCut2        = 0.1,
+                                                                                 RatioCut3        = 0.1)
+
       ToolSvc += InDetTrigConversionTrackSelector
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionTrackSelector)
@@ -420,7 +419,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       ToolSvc += InDetTrigConversionTrackPairsSelector
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionTrackPairsSelector)
-         
+
       # Vertex point estimator
       #
       from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__VertexPointEstimator
@@ -433,7 +432,7 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       ToolSvc += InDetTrigConversionVtxPointEstimator
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigConversionVtxPointEstimator)
-         
+
       # Conversion post selector
       #
       from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__ConversionPostSelector
@@ -456,13 +455,13 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
       InDetTrigSingleTrackConversion = InDet__SingleTrackConversionTool(name       = "InDetTrigSingleTrackConversionTool",
                                                                         ConversionFinderHelperTool = InDetTrigConversionHelper,
                                                                         TrackSummaryTool           = InDetTrigTrackSummaryTool,
-									Extrapolator               = InDetTrigExtrapolator,                                              
+									Extrapolator               = InDetTrigExtrapolator,
                           					        MinInitialHitRadius        = 70.,
                                                                         MinRatioOfHLhits           = 0.95)
       ToolSvc += InDetTrigSingleTrackConversion
       if (InDetTrigFlags.doPrintConfigurables()):
          print (     InDetTrigSingleTrackConversion)
-         
+
       from InDetConversionFinderTools.InDetConversionFinderToolsConf import InDet__InDetConversionFinderTools
       InDetTrigConversionFinderTools = InDet__InDetConversionFinderTools(name        = "InDetTrigConversionFinderTools",
                                                                          VertexFitterTool           = InDetTrigConversionVxFitterTool,

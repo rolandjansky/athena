@@ -58,8 +58,18 @@ namespace HLT { namespace MET {
   {
     // Retrieve the inputs
     auto cells = SG::makeHandle(m_cellsKey, context);
+      if (!cells.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_cellsKey);
+        return StatusCode::FAILURE;
+      }
     // NB - there's no makeHandle overload for ReadCondHandle
     SG::ReadCondHandle noiseCDO(m_noiseCDOKey, context);
+      if (!noiseCDO.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_noiseCDOKey);
+        return StatusCode::FAILURE;
+      }
 
     // Prepare the individual components
     std::array<METComponent, N_SAMPLINGS> sums;

@@ -4,7 +4,6 @@
 
 #include "CavernInfraDetectorFactory.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 
 #include "GeoModelKernel/GeoMaterial.h"  

@@ -4,7 +4,6 @@
 
 #include "UserHooksUtils.h"
 #include "Pythia8_i/UserHooksFactory.h"
-#include "boost/lexical_cast.hpp"
 #include <stdexcept>
 #include <iostream>
 
@@ -76,7 +75,7 @@ namespace Pythia8{
       if(nPwgOutgoing == m_nPoWHEGFinal) return false;
       
       if(nPwgOutgoing != m_nPoWHEGFinal + 1){
-        throw std::runtime_error("Wrong number of final state PoWHEG legs: " + boost::lexical_cast<std::string>(nPwgOutgoing));
+        throw std::runtime_error("Wrong number of final state PoWHEG legs: " + std::to_string(nPwgOutgoing));
       }
       
       // momentum components to boost to CMS frame

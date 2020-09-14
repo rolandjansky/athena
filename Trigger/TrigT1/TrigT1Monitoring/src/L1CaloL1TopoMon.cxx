@@ -759,7 +759,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   ATH_MSG_DEBUG( "Number of L1Topo ROI RODs found: " << l1TopoResults.size() );
   for (auto & r : l1TopoResults) {
     //ATH_MSG_VERBOSE( r.dump() );
-    auto rdo = r.rdo();
+    const auto& rdo = r.rdo();
     ATH_MSG_DEBUG( "Found ROI RDO with source ID "
 		   << L1Topo::formatHex8(rdo.getSourceID()) );
     auto errors = rdo.getErrors();
@@ -768,7 +768,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       m_h_l1topo_1d_Errors->Fill(ROI_CONV);
       topo_error|=(1<<ROI_CONV);
     }
-    const std::vector<uint32_t> cDataWords = rdo.getDataWords();
+    const std::vector<uint32_t>& cDataWords = rdo.getDataWords();
     if ( cDataWords.size() == 0 ) {
       ATH_MSG_DEBUG ( "L1TopoRDO ROI is empty" );
       m_h_l1topo_1d_Errors->Fill(NO_ROI);

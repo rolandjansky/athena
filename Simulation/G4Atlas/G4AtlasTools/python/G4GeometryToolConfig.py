@@ -7,6 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 GeoDetectorTool=CompFactory.GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
 from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
+from AtlasGeoModel.ITkGMConfig import ITkGeometryCfg
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
 from TileGeoModel.TileGMConfig import TileGMCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -55,6 +56,27 @@ def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
     result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+def ITkPixelGeoDetectorToolCfg(ConfigFlags, name='ITkPixel', **kwargs):
+    #set up geometry
+    result=ITkGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "ITkPixel")
+    #add the GeometryNotifierSvc
+    result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
+    kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
+    result.setPrivateTools(GeoDetectorTool(name, **kwargs))
+    return result
+
+
+def ITkStripGeoDetectorToolCfg(ConfigFlags, name='ITkStrip', **kwargs):
+    #set up geometry
+    result=ITkGeometryCfg(ConfigFlags)
+    kwargs.setdefault("DetectorName", "ITkStrip")
     #add the GeometryNotifierSvc
     result.addService(G4GeometryNotifierSvcCfg(ConfigFlags))
     kwargs.setdefault("GeometryNotifierSvc", result.getService("G4GeometryNotifierSvc"))
@@ -185,20 +207,33 @@ def getCavernInfraGeoDetectorTool(ConfigFlags, name='CavernInfra', **kwargs):
     return result
 
 
-def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
+def ITKEnvelopeCfg(ConfigFlags, name="ITK", **kwargs):
     result = ComponentAccumulator()
 
-    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
+    kwargs.setdefault("DetectorName", "ITK")
+    kwargs.setdefault("InnerRadius", 32.15*mm)
+    kwargs.setdefault("OuterRadius", 1.148*m)
+    kwargs.setdefault("dZ", 347.5*cm)
+
+    SubDetectorList=[]
+    if ConfigFlags.Detector.GeometryITkPixel:
+        toolITkPixel = result.popToolsAndMerge(ITkPixelGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolITkPixel]
+    if ConfigFlags.Detector.GeometryITkStrip:
+        toolITkStrip = result.popToolsAndMerge(ITkStripGeoDetectorToolCfg(ConfigFlags))
+        SubDetectorList += [toolITkStrip]
+
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    result.setPrivateTools(CylindricalEnvelope(name, **kwargs))
+    return result
+
+def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
+    result = ComponentAccumulator()
     isRUN2 = ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]
-
-    #isRUN1 = not (isRUN2 or isUpgrade) #not used, remove?
-
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
     if isRUN2:
         innerRadius = 28.9*mm #29.15*mm
-    if isUpgrade:
-        innerRadius = 32.15*mm
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
     kwargs.setdefault("dZ", 347.5*cm)
@@ -210,7 +245,7 @@ def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     if ConfigFlags.Detector.GeometrySCT:
         toolSCT = result.popToolsAndMerge(SCTGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolSCT]
-    if ConfigFlags.Detector.GeometryTRT and not isUpgrade:
+    if ConfigFlags.Detector.GeometryTRT:
         toolTRT = result.popToolsAndMerge(TRTGeoDetectorToolCfg(ConfigFlags))
         SubDetectorList += [toolTRT]
 
@@ -327,6 +362,9 @@ def generateSubDetectorList(ConfigFlags):
     if ConfigFlags.Detector.SimulateID:
         toolIDET = result.popToolsAndMerge(IDETEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolIDET ]
+    if ConfigFlags.Detector.SimulateITk:
+        toolITK = result.popToolsAndMerge(ITKEnvelopeCfg(ConfigFlags))
+        SubDetectorList += [ toolITK ]
     if ConfigFlags.Detector.SimulateCalo:
         toolCALO = result.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
         SubDetectorList += [ toolCALO ]

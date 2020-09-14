@@ -66,15 +66,15 @@ namespace Muon {
 
     /** @brief constructor taking a vector of MuPatSegment object, the candidate takes ownership of the track
                It will increase the usedInFit counter of the MuPatSegment objects by one. */
-    MuPatTrack( const std::vector<MuPatSegment*>& segments, const Trk::Track* track , MuPatSegment* seedSeg=0 );
+    MuPatTrack( const std::vector<MuPatSegment*>& segments, std::unique_ptr<Trk::Track>& track , MuPatSegment* seedSeg=0 );
 
     /** @brief constructor taking a MuPatSegment object, the candidate takes ownership of the track
                It will increase the usedInFit counter of the MuPatSegment objects by one. */
-    MuPatTrack( MuPatSegment* segment, const Trk::Track* track );
+    MuPatTrack( MuPatSegment* segment, std::unique_ptr<Trk::Track>& track );
 
     /** @brief constructor taking two MuPatSegment objects, the candidate takes ownership of the track
          It will increase the usedInFit counter of the MuPatSegment objects by one. */
-    MuPatTrack( MuPatSegment* segment1, MuPatSegment* segment2, const Trk::Track* track , MuPatSegment* seedSeg=0 );
+    MuPatTrack( MuPatSegment* segment1, MuPatSegment* segment2, std::unique_ptr<Trk::Track>& track , MuPatSegment* seedSeg=0 );
 
     /** @brief destructor, decrease the usedInFit counter of all MuPatSegment objects by one */
     ~MuPatTrack();
@@ -86,13 +86,7 @@ namespace Muon {
     MuPatTrack& operator=( const MuPatTrack& can );
 
     /** @brief access to track */
-    const Trk::Track& track() const;
-
-    /** @brief Candidate no longer owns the memory of its track (but keeps the pointer). Return current track. */
-    const Trk::Track& releaseTrack();
-
-    /** Does this candidate own the memory of its track? */
-    bool ownsTrack() const;
+    Trk::Track& track() const;
 
     /** @brief access to segments */
     const std::vector<MuPatSegment*>& segments() const;
@@ -104,7 +98,7 @@ namespace Muon {
     const std::vector<MuPatSegment*>& excludedSegments() const;
 
     /** @brief add segment + the associated new track. Takes ownership of the track. */
-    void addSegment( MuPatSegment* segment, const Trk::Track* newTrack );
+    void addSegment( MuPatSegment* segment, std::unique_ptr<Trk::Track>& newTrack );
 
     /** @brief add segment that does not match the track */
     void addExcludedSegment( MuPatSegment* segment );
@@ -152,7 +146,7 @@ namespace Muon {
     // private member functions
     //
     /** @brief update track. Candidate takes ownership of track. */
-    void updateTrack( const Trk::Track* newTrack );
+    void updateTrack( std::unique_ptr<Trk::Track>& newTrack );
 
     /** @brief update segment/track association, if add == true ,will add track to segments else remove it */
     void updateSegments( bool add );
@@ -189,12 +183,10 @@ namespace Muon {
     bool hasMomentum( const Trk::Track& track ) const;
 
 
-    std::vector<MuPatSegment*> m_segments; //<! list of associated segments
-    std::vector<MuPatSegment*> m_excludedSegments; //<! list of associated segments
-    const Trk::Track*             m_track;    //<! associated track
+    std::vector<MuPatSegment*>  m_segments; //<! list of associated segments
+    std::vector<MuPatSegment*>  m_excludedSegments; //<! list of associated segments
+    std::unique_ptr<Trk::Track> m_track;    //<! associated track
     MuPatSegment*              m_seedSeg; //!< The special segment for this track
-
-    bool m_ownTrack;
 
   public:
     /** @brief Mboy data members  */
@@ -301,12 +293,8 @@ namespace Muon {
     return m_excludedSegments;
   }
 
-  inline const Trk::Track& MuPatTrack::track() const {
+  inline Trk::Track& MuPatTrack::track() const {
     return *m_track;
-  }
-
-  inline bool MuPatTrack::ownsTrack() const {
-    return m_ownTrack;
   }
 
   inline const Trk::TrackParameters& MuPatTrack::entryPars() const {

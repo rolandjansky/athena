@@ -96,7 +96,6 @@ public:
                ParticleHypothesis particle) const override final;
 
 private:
-
   /** These are the methods that do the actual heavy lifting when extrapolating
    * with a cache */
   MultiComponentState extrapolateImpl(

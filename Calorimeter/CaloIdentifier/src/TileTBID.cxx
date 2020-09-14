@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,9 +17,9 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
-#include <assert.h>
 
 using CxxUtils::strformat;
 
@@ -31,7 +31,7 @@ TileTBID::TileTBID( void )
     , m_TYPE_INDEX(999)
     , m_MODULE_INDEX(999)
     , m_CHANNEL_INDEX(999)
-    , m_dict(0)
+    , m_dict(nullptr)
     , m_type_hash_max(0)
     , m_module_hash_max(0)
     , m_channel_hash_max(0)

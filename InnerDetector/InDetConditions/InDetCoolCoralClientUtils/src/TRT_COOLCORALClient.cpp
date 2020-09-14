@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////
@@ -53,7 +53,7 @@ void TRT_COOLCORALClient::get_EnabledRODs( int runNumber, std::vector<int>& RODI
   query0->addToTableList( "ONLTRT_RUNRODID" );
   query0->addToOutputList( "ONLTRT_RUNRODID.RODID" );
   std::string condStr0 = ( "ONLTRT_RUNRODID.RunNumber=:runNum" );
-  coral::AttributeList condVals0;
+  coral::AttributeList condVals0 ATLAS_THREAD_SAFE; // not shared so ok
   condVals0.extend<int>( "runNum" );
   condVals0[0].data<int>() = runNumber; // BARREL HV PADS
   query0->setCondition( condStr0, condVals0 );
@@ -84,7 +84,7 @@ void TRT_COOLCORALClient::get_RunTagAndTime( int runNumber, std::pair<std::strin
   query0->addToOutputList( "ONLTRT_RUN_HISTORY.TAG" );
   query0->addToOutputList( "ONLTRT_RUN_HISTORY.Time" );
   std::string condStr0 = ( "ONLTRT_RUN_HISTORY.RUNNumber=:runNum" );
-  coral::AttributeList condVals0;
+  coral::AttributeList condVals0 ATLAS_THREAD_SAFE; // not shared so ok
   condVals0.extend<int>( "runNum" );
   condVals0[0].data<int>() = runNumber; // BARREL HV PADS
   query0->setCondition( condStr0, condVals0 );
@@ -114,7 +114,8 @@ void TRT_COOLCORALClient::get_COOLChanMap( const std::string& folderName, std::m
   query0->addToTableList( "COMP200_NODES" );
   query0->addToOutputList( "COMP200_NODES.FOLDER_CHANNELTABLENAME" );
   std::string condStr0 = "COMP200_NODES.NODE_FULLPATH='"+folderName+"'";
-  query0->setCondition( condStr0, coral::AttributeList() );
+  coral::AttributeList empty ATLAS_THREAD_SAFE; // Not shared, so ok
+  query0->setCondition( condStr0, empty );
   int nRows0 = 0;
   coral::ICursor& cursor0 = query0->execute();
   while( cursor0.next() ) {
@@ -129,7 +130,8 @@ void TRT_COOLCORALClient::get_COOLChanMap( const std::string& folderName, std::m
   query1->addToOutputList( channelTableName+".CHANNEL_ID" );
   query1->addToOutputList( channelTableName+".CHANNEL_NAME" );
   std::string condStr1 = ""; // all rows
-  query1->setCondition( condStr1, coral::AttributeList() );
+  coral::AttributeList empty2 ATLAS_THREAD_SAFE; // Not shared, so ok
+  query1->setCondition( condStr1, empty2 );
   int nRows1 = 0;
   coral::ICursor& cursor1 = query1->execute();
   while( cursor1.next() ) {
@@ -162,7 +164,7 @@ void TRT_COOLCORALClient::get_BarrelHVLinePadMap(std::map<std::string,std::strin
   subQuery01.addToTableList( "CORR_MAP" );
   std::string condStr01 = "TREE_NODE.level_id = :lvlid";
   condStr01 += " AND CORR_MAP.node_id_det = TREE_NODE.parent_id";
-  coral::AttributeList condVals01;
+  coral::AttributeList condVals01 ATLAS_THREAD_SAFE; // Not shared, so ok.
   condVals01.extend<float>( "lvlid" );
   condVals01[0].data<float>() = float( padLevelID ); // BARREL HV PADS
   subQuery01.setCondition( condStr01, condVals01 );
@@ -173,13 +175,14 @@ void TRT_COOLCORALClient::get_BarrelHVLinePadMap(std::map<std::string,std::strin
   subQuery02.addToOutputList( "TREE_NODE.node_id", "treenode_nodeid" );
   subQuery02.addToTableList( "TREE_NODE" );
   std::string condStr02 = "TREE_NODE.level_id = :lvlid2";
-  coral::AttributeList condVals02;
+  coral::AttributeList condVals02 ATLAS_THREAD_SAFE; // Not shared, so ok.
   condVals02.extend<float>( "lvlid2" );
   condVals02[0].data<float>() = float( 64 ); // HVLINE LOGICAL NAMES
   subQuery02.setCondition( condStr02, condVals02 );
   query0->addToTableList( "Result02" );
 
-  query0->setCondition( "Result01.corrmap_nodeidst = Result02.treenode_nodeid", coral::AttributeList() );
+  coral::AttributeList empty ATLAS_THREAD_SAFE; // Not shared, so ok.
+  query0->setCondition( "Result01.corrmap_nodeidst = Result02.treenode_nodeid", empty );
 
   int nRows = 0;
   coral::ICursor& cursor0 = query0->execute();
@@ -314,7 +317,7 @@ void TRT_COOLCORALClient::CreateHVLinePadMap( const DetectorType& detector,
   subQuery01.addToTableList( "CORR_MAP" );
   std::string condStr01 = "TREE_NODE.level_id = :lvlid";
   condStr01 += " AND CORR_MAP.node_id_det = TREE_NODE.parent_id";
-  coral::AttributeList condVals01;
+  coral::AttributeList condVals01 ATLAS_THREAD_SAFE; // Not shared, so ok.
   condVals01.extend<float>( "lvlid" );
   condVals01[0].data<float>() = float( padLevelID ); // BARREL HV PADS
   subQuery01.setCondition( condStr01, condVals01 );
@@ -325,13 +328,14 @@ void TRT_COOLCORALClient::CreateHVLinePadMap( const DetectorType& detector,
   subQuery02.addToOutputList( "TREE_NODE.node_id", "treenode_nodeid" );
   subQuery02.addToTableList( "TREE_NODE" );
   std::string condStr02 = "TREE_NODE.level_id = :lvlid2";
-  coral::AttributeList condVals02;
+  coral::AttributeList condVals02 ATLAS_THREAD_SAFE; // not shared, so ok
   condVals02.extend<float>( "lvlid2" );
   condVals02[0].data<float>() = float( 64 ); // HVLINE LOGICAL NAMES
   subQuery02.setCondition( condStr02, condVals02 );
   query0->addToTableList( "Result02" );
 
-  query0->setCondition( "Result01.corrmap_nodeidst = Result02.treenode_nodeid", coral::AttributeList() );
+  coral::AttributeList empty ATLAS_THREAD_SAFE; // Not shared, so ok
+  query0->setCondition( "Result01.corrmap_nodeidst = Result02.treenode_nodeid", empty );
 
   int nRows = 0;
   coral::ICursor& cursor0 = query0->execute();
@@ -426,7 +430,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
   corr_cond += " AND TREE_NODE.path_to = :lvldet";
 
 
-  coral::AttributeList corr_condData;
+  coral::AttributeList corr_condData ATLAS_THREAD_SAFE; // Not shared, so ok.
   corr_condData.extend<int>( "treeid" );
   corr_condData.extend<int>( "lvlid" );
   corr_condData.extend<std::string>( "lvldet" );
@@ -453,7 +457,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
     query1->addToOutputList("TREE_NODE.node_id" );
     query1->addToOutputList("TREE_NODE.node_name" );
     std::string corr_cond1 = "TREE_NODE.parent_id = :treeid";
-    coral::AttributeList corr_condData1;
+    coral::AttributeList corr_condData1 ATLAS_THREAD_SAFE; // Not shared, so ok.
     corr_condData1.extend<float>( "treeid" );
     query1->setCondition( corr_cond1, corr_condData1);
     corr_condData1[0].data<float>() = row0[0].data<float>();
@@ -464,7 +468,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
       query2->addToOutputList("TREE_NODE.node_id" );
       query2->addToOutputList("TREE_NODE.node_name" );
       std::string corr_cond2 = "TREE_NODE.parent_id = :treeid";
-      coral::AttributeList corr_condData2;
+      coral::AttributeList corr_condData2 ATLAS_THREAD_SAFE; // Not shared, so ok.
       corr_condData2.extend<float>( "treeid" );
       query2->setCondition( corr_cond2, corr_condData2);
       corr_condData2[0].data<float>() = row1[0].data<float>();
@@ -475,7 +479,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
         query3->addToOutputList("TREE_NODE.node_id" );
         query3->addToOutputList("TREE_NODE.node_name" );
         std::string corr_cond3 = "TREE_NODE.parent_id = :treeid";
-	coral::AttributeList corr_condData3;
+	coral::AttributeList corr_condData3 ATLAS_THREAD_SAFE; // Not shared, so ok.
         corr_condData3.extend<float>( "treeid" );
         query3->setCondition( corr_cond3, corr_condData3);
         corr_condData3[0].data<float>() = row2[0].data<float>();
@@ -536,7 +540,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
   corr_cond00 += " AND CORR_MAP.node_id_st=TREE_NODE_MAP.node_id_out";
 
 
-  coral::AttributeList corr_condData00;
+  coral::AttributeList corr_condData00 ATLAS_THREAD_SAFE; // Not shared, so ok.
   corr_condData00.extend<int>( "treeid" );
   corr_condData00.extend<int>( "lvlid" );
   corr_condData00.extend<float>( "nodeid" );
@@ -558,7 +562,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
     query01->addToOutputList("TREE_NODE.path_to" );
 
     std::string corr_cond01 = "TREE_NODE.node_id = :treefinal";
-    coral::AttributeList corr_condData01;
+    coral::AttributeList corr_condData01 ATLAS_THREAD_SAFE; // Not shared, so ok.
     corr_condData01.extend<float>( "treefinal" );
     query01->setCondition( corr_cond01, corr_condData01);
 

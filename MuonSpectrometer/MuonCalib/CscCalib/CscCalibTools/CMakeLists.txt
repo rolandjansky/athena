@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( CscCalibTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Control/StoreGate
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

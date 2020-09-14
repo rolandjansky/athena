@@ -53,7 +53,6 @@ StatusCode PixelRawDataProvider::initialize() {
   ATH_CHECK( m_bsErrorsKey.initialize() );
   ATH_CHECK( m_bsErrorsCacheKey.initialize( SG::AllowEmpty ) );
 
-
   if (m_roiSeeded) {
     ATH_CHECK( m_roiCollectionKey.initialize() );
     ATH_CHECK(m_regionSelector.retrieve());
@@ -140,15 +139,12 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
     decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
   } else {
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min() );
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_rawDataTool->SizeOfIDCInDetBSErrContainer(), std::numeric_limits<int>::min() );
   }
-
 
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(listOfRobf,  containerInterface, *decodingErrors).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
-
-
 
   if(tempcont) ATH_CHECK(tempcont->MergeToRealContainer(rdoContainer.ptr()));
 

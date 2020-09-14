@@ -96,7 +96,7 @@ namespace iFatras {
 
     void layerToSurfaceCollection(Trk::Layer *layer) const;
     
-    void computeRadiusMinMax(Amg::Transform3D trf, iFatras::PlanarDetElement* moduleTmp, double &rMin, double &rMax) const;
+    void computeRadiusMinMax(const Amg::Transform3D& trf, iFatras::PlanarDetElement* moduleTmp, double &rMin, double &rMax) const;
     
     bool                                           m_pixelCase;                      //!< flag for pixel/sct
     const PixelID*                                 m_pixIdHelper;                    //!< pixel Id Helper 

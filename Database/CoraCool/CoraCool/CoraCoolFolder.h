@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORACOOL_CORACOOLFOLDER_H
@@ -19,6 +19,8 @@
 #include "CoolKernel/IField.h"
 #include "CoolKernel/pointers.h"
 #include "CoraCool/CoraCoolTypes.h"
+
+#include "CxxUtils/checker_macros.h"
 
 
 class CoraCoolSequence;
@@ -57,7 +59,9 @@ class CoraCoolFolder {
   const std::string& coralPKey() const;
   const cool::IRecordSpecification& fkSpecification() const;
   const cool::RecordSpecification payloadSpecification() const;
-  coral::AttributeList emptyAttrList() const;
+  // Actually ok, but need to declare it ATLAS_NOT_THREAD_SAFE to avoid
+  // warnings related to the return-by-value.
+  coral::AttributeList emptyAttrList ATLAS_NOT_THREAD_SAFE() const;
 
   // allow access to the underlying COOL folder
   cool::IFolderPtr coolFolder();
@@ -68,7 +72,8 @@ class CoraCoolFolder {
   // the primary and foreign key values of the AttributeLists will be ignored
   // as the keys will be allocated internally by the API
   // return the value of the FK in case it is required later
-  int storeObject(const cool::ValidityKey& since, 
+  int storeObject ATLAS_NOT_THREAD_SAFE
+                  (const cool::ValidityKey& since, 
 		   const cool::ValidityKey until,
 		   const_iterator begin,
 		   const_iterator end,
@@ -77,7 +82,7 @@ class CoraCoolFolder {
 		   const bool userTagOnly=false);
 
   // setup storage buffer for bulk insertion via repeated storeObject calls
-  void setupStorageBuffer();
+  bool setupStorageBuffer ATLAS_NOT_THREAD_SAFE();
   // flush the storage buffer (execute bulk insertion of objects)
   // unlike in COOL, flush deactivates the buffer - use setupStorageBuffer
   // again after flush if you want to carry on
@@ -106,7 +111,7 @@ class CoraCoolFolder {
   // the foreign key column is used to determine which existing COOL entries
   // will reference this data
   // the primary key column will be ignored and values allocated by the API
-  void addPayload(const_iterator begin, const_iterator end);
+  void addPayload ATLAS_NOT_THREAD_SAFE (const_iterator begin, const_iterator end);
 
   // accessing data - all these can throw CoraCool and Cool exceptions
   // find the one object valid at a given time/channel and tag
@@ -142,7 +147,8 @@ class CoraCoolFolder {
 
  private:
   // accessors for friend class CoraCoolObjectIter
-  coral::ISessionProxy* proxy() const;
+  coral::ISessionProxy* proxy();
+  const coral::ISessionProxy* proxy() const;
   coral::ITable* table() const;
   void setOutputSpec(coral::IQuery* query);
 
@@ -194,7 +200,8 @@ inline const std::string& CoraCoolFolder::coralPKey() const
 inline cool::IFolderPtr CoraCoolFolder::coolFolder()
 { return m_coolfolder; }
 
-inline coral::ISessionProxy* CoraCoolFolder::proxy() const {return m_proxy; }
+inline coral::ISessionProxy* CoraCoolFolder::proxy() {return m_proxy; }
+inline const coral::ISessionProxy* CoraCoolFolder::proxy() const {return m_proxy; }
 
 // inline coral::ITable* CoraCoolFolder::table() const { return m_table; }
 

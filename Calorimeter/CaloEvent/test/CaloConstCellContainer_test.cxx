@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloEvent/test/CaloConstCellContainer_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -28,30 +26,27 @@ typedef std::vector<const CaloCell*> CellVector;
 typedef CaloConstCellContainer CellContainer;
 #define CONST_CONTAINER
 
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-
-
 #include "CaloCellContainerTestCommon.icc"
 
 
 void test_gen (const CaloCell_ID& helper,
                selfcn_t* selfcn,
                const CellVector& cells, 
-               bool /*total*/)
+               bool /*total*/,
+               Athena_test::URNG& stlrand)
 {
   CellVector selected_cells[CaloCell_ID::NSUBCALO];
-  selfcn (cells, selected_cells);
+  selfcn (stlrand, cells, selected_cells);
   {
     CaloConstCellContainer cont (SG::VIEW_ELEMENTS);
     assert (cont.ownPolicy() == SG::VIEW_ELEMENTS);
-    fill_cells1 (selected_cells, cont);
-    check_cells (helper, cells, selected_cells, cont);
+    fill_cells1 (selected_cells, cont, stlrand);
+    check_cells (stlrand, helper, cells, selected_cells, cont);
   }
   {
     CaloConstCellContainer cont (SG::VIEW_ELEMENTS);
-    fill_cells2 (selected_cells, cont);
-    check_cells (helper, cells, selected_cells, cont);
+    fill_cells2 (selected_cells, cont, stlrand);
+    check_cells (stlrand, helper, cells, selected_cells, cont);
   }
 }
 
@@ -63,7 +58,7 @@ void test_gen (const CaloCell_ID& helper,
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("CaloCellContainer_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("CaloEvent/CaloCellContainer_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  
@@ -72,9 +67,11 @@ int main()
   const CaloCell_ID& helper = tester.caloID();
   CellVector cells = tester.get_const_cells();
 
-  test1 (helper, cells);
-  test2 (helper, cells);
-  test3 (helper, cells);
+  Athena_test::URNG stlrand;
+
+  test1 (helper, cells, stlrand);
+  test2 (helper, cells, stlrand);
+  test3 (helper, cells, stlrand);
   test4 (helper, cells);
 
   return 0;

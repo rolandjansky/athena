@@ -17,3 +17,7 @@ atlas_add_test( TrackCollectionReadConfig_test
 atlas_add_test( AtlasTrackingGeometrySvcCfgTest    
                 SCRIPT python -m TrkConfig.AtlasTrackingGeometrySvcConfig
                 POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( SolenoidalIntersectorConfig_test
+                SCRIPT python -m TrkConfig.SolenoidalIntersectorConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^private tools" )

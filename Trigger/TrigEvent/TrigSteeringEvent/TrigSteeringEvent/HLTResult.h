@@ -19,8 +19,14 @@
 #include <stdint.h>
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteeringEvent/GenericResult.h"
+
+#ifdef XAOD_STANDALONE
+#include "xAODCore/ClassID_traits.h"
+#else
 #include "AthenaKernel/IClassIDSvc.h"
-#include "AthenaKernel/CLASS_DEF.h"
+#endif
+
+#include "xAODCore/CLASS_DEF.h"
 #include "CxxUtils/checker_macros.h"
 
 /****************************************************************************************

@@ -1,6 +1,8 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
+from __future__ import print_function
 
 if not 'doTileMonDQ' in dir():
     doTileMonDQ = True
@@ -54,7 +56,7 @@ if doTileMonDQ:
 
 
     topSequence.TileNoiseMon.AthenaMonTools += [ TileDQFragMon ];
-    print TileDQFragMon
+    print(TileDQFragMon)
 
 
 if doTileDigiNoiseMon:
@@ -68,7 +70,7 @@ if doTileDigiNoiseMon:
                                                    , TriggerTypes        = [ 0x82 ] )
 
     topSequence.TileNoiseMon.AthenaMonTools += [ TileDigiNoiseMon ];
-    print TileDigiNoiseMon;
+    print(TileDigiNoiseMon)
     
 if doTileRawChannelNoiseMon:
     TileRawChannelNoiseMon = CfgMgr.TileRawChannelNoiseMonTool(name               = 'TileRawChannelNoiseMon'
@@ -86,9 +88,9 @@ if doTileRawChannelNoiseMon:
                                                                , TriggerTypes        = [ 0x82 ]);
 
     topSequence.TileNoiseMon.AthenaMonTools += [ TileRawChannelNoiseMon ];
-    print TileRawChannelNoiseMon;
+    print(TileRawChannelNoiseMon)
 
-print topSequence.TileNoiseMon
+print(topSequence.TileNoiseMon)
 
 import os
 # -- use root histos --

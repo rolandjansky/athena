@@ -128,7 +128,7 @@ private:
 
 
 /**
- * @brief Generic initializer for base @a B.
+ * @brief Initializer for base @a B.
  */
 template <class B>
 struct BaseInfo_init
@@ -141,43 +141,13 @@ struct BaseInfo_init
     c.template add_base<B>(is_virtual);
 
     // Then we recurse on each possible base.
-    BaseInfo_init<typename Bases<B>::Base1>::init (c, is_virtual);
-    BaseInfo_init<typename Bases<B>::Base2>::init (c, is_virtual);
-    BaseInfo_init<typename Bases<B>::Base3>::init (c, is_virtual);
-    BaseInfo_init<typename Bases<B>::Base4>::init (c, is_virtual);
-  }
-};
-
-
-/**
- * @brief Dummy initializer.
- */
-template <>
-struct BaseInfo_init<NoBase>
-{
-  template <class T>
-  static void init (BaseInfoImpl<T>& /*c*/, bool /*is_virtual*/)
-  {
-    // This gets called when there is no base in a slot
-    // (signaled by the use of @a NoBase).
-    // This ends the recursion.
-  }
-};
-
-
-/**
- * @brief Initializer for virtual base @a B.
- */
-template <class B>
-struct BaseInfo_init<Virtual<B> >
-{
-  template <class T>
-  static void init (BaseInfoImpl<T>& c, bool /*is_virtual*/)
-  {
-    // Here, we initialize the @a BaseInfo for @a T for a virtual
-    // base class @a B.  We recurse to the generic initializer
-    // for this base, with the @a is_virtual flag forced on.
-    BaseInfo_init<B>::init (c, true);
+    auto add = [&] (auto* p, bool base_is_virtual)
+    {
+      using base_t = std::remove_pointer_t<decltype(p)>;
+      c.template add_base<base_t> (is_virtual || base_is_virtual);
+      return false;
+    };
+    Bases<B>::bases::foreach_ (add);
   }
 };
 

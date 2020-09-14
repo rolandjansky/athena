@@ -19,10 +19,13 @@ const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName{"/SCT/DAQ/Co
 const std::string SCT_ConfigurationCondAlg::s_coolModuleFolderName{"/SCT/DAQ/Configuration/Module"};
 const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName{"/SCT/DAQ/Configuration/MUR"};
 
-//Run2: folders change name in CONDBR2 database
+// Run2: folders change names
 const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName2{"/SCT/DAQ/Config/Chip"};
 const std::string SCT_ConfigurationCondAlg::s_coolModuleFolderName2{"/SCT/DAQ/Config/Module"};
 const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Config/MUR"};
+
+// New slimmed channel folder
+const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName2Slim{"/SCT/DAQ/Config/ChipSlim"};
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
@@ -40,7 +43,9 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
   // Check conditions folder names
-  if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and (m_readKeyChannel.key()!=s_coolChannelFolderName2)) {
+  if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and
+      (m_readKeyChannel.key()!=s_coolChannelFolderName2) and
+      (m_readKeyChannel.key()!=s_coolChannelFolderName2Slim)) {
     ATH_MSG_FATAL(m_readKeyChannel.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
@@ -124,6 +129,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   unsigned int nDisabledStripsExclusive{0};
   const std::string channelFolderName{m_readKeyChannel.key()};
   const bool run1{channelFolderName==s_coolChannelFolderName};
+  const bool slim{channelFolderName==s_coolChannelFolderName2Slim};
 
   // indices change according to whether CoraCool or CoolVectorPayload
   enum RUN1_MODULE_INDICES{PK, FOREIGN_KEY, CRATE_1, ROD_1, CHANNEL_1,OUTPUTCURRENT_1,
@@ -138,12 +144,14 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* 
   enum RUN2_CHIP_INDICES{CHIP_2, ACTIVE_2, ADDRESS_2, CONFIG_2, MASK0_2,MASK1_2,MASK2_2,
                          MASK3_2, VTHR_2, VCAL_2, DELAY_2, PREAMP_2, SHAPER_2, RC_FUNCTION_2, RC_ARGS_2,
                          C_FACTOR_2, TARGET_2, TRIM_2};
-  const unsigned int chipIndex{  run1 ? static_cast<unsigned int>(CHIP_1)   : static_cast<unsigned int>(CHIP_2)};
-  const unsigned int configIndex{run1 ? static_cast<unsigned int>(CONFIG_1) : static_cast<unsigned int>(CONFIG_2)};
-  const unsigned int mask0Index{ run1 ? static_cast<unsigned int>(MASK0_1)  : static_cast<unsigned int>(MASK0_2)};
-  const unsigned int mask1Index{ run1 ? static_cast<unsigned int>(MASK1_1)  : static_cast<unsigned int>(MASK1_2)};
-  const unsigned int mask2Index{ run1 ? static_cast<unsigned int>(MASK2_1)  : static_cast<unsigned int>(MASK2_2)};
-  const unsigned int mask3Index{ run1 ? static_cast<unsigned int>(MASK3_1)  : static_cast<unsigned int>(MASK3_2)};
+  enum RUN2_CHIPSLIM_INDICES{CHIP_2_SLIM, CONFIG_2_SLIM, MASK0_2_SLIM, MASK1_2_SLIM, MASK2_2_SLIM,
+                             MASK3_2_SLIM};
+  const unsigned int chipIndex{  run1 ? static_cast<unsigned int>(CHIP_1)   : slim ? static_cast<unsigned int>(CHIP_2_SLIM)   : static_cast<unsigned int>(CHIP_2)};
+  const unsigned int configIndex{run1 ? static_cast<unsigned int>(CONFIG_1) : slim ? static_cast<unsigned int>(CONFIG_2_SLIM) : static_cast<unsigned int>(CONFIG_2)};
+  const unsigned int mask0Index{ run1 ? static_cast<unsigned int>(MASK0_1)  : slim ? static_cast<unsigned int>(MASK0_2_SLIM)  : static_cast<unsigned int>(MASK0_2)};
+  const unsigned int mask1Index{ run1 ? static_cast<unsigned int>(MASK1_1)  : slim ? static_cast<unsigned int>(MASK1_2_SLIM)  : static_cast<unsigned int>(MASK1_2)};
+  const unsigned int mask2Index{ run1 ? static_cast<unsigned int>(MASK2_1)  : slim ? static_cast<unsigned int>(MASK2_2_SLIM)  : static_cast<unsigned int>(MASK2_2)};
+  const unsigned int mask3Index{ run1 ? static_cast<unsigned int>(MASK3_1)  : slim ? static_cast<unsigned int>(MASK3_2_SLIM)  : static_cast<unsigned int>(MASK3_2)};
 
   // Clear previous information at callback
   writeCdo->clearBadStripIds();

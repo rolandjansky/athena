@@ -129,7 +129,7 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     alg = acc.getPrimary()
     ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList))
+    acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList, disableEventTag=True))
     return acc
 
 

@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( CscCalibData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread )
 

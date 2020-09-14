@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -48,7 +48,7 @@ public:
   // default destructor
   virtual ~TileNeighbour(void);
 
-  int initialize(const Tile_Base_ID* tileID, std::string filename = "TileNeighbour.txt" );
+  int initialize(const Tile_Base_ID* tileID, const std::string& filename = "TileNeighbour.txt" );
   int prev_phi  (const IdentifierHash & id, std::vector<IdentifierHash> & neighbourList)    const;
   int next_phi  (const IdentifierHash & id, std::vector<IdentifierHash> & neighbourList)    const;
   int prev_eta  (const IdentifierHash & id, std::vector<IdentifierHash> & neighbourList)    const;

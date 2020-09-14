@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPIXELRAWDATABYTESTREAMCNV_PIXELRAWDATAPROVIDERTOOL_H
@@ -26,6 +26,9 @@ class IPixelRawDataProviderTool : virtual public IAlgTool
 			      IPixelRDO_Container* rdoIdc,
 			      IDCInDetBSErrContainer& decodingErrors
 			      ) const = 0;
+
+  //! Size of IDCInDetBSErrContainer
+  virtual int SizeOfIDCInDetBSErrContainer() const =0;
 
 };
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCLUSTERCONTAINER_H
@@ -76,9 +76,6 @@ class CaloClusterContainer : public DataVector<CaloCluster>
    */
   void print();
 
-  /** reimplementation of push_back */
-  void push_back ATLAS_NOT_THREAD_SAFE(const CaloCluster *);
-  void push_back(CaloCluster *);
 
  private:
 

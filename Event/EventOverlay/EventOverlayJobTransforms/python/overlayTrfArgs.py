@@ -1,13 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import argparse
 import logging
 msg = logging.getLogger(__name__)
-import unittest
-import pickle
-import os
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argBSFile, argPOOLFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool #, argSubstepString
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argString, argSubstep, argBool, argBSFile, argRDOFile, argSubstepInt
 
 ## Arguments whose default properties have to be overridden for the Overlay Chain
 def addOverlayChainOverrideArgs(parser):

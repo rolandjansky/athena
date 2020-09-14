@@ -9,20 +9,8 @@ def SCT_GeometryCfg( flags ):
     geoModelSvc=acc.getPrimary()
     GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
-    if flags.GeoModel.Run=="RUN4":
-        if "GMX" == flags.GeoModel.StripGeoType():
-            SCT_GMX_DetectorTool=CompFactory.SCT_GMX_DetectorTool
-            sctDetectorTool = SCT_GMX_DetectorTool()
-        else:
-            SCT_SLHC_DetectorTool=CompFactory.SCT_SLHC_DetectorTool
-            sctDetectorTool = SCT_SLHC_DetectorTool()
-            InDetServMatBuilderToolSLHC=CompFactory.InDetServMatBuilderToolSLHC
-            InDetServMatBuilderToolSLHC = InDetServMatBuilderToolSLHC()
-            acc.addPublicTool( InDetServMatBuilderToolSLHC )
-            sctDetectorTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
-    else:
-        SCT_DetectorTool=CompFactory.SCT_DetectorTool
-        sctDetectorTool = SCT_DetectorTool()
+    SCT_DetectorTool=CompFactory.SCT_DetectorTool
+    sctDetectorTool = SCT_DetectorTool()
     sctDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     sctDetectorTool.Alignable = True # make this a flag?
     sctDetectorTool.DetectorName = "SCT"

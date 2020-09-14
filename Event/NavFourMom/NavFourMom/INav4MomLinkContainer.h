@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** INav4MomLinkContainer.h
@@ -33,7 +33,7 @@ CLASS_DEF( INav4MomLinkContainer , 1194917823 , 1 )
 
 
 // This defines how to convert an INav4MomLinkContainer to an INavigable4MomentumCollection
-class ATLAS_NOT_THREAD_SAFE INav4MomLinkContainerToINavigable4MomentumCollectionConverter
+class INav4MomLinkContainerToINavigable4MomentumCollectionConverter
   : public SG::CopyConversion<INav4MomLinkContainer,
                               INavigable4MomentumCollection>
 {
@@ -47,7 +47,11 @@ public:
       dst.reserve (sz);
       for (size_t i = 0; i < sz; i++) {
         const INavigable4Momentum* p = *(src[i]).cptr();
-        dst.push_back (const_cast<INavigable4Momentum*> (p));
+        // FIXME: Ok, since the target ends up recorded in the event
+        // store as const.  But should change the interfaces so that
+        // we get a ConstDataVector to fill.
+        INavigable4Momentum* p_nc ATLAS_THREAD_SAFE = const_cast<INavigable4Momentum*> (p);
+        dst.push_back (p_nc);
       }
     }
   }

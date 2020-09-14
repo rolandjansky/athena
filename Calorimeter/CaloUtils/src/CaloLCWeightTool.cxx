@@ -92,14 +92,14 @@ StatusCode CaloLCWeightTool::initialize()
 
 StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster, const EventContext& ctx) const
 {
-  const CaloLocalHadCoeff* data(0);
+  const CaloLocalHadCoeff* data(nullptr);
   SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key, ctx);
 
   SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
   const CaloNoise* noiseCDO=*noiseHdl;
 
   data = *rch;
-  if(data==0) {
+  if(data==nullptr) {
     ATH_MSG_ERROR("Unable to access conditions object");
     return StatusCode::FAILURE;
   }

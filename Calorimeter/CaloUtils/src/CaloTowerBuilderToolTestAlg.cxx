@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -38,7 +38,7 @@ namespace {
 // Dufus-quality RNG, using LCG.  Constants from numerical recipies.
 // I don't particularly care about RNG quality here, just about
 // getting something that's reproducible.
-#include <stdint.h>
+#include <cstdint>
 uint32_t seed = 1;
 uint32_t rngmax = static_cast<uint32_t> (-1);
 uint32_t rng()
@@ -108,7 +108,7 @@ CaloCellContainer*
 CaloTowerBuilderToolTestAlg::make_cells()
 {
   CaloCellContainer* cells = new CaloCellContainer;
-  const CaloDetDescrManager* ddman = 0;
+  const CaloDetDescrManager* ddman = nullptr;
   if ( detStore()->retrieve (ddman, "CaloMgr").isFailure() )
     std::abort();
   for (CaloCell_ID::SUBCALO subcalo : m_calos) {
@@ -133,7 +133,7 @@ CaloTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
   CHECK( m_builder->execute (tow, cells, &subseg) );
 
   for (size_t i = 0; i < tow->size(); i++) {
-    typedef CaloTowerContainer::index_t index_t;
+    using index_t = CaloTowerContainer::index_t;
     index_t ieta1 = tow->getTowerEtaIndex (i);
     index_t iphi1 = tow->getTowerPhiIndex (i);
     index_t ieta0 = ieta1 + subseg.etamin()-1;

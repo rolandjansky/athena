@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCnvToolInterfaces )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          GaudiKernel )
-
 # External dependencies:
 find_package( tdaq-common )
 find_package( ROOT )

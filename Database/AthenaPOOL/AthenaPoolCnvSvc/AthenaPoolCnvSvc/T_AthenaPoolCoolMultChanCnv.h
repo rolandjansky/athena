@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLCOOLMULTCHANCNV_H
@@ -59,7 +59,8 @@ protected:
     /// @param obj          [IN]  pointer to the collection of objects.
     /// @param attrListColl [OUT] CondAttrListCollection filled with tokens
     /// @param token        [OUT] Token from writing out CondMultChanCollImpl
-    StatusCode objectToAttrListColl(COLL_T* obj, IOpaqueAddress*& pAddr,
+    StatusCode objectToAttrListColl ATLAS_NOT_THREAD_SAFE
+                                   (COLL_T* obj, IOpaqueAddress*& pAddr,
 				    CondAttrListCollection*& attrListColl,
 				    Token*& token);
 

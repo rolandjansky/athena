@@ -28,9 +28,9 @@ namespace ROIB {
    * @param trail     Reference to the trailer to be used by the object
    * @param roIVector Vector of muon RoIs collected from the MuCTPI
    */
-  MuCTPIResult::MuCTPIResult( const Header& head, const Trailer& trail, const vector< MuCTPIRoI >& roIVector )
-    : m_MuCTPIResultHeader( head ), m_MuCTPIResultTrailer( trail ),
-      m_MuCTPIResultRoIVec( roIVector ) {
+  MuCTPIResult::MuCTPIResult(  Header&& head, Trailer&& trail, vector< MuCTPIRoI >&& roIVector )
+    : m_MuCTPIResultHeader( std::move(head) ), m_MuCTPIResultTrailer( std::move(trail) ),
+      m_MuCTPIResultRoIVec( std::move(roIVector) ) {
 
   }
 
@@ -40,13 +40,6 @@ namespace ROIB {
   MuCTPIResult::MuCTPIResult()
     : m_MuCTPIResultHeader(), m_MuCTPIResultTrailer(),
       m_MuCTPIResultRoIVec() {
-
-  }
-
-  /**
-   * The destructor doesn't need to do anything actually.
-   */
-  MuCTPIResult::~MuCTPIResult() {
 
   }
 

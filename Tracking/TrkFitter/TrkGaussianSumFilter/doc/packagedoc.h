@@ -28,8 +28,6 @@ component. The class TrkMultiComponentStateOnSurface handles this at present.
 
 
    The following  interfaces are declared
-   - IForwardGsfFitter - Forward GSF filter
-   - IGsfSmoother - GSF smoother
    - Trk::IMultiStateExtrapolator - for extrapolation of
 Trk::MultiComponentState objects
    - Trk::IMultiStateMaterialEffectsUpdator - for convolution of
@@ -42,10 +40,6 @@ all material effects packages).
 
    The following implementation of the above Interfaces are provided
    - Trk::GaussianSumFitter (implements Trk::ITrackFitter)
-   - Trk::ForwardGsfFitter (implements IForwardGsfFitter) Performs the filter
-steps of the GSF
-   - Trk::GsfSmoother (implements IGsfSmoother)  Performs the smoother steps of
-the GSF
    - Trk::GsfExtrapolator (implements Trk::IMultiStateExtrapolator) for the
 Gaussian Sum Filter extrapolation proceedure
    - Trk::GsfMaterialEffectsUpdator (implements

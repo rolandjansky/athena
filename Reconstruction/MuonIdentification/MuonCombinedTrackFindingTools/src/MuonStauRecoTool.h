@@ -36,6 +36,7 @@
 #include "MuonCombinedEvent/MuGirlLowBetaTag.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
+#include "MuonInsideOutRecoTool.h"
 
 #include <string>
 #include <vector>
@@ -45,9 +46,7 @@ namespace Muon {
   class RpcClusterOnTrack;
 }
 
-namespace MuonCombined { 
-  class MuonInsideOutRecoTool;
-
+namespace MuonCombined {
   /**
      ID seeded Stau reconstruction
 
@@ -229,7 +228,7 @@ namespace MuonCombined {
     SG::ReadHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
         "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc","Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc","Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper","Muon::MuonEDMHelperSvc/MuonEDMHelperSvc","Handle to the service providing the IMuonEDMHelperSvc interface"};
 
     ToolHandle<Muon::MuonEDMPrinterTool>            m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};

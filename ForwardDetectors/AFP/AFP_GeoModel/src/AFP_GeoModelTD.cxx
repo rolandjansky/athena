@@ -4,7 +4,6 @@
 
 
 #include "AFP_GeoModelFactory.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"

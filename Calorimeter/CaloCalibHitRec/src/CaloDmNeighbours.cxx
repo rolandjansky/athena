@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* ****************************************************************************
@@ -12,9 +12,9 @@
 
 #include "CaloCalibHitRec/CaloDmNeighbours.h"
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <math.h>
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -40,7 +40,7 @@
 
 #define CALOMAP_DETA 0.1
 #define CALOMAP_NETA 100
-#define CALOMAP_ETA_MIN -5.0
+#define CALOMAP_ETA_MIN (-5.0)
 #undef DEBUG
 
 
@@ -48,11 +48,11 @@
 CaloDmNeighbours::CaloDmNeighbours() ctor
 ************************************************************************** */
 CaloDmNeighbours::CaloDmNeighbours(const CaloDmDescrManager *dmMgr)
-  : m_caloDM_ID(0),
-    m_caloCell_ID(0),
-    m_larFcal_ID(0),
-    m_larHec_ID(0),
-    m_id_helper(0)
+  : m_caloDM_ID(nullptr),
+    m_caloCell_ID(nullptr),
+    m_larFcal_ID(nullptr),
+    m_larHec_ID(nullptr),
+    m_id_helper(nullptr)
 {
   m_caloDmDescrManager = dmMgr;
   m_DmNeighboursFileName = "DeadMaterialCaloNeighbours.dat";
@@ -465,7 +465,7 @@ int CaloDmNeighbours::get_id(ExpandedIdentifier &idExp, Identifier &id, Identifi
 /* **************************************************************************
 loading calo neighbour list for DM identifiers 
 ************************************************************************** */
-StatusCode CaloDmNeighbours::load_neighbours(std::string DmNeighboursFileName)
+StatusCode CaloDmNeighbours::load_neighbours(const std::string& DmNeighboursFileName)
 {
   MsgStream log(Athena::getMessageSvc(), "CaloDmNeighbours");
 
@@ -491,8 +491,8 @@ StatusCode CaloDmNeighbours::load_neighbours(std::string DmNeighboursFileName)
     std::string MyDm, MyCalo;
     if(neighbours >> MyDm) {
       while(neighbours >> MyCalo) {
-        if(MyCalo.find("#") != std::string::npos ) break;
-        if(MyDm.size() && MyCalo.size()) {
+        if(MyCalo.find('#') != std::string::npos ) break;
+        if(!MyDm.empty() && !MyCalo.empty()) {
           StatusCode sc = unfold_neighbours(MyDm, MyCalo);
           if (sc.isFailure()) {
             log << MSG::ERROR << "Error processing string '" << sLine <<"'" << std::endl;

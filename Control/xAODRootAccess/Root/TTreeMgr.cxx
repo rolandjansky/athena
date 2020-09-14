@@ -1,4 +1,12 @@
+//
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
+
+// Local include(s):
+#include "xAODRootAccess/TTreeMgr.h"
+#include "xAODRootAccess/tools/ReturnCheck.h"
+#include "xAODRootAccess/tools/xAODTEventBranch.h"
+#include "xAODRootAccess/tools/xAODTMetaBranch.h"
 
 // ROOT include(s):
 #include <TTree.h>
@@ -8,11 +16,8 @@
 #include <TROOT.h>
 #include <TRegexp.h>
 
-// Local include(s):
-#include "xAODRootAccess/TTreeMgr.h"
-#include "xAODRootAccess/tools/ReturnCheck.h"
-#include "xAODRootAccess/tools/TEventBranch.h"
-#include "xAODRootAccess/tools/TMetaBranch.h"
+// System include(s).
+#include <memory>
 
 namespace xAOD {
 
@@ -143,8 +148,8 @@ namespace xAOD {
 
          // Create the transient tree:
          gROOT->cd();
-         m_eventTree.reset( new TEventTree( &m_event,
-                                            m_eventTreeName.c_str() ) );
+         m_eventTree.reset( new xAODTEventTree( m_event,
+                                                m_eventTreeName.c_str() ) );
 
          // Go back to the original directory:
          dir->cd();
@@ -226,10 +231,11 @@ namespace xAOD {
          }
 
          // If everything is right, let's make the branch:
-         TEventBranch* br = new TEventBranch( m_eventTree.get(), &m_event, ti,
-                                              efe.branchName().c_str(),
-                                              efe.className().c_str() );
-         m_eventTree->AddBranch( br );
+         auto br =
+            std::make_unique< xAODTEventBranch >( *m_eventTree, m_event, *ti,
+                                                  efe.branchName().c_str(),
+                                                  efe.className().c_str() );
+         m_eventTree->AddBranch( std::move( br ) );
       }
 
       // Return the newly created object:
@@ -257,7 +263,7 @@ namespace xAOD {
 
          // Create the transient tree:
          gROOT->cd();
-         m_metaTree.reset( new TMetaTree( &m_event ) );
+         m_metaTree.reset( new xAODTMetaTree( m_event ) );
 
          // Go back to the original directory:
          dir->cd();
@@ -324,10 +330,11 @@ namespace xAOD {
          }
 
          // If everything is right, let's make the branch:
-         TMetaBranch* mbr = new TMetaBranch( m_metaTree.get(), &m_event, ti,
-                                             br->GetName(),
-                                             br->GetClassName() );
-         m_metaTree->AddBranch( mbr );
+         auto mbr =
+            std::make_unique< xAODTMetaBranch >( *m_metaTree, m_event, *ti,
+                                                 br->GetName(),
+                                                 br->GetClassName() );
+         m_metaTree->AddBranch( std::move( mbr ) );
       }
 
       // Return the now created object:

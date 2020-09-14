@@ -76,8 +76,10 @@ class ConfiguredNewTrackingCuts :
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
-    self.__maxSeedsPerSP           = 5
-    self.__keepAllConfirmedSeeds   = False
+    self.__maxSeedsPerSP_Pixels    = 5
+    self.__maxSeedsPerSP_Strips    = 5
+    self.__keepAllConfirmedPixelSeeds   = False
+    self.__keepAllConfirmedStripSeeds   = False
 
     # --- min pt cut for brem
     self.__minPTBrem               = 1. * Units.GeV # off
@@ -210,6 +212,8 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
+      self.__minRoIClusterEt         = 4500. * Units.MeV #Default cut to mimic rel21-ish
+
 
     if self.__indetflags.cutLevel() >= 14 :
       self.__minPT                   = 0.5 * Units.GeV
@@ -232,9 +236,9 @@ class ConfiguredNewTrackingCuts :
       # impact. Kept as separate level pending cross-check of 
       # seed confirmation robustness with end-of-run-3 radiation
       # damage. 
-      self.__keepAllConfirmedSeeds  = True
-      self.__maxSeedsPerSP          = 1
-
+      self.__keepAllConfirmedPixelSeeds  = True
+      self.__maxSeedsPerSP_Pixels          = 1
+      self.__maxSeedsPerSP_Strips          = 5
     
     if self.__indetflags.cutLevel() >= 19:
       # Calo cluster Et for RoI seeded backtracking for TRT segment finding
@@ -400,8 +404,8 @@ class ConfiguredNewTrackingCuts :
       self.__nWeightedClustersMin    = 8   
       self.__maxdImpactSSSSeeds      = 300.0
       self.__doZBoundary             = True
-      self.__keepAllConfirmedSeeds   = True
-      self.__maxSeedsPerSP           = 1
+      self.__keepAllConfirmedStripSeeds   = True
+      self.__maxSeedsPerSP_Strips    = 1
 
 
     # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
@@ -1018,11 +1022,17 @@ class ConfiguredNewTrackingCuts :
   def RoadWidth( self ) :
     return self.__roadWidth
 
-  def MaxSeedsPerSP( self ) :
-    return self.__maxSeedsPerSP
+  def MaxSeedsPerSP_Strips( self ) :
+    return self.__maxSeedsPerSP_Strips
+
+  def MaxSeedsPerSP_Pixels( self ) :
+    return self.__maxSeedsPerSP_Pixels
     
-  def KeepAllConfirmedSeeds( self ) :
-    return self.__keepAllConfirmedSeeds
+  def KeepAllConfirmedPixelSeeds( self ) :
+    return self.__keepAllConfirmedPixelSeeds
+    
+  def KeepAllConfirmedStripSeeds( self ) :
+    return self.__keepAllConfirmedStripSeeds
 
   def seedFilterLevel( self ) :
     return self.__seedFilterLevel
