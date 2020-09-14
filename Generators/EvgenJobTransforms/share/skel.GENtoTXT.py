@@ -631,9 +631,9 @@ def mk_symlink(srcfile, dstfile):
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
         raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
-    if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
-        raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
-                           (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
+#    if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
+#        raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
+#                           (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
 #    inputroot = os.path.basename(runArgs.inputGeneratorFile).split("._")[0]
     if datFile:
       if ".tar" in os.path.basename(runArgs.inputGeneratorFile):
@@ -685,15 +685,15 @@ else:
     if hasattr(runArgs, "inputGeneratorFile") and runArgs.inputGeneratorFile != "NONE":
         raise RuntimeError("inputGeneratorFile arg specified for %s, but generators %s do not require an input file" %
                            (runArgs.jobConfig, str(gennames)))
-    if evgenConfig.inputfilecheck:
-        raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
-                           (runArgs.jobConfig, str(gennames)))
+#    if evgenConfig.inputfilecheck:
+#        raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
+#                           (runArgs.jobConfig, str(gennames)))
 
 ## Check conf files, as above but for a different command line arg, and with omission allowed
-if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
-    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
-        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
-                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
+#if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
+#    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
+#        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
+#                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
 
 ## Do the aux-file copying
 if evgenConfig.auxfiles:

@@ -7,7 +7,7 @@
 # Set the environment variable(s):
 
 set( POWHEGENVIRONMENT_ENVIRONMENT
-    FORCESET POWHEGPATH "/cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-00-04-04" )
+    FORCESET POWHEGPATH "/cvmfs/atlas.cern.ch/repo/sw/Generators/powheg/ATLASOTF-00-04-03" )
 #   FORCESET POWHEGPATH \${@CMAKE_PROJECT_NAME@_DIR}/PG-BOX )
 
 # Silently declare the module found.
