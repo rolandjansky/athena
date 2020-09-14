@@ -129,16 +129,15 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto weight = Monitored::Scalar<float>("weight", 1.0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
-	auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 1.0);
-	auto clustersPerPlane2 = Monitored::Scalar<float>("clustersPerPlane2", 0.0);
-	auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
-	auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
-	auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
+	//auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 0.0);
+	//auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
+	//auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
+	//auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
 	
 	//auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
 	//auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
-	auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
-	auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
+	//auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
+	//auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
 
 	auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
 	auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
@@ -214,43 +213,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		clusterY = cluster.y;
 		fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX); 
 		lb = GetEventInfo(ctx)->lumiBlock();
-		
-		// Time for fill - current and previous lb are different, and the previouslb is not -1 (it means - this is not the first lb)
-		if(lb > previouslb && previouslb != 0)
-		{
-			for(int i=0; i<4; i++)
-			{
-				for(int j=0; j<4; j++)
-				{
-					clustersPerPlane = clusterCounter[previouslb][i][j]*1.0;
-					if(muPerBCID != 0)
-					{
-						clustersPerPlane = clustersPerPlane/(muPerBCID*counterForEvents);
-					}
-					else
-					{
-						clustersPerPlane = -0.1;
-					}
-					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
-				}
-			}
-				
-			previouslb = lb;
-			++clusterCounter[lb][cluster.station][cluster.layer];
-			counterForEvents = 1;
-		}
-			
-			// First time in lumiblock (in plane)
-		else if(clusterCounter[lb][cluster.station][cluster.layer] == 0) 
-		{
-			++clusterCounter[lb][cluster.station][cluster.layer];
-			previouslb = lb;
-		}
-			
-		// Lumiblock is same, so proceed
-		else if(lb==previouslb)	// Same lumiblock
-		{++clusterCounter[lb][cluster.station][cluster.layer];}
-			
+	
+
+		fillSynchHistogramsPlane(lb, previouslb, clusterCounter, counterForEvents, muPerBCID, cluster, 'P');
 	}	// ..... end cluster loop .....
 		
 		
@@ -260,30 +225,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		
 		lb = GetEventInfo(ctx)->lumiBlock();
-		/*
-		if(lb > previouslbStation && previouslbStation != 0)
-		{
-			for(int i=0; i<4; i++)
-			{
-				clustersPerStation = clusterCounterStation[previouslbStation][i]*1.0;
-				if(muPerBCID != 0)
-				{clustersPerStation = clustersPerStation/(muPerBCID*counterForEventsStation*4);}
-				else{clustersPerStation = -0.1;}
-
-				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStation);
-			}
-			previouslbStation=lb;
-			++clusterCounterStation[lb][cluster.station];
-			counterForEventsStation=1;
-		}
-		else if (clusterCounterStation[lb][cluster.station] == 0)
-		{
-			++clusterCounterStation[lb][cluster.station];
-			previouslbStation = lb;
-		}
-		else if (lb==previouslbStation)
-		{++clusterCounterStation[lb][cluster.station];}
-		*/
 		fillSynchHistogramsStation(lb, previouslbStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster, 'S');
 	
 	}
@@ -293,32 +234,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters()) 
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
-			/*
-			if(lb > previouslbStationFront && previouslbStationFront != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					clustersPerStationFront = clusterCounterStationFront[previouslbStationFront][i]*1.0;
-					if(muPerBCID != 0)
-					{
-						clustersPerStationFront = clustersPerStationFront/(muPerBCID*counterForEventsStationFront*4);
-					}
-					else{clustersPerStationFront = -0.1;}
-					
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationFront);
-				}
-				previouslbStationFront=lb;
-				++clusterCounterStationFront[lb][cluster.station];
-				counterForEventsStationFront=1;
-			}
-			else if (clusterCounterStationFront[lb][cluster.station] == 0)
-			{
-				++clusterCounterStationFront[lb][cluster.station];
-				previouslbStationFront = lb;
-			}
-			else if (lb == previouslbStationFront)
-			{++clusterCounterStationFront[lb][cluster.station];}
-			*/
 			fillSynchHistogramsStation(lb, previouslbStationFront, clusterCounterStationFront, counterForEventsStationFront, muPerBCID, cluster, 'F');
 		}
 	}
@@ -330,32 +245,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters())
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
-			/*
-			if(lb > previouslbStationEnd && previouslbStationEnd != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					clustersPerStationEnd = clusterCounterStationEnd[previouslbStationEnd][i]*1.0;
-					if(muPerBCID != 0)
-					{
-						clustersPerStationEnd = clustersPerStationEnd/(muPerBCID*counterForEventsStationEnd*4);
-					}
-					else{clustersPerStationEnd = -0.1;}
-				
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationEnd);
-				}
-				previouslbStationEnd=lb;
-				++clusterCounterStationEnd[lb][cluster.station];
-				counterForEventsStationEnd=1;
-			}
-			else if (clusterCounterStationEnd[lb][cluster.station] == 0)
-			{
-				++clusterCounterStationEnd[lb][cluster.station];
-				previouslbStationEnd = lb;
-			}
-			else if (lb == previouslbStationEnd)
-			{++clusterCounterStationEnd[lb][cluster.station];}
-			*/
 			fillSynchHistogramsStation(lb, previouslbStationEnd, clusterCounterStationEnd, counterForEventsStationEnd, muPerBCID, cluster, 'E');
 		}
 	}
@@ -366,32 +255,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		for(const auto& cluster : fast.clusters())
 		{
-		/*
-			if(lb > previouslbStationMiddle && previouslbStationMiddle != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					clustersPerStationMiddle = clusterCounterStationMiddle[previouslbStationMiddle][i]*1.0;
-					if(muPerBCID != 0)
-					{
-						clustersPerStationMiddle = clustersPerStationMiddle/(muPerBCID*counterForEventsStationMiddle*4);
-					}
-					else{clustersPerStationMiddle = -0.1;}
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationMiddle);
-				}
-				previouslbStationMiddle=lb;
-				++clusterCounterStationMiddle[lb][cluster.station];
-				counterForEventsStationMiddle=1;
-			}
-			else if (clusterCounterStationMiddle[lb][cluster.station] == 0)
-			{
-				++clusterCounterStationMiddle[lb][cluster.station];
-				previouslbStationMiddle = lb;
-			}
-			else if (lb == previouslbStationMiddle)
-			{++clusterCounterStationMiddle[lb][cluster.station];}
-			// ..... end middle station .....
-			*/
 			fillSynchHistogramsStation(lb, previouslbStationMiddle, clusterCounterStationMiddle, counterForEventsStationMiddle, muPerBCID, cluster, 'M');
 		}
 	}
@@ -401,44 +264,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
 	{
 		for(const auto& cluster : fast.clusters()) 
-			{
+		{
 			lb = GetEventInfo(ctx)->lumiBlock();
-			// Time for fill - current and previous lb are different, and the previouslbFront is not -1 (it means - this is not the first lb)
-			if(lb > previouslbFront && previouslbFront != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					for(int j=0; j<4; j++)
-					{
-						clustersPerPlaneFront = clusterCounterFront[previouslbFront][i][j]*1.0;
-						if(muPerBCID != 0)
-						{
-							clustersPerPlaneFront = clustersPerPlaneFront/(muPerBCID*counterForEventsFront);
-						}
-						else
-						{
-							clustersPerPlaneFront = -0.1;
-						}
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
-					}
-				}
-				previouslbFront = lb;
-				++clusterCounterFront[lb][cluster.station][cluster.layer];
-				counterForEventsFront=1;
-			}
-		
-		// First time in lumiblock (in plane)
-			else if(clusterCounterFront[lb][cluster.station][cluster.layer] == 0) 
-			{
-				++clusterCounterFront[lb][cluster.station][cluster.layer];
-				previouslbFront = lb;
-			}
-		
-			// Lumiblock is same, so proceed
-			else if(lb==previouslbFront)	// Same lumiblock
-			{
-				++clusterCounterFront[lb][cluster.station][cluster.layer];
-			}
+			fillSynchHistogramsPlane(lb, previouslbFront, clusterCounterFront, counterForEventsFront, muPerBCID, cluster, 'F');
 		}
 	}
 		
@@ -448,42 +276,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters()) 
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
-			// Time for fill - current and previous lb are different, and the previouslbEnd is not -1 (it means - this is not the first lb)
-			if(lb > previouslbEnd && previouslbEnd != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					for(int j=0; j<4; j++)
-					{
-						clustersPerPlaneEnd = clusterCounterEnd[previouslbEnd][i][j]*1.0;
-						if(muPerBCID != 0)
-						{
-							clustersPerPlaneEnd = clustersPerPlaneEnd/(muPerBCID*counterForEventsEnd);
-						}
-						else
-						{
-							clustersPerPlaneEnd = -0.1;
-						}
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
-					}
-				}
-					previouslbEnd = lb;
-					++clusterCounterEnd[lb][cluster.station][cluster.layer];
-					counterForEventsEnd=1;
-			}
-			
-			// First time in lumiblock (in plane)
-			else if(clusterCounterEnd[lb][cluster.station][cluster.layer] == 0) 
-			{
-				++clusterCounterEnd[lb][cluster.station][cluster.layer];
-				previouslbEnd = lb;
-			}
-			
-			// Lumiblock is same, so proceed
-			else if(lb==previouslbEnd)	// Same lumiblock
-			{
-				++clusterCounterEnd[lb][cluster.station][cluster.layer];
-			}
+			fillSynchHistogramsPlane(lb, previouslbEnd, clusterCounterEnd, counterForEventsEnd, muPerBCID, cluster, 'E');
 		}
 	}
 		
@@ -493,42 +286,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters()) 
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
-			// Time for fill - current and previous lb are different, and the previouslbMiddle is not -1 (it means - this is not the first lb)
-			if(lb > previouslbMiddle && previouslbMiddle != 0)
-			{
-				for(int i=0; i<4; i++)
-				{
-					for(int j=0; j<4; j++)
-					{
-						clustersPerPlaneMiddle = clusterCounterMiddle[previouslbMiddle][i][j]*1.0;
-						if(muPerBCID != 0)
-						{
-							clustersPerPlaneMiddle = clustersPerPlaneMiddle/(muPerBCID*counterForEventsMiddle);
-						}
-						else
-						{
-							clustersPerPlaneMiddle = -0.1;
-						}
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
-					}
-				}
-				previouslbMiddle = lb;
-				++clusterCounterMiddle[lb][cluster.station][cluster.layer];
-				counterForEventsMiddle=1;
-			}
-			
-			// First time in lumiblock (in plane)
-			else if(clusterCounterMiddle[lb][cluster.station][cluster.layer] == 0) 
-			{
-				++clusterCounterMiddle[lb][cluster.station][cluster.layer];
-				previouslbMiddle = lb;
-			}
-			
-			// Lumiblock is same, so proceed
-			else if(lb==previouslbMiddle)	// Same lumiblock
-			{
-				++clusterCounterMiddle[lb][cluster.station][cluster.layer];
-			}
+			fillSynchHistogramsPlane(lb, previouslbMiddle, clusterCounterMiddle, counterForEventsMiddle, muPerBCID, cluster, 'M');
 		}
 	}
 	
@@ -536,7 +294,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	return StatusCode::SUCCESS;
 } // end of fillHistograms
 
-void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster, char histogramType) const
+void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCID, const AFPMon::AFPCluster& cluster, char histogramType) const
 {
 	//using namespace Monitored;
 	
@@ -546,9 +304,9 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 		for(int i = 0; i < 4; i++)
 		{
 			clustersPerStationFloat = clusterCounterStationA[previouslbStationA][i]*1.0;
-			if(muPerBCIDA != 0)
+			if(muPerBCID != 0)
 			{
-				clustersPerStationFloat = clustersPerStationFloat/(muPerBCIDA*counterForEventsStationA*4);
+				clustersPerStationFloat = clustersPerStationFloat/(muPerBCID*counterForEventsStationA*4);
 			}
 			else{clustersPerStationFloat = -0.1;}
 
@@ -590,11 +348,70 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 	{++clusterCounterStationA[lb][cluster.station];}
 }
 
-/*
-void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster) const
+
+void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbPlane, std::vector<std::vector<std::vector<unsigned int>>> &clusterCounterPlane, unsigned int &counterForEventsPlane, float &muPerBCID, const AFPMon::AFPCluster& cluster, char histogramType) const
 {
-
-
+	float clustersPerPlaneFloat = 0;
+	if(lb > previouslbPlane && previouslbPlane != 0)
+	{
+		for(int i=0; i<4; i++)
+		{
+			for(int j=0; j<4; j++)
+			{
+				clustersPerPlaneFloat = clusterCounterPlane[previouslbPlane][i][j]*1.0;
+				if(muPerBCID != 0)
+				{
+					clustersPerPlaneFloat = clustersPerPlaneFloat/(muPerBCID*counterForEventsPlane);
+				}
+				else
+				{
+					clustersPerPlaneFloat = -0.1;
+				}
+				
+				if(histogramType == 'P')
+				{
+					auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 0.0);
+					clustersPerPlane = clustersPerPlaneFloat;
+					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
+				}
+				else if(histogramType == 'F')
+				{
+					auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
+					clustersPerPlaneFront = clustersPerPlaneFloat;
+					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
+				}
+				else if(histogramType == 'M')
+				{
+					auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
+					clustersPerPlaneMiddle = clustersPerPlaneFloat;
+					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
+				}
+				else if(histogramType == 'E')
+				{
+					auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
+					clustersPerPlaneEnd = clustersPerPlaneFloat;
+					fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
+				}
+					
+			}
+		}
+		previouslbPlane = lb;
+		++clusterCounterPlane[lb][cluster.station][cluster.layer];
+		counterForEventsPlane=1;
+	}
+	// First time in lumiblock (in plane)
+	else if(clusterCounterPlane[lb][cluster.station][cluster.layer] == 0) 
+	{
+		++clusterCounterPlane[lb][cluster.station][cluster.layer];
+		previouslbPlane = lb;
+	}
+	
+	// Lumiblock is same, so proceed
+	else if(lb==previouslbPlane)	// Same lumiblock
+	{
+		++clusterCounterPlane[lb][cluster.station][cluster.layer];
+	}
+	
 }
-*/
+
 

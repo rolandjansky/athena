@@ -57,13 +57,11 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('lb,clustersPerPlaneFront', title='(Front BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneFront', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerPlaneEnd', title='(End BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneEnd', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerPlaneMiddle', title='(Middle BCID) Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clusters per event / <mu>', type='TH2F', path='clustersPerPlaneMiddle', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
-    #array.defineHistogram('lb,clustersPerPlane2', title='Number of clusters per event divided by <mu> in station {0}, layer {1};lb; clustersPerEvent / <mu>', type='TProfile', path='clustersPerPlane2', xbins=1000, xmin=-0.5, xmax=999.5)
 
 
     array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/')
     array.defineHistogram('trackY,trackX', title='Track in AFP station {0};x [mm];y [mm]', type='TH2F', path='Track', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
     array.defineHistogram('lb,clustersPerStation', title ='Number of clusters per event divided by <mu> in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
-    array.defineHistogram('lbA,clustersPerStationA', title ='Number of clusters per event divided by <mu> in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerStationFront', title ='(Front) Number of clusters per event divided by <mu> in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerStationEnd', title ='(End) Number of clusters per event divided by <mu> in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerStationMiddle', title ='(Middle) Number of clusters per event divided by <mu> in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
@@ -118,6 +116,6 @@ if __name__=='__main__':
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run(1000)
+    cfg.run(3000)
 
 
