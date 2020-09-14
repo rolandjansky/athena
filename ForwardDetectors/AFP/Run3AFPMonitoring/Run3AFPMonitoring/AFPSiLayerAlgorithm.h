@@ -30,8 +30,8 @@ private:
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
 	SG::ReadCondHandleKey<BunchCrossingCondData> m_bunchCrossingKey{this, "BunchCrossingKey", "BunchCrossingData", "Key BunchCrossing CDO" };
 	
-	void fillSynchHistogramsStation(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCID, const AFPMon::AFPCluster& cluster, char histogramType) const;
-	void fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbPlane, std::vector<std::vector<std::vector<unsigned int>>> &clusterCounterPlane, unsigned int &counterForEventsPlane, float &muPerBCID, const AFPMon::AFPCluster& cluster, char histogramType) const;
+	void fillSynchHistogramsStation(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCID, char histogramType, AFPMon::AFPFastReco& fast) const;
+	void fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbPlane, std::vector<std::vector<std::vector<unsigned int>>> &clusterCounterPlane, unsigned int &counterForEventsPlane, float &muPerBCID, char histogramType, AFPMon::AFPFastReco& fast) const;
 
 protected:
 	std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};
