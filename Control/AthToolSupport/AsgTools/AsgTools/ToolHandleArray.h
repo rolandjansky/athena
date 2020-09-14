@@ -38,12 +38,13 @@ class ToolHandleArray : public std::vector< ToolHandle< T > > {
 public:
    /// Default constructor
    ToolHandleArray();
-#if __cplusplus >= 201100
    /// Constructor with an initialiser list
    ToolHandleArray( const std::initializer_list< ToolHandle< T > >& l );
    /// Constructor with a string initialiser list
    ToolHandleArray( const std::initializer_list< std::string >& l );
-#endif // C++11
+   /// Constructor declaring a property
+   template<typename Parent>
+   ToolHandleArray( Parent *parent, const std::string& name, const std::initializer_list< std::string >& l, const std::string& description = "" );
 
    /// Retrieve all tools in the array
    StatusCode retrieve() const;

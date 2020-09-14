@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -21,7 +21,7 @@ std::string ptrToString (const void* p)
 {
   char buf[80];
   snprintf (buf, 80, "%p", p);
-  return buf;
+  return std::string(buf);
 }
 
 std::string getType (const std::string& s)

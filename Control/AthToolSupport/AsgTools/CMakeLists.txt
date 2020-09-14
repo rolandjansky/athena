@@ -1,8 +1,4 @@
-# $Id: CMakeLists.txt 804698 2017-05-11 16:03:27Z krumnack $
-################################################################################
-# Package: AsgTools
-################################################################################
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgTools )

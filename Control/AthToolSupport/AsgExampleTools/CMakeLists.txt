@@ -1,30 +1,26 @@
-# $Id: CMakeLists.txt 779405 2016-10-20 13:44:57Z krasznaa $
-################################################################################
-# Package: AsgExampleTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AsgExampleTools )
 
-# Extra dependencies based on the build environment:
-set( extra_deps )
 if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess )
+  set (extra_lib xAODMuon)
+elseif (SIMULATIONBASE)
+  set (extra_lib )
 else()
    set( extra_deps Control/AthenaBaseComps GaudiKernel )
+  set (extra_lib xAODMuon)
 endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthToolSupport/AsgDataHandles
    Control/AthToolSupport/AsgTools
    PRIVATE
    Control/AthToolSupport/AsgTesting
    ${extra_deps} )
-
-# External dependencies:
-find_package( GTest )
-find_package( GMock )
 
 # Libraries in the package:
 atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
@@ -34,7 +30,7 @@ atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
 atlas_add_library( AsgExampleToolsLib
    AsgExampleTools/*.h Root/*.cxx ${AsgExampleToolsCintDict}
    PUBLIC_HEADERS AsgExampleTools
-   LINK_LIBRARIES AsgTools AsgTestingLib )
+   LINK_LIBRARIES AsgTools AsgDataHandlesLib AsgTestingLib ${extra_lib} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AsgExampleTools
@@ -59,20 +55,17 @@ if( XAOD_STANDALONE )
 endif()
 atlas_add_test( gt_ToolHandle_test
    SOURCES test/gt_ToolHandle_test.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs} )
+   LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs} )
 set_tests_properties (AsgExampleTools_gt_ToolHandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 atlas_add_test( gt_AnaToolHandle_test
    SOURCES test/gt_AnaToolHandle_test.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+   LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_AnaToolHandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 atlas_add_test( gt_AsgToolConfig
    SOURCES test/gt_AsgToolConfig.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+   LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_AsgToolConfig_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 
@@ -80,44 +73,52 @@ if( XAOD_STANDALONE )
 
    atlas_add_test( gt_AsgTool
       SOURCES test/gt_AsgTool.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      INCLUDE_DIRS
+      LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    set_tests_properties (AsgExampleTools_gt_AsgTool_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_MessageCheck
       SOURCES test/gt_MessageCheck.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    set_tests_properties (AsgExampleTools_gt_MessageCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_TProperty
       SOURCES test/gt_TProperty.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    set_tests_properties (AsgExampleTools_gt_TProperty_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
    atlas_add_test( gt_asgtools_toolhandle_test
       SOURCES test/gt_asgtools_toolhandle_test.cxx
-      INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+      LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib
       EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
    set_tests_properties (AsgExampleTools_gt_asgtools_toolhandle_test_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 endif()
 
+if (XAOD_STANDALONE)
+#if (NOT SIMULATIONBASE)
+#   if (NOT XAOD_STANDALONE)
+#     set (extra_libs POOLRootAccessLib)
+#   else()
+#     set (extra_libs )
+#   endif()
+
+   atlas_add_test( gt_DataHandlesTest
+      SOURCES test/gt_DataHandlesTest.cxx
+      LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib ${extra_libs})
+   set_tests_properties (AsgExampleTools_gt_DataHandlesTest_ctest PROPERTIES LABELS "AsgDataHandles;AsgExampleTools" )
+endif()
 
 atlas_add_test( gt_AnaCheck
    SOURCES test/gt_AnaCheck.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib
+   LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib
    EXTRA_PATTERNS "\([0-9]+ ms\)|\([0-9]+ ms total\)" )
 set_tests_properties (AsgExampleTools_gt_AnaCheck_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )
 
 atlas_add_test( gt_asgtools_toolstore
    SOURCES test/gt_asgtools_toolstore.cxx
-   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GMOCK_LIBRARIES} AsgTools AsgExampleToolsLib AsgTestingLib )
+   LINK_LIBRARIES AsgTools AsgExampleToolsLib AsgTestingLib )
 set_tests_properties (AsgExampleTools_gt_asgtools_toolstore_ctest PROPERTIES LABELS "AsgTools;AsgExampleTools" )

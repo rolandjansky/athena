@@ -53,16 +53,19 @@ public: \
 // Macros are provided for 0, 1 or 2 interfaces.
 // Need work here to make this work for an arbitrary number of interfaces.
 
+// Extra std::string around the ptrToString calls below needed to work around
+// problem with cppcheck 2.0,
+// which gets confused about the return type of ptrToString.
 #define ASG_TOOL_CLASS0(CLASSNAME) \
 public: \
   CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
-: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
+: CLASSNAME(std::string(asg::ptrToString(parent))+"#"+type+"/"+myname) { \
   }
 
 #define ASG_TOOL_CLASS(CLASSNAME, INT1) \
 public: \
   CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
-: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
+: CLASSNAME(std::string(asg::ptrToString(parent))+"#"+type+"/"+myname) { \
     declareInterface<INT1>(this); \
   }
 
@@ -71,7 +74,7 @@ public: \
 #define ASG_TOOL_CLASS2(CLASSNAME, INT1, INT2) \
 public: \
   CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
-: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
+: CLASSNAME(std::string(asg::ptrToString(parent))+"#"+type+"/"+myname) { \
     declareInterface<INT1>(this); \
     declareInterface<INT2>(this); \
   }
@@ -79,7 +82,7 @@ public: \
 #define ASG_TOOL_CLASS3(CLASSNAME, INT1, INT2, INT3) \
 public: \
   CLASSNAME(const std::string& type, const std::string& myname, const IInterface* parent) \
-: CLASSNAME(asg::ptrToString(parent)+"#"+type+"/"+myname) {                  \
+: CLASSNAME(std::string(asg::ptrToString(parent))+"#"+type+"/"+myname) { \
     declareInterface<INT1>(this); \
     declareInterface<INT2>(this); \
     declareInterface<INT3>(this); \

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -99,7 +99,7 @@ namespace asg {
       if( itool != tools().end() )
         return itool->second;
 
-      if (name.find ("ToolSvc.") != 0) {
+      if (name.substr(0, 8) != "ToolSvc.") {
         itool = tools().find( "ToolSvc." + name );
         if( itool != tools().end() )
           return itool->second;
