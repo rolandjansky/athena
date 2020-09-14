@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthAnalysisHelper.h 
@@ -16,7 +16,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
@@ -45,7 +45,7 @@ public:
    ///helper method for adding a property to the JobOptionsSvc
    ///to list all the properties in the catalogue, do: AthAnalysisHelper::dumpJobOptionProperties()
    template<typename W> static StatusCode addPropertyToCatalogue( const std::string& name , const std::string& property, const W& value, bool override=true) {
-     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+     ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
      if(joSvc.retrieve().isFailure()) return StatusCode::FAILURE;
      if(!override) {
       //check if property already defined. If so, then print a warning and return failure
@@ -55,9 +55,8 @@ public:
         return StatusCode::FAILURE;
       }
      }
-     StatusCode result = joSvc->addPropertyToCatalogue( name , StringProperty( property , Gaudi::Utils::toString ( value ) ) );
-     if(joSvc.release().isFailure()) return StatusCode::FAILURE;
-     return result;
+     joSvc->set( name+"."+property , Gaudi::Utils::toString ( value ) );
+     return StatusCode::SUCCESS;
    }
    
 
@@ -367,7 +366,7 @@ public:
 
    ///we keep a static handle to the joboptionsvc, since it's very useful
    ///can e.g. do: AAH::joSvc->readOptions("myJob.opts","$JOBOPTSEARCHPATH")
-   static ServiceHandle<IJobOptionsSvc> joSvc; 
+   static ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc;
 
 
 }; //AthAnalysisHelper class
