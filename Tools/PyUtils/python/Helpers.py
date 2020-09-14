@@ -14,10 +14,6 @@ import six
 
 from AthenaCommon.Logging import log
 
-# import xml before ROOT to prevent crashes (LCG_96): ATEAM-597
-# should be OK to remove from LCG_97 on
-import xml.etree.cElementTree  # noqa: F401
-
 def ROOT6Setup():
    log.info('executing ROOT6Setup')
    if six.PY3:
@@ -30,8 +26,7 @@ def ROOT6Setup():
    def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
        if six.PY3 and level < 0: level = 0
        m = oldimporthook(name, globals, locals, fromlist, level)
-       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT') \
-             and (name!='ROOT' or fromlist is not None): # prevent triggering on just 'import ROOT'; see ATEAM-597
+       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
           log.debug('Python import module=%s  fromlist=%s', name, str(fromlist))
           if fromlist:
              #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
