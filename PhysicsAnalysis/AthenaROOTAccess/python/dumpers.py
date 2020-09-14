@@ -272,7 +272,6 @@ class Evdump(object):
                 else:
                    ROOT.gInterpreter.ProcessLine ("typedef %s %s;" % (t, v))
 
-        ROOT.SetSignalPolicy(ROOT.kSignalFast)
         return
 
     def add_dhe (self, key, token, find_type = None):
