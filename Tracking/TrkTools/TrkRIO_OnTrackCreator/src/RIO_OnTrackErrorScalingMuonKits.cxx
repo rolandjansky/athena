@@ -25,6 +25,10 @@ public:
     }
     delete [] m_names;
   }
+
+  MuonEtaPhiRIO_OnTrackErrorScalingKit (const MuonEtaPhiRIO_OnTrackErrorScalingKit&) = delete;
+  MuonEtaPhiRIO_OnTrackErrorScalingKit& operator= (const MuonEtaPhiRIO_OnTrackErrorScalingKit&) = delete;
+
   virtual unsigned int nParametres() const override {
     return MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes;
   }
