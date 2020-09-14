@@ -86,21 +86,9 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    #nightly = '/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00361795.calibration_AFP.AODV1_EXT0'
-    #file=''
-    #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
-    #file ='/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' 
-    #file = '/afs/cern.ch/user/l/ladamczy/public/data17_13TeV.00337176.calibration_AFP.AOD.pool.root'
-    #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
-
-    #ConfigFlags.Input.Files = [nightly+file]
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_6/aod0.pool.root']
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlastier0/tzero/prod/data17_13TeV/physics_Main/00337176/data17_13TeV.00337176.physics_Main.recon.AOD.f871/data17_13TeV.00337176.physics_Main.recon.AOD.f871._lb0142._0006.1']
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000002.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
-    #ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000001.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00334350.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22327000.EXT0._000002.xAOD.root']
     ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput53-337371-Aut-test.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput54-test.root'
     
     ConfigFlags.lock()
 

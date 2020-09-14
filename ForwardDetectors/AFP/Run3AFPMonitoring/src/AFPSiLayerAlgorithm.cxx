@@ -54,7 +54,6 @@
 		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
 	}
 	
-	//void fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, auto &cluster, std::map<std::string,int> &mapa);
 
 AFPSiLayerAlgorithm::AFPSiLayerAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
@@ -129,15 +128,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto weight = Monitored::Scalar<float>("weight", 1.0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
-	//auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 0.0);
-	//auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
-	//auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
-	//auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
-	
-	//auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
-	//auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
-	//auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
-	//auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
 
 	auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
 	auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
@@ -205,7 +195,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		fill(m_tools[m_TrackGroup.at(m_stationnames.at(track.station))], trackY, trackX);
 	}
 
-	// Clusters:
+	// Clusters and synch histograms:
 
 	for(const auto& cluster : fast.clusters()) 
 	{
@@ -213,83 +203,27 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		clusterY = cluster.y;
 		fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX); 
 		lb = GetEventInfo(ctx)->lumiBlock();
-	
-
+		
+		
 		fillSynchHistogramsPlane(lb, previouslb, clusterCounter, counterForEvents, muPerBCID, cluster, 'P');
-	}	// ..... end cluster loop .....
-		
-		
-		
-	// =============== Stations all BCIDs ===============
-	for(const auto& cluster : fast.clusters()) 
-	{
-		
-		lb = GetEventInfo(ctx)->lumiBlock();
 		fillSynchHistogramsStation(lb, previouslbStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster, 'S');
-	
-	}
-	// ========== Front Station ==========
-	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
-	{
-		for(const auto& cluster : fast.clusters()) 
-		{
-			lb = GetEventInfo(ctx)->lumiBlock();
-			fillSynchHistogramsStation(lb, previouslbStationFront, clusterCounterStationFront, counterForEventsStationFront, muPerBCID, cluster, 'F');
-		}
-	}
-	// ..... end front station .....
-			
-	// ========== End Station ==========
-	if(isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
-	{	
-		for(const auto& cluster : fast.clusters())
-		{
-			lb = GetEventInfo(ctx)->lumiBlock();
-			fillSynchHistogramsStation(lb, previouslbStationEnd, clusterCounterStationEnd, counterForEventsStationEnd, muPerBCID, cluster, 'E');
-		}
-	}
-	// ..... end end station .....
-	
-	// ========== Middle Station ==========
-	if(isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
-	{
-		for(const auto& cluster : fast.clusters())
-		{
-			fillSynchHistogramsStation(lb, previouslbStationMiddle, clusterCounterStationMiddle, counterForEventsStationMiddle, muPerBCID, cluster, 'M');
-		}
-	}
-			// ..... end stations .....
 		
-		// ========== Front BCID ========== (planes)
-	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
-	{
-		for(const auto& cluster : fast.clusters()) 
+		if (isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
 		{
-			lb = GetEventInfo(ctx)->lumiBlock();
+			fillSynchHistogramsStation(lb, previouslbStationFront, clusterCounterStationFront, counterForEventsStationFront, muPerBCID, cluster, 'F');
 			fillSynchHistogramsPlane(lb, previouslbFront, clusterCounterFront, counterForEventsFront, muPerBCID, cluster, 'F');
 		}
-	}
-		
-	// ========== End BCID ==========
-	if(isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
-	{
-		for(const auto& cluster : fast.clusters()) 
+		else if (isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
 		{
-			lb = GetEventInfo(ctx)->lumiBlock();
+			fillSynchHistogramsStation(lb, previouslbStationMiddle, clusterCounterStationMiddle, counterForEventsStationMiddle, muPerBCID, cluster, 'M');
+			fillSynchHistogramsPlane(lb, previouslbMiddle, clusterCounterMiddle, counterForEventsMiddle, muPerBCID, cluster, 'M');
+		}
+		else if (isInListVector(GetEventInfo(ctx)->bcid(), endBCIDsVector))
+		{
+			fillSynchHistogramsStation(lb, previouslbStationEnd, clusterCounterStationEnd, counterForEventsStationEnd, muPerBCID, cluster, 'E');
 			fillSynchHistogramsPlane(lb, previouslbEnd, clusterCounterEnd, counterForEventsEnd, muPerBCID, cluster, 'E');
 		}
 	}
-		
-	// ========== Middle BCID ==========
-	if(isInListVector(GetEventInfo(ctx)->bcid(), middleBCIDsVector))
-	{
-		for(const auto& cluster : fast.clusters()) 
-		{
-			lb = GetEventInfo(ctx)->lumiBlock();
-			fillSynchHistogramsPlane(lb, previouslbMiddle, clusterCounterMiddle, counterForEventsMiddle, muPerBCID, cluster, 'M');
-		}
-	}
-	
 
 	return StatusCode::SUCCESS;
 } // end of fillHistograms
