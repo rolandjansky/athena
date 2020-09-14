@@ -2,7 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "JobOptsDumperAlg.h"
 #include <fstream>
@@ -15,17 +16,14 @@ StatusCode JobOptsDumperAlg::initialize() {
       return StatusCode::FAILURE;
   }
 
-
-  IJobOptionsSvc* p_jobOptionSvc;
-  ATH_CHECK(service("JobOptionsSvc", p_jobOptionSvc));
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
+  ATH_CHECK(joSvc.retrieve());
 
   std::vector<std::string> options;
-  for (const std::string& compName :  p_jobOptionSvc->getClients()) {
-    for (const auto& props:  *p_jobOptionSvc->getProperties(compName)) {
-      std::ostringstream os;
-      os << compName << "." << props->name() << " = " << props->toString() << std::endl;
-      options.emplace_back(os.str());
-    }
+  for (const auto& [name, value] : joSvc->items()) {
+    std::ostringstream os;
+    os << name << " = " << value << std::endl;
+    options.emplace_back(os.str());
   }
 
   std::sort(options.begin(), options.end()); 
