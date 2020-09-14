@@ -38,12 +38,11 @@ StatusCode JetMonitoringAlg::initialize() {
 
 
 StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
-
-  if (isPassed(m_triggerChain)) { //trigger was fired - retrieve only jets passing the chain
-    ATH_MSG_DEBUG("JetMonitoringAlg::fillHistograms(const EventContext&) -> if (isPassed("<<m_triggerChain<<")) was passed!");
+  if (m_triggerChainString != "") {
+    ATH_MSG_DEBUG("JetMonitoringAlg::fillHistograms(const EventContext&) -> enter triggerChainString = "<<m_triggerChainString);
    
     ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
-    const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = getTrigDecisionTool()->features<xAOD::JetContainer>( m_triggerChain );
+    const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = getTrigDecisionTool()->features<xAOD::JetContainer>( m_triggerChainString );
     for(const auto& jetLinkInfo : fc) {
       if (!jetLinkInfo.isValid()) {
         ATH_MSG_ERROR("Invalid ElementLink to online jet");
@@ -55,7 +54,7 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
     }
     const xAOD::JetContainer * trigJetsCont = tmpCont.asDataVector();
     if (trigJetsCont->empty()) {
-      ATH_MSG_WARNING("Empty trigger jet container for chain "<<m_triggerChain);
+      ATH_MSG_WARNING("Empty trigger jet container for chain "<<m_triggerChainString);
       return StatusCode::SUCCESS;
     }
     for(const auto& t: m_jetFillerTools){
