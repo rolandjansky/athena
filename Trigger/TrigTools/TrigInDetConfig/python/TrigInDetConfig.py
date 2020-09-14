@@ -513,9 +513,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
-
     InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
-    InDetSCTRawDataProvider.OutputLevel=DEBUG
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
     # load the SCTEventFlagWriter

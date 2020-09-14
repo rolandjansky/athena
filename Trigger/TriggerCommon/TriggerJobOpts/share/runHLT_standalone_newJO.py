@@ -104,10 +104,6 @@ acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-acc.foreach_component("*HLTTop/*InDetPixelRawDataProvider_Electron*").OutputLevel = DEBUG 
-acc.foreach_component("*PixelByteStreamErrorsTool").OutputLevel = DEBUG 
-
-
 
 acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
