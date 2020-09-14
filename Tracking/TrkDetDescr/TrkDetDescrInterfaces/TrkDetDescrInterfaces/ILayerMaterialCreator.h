@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,13 +15,12 @@
 #include <vector>
 #include <cstring>
 
+#include "CxxUtils/CachedValue.h"
+
 namespace Trk {
 
   class LayerMaterialProperties;
   class LayerMaterialRecord;
-  
-  /** Interface ID for ILayerMaterialCreators*/  
-  static const InterfaceID IID_ILayerMaterialCreator("ILayerMaterialCreator", 1, 0);
   
   /** @class ILayerMaterialCreator
     
@@ -33,11 +32,10 @@ namespace Trk {
   class ILayerMaterialCreator : virtual public IAlgTool {
     
     public:
+      DeclareInterfaceID (ILayerMaterialCreator, 1, 0);
+
       /**Virtual destructor*/
       virtual ~ILayerMaterialCreator(){}
-      
-      /** AlgTool and IAlgTool interface methods */
-      static const InterfaceID& interfaceID() { return IID_ILayerMaterialCreator; }
       
       /** process the material properties */
       virtual LayerMaterialProperties* createLayerMaterial(const LayerMaterialRecord& lmr) const = 0;
@@ -46,13 +44,19 @@ namespace Trk {
       virtual LayerMaterialProperties* convertLayerMaterial(const LayerMaterialProperties& lmr) const = 0;
       
       /** the name of the created material map */
-      const std::string& layerMaterialName() const { m_layerMaterialFullName=(m_layerMaterialDirectory+m_layerMaterialName); return m_layerMaterialFullName; }
+      const std::string& layerMaterialName() const {
+        if (!m_layerMaterialFullName.isValid()) {
+          m_layerMaterialFullName.set (m_layerMaterialDirectory+m_layerMaterialName);
+        }
+        return *m_layerMaterialFullName.ptr();
+      }
       
     protected:
       std::string             m_layerMaterialName;
       std::string             m_layerMaterialDirectory;
-      mutable std::string     m_layerMaterialFullName;  
-  
+
+    private:
+      CxxUtils::CachedValue<std::string> m_layerMaterialFullName;
   };
 
 
