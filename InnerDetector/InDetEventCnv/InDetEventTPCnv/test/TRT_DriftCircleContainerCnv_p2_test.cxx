@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/TRT_DriftCircleContainerCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,6 +18,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -123,7 +122,7 @@ makeclusts (const TRT_ID& trt_id)
 }
 
 
-void test1 (const TRT_ID& trt_id)
+void test1 ATLAS_NOT_THREAD_SAFE (const TRT_ID& trt_id)
 {
   std::cout << "test1\n";
   MsgStream log (0, "test");
@@ -162,7 +161,7 @@ const TRT_ID& make_dd()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("InDetEventTPCnv_test.txt", pSvcLoc)) {
