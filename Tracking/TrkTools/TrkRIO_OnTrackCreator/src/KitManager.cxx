@@ -9,10 +9,12 @@ KitManagerBase::KitManagerBase() {}
 KitManagerBase::~KitManagerBase() {}
 
 const void *KitManagerBase::kitPtr(const std::string &name) const {
+  std::lock_guard<std::mutex> lock (m_mutex);
   return m_registry.at(name);
 }
 
 bool KitManagerBase::registerKit(const std::string& name, const void *a_kit) {
+  std::lock_guard<std::mutex> lock (m_mutex);
   std::pair<std::string, const void *> elm = std::make_pair(name, a_kit);
   if (!m_registry.insert(elm).second) {
     std::stringstream message;
@@ -23,6 +25,7 @@ bool KitManagerBase::registerKit(const std::string& name, const void *a_kit) {
 }
 
 void KitManagerBase::dumpKits(std::ostream &out) const {
+  std::lock_guard<std::mutex> lock (m_mutex);
   for(const std::pair<const std::string, const void *> &elm: m_registry) {
     out << " " << elm.first;
   }
