@@ -135,8 +135,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
 	auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
 	
-	auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
-	auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
+	//auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
+	//auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
 	auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
 	auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
 
@@ -284,9 +284,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		else if (lb==previouslbStation)
 		{++clusterCounterStation[lb][cluster.station];}
 		*/
-		fillSynchHistograms(lb, previouslbStation, clustersPerStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster);
-		//void fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster, std::map<std::string,int> &mapa)
-		
+		fillSynchHistogramsStation(lb, previouslbStation, clusterCounterStation, counterForEventsStation, muPerBCID, cluster, 'S');
+	
 	}
 	// ========== Front Station ==========
 	if(isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
@@ -294,6 +293,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters()) 
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
+			/*
 			if(lb > previouslbStationFront && previouslbStationFront != 0)
 			{
 				for(int i=0; i<4; i++)
@@ -318,6 +318,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			}
 			else if (lb == previouslbStationFront)
 			{++clusterCounterStationFront[lb][cluster.station];}
+			*/
+			fillSynchHistogramsStation(lb, previouslbStationFront, clusterCounterStationFront, counterForEventsStationFront, muPerBCID, cluster, 'F');
 		}
 	}
 	// ..... end front station .....
@@ -328,6 +330,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		for(const auto& cluster : fast.clusters())
 		{
 			lb = GetEventInfo(ctx)->lumiBlock();
+			/*
 			if(lb > previouslbStationEnd && previouslbStationEnd != 0)
 			{
 				for(int i=0; i<4; i++)
@@ -352,6 +355,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			}
 			else if (lb == previouslbStationEnd)
 			{++clusterCounterStationEnd[lb][cluster.station];}
+			*/
+			fillSynchHistogramsStation(lb, previouslbStationEnd, clusterCounterStationEnd, counterForEventsStationEnd, muPerBCID, cluster, 'E');
 		}
 	}
 	// ..... end end station .....
@@ -361,6 +366,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		for(const auto& cluster : fast.clusters())
 		{
+		/*
 			if(lb > previouslbStationMiddle && previouslbStationMiddle != 0)
 			{
 				for(int i=0; i<4; i++)
@@ -385,6 +391,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			else if (lb == previouslbStationMiddle)
 			{++clusterCounterStationMiddle[lb][cluster.station];}
 			// ..... end middle station .....
+			*/
+			fillSynchHistogramsStation(lb, previouslbStationMiddle, clusterCounterStationMiddle, counterForEventsStationMiddle, muPerBCID, cluster, 'M');
 		}
 	}
 			// ..... end stations .....
@@ -528,32 +536,65 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	return StatusCode::SUCCESS;
 } // end of fillHistograms
 
-void AFPSiLayerAlgorithm::fillSynchHistograms(int &lbA, int &previouslbStationA, float &clustersPerStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster) const
+void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster, char histogramType) const
 {
 	//using namespace Monitored;
-	if(lbA > previouslbStationA && previouslbStationA != 0)
+	
+	float clustersPerStationFloat = 0;
+	if(lb > previouslbStationA && previouslbStationA != 0)
 	{
 		for(int i = 0; i < 4; i++)
 		{
-			clustersPerStationA = clusterCounterStationA[previouslbStationA][i]*1.0;
+			clustersPerStationFloat = clusterCounterStationA[previouslbStationA][i]*1.0;
 			if(muPerBCIDA != 0)
 			{
-				clustersPerStationA = clustersPerStationA/(muPerBCIDA*counterForEventsStationA*4);
+				clustersPerStationFloat = clustersPerStationFloat/(muPerBCIDA*counterForEventsStationA*4);
 			}
-			else{clustersPerStationA = -0.1;}
+			else{clustersPerStationFloat = -0.1;}
 
-			fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lbA, clustersPerStationA);
+			if(histogramType == 'S')
+			{
+				auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
+				clustersPerStation = clustersPerStationFloat;
+				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStation);
+			}
+			else if (histogramType == 'F')
+			{
+				auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
+				clustersPerStationFront = clustersPerStationFloat;
+				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationFront);
+			}
+			else if (histogramType == 'M')
+			{
+				auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
+				clustersPerStationMiddle = clustersPerStationFloat;
+				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationMiddle);
+			}
+			else if (histogramType == 'E')
+			{
+				auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
+				clustersPerStationEnd = clustersPerStationFloat;
+				fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationEnd);
+			}
 		}
-		previouslbStationA=lbA;
-		++clusterCounterStationA[lbA][cluster.station];
+		previouslbStationA=lb;
+		++clusterCounterStationA[lb][cluster.station];
 		counterForEventsStationA=1;
 	}
-	else if (clusterCounterStationA[lbA][cluster.station] == 0)
+	else if (clusterCounterStationA[lb][cluster.station] == 0)
 	{
-		++clusterCounterStationA[lbA][cluster.station];
-		previouslbStationA = lbA;
+		++clusterCounterStationA[lb][cluster.station];
+		previouslbStationA = lb;
 	}
-	else if (lbA==previouslbStationA)
-	{++clusterCounterStationA[lbA][cluster.station];}
+	else if (lb==previouslbStationA)
+	{++clusterCounterStationA[lb][cluster.station];}
 }
+
+/*
+void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbStationA, std::vector<std::vector<unsigned int>> &clusterCounterStationA, unsigned int &counterForEventsStationA, float &muPerBCIDA, const AFPMon::AFPCluster& cluster) const
+{
+
+
+}
+*/
 
