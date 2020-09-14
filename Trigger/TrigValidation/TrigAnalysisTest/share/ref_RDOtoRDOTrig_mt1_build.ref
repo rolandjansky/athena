@@ -238,6 +238,9 @@ TrigSignatureMoniMT                                 INFO -- #3769257182 Features
 TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_bmv2c1060_split_L1J100 #1211559599
 TrigSignatureMoniMT                                 INFO -- #1211559599 Events         3          3          0          0          0          0          0          0          0          0          0          0          0          0          0
 TrigSignatureMoniMT                                 INFO -- #1211559599 Features                             0          0          0          0          0          0          0          0          0          0          0          0
+TrigSignatureMoniMT                                 INFO HLT_j275_ftf_subjesgscIS_boffperf_split_L1J100 #588317894
+TrigSignatureMoniMT                                 INFO -- #588317894 Events          3          3          0          0          0          0          0          0          0          0          0          0          0          0          0
+TrigSignatureMoniMT                                 INFO -- #588317894 Features                              0          0          0          0          0          0          0          0          0          0          0          0
 TrigSignatureMoniMT                                 INFO HLT_j300_ftf_subjesgscIS_bmv2c1070_split_L1J100 #3706723666
 TrigSignatureMoniMT                                 INFO -- #3706723666 Events         3          3          0          0          0          0          0          0          0          0          0          0          0          0          0
 TrigSignatureMoniMT                                 INFO -- #3706723666 Features                             0          0          0          0          0          0          0          0          0          0          0          0
