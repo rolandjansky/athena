@@ -440,8 +440,8 @@ bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
 			     double &out) {
 
     double tracksEProbabilityHT;
-    const auto success =  track->summaryValue( tracksEProbabilityHT, 
-					       xAOD::eProbabilityHT);
+    const auto success =  track.track()->summaryValue( tracksEProbabilityHT, 
+						       xAOD::eProbabilityHT);
     out = tracksEProbabilityHT;
     return success;
 }
