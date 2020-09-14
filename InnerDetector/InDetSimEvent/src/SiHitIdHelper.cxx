@@ -20,10 +20,10 @@ SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
   Initialize();
 }
 
-const SiHitIdHelper* SiHitIdHelper::GetHelper ATLAS_NOT_THREAD_SAFE () { // static variable helperPtr is used.
+const SiHitIdHelper* SiHitIdHelper::GetHelper() {
   #ifdef G4MULTITHREADED
   // Context-specific singleton
-  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr;
+  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr ATLAS_THREAD_SAFE;
   if (!helperPtr) helperPtr = new SiHitIdHelper();
   return helperPtr.get();
   #else
