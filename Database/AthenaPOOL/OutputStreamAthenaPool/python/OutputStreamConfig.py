@@ -45,6 +45,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       OutputFile = fileName,
       HelperTools = [ streamInfoTool, tct ],
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")
    outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]
@@ -55,8 +56,8 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       outputStream.WritingTool.AttributeListKey=key
       # build eventinfo attribute list
       EventInfoAttListTool, EventInfoTagBuilder=CompFactory.getComps("EventInfoAttListTool","EventInfoTagBuilder",)
-      result.addPublicTool(EventInfoAttListTool())
-      tagBuilder = EventInfoTagBuilder(AttributeList=key)
+      tagBuilder = EventInfoTagBuilder(AttributeList=key,
+                                       Tool=EventInfoAttListTool())
       result.addEventAlgo(tagBuilder)
 
    # For xAOD output

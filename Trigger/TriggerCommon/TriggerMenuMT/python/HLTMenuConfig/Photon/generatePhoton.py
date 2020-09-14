@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
-    ChainStep, Chain, getChainStepName, createStepView
+    ChainStep, Chain, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
@@ -16,7 +16,7 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.generatePhoton' )
 
 def generateChains(flags, chainDict):
 
-    firstStepName = getChainStepName('Photon', 1)
+    firstStepName = 'FastCaloPhoton'
     stepReco, stepView = createStepView(firstStepName)
 
     accCalo = ComponentAccumulator()
@@ -44,7 +44,7 @@ def generateChains(flags, chainDict):
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
 
-    secondStepName = getChainStepName('Photon', 2)
+    secondStepName = 'FastPhoton'
     stepReco, stepView = createStepView(secondStepName)
 
     accPhoton = ComponentAccumulator()

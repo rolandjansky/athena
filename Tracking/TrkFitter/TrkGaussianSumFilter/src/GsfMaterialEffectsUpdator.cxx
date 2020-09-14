@@ -1,15 +1,13 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file GsfMaterialEffectsUpdator.cxx
+ * @begin         Wednesday 9th January 2005
+ * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
+ * @brief         Implementation code for the class GsfMaterialEffectsUpdator
+ */
 
-/***********************************************************************************
-                        GsfMaterialEffectsUpdator.cxx  -  description
-                        ---------------------------------------------
-begin                : Wednesday 9th January 2005
-author               : atkinson,morley,anastopoulos
-decription           : Implementation code for the class
-GsfMaterialEffectsUpdator
-***********************************************************************************/
 
 #include "TrkGaussianSumFilter/GsfMaterialEffectsUpdator.h"
 
@@ -96,10 +94,10 @@ Trk::GsfMaterialEffectsUpdator::updateState(
                       : nullptr;
 
       // Determine the pathCorrection if the material properties exist
-      pathCorrection =
-        materialProperties
-          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
-          : 0.;
+      pathCorrection = materialProperties
+                         ? 1. / std::abs(surface->normal().dot(
+                                  trackParameters->momentum().unit()))
+                         : 0.;
     }
   }
 
@@ -214,10 +212,10 @@ Trk::GsfMaterialEffectsUpdator::preUpdateState(
                       : nullptr;
 
       // Determine the pathCorrection if the material properties exist
-      pathCorrection =
-        materialProperties
-          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
-          : 0.;
+      pathCorrection = materialProperties
+                         ? 1. / std::abs(surface->normal().dot(
+                                  trackParameters->momentum().unit()))
+                         : 0.;
     }
   }
 
@@ -314,10 +312,10 @@ Trk::GsfMaterialEffectsUpdator::postUpdateState(
                       : nullptr;
 
       // Determine the pathCorrection if the material properties exist
-      pathCorrection =
-        materialProperties
-          ? 1. / std::abs(surface->normal().dot(trackParameters->momentum().unit()))
-          : 0.;
+      pathCorrection = materialProperties
+                         ? 1. / std::abs(surface->normal().dot(
+                                  trackParameters->momentum().unit()))
+                         : 0.;
     }
   }
 

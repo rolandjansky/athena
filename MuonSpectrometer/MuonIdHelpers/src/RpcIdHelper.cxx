@@ -919,7 +919,7 @@ bool RpcIdHelper::validChannel(const Identifier& id, int stationName, int statio
 				      int doubletPhi, int gasGap, int measuresPhi, 
 				      int strip, bool noPrint) const
 {
-    if (! validElement(id, stationName, stationEta, stationPhi, doubletR)) return false;
+    if (! validElement(id, stationName, stationEta, stationPhi, doubletR, noPrint)) return false;
 
     if ((doubletZ < doubletZMin(id)) ||
         (doubletZ > doubletZMax(id))    )

@@ -13,7 +13,6 @@
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/AlgTool.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
@@ -605,7 +604,7 @@ StatusCode AthenaOutputStream::write() {
       }
    }
    bool doCommit = false;
-   if (m_events % m_autoSend.value() == 0 && outputFN.find("?pmerge=") != std::string::npos) {
+   if (m_autoSend.value() > 0 && m_events % m_autoSend.value() == 0) {
       doCommit = true;
       ATH_MSG_DEBUG("commitOutput sending data.");
    }
@@ -874,7 +873,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                     // Get a handle on the compression information for this store
                     std::string key = item_key;
                     key.erase (key.size()-4, 4);
-                    SG::ThinningInfo::compression_map_t& compMap = compInfo[key];
 
                     // Build the compression list, retrieve the relevant AuxIDs and
                     // store it in the relevant map that is going to be inserted into
@@ -882,16 +880,15 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
                     xAOD::AuxCompression compression;
                     compression.setCompressedAuxIDs( comp_attr_map );
                     for( const auto& it : compression.getCompressedAuxIDs( allVars ) ) {
-                      if( it.second.size() > 0 ) // insert only if the set is non-empty
-                        compMap[ it.first ] = it.second;
-                    }
+                      if( it.second.size() > 0 ) { // insert only if the set is non-empty
+                        compInfo[ key ][ it.first ] = it.second;
+                        ATH_MSG_DEBUG( "Container " << key << " has " << it.second.size() <<
+                                       " variables that'll be lossy float compressed"
+                                       " with " << it.first << " mantissa bits" );
+                      }
+                    } // End of loop over variables to be lossy float compressed
+                  } // End of lossy float compression logic
 
-                    for( const auto& it : compMap ) {
-                      ATH_MSG_DEBUG( "Lossy float compression level " << it.first <<
-                                     " contains " << it.second.size() <<  " elements"
-                                     " for container " << key );
-                    }
-                  }
                }
 
                added = true;
@@ -1158,6 +1155,9 @@ StatusCode AthenaOutputStream::io_finalize() {
    if (!incSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get the IncidentSvc");
       return StatusCode::FAILURE;
+   }
+   if (m_dataStore->clearStore().isSuccess()) {
+      ATH_MSG_WARNING("Cannot clear the DataStore");
    }
    incSvc->removeListener(this, "MetaDataStop");
    return StatusCode::SUCCESS;

@@ -47,8 +47,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    ATH_CHECK(m_mdtDataPreparator.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_mdtDataPreparator);
    
-   ATH_CHECK(m_cscDataPreparator.retrieve());
+   ATH_CHECK(m_cscDataPreparator.retrieve(DisableTool{m_cscDataPreparator.empty()}));
    ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
+
+   ATH_CHECK(m_stgcDataPreparator.retrieve(DisableTool{m_stgcDataPreparator.empty()}));
+   ATH_MSG_DEBUG("Retrieved service " << m_stgcDataPreparator);
+
+   ATH_CHECK(m_mmDataPreparator.retrieve(DisableTool{m_mmDataPreparator.empty()}));
+   ATH_MSG_DEBUG("Retrieved service " << m_mmDataPreparator);
 
    ATH_CHECK(m_rpcRoadDefiner.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcRoadDefiner);
@@ -138,12 +144,16 @@ void TrigL2MuonSA::MuFastDataPreparator::setMdtDataCollection(bool use_mdtcsm)
 void TrigL2MuonSA::MuFastDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess_MDT,
                                                                bool use_RoIBasedDataAccess_RPC,
                                                                bool use_RoIBasedDataAccess_TGC,
-                                                               bool use_RoIBasedDataAccess_CSC)
+                                                               bool use_RoIBasedDataAccess_CSC,
+							       bool use_RoIBasedDataAccess_STGC,
+							       bool use_RoIBasedDataAccess_MM)
 {                               
-  m_mdtDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_MDT);
-  m_rpcDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_RPC);
-  m_tgcDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_TGC);
-  m_cscDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_CSC);
+  m_mdtDataPreparator ->setRoIBasedDataAccess(use_RoIBasedDataAccess_MDT);
+  m_rpcDataPreparator ->setRoIBasedDataAccess(use_RoIBasedDataAccess_RPC);
+  m_tgcDataPreparator ->setRoIBasedDataAccess(use_RoIBasedDataAccess_TGC);
+  if(!m_cscDataPreparator.empty()) m_cscDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_CSC);
+  if(!m_stgcDataPreparator.empty()) m_stgcDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_STGC);
+  if(!m_mmDataPreparator.empty()) m_mmDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_MM);
   return;
 }
 
@@ -250,7 +260,9 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                                            TrigL2MuonSA::TgcFitResult& tgcFitResult,
                                                            TrigL2MuonSA::MdtHits&      mdtHits_normal,
                                                            TrigL2MuonSA::MdtHits&      mdtHits_overlap,
-                                                           TrigL2MuonSA::CscHits&      cscHits)
+                                                           TrigL2MuonSA::CscHits&      cscHits,
+							   TrigL2MuonSA::StgcHits&     stgcHits,
+							   TrigL2MuonSA::MmHits&       mmHits)
 {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
@@ -286,14 +298,36 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
   ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
   
-  sc = m_cscDataPreparator->prepareData(p_roids,
-                                        muonRoad,
-                                        cscHits);
-  if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in CSC data preparation.");
-    return sc;
+  if(!m_cscDataPreparator.empty()) {
+    sc = m_cscDataPreparator->prepareData(p_roids,
+					  muonRoad,
+					  cscHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in CSC data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
   }
-  ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
+
+  if(!m_stgcDataPreparator.empty()){
+    sc = m_stgcDataPreparator->prepareData(p_roids,
+					   stgcHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in sTGC data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of sTGC hits=" << stgcHits.size());
+  }
+
+  if(!m_mmDataPreparator.empty()){
+    sc = m_mmDataPreparator->prepareData(p_roids,
+					 mmHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in MM data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of MM hits=" << mmHits.size());
+  }
 
   return StatusCode::SUCCESS; 
 }

@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloEvent/CaloConstCellContainer.h
  * @author scott snyder <snyder@bnl.gov>
@@ -67,7 +64,7 @@ public:
 
 
   /** @brief indicate that the container is complete and in order */
-  void setIsOrderedAndComplete ATLAS_NOT_CONST_THREAD_SAFE (bool ordered);
+  void setIsOrderedAndComplete (bool ordered);
 
 
   /** @brief tell wether container is complete and in order */
@@ -79,7 +76,7 @@ public:
 
 
   /** @brief indicates that the container is ordered */
-  void setIsOrdered  ATLAS_NOT_CONST_THREAD_SAFE (bool ordered);
+  void setIsOrdered (bool ordered);
 
 
   /** @brief tell wether container is ordered */
@@ -109,7 +106,7 @@ public:
 
 
   /** @brief set which calo has been filled.  */
-  void setHasCalo ATLAS_NOT_CONST_THREAD_SAFE (CaloCell_ID::SUBCALO caloNum);
+  void setHasCalo (CaloCell_ID::SUBCALO caloNum);
 
 
   /** @brief fill calo iterators and the index of first and last cell 
@@ -149,15 +146,15 @@ public:
 
 
   /** @brief order container */
-  void order ATLAS_NOT_CONST_THREAD_SAFE ();
+  void order();
 
 
   /** @brief reimplementation of push_back to gain speed in readin */
-  void push_back_fast ATLAS_NOT_THREAD_SAFE(const CaloCell* cell);
+  void push_back_fast (const CaloCell* cell);
 
 
   /** @brief reset look up table */
-  void resetLookUpTable ATLAS_NOT_CONST_THREAD_SAFE();
+  void resetLookUpTable();
 
 
 private:
@@ -166,10 +163,10 @@ private:
   /** @brief If @ flag is true, then the container size equals the maximum hash.
    *         Only CaloCellContainerFinalizer tool is allowed to set this.
    */
-  void setHasTotalSize ATLAS_NOT_CONST_THREAD_SAFE (bool flag);
+  void setHasTotalSize (bool flag);
 
   /// Return a non-const pointer to the base container.
-  ::CaloCellContainer* baseContainer ATLAS_NOT_CONST_THREAD_SAFE ();
+  ::CaloCellContainer* baseContainer();
 };
 
 

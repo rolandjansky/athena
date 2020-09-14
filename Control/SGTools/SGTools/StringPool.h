@@ -14,6 +14,10 @@
  * We allow registering additional key->string mappings as well, as long
  * as there aren't collisions.
  * We also keep an auxiliary int that gets hashed along with the string.
+ *
+ * A string can be marked as `transient' (using SG::transientKey).
+ * If we encounter a hash collision while inserting a transient key,
+ * we do not fail, but instead use find an alternate hash for it.
  */
 
 #ifndef SGTOOLS_STRINGPOOL_H
@@ -62,7 +66,8 @@ public:
    * @param aux Auxiliary data to include along with the string.
    * @return A key identifying the string.
    *         A given string will always return the same key.
-   *         Will throw ExcSgkeyCollision in case of a hash collision!
+   *         Will throw ExcSgkeyCollision in case of a hash collision
+   *         (for a non-transient string)!
    */
   sgkey_t stringToKey (const std::string& str, sgaux_t aux = 0);
 

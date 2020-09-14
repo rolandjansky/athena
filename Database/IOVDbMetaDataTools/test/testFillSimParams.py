@@ -13,8 +13,9 @@ __version__ = "$Id: testFillSimParams.py,v 1.1 2008-05-03 08:45:54 schaffer Exp 
 __author__  = "RD Schaffer <R.D.Schaffer@cern.ch>"
 
 
-import sys
+import sys,os
 import string
+os.environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
 from PyCool import cool,coral
 from IOVDbMetaDataTools import ParameterDbFiller
 

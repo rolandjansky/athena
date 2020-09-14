@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkAmbiguitySolver/TrkAmbiguitySolver.h"
@@ -58,8 +58,7 @@ Trk::TrkAmbiguitySolver::execute(const EventContext& ctx) const
 //---------------------------------------------------------------------------
 
 StatusCode
-Trk::TrkAmbiguitySolver::finalize()
-{
+Trk::TrkAmbiguitySolver::finalize(){
   if (m_ambiTool.isEnabled()) {
       m_ambiTool->statistics();
   }

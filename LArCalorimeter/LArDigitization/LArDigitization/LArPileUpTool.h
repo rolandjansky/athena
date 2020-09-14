@@ -276,6 +276,8 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
 
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "LArDigitization", ""};
+
   Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
       "Also create information about reconstructed digits for HS hits"};
 

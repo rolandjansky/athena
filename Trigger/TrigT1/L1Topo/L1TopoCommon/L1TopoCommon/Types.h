@@ -6,7 +6,7 @@
 #include <string>
 
 namespace TCS {
-   
+
    enum inputTOBType_t { NONE=0,
                          CLUSTER=0, 
                          JET=1,

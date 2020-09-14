@@ -2,14 +2,14 @@
   Copyright (C) 2020-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*************************************************************************************
-      GsfMaterialMixtureConvolution.cxx  -  description
-      -------------------------------------------------
-author               : amorley
-email                : amorley@cern.ch
-decription           : Implementation code for GSF material mixture convolution
-that uses less mem
-************************************************************************************/
+/**
+ * @file GsfMaterialMixtureConvolution.cxx
+ * @begin         Julay 20 2020
+ * @author        Anthony Morley
+ * @brief         Implementation code for GSF material mixture convolution
+ */
+
+
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
@@ -374,7 +374,8 @@ Trk::GsfMaterialMixtureConvolution::update(
 
     // Copy weight and first parameters as they are needed later on
     // for updating the covariance
-    AmgVector(5) firstParameters = caches[stateIndex].deltaParameters[materialIndex];
+    AmgVector(5) firstParameters =
+      caches[stateIndex].deltaParameters[materialIndex];
     double firstWeight = caches[stateIndex].weights[materialIndex];
 
     // Get the second TP
@@ -407,7 +408,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   for (size_t i(0); i < n; ++i) {
-    if (isMerged[i]){
+    if (isMerged[i]) {
       continue;
     }
 

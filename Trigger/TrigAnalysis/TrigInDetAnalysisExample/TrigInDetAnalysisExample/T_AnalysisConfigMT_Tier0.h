@@ -679,12 +679,18 @@ protected:
 	//	if ( roi_key=="" ) roi_key = "forID";
 	//	if ( roi_key=="" ) roi_key = "";
 
+
+	unsigned feature_type =TrigDefs::lastFeatureOfType;
+
+	if ( roi_key!="" ) feature_type= TrigDefs::allFeaturesOfType;
+
 	std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
 	  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainname, 
 								    decisiontype, 
 								    roi_key, 
 								    // TrigDefs::lastFeatureOfType, 
-								    TrigDefs::allFeaturesOfType, 
+								    // TrigDefs::allFeaturesOfType,
+								    feature_type,
 								    "roi" );
 			  			 
 	//	const unsigned int featureCollectionMode = const std::string& navElementLinkKey = "roi") const;

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrigPassBits_v1.h 773869 2016-09-19 15:27:05Z krasznaa $
@@ -104,7 +104,7 @@ namespace xAOD {
 
    private:
       /// Transient pointer to the target container
-      mutable const void* m_container;
+      const void* m_container;
 
    }; // class TrigPassBits_v1
 

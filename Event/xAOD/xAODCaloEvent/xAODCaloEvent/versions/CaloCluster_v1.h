@@ -673,7 +673,7 @@ namespace xAOD {
      /**@brief size method (forwarded from CaloClusterCellLink obj)
       *@return The number of cells 
       */
-      size_t size() const { return getCellLinks()->size(); }
+      size_t size() const;
 
       /// Iterator of the underlying CaloClusterCellLink (explicitly const version)
       typedef CaloClusterCellLink::const_iterator const_cell_iterator;

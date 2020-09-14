@@ -65,7 +65,7 @@ if __name__ == '__main__':
     inputDir = defaultTestFiles.d
     ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1'] #defaultTestFiles.EVNT
     ConfigFlags.Output.HITSFileName = "myHITSnew1106_2.pool.root"
-
+    
     #Sim ConfigFlags
     #ConfigFlags.Sim.WorldRRange = 15000
     #ConfigFlags.Sim.WorldZRange = 27000 #change defaults?
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     ConfigFlags.dump()
 
     # Execute and finish
-    #sc = cfg.run(maxEvents=evtMax)
+    sc = cfg.run(maxEvents=evtMax)
 
     b = time.time()
     log.info("Run G4AtlasAlg in " + str(b-a) + " seconds")

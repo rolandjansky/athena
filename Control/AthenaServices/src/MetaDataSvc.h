@@ -21,8 +21,6 @@
 #include "AthenaKernel/IMetaDataTool.h"
 #include "AthenaKernel/IMetaDataSvc.h"
 
-#include "boost/bind.hpp"
-
 #include <map>
 
 // Forward declarations

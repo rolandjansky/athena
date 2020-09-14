@@ -73,7 +73,7 @@ namespace G4UA
     G4VSensitiveDetector* m_SDRPC;
 
     // methode to fill vector stored in variables map (index volume name)
-    void fillVariables(std::vector<double> varvec, std::string name);
+    void fillVariables(std::vector<double> varvec, const std::string& name);
   }; //class RadLengthAction
 
 } //namespace G4UA

@@ -7,7 +7,6 @@
 // AUTHORS: Beate Heinemann, Tobias Golling, John Alison, Lauren Tompkins
 // **********************************************************************
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "TrkParameters/TrackParameters.h"

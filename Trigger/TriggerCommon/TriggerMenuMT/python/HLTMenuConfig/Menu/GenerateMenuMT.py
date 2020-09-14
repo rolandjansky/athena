@@ -17,6 +17,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureC
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import analyseCombinations, groupSignatures, setChainSignatures
+from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -201,6 +202,9 @@ class GenerateMenuMT(object):
                 for sig in list(set(chainDict['signatures'])):
                     signatures_to_align.update([sig])
         
+        # align event building sequences
+        EventBuildingSequenceSetup.alignEventBuildingSteps(all_chains)
+
         #will likely always be true, but the grouping could be redefined
         groupPeskySignatures = True
         
@@ -497,8 +501,7 @@ class GenerateMenuMT(object):
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-            from TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup import addEventBuildingSequence
-            addEventBuildingSequence(theChainConfig, eventBuildType)
+            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

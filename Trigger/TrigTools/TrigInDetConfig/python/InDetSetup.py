@@ -55,6 +55,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
@@ -73,9 +74,11 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
@@ -110,6 +113,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetPixelRawDataProvider.isRoI_Seeded = True
     InDetPixelRawDataProvider.RoIs = rois
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
+    InDetPixelRawDataProvider.BSErrorsCacheKey = InDetCacheNames.PixBSErrCacheKey
 
     viewAlgs.append(InDetPixelRawDataProvider)
 
@@ -170,12 +174,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool_" + signature,
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-  )
+                                                  globalPosAlg            = InDetClusterMakerTool)
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   from RecExConfig.RecFlags import rec
   if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
@@ -213,6 +212,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
   sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
   sct_ConfigurationConditionsToolSetup.setToolName("InDetSCT_ConfigurationConditionsTool_" + signature)
+  if globalflags.DataSource() == 'geant4':
+     sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim") # For MC (OFLP200)
   sct_ConfigurationConditionsToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ConfigurationConditionsToolSetup.getTool().getFullName())
 

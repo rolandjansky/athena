@@ -58,7 +58,6 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         
         ATH_MSG_DEBUG("Start Chain Analysis ============================= " << trigger << " " << info.trigName);
  
-
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
         {
@@ -67,15 +66,16 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
         }
 
 
-
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
         fillResolutions( pairObjs, info );
 
 
+
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
-    
+ 
+
     return StatusCode::SUCCESS;
 }
 
@@ -145,7 +145,8 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
 
-      match()->match(el, trigItem, dec);
+      match()->match(el, trigItem, dec, TrigDefs::includeFailedDecisions);
+      //match()->match(el, trigItem, dec);
       std::pair< const xAOD::Electron*, const TrigCompositeUtils::Decision * > pair(el,dec);
       pairObjs.push_back(pair);
 

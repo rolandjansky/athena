@@ -81,7 +81,7 @@ atlas_add_test( TrigPassBits_test
    LINK_LIBRARIES TrigSteeringEvent
    POST_EXEC_SCRIPT nopost.sh )
 
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( Operators_test
       SOURCES test/Operators_test.cxx
       LINK_LIBRARIES AthenaKernel GaudiKernel TrigSteeringEvent

@@ -13,8 +13,8 @@
 // Local include(s):
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/TReturnCode.h"
-#include "xAODRootAccess/tools/TEventTree.h"
-#include "xAODRootAccess/tools/TMetaTree.h"
+#include "xAODRootAccess/tools/xAODTEventTree.h"
+#include "xAODRootAccess/tools/xAODTMetaTree.h"
 
 // Forward declaration(s):
 class TTree;
@@ -77,9 +77,9 @@ namespace xAOD {
 
    private:
       /// The transient event tree
-      std::unique_ptr< TEventTree > m_eventTree;
+      std::unique_ptr< xAODTEventTree > m_eventTree;
       /// The transient metadata tree
-      std::unique_ptr< TMetaTree > m_metaTree;
+      std::unique_ptr< xAODTMetaTree > m_metaTree;
 
       /// The internal TEvent object
       TEvent m_event;

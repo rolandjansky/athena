@@ -38,7 +38,7 @@ if DetFlags.overlay.Truth_on():
     if DetFlags.overlay.pixel_on():
         outStream.ItemList += [ 'InDetSimDataCollection#PixelSDO_Map' ]
         if overlayFlags.isDataOverlay():
-            outStream.ItemList += [ 'InDetBSErrContainer#PixelByteStreamErrs' ]
+            outStream.ItemList += [ 'IDCInDetBSErrContainer#PixelByteStreamErrs' ]
 
     if DetFlags.overlay.SCT_on():
         outStream.ItemList += ['InDetSimDataCollection#SCT_SDO_Map']
@@ -93,7 +93,7 @@ if DetFlags.overlay.LAr_on():
 
 if DetFlags.overlay.Tile_on():
     outStream.ItemList += [ 'TileRawChannelContainer#TileRawChannelCnt' ]
-    if overlayFlags.isDataOverlay() or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+    if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
         outStream.ItemList += [ 'TileDigitsContainer#TileDigitsCnt', 'TileDigitsContainer#TileDigitsFlt' ]
     else:
         outStream.ItemList += [ 'TileDigitsContainer#TileDigitsFlt' ]

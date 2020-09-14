@@ -23,6 +23,8 @@
 #include "TrigNavigation/AccessProxy.h"
 #endif
 
+#include "AsgDataHandles/ReadHandle.h"
+
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -33,11 +35,24 @@
 
 #include "xAODTrigger/TrigDecision.h"
 
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+
 Trig::ExpertMethods::ExpertMethods(SG::SlotSpecificObj<Trig::CacheGlobalMemory>* cgm) 
   : m_cacheGlobalMemory(cgm),
     m_useExperimentalAndExpertMethods(false)   
 {
 }
+
+#else // Analysis or Standalone
+
+Trig::ExpertMethods::ExpertMethods(Trig::CacheGlobalMemory* cgm) 
+  : m_cacheGlobalMemory(cgm),
+    m_useExperimentalAndExpertMethods(false)   
+{
+}
+
+#endif
 
 Trig::ExpertMethods::~ExpertMethods() {}
 
@@ -76,20 +91,13 @@ const LVL1CTP::Lvl1Item* Trig::ExpertMethods::getItemDetails(const std::string& 
   return cgm()->item(chain);
 }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS)
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+
 const HLT::NavigationCore* Trig::ExpertMethods::getNavigation() const
 {
   if (!(checkExperimentalAndExpertMethods())) return 0;
   return dynamic_cast<const HLT::NavigationCore*>(cgm()->navigation());
 }
-#else
-const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
-{
-  if (!(checkExperimentalAndExpertMethods())) return 0;
-  return cgm()->navigation();
-}
-#endif
-
 
 Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   if ( ! onlyConfig ) {
@@ -99,6 +107,25 @@ Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
   } 
   return m_cacheGlobalMemory->get(); 
 }
+
+#else // Analysis or Standalone
+
+const HLT::TrigNavStructure* Trig::ExpertMethods::getNavigation() const
+{
+  if (!(checkExperimentalAndExpertMethods())) return 0;
+  return cgm()->navigation();
+}
+
+Trig::CacheGlobalMemory* Trig::ExpertMethods::cgm(bool onlyConfig) const {
+  if ( ! onlyConfig ) {
+    if ( !const_cast<Trig::CacheGlobalMemory*>(m_cacheGlobalMemory)->assert_decision() ) {
+      ATH_MSG_WARNING("TDT has not ben able to unpack trigger decision");    
+    } 
+  } 
+  return m_cacheGlobalMemory; 
+}
+
+#endif
 
 
 

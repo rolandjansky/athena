@@ -25,6 +25,11 @@ from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
 )
 from ISF_Tools.ISF_ToolsConfigNew import ParticleOrderingToolCfg
 
+#include file to access AtlasDetDescr::AtlasRegion enum
+import ROOT,cppyy
+cppyy.include("AtlasDetDescr/AtlasRegion.h")
+
+
 def GenParticleFiltersToolCfg(ConfigFlags):
     result = ComponentAccumulator()
     genParticleFilterList = []
@@ -70,13 +75,14 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     result = ComponentAccumulator()
     if "EntryLayerTool" not in kwargs:
-        tool = result.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
+        result.merge(EntryLayerToolCfg(ConfigFlags))
+        tool = result.getPublicTool("ISF_EntryLayerTool")
         kwargs.setdefault("EntryLayerTool", tool)
         kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     # assume "GeoIDSvc" has been set alongside "EntryLayerTool"
     kwargs.setdefault("AlwaysUseGeoIDSvc", False)
-    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.ISF.ValidationMode)
-    kwargs.setdefault("ValidationOutput", ConfigFlags.ISF.ValidationMode)
+    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.Sim.ISF.ValidationMode)
+    kwargs.setdefault("ValidationOutput", ConfigFlags.Sim.ISF.ValidationMode)
     kwargs.setdefault("ValidationStreamName", "ParticleBroker")
 
     baracc = BarcodeSvcCfg(ConfigFlags)
@@ -98,7 +104,8 @@ def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
 
 def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kwargs):
     result = AFIIEntryLayerToolCfg(ConfigFlags)
-    kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
+    tool = result.getPublicTool("ISF_AFIIEntryLayerTool")
+    kwargs.setdefault("EntryLayerTool", tool)
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_AFIIGeoIDSvc"))
     result.merge(ParticleBrokerSvcCfg(ConfigFlags, name, **kwargs))
     return result
@@ -210,9 +217,6 @@ def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs
 
 
 def MC12PlusTruthServiceCfg(ConfigFlags, name="ISF_MC12PlusTruthService", **kwargs):
-    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
-    import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID] )
     return MC12TruthServiceCfg(ConfigFlags, name, **kwargs)
@@ -236,9 +240,6 @@ def MC15MSTruthStrategies():
 
 def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     result = ComponentAccumulator()
-    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
-    import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
 
     if "TruthStrategies" not in kwargs:
@@ -266,10 +267,8 @@ def MC15aTruthServiceCfg(ConfigFlags, name="ISF_MC15aTruthService", **kwargs):
 
 
 def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kwargs):
-    # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
-    import ROOT, cppyy
-    cppyy.loadDictionary("AtlasDetDescrDict")
     AtlasRegion = ROOT.AtlasDetDescr
+
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
     result = MC15TruthServiceCfg(ConfigFlags, name, **kwargs)
     return result

@@ -98,10 +98,10 @@ void VolumeTreeNavigator::SetDepthCutDetail(const char* cpath)
       log<< MSG::INFO <<"SetDepthCutDetail path parsed as ";
       string path = stringify(cpath);
       string::size_type slash = 0;
-      string::size_type start = path.find_first_not_of( "/" );
+      string::size_type start = path.find_first_not_of( '/' );
       while ( slash != string::npos ) {
           start = slash+1;
-          slash = path.find_first_of( "/", start );
+          slash = path.find_first_of( '/', start );
           volumes.push_back( path.substr(start, slash-start) );
           log<< MSG::INFO <<"/"<<volumes.back();
       }

@@ -26,7 +26,7 @@ SimpleScintillatorHit::~SimpleScintillatorHit() {}
 SimpleScintillatorHit::SimpleScintillatorHit(const int particleEncoding,
 				  const float kineticEnergy,
 				  const float energyDeposit,
-				  const CLHEP::Hep3Vector position,
+				  const CLHEP::Hep3Vector& position,
 				  const float globalTime,
                                   const int copyNo,
 				  const int track) :

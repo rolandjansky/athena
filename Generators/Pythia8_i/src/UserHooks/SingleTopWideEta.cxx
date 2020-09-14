@@ -50,14 +50,14 @@ namespace Pythia8 {
         double g1 = 8.07441e-1 ;
         double g2 = 1.7313e2 ;
         double g3 = 2.4357;
-        flatEta = g1*exp(-0.5*pow((g2-rH)/g3,2));
+        flatEta = g1*std::exp(-0.5*std::pow((g2-rH)/g3,2));
       }
 
 
       if(rH >= 180.){
         double c1 = 8.84562;
         double slope1 = -9.22426e-2;
-        flatEta = exp(c1+slope1*rH);
+        flatEta = std::exp(c1+slope1*rH);
       }
 
       return flatEta;

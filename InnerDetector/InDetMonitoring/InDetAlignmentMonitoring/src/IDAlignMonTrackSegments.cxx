@@ -14,7 +14,6 @@
 #include "LWHists/TH2F_LW.h"
 #include "TProfile.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "IDAlignMonTrackSegments.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "InDetTrackSplitterTool/IInDetTrackSplitterTool.h"

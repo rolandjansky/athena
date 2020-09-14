@@ -15,34 +15,19 @@
 #include <cmath>
 #include <vector>
 
-
-
+//______________________________________________________________________________
 TauCellVariables::TauCellVariables(const std::string& name) :
   TauRecToolBase(name) {
 }
 
-
-
+//______________________________________________________________________________
 TauCellVariables::~TauCellVariables() {
 }
 
-
-
-StatusCode TauCellVariables::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TauCellVariables::initialize() {
-  return StatusCode::SUCCESS;
-}
-
-
-
+//______________________________________________________________________________
 StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
-  const xAOD::Jet* pJetSeed = (*pTau.jetLink());
+  const xAOD::Jet* pJetSeed = pTau.jet();
   if (!pJetSeed) {
     ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
     return StatusCode::FAILURE;
@@ -94,7 +79,7 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
       // correct cell four momentum based on tau vertex
       if (m_doVertexCorrection && pTau.vertexLink()) {
-        CaloVertexedCell vxCell (*cell, (*pTau.vertexLink())->position());
+        CaloVertexedCell vxCell (*cell, pTau.vertex()->position());
         cellPhi = vxCell.phi();
         cellEta = vxCell.eta();
         cellET = vxCell.et();
@@ -202,4 +187,3 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 }
 
 #endif
-                

@@ -4,7 +4,7 @@ from PyKernel.PyKernel import plot,plot2,fill,fill2,dumpSG,book,bookProf
 from PyKernel.PyKernel import plotProf,fillProf,unregister,dumpHist,retrieveHist
 
 import cppyy
-cppyy.loadDictionary("libPyKernelDict")
+cppyy.load_library("liblibPyKernelDict")
 
 # Bind the C++ global namespace to the Python variable g 
 g = cppyy.gbl

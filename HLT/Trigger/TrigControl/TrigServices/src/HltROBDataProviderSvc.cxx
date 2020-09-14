@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
 // Gaudi
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 // hltinterface / data collector
 #include "hltinterface/DataCollector.h"
@@ -105,29 +105,18 @@ StatusCode HltROBDataProviderSvc::initialize()
   bool robOKSconfigFound = false;
 
   if ( m_readROBfromOKS.value() ) {
-    ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
-    if ((p_jobOptionsSvc.retrieve()).isFailure()) {
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
+    if ((jobOptionsSvc.retrieve()).isFailure()) {
       ATH_MSG_ERROR("Could not find JobOptionsSvc");
     } else {
-      const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = p_jobOptionsSvc->getProperties("DataFlowConfig");
-      if(!dataFlowProps)
-        ATH_MSG_ERROR("Could not find DataFlowConfig properties");
-      else
-      {
-        for ( const Gaudi::Details::PropertyBase* cur : *dataFlowProps ) {
-          // the enabled ROB list is found
-          if ( cur->name() == "DF_Enabled_ROB_IDs" ) {
-            if (m_enabledROBs.assign(*cur)) {
-              robOKSconfigFound = true;
-	      ATH_MSG_INFO(" ---> Read from OKS                                                = "
-			   << MSG::dec << m_enabledROBs.value().size() << " enabled ROB IDs.");
-            } else {
-              ATH_MSG_WARNING(" Could not set Property 'enabledROBs' from OKS.");
-            }
-          }
-        }
+      if (jobOptionsSvc->has("DataFlowConfig.DF_Enabled_ROB_IDs") &&
+          m_enabledROBs.fromString(jobOptionsSvc->get("DataFlowConfig.DF_Enabled_ROB_IDs")).isSuccess()) {
+        robOKSconfigFound = true;
+        ATH_MSG_INFO(" ---> Read from OKS                                                = "
+                     << MSG::dec << m_enabledROBs.value().size() << " enabled ROB IDs.");
+      } else {
+        ATH_MSG_WARNING("Could not set Property 'enabledROBs' from OKS.");
       }
-      p_jobOptionsSvc.release().ignore();
     }
   }
 

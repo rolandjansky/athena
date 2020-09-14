@@ -7,7 +7,6 @@
  *    authors: Marilyn Marx (marx@cern.ch), Mark Owen (markowen@cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 #include "EventInfo/EventInfo.h"

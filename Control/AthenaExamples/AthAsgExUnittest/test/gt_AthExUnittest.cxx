@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthService.h"
@@ -32,14 +32,11 @@ namespace Athena_test {
 
     virtual void SetUp() override {
 
-      ServiceHandle<IJobOptionsSvc> joSvc( "JobOptionsSvc",
-                                           "MyPackageAlgTest" );
-      joSvc->addPropertyToCatalogue( "MyPackageAlg",
-                                     StringProperty( "MyProperty", Gaudi::Utils::toString( 21 ) ) ).ignore();
-      joSvc->addPropertyToCatalogue( "MyPackageAlg",
-                                     StringProperty( "MyTool", "MyPackageTool/AnotherName" ) ).ignore();
-      joSvc->addPropertyToCatalogue( "MyPackageAlg.AnotherName",
-                                     StringProperty( "Property", Gaudi::Utils::toString( 42.0 ) ) ).ignore();
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc( "JobOptionsSvc",
+                                                           "MyPackageAlgTest" );
+      joSvc->set( "MyPackageAlg.MyProperty", Gaudi::Utils::toString( 21 ) );
+      joSvc->set( "MyPackageAlg.MyTool", "MyPackageTool/AnotherName" );
+      joSvc->set( "MyPackageAlg.AnotherName.Property", Gaudi::Utils::toString( 42.0 ) );
       IAlgorithm* ialg= Algorithm::Factory::create( "MyPackageAlg",
                                                     "MyPackageAlg",
                                                     Gaudi::svcLocator() ).release();

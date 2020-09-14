@@ -6,6 +6,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect.h"

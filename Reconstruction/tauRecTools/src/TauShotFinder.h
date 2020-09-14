@@ -22,7 +22,6 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer) const override;
-    virtual StatusCode finalize() override;
 
 private:
 

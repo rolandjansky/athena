@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 
@@ -82,7 +82,7 @@ def cvfClusterSequence(dummyFlags, RoIs, **recoDict):
             LCCaloClusterRecoSequence, flags=None, RoIs=RoIs
         )
     else:
-        raise ValueError(f"Unsupported calib state {calib} requested!")
+        raise ValueError("Unsupported calib state {} requested!".format(calib))
 
     trkopt = "ftf"
     trackSeq, trackColls = RecoFragmentsPool.retrieve(
@@ -96,7 +96,7 @@ def cvfClusterSequence(dummyFlags, RoIs, **recoDict):
 
     cvfAlg = RecoFragmentsPool.retrieve(
         HLT__MET__CVFAlg,
-        f"{calib}{trkopt}ClusterCVFAlg",
+        "{}{}ClusterCVFAlg".format(calib, trkopt),
         InputClusterKey=clusterName,
         InputTrackKey=tracks,
         InputVertexKey=vertices,

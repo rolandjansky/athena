@@ -4,7 +4,6 @@
 
 #include "MDT_RawDataProviderToolCore.h"
 #include "MuonRDO/MdtCsmContainer.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 

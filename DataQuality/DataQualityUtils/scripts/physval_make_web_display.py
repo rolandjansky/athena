@@ -27,6 +27,10 @@ worst = DQAlgorithm(id='WorstCaseSummary',libname='libdqm_summaries.so')
 algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF', 1),
                        DQAlgorithmParameter('RepeatAlgorithm--ResultsNEntries', 1)]
 
+# this will be used if no references are provided
+norefalgorithm = DQAlgorithm(id='GatherData',
+                             libname='libdqm_algorithms.so')
+
 # Edit this to change thresholds
 thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
 
@@ -58,11 +62,7 @@ def recurse(rdir, dqregion, ignorepath, modelrefs=[], displaystring='Draw=PE', d
             elif regex:
                 if not regex.match(name): continue
             dqpargs = { 'id' : ('' if fpath else 'top_level/') + name,
-                        'algorithm': repeatalgorithm,
                         'inputdatasource': (startpath + '/' if startpath else '') + name,
-                        'algorithmparameters': algorithmparameters,
-                        #'thresholds': chi2thresh,
-                        'thresholds': thresh,
                         }
             if modelrefs:
                 lnewrefs = []
@@ -70,7 +70,13 @@ def recurse(rdir, dqregion, ignorepath, modelrefs=[], displaystring='Draw=PE', d
                     newref = DQReference(manglefunc(mref.getReference().replace('same_name', (startpath + '/' if startpath else '') + name), mref.id))
                     newref.addAnnotation('info', mref.id)
                     lnewrefs.append(newref)
-                dqpargs['references'] = lnewrefs
+                dqpargs.update({'algorithm': repeatalgorithm,
+                                'algorithmparameters': algorithmparameters,
+                                'thresholds': thresh,
+                                'references': lnewrefs
+                                })
+            else:
+                dqpargs['algorithm'] = norefalgorithm
             dqpar = dqregion.newDQParameter( **dqpargs)
             drawstrs = []
             if not options.normalize: drawstrs.append('NoNorm')

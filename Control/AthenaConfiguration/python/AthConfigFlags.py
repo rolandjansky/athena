@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -11,24 +11,32 @@ class CfgFlag(object):
     def __init__(self,default):
         if default is None:
             raise RuntimeError("Default value of a flag must not be None")
-        if callable(default):
-            self._value=None
-            self._setDef=default
-        else:
-            self._value=default
-            self._setDef=None
+        self.set(default)
         return
 
 
     def set(self,value):
-        self._value=value
+        if callable(value):
+            self._value=None
+            self._setDef=value
+        else:
+            self._value=value
+            self._setDef=None
         return
 
     def get(self,flagdict=None):
-        if self._value is None:
-            #Have to call the method to obtain the default value
+        if self._value is not None:
+            return deepcopy(self._value)
+
+        #Have to call the method to obtain the default value, and then reuse it in all next accesses
+        if flagdict.locked():
+            # optimise future reads, drop possibility to update this flag ever
             self._value=self._setDef(flagdict)
-        return deepcopy(self._value)
+            self._setDef=None
+            return deepcopy(self._value)
+        else:
+            #use function for as long as the flags are not locked
+            return deepcopy(self._setDef(flagdict))
 
     def __repr__(self):
         if self._value is not None:
@@ -525,6 +533,21 @@ class TestOverwriteFlags(TestFlagsSetupDynamic):
         copyf.dump()
         print("")
 
+class TestDynamicDependentFlags(unittest.TestCase):
+    def runTest(self):
+        print("""... Check if dynamic dependent flags work""")
+        flags = AthConfigFlags()
+        flags.addFlag("A", True)
+        flags.addFlag("B", lambda prevFlags: 3 if prevFlags.A is True else 10 )
+        flags.addFlag("C", lambda prevFlags: 'A' if prevFlags.A is True else 'B' )
+        assert flags.B == 3
+        flags.A = False
+        assert flags.B == 10
+        flags.A = True
+        flags.lock()
+        assert flags.C == 'A'
+        print("")
+
 class flagsFromArgsTest(unittest.TestCase):
     def setUp(self):
         self.flags = AthConfigFlags()
@@ -558,5 +581,6 @@ if __name__ == "__main__":
     suite.addTest(TestDynamicFlagsRead())
     suite.addTest(TestDynamicFlagsSet())
     suite.addTest(TestOverwriteFlags())
+    suite.addTest(TestDynamicDependentFlags())
     runner = unittest.TextTestRunner(failfast=False)
     runner.run(suite)

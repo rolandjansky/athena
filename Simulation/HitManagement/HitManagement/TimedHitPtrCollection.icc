@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -36,7 +36,7 @@ TimedHitPtrCollection<HIT>::insert(float evtTime,
   ///returns an iterator range with the hits of current detector element
 template <class HIT> 
 bool 
-TimedHitPtrCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterator& e) const {
+TimedHitPtrCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterator& e) {
   if (!m_sorted) sortVector();
   b = m_currentHit;
   while (m_currentHit != m_hits.end() && !(*b < *m_currentHit)) ++m_currentHit;
@@ -46,7 +46,7 @@ TimedHitPtrCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterato
  
 template <class HIT>
 void 
-TimedHitPtrCollection<HIT>::sortVector() const {
+TimedHitPtrCollection<HIT>::sortVector() {
   std::stable_sort(m_hits.begin(), m_hits.end());
   m_currentHit = m_hits.begin();
   m_sorted=true;

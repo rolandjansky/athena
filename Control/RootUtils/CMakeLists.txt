@@ -6,7 +6,7 @@ atlas_subdir( RootUtils )
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( Python COMPONENTS Development )
-find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore pthread )
+find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore ROOTTPython)
 string( REPLACE PyROOT Core ROOT_LIBRARIES_NOPYROOT "${ROOT_LIBRARIES}" )
 
 # Component(s) in the package:

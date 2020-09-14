@@ -101,7 +101,7 @@ public:
   double sinphi = (c.cross(uMum1TV)).dot(d);
   double cosphi = c.dot(d);
   // 3.3 Now get chi = angle between the 2 decay planes
-  m_chi = atan2(sinphi,cosphi);
+  m_chi = std::atan2(sinphi,cosphi);
   // 3.4 Put chi in [0;2pi]
   if ( m_chi < 0 )
   {
@@ -109,16 +109,16 @@ public:
   }
   
   // 4. Transversity angles
-  double cosThetaTr = sin ( m_theta2 ) * sin ( m_chi ) ;
-  double sinThetaTr = sqrt ( 1. - cosThetaTr * cosThetaTr ) ; 
-  double cosPhiTr = cos(m_theta2) / sinThetaTr ;
-  double sinPhiTr = sin(m_theta2) * cos( m_chi ) / sinThetaTr ;
-  m_phitr   = atan2 ( sinPhiTr, cosPhiTr ) ;
+  double cosThetaTr = std::sin ( m_theta2 ) * std::sin ( m_chi ) ;
+  double sinThetaTr = std::sqrt ( 1. - cosThetaTr * cosThetaTr ) ; 
+  double cosPhiTr = std::cos(m_theta2) / sinThetaTr ;
+  double sinPhiTr = std::sin(m_theta2) * std::cos( m_chi ) / sinThetaTr ;
+  m_phitr   = std::atan2 ( sinPhiTr, cosPhiTr ) ;
   if (m_phitr < 0) 
   {
     m_phitr = 2.*M_PI + m_phitr;
   }
-  m_thetatr = acos(cosThetaTr) ;
+  m_thetatr = std::acos(cosThetaTr) ;
   
   
   	

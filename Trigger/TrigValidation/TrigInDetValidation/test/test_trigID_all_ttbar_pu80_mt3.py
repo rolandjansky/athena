@@ -103,11 +103,11 @@ comp6=TrigInDetCompStep('Comp_EFtau','EF','tau')
 comp6.test='ttbar'
 test.check_steps.append(comp6)
 
-comp7=TrigInDetCompStep('Comp_L2ele','L2','ele')
+comp7=TrigInDetCompStep('Comp_L2ele','L2','electron')
 comp7.test='ttbar'
 test.check_steps.append(comp7)
 
-comp8=TrigInDetCompStep('Comp_EFele','EF','ele')
+comp8=TrigInDetCompStep('Comp_EFele','EF','electron')
 comp8.test='ttbar'
 test.check_steps.append(comp8)
 

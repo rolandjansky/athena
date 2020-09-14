@@ -8,7 +8,6 @@
 #include <AFP_RawEv/AFP_SiRawData.h>
 #include <AFP_RawEv/AFP_RawContainer.h>
 
-#include <GaudiKernel/IJobOptionsSvc.h>
 #include <GaudiKernel/MsgStream.h>
 #include <GaudiKernel/StatusCode.h>
 #include <AthenaMonitoring/AthenaMonManager.h>

@@ -259,7 +259,7 @@ void TruthJetWeightFilter::getLeadTruthParts(const CLHEP::HepLorentzVector& jet,
       if (jet.deltaR(genpart) > 0.4) continue;
 
       // No muons in "leading particle for energy deposition"
-      if (abs(pdgid) != 13) {
+      if (std::abs(pdgid) != 13) {
         if (genpart.perp() > lead.perp()) {
           sublead = lead;
           lead = genpart;
@@ -272,8 +272,8 @@ void TruthJetWeightFilter::getLeadTruthParts(const CLHEP::HepLorentzVector& jet,
       // Leave muons in, only consider particles with ctau >~1m and charge.
       // A couple of strange charmed baryons with ctau=2~4cm are also not taken...
       if (genpart.perp() > leadchg.perp() &&
-          (abs(pdgid) == 11 || abs(pdgid) == 13 ||
-           abs(pdgid) == 211 || abs(pdgid) == 321 || abs(pdgid) == 2212)) leadchg = genpart;
+          (std::abs(pdgid) == 11 || std::abs(pdgid) == 13 ||
+           std::abs(pdgid) == 211 || std::abs(pdgid) == 321 || std::abs(pdgid) == 2212)) leadchg = genpart;
 
       // Fixed threshold sums
       if (genpart.perp() > 5*Gaudi::Units::GeV) highm5 += genpart;
@@ -345,19 +345,19 @@ CLHEP::HepLorentzVector TruthJetWeightFilter::getJetSubcomponent(const CLHEP::He
       switch (idcomp) {
       case 1:
         // e-gamma components
-        if (abs(pdgid) != 11 && abs(pdgid) != 22) continue;
+        if (std::abs(pdgid) != 11 && abs(pdgid) != 22) continue;
         break;
       case 2:
         // All hadrons
-        if (abs(pdgid) <= 100) continue;
+        if (std::abs(pdgid) <= 100) continue;
         break;
       case 3:
         // K0s
-        if (abs(pdgid) != 310) continue;
+        if (std::abs(pdgid) != 310) continue;
         break;
       case 4:
         // Longer-lived Kaons
-        if (abs(pdgid) != 130 && abs(pdgid) != 321) continue;
+        if (std::abs(pdgid) != 130 && abs(pdgid) != 321) continue;
         break;
       default:
         continue;

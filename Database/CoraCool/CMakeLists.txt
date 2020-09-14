@@ -22,7 +22,7 @@ atlas_add_library( CoraCool
                    src/CoraCoolObjectIter.cxx
                    PUBLIC_HEADERS CoraCool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} )
+                   LINK_LIBRARIES CxxUtils ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES} )
                    
 atlas_add_test  ( CoraCoolDatabaseSvcFactory_test
                   SOURCES

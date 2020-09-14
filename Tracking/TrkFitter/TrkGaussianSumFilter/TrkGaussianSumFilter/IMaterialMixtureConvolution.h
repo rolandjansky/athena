@@ -15,8 +15,8 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 namespace Trk {
 class Layer;
@@ -38,7 +38,7 @@ public:
 
   //!< Convolution with full material properties
   virtual MultiComponentState update(
-    std::vector<Trk::IMultiStateMaterialEffects::Cache>&, 
+    std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
     const MultiComponentState&,
     const Layer&,
     PropDirection direction = anyDirection,

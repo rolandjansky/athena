@@ -26,7 +26,6 @@
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IIoComponentMgr.h"
@@ -139,14 +138,14 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
   ATH_CHECK( m_jobOptionsSvc.retrieve() );
-  const Gaudi::Details::PropertyBase* prop = m_jobOptionsSvc->getClientProperty("EventDataSvc","NSlots");
-  if (prop)
-    ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << prop->toString());
+  const std::string& slots = m_jobOptionsSvc->get("EventDataSvc.NSlots");
+  if (!slots.empty())
+    ATH_MSG_INFO(" ---> NumConcurrentEvents     = " << slots);
   else
     ATH_MSG_WARNING("Failed to retrieve the job property EventDataSvc.NSlots");
-  prop = m_jobOptionsSvc->getClientProperty("AvalancheSchedulerSvc","ThreadPoolSize");
-  if (prop)
-    ATH_MSG_INFO(" ---> NumThreads              = " << prop->toString());
+  const std::string& threads = m_jobOptionsSvc->get("AvalancheSchedulerSvc.ThreadPoolSize");
+  if (!threads.empty())
+    ATH_MSG_INFO(" ---> NumThreads              = " << threads);
   else
    ATH_MSG_WARNING("Failed to retrieve the job property AvalancheSchedulerSvc.ThreadPoolSize");
 
@@ -754,9 +753,8 @@ StatusCode HltEventLoopMgr::executeEvent(EventContext &&ctx)
 void HltEventLoopMgr::updateDFProps()
 {
   auto getDFProp = [&](const std::string& name, std::string& value, bool required = true) {
-                     const auto* prop = m_jobOptionsSvc->getClientProperty("DataFlowConfig", name);
-                     if (prop) {
-                       value = prop->toString();
+                     if (m_jobOptionsSvc->has("DataFlowConfig."+name)) {
+                       value = m_jobOptionsSvc->get("DataFlowConfig."+name);
                        ATH_MSG_INFO(" ---> Read from DataFlow configuration: " << name << " = " << value);
                      } else {
                        msg() << (required ? MSG::WARNING : MSG::INFO)

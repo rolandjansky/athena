@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BTagging_v1.h 797330 2017-02-15 14:25:13Z guirriec $
@@ -300,14 +300,14 @@ namespace xAOD {
     /// @}
 
     ///@name xAOD::BTagging helper for ElementLink Persistification
-    void toPersistent  ATLAS_NOT_REENTRANT ();
+    void toPersistent();
 
-    void setDynTPELName ATLAS_NOT_REENTRANT (const std::string &taggername,
-			const std::string &variablename);
-    void setDynVxELName ATLAS_NOT_REENTRANT (const std::string &taggername,
-			const std::string &variablename);
-    void setDynBTagVxELName ATLAS_NOT_REENTRANT (const std::string &taggername,
-			    const std::string &variablename);
+    void setDynTPELName (const std::string &taggername,
+                         const std::string &variablename);
+    void setDynVxELName (const std::string &taggername,
+                         const std::string &variablename);
+    void setDynBTagVxELName (const std::string &taggername,
+                             const std::string &variablename);
 
 
   }; // class BTagging

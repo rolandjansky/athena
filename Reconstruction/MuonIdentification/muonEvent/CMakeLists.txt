@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( muonEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Control/AthLinks
-                          Event/FourMom
-                          Event/NavFourMom
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          Reconstruction/Particle
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkSegment
-                          PRIVATE
-                          Control/Navigation
-                          GaudiKernel
-                          Tracking/TrkEvent/VxVertex )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

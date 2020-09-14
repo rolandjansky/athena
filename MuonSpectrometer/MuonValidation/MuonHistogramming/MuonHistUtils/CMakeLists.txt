@@ -5,25 +5,10 @@
 # Declare the package name:
 atlas_subdir( MuonHistUtils )
 
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_ANALYSIS )
-    set( extra_dep Tracking/TrkEvent/TrkEventPrimitives )
     set( extra_libs TrkEventPrimitives )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTrigMuon
-                          Event/xAOD/xAODTrigger
-                          Event/xAOD/xAODTruth
-                          Tracking/TrkValidation/TrkValHistUtils
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonStationIndex
-                          ${extra_deps} )
 
 # External dependencies:
 find_package( Eigen )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCoralClientUtils/PCDio.h"
@@ -35,9 +35,6 @@
 #include <set>
 #include <sys/time.h>
 using namespace std;
-
-// buffer for c-like format
-static char buf[256];
 
 //---------------------------------------------------------------------------
 /** Constructor.
@@ -123,7 +120,7 @@ void PCDio::load(string tag, int revision)
   query->addToOutputList("FK");
 
   // construct query condition
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok.
   string pixel_cond = m_pixeltable+".TAG = :tag";
   pixel_condData.extend<string>("tag");
   pixel_condData[0].data<string>() = tag;
@@ -144,7 +141,8 @@ void PCDio::load(string tag, int revision)
     if (m_verbose) {
       //time_t timet = GMTtoLocalTime(row0[3].data<time_t>());
       time_t timet = row0[3].data<time_t>();
-      string time = ctime(&timet);
+      char buf[32];
+      string time = ctime_r(&timet, buf);
       cout << "  TAG = " << row0[0].data<string>() 
 	   << "  REVISION = " << row0[1].data<int>()
 	   << "  SOURCES = " << row0[2].data<string>()
@@ -187,7 +185,7 @@ void PCDio::load(string tag, int revision)
 
 	// Second query to get entries in each table
 	string pixel_cond_2 = (*tName)+".FK = :fk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>("fk");
 	pixel_condData_2[0].data<long long>() = row0[4].data<long long>();
 	query_2->setCondition( pixel_cond_2, pixel_condData_2);
@@ -297,7 +295,7 @@ void PCDio::save(string tag, int revision, string sources)
   // fill header
   coral::ITableDataEditor& pixel_editor = m_session->nominalSchema().tableHandle(m_pixeltable ).dataEditor();
 
-  coral::AttributeList pixel_row;
+  coral::AttributeList pixel_row ATLAS_THREAD_SAFE; // Not shared, ok.
   pixel_row.extend<std::string>("TAG");
   pixel_row.extend<int>("REVISION");
   pixel_row.extend<std::string>("SOURCES");
@@ -317,7 +315,7 @@ void PCDio::save(string tag, int revision, string sources)
   transactionStartUpdate();
   {
     coral::ITableDataEditor& pixel_editor_2 = m_session->nominalSchema().tableHandle(m_pixeltable+"_PCD").dataEditor();
-    coral::AttributeList pixel_row_2;
+    coral::AttributeList pixel_row_2 ATLAS_THREAD_SAFE; // Not shared, ok
     pixel_editor_2.rowBuffer(pixel_row_2);
     int mysize = 1;
     coral::IBulkOperation* pixel_bulk_2= pixel_editor_2.bulkInsert(pixel_row_2,mysize);
@@ -339,6 +337,7 @@ void PCDio::save(string tag, int revision, string sources)
 	int idchip; in >> idchip;
 	if (idchip!=i) { ok = false; break; }
 
+        char buf[256];
 	int thres, sigma, noise, timewalk;
 	in >> thres >> sigma >> noise >> timewalk;
 	sprintf(buf,"THRESHOLD1I%d",i);
@@ -455,6 +454,7 @@ void PCDio::createDataTable()
     pixel_columns.setName(PIXEL_TABLE_DATA);
     pixel_columns.insertColumn("FK", coral::AttributeSpecification::typeNameForType<long long>());
     pixel_columns.insertColumn("IDMOD",coral::AttributeSpecification::typeNameForType<int>());
+    char buf[256];
     for (int i = 0; i<16; ++i) {
       for (int j = 1; j<=4; ++j) {
 	sprintf(buf,"THRESHOLD%dI%d",j,i);
@@ -507,7 +507,7 @@ void PCDio::createAuxTables()
     m_session->nominalSchema().createTable( key_columns );
     // fill the first key
     coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
-    coral::AttributeList rowBuffer;
+    coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, ok
     rowBuffer.extend<long long>( "KEY" );
     long long& key = rowBuffer[ "KEY" ].data<long long>();
     key = 1000;
@@ -525,7 +525,7 @@ long long PCDio::updateKey()
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
   std::string updateAction = "KEY = KEY + :offset";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, ok
   updateData.extend<long long>("offset");
   updateData[0].data<long long>() = 1;
   keyeditor.updateRows( updateAction, "", updateData );

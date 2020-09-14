@@ -6,7 +6,6 @@
 #include "CentralScrutinizer.h"  
 
 #ifndef BUILDVP1LIGHT
-    #include "GeoModelInterfaces/AbsMaterialManager.h"
     #include "StoreGate/StoreGateSvc.h"
     #include "StoreGate/DataHandle.h"
     #include "GeoModelInterfaces/StoredMaterialManager.h"

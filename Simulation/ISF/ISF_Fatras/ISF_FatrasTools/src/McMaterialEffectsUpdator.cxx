@@ -1839,8 +1839,8 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
   double mass = m_particleMasses.mass[particle];
   double p = parm.momentum().mag();
   /*double E = sqrt( p*p + mass*mass);*/
-  Amg::Vector3D position=parm.position();
-  Amg::Vector3D momentum=parm.momentum();
+  const Amg::Vector3D& position=parm.position();
+  const Amg::Vector3D& momentum=parm.momentum();
 
   if ( process == 5 ) {     // positron annihilation
 

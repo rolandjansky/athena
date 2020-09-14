@@ -27,7 +27,7 @@ namespace TruthHelper {
     HepMC::GenVertex::particle_iterator child = part->end_vertex()->particles_begin(HepMC::children);
     HepMC::GenVertex::particle_iterator childE = part->end_vertex()->particles_end(HepMC::children);
     for (; child != childE; ++child) {
-      if (abs((*child)->pdg_id()) != 11) return false;
+      if (std::abs((*child)->pdg_id()) != 11) return false;
       mult *= (*child)->pdg_id();
     }
 #endif

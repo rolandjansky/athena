@@ -326,8 +326,8 @@ StatusCode TileHitVecToCntTool::prepareEvent(const EventContext& ctx, unsigned i
 
   ATH_MSG_DEBUG("TileHitVecToCntTool prepareEvent finished");
 
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), ctx );
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
 
   return StatusCode::SUCCESS;
 }
@@ -712,7 +712,7 @@ StatusCode TileHitVecToCntTool::processBunchXing(int bunchXing
   ATH_MSG_DEBUG("Inside TileHitVecToCntTool processBunchXing" << bunchXing);
   //  setFilterPassed(true);
 
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(Gaudi::Hive::currentContext());
 
   SubEventIterator iEvt(bSubEvents);
@@ -786,7 +786,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents(const EventContext& ctx) {
   int nHit(0);
   double eHitTot(0.0);
 
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
   rngWrapper->setSeed( name(), ctx );
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
@@ -933,7 +933,7 @@ StatusCode TileHitVecToCntTool::mergeEvent(const EventContext& ctx) {
   //loop over all hits in TileHitContainer and take energy deposited in certain period of time
   //std::vector<std::string>::const_iterator hitVecNamesEnd = m_hitVectorNames.end();
 
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
   CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
   
   TileHitNonConstContainer::iterator collIt_DigiHSTruth; 

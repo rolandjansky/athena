@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackToVertexAssociator.cxx 
@@ -34,8 +34,8 @@ Reco::TrackToVertexAssociator::TrackToVertexAssociator( const std::string& type,
   m_incidentSvc("IncidentSvc", name),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_primaryVertexContainer("VxPrimaryVertices"),
-  m_primaryVertices(0),
-  m_beamLine(0),
+  m_primaryVertices(nullptr),
+  m_beamLine(nullptr),
   m_particleHypo(2),
   m_cut(0)
 {
@@ -89,7 +89,7 @@ void Reco::TrackToVertexAssociator::handle(const Incident& inc) {
 const std::vector<Reco::TrackToVertexAssociation>* Reco::TrackToVertexAssociator::associateTrack(const Trk::TrackParticleBase& /*particle*/) const
 {
   ATH_MSG_WARNING("Method not implemented");
-  return 0;
+  return nullptr;
   //return runAssociation<Trk::TrackParticleBase>(particle);
 }
 
@@ -110,7 +110,7 @@ const std::vector<Reco::TrackToVertexAssociation>* Reco::TrackToVertexAssociator
 const std::vector<Reco::TrackToVertexAssociation>* Reco::TrackToVertexAssociator::associateTrack(const Trk::NeutralParameters& /*particle*/) const
 {
   ATH_MSG_WARNING("Method not implemented");
-  return 0;
+  return nullptr;
   //return runAssociation<Trk::NeutralParameters>(particle);
 }
 
@@ -118,9 +118,9 @@ StatusCode Reco::TrackToVertexAssociator::cleanCache() const
 {
   // clean out what you have
   // delete the beam line
-  delete m_beamLine; m_beamLine = 0;
+  delete m_beamLine; m_beamLine = nullptr;
   // set primary vertices to 0 - memory handled by storegate
-  m_primaryVertices        = 0;
+  m_primaryVertices        = nullptr;
   m_primaryVerticesWoDummy.clear();
   m_primaryVerticesBLFrame.clear(); 
   // return SUCCESS
@@ -136,7 +136,7 @@ StatusCode Reco::TrackToVertexAssociator::updateCache() const
   }
   
 
-  delete m_beamLine; m_beamLine = 0;
+  delete m_beamLine; m_beamLine = nullptr;
 
   // get the transform
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };

@@ -3,17 +3,15 @@
 #
 # $Id: SimplePOSIXTimeKeeperSvc_test.py,v 1.4 2007-11-07 18:54:46 calaf Exp $
 
-from gaudimodule import PyAlgorithm
-class WasteTimeAlg(PyAlgorithm):
+from AthenaPython.PyAthena import Alg
+class WasteTimeAlg(Alg):
     def execute(self):
         printfunc ("waste some time")
         for i in range(200000) :
             foo = i*i/(i+1)/(i+2)
         return 1
 
-waste=WasteTimeAlg()
-import ROOT
-ROOT.SetOwnership(waste,0)
+waste=WasteTimeAlg("TimeWaster")
 
 include( "AthenaServices/SimplePOSIXTimeKeeperOptions.py" )
 
@@ -21,7 +19,7 @@ include( "AthenaServices/SimplePOSIXTimeKeeperOptions.py" )
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Configurable import ConfigurablePyAlgorithm
 top = AlgSequence()
-top += ConfigurablePyAlgorithm('WasteTimeAlg')
+top += waste 
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaServices.AthenaServicesConf import SimplePOSIXTimeKeeperSvc,AthenaEventLoopMgr

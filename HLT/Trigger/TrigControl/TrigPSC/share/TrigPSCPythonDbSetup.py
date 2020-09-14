@@ -39,17 +39,12 @@ from GaudiPython import *
 from GaudiPython.Bindings import iProperty
 from TrigCommon.TrigPyHelper import trigApp
 
-## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaMT/PT
+## Set OutputLevel in JobOptionsSvc if "-l" option was used in athenaHLT
 if logLevel!="INFO":
    outputLevel = int(locals()[logLevel])
 
    trigApp.service("MessageSvc", gbl.IMessageSvc).setOutputLevel(outputLevel)
-   jobOptSvc = trigApp.service("JobOptionsSvc", gbl.IJobOptionsSvc)
-   ## Set OutputLevel in JobOptionsSvc
-   for client in jobOptSvc.getClients():
-      for prop in jobOptSvc.getProperties(client):
-         if prop.name()=="OutputLevel":
-            iProperty(client).OutputLevel = outputLevel
+   trigApp.changeJobProperties('.*', 'OutputLevel', str(locals()[logLevel]))
 
 ## For running with offline THistSvc from online DB
 from TrigServices.TriggerUnixStandardSetup import _Conf

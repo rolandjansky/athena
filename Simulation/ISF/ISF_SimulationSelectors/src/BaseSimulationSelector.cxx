@@ -11,7 +11,7 @@
 /** Constructor with parameters */
 ISF::BaseSimulationSelector::BaseSimulationSelector(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_simulator("DefaultSimulator", name),
+  m_simulator("", name),
   m_isDynamic(false),
   m_invertCuts(false)
 {
@@ -44,7 +44,10 @@ void ISF::BaseSimulationSelector::SimulationFlavorHandler(Gaudi::Details::Proper
 StatusCode ISF::BaseSimulationSelector::sysInitialize()
 {
   ATH_CHECK( AthAlgTool::sysInitialize() );
-  ATH_CHECK( m_simulator.retrieve() );
+
+  if (!m_simulator.empty()) {
+    ATH_CHECK( m_simulator.retrieve() );
+  }
 
   return StatusCode::SUCCESS;
 }

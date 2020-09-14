@@ -53,7 +53,7 @@ def PixelOverlayAlgCfg(flags, name="PixelOverlay", **kwargs):
 
         if flags.Overlay.DataOverlay:
             acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
-                "InDetBSErrContainer#PixelByteStreamErrs"
+                "IDCInDetBSErrContainer#PixelByteStreamErrs"
             ]))
 
     if flags.Output.doWriteRDO_SGNL:

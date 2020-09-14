@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  TopoSteering.cxx
-//  Framework to execute simulation algorithms
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoInterfaces/AlgFactory.h" 
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
-
 
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
@@ -46,8 +41,6 @@ TopoSteering::~TopoSteering() {
    AlgFactory::destroy_instance();
 }
 
-
-
 StatusCode
 TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu& menu) {
    
@@ -63,14 +56,8 @@ TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu& menu) {
    return sc;
 }
 
-
-
 StatusCode
 TopoSteering::reset() {
-
-   inputEvent().clear();
-
-   m_structure.reset();
 
    ClusterTOB::clearHeap();
    JetTOB::clearHeap();
@@ -80,6 +67,10 @@ TopoSteering::reset() {
    MetTOB::clearHeap();
    GenericTOB::clearHeap();
    CompositeTOB::clearHeap();
+
+   inputEvent().clear();
+
+   m_structure.reset();
 
    m_simulationResult.reset();
    
@@ -141,7 +132,6 @@ TopoSteering::executeEvent() {
       TCS_EXCEPTION("L1Topo Steering has not been configured, can't run");
    }
 
-   TRG_MSG_INFO("LateMuonTOB::heap().size = "<<LateMuonTOB::heap().size());
    inputEvent().print();
 
    // execute all connectors
@@ -176,10 +166,6 @@ TopoSteering::executeTrigger(const std::string & TrigName) {
 
    return sc;
 }
-
-
-
-
 
 
 StatusCode
@@ -375,15 +361,14 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
 }
 
 
-
 void
 TopoSteering::printDebugInfo() {
-   TRG_MSG_INFO("Number of ClusterTOB  : " << ClusterTOB::instances() << " (" << ClusterTOB::heap().size() << " on the heap)");
-   TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::instances() <<  " (" << JetTOB::heap().size() << " on the heap)");
-   TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::instances() <<  " (" << GenericTOB::heap().size() << " on the heap)");
-   TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::instances() <<  " (" << CompositeTOB::heap().size() << " on the heap)");
-   TRG_MSG_INFO("Number of MuonTOB     : " << MuonTOB::instances() <<  " (" << MuonTOB::heap().size() << " on the heap)");
-   TRG_MSG_INFO("Number of LateMuonTOB : " << LateMuonTOB::instances() <<  " (" << LateMuonTOB::heap().size() << " on the heap)");
+   TRG_MSG_INFO("Number of ClusterTOB  : " << ClusterTOB::heap().size());
+   TRG_MSG_INFO("Number of JetTOB      : " << JetTOB::heap().size());
+   TRG_MSG_INFO("Number of GenericTOB  : " << GenericTOB::heap().size());
+   TRG_MSG_INFO("Number of CompositeTOB: " << CompositeTOB::heap().size());
+   TRG_MSG_INFO("Number of MuonTOB     : " << MuonTOB::heap().size());
+   TRG_MSG_INFO("Number of LateMuonTOB : " << LateMuonTOB::heap().size());
 }
 
 
