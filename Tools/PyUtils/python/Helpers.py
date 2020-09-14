@@ -10,34 +10,47 @@ import os
 
 from AthenaCommon.Logging import log
 
-def ROOT6Setup():
+def ROOT6Setup(batch=False):
    log.info('executing ROOT6Setup')
    import builtins as builtin_mod
    oldimporthook = builtin_mod.__import__
    autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
-   
-   def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
-       if level < 0: level = 0
+   batch_mode = bool(batch)
+
+   def root6_importhook(name, globals={}, locals={}, fromlist=[], level=0):
+       nonlocal batch_mode
+       isroot = False
+       bm = batch_mode
+       if name=='ROOT' or (name[0:4]=='ROOT' and name!='ROOT.pythonization'):
+          isroot = True
+          batch_mode = None  # only set it on first ROOT import
+
        m = oldimporthook(name, globals, locals, fromlist, level)
-       if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
-          log.debug('Python import module=%s  fromlist=%s', name, str(fromlist))
+
+       if m and isroot:
+          log.debug('Python import module=%s, fromlist=%s', name, fromlist)
+          if bm is not None:
+             log.debug('Setting ROOT batch mode to %s', bm)
+             m.gROOT.SetBatch(bm)
+
           if fromlist:
-             #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
+             # in this case 'm' is the final nested module already, don't walk the full 'name'
              vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
           else:
              vars = [ '.'.join([name, autoload_var_name]) ]
+
           for v in vars:
              try:
                 mm = m
-                #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
+                # walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
                 for comp in v.split('.')[1:]:
                    mm = getattr(mm, comp)
              except Exception:
                 pass
+
        return m
-   
+
    builtin_mod.__import__ = root6_importhook
-      
 
 
 import re
