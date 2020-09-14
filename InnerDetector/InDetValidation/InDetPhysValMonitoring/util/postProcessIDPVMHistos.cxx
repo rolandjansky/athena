@@ -165,6 +165,7 @@ int pproc_file(const std::string & p_infile) {
 
 
 int main(int argc, char* argv[]) {
+
   if (argc !=2){
     std::cerr<<" Usage: postProcessIDPVMHistos <File to post-process>"<<std::endl;
     std::cerr<< "    where the file is typically obtained by hadding" << std::endl;
@@ -179,4 +180,5 @@ int main(int argc, char* argv[]) {
   }
   std::cout << " Post-processing file " << infile << "\n" << std::endl;
   return pproc_file(infile);
+
 }
