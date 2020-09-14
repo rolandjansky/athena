@@ -4,27 +4,20 @@
 # @date:   March 2007
 #
 #
-from __future__ import with_statement, print_function
-
-__author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
 import os
-import six
 
 from AthenaCommon.Logging import log
 
 def ROOT6Setup():
    log.info('executing ROOT6Setup')
-   if six.PY3:
-      import builtins as builtin_mod
-   else:
-      import __builtin__ as builtin_mod
+   import builtins as builtin_mod
    oldimporthook = builtin_mod.__import__
    autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
    
    def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
-       if six.PY3 and level < 0: level = 0
+       if level < 0: level = 0
        m = oldimporthook(name, globals, locals, fromlist, level)
        if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
           log.debug('Python import module=%s  fromlist=%s', name, str(fromlist))
@@ -111,8 +104,7 @@ class ShutUp(object):
     def __filterRootMessages(self, fd):
         fd.seek(0)
         for l in fd.readlines():
-            if six.PY3:
-               l = l.decode()
+            l = l.decode()
             printOut = True
             for filter in self.filters:
                 if re.match(filter, l):
