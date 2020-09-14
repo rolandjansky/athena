@@ -546,6 +546,8 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties(const xAOD::Jet&
     //it is assumed that these are the combined and calibrated mass and pT
     DNN_inputValues["CaloTACombinedMassUncorrelated"] = jet.m();
     DNN_inputValues["JetpTCorrByCombinedMass"] = jet.pt();
+    DNN_inputValues["m"] = jet.m();
+    DNN_inputValues["pt"] = jet.pt();
 
     // Splitting Scales
     DNN_inputValues["Split12"] = jet.getAttribute<float>("Split12");
