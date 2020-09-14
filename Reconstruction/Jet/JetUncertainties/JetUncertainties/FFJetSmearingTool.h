@@ -110,7 +110,7 @@ namespace CP {
             FFJetSmearingTool(const std::string name);      
             virtual ~FFJetSmearingTool();	
 
-            virtual StatusCode initialize();
+            virtual StatusCode initialize() override;
 
 
 
@@ -119,17 +119,17 @@ namespace CP {
             /// @{
 
             /// Specify whether tool is affected by provided systematic
-            virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
+            virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const override;
 
             /// List of all systematics affecting this tool
-            virtual CP::SystematicSet affectingSystematics() const;
+            virtual CP::SystematicSet affectingSystematics() const override;
        
             /// List of all systematics recommended for this tool
-            virtual CP::SystematicSet recommendedSystematics() const;
+            virtual CP::SystematicSet recommendedSystematics() const override;
 
             /// Configure tool to apply systematic variation
             virtual CP::SystematicCode applySystematicVariation
-            (const CP::SystematicSet& systematics);
+            (const CP::SystematicSet& systematics) override;
 
             /// @}
 
@@ -188,13 +188,16 @@ namespace CP {
 
             int m_InfoWarnings;
 
-            typedef std::unordered_map<CP::SystematicSet, CP::SystematicSet> SysFiterMap_t;
-            SysFiterMap_t m_sysFilterMap;
-
+            //The current systematic configuration
+            struct SysData final
+            {
+                std::string SysBaseName {"None"};
+                float SysParameter {0};
+            };
+            std::unordered_map<CP::SystematicSet,SysData> m_sysData;
             /// Points to the current systematic configuration
-            const CP::SystematicSet* m_sysConfig;
-            std::string m_SystName;
-            float m_SysVar;
+            SysData *m_currentSysData{nullptr};
+
 
     }; // Class FFJetSmearingTool
 

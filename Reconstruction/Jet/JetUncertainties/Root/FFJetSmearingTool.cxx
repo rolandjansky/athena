@@ -167,6 +167,8 @@ StatusCode FFJetSmearingTool::initialize()
 
     m_isInit = true;
 
+   // ANA_CHECK (applySystematicVariation (CP::SystematicSet()));
+
     return StatusCode::SUCCESS;
 }
 
@@ -206,11 +208,12 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
 (const CP::SystematicSet& systematics)
 {
     // First check if we already know this systematic configuration.
-    // Look for it in our filter map.
-    auto sysMapItr = m_sysFilterMap.find(systematics);
+    // Look for it in our sysData map.
+    auto iter = m_sysData.find (systematics);
+
 
     // If this is a new input set, we need to filter it.
-    if(sysMapItr == m_sysFilterMap.end()){
+    if(iter == m_sysData.end()){
 
         // Filter the input systematics with my affecting systematics.
         const CP::SystematicSet affectingSysts = affectingSystematics();
@@ -233,19 +236,21 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
             return CP::SystematicCode::Unsupported;
         }
 
-        // Insert the new filtered set onto our filter map
-        sysMapItr = m_sysFilterMap.insert
-        (std::make_pair(systematics, filteredSysts)).first;
 
+
+        // Insert the new systematic data onto our map
+        SysData myData;
+
+        const CP::SystematicVariation& sys = *filteredSysts.begin();
+
+        myData.SysParameter = sys.parameter(); //Up (+1) and Down (-1) systematic variation
+        myData.SysBaseName = sys.basename(); //Name of the systematic variation
+
+        iter = m_sysData.emplace (systematics, myData).first;
     }
 
     // Apply the filtered systematics
-    m_sysConfig = &sysMapItr->second;
-
-    //Get the name of the current systematic
-    const CP::SystematicVariation& sys = *m_sysConfig->begin();
-    m_SystName=sys.basename();
-    m_SysVar = sys.parameter();
+    m_currentSysData = &iter->second;
 
     return CP::SystematicCode::Ok;
 }
@@ -500,20 +505,14 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet jet_reco, double jet_mass_val
     JMS_err=0;
     JMR_err=0;
 
-    // For now, assuming there is only one (affecting) systematic at a time.	
-    if(m_sysConfig->size() != 1){
-        ATH_MSG_ERROR("More than one affecting systematic received. Please, use just one affecting systematic at a time.");
-        return StatusCode::FAILURE;
-    }
-
-    if(m_Syst_MassDefAffected_map[m_SystName] ==  JetTools::enumToString(MassDef_of_syst)){
+    if(m_Syst_MassDefAffected_map[m_currentSysData->SysBaseName] ==  JetTools::enumToString(MassDef_of_syst)){
         ATH_MSG_VERBOSE("This uncertainty affects to the " << JetTools::enumToString(MassDef_of_syst) << " mass");
     } //Only apply the systematic to the proper mass definition
     else{return StatusCode::SUCCESS;}
 
 
 
-    if(m_Syst_TopologyAffected_map[m_SystName] != "All" && m_Syst_TopologyAffected_map[m_SystName] != jetTopology){
+    if(m_Syst_TopologyAffected_map[m_currentSysData->SysBaseName] != "All" && m_Syst_TopologyAffected_map[m_currentSysData->SysBaseName] != jetTopology){
         ATH_MSG_VERBOSE("The systematic do not affects to this jet topology");
         return StatusCode::SUCCESS;
     }
@@ -523,24 +522,24 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet jet_reco, double jet_mass_val
     float jet_pT = jet_reco.pt()/1000.;
 
 
-    if(m_Syst_Affects_JMSorJMR[m_SystName] == "JMS"){
+    if(m_Syst_Affects_JMSorJMR[m_currentSysData->SysBaseName] == "JMS"){
 
-        JMS_err=m_Syst_Hist_map[m_SystName]->GetBinContent(m_Syst_Hist_map[m_SystName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_SystName]->GetYaxis()->FindBin(jet_mass)) * m_SysVar;
+        JMS_err=m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetBinContent(m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
 
         JMR_err= 0;
     }
 
-    if(m_Syst_Affects_JMSorJMR[m_SystName] == "JMR"){
+    if(m_Syst_Affects_JMSorJMR[m_currentSysData->SysBaseName] == "JMR"){
 
         JMS_err=0;
-        JMR_err= m_Syst_Hist_map[m_SystName]->GetBinContent(m_Syst_Hist_map[m_SystName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_SystName]->GetYaxis()->FindBin(jet_mass)) * m_SysVar;
+        JMR_err= m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetBinContent(m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetXaxis()->FindBin(jet_pT),m_Syst_Hist_map[m_currentSysData->SysBaseName]->GetYaxis()->FindBin(jet_mass)) * m_currentSysData->SysParameter;
     }
 
 
 
 
 
-    ATH_MSG_DEBUG("Systematic applied: " << m_SystName);
+    ATH_MSG_DEBUG("Systematic applied: " << m_currentSysData->SysBaseName);
 
     ATH_MSG_VERBOSE("JMS_err: " << JMS_err);
     ATH_MSG_VERBOSE("JMR_err: " << JMR_err);
