@@ -491,10 +491,10 @@ namespace CP {
 
     if(m_currentParameters->SagittaBias != MCAST::SystVariation::Default){
       if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up){
-        p2=0.5*p2;
+        p2=m_IterWeight*p2;
       }
       else if (m_currentParameters->SagittaBias == MCAST::SystVariation::Down){
-        p2=-0.5*p2;
+        p2=-m_IterWeight*p2;
       }
     }
     return p2;
