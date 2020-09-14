@@ -23,6 +23,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 #include "TLorentzVector.h"
 
 #include <string>
@@ -60,6 +62,7 @@ private:
   void addHLTvsOffHistograms();
   void addL1vsOffHistograms();
   void addElMuHistograms();
+  void addClusterHistograms();
   // methods to make filling easier
   void fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1_mey,float l1_mey_log,float l1_met,float l1_met_log,float l1_sumet,float l1_sumet_log,float l1_phi,float saturated);
   void fillL1JetHistograms(float l1_jet_pt,float l1_jet_eta);
@@ -152,6 +155,8 @@ private:
   std::string m_electron_key;
   std::string m_electron_run3_key;
   std::string m_electron_base_trigger;
+  std::string m_cluster_key;
+  std::string m_cluster_run3_key;
 
   double m_muon_pt_thresh;
   double m_electron_pt_thresh;
