@@ -50,6 +50,9 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
 
+  // Flag for overlay -- override "is data" setting in event info
+  declareProperty( "OverrideEventInfo", m_overrideEventInfo = false, "Override setting in event info and just build truth objects");
+
   // container names
   declareProperty( "NewTruthTauContainerName", m_sNewTruthTauContainerName = "TruthTaus");
   declareProperty( "TruthTauContainerName", m_sTruthTauContainerName = "TruthTaus");
@@ -127,8 +130,11 @@ bool BuildTruthTaus::isData()
       return false;
     }
     m_bIsData = xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION)?0:1;
+    if (m_overrideEventInfo && m_bIsData){
+      ATH_MSG_INFO("Truth taus to be built even though event info indicates data");
+    }
   }
-  return m_bIsData>0;
+  return m_bIsData>0 && !m_overrideEventInfo;
 }
 
 StatusCode BuildTruthTaus::retrieveTruthTaus()
