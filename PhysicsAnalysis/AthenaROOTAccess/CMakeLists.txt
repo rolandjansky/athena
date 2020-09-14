@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking )
 
 # External dependencies:
-find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread ROOTTPython)
 
 # Component(s) in the package:
 atlas_generate_reflex_dictionary( dict_cpp AthenaROOTAccess

@@ -130,7 +130,7 @@ namespace Muon {
   }
 
 
-  Trk::Track* MooTrackFitter::refit( const MuPatTrack& trkCan ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::refit( const MuPatTrack& trkCan ) const {
 
     GarbageCan localGarbage;
 
@@ -141,24 +141,20 @@ namespace Muon {
     fitterData.hitList = trkCan.hitList();
 
     // extract hits from hit list and add them to fitterData
-    if( !extractData( fitterData, true ) ) return 0;
+    if( !extractData( fitterData, true ) ) return std::unique_ptr<Trk::Track>();
 
     // create start parameters
     const Trk::Perigee* pp = trkCan.track().perigeeParameters();
-    if( !pp ) return 0;
+    if( !pp ) return std::unique_ptr<Trk::Track>();
     
     // fit track
-    Trk::Track* track = fit(*pp,fitterData.measurements,localGarbage);
+    std::unique_ptr<Trk::Track> track = fit(*pp,fitterData.measurements,localGarbage);
 
     if( track ){
       // clean and evaluate track
       std::set<Identifier> excludedChambers;
       std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
-      if( cleanTrack && !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
-        delete track;
-	//using release until the entire code can be migrated to use smart pointers
-        track = cleanTrack.release();
-      }
+      if( cleanTrack && !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ) track.swap(cleanTrack);
     }else{
       ATH_MSG_DEBUG(" Fit failed " );
     }
@@ -169,7 +165,7 @@ namespace Muon {
   }
 
 
-  Trk::Track* MooTrackFitter::refit( const Trk::Track& track ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::refit( const Trk::Track& track ) const {
 
     if ( msgLvl(MSG::DEBUG) ) {
       const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -182,7 +178,7 @@ namespace Muon {
       msg(MSG::DEBUG) << endmsg;
     }
     // fit track
-    Trk::Track* newTrack = m_trackFitter->fit(track,false,m_ParticleHypothesis);
+    std::unique_ptr<Trk::Track> newTrack(m_trackFitter->fit(track,false,m_ParticleHypothesis));
 
     if( newTrack ){
      
@@ -192,15 +188,10 @@ namespace Muon {
 
       if( cleanTrack ){
         // check whether cleaner returned same track, if not delete old track
-        if( !(*cleanTrack->perigeeParameters() == *newTrack->perigeeParameters()) ){
-          delete newTrack;
-	  //using release until the entire code can be migrated to use smart pointers
-          newTrack = cleanTrack.release();
-        }
+        if( !(*cleanTrack->perigeeParameters() == *newTrack->perigeeParameters()) ) newTrack.swap(cleanTrack);
       }else{
         ATH_MSG_DEBUG(" Refit failed, rejected by cleaner " );
-        delete newTrack;
-        newTrack = 0;
+        newTrack.reset();
       }
     }else{
       ATH_MSG_DEBUG(" Refit failed " );
@@ -210,7 +201,7 @@ namespace Muon {
   }
 
 
-  Trk::Track* MooTrackFitter::fit( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, const PrepVec* externalPhiHits ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::fit( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, const PrepVec* externalPhiHits ) const {
 
     GarbageCan localGarbage;
 
@@ -223,7 +214,7 @@ namespace Muon {
     if( !extractData(entry1,entry2,fitterData, localGarbage) ) {
       ATH_MSG_DEBUG(" Failed to extract data for initial fit" );
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_nfailedExtractInital;
 
@@ -231,7 +222,7 @@ namespace Muon {
     if( !m_cosmics && !getMinMaxPhi( fitterData )  ) {
       ATH_MSG_DEBUG(" Phi range check failed, candidate stations not pointing. Will not fit track" );
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
 
     ++m_nfailedMinMaxPhi;
@@ -242,7 +233,7 @@ namespace Muon {
     if( !startPars ) {
       ATH_MSG_DEBUG(" Creation of start parameters failed " );
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_nfailedParsInital;
 
@@ -254,7 +245,7 @@ namespace Muon {
       if( !extractData( fitterData, usePrecise ) ) {
         ATH_MSG_DEBUG(" Failed to extract data after phi hit cleaning" );
         localGarbage.cleanUp();
-        return 0;
+        return std::unique_ptr<Trk::Track>();
       }
     }
     ++m_nfailedExtractCleaning;
@@ -263,7 +254,7 @@ namespace Muon {
     if( !addFakePhiHits(fitterData,startPars,localGarbage) ) {
       ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit" );
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_nfailedFakeInitial;
 
@@ -274,13 +265,13 @@ namespace Muon {
     if( fitterData.firstHasMomentum || fitterData.secondHasMomentum ) doPreFit = false;
     if( !doPreFit ) particleType = Trk::muon;
     
-    Trk::Track* track = fit(*startPars,fitterData.measurements,localGarbage,particleType,doPreFit);
+    std::unique_ptr<Trk::Track> track = fit(*startPars,fitterData.measurements,localGarbage,particleType,doPreFit);
     
     
     if( !track ) {
       ATH_MSG_DEBUG(" Fit failed " );
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_nfailedTubeFit;
 
@@ -288,17 +279,15 @@ namespace Muon {
     const Trk::Perigee* pp = track->perigeeParameters();
     if( !pp ) {
       ATH_MSG_DEBUG(" Track without perigee parameters, exit " );
-      delete track;
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_noPerigee;
 
     if( !m_slFit && !validMomentum( *pp ) ){
       ATH_MSG_DEBUG(" Low momentum, rejected " );
-      delete track;
       localGarbage.cleanUp();
-      return 0;
+      return std::unique_ptr<Trk::Track>();
     }
     ++m_nlowMomentum;
 
@@ -323,9 +312,8 @@ namespace Muon {
       // extract hits from hit list and add them to fitterData
       if( !extractData( fitterDataRefit, true ) ) {
         ATH_MSG_DEBUG(" Failed to extract data for precise fit" );
-        delete track;
         localGarbage.cleanUp();
-        return 0;
+        return std::unique_ptr<Trk::Track>();
       }
       ++m_nfailedExtractPrecise;
       
@@ -333,21 +321,17 @@ namespace Muon {
       if( !addFakePhiHits(fitterDataRefit,startPars,localGarbage) ) {
         ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit" );
         localGarbage.cleanUp();
-        delete track;
-        return 0;
+        return std::unique_ptr<Trk::Track>();
       }
       ++m_nfailedFakePrecise;
       
       // fit track
-      Trk::Track* newTrack = fit(*pp,fitterDataRefit.measurements,localGarbage);
-      if( newTrack ){
-        delete track;
-        track = newTrack;
-      }else if( !m_allowFirstFit ){
+      std::unique_ptr<Trk::Track> newTrack = fit(*pp,fitterDataRefit.measurements,localGarbage);
+      if( newTrack ) track.swap(newTrack);
+      else if( !m_allowFirstFit ){
         ATH_MSG_DEBUG(" Precise fit failed " );
-        delete track;
         localGarbage.cleanUp();
-        return 0;
+        return std::unique_ptr<Trk::Track>();
       }else{
         ATH_MSG_DEBUG(" Precise fit failed, keep fit with broad errors" );
       }
@@ -369,20 +353,9 @@ namespace Muon {
       }
       std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
       if( cleanTrack ) {
-        if( !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
-          delete track;
-	  //using release until the entire code can be migrated to use smart pointers
-          track = cleanTrack.release();
-          
-        }
-      }else {
-        delete track;
-        track = 0;
+        if( !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ) track.swap(cleanTrack);
       }
-      
-      
-    }else{
-//      ATH_MSG_DEBUG(" Refit failed " );
+      else track.reset();
     }
     
     if( track ) ++m_nsuccess;
@@ -1202,24 +1175,24 @@ namespace Muon {
     return nphiConstraints;
   }
 
-  unsigned int MooTrackFitter::hasPhiConstrain( const Trk::Track& track ) const {
+  unsigned int MooTrackFitter::hasPhiConstrain( Trk::Track* track ) const {
 
     std::map<MuonStationIndex::StIndex,StationPhiData> stationDataMap;
     
     // Get a MuonTrackSummary.
-    const Trk::TrackSummary* summary = track.trackSummary();
+    const Trk::TrackSummary* summary = track->trackSummary();
     Trk::MuonTrackSummary muonSummary;
     if( summary ){
       if( summary->muonTrackSummary() ) {
         muonSummary = *summary->muonTrackSummary();
       } else {
         Trk::TrackSummary tmpSum(*summary);
-        m_trackSummaryTool->addDetailedTrackSummary(track,tmpSum);
+        m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSum);
         if( tmpSum.muonTrackSummary() ) muonSummary = *(tmpSum.muonTrackSummary());
       }
     }else{
       Trk::TrackSummary tmpSummary;
-      m_trackSummaryTool->addDetailedTrackSummary(track,tmpSummary);
+      m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSummary);
       if( tmpSummary.muonTrackSummary() ) muonSummary = *(tmpSummary.muonTrackSummary());
     }
 
@@ -1854,10 +1827,10 @@ namespace Muon {
 
 
 
-  Trk::Track* MooTrackFitter::fit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageCan& garbage,
+  std::unique_ptr<Trk::Track> MooTrackFitter::fit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageCan& garbage,
                                     Trk::ParticleHypothesis partHypo, bool prefit ) const {
 
-    if( hits.empty() ) return 0;
+    if( hits.empty() ) return std::unique_ptr<Trk::Track>();
     
 
     if( msgLvl(MSG::VERBOSE) ) { 
@@ -1883,7 +1856,7 @@ namespace Muon {
 	  pars = perigee;
 	}else{
 	  ATH_MSG_DEBUG(" failed to move start pars, failing fit " );
-	  return 0;
+	  return std::unique_ptr<Trk::Track>();
 	}
       }
     }
@@ -1896,20 +1869,20 @@ namespace Muon {
       }
       msg(MSG::DEBUG) << endmsg;
     }
-    Trk::Track* track =  prefit ? 
-      m_trackFitterPrefit->fit(hits,*pars,m_runOutlier,partHypo) :
-      m_trackFitter->fit(hits,*pars,m_runOutlier,partHypo);     
+    std::unique_ptr<Trk::Track> track =  prefit ? 
+      std::unique_ptr<Trk::Track>(m_trackFitterPrefit->fit(hits,*pars,m_runOutlier,partHypo)) :
+      std::unique_ptr<Trk::Track>(m_trackFitter->fit(hits,*pars,m_runOutlier,partHypo));
 
     // 'sign' track
     if( track ) track->info().setPatternRecognitionInfo(m_patRecInfo);
     return track;
   }
     
-  Trk::Track* MooTrackFitter::fitWithRefit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::fitWithRefit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits ) const {
 
     GarbageCan localGarbage;
     
-    Trk::Track* track = fit(startPars,hits,localGarbage);
+    std::unique_ptr<Trk::Track> track = fit(startPars,hits,localGarbage);
 
     // exceptions that are not refitted
     if( m_slFit ) return track;
@@ -1932,10 +1905,9 @@ namespace Muon {
             }
             msg(MSG::DEBUG) << endmsg;
           }
-          Trk::Track* refittedTrack = m_trackFitter->fit(hits,*pp,false,m_ParticleHypothesis);
+	  std::unique_ptr<Trk::Track> refittedTrack(m_trackFitter->fit(hits,*pp,false,m_ParticleHypothesis));
           if( refittedTrack ){
-            delete track;
-            track = refittedTrack;
+	    track.swap(refittedTrack);
                     
             if( msgLvl(MSG::DEBUG) ) { 
               const Trk::Perigee* pp = track->perigeeParameters();
@@ -2324,13 +2296,13 @@ namespace Muon {
     }
   }
 
-  std::pair<Trk::Track*,Trk::Track*> MooTrackFitter::splitTrack( const Trk::Track& track ) const {
+  std::pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> > MooTrackFitter::splitTrack( const Trk::Track& track ) const {
 
     GarbageCan localGarbage;
 
     // access TSOS of track
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
-    if( !oldTSOT ) return std::make_pair<Trk::Track*,Trk::Track*>(0,0);
+    if( !oldTSOT ) return std::make_pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> >(nullptr,nullptr);
 
 
     // check whether the perigee is expressed at the point of closes approach or at muon entry
@@ -2339,7 +2311,7 @@ namespace Muon {
       bool atIP = fabs(perigee->position().dot(perigee->momentum().unit())) < 10 ? true : false;
       if( atIP ){
         ATH_MSG_DEBUG(" track extressed at perigee, cannot split it " );
-        return std::make_pair<Trk::Track*,Trk::Track*>(0,0);
+        return std::make_pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> >(nullptr,nullptr);
       }
     }
 
@@ -2354,14 +2326,14 @@ namespace Muon {
     }
     if( nperigees != 2 ) {
       ATH_MSG_DEBUG(" Number of perigees is not one, cannot split it " << nperigees );      
-      return std::make_pair<Trk::Track*,Trk::Track*>(0,0);
+      return std::make_pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> >(nullptr,nullptr);
     }
 
     struct TrackContent {
-      TrackContent() : firstParameters(0),tsos(0),track(0) {}
+      TrackContent() : firstParameters(nullptr),tsos(),track() {}
       const Trk::TrackParameters* firstParameters;
       std::vector<const Trk::TrackStateOnSurface*> tsos;
-      Trk::Track* track;
+      std::unique_ptr<Trk::Track> track;
       std::set<MuonStationIndex::StIndex> stations;
     };
 
@@ -2480,8 +2452,7 @@ namespace Muon {
           ATH_MSG_DEBUG(" failed to fit second track " );
 
           // delete first track
-          delete firstTrack.track;
-          firstTrack.track = 0;
+          firstTrack.track.reset();
         }
       }else{
         ATH_MSG_DEBUG(" failed to fit first track " );
@@ -2491,10 +2462,10 @@ namespace Muon {
 
     localGarbage.cleanUp();
 
-    return std::make_pair(firstTrack.track,secondTrack.track);
+    return std::make_pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> >(std::move(firstTrack.track),std::move(secondTrack.track));
   }
 
-  Trk::Track* MooTrackFitter::fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage ) const {
     
     // first create track out of the constituent
     double phi=startPars.momentum().phi();
@@ -2513,9 +2484,9 @@ namespace Muon {
     for( ;tit!=tit_end;++tit )  trackStateOnSurfaces->push_back( (*tit)->clone() );
 
     Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown,Trk::muon);
-    Trk::Track* track = new Trk::Track( trackInfo, trackStateOnSurfaces, 0);
+    std::unique_ptr<Trk::Track> track = std::make_unique<Trk::Track>( trackInfo, trackStateOnSurfaces, nullptr);
 
-    unsigned int nphi = hasPhiConstrain(*track);
+    unsigned int nphi = hasPhiConstrain(track.get());
 
     if( nphi > 1 ){
       ATH_MSG_DEBUG("Track has sufficient phi constraints, fitting " );
@@ -2586,7 +2557,6 @@ namespace Muon {
       }
 
       // clean up previous track and create new one with fake hits
-      delete track;
       perigee = new Trk::Perigee(0,0,phi,theta,qoverp,persurf);
       trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();
       trackStateOnSurfaces->reserve(tsos.size()+3);
@@ -2645,12 +2615,11 @@ namespace Muon {
       }
       
       Trk::TrackInfo trackInfo(Trk::TrackInfo::Unknown,Trk::muon);
-      track = new Trk::Track( trackInfo, trackStateOnSurfaces, 0);
+      track.reset(new Trk::Track( trackInfo, trackStateOnSurfaces, 0));
     }
     
     // refit track
-    Trk::Track* refittedTrack = refit(*track);
-    delete track;
+    std::unique_ptr<Trk::Track> refittedTrack = refit(*track);
     if( refittedTrack ) refittedTrack->info().setPatternRecognitionInfo(m_patRecInfo);
 
     return refittedTrack;

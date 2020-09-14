@@ -708,7 +708,7 @@ def getTauTrackClassifier():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     input_file_name = 'EFtracks_BDT_classifier_v0.root'
     BDTcut = 0.45
@@ -720,7 +720,7 @@ def getTauTrackClassifier():
         InputWeightsPath = input_file_name,
         Threshold        = BDTcut,
         DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.unclassified, 
+        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
         inTrigger        = True
     )
 
@@ -816,7 +816,7 @@ def getTauWPDecoratorJetBDT():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -824,10 +824,10 @@ def getTauWPDecoratorJetBDT():
                                      flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
                                      flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
                                      CutEnumVals=[
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, 
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigMedium, 
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigTight],
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, 
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, 
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight],
                                      SigEff1P = [0.995, 0.99, 0.97, 0.90],
                                      SigEff3P = [0.995, 0.94, 0.88, 0.78],
                                      ScoreName = "BDTJetScore",
@@ -850,7 +850,7 @@ def getTauWPDecoratorJetRNN():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -859,8 +859,8 @@ def getTauWPDecoratorJetRNN():
                                      flatteningFile1Prong = "rnnid_flat_1p_v4.root",
                                      flatteningFile3Prong = "rnnid_flat_mp_v4.root",
                                      CutEnumVals =
-                                     [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
-                                       ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                     [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
+                                       ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                      SigEff0P = [0.98, 0.90, 0.65, 0.50],
                                      SigEff1P = [0.992, 0.99, 0.965, 0.94],
                                      SigEff3P = [0.99, 0.98, 0.865, 0.80],

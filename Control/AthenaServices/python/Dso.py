@@ -58,7 +58,7 @@ class DsoDb(_Dso.PyDsoDb):
                 self.msg.info("could not install alias [%s] -> [%s]", k,v)
         # make sure we'll be able to load dicts
         import cppyy
-        self._load_dict = cppyy.loadDict
+        #self._load_dict = cppyy.loadDict
         self._rflx_type = cppyy.gbl.RootType.ByName  
         return
 

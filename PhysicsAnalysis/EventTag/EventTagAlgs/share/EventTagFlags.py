@@ -67,13 +67,13 @@ class _EventTagFlags(object):
             
     # dump
     def Print(self):
-        print " === EventTagFlags ==="
+        print (" === EventTagFlags ===")
         format = "%17s : %s"        
         for attr in self._attributes:
             if getattr(self,attr):
-                print format % (attr, "ON")
+                print (format % (attr, "ON"))
             else:
-                print format % (attr, "--")
+                print (format % (attr, "--"))
                                 
 # instantiate            
 if not 'EventTagFlags' in dir():

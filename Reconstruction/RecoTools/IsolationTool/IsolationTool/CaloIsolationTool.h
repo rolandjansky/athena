@@ -362,6 +362,11 @@ namespace xAOD {
       Gaudi::Property<bool> m_addCaloDeco {this,
 	  "addCaloExtensionDecoration", false, "Add the calo decorations"}; 
       
+      /** Property: Initialize read Handles. Default True. For HLT these need to be off. */
+      Gaudi::Property<bool> m_InitializeReadHandles {this,
+	  "InitializeReadHandles", true,
+	  "Initialize all ReadHandles."};
+
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;

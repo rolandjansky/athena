@@ -83,7 +83,7 @@ namespace Muon {
 	@param[in] seg   the MuPatSegment to be added, ownership is NOT passed!
         @param[out] true if any segment was removed from the track, false if not
     */
-    bool extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, const Trk::Track* track ) const;
+    bool extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief create a track candidate from one segment
 	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
@@ -91,7 +91,7 @@ namespace Muon {
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( MuPatSegment& segInfo, const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief create a track candidate from two segments
 	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
@@ -99,18 +99,18 @@ namespace Muon {
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, std::unique_ptr<Trk::Track>& track ) const;
 
 
     /** @brief create a track candidate from a track 
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief set the new track in the candidate, and update candidate contents. Candidate takes ownership of track.
         Returns whether segments have been removed compared to the pre-existing list of segments. */
-    bool updateTrack( MuPatTrack& candidate, const Trk::Track* track ) const;
+    bool updateTrack( MuPatTrack& candidate, std::unique_ptr<Trk::Track>& track ) const;
     
     /** @brief recalculate the chamber indices on the candidate and reset them. Return whether segment has been removed. */
     bool recalculateCandidateSegmentContent( MuPatTrack& candidate ) const;
@@ -119,13 +119,7 @@ namespace Muon {
 	@param[in] can the MuPatTrack to be copied
 	@param[out] the new candidate, ownership is passed to caller. The new candidate will not own the track (lazy pointer copy)
     */
-    MuPatTrack* copyCandidate( MuPatTrack& canIn ) const;
-
-    /** @brief copy a candidate and transfer the track ownwership from the old to the new candidate.
-	@param[in] can the MuPatTrack to be copied. After the copy, it will no longer own the track (but keeps pointer to it)
-	@param[out] the new candidate, ownership is passed to caller. The new candidate will own the track.
-    */
-    MuPatTrack* copyCandidateAndTransferTrack( MuPatTrack& canIn ) const;
+    std::unique_ptr<MuPatTrack> copyCandidate( MuPatTrack* canIn ) const;
 
     /** @brief create a MuPatSegment object from a segment
 	@param[in] segment  input segment
@@ -155,7 +149,7 @@ namespace Muon {
   
     std::string print( const MuPatTrack& track, int level = 0 ) const;
 
-    std::string print( const std::vector<MuPatTrack*>& tracks, int level = 0 ) const;
+    std::string print( const std::vector<std::unique_ptr<MuPatTrack> >& tracks, int level = 0 ) const;
 
   private:
 

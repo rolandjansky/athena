@@ -19,7 +19,7 @@ tool1.TauTruthMatchingTool.WriteTruthTaus = True
 import cppyy
 try:
     print("Successfully loaded TauAnalysisToolsDict")
-    cppyy.loadDictionary('TauAnalysisToolsDict')
+    cppyy.load_library('libTauAnalysisToolsDict')
 except:
     print("Could not load TauAnalysisToolsDict")
     pass

@@ -32,7 +32,7 @@ class eSuperCellTowerMapper: public AthAlgTool, virtual public IeSuperCellTowerM
   virtual ~eSuperCellTowerMapper();
 
   /** standard Athena-Algorithm method */
-  virtual StatusCode initialize() ;
+  virtual StatusCode initialize() override;
   
   virtual StatusCode AssignSuperCellsToTowers(/*eTowerContainer**/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw) override;
   virtual StatusCode AssignTriggerTowerMapper(/*eTowerContainer**/std::unique_ptr<eTowerContainer> & my_eTowerContainerRaw) override;

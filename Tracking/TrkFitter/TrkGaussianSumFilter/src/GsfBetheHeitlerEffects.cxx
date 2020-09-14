@@ -26,7 +26,100 @@ inRange(const T& var, const T& lo, const T& hi)
 {
   return ((var <= hi) and (var >= lo));
 }
+
+// Logistic function - needed for transformation of weight and mean
+inline double
+logisticFunction(const double x)
+{
+  return 1. / (1. + std::exp(-x));
 }
+
+// First moment of the Bethe-Heitler distribution
+inline double
+betheHeitlerMean(const double r)
+{
+  return std::exp(-r);
+}
+
+// Second moment of the Bethe-Heitler distribution
+inline double
+betheHeitlerVariance(const double r)
+{
+  return std::exp(-r * std::log(3.) / std::log(2.)) - std::exp(-2 * r);
+}
+
+void
+correctWeights(Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+{
+
+  if (mixture.empty()) {
+    return;
+  }
+
+  // Obtain the sum of weights
+  double weightSum(0.);
+
+  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
+    mixture.begin();
+  for (; component != mixture.end(); ++component) {
+    weightSum += (*component).weight;
+  }
+
+  // Rescale so that total weighting is 1
+  Trk::GsfBetheHeitlerEffects::MixtureParameters::iterator modifiableComponent =
+    mixture.begin();
+
+  for (; modifiableComponent != mixture.end(); ++modifiableComponent) {
+    (*modifiableComponent).weight /= weightSum;
+  }
+}
+
+double
+correctedFirstMean(
+  const double pathlengthInX0,
+  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+{
+
+  if (mixture.empty()) {
+    return 0.;
+  }
+  // Obtain the difference between the true and weighted sum
+  double meanBH = betheHeitlerMean(pathlengthInX0);
+  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
+    mixture.begin() + 1;
+  for (; component != mixture.end(); ++component) {
+    meanBH -= (*component).weight * (*component).mean;
+  }
+  // return the corrected mean for the first component
+  return std::max(std::min(meanBH / mixture[0].weight, 1.), 0.);
+}
+
+double
+correctedFirstVariance(
+  const double pathlengthInX0,
+  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture)
+{
+
+  if (mixture.empty()) {
+    return 0.;
+  }
+
+  // Obtain the difference between the true and weighed sum variances
+  double varianceBH =
+    betheHeitlerVariance(pathlengthInX0) +
+    (betheHeitlerMean(pathlengthInX0) * betheHeitlerMean(pathlengthInX0));
+  varianceBH -= mixture[0].weight * mixture[0].mean * mixture[0].mean;
+
+  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
+    mixture.begin() + 1;
+  for (; component != mixture.end(); ++component) {
+    varianceBH -= (*component).weight * ((*component).mean * (*component).mean +
+                                         (*component).variance);
+  }
+  return std::max(varianceBH / mixture[0].weight, 0.);
+}
+
+} // end of Anonymous namespace for Helper methods
 
 Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type,
                                                     const std::string& name,
@@ -41,7 +134,7 @@ Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type,
   , m_transformationCodeHighX0(0)
 {
 
-  declareInterface<IMultiStateMaterialEffects>(this);
+  declareInterface<IBetheHeitlerEffects>(this);
   declareProperty("BetheHeitlerParameterisationFileName",
                   m_parameterisationFileName);
   declareProperty("BetheHeitlerParameterisationFileNameHighX0",
@@ -216,7 +309,7 @@ Trk::GsfBetheHeitlerEffects::readPolynomial(std::ifstream& fin, const int order)
 
 void
 Trk::GsfBetheHeitlerEffects::compute(
-  Cache& cache,
+  Trk::GSFEnergyLossCache& cache,
   const Trk::ComponentParameters& componentParameters,
   const Trk::MaterialProperties& materialProperties,
   double pathLength,
@@ -240,10 +333,6 @@ Trk::GsfBetheHeitlerEffects::compute(
     // approximation to the Bethe-Heitler distribution
     if (pathlengthInX0 < m_lowerRange) {
 
-      ATH_MSG_DEBUG("Amount of material less than"
-                    << m_lowerRange
-                    << "... Parameterising Bethe-Heitler as Gaussian");
-
       const double meanZ = exp(-1. * pathlengthInX0);
       const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
       const double varZ = exp(-1. * pathlengthInX0 * log(3.) / log(2.)) -
@@ -257,13 +346,9 @@ Trk::GsfBetheHeitlerEffects::compute(
         deltaP = sign * momentum * (1. / meanZ - 1.);
         varQoverP = varZ / (momentum * momentum);
       }
-
-      AmgSymMatrix(5) newCovarianceMatrix;
-      newCovarianceMatrix.setZero();
-      (newCovarianceMatrix)(Trk::qOverP, Trk::qOverP) = varQoverP;
       cache.deltaPs.push_back(deltaP);
       cache.weights.push_back(1.);
-      cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
+      cache.deltaQOvePCov.push_back(varQoverP);
       ATH_MSG_VERBOSE("Weight / deltaP / var (delta q/p) "
                       << 1. << "\t" << deltaP << "\t" << varQoverP);
       return;
@@ -337,8 +422,7 @@ Trk::GsfBetheHeitlerEffects::compute(
       AmgSymMatrix(5) newCovarianceMatrix;
       newCovarianceMatrix.setZero();
       newCovarianceMatrix(Trk::qOverP, Trk::qOverP) = varianceInverseMomentum;
-
-      cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
+      cache.deltaQOvePCov.push_back(varianceInverseMomentum);
     } // end for loop over all components
 
   } // end material limiting if clause
@@ -349,9 +433,7 @@ Trk::GsfBetheHeitlerEffects::compute(
                   << " x/x0. No Bethe-Heitler effects applied");
     cache.weights.push_back(1.);
     cache.deltaPs.push_back(0.);
-    AmgSymMatrix(5) newCovarianceMatrix;
-    newCovarianceMatrix.setZero();
-    cache.deltaCovariances.push_back(std::move(newCovarianceMatrix));
+    cache.deltaQOvePCov.push_back(0.);
   }
 }
 
@@ -403,74 +485,3 @@ Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(
   }
 }
 
-void
-Trk::GsfBetheHeitlerEffects::correctWeights(
-  Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
-{
-
-  if (mixture.empty()) {
-    return;
-  }
-
-  // Obtain the sum of weights
-  double weightSum(0.);
-
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin();
-  for (; component != mixture.end(); ++component) {
-    weightSum += (*component).weight;
-  }
-
-  // Rescale so that total weighting is 1
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::iterator modifiableComponent =
-    mixture.begin();
-
-  for (; modifiableComponent != mixture.end(); ++modifiableComponent) {
-    (*modifiableComponent).weight /= weightSum;
-  }
-}
-
-double
-Trk::GsfBetheHeitlerEffects::correctedFirstMean(
-  const double pathlengthInX0,
-  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
-{
-
-  if (mixture.empty()) {
-    return 0.;
-  }
-  // Obtain the difference between the true and weighted sum
-  double meanBH = betheHeitlerMean(pathlengthInX0);
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin() + 1;
-  for (; component != mixture.end(); ++component) {
-    meanBH -= (*component).weight * (*component).mean;
-  }
-  // return the corrected mean for the first component
-  return std::max(std::min(meanBH / mixture[0].weight, 1.), 0.);
-}
-
-double
-Trk::GsfBetheHeitlerEffects::correctedFirstVariance(
-  const double pathlengthInX0,
-  const Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
-{
-
-  if (mixture.empty()) {
-    return 0.;
-  }
-
-  // Obtain the difference between the true and weighed sum variances
-  double varianceBH =
-    betheHeitlerVariance(pathlengthInX0) +
-    (betheHeitlerMean(pathlengthInX0) * betheHeitlerMean(pathlengthInX0));
-  varianceBH -= mixture[0].weight * mixture[0].mean * mixture[0].mean;
-
-  Trk::GsfBetheHeitlerEffects::MixtureParameters::const_iterator component =
-    mixture.begin() + 1;
-  for (; component != mixture.end(); ++component) {
-    varianceBH -= (*component).weight * ((*component).mean * (*component).mean +
-                                         (*component).variance);
-  }
-  return std::max(varianceBH / mixture[0].weight, 0.);
-}

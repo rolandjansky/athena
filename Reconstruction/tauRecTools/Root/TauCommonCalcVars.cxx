@@ -113,10 +113,8 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) const {
     double sumWeightedDR2 = 0;
 
     for (const xAOD::TauTrack* tauTrk : tauTracks){
-      // BUG! should consistently use phiIntermediateAxis - will be fixed in a separate MR
-      double deltaR = Tau1P3PKineUtils::deltaR( ( inTrigger() ? pTau.eta() : pTau.etaIntermediateAxis()), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
-      // will become:
-      // double deltaR = inTrigger() ? pTau.p4().DeltaR(tauTrk->p4()) : pTau.p4(xAOD::TauJetParameters::IntermediateAxis).DeltaR(tauTrk->p4()); 
+
+      double deltaR = inTrigger() ? pTau.p4().DeltaR(tauTrk->p4()) : pTau.p4(xAOD::TauJetParameters::IntermediateAxis).DeltaR(tauTrk->p4());
       
       ptSum += tauTrk->pt();
       sumWeightedDR += deltaR * tauTrk->pt();

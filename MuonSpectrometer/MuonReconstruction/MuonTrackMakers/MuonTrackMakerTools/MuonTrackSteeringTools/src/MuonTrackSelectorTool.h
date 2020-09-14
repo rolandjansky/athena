@@ -8,19 +8,17 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/Track.h"
 
 #include <atomic>
 #include <string>
 #include <set>
 #include <vector>
-
-static const InterfaceID IID_MuonTrackSelectorTool("Muon::MuonTrackSelectorTool",1,0);
 
 namespace Trk {
   class Track;
@@ -32,7 +30,7 @@ namespace Muon {
      @brief tool to select tracks
 
   */
-  class MuonTrackSelectorTool : virtual public Trk::ITrackSelectorTool, public AthAlgTool {
+  class MuonTrackSelectorTool : public AthAlgTool {
   public:
     /** @brief constructor */
     MuonTrackSelectorTool(const std::string&,const std::string&,const IInterface*);
@@ -46,9 +44,6 @@ namespace Muon {
     /** @brief AlgTool finalize */
     StatusCode finalize();
     
-    /** @brief access to tool interface */
-    static const InterfaceID& interfaceID() { return IID_MuonTrackSelectorTool; }
-
     /** @brief calculate holes in a given chamber using local straight line extrapolation
 	@param pars TrackParameters in the chamber
 	@param chId Identifier of the chamber
@@ -58,13 +53,7 @@ namespace Muon {
     std::vector<Identifier> holesInChamber( const Trk::TrackParameters& pars, const Identifier& chId, const std::set<Identifier>& tubeIds ) const;
     
     /** @brief returns true if the track satisfies the selection criteria else false */
-    bool decision( const Trk::Track& track, const Trk::Vertex* = 0 ) const;
-
-    /** @brief always returns false */
-    bool decision( const Trk::TrackParticleBase&, const Trk::Vertex* ) const { return false; }
-
-    /** @brief always returns false */
-    bool decision(const xAOD::TrackParticle&,const xAOD::Vertex* ) const { return false; }
+    bool decision( Trk::Track& track ) const;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

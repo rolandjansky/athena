@@ -9,7 +9,7 @@ athenaMT/PT -Z TrigByteStreamTools.trigbs_prescaleL1 ...
 """
 
 import cppyy
-cppyy.loadDictionary('TrigByteStreamToolsDict')
+cppyy.load_library('libTrigByteStreamToolsDict')
 
 def ints2bits(info):
   if type(info)==int:

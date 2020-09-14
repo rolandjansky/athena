@@ -437,9 +437,9 @@ bool nSCTHitsPlusDeadSensors(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &
 }
 
 bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
-			     double &out) {
+		    double &out) {
 
-    double tracksEProbabilityHT;
+    float tracksEProbabilityHT;
     const auto success =  track.track()->summaryValue( tracksEProbabilityHT, 
 						       xAOD::eProbabilityHT);
     out = tracksEProbabilityHT;

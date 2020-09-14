@@ -63,7 +63,7 @@ def get_collection_name(raw_data_words):
     ss.deserialize(name_raw_vec, name_str_vec)
     name_list = []
     for s in name_str_vec:
-        name_list.append(s)
+        name_list.append(str(s))
     return name_list
 
 

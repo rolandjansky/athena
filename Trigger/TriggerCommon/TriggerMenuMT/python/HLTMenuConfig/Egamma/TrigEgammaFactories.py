@@ -113,6 +113,66 @@ def TrigElectronIsoBuilderCfg(name='TrigElectronIsolationBuilder'):
                                      )
     return TrigElectronIsolationBuilder()
 
+from CaloIdentifier import SUBCALO 
+from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
+from CaloClusterCorrection import CaloClusterCorrectionConf as Cccc
+cfrc = ToolFactory(
+        Cccc.CaloFillRectangularCluster,
+        name="trigegamma_CaloFillRectangularCluster",
+        eta_size=5,
+        phi_size=7,
+        cells_name='CaloCells')
+
+# tool to collect topo clusters in cone
+from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
+TrigCaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
+                                     CaloClusterLocation = TrigEgammaKeys.TrigEMClusterToolOutputContainer)
+from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
+IsoCorrectionTool = ToolFactory(ICT,
+                                name = "TrigLeakageCorrTool")
+
+TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigCaloIsolationTool",
+                                postInit                        = [],
+                                CaloFillRectangularClusterTool  = cfrc,
+                                ClustersInConeTool              = TrigCaloClustersInConeTool,
+                                PFlowObjectsInConeTool          = None,
+                                ParticleCaloExtensionTool       = None,
+                                IsoLeakCorrectionTool           = None,
+                                ParticleCaloCellAssociationTool = None,
+                                saveOnlyRequestedCorrections    = True,
+                                EMCaloNums                      = [SUBCALO.LAREM],
+                                HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
+                                )
+from AthenaCommon import CfgMgr
+""" Configure the HLT CaloIsoTool """
+H_ClIT = CfgMgr.xAOD__CaloIsolationTool('TrigCaloIsolationTool')                                
+H_ClIT.doEnergyDensityCorrection=False
+H_ClIT.InitializeReadHandles=False
+H_ClIT.UseEMScale=True
+
+
+def TrigPhotonIsoBuilderCfg(name='TrigPhotonIsolationBuilder'):
+    TrigPhotonIsolationBuilder = AlgFactory(IsolationBuilder,
+                                    name                  = name,
+                                    doAdd                           = False,
+                                    PhotonCollectionContainerName = 'HLT_egamma_Photons',
+                                    CaloCellIsolationTool = None,
+                                    CaloTopoIsolationTool = TrigCaloIsolationTool,
+                                    PFlowIsolationTool    = None,
+                                    TrackIsolationTool    = None, 
+                                    ElIsoTypes            = [[]],
+                                    ElCorTypes            = [[]],
+                                    ElCorTypesExtra       = [[]],
+                                    FeIsoTypes            = [[]],
+                                    FeCorTypes            = [[]],
+                                    FeCorTypesExtra       = [[]],
+                                    PhIsoTypes            = [[isoPar.topoetcone20]],
+                                    PhCorTypes            = [[],[isoPar.core57cells],[]],
+                                    PhCorTypesExtra       = [[]],
+                                    )
+                
+            
+    return TrigPhotonIsolationBuilder()
 
 def TrigEgammaDecorationTools():
     #Return a list with the tools that decorate both electrons and photons. 
