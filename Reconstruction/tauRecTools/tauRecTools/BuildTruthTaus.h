@@ -68,6 +68,7 @@ protected:
 
   // steering variables
   bool m_bWriteTruthTaus;
+  bool m_overrideEventInfo;
   bool m_bTruthTauAvailable;
 
   const xAOD::TruthParticleContainer* m_xTruthTauContainerConst;

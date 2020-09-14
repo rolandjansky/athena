@@ -26,10 +26,9 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from AthenaCommon.GlobalFlags import globalflags
-DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
-if DFisMC:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
@@ -45,7 +44,7 @@ HION6Stream.AcceptAlgs(["HION6Kernel"])
 #====================================================================
 # PDF Weight Metadata
 #====================================================================
-if DFisMC:
+if DerivationFrameworkHasTruth:
   from DerivationFrameworkCore.WeightMetadata import *
 
 #====================================================================
@@ -241,7 +240,7 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = HION6Sequenc
 
 
 # Then apply truth tools in the form of aumentation
-if DFisMC:
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkTop.TOPQCommonTruthTools import *
     HION6Sequence += TOPQCommonTruthKernel
 

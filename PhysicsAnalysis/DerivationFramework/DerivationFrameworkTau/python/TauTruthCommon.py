@@ -48,6 +48,9 @@ def scheduleTauTruthTools(kernel=None):
         DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
         DFCommonTauTruthMatchingTool.WriteVisibleNeutralFourMomentum = True
         DFCommonTauTruthMatchingTool.MCTruthClassifierTool = DFCommonTauTruthClassifier
+        if DerivationFrameworkIsDataOverlay:
+            # For the case of data overlay, event info indicates "data". Build truth taus anyway
+            DFCommonTauTruthMatchingTool.OverrideEventInfo = DerivationFrameworkHasTruth
         ToolSvc += DFCommonTauTruthMatchingTool
         DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
                                                                                         TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
