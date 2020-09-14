@@ -315,6 +315,30 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
        # define the histogram
        group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
 
+   # Define helper functions to automatize ET & eta selection strings for NJet histograms of chains
+   def getThreshold(parts):
+     return parts[1].split('_')[0]
+
+   def getEtaRange(chain):
+     if 'eta' in chain:
+       etaParts    = chain.split('eta')
+       etaMinTemp  = etaParts[0].split('_')
+       etaMin      = etaMinTemp[len(etaMinTemp)-1]
+       if int(etaMin) > 0 : etaMin = str(int(int(etaMin)/10))
+       etaMax      = etaParts[1].split('_')[0]
+       if int(etaMax) > 0 : etaMax = str(int(int(etaMax)/10))
+       return 'Eta{}_{}'.format(etaMin,etaMax)
+     else: return 'Eta0_32'
+
+   def getNjetHistName(chain):
+     print('Chain = {}'.format(chain))
+     parts         = chain.split('j')
+     # check if it is a multi-threshold multijet chain or a single-threshold multijet chain
+     multiplicity  = parts[0].split('_')[1] # for single-threshold multijet chains
+     if (chain.count('_j')-chain.count('_jes')) > 1  or multiplicity != '':
+       return 'njetsEt{}{}'.format(getThreshold(parts),getEtaRange(chain))
+     else: return 'NONE'
+
    from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
    trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
        chain+"TrigMon",
@@ -334,7 +358,6 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            EventHistoSpec('njets', (25,0,25), title='njets;njets;Entries' ),
            EventHistoSpec('njetsEt20Eta0_32', (25,0,25), title='njetsEt20Eta0_32;njetsEt20Eta0_32;Entries' ),
            EventHistoSpec('njetsEt50Eta0_32', (25,0,25), title='njetsEt50Eta0_32;njetsEt50Eta0_32;Entries' ),
-           EventHistoSpec('njetsEt100Eta0_32', (25,0,25), title='njetsEt100Eta0_32;njetsEt100Eta0_32;Entries' ),
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
@@ -343,29 +366,11 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
                                                    # so we use retrieveVarToolConf("pt") which returns a full specification for the "pt" histo variable.
                     ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg),
    )
-   if 'j460' in chain:
+   NjetHistName = getNjetHistName(chain)
+   from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+   if knownEventVar.get(NjetHistName,None) is not None:
      trigConf.appendHistos(
-       SelectSpec( 'highEt', '460<et:GeV', chainFolder, FillerTools = ["m"] ),
-     )
-   if '2j330' in chain:
-     trigConf.appendHistos(
-       EventHistoSpec('njetsEt330Eta0_32', (25,0,25), title='njetsEt330Eta0_32;njetsEt330Eta0_32;Entries' ),
-     )
-   elif '5j70' in chain:
-     trigConf.appendHistos(
-       EventHistoSpec('njetsEt70Eta0_24', (25,0,25), title='njetsEt70Eta0_24;njetsEt70Eta0_24;Entries' ),
-     )
-   elif '3j200' in chain:
-     trigConf.appendHistos(
-       EventHistoSpec('njetsEt200Eta0_32', (25,0,25), title='njetsEt200Eta0_32;njetsEt200Eta0_32;Entries' ),
-     )
-   elif 'j80_j60' in chain:
-     trigConf.appendHistos(
-       EventHistoSpec('njetsEt60Eta0_32', (25,0,25), title='njetsEt60Eta0_32;njetsEt60Eta0_32;Entries' ),
-     )
-   elif 'j260_320eta490' in chain:
-     trigConf.appendHistos(
-       EventHistoSpec('njetsEt260Eta32_49', (25,0,25), title='njetsEt260Eta32_49;njetsEt260Eta32_49;Entries' ),
+       EventHistoSpec(NjetHistName, (25,0,25), title=NjetHistName+';'+NjetHistName+';Entries' ),
      )
    if 'smc' in chain:
      trigConf.appendHistos(
