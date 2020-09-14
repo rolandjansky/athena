@@ -1,30 +1,28 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyRootLib.py
 # @purpose: a set of classes to ease the day-to-day work with ROOT
 # @author: Sebastien Binet <binet@cern.ch>
-# $Id: PyRootLib.py,v 1.10 2008-03-27 01:43:08 binet Exp $
 
 """ a set of classes to ease the day-to-day work with ROOT
 """
 #
 #
 __author__  = 'Sebastien Binet'
-__version__ = "$Revision: 1.10 $"
 __doc__     = "a set of classes to ease the day-to-day work with ROOT."
 
 ### globals -------------------------------------------------------------------
 _root_files = []
 
 def importRoot( batch = True ):
-    import sys,os
+    import os
+    import ROOT
     x_display = None
     if batch:
-        sys.argv.insert(1, '-b')
+        ROOT.gROOT.SetBatch(True)
         if 'DISPLAY' in os.environ:
             x_display = os.environ['DISPLAY']
             del os.environ['DISPLAY']
-    import ROOT
     
     ## few customizations
     ROOT.gErrorIgnoreLevel = ROOT.kError
@@ -43,7 +41,6 @@ def importRoot( batch = True ):
         
     ##
     if batch:
-        del sys.argv[1]
         if x_display:
             os.environ['DISPLAY'] = x_display
     #
