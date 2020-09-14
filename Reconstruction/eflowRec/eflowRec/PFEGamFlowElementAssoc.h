@@ -18,9 +18,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 
 #include "StoreGate/WriteDecorHandle.h"
-// this should be obsolete, but keeping atm to avoid crashes
-//#include "xAODPFlow/PFOContainer.h" // old EDM
-#include "xAODPFlow/FlowElementContainer.h" // Container to replace it
+#include "xAODPFlow/FlowElementContainer.h"
 /**                                                                                                                                                                                     
 This is the algorithm, which inherits from AthAlgorithm, that adds element links 
 between particle flow objects (Flow Elements) and Egamma objects. The algorithm associates charged (c) Flow Elements 
@@ -44,24 +42,35 @@ public:
   virtual StatusCode finalize() override final;
   
 private:
+  //instantiate ReadHandle for the Photon/Electron
+  SG::ReadHandleKey<xAOD::ElectronContainer>m_electronReadHandleKey{this,"ElectronContainer","Electron","ReadHandleKey for ElectronContainer"};
+
+  SG::ReadHandleKey<xAOD::PhotonContainer>m_photonReadHandleKey{this,"PhotonContainer","Photon","ReadHandleKey for PhotonContainer"};
+
+  //Readhandles for FlowElements.
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralfeReadHandleKey{this,"JetEtMissNeutralFlowElementContainer","JetETMissNeutralFlowElement","ReadHandleKey for neutral FlowElements"};
+  
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedfeReadHandleKey{this,"JetEtMissChargedFlowElementContainer","JetETMissChargedFlowElement","ReadHandleKey for charged FlowElements"};
+
 
   /** The write key for adding Neutral Flow Element element link decorations to electrons */ 
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralPFOWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralFEWriteDecorKey;
   /** The write key for adding Charged Flow Element element link decorations to electrons */
-  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_electronChargedPFOWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_electronChargedFEWriteDecorKey;
   /** The write key for adding electron element link decorations to Neutral Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralpfoElectronWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralfeElectronWriteDecorKey;
   /** The write key for adding electron element link decorations to Charged Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedpfoElectronWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedfeElectronWriteDecorKey;
 
   /** The write key for adding Neutral Flow Element element link decorations to photons */
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralPFOWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralFEWriteDecorKey;
   /** The write key for adding Charged Flow Element element link decorations to photons */
-  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonChargedPFOWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonChargedFEWriteDecorKey;
   /** The write key for adding photon element link decorations to Neutral Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralpfoPhotonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralfePhotonWriteDecorKey;
   /** The write key for adding photon element link decorations to Charged Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedpfoPhotonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedfePhotonWriteDecorKey;
+
  
 };
 
