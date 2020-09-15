@@ -16,7 +16,6 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "Gaudi/Property.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
-#include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
@@ -76,9 +75,7 @@ CscThresholdClusterBuilderTool::CscThresholdClusterBuilderTool(const std::string
                                                                const IInterface* parent)
     : AthAlgTool(type, aname, parent),
       m_noiseOption(rms),
-      m_digit_key("CSC_Measurements"),
-      m_pclusters("CSC_Clusters"),
-      m_fullEventDone(false)
+      m_digit_key("CSC_Measurements")
 {
     declareInterface<ICscClusterBuilder>(this);
 
@@ -86,7 +83,6 @@ CscThresholdClusterBuilderTool::CscThresholdClusterBuilderTool(const std::string
     declareProperty("kFactor", m_kFactor = 6.5);
     declareProperty("noiseOption", m_noiseOptionStr = "f001");
     declareProperty("digit_key", m_digit_key);
-    declareProperty("cluster_key", m_pclusters);
     declareProperty("makeNarrowClusterThreeStrips", m_makeNarrowClusterThreeStrips = true);
 }
 
@@ -105,9 +101,7 @@ CscThresholdClusterBuilderTool::initialize()
     ATH_MSG_DEBUG("Properties for " << name() << ":");
     ATH_MSG_DEBUG("  Strip threshold is Max( " << m_threshold << ", " << m_kFactor
                                                << "*stripNoise ) where stripNoise is from " << m_noiseOptionStr);
-
     ATH_CHECK(m_digit_key.initialize());
-    ATH_CHECK(m_pclusters.initialize());
     if (m_noiseOptionStr != "rms" && m_noiseOptionStr != "sigma" && m_noiseOptionStr != "f001") {
         ATH_MSG_DEBUG(" noiseOption is not among rms/sigma/f001. rms is used for default!!");
         m_noiseOptionStr = "rms";
@@ -124,7 +118,6 @@ CscThresholdClusterBuilderTool::initialize()
     ATH_MSG_DEBUG("  Precision cluster fitter is " << m_pfitter_prec.typeAndName());
     ATH_MSG_DEBUG("  Split cluster fitter is " << m_pfitter_split.typeAndName());
     ATH_MSG_DEBUG("  Input digit key is " << m_digit_key.key());
-    ATH_MSG_DEBUG("  Output cluster key is " << m_pclusters.key());
 
     // CSC calibratin tool for the Condtiions Data base access //
     ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
@@ -156,32 +149,12 @@ CscThresholdClusterBuilderTool::initialize()
 
 StatusCode
 CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& givenIDs,
-                                            std::vector<IdentifierHash>& decodedIds)
+                                            std::vector<IdentifierHash>& decodedIds,
+					    CscPrepDataContainer* object)
 {
 
     // clear output vector of selected data collections containing data
     decodedIds.clear();
-    SG::WriteHandle<Muon::CscPrepDataContainer> wh_pclusters(m_pclusters);
-    CscPrepDataContainer* object = new CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
-
-    if (!wh_pclusters.isPresent()) {
-        /// record the container in storeGate
-        if (wh_pclusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)).isFailure()) {
-            ATH_MSG_ERROR("Could not record container of CSC Cluster PrepData at " << m_pclusters.key());
-            return StatusCode::RECOVERABLE;
-        }
-        m_fullEventDone = false;
-        if (givenIDs.size() == 0) m_fullEventDone = true;
-
-    } else {
-        ATH_MSG_DEBUG("CSC Cluster PrepData Container is already in StoreGate ");
-        if (m_fullEventDone) {
-            ATH_MSG_DEBUG("Whole event has already been processed; nothing to do");
-            return StatusCode::SUCCESS;
-        }
-        if (givenIDs.size() == 0) m_fullEventDone = true;
-    }
-
     if (givenIDs.size() != 0) {
         for (unsigned int i = 0; i < givenIDs.size(); ++i) {
             if (getClusters(givenIDs[i], decodedIds, object).isFailure()) {
