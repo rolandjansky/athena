@@ -14,6 +14,10 @@
 #define PFEGAMFLOWELEMENTASSOC_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/DataHandle.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 
@@ -29,17 +33,18 @@ The algorithm also adds decorations to the "JetETMissNeutralParticleFlowObjects"
 "JetETMissChargedParticleFlowObjects" containers, 
 in the form of vectors of element links to the associated electrons and photons.
 */
-class PFEGamFlowElementAssoc : public AthAlgorithm {
+class PFEGamFlowElementAssoc : public AthReentrantAlgorithm {
 
 public:
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   PFEGamFlowElementAssoc(const std::string& name, ISvcLocator* pSvcLocator);
   
   virtual ~PFEGamFlowElementAssoc();
 
-  virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final;
+  virtual StatusCode initialize();
+  virtual StatusCode execute(const EventContext & ctx) const;
+  virtual StatusCode finalize();
   
 private:
   //instantiate ReadHandle for the Photon/Electron

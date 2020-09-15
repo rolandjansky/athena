@@ -25,7 +25,7 @@ PFEGamFlowElementAssoc::PFEGamFlowElementAssoc(
 const std::string& name,
   ISvcLocator* pSvcLocator
   ):
-  AthAlgorithm(name,pSvcLocator)
+  AthReentrantAlgorithm(name,pSvcLocator)
 {
 // Class initializer 
 declareProperty ("ElectronNeutralFEDecorKey", m_electronNeutralFEWriteDecorKey = "Electrons.neutralfeLinks");   
@@ -65,7 +65,7 @@ StatusCode PFEGamFlowElementAssoc::initialize()
  ATH_CHECK(m_neutralfeReadHandleKey.initialize());
 
  ATH_MSG_DEBUG("Initialization completed successfully");   
- std::cout<<"I lost the game"<<std::endl;
+
 return StatusCode::SUCCESS;
 }
 
@@ -79,31 +79,30 @@ return StatusCode::SUCCESS;
    3) Link them
    4) output the Electron/Photon containers with the linkers to the Flow element containers 
 **/
-StatusCode PFEGamFlowElementAssoc::execute()
+StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 {
-
   // write decoration handles for the electron, photon and FE containers -- these are the OUTPUT handles
   //Electron Write Handle
-  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronNeutralFEWriteDecorHandle (m_electronNeutralFEWriteDecorKey);   
-  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronChargedFEWriteDecorHandle (m_electronChargedFEWriteDecorKey);   
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralfeElectronWriteDecorHandle (m_neutralfeElectronWriteDecorKey);   
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedfeElectronWriteDecorHandle (m_chargedfeElectronWriteDecorKey); 
+  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronNeutralFEWriteDecorHandle (m_electronNeutralFEWriteDecorKey,ctx);   
+  SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronChargedFEWriteDecorHandle (m_electronChargedFEWriteDecorKey,ctx);   
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralfeElectronWriteDecorHandle (m_neutralfeElectronWriteDecorKey,ctx);   
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedfeElectronWriteDecorHandle (m_chargedfeElectronWriteDecorKey,ctx); 
 
   //Photon Write Handle
-  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonNeutralFEWriteDecorHandle (m_photonNeutralFEWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonChargedFEWriteDecorHandle (m_photonChargedFEWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralfePhotonWriteDecorHandle (m_neutralfePhotonWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedfePhotonWriteDecorHandle (m_chargedfePhotonWriteDecorKey);  
+  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonNeutralFEWriteDecorHandle (m_photonNeutralFEWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonChargedFEWriteDecorHandle (m_photonChargedFEWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralfePhotonWriteDecorHandle (m_neutralfePhotonWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedfePhotonWriteDecorHandle (m_chargedfePhotonWriteDecorKey,ctx);  
   
   
   // This is the READ handles (so the input containers for electron, photon, FE)
   
-  SG::ReadHandle<xAOD::ElectronContainer>electronReadHandle (m_electronReadHandleKey);
-  SG::ReadHandle<xAOD::PhotonContainer> photonReadHandle (m_photonReadHandleKey);
+  SG::ReadHandle<xAOD::ElectronContainer>electronReadHandle (m_electronReadHandleKey,ctx);
+  SG::ReadHandle<xAOD::PhotonContainer> photonReadHandle (m_photonReadHandleKey,ctx);
   
   // Charged and Neutral PFlow "Flow elements"
-  SG::ReadHandle<xAOD::FlowElementContainer> neutralfeReadHandle (m_neutralfeReadHandleKey);   
-  SG::ReadHandle<xAOD::FlowElementContainer> chargedfeReadHandle (m_chargedfeReadHandleKey);   
+  SG::ReadHandle<xAOD::FlowElementContainer> neutralfeReadHandle (m_neutralfeReadHandleKey,ctx);   
+  SG::ReadHandle<xAOD::FlowElementContainer> chargedfeReadHandle (m_chargedfeReadHandleKey,ctx);   
   
   // now initialise some Flow element link containers
   std::vector<std::vector<FlowElementLink_t>> electronNeutralFEVec(electronReadHandle->size());
