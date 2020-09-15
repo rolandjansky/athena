@@ -75,7 +75,7 @@ G4Material* Geo2G4MaterialFactory::Build(const GeoMaterial* geoMaterial)
                                pressure);
 
     // Build G4MaterialPropertiesTable if needed
-    GeoMaterialPropertiesTable* geoPropTable = extMat->GetMaterialPropertiesTable();
+    const GeoMaterialPropertiesTable* geoPropTable = extMat->GetMaterialPropertiesTable();
 
     if(geoPropTable) {
       G4MaterialPropertiesTable* g4PropTable = tFactory->Build(geoPropTable);
