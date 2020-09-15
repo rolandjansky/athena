@@ -77,7 +77,6 @@ namespace TrigConf {
       return m_optsvc->bind(prefix,property);
     }
 
-    //    using OnlyDefaults = Gaudi::tagged_bool<class OnlyDefaults_tag>;
     using OnlyDefaults = Gaudi::Interfaces::IOptionsSvc::OnlyDefaults;
     virtual void broadcast( const std::regex& filter, const std::string& value,
                             OnlyDefaults defaults = OnlyDefaults{true} ) override
@@ -119,9 +118,10 @@ namespace TrigConf {
     }
 
     virtual std::vector<std::string> getClients() const override { return m_josvc->getClients(); }
-    virtual StatusCode readOptions(const std::string& file, const std::string& path = "") override;
-
-    StatusCode readOptionsDB(const std::string& db_server, int smk);
+    virtual StatusCode readOptions(const std::string&, const std::string&) override
+    {
+      throw std::runtime_error("TrigConf::JobOptionsSvc::readOptions() is deprecated");
+    }
     ///@}
 
     /// @name TrigConf::IJobOptionsSvc interface
@@ -134,6 +134,8 @@ namespace TrigConf {
 
   private:
     StatusCode dumpOptions(const std::string& file);
+    StatusCode readOptionsJson(const std::string& file);
+    StatusCode readOptionsDB(const std::string& db_server, int smk);
     void parseDBString(const std::string& s);
 
     int m_smk{-1};        ///< SuperMasterKey
@@ -147,7 +149,7 @@ namespace TrigConf {
     Gaudi::Property<std::string> m_searchPath{this, "SEARCHPATH", {}, "NOT SUPPORTED"};
     Gaudi::Property<std::string> m_dump{this, "DUMPFILE", {}, "Dump job properties into JSON file"};
 
-    /// handle to the "real" IJobOptionsSvc
+    /// handle to the "real" IOptionsSvc
     ServiceHandle<::IJobOptionsSvc> m_josvc;
     ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_optsvc;
   };
