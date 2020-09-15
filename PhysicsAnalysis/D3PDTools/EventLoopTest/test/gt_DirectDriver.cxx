@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -40,8 +40,8 @@ struct MyUnitTestConfig : public EL::UnitTestConfig
 
 namespace EL
 {
-  INSTANTIATE_TEST_CASE_P(DirectDriverTest, UnitTestFixture,
-			  ::testing::Values(MyUnitTestConfig()),);
+  INSTANTIATE_TEST_SUITE_P(DirectDriverTest, UnitTestFixture,
+                           ::testing::Values(MyUnitTestConfig()));
 }
 
 int main (int argc, char **argv)
