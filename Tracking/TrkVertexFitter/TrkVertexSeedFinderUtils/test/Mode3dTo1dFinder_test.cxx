@@ -10,22 +10,18 @@
 
 
 #undef NDEBUG
-#include "TrkVertexSeedFinderUtils/Mode3dTo1dFinder.h"
-#include "TestTools/initGaudi.h"
-#include "TestTools/FLOATassert.h"
-#include "TestTools/expect_exception.h"
-#include "TestTools/random.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TInterpreter.h"
-#include <iostream>
+#include "TestTools/FLOATassert.h"
+#include "TestTools/expect_exception.h"
+#include "TestTools/initGaudi.h"
+#include "TestTools/random.h"
+#include "TrkVertexSeedFinderUtils/Mode3dTo1dFinder.h"
 #include <cassert>
 #include <cmath>
-
-
-// Can't link against these --- they're in a component library.
-#include "../src/Mode3dTo1dFinder.cxx"
+#include <iostream>
 
 
 using Gaudi::Units::mm;

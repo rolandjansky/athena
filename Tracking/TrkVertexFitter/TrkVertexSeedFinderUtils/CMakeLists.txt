@@ -1,38 +1,9 @@
-# $Id: CMakeLists.txt 769975 2016-08-25 07:41:26Z krasznaa $
-################################################################################
-# Package: TrkVertexSeedFinderUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkVertexSeedFinderUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthenaBaseComps
-   DetectorDescription/GeoPrimitives
-   Event/xAOD/xAODTracking
-   GaudiKernel
-   MagneticField/MagFieldConditions   # Exposed by NewtonTrkDistanceFinder.h and Trk2dDistanceSeeder.h
-   Tracking/TrkEvent/TrkParameters
-   Tracking/TrkEvent/TrkParticleBase
-   Tracking/TrkEvent/VxVertex
-   InnerDetector/InDetConditions/BeamSpotConditionsData
-   PRIVATE
-   AtlasTest/TestTools
-   Event/EventPrimitives
-   Event/xAOD/xAODTruth
-   InnerDetector/InDetConditions/InDetBeamSpotService
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   MagneticField/MagFieldElements
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkLinks
-   Tracking/TrkEvent/TrkTrack
-   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces 
-   Tools/PathResolver )
-
 # External dependencies:
-find_package( FFTW )
 find_package( ROOT COMPONENTS Core Tree Hist )
 
 # Component(s) in the package:
@@ -40,87 +11,85 @@ atlas_add_library( TrkVertexSeedFinderUtilsLib
    TrkVertexSeedFinderUtils/*.h
    INTERFACE
    PUBLIC_HEADERS TrkVertexSeedFinderUtils
-   LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkParameters GeoPrimitives
-   VxVertex TrkParticleBase xAODTracking BeamSpotConditionsData )
+   LINK_LIBRARIES  GaudiKernel AthenaBaseComps
+   TrkVertexFitterInterfaces TrkParameters GeoPrimitives xAODTracking
+   MagFieldConditions )
 
 atlas_add_component( TrkVertexSeedFinderUtils
-   src/*.cxx src/components/*.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FFTW_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} EventPrimitives
-   xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements TrkEventPrimitives
-   TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+   src/*.h src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} GaudiKernel
+   AthenaBaseComps TrkParticleBase TrkParameters TrkLinks TrkTrack
+   TrkVertexFitterInterfaces TrkEventPrimitives xAODTracking xAODTruth
+   InDetTrackSelectionToolLib BeamSpotConditionsData EventPrimitives
+   GeoPrimitives MagFieldElements TrkVertexSeedFinderUtilsLib )
 
-atlas_install_joboptions( share/*.py )
-atlas_install_joboptions( share/*.txt )
-
-
+# Test(s) in the package.
 atlas_add_test( NewtonTrkDistanceFinder_test
-                SOURCES test/NewtonTrkDistanceFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements PathResolver TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                LOG_IGNORE_PATTERN "reading the map|field map" )
-
+   SOURCES test/NewtonTrkDistanceFinder_test.cxx
+           src/NewtonTrkDistanceFinder.cxx
+           src/PointOnTrack.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools MagFieldConditions
+   MagFieldElements CxxUtils GaudiKernel PathResolver SGTools StoreGateLib
+   TrkEventPrimitives TrkVertexSeedFinderUtilsLib
+   LOG_IGNORE_PATTERN "reading the map|field map" )
 
 atlas_add_test( Trk2dDistanceSeeder_test
-                SOURCES test/Trk2dDistanceSeeder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements PathResolver TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                LOG_IGNORE_PATTERN "reading the map|field map" )
+   SOURCES test/Trk2dDistanceSeeder_test.cxx
+           src/Trk2dDistanceSeeder.cxx
+           src/PointOnTrack.cxx
+           src/TwoTracks.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel PathResolver
+   SGTools StoreGateLib MagFieldConditions MagFieldElements TrkParameters
+   TrkVertexSeedFinderUtilsLib
+   LOG_IGNORE_PATTERN "reading the map|field map" )
 
 
 atlas_add_test( SeedNewtonTrkDistanceFinder_test
-                SOURCES test/SeedNewtonTrkDistanceFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements PathResolver TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                LOG_IGNORE_PATTERN "reading the map|field map" )
-
+   SOURCES test/SeedNewtonTrkDistanceFinder_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel PathResolver
+   SGTools StoreGateLib MagFieldConditions MagFieldElements
+   TrkVertexSeedFinderUtilsLib
+   LOG_IGNORE_PATTERN "reading the map|field map" )
 
 atlas_add_test( Trk2DDistanceFinder_test
-                SOURCES test/Trk2DDistanceFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements PathResolver TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
-                LOG_IGNORE_PATTERN "reading the map|field map" )
-
+   SOURCES test/Trk2DDistanceFinder_test.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel PathResolver
+   SGTools StoreGateLib MagFieldConditions MagFieldElements
+   TrkVertexSeedFinderUtilsLib
+   LOG_IGNORE_PATTERN "reading the map|field map" )
 
 atlas_add_test( GaussianTrackDensity_test
-                SOURCES test/GaussianTrackDensity_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+   SOURCES test/GaussianTrackDensity_test.cxx
+           src/GaussianTrackDensity.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel TrkTrack
+   TrkEventPrimitives TrkVertexSeedFinderUtilsLib )
+
 # Needed to avoid spurious ubsan warnings.
 set_target_properties( TrkVertexSeedFinderUtils_GaussianTrackDensity_test PROPERTIES ENABLE_EXPORTS True )
 
-
-atlas_add_test( SimpleVertexClusterFinder_test
-                SOURCES test/SimpleVertexClusterFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
-
-
 atlas_add_test( Mode3dFromFsmw1dFinder_test
-                SOURCES test/Mode3dFromFsmw1dFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+   SOURCES test/Mode3dFromFsmw1dFinder_test.cxx
+           src/Mode3dFromFsmw1dFinder.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel TrkParameters
+   TrkVertexSeedFinderUtilsLib )
+
 # Needed to avoid spurious ubsan warnings.
 set_target_properties( TrkVertexSeedFinderUtils_Mode3dFromFsmw1dFinder_test PROPERTIES ENABLE_EXPORTS True )
 
-
 atlas_add_test( Mode3dTo1dFinder_test
-                SOURCES test/Mode3dTo1dFinder_test.cxx
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
-                EventPrimitives
-                xAODTruth InDetTrackSelectionToolLib MagFieldConditions MagFieldElements TrkEventPrimitives
-                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+   SOURCES test/Mode3dTo1dFinder_test.cxx
+           src/Mode3dTo1dFinder.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools CxxUtils GaudiKernel TrkParameters
+   TrkVertexSeedFinderUtilsLib )
+
+# Install files from the package.
+atlas_install_joboptions( share/*.py share/*.txt )
+
