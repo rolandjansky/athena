@@ -116,6 +116,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
 
         # Primary
+        ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
@@ -127,7 +128,9 @@ def setupMenu():
 
         ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-        ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH', stream=[PhysicsStream], groups=SingleElectronGroup),
+        #ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
 
         # TnP triggers
         ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),    
@@ -149,12 +152,19 @@ def setupMenu():
         ChainProp(name='HLT_2g35_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_g35_medium_g25_medium_L12EM20VH', groups=MultiPhotonGroup),
         ChainProp(name='HLT_2g20_tight_L12EM15VH', groups=MultiPhotonGroup),
+        #ChainProp(name='HLT_2g22_tight_L12EM15VHI', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g22_tight_L12EM15VH', groups=MultiPhotonGroup),
+        ChainProp(name='HLT_2g50_loose_L12EM20VH', groups=MultiPhotonGroup),
+
+        # 3photon chains
+        ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
 
         # ATR-19360
         ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
     
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g300_etcut_L1EM22VHI', groups=SinglePhotonGroup),
     ]
 
     TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
