@@ -39,7 +39,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doLowPtLargeD0", False) # Turn running of doLargeD0 second pass down to 100 MeV on and off Turn running of doLargeD0 second pass on and off
   icf.addFlag("InDet.doLargeD0", False)
   icf.addFlag("InDet.useExistingTracksAsInput", False) # Use already processed Track from a (D)ESD input file. This flag is related with ProcessedESDTracks InDetKey 
-  icf.addFlag("InDet.cutLevel", 16) # Control cuts and settings for different lumi to limit CPU and disk space 
+  icf.addFlag("InDet.cutLevel", 19) # Control cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.priVtxCutLevel", 3 ) # Control vertexing cuts and settings for different lumi to limit CPU and disk space 
   icf.addFlag("InDet.doBremRecovery", True) # Turn on running of Brem Recover in tracking
   icf.addFlag("InDet.doCaloSeededBrem", True) # Brem Recover in tracking restricted to Calo ROIs
@@ -182,4 +182,33 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doDigitalROTCreation",False) # use PixelClusterOnTrackToolDigital during ROT creation to save CPU 
   icf.addFlag("InDet.usePixelDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoPixel))
   icf.addFlag("InDet.useSctDCS",  lambda prevFlags : (prevFlags.InDet.useDCS and prevFlags.Detector.RecoSCT))
+
+  from InDetConfig.TrackingCutsFlags import createTrackingFlags, createSLHCTrackingFlags, createIBLTrackingFlags, createHighPileupTrackingFlags, createMinBiasTrackingFlags, createLargeD0TrackingFlags, createR3LargeD0TrackingFlags, createLowPtLargeD0TrackingFlags, createLowPtTrackingFlags, createSLHCConversionFindingTrackingFlags, createVeryLowPtTrackingFlags, createForwardTracksTrackingFlags, createForwardSLHCTracksTrackingFlags, createVeryForwardSLHCTracksTrackingFlags, createBeamGasTrackingFlags, createVtxLumiTrackingFlags, createVtxBeamSpotTrackingFlags, createCosmicsTrackingFlags, createHeavyIonTrackingFlags, createPixelTrackingFlags, createDisappearingTrackingFlags, createSCTTrackingFlags, createTRTTrackingFlags, createSCTandTRTTrackingFlags, createDBMTrackingFlags
+
+  icf.addFlagsCategory ("InDet.Tracking", createTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SLHCTracking", createSLHCTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.IBLTracking", createIBLTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HighPileupTracking", createHighPileupTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.MinBiasTracking", createMinBiasTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LargeD0Tracking", createLargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.R3LargeD0Tracking", createR3LargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtLargeD0Tracking", createLowPtLargeD0TrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.LowPtTracking", createLowPtTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SLHCConversionFindingTracking", createSLHCConversionFindingTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VeryLowPtTracking", createVeryLowPtTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.ForwardTracksTracking", createForwardTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.ForwardSLHCTracksTracking", createForwardSLHCTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VeryForwardSLHCTracksTracking", createVeryForwardSLHCTracksTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.BeamGasTracking", createBeamGasTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxLumiTracking", createVtxLumiTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.VtxBeamSpotTracking", createVtxBeamSpotTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.CosmicsTracking", createCosmicsTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.HeavyIonTracking", createHeavyIonTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.PixelTracking", createPixelTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DisappearingTracking", createDisappearingTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTTracking", createSCTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.TRTTracking", createTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.SCTandTRTTracking", createSCTandTRTTrackingFlags, prefix=True)
+  icf.addFlagsCategory ("InDet.DBMTracking", createDBMTrackingFlags, prefix=True)
+
   return icf
