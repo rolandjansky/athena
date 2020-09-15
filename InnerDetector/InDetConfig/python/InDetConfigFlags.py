@@ -165,7 +165,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doTIDE_Ambi", True) # Switch for running TIDE Ambi 
   icf.addFlag("InDet.doRefitInvalidCov", False) # Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices.
   icf.addFlag("InDet.doRejectInvalidCov", False) # Reject all tracks which have a non positive definite covariance matrix after the refit.
-  icf.addFlag("InDet.doTIDE_RescalePixelCovariances", False) # Switch for running TIDE pixel cluster covariance rescaling 
   icf.addFlag("InDet.doSSSfilter", True) # Switch for running SSS filter
   icf.addFlag("InDet.pT_SSScut", -1) # Pt cut for SSS filter [GeV]
   icf.addFlag("InDet.ForceCoraCool", False) # Use old (non CoolVectorPayload) SCT Conditions 
