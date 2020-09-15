@@ -49,12 +49,22 @@ public:
     ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  void scattering(IMultiStateMaterialEffects::Cache&,
-                  const ComponentParameters&,
-                  const MaterialProperties&,
-                  double,
-                  PropDirection direction = anyDirection,
-                  ParticleHypothesis particleHypothesis = nonInteracting) const;
+  struct GSFScatteringCache
+  {
+    double deltaThetaCov = 0;
+    double deltaPhiCov = 0;
+
+    void reset()
+    {
+      deltaThetaCov = 0;
+      deltaPhiCov = 0;
+    }
+  };
+
+  void scattering(GSFScatteringCache&,
+                  const ComponentParameters& componentParameters,
+                  const MaterialProperties& materialProperties,
+                  double pathLength) const;
 
   void energyLoss(Trk::GSFEnergyLossCache&,
                   const ComponentParameters&,
