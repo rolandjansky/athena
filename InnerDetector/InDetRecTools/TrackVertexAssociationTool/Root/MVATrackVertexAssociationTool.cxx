@@ -28,15 +28,17 @@ MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& 
   AsgTool(name),
   m_isSequential(true),
   m_wp("Tight"),
-  m_cut(-1.0)
+  m_cut(-1.0),
+  m_usePathResolver(true)
 {
-  declareProperty("NetworkFileName", m_fileName,     "Name of the input lwtnn network file."                                                              );
-  declareProperty("InputNames",      m_inputNames,   "Vector of the network's input variable names (std::vector<std::string>)."                           );
-  declareProperty("InputTypes",      m_inputTypes,   "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");
-  declareProperty("OutputNodeName",  m_outputName,   "Name of the output node to cut on for TVA."                                                         );
-  declareProperty("IsSequential",    m_isSequential, "Is the network sequential (true) or functional (false)."                                            );
-  declareProperty("WorkingPoint",    m_wp,           "TVA working point to apply."                                                                        );
-  declareProperty("OutputCut",       m_cut,          "TVA cut value on the output value (set manually with \"Custom\" WP)."                               );
+  declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
+  declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );
+  declareProperty("InputTypes",      m_inputTypes,      "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");
+  declareProperty("OutputNodeName",  m_outputName,      "Name of the output node to cut on for TVA."                                                         );
+  declareProperty("IsSequential",    m_isSequential,    "Is the network sequential (true) or functional (false)."                                            );
+  declareProperty("WorkingPoint",    m_wp,              "TVA working point to apply."                                                                        );
+  declareProperty("OutputCut",       m_cut,             "TVA cut value on the output value (set manually with \"Custom\" WP)."                               );
+  declareProperty("UsePathResolver", m_usePathResolver, "Use the PathResolver for finding the input lwtnn network file."                                     );
 }
 
 StatusCode MVATrackVertexAssociationTool::initialize() {
@@ -47,7 +49,7 @@ StatusCode MVATrackVertexAssociationTool::initialize() {
   ATH_CHECK(m_eventInfo.initialize());
 
   // Init network
-  if (this->initializeNetwork()) {
+  if (!this->initializeNetwork()) {
     ATH_MSG_ERROR("Could not initialize network properly.");
     return StatusCode::FAILURE;
   }
@@ -82,7 +84,7 @@ StatusCode MVATrackVertexAssociationTool::finalize() {
   ATH_MSG_INFO("Finalizing MVATrackVertexAssociationTool.");
 
   // Finalize network
-  if (this->finalizeNetwork()) {
+  if (!this->finalizeNetwork()) {
     ATH_MSG_ERROR("Could not finalize network properly.");
     return StatusCode::FAILURE;
   }
@@ -225,12 +227,21 @@ bool MVATrackVertexAssociationTool::initializeNetwork() {
   }
   m_inputEval.load(m_inputMap);
 
-  // Load our input file 
-  std::string fileName = PathResolverFindCalibFile(m_fileName);
-  if (fileName.empty()) {
-    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not find input network file: " + m_fileName);
+  // Load our input file
+  std::string fileName; 
+  if (m_usePathResolver) {
+    fileName = PathResolverFindCalibFile(m_fileName);
+    if (fileName.empty()) {
+      throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not find input network file: " + m_fileName);
+    }
+  }
+  else {
+    fileName = m_fileName;
   }
   std::ifstream netFile(fileName);
+  if (!netFile) {
+    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not properly open file: " + fileName);
+  }
 
   // For sequential:
   if (m_isSequential) {

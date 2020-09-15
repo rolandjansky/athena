@@ -23,12 +23,10 @@
 #include <vector>
 
 // Forward declarations
-#ifndef __CINT__
 namespace lwt {
   class LightweightNeuralNetwork;
   class LightweightGraph;
 }
-#endif
 
 namespace CP {
 
@@ -91,6 +89,9 @@ private:
   // TVA cut value on the output discriminant
   float m_cut;
 
+  // Use the PathResolver to find our input file
+  bool m_usePathResolver;
+
   // Input variable name/type map
   MVAInputEvaluator::InputSelectionMap m_inputMap;
 
@@ -104,10 +105,8 @@ private:
   std::string m_inputNodeName = ""; //!
 
   // Network as implemented using lwtnn
-  #ifndef __CINT__
   lwt::LightweightNeuralNetwork* m_network = nullptr; //!
   lwt::LightweightGraph*         m_graph   = nullptr; //!
-  #endif
 
 };
 
