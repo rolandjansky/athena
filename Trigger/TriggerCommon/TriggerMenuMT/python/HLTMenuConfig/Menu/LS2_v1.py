@@ -305,7 +305,6 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
-       ChainProp(name='HLT_cscmon_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
 
     ]
 
