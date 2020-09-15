@@ -61,9 +61,10 @@ StatusCode PFMuonFlowElementAssoc::execute() {
 
   // Get container for muons
   SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonNeutralFEWriteDecorHandle (m_muonNeutralFEWriteDecorKey);
   // get container for charged flow elements
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<FlowElementLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey);
 
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonChargedFEWriteDecorKey.contHandleKey()); // readhandle for muon
@@ -109,6 +110,35 @@ StatusCode PFMuonFlowElementAssoc::execute() {
     ChargedFEmuonWriteDecorHandle(*FE) = feMuonLinks;
   } // end of charged Flow Element loop
 
+  //////////////////////////////////////////////////
+  //   Loop over Neutral FlowElements
+  //////////////////////////////////////////////////
+  for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
+    //get the index of the cluster corresponding to the Neutral FlowElements
+    size_t FEclusterindex=FE->otherObjects().at(0)->index();
+    
+    //design the vector of ElementLinks
+    std::vector<MuonLink_t> feMuonLinks;
+    for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
+      //Retrieve the ElementLink vector of clusters      
+      const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
+
+      //access object from element link
+      const xAOD::CaloClusterContainer* clustercont = ClusterLink.getDataPtr();
+      for (const xAOD::CaloCluster* cluster: *clustercont){
+	size_t cluster_index=cluster->index();
+	if(cluster_index==FEclusterindex){
+	  // Add Muon element link to a vector
+	  // index() is the unique index of the muon in the muon container   
+	  feMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+	  // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	  muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+	} // end of matching cluster index block	    	
+      }  // loop over elementlink vector
+    } // loop over muons
+    NeutralFEmuonWriteDecorHandle(*FE)=feMuonLinks;
+  } // loop over neutral FE
+  
 
   //////////////////////////////////////////////////
   //   WRITE OUTPUT: ADD HANDLES TO MUON CONTAINERS
