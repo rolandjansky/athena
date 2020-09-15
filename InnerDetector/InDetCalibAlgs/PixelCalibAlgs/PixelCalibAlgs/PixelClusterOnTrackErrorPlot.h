@@ -17,9 +17,7 @@ namespace PixelCalib{
 
 class PixelClusterOnTrackErrorData;
 
-class PixelClusterOnTrackErrorPlot;
-
-class ATLAS_NOT_THREAD_SAFE PixelClusterOnTrackErrorPlot{ // static variable is used.
+class PixelClusterOnTrackErrorPlot{
 
 public :
 	PixelClusterOnTrackErrorPlot(PixelClusterOnTrackErrorData &parameters,

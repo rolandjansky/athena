@@ -22,7 +22,8 @@
 
 class IBLParameterSvc;
 
-class PixelChargeToTConversion: public AthAlgorithm{
+// FIXME: Modifies data in SG!
+class ATLAS_NOT_THREAD_SAFE PixelChargeToTConversion : public AthAlgorithm{
   
  public:
   PixelChargeToTConversion(const std::string& name, ISvcLocator* pSvcLocator);
