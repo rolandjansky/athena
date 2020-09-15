@@ -102,20 +102,21 @@ StatusCode CTPUnpackingTool::start() {
 
 
 StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& enabledChains ) const {
-  auto nTAVItems = Monitored::Scalar( "TAVItems", 0 );
+  auto nItems = Monitored::Scalar( "Items", 0 );
   auto nChains   = Monitored::Scalar( "Chains", 0 );
-  auto monitorit = Monitored::Group( m_monTool, nTAVItems, nChains );
-  auto tav = roib.cTPResult().TAV();
-  const size_t tavSize = tav.size();
+  auto monitorit = Monitored::Group( m_monTool, nItems, nChains );
 
-  for ( size_t wordCounter = 0; wordCounter < tavSize; ++wordCounter ) {
+  auto ctpbits = m_useTBPBit ? roib.cTPResult().TBP() : roib.cTPResult().TAV();
+  const size_t bitsSize = ctpbits.size();
+
+  for ( size_t wordCounter = 0; wordCounter < bitsSize; ++wordCounter ) {
     for ( size_t bitCounter = 0;  bitCounter < 32; ++bitCounter ) {
       const size_t ctpIndex = 32*wordCounter + bitCounter;
-      const bool decision = ( tav[wordCounter].roIWord() & ((uint32_t)1 << bitCounter) ) > 0;
+      const bool decision = ( ctpbits[wordCounter].roIWord() & ((uint32_t)1 << bitCounter) ) > 0;
 
       if ( decision == true or m_forceEnable ) {
 	if ( decision ) {
-	  nTAVItems = nTAVItems + 1;
+	  nItems = nItems + 1;
 	  ATH_MSG_DEBUG( "L1 item " << ctpIndex << " active, enabling chains "
 			 << (m_forceEnable ? " due to the forceEnable flag" : " due to the seed"));
 	}
@@ -136,7 +137,7 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
   for ( auto chain: enabledChains ) {
     ATH_MSG_DEBUG( "Enabling chain: " << chain );
   }
-  if ( nTAVItems == 0 ) {
+  if ( nItems == 0 ) {
     ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
     return StatusCode::FAILURE;
   }
