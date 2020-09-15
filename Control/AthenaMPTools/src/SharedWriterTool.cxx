@@ -243,6 +243,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedWriterTool::exec_func()
   if(sc.isFailure() || sharedWriterSvc==0) {
     ATH_MSG_ERROR("Error retrieving AthenaRootSharedWriterSvc");
     all_ok=false;
+  } else if(!sharedWriterSvc->share(m_nprocs).isSuccess()) {
+    ATH_MSG_ERROR("Exec function could not share data");
+    all_ok=false;
   }
   AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_cnvSvc);
   if (cnvSvc == 0 || !cnvSvc->disconnectOutput("").isSuccess()) {
