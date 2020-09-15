@@ -13,8 +13,7 @@ TrigConf::HLTPrescalesSet::HLTPrescalesSet(const boost::property_tree::ptree & d
    update();
 }
 
-TrigConf::HLTPrescalesSet::~HLTPrescalesSet()
-{}
+TrigConf::HLTPrescalesSet::~HLTPrescalesSet() = default;
 
 void
 TrigConf::HLTPrescalesSet::update()

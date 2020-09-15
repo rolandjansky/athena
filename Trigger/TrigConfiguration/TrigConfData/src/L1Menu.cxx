@@ -25,86 +25,108 @@ TrigConf::L1Menu::update()
    if(! isInitialized() || empty() ) {
       return;
    }
-   m_name = getAttribute("name");
-   // thresholds
-   for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
-      for( auto & thrByType : data().get_child( path ) ) {
-         const std::string & thrType = thrByType.first;
-         if (thrType == "legacyCalo")
-            continue;
+
+   try {
+      m_name = getAttribute("name");
+      // thresholds
+      for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+         for( auto & thrByType : data().get_child( path ) ) {
+            const std::string & thrType = thrByType.first;
+            if (thrType == "legacyCalo")
+               continue;
          
-         // first create the extraInfo object for this type of thresholds
-         auto extraInfo = m_thrExtraInfo.addExtraInfo(thrByType.first,thrByType.second);
+            // first create the extraInfo object for this type of thresholds
+            auto extraInfo = m_thrExtraInfo.addExtraInfo(thrByType.first,thrByType.second);
 
-         auto & v = m_thresholdsByType[thrType] = std::vector<std::shared_ptr<TrigConf::L1Threshold>>();
+            auto & v = m_thresholdsByType[thrType] = std::vector<std::shared_ptr<TrigConf::L1Threshold>>();
+            if(thrType == "internal") {
+               for( auto & thr : data().get_child( path + ".internal.names") ) {
+                  const std::string thrName = thr.second.data();
+                  v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
+               }
+            } else {
+               for( auto & thr : data().get_child( path + "." + thrType + ".thresholds") ) {
+                  const std::string thrName = thr.first;
+                  v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
+               }
+            }
+            for( auto & thr : v ) {
+               m_thresholdsByName[ thr->name() ] = thr;
+            }
+         }
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (thresholds). " << ex.what() << std::endl;
+      throw;
+   }
 
-         if(thrType == "internal") {
-            for( auto & thr : data().get_child( path + ".internal.names") ) {
-               const std::string thrName = thr.second.data();
-               v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
+   try {
+      // boards
+      for( auto & board : data().get_child( "boards" ) ) {
+         m_boards.emplace( std::piecewise_construct,
+                           std::forward_as_tuple(board.first),
+                           std::forward_as_tuple(board.first, board.second) );
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (boards). " << ex.what() << std::endl;
+      throw;
+   }
+
+   try {
+      // connectors
+      for( auto & conn : data().get_child( "connectors" ) ) {
+         auto res = m_connectors.emplace( std::piecewise_construct,
+                                          std::forward_as_tuple(conn.first),
+                                          std::forward_as_tuple(conn.first, conn.second) );
+         for( auto & tl : res.first->second.triggerLineNames() ) {
+            m_threshold2ConnectorName.emplace( std::piecewise_construct,
+                                               std::forward_as_tuple(tl),
+                                               std::forward_as_tuple(conn.first));
+         }
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (connectors). " << ex.what() << std::endl;
+      throw;
+   }
+
+   try {
+      // algorithms
+      for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+         auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
+         if(algoCategory == "MULTTOPO") {
+            for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
+               v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
             }
          } else {
-            for( auto & thr : data().get_child( path + "." + thrType + ".thresholds") ) {
-               const std::string thrName = thr.first;
-               v.push_back( L1Threshold::createThreshold( thrName, thrType, extraInfo, thr.second ) );
+            for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
+               std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
+               for( auto & algorithm : data().get_child( subpath ) ) {
+                  v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+               }
             }
          }
-         for( auto & thr : v ) {
-            m_thresholdsByName[ thr->name() ] = thr;
-         }
-
-      }
-   }
-
-   // boards
-   for( auto & board : data().get_child( "boards" ) ) {
-      m_boards.emplace( std::piecewise_construct,
-                        std::forward_as_tuple(board.first),
-                        std::forward_as_tuple(board.first, board.second) );
-   }
-
-   // connectors
-   for( auto & conn : data().get_child( "connectors" ) ) {
-      auto res = m_connectors.emplace( std::piecewise_construct,
-                                       std::forward_as_tuple(conn.first),
-                                       std::forward_as_tuple(conn.first, conn.second) );
-
-      for( auto & tl : res.first->second.triggerLineNames() ) {
-         m_threshold2ConnectorName.emplace( std::piecewise_construct,
-                                            std::forward_as_tuple(tl),
-                                            std::forward_as_tuple(conn.first));
-      }
-   }
-
-   // algorithms
-   for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
-      auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
-      if(algoCategory == "MULTTOPO") {
-         for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
-            v.emplace_back( alg.first, L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, algoCategory, alg.second );
-         }
-      } else {
-         for( L1TopoAlgorithm::AlgorithmType algoType : { L1TopoAlgorithm::AlgorithmType::DECISION, L1TopoAlgorithm::AlgorithmType::SORTING } ) {
-            std::string subpath = "topoAlgorithms." + algoCategory + (algoType==L1TopoAlgorithm::AlgorithmType::DECISION ? ".decisionAlgorithms" : ".sortingAlgorithms" );  
-            for( auto & algorithm : data().get_child( subpath ) ) {
-               v.emplace_back( algorithm.first, algoType, algoCategory, algorithm.second );
+         for( auto & algo : v ) {
+            if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
+               std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
+               throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
+            }
+            m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
+            for( const std::string & output : algo.outputs() ) {
+               if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
+                  std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
+                  throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
+               }
+               m_algorithmsByOutput[algoCategory][output] = & algo;
             }
          }
       }
-      for( auto & algo : v ) {
-         if( m_algorithmsByName[algoCategory].count(algo.name()) > 0 ) {
-            std::cerr << "ERROR : Topo algorithm with name " << algo.name() << " and of type " << algoCategory << " already exists" << std::endl;
-            throw std::runtime_error("Found duplicate topo algorithm name " + algo.name() + " of type " + algoCategory);
-         }
-         m_algorithmsByName[ algoCategory ][ algo.name() ] = & algo;
-         for( const std::string & output : algo.outputs() ) {
-            if( m_algorithmsByOutput[algoCategory].count(output) > 0 ) {
-               std::cerr << "ERROR : Topo algorithm output " << output << " already exists" << std::endl;
-               throw std::runtime_error("Found duplicate topo algorithm output " + output + " of type " + algoCategory);
-            }
-            m_algorithmsByOutput[algoCategory][output] = & algo;
-         }
-      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
+      throw;
    }
 }
 
@@ -379,6 +401,12 @@ TrigConf::L1Menu::printMenu(bool full) const
 {
    cout << "L1 menu '" << name() << "'" << endl;
    cout << "Items: " << size() << endl;
+   if(full) {
+      int c(0);
+      for(const L1Item & item : *this ) {
+         cout << "  " << c++ << ": " << item.name() << endl;
+      }
+   }
    cout << "Thresholds: " << thresholds().size() << "(of " << thresholdTypes().size() << " different types)" << endl;
    if(full) {
       int c(0);
