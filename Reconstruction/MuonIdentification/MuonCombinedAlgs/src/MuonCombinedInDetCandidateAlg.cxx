@@ -3,13 +3,14 @@
 */
 
 #include "MuonCombinedInDetCandidateAlg.h"
+
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 using namespace MuonCombined;
 
 MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator), m_doSiliconForwardMuons(false)
+    : AthReentrantAlgorithm(name, pSvcLocator), m_doSiliconForwardMuons(false)
 {
     declareProperty("TrackParticleLocation", m_indetTrackParticleLocation = {"InDetTrackParticles"});
     declareProperty("ForwardParticleLocation", m_indetForwardTrackParticleLocation = "InDetForwardTrackParticles");
@@ -33,49 +34,51 @@ MuonCombinedInDetCandidateAlg::initialize()
 }
 
 StatusCode
-MuonCombinedInDetCandidateAlg::execute()
+MuonCombinedInDetCandidateAlg::execute(const EventContext& ctx) const
 {
     auto collection = std::make_unique<InDetCandidateCollection>(SG::OWN_ELEMENTS);
 
-    m_currentTrackSelector = m_trackSelector;
+
     for (auto location : m_indetTrackParticleLocation) {
-        if (create(location, collection).isFailure()) {
+        if (create(ctx, m_trackSelector, location, collection).isFailure()) {
             ATH_MSG_FATAL("Could not create InDetCandidateCollection");
             return StatusCode::FAILURE;
         }
     }
     if (m_doSiliconForwardMuons) {
-        m_currentTrackSelector = m_forwardTrackSelector;
-        if (create(m_indetForwardTrackParticleLocation, collection, true).isFailure()) {
+        if (create(ctx, m_forwardTrackSelector, m_indetForwardTrackParticleLocation, collection, true).isFailure()) {
             ATH_MSG_FATAL("Could not create InDetForwardCandidateCollection");
             return StatusCode::FAILURE;
         }
     }
-    SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_candidateCollectionName);
+    SG::WriteHandle<InDetCandidateCollection> indetCandidateCollection(m_candidateCollectionName, ctx);
     ATH_CHECK(indetCandidateCollection.record(std::move(collection)));
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode
-MuonCombinedInDetCandidateAlg::create(const SG::ReadHandleKey<xAOD::TrackParticleContainer>& location,
+MuonCombinedInDetCandidateAlg::create(const EventContext&                                    ctx,
+                                      const ToolHandle<Trk::ITrackSelectorTool>&             currentTrackSelector,
+                                      const SG::ReadHandleKey<xAOD::TrackParticleContainer>& location,
                                       std::unique_ptr<InDetCandidateCollection>&             collection,
                                       bool flagCandidateAsSiAssociate) const
 {
-    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(location);
+    SG::ReadHandle<xAOD::TrackParticleContainer> indetTrackParticles(location, ctx);
     if (!indetTrackParticles.isValid()) {
         ATH_MSG_ERROR("Could not read " << location);
         return StatusCode::FAILURE;
     }
     InDetCandidateCollection* tempCandidates = new InDetCandidateCollection(SG::VIEW_ELEMENTS);
-    create(*indetTrackParticles, *tempCandidates, flagCandidateAsSiAssociate);
+    create(currentTrackSelector, *indetTrackParticles, *tempCandidates, flagCandidateAsSiAssociate);
     collection->insert(collection->end(), tempCandidates->begin(), tempCandidates->end());
     delete tempCandidates;
     return StatusCode::SUCCESS;
 }
 
 void
-MuonCombinedInDetCandidateAlg::create(const xAOD::TrackParticleContainer& indetTrackParticles,
+MuonCombinedInDetCandidateAlg::create(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
+                                      const xAOD::TrackParticleContainer&        indetTrackParticles,
                                       InDetCandidateCollection& outputContainer, bool flagCandidateAsSiAssociated) const
 {
 
@@ -85,7 +88,7 @@ MuonCombinedInDetCandidateAlg::create(const xAOD::TrackParticleContainer& indetT
 
     for (auto* tp : indetTrackParticles) {
         ++trackIndex;
-        if (!isValidTrackParticle(tp)) continue;
+        if (!isValidTrackParticle(currentTrackSelector, tp)) continue;
 
         ElementLink<xAOD::TrackParticleContainer> link(indetTrackParticles, trackIndex);
         if (!link.isValid()) {
@@ -124,14 +127,15 @@ MuonCombinedInDetCandidateAlg::create(const xAOD::TrackParticleContainer& indetT
 }
 
 bool
-MuonCombinedInDetCandidateAlg::isValidTrackParticle(const xAOD::TrackParticle* const tp) const
+MuonCombinedInDetCandidateAlg::isValidTrackParticle(const ToolHandle<Trk::ITrackSelectorTool>& currentTrackSelector,
+                                                    const xAOD::TrackParticle* const           tp) const
 {
     if (!tp->perigeeParameters().covariance()) {
         ATH_MSG_WARNING("InDet TrackParticle without perigee! ");
         return false;
     }
 
-    if (!m_currentTrackSelector->decision(*tp)) {
+    if (!currentTrackSelector->decision(*tp)) {
         if (msgLvl(MSG::VERBOSE) && tp->pt() > 5000.) printTrackParticleInfo(tp, "Discarding");
         return false;
     }
