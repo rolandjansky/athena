@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef INDETPHYSVALMONITORING_InDetPerfPlot_resITk
 #define INDETPHYSVALMONITORING_InDetPerfPlot_resITk
@@ -22,7 +22,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetPlotBase.h"
-#include "GetMeanWidth.h"
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
 
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
@@ -70,19 +70,18 @@ private:
   const double  m_etaMin = -4.0;
   const double  m_etaMax = 4.0;
   static const int m_nPtBins = 9;
-  static const int m_nResHist = 4;
-
+  static const int m_nResHist = 2;
 
   float m_EtaBins[m_nEtaBins + 1];
   float m_PtBins[m_nPtBins + 1] = {
     0.0, 0.5, 0.7, 1.0, 2.0, 3.0, 5.0, 10.0, 20.0, 50.0
   };
   std::string m_resHisto[m_nResHist] = {
-    "resolutionRMS", "meanRMS", "resolutionGAUS", "meanGAUS"
+    "resolutionRMS", "meanRMS"
   };
   
-  IDPVM::GetMeanWidth m_getMeanWidth;
-  IDPVM::GetMeanWidth::methods m_meanWidthMethod;
+  IDPVM::ResolutionHelper m_resolutionHelper;
+  IDPVM::ResolutionHelper::methods m_resolutionMethod;
   
   bool m_primTrk;
   bool m_secdTrk;
@@ -91,12 +90,8 @@ private:
   void initializePlots();
   void finalizePlots();
 
-  void makeResolutions(TH2* h, TH1* h2[m_nResHist], TH1* h3[], bool s);
-  void makeResolutions(TH2* h, TH1* h2[m_nResHist]);
-
-  void makeResolutions(TH3* h, TH1* h2[][m_nResHist], TH1* h3[][m_nResHist]);
   void getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
-				   IDPVM::GetMeanWidth::methods p_method);
+				   IDPVM::ResolutionHelper::methods p_method);
   void getTrackParameters(const xAOD::TruthParticle& truthprt);
   void getTrackParameters(const xAOD::TrackParticle& truthprt);
   void getPlotParameters();

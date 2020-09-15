@@ -1,293 +1,184 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
-  ____________________________________________________________________________
-
-  merge root files from several (grid) runs
-  dedicated treatment of profiles and efficiencies
-  Author: Liza Mijovic
-   ____________________________________________________________________________
+/**
+*  ____________________________________________________________________________
+*  @file postProcessIDPVMHistos.cxx
+*  @author: Max Goblirsch
+*  Based on code by Liza Mijovic, Soeren Prell
+*
+*  Goal: Update resolutions extracted from 2D histograms 
+*        after merging several output files (typically after grid running) 
+*   ____________________________________________________________________________
 */
 
-#define RLN cout << "l" << __LINE__ << ": ";
-// 0..3 in increasing verbosity
-#define PRINTDBG 2
-#define XXX std::cout << __FUNCTION__ << __LINE__ << std::endl;
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
+
 #include <iostream>
-#include <iterator>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/program_options.hpp>
-
-#include "TClass.h"
-#include "TEfficiency.h"
 #include "TFile.h"
+#include "TSystem.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TKey.h"
-#include "TMath.h"
-#include "TObjString.h"
 #include "TObject.h"
-#include "TProfile.h"
-#include "TROOT.h"
-#include "TSystem.h"
+#include "TClass.h"
 
 using namespace std;
 
-namespace po = boost::program_options;
-
-int process_th1(TH1 *p_h1, TH1 *p_h2) {
-  p_h1->Add(p_h2);
-  return 0;
-}
-
-int process_efficiency(TEfficiency *p_e1, TEfficiency *p_e2) {
-  if (PRINTDBG > 2)
-    cout << "adding efficiency " << p_e1->GetName() << endl;
-  double pre1 = p_e1->GetTotalHistogram()->GetEntries();
-  double pre2 = p_e2->GetTotalHistogram()->GetEntries();
-  p_e1->Add(*p_e2);
-  double post = p_e1->GetTotalHistogram()->GetEntries();
-  if (PRINTDBG > 2)
-    cout << "pre1 pre2 post " << pre1 << " + " << pre2 << " = " << post << endl;
-  return 0;
-}
-
-int process_profile(TProfile */*p_p1*/, TProfile */*p_p2*/) {
-  // TODO
-  return 0;
-}
-void writeOut(TFile *fTarget, TObject *obj, std::string objname) {
-  // ID target dir
-  std::string objpath = objname.substr(0, objname.find_last_of("/"));
-  std::string objDestName = objname.substr(objname.find_last_of("/") + 1);
-
-  TDirectory *dir = gDirectory;
-  fTarget->cd(objpath.c_str());
-  obj->Write(objDestName.c_str(), TObject::kOverwrite);
-  dir->cd();
-}
-int process_object(string p_objname, TFile *p_ftarget, TFile *p_ftosumm,
-                   bool p_second_pass) {
-  int ret = 0;
-  if (PRINTDBG > 2)
-    cout << "process_object p_objname " << p_objname << endl;
-  TObject *o1 = (TObject *)p_ftarget->Get(p_objname.c_str());
-  TObject *o2 = (TObject *)p_ftosumm->Get(p_objname.c_str());
-  if (!o1 || !o2)
-    return 1;
-  if (p_second_pass) {
-    if (o1->IsA()->InheritsFrom(TProfile::Class())) {
-      if (PRINTDBG > 2)
-        cout << "profile " << o1->GetName() << endl;
-      TProfile *p1 = dynamic_cast<TProfile *>(o1);
-      TProfile *p2 = dynamic_cast<TProfile *>(o2);
-      ret = process_profile(p1, p2);
-      if (!ret) {
-        writeOut(p_ftarget, p1, p_objname);
-      }
-    }
-  } else {
-    if (o1->IsA()->InheritsFrom(TEfficiency::Class())) {
-      if (PRINTDBG > 2)
-        cout << "TEfficiency " << o1->GetName() << endl;
-      TEfficiency *e1 = dynamic_cast<TEfficiency *>(o1);
-      TEfficiency *e2 = dynamic_cast<TEfficiency *>(o2);
-      ret = process_efficiency(e1, e2);
-      double post = e1->GetTotalHistogram()->GetEntries();
-      if (PRINTDBG > 2)
-        cout << "postwrote " << post << endl;
-      if (!ret) {
-        writeOut(p_ftarget, e1, p_objname);
-      }
-    } else if (o1->IsA()->InheritsFrom(TH1::Class())) {
-      if (PRINTDBG > 2)
-        cout << "TH1 " << o1->GetName() << endl;
-      TH1 *h1 = dynamic_cast<TH1 *>(o1);
-      TH1 *h2 = dynamic_cast<TH1 *>(o2);
-      ret = process_th1(h1, h2);
-      if (!ret) {
-        writeOut(p_ftarget, h1, p_objname);
-      }
-    }
-  }
-  return ret;
-}
-
-void get_all_objects(TDirectory *const p_source, vector<string> &p_all_objects,
-                     string p_dirup = "") {
-
-  TIter nextkey(p_source->GetListOfKeys());
-  TDirectory *savdir = gDirectory;
-  TKey *key;
-  while ((key = (TKey *)nextkey())) {
-    TClass *cl = gROOT->GetClass(key->GetClassName());
-    if (!cl)
-      continue;
-    if (cl->InheritsFrom(TDirectory::Class())) {
-      p_source->cd(key->GetName());
-      TDirectory *subdir = gDirectory;
-      string oneup = subdir->GetName();
-      string dirup = ("" != p_dirup) ? p_dirup + "/" + oneup : oneup;
-      get_all_objects(subdir, p_all_objects, dirup);
-    }
-    p_all_objects.push_back(p_dirup + "/" + string(key->GetName()));
-    savdir->cd();
-  }
-  return;
-}
 
 bool file_exists(const string p_name) {
-  return (gSystem->AccessPathName(p_name.c_str(), kFileExists)) ? false : true;
+  return (gSystem->AccessPathName(p_name.c_str(), kFileExists))?
+    false : true;
 }
 
-int process_histos(string p_ofile, string p_infile) {
-  if (PRINTDBG > 0)
-    cout << "merging file " << p_infile << " into " << p_ofile << endl;
-
-  // output file pre-exists by construction;
-  // at start of summing the output is created copy of 1st input
-  TFile *ofile = new TFile(p_ofile.c_str(), "UPDATE");
-  if (!ofile) {
-    cout << "could not open file for update " << endl;
-    cout << p_ofile << endl;
-    return 1;
-  }
-
-  vector<string> all_objects;
-  TDirectory *topdir = gDirectory;
-  get_all_objects(topdir, all_objects);
-
-  TFile *const infile = new TFile(p_infile.c_str(), "READ");
-  if (!infile) {
-    cout << "could not open input file for reading " << endl;
-    cout << p_infile << endl;
-    return 1;
-  }
-
-  // process histograms and efficiencies, that can be summed directly
-  bool second_pass = false;
-  for (auto & obj : all_objects) {
-    if (PRINTDBG > 2)
-      cout << "running object  " << obj << endl;
-    int ret = process_object(obj, ofile, infile, second_pass);
-    if (0 != ret) {
-      cout << "Error processing " << obj << endl;
-    }
-  }
-  // process TProfiles, that require pre-summed 2d-histograms
-  second_pass = true;
-  for (auto & obj : all_objects) {
-    if (PRINTDBG > 2)
-      cout << "running object 2nd pass " << obj;
-    int ret = process_object(obj, ofile, infile, second_pass);
-    if (0 != ret) {
-      cout << "Error processing " << obj << endl;
-    }
-  }
-  if (PRINTDBG > 1)
-    cout << "loop all done " << endl;
-
-  ofile->Close();
-  infile->Close();
-
-  return 0;
+// check if the name of an object matches what we expect from a resolution helper 
+bool isResolutionHelper(TObject* entry){
+  const std::string objName{entry->GetName()}; 
+  return ((objName.find("resHelper") == 0 || objName.find("pullHelper") == 0) && dynamic_cast<TH1*>(entry));
 }
 
-int main(int ac, char *av[]) {
+// get the x axis observable and resolution (y axis) from the name of a 2D histo. 
+// Relies on the conventions within IDPVM
+std::pair<std::string, std::string> getObservableAndReso(const TObject* resHelper){
+    const std::string name{resHelper->GetName()};
+    const std::string keyWord = name.find("res")!=std::string::npos ? "resHelper" : "pullHelper";
+    const size_t offset = keyWord.size();
+    auto start = name.find(keyWord)+offset;
 
-  vector<string> infiles;
-  string ofile = "";
-
-  try {
-    po::options_description desc("Allowed arguments: ");
-    desc.add_options()("h", "print help")("o", po::value<string>(),
-                                          "output root file 'summ.root'")(
-        "i", po::value<string>(), "inputs 'file1.root,file2.root,file3.root'");
-
-    po::variables_map vm;
-    po::store(po::parse_command_line(ac, av, desc), vm);
-    po::notify(vm);
-
-    if (vm.count("h")) {
-
-      cout << "\n" << desc << "\n" << endl;
-      const char *ex_run = "./postprocessHistos_updt --i \"summ.root\" "
-                           "--o \"file1.root,file2.root,file3.root\" ";
-      cout << "\n------- run -------" << endl;
-      cout << ex_run << endl;
-      cout << "\n";
-      return 0;
+    std::string keyWord2 {"_pos"};
+    size_t offset2 = keyWord2.size();
+    auto sep = name.find(keyWord2);
+    if(sep!=std::string::npos){
+      return {name.substr(start, sep-start)+"_pos", name.substr(sep+offset2)};
+    }
+    keyWord2 = "_neg";
+    sep = name.find(keyWord2);
+    if(sep!=std::string::npos){
+      return {name.substr(start, sep-start)+"_neg", name.substr(sep+offset2)};
     }
 
-    if (vm.count("o")) {
-      ofile = vm["o"].as<string>();
-      cout << "Output file set to " << ofile << endl;
-    }
+    sep = name.find("_",start);
+    return {name.substr(start, sep-start), name.substr(sep+1)};
+}
 
-    if (vm.count("i")) {
-      string infiles_cl = vm["i"].as<string>();
-      boost::split(infiles, infiles_cl, boost::is_any_of(","));
-      cout << "Summing input files ";
-      for (auto inf : infiles)
-        cout << inf << " ";
-      cout << endl;
-    }
+// get the resolution type (pull or res) - taken from the prefix of the 2D histo name 
+std::string getResoType(const TObject* resHelper){
+    std::string aux{resHelper->GetName()};
+    return aux.substr(0, aux.find("Helper"));
+}
 
-    if ("" == ofile) {
-      cout << "Invalid arguments. No output file passed.";
-      cout << "\n" << desc << "\n" << endl;
-      return 1;
+// clone an existing histogram of a known name 
+TH1* cloneExisting(const std::string & name){
+    auto h = gDirectory->Get(name.c_str());
+    if (!h){
+        std::cerr << "Could not find existing histogram "<<name<<" - will not postprocess "<<std::endl;
+        return nullptr;
     }
-
-    if (infiles.empty()) {
-      cout << "Invalid arguments. No inputs to summ passed.";
-      cout << desc << " \n " << endl;
-      return 1;
+    auto ret = dynamic_cast<TH1*>(h->Clone(name.c_str()));
+    if (!ret){
+        std::cerr << "Found an existing object "<<name<<", but it is not a histogram ("<<h->IsA()->GetName()<<") - will not postprocess "<<std::endl;
     }
+    return ret; // will also catch ret == nullptr
+}
 
-  } catch (exception &e) {
-    cerr << " postProcessIDPVMHistos: error: " << e.what() << "\n";
-    return 1;
-  } catch (...) {
-    cerr << " postProcessIDPVMHistos: Exception of unknown type!\n";
-    return 1;
+// get the names of the 1D histograms following IDPVM conventions. 
+std::pair<std::string, std::string> getPullAndResoNames(const std::string & type){
+  if (type == "res"){
+    return {"resolutionRMS","meanRMS"};
   }
-
-  if (file_exists(ofile)) {
-    cout << "\n" << " postProcessIDPVMHistos: Target file exist: " << ofile << endl;
-    cout << "Please provide an empty target file \n" << endl;
-    return 1;
+  else if (type == "pull"){
+    return {"pullresolutionRMS","pullmeanRMS"};
   }
+  else {
+    std::cerr << " Not able to identify the histogram names for a resolution type "<<type<<" - supported are 'res' and 'pull'. "<<std::endl;
+  }
+  return {"",""};
+}
 
-  int processed = 0;
-  for (auto & infile : infiles) {
-    if (0 == processed) {
-      if (!file_exists(infile)) {
-        cout << " postProcessIDPVMHistos: Error: input file does not exist: " << infile
-             << endl;
+int postProcessHistos(TObject* resHelper, IDPVM::ResolutionHelper & theHelper){
+    // here we have to rely on the naming conventions of IDPVM to identify what we are looking at 
+    auto vars = getObservableAndReso(resHelper);
+    auto type = getResoType(resHelper);
+    // cast to TH2
+    TH2* resHelper2D = dynamic_cast<TH2*>(resHelper);
+    if (!resHelper2D){
+        std::cerr <<"Unable to reduce the histogram "<<resHelper->GetName()<<" to a TH2 - this histo can not yet be postprocessed! " <<std::endl;
         return 1;
-      }
-      cout << "\n"
-           << " postProcessIDPVMHistos:  Creating initial contents of " << ofile << endl;
-      cout << "from " << infile << endl;
-      gSystem->CopyFile(infile.c_str(), ofile.c_str());
-    } else {
-      int ret = process_histos(ofile, infile);
-      if (0 != ret) {
-        cout << "\n"
-             << " postProcessIDPVMHistos:  Non-0 return of process_histos for file " << endl;
-        cout << infile << endl;
-        cout << "Terminate postprocessing \n" << endl;
-        return 1;
-      }
     }
-    ++processed;
-    cout << "\n"
-         << " postProcessIDPVMHistos:  Post-processed " << processed << " files " << endl;
+    const auto & oneDimNames = getPullAndResoNames(type);
+    // get the corresponding 1D histos by cloning the existing ones in the same folder 
+    //TH1* h_width = cloneExisting(oneDimNames.first+"_vs_"+vars.first+"_"+vars.second); 
+    //TH1* h_mean = cloneExisting(oneDimNames.second+"_vs_"+vars.first+"_"+vars.second); 
+    TH1* h_width = cloneExisting(vars.second+oneDimNames.first+"_vs_"+vars.first);
+    TH1* h_mean = cloneExisting(vars.second+oneDimNames.second+"_vs_"+vars.first);
+    // then call the resolution helper as done in "online" IDPVM
+    theHelper.makeResolutions(resHelper2D, h_width, h_mean);
+    // update our 1D histos 
+    h_width->Write();
+    h_mean->Write();
+    // and we are done
+    return 0;
+}
+
+// recursively parse a directory tree, post-processing any histos seen along the way 
+int postProcessDir(TDirectory* dir, IDPVM::ResolutionHelper & theHelper){
+
+  int outcome = 0;
+  auto theCWD = gDirectory;
+  // walk through all keys in this directory 
+  dir->cd();
+  auto keys = dir->GetListOfKeys();
+  for (const auto & key : *keys){
+    TObject* gotIt = dir->Get(key->GetName());
+
+    // if we encounter a directory, descend into it and repeat the process
+    TDirectory* theDir = dynamic_cast<TDirectory*>(gotIt);
+    if (theDir){
+      outcome |= postProcessDir(theDir, theHelper);
+    }
+
+    // if we encounter a histogram that could be a resolution input, post-process it 
+    if (isResolutionHelper(gotIt)){
+      outcome |= postProcessHistos(gotIt, theHelper);
+    }
   }
-  cout << "\n" << " postProcessIDPVMHistos:  Merging all done \n " << endl;
-  return 0;
+  theCWD->cd();
+  return outcome;
+}
+
+// function driving the postprocessing for this file
+int pproc_file(const std::string & p_infile) {
+
+    IDPVM::ResolutionHelper theHelper;
+
+    TFile* infile = TFile::Open(p_infile.c_str(),"UPDATE"); 
+    if (!infile ) {
+    std::cerr << "could not open input file "<<p_infile<<" for updating "<< std::endl;
+    return 1;
+    }
+
+    int res = postProcessDir(gDirectory,theHelper); // recursively post-process the directory tree, starting from the root.  
+    infile->Close();
+    return res;
+}
+
+
+int main(int argc, char* argv[]) {
+
+  if (argc !=2){
+    std::cerr<<" Usage: postProcessIDPVMHistos <File to post-process>"<<std::endl;
+    std::cerr<< "    where the file is typically obtained by hadding" << std::endl;
+    std::cerr<< "    outputs of several independent IDPVM runs." << std::endl;
+    return 1; 
+  }
+  const string infile {argv[1]};
+
+  if (!file_exists(infile)) {
+    std::cerr << "Error: invalid input file: " << infile << std::endl;
+    return 1;
+  }
+  std::cout << " Post-processing file " << infile << "\n" << std::endl;
+  return pproc_file(infile);
+
 }

@@ -49,6 +49,22 @@ find_package( XercesC )
 find_package( Boost COMPONENTS program_options )
 
 # Component(s) in the package:
+# Component(s) in the package:
+atlas_add_library( InDetPhysValMonitoringLib
+                   src/*.cxx
+                   PUBLIC_HEADERS InDetPhysValMonitoring
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}   ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES}  ${EIGEN_LIBRARIES}
+                   AthenaBaseComps AthenaMonitoringLib AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry
+                   InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
+                   PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives
+                   xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
+                   AthContainers StoreGateLib
+                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib )
+
+
+
+
 atlas_add_component( InDetPhysValMonitoring
                      src/*.cxx
                      src/components/*.cxx
@@ -59,7 +75,7 @@ atlas_add_component( InDetPhysValMonitoring
 atlas_add_executable( postProcessIDPVMHistos
   util/postProcessIDPVMHistos.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} InDetPhysValMonitoringLib )
 
 
 # Install files from the package:

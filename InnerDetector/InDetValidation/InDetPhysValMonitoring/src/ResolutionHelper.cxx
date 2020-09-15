@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
 /**
- * @file GetMeanWidth.h
+ * @file ResolutionHelper.h
  * @author Max Baugh, Liza Mijovic, Nora Pettersson
  **/
 
-#include "GetMeanWidth.h"
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
 #include "TH1.h"
+#include "TH1D.h"
+#include "TH2.h"
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
 #include <cmath>
@@ -19,23 +21,11 @@
 
 namespace IDPVM {
   
-  GetMeanWidth::GetMeanWidth() :
-    m_mean(0.),
-    m_meanError(0.),
-    m_RMS(0.),
-    m_RMSError(0.),
-    m_FracOut(0.),
-    m_FracOutUnc(0.),
-    m_FracUOflow(0.),
-    m_inHistName(""),
-    m_largeErrorFact(10.),
-    m_maxUOflowFrac(0.001), 
-    m_binsWithinRes(0.),
-    m_minBinsWithinRes(3.) {
+  ResolutionHelper::ResolutionHelper(){
     //nop
   }
   
-  bool GetMeanWidth::initialize(TH1* p_input_hist) {
+  bool ResolutionHelper::initialize(TH1* p_input_hist) {
 
     if ( !m_debugs.empty())
       m_debugs.clear();     
@@ -47,7 +37,7 @@ namespace IDPVM {
       m_errors.clear();
        
     if (!p_input_hist) {
-      m_errors.push_back("GetMeanWidth::initialize: empty input histogram passed: ");
+      m_errors.push_back("ResolutionHelper::initialize: empty input histogram passed: ");
        m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -55,7 +45,7 @@ namespace IDPVM {
     m_inHistName = p_input_hist->GetName();
     
     if ( 0==p_input_hist->GetEntries() ) {
-      m_debugs.push_back("GetMeanWidth::initialize: got input histogram with 0 entries: "+ m_inHistName);
+      m_debugs.push_back("ResolutionHelper::initialize: got input histogram with 0 entries: "+ m_inHistName);
       m_mean=m_meanError=m_RMS=m_RMSError=m_FracOut=m_FracOutUnc=0.;
       return false;
     }
@@ -74,7 +64,7 @@ namespace IDPVM {
     return true;
   }
 
-  void GetMeanWidth::setLargeError() {
+  void ResolutionHelper::setLargeError() {
     std::ostringstream debugl;
     debugl << __FILE__ << "\t\t" << m_inHistName
 	   << ": scaling mean and RMS errors by factor: " << m_largeErrorFact;
@@ -83,31 +73,18 @@ namespace IDPVM {
     m_RMSError*=m_largeErrorFact;
   }
 
-  std::string GetMeanWidth::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
+  std::string ResolutionHelper::reportUOBinVal(std::string p_histName, std::vector< std::pair<unsigned int,double> > p_vecBinVal) {
     std::ostringstream reportl;
     if (!p_vecBinVal.empty())  {
-      reportl << "Errors scaled up for resol. hist. with more than " << m_maxUOflowFrac*100. << "% of events in over- and under-flow: "
+      reportl << "Errors scaled up for resol. hist. with large % of events in over- and under-flow: "
 	      << p_histName<<": ";
       for ( auto it : p_vecBinVal )
 	reportl << "bin"<<it.first << ": " << std::setprecision(2) << it.second*100. << "%, ";
     }
     return reportl.str();
   }
-
-
-  std::string GetMeanWidth::reportBinsWithinRes(std::string p_histName, std::vector< std::pair<unsigned int, double> > p_vecBinNRes) {
-    std::ostringstream reportl;
-    if (!p_vecBinNRes.empty())  {
-      reportl << "Errors scaled up for resol. hist. with # bins covering RMS less than " << m_minBinsWithinRes <<": " 
-              << p_histName<<": ";
-      for ( auto it : p_vecBinNRes )
-        reportl << "bin"<<it.first << ": " << std::setprecision(2) << it.second << " , ";
-    }
-    return reportl.str();    
-  }
   
-  
-  void GetMeanWidth::setFout(double p_nsig,double p_ntot) {
+  void ResolutionHelper::setFout(double p_nsig,double p_ntot) {
     m_FracOut=0.;
     m_FracOutUnc=0.;
     if (p_ntot>0.) {
@@ -123,23 +100,7 @@ namespace IDPVM {
     return;
   }
   
-  double GetMeanWidth::calcBinsWithinRes(TH1* p_input_hist,double p_RMS, double p_mean) {
-
-    // 0 or 1 entry hisrograms: RMS && RMSError is set to 0 by ROOT
-    if (2 > p_input_hist->GetEntries()) {
-      return(-1.);
-    }
-    
-    // get # bins within +- RMS of mean
-    unsigned int _bhigh = p_input_hist->GetXaxis()->FindBin(p_mean+p_RMS);
-    unsigned int _blow = p_input_hist->GetXaxis()->FindBin(p_mean-p_RMS);
-    double _nbins = _bhigh - _blow;
-   
-    // return # of bins covering RMS
-    return(_nbins/2.);
-  }
-
-  int GetMeanWidth::setGaussFit(TH1* p_input_hist){
+  int ResolutionHelper::setGaussFit(TH1* p_input_hist){
 
     int ret=0;
 
@@ -165,7 +126,7 @@ namespace IDPVM {
   }
   
   // return # remaining iterations before hitting the max. allowed
-  int GetMeanWidth::setIterativeConvergence(TH1* p_input_hist) {
+  int ResolutionHelper::setIterativeConvergence(TH1* p_input_hist) {
     
     // evaluate  mean and RMS using iterative converfgence:
     double mean=p_input_hist->GetMean();
@@ -233,7 +194,7 @@ namespace IDPVM {
   // evaluate results for input histogram
   // * mean and RMS and fraction of events in tails
   // * call one of alternative ways of evaluation
-  void GetMeanWidth::setResults(TH1* p_input_hist, methods p_method){
+  void ResolutionHelper::setResults(TH1* p_input_hist, methods p_method){
 
     // set start values of the results vector
     // mean RMS etc as in the input histo prior to trimming
@@ -242,50 +203,133 @@ namespace IDPVM {
     
     if (iterRMS_convergence == p_method) {
       if ( !setIterativeConvergence(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::setIterativeConvergence did not converge for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::setIterativeConvergence did not converge for "+ m_inHistName);
     }
     else if (Gauss_fit == p_method) {
       if ( !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::setGaussFit: fit failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::setGaussFit: fit failed for "+ m_inHistName);
     }
     else if (fusion_iterRMS_Gaussfit == p_method) {
       if ( !setIterativeConvergence(p_input_hist) &&
 	   !setGaussFit(p_input_hist) ) 
-	m_warnings.push_back("\t\t\t* GetMeanWidth::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
+	m_warnings.push_back("\t\t\t* ResolutionHelper::fusion_iterRMS_Gaussfit both methods failed for "+ m_inHistName);
     }
     else {
-      m_errors.push_back("\t\t\t* GetMeanWidth::setResults: method not supported. No evaluation for "+ m_inHistName);
+      m_errors.push_back("\t\t\t* ResolutionHelper::setResults: method not supported. No evaluation for "+ m_inHistName);
     }
 
     // check if large fraction of events was in over- and under-flow
     if ( m_FracUOflow > 0. ) {
       std::ostringstream debugl;
-      debugl << "\tGetMeanWidth::setResults: too large fraction of out-of-range events for histogram ";
+      debugl << "\tResolutionHelper::setResults: too large fraction of out-of-range events for histogram ";
       debugl << m_inHistName << ": " << m_FracUOflow << " > " << m_maxUOflowFrac;
       m_debugs.push_back(debugl.str());      
       setLargeError();
-      m_debugs.push_back("\t\t\t* GetMeanWidth::setResults: scaling errors up for "
+      m_debugs.push_back("\t\t\t* ResolutionHelper::setResults: scaling errors up for "
 			 +m_inHistName+". Too many under- and over- flows.");
     }
 
-    m_binsWithinRes = calcBinsWithinRes(p_input_hist, m_RMS, m_mean);    
-    if ( 0.<m_binsWithinRes && m_binsWithinRes<m_minBinsWithinRes ) {
-      std::ostringstream debugl;
-      debugl << "\tGetMeanWidth::setResults: too few bins covering RMS in histogram ";
-      debugl << m_inHistName << ": "<< m_binsWithinRes << " bins seen, min " <<  m_minBinsWithinRes << " bins required " << std::endl;
-      m_debugs.push_back(debugl.str());
-      setLargeError();
-      m_debugs.push_back("\t\t\t* GetMeanWidth::setResults: scaling errors up for "
-			 +m_inHistName+". Too few bins covering RMS.");
-    }
-    else {
-      // set to dummy value, to suppress printout of warnings
-      m_binsWithinRes = -1.;
-    }
     // reset range metadata to state prior to iteration
-    // (this gets changed in iterative or fusion)
+    // this gets changed in iterative or fusion)
     p_input_hist->GetXaxis()->SetRange(1,p_input_hist->GetNbinsX());
     
     return;
   }
+
+ResolutionHelper::resolutionResultInBin
+ResolutionHelper::ResolutionHelperResultsModUnits(TH1D* p_input_hist, IDPVM::ResolutionHelper::methods theMethod) {
+  // LM: reason for using this function:
+  //   orignial code was set up to only have resolution resuls in um,
+  //   while inputs are in mm. Do not want to do a substantial rewrite.
+  TString vari = p_input_hist->GetName();
+  bool isInMicrons = ( !vari.Contains("pull") &&
+       (vari.Contains("d0") || vari.Contains("z0")) );
+  const double unitConversionFactor = isInMicrons ? 1000. : 1.;   // mm measurements to um outputs 
+  setResults(p_input_hist, theMethod);
+
+  return {getRMS()*unitConversionFactor, 
+          getRMSError()*unitConversionFactor,
+          getMean()*unitConversionFactor,
+          getMeanError()*unitConversionFactor,
+          getFracOut(),
+          getFracOutUnc()}; 
+}
+
+void
+ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean,  IDPVM::ResolutionHelper::methods theMethod) {
+
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac; 
+
+  if (h_input2D->GetNbinsX() != hwidth->GetNbinsX() || h_input2D->GetNbinsX() != hmean->GetNbinsX()){
+    ATH_MSG_ERROR("Inconsistent binnings between 1D and 2D histos - please fix your config!"); 
+    return; 
+  }
+  for (int ibin = 0; ibin < h_input2D->GetNbinsX(); ibin++) {
+    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ibin + 1);
+    std::shared_ptr<TH1D> tmp {static_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin + 1, ibin + 1))}; 
+    if (tmp->Integral() < 1) {
+      continue;
+    }
+    const resolutionResultInBin & result = ResolutionHelperResultsModUnits(tmp.get(), theMethod);
+    hwidth->SetBinContent(ibin + 1, result.width);
+    hwidth->SetBinError(ibin + 1, result.widthError);
+    hmean->SetBinContent(ibin + 1, result.mean);
+    hmean->SetBinError(ibin + 1, result.meanError);
+    if (result.outlierFrac > m_maxUOflowFrac) {
+      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
+    }
+  }    
+  if (!warnUOBinFrac.empty()) {
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+  }
+}
+
+void
+ResolutionHelper::makeResolutions(const TH2* h_input2D, TH1* hwidth, TH1* hmean, TH1* hproj[], bool saveProjections, IDPVM::ResolutionHelper::methods theMethod) {
+  
+  // warnings in case input histograms have large % events in under- and over- flow bins 
+  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
+
+  if (h_input2D->GetNbinsX() != hwidth->GetNbinsX() || h_input2D->GetNbinsX() != hmean->GetNbinsX()){
+    ATH_MSG_ERROR("Inconsistent binnings between 1D and 2D histos - please fix your config!"); 
+    return; 
+  }
+
+  for (int ibin = 0; ibin < hwidth->GetNbinsX(); ibin++) {
+    std::string tmpName = h_input2D->GetName() + std::string("py_bin") + std::to_string(ibin + 1);
+    std::shared_ptr<TH1D> tmp {dynamic_cast<TH1D*>(h_input2D->ProjectionY(tmpName.c_str(), ibin+1, ibin+1))};
+    if (tmp->Integral() < 1) {
+      continue;
+    }
+    if (saveProjections) {
+      cloneHistogram(tmp.get(), hproj[ibin]);
+    }
+    const resolutionResultInBin & result = ResolutionHelperResultsModUnits(tmp.get(), theMethod);
+    hwidth->SetBinContent(ibin + 1, result.width);
+    hwidth->SetBinError(ibin + 1, result.widthError);
+    hmean->SetBinContent(ibin + 1, result.mean);
+    hmean->SetBinError(ibin + 1, result.meanError);
+    if (result.outlierFrac>m_maxUOflowFrac){
+      warnUOBinFrac.push_back(std::make_pair(ibin + 1,result.outlierFrac));
+    }      
+  }
+  if (!warnUOBinFrac.empty()) {
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+    ATH_MSG_WARNING(reportUOBinVal(hwidth->GetName(),warnUOBinFrac));
+  }
+}
+
+
+void
+ResolutionHelper::cloneHistogram(TH1D* h, TH1* hcopy) {
+  unsigned int nbin = h->GetNbinsX();
+
+  for (unsigned int ibin = 0; ibin < nbin; ibin++) {
+    hcopy->SetBinContent(ibin + 1, h->GetBinContent(ibin + 1));
+    hcopy->SetBinError(ibin + 1, h->GetBinError(ibin + 1));
+  }
+}
+
 }//end of namespace
