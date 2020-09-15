@@ -564,6 +564,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_ERROR("connectOutput FAILED extract file name and technology.");
       return(StatusCode::FAILURE);
    }
+   const std::string oldOutputConnection = outputConnection;
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
       m_fileCommitCounter[outputConnection] = m_fileCommitCounter[outputConnection] + 1;
       if (m_fileFlushSetting[outputConnection] > 0 && m_fileCommitCounter[outputConnection] % m_fileFlushSetting[outputConnection] == 0) {
@@ -599,7 +600,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_ERROR("commitOutput - caught exception: " << e.what());
       return(StatusCode::FAILURE);
    }
-   if (!this->cleanUp(outputConnection).isSuccess()) {
+   if (!this->cleanUp(oldOutputConnection).isSuccess()) {
       ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
       return(StatusCode::FAILURE);
    }
