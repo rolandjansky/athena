@@ -53,11 +53,11 @@ if any(gen in ranluxlist for gen in evgenConfig.generators):
     evgenLog.info("Using RanLux random numbers!")
     atRndmGenSvc = svcMgr.AtRanluxGenSvc
     atRndmGenSvc.EventReseeding = False
-    printfunc("Events will not be reseeded (RndmGenSvc) ")
+    print("Events will not be reseeded (RndmGenSvc) ")
 else:
     atRndmGenSvc = svcMgr.AtRndmGenSvc
     atRndmGenSvc.EventReseeding = False
-    printfunc "Events will not be reseeded (RndmGenSvc) "
+    printfunc("Events will not be reseeded (RndmGenSvc) ")
 
 ## Pass the random seed from the transform command line into each used generator's seed config string
 seedstrs = []
