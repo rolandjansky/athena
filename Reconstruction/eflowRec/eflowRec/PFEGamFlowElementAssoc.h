@@ -43,14 +43,14 @@ public:
   
 private:
   //instantiate ReadHandle for the Photon/Electron
-  SG::ReadHandleKey<xAOD::ElectronContainer>m_electronReadHandleKey{this,"ElectronContainer","Electron","ReadHandleKey for ElectronContainer"};
+  SG::ReadHandleKey<xAOD::ElectronContainer>m_electronReadHandleKey{this,"ElectronContainer","Electrons","ReadHandleKey for ElectronContainer"};
 
-  SG::ReadHandleKey<xAOD::PhotonContainer>m_photonReadHandleKey{this,"PhotonContainer","Photon","ReadHandleKey for PhotonContainer"};
+  SG::ReadHandleKey<xAOD::PhotonContainer>m_photonReadHandleKey{this,"PhotonContainer","Photons","ReadHandleKey for PhotonContainer"};
 
   //Readhandles for FlowElements.
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralfeReadHandleKey{this,"JetEtMissNeutralFlowElementContainer","JetETMissNeutralFlowElement","ReadHandleKey for neutral FlowElements"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralfeReadHandleKey{this,"JetEtMissNeutralFlowElementContainer","JetETMissNeutralFlowElements","ReadHandleKey for neutral FlowElements"};
   
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedfeReadHandleKey{this,"JetEtMissChargedFlowElementContainer","JetETMissChargedFlowElement","ReadHandleKey for charged FlowElements"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedfeReadHandleKey{this,"JetEtMissChargedFlowElementContainer","JetETMissChargedFlowElements","ReadHandleKey for charged FlowElements"};
 
 
   /** The write key for adding Neutral Flow Element element link decorations to electrons */ 

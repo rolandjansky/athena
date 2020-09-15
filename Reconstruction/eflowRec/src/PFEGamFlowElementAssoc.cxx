@@ -47,19 +47,25 @@ PFEGamFlowElementAssoc::~PFEGamFlowElementAssoc(){}
 StatusCode PFEGamFlowElementAssoc::initialize()
 {
 
-ATH_MSG_DEBUG("Initializing "<<name() << "...");
-ATH_CHECK(m_electronNeutralFEWriteDecorKey.initialize());   
-ATH_CHECK(m_electronChargedFEWriteDecorKey.initialize());   
-ATH_CHECK(m_neutralfeElectronWriteDecorKey.initialize());   
-ATH_CHECK(m_chargedfeElectronWriteDecorKey.initialize());  
+  ATH_MSG_DEBUG("Initializing "<<name() << "...");
+ ATH_CHECK(m_electronNeutralFEWriteDecorKey.initialize());   
+ ATH_CHECK(m_electronChargedFEWriteDecorKey.initialize());   
+ ATH_CHECK(m_neutralfeElectronWriteDecorKey.initialize());   
+ ATH_CHECK(m_chargedfeElectronWriteDecorKey.initialize());  
 
-ATH_CHECK(m_photonNeutralFEWriteDecorKey.initialize());
-ATH_CHECK(m_photonChargedFEWriteDecorKey.initialize());
-ATH_CHECK(m_neutralfePhotonWriteDecorKey.initialize());
-ATH_CHECK(m_chargedfePhotonWriteDecorKey.initialize()); 
+ ATH_CHECK(m_photonNeutralFEWriteDecorKey.initialize());
+ ATH_CHECK(m_photonChargedFEWriteDecorKey.initialize());
+ ATH_CHECK(m_neutralfePhotonWriteDecorKey.initialize());
+ ATH_CHECK(m_chargedfePhotonWriteDecorKey.initialize());
+
+ //Init ReadHandleKeys
+ ATH_CHECK(m_photonReadHandleKey.initialize());
+ ATH_CHECK(m_electronReadHandleKey.initialize());
+ ATH_CHECK(m_chargedfeReadHandleKey.initialize());
+ ATH_CHECK(m_neutralfeReadHandleKey.initialize());
 
  ATH_MSG_DEBUG("Initialization completed successfully");   
-
+ std::cout<<"I lost the game"<<std::endl;
 return StatusCode::SUCCESS;
 }
 
