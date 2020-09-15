@@ -23,11 +23,17 @@ atlas_depends_on_subdirs(
 find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
-atlas_add_library( PATCoreLib
-   PATCore/*.h Root/*.cxx
+atlas_add_library( PATCoreAcceptLib
+   Root/accept/*.cxx
    PUBLIC_HEADERS PATCore
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools ${extra_libs} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} )
+
+atlas_add_library( PATCoreLib
+   Root/*.cxx
+   PUBLIC_HEADERS PATCore
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} PATCoreAcceptLib AthContainers AsgTools ${extra_libs} )
 
 atlas_add_dictionary( PATCoreDict
    PATCore/PATCoreDict.h
