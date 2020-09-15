@@ -36,6 +36,7 @@ def setupMenu(flags):
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+    CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
     flags.Trigger.menu.muon = [        
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
@@ -61,8 +62,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.combined = [
-        ChainProp(name='HLT_e7_mu10_L1EM7_MU10', groups=SingleElectronGroup),
-        ChainProp(name='HLT_e7_mu12_L1EM7_MU10', groups=SingleElectronGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu12_L1EM7_MU10', groups=CombinedGroup)
     ]
 
 if __name__ == "__main__":
