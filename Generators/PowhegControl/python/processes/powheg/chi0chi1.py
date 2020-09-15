@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
-from ...parameters import atlas_common
 from ..powheg_V2 import PowhegV2
 import glob
 import os

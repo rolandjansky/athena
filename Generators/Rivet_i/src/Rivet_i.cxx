@@ -8,8 +8,11 @@
 #include "Rivet_i/LogLevels.h"
 
 #include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
 
 #include "GeneratorObjects/McEventCollection.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -40,15 +43,15 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  //m_histSvc("THistSvc", name),
+  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
   // Options
   declareProperty("McEventKey", m_genEventKey="GEN_EVENT");
   declareProperty("Analyses", m_analysisNames);
-  declareProperty("CrossSection", m_crossSection=-1.0);
-  declareProperty("CrossSectionUncertainty", m_crossSection_uncert=-1.0);
+  declareProperty("CrossSection", m_crossSection=0.0);
+  declareProperty("CrossSectionUncertainty", m_crossSection_uncert=0.0);
   declareProperty("Stream", m_stream="/Rivet");
   declareProperty("RunName", m_runname="");
   declareProperty("HistoFile", m_file="Rivet.yoda");
@@ -57,7 +60,10 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
   declareProperty("DoRootHistos", m_doRootHistos=true);
   declareProperty("SkipWeights", m_skipweights=false);
+  declareProperty("MatchWeights", m_matchWeights="");
+  declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
+  declareProperty("AssumeSingleParticleGun", m_isSPG=false);
   // Service handles
   //declareProperty("THistSvc", m_histSvc);
 }
@@ -133,7 +139,9 @@ StatusCode Rivet_i::initialize() {
   m_analysisHandler = new Rivet::AnalysisHandler(m_runname);
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
-  m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  m_analysisHandler->skipMultiWeights(m_skipweights); //< Only run on the nominal weight
+  //m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
+  //m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
   if(m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
@@ -217,10 +225,11 @@ StatusCode Rivet_i::execute() {
 StatusCode Rivet_i::finalize() {
   ATH_MSG_INFO("Rivet_i finalizing");
 
-  // Set xsec in Rivet
-  double custom_xs = m_crossSection > 0 ? m_crossSection : 1.0;
-  double custom_xserr = m_crossSection_uncert > 0 ? m_crossSection_uncert : 0.0; 
-  m_analysisHandler->setCrossSection({custom_xs, custom_xserr});
+  // Setting cross-section in Rivet
+  // If no user-specified cross-section available,
+  // set AMI cross-section at plotting time 
+  double custom_xs = m_crossSection != 0 ? m_crossSection : 1.0;
+  m_analysisHandler->setCrossSection({custom_xs, m_crossSection_uncert});
   
   m_analysisHandler->finalize();
 
@@ -313,6 +322,12 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   // then it doesn't use named weights
   // --> no need for weight-name cleaning
   if (str.size() > 1) {
+    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
+      orig_order[item.second] = item.first;
+    }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
     vector<pair<string,string> > w_subs = {
@@ -329,6 +344,22 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       {"/","over"}
     };
     std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+
+    // TEMP from Rivet dev branch
+    vector<std::regex> select_patterns, deselect_patterns;
+    if (m_matchWeights != "") {
+      // Compile regex from each string in the comma-separated list
+      for (const string& pattern : split(m_matchWeights, ",")) {
+        select_patterns.push_back( std::regex(pattern) );
+      }
+    }
+    if (m_unmatchWeights != "") {
+      // Compile regex from each string in the comma-separated list
+      for (const string& pattern : split(m_unmatchWeights, ",")) {
+        deselect_patterns.push_back( std::regex(pattern) );
+      }
+    }
+    // END OF TEMP
     for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
          i != std::sregex_iterator(); ++i ) {
       std::smatch m = *i;
@@ -336,6 +367,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       if (temp.size() == 2 || temp.size() == 3) {
         string wname = temp[0];
         if (temp.size() == 3)  wname += "," + temp[1];
+        string old_name = string(wname);
         double value = old_wc[wname];
         for (const auto& sub : w_subs) {
           size_t start_pos = wname.find(sub.first);
@@ -344,15 +376,55 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
             start_pos = wname.find(sub.first);
           }
         }
-        new_wc[wname];
-        new_wc.back() = value;
+        // Pulling some logic from the Rivet development branch
+        // until we have a release with this patch:
+
+        // Check if weight name matches a supplied string/regex and filter to select those only
+        bool match = select_patterns.empty();
+        for (const std::regex& re : select_patterns) {
+          if ( std::regex_match(wname, re) ) {
+            match = true;
+            break;
+          }
+        }
+        // Check if the remaining weight names match supplied string/regexes and *de*select accordingly
+        bool unmatch = false;
+        for (const std::regex& re : deselect_patterns) {
+          if ( std::regex_match(wname, re) ) { unmatch = true; break; }
+        }
+        if (!match || unmatch) continue;
+
+        // end of borrowing logic from the Rivet development branch
+        new_name_to_value[wname] = value;
+        old_name_to_new_name[old_name] = wname;
       }
+    }
+    auto itEnd = old_name_to_new_name.end();
+    for (const string& old_name : orig_order) {
+      if (old_name_to_new_name.find(old_name) == itEnd)  continue;
+      const string& new_name = old_name_to_new_name[old_name];
+      new_wc[ new_name ] = new_name_to_value[new_name];
     }
     // end of weight-name cleaning
   }
 
 
   if (!modEvent->valid_beam_particles()) {
+    if (m_isSPG) {
+      // a single particle gun only has one particle without
+      // a production vertex. In this kludge, we add a 
+      // dummy vertex with an exact copy of the particle 
+      // (but using a documentary HepMC status code) and 
+      // set pretend beam particles to trick Rivet_i and 
+      // Rivet into accepting these types of events.
+      HepMC::GenParticle* old = *modEvent->particles_begin();
+      HepMC::GenParticle* ghost = new HepMC::GenParticle(old->momentum(), old->pdg_id(), 3);
+      HepMC::GenVertex* dummy_vertex = new HepMC::GenVertex();
+      dummy_vertex->add_particle_out(ghost);
+      modEvent->add_vertex(dummy_vertex);
+      beams.push_back(old);
+      beams.push_back(ghost);
+    }
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
         beams.push_back(*p);

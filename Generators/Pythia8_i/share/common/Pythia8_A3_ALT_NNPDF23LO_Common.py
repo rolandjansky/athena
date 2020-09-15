@@ -1,6 +1,6 @@
 ## Config for Py8 tune A3 with NNPDF23LO
 ## This is the version without EvtGen, and as such is not the standard.  
-## The default version is available in common/Pythia8/Pythia8_A3_NNPDF23LO_EvtGen_Common.py
+## The default version is available in common/Pythia8_i/Pythia8_A3_NNPDF23LO_EvtGen_Common.py
 
 include("Pythia8_i/Pythia8_Base_Fragment.py")
 
@@ -17,6 +17,7 @@ genSeq.Pythia8.Commands += [
     "SigmaDiffractive:PomFluxEpsilon = 0.037",
     "SigmaDiffractive:PomFluxAlphaPrime = 0.25"]
 #    "BeamRemnants:reconnectRange  = 1.8"]
+
 
 rel = os.popen("echo $AtlasVersion").read()
 print "Atlas release " + rel
@@ -38,3 +39,5 @@ else:
   "ColourReconnection:range = 1.8"]                            
 
 evgenConfig.tune = "A3 NNPDF23LO"
+print "WARNING! These parameters are derived tuning Pythia 8.186 to data"
+

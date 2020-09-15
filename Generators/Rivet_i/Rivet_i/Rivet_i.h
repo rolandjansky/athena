@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RIVET_I_H
@@ -15,12 +15,14 @@
 
 class ISvcLocator;
 class StoreGateSvc;
+class IHepMCWeightSvc;
 //class ITHistSvc;
 
 
 /// Interface to the Rivet analysis package
 /// @author James Monk <jmonk@cern.ch>
 /// @author Andy Buckley <andy.buckley@cern.ch>
+/// @author Christian Gutschow <chris.g@cern.ch>
 class Rivet_i : public AthAlgorithm {
 public:
 
@@ -54,6 +56,9 @@ private:
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
+
+  // A pointer to the HepMCWeightSvc
+  ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc; 
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
@@ -107,8 +112,17 @@ private:
   ///Skip variation weights and only run nominal
   bool m_skipweights;
   
+  /// String of weight names (or regex) to select multiweights
+  std::string m_matchWeights;
+
+  /// String of weight names (or regex) to veto multiweights
+  std::string m_unmatchWeights;
+
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;
+
+  /// Flag to assume MC sample correspond to single-particle gun
+  bool m_isSPG;
 
 };
 

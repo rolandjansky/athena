@@ -284,17 +284,18 @@ StatusCode Herwig7::genFinalize() {
   ThePEG::Repository::cleanup();
 
   // possibly tidy up working directory
-  if (m_cleanup_herwig_scratch && boost::filesystem::is_directory("Herwig-scratch")){
+  if (m_cleanup_herwig_scratch && (boost::filesystem::is_directory("Herwig-scratch") || boost::filesystem::is_directory("Herwig-cache"))){
 
-    ATH_MSG_INFO("removing Herwig-scratch folder from "+boost::filesystem::current_path().string());
+    ATH_MSG_INFO("removing Herwig-scratch/Herwig-cache folder from "+boost::filesystem::current_path().string());
 
     // sleep for some time to allow all access to terminate
     boost::this_thread::sleep(boost::posix_time::seconds(5)); /// \todo Think of other way to wait for all access to terminate
 
     // in case the folder can't be deleted continue with warning
     try {
-      boost::filesystem::remove_all("Herwig-scratch");
-    } catch (const exception& e) {
+      (boost::filesystem::remove_all("Herwig-scratch") || boost::filesystem::remove_all("Herwig-cache"));
+    } 
+    catch (const exception& e) {
       ATH_MSG_WARNING("Failed to delete the folder 'Herwig-scratch': "+string(e.what()));
     }
 

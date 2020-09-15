@@ -194,6 +194,7 @@
 #+ Reconstruction/RecEventTPCnv
 + Reconstruction/RecExample/RecExCommon
 + Reconstruction/RecExample/RecExConfig
++ Simulation/G4Extensions/RHadrons
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Tools/ART
 + Tools/AtlasDoxygen

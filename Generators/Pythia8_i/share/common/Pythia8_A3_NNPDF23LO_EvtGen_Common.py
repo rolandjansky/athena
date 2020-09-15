@@ -8,3 +8,7 @@ include("Pythia8_i/Pythia8_A3_NNPDF23LO_Common.py")
 # Add EvtGen for b fragmentation as default.  No EvtGen is available in "nonStandard"
 include("Pythia8_i/Pythia8_EvtGen.py")
 
+print "WARNING! These parameters are derived tuning Pythia 8.186 to data"
+
+
+

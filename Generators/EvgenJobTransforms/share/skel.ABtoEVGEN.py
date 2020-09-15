@@ -139,9 +139,9 @@ svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
-postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
+#postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
+postSeq.CountHepMC.CorrectHepMC = True
 postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
@@ -302,34 +302,36 @@ if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:
    multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
+# check if default nEventsPErJob used
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ')
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-    if multiInput !=0 :
-        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob) + ' rounded to ' + str(int(round(dummy_nEventsPerJob))))
-        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
-        rest1000 = evgenConfig.nEventsPerJob % 1000
-        if multiInput !=0 :
-            rounding=1
-            if rest1000 < 1000-rest1000:
-                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000))
-                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-            else:
-                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
+
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-        if multiInput !=0:
-           rounding=1 
-           evgenConfig.nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
+    evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
@@ -394,8 +396,9 @@ StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
 StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 ## Used for pile-up (remove dynamic variables except flavour labels)
 if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+   for jetradius in [4,6]:
+      StreamEVGEN.ItemList += ["xAOD::JetContainer#AntiKt{}TruthJets".format(jetradius)]
+      StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#AntiKt{}TruthJetsAux.TruthLabelID.PartonTruthLabelID".format(jetradius)]
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])

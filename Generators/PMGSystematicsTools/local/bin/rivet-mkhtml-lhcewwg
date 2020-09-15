@@ -1,0 +1,196 @@
+#!/usr/bin/env python
+import yoda, rivet
+import os, re, sys
+import numpy as np
+
+options = sys.argv
+
+if "-h" in options or "--help" in options or len (options)==1:
+  os.system("rivet-mkhtml -h")
+  print("Covariance otions:")
+  print("--corr   List of regexes which should be ORed to select correlated components of uncertainty, eg '.*,cor.*,.*Cor.*'")
+  print("--uncorr   List of regexes which should be ORed to select uncorrelated components of uncertainty, eg '.*stat.*,.*uncor.*,.*Uncor.*'")
+  print("--applyGroups Whether or not to apply the above groupings when plotting (they will be used for the Chi2 regardless). (0|1)")
+  exit(1)
+
+# global variables 
+colors=["blue","green","orange","lilac","yellow","purple","red"]
+cache={}
+applyGroupings=True
+groupings={
+"uncorrelated":[".*stat.*",".*uncor.*",".*Uncor.*"], 
+"correlated":[".*,cor.*",".*Cor.*"],
+}
+
+fn = options[1]
+if ":" in fn: fn=fn.split(":")[0]
+
+if "--applyGroups" in options:
+  index = options.index("--applyGroups")
+  applyGroupings=int(options[index+1]=="1")
+  options.pop(index) #delete opt
+  options.pop(index) #delete value
+
+if "--corr" in options:
+  index = options.index("--corr")
+  groupings["correlated"]=options[index+1].split(",")
+  options.pop(index) #delete opt
+  options.pop(index) #delete value
+
+if "--uncorr" in options:
+  index = options.index("--uncorr")
+  groupings["uncorrelated"]=options[index+1].split(",")
+  options.pop(index) #delete opt
+  options.pop(index) #delete value
+
+def getGrouping(name, groupings):
+  for group, regexes in groupings.items():
+    for regex in regexes:
+      if  name in re.findall(regex, name):
+        return group
+  return "other"
+
+def getRivetRefData(thisao, fast=0):
+    "Find all Rivet reference data files"
+    ana= thisao.path().split("/")[1]
+    refhistos = {}
+    rivet_data_dirs = os.getenv("RIVET_ANALYSIS_PATH").split(":")
+    dirlist = []
+    anas=[ana]
+    if len(ana.split("_"))>3: anas+=[ana.rpartition("_")[0]]
+    for d in rivet_data_dirs:
+      dirlist.append([os.path.join(d, a+'.yoda') for a in anas])
+    for filelist in dirlist:
+        for infile in filelist:
+            if infile in cache.keys(): 
+               analysisobjects=cache[infile]
+            else :
+               analysisobjects = yoda.read(infile)
+               cache[infile]=analysisobjects
+            for path, ao in analysisobjects.items():
+                aop = rivet.AOPath(ao.path())
+                if aop.isref():
+                    ao.setPath(aop.basepath(keepref=False))
+                refhistos[ao.path()] = ao
+    if not thisao.path() in refhistos.keys(): 
+      return None
+    return refhistos[thisao.path()]
+
+def scatterToMatrix( h, bw = False ):
+  npts = h.numPoints() 
+  dim = h.dim()
+  mo = np.zeros( [1, npts] )
+  for i in xrange(npts):
+    for j in xrange(npts):
+      mo[0][i] = h.points()[i].val(dim)
+      if bw == True:
+        width= (abs(h.points()[i].errs(dim)[0]))
+        width += (abs(h.points()[i].errs(dim)[1]))
+        mo[0][i] *= 1./width
+  return mo
+
+def histoToMatrix( h, bw = False ):
+  npts = h.numBins 
+  mo = np.zeros( [1, npts] )
+  for i in xrange(npts):
+    for j in xrange(npts):
+      mo[0][i] = h.bins[i].sumW()
+      if bw == True:
+        width= h.bins[i].xWidth()
+        mo[0][i] *= 1./width
+  return mo
+
+def calculateChi2(data, mc, cov=None,  groupings=None, ignore_corrs=False,verbosity=0):
+    ndf = data.numPoints()
+    values={}
+    for name,obj in {'data':data,'mc':mc}.items():
+      if type(obj) in (yoda.Scatter1D,yoda.Scatter2D,yoda.Scatter3D):
+         values[name]= scatterToMatrix(obj) 
+      else: #Histo*D hopefully !
+        values[name]= HistoToMatrix(obj, bw=True) 
+    v = values['data'].copy()
+    v -= values['mc'].copy()
+    if cov is None:
+     covData=makeCovarianceMatrix(data, groupings,ignore_corrs)
+     covMC=makeCovarianceMatrix(mc, groupings,ignore_corrs)
+     cov=covData+covMC
+    precision_matrix = np.linalg.inv(cov.copy())
+    vT=v.copy().transpose()
+    chi2tmp = (v.dot(precision_matrix)).dot(vT)
+    chi2 = chi2tmp[0][0]
+    return chi2, ndf
+
+def makeCovarianceMatrix( ao, groupings, ignore_corrs=False):
+   # get the number of bins and make dummy matrix
+   nbins = ao.numPoints()
+   cov = np.zeros((nbins,nbins))
+   # check for valid error breakdows, if not, can't calculate matrix
+   if not ao.hasValidErrorBreakdown(): ignore_corrs=True
+   systList= ao.variations()
+   totErr = np.zeros(nbins)
+   for sname in systList:
+     if sname=="" and ao.hasValidErrorBreakdown(): continue
+     systErrs = np.zeros(nbins)
+     for ibin in range (nbins):
+       nomVal =  ao.points()[ibin].y()
+       errs=ao.points()[ibin].yErrsFromSource(sname)
+       systErrs[ibin]=0.5*(abs(errs[0])+abs(errs[1])) # symmetrize
+     if (ignore_corrs or getGrouping(sname, groupings)=="uncorrelated"): cov  += np.diag(systErrs*systErrs)
+     else: 
+       cov += np.outer(systErrs,systErrs)
+   if np.linalg.det(cov)==0: print("[WARNING], the above cov matrix is singular for ", ao.path(), " ! ")
+   return cov
+
+
+
+
+fPlot=open("extra.plot","w")
+aos=yoda.read(fn, unpatterns=".*RAW.*")
+aos_syst={}
+count=-1
+
+for name, ao_mc in aos.items():
+  count+=1
+  print("Processing %s (%d bins)"%(ao_mc.path(),ao_mc.numPoints()))
+  ao_ref = getRivetRefData(ao_mc)
+  if ao_ref is None : 
+    print("name:"+name+" can't be found")
+    continue
+  altname=ao_ref.path().replace("/REF","")
+  chi2,ndf=calculateChi2(ao_ref,ao_mc, groupings=groupings)
+  chi2_nc,ndf_nc=calculateChi2(ao_ref,ao_mc, groupings=groupings, ignore_corrs=True)
+  ao_mc.setAnnotation("Chi2","%.2f/%d"%(chi2,ndf))
+  print("--> $\chi^2/n$: %.2f (corrs), %.2f (no corrs)"%(chi2/ndf,chi2_nc/ndf_nc))
+  fPlot.write("# BEGIN PLOT %s\nCustomLegend=$\chi^2/n.d.f$: %.2f (corrs), %.2f (no corrs)\nLegendYPos=0.7\n# END PLOT\n\n"%(altname,chi2/ndf,chi2_nc/ndf_nc))
+  for ip in range(len(ao_ref.points())):
+    p=ao_ref.points()[ip]
+    for var in ao_ref.variations():
+      if var=="": continue
+      group =getGrouping(var, groupings)
+      if not applyGroupings: group=var
+      if not group in aos_syst.keys():
+        aos_syst[group]={}
+      if not altname in aos_syst[group].keys(): 
+        aos_syst[group][altname]=ao_ref.clone()
+        aos_syst[group][altname].setPath(altname)
+        for ap in aos_syst[group][altname].points(): ap.setYErrs(0) 
+      
+      prevErr=abs(aos_syst[group][altname].points()[ip].yErrs()[0]) 
+      extraErr=abs(p.yErrsFromSource(var)[0])
+      aos_syst[group][altname].points()[ip].setYErrs((prevErr**2 + extraErr**2)**0.5)
+fPlot.close()
+
+command="rivet-mkhtml %s"%options[1]
+cc=-1
+for kn, aol in aos_syst.items():
+  knsafe=kn.replace(",","_")
+  cc+=1
+  fn_i = "%s.yoda"%knsafe
+  yoda.write(aol,fn_i)
+  command+=" %s:ErrorBands=1:LineColor=%s:ErrorBandColor=%s:RatioPlotSameStyle=1:ErrorBandOpacity=0.5:Title=%s "%(fn_i,colors[cc],colors[cc],kn)
+
+command+=" ".join(options[2:])
+command+=" -c extra.plot --errs"
+
+print command
+os.system(command)

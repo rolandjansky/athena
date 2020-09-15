@@ -157,6 +157,9 @@ class Wt_DR(PowhegV2):
         self.add_keyword("wmass")
         self.add_keyword("wwidth")
         self.add_keyword("xupbound", 4)
+        self.add_keyword("fulloffshell")
+        self.add_keyword("numwidth_W")
+        self.add_keyword("min_W_mass")
 
     def validate_decays(self):
         """! Validate ttype, topdecaymode and wdecaymode keywords."""

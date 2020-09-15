@@ -33,6 +33,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("AccuracyMargin",   m_accur_margin=0.); //MeV
 
   declareProperty("G4ExtraWhiteFile", m_paramFile       = "g4_extrawhite.param" );
+// a list of allowed pdgid which however are not known to the official list
   declareProperty("UnknownPDGIDFile", m_unknownPDGIDFile = "pdgid_extras.txt" );
 
   declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
@@ -493,7 +494,7 @@ StatusCode TestHepMC::execute() {
       // Check for bad PDG IDs
       if (!MC::PID::isValid(ppdgid)){
         ATH_MSG_WARNING("Invalid PDG ID found: " << ppdgid);
-        if (m_unknownPDGIDTest && std::find(m_uknownPDGID_tab.begin(),m_uknownPDGID_tab.end(),ppdgid)!=m_uknownPDGID_tab.end()){
+        if (m_unknownPDGIDTest && std::find(m_uknownPDGID_tab.begin(),m_uknownPDGID_tab.end(),ppdgid)==m_uknownPDGID_tab.end()){
           filter_pass = false;
         }
       } // End of check for invalid PDG IDs
@@ -547,7 +548,7 @@ StatusCode TestHepMC::execute() {
           const HepMC::FourVector tau_decaypos = vtx->position();
           const double tau_displacement = tau_decaypos.x()*tau_decaypos.x() + tau_decaypos.y()*tau_decaypos.y() + tau_decaypos.z()*tau_decaypos.z();
           //tau_child!=1 exclude cases in which a tau is copied to another vertex or emits a photon
-          if ((tau_displacement < 1.e-6) && (tau_child!=1)) ++m_FastDecayedTau;
+          if ((tau_displacement == 0) && (tau_child!=1)) ++m_FastDecayedTau;
         } else {
           ATH_MSG_WARNING("UNDECAYED PARTICLE WITH PDG_ID = " << m_pdg);
           ++m_decayCheckRate;

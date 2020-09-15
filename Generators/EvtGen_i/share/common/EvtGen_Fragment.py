@@ -1,12 +1,26 @@
 ## base fragment for EvtGen using 2014 decay tables.
 
 evgenConfig.generators += ["EvtGen"]
-evgenConfig.auxfiles += ['2014Inclusive.dec']
+
+if "EVTGENVER" in os.environ:
+  evtgenver_str = str(os.environ['EVTGENVER'])[:3]
+  evtgenver = float(evtgenver_str)
+  print(" ver of EvtGen ", evtgenver)
+  if (evtgenver == 1.7):
+     evgenConfig.auxfiles += ['2014Inclusive_17.dec']
+     decayfile_str = "2014Inclusive_17.dec"
+  else:
+     evgenConfig.auxfiles += ['2014Inclusive.dec']
+     decayfile_str = "2014Inclusive.dec"
+else:
+  print("EVTGENVER not available !!! assuming version != 1.7")
+  evgenConfig.auxfiles += ['2014Inclusive.dec']
+  decayfile_str = "2014Inclusive.dec"
 
 from EvtGen_i.EvtGen_iConf import EvtInclusiveDecay
 genSeq += EvtInclusiveDecay()
 genSeq.EvtInclusiveDecay.OutputLevel = INFO
-genSeq.EvtInclusiveDecay.decayFile = "2014Inclusive.dec"
+genSeq.EvtInclusiveDecay.decayFile = decayfile_str
 genSeq.EvtInclusiveDecay.allowAllKnownDecays=False
 genSeq.EvtInclusiveDecay.whiteList+=[-411, -421, -10411, -10421, -413, -423,
                                      -10413, -10423, -20413, -20423, -415, -425, -431, -10431, -433, -10433, -20433,

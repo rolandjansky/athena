@@ -130,7 +130,8 @@ saverun {} /Herwig/Generators/EventGenerator
   ## Sets up reading of events from an LHE file
   ##
   ## \param usespin Use the spin of tau leptons from the LHE file (spins of other particles are ignored anyways)
-  def __lhef_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True):
+  ## \param usepwghlhereader Uses a different LHE reader, which is able to propagte multiple event weights
+  def __lhef_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True, usepwghlhereader=False):
 
     if not me_pdf_order in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:__lhef_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
@@ -158,14 +159,18 @@ saverun {} /Herwig/Generators/EventGenerator
 # set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/Hard{MEPDFOrder}PDF
 """.format(MEPDFOrder = me_pdf_order)
 
+    pwg_reader_lib = "library powhegHerwig.so" 
+
+
     self.commands += """
 ## ----------------------------
 ## Read in Events from LHE File
 ## ----------------------------
 
 ## Create the Handler and Reader
+{PwgReaderLib}
 library LesHouches.so
-create ThePEG::LesHouchesFileReader /Herwig/EventHandlers/LHEReader
+create ThePEG::{PwgReader}LesHouchesFileReader /Herwig/EventHandlers/LHEReader
 create ThePEG::LesHouchesEventHandler /Herwig/EventHandlers/LHEHandler
 
 ## Set LHE filename
@@ -197,6 +202,8 @@ set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
 
 {BeamCommands}
 """.format(FileName = lhe_filename,
+           PwgReaderLib = pwg_reader_lib if usepwghlhereader==True else "",
+           PwgReader = "powheg" if usepwghlhereader==True else "",
            Beams = self.beams,
            IncludeSpin = "Yes" if usespin==True else "No",
            MomentumTreatment = momentum_treatment,
@@ -250,6 +257,7 @@ set /Herwig/Shower/ShowerHandler:SpinCorrelations No
   ##                         hard process generation and the PDF set with
   ##                         generator.me_pdf_commands.
   ## \param[in] usespin 
+  ## \param[in] usepwghlhereader 
   ##
   ## Specifying the LHE file name with
   ##
@@ -272,11 +280,14 @@ set /Herwig/Shower/ShowerHandler:SpinCorrelations No
   ##
   ## should still work.
   ##
-  def lhef_powhegbox_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True):
+  ## If you want to use the pwglhereader, needed to propagte multiple event weights
+  ## you need to use a gridpack contains the powhegHerwig.so 
+  ## 
+  def lhef_powhegbox_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True, usepwhglhereader=False):
 
     if not me_pdf_order in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:lhef_powhegbox_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
 
     self.set_lhef_powhegbox_commands = True
 
-    self.__lhef_commands(lhe_filename, me_pdf_order, usespin)
+    self.__lhef_commands(lhe_filename, me_pdf_order, usespin, usepwhglhereader)

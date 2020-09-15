@@ -21,7 +21,7 @@ find_package( Herwig3 COMPONENTS HerwigAPI )
 find_package( ThePEG )
 find_package( GSL )
 find_package( OpenLoops )
-# find_package( VBFNLO )
+#find_package( VBFNLO )
 
 
 # Remove the --as-needed linker flags:
@@ -29,8 +29,8 @@ atlas_disable_as_needed()
 
 # Add extra flag for H7 versions >=7.2
 set( _extraDefs )
-if(DEFINED HW3_VER_IS_72)
-   set( _extraDefs -DHWVER_IS_72=\"${HW3_VER_IS_72}\" )
+if( "${HERWIG3_LCGVERSION}" VERSION_GREATER_EQUAL "7.2" )
+   list( APPEND _extraDefs -DHWVER_IS_72=1 )
 endif()
 
 # Component(s) in the package:
