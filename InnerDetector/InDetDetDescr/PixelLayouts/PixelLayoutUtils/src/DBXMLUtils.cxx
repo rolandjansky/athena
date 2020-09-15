@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -72,6 +72,8 @@ int DBXMLUtils::getSchemaVersion(std::string xmlName) const
 
   // Remove .xml suffix if it exists
   std::string prefix=""; 
+  std::string latest_file = "";
+
   if(xmlName.size()>4)prefix=xmlName.substr(xmlName.size()-4,4);
  
   if(prefix.size()>0) xmlName=xmlName.substr(0,xmlName.size()-4);
@@ -86,7 +88,12 @@ int DBXMLUtils::getSchemaVersion(std::string xmlName) const
       std::string keyword = geoAccessor().getString(pixelXMLTable_ptr,"KEYWORD",i);
       if(keyword==xmlName||keyword==xmlNameGeo){
 	msg(MSG::DEBUG)<<"CLOB : "<<i<<" "<<keyword<<" / "<<xmlName<<endreq;
-	res = geoAccessor().getInt(pixelXMLTable_ptr,"VERSION",i);
+	int version = geoAccessor().getInt(pixelXMLTable_ptr,"VERSION",i);
+	if(version > res) {
+	  res = version;
+	  latest_file = keyword;
+	}
+	else msg(MSG::WARNING)<<"Older version detected for "<<keyword<<" ("<<version<<") than "<<latest_file<<" ("<<res<<"). Taking newest ("<<res<<")!"<<endreq;
 	nbCLOB++;
       }
     }
