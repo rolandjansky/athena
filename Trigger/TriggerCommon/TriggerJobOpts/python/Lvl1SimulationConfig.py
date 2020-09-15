@@ -26,8 +26,9 @@ def Lvl1SimulationSequence( flags = None ):
     TriggerFlags.readLVL1configFromXML = True
     TriggerFlags.outputLVL1configFile = None
     log.info("setting up LVL1ConfigSvc, including the menu generation")
-    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc
+    from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc, getL1TopoConfigSvc
     svcMgr += conf2toConfigurable(getL1ConfigSvc(flags))
+    svcMgr += conf2toConfigurable(getL1TopoConfigSvc(flags))
 
     ##################################################
     # Calo
