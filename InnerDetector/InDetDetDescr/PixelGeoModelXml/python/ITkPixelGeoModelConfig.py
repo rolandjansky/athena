@@ -12,7 +12,7 @@ def ITkPixelGeometryCfg( flags ):
     acc.addService(GeometryDBSvc("ITkGeometryDBSvc"))
     PixelDetectorTool=CompFactory.PixelDetectorTool
     ITkPixelDetectorTool = PixelDetectorTool()
-    #ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
+    #ITkPixelDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkPixelDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkPixelDetectorTool.DetectorName = "ITkPixel"
     geoModelSvc.DetectorTools += [ ITkPixelDetectorTool ]

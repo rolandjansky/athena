@@ -44,7 +44,7 @@ PixelGmxInterface::~PixelGmxInterface() {
 int PixelGmxInterface::moduleId(map<string, int> &index){
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
-  int hitIdOfWater = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
+  int hitIdOfWafer = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
 							  index["eta_module"], index["phi_module"], index["side"]);
 
   *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " <<
