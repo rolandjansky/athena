@@ -10,7 +10,7 @@ from ElectronPhotonSelectorTools.AsgForwardElectronIsEMSelectorsConfig import As
 egammaForwardBuilder=CompFactory.egammaForwardBuilder
 from ROOT import egammaPID
 
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 def egammaForwardBuilderCfg(flags, name='egammaForwardElectron', **kwargs):

@@ -17,6 +17,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
 namespace Trk {
@@ -48,14 +49,24 @@ public:
     ParticleHypothesis = nonInteracting) const override final;
 
 private:
-  void scattering(IMultiStateMaterialEffects::Cache&,
-                  const ComponentParameters&,
-                  const MaterialProperties&,
-                  double,
-                  PropDirection direction = anyDirection,
-                  ParticleHypothesis particleHypothesis = nonInteracting) const;
+  struct GSFScatteringCache
+  {
+    double deltaThetaCov = 0;
+    double deltaPhiCov = 0;
 
-  void energyLoss(IMultiStateMaterialEffects::Cache&,
+    void reset()
+    {
+      deltaThetaCov = 0;
+      deltaPhiCov = 0;
+    }
+  };
+
+  void scattering(GSFScatteringCache&,
+                  const ComponentParameters& componentParameters,
+                  const MaterialProperties& materialProperties,
+                  double pathLength) const;
+
+  void energyLoss(Trk::GSFEnergyLossCache&,
                   const ComponentParameters&,
                   const MaterialProperties&,
                   double,
@@ -75,7 +86,7 @@ private:
     "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",
     ""
   };
-  ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects{
+  ToolHandle<IBetheHeitlerEffects> m_betheHeitlerEffects{
     this,
     "BetheHeitlerEffects",
     "Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects",

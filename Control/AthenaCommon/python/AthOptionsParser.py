@@ -445,10 +445,6 @@ def parse(chk_tcmalloc=True):
     # This behavior can be controlled by a flag, if needed
     os.environ['LIBC_FATAL_STDERR_']='1'
 
-    # for the benefit of PyROOT
-    if not opts.display and '-b' not in sys.argv:
-        sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
-
     # user decision about TDAQ ERS signal handlers
     if opts.enable_ers_hdlr:
         if 'TDAQ_ERS_NO_SIGNAL_HANDLERS' in os.environ:

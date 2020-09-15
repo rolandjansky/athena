@@ -301,6 +301,9 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     CHECK( outTauSeedHandle.record( std::move( theJetContainer ), std::move( theTrigJetAuxContainer ) ) );
   }
 
+  //Check if jetLink is valid for all taus
+  CHECK(p_tau->jetLink().isValid());
+
   // get TrackContainer
   if(!m_tracksKey.key().empty()){
     SG::ReadHandle< xAOD::TrackParticleContainer > TPContainerHandle = SG::makeHandle( m_tracksKey,ctx );

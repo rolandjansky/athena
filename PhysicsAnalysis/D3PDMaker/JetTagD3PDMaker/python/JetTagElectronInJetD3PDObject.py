@@ -13,7 +13,7 @@ import egammaD3PDMaker
 import EventCommonD3PDMaker
 ##from egammaD3PDMaker.isem_version import isem_version ## use 16
 import cppyy
-cppyy.loadDictionary('egammaEnumsDict')
+cppyy.load_library('libegammaEnumsDict')
 from ROOT import egammaPID
 
 import D3PDMakerCoreComps

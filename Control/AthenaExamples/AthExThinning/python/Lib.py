@@ -46,7 +46,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
         
         ## Datavector stuff
         import cppyy
-        cppyy.loadDict("libAthExThinningEventDict")
+        cppyy.load_library("libAthExThinningEventDict")
         from RootUtils import PyROOTFixes  # noqa: 401
         self.filter = self.Filter
         return StatusCode.Success
@@ -309,7 +309,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
         
         ## Datavector stuff
         import cppyy
-        cppyy.loadDict("libAthExThinningEventDict")
+        cppyy.load_library("libAthExThinningEventDict")
         from RootUtils import PyROOTFixes  # noqa: F401
         return StatusCode.Success
 

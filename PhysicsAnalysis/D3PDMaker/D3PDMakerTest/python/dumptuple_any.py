@@ -26,7 +26,7 @@ ROOT6Setup()
 # to look up the autoload.  (cf  R__FindSTLClass in TROOT.cxx).
 # So need to make sure that the reflex dictionary for these classes
 # is loaded.
-cppyy.loadDictionary ('AtlasSTLAddReflexDict')
+cppyy.load_library('libAtlasSTLAddReflexDict')
 ROOT.TClass('vector<float>')
 ROOT.TClass('vector<vector<unsigned int> >')
 from ordereddict import OrderedDict

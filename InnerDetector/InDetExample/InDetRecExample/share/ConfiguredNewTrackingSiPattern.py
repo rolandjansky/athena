@@ -514,9 +514,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True,
-                                                   doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
-                                                   InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet")
+                                                   RefitPrds          = True)
+
 
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
@@ -553,8 +552,6 @@ class  ConfiguredNewTrackingSiPattern:
               elif NewTrackingCuts.extension() == "Disappearing":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap()
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
-           if InDetFlags.doTIDE_RescalePixelCovariances() :
-            InDetAmbiguityProcessor.applydRcorrection = True
 
          if NewTrackingCuts.mode() == "Pixel" or NewTrackingCuts.mode() == "DBM":
             InDetAmbiguityProcessor.SuppressHoleSearch = True

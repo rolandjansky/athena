@@ -13,15 +13,20 @@ TrigConf::HLTMenu::HLTMenu()
 TrigConf::HLTMenu::HLTMenu(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::HLTMenu::~HLTMenu()
 {}
 
-
 void
 TrigConf::HLTMenu::update()
+{
+   load();
+}
+
+void
+TrigConf::HLTMenu::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -49,7 +54,7 @@ TrigConf::HLTMenu::setSMK(unsigned int smk) {
 TrigConf::HLTMenu::const_iterator
 TrigConf::HLTMenu::begin() const
 {
-    return {data().get_child("chains"), 0,  [](auto & x){auto chain = Chain(x.second); chain.setName(x.first); return chain; }};
+   return {data().get_child("chains"), 0,  [](auto & x){auto chain = Chain(x.first, x.second); return chain; }};
 }
 
 TrigConf::HLTMenu::const_iterator
@@ -64,12 +69,13 @@ std::vector<TrigConf::DataStructure>
 TrigConf::HLTMenu::streams() const
 {
    std::vector<DataStructure> strlist;
-   const auto & streams = data().get_child("streams");
-   strlist.reserve(streams.size());
-
-   for( auto & strData : streams )
-      strlist.emplace_back( strData.second );
-
+   auto streams = data().get_child_optional("streams");
+   if(streams) {
+      strlist.reserve(streams->size());
+      for( auto & strData : *streams ) {
+         strlist.emplace_back( strData.second );
+      }
+   }
    return strlist;
 }
 
@@ -94,7 +100,7 @@ void
 TrigConf::HLTMenu::printMenu(bool full) const
 {
    cout << "HLT menu '" << name() << "'" << endl;
-   cout << "Streams: " << data().get_child("streams").size() << endl;
+   cout << "Streams: " << streams().size() << endl;
    cout << "Chains: " << size() << endl;
    if(full) {
       int c(0);

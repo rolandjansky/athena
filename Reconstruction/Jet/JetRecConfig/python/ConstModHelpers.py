@@ -8,7 +8,7 @@
 ########################################################################
 import cppyy
 try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+    cppyy.load_library('libxAODBaseObjectTypeDict')
 except Exception:
     pass
 from ROOT import xAODType

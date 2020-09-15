@@ -5,7 +5,7 @@ atlas_subdir( StoreGateBindings )
 
 # External dependencies:
 find_package( Python COMPONENTS Development )
-find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS PyROOT Core Tree MathCore Hist RIO pthread ROOTTPython cppyy3_7)
 
 # Component(s) in the package:
 atlas_add_library( StoreGateBindings

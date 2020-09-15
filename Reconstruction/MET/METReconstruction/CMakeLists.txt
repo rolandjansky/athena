@@ -47,11 +47,10 @@ atlas_add_component( METReconstruction
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils PATCoreLib METRecoInterface PFlowUtilsLib InDetTrackSelectionToolLib TrackVertexAssociationToolLib )
 
-atlas_add_dictionary( METReconstructionDict
-       		      METReconstruction/METReconstructionAthDict.h
-	              METReconstruction/selection-athena.xml
-	              INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-	              LINK_LIBRARIES ${ROOT_LIBRARIES} )
+#atlas_add_dictionary( METReconstructionDict
+#	              METReconstruction/selection-athena.xml
+#	              INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+#	              LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py  python/LegacyRunII/*.py)

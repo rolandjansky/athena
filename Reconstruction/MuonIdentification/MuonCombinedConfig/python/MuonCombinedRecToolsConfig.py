@@ -392,6 +392,11 @@ def iPatFitterCfg(flags, name='iPatFitter', **kwargs):
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() )
         result.merge(acc)
 
+    from TrkConfig.SolenoidalIntersectorConfig import SolenoidalIntersectorCfg
+    acc = SolenoidalIntersectorCfg (flags)
+    kwargs.setdefault ('SolenoidalIntersector', acc.popPrivateTools())
+    result.merge (acc)
+
     tool = CompFactory.Trk.iPatFitter(name,**kwargs)
     result.setPrivateTools(tool)
     return result 

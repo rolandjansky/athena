@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -30,8 +30,8 @@
 #include <cassert>
 #include <iostream>
 
-static bool debug=false;
-static uint8_t CURVILINEAR=15;
+//static bool debug=false;
+static const uint8_t CURVILINEAR=15;
 
 void TrackParametersCnv_p2::persToTrans( const Trk :: TrackParameters_p2 * /**persObj*/, Trk :: TrackParameters    * /**transObj*/, MsgStream& /**log*/ ) {
   throw std::runtime_error("TrackParametersCnv_p2::persToTrans shouldn't be called any more!");
@@ -102,7 +102,7 @@ const Trk::Surface* TrackParametersCnv_p2::transSurface(const Trk :: TrackParame
   const Trk::Surface* surface=0;
   // check if surface had transform.
   if (persObj->m_transform.size()){
-    if (debug) std::cout<<"Reading in parameters with FREE surface type ="<<type<<std::endl;
+    //if (debug) std::cout<<"Reading in parameters with FREE surface type ="<<type<<std::endl;
 
     auto transform = std::make_unique<Amg::Transform3D>();
     EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get());
@@ -121,7 +121,7 @@ const Trk::Surface* TrackParametersCnv_p2::transSurface(const Trk :: TrackParame
       return 0;
     }
   } else {
-    if (debug) std::cout<<"Reading in parameters with non-free surface type ="<<type<< "(i.e. no transform was written out)"<<std::endl;
+    //if (debug) std::cout<<"Reading in parameters with non-free surface type ="<<type<< "(i.e. no transform was written out)"<<std::endl;
 
     // Surface must have belonged to a ReadoutElement, or some part of the geometry or have a nominal/default perigee surface.
     if (type!=Trk::Surface::Perigee) {		
@@ -162,7 +162,7 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
       }
       fillPersSurface(transObj, persObj, log);
     } else {
-      if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endmsg;
+      //if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endmsg;
       std::unique_ptr<AmgSymMatrix(5)> newcov;
       if (transObj->covariance())
         newcov = std::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
@@ -198,9 +198,9 @@ void TrackParametersCnv_p2::convertTransCurvilinearToPers(const Trk :: TrackPara
 }
 
 bool TrackParametersCnv_p2::isPersistifiableType(const Trk :: TrackParameters    *transObj) const {
-  Trk::Surface* surf = const_cast<Trk::Surface*>(transObj->associatedSurface ().baseSurface());
-  Trk::Surface::SurfaceType type = surf->type();
+  const Trk::Surface* surf = transObj->associatedSurface ().baseSurface();
   assert (surf);
+  Trk::Surface::SurfaceType type = surf->type();
   if (type==Trk::Surface::Perigee || type==Trk::Surface::Plane || type==Trk::Surface::Line){
     return true;
   } 
@@ -209,27 +209,27 @@ bool TrackParametersCnv_p2::isPersistifiableType(const Trk :: TrackParameters   
 
 void TrackParametersCnv_p2::fillPersSurface(const Trk :: TrackParameters    *transObj, Trk :: TrackParameters_p2 *persObj, MsgStream& /*log*/){
   //----- Surface
-  Trk::Surface* surf = const_cast<Trk::Surface*>(transObj->associatedSurface ().baseSurface());
+  const Trk::Surface* surf = transObj->associatedSurface ().baseSurface();
   assert (surf);
   persObj->m_surfaceType = static_cast<uint8_t>(surf->type()); // Store type
 
   persObj->m_associatedDetElementId = surf->associatedDetectorElementIdentifier().get_identifier32().get_compact();
-  static Trk::PerigeeSurface s_nominalPerigeeSurface; // FIXME - should there be a  common 'nominal' surface ie on Perigee, as before?
+  static const Trk::PerigeeSurface s_nominalPerigeeSurface; // FIXME - should there be a  common 'nominal' surface ie on Perigee, as before?
   // Need to write out transforms for TG owned surfaces, and 'free' (noOwn) surfaces - i.e. anything which isn't on det element
   if( surf->cachedTransform()!=0 ) {
     // FIXME - I think maybe we can just remove all of the code below and ALWAYS write out the transform if it exists - i.e. it won't exist if the surface is 'nominal'
     if (surf->type()!=Trk::Surface::Perigee || (surf->type()==Trk::Surface::Perigee && *surf!=s_nominalPerigeeSurface)){
-      if (debug) std::cout<<"Writing out transform for parameters with FREE surface type ="<<surf->type()<<" with centre="<<surf->center()<<std::endl;
+      //if (debug) std::cout<<"Writing out transform for parameters with FREE surface type ="<<surf->type()<<" with centre="<<surf->center()<<std::endl;
       EigenHelpers::eigenTransform3DToVector( *(surf->cachedTransform()),persObj->m_transform );
     } else {
-      if (debug && surf->type()==Trk::Surface::Perigee && (*surf)==s_nominalPerigeeSurface) std::cout<<"Writing out perigee parameters with nominal surface (so not writing transform)."<<std::endl;
-      else if (debug) std::cout<<"Something weird has happened!"<<std::endl;
+      //if (debug && surf->type()==Trk::Surface::Perigee && (*surf)==s_nominalPerigeeSurface) std::cout<<"Writing out perigee parameters with nominal surface (so not writing transform)."<<std::endl;
+      //else if (debug) std::cout<<"Something weird has happened!"<<std::endl;
     }
   } 
 
   // Debug info
-  if (surf->isFree() && debug) std::cout<<"Writing out parameters with det element (free) surface type ="<<surf->type()<<std::endl;
-  if (surf->owner() == Trk::TGOwn && debug) std::cout<<"Writing out parameters with TGOwn surface type ="<<surf->type()<<std::endl;
+  //if (surf->isFree() && debug) std::cout<<"Writing out parameters with det element (free) surface type ="<<surf->type()<<std::endl;
+  //if (surf->owner() == Trk::TGOwn && debug) std::cout<<"Writing out parameters with TGOwn surface type ="<<surf->type()<<std::endl;
 }
 
 

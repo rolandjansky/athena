@@ -96,13 +96,6 @@ private:
     "Maximum number of components"
   };
 
-  ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{
-    this,
-    "MaterialEffectsUpdator",
-    "Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator",
-    ""
-  };
-
   ToolHandle<IMultiStateMaterialEffects> m_materialEffects{
     this,
     "MaterialEffects",

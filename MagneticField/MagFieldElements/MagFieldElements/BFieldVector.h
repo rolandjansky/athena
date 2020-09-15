@@ -16,6 +16,7 @@
 #define BFIELDVECTOR_H
 
 #include <array>
+#include <cstdlib>
 
 template<class T>
 class BFieldVector

@@ -10,6 +10,8 @@
 # Input = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json   
 # TrackReference = 'Truth'
 
+import re
+
 from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
@@ -17,17 +19,21 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 import sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lxp",["local"])
+    opts, args = getopt.getopt(sys.argv[1:],"lxpn:",["local"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l(--local)    run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
     print("-p             run post-processing, even if -x is set")
+    print("")
+    print("-n  N          run only on N events per job")
 
 
-local=False
-exclude=False
-postproc=False
+LEvents  = 0
+local    = False
+exclude  = False
+postproc = False
+
 for opt,arg in opts:
     if opt in ("-l", "--local"):
         local=True
@@ -35,7 +41,8 @@ for opt,arg in opts:
         exclude=True
     if opt=="-p":
         postproc=True
-
+    if opt=="-n":
+        LEvents=arg
 
 
 rdo2aod = TrigInDetReco()
@@ -43,15 +50,28 @@ rdo2aod = TrigInDetReco()
 # test specific variables ...
 
 rdo2aod.slices            = Slices
-rdo2aod.max_events        = Events 
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 
+
+# allow command line to override programed number of events to process
+
+if LEvents != 0 : 
+    rdo2aod.max_events        = LEvents 
+else :
+    rdo2aod.max_events        = Events 
 
 
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 rdo2aod.input = Input    # defined in TrigValTools/share/TrigValInputs.json  
+
+if local:
+#   rdo2aod.input = 'Single_el_larged0'    # defined in TrigValTools/share/TrigValInputs.json  
+    rdo2aod.input = Input   # should match definition in TrigValTools/share/TrigValInputs.json  
+else:
+    rdo2aod.input = ''
+    rdo2aod.args += ' --inputRDOFile=$ArtInFile '
 
 
 
@@ -68,28 +88,53 @@ if (not exclude):
 
 # Run TIDArdict
 
-if ((not exclude) or postproc ):
-    rdict = TrigInDetdictStep()
-    if ( TrackReference == "Truth" ) : 
-       rdict.args='TIDAdata-run3.dat  -f data-hists.root -b Test_bin.dat '
-    if ( TrackReference == "Offline" ) : 
-       rdict.args='TIDAdata-run3-offline.dat  -f data-hists.root -b Test_bin.dat '
+# first make sure that we have a proper list ..
+if isinstance( TrackReference, str ):
+    TrackReference = [ TrackReference ]
 
-    test.check_steps.append(rdict)
+for ref in TrackReference : 
 
+    hist_file = 'data-hists.root'
+    ext       = ''
+    ext1      = ''
 
+    if   ( ref == 'Truth' ) :
+        args      = 'TIDAdata-run3.dat  -b Test_bin.dat -o '+hist_file
+    elif ( ref == 'Offline' ) :
+        if len(TrackReference)>1 : 
+            hist_file = 'data-hists-offline.root'
+            ext       = '_off'
+            ext1      = 'offl'
+        args      = 'TIDAdata-run3-offline.dat  -b Test_bin.dat -o '+hist_file
+    else :
+        # here actually we should allow functionality 
+        # to use different pdgid truth or offline as
+        # a reference:
+        # presumably we run offline muons etc as well 
+        # now in the transform
+        raise Exception( 'unknown reference: ', ref )
 
+    if ((not exclude) or postproc ):
+        rdict = TrigInDetdictStep( name=ref, reference=ref )
+        rdict.args = args
+        print( "\033[0;32m TIDArdict "+args+" \033[0m" )
 
-# Now the comparitor steps
- 
-for slice in Slices :
-  comp1=TrigInDetCompStep('Comp_L2'+slice,'L2',slice)
-  test.check_steps.append(comp1)
+        test.check_steps.append(rdict)
+       
+    # Now the comparitor steps
+    # here, the compararitor must know the name of the root file to process
+    # we set it in the comparitor job, using the _off extension
+    # this isn't ideal, since we set the hist file in this code, 
+    # so really we should pass it in consistently, and the options 
+    # for the directory names should be unrelated 
 
-  if ( RunEF ) : 
-    comp2=TrigInDetCompStep('Comp_EF'+slice,'EF', slice)
-    test.check_steps.append(comp2)
+    for slice in Slices :
+      comp1=TrigInDetCompStep( 'Comp_L2'+slice+ext, 'L2', slice, type=ext1)
+      test.check_steps.append(comp1)
 
+      if ( RunEF ) : 
+        comp2=TrigInDetCompStep( 'Comp_EF'+slice+ext, 'EF', slice, type=ext1)
+        test.check_steps.append(comp2)
 
 
 

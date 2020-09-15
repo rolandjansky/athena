@@ -37,6 +37,11 @@ namespace TrigConf {
       /** Destructor */
       ~HLTPrescalesSet();
 
+      // class name
+      virtual std::string className() const override {
+         return "HLTPrescaleSet";
+      }
+
       /** number of HLT prescales */
       std::size_t size() const;
 

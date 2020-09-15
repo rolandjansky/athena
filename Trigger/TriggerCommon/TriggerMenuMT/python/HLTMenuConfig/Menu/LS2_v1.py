@@ -217,6 +217,7 @@ def setupMenu():
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
         ChainProp(name="HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j275_ftf_subjesgscIS_boffperf_split_L1J100", groups=SingleBjetGroup),
         ChainProp(name="HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
     ]
 
@@ -304,7 +305,6 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
-       ChainProp(name='HLT_cscmon_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
 
     ]
 

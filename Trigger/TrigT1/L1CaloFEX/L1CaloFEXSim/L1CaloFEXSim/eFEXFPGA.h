@@ -41,7 +41,7 @@ namespace LVL1 {
     eFEXFPGA(const std::string& type,const std::string& name,const IInterface* parent);
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() ;
+    virtual StatusCode initialize() override;
     /** Destructor */
     virtual ~eFEXFPGA();
 

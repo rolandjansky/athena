@@ -9,8 +9,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include "TrkAmbiguityProcessor/dRMap.h"
-#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -27,15 +25,6 @@
 
 
 
-
-class AtlasDetectorID;
-class PixelID;
-
-namespace InDet{
-  class IPixelClusterSplitProbTool;
-  class PixelCluster;
-  class SCT_Cluster;
-}
 
 namespace Trk {
   class ITruthToTrack;
@@ -82,32 +71,9 @@ namespace Trk {
     /**Track* 
     refitRots( const Track* track, Counter &stat) const override final;**/
 
-    /** stores the minimal dist(trk,trk) for covariance correction*/
-    void 
-    storeTrkDistanceMapdR(TrackCollection& tracks, std::vector<Trk::Track*> &refit_tracks_out );
-    
-    /** refit Tracks that are in the region of interest and removes inner hits that are wrongly assigned*/
-    void 
-    removeInnerHits(std::vector<const Trk::MeasurementBase*>& measurements) const;
-    
-    Trk::Track* 
-    refitTracksFromB(const Trk::Track* track,double fitQualityOriginal) const;
-   
-    /** see if we are in the region of interest for B tracks*/
-    bool 
-    decideIfInHighPtBROI(const Trk::Track*) const;
-
-    /** Check if the cluster is compatible with a hadronic cluster*/
-    bool 
-    isHadCaloCompatible(const Trk::TrackParameters& Tp) const;
-
-    /** Load the clusters to see if they are compatibles with ROI*/
-    void 
-    reloadHadROIs() const;
-    
     virtual std::unique_ptr<Trk::Track>
     doBremRefit(const Trk::Track & track) const override final;
-         
+
 
     std::unique_ptr<Trk::Track>
     fit(const std::vector<const Trk::PrepRawData*> &raw,
@@ -120,22 +86,9 @@ namespace Trk {
     
     std::unique_ptr<Trk::Track>
     fit(const Track &track, bool flag, Trk::ParticleHypothesis hypo) const override final;
-    
     bool 
     checkTrack(const Trk::Track *) const;
 
-    /** variables to decide if we are in a ROI */
-    bool m_useHClusSeed;
-    float m_minPtBjetROI;
-    float m_phiWidth;
-    float m_etaWidth;
-    SG::ReadHandleKey<CaloClusterROI_Collection> m_inputHadClusterContainerName;
-
-    mutable std::vector<double>   m_hadF;
-    mutable std::vector<double>   m_hadE;
-    mutable std::vector<double>   m_hadR;
-    mutable std::vector<double>   m_hadZ;
-    
     /** refitting tool - used to refit tracks once shared hits are removed. 
         Refitting tool used is configured via jobOptions.*/
     ToolHandleArray<ITrackFitter> m_fitterTool;
@@ -153,12 +106,6 @@ namespace Trk {
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
-
-    /**These allow us to retrieve the helpers*/
-    const PixelID* m_pixelId;
-    const AtlasDetectorID* m_idHelper;
-
-    SG::WriteHandleKey<InDet::DRMap>                    m_dRMap;      //!< the actual dR map         
 
     bool m_rejectInvalidTracks;
   };

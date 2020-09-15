@@ -16,7 +16,7 @@ from AthenaCommon.Logging import logging
 import eformat
 
 import cppyy
-cppyy.loadDictionary('TrigByteStreamToolsDict')
+cppyy.load_library('libTrigByteStreamToolsDict')
 from ROOT import CTPdataformat
 from TrigByteStreamTools import CTPfragment
 
