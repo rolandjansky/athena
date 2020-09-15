@@ -503,7 +503,7 @@ void TRT_COOLCORALClient::GetHVLineFromPad( const DetectorType& detector,
 
   std::map<float,std::string>::iterator PadMap_iter;
 
-  for (PadMap_iter=PadMap.begin(); PadMap_iter != PadMap.end(); PadMap_iter++)
+  for (PadMap_iter=PadMap.begin(); PadMap_iter != PadMap.end(); ++PadMap_iter)
     {
       std::string theString = (*PadMap_iter).second;
       int bg = theString.find_first_of("d");

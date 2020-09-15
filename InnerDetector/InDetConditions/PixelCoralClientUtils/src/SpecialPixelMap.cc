@@ -205,8 +205,8 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const coral::Blob& blob, unsigned i
 
 ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 					     unsigned int module_status,
-					     std::vector<unsigned int> chip_status,
-					     std::vector<std::vector<unsigned int> > column_pair_status,
+					     const std::vector<unsigned int>& chip_status,
+					     const std::vector<std::vector<unsigned int> >& column_pair_status,
 					     unsigned int mchips) :
   std::map<unsigned int, unsigned int>(pixels),
   m_chipsPerModule(mchips),
@@ -240,7 +240,7 @@ ModuleSpecialPixelMap& ModuleSpecialPixelMap::operator+=(ModuleSpecialPixelMap m
     mspm.resetSpecialRegions();
     resetSpecialRegions();
     
-    for(ModuleSpecialPixelMap::const_iterator pixel = mspm.begin(); pixel != mspm.end(); pixel++){
+    for(ModuleSpecialPixelMap::const_iterator pixel = mspm.begin(); pixel != mspm.end(); ++pixel){
       (*this)[(*pixel).first] |= (*pixel).second;
     }
     
@@ -610,7 +610,7 @@ unsigned int ModuleSpecialPixelMap::pixelStatus(unsigned int pixelID) const{
 bool ModuleSpecialPixelMap::pixelStatusBit(unsigned int pixelID, unsigned int bit) const{
   if(bit < 32){
     unsigned int status = pixelStatus(pixelID); 
-    return  static_cast<bool>(status & (1 << bit));
+    return  static_cast<bool>(status & (1u << bit));
   }   
   else {
     std::cout << "Requested bit " << bit << " out of range ([0,31] allowed)" << std::endl;
@@ -906,7 +906,7 @@ void ModuleSpecialPixelMap::print(int component,
        unsigned int pixelStatus = pixel->second;
        std::cout << " status: ";
        for(int i = 31; i >= 0; i--){
- 	bool statusBit = pixelStatus & (1 << i);
+ 	bool statusBit = pixelStatus & (1u << i);
  	std::cout << statusBit;
  	if(!(i%4)) std::cout << ' ';
        }
@@ -990,7 +990,7 @@ void ModuleSpecialPixelMap::print(int component,
        unsigned int pixelStatus = pixel->second;
        std::cout << " status: ";
        for(int i = 31; i >= 0; i--){
- 	bool statusBit = pixelStatus & (1 << i);
+ 	bool statusBit = pixelStatus & (1u << i);
  	std::cout << statusBit;
  	if(!(i%4)) std::cout << ' ';
        }
@@ -1424,12 +1424,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
       if(pixel_phi_index > (mrows+ng-1) && pixel_phi_index < 2*mrows){
         chip = mch/2 -(1 + pixel_eta_index / mcolumns);
         column = mcolumns - (1 + pixel_eta_index % mcolumns);
-        if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-        else if(ng>0){
-          for(int k = 0; k<ng; ++k){
-            if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
-          }
-        }
+        row = 2*mrows - 1 - pixel_phi_index;
       }
       else if(pixel_phi_index < mrows){
         chip = pixel_eta_index / mcolumns + mch/2;
