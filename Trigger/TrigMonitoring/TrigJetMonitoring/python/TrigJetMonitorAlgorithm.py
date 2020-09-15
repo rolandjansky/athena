@@ -288,7 +288,7 @@ def l1JetMonitoringConfig(inputFlags,jetcoll,chain=''):
   conf = L1JetMonAlg(name,jetcoll,chain)
   return conf
 
-def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
+def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJets=True):
    '''Function to configures some algorithms in the monitoring system.'''
 
    # Remap online Run 2 jet collections
@@ -304,6 +304,11 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    else:
      chainFolder = chain
 
+   jetMonAlgSpecName = chain+"TrigMon"
+   if not onlyUsePassingJets:
+     chainFolder = chainFolder + "/ExpertHistos"
+     jetMonAlgSpecName = jetMonAlgSpecName + "_ExpertHistos"
+     
    # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
    # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
    # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
@@ -341,13 +346,14 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
 
    from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
    trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
-       chain+"TrigMon",
+       jetMonAlgSpecName,
        JetContainerName = jetcoll,
        TriggerChain = chain,
        defaultPath = chainFolder,
        topLevelDir="HLT/JetMon/Online/",
        bottomLevelDir=jetcollFolder,
        failureOnMissingContainer=True,
+       onlyPassingJets=onlyUsePassingJets,
        )
    trigConf.appendHistos(
            "pt",
@@ -469,8 +475,10 @@ if __name__=='__main__':
 
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
-    chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
-    chainMonitorConf.toAlg(helper)
+    chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
+    chainMonitorConfT.toAlg(helper)
+    chainMonitorConfF = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,False)
+    chainMonitorConfF.toAlg(helper)
 
   cfg.merge(helper.result())
   

@@ -9,11 +9,12 @@
 
 JetMonitoringAlg::JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
-,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this), m_failureOnMissingContainer(true)
+,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this), m_failureOnMissingContainer(true), m_onlyPassingJets(true)
 {
     declareProperty("JetContainerName",m_jetContainerKey);
     declareProperty("FillerTools", m_jetFillerTools);
     declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
+    declareProperty("OnlyPassingJets", m_onlyPassingJets);
 }
 
 
@@ -38,7 +39,7 @@ StatusCode JetMonitoringAlg::initialize() {
 
 
 StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
-  if (m_triggerChainString != "") {
+  if (m_triggerChainString != "" && m_onlyPassingJets) {
     ATH_MSG_DEBUG("JetMonitoringAlg::fillHistograms(const EventContext&) -> enter triggerChainString = "<<m_triggerChainString);
    
     ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
