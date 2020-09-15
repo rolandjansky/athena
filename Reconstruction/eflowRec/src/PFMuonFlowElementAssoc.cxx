@@ -21,8 +21,10 @@ PFMuonFlowElementAssoc::PFMuonFlowElementAssoc(const std::string& name,
   AthAlgorithm(name, pSvcLocator)
 {   
   // Declare the decoration keys   
-  declareProperty ("MuonChargedFlowElementDecorKey", m_muonChargedFEWriteDecorKey = "Muons.neutralfeLinks");   // updated muon container with the new link 
+  declareProperty ("MuonChargedFlowElementDecorKey", m_muonChargedFEWriteDecorKey = "Muons.chargedfeLinks");   // updated muon container with the new link 
   declareProperty("ChargedFlowElementMuonDecorKey", m_ChargedFEmuonWriteDecorKey="JetETMissChargedFlowElements.fe_MuonLinks"); // updated Charge
+  declareProperty ("MuonNeutralFlowElementDecorKey", m_muonNeutralFEWriteDecorKey = "Muons.neutralfeLinks");
+  declareProperty ("NeutralFlowElementMuonDecorKey",m_NeutralFEmuonWriteDecorKey = "JetETMissNeutralFlowElements.fe_MuonLinks");
 } 
 PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() {} 
 
@@ -33,7 +35,11 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
 
   // Initialise the decoration keys   
   ATH_CHECK(m_muonChargedFEWriteDecorKey.initialize());
+  ATH_CHECK(m_muonNeutralFEWriteDecorKey.initialize());
+  
   ATH_CHECK(m_ChargedFEmuonWriteDecorKey.initialize());
+  ATH_CHECK(m_NeutralFEmuonWriteDecorKey.initialize());
+
 
   ATH_MSG_DEBUG("Initialization completed successfully");   
 
@@ -57,14 +63,16 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey);
   // get container for charged flow elements
   SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey);
-  
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<FlowElementLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey);
 
   //store readhandles for muon and charged flow elements
   SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonChargedFEWriteDecorKey.contHandleKey()); // readhandle for muon
   SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_ChargedFEmuonWriteDecorKey.contHandleKey());
+  SG::ReadHandle<xAOD::FlowElementContainer> NeutralFEReadHandle(m_NeutralFEmuonWriteDecorKey.contHandleKey());
   
   //now init some Flow element link containers
   std::vector<std::vector<FlowElementLink_t> > muonChargedFEVec(muonReadHandle->size());
+  std::vector<std::vector<FlowElementLink_t> > muonNeutralFEVec(muonReadHandle->size());
 
   //Loop over the Flow Elements 
 

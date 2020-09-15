@@ -43,6 +43,13 @@ private:
   /* Write key for adding Muon link decorations to charged Flow Elements */
   SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_ChargedFEmuonWriteDecorKey;
 
+  /* Write key for adding neutral Flow Element link decorations to muons */
+  SG::WriteDecorHandleKey<xAOD::MuonContainer> m_muonNeutralFEWriteDecorKey;
+  /* Write key for adding Muon link decorations to neutral Flow Elements */
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFEmuonWriteDecorKey;
+
+
+
 
 };
 
