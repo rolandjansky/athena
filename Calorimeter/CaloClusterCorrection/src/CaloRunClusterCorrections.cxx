@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRunClusterCorrections.cxx,v 1.7 2009-05-20 20:48:52 ssnyder Exp $
 /**
  * @file  CaloRunClusterCorrections.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -24,7 +23,6 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <set>
 
@@ -247,16 +245,9 @@ StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
     // We don't want the tool itself to register a callback; we'll
     // do that ourselves and forward callbacks as appropriate.
     if (!tool.sgkey.empty()) {
-      CHECK( m_jos->addPropertyToCatalogue (fullname,
-                                            StringProperty ("detStoreKey",
-                                                            tool.sgkey)) );
-      CHECK( m_jos->addPropertyToCatalogue (fullname,
-                                            BooleanProperty ("useCallback",
-                                                             false)) );
-      CHECK( m_jos->addPropertyToCatalogue (fullname,
-                                            StringProperty ("COOLFolder",
-                                                            m_folderName)) );
-
+      m_jos->set (fullname + ".detStoreKey", tool.sgkey);
+      m_jos->set (fullname + ".useCallback", Gaudi::Utils::toString(false));
+      m_jos->set (fullname + ".COOLFolder",  m_folderName);
     }
 
     ++ispec;
@@ -270,9 +261,7 @@ StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
     tool.prefix = m_corrspecs[ispec++];
     tool.resolved_prefix = tool.prefix;
     if (!tool.prefix.empty())
-      CHECK( m_jos->addPropertyToCatalogue (fullname,
-                                            StringProperty ("prefix",
-                                                            tool.prefix)) );
+      m_jos->set (fullname + ".prefix", tool.prefix);
 
     // -- Put properties in the JO service.
     while (ispec < m_corrspecs.size()) {
@@ -286,9 +275,7 @@ StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
         return StatusCode::FAILURE;
       }
 
-      CHECK( m_jos->addPropertyToCatalogue (fullname, 
-                                            StringProperty (key,
-                                                      m_corrspecs[ispec++])) );
+      m_jos->set (fullname + "." + key, m_corrspecs[ispec++]);
     }
 
     // Done with this tool.
@@ -299,8 +286,7 @@ StatusCode CaloRunClusterCorrections::parseCorrspecs ATLAS_NOT_THREAD_SAFE ()
   // We don't need the property value any more, and it can be pretty long.
   // Clear it out to reclaim memory.
   if (!m_noClearProps) {
-    CHECK( m_jos->addPropertyToCatalogue (this->name(), 
-                                          StringProperty ("CorrSpecs", "")) );
+    m_jos->set (this->name() + ".CorrSpecs", "");
   }
   m_corrspecs.clear();
 
@@ -739,8 +725,7 @@ StatusCode CaloRunClusterCorrections::fixPrefix ATLAS_NOT_THREAD_SAFE (Tool& too
 
   // Set the prefix.
   std::string fullname = this->name() + "." + tool.name;
-  CHECK( m_jos->addPropertyToCatalogue (fullname,
-                                        StringProperty ("prefix", prefix)) );
+  m_jos->set (fullname + ".prefix", prefix);
   tool.resolved_prefix = prefix;
 
   return StatusCode::SUCCESS;
@@ -769,17 +754,8 @@ CaloRunClusterCorrections::orderCorrections ATLAS_NOT_THREAD_SAFE (bool allowMis
     }
     else if (tool.sgkey.empty()) {
       // Tool is being initialized from JO.  Find the order property from JOS.
-      tool.order = -1;
-      std::string fullname = this->name() + "." + tool.name;
-      const std::vector<const Gaudi::Details::PropertyBase*>* props =
-        m_jos->getProperties (fullname);
-      for (size_t iprop = 0; iprop < props->size(); iprop++) {
-        const Gaudi::Details::PropertyBase& prop = *(*props)[iprop];
-        if (prop.name() == "order") {
-          tool.order = std::atoi (prop.toString().c_str());
-          break;
-        }
-      }
+      const std::string fullname = this->name() + "." + tool.name;
+      tool.order = std::stoi(m_jos->get(fullname + ".order", "-1"));
 
       // It's an error if it wasn't set.
       if (tool.order == -1) {
