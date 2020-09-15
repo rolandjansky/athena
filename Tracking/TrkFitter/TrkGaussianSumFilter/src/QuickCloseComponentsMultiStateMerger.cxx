@@ -83,13 +83,13 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(
   }
 
   // Gather the merges
-  const std::vector<std::pair<int32_t, int32_t>> merges =
+  const std::vector<std::pair<int16_t, int16_t>> merges =
     findMerges(components.buffer(), n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {
-    const int32_t mini = mergePair.first;
-    const int32_t minj = mergePair.second;
+    const int16_t mini = mergePair.first;
+    const int16_t minj = mergePair.second;
     MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
                                                    statesToMerge[minj]);
     statesToMerge[minj].first.reset();
