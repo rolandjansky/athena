@@ -79,6 +79,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   m_partMomentumNANandINFCheckRate = 0;
   m_undecayedPi0statuscode12CheckRate = 0;
   m_unstableNoEndVtxCheckRate = 0;
+  m_negativeEnergyTachyonicCheckRateCnt = 0;
   m_negativeEnergyTachyonicCheckRate = 0;
   m_decayCheckRate = 0;
   m_undisplacedLLHdaughtersCheckRate = 0;
@@ -92,6 +93,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   m_undecayedPi0CheckRate = 0;
   m_Status1ShortLifetime  = 0;
   m_vtxDisplacedMoreThan_1m_CheckRateCnt = 0;
+  m_vtxDisplacedMoreThan_1m_CheckRate = 0;
   m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate = 0;
   m_nonG4_energyCheckRate = 0;
   m_unknownPDGIDCheckRate = 0;
@@ -404,7 +406,9 @@ StatusCode TestHepMC::execute() {
     } // Loop over all vertices
     if (m_vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
     if (m_vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
+    if (m_vtxDisplacedMoreThan_1m_CheckRateCnt>0) ++m_vtxDisplacedMoreThan_1m_CheckRate;
 
+     m_negativeEnergyTachyonicCheckRateCnt = 0;
     // Check particles
     for (HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
 
@@ -514,12 +518,12 @@ StatusCode TestHepMC::execute() {
         totalE  += pmom.e();
         if (pmom.e() < 0) {
           negEnPart.push_back(pbarcode);
-          ++m_negativeEnergyTachyonicCheckRate;
+          ++m_negativeEnergyTachyonicCheckRateCnt;
         }
         const double aener = fabs(pmom.e());
         if ( aener+m_accur_margin < fabs(pmom.px()) || aener+m_accur_margin < fabs(pmom.py()) || aener+m_accur_margin < fabs(pmom.pz()) ) {
           tachyons.push_back(pbarcode);
-          ++m_negativeEnergyTachyonicCheckRate;
+          ++m_negativeEnergyTachyonicCheckRateCnt;
         }
       } // End of sums for momentum and energy conservation
 
@@ -593,6 +597,9 @@ StatusCode TestHepMC::execute() {
       } // End check for photons with too-large a mass
 
     } // End of loop over particles in the event
+
+// if at least one tachyon was count the event
+      if (m_negativeEnergyTachyonicCheckRateCnt > 0) ++m_negativeEnergyTachyonicCheckRate;
 
     // Energy of interacting particles not known by Geant4
     if(nonG4_energy > m_nonG4_energy_threshold) {
@@ -745,7 +752,7 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with NaN (Not A Number) or inf found in the event record vertex positions = " << m_vtxNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxNaNTest) ATH_MSG_INFO(" The check for NaN or inf in vtx. record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status code other than 1 and 2 = " << m_vtxDisplacedstatuscodenot12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
-  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRateCnt*100.0/double(m_nPass + m_nFail) << "%");
+  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxDisplacedTest) ATH_MSG_INFO(" The check for displaced vertices is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with NAN (Not A Number) or inf found in particle momentum values = " << m_partMomentumNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_momNaNTest) ATH_MSG_INFO(" The check for NaN/inf in momentum record is switched off, so is not included in the final TestHepMC efficiency ");
