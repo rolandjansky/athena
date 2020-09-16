@@ -296,8 +296,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or  globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22') :
           TrkDetFlags.InDetBuildMaterialBoundaries = False
           
-        print "NOEMI --> ", TrkDetFlags.InDetBuildMaterialBoundaries()
-
         # the tracking geometry builder
         InDet__StagedTrackingGeometryBuilder.__init__(self,namePrefix+name,\
                                                       BeamPipeBuilder           = BeamPipeBuilder,\
