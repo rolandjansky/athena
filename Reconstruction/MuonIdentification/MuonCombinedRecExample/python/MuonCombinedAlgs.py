@@ -157,24 +157,40 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg")
         topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg")
 
-            # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        if InDetFlags.doR3LargeD0():
+            topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg_LargeD0")
+
+        # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():
             topSequence += getAlgorithm("MuonCombinedAlg")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuonCombinedAlg_LargeD0")
+
+
 
         if muonCombinedRecFlags.doMuGirl():
             topSequence += getAlgorithm("MuonInsideOutRecoAlg")
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuGirlAlg_LargeD0")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
             topSequence += getAlgorithm("MuonCaloTagAlg")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuonCaloTagAlg_LargeD0")
 
         if muonCombinedRecFlags.doMuonSegmentTagger():
             getPublicTool("MuonSegmentTagTool")
             topSequence += getAlgorithm("MuonSegmentTagAlg")
+            if InDetFlags.doR3LargeD0():
+                topSequence += getAlgorithm("MuonSegmentTagAlg_LargeD0")
 
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
+        if InDetFlags.doR3LargeD0():
+            topSequence += getAlgorithm("MuonCreatorAlg_LargeD0")
 
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")
