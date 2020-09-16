@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script used for building Gaudi.
 #
 
@@ -14,7 +16,8 @@ set -o pipefail
 usage() {
     echo "Usage: build_Gaudi.sh <-s source dir> <-b build dir> " \
         "<-i install dir> <-e externals dir> <-p externals project name> " \
-        "<-f platform name> [-r RPM dir] [-t build type]"
+        "<-f platform name> [-r RPM dir] [-t build type] " \
+        "[-x extra CMake arguments]"
 }
 
 # Parse the command line arguments:
@@ -26,7 +29,8 @@ EXTPROJECT=""
 PLATFORM=""
 RPMDIR=""
 BUILDTYPE="Release"
-while getopts ":s:b:i:e:p:f:r:t:h" opt; do
+EXTRACMAKE=()
+while getopts ":s:b:i:e:p:f:r:t:x:v:h" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -51,6 +55,9 @@ while getopts ":s:b:i:e:p:f:r:t:h" opt; do
             ;;
         t)
             BUILDTYPE=$OPTARG
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -85,18 +92,25 @@ cd ${BUILDDIR} || ((ERROR_COUNT++))
 # Set up the externals project:
 source ${EXTDIR}/setup.sh || ((ERROR_COUNT++))
 
-#FIXME: simplify error counting below while keeping '| tee ...'
-
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
+rm -f CMakeCache.txt
+rm -rf * # Remove the full build temporarily, to fix GAUDI-1315
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
     -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} \
-    ${SOURCEDIR} || touch $error_stamp
-} 2>&1 | tee cmake_config.log 
+    ${EXTRACMAKE[@]} ${SOURCEDIR} || touch $error_stamp
+} 2>&1 | tee cmake_config.log
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp
+
+# Trigger xenv to pickle the Gaudi build configuration ahead of the build.
+# Otherwise parallel processes may step on each others' toes. See ATLINFR-3336.
+if [ -f ${BUILDDIR}/config/Gaudi-build.xenv ] && [ -x ${BUILDDIR}/bin/xenv ]; then
+    echo "Triggering the creation of ${BUILDDIR}/config/Gaudi-build.xenvc"
+    ${BUILDDIR}/bin/xenv --xml ${BUILDDIR}/config/Gaudi-build.xenv true
+fi
 
 # Build it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
@@ -124,6 +138,9 @@ fi
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
 cpack || touch $error_stamp
+if [ "$BUILDTYPE" = "RelWithDebInfo" ]; then
+    cpack --config CPackDbgRPMConfig.cmake || touch $error_stamp
+fi
 } 2>&1 | tee cmake_cpack.log
 test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp

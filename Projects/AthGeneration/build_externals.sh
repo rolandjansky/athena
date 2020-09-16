@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Script building all the externals necessary for the nightly build.
 #
 
@@ -11,6 +13,8 @@ usage() {
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -x: Extra cmake argument(s) to provide for the build(configuration)"
+    echo "     of all externals needed by AthGeneration."
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -20,7 +24,8 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-while getopts ":t:b:fch" opt; do
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=88 -DLCG_VERSION_POSTFIX="b")
+while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -33,6 +38,9 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
             ;;
         h)
             usage
@@ -51,28 +59,12 @@ while getopts ":t:b:fch" opt; do
     esac
 done
 
-# Version comparison function. Taken from a StackOverflow article.
-verlte() {
-    if [ "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]; then
-        return 1
-    fi
-    return 0
-}
-
-# First off, check that we are using a new enough version of Git. We need
-# at least version 1.8.1.
-git_min_version=1.8.1
-git_version=`git --version | awk '{print $3}'`
-verlte "${git_min_version}" "${git_version}"
-if [ $? = 0 ]; then
-    echo "Detected git version (${git_version}) not new enough."
-    echo "Need at least: ${git_min_version}"
-    exit 1
+# Only stop on errors if we are in the CI. Otherwise just count them.
+if [ "$CI" = "1" ]; then
+    set -e
+    set -o pipefail
 fi
-
-# Stop on errors from here on out:
-set -e
-set -o pipefail
+ERROR_COUNT=0
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -122,7 +114,7 @@ AthGenerationExternalsVersion=$(awk '/^AthGenerationExternalsVersion/{print $3}'
 # Check out AthGenerationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthGenerationExternalsVersion} \
-    -s ${BUILDDIR}/src/AthGenerationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthGenerationExternals.log 
+    -s ${BUILDDIR}/src/AthGenerationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthGenerationExternals.log
 
 # Build AthGenerationExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthGenerationExternals
@@ -131,7 +123,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthGenerationExternals \
     -i ${BUILDDIR}/install/AthGenerationExternals/${NICOS_PROJECT_VERSION} \
     -p AthGenerationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    ${EXTRACMAKE[@]/#/-x } -v ${NICOS_PROJECT_VERSION} || ((ERROR_COUNT++))
 
 # Get the "platform name" from the directory created by the AthGenerationExternals
 # build:
@@ -146,10 +138,16 @@ ${scriptsdir}/checkout_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
-export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI
 ${scriptsdir}/build_Gaudi.sh \
     -s ${BUILDDIR}/src/GAUDI \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthGenerationExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthGenerationExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -p AthGenerationExternals -f ${platform} ${EXTRACMAKE[@]/#/-x } \
+    ${RPMOPTIONS} -t ${BUILDTYPE} || ((ERROR_COUNT++))
+
+# Exit with the error count taken into account.
+if [ ${ERROR_COUNT} -ne 0 ]; then
+    echo "AthGeneration externals build encountered ${ERROR_COUNT} error(s)"
+fi
+exit ${ERROR_COUNT}

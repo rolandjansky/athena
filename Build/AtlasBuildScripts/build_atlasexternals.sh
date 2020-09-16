@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Example script used for building one of the projects from the atlasexternals
 # repository.
 #
@@ -14,7 +16,8 @@ set -o pipefail
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
-        "<-i install dir> [-p project] [-r RPM dir] [-t build type] [-l LCG version number]"
+        "<-i install dir> [-p project] [-r RPM dir] [-t build type] " \
+        "[-x extra CMake arguments]"
 }
 
 # Parse the command line arguments:
@@ -25,8 +28,8 @@ PROJECT="AthenaExternals"
 RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
-LCGVERSION="88"
-while getopts ":s:b:i:p:r:t:v:l:h" opt; do
+EXTRACMAKE=()
+while getopts ":s:b:i:p:r:t:v:hx:" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -46,11 +49,15 @@ while getopts ":s:b:i:p:r:t:v:l:h" opt; do
         t)
             BUILDTYPE=$OPTARG
             ;;
+        x)
+            EXTRACMAKE+=($OPTARG)
+            ;;
         v)
             PROJECTVERSION=$OPTARG
             ;;
-        l)
-            LCGVERSION=$OPTARG
+        h)
+            usage
+            exit 0
             ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
@@ -83,18 +90,15 @@ if [ "$PROJECTVERSION" != "" ]; then
     EXTRACONF=-D${PNAME}_PROJECT_VERSION:STRING=${PROJECTVERSION}
 fi
 
-#FIXME: simplify error counting:
-
-
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
+ rm -f CMakeCache.txt
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
-    -DLCG_VERSION_NUMBER:STRING=${LCGVERSION} \
-    ${EXTRACONF} \
+    ${EXTRACONF} ${EXTRACMAKE[@]} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
-} 2>&1 | tee cmake_config.log 
-test -f $error_stamp && ((ERROR_COUNT++)) 
+} 2>&1 | tee cmake_config.log
+test -f $error_stamp && ((ERROR_COUNT++))
 rm -f $error_stamp #FIXME: w/o $error_stamp one can't pass the status outside  { ... } | tee ... shell
 
 # Build it:
@@ -102,17 +106,17 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  make -k || touch $error_stamp
 } 2>&1 | tee cmake_build.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 # Install it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  make -k install/fast DESTDIR=${INSTALLDIR} || touch $error_stamp
 } 2>&1 | tee cmake_install.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
- 
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
+
 
 # If no RPM directory was specified, stop here:
 if [ "$RPMDIR" = "" ]; then
@@ -124,9 +128,9 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
 cpack || touch $error_stamp
 } 2>&1 | tee cmake_cpack.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
-    
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
+
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  mkdir -p ${RPMDIR} && \
@@ -134,8 +138,8 @@ error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
  test "X$FILES" != "X" && \
  cp ${FILES} ${RPMDIR} || touch $error_stamp
 } 2>&1 | tee cp_rpm.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 if [ $ERROR_COUNT -ne 0 ]; then
 	echo "AtlasExternals build script counted $ERROR_COUNT errors"
