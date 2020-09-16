@@ -88,6 +88,9 @@ TrigSignatureMoniMT                                 INFO -- #1834383636 Features
 TrigSignatureMoniMT                                 INFO HLT_5j70_0eta240_L14J20 #1175391812
 TrigSignatureMoniMT                                 INFO -- #1175391812 Events         7          7          0          0          0          0          0          0          0          0          0          0          1          -          1
 TrigSignatureMoniMT                                 INFO -- #1175391812 Features                             0          0          0          0          0          0          0          0          0          0          5          -
+TrigSignatureMoniMT                                 INFO HLT_alfacalib_AlfaPEB_L1ALFA_ANY #4094852824
+TrigSignatureMoniMT                                 INFO -- #4094852824 Events         0          0          0          -          -          -          -          -          -          -          -          -          -          -          0
+TrigSignatureMoniMT                                 INFO -- #4094852824 Features                             0          -          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15 #3989372080
 TrigSignatureMoniMT                                 INFO -- #3989372080 Events         20         20         20         20         -          -          -          -          -          -          -          -          -          -          20
 TrigSignatureMoniMT                                 INFO -- #3989372080 Features                             20         20         -          -          -          -          -          -          -          -          -          -
