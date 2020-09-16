@@ -21,11 +21,9 @@ namespace Muon
 
 TriggerChamberClusterOnTrackCreator::TriggerChamberClusterOnTrackCreator(const std::string&	type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-	m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
 	m_chooseBroadestCluster(true)
 {
     declareInterface<Muon::IMuonCompetingClustersOnTrackCreator>(this);
-    declareProperty("ClusterCreator",  		m_clusterCreator);
     declareProperty("ChooseBroadestCluster", 	m_chooseBroadestCluster);
 }
 

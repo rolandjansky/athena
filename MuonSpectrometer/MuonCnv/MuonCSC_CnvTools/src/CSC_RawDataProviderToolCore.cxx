@@ -28,12 +28,10 @@ Muon::CSC_RawDataProviderToolCore::CSC_RawDataProviderToolCore(const std::string
                                                        const std::string& n,
                                                        const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_decoder("Muon::CscROD_Decoder/CscROD_Decoder", this),
-  m_muonMgr(0),
+  m_muonMgr(nullptr),
   m_robDataProvider("ROBDataProviderSvc",n),
   m_cabling("CSCcablingSvc", n)
 {
-  declareProperty("Decoder",     m_decoder);
 
 }
 

@@ -2,17 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////////////////
-// MuonTrackQuery
-//
-//  (c) ATLAS Combined Muon software
-//////////////////////////////////////////////////////////////////////////////
-
-//<<<<<< INCLUDES
-
 #include "MuonScatteringAngleSignificanceTool.h"
 
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -22,13 +13,10 @@
 
 namespace Rec {
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
 MuonScatteringAngleSignificanceTool::MuonScatteringAngleSignificanceTool(const std::string& type,
                                                                          const std::string& name,
                                                                          const IInterface*  parent)
     : AthAlgTool(type, name, parent),
-      m_trackingVolumesSvc("TrackingVolumesSvc", name),
       m_calorimeterVolume(0),
       m_indetVolume(0),
       m_inDetOnly(true),
@@ -38,8 +26,6 @@ MuonScatteringAngleSignificanceTool::MuonScatteringAngleSignificanceTool(const s
     declareProperty("InDetOnly", m_inDetOnly);
     declareProperty("RefitInDetOnly", m_refitInDetOnly);
 }
-
-MuonScatteringAngleSignificanceTool::~MuonScatteringAngleSignificanceTool(void) {}
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 StatusCode
@@ -68,13 +54,6 @@ MuonScatteringAngleSignificanceTool::initialize()
         m_indetVolume = new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
 
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-MuonScatteringAngleSignificanceTool::finalize()
-{
-    ATH_MSG_VERBOSE("Finalizing " << name());
     return StatusCode::SUCCESS;
 }
 

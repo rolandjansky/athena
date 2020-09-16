@@ -2,24 +2,20 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonScatteringAngleSignificanceTool.h, (c) ATLAS Combined Muon software
-///////////////////////////////////////////////////////////////////
-
 #ifndef MUONSCATTERINGANGLESIGNIFICANCETOOL_H
 #define MUONSCATTERINGANGLESIGNIFICANCETOOL_H
 
+#include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCombinedToolInterfaces/IMuonScatteringAngleSignificance.h"
+
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
 namespace Trk {
-class ITrackFitter;
-class Volume;
-class ITrackingVolumesSvc;
-}  // namespace Trk
+  class Volume;
+}
 
 namespace Rec {
 
@@ -31,10 +27,9 @@ namespace Rec {
 class MuonScatteringAngleSignificanceTool : public AthAlgTool, virtual public IMuonScatteringAngleSignificance {
   public:
     MuonScatteringAngleSignificanceTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonScatteringAngleSignificanceTool(void);  // destructor
+    ~MuonScatteringAngleSignificanceTool()=default;
 
     StatusCode initialize();
-    StatusCode finalize();
 
     /** Calculate ScatteringAngleSignificance of a muon, stepping down to the relevant track */
     ScatteringAngleSignificance scatteringAngleSignificance(const xAOD::Muon& muon) const;
@@ -48,15 +43,9 @@ class MuonScatteringAngleSignificanceTool : public AthAlgTool, virtual public IM
         isn't filled.  */
     bool isSlimmed(const Trk::Track& track) const;
 
-
     // tools and services
-    ToolHandle<Trk::ITrackFitter> m_fitter{
-        this,
-        "TrackFitter",
-        "",
-        "tool for unslimming via track fit",
-    };                                                             //!< tool for unslimming via track fit
-    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc;  //!< geometry for analysing track lengths
+    ToolHandle<Trk::ITrackFitter> m_fitter{this,"TrackFitter","","tool for unslimming via track fit"};                                                             //!< tool for unslimming via track fit
+    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc","geometry for analysing track lengths"};
 
     // constants
     const Trk::Volume* m_calorimeterVolume;  //!< cache the calo volume pointer

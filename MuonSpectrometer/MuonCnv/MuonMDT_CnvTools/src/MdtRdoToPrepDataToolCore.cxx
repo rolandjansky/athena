@@ -30,10 +30,8 @@ namespace {
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_muonMgr(nullptr),
-  m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
-  m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
   m_fullEventDone(false),
   m_BMEpresent(false),
   m_BMGpresent(false),
@@ -61,8 +59,6 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
   // DataHandle
   declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
   declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
-
-  declareProperty("CalibrationTool",m_calibrationTool);
 }
 
 StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
@@ -122,11 +118,6 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(m_mdtPrepDataContainerKey.initialize());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::MdtRdoToPrepDataToolCore::finalize()
-{
   return StatusCode::SUCCESS;
 }
 
