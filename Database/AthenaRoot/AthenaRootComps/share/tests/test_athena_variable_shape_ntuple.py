@@ -1,18 +1,18 @@
 from glob import glob
 if 1:
     _cbntfiles = [
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root',
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root',
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root',
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.1.root',
         ]
     # _cbntfiles = [
     #     '/tmp/binet/data/ntuple.0.root',
     #     '/tmp/binet/data/ntuple.1.root',
     #     ]
-    
+
 if 0:
     _cbntfiles = [
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.0.root',
-        'root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.1.root',
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.0.root',
+        'root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.1.root',
         ]
     _cbntfiles = [
         '/tmp/binet/data/small.ntuple.0.root',
@@ -115,4 +115,3 @@ if DOWRITE:
             ]
     out.ItemList += OUTBRANCHES
     out.ForceRead = True
-
