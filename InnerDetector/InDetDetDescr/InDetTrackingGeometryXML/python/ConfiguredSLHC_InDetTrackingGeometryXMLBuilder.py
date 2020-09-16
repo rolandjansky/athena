@@ -291,11 +291,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         # add to SvcMgr
         ServiceMgr += AtlasEnvelopeSvc
         
-        # supporting the previous geometry tags
-        from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or  globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22') :
-          TrkDetFlags.InDetBuildMaterialBoundaries = False
-          
         # the tracking geometry builder
         InDet__StagedTrackingGeometryBuilder.__init__(self,namePrefix+name,\
                                                       BeamPipeBuilder           = BeamPipeBuilder,\
