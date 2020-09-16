@@ -34,7 +34,8 @@ atlas_add_root_dictionary( xAODRootAccess xAODRootAccessDictSource
    xAODRootAccess/tools/TEventBranch.h xAODRootAccess/tools/TEventTree.h
    xAODRootAccess/tools/TMetaBranch.h xAODRootAccess/tools/TMetaTree.h
    xAODRootAccess/tools/TFileChecker.h xAODRootAccess/tools/TFileMerger.h
-   xAODRootAccess/MakeTransientTree.h xAODRootAccess/Init.h Root/LinkDef.h
+   xAODRootAccess/MakeTransientTree.h xAODRootAccess/Init.h
+   xAODRootAccess/LoadDictionaries.h Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:

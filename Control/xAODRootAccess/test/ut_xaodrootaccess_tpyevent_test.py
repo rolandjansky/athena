@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Unit test for the xAOD::TPyEvent class.
 #
@@ -24,6 +24,9 @@ def main():
     import ROOT
     if not ROOT.xAOD.Init( APP_NAME ).isSuccess():
         logger.error( "Failed to call xAOD::Init(...)" )
+        return 1
+    if not ROOT.xAOD.LoadDictionaries().isSuccess():
+        logger.error( "Failed to call xAOD::LoadDictionaries()" )
         return 1
 
     # Create the objects to test:
