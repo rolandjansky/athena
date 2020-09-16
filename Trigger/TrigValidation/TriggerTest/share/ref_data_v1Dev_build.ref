@@ -550,9 +550,15 @@ TrigSignatureMoniMT                                 INFO -- #1651897827 Features
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1J85 #166231461
 TrigSignatureMoniMT                                 INFO -- #166231461 Events          20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #166231461 Features                              -          -          -          -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_L1MBTS_1_1_EMPTY #3063661803
+TrigSignatureMoniMT                                 INFO -- #3063661803 Events         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #3063661803 Features                             -          -          -          -          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1MBTS_1_EMPTY #4174355886
 TrigSignatureMoniMT                                 INFO -- #4174355886 Events         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #4174355886 Features                             -          -          -          -          -          -          -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_L1MBTS_2_EMPTY #2028932677
+TrigSignatureMoniMT                                 INFO -- #2028932677 Events         20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #2028932677 Features                             -          -          -          -          -          -          -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_noalg_L1RD0_EMPTY #914660695
 TrigSignatureMoniMT                                 INFO -- #914660695 Events          20         20         -          -          -          -          -          -          -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #914660695 Features                              -          -          -          -          -          -          -          -          -          -          -          -          
