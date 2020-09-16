@@ -15,52 +15,41 @@ log = logging.getLogger("InDetPT")
 from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 
-def makeInDetPrecisionTracking( whichSignature, 
+def makeInDetPrecisionTracking( config = None,
                                 verifier = False, 
-                                inputFTFtracks='TrigFastTrackFinder_Tracks',  #TODO: Obsolete, remove in the next MR
-                                outputTrackPrefixName = "HLT_ID",             #TODO: Obsolete, remove in the next MR
-                                rois = 'EMViewRoIs',                          #TODO: obsolete, should go into slice settings in the next MR
-                                doTRTextension = True ) :                     #TODO: Obsolete, this should go into Slice settings in the next MR
-
+                                rois = 'EMViewRoIs',              #FIXME: eventually should go into slice settings
+                                                         ) :
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
-  #Load signature configuration (containing cut values, names of collections, etc)
-  from .InDetTrigConfigSettings import getInDetTrigConfig     
-
-  #Remap only temporary until signatures fix their naming
-  configSetting = getInDetTrigConfig( whichSignature, doRemap = False )
+  #Expects configuration  
+  if config == None:
+    raise ValueError('PrecisionTracking No configuration provided!')
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
 
   algNamePrefix = "InDetTrigMT" 
-  #If signature specified add suffix to the algorithms
-  signature =  "_" + whichSignature if whichSignature else ''
+  #Add suffix to the algorithms
+  signature =  "_{}".format( config.name() )
   
   #Name settings for output Tracks/TrackParticles
   #This first part is for ambiguity solver tracks
-  nameAmbiTrackCollection = configSetting.trkTracksAS() #"%s%sTrkTrack%s"         %(outputTrackPrefixName, 'AmbSol', signature)
+  nameAmbiTrackCollection = config.PT().trkTracksAS() 
   
   #Tracks from TRT extension
-  nameExtTrackCollection = configSetting.trkTracksTE() #"%s%sTrkTrack%s"         %(outputTrackPrefixName, 'TRText', signature)
+  nameExtTrackCollection = config.PT().trkTracksTE() 
 
-  #Note IDTrig suffix as a key to specify that this collection comes from precision tracking rather than fast tracking (FTF)
-  #outPTTracks             = "%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-  #outPTTrackParticles     = "%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-
-  outPTTracks             = configSetting.trkTracksPT() #"%sTrkTrack_%s_%s"         %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
-  outPTTrackParticles     = configSetting.tracksPT( doRecord = configSetting.isRecordable() ) #"%sTrack_%s_%s"            %(outputTrackPrefixName, remapSuffix( whichSignature ), 'IDTrig')
+  outPTTracks             = config.PT().trkTracksPT()
+  outPTTrackParticles     = config.PT().tracksPT( doRecord = config.isRecordable() )
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #Therefore, we have to adapt output names of the algorithm which produces last collection
   #However, this condition should be handled internally in configuration of the algs once TRT is configured with builders as well
-  if configSetting.doTRT():
+  if config.PT().setting().doTRT():
      nameExtTrackCollection = outPTTracks
   else:
      nameAmbiTrackCollection = outPTTracks
-
-
 
   #-----------------------------------------------------------------------------
   #                        Verifying input data for the algorithms
@@ -69,7 +58,7 @@ def makeInDetPrecisionTracking( whichSignature,
   #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
   if verifier:
     verifier.DataObjects += [( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
-                             ( 'TrackCollection' , 'StoreGateSvc+' + configSetting.trkTracksFTF() )]
+                             ( 'TrackCollection' , 'StoreGateSvc+' + config.FT().trkTracksFTF() )]
   
   from AthenaCommon.AppMgr import ToolSvc
 
@@ -86,9 +75,10 @@ def makeInDetPrecisionTracking( whichSignature,
                                                 doHolesInDet           = True )
 
   
-  #OBSOLETE but keep Parameter_config
-  if configSetting.doTRT():
-      if "electron" in whichSignature  or "tau" in whichSignature :
+  #Obsolete, will be eventually replaced
+  #Note: keep Parameter_config!
+  if config.PT().setting().doTRT():
+      if "electron" in config.name()  or "tau" in config.name() :
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
       Parameter_config = True 
@@ -105,24 +95,21 @@ def makeInDetPrecisionTracking( whichSignature,
   #                        Ambiguity solving stage
   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
   ambSolvingStageAlgs = [
-                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = configSetting.name() ),
-                                                   config = configSetting ),
+                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name() ),
+                                                   config = config ),
 
-                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = configSetting.name() ),
-                                                    config = configSetting )
+                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name() ),
+                                                   config = config )
                         ]
 
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
-  #TODO:implement builders and getters for TRT
-  if configSetting.doTRT():
 
-            proxySignature = whichSignature
-            if "tau" in whichSignature :
-               proxySignature = "tau"
-     
+
+  #TODO:implement builders and getters for TRT (WIP)
+  if config.PT().setting().doTRT():
 
             #-----------------------------------------------------------------------------
             #                        TRT data preparation
@@ -262,7 +249,7 @@ def makeInDetPrecisionTracking( whichSignature,
                                                                   DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
                                                                   )
 
-            InDetTrigExtScoringTool.minPt = configSetting.pTmin() # InDetTrigSliceSettings[('pTmin', proxySignature)] #TODO check
+            InDetTrigExtScoringTool.minPt = config.PT().setting().pTmin() 
 
             ToolSvc += InDetTrigExtScoringTool
 

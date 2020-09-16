@@ -23,19 +23,16 @@ if 'InDetTrigFlags' not in dir():
 
 
 
-def makeInDetAlgsNoView( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( whichSignature, separateTrackParticleCreator, rois, doFTF, None )
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
   return viewAlgs
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier' ):
-  #If signature specified add suffix to the algorithms
-  signature =  whichSignature if whichSignature else ''
-  if signature != "" and separateTrackParticleCreator == "":
-    separateTrackParticleCreator = signature
-
-  if signature == "" :
-    raise ValueError('makeInDetAlgs() No signature specified')
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+  if config == None :
+    raise ValueError('makeInDetAlgs() No config provided!')
+  #Add suffix to the algorithms
+  signature =  '_{}'.format( config.name() )
 
   #Global keys/names for Trigger collections 
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -306,14 +303,17 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   if doFTF: 
       #Load signature configuration (containing cut values, names of collections, etc)
-      from .InDetTrigConfigSettings import getInDetTrigConfig
-      configSetting = getInDetTrigConfig( whichSignature )
+      #from .InDetTrigConfigSettings import getInDetTrigConfig
+      #configSetting = getInDetTrigConfig( whichSignature )
+      if config == None:
+            raise ValueError('makeInDetAlgs() No signature config specified')
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, configSetting.name() )
+      #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT().signatureType() )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = configSetting.trkTracksFTF() 
-      theFTF.doCloneRemoval = configSetting.doCloneRemoval()
+      theFTF.TracksName     = config.FT().trkTracksFTF() 
+      theFTF.doCloneRemoval = config.FT().setting().doCloneRemoval()
 
       viewAlgs.append(theFTF)
 
@@ -323,13 +323,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
 
 
-      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = configSetting.trkTracksFTF(),
+      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                                TrackName = config.FT().trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
       
       #In general all FTF trackParticle collections are recordable except beamspot to save space
-      theTrackParticleCreatorAlg.TrackParticlesName = configSetting.tracksFTF( doRecord = configSetting.isRecordable() )
+      theTrackParticleCreatorAlg.TrackParticlesName = config.FT().tracksFTF( doRecord = config.isRecordable() )
 
       viewAlgs.append(theTrackParticleCreatorAlg)
 

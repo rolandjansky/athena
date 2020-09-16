@@ -336,7 +336,7 @@ class _Settings_electron( _Settings ) :
     def __init__( self ) : 
         _Settings.__init__(self)
         self._name                = "electron"
-        self._signatureSuffix              = "Electron"
+        self._signatureSuffix     = "Electron"
         self._doCloneRemoval      = False
         self._checkRedundantSeeds = True
 
@@ -586,6 +586,10 @@ class _Settings_tauEF( _Settings_tau ) :
 
 # overall map for use, ie 
 
+
+
+
+
 _ConfigSettings = { 
     "muon"     : _Settings_muon(),
     "muonIso"  : _Settings_muonIso(),
@@ -619,3 +623,38 @@ _ConfigSettings = {
     "fullScan"  : _Settings_fullScan(),
     "minBias400": _Settings_minBias(),
     "bphysics"  : _Settings_bphysics() }
+
+
+
+
+#class _Settings : 
+#  def __init__(self, name="") :
+#        if name == "" :
+#            self._name = "Settings"
+#        else :
+#            self._name = name
+#
+#
+#class _Settings_electron( _Settings ) : 
+#    def __init__( self ) : 
+#        _Settings.__init__(self)
+#        self._name                = "electron"
+#        self._signatureSuffix     = "Electron"
+#
+#        self._configFTF =  _Settings_electron_FTF()
+#        self._configPT  =  _Settings_electron_PT()
+#
+#
+#
+#
+#_ConfigSettings = { 
+#
+#    "electron"  : _Settings_electron(),
+#
+#
+#
+#
+#
+#
+#
+#                  }

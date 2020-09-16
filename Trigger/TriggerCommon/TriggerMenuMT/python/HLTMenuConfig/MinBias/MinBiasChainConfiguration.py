@@ -15,6 +15,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from AthenaCommon.GlobalFlags import globalflags
+from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
 # so let's make them functions already now
@@ -47,12 +48,15 @@ class MinBiasChainConfig(ChainConfigurationBase):
         SpList = []
         from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool
 
+
         SPInputMakerAlg = EventViewCreatorAlgorithm("IM_SPEventViewCreator")
         SPInputMakerAlg.ViewFallThrough = True
         SPInputMakerAlg.RoITool = ViewCreatorInitialROITool()
         SPInputMakerAlg.InViewRoIs = "InputRoI"
         SPInputMakerAlg.Views = "SPView"
-        idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=SPInputMakerAlg.InViewRoIs, viewVerifier='SPViewDataVerifier' )
+
+        IDTrigConfig = getInDetTrigConfig( 'minBias' )
+        idAlgs, verifier = makeInDetAlgs(  config = IDTrigConfig, rois=SPInputMakerAlg.InViewRoIs, viewVerifier='SPViewDataVerifier' )
         verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
                                  ( 'SCT_ID' , 'DetectorStore+SCT_ID' ),
                                  ( 'PixelID' , 'DetectorStore+PixelID' ),
@@ -119,7 +123,8 @@ class MinBiasChainConfig(ChainConfigurationBase):
         TrkInputMakerAlg.ViewNodeName = "TrkCountHypoAlgMTNode"
 
         # prepare algorithms to run in views, first, inform scheduler that input data is available in parent view (has to be done by hand)
-        idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
+        IDTrigConfig = getInDetTrigConfig( 'minBias' )
+        idAlgs, verifier = makeInDetAlgs( config = IDTrigConfig, rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
         verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),

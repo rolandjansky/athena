@@ -17,10 +17,12 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 def fastElectronSequence(ConfigFlags):
     """ second step:  tracking....."""
     
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'electron' )
   
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
     RoIs = "EMIDRoIs" # contract with the fastCalo
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature = "Electron", separateTrackParticleCreator="Electron", rois = RoIs )
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies

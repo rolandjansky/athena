@@ -6,10 +6,14 @@ from AthenaCommon.CFElements import seqAND
 def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence = []
 
+
     # Second stage of Fast tracking (for precision tracking preparation)
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'bjet' )
+
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
 
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature='Jet',separateTrackParticleCreator="Bjet", rois=inputRoI )
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois=inputRoI)
 
     viewVerify.DataObjects += dataObjects
 
@@ -32,7 +36,7 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
 
     # Precision Tracking
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( "bjet", rois=inputRoI, inputFTFtracks="TrigFastTrackFinder_Tracks_Bjet" )
+    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, rois=inputRoI )
     algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]
