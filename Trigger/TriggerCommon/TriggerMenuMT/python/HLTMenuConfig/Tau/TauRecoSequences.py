@@ -214,11 +214,10 @@ def tauIdTrackSequence( RoIs , name):
 
 
 
-    #TODO: are both FTF necessary for taus??
     from TrigInDetConfig.InDetSetup import makeInDetAlgs
-    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, viewVerifier = tauViewDataVerifierName)
-
-    viewAlgs, viewVerify = makeInDetAlgs( whichSignature=signName, separateTrackParticleCreator=signName, rois = RoIs, viewVerifier = "tauViewDataVerifier" )
+    #FIXME: are both FTF necessary for taus??
+    #viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs)
+    viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, viewVerifier = 'tauViewDataVerifierName')
 
     viewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
