@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATETOOL_H
@@ -166,23 +166,14 @@ namespace Muon {
                                     MeasVec& allHits,
                                     MeasVec& measurementsToBeDeleted ) const;
     
-    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator     
-      {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};     //<! tool to calibrate MDT hits
-    ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator     
-      {this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};      //<! tool to calibrate CSC hits
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator 
-      {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"}; //<! tool to create competing clusters on track
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc 
-      {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>                    m_printer           
-      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"}; //!< tool to print            //<! tool to print EDM objects
-    ToolHandle<MuPatHitTool>                          m_hitHandler        
-      {this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
-    ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector   
-      {this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};
+    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator","tool to calibrate MDT hits"};
+    ToolHandle<IMuonClusterOnTrackCreator> m_cscRotCreator{this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator","tool to calibrate CSC hits"};
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator{this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator","tool to create competing clusters on track"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
+    ToolHandle<Muon::IMuonSegmentSelectionTool> m_segmentSelector{this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};
 
     Gaudi::Property<bool>  m_createCompetingROTsPhi {this,"CreateCompetingROTsPhi" , false };
     Gaudi::Property<bool>  m_createCompetingROTsEta {this,"CreateCompetingROTsEta" , true };

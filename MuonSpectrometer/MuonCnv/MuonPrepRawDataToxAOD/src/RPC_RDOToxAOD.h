@@ -31,12 +31,11 @@ public:
   RPC_RDOToxAOD(const std::string &name,ISvcLocator *pSvcLocator);
 
   // Destructor
-  ~RPC_RDOToxAOD() {};
+  ~RPC_RDOToxAOD()=default;
 
   // algorithm execute:
   virtual StatusCode execute();
   virtual StatusCode initialize();
-  virtual StatusCode finalize()  { return StatusCode::SUCCESS; }
 
 private:
 

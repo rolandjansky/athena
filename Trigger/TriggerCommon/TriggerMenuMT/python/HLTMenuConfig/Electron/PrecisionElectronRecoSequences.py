@@ -47,11 +47,6 @@ def precisionElectronRecoSequence(RoIs):
     # These objects must be loaded from SGIL if not from CondInputLoader
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                    ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-    
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]

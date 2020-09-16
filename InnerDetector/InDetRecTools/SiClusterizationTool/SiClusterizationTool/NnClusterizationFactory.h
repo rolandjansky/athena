@@ -219,11 +219,11 @@ namespace InDet {
        {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};
 
     SG::ReadCondHandleKey<TTrainedNetworkCollection> m_readKeyWithoutTrack
-       {this, "NnCollectionReadKey", "PixelClusterNN", "The conditions statore key for the pixel cluster NNs"};
+       {this, "NnCollectionReadKey", "PixelClusterNN", "The conditions store key for the pixel cluster NNs"};
 
     SG::ReadCondHandleKey<TTrainedNetworkCollection> m_readKeyWithTrack
        {this, "NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack",
-        "The conditions statore key for the pixel cluster NNs which needs tracks as input"};
+        "The conditions store key for the pixel cluster NNs which needs tracks as input"};
 
     Gaudi::Property<unsigned int> m_maxSubClusters
        {this, "MaxSubClusters", 3, "Maximum number of sub cluster supported by the networks." };

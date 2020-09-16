@@ -16,6 +16,9 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
         acc.merge(LArOFCCondAlgCfg(configFlags))
         kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         kwargs.setdefault("ShapeKey", "LArShapeSym")
+        fld="/LAR/NoiseOfl/DSPThresholds"
+        dbString="OFLP200"
+        dbInstance="LAR_OFL"
         if configFlags.Digitization.PileUpPremixing:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix() + "LArDigitContainer_MC")
         else:
@@ -27,6 +30,14 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         else:
             kwargs.setdefault("LArRawChannelKey", "LArRawChannels_FromDigits")
+        fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+        dbString="CONDBR2"
+        dbInstance="LAR_ONL"
+
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(configFlags,fld, dbInstance, className="AthenaAttributeList", db=dbString))
+
+    kwargs.setdefault("DSPThresholdsKey",fld)
 
     acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
 
@@ -44,6 +55,7 @@ if __name__=="__main__":
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Input.isMC = False
     ConfigFlags.lock()
 
 

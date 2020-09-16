@@ -83,12 +83,10 @@ def makeInDetPrecisionTracking( config = None,
 
       Parameter_config = True 
       SummaryTool_config = trigTrackSummaryTool
+      ToolSvc += SummaryTool_config
   else:
       SummaryTool_config = InDetTrigTrackSummaryTool
       Parameter_config = False
-
-
-  ToolSvc += SummaryTool_config
 
 
   #-----------------------------------------------------------------------------
@@ -96,18 +94,16 @@ def makeInDetPrecisionTracking( config = None,
   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
   ambSolvingStageAlgs = [
                            ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name() ),
-                                                   config = config ),
+                                                      config = config ),
 
                            ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name() ),
-                                                   config = config )
+                                                       config = config )
                         ]
 
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
-
-
   #TODO:implement builders and getters for TRT (WIP)
   if config.PT().setting().doTRT():
 

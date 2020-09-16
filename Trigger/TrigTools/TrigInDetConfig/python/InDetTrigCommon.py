@@ -357,13 +357,14 @@ def ambiguityScoreAlg_builder(name, config):
 
       #-----------------------
       #Set/Get subtools
-      ambiguityScoreProcessor = ambiguityScoreProcessorTool_builder( name   = get_full_name( 'AmbiguityScoreProcessorTool', config.name()),
-                                                                     config = config )
+      #ambiguityScoreProcessor = ambiguityScoreProcessorTool_builder( name   = get_full_name( 'AmbiguityScoreProcessorTool', config.name()),
+      #                                                               config = config )
 
       return Trk__TrkAmbiguityScore(   name                    = name,
                                        TrackInput              = [ config.FT().trkTracksFTF()  ], 
                                        TrackOutput             = get_scoredmap( get_name_suffix( config.name() ) ),
-                                       AmbiguityScoreProcessor = ambiguityScoreProcessor,  #Might need to disable this, see: https://gitlab.cern.ch/atlas/athena/-/merge_requests/36431
+                                       #Disable processor, see: https://gitlab.cern.ch/atlas/athena/-/merge_requests/36431
+                                       AmbiguityScoreProcessor = None, #ambiguityScoreProcessor,  
                                     )
       
 

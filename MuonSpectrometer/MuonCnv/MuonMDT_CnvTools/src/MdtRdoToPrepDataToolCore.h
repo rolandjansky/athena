@@ -55,9 +55,6 @@ namespace Muon
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
       
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize () override;
-      
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
     StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
     //new decode method for Rob based readout
@@ -99,7 +96,7 @@ namespace Muon
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         
     /// MDT calibration service
-    ToolHandle<MdtCalibrationTool> m_calibrationTool;
+    ToolHandle<MdtCalibrationTool> m_calibrationTool{this,"CalibrationTool","MdtCalibrationTool"};
     MdtCalibrationSvcSettings* m_mdtCalibSvcSettings;
 
     /// MdtPrepRawData containers
@@ -114,7 +111,7 @@ namespace Muon
     bool m_decodeData; //!< toggle on/off the decoding of MDT RDO into MdtPrepData
     bool m_sortPrepData; //!< Toggle on/off the sorting of the MdtPrepData
 
-    ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
+    ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder{this,"Decoder","Muon::MdtRDO_Decoder/MdtRDO_Decoder"};
     
     //keepTrackOfFullEventDecoding
     bool m_fullEventDone;

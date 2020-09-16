@@ -382,6 +382,14 @@ private:
 
 }; // end of class definitions
 
+/**Overload of << operator for both, MsgStream and std::ostream for debug
+output; only needed in base class? */
+MsgStream&
+operator<<(MsgStream& sl, const VxTrackAtVertex& sf);
+std::ostream&
+operator<<(std::ostream& sl, const VxTrackAtVertex& sf);
+
+
 } // end of namespace definitions
 
 #include "VxVertex/VxTrackAtVertex.icc"
