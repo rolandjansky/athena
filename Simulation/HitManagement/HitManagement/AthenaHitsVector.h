@@ -51,7 +51,7 @@ public:
   //
   // methods not provided to rootcint
 #else 
-  AthenaHitsVector<T>(std::string collectionName="DefaultCollectionName")
+  AthenaHitsVector<T>(const std::string& collectionName="DefaultCollectionName")
     {
       IMessageSvc* msgSvc(Athena::getMessageSvc());
       MsgStream log(msgSvc, "AthenaHitsVector");
