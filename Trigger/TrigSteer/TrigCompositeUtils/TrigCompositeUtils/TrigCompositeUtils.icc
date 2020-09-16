@@ -141,18 +141,23 @@ namespace TrigCompositeUtils {
     }
     auto it = std::remove_if(vector.begin(), vector.end(), [&](const ElementLink<CONTAINER>& el) {
 
-	bool oldmatch = ( el.dataID().find(containerSGKey) == std::string::npos);
-	
 	bool newmatch = !std::regex_match( el.dataID(), std::regex(containerSGKey) );
-		
-	// ANA_MSG_WARNING ( "Strict match violation" << el.dataID() << " : " << containerSGKey ); 
 
-	if ( oldmatch!=newmatch ) std::cerr << "SUTT:: Strict match violation" << el.dataID() << " : " << containerSGKey << std::endl;; 
-				  
+	if ( containerSGKey.find("*")==std::string::npos &&
+	     containerSGKey.find(".")==std::string::npos ) { 
+	  
+	  bool oldmatch = ( el.dataID().find(containerSGKey) == std::string::npos);
+	  
+	  // ANA_MSG_WARNING ( "Strict match violation" << el.dataID() << " : " << containerSGKey ); 
+	  if ( oldmatch!=newmatch ) { 
+	    std::cerr << "SUTT:: Strict match violation " << el.dataID() << " : " << containerSGKey << std::endl;; 
+	  }
+	  
+	}
+
 	return  !std::regex_match( el.dataID(), std::regex(containerSGKey) );
-      
-        // return (el.dataID().find(containerSGKey) == std::string::npos);
-    });
+
+      });
     // Collection has been re-ordered to put the bad elements at the end
     vector.erase(it, vector.end());
   }
