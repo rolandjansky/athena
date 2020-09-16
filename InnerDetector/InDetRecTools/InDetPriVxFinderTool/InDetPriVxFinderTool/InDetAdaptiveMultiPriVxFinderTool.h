@@ -89,6 +89,7 @@
 #include "TrkTrack/TrackCollection.h" // type def ...
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkParameters/TrackParameters.h"
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 
 /**
  * Forward declarations 
@@ -157,6 +158,7 @@ namespace InDet
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
 
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
+    ServiceHandle<IInDetEtaDependentCutsSvc> m_etaDependentCutsSvc;
 
     /** Define a beam constraint for the fit */
     bool m_useBeamConstraint; //!<  Use a vertex/beam constraint
@@ -299,6 +301,13 @@ namespace InDet
    
    void releaseCandidate(xAOD::Vertex*& candidate);
    
+   bool vtxEtaDependentCut(const xAOD::TrackParticle* trk);
+   
+   int getCount( const xAOD::TrackParticle& trk, const xAOD::SummaryType type ) const {
+     uint8_t val;
+     if( !trk.summaryValue(val,type) ) return 0;
+     return val > 0 ? val : 0;
+   }
 
  };//end of class
 }//end of namespace definitions

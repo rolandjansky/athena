@@ -69,6 +69,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     m_trkFilter("InDet::InDetTrackSelection"),
     m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_iBeamCondSvc("BeamCondSvc",n),
+    m_etaDependentCutsSvc("",n),
     m_useBeamConstraint(true),
     m_TracksMaxZinterval(0.5),
     m_maxVertexChi2(18.42),
@@ -113,6 +114,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     declareProperty("do3dSplitting",m_do3dSplitting);
     declareProperty("zBfieldApprox",m_zBfieldApprox);
     declareProperty("maximumVertexContamination",m_maximumVertexContamination);
+    declareProperty("InDetEtaDependentCutsSvc", m_etaDependentCutsSvc);
 }
 
 InDetAdaptiveMultiPriVxFinderTool::~InDetAdaptiveMultiPriVxFinderTool()
@@ -132,6 +134,12 @@ StatusCode InDetAdaptiveMultiPriVxFinderTool::initialize()
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
     if (msgLvl(MSG::DEBUG)) m_printParameterSettings();
+    
+    if (not m_etaDependentCutsSvc.name().empty()){
+      ATH_CHECK(m_etaDependentCutsSvc.retrieve());
+      ATH_MSG_INFO("m_etaDependentCutsSvc not empty");
+    }
+
 
     ATH_MSG_INFO("Initialization successful");
 
@@ -291,14 +299,42 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       selectionPassed=m_trkFilter->accept(**itr,&null);
     }
     
-    if (selectionPassed)
-    {
-      ElementLink<xAOD::TrackParticleContainer> link;
-      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
-      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
-      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
-      selectedTracks.push_back(linkTT);
-    }
+  //   if (selectionPassed)
+  //   {
+  //     ElementLink<xAOD::TrackParticleContainer> link;
+  //     link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+  //     Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
+  //     linkTT->setStorableObject(*trackParticles); //@TODO: really?!
+  //     selectedTracks.push_back(linkTT);
+  //   }
+
+    /// eta dependent cuts ////
+    bool etaCuts = true ; // false
+     if (!etaCuts) 
+       {
+	  if (selectionPassed) 
+	    {
+	      ATH_MSG_INFO("etaCuts OFF");
+	      ElementLink<xAOD::TrackParticleContainer> link;
+	      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+	      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
+	      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
+	      selectedTracks.push_back(linkTT);
+	    }
+	}
+      else 
+	{ 
+	  bool etaSelectionPassed = vtxEtaDependentCut(*itr);
+	  if (selectionPassed && etaSelectionPassed) 
+	    {
+	      ATH_MSG_INFO("etaCuts ON");
+	      ElementLink<xAOD::TrackParticleContainer> link;
+	      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+	      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
+	      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
+	      selectedTracks.push_back(linkTT);
+	    }
+	}
   }
 
   ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
@@ -320,6 +356,41 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
 }
 
+bool InDetAdaptiveMultiPriVxFinderTool::vtxEtaDependentCut(const xAOD::TrackParticle* trk)
+{
+  // vertex's eta dependent cuts method.
+  // If the truck does not pass one of the cuts than etaSelectionPassed flag become false 
+  // and the truck is not stored
+  
+  ATH_MSG_INFO("in vtxEtaDependentCut ");
+  bool etaSelectionPassed_temp = true ; 
+  double trackEta = (trk)->eta();
+  const xAOD::ParametersCovMatrix_t covTrk = trk->definingParametersCovMatrix();
+  
+  if ( 
+      fabs((trk)->pt()) < m_etaDependentCutsSvc->getMinPtAtEta(trackEta) ||
+      fabs((trk)->d0()) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) ||
+      fabs((trk)->z0()) > m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) ||
+      fabs(Amg::error(covTrk, 0)) > m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) ||
+      fabs(Amg::error(covTrk, 1)) > m_etaDependentCutsSvc->getSigIPz0MaxAtEta(trackEta) ||
+      getCount(*trk,xAOD::numberOfSCTHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ||
+      getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta)
+       ) // getCount(*trk,xAOD::numberOfSCTHoles) < m_etaDependentCutsSvc->getMaxSiHolesAtEta(trackEta) ||
+    // getCount(*trk,xAOD::numberOfPixelHoles) < m_etaDependentCutsSvc->getMaxPixelHolesAtEta(trackEta)
+    {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_INFO("track pt: " << fabs((trk)->pt()) << " LOWER than min pt: " << m_etaDependentCutsSvc->getMinPtAtEta(trackEta) << ", or");
+      ATH_MSG_INFO("track d0: " << fabs((trk)->d0()) << " HIGHER than max d0: "<< m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) << ", or" );
+      ATH_MSG_INFO("track z0: " << fabs((trk)->z0()) << " HIGHER than max z0: "<< m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) << ", or" );
+      ATH_MSG_INFO("track error d0: " << fabs(Amg::error(covTrk, 0)) << " HIGHER than max err d0: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << ", or" );
+      ATH_MSG_INFO("track error z0: " << fabs(Amg::error(covTrk, 1)) << " HIGHER than max err z0: "<< m_etaDependentCutsSvc->getSigIPz0MaxAtEta(trackEta) << ", or" );
+      ATH_MSG_INFO("PixHits:" << getCount(*trk,xAOD::numberOfSCTHits) << " HIGHER than min PixHits :" << m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) << ", or");
+      ATH_MSG_INFO("PixHits:" << getCount(*trk,xAOD::numberOfPixelHits) << " HIGHER than min PixHits :" << m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) << ", or");      
+    }
+  
+  ATH_MSG_INFO(" etaSelectionPassed (y/n): " << etaSelectionPassed_temp << "");
+  return etaSelectionPassed_temp ; 
+}
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiPriVxFinderTool::findVertex(const std::vector<const Trk::ITrackLink*> & trackVector)
 {
