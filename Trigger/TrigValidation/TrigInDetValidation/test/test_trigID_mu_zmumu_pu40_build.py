@@ -51,11 +51,11 @@ if ((not exclude) or postproc ):
  
 
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon')
+comp=TrigInDetCompStep( 'Comp_L2muon', 'L2', 'muon' )
 comp.flag = 'L2muon'
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmuon')
+comp2=TrigInDetCompStep( 'Comp_EFmuon', 'EF', 'muon' )
 comp2.flag = 'EFmuon'
 test.check_steps.append(comp2)
 

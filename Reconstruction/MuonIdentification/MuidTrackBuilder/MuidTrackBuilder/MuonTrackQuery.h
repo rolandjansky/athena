@@ -98,23 +98,13 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
     // tools and services
     ToolHandle<Trk::ITrackFitter> m_fitter{this, "Fitter", "", "Track fitter tool"};
 
-    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{
-        this,
-        "edmHelper",
-        "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-        "Handle to the service providing the IMuonEDMHelperSvc interface",
-    };
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc{this,"edmHelper","Muon::MuonEDMHelperSvc/MuonEDMHelperSvc","Handle to the service providing the IMuonEDMHelperSvc interface",};
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{
-        this,
-        "MdtRotCreator",
-        "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator",
-        "MdtDriftCircleOnTrackCreator tool",
-    };
+    ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this,"MdtRotCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator","MdtDriftCircleOnTrackCreator tool"};
 
-    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;
+    ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
 
 };  // end of class MuonTrackQuery
 

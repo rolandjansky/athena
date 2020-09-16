@@ -20,21 +20,6 @@ def MagneticFieldSvcCfg(flags, **kwargs):
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )
             
 
-    # AtlasFieldSvc - old one
-    afsArgs = {
-      "name": "AtlasFieldSvc",
-    }
-    if flags.Common.isOnline:
-      afsArgs.update( UseDCS = False )
-      afsArgs.update( UseSoleCurrent = 7730 )
-      afsArgs.update( UseToroCurrent = 20400 )
-    else:
-      afsArgs.update( UseDCS = True )
-    if 'UseDCS' in kwargs:
-      afsArgs['UseDCS'] = kwargs['UseDCS']
-    mag_field_svc = CompFactory.MagField.AtlasFieldSvc(**afsArgs)  
-    result.addService(mag_field_svc, primary=True)
-
     # AtlasFieldMapCondAlg - for reading in map
     afmArgs = {
       "name": "AtlasFieldMapCondAlg",
@@ -91,7 +76,7 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     acc  = MagneticFieldSvcCfg(ConfigFlags)
-    log.verbose(acc.getPrimary())    
+    log.verbose(acc)
     cfg.merge(acc)
 
 

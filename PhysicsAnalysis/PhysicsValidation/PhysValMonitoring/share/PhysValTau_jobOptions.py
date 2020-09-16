@@ -19,17 +19,18 @@ tool1.TauTruthMatchingTool.WriteTruthTaus = True
 import cppyy
 try:
     print("Successfully loaded TauAnalysisToolsDict")
-    cppyy.loadDictionary('TauAnalysisToolsDict')
+    cppyy.load_library('libTauAnalysisToolsDict')
 except:
     print("Could not load TauAnalysisToolsDict")
     pass
 from ROOT import TauAnalysisTools
+SelectionCuts = TauAnalysisTools.SelectionCuts
 
 # configuration of the 'primitive' tau selection
 tool1.PrimitiveTauSelectionTool.ConfigPath = ""
 tool1.PrimitiveTauSelectionTool.SelectionCuts \
-    = int(TauAnalysisTools.CutAbsEta | TauAnalysisTools.CutAbsCharge | 
-          TauAnalysisTools.CutNTrack)
+    = int(SelectionCuts.CutAbsEta | SelectionCuts.CutAbsCharge | 
+          SelectionCuts.CutNTrack)
 tool1.PrimitiveTauSelectionTool.PtMin = 0.0
 tool1.PrimitiveTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
 tool1.PrimitiveTauSelectionTool.EleOLR = False
@@ -40,8 +41,8 @@ tool1.PrimitiveTauSelectionTool.AbsEtaRegion = (0.0, 10.0)
 # configuration of the 'nominal' tau selection
 tool1.NominalTauSelectionTool.ConfigPath = ""
 tool1.NominalTauSelectionTool.SelectionCuts \
-    = int(TauAnalysisTools.CutPt | TauAnalysisTools.CutAbsEta | 
-          TauAnalysisTools.CutAbsCharge | TauAnalysisTools.CutNTrack)
+    = int(SelectionCuts.CutPt | SelectionCuts.CutAbsEta | 
+          SelectionCuts.CutAbsCharge | SelectionCuts.CutNTrack)
 tool1.NominalTauSelectionTool.PtMin = 20.0
 tool1.NominalTauSelectionTool.JetIDWP = TauAnalysisTools.JETIDNONE
 tool1.NominalTauSelectionTool.EleOLR = False

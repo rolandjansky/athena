@@ -1,11 +1,11 @@
 #!/bin/bash
 
-preExecString="RAWtoESD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False);from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)"
-echo $preExecString
+preExecStringOne="RAWtoESD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False);from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)"
+preExecStringTwo="ESDtoAOD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)"
 
 echo "Creating new serial directory"
 mkdir serial; cd serial
-Reco_tf.py --AMI=$1 --preExec="${preExecString}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaSerial.log
+Reco_tf.py --steering "no" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaSerial.log
 rc=${PIPESTATUS[0]}
 echo "art-result: $rc Serial"
 
@@ -15,7 +15,7 @@ cd ../
 echo "Creating new threadOne directory"
 mkdir threadOne; cd threadOne
 
-Reco_tf.py --athenaopts="--threads=1" --AMI=$1 --preExec="${preExecString}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaOneThread.log
+Reco_tf.py --steering "no" --athenaopts="--threads=1" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaOneThread.log
 rc1=${PIPESTATUS[0]}
 echo "art-result: $rc1 OneThread"
 
@@ -37,7 +37,7 @@ cd ../
 echo "Creating new threadTwo directory"
 mkdir threadTwo; cd threadTwo
 
-Reco_tf.py --athenaopts="--threads=2" --AMI=$1 --preExec="${preExecString}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaTwoThreads.log
+Reco_tf.py --steering "no" --athenaopts="--threads=2" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaTwoThreads.log
 rc2=${PIPESTATUS[0]}
 echo "art-result: $rc2 TwoThreads"
 
@@ -55,7 +55,7 @@ cd ../
 echo "Creating new threadFive directory"
 mkdir threadFive; cd threadFive
 
-Reco_tf.py --athenaopts="--threads=5" --AMI=$1 --preExec="${preExecString}" --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaFiveThreads.log
+Reco_tf.py --steering "no" --athenaopts="--threads=5" --AMI=$1 --preExec "${preExecString}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaFiveThreads.log
 rc5=${PIPESTATUS[0]}
 echo "art-result: $rc5 FiveThreads"
 

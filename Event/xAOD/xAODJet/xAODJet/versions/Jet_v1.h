@@ -360,6 +360,9 @@ namespace xAOD {
 
 } // namespace xAOD
 
+// Declare IParticle as a base class of Jet_v1:
+DATAVECTOR_BASE( xAOD::Jet_v1, xAOD::IParticle );
+
 #include "xAODJet/versions/Jet_v1.icc"
 
 #endif // XAODJET_VERSIONS_JET_V1_H

@@ -37,7 +37,7 @@ namespace Muon {
 	@param track the track
 	@return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* refit( Trk::Track& track ) const = 0;
+    virtual std::unique_ptr<Trk::Track> refit( Trk::Track& track ) const = 0;
 
     /** recalibrate hits on track, does not refit
 	@param track the track
@@ -45,7 +45,7 @@ namespace Muon {
 	@param doCompetingClusters flag to indicate whether to redo competing ROTs 
 	@return a pointer to the resulting track, will return zero if calibration failed. Ownership passed to user.
     */
-    virtual Trk::Track* recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const = 0;
+    virtual std::unique_ptr<Trk::Track> recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const = 0;
 
     /** @brief combine two segments to a super segment
 	@param seg1 the first segment
@@ -62,7 +62,7 @@ namespace Muon {
 	@param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
 	@return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* combine( const MuonSegment& seg1, const MuonSegment& seg2,
+    virtual std::unique_ptr<Trk::Track> combine( const MuonSegment& seg1, const MuonSegment& seg2,
 				 const PrepVec* patternPhiHits = 0 ) const = 0;
 
     /** @brief combine a track with a segment
@@ -71,7 +71,7 @@ namespace Muon {
 	@param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
 	@return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg, 
+    virtual std::unique_ptr<Trk::Track> combine( const Trk::Track& track, const MuonSegment& seg, 
 				 const PrepVec* patternPhiHits = 0 ) const = 0;
 
    /** @brief find closest TrackParameters to the position. Closest is defined as closest in z in the endcap and 

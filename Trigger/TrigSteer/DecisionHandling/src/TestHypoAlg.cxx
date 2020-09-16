@@ -26,10 +26,14 @@ namespace HLTTest {
   }
 
 
-  StatusCode TestHypoAlg::execute( const EventContext& context ) const {  
+  StatusCode TestHypoAlg::execute( const EventContext& context ) const {
+    // new output decisions
+    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
+    auto decisions = outputHandle.ptr();
+
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
     if ( m_recoInput.key().empty() ) {
-      ATH_MSG_DEBUG( "No input configured, not producing the output" );
+      ATH_MSG_DEBUG( "No input configured, output decisions will be empty" );
       return StatusCode::SUCCESS;      
     }
 
@@ -44,9 +48,6 @@ namespace HLTTest {
     auto recoInput = SG::makeHandle(m_recoInput, context);
     ATH_MSG_DEBUG( "             and with "<< recoInput->size() <<" reco inputs");
     
-    // new output decisions
-    SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
-    auto decisions = outputHandle.ptr();
 
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;

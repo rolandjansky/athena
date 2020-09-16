@@ -117,8 +117,8 @@ class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
    //!< construct from blob
    ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 			 unsigned int module_status,
-			 std::vector<unsigned int> chip_status,
-			 std::vector<std::vector<unsigned int> > column_pair_status,unsigned int mchips = 16); 
+			 const std::vector<unsigned int>& chip_status,
+			 const std::vector<std::vector<unsigned int> >& column_pair_status,unsigned int mchips = 16); 
    //!< construct from contents
    virtual ~ModuleSpecialPixelMap();
 

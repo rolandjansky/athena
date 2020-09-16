@@ -40,6 +40,11 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Menu();
 
+      // class name
+      virtual std::string className() const override {
+         return "L1Menu";
+      }
+
       /** Accessor to the menu version */
       unsigned int version() const;
 

@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonIDEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloGeoHelpers
-                          Control/Navigation
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/MuonIdentification/muonEvent )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

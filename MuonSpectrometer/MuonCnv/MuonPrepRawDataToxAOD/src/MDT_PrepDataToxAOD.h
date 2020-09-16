@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,10 @@
 #define MDT_PREPDATATOXAOD_H
 
 #include "MuonPrepDataToxAOD.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 
 class MDT_PrepDataToxAOD : public MuonPrepDataToxAOD<Muon::MdtPrepDataContainer,MuonSimDataCollection> {
@@ -32,7 +33,7 @@ public:
   void addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::MdtPrepData& prd, const MuonSimData* sdo ) const;
 
 private:
-  ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator;
+  ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this,"MdtDriftCircleOnTrackCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};
 };
 
 

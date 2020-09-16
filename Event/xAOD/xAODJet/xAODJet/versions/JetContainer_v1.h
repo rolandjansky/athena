@@ -14,9 +14,6 @@
 // Local include(s):
 #include "xAODJet/versions/Jet_v1.h"
 
-// Declare IParticle as a base class of Jet_v1:
-DATAVECTOR_BASE( xAOD::Jet_v1, xAOD::IParticle );
-
 namespace xAOD {
    /// The container is a simple typedef for now
    typedef DataVector< xAOD::Jet_v1 > JetContainer_v1;
