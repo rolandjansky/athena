@@ -428,7 +428,7 @@ namespace InDetAlignment
 					}
 				}
 			} else {
-			  msg(MSG::INFO) << "not a valid PIXEL Module ID (setup)" <<  endreq;
+			  msg(MSG::WARNING) << "not a valid PIXEL Module ID (setup)" <<  endreq;
 			}
 		}
 	}

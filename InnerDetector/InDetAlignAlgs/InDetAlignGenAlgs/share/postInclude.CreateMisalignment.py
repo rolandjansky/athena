@@ -138,7 +138,6 @@ if WriteDBPoolFile:
 
     IOVDbSvc = Service( "IOVDbSvc" )
     IOVDbSvc.OutputLevel = VERBOSE
-    #IOVDbSvc.dbConnection = "impl=cool;techno=sqlite;schema=%s;X:COMP200" % DatabaseFilename
     IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=OFLP200" % (DatabaseFilename)
 
 

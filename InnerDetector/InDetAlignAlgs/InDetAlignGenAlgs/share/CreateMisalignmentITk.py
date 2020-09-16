@@ -153,7 +153,6 @@ if WriteDBPoolFile:
     regSvc.RecreateFolders = False
 
     IOVDbSvc = Service( "IOVDbSvc" )
-    #IOVDbSvc.dbConnection = "impl=cool;techno=sqlite;schema=%s;X:COMP200" % DatabaseFilename
     IOVDbSvc.dbConnection = "sqlite://;schema=%s;dbname=COMP200" % (DatabaseFilename)
 
 
