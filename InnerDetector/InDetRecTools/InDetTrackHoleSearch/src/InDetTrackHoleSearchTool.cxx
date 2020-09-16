@@ -759,10 +759,9 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
              ATH_MSG_ERROR ("cast to SiDetectorElement failed, should never happen !");
              continue;
            }
-           if (thisElement->isBarrel()) {
-             if (thisElement->isInclined()) PixelInclinedHoles++;
-             else PixelFlatHoles++;             
-           } else PixelEndcapHoles++; 
+           if (thisElement->isInclined()) PixelInclinedHoles++;
+           else if (thisElement->isBarrel()) PixelFlatHoles++;
+           else PixelEndcapHoles++;
          }
         }
 	      else if (m_atlasId->is_sct(id))

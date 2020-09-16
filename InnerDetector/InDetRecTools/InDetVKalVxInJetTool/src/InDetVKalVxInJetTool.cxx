@@ -484,36 +484,32 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 	   int bec = m_pixelHelper->barrel_ec(Pixel_ModuleID);
 	   bool isInclined = module->isInclined();
 
-	   if(bec==0){
-
-	     if(!isInclined){ // flat barrel
-	       double zMin_mod = module->zMin();
-	       double zMax_mod = module->zMax();
-	       double R = module->center().perp();
-	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,R);
-	     }
-
-	     else{ // inclined barrel
-	       double zMin_mod = module->zMin();
-	       double zMax_mod = module->zMax();
-	       double rMin_mod = module->rMin();
-	       double rMax_mod = module->rMax();
-	       if(zMin_mod>0){
-		 double alpha = (rMin_mod-rMax_mod)/(zMax_mod-zMin_mod);
-		 for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
-		   double R = rMax_mod + alpha*(z-zMin_mod);
-		   m_ITkPixMaterialMap->Fill(z,R);
-		 }
-	       }
-	       else{
-		 double alpha = (rMax_mod-rMin_mod)/(zMax_mod-zMin_mod);
-		 for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
-		   double R = rMin_mod + alpha*(z-zMin_mod);
-		   m_ITkPixMaterialMap->Fill(z,R);
-		 }
+	   if(isInclined){
+	     double zMin_mod = module->zMin();
+	     double zMax_mod = module->zMax();
+	     double rMin_mod = module->rMin();
+	     double rMax_mod = module->rMax();
+	     if(zMin_mod>0){
+	       double alpha = (rMin_mod-rMax_mod)/(zMax_mod-zMin_mod);
+	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		 double R = rMax_mod + alpha*(z-zMin_mod);
+		 m_ITkPixMaterialMap->Fill(z,R);
 	       }
 	     }
+	     else{
+	       double alpha = (rMax_mod-rMin_mod)/(zMax_mod-zMin_mod);
+	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		 double R = rMin_mod + alpha*(z-zMin_mod);
+		 m_ITkPixMaterialMap->Fill(z,R);
+	       }
+	     }
+	   }
 
+	   else if(bec==0){ // flat barrel
+	     double zMin_mod = module->zMin();
+	     double zMax_mod = module->zMax();
+	     double R = module->center().perp();
+	     for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,R);
 	   }
 
 	   else{ // endcap disks
