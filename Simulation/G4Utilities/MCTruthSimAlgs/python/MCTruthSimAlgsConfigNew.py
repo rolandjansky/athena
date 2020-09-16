@@ -4,10 +4,13 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+
 
 # Note: various experimentalDigi uses not migrated
 
-def GenericMergeMcEventCollToolCfg(flags, name="MergeMcEventCollTool", **kwargs):
+def GenericMergeMcEventCollCfg(flags, name="MergeMcEventCollTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TruthCollOutputKey", "TruthEvent")
     kwargs.setdefault("TruthCollInputKey", "TruthEvent")
@@ -24,42 +27,40 @@ def GenericMergeMcEventCollToolCfg(flags, name="MergeMcEventCollTool", **kwargs)
     kwargs.setdefault("SaveRestOfMinBias", False)
     kwargs.setdefault("AddBackgroundCollisionVertices", True)
     kwargs.setdefault("CompressOutputCollection", False)
-    acc.setPrivateTools(CompFactory.MergeMcEventCollTool(name, **kwargs))
+    tool = CompFactory.MergeMcEventCollTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
-def MergeMcEventCollToolCfg(flags, name="MergeMcEventCollTool", **kwargs):
+def MergeMcEventCollCfg(flags, name="MergeMcEventCollTool", **kwargs):
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -30000)
         kwargs.setdefault("LastXing",   30000)
     kwargs.setdefault("DoSlimming", False)
     kwargs.setdefault("OnlySaveSignalTruth", False)
-    tool = acc.popToolsAndMerge(GenericMergeMcEventCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(GenericMergeMcEventCollCfg(flags, name, **kwargs))
     return acc
 
 
-def SignalOnlyMcEventCollToolCfg(flags, name="SignalOnlyMcEventCollTool", **kwargs):
+def SignalOnlyMcEventCollCfg(flags, name="SignalOnlyMcEventCollTool", **kwargs):
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
     kwargs.setdefault("OnlySaveSignalTruth", True)
-    tool = acc.popToolsAndMerge(GenericMergeMcEventCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(GenericMergeMcEventCollCfg(flags, name, **kwargs))
     return acc
 
 
-def InTimeOnlyMcEventCollToolCfg(flags, name="InTimeOnlyMcEventCollTool", **kwargs):
+def InTimeOnlyMcEventCollCfg(flags, name="InTimeOnlyMcEventCollTool", **kwargs):
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
     kwargs.setdefault("DoSlimming", False)
     kwargs.setdefault("OnlySaveSignalTruth", False)
-    tool = acc.popToolsAndMerge(GenericMergeMcEventCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(GenericMergeMcEventCollCfg(flags, name, **kwargs))
     return acc
 
 
@@ -82,25 +83,27 @@ def TruthJetRangeCfg(flags, name="TruthJetRange", **kwargs):
     kwargs.setdefault("LastXing",  TruthJet_LastXing())
     kwargs.setdefault("ItemList", ["JetCollection#InTimeAntiKt4TruthJets",
                                    "JetCollection#OutOfTimeAntiKt4TruthJets"])
-    return CompFactory.PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def MergeTruthJetsToolCfg(flags, name="MergeTruthJetsTool", **kwargs):
+def MergeTruthJetsCfg(flags, name="MergeTruthJetsTool", **kwargs):
     acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TruthJetRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing())
         kwargs.setdefault("LastXing",  TruthJet_LastXing())
     kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets")
     kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt4TruthJets")
-    acc.setPrivateTools(CompFactory.MergeTruthJetsTool(name, **kwargs))
+    tool = CompFactory.MergeTruthJetsTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
-def MergeTruthJetsFilterToolCfg(flags, name="MergeTruthJetsFilterTool", **kwargs):
+def MergeTruthJetsFilterCfg(flags, name="MergeTruthJetsFilterTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("ActivateFilter", True)
-    tool = acc.popToolsAndMerge(MergeTruthJetsToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(MergeTruthJetsCfg(flags, name, **kwargs))
     return acc
 
 
@@ -122,51 +125,52 @@ def TrackRangeCfg(flags, name="TrackRange" , **kwargs):
     kwargs.setdefault("FirstXing", TrackRecord_FirstXing())
     kwargs.setdefault("LastXing",  TrackRecord_LastXing())
     kwargs.setdefault("ItemList", ["TrackRecordCollection#MuonExitLayer"])
-    return CompFactory.PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def MergeTrackRecordCollToolCfg(flags, name="MergeTrackRecordCollTool", **kwargs):
+def MergeTrackRecordCollCfg(flags, name="MergeTrackRecordCollTool", **kwargs):
     acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TrackRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TrackRecord_FirstXing())
         kwargs.setdefault("LastXing",  TrackRecord_LastXing())
-    acc.setPrivateTools(CompFactory.MergeTrackRecordCollTool(name, **kwargs))
+    tool = CompFactory.MergeTrackRecordCollTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
-def MergeCaloEntryLayerToolCfg(flags, name="MergeCaloEntryLayerTool", **kwargs):
+def MergeCaloEntryLayerCfg(flags, name="MergeCaloEntryLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer")
     kwargs.setdefault("TrackRecordCollOutputKey", "CaloEntryLayer")
-    tool = acc.popToolsAndMerge(MergeTrackRecordCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(MergeTrackRecordCollCfg(flags, name, **kwargs))
     return acc
 
 
-def MergeMuonEntryLayerToolCfg(flags, name="MergeMuonEntryLayerTool", **kwargs):
+def MergeMuonEntryLayerCfg(flags, name="MergeMuonEntryLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer")
     kwargs.setdefault("TrackRecordCollOutputKey", "MuonEntryLayer")
-    tool = acc.popToolsAndMerge(MergeTrackRecordCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(MergeTrackRecordCollCfg(flags, name, **kwargs))
     return acc
 
 
-def MergeMuonExitLayerToolCfg(flags, name="MergeMuonExitLayerTool", **kwargs):
+def MergeMuonExitLayerCfg(flags, name="MergeMuonExitLayerTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer")
     kwargs.setdefault("TrackRecordCollOutputKey", "MuonExitLayer")
-    tool = acc.popToolsAndMerge(MergeTrackRecordCollToolCfg(flags, name, **kwargs))
-    acc.setPrivateTools(tool)
+    acc.merge(MergeTrackRecordCollCfg(flags, name, **kwargs))
     return acc
 
 
-def MergeHijingParsToolCfg(flags, name="MergeHijingParsTool", **kwargs):
+def MergeHijingParsCfg(flags, name="MergeHijingParsTool", **kwargs):
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -1)
         kwargs.setdefault("LastXing",  +1)
-    acc.setPrivateTools(CompFactory.MergeHijingParsTool(name, **kwargs))
+    tool = CompFactory.MergeHijingParsTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
@@ -195,15 +199,18 @@ def CalibRangeCfg(flags, name="CalibRange", **kwargs):
         "CaloCalibrationHitContainer#TileCalibHitDeadMaterial"
     ]
     kwargs.setdefault("ItemList", ItemList)
-    return CompFactory.PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def MergeCalibHitsToolCfg(flags, name="MergeCalibHitsTool", **kwargs):
+def MergeCalibHitsCfg(flags, name="MergeCalibHitsTool", **kwargs):
     acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(CalibRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", CalibHit_FirstXing())
         kwargs.setdefault("LastXing",  CalibHit_LastXing())
-    acc.setPrivateTools(CompFactory.MergeCalibHitsTool(name, **kwargs))
+    tool = CompFactory.MergeCalibHitsTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
@@ -225,43 +232,46 @@ def TimingObjRangeCfg(flags, name="TimingObjRange" , **kwargs):
     kwargs.setdefault("FirstXing", TimingObj_FirstXing())
     kwargs.setdefault("LastXing",  TimingObj_LastXing())
     kwargs.setdefault("ItemList", ["RecoTimingObj#EVNTtoHITS_timings"])
-    return CompFactory.PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def MergeRecoTimingObjToolCfg(flags, name="MergeRecoTimingObjTool", **kwargs):
+def MergeRecoTimingObjCfg(flags, name="MergeRecoTimingObjTool", **kwargs):
     acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TimingObjRangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", TimingObj_FirstXing())
         kwargs.setdefault("LastXing",  TimingObj_LastXing())
-
     kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")
     kwargs.setdefault("RecoTimingObjOutputKey", "EVNTtoHITS_timings")
     acc.setPrivateTools(CompFactory.MergeRecoTimingObjTool(name, **kwargs))
     return acc
 
 
-def MergeGenericMuonSimHitCollToolCfg(flags, name="MergeGenericMuonSimHitCollTool", **kwargs):
+def MergeGenericMuonSimHitCollCfg(flags, name="MergeGenericMuonSimHitCollTool", **kwargs):
     acc = ComponentAccumulator()
-    acc.setPrivateTools(CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs))
+    tool = CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
-def MergeMicromegasSimHitCollToolCfg(flags, name="MergeMicromegasSimHitCollTool", **kwargs):
+def MergeMicromegasSimHitCollCfg(flags, name="MergeMicromegasSimHitCollTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("SimHitContainerNames", ["MicromegasSensitiveDetector"])
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -250)
         kwargs.setdefault("LastXing",   200)
-    acc.setPrivateTools(CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs))
+    tool = CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
 
 
-def MergeSTGCSimHitCollToolCfg(flags, name="MergeSTGCSimHitCollTool", **kwargs):
+def MergeSTGCSimHitCollCfg(flags, name="MergeSTGCSimHitCollTool", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("SimHitContainerNames", ["sTGCSensitiveDetector"])
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", -50)
         kwargs.setdefault("LastXing",   75)
-    acc.setPrivateTools(CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs))
+    tool = CompFactory.MergeGenericMuonSimHitCollTool(name, **kwargs)
+    acc.merge(PileUpToolsCfg(flags, PileUpTools=tool))
     return acc
-
