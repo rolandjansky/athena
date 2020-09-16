@@ -2,8 +2,7 @@
 
 # database entries for https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ConfiguredFactory#Factory_functions_vs_derived_cla
 # Valerio Ippolito - Harvard University
-from AthenaCommon.CfgGetter import addService,addAlgorithm  
+from AthenaCommon.CfgGetter import addAlgorithm
 
-addService('MagFieldServices.MagFieldServicesSetup.GetFieldSvc', 'AtlasFieldSvc')
 addAlgorithm('MagFieldServices.MagFieldServicesSetup.GetFieldMapCondAlg', 'AtlasFieldMapCondAlg')
 addAlgorithm('MagFieldServices.MagFieldServicesSetup.GetFieldCacheCondAlg', 'AtlasFieldCacheCondAlg')

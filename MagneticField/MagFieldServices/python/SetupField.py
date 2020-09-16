@@ -15,11 +15,7 @@ conddb.addFolderSplitMC('GLOBAL','/GLOBAL/BField/Maps <noover/>','/GLOBAL/BField
 if not athenaCommonFlags.isOnline():
     conddb.addFolder('DCS_OFL','/EXT/DCS/MAGNETS/SENSORDATA', className="CondAttrListCollection")
     
-# import the field service and conditions algs (service is 'to be removed')
-# (it is MagFieldServices.MagFieldServicesConfig which takes care of configuration)
-from AthenaCommon.CfgGetter import getService,getAlgorithm
-getService('AtlasFieldSvc')
-
+from AthenaCommon.CfgGetter import getAlgorithm
 from AthenaCommon.AlgSequence import AthSequencer             
 condSequence = AthSequencer("AthCondSeq")             
 condSequence += getAlgorithm( "AtlasFieldMapCondAlg" )
