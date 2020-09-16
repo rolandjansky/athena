@@ -314,7 +314,7 @@ class TestDigitizationMC16a(unittest.TestCase):
 
     def test___MdtDigitizationTool_properties(self):
         tested_configurable_name = 'StandardSignalOnlyTruthPileUpToolsAlg.MdtDigitizationTool'
-        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MaskedStations', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
+        expected_property_list = ['CalibrationDbTool', 'DetStore', 'DigitizationTool', 'DiscardEarlyHits', 'DoQballCharge', 'EvtStore', 'ExtraInputs', 'ExtraOutputs', 'FirstXing', 'LastXing', 'MaskedStations', 'MuonIdHelperSvc', 'OutputObjectName', 'OutputSDOName', 'PileUpMergeSvc', 'RndmSvc', 'UseDeadChamberSvc', 'UseTof']
         expected_nonstring_properties = {'LastXing': '150', 'FirstXing': '-800'}
         expected_string_properties = {} # Not checking any specific property values
         self._detailed_ConfigurablePropertiesCheck(
