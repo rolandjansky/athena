@@ -1952,6 +1952,23 @@ if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
   InDetEtaDependentCutsSvc.Xi2maxNoAdd             = InDetNewTrackingCuts.Xi2maxNoAdd()
 
   svcMgr += InDetEtaDependentCutsSvc
+
+  InDetVertexEtaDependentCutSvc = InDet__InDetEtaDependentCutsSvc("InDetVertexEtaDependentCutSvc")
+  InDetVertexEtaDependentCutSvc.etaBins                 = [0., 2.0, 2.6, 4.0]
+  InDetVertexEtaDependentCutSvc.minPT                   = [1000., 950., 900]
+  InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [500., 900.] # d0
+  InDetVertexEtaDependentCutSvc.maxZImpact              = [500., 900.] # z0
+  InDetVertexEtaDependentCutSvc.IPsigd0Max              = [5.] # sig-d0
+  InDetVertexEtaDependentCutSvc.IPsigz0Max              = [5.] # sig-z0
+  # InDetVertexEtaDependentCutSvc.IPd0Max                 = [500., 900.] # -d0
+  # InDetVertexEtaDependentCutSvc.IPz0Max                 = [500., 900.] # -z0
+  InDetVertexEtaDependentCutSvc.minClusters             = [1]  # min Si Hits
+  InDetVertexEtaDependentCutSvc.minPixelHits            = [1]  # min Pixel Hits 
+  # InDetVertexEtaDependentCutSvc.maxHoles                = [3]   # max Si Holes
+  # InDetVertexEtaDependentCutSvc.maxPixelHoles           = [3]  # max Pixel Holes
+  InDetPriVxFinderTool.InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
+  svcMgr += InDetVertexEtaDependentCutSvc
+
   
   if InDetFlags.doPrintConfigurables():
     print InDetEtaDependentCutsSvc
