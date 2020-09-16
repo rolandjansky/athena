@@ -435,9 +435,7 @@ void iHitFilter::groupCleaner( GroupList::iterator& inputItr, GroupList& cleanGr
 		    << std::endl;
 #endif
 
-	  std::list<IdScanSpPoint *>::iterator hitItr=(*gItr2).groupHits().begin();
-	  for( ; hitItr!=(*gItr2).groupHits().end(); hitItr++) {
-	    IdScanSpPoint* pSP=(*hitItr);
+          for (IdScanSpPoint* pSP : gItr2->groupHits()) {
 	    pSP->setUsed(1);
 #ifdef IDSCAN_DEBUG
 	    std::cout << "IDSCAN_DEBUG: new group - layer = " << pSP->layer()
@@ -451,14 +449,14 @@ void iHitFilter::groupCleaner( GroupList::iterator& inputItr, GroupList& cleanGr
 	  int badHit=0;
 	  //setting used=0 to spacepoints in the same layer
 	  for(std::list<IdScanSpPoint *>::iterator phIt1=(*gItr2).groupHits().begin();
-	      phIt1!=(*gItr2).groupHits().end();phIt1++) 
+	      phIt1!=(*gItr2).groupHits().end();++phIt1) 
 	    {
 	      //if((*phIt1)->used()==0) continue;
 	      int lay1=(*phIt1)->layer();
 	      int type1=((*phIt1)->dz()<(*phIt1)->dr())?1:0;
 	      std::list<IdScanSpPoint *>::iterator phIt2=phIt1;
-	      phIt2++;
-	      for(;phIt2!=(*gItr2).groupHits().end();phIt2++)
+	      ++phIt2;
+	      for(;phIt2!=(*gItr2).groupHits().end();++phIt2)
 		{
 		  //if((*phIt2)->used()==0) continue;
 		  int lay2=(*phIt2)->layer();
@@ -499,7 +497,7 @@ void iHitFilter::groupCleaner( GroupList::iterator& inputItr, GroupList& cleanGr
 		    }
 		  else 
 		    {
-		      hitItr++;pSP->setUsed(1);
+		      ++hitItr;pSP->setUsed(1);
 		    }
 		}
 	    }
@@ -899,10 +897,8 @@ void TrackFilterClass::removeClones(int cut)
       (*pTCCIt)->m_nHitShift=nTrackCounter*nSign;
       memset(nContribHisto,0,sizeof(nContribHisto));
 
-      for(std::list<IdScanSpPoint *>::iterator hitItr=(*pTCCIt)->m_pGroup->groupHits().begin();
-	  hitItr!=(*pTCCIt)->m_pGroup->groupHits().end();hitItr++) 
+      for (IdScanSpPoint* pSP : (*pTCCIt)->m_pGroup->groupHits())
 	{
-	  IdScanSpPoint* pSP=(*hitItr);
 	  if(pSP->used()==0) continue;
 	  if(pSP->used()==1)
 	    pSP->setUsed((*pTCCIt)->m_nHitShift);
@@ -977,17 +973,15 @@ void iHitFilter::fitGroup(Group& G)
 
   double minPhi=(*G.groupHits().begin())->phi();
 
-  for(std::list<IdScanSpPoint *>::iterator hitItr=G.groupHits().begin();
-      hitItr!=G.groupHits().end();hitItr++) 
+  for (IdScanSpPoint* pSP : G.groupHits())
     {
-      if(minPhi>(*hitItr)->phi()) minPhi=(*hitItr)->phi();
-      spVec.push_back((*hitItr));
+      if(minPhi>pSP->phi()) minPhi=pSP->phi();
+      spVec.push_back(pSP);
     }
   std::sort(spVec.begin(),spVec.end(),CompareSpByLayer);
 
-  for(std::vector<IdScanSpPoint *>::iterator hitItr=spVec.begin();hitItr!=spVec.end();hitItr++) 
+  for (IdScanSpPoint* pSP : spVec)
     {
-      IdScanSpPoint* pSP=(*hitItr);
       nHits++;
       double delta=pSP->phi()-minPhi;
       if(std::fabs(delta)>M_PI) delta-=2.0*M_PI;
@@ -999,7 +993,7 @@ void iHitFilter::fitGroup(Group& G)
   printf("Average PHI0=%f Initial Pt=%f\n",averagePhi0,1.0/G.getPtInv());
 #endif
 
-  for(std::vector<IdScanSpPoint *>::reverse_iterator hitItr=spVec.rbegin();hitItr!=spVec.rend();hitItr++) 
+  for(std::vector<IdScanSpPoint *>::reverse_iterator hitItr=spVec.rbegin();hitItr!=spVec.rend();++hitItr) 
     {
       IdScanSpPoint* pSP=(*hitItr);
       if(pSP->used()!=0)
@@ -1309,17 +1303,15 @@ void iHitFilter::fitGroupWithoutHitRemoval(Group& G)
 
   double minPhi=(*G.groupHits().begin())->phi();
 
-  for(std::list<IdScanSpPoint *>::iterator hitItr=G.groupHits().begin();
-      hitItr!=G.groupHits().end();hitItr++) 
+  for (IdScanSpPoint* pSP : G.groupHits())
     {
-      if(minPhi>(*hitItr)->phi()) minPhi=(*hitItr)->phi();
-      spVec.push_back((*hitItr));
+      if(minPhi>pSP->phi()) minPhi=pSP->phi();
+      spVec.push_back(pSP);
     }
   std::sort(spVec.begin(),spVec.end(),CompareSpByLayer);
 
-  for(std::vector<IdScanSpPoint *>::iterator hitItr=spVec.begin();hitItr!=spVec.end();hitItr++) 
+  for (IdScanSpPoint* pSP : spVec)
     {
-      IdScanSpPoint* pSP=(*hitItr);
       if(pSP->used()==0)
 	pSP->setUsed(1);
       nHits++;
@@ -1333,7 +1325,7 @@ void iHitFilter::fitGroupWithoutHitRemoval(Group& G)
   printf("Average PHI0=%f Initial Pt=%f\n",averagePhi0,1.0/G.getPtInv());
 #endif
 
-  for(std::vector<IdScanSpPoint *>::reverse_iterator hitItr=spVec.rbegin();hitItr!=spVec.rend();hitItr++) 
+  for(std::vector<IdScanSpPoint *>::reverse_iterator hitItr=spVec.rbegin();hitItr!=spVec.rend();++hitItr) 
     {
       IdScanSpPoint* pSP=(*hitItr);
       int LayId=pSP->layer();
