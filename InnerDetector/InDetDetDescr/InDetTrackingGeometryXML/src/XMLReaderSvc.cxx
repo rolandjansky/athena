@@ -1019,9 +1019,10 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
 \n\
 <IdDictionary name=\"InnerDetector\" version=\""<<xmlvers_for_dictionary<<"\" >\n\
   <field name=\"part\" >\n\
-    <label name=\"Pixel\" value=\"1\" />\n\
-    <label name=\"SCT\"   value=\"2\" />\n\
-    <label name=\"TRT\"   value=\"3\" />\n\
+    <label name=\"Pixel\"  value=\"1\" />\n\
+    <label name=\"SCT\"    value=\"2\" />\n\
+    <label name=\"TRT\"    value=\"3\" />\n\
+    <label name=\"HGTD\"   value=\"4\" />\n\
   </field>\n\
 \n\
   <field name=\"barrel_endcap\">\n\
