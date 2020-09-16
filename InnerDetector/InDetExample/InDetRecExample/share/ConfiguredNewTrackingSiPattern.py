@@ -92,11 +92,16 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
+            
             if not InDetFlags.doHeavyIon():
                InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointStrips = NewTrackingCuts.MaxSeedsPerSP_Strips()
                InDetSiSpacePointsSeedMaker.maxSeedsForSpacePointPixels = NewTrackingCuts.MaxSeedsPerSP_Pixels()
                InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedStripSeeds = NewTrackingCuts.KeepAllConfirmedStripSeeds()
                InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedPixelSeeds = NewTrackingCuts.KeepAllConfirmedPixelSeeds()
+               InDetSiSpacePointsSeedMaker.mindRadius  = 10. 
+               # limit size of space-point vector, uses auto-grow mechanism 
+               # to avoid exceeding bounds (should rarely happen) 
+               InDetSiSpacePointsSeedMaker.maxSizeSP  = 200 
 
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.optimisePhiBinning = False
