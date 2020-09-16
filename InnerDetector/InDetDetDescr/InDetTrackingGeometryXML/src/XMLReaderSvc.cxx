@@ -74,6 +74,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
     parseFile(m_xml_pixStaves.c_str(),"PixelStaves","PixelStave");
     ATH_MSG_INFO("Reading Pixel Barrel Layer templates");
     parseFile(m_xml_pixBarrelLayers.c_str(),"PixelBarrelLayers","PixelBarrelLayer");
+    parseFile(m_xml_pixBarrelLayers.c_str(),"PixelBarrelLayers","PassiveBarrelLayers");
     ATH_MSG_INFO("Reading Pixel Endcap Layer templates");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
@@ -110,6 +111,7 @@ void InDet::XMLReaderSvc::parseNode(std::string section, DOMNode *node)
   else if(section.find("Module")           != std::string::npos) parseModuleXML(node);
   else if(section.find("PixelStave")       != std::string::npos) parseStaveXML(node,m_tmp_pixStave);
   else if(section.find("PixelBarrelLayer") != std::string::npos) parseBarrelLayerXML(node,m_tmp_pixBarrelLayer);
+  else if(section.find("PassiveBarrelLayers") != std::string::npos) parsePassiveBarrelLayerXML(node);
   else if(section.find("PixelEndcapRing" ) != std::string::npos) parseEndcapXML(node,m_tmp_pixEndcapLayer);
   else if(section.find("PixelEndcapDisc" ) != std::string::npos) parseEndcapXML(node,m_tmp_pixEndcapLayer);
   else if(section.find("SCTStave")         != std::string::npos) parseStaveXML(node,m_tmp_sctStave);
@@ -514,6 +516,35 @@ void InDet::XMLReaderSvc::parseBarrelLayerXML(DOMNode* node, std::vector< InDet:
   }
 }
 
+
+void InDet::XMLReaderSvc::parsePassiveBarrelLayerXML(DOMNode* node)
+{
+  XMLCh* TAG_layerradii      = transcode("Radii");
+  XMLCh* TAG_layerhalflength = transcode("HalfLength");
+  
+  std::vector<double> tmpRadii;
+  std::vector<double> tmpHalfLength;
+  
+  DOMNodeList* list = node->getChildNodes();
+  const XMLSize_t nodeCount = list->getLength();
+  
+  for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
+    DOMNode* currentNode = list->item(xx);
+    if(currentNode->getNodeType() != DOMNode::ELEMENT_NODE) continue; // not an element
+
+    // Found node which is an Element. Re-cast node as element
+    DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
+    
+    if (XMLString::equals(currentElement->getTagName(),TAG_layerradii)) tmpRadii = getVectorDouble(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_layerhalflength)) tmpHalfLength = getVectorDouble(currentNode);
+  }
+  
+  for (unsigned int layer = 0; layer < tmpRadii.size(); layer++) 
+    m_pixBarrelLayerPassiveRadiiHalfLength.push_back(std::make_pair(tmpRadii.at(layer), tmpHalfLength.at(layer)));
+
+  return;  
+}
+
 void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::EndcapLayerTmp *>& vtmp)
 {
 
@@ -914,6 +945,11 @@ std::vector<InDet::StaveTmp*> InDet::XMLReaderSvc::getPixelStaveTemplate(unsigne
   if(staves.size()==0) ATH_MSG_WARNING("InDet no Pixel Stave template found for layer " << ilayer);
   
   return staves;
+}
+
+std::vector< std::pair<float, float> > InDet::XMLReaderSvc::getPixelPassiveBarrelLayers() const
+{
+  return m_pixBarrelLayerPassiveRadiiHalfLength;
 }
 
 std::vector<InDet::StaveTmp*> InDet::XMLReaderSvc::getSCTStaveTemplate(unsigned int ilayer) const

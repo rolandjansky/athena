@@ -54,10 +54,13 @@ namespace InDet {
 
     // Create a new layer
     Trk::CylinderLayer *createActiveLayer(unsigned int ilayer, int startLayer, int endLayer) const;
+    
+    std::vector< const Trk::Layer* > createPassiveLayers(std::vector< const Trk::Layer* >& detectionLayers ) const;
 
   private:
     InDet::BarrelLayerTmp *getLayerTmp(unsigned int ilayer) const;
     std::vector<InDet::StaveTmp*> getStaveTmp(unsigned int ilayer) const;
+    std::vector< std::pair<float, float> > getPassiveBarrelLayers() const;
 
     Trk::AlpineLayer *createActiveAlpineLayer(unsigned int layer_index, int startLayer, int endLayer) const;
 
@@ -88,6 +91,7 @@ namespace InDet {
     size_t              m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
     bool		m_customMaterial;
     bool    m_impMatDescription;
+    double  m_maxPassiveEnvelopeDistance;
     
   };
 }
