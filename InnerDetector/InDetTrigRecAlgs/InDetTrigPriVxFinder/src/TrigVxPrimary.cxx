@@ -28,7 +28,6 @@
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
@@ -43,7 +42,6 @@ namespace InDet
       m_useTracksAsInput(false),
       m_createVtxTPLinks(false),
       m_VertexFinderTool("InDet::InDetPriVxFinderTool/InDetTrigPriVxFinderTool"),
-      m_fieldSvc("AtlasFieldSvc", n),
       m_BeamCondSvc("BeamCondSvc", n)
   {
     declareProperty("VertexFinderTool",m_VertexFinderTool);
@@ -73,26 +71,16 @@ namespace InDet
       ATH_MSG_FATAL("Failed to retrieve tool " << m_VertexFinderTool);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
-    else{
-      ATH_MSG_INFO("Retrieved tool " << m_VertexFinderTool);
-    }
     
-    if (m_fieldSvc.retrieve().isFailure()){
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_fieldSvc);
+    if (m_fieldCondObjInputKey.initialize().isFailure()){
+      ATH_MSG_FATAL("Failed to initialize " << m_fieldCondObjInputKey);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
-    else {
-      ATH_MSG_INFO("Retrieved service " << m_fieldSvc);
-    }
 
     if (m_BeamCondSvc.retrieve().isFailure()){
       ATH_MSG_FATAL("Failed to retrieve tool " << m_BeamCondSvc);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
-    else {
-      ATH_MSG_INFO("Retrieved service " << m_fieldSvc);
-
-    }
 
     ATH_MSG_INFO("UseTracksAsInput: " << m_useTracksAsInput << " CreateVtxTrackParticleLinks: " << m_createVtxTPLinks);
     return HLT::OK;
@@ -112,9 +100,15 @@ namespace InDet
     bool runVtx(true);
     
     
-    ATH_MSG_DEBUG(" In execHLTAlgorithm()");
+    EventContext ctx = Gaudi::Hive::currentContext();
+    MagField::AtlasFieldCache fieldCache;
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    fieldCondObj->getInitializedCache (fieldCache);
 
-    if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
+
+
+    if (!m_runWithoutField && !fieldCache.solenoidOn()){
       ATH_MSG_DEBUG("Solenoid Off and RunWithoutField=False. Algorithm not executed!");
       runVtx = false;
     }
