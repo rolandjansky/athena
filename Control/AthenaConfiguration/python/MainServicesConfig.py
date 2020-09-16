@@ -77,7 +77,10 @@ def MainServicesCfg(cfgFlags):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-    
+
+    cfg.addService(CompFactory.GeoModelSvc(), create=True)
+    cfg.addService(CompFactory.DetDescrCnvSvc(), create=True)
+
     cfg.addService(CompFactory.CoreDumpSvc())
 
     cfg.setAppProperty('InitializationLoopCheck',False)

@@ -24,8 +24,8 @@ from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
-_basicServicesToCreate=('CoreDumpSvc','GeoModelSvc','DetDescrCnvSvc')
-_basicServicesToCreateOrder=_basicServicesToCreate
+_basicServicesToCreate=()
+_basicServicesToCreateOrder=("CoreDumpSvc","GeoModelSvc", "DetDescrCnvSvc")+_basicServicesToCreate
 
 
 
