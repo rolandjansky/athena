@@ -322,6 +322,7 @@
 + Reconstruction/MissingETEvent
 + Reconstruction/VKalVrt/SoftBVrtClusterTool
 + Reconstruction/VKalVrt/VrtSecInclusive
++ Reconstruction/VKalVrt/TrkToLeptonPVTool
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
