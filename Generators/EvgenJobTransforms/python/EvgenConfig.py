@@ -7,7 +7,7 @@ lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep","Geneva",
                   "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2", "BCVEGPY", "Dire4Pythia8", 
                   "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF",
-                  "BCVEGPY", "STRINGS"]
+                  "BCVEGPY", "STRINGS", "Phantom"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones
 inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
@@ -124,6 +124,7 @@ class EvgenConfig(TransformConfig):
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
     nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
     obsolete = Boolean("Are JOs/common fragment obsolete", False)
+    PDGparams = Boolean("Do we use the standard PDG values for masses, widths etc. ", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
@@ -133,7 +134,7 @@ class EvgenConfig(TransformConfig):
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"
 # for the sake of Generate_tf leave minevents for a while
-        self.minevents = 5000
+        self.minevents = 0
 
     ## Explicitly block MC11/12 settings of efficiency, input*base, or weighting attrs
     def __setattr__(self, name, value):

@@ -137,7 +137,6 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
                  << "] is produced by topo algorithm " << topoAlg.name() << endl;
          }
       } else if( conn.type() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) {
-         cout << "JOERG 3" << endl;
          for( size_t fpga : { 0, 1 } ) {
             for( size_t clock : { 0, 1 } ) {
                for( auto & tl : conn.triggerLines(fpga, clock) ) {

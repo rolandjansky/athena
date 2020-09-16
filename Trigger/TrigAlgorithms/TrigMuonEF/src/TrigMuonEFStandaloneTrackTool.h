@@ -376,8 +376,10 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
   SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKeyNextBC;
-  SG::ReadHandleKey <Muon::CscPrepDataContainer> m_cscKey;
   SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+
+  //write handle for CSC cluster container
+  SG::WriteHandleKey <Muon::CscPrepDataContainer> m_cscClustersKey{this, "CscClusterContainer", "CSC_Clusters", "Output CSC Cluster container"};
 
   bool m_ignoreCSC;
   ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;

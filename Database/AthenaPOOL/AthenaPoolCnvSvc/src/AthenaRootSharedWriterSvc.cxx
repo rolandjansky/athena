@@ -69,7 +69,7 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
    } else {
       std::string propertyName = "StreamMetaDataOnly";
       bool streamMetaDataOnly(false);
-      BooleanProperty streamMetaDataOnlyProp(propertyName,streamMetaDataOnly);
+      BooleanProperty streamMetaDataOnlyProp(propertyName, streamMetaDataOnly);
       if (propertyServer->getProperty(&streamMetaDataOnlyProp).isFailure()) {
          ATH_MSG_INFO("Conversion service does not have StreamMetaDataOnly property");
       } else if(streamMetaDataOnlyProp.value()) {
@@ -87,10 +87,10 @@ StatusCode AthenaRootSharedWriterSvc::initialize() {
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________
-StatusCode AthenaRootSharedWriterSvc::start() {
+StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
    ATH_MSG_VERBOSE("Start commitOutput loop");
    StatusCode sc = m_cnvSvc->commitOutput("", false);
-   while (m_rootClientCount > 0 || (m_rootClientIndex == 0 && (sc.isSuccess() || sc.isRecoverable()))) {
+   while (m_rootClientCount > 0 || (m_rootClientIndex < numClients && (sc.isSuccess() || sc.isRecoverable()))) {
       if (sc.isSuccess()) {
          ATH_MSG_VERBOSE("Success in commitOutput loop");
       } else if (m_rootMonitor != nullptr) {

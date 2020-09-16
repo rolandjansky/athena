@@ -34,6 +34,11 @@ namespace TrigConf {
       /** Destructor */
       ~HLTMenu();
 
+      // class name
+      virtual std::string className() const override {
+         return "HLTMenu";
+      }
+
       /** Accessor to the number of HLT chains */
       std::size_t size() const;
 
@@ -67,6 +72,7 @@ namespace TrigConf {
 
    private:
       void update() override;
+      void load();
 
       /** the supermasterkey */
       unsigned int m_smk {0};

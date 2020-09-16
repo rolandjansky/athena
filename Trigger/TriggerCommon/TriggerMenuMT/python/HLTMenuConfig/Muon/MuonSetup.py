@@ -564,7 +564,8 @@ def muEFSARecoSequence( RoIs, name ):
   EFMuonViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( "EFMuonViewDataVerifier_" + name )
   EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                         ( 'CaloCellContainer' , 'StoreGateSvc+AllCalo' ),
-                                        ( 'TrackCollection' , 'StoreGateSvc+Tracks' )]
+                                        ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
+                                        ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   efAlgs.append( EFMuonViewDataVerifier )
 
   # Only load these objects if they aren't available in conddb

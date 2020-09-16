@@ -134,7 +134,6 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
     m_rpcKey("RPC_Measurements"),
     m_tgcKey("TGC_Measurements"),
     m_tgcKeyNextBC("TGC_MeasurementsNextBC"),
-    m_cscKey("CSC_Clusters"),
     m_mdtKey("MDT_DriftCircles"),
     m_ignoreCSC(true),
     m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
@@ -189,7 +188,6 @@ TrigMuonEFStandaloneTrackTool::TrigMuonEFStandaloneTrackTool(const std::string& 
   declareProperty("TgcPrepDataContainer", m_tgcKey);
   declareProperty("TgcPrepDataContainerNextBC", m_tgcKeyNextBC);
   declareProperty("MdtPrepDataContainer", m_mdtKey);
-  declareProperty("CscPrepDataContainer", m_cscKey);
   declareProperty("IgnoreMisalginedCSCs", m_ignoreCSC);
 
   declareProperty("SegmentOverlapRemovalTool", m_segmentOverlapRemovalTool, "tool to removal overlaps in segment combinations" );
@@ -485,11 +483,7 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     ATH_MSG_ERROR("Couldn't initalize MDT ReadHandleKey");
     return StatusCode::FAILURE;
   }
-  if(!m_cscKey.initialize()){
-    ATH_MSG_ERROR("Couldn't initalize CSC ReadHandleKey");
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_cscClustersKey.initialize());
   //segment overlap removal
   ATH_CHECK( m_segmentOverlapRemovalTool.retrieve() );
 
@@ -1022,8 +1016,28 @@ if (m_useMdtData>0) {
     }
   }// end of TGC decoding
   
-  
+  CscPrepDataContainer* cscPrds = nullptr;
   if (m_useCscData && !csc_hash_ids.empty()) {// CSC decoding
+    SG::WriteHandle<Muon::CscPrepDataContainer> wh_clusters(m_cscClustersKey);
+    cscPrds = new CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
+    if (!wh_clusters.isPresent()) {
+      /// record the container in storeGate
+      if(wh_clusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(cscPrds)).isFailure()){
+	ATH_MSG_ERROR("Could not record CSC cluster container "<<m_cscClustersKey.key());
+	return HLT::NAV_ERROR;
+      }
+    } else {
+      const Muon::CscPrepDataContainer* outputCollection_c = nullptr;
+      if(evtStore()->retrieve(outputCollection_c, m_cscClustersKey.key()).isFailure()){
+	ATH_MSG_ERROR("Could not retrieve CSC cluster container "<<m_cscClustersKey.key());
+	return HLT::NAV_ERROR;
+      }
+      else{
+	cscPrds = const_cast<Muon::CscPrepDataContainer*> (outputCollection_c);
+      }
+    }
+
+
     if (m_useCscSeededDecoding) {// seeded decoding of CSC
       if (m_useCscRobDecoding) {// ROB-based seeded decoding of CSC is not available
         ATH_MSG_DEBUG("ROB-based seeded decoding of CSC requested, which is not available. Calling the PRD-based seeded decoding.");
@@ -1049,7 +1063,7 @@ if (m_useMdtData>0) {
       }
       // get clusters out of PRD
       if(csc_hash_ids.size()!=0) { 
-	if (m_cscClusterProvider->getClusters(csc_hash_ids, hash_ids_withData).isSuccess()) { 
+	if (m_cscClusterProvider->getClusters(csc_hash_ids, hash_ids_withData, cscPrds).isSuccess()) { 
 	  ATH_MSG_DEBUG("CSC clusters obtained successfully"); 
 	  csc_hash_ids.clear(); 
 	  csc_hash_ids = hash_ids_withData; 
@@ -1081,7 +1095,7 @@ if (m_useMdtData>0) {
         ATH_MSG_WARNING("PRD-based full decoding of CSC failed");
       }
       //get clusters out of PRD
-      if(m_cscClusterProvider->getClusters(input_hash_ids, hash_ids_withData).isSuccess()) {
+      if(m_cscClusterProvider->getClusters(input_hash_ids, hash_ids_withData, cscPrds).isSuccess()) {
         ATH_MSG_DEBUG("CSC clusters obtained successfully");
       } else {
         ATH_MSG_WARNING("Preparing CSC clusters failed");
@@ -1395,16 +1409,6 @@ if (m_useMdtData>0) {
   // Get CSC container
   if (m_useCscData && !csc_hash_ids.empty()) {
     
-    const CscPrepDataContainer* cscPrds = 0;
-    SG::ReadHandle<Muon::CscPrepDataContainer> CscCont(m_cscKey);
-    if( !CscCont.isValid() ) {
-      ATH_MSG_ERROR(" Cannot retrieve CSC PRD Container");
-      return HLT::NAV_ERROR;
-    }
-    else{ 
-      cscPrds=CscCont.cptr();
-      ATH_MSG_DEBUG(" CSC PRD Container retrieved");
-    }
 
     // Get CSC collections
     const Muon::CscPrepDataCollection* CSCcoll = nullptr;
