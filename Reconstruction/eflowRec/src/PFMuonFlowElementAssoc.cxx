@@ -113,41 +113,45 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   //////////////////////////////////////////////////
   //   Loop over Neutral FlowElements
   //////////////////////////////////////////////////
-  for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
-    //get the index of the cluster corresponding to the Neutral FlowElements
-    size_t FEclusterindex=FE->otherObjects().at(0)->index();
-    
-    //design the vector of ElementLinks
-    std::vector<MuonLink_t> feMuonLinks;
-    for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
-      //Retrieve the ElementLink vector of clusters      
-      const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
-
-      //access object from element link
-      const xAOD::CaloClusterContainer* clustercont = ClusterLink.getDataPtr();
-      for (const xAOD::CaloCluster* cluster: *clustercont){
-	size_t cluster_index=cluster->index();
-	if(cluster_index==FEclusterindex){
-	  // Add Muon element link to a vector
-	  // index() is the unique index of the muon in the muon container   
-	  feMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
-	  // index() is the unique index of the cFlowElement in the cFlowElementcontaine
-	  muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
-	} // end of matching cluster index block	    	
-      }  // loop over elementlink vector
-    } // loop over muons
-    NeutralFEmuonWriteDecorHandle(*FE)=feMuonLinks;
-  } // loop over neutral FE
+  if(m_LinkNeutralFEClusters){
+    for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
+      //get the index of the cluster corresponding to the Neutral FlowElements
+      size_t FEclusterindex=FE->otherObjects().at(0)->index();
+      
+      //design the vector of ElementLinks
+      std::vector<MuonLink_t> feMuonLinks;
+      for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
+	//Retrieve the ElementLink vector of clusters      
+	const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
+	
+	//access object from element link
+	const xAOD::CaloClusterContainer* clustercont = ClusterLink.getDataPtr();
+	for (const xAOD::CaloCluster* cluster: *clustercont){
+	  size_t cluster_index=cluster->index();
+	  if(cluster_index==FEclusterindex){
+	    // Add Muon element link to a vector
+	    // index() is the unique index of the muon in the muon container   
+	    feMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	    muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+	  } // end of matching cluster index block	    	
+	}  // loop over elementlink vector
+      } // loop over muons
+      NeutralFEmuonWriteDecorHandle(*FE)=feMuonLinks;
+    } // loop over neutral FE
+  }// end of the Gaudi check block
   
-
   //////////////////////////////////////////////////
   //   WRITE OUTPUT: ADD HANDLES TO MUON CONTAINERS
   //////////////////////////////////////////////////
   // Add the vectors of the Flow Element Links as decoations to the muon container
   for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
     muonChargedFEWriteDecorHandle(*muon)=muonChargedFEVec.at(muon->index());
-  } // end of muon loop
 
+  } // end of muon loop
+  for(const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle){
+    muonNeutralFEWriteDecorHandle(*muon)=muonNeutralFEVec.at(muon->index());
+  }
   ATH_MSG_DEBUG("Execute completed successfully");   
   
   return StatusCode::SUCCESS;
