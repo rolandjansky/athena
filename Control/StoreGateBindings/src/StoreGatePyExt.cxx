@@ -74,7 +74,7 @@ PyObject* pynameFromType (PyObject* tp)
     }
   }
   else {
-    pyname = PyObject_GetAttrString( tp, (char*)"__cppname__" );
+    pyname = PyObject_GetAttrString( tp, (char*)"__cpp_name__" );
     if (!pyname) {
       pyname = PyObject_GetAttrString( tp, (char*)"__name__" );
     }
@@ -105,7 +105,7 @@ PyObject*
 AthenaInternal::retrieveObjectFromStore( PyObject* self, 
                                          PyObject* tp, PyObject* pykey )
 {
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  StoreGateSvc* store = (StoreGateSvc*)CPPInstance_ASVOIDPTR(self);
   return retrieveObjectFromStore(store,tp,pykey);
 }
 
@@ -180,7 +180,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
                                     : keystr.c_str() )
             << "]");
 
-  SG::DataProxy* proxy = (SG::DataProxy*)ObjectProxy_ASVOIDPTR(pyproxy);
+  SG::DataProxy* proxy = (SG::DataProxy*)CPPInstance_ASVOIDPTR(pyproxy);
 
   if ( ! proxy ) {
     PyErr_Format( PyExc_LookupError, 
@@ -368,7 +368,7 @@ PyObject*
 AthenaInternal::py_sg_contains (PyObject* self,
                                 PyObject* tp, PyObject* pykey)
 {
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  StoreGateSvc* store = (StoreGateSvc*)CPPInstance_ASVOIDPTR(self);
   return py_sg_contains(store,tp,pykey);
 }
 
@@ -436,7 +436,7 @@ PyObject*
 AthenaInternal::py_sg_getitem (PyObject* self,
                                PyObject* pykey)
 {
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  StoreGateSvc* store = (StoreGateSvc*)CPPInstance_ASVOIDPTR(self);
   return py_sg_getitem(store,pykey);
 }
 
@@ -490,7 +490,7 @@ AthenaInternal::recordObjectToStore( PyObject* self,
                                      bool resetOnly /*= true*/,
                                      bool noHist /*= false*/)
 {
-  StoreGateSvc* store = (StoreGateSvc*)ObjectProxy_ASVOIDPTR(self);
+  StoreGateSvc* store = (StoreGateSvc*)CPPInstance_ASVOIDPTR(self);
   return recordObjectToStore(store,obj,pykey,allowMods,resetOnly,noHist);
 }
 
@@ -523,7 +523,7 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
 
   PyObject* pyname = 0;
   // check if this is a PyRoot object or a 'regular' PyObject
-  const bool isPlainPyObj = !TPython::ObjectProxy_Check (obj);
+  const bool isPlainPyObj = !TPython::CPPInstance_Check (obj);
   if ( isPlainPyObj ) {
 #if PY_VERSION_HEX < 0x03000000
     pyname = PyString_FromString ((char*)"PyObject");
@@ -570,15 +570,15 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   _SGPY_MSG("created a pdb @" << dbb << ", clID=" << dbb->clID()
             << ", pdb-obj @" << dbb->object()
             << ", obj @" << (void*)obj
-            << ", cc: " << ObjectProxy_ASVOIDPTR(obj)
+            << ", cc: " << CPPInstance_ASVOIDPTR(obj)
             << ", isplain-pyobj: [" << (int)isPlainPyObj << "]"
-            << ", pyrobj @" << ObjectProxy_ASVOIDPTR(obj));
+            << ", pyrobj @" << CPPInstance_ASVOIDPTR(obj));
   _SGPY_MSG("pdb-cast(" << dbb->clID() << "): " << dbb->cast(dbb->clID()));
 	    
   int sc = store->typeless_record( dbb, keystr,
                                    isPlainPyObj 
                                    ? (void*)obj
-                                   : ObjectProxy_ASVOIDPTR(obj),
+                                   : CPPInstance_ASVOIDPTR(obj),
                                    allowMods,
                                    resetOnly,
                                    noHist ).isSuccess()

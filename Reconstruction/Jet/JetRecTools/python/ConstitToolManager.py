@@ -32,7 +32,7 @@ class ConstituentToolManager(object):
     standardModifierLists = dict()
     import cppyy
     try:
-        cppyy.loadDictionary('xAODBaseObjectTypeDict')
+        cppyy.load_library('libxAODBaseObjectTypeDict')
     except:
         pass
     from ROOT import xAODType

@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-
-# art-description: art job for minbias_offline
+# art-description: art job for fsjet_pu40_mt
 # art-type: grid
 # art-include: master/Athena
-# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
+# art-input-nfiles: 3
 # art-athena-mt: 4
 # art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -26,14 +26,14 @@
 # art-output: *.dat 
 
 
-Slices  = ['minbias']
+Slices  = ['fsjet']
 RunEF   = False
-Events  = 8000 
-Threads = 1 
-Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
-Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
+Events  = 2000 
+Threads = 4 
+Slots   = 4 # what about the mt: 4 art directive ? nfiles: 3 ?
+Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Offline'
+TrackReference = [ 'Truth', 'Offline' ]
 
 
 from AthenaCommon.Include import include 

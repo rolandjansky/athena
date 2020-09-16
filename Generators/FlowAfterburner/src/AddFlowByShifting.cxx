@@ -204,6 +204,10 @@ StatusCode AddFlowByShifting::execute() {
                             "  BPhi = " << hijing_pars->get_bphi());
 
 
+  // FIXME: changing data in the event store
+  HijingEventParams *hijing_pars_nc = const_cast<HijingEventParams*> (hijing_pars);
+
+
   // Read Data from Transient Store
   const McEventCollection* mcCollptr;
   if ( evtStore()->retrieve(mcCollptr, m_inkey).isFailure() ) {
@@ -225,10 +229,11 @@ StatusCode AddFlowByShifting::execute() {
   //Store the angles into the hijing event parameters
   for(int ihar=0;ihar<6;ihar++){
     m_psi_n[ihar] =(CLHEP::RandFlat::shoot(p_engine)-0.5)*2*M_PI / (ihar+1);   //Principal value must be within -PI/n to PI/n
-    (*hijing_pars).set_psi(ihar+1,m_psi_n[ihar]);
+    hijing_pars_nc->set_psi(ihar+1,m_psi_n[ihar]);
   }
   m_psi_n[1]=hijing_pars->get_bphi()                   ;//the psi2 plane is aligned with the impact parameter
   m_psi_n[1]=std::atan2(std::sin(2*m_psi_n[1]),std::cos(2*m_psi_n[1]))/2.0;//ensure that Psi2 is within [-PI/2,PI/2]
+  hijing_pars_nc->set_psi(2,m_psi_n[1]);
   (*hijing_pars).set_psi(2,m_psi_n[1]);
   ATH_MSG_DEBUG(" Psi2 for event : "<<(*hijing_pars).get_psi(2));
 

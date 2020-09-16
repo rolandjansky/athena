@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( InDetSVWithMuonTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-    PUBLIC
-    Control/AthenaBaseComps
-    GaudiKernel
-    Tracking/TrkVertexFitter/TrkVKalVrtFitter
-    Event/xAOD/xAODTracking
-
-    PRIVATE
-    PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-    Event/xAOD/xAODBTagging
-    )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

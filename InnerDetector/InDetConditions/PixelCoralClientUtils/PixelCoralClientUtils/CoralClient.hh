@@ -75,7 +75,7 @@ namespace PixelCalib {
   class PixelCalibData;
 }
 
-class ATLAS_NOT_THREAD_SAFE PixCoralClient { // Thread unsafe coral::AttributeList is used in many places.
+class PixCoralClient {
 
 private:
   std::string m_connString;
@@ -167,17 +167,19 @@ public:
   
 
   // Convert local time t to GMT (UTC)
-  std::time_t LocalToGMTTime ATLAS_NOT_THREAD_SAFE (std::time_t t) { // Thread unsafe gmtime is used.
+  std::time_t LocalToGMTTime (std::time_t t) {
     std::time_t rawtime = t ? t : time(0);
+    struct tm result;
     tm * ptm;
-    ptm = gmtime(&rawtime);
+    ptm = gmtime_r(&rawtime, &result);
     return mktime(ptm);
   }
   // Get current time in GMT (UTC)
   std::time_t GMTCurrentTime() { return LocalToGMTTime(0); } // Thread unsafe LocalToGMTTime method is used.
   // Convert GMT (UTC) time to local time
-  std::time_t GMTtoLocalTime ATLAS_NOT_THREAD_SAFE (std::time_t gmttime) { // Thread unsafe gmtime is used.
-    return 2*gmttime - mktime (gmtime(&gmttime));
+  std::time_t GMTtoLocalTime (std::time_t gmttime) { // Thread unsafe gmtime is used.
+    struct tm result;
+    return 2*gmttime - mktime (gmtime_r(&gmttime, &result));
   }
 };
 

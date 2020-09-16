@@ -42,11 +42,7 @@ def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
 
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
-    from MuonLayerSegmentMakerTools.MuonLayerSegmentMakerToolsConf import Muon__MuonLayerSegmentFinderTool
-    from AthenaCommon.AppMgr import ToolSvc
-    MuonLayerSegmentFinderTool = Muon__MuonLayerSegmentFinderTool("MuonLayerSegmentFinderTool", Csc2DSegmentMaker=(getPublicTool("Csc2dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""), Csc4DSegmentMaker=(getPublicTool("Csc4dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""))
-    ToolSvc += MuonLayerSegmentFinderTool
-    tools[0].MuonLayerSegmentFinderTool = MuonLayerSegmentFinderTool
+
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
@@ -75,6 +71,7 @@ def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
 
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
+
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
 
 def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
@@ -160,40 +157,24 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg")
         topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg")
 
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        if InDetFlags.doR3LargeD0():
-            topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg_LargeD0")
-
-
             # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():
             topSequence += getAlgorithm("MuonCombinedAlg")
-            if InDetFlags.doR3LargeD0():
-                topSequence += getAlgorithm("MuonCombinedAlg_LargeD0")
-
 
         if muonCombinedRecFlags.doMuGirl():
             topSequence += getAlgorithm("MuonInsideOutRecoAlg")
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
-            if InDetFlags.doR3LargeD0():
-                topSequence += getAlgorithm("MuGirlAlg_LargeD0")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
             topSequence += getAlgorithm("MuonCaloTagAlg")
-            if InDetFlags.doR3LargeD0():
-                topSequence += getAlgorithm("MuonCaloTagAlg_LargeD0")
 
         if muonCombinedRecFlags.doMuonSegmentTagger():
             getPublicTool("MuonSegmentTagTool")
             topSequence += getAlgorithm("MuonSegmentTagAlg")
-            if InDetFlags.doR3LargeD0():
-                topSequence += getAlgorithm("MuonSegmentTagAlg_LargeD0")
 
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
-        if InDetFlags.doR3LargeD0():
-            topSequence += getAlgorithm("MuonCreatorAlg_LargeD0")
 
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

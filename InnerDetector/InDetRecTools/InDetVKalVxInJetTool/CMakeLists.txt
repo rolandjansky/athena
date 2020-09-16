@@ -24,7 +24,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
-                          Reconstruction/Particle
 			  Reconstruction/MVAUtils )
 #InnerDetector/InDetRecTools/InDetMaterialRejTool
 
@@ -39,7 +38,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TMVA )
 #		   PUBLIC_HEADERS InDetVKalVxInJetTool InDetTrkInJetType
 #                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
 #                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel 
-#		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+#		        InDetRecToolInterfaces TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 #		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver )
 
 # Component(s) in the package:
@@ -47,7 +46,7 @@ atlas_add_component( InDetVKalVxInJetTool
                      src/*.cxx  src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
-		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+		        InDetRecToolInterfaces TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver  )
  
 # Install files from the package:
@@ -61,6 +60,6 @@ atlas_add_test( InDetTrkInJetType_test
                SOURCES test/InDetTrkInJetType_test.cxx
                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
-		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+		InDetRecToolInterfaces TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver AthenaKernel
                LOG_IGNORE_PATTERN "Booking|ClassIDSvc|weight file|create data set info" )

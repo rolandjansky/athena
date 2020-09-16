@@ -16,7 +16,7 @@
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
-#include "METReconstruction/METRecoCommon.h"
+#include "METRecoInterface/METRecoCommon.h"
 #include "xAODEgamma/EgammaFwd.h"
 
 #include <set>

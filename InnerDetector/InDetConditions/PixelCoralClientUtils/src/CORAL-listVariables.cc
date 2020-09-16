@@ -41,7 +41,7 @@
   };
 
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe PixCoralClient class is used.
+int main (int argc, char **argv){
 
   CAN::SerialNumber_t analysis_id = 0;
   std::vector<std::string> connectivity_name;

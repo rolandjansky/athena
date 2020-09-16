@@ -115,7 +115,7 @@ class CaloClusterNavigable : virtual public INavigable
   /** \brief end iterator for public object access */
   virtual object_iter end()    const;
   /** \brief size of object access */
-  virtual unsigned int size()  const;
+  virtual unsigned int nCells()  const;
 
   /** \brief public container access: relational parameter retrieval */
   double getParameter(const CaloCell* pCell) const;
@@ -312,7 +312,7 @@ CaloClusterNavigable::object_iter CaloClusterNavigable::end() const
 }
 
 inline
-unsigned int CaloClusterNavigable::size() const
+unsigned int CaloClusterNavigable::nCells() const
 {
 
   const CaloCellLink* link = this->getCellLinkPtr();

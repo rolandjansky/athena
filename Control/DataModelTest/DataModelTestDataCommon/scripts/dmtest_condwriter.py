@@ -8,7 +8,8 @@
 
 from __future__ import print_function
 
-import sys
+import sys,os
+os.environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
 from PyCool import cool
 from CoolConvUtilities import AtlCoolLib, AtlCoolTool
 

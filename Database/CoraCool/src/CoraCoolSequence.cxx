@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolSequence.cxx
@@ -20,6 +20,7 @@
 #include "CoraCool/CoraCoolException.h"
 
 #include "CoraCoolSequence.h"
+#include "CxxUtils/checker_macros.h"
 #include <unistd.h>
 
 CoraCoolSequence::CoraCoolSequence(const std::string& dbname, 
@@ -59,7 +60,7 @@ CoraCoolSequence::CoraCoolSequence(const std::string& dbname,
   int ifk;
   if (!querySeq(ifk,false)) {
     // update table with sequence starting at 0
-    coral::AttributeList data;
+    coral::AttributeList data ATLAS_THREAD_SAFE; // Not shared, ok
     data.extend<std::string>("SEQNAME");
     data.extend<int>("SEQVAL");
     data[0].data<std::string>()=m_seqname;
@@ -74,7 +75,7 @@ int CoraCoolSequence::fetch(const int inc) {
   // query sequence setting lock on row
   if (querySeq(key,true)) {
     // got result, now update rows
-    coral::AttributeList bindvar;
+    coral::AttributeList bindvar ATLAS_THREAD_SAFE; // Not shared, ok
     bindvar.extend<std::string>("SKEY");
     bindvar[0].data<std::string>()=m_seqname;
     bindvar.extend<int>("SINC");
@@ -98,7 +99,7 @@ bool CoraCoolSequence::querySeq(int& keyval,bool update,bool gettable) {
     m_table=&(m_proxy->nominalSchema().tableHandle(keytblname));
   }
    coral::IQuery* query=m_table->newQuery();
-  coral::AttributeList bindvar;
+  coral::AttributeList bindvar ATLAS_THREAD_SAFE; // Not shared, ok
   bindvar.extend<std::string>("SKEY");
   bindvar[0].data<std::string>()=m_seqname;
   query->setCondition("SEQNAME=:SKEY",bindvar);
@@ -121,7 +122,7 @@ bool CoraCoolSequence::querySeq(int& keyval,bool update,bool gettable) {
 }
 
 bool CoraCoolSequence::dropSeq() {
-  coral::AttributeList bindvar;
+  coral::AttributeList bindvar ATLAS_THREAD_SAFE; // Not shared, ok
   bindvar.extend<std::string>("SKEY");
   bindvar[0].data<std::string>()=m_seqname;
   coral::ITableDataEditor& editor=m_table->dataEditor();

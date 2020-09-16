@@ -40,8 +40,6 @@ StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
 
-  ATH_CHECK(m_updator.retrieve());
-
   ATH_CHECK(m_materialEffects.retrieve());
 
   return StatusCode::SUCCESS;
