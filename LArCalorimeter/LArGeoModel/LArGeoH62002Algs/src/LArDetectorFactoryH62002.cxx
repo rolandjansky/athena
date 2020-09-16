@@ -10,7 +10,6 @@
 #include "LArGeoH6Cryostats/H6CryostatConstruction.h"
 #include "LArGeoH6Cryostats/WallsConstruction.h"
 
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
 

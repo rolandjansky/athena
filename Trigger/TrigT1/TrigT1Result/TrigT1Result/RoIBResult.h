@@ -48,26 +48,21 @@ namespace ROIB {
 
   public:
     //! default constructor: empty object 
-    RoIBResult();
-    //! Full constructor, with all RODs provided 
-    RoIBResult( const MuCTPIResult&, const CTPResult&,
-                const std::vector< JetEnergyResult >&,
-                const std::vector< EMTauResult >& );
+    RoIBResult() = default;
+
     //! Full move constructor, with all RODs provided 
     RoIBResult( MuCTPIResult&&,
                 CTPResult&&,
                 std::vector< JetEnergyResult >&&,
                 std::vector< EMTauResult >&& );
     //! Constructor without Muon rod 
-    RoIBResult( const CTPResult&,
-                const std::vector< EMTauResult >&,
-                const std::vector< JetEnergyResult >& );
+    RoIBResult( CTPResult&&,
+                std::vector< EMTauResult >&&,
+                std::vector< JetEnergyResult >&& );
     //! Constructor for only CTP and egamma rods 
-    RoIBResult( const CTPResult&, const std::vector< EMTauResult >& );
+    RoIBResult( CTPResult&&, std::vector< EMTauResult >&& );
     //! Constructor for only CTP rod 
-    RoIBResult( const CTPResult& );
-    //! empty default destructor 
-    ~RoIBResult();
+    RoIBResult( CTPResult&& );
 
     //! Gets the MuCTPI part of the L1 RDO 
     const MuCTPIResult& muCTPIResult() const;
@@ -80,7 +75,7 @@ namespace ROIB {
     //! Gets the L1Topo part of the L1 RDO 
     const std::vector< L1TopoResult >& l1TopoResult() const;
     //! Sets the L1Topo part of the L1 RDO 
-    void l1TopoResult(const std::vector< L1TopoResult >&);
+    void l1TopoResult(std::vector< L1TopoResult >&&) noexcept;
     
     //! dump raw object content to string
     /** method used for read/write testing and T/P separation */
@@ -99,15 +94,15 @@ namespace ROIB {
 	  J1_DOFL=16, J2_DOFL=32, 
 	  MU_DOFL=64, MU_SUP1=128, MU_SUP2=256, MU_SOFL=512};
     
-    const static unsigned int DOFL_bitMask = 16;
-    const static unsigned int SUP1_bitMask = 1 << 16;
-    const static unsigned int SUP2_bitMask = 1 << 17;
+    constexpr static unsigned int DOFL_bitMask = 16;
+    constexpr static unsigned int SUP1_bitMask = 1 << 16;
+    constexpr static unsigned int SUP2_bitMask = 1 << 17;
     
-    const static unsigned int emOverflow  = EM1_DOFL | EM2_DOFL | EM3_DOFL | EM4_DOFL;
-    const static unsigned int jOverflow   = J1_DOFL | J2_DOFL;
-    const static unsigned int anyOverflow = emOverflow | jOverflow | MU_DOFL;
-    const static unsigned int emLink[4];
-    const static unsigned int jLink[2];
+    constexpr static unsigned int emOverflow  = EM1_DOFL | EM2_DOFL | EM3_DOFL | EM4_DOFL;
+    constexpr static unsigned int jOverflow   = J1_DOFL | J2_DOFL;
+    constexpr static unsigned int anyOverflow = emOverflow | jOverflow | MU_DOFL;
+    constexpr static unsigned int emLink[4] = {EM1_DOFL, EM2_DOFL, EM3_DOFL, EM4_DOFL};
+    constexpr static unsigned int jLink[2] = {J1_DOFL, J2_DOFL};
   
   
     /* true if overlfow on any link (note that the SUP1, SUP2 and SOFL bits are not checked) */

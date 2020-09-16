@@ -76,7 +76,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error& /*err*/) {
+  } catch (const bf::filesystem_error& /*err*/) {
   }
 
   // assume that "." is always part of the search path, so check locally first
@@ -88,7 +88,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error& /*err*/) {
+  } catch (const bf::filesystem_error& /*err*/) {
   }
 
    std::string locationToDownloadTo = "."; //will replace with first search location 
@@ -332,6 +332,21 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
   //expand filename before finding .. 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
+  if(tmpString.BeginsWith("root://")) {
+    //xrootd access .. try to open file ...
+    TFile* fTmp = TFile::Open(tmpString);
+    if(!fTmp || fTmp->IsZombie()) {
+      msg(MSG::WARNING) << "Could not open " << logical_file_name << endmsg;
+      tmpString = "";
+    }
+    
+    if(fTmp) {
+      fTmp->Close();
+      delete fTmp;
+    }
+    
+    return tmpString.Data();
+  }
   std::string expandedFileName(tmpString.Data());
    //strip any spaces off of the name
   boost::algorithm::trim(expandedFileName);

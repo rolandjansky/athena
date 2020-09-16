@@ -15,7 +15,6 @@
 #include "TProfile.h"
 #include "TLorentzVector.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "IdDictDetDescr/IdDictManager.h"

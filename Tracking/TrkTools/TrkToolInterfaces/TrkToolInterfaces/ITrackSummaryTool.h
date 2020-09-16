@@ -5,8 +5,8 @@
 #ifndef TRKITRACKSUMMARYTOOL_H
 #define TRKITRACKSUMMARYTOOL_H
 
-#include "GaudiKernel/IAlgTool.h"
 #include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/IAlgTool.h"
 
 #include <memory>
 namespace Trk {
@@ -27,33 +27,18 @@ class ITrackSummaryTool : virtual public IAlgTool
 public:
   static const InterfaceID& interfaceID();
 
-  /** create a summary object from passed Track. The summary object belongs to
-      you, the user, and so you must take care of deletion of it.
-      If the track has a summary already a clone is returned back.
-      @param onlyUpdateTrack If false (default) then the summary is cloned and
-     added to the track, and a separate summary returned. If true, only update
-     track and return nullptr */
-  virtual const Trk::TrackSummary* createSummary
-  ATLAS_NOT_THREAD_SAFE(const Track& track,
-                        bool onlyUpdateTrack = false) const = 0;
-
-  /** create a summary object of passed track without doing the tedious hole
-     search. Same comments as for createSummary apply here, of course, too. */
-  virtual const Trk::TrackSummary* createSummaryNoHoleSearch
-  ATLAS_NOT_THREAD_SAFE(const Track& track) const = 0;
-
-  /** create a summary object from a passed Track.
-    If the track has a summary already a clone is returned back.
+  /** Create a  new summary object from a passed Track or clone
+   * the existing.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track) const = 0;
 
-  /** create a summary object of passed track without doing the tedious hole
-   search. If the track has a summary already a clone is returned back.*/
+  /** create a summary object from a passed track, without doing the tedious
+   hole search, or clone the existing.*/
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track) const = 0;
 
-  /** method which can be used to update the track and add a summary to it.
+  /** Method which can be used to update the track and add a summary to it.
       This can be used to add a summary to a track and then retrieve it from it
      without the need to clone. */
   virtual void updateTrack(Track& track) const = 0;
@@ -72,11 +57,11 @@ public:
   virtual void updateAdditionalInfo(Track& track) const = 0;
 };
 
-inline const InterfaceID& Trk::ITrackSummaryTool::interfaceID()
-{ 
-	return IID_ITrackSummaryTool; 
+inline const InterfaceID&
+Trk::ITrackSummaryTool::interfaceID()
+{
+  return IID_ITrackSummaryTool;
 }
 
-
 }
-#endif 
+#endif

@@ -20,7 +20,7 @@ Updated:  March 12, 2005   (MB)
 #include "CaloTopoEMsshape.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/MsgStream.h"
-#include <math.h> 
+#include <cmath> 
 
 
 // make correction to one cluster 

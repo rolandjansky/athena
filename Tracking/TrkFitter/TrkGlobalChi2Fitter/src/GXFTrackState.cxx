@@ -23,7 +23,7 @@ namespace Trk {
     m_measurement(rhs.m_measurement != nullptr ? std::unique_ptr<const MeasurementBase>(rhs.m_measurement->clone()) : nullptr), 
     m_tsType(rhs.m_tsType), 
     m_trackpar(std::unique_ptr<const TrackParameters>(rhs.m_trackpar != nullptr ? rhs.m_trackpar->clone() : nullptr)),
-    m_materialEffects(std::unique_ptr<GXFMaterialEffects>(rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs. m_materialEffects) : nullptr)),
+    m_materialEffects(rhs.m_materialEffects != nullptr ? std::make_unique<GXFMaterialEffects>(*rhs. m_materialEffects) : nullptr),
     m_derivs(rhs.m_derivs),
     m_covariancematrix(rhs.m_covariancematrix),
     m_covariance_set(rhs.m_covariance_set),
@@ -46,7 +46,6 @@ namespace Trk {
     std::unique_ptr<const TrackParameters> trackpar
   ):
     m_measurement(std::move(measurement)),
-    m_tsType(TrackState::Fittable), 
     m_trackpar(std::move(trackpar)),
     m_materialEffects(nullptr), 
     m_jacobian {}, 
@@ -58,16 +57,16 @@ namespace Trk {
     m_mType(TrackState::unidentified), 
     m_recalib(false),
     m_measphi(false) {
+    setStateType(TrackStateOnSurface::Measurement);
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
   }
 
   GXFTrackState::GXFTrackState(
-    const TrackParameters * trackpar,
-    TrackState::TrackStateType tsType
+    std::unique_ptr<const TrackParameters> trackpar,
+    TrackStateOnSurface::TrackStateOnSurfaceType tsType
   ):
     m_measurement(nullptr),
-    m_tsType(tsType), 
-    m_trackpar(std::unique_ptr<const TrackParameters>(trackpar != nullptr ? trackpar->clone() : nullptr)),
+    m_trackpar(std::move(trackpar)),
     m_materialEffects(nullptr), 
     m_jacobian {}, 
     m_derivs(), 
@@ -79,17 +78,17 @@ namespace Trk {
     m_recalib(false),
     m_measphi(false) 
   {
+    setStateType(tsType);
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
   }
 
   GXFTrackState::GXFTrackState(
-    GXFMaterialEffects * mef,
-    const TrackParameters * trackpar
+    std::unique_ptr<GXFMaterialEffects> mef,
+    std::unique_ptr<const TrackParameters> trackpar
   ):
     m_measurement(nullptr),
-    m_tsType(TrackState::Scatterer), 
-    m_trackpar(std::unique_ptr<const TrackParameters>(trackpar != nullptr ? trackpar->clone() : nullptr)),
-    m_materialEffects(std::unique_ptr<GXFMaterialEffects>(mef)), 
+    m_trackpar(std::move(trackpar)),
+    m_materialEffects(std::move(mef)), 
     m_jacobian {}, 
     m_derivs(), 
     m_covariancematrix(),
@@ -101,9 +100,11 @@ namespace Trk {
     m_measphi(false) 
   {
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
-    
-    if (mef->sigmaDeltaTheta() == 0) {
-      m_tsType = TrackState::Brem;
+
+    if (m_materialEffects->sigmaDeltaTheta() == 0) {
+      setStateType(TrackStateOnSurface::BremPoint);
+    } else {
+      setStateType(TrackStateOnSurface::Scatterer);
     }
   }
 
@@ -115,10 +116,6 @@ namespace Trk {
   const MeasurementBase *GXFTrackState::measurement(void) {
     return m_measurement.get();
   }  
-  
-  const MeasurementBase *GXFTrackState::takeMeasurement(void) {
-    return m_measurement.get();
-  }
 
   void GXFTrackState::setTrackParameters(std::unique_ptr<const TrackParameters> par) {
     m_trackpar = std::move(par);
@@ -131,11 +128,6 @@ namespace Trk {
   void
     GXFTrackState::setDerivatives(Amg::MatrixX & deriv) {
     m_derivs = deriv;
-  }
-
-  void
-    GXFTrackState::setTrackStateType(TrackState::TrackStateType tstype) {
-    m_tsType = tstype;
   }
 
   double *GXFTrackState::measurementErrors() {
@@ -161,7 +153,7 @@ namespace Trk {
     m_sinstereo = sinstereo;
   }
 
-  const Surface *GXFTrackState::surface() {
+  const Surface *GXFTrackState::surface() const {
     if (m_measurement != nullptr) {
       return &m_measurement->associatedSurface();
     } if (m_trackpar != nullptr) {
@@ -190,24 +182,19 @@ namespace Trk {
   const FitQualityOnSurface *GXFTrackState::fitQuality(void) {
     return m_fitqual.get();
   }
-  
-  const FitQualityOnSurface *GXFTrackState::takeFitQuality(void) {
-    return m_fitqual.get();
-  }
 
   int
     GXFTrackState::numberOfMeasuredParameters() {
     int nmeas = 0;
 
-    if (m_tsType == TrackState::Fittable
-        || m_tsType == TrackState::GeneralOutlier) {
+    if (getStateType(TrackStateOnSurface::Measurement) || getStateType(TrackStateOnSurface::Outlier)) {
       for (double i : m_measerror) {
         if (i > 0) {
           nmeas++;
         }
       }
     }
-    // else if (m_tsType==TrackState::Scatterer) nmeas=2;
+
     return nmeas;
   }
 
@@ -248,5 +235,18 @@ namespace Trk {
   void GXFTrackState::zeroTrackCovariance(void) {
     m_covariance_set = true;
     m_covariancematrix.setZero();
+  }
+
+  void GXFTrackState::resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType t, bool v) {
+    m_tsType.reset();
+    setStateType(t, v);
+  }
+
+  void GXFTrackState::setStateType(TrackStateOnSurface::TrackStateOnSurfaceType t, bool v) {
+    m_tsType[t] = v;
+  }
+
+  bool GXFTrackState::getStateType(TrackStateOnSurface::TrackStateOnSurfaceType t) const {
+    return m_tsType.test(t);
   }
 }

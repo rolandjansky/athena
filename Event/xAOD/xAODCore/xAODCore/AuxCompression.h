@@ -6,6 +6,7 @@
 #define XAODCORE_AUXCOMPRESSION_H
 
 // System include(s):
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -22,31 +23,17 @@ namespace xAOD {
       /// Default constructor
       AuxCompression();
 
-      /// Set which variables should be compressed
+      /// Set which variables should be compressed per compression setting
       virtual void
-      setCompressedAuxIDs( const std::vector< std::set< std::string > >& attributes );
+      setCompressedAuxIDs( const std::map< unsigned int, std::set< std::string > >& attributes );
 
-      /// Return those variables that are selected to be compressed
-      virtual SG::auxid_set_t
-      getCompressedAuxIDs( const SG::auxid_set_t& fullset, const bool& highComp = true ) const;
-
-      /// Set the number of bits that should be used in the compression
-      virtual void
-      setCompressionBits( const std::vector< unsigned int >& nbits );
-
-      /// Return the number of bits that should be used in the compression
-      virtual unsigned int
-      getCompressionBits( const bool& highComp = true ) const;
-
-      /// Enum for the indices used for the high and low compression setup
-      enum FloatCompressionBits { High = 0, Low = 1, NTotal = 2 };
+      /// Return those variables that are selected to be compressed per compression setting
+      virtual std::map< unsigned int, SG::auxid_set_t >
+      getCompressedAuxIDs( const SG::auxid_set_t& fullset ) const;
 
    protected:
       /// Properties following the variable selection convention
-      std::vector< std::set< std::string > > m_names;
-
-      /// Vector holding the number of mantissa bits for the compression
-      std::vector< unsigned int > m_nbits;
+      std::map< unsigned int, std::set< std::string > > m_compression_map;
 
    }; // class AuxCompression
 

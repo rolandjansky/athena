@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IsolationTool_IsolationHelper_H
@@ -45,7 +45,6 @@ class IsolationHelper : public asg::AsgTool,
   bool correction(float& value, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, xAOD::Iso::IsolationCaloCorrection corr, xAOD::Iso::IsolationCaloCorrectionBitset corrMask) const;
 
   float m_coreCone;
-  xAOD::Iso::IsolationCaloCorrectionBitsetHelper m_caloIsoBitHelper;
   //xAOD::Iso::IsolationTrackCorrectionBitsetHelper m_trkIsoBitHeler;
 
 };

@@ -12,6 +12,8 @@ from quick_retrieve import browse_coracool
 
 from time import time
 
+from os import environ
+os.environ['CLING_STANDARD_PCH'] = 'none' #See bug ROOT-10789
 from PyCool import cool
 
 def fetch_lb_timestamps(since, until):

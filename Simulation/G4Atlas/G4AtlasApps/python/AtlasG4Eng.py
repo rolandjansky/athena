@@ -18,7 +18,7 @@ from AthenaCommon.SystemOfUnits import *
 from AthenaCommon import Logging
 from time import time
 import os, os.path, string, sys
-import cppyy
+import ROOT,cppyy
 
 # TODO: Rename to AppProfiler, to avoid class/variable confusion
 class _app_profiler(object):
@@ -113,8 +113,7 @@ class G4AtlasEngine:
         # pylcgdict default dictionaries
         self.load_Dict('AtlasSealCLHEPDict')
         self.load_Dict('G4AtlasControlDict')
-        G4AtlasEngine.gbl = cppyy.makeNamespace("")
-        G4AtlasEngine._ctrl = G4AtlasEngine.gbl.SimControl()
+        G4AtlasEngine._ctrl = ROOT.SimControl()
         self.init_status = 0
 
         self.useISF = useISF

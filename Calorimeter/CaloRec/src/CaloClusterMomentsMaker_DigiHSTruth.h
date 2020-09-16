@@ -6,7 +6,6 @@
 #define CALOCLUSTERMOMENTSMAKER_DigiHSTruth_H
 /**
  * @class CaloClusterMomentsMaker
- * @version \$Id: CaloClusterMomentsMaker.h,v 1.10 2009-04-22 19:50:46 ssnyder Exp $
  * @author Sven Menke <menke@mppmu.mpg.de>
  * @date 28-February-2005
  * @brief Calculate moments for CaloCluster objects
@@ -128,17 +127,12 @@ class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, Calo
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
   ToolHandle<ILArHVFraction> m_larHVFraction;
 
-  /// Not used anymore (with xAOD), but required to when configured from 
-  /// COOL via CaloRunClusterCorrections.
+  /// Not used anymore (with xAOD), but required when configured from COOL.
   std::string m_momentsNamesAOD;
   /**
  *    * @brief if set to true use abs E value of cells to calculate 
  *       * cluster moments */
    bool m_absOpt;
-
-  /// Not used by this tool, but required to use this
-  /// with CaloRunClusterCorrections.
-  int m_order;
 };
 
 #endif // CALOCLUSTERMOMENTSMAKER_H

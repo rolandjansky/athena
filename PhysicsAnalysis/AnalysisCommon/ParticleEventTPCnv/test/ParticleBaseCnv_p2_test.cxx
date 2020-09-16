@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file ParticleEventTPCnv/test/ParticleBaseCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -54,6 +52,7 @@ void test1()
   std::cout << "test1\n";
   ElementLink<VxContainer> origlink ("orig", 10);
   AthenaBarCodeImpl dum; // Get services created.
+  dum.getVersion();
   Athena_test::Leakcheck check;
 
   ParticleEvent::Base trans1;

@@ -1019,11 +1019,17 @@ void AnalysisConfigMT_Ntuple::loop() {
 #endif
 		
 
+		unsigned feature_type = TrigDefs::lastFeatureOfType;
+
+		if ( roi_key!="" ) feature_type = TrigDefs::allFeaturesOfType;
+
 		std::vector< TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> > rois = 
 		  (*m_tdt)->template features<TrigRoiDescriptorCollection>( chainName, 
 									    decisiontype, 
 									    roi_key, 
-									    TrigDefs::lastFeatureOfType, 
+									    //   TrigDefs::lastFeatureOfType, 
+									    //   TrigDefs::allFeaturesOfType,
+									    feature_type,
 									    "roi" );
 		 
 		/// leave this here for the moment until we know everything is working ...

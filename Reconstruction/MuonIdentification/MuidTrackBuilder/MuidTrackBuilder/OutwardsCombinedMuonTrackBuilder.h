@@ -15,49 +15,37 @@
 #ifndef MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 #define MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
 
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
+#include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackInfo.h"
 
-
-namespace Muon {
-class IMuonTrackCleaner;
-class IMuonHoleRecoveryTool;
-class IMuonErrorOptimisationTool;
-}  // namespace Muon
-
+#include <memory>
 
 namespace Trk {
-class ITrackSummaryTool;
-class RecVertex;
-class Surface;
-class TrackStateOnSurface;
-class PseudoMeasurementOnTrack;
-class TrackingVolume;
-class Volume;
-class VertexOnTrack;
-}  // namespace Trk
-
+    class RecVertex;
+    class PseudoMeasurementOnTrack;
+    class VertexOnTrack;
+}
 
 namespace Rec {
-
 
 class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
     OutwardsCombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
-    ~OutwardsCombinedMuonTrackBuilder();
+    ~OutwardsCombinedMuonTrackBuilder()=default;
 
     StatusCode initialize();
-    StatusCode finalize();
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
     Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
@@ -160,10 +148,10 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
         "MuonErrorOptimizer tool",
     };
 
-    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc;
+    ServiceHandle<Trk::ITrackingVolumesSvc> m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
 
-    const Trk::Volume* m_calorimeterVolume;
-    const Trk::Volume* m_indetVolume;
+    std::unique_ptr<const Trk::Volume> m_calorimeterVolume;
+    std::unique_ptr<const Trk::Volume> m_indetVolume;
 
     // other configuration and tolerances
     bool   m_allowCleanerVeto;

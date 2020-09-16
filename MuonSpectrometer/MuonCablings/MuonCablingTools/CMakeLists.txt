@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCablingTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel
-                          Control/AthenaKernel )
-
 # Component(s) in the package:
 atlas_add_library( CablingTools
                    src/*.cxx

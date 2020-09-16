@@ -149,7 +149,7 @@ StatusCode CTPByteStreamTool::convert( const ROBF* rob, CTP_RDO*& result ) {
     uint32_t nExtraWords=0;
     nExtraWords=CTPfragment::numberExtraPayloadWords(rob);
     unsigned int ctpVersionNumber = CTPfragment::ctpFormatVersion(rob);
-    result = new CTP_RDO(ctpVersionNumber, vDataWords , nExtraWords);
+    result = new CTP_RDO(ctpVersionNumber, std::move(vDataWords) , nExtraWords);
 
     uint8_t l1apos =  CTPfragment::lvl1AcceptBunch(rob);
     result->setL1AcceptBunchPosition(l1apos);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArFCAL_SuperCell_ID.h"
@@ -9,10 +9,10 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <string>
-#include <set>
+#include <cmath>
 #include <iostream>
-#include <math.h>
+#include <set>
+#include <string>
 
 LArFCAL_SuperCell_ID::LArFCAL_SuperCell_ID(void) :
   LArFCAL_Base_ID("LArFCAL_SuperCell_ID", 1)

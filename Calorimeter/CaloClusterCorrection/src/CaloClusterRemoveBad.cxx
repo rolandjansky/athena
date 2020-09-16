@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // include header files
@@ -69,7 +69,7 @@ CaloClusterRemoveBad::execute (const EventContext& /*ctx*/,
   
   ATH_MSG_DEBUG( "Executing CaloClusterRemoveBad" << endmsg); 
   
-  typedef xAOD::CaloClusterContainer::iterator clus_iterator;
+  using clus_iterator = xAOD::CaloClusterContainer::iterator;
   clus_iterator iter1 = clusColl->begin();
     
   ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endmsg);

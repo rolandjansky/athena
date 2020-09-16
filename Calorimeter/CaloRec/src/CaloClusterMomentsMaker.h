@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -7,7 +7,6 @@
 #define CALOCLUSTERMOMENTSMAKER_H
 /**
  * @class CaloClusterMomentsMaker
- * @version \$Id: CaloClusterMomentsMaker.h,v 1.10 2009-04-22 19:50:46 ssnyder Exp $
  * @author Sven Menke <menke@mppmu.mpg.de>
  * @date 28-February-2005
  * @brief Calculate moments for CaloCluster objects
@@ -127,19 +126,13 @@ class CaloClusterMomentsMaker: public AthAlgTool, virtual public CaloClusterColl
 
   ToolHandle<ILArHVFraction> m_larHVFraction;
 
-  /// Not used anymore (with xAOD), but required to when configured from 
-  /// COOL via CaloRunClusterCorrections.
+  /// Not used anymore (with xAOD), but required when configured from COOL.
   std::string m_momentsNamesAOD;
   
   /**
    * @brief if set to true use abs E value of cells to calculate 
    * cluster moments */
    bool m_absOpt;
-  
-
-  /// Not used by this tool, but required to use this
-  /// with CaloRunClusterCorrections.
-  int m_order;
 };
 
 #endif // CALOCLUSTERMOMENTSMAKER_H

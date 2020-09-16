@@ -99,11 +99,6 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau) const
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauEleOLRDecorator::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
 float TauEleOLRDecorator::getCutVal(float fEta, float fPt) const
 {
   if(fPt>1900) fPt=1900;

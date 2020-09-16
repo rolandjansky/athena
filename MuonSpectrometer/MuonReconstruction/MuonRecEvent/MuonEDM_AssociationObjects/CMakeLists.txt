@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonEDM_AssociationObjects )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment )
-
 # Component(s) in the package:
 atlas_add_library( MuonEDM_AssociationObjects
                    src/*.cxx

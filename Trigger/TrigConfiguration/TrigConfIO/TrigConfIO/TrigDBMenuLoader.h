@@ -22,6 +22,8 @@
 
 namespace TrigConf {
 
+   class QueryDefinition;
+
    /**
     * @brief Loader of trigger menu configurations from the database
     */
@@ -75,7 +77,9 @@ namespace TrigConf {
       bool loadHLTMenu ( unsigned int smk,
                          HLTMenu & hltmenu,
                          const std::string & outFileName = "") const;
-      
+   private:
+      std::map<size_t, QueryDefinition> m_l1queries;
+      std::map<size_t, QueryDefinition> m_hltqueries;
    };
 
 }

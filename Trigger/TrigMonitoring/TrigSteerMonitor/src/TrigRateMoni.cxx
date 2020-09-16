@@ -8,7 +8,7 @@
 #include <TH2F.h>
 #include <TString.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/thread.hpp>
 
 #include "EventInfo/EventInfo.h"
@@ -18,7 +18,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "Gaudi/Property.h"
 
 #include "TrigInterfaces/AlgoConfig.h"

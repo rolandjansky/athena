@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,7 +13,6 @@
 #include "InDetConversionFinder/ConversionFinder.h"
 
 #include "TrkTrack/TrackCollection.h"
-#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/EventContext.h"
@@ -31,14 +30,12 @@ namespace InDet
   : AthAlgorithm(name, pSvcLocator),
   m_tracksName("InDetTrackParticles"),
   m_InDetConversionOutputName("InDetConversion"),
-  m_VertexFinderTool("InDet::InDetConversionFinderTools"),
   m_EMExtrapolationTool("EMExtrapolationTools"),
   m_doExtrapolation(false)
   {
     /* Retrieve StoreGate container and tool names from job options */
     declareProperty("TracksName",m_tracksName);
     declareProperty("InDetConversionOutputName", m_InDetConversionOutputName);
-    declareProperty("VertexFinderTool",m_VertexFinderTool);
     declareProperty("ExtrapolationTool", m_EMExtrapolationTool, "Handle of the extrapolation tool");
     declareProperty("doExtrapolation", m_doExtrapolation );
 	}

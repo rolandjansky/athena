@@ -20,6 +20,18 @@ on objects deriving from I4Momentum.
    @author Tadashi Maeno
  */
 
+#include <cmath>
+
+namespace P4Helpers
+{
+  /** delta Phi in range [-pi,pi[ */
+  inline
+  double deltaPhi( double phiA, double phiB )
+  {
+    return  -remainder( -phiA + phiB, 2*M_PI );
+  }
+}
+
 // AthAnalysisBase/ManaCore doesn't currently include the Trigger Service
 #ifndef XAOD_ANALYSIS
 
@@ -116,13 +128,6 @@ namespace P4Helpers
   double deltaEta( const I4Momentum * const p1, const I4Momentum * const p2 )
   {
     return deltaEta(*p1, *p2);
-  }
-
-  /** delta Phi in range [-pi,pi[ */
-  inline
-  double deltaPhi( double phiA, double phiB )
-  {
-    return  -remainder( -phiA + phiB, 2*M_PI );
   }
 
   /** delta Phi in range [-pi,pi[ from one I4momentum reference */

@@ -1,46 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDbSvc_H
-#define AmdcDbSvc_H
+#ifndef AMDCDB_AMDCDBSVC_H
+#define AMDCDB_AMDCDBSVC_H
 
 #include "AmdcDb/AmdcDbMisc.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
 
-  /**
-   @class AmdcDbSvc
+class pIRDBRecordset;
 
-   This class is managing set of AmdcDbRecordset
-   
-  @author samusog@cern.ch
-  
-  */
+/**
+ * @class AmdcDbSvc
+ *
+ * This class is managing set of AmdcDbRecordset
+ * 
+ * @author samusog@cern.ch
+ *
+ */
 
 class AmdcDbSvc{
-public:
-    AmdcDbSvc();
-    virtual ~AmdcDbSvc();
+ public:
+  AmdcDbSvc();
+  ~AmdcDbSvc();
 
-public:
-///////////////////////////////////
+  IRDBRecordset_ptr getRecordset(const std::string& NameOfTheSet) const;
 
-   /**Get */
-   const IRDBRecordset* getRecordset(const std::string& NameOfTheSet) const;
-
-   /**Set */
-   void addIRDBRecordset(
-                     std::string NameOfTheSet, 
-		     IRDBRecordset* pIRDBRecordset
-		    );
-
-
-private:
-///////////////////////////////////
-//Data
-
-   std::map< std::string, IRDBRecordset*> m_MapOfIRDBRecordset ; //!< Map of IRDBRecordset
-
+  void addIRDBRecordset(std::string NameOfTheSet
+			, IRDBRecordset* pIRDBRecordset);
+  
+ private:
+  std::map<std::string, IRDBRecordset_ptr> m_mapOfIRDBRecordset;
+  IRDBRecordset_ptr m_emptyRecordset;
 };
 
 #endif

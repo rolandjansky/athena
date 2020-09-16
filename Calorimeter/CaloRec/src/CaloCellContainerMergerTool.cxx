@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -50,7 +50,7 @@ StatusCode CaloCellContainerMergerTool::initialize()
 {
   ATH_CHECK(m_caloCellsKey.initialize());
   //check calo number specified
-  if (m_caloNums.size()==0) {
+  if (m_caloNums.empty()) {
     ATH_MSG_WARNING( " no calo specified. bool hasCalo(caloNum) will not be set!!!  "  );
   }     
   else if  (m_caloNums.size() > static_cast<unsigned int>(CaloCell_ID::NSUBCALO) ) 

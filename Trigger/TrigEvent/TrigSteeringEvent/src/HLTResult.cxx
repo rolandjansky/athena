@@ -5,7 +5,6 @@
 #include "TrigSteeringEvent/HLTResult.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
 
-#include "AthenaKernel/CLASS_DEF.h"
 #include <cassert>
 #include <algorithm>
 #include <numeric>

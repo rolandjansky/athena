@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  MetTOBArray.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/17/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__MetTOBArray__
-#define __TopoCore__MetTOBArray__
+#ifndef L1TopoEvent_MetTOBArray
+#define L1TopoEvent_MetTOBArray
 
 #include <iostream>
 #include "L1TopoEvent/InputTOBArray.h"
@@ -28,6 +23,6 @@ namespace TCS {
       virtual void print(std::ostream&) const;
    };
    
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__MetTOBArray__) */
+#endif

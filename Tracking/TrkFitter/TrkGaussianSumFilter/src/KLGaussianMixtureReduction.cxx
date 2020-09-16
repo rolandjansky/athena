@@ -1,12 +1,13 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "CxxUtils/features.h"
 #include "CxxUtils/vec.h"
-#include "CxxUtils/vectorize.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include <limits>
+
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -23,11 +24,7 @@
  * @date 26th November 2019
  *
  * Implementation of KLGaussianMixtureReduction
- *
  */
-
-/// This enables -ftree-vectorize in gcc (since we compile with -O2)
-ATH_ENABLE_VECTORIZATION;
 
 namespace {
 using namespace GSFUtils;
@@ -264,8 +261,7 @@ findMerges(Component1D* componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2")))
-int32_t
+__attribute__((target("avx2"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
@@ -298,8 +294,7 @@ findMinimumIndex(const float* distancesIn, const int n)
   }
   return minIndex;
 }
-__attribute__((target("sse4.1")))
-int32_t
+__attribute__((target("sse4.1"))) int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;

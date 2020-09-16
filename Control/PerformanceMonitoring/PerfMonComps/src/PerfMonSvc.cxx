@@ -64,7 +64,8 @@
 #include "SemiDetHelper.h"
 
 // PyROOT includes
-#include "TPyException.h"
+#include "CPyCppyy/PyException.h"
+
 
 #define PMON_COMP_FMT \
   /* comp-id: /step/comp-name */			\
@@ -128,7 +129,7 @@ void throw_py_exception (bool display=true)
     // and print
     PyErr_Print();
   }
-  throw PyROOT::TPyException();
+  throw CPyCppyy::PyException();
 }
 
   std::string 

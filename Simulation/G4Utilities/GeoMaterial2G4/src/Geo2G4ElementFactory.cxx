@@ -18,7 +18,7 @@ G4Element *Geo2G4ElementFactory::Build(const GeoElement* theEle)
   // Check if this element has already been defined.
   //
   G4Element* elm;
-  std::string sym = theEle->getSymbol();
+  const std::string& sym = theEle->getSymbol();
   if (m_definedElements.find(sym) != m_definedElements.end())
     {
       return m_definedElements[sym];

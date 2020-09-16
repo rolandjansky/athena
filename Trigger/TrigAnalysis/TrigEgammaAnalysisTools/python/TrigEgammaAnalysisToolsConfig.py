@@ -1,3 +1,5 @@
+
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
@@ -11,7 +13,7 @@ from egammaRec.Factories import PublicToolFactory,FcnWrapper,AlgFactory, getProp
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 from ROOT import egammaPID
 

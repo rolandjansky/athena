@@ -184,7 +184,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         }
       }
 
-      if (m_doSharedHits) {
+      if (m_doSharedHits && !isOutlier) {
         // If we are running the TIDE ambi don't count split hits as shared
         if ( not (m_runningTIDE_Ambi and hitIsSplit) ) {
           // used in more than one track ?
@@ -233,7 +233,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         hitPattern.set( offset + m_sctId->layer_disk(id) ); // assumes numbered consecutively
       }
 
-      if (m_doSharedHits) {
+      if (m_doSharedHits && !isOutlier) {
         if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
           ATH_MSG_DEBUG("shared SCT hit found");
           information[Trk::numberOfSCTSharedHits]++;
@@ -296,7 +296,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
       }
     }
 
-    if (m_doSharedHitsTRT) {
+    if (m_doSharedHitsTRT && !isOutlier) {
        // used in more than one track ?
       assert(information[Trk::numberOfTRTSharedHits]>=0);
       if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {

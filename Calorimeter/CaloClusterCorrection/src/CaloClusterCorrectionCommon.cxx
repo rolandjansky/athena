@@ -165,7 +165,7 @@ DDHelper::find_dd_elt (int region,
                        float eta,
                        float phi) const
 {
-  const CaloDetDescrElement* elt = 0;
+  const CaloDetDescrElement* elt = nullptr;
   float eta_offs = 0;
   float phi_offs = 0;
   int n = 0;
@@ -238,7 +238,7 @@ DDHelper::find_dd_elt1 (int region,
                         float eta,
                         float phi) const
 {
-  const CaloDetDescrElement* elt = 0;
+  const CaloDetDescrElement* elt = nullptr;
 
   // Decode the region.
   switch (region) {
@@ -263,9 +263,9 @@ DDHelper::find_dd_elt1 (int region,
       const CaloDetDescrElement* elt_e = m_dd_man->get_element
         (CaloCell_ID::LAREM, 2, false, eta, phi);
 
-      if (elt_b == 0)
+      if (elt_b == nullptr)
         elt = elt_e;
-      else if (elt_e == 0)
+      else if (elt_e == nullptr)
         elt = elt_b;
       else if (cluster->eSample (CaloSampling::EMB2) >
                cluster->eSample (CaloSampling::EME2))
@@ -308,22 +308,22 @@ DDHelper::dd_inner_strip_fixup (int region,
     const CaloDetDescriptor* descr =
       m_dd_man->get_descriptor (CaloCell_ID::LAREM,
                                 1, true, eta, phi);
-    if (!descr) return 0;
+    if (!descr) return nullptr;
     int ieta = descr->eta_channel (eta);
     if (ieta == 0) {
       // If we get here, then we're looking at one of the problematic cells.
       int iphi = descr->phi_channel (phi);
-      if (iphi < 0) return 0;
+      if (iphi < 0) return nullptr;
       unsigned int index = iphi;
       if (eta < 0)
         index += descr->n_phi();
       if (m_dummy_elts.size() <= index)
-        return 0;
+        return nullptr;
       return m_dummy_elts[index].get();
     }
   }
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -335,10 +335,10 @@ DDHelper::dd_try_gap (int region,
 {
   const CaloDetDescrElement* elt1 = find_dd_elt1 (region, cluster,
                                                   eta + 1e-4, phi);
-  if (!elt1) return 0;
+  if (!elt1) return nullptr;
   const CaloDetDescrElement* elt2 = find_dd_elt1 (region, cluster,
                                                   eta - 1e-4, phi);
-  if (!elt2) return 0;
+  if (!elt2) return nullptr;
   if (eta > 0)
     return elt2;
   return elt1;

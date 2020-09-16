@@ -15,7 +15,7 @@ from AthenaCommon import CfgMgr
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 

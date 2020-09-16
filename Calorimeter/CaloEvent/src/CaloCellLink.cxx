@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@ CaloCellLink::CaloCellLink(const CaloCellLink* pLink)
 
 CaloCellLink::CaloCellLink(const CaloCellLink& rLink)
   : INavigable (rLink),
-    Navigable<CaloCellContainer,double>()
+    Navigable<CaloCellContainer,double>(rLink)
 {
   this->copyStore(&rLink);
 }

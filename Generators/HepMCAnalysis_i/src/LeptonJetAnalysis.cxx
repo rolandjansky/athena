@@ -638,7 +638,7 @@ int LeptonJetAnalysis::Process(HepMC::GenEvent *event)
     }
      for (UInt_t j = i + 1;  j < leptons.size() ;++j){
        if ((i < nleptons-1)&&(j < nleptons)){
-	 m_leptondR[i][j]->Fill(sqrt(leptons[i].squared_distance(leptons[j])), weight);
+	 m_leptondR[i][j]->Fill(std::sqrt(leptons[i].squared_distance(leptons[j])), weight);
 	 m_leptondPhi[i][j]->Fill(leptons[i].delta_phi_to(leptons[j]), weight);
 	 m_leptonMass[i][j]->Fill((leptons[i] + leptons[j]).m(), weight);
 	 m_leptonLowMass[i][j]->Fill((leptons[i] + leptons[j]).m(), weight);

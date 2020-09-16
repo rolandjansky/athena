@@ -5,29 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCSC_CnvTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/ByteStreamData
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/ByteStreamCnvSvcBase
-                          Event/EventInfo
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonCablings/CSCcabling
-                          MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
-                          MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Tracking/TrkDetDescr/TrkSurfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )

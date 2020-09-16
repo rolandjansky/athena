@@ -72,7 +72,7 @@ StatusCode CaloClusterCorrDBWriter::initialize()
       // check for tool type
       CaloRec::ToolWithConstantsMixin* theTool = 
 	dynamic_cast<CaloRec::ToolWithConstantsMixin*>(algToolPtr);
-      if ( theTool != 0 ) { 
+      if ( theTool != nullptr ) { 
 	m_correctionTools.push_back(theTool);
       }
     }
@@ -87,11 +87,11 @@ StatusCode CaloClusterCorrDBWriter::initialize()
 
 StatusCode CaloClusterCorrDBWriter::finalize()
 {
-  if (m_inlineFolder.size()) {
+  if (!m_inlineFolder.empty()) {
     CaloRec::ToolConstants tc;
     std::string toolnames;
     unsigned coolChannelNbr=m_blobTool->nameToChannelNumber(m_key);
-    CondAttrListCollection* attrColl=NULL;
+    CondAttrListCollection* attrColl=nullptr;
     if (detStore()->contains<CondAttrListCollection>(m_inlineFolder)) {
       CHECK(detStore()->retrieve(attrColl,m_inlineFolder));
     }

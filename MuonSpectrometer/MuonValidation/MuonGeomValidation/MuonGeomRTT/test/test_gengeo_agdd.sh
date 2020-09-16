@@ -1,19 +1,19 @@
 #!/bin/sh
 #
-# art-description: Generate SQL files for muon spectrometer description, just AGDD part from amdc_simrec
+# art-description: Generate SQL files for muon spectrometer description, just AGDD part from .xml
 #
 # art-type: grid
 # art-include: master/Athena
-# art-include: 21.3/Athena
 #
-# art-output: *.txt
+# art-output: *.data
 
 art.py createpoolfile
 
 set -x
 
-
-wget http://atlas.web.cern.ch/Atlas/GROUPS/MUON/AMDB/amdb_simrec.r.08.01
-athena.py AmdcAth/AmdcAth_GeometryTasks.py -c "input_amdb_simrec='amdb_simrec.r.08.01';DoAGDDBlob=True;"
+# download the passive material AGDD xml file
+get_files passiveMat_r.08.02.xml
+# create the AGDD blob from it
+athena.py AmdcAth/AmdcAth_GeometryTasks.py -c "input_agdd_xml='passiveMat_r.08.02.xml';DoAGDDBlob=True;amdc_name='R.08'"
 
 echo "art-result: $?"

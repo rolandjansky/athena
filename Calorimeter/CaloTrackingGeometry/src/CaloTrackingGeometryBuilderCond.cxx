@@ -58,7 +58,7 @@ Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
   m_lArVolumeBuilder("LAr::LArVolumeBuilder/LArVolumeBuilder"),
   m_tileVolumeBuilder("Tile::TileVolumeBuilder/TileVolumeBuilder"),
-  m_caloMaterial(0),
+  m_caloMaterial(nullptr),
   m_caloEnvelope(25*Gaudi::Units::mm),
   m_enclosingEnvelopeSvc("AtlasGeometry_EnvelopeDefSvc", n),
   m_caloDefaultRadius(4250.),
@@ -70,8 +70,8 @@ Calo::CaloTrackingGeometryBuilderCond::CaloTrackingGeometryBuilderCond(const std
   //m_mbstSurfaceShape(2),
   m_entryVolume("Calo::Container::EntryVolume"),
   m_exitVolume("Calo::Container"),
-  m_mbtsNegLayers(0),
-  m_mbtsPosLayers(0)
+  m_mbtsNegLayers(nullptr),
+  m_mbtsPosLayers(nullptr)
   //m_caloSurfaceHelper("CaloSurfaceHelper/CaloSurfaceHelper")
 {
   declareInterface<Trk::IGeometryBuilderCond>(this);
@@ -204,8 +204,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
   ATH_MSG_VERBOSE( "Starting to build CaloTrackingGeometry ..." );   
   
   // the return TG
-  const Trk::TrackingGeometry* caloTrackingGeometry = 0; 
-  const Trk::TrackingVolume*            calorimeter = 0;                     
+  const Trk::TrackingGeometry* caloTrackingGeometry = nullptr; 
+  const Trk::TrackingVolume*            calorimeter = nullptr;                     
 
   // the key dimensions
   RZPairVector keyDim; 
@@ -215,8 +215,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
   double enclosedInnerSectorRadius = 0.;
    
    // dummy objects
-   const Trk::LayerArray* dummyLayers = 0;
-   const Trk::TrackingVolumeArray* dummyVolumes = 0;
+   const Trk::LayerArray* dummyLayers = nullptr;
+   const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
   
   //TODO/FIXME: just passing on range, no Calo IOV range used
   EventIDRange range;
@@ -289,7 +289,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
     //  MS builder would crash for a longer input volume ) 
     if ( envelopeDefs[i].second > 0. && envelopeDefs[i].second < 6785. &&
 	 ( envelopeDefs[i].first > 1200. || envelopeDefs[i].second > envEnclosingVolumeHalfZ ) ) {
-      if ( !msCutouts.size() ) msCutouts.push_back( envelopeDefs[i] );
+      if ( msCutouts.empty() ) msCutouts.push_back( envelopeDefs[i] );
       else {
 	RZPairVector::iterator envIter = msCutouts.begin();
         while (envIter!= msCutouts.end() && (*envIter).second < envelopeDefs[i].second ) envIter++;
@@ -301,7 +301,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
   }
   for (unsigned int i=0; i<msCutouts.size(); i++) ATH_MSG_VERBOSE( "MS cutouts to be processed by Calo:"<< i<<":"<< msCutouts[i].first<<","<<msCutouts[i].second );
   // first member of msCutouts redefines the default central cylinder dimension     
-  if (msCutouts.size()>0) {
+  if (!msCutouts.empty()) {
     m_caloDefaultRadius = msCutouts[0].first;
     m_caloDefaultHalflengthZ = msCutouts[0].second;
     ATH_MSG_VERBOSE(" Calo central cylinder dimensions adjusted using EnvelopeSvc:"<<m_caloDefaultRadius<<","<< m_caloDefaultHalflengthZ );
@@ -448,23 +448,23 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
   if (!tileCombinedBounds) std::abort();
         
    // Create the gap volumes ======================================================================
-   const Trk::TrackingVolume* lArTileCentralSectorGap    = 0;
+   const Trk::TrackingVolume* lArTileCentralSectorGap    = nullptr;
 
    //const Trk::TrackingVolume* tilePositiveSectorInnerGap = 0;
-   const Trk::TrackingVolume* lArPositiveSectorInnerGap  = 0;
+   const Trk::TrackingVolume* lArPositiveSectorInnerGap  = nullptr;
    //const Trk::TrackingVolume* lArTilePositiveSectorGap   = 0;
-   const Trk::TrackingVolume* lArPositiveSectorOuterGap  = 0;
-   const Trk::TrackingVolume* lArPositiveSectorOuterGap0  = 0;
-   const Trk::TrackingVolume* lArCentralPositiveGap      = 0;
+   const Trk::TrackingVolume* lArPositiveSectorOuterGap  = nullptr;
+   const Trk::TrackingVolume* lArPositiveSectorOuterGap0  = nullptr;
+   const Trk::TrackingVolume* lArCentralPositiveGap      = nullptr;
 
    //const Trk::TrackingVolume* tileNegativeSectorInnerGap = 0;
-   const Trk::TrackingVolume* lArNegativeSectorInnerGap  = 0;
+   const Trk::TrackingVolume* lArNegativeSectorInnerGap  = nullptr;
    //const Trk::TrackingVolume* lArTileNegativeSectorGap   = 0;
-   const Trk::TrackingVolume* lArNegativeSectorOuterGap  = 0;
-   const Trk::TrackingVolume* lArNegativeSectorOuterGap0  = 0;
-   const Trk::TrackingVolume* lArCentralNegativeGap      = 0;
+   const Trk::TrackingVolume* lArNegativeSectorOuterGap  = nullptr;
+   const Trk::TrackingVolume* lArNegativeSectorOuterGap0  = nullptr;
+   const Trk::TrackingVolume* lArCentralNegativeGap      = nullptr;
 
-   const Trk::TrackingVolume* trtSolenoidGap         = 0;  
+   const Trk::TrackingVolume* trtSolenoidGap         = nullptr;  
 
    double caloPositiveOuterBoundary    =  tileCombinedBounds->halflengthZ();
 
@@ -569,7 +569,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 							"Calo::GapVolumes::LAr::NegativeSectorInnerGap");
 
    // glue InnerGap with beam pipe volumes
-   const Trk::TrackingVolume* positiveInnerGap = 0;
+   const Trk::TrackingVolume* positiveInnerGap = nullptr;
    if (innerGapBP.first) {
      std::vector<const Trk::TrackingVolume*> volsInnerGap;
      volsInnerGap.push_back(innerGapBP.first);
@@ -579,7 +579,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 									       "Calo::Container::PositiveInnerGap"); 
    } else positiveInnerGap = lArPositiveSectorInnerGap;
 
-   const Trk::TrackingVolume* negativeInnerGap = 0;
+   const Trk::TrackingVolume* negativeInnerGap = nullptr;
    if (innerGapBP.second) {
      std::vector<const Trk::TrackingVolume*> volsInnerGap;
      volsInnerGap.push_back(innerGapBP.second);
@@ -992,7 +992,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    ATH_MSG_DEBUG( "Endcap volumes ready" );
 
    // ++ (ii) lArNegativeSector 
-   const Trk::TrackingVolume* lArNegativeSector           = 0;             
+   const Trk::TrackingVolume* lArNegativeSector           = nullptr;             
    // +++ has 4 sub volumes in Z
    std::vector<const Trk::TrackingVolume*> lArNegativeSectorVolumes;
    // +++ (A) -> Outer sector 
@@ -1009,7 +1009,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 									       "Calo::LAr::Container::NegativeSector");
 
    // ++ (ii) lArPositiveSector 
-   const Trk::TrackingVolume* lArPositiveSector           = 0;             
+   const Trk::TrackingVolume* lArPositiveSector           = nullptr;             
    // +++ has 4 sub volumes in Z
    std::vector<const Trk::TrackingVolume*> lArPositiveSectorVolumes;
    // +++ (A) -> Endcap sector
@@ -1037,7 +1037,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    Trk::Material solGapMat(535.,2871.,18.6,9.1,0.00038);
    
    
-   trtSolenoidGap = new Trk::TrackingVolume(0,
+   trtSolenoidGap = new Trk::TrackingVolume(nullptr,
 					    trtSolGapBounds,
 					    solGapMat,
 					    dummyLayers, dummyVolumes, 
@@ -1049,13 +1049,13 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
                                                  
    
 
-   lArTileCentralSectorGap      = new Trk::TrackingVolume(0, lArTileCentralG1Bounds,
+   lArTileCentralSectorGap      = new Trk::TrackingVolume(nullptr, lArTileCentralG1Bounds,
 							  *mAr, 
 							  dummyLayers, dummyVolumes, 
 							  "Calo::GapVolumes::LArTileCentralSectorGap");
 
 
-   const Trk::TrackingVolume* lArCentralBarrelSector    = 0;
+   const Trk::TrackingVolume* lArCentralBarrelSector    = nullptr;
    // ++ has 6 sub volumes in R
    std::vector<const Trk::TrackingVolume*> lArCentralBarrelSectorVolumes;
    // ++++ (a) -> solenoid gap 
@@ -1115,7 +1115,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
    const Trk::BinnedMaterial* crackBinPos = new Trk::BinnedMaterial(crackMaterial,bup,layUP,indexP,matCrack);
    
-   Amg::Transform3D* align=0;
+   Amg::Transform3D* align=nullptr;
    
    Trk::CylinderVolumeBounds* crackBoundsPos = new Trk::CylinderVolumeBounds( keyDim[0].first,
 									      tileCombinedBounds->innerRadius(),
@@ -1144,7 +1144,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
    const Trk::BinnedMaterial* crackBinNeg = new Trk::BinnedMaterial(crackMaterial,bun,layDN,indexN,matCrack);
    
-   align=0;
+   align=nullptr;
    
    Amg::Transform3D* crackNegTransform = new Amg::Transform3D(Amg::Translation3D(Amg::Vector3D(0.,0.,-z)));
    
@@ -1176,7 +1176,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 							  "Calo::GapVolumes::LArCentralNegativeGap");
 
    // glue laterally
-   const Trk::TrackingVolume* lArCentralSector    = 0;
+   const Trk::TrackingVolume* lArCentralSector    = nullptr;
    // ++ has 5 sub volumes in z
    std::vector<const Trk::TrackingVolume*> lArCentralSectorVolumes;
    // ++++ (a) -> negative crack
@@ -1196,7 +1196,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 									     "Calo::Containers::LAr::CentralSector");
   
    // glue with ID sector
-   const Trk::TrackingVolume* caloCentralSector    = 0;
+   const Trk::TrackingVolume* caloCentralSector    = nullptr;
    // ++ has 2 sub volumes in R
    std::vector<const Trk::TrackingVolume*> caloCentralSectorVolumes;
    // ++++ (a) -> ID sector
@@ -1214,7 +1214,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
 
    // glue laterally with endcaps
-   const Trk::TrackingVolume* lArCombined    = 0;
+   const Trk::TrackingVolume* lArCombined    = nullptr;
    // ++ has 3 sub volumes in z
    std::vector<const Trk::TrackingVolume*> lArCombinedVolumes;
    // ++++ (a) -> negative endcap 
@@ -1232,7 +1232,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    //std::cout <<"Combined LAr ready " << std::endl; 
 
    // glue with LAr sector
-   const Trk::TrackingVolume* caloCombined    = 0;
+   const Trk::TrackingVolume* caloCombined    = nullptr;
    // ++ has 2 sub volumes in R
    std::vector<const Trk::TrackingVolume*> caloVolumes;
    // ++++ (a) -> LAr sector
@@ -1250,9 +1250,9 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    ///////////////////////////////////////////////////////////////////////////////////////////////
 
    // build the radial buffer volume to synchronize the radial envelope dimensions 
-   const Trk::TrackingVolume* centralBuffer = 0;
-   const Trk::TrackingVolume* ecPosBuffer = 0;
-   const Trk::TrackingVolume* ecNegBuffer = 0;
+   const Trk::TrackingVolume* centralBuffer = nullptr;
+   const Trk::TrackingVolume* ecPosBuffer = nullptr;
+   const Trk::TrackingVolume* ecNegBuffer = nullptr;
     
    if ( caloVolsOuterRadius >  m_caloDefaultRadius ) {
      ATH_MSG_VERBOSE( "Calo volumes exceeds envelope radius: adjusting envelope (de-synchronizing...)" );
@@ -1265,7 +1265,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
      Trk::CylinderVolumeBounds* centralSynBounds = new Trk::CylinderVolumeBounds(caloVolsOuterRadius,
 										 m_caloDefaultRadius,
 										 caloVolsExtendZ);
-     centralBuffer = new Trk::TrackingVolume(0, centralSynBounds,
+     centralBuffer = new Trk::TrackingVolume(nullptr, centralSynBounds,
 					     *m_caloMaterial,
 					     dummyLayers, dummyVolumes,
 					     "Calo::GapVolumes::EnvelopeBuffer");
@@ -1319,7 +1319,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
    // cutout region not empty 
    std::vector<Trk::Material> cutOutMat;
-   cutOutMat.push_back(Trk::Material(19.9, 213., 50., 23., 0.0065));     // 3.5 Fe + 1 Ar : verify
+   cutOutMat.emplace_back(19.9, 213., 50., 23., 0.0065);     // 3.5 Fe + 1 Ar : verify
    cutOutMat.push_back(*m_caloMaterial);
    //cutOutMat.push_back(Trk::Material(18.74, 200.9, 52.36, 24.09, 0.0069));
    
@@ -1405,7 +1405,7 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
     envRVols.push_back(centralBuffer);
     
     // add cutouts - final step
-    if ( forwardCutoutVols.size()>0 || ecNegBuffer ) {
+    if ( !forwardCutoutVols.empty() || ecNegBuffer ) {
       
       const Trk::TrackingVolume* caloRVolume = m_trackingVolumeCreator->createContainerTrackingVolume(envRVols,
 												      *m_caloMaterial,
@@ -1434,8 +1434,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
 
   ATH_MSG_VERBOSE( "TrackingVolume 'Calorimeter' built successfully. Wrap it in TrackingGeometry." );
 
-  delete lArVolumes; lArVolumes = 0;
-  delete tileVolumes; tileVolumes = 0;
+  delete lArVolumes; lArVolumes = nullptr;
+  delete tileVolumes; tileVolumes = nullptr;
   
   caloTrackingGeometry = new Trk::TrackingGeometry(calorimeter);
   
@@ -1514,16 +1514,16 @@ void Calo::CaloTrackingGeometryBuilderCond::registerInLayerIndexCaloSampleMap(
 }
 
 std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrackingGeometryBuilderCond::createBeamPipeVolumes(float zmin, float zmax, 
-															  std::string name,float& outerRadius ) const
+															  const std::string& name,float& outerRadius ) const
 {
   outerRadius = 0.;
 
   // dummy objects
-  const Trk::LayerArray* dummyLayers = 0;
-  const Trk::TrackingVolumeArray* dummyVolumes = 0;
+  const Trk::LayerArray* dummyLayers = nullptr;
+  const Trk::TrackingVolumeArray* dummyVolumes = nullptr;
 
   // beam pipe thickness along the z distance
-  if (!m_bpCutouts.size()) {
+  if (m_bpCutouts.empty()) {
     return std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> (0,0);
   }
 
@@ -1593,7 +1593,7 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
 								  "BeamPipe::Positive"+name);
     bpVolPos->sign(Trk::BeamPipe);
     
-    const Trk::TrackingVolume* bpVolGap = 0;
+    const Trk::TrackingVolume* bpVolGap = nullptr;
     if ( dim[i].first < outerRadius ) {
 
       Trk::CylinderVolumeBounds* bpGB = new Trk::CylinderVolumeBounds( dim[i].first, outerRadius,
@@ -1661,7 +1661,7 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
 							     0.5*(zmax2 - zmin2)),
 			      *m_caloMaterial, 
 			      dummyLayers, dummyVolumes, 
-			      "Calo::GapVolumes::Negative"+name)  : 0 ;
+			      "Calo::GapVolumes::Negative"+name)  : nullptr ;
     
     const Trk::TrackingVolume* bpSector = bpVolNeg;
     
@@ -1674,7 +1674,7 @@ std::pair<const Trk::TrackingVolume*,const Trk::TrackingVolume*> Calo::CaloTrack
 									"Calo::Container::NegativeBPSector"+name);
     }   
 
-    if (!negVols.size()) negVols.push_back(bpSector);
+    if (negVols.empty()) negVols.push_back(bpSector);
     else negVols.insert(negVols.begin(),bpSector);
   }
   

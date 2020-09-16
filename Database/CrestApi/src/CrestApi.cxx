@@ -7,18 +7,18 @@
  */
 
 #include <CrestApi/CrestApi.h>
-#include <stdlib.h>     /* getenv */
 
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/asio.hpp>
 #include <curl/curl.h>
-#include <iostream>
+
 #include <fstream>
 #include <filesystem>
 
 namespace Crest {
+
   CrestClient::CrestClient(bool rewriteIfExists, const std::string& root_folder) : m_mode(FILESYSTEM_MODE),
     m_root_folder(root_folder), m_isRewrite(rewriteIfExists) {
     if (!std::filesystem::exists(std::filesystem::path(m_root_folder))) {
@@ -83,8 +83,60 @@ namespace Crest {
 
     nlohmann::json respond = getJson(retv);
 
-    return respond;
+    checkErrors(respond);
+    return getResources(respond);
   }
+
+  //
+
+  nlohmann::json CrestClient::listTags(int size, int page) {
+    std::string method_name = "CrestClient::listTags";
+    if (m_mode == FILESYSTEM_MODE) {
+      method_name.append(" This methods is unsupported for FILESYSTEM mode");
+      throw std::runtime_error(method_name.c_str());
+    }
+
+    int size_default = 1000;
+    int page_default = 0;
+    std::string size_param = "";
+    std::string page_param = "";
+    std::string params = "";
+
+    if (size == size_default && page == page_default){
+        nlohmann::json respond = listTags();
+        checkErrors(respond);
+        return getResources(respond);
+    }
+
+    if (size != size_default) {
+       size_param = "size=" + std::to_string(size);
+       params = params + size_param;
+    }
+    if (page != page_default) {
+       page_param = "page=" + std::to_string(page);
+       if (page_param == "") {
+          params = params + page_param;
+       }
+       else{
+          params = params + "&" + page_param;
+       }
+    }
+
+    std::string current_path = s_PATH + s_TAG_PATH + "?" + params;
+    std::string getTxt = "GET";
+
+    std::string retv;
+
+    nlohmann::json js = nullptr;
+    retv = performRequest(current_path, GET, js, method_name);
+
+    nlohmann::json respond = getJson(retv);
+
+    checkErrors(respond);
+    return getResources(respond);
+  }
+
+  //
 
   void CrestClient::removeTag(const std::string& tagName) {
     std::string method_name = "removeTag";
@@ -120,7 +172,8 @@ namespace Crest {
 
     nlohmann::json respond = getJson(retv);
 
-    return respond;
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   void CrestClient::createTag(const std::string& name, const std::string& desc, const std::string& timeType) {
@@ -287,7 +340,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::getSizeByTag(const std::string& tagname) {
@@ -307,7 +362,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   int CrestClient::getSize(const std::string& tagname) {
@@ -327,7 +384,7 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     int respond = atoi(retv.c_str());
-    ;
+
     return respond;
   }
 
@@ -348,7 +405,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::selectIovs(const std::string& tagname, long snapshot) {
@@ -369,7 +428,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::selectGroups(const std::string& tagname) {
@@ -389,7 +450,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::selectGroups(const std::string& tagname, long snapshot) {
@@ -409,7 +472,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::selectSnapshot(const std::string& tagname) {
@@ -429,7 +494,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::selectSnapshot(const std::string& tagname, long snapshot) {
@@ -450,7 +517,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
 // GLOBALTAGS
@@ -504,6 +573,7 @@ namespace Crest {
 
     nlohmann::json js = nullptr;
     retv = performRequest(current_path, GET, js);
+
     return retv;
   }
 
@@ -516,7 +586,9 @@ namespace Crest {
 
     std::string retv = findGlobalTagAsString(name);
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   void CrestClient::removeGlobalTag(const std::string& name) {
@@ -544,7 +616,9 @@ namespace Crest {
     nlohmann::json js = nullptr;
     retv = performRequest(current_path, GET, js, method_name);
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   std::string CrestClient::listGlobalTagsAsString() {
@@ -584,7 +658,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   void CrestClient::createGlobalTagMap(nlohmann::json& js) {
@@ -607,12 +683,10 @@ namespace Crest {
   std::string CrestClient::getBlob(const std::string& hash) {
     std::string method_name = "CrestClient::getBlob";
     if (m_mode == FILESYSTEM_MODE) {
-      // method_name.append(" This methods is unsupported for FILESYSTEM mode"); // METHOD REALISED
-      // throw std::runtime_error(method_name.c_str());
       return getBlobFs(hash);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + s_DATA_PATH;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash;
 
     std::string retv;
 
@@ -629,7 +703,7 @@ namespace Crest {
       return getBlobInStreamFs(hash, out);
     }
 
-    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash + s_DATA_PATH;
+    std::string current_path = s_PATH + s_PAYLOAD_PATH + "/" + hash;
 
     std::string retv;
 
@@ -657,7 +731,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
 //
@@ -697,7 +773,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   nlohmann::json CrestClient::getPayloadAsJson(const std::string& hash) {
@@ -758,8 +836,8 @@ namespace Crest {
 
   void CrestClient::storeBatchPayloads(const std::string& tag_name, uint64_t endtime, nlohmann::json& js) {
     std::string method_name = "CrestClient::storeBatchPayloads";
-    if (m_mode == FILESYSTEM_MODE) {
-      storeBatchPayloadsFs(tag_name, endtime, js);
+    if (m_mode == FILESYSTEM_MODE) { 
+      storeBatchPayloadsFs(tag_name, js);
       return;
     }
     if (!js.is_array()) {
@@ -795,7 +873,10 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
+
   }
 
   std::string CrestClient::createFolder(nlohmann::json& body) {
@@ -833,7 +914,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   void CrestClient::createRunLumiInfo(nlohmann::json& body) {
@@ -866,7 +949,9 @@ namespace Crest {
     retv = performRequest(current_path, GET, js, method_name);
 
     nlohmann::json respond = getJson(retv);
-    return respond;
+
+    checkErrors(respond);
+    return getResources(respond);
   }
 
 // REQUEST METHODS
@@ -1408,35 +1493,42 @@ namespace Crest {
     in.close();
   }
 
-  void CrestClient::storeBatchPayloadsFs(const std::string& tag_name, uint64_t endtime,
-                                         const std::string& iovsetupload) {
-    nlohmann::json js = getJson(iovsetupload);
-    storeBatchPayloadsFs(tag_name, endtime, js);
-  }
+  //
+  // storeBatchPayloadsFs
 
-  void CrestClient::storeBatchPayloadsFs(const std::string& tag_name, uint64_t /*endtime*/, nlohmann::json& js) {
+void CrestClient::storeBatchPayloadsFs(std::string tag_name, std::string& iovsetupload){
+
+    nlohmann::json js = getJson(iovsetupload);
+    if(!js.is_array()){
+        throw std::runtime_error("CrestClient::storeBatchPayloadsFs: JSON has wrong type (must be array");
+    }
+
+   storeBatchPayloadsFs(tag_name, js);
+
+}
+
+
+  void CrestClient::storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js){
     std::string method_name = "CrestClient::storeBatchPayloadsFs";
 
-    //try {
+    try { 
 
-    std::string strS = js.dump();
-    nlohmann::json j_null = nlohmann::json::array();
-    nlohmann::json iovList = js.value("iovsList", j_null);
-    std::string iovs = iovList.dump();
-
-    try {
-      for (auto& kvp : iovList) {
-        std::cout << kvp << "\n";
-        std::string payload = kvp.value("payload", "");
-        int since = kvp.value("since", 0);
-        storePayload(tag_name, since, payload);
-      }
+       for (auto& kvp : js) {
+	   // std::string payload =  kvp.value("payload", "");
+           std::string payload =  kvp.value("payloadHash", "");
+           int since =  kvp.value("since", 0);
+           storePayload(tag_name, since, payload);
+       }
     } // end of try
-    catch (...) {
-      method_name.append(" cannot store the data in a file");
-      throw std::runtime_error(method_name.c_str());
+    catch(...) {
+        method_name.append(" cannot store the data in a file");
+        throw std::runtime_error(method_name.c_str());
     } // end of catch
-  }
+
+}
+
+  // storeBatchPayloadsFs (end)
+  //
 
   std::string CrestClient::getEnvA(const std::string& varname) {
     std::string respond = "";
@@ -1456,20 +1548,19 @@ namespace Crest {
 
 
   int CrestClient::checkErrors(nlohmann::json& js) {
-    std::cout << std:: endl << "checkErrors: js = " << std::endl
-              << js.dump(4) << std::endl;
+
     int result = 0;
     auto res = js.find("type");
     if (res != js.end()) {
       std::cout << std:: endl << "Error Parsing: error " << std::endl;
-      std::string type = js.value("type", "oops");
+      std::string type = js.value("type", " unknown type ");
       std::cout << std:: endl << "Error Parsing, type = " << type << std::endl;
-      std::string message = js.value("message", "oops");
+      std::string message = js.value("message", " unknown message ");
       std::cout << std:: endl << "Error Parsing, message = " << message << std::endl;
       result = 1;
-      throw std::logic_error("Error: MvG");
-    } else {
-      std::cout << std:: endl << "Error Parsing: no error " << std::endl;
+      throw std::logic_error("Error: " + message);
+    } 
+    else {
       result = 0;
     }
     return result;
@@ -1509,7 +1600,8 @@ namespace Crest {
 
   nlohmann::json CrestClient::convertTagMetaInfo2IOVDbSvc(nlohmann::json& js) {
     std::string jsName = "tagInfo";
-    return getJson(getTagMetaInfoElement(jsName, js));
+    nlohmann::json res = getJson(js[jsName]);
+    return res;
   }
 
   nlohmann::json CrestClient::convertTagMetaInfo2CREST(nlohmann::json& js) {
@@ -1600,7 +1692,8 @@ namespace Crest {
 
     nlohmann::json respond = getJson(retv);
 
-    return respond;
+    checkErrors(respond);
+    return getResources(respond);
   }
 
   void CrestClient::updateTagMetaInfo(const std::string& tagname, nlohmann::json& js) {
@@ -1626,7 +1719,8 @@ namespace Crest {
       throw std::runtime_error(method_name.c_str());
     }
     nlohmann::json js = getTagMetaInfo(tagname);
-    nlohmann::json resource = getResFirst(js);
+    nlohmann::json resource = js.at(0); 
+
     nlohmann::json result = convertTagMetaInfo2IOVDbSvc(resource);
     return result;
   }
@@ -1643,4 +1737,6 @@ namespace Crest {
     return;
   }
 
-} // namespace
+
+ } // namespace 
+

@@ -6,6 +6,6 @@
 
 namespace MuonGM {
 
-  const AbsMaterialManager * DetectorElement::s_matManager = nullptr;
+  const StoredMaterialManager * DetectorElement::s_matManager = nullptr;
 
 } // namespace MuonGM

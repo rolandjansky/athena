@@ -30,7 +30,7 @@ def getJetGroomer(groomdef,pjsin):
 # Function for configuring the jet algorithm and groomers, given the
 # set of dependencies
 #
-def getJetGroomAlg(jetname,groomdef,pjsin,modlist):
+def getJetGroomAlg(jetname,groomdef,pjsin,modlist,monTool=None):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
     from . import JetRecConfig
@@ -52,6 +52,8 @@ def getJetGroomAlg(jetname,groomdef,pjsin,modlist):
                                      OutputContainer=jetname,
                                      JetPseudojetRetriever=CompFactory.JetPseudojetRetriever("jpjretriever"),
                                      JetModifiers=mods)
+
+    if monTool: rectool.MonTool = monTool
 
     jetalg = CompFactory.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]

@@ -90,6 +90,9 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     chainDict["chainCounter"] = chainsCounter
     chainsCounter += 1
 
+    #set default chain prescale
+    chainDict['prescale'] = 1
+
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
     chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
 

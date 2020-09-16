@@ -5,29 +5,6 @@
 # Declare the package name:
 atlas_subdir( MdtDriftCircleOnTrackCreator )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkSpaceTimePoint
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibSvc
-                          MuonSpectrometer/MuonCalib/MuonCalibEvent
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Tracking/TrkDetDescr/TrkDistortedSurfaces
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParameters )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 

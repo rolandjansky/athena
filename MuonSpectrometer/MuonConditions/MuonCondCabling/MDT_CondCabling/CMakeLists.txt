@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( MDT_CondCabling )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/MuonCablingData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          PRIVATE
-                          Control/SGTools
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-                          MuonSpectrometer/MuonIdHelpers
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 

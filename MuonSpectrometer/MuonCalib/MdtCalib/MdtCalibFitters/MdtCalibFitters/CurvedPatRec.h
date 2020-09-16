@@ -2,17 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 05.04.2008, AUTHOR: OLIVER KORTNER
-// Modified: 25.07.2008 by O. Kortner, improved pattern recognition by using
-//                                     the class "CurvedCandidateFinder".
-//           04.08.2008 by O. Kortner, further improvements of the pattern
-//                                     recognition for large incidence angles.
-//           07.08.2008 by O. Kortner, bug fig in the pattern recognition.
-//           18.08.2008 by O. Kortner, update of chi^2 and segment position
-//                                     and direction added.
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #ifndef MuonCalib_CurvedPatRecH
 #define MuonCalib_CurvedPatRecH
 
@@ -31,26 +20,20 @@
 ///
 /// \date 18.08.2008
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
+#include "MdtCalibInterfaces/IMdtPatRecFitter.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-
-// STL //
-#include <vector>
-
-// MuonCalib //
-#include "MdtCalibInterfaces/IMdtPatRecFitter.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MdtCalibFitters/StraightPatRec.h"
 #include "MdtCalibFitters/CurvedLine.h"
+#include "CxxUtils/checker_macros.h"
 
+#include <vector>
 
 namespace MuonCalib {
 
-class CurvedPatRec : public IMdtPatRecFitter {
+class ATLAS_NOT_THREAD_SAFE CurvedPatRec : public IMdtPatRecFitter {
 
 public:
 // Constructors //

@@ -17,6 +17,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "PathResolver/PathResolver.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -25,10 +26,10 @@ using namespace Muon;
 
 sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_detManager(NULL),
+    m_detManager(nullptr),
     m_channelTypes(0),
-    m_file(NULL),
-    m_ntuple(NULL),
+    m_file(nullptr),
+    m_ntuple(nullptr),
     m_dlx(0.),
     m_dly(0.),
     m_dlz(0.),
@@ -84,9 +85,6 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
     m_surfcentx(0.),
     m_surfcenty(0.),
     m_surfcentz(0.),
-    m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_rndmSvc("AtRndmGenSvc", name ),
-    m_rndmEngine(0),
     m_sdoName("STGCfast_SDO"),
     m_timeWindowOffsetWire(0.),
     m_timeWindowOffsetStrip(0.),
@@ -94,10 +92,8 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
     m_timeWindowStrip(24.95), // TGC  40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
     m_bunchCrossingTime(24.95) // 24.95 ns =(40.08 MHz)^(-1)
 {
-  declareProperty("ClusterCreator", m_muonClusterCreator);
   declareProperty("ChannelTypes", m_channelTypes = 3);
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
-  declareProperty("RndmSvc",     m_rndmSvc,        "Random Number Service used in Muon digitization");
   declareProperty("EnergyThreshold", m_energyThreshold = 50, "Minimal energy of incoming particle to produce a PRD"  );
   declareProperty("EnergyDepositThreshold", m_energyDepositThreshold = 0.00052,  "Minimal energy deposit to produce a PRD"  );
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
@@ -107,11 +103,7 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
 
 StatusCode sTgcFastDigitizer::initialize() {
   ATH_CHECK(detStore()->retrieve(m_detManager));
-  m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (m_rndmEngine==0) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rndmSvc.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_muonClusterCreator.retrieve());
   ATH_CHECK(m_sdoName.initialize());
@@ -184,6 +176,8 @@ StatusCode sTgcFastDigitizer::execute() {
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
+
+  CLHEP::HepRandomEngine* rndmEngine = getRandomEngine(m_rndmEngineName, Gaudi::Hive::currentContextEvt());
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelperSvc->stgcIdHelper().module_hash_max());
   
@@ -357,12 +351,6 @@ StatusCode sTgcFastDigitizer::execute() {
 
     Identifier parentId = m_idHelperSvc->stgcIdHelper().parentID(layid);
 
-    // SimHits without energy loss are not recorded. 
-    // not needed because of already done in sensitive detector
-    // https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonG4/MuonG4SD/trunk/src/sTGCSensitiveDetector.cxx?rev=542333#L66
-    // if(hit.depositEnergy()==0.) continue;
-
-
     // select whether to produce only strips or strips + wires or strips + wires + pads
     int ftype = m_channelTypes == 3 ? 0 : 1;
     int ltype = m_channelTypes == 1 ? 1 : 2;
@@ -398,8 +386,6 @@ StatusCode sTgcFastDigitizer::execute() {
       if(inAngle_time > 90)  inAngle_time  = inAngle_time  -90.;
       if(inAngle_space > 90) inAngle_space = inAngle_space -90.;
 
-
-
       // bctagging
       float jitter = 0;//jitterInitial; // calculated m_at central strip but also used in all the strips fired by the same hit 
 
@@ -417,7 +403,7 @@ StatusCode sTgcFastDigitizer::execute() {
       double resolution = 0;
       if( type == 1 ){
 	resolution = getResolution(inAngle_time);
-	sp = CLHEP::RandGauss::shoot(m_rndmEngine, hitOnSurface.x(), resolution);
+	sp = CLHEP::RandGauss::shoot(rndmEngine, hitOnSurface.x(), resolution);
       }
 
       
@@ -483,7 +469,6 @@ StatusCode sTgcFastDigitizer::execute() {
       m_surfcentx = surf.center().x();
       m_surfcenty = surf.center().y();
       m_surfcentz = surf.center().z();
-
 
       // cut on depositEnergy(0.52KeV) to simulation the detector efficiency(95% for strips)
       if( type ==1 && hit.depositEnergy()<m_energyDepositThreshold)  {
@@ -721,38 +706,6 @@ uint16_t sTgcFastDigitizer::bcTagging(float digitTime, int channelType) const {
   return bctag;
 }
 
-
-//+++++++++++++++++++++++++++++++++++++++++++++++
-float sTgcFastDigitizer::timeJitter(float inAngle_time) const
-{
-
-  int   ithAngle = static_cast<int>(inAngle_time/5.);
-  float wAngle = inAngle_time/5. - static_cast<float>(ithAngle);
-  int   jthAngle;
-  if (ithAngle > 11) {
-    ithAngle = 12;
-    jthAngle = 12;
-  }
-  else {
-    jthAngle = ithAngle+1;
-  }
-
-  float jitter = 0.;
-  float prob = 1.;
-  float probRef = 0.;
-
-  while (prob > probRef) {
-    prob   = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0, 1.0);
-    jitter = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0, 1.0)*40.; // trial time jitter in nsec
-    int ithJitter = static_cast<int>(jitter);
-    // probability distribution calculated from weighted sum between neighboring bins of angles
-    probRef = (1.-wAngle)*m_vecAngle_Time[ithAngle][ithJitter]
-      +    wAngle *m_vecAngle_Time[jthAngle][ithJitter];
-  }
-  return jitter;
-}
-
-
 //+++++++++++++++++++++++++++++++++++++++++++++++
 bool sTgcFastDigitizer::readFileOfTimeJitter()
 {
@@ -797,3 +750,12 @@ bool sTgcFastDigitizer::readFileOfTimeJitter()
   ifs.close();
   return true;
 }
+
+CLHEP::HepRandomEngine* sTgcFastDigitizer::getRandomEngine(const std::string& streamName, const EventContext& ctx) const
+{
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, streamName);
+  std::string rngName = name()+streamName;
+  rngWrapper->setSeed( rngName, ctx );
+  return rngWrapper->getEngine(ctx);
+}
+

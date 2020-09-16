@@ -9,22 +9,16 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP
 //
-//  (c) ATLAS Combined Muon software
+//  (c) ATLAS Combined Muon softwarem_trackingGeometrySvcm_trackingGeometrySvc
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuidTrackBuilder/CombinedMuonTrackBuilder.h"
-
-#include <cmath>
-#include <iomanip>
-#include <memory>
 
 #include "AthenaKernel/Units.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingGeometry.h"
@@ -48,9 +42,9 @@
 #include "VxVertex/RecVertex.h"
 #include "muonEvent/CaloEnergy.h"
 
-
-namespace Units = Athena::Units;
-
+#include <cmath>
+#include <iomanip>
+#include <memory>
 
 namespace Rec {
 
@@ -58,8 +52,6 @@ namespace Rec {
 CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, const std::string& name,
                                                    const IInterface* parent)
     : AthAlgTool(type, name, parent),
-      m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name),
-      m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
       m_magFieldProperties(Trk::FullField),
       m_allowCleanerVeto(true),
       m_cleanCombined(true),
@@ -113,7 +105,6 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
     m_messageHelper = new MessageHelper(*this);
 
     declareInterface<ICombinedMuonTrackBuilder>(this);
-    declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
     declareProperty("AllowCleanerVeto", m_allowCleanerVeto);
     declareProperty("CleanCombined", m_cleanCombined);
     declareProperty("CleanStandalone", m_cleanStandalone);
@@ -576,8 +567,8 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
         if (!m_iterateCombinedTrackFit) {
             ATH_MSG_DEBUG(
                 " iterate combined fit to recollect calorimeter material as significant momentum change after fit "
-                << pRatio << ", pT before " << muonEnergyParameters->momentum().perp() / Units::GeV << ", after "
-                << combinedEnergyParameters->momentum().perp() / Units::GeV << " GeV");
+                << pRatio << ", pT before " << muonEnergyParameters->momentum().perp() / Gaudi::Units::GeV << ", after "
+                << combinedEnergyParameters->momentum().perp() / Gaudi::Units::GeV << " GeV");
         } else {
             ATH_MSG_DEBUG(" iterate combined fit to recollect calorimeter material");
         }
@@ -621,7 +612,7 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
         if (!indetPerigee->covariance()) {
             ATH_MSG_WARNING(" indetPerigee has no covariance tolerance left as zero. ");
         } else {
-            tolerance = m_numberSigmaFSR * sqrt((*indetPerigee->covariance())(Trk::qOverP, Trk::qOverP));
+            tolerance = m_numberSigmaFSR * std::sqrt((*indetPerigee->covariance())(Trk::qOverP, Trk::qOverP));
         }
 
         double indetMaxE     = 1. / (std::abs(indetPerigee->parameters()[Trk::qOverP]) - tolerance);
@@ -646,14 +637,14 @@ CombinedMuonTrackBuilder::combinedFit(const Trk::Track& indetTrack, const Trk::T
         // FIXME: add criterion on energy-balance significance param vs tail ?
         if (paramEnergy) {
             ATH_MSG_DEBUG(" FSR check: energyBalance "
-                          << energyBalance / Units::GeV << " signif " << energyBalance / caloEnergy->sigmaMinusDeltaE()
-                          << " indet max E " << indetMaxE / Units::GeV << std::endl
-                          << " param CaloEnergy: " << paramEnergy->deltaE() / Units::GeV << " + "
-                          << paramEnergy->sigmaPlusDeltaE() / Units::GeV << " for P "
-                          << combinedEnergyParameters->momentum().mag() / Units::GeV << "  eta "
+                          << energyBalance / Gaudi::Units::GeV << " signif " << energyBalance / caloEnergy->sigmaMinusDeltaE()
+                          << " indet max E " << indetMaxE / Gaudi::Units::GeV << std::endl
+                          << " param CaloEnergy: " << paramEnergy->deltaE() / Gaudi::Units::GeV << " + "
+                          << paramEnergy->sigmaPlusDeltaE() / Gaudi::Units::GeV << " for P "
+                          << combinedEnergyParameters->momentum().mag() / Gaudi::Units::GeV << "  eta "
                           << combinedEnergyParameters->position().eta() << "  phi "
                           << combinedEnergyParameters->position().phi() << endmsg << " tail-param energy diff "
-                          << (caloEnergy->deltaE() - paramEnergy->deltaE()) / Units::GeV);
+                          << (caloEnergy->deltaE() - paramEnergy->deltaE()) / Gaudi::Units::GeV);
 
             Trk::Track* oldTrack = muonTrack;
             ATH_MSG_VERBOSE("Calling createMuonTrack from " << __func__ << " at line " << __LINE__);
@@ -752,17 +743,17 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
 
             if (innerParameters) {
                 msg(MSG::VERBOSE) << std::setw(9) << std::setprecision(3)
-                                  << innerParameters->momentum().mag() / Units::GeV;
+                                  << innerParameters->momentum().mag() / Gaudi::Units::GeV;
             }
 
             if (middleParameters) {
                 msg(MSG::VERBOSE) << std::setw(9) << std::setprecision(3)
-                                  << middleParameters->momentum().mag() / Units::GeV;
+                                  << middleParameters->momentum().mag() / Gaudi::Units::GeV;
             }
 
             if (outerParameters) {
                 msg(MSG::VERBOSE) << std::setw(9) << std::setprecision(3)
-                                  << outerParameters->momentum().mag() / Units::GeV;
+                                  << outerParameters->momentum().mag() / Gaudi::Units::GeV;
             }
 
             msg(MSG::VERBOSE) << " (GeV)" << endmsg;
@@ -973,7 +964,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
                 msg(MSG::VERBOSE) << "extrapolated has lineFit";
             } else {
                 msg(MSG::VERBOSE) << "extrapolated momentum " << std::setprecision(1)
-                                  << inputSpectrometerTrack.perigeeParameters()->momentum().mag() / Units::GeV
+                                  << inputSpectrometerTrack.perigeeParameters()->momentum().mag() / Gaudi::Units::GeV
                                   << " (GeV)";
             }
 
@@ -989,7 +980,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
                 msg(MSG::VERBOSE) << "spectrometer has lineFit";
             } else {
                 msg(MSG::VERBOSE) << "spectrometer momentum " << std::setprecision(1)
-                                  << inputSpectrometerTrack.perigeeParameters()->momentum().mag() / Units::GeV
+                                  << inputSpectrometerTrack.perigeeParameters()->momentum().mag() / Gaudi::Units::GeV
                                   << " (GeV)";
             }
 
@@ -1112,7 +1103,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
     }
 
     double errorP =
-        sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
+        std::sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
 
     std::unique_ptr<Trk::RecVertex>      mvertex         = std::make_unique<Trk::RecVertex>(*m_vertex);
     std::unique_ptr<Trk::RecVertex>      mbeamAxis       = std::make_unique<Trk::RecVertex>(*m_beamAxis);
@@ -1204,7 +1195,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
     const Trk::RecVertex* vertexInFit = vertex;
 
     if (!vertexInFit) {
-        double errorPhi = sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
+        double errorPhi = std::sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
 
         bool inCSCregion = false;
         if (std::abs(measuredPerigee->momentum().eta()) > 2.0) {
@@ -1233,14 +1224,14 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
                 if (badlyDeterminedCurvature) {
                     ATH_MSG_DEBUG(" prefit with vertex: "
                                   << std::setiosflags(std::ios::fixed) << " momentum " << std::setprecision(1)
-                                  << measuredPerigee->momentum().mag() / Units::GeV << " (GeV),  zFirst "
+                                  << measuredPerigee->momentum().mag() / Gaudi::Units::GeV << " (GeV),  zFirst "
                                   << std::setprecision(1) << std::abs(parameters->position().z()) << ",  phiError "
                                   << std::setprecision(2) << errorPhi << ",  momentumError " << std::setprecision(2)
                                   << errorP << ",  numberPseudo " << numberPseudo);
                 } else {
                     ATH_MSG_DEBUG(" prefit with beamAxis: "
                                   << std::setiosflags(std::ios::fixed) << " momentum " << std::setprecision(1)
-                                  << measuredPerigee->momentum().mag() / Units::GeV << " (GeV),  zFirst "
+                                  << measuredPerigee->momentum().mag() / Gaudi::Units::GeV << " (GeV),  zFirst "
                                   << std::setprecision(1) << std::abs(parameters->position().z()) << ",  phiError "
                                   << std::setprecision(2) << errorPhi << ",  momentumError " << std::setprecision(2)
                                   << errorP << ",  numberPseudo " << numberPseudo);
@@ -1539,8 +1530,8 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
             double sinTheta = parameters->momentum().perp() / parameters->momentum().mag();
 
             ATH_MSG_VERBOSE(" iterate as significant momentum change after fit "
-                            << pRatio << ", pT before " << momentum * sinTheta / Units::GeV << ", after "
-                            << parameters->momentum().perp() / Units::GeV << " GeV");
+                            << pRatio << ", pT before " << momentum * sinTheta / Gaudi::Units::GeV << ", after "
+                            << parameters->momentum().perp() / Gaudi::Units::GeV << " GeV");
         }
 
         spectrometerTSOS->clear();
@@ -1722,8 +1713,8 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
         error2z0 = (*measuredPerigee->covariance())(Trk::z0, Trk::z0);
 
         if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << " StandaloneRefit  new vertex d0 error  " << sqrt(error2d0) << " new vertex z0 error  "
-                            << sqrt(error2z0);
+            msg(MSG::DEBUG) << " StandaloneRefit  new vertex d0 error  " << std::sqrt(error2d0) << " new vertex z0 error  "
+                            << std::sqrt(error2z0);
         }
     }
 
@@ -2080,8 +2071,8 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
         }
 
         ATH_MSG_DEBUG("standaloneRefit Total ID Eloss " << Eloss << " sigma Eloss " << sigmaEloss << " X0 " << X0tot
-                                                        << " sigma scat phi " << sqrt(sigmaDeltaPhitot2)
-                                                        << " sigma scat theta " << sqrt(sigmaDeltaThetatot2));
+                                                        << " sigma scat phi " << std::sqrt(sigmaDeltaPhitot2)
+                                                        << " sigma scat theta " << std::sqrt(sigmaDeltaThetatot2));
 
         itsos = -1;
         if (tsosnr.size() > 0) {
@@ -2100,7 +2091,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
                         new Trk::EnergyLoss(Eloss, sigmaEloss, sigmaEloss, sigmaEloss);
 
                     const Trk::ScatteringAngles* scatNew =
-                        new Trk::ScatteringAngles(0., 0., sqrt(sigmaDeltaPhitot2), sqrt(sigmaDeltaThetatot2));
+                        new Trk::ScatteringAngles(0., 0., std::sqrt(sigmaDeltaPhitot2), std::sqrt(sigmaDeltaThetatot2));
 
                     const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
 
@@ -2788,7 +2779,7 @@ CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
         if ((**t).trackParameters()) {
             if (p == -1.) {
-                p = (**t).trackParameters()->momentum().mag() / Units::GeV;
+                p = (**t).trackParameters()->momentum().mag() / Gaudi::Units::GeV;
             }
 
             if (m_indetVolume->inside((**t).trackParameters()->position())) {
@@ -2870,10 +2861,10 @@ CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
 
                     if (scat) {
                         double sigmaDeltaPhi =
-                            sqrt((scat->sigmaDeltaPhi()) * (scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);
+                            std::sqrt((scat->sigmaDeltaPhi()) * (scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);
 
                         double sigmaDeltaTheta =
-                            sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
+                            std::sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
 
                         const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
 
@@ -3735,7 +3726,7 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
         return nullptr;
     }
 
-    double errorPhi = sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
+    double errorPhi = std::sqrt((*measuredPerigee->covariance())(Trk::phi0, Trk::phi0));
 
     // create the spectrometer TSOS's for the extrapolated fit
     std::vector<const Trk::TrackStateOnSurface*>* spectrometerTSOS = new std::vector<const Trk::TrackStateOnSurface*>;
@@ -3942,7 +3933,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     }
 
     double errorP =
-        sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
+        std::sqrt(measuredPerigee->momentum().mag2() * (*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
 
     // corrected parameters ensure the track fitting starts with a projective approximation
     const Trk::TrackParameters* correctedParameters = nullptr;
@@ -4045,8 +4036,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
             correctedParameters = nullptr;
 
             ATH_MSG_DEBUG("standaloneFit: excessive energy loss in spectrometer "
-                          << std::abs(spectrometerEnergyLoss / Units::GeV) << " GeV"
-                          << "  in calo " << std::abs(caloEnergy->deltaE() / Units::GeV) << " GeV");
+                          << std::abs(spectrometerEnergyLoss / Gaudi::Units::GeV) << " GeV"
+                          << "  in calo " << std::abs(caloEnergy->deltaE() / Gaudi::Units::GeV) << " GeV");
         }
         delete caloEnergy;
         caloEnergy = nullptr;
@@ -4298,17 +4289,17 @@ CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*& parameters
 
     if (directionUpdate) {
         double cosDeltaPhi = 0.;
-        double sinDeltaPhi = sin(deltaPhi);
+        double sinDeltaPhi = std::sin(deltaPhi);
 
         if (std::abs(sinDeltaPhi) < 1.) {
-            cosDeltaPhi = sqrt(1. - sinDeltaPhi * sinDeltaPhi);
+            cosDeltaPhi = std::sqrt(1. - sinDeltaPhi * sinDeltaPhi);
         }
 
         double cosDeltaTheta = 0.;
         double sinDeltaTheta = sin(deltaTheta);
 
         if (std::abs(sinDeltaTheta) < 1.) {
-            cosDeltaTheta = sqrt(1. - sinDeltaTheta * sinDeltaTheta);
+            cosDeltaTheta = std::sqrt(1. - sinDeltaTheta * sinDeltaTheta);
         }
 
         double cosTheta = direction.z() * cosDeltaTheta - direction.perp() * sinDeltaTheta;
@@ -4316,7 +4307,7 @@ CombinedMuonTrackBuilder::momentumUpdate(const Trk::TrackParameters*& parameters
 
             direction = Amg::Vector3D(direction.x() * cosDeltaPhi - direction.y() * sinDeltaPhi,
                                       direction.y() * cosDeltaPhi + direction.x() * sinDeltaPhi,
-                                      direction.perp() * cosTheta / sqrt(1. - cosTheta * cosTheta));
+                                      direction.perp() * cosTheta / std::sqrt(1. - cosTheta * cosTheta));
 
         } else {
             direction = Amg::Vector3D(0., 0., cosTheta);
@@ -4460,10 +4451,10 @@ CombinedMuonTrackBuilder::removeSpectrometerMaterial(Trk::Track*& track) const
                 qOverP = (**r).trackParameters()->parameters()[Trk::qOverP];
             } else {
                 qOverP = (**r).trackParameters()->parameters()[Trk::qOverP]
-                         + measuredPerigee->charge() * sqrt((*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
+                         + measuredPerigee->charge() * std::sqrt((*measuredPerigee->covariance())(Trk::qOverP, Trk::qOverP));
 
                 ATH_MSG_DEBUG(" limit momentum to " << 1. / std::abs(qOverP * Gaudi::Units::GeV)
-                                                    << "  from original value " << momentum / Units::GeV);
+                                                    << "  from original value " << momentum / Gaudi::Units::GeV);
             }
         }
     }
@@ -4814,7 +4805,7 @@ CombinedMuonTrackBuilder::dumpCaloEloss(const Trk::Track* track, std::string txt
     msEloss = Eloss;
     Eloss   = idEloss + caloEloss + msEloss;
 
-    ATH_MSG_DEBUG(txt << " eta " << eta << " pstart " << pstart / Units::GeV << " Eloss on TSOS idEloss " << idEloss
+    ATH_MSG_DEBUG(txt << " eta " << eta << " pstart " << pstart / Gaudi::Units::GeV << " Eloss on TSOS idEloss " << idEloss
                       << " caloEloss " << caloEloss << " msEloss " << msEloss << " Total " << Eloss
                       << " pstart - pMuonEntry " << pstart - pMuonEntry);
 

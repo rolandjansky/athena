@@ -71,7 +71,10 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
 
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventContext& ctx ) const  {
 
+    auto monGroup         = getGroup( m_anatype );
+    auto totalTime        = Monitored::Timer("TIME_TotalTime");
      
+
     std::vector<const xAOD::Electron*> probes;
 
     // Select TP Pairs
@@ -91,7 +94,6 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
-        
 
         std::string probeTrigger = m_trigList.at(ilist);
         
@@ -111,15 +113,13 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
         ATH_MSG_DEBUG("Probes " << probes.size() << " Pairs " << pairObjs.size() );
 
         // Include fill here
-
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
         fillResolutions( pairObjs, info );
 
 
-
     } // End loop over trigger list
-    
+
     
     return StatusCode::SUCCESS;
 }
@@ -135,9 +135,9 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 {
    
 
-    auto monGroup = getGroup( "Event" );
+    auto monGroup = getGroup( m_anatype );
     
-    fillLabel(monGroup, m_anatype+"_CutCounter", "Events");
+    fillLabel(monGroup, "CutCounter", "Events");
 
 
     SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
@@ -152,7 +152,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
         return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_CutCounter", "LAr");
+    fillLabel(monGroup, "CutCounter", "LAr");
 
  
     
@@ -164,7 +164,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 	    return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_CutCounter", "RetrieveElectrons");
+    fillLabel(monGroup, "CutCounter", "RetrieveElectrons");
 
  
  
@@ -178,7 +178,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
 	    return false;
     }
     
-    fillLabel(monGroup, m_anatype+"_CutCounter", "TwoElectrons");
+    fillLabel(monGroup, "CutCounter", "TwoElectrons");
  
  
 
@@ -197,7 +197,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
         if ( !minimalTriggerRequirement() ) 
           return false;
       }
-      fillLabel(monGroup, m_anatype+"_CutCounter", "PassTrigger");
+      fillLabel(monGroup, "CutCounter", "PassTrigger");
  
     }else{
       ATH_MSG_DEBUG("Disable trigger tags because trigger tags list is empty.");
@@ -215,15 +215,15 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
         for(const auto& elProbe : *offElectrons)
         {  // Dress the probes with updated Pid decision
            
-            fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "Electrons");
+            fillLabel(monGroup, "ProbeCutCounter", "Electrons");
 
             if(elProbe==elTag) continue;
-            fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "NotTags");
+            fillLabel(monGroup, "ProbeCutCounter", "NotTags");
             // Check opposite charge
             if(m_oppositeCharge && (elProbe->charge() == elTag->charge()) ) continue;
-            fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "OS");
+            fillLabel(monGroup, "ProbeCutCounter", "OS");
             if(!m_oppositeCharge && (elProbe->charge() != elTag->charge()) ) continue;
-            fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "SS");
+            fillLabel(monGroup, "ProbeCutCounter", "SS");
 
             ATH_MSG_DEBUG("Execute TandP BaseTool OS"); 
             
@@ -254,7 +254,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 continue;
             } else {
                 //fill( monGroup, m_anatype+"_ProbeCutCounter", "ZMass");
-                fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "ZMass");
+                fillLabel(monGroup, "ProbeCutCounter", "ZMass");
 
                 ATH_MSG_DEBUG("tag and probe pair in Z mass window");
                 // Probe available. Good Probe?
@@ -266,8 +266,8 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 
                 probeElectrons.push_back(selProbe);
 
-                auto mon_count_probe= Monitored::Scalar<std::string>(m_anatype+"_ProbeCutCounter","GoodProbe");
-                auto mon_mee = Monitored::Scalar<float>(m_anatype+"_Mee" , tpPairMass/1.e3 );
+                auto mon_count_probe= Monitored::Scalar<std::string>("ProbeCutCounter","GoodProbe");
+                auto mon_mee = Monitored::Scalar<float>("Mee" , tpPairMass/1.e3 );
                 fill( monGroup , mon_count_probe, mon_mee );
             }
         } // end of for in Probe
@@ -302,7 +302,8 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::matchObjects(const std::string probe
     for( const auto *el : probeElectrons)
     {
         const TrigCompositeUtils::Decision *dec=nullptr;
-        match()->match(el, probeTrigItem, dec);
+        match()->match(el, probeTrigItem, dec, TrigDefs::includeFailedDecisions);
+        //match()->match(el, probeTrigItem, dec);
         std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision *> pairProbe(el,dec);
         pairObj.push_back(pairProbe);
     }
@@ -315,7 +316,7 @@ void TrigEgammaMonitorTagAndProbeAlgorithm::matchObjects(const std::string probe
 bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMonitoringTool> monGroup, 
                                                const xAOD::Electron *el) const 
 {
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "Electrons");
+    fillLabel(monGroup, "TagCutCounter", "Electrons");
 
 
     // Tag the event
@@ -330,7 +331,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
         return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "HasTrack");
+    fillLabel(monGroup, "TagCutCounter", "HasTrack");
 
 
     ATH_MSG_DEBUG("Track pt " << trk->pt());
@@ -340,14 +341,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
         return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "HasCluster");
+    fillLabel(monGroup, "TagCutCounter", "HasCluster");
 
 
 
     ATH_MSG_DEBUG("Cluster E "<<clus->e());
     ATH_MSG_DEBUG("Selecting Tag Electron PID");
     if (!ApplyElectronPid(el, m_offTagTightness)) return false;
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "GoodPid");
+    fillLabel(monGroup, "TagCutCounter", "GoodPid");
 
 
     
@@ -358,7 +359,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
         return false;
     }
     
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "Et");
+    fillLabel(monGroup, "TagCutCounter", "Et");
 
 
     
@@ -371,14 +372,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
     }
 
 
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "Eta");
+    fillLabel(monGroup, "TagCutCounter", "Eta");
 
 
 
     ATH_MSG_DEBUG("Checking electron object quality");
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
     
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "IsGoodOQ");
+    fillLabel(monGroup, "TagCutCounter", "IsGoodOQ");
 
 
 
@@ -404,7 +405,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
             if(fabs(p1trigger.find("tight"))<14) tag=p1trigger;
             if(fabs(p2trigger.find("tight"))<14) tag=p2trigger;
           }
-          if( match()->match(el,tag) )
+          if( match()->match(el,tag, TrigDefs::includeFailedDecisions) )
             tagPassed=true;
         }
         else{
@@ -417,7 +418,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
         return false;
     }
     
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "PassTrigger");
+    fillLabel(monGroup, "TagCutCounter", "PassTrigger");
 
 
     ATH_MSG_DEBUG("Matching Tag Electron FC");
@@ -433,7 +434,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
         return false; // otherwise, someone matched!
     }
     
-    fillLabel(monGroup, m_anatype+"_TagCutCounter", "MatchTrigger");
+    fillLabel(monGroup, "TagCutCounter", "MatchTrigger");
 
     ATH_MSG_DEBUG("Found a tag electron");
     return true;
@@ -456,14 +457,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
         return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "HasTrack");
+    fillLabel(monGroup,"ProbeCutCounter", "HasTrack");
 
     if(!el->caloCluster()){
         ATH_MSG_DEBUG("No caloCluster");
         return false;
     }
 
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "HasCluster");
+    fillLabel(monGroup, "ProbeCutCounter", "HasCluster");
 
     //fiducial detector acceptance region
     if(m_rmCrack){
@@ -473,14 +474,14 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
         }
     }
 
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "Eta");
+    fillLabel(monGroup, "ProbeCutCounter", "Eta");
 
 
     ATH_MSG_DEBUG("Checking electron object quality");
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "IsGoodOQ");
+    fillLabel(monGroup, "ProbeCutCounter", "IsGoodOQ");
 
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "GoodPid");
+    fillLabel(monGroup, "ProbeCutCounter", "GoodPid");
 
 
     if(m_applyJetNearProbeSelection){
@@ -498,7 +499,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isGoodProbeElectron( ToolHandle<Gene
             return false; 
         }
     }
-    fillLabel(monGroup, m_anatype+"_ProbeCutCounter", "NearbyJet");
+    fillLabel(monGroup, "ProbeCutCounter", "NearbyJet");
 
     return true; // Good probe electron
 }

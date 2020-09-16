@@ -16,7 +16,7 @@
  */
 
 #include <stdint.h>
-#include "AthenaKernel/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 
 class GenericResult {
  public:

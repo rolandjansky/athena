@@ -8,6 +8,7 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ILockable.h"
+#include "AthenaKernel/tools/safe_clid.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "CxxUtils/checker_macros.h"
 
@@ -111,10 +112,21 @@ SG::DataBucket<T>::cast (CLID clid,
                          IRegisterTransient* irt /*= 0*/,
                          bool isConst /*=true*/)
 {
+  // First see if we're asking for class T.
   if (ATH_LIKELY (clid == classID())) {
     return m_ptr;
   }
-  void* ret = SG::BaseInfo<T>::cast (m_ptr, clid);
+
+  // Then try a conversion using static SG_BASES information.
+  // This can all be unfolded at compile time, so is fast, but
+  // doesn't take into account SG_ADD_BASES.
+  void* ret = this->tryStaticConversion (clid);
+  if (ret) {
+    return ret;
+  }
+
+  // Then try using BaseInfo, in case of SG_ADD_BASES.
+  ret = SG::BaseInfo<T>::cast (m_ptr, clid);
   if (ret || !isConst)
     return ret;
 
@@ -155,9 +167,24 @@ void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
                                IRegisterTransient* irt /*= 0*/,
                                bool isConst /*= true*/)
 {
-  void* ret = SG::BaseInfo<T>::cast (m_ptr, tinfo);
-  if (ret || !isConst)
+  // First see if we're asking for class T.
+  if (ATH_LIKELY (tinfo == typeid(T))) {
+    return m_ptr;
+  }
+
+  // Then try a conversion using static SG_BASES information.
+  // This can all be unfolded at compile time, so is fast, but
+  // doesn't take into account SG_ADD_BASES.
+  void* ret = this->tryStaticConversion (tinfo);
+  if (ret) {
     return ret;
+  }
+
+  // Then try using BaseInfo, in case of SG_ADD_BASES.
+  ret = SG::BaseInfo<T>::cast (m_ptr, tinfo);
+  if (ret || !isConst) {
+    return ret;
+  }
 
   // Is there a copy conversion available?
   const CopyConversionBase* cc = SG::BaseInfo<T>::baseinfo().copy_conversion (tinfo);
@@ -259,4 +286,50 @@ template <class T>
 void SG::DataBucket<T>::lock()
 {
   call_lock (m_ptr, typename std::is_polymorphic<T>::type());
+}
+
+
+/** 
+ * @brief Try a conversion using static SG_BASES information.
+ * @param clid The class ID to which to convert.
+ *
+ * This can all be unfolded at compile time, so is fast, but
+ * doesn't take into account SG_ADD_BASES.
+ */
+template <class T>
+inline
+void* SG::DataBucket<T>::tryStaticConversion (CLID clid)
+{
+  auto tryconv = [&] (auto* p, bool /*is_virtual*/)
+  {
+    using base_t = typename std::remove_pointer_t<decltype(p)>;
+    if (clid == SG::safe_clid<base_t>()) {
+      return static_cast<void*> (static_cast<base_t*> (m_ptr));
+    }
+    return static_cast<void*> (nullptr);
+  };
+  return SG::Bases<T>::bases::foreach_ (tryconv);
+}
+
+
+/** 
+ * @brief Try a conversion using static SG_BASES information.
+ * @param tinfo The @a std::type_info of the type to which to convert.
+ *
+ * This can all be unfolded at compile time, so is fast, but
+ * doesn't take into account SG_ADD_BASES.
+ */
+template <class T>
+inline
+void* SG::DataBucket<T>::tryStaticConversion (const std::type_info& tinfo)
+{
+  auto tryconv = [&] (auto* p, bool /*is_virtual*/)
+  {
+    using base_t = typename std::remove_pointer_t<decltype(p)>;
+    if (tinfo == typeid(base_t)) {
+      return static_cast<void*> (static_cast<base_t*> (m_ptr));
+    }
+    return static_cast<void*> (nullptr);
+  };
+  return SG::Bases<T>::bases::foreach_ (tryconv);
 }

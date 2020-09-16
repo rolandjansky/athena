@@ -355,8 +355,6 @@ def getInDetPixelClusterOnTrackToolNNSplitting(name='InDetPixelClusterOnTrackToo
         if 'NnClusterizationFactory' not in kwargs :
             kwargs = setDefaults(kwargs, NnClusterizationFactory  = getNnClusterizationFactory())
 
-        if InDetFlags.doTIDE_RescalePixelCovariances() :
-            kwargs = setDefaults(kwargs, applydRcorrection = True)
     return getInDetPixelClusterOnTrackToolBase(name=name, **kwargs)
 
 def getInDetPixelClusterOnTrackTool(name='InDetPixelClusterOnTrackTool', **kwargs) :

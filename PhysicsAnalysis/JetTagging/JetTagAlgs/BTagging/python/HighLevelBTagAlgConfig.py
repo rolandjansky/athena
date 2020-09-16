@@ -17,7 +17,7 @@ def DL2ToolCfg(ConfigFlags, NNFile = '', **options):
 
     return acc
 
-def HighLevelBTagAlgCfg(ConfigFlags, sequenceName, BTaggingCollection, NNFile = "", **options):
+def HighLevelBTagAlgCfg(ConfigFlags, BTaggingCollection, TrackCollection, NNFile = "", sequenceName=None, **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -26,13 +26,17 @@ def HighLevelBTagAlgCfg(ConfigFlags, sequenceName, BTaggingCollection, NNFile = 
            options:            Python dictionary of options to be passed to the SecVtxTool.
     output: The tool."""
 
-    acc = ComponentAccumulator(sequenceName)
+    if sequenceName:
+        acc = ComponentAccumulator(sequenceName)
+    else:
+        acc = ComponentAccumulator()
 
     Name = NNFile.replace("/", "_").replace("_network.json", "")
     dl2 = acc.popToolsAndMerge(DL2ToolCfg(ConfigFlags, NNFile, **options))
 
     options = {}
     options['BTaggingCollectionName'] = BTaggingCollection
+    options['TrackContainer'] = TrackCollection
     options['JetDecorator'] = dl2
     options['name'] = Name.lower()
 

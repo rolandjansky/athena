@@ -32,7 +32,7 @@ class Geo2G4Builder {
 
 public:
   // Constructor:
-  Geo2G4Builder(std::string detectorName);
+  Geo2G4Builder(const std::string& detectorName);
   // Destructor:
   ~Geo2G4Builder() {;}
 

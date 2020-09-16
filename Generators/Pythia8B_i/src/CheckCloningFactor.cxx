@@ -48,7 +48,7 @@ StatusCode CheckCloningFactor::execute() {
         for (auto pitr: *genEvt) {
 	    int p_id = pitr->pdg_id();
 	    int p_stat = pitr->status();
-            if ( (abs(p_id)==5) && (p_stat == 62 || p_stat == 63) ) {
+            if ( (std::abs(p_id)==5) && (p_stat == 62 || p_stat == 63) ) {
                 bQuarks.push_back(pitr);
             }
         }

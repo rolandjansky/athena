@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 EMPIDBuilder=CompFactory.EMPIDBuilder
 from ROOT import egammaPID
 import cppyy
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):

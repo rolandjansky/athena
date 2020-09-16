@@ -24,7 +24,6 @@
 #define GENERATORMODULESEVTDECAYINCLUSIVE_H
 
 #include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"

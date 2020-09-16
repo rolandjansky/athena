@@ -139,7 +139,7 @@ StatusCode JetReclusteringTool::initialize(){
   /* initialize jet reclustering */
   //    - create a PseudoJet builder.
   ATH_MSG_INFO( "PseudoJet Builder initializing..." );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_pseudoJetGetterTool, PseudoJetGetter) );
+  m_pseudoJetGetterTool.setType ("PseudoJetGetter");
   ASG_CHECK(m_pseudoJetGetterTool.setProperty("InputContainer", filteredInputJetContainer));
   ASG_CHECK(m_pseudoJetGetterTool.setProperty("OutputContainer", filteredInputPseudoJetsContainer));
   ASG_CHECK(m_pseudoJetGetterTool.setProperty("Label", "LCTopo"));
@@ -151,13 +151,13 @@ StatusCode JetReclusteringTool::initialize(){
   ATH_CHECK(getterArray.retrieve() );
   //    - create a Jet builder
   ATH_MSG_INFO( "Jet Builder initializing..." );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetFromPseudoJetTool, JetFromPseudojet) );
+  m_jetFromPseudoJetTool.setType ("JetFromPseudojet");
   ASG_CHECK(m_jetFromPseudoJetTool.setProperty("Attributes", areaAttributes));
   ASG_CHECK(m_jetFromPseudoJetTool.setProperty("OutputLevel", msg().level() ) );
   ASG_CHECK(m_jetFromPseudoJetTool.retrieve());
   //    - create a ClusterSequence Tool
   ATH_MSG_INFO( "Cluster Sequencer initializing..." );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetFinderTool, JetFinder) );
+  m_jetFinderTool.setType ("JetFinder");
   ASG_CHECK(m_jetFinderTool.setProperty("JetAlgorithm", m_rc_alg));
   ASG_CHECK(m_jetFinderTool.setProperty("JetRadius", m_radius));
   ASG_CHECK(m_jetFinderTool.setProperty("VariableRMinRadius", m_varR_minR));
@@ -172,13 +172,13 @@ StatusCode JetReclusteringTool::initialize(){
   //    - create list of modifiers.
   modArray.clear();
   //        we need to calculate effectiveR before trimming, if we are doing variableR
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_effectiveRTool, EffectiveRTool) );
+  m_effectiveRTool.setType ("EffectiveRTool");
   ATH_CHECK(m_effectiveRTool.retrieve());
   modArray.push_back(m_effectiveRTool.getHandle() );
   ATH_CHECK(modArray.retrieve() );
   //    - create our master reclustering tool
   ATH_MSG_INFO( "Jet Reclusterer initializing..." );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_reclusterJetTool, JetRecTool) );
+  m_reclusterJetTool.setType ("JetRecTool");
   ASG_CHECK(m_reclusterJetTool.setProperty("OutputContainer", reclusteredJetsContainer));
   ASG_CHECK(m_reclusterJetTool.setProperty("PseudoJetGetters", getterArray));
   ASG_CHECK(m_reclusterJetTool.setProperty("JetFinder", m_jetFinderTool.getHandle()));
@@ -192,7 +192,7 @@ StatusCode JetReclusteringTool::initialize(){
   ATH_MSG_INFO( "Jet Trimmer initializing..." );
   ATH_MSG_INFO( "\tPtFrac: " << m_ptFrac );
   ATH_MSG_INFO( "\tRClus: " << m_subjet_radius );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetTrimmingTool, JetTrimmer) );
+  m_jetTrimmingTool.setType ("JetTrimmer");
   ASG_CHECK(m_jetTrimmingTool.setProperty("PtFrac", m_ptFrac));
   ASG_CHECK(m_jetTrimmingTool.setProperty("RClus", m_subjet_radius));
   ASG_CHECK(m_jetTrimmingTool.setProperty("JetBuilder", m_jetFromPseudoJetTool.getHandle()));
@@ -201,47 +201,47 @@ StatusCode JetReclusteringTool::initialize(){
 
   // because of changes to JetRec, can't rely on them making this tool for us anymore
   ATH_MSG_INFO( "JetPseudojetRetriever initializing for Jet Trimmer..." );
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetTrimmingTool_JPJR, JetPseudojetRetriever) );
+  m_jetTrimmingTool_JPJR.setType ("JetPseudojetRetriever");
   ASG_CHECK(m_jetTrimmingTool_JPJR.retrieve());
 
   //        and then apply all other modifiers based on the trimmed reclustered jets
   ATH_MSG_INFO( "\t... and queuing up various jet modifiers..." );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetChargeTool, JetChargeTool) );
+  m_jetChargeTool.setType ("JetChargeTool");
   ASG_CHECK(m_jetChargeTool.retrieve());
   modArray.push_back(m_jetChargeTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetPullTool, JetPullTool) );
+  m_jetPullTool.setType ("JetPullTool");
   ASG_CHECK(m_jetPullTool.retrieve());
   modArray.push_back(m_jetPullTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_energyCorrelatorTool, EnergyCorrelatorTool) );
+  m_energyCorrelatorTool.setType ("EnergyCorrelatorTool");
   ASG_CHECK(m_energyCorrelatorTool.retrieve());
   modArray.push_back(m_energyCorrelatorTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_energyCorrelatorRatiosTool, EnergyCorrelatorRatiosTool) );
+  m_energyCorrelatorRatiosTool.setType ("EnergyCorrelatorRatiosTool");
   ASG_CHECK(m_energyCorrelatorRatiosTool.retrieve());
   modArray.push_back(m_energyCorrelatorRatiosTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_ktSplittingScaleTool, KTSplittingScaleTool) );
+  m_ktSplittingScaleTool.setType ("KTSplittingScaleTool");
   ASG_CHECK(m_ktSplittingScaleTool.retrieve());
   modArray.push_back(m_ktSplittingScaleTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_dipolarityTool, DipolarityTool) );
+  m_dipolarityTool.setType ("DipolarityTool");
   ASG_CHECK(m_dipolarityTool.retrieve());
   modArray.push_back(m_dipolarityTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_centerOfMassShapesTool, CenterOfMassShapesTool) );
+  m_centerOfMassShapesTool.setType ("CenterOfMassShapesTool");
   ASG_CHECK(m_centerOfMassShapesTool.retrieve());
   modArray.push_back(m_centerOfMassShapesTool.getHandle() );
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_nSubjettinessTool, NSubjettinessTool) );
+  m_nSubjettinessTool.setType ("NSubjettinessTool");
   ASG_CHECK(m_nSubjettinessTool.retrieve());
   modArray.push_back(m_nSubjettinessTool.getHandle() );
   ATH_CHECK(modArray.retrieve() );
   // finish up the rest of the tool
 
-  ASG_CHECK( ASG_MAKE_ANA_TOOL( m_trimJetTool, JetRecTool) );
+  m_trimJetTool.setType ("JetRecTool");
   ASG_CHECK(m_trimJetTool.setProperty("InputContainer", reclusteredJetsContainer));
   ASG_CHECK(m_trimJetTool.setProperty("OutputContainer", m_outputJetContainer));
   ASG_CHECK(m_trimJetTool.setProperty("JetModifiers", modArray));

@@ -33,7 +33,17 @@ namespace HLT { namespace MET {
       MonGroupBuilder&) const
   {
     auto charged = SG::makeHandle(m_chargedPFOKey, context);
+      if (!charged.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_chargedPFOKey);
+        return StatusCode::FAILURE;
+      }
     auto neutral = SG::makeHandle(m_neutralPFOKey, context);
+      if (!neutral.isValid())
+      {
+        ATH_MSG_ERROR("Failed to retrieve " << m_neutralPFOKey);
+        return StatusCode::FAILURE;
+      }
 
     std::array<METComponent, 3> pfoSums;
     for (const xAOD::PFO* ipfo : *neutral)

@@ -58,6 +58,20 @@ StatusCode TrigBjetMonitorAlgorithm::initialize() {
   return AthMonitorAlgorithm::initialize();
 }
 
+bool LLR(double pu, double pc, double pb, double &w)  {
+  w = 0.;
+  bool ll = false;
+  double denom;
+  float cfrac(0.08);
+  if (pb > 0.) {
+    denom = pu*(1.-cfrac)+pc*cfrac;
+    if (denom > 0.) {
+      w = log(pb/denom);
+      ll = true;
+    }
+  }
+  return ll; 
+}
 
 StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
@@ -306,6 +320,85 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    ATH_MSG_DEBUG("        svp_efrc: " << svp_efrc);
 	    fill("TrigBjetMonitor",svp_efrc);
 	    
+	    // Run-3 discriminators
+	    
+	    NameH = "RNNIP_pu_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto RNNIP_pu = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pu("rnnip",RNNIP_pu);
+	    ATH_MSG_DEBUG("        RNNIP_pu: " << RNNIP_pu);
+	    fill("TrigBjetMonitor",RNNIP_pu);
+	    
+	    NameH = "RNNIP_pc_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto RNNIP_pc = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pc("rnnip",RNNIP_pc);
+	    ATH_MSG_DEBUG("        RNNIP_pc: " << RNNIP_pc);
+	    fill("TrigBjetMonitor",RNNIP_pc);
+	    
+	    NameH = "RNNIP_pb_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto RNNIP_pb = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pb("rnnip",RNNIP_pb);
+	    ATH_MSG_DEBUG("        RNNIP_pb: " << RNNIP_pb);
+	    fill("TrigBjetMonitor",RNNIP_pb);
+	    
+
+	    NameH = "DL1_pu_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1_pu = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pu("DL1",DL1_pu);
+	    ATH_MSG_DEBUG("        DL1_pu: " << DL1_pu);
+	    fill("TrigBjetMonitor",DL1_pu);
+
+	    NameH = "DL1_pc_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1_pc = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pc("DL1",DL1_pc);
+	    ATH_MSG_DEBUG("        DL1_pc: " << DL1_pc);
+	    fill("TrigBjetMonitor",DL1_pc);
+
+	    NameH = "DL1_pb_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1_pb = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pb("DL1",DL1_pb);
+	    ATH_MSG_DEBUG("        DL1_pb: " << DL1_pb);
+	    fill("TrigBjetMonitor",DL1_pb);
+
+	    NameH = "DL1_mv_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1_mv = Monitored::Scalar<double>(NameH,0.0);
+	    if ( LLR (DL1_pu, DL1_pc, DL1_pb, DL1_mv) ) fill("TrigBjetMonitor",DL1_mv);
+	    ATH_MSG_DEBUG("        DL1_mv: " << DL1_mv << " LLR: " << LLR); 
+
+
+	    NameH = "DL1r_pu_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1r_pu = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pu("DL1r",DL1r_pu);
+	    ATH_MSG_DEBUG("        DL1r_pu: " << DL1r_pu);
+	    fill("TrigBjetMonitor",DL1r_pu);
+
+	    NameH = "DL1r_pc_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1r_pc = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pc("DL1r",DL1r_pc);
+	    ATH_MSG_DEBUG("        DL1r_pc: " << DL1r_pc);
+	    fill("TrigBjetMonitor",DL1r_pc);
+
+	    NameH = "DL1r_pb_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1r_pb = Monitored::Scalar<double>(NameH,0.0);
+	    btag->pb("DL1r",DL1r_pb);
+	    ATH_MSG_DEBUG("        DL1r_pb: " << DL1r_pb);
+	    fill("TrigBjetMonitor",DL1r_pb);
+
+	    NameH = "DL1r_mv_tr_"+trigName;
+	    ATH_MSG_DEBUG( " NameH: " << NameH  );
+	    auto DL1r_mv = Monitored::Scalar<double>(NameH,0.0);
+	    if ( LLR (DL1r_pu, DL1r_pc, DL1r_pb, DL1r_mv) ) fill("TrigBjetMonitor",DL1r_mv);
+	    ATH_MSG_DEBUG("        DL1r_mv: " << DL1r_mv << " LLR: " << LLR); 
+
 	  } // if (ijet == 0)
 	  
 	  ijet++;

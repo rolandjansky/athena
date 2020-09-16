@@ -5,14 +5,13 @@
 // JetVertexFractionTool.cxx
 
 #include "JetMomentTools/JetVertexFractionTool.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 //**********************************************************************
 
 JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
   : asg::AsgTool(name) {
-  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************

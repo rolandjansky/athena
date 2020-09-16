@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_RawDataProviderTool.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // #include "valgrind/callgrind.h"
@@ -37,65 +37,13 @@ StatusCode Muon::RPC_RawDataProviderTool::initialize()
 {
     ATH_CHECK(RPC_RawDataProviderToolCore::initialize());
     
-    // Check if EventSelector has the ByteStreamCnvSvc
-    bool has_bytestream = false;
-    IJobOptionsSvc* jobOptionsSvc;
-    StatusCode sc = service("JobOptionsSvc", jobOptionsSvc, false);
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG( "Could not find JobOptionsSvc");
-      jobOptionsSvc = 0;
-    } else {
-      IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
-      if(svc != 0 ) {
-        ATH_MSG_INFO( " Tool = " << name() 
-           << " is connected to JobOptionsSvc Service = "
-           << svc->name() );
-      } else return StatusCode::FAILURE;
-    }
-    
-    IJobOptionsSvc* TrigConfSvc;
-    sc = service("TrigConf::HLTJobOptionsSvc", TrigConfSvc, false);
-    if (sc.isFailure()) {
-      msg(MSG::DEBUG) << "Could not find TrigConf::HLTJobOptionsSvc" << endmsg;
-      TrigConfSvc = 0;
-    } else {
-      IService* svc = dynamic_cast<IService*>(TrigConfSvc);
-      if(svc != 0 ) {
-        ATH_MSG_INFO( " Tool = " << name() 
-           << " is connected to JobOptionsSvc Service = "
-           << svc->name() );
-      } else return StatusCode::FAILURE;
-    }
-    
-    if(jobOptionsSvc==0 && TrigConfSvc==0)
-    {
-      ATH_MSG_FATAL( "Bad job configuration" );
-      return StatusCode::FAILURE;  
-    }
-    
-    const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps 
-        = (jobOptionsSvc)?  jobOptionsSvc->getProperties("DataFlowConfig") : 0;
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
+    ATH_CHECK(joSvc.retrieve());
 
-    const std::vector<const Gaudi::Details::PropertyBase*>* eventSelProps 
-        = (jobOptionsSvc)? jobOptionsSvc->getProperties("EventSelector") :
-                     TrigConfSvc->getProperties("EventSelector"); 
-    
-    if     ( dataFlowProps != 0 ) has_bytestream = true;
-    else if( eventSelProps != 0 )
+    // register the container only when the input from ByteStream is set up
+    if (joSvc->has("EventSelector.ByteStreamInputSvc") || m_containerKey.key() != "RPCPAD")
     {
-        for (std::vector<const Gaudi::Details::PropertyBase*>::const_iterator 
-            cur  = eventSelProps->begin();
-      cur != eventSelProps->end(); cur++) {
-      
-          if( (*cur)->name() == "ByteStreamInputSvc" ) has_bytestream = true;
-        }
-    } 
-    else has_bytestream = true;
-    
-    // register the container only when the imput from ByteStream is set up     
-    if( has_bytestream || m_containerKey.key() != "RPCPAD" )
-    {
-        m_AllowCreation= true;
+      m_AllowCreation = true;
     }
     else
     {

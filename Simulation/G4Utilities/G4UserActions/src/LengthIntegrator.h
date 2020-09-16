@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4UserActions_LengthIntegrator_H
@@ -62,15 +62,49 @@ namespace G4UA
       // Holder for G4 math tools
       G4Pow* m_g4pow;
 
+      //Tree for material information
+      TTree* m_tree;
+
+      //Tree Branches
+      int   m_genNPart;
+      float m_genEta;
+      float m_genPhi;
+      float m_genZ;
+      float m_genR;
+      
+      //X0 Branches
+      float m_total_X0;
+      float m_total_L0;
+
+      std::vector<double> m_collected_X0;
+      std::vector<double> m_collected_L0;
+
+      std::vector<float> m_collected_hitr;
+      std::vector<float> m_collected_hitz;
+
+      std::vector<float> m_collected_density;
+      std::vector<std::string> m_collected_material;
+      std::vector<std::string> m_collected_volume;
+      
+      std::vector<std::string> m_collected_groupedmaterial;
+      std::vector<std::string> m_collected_volumetype;
+
+      bool m_splitModerator;
+      bool m_splitPP1;
+
+      void fillNtuple();
+      std::string getMaterialClassification(std::string name);
+      std::string getVolumeType(std::string s);
+
       // Add elements and values into the map
-      void addToDetThickMap(std::string, double, double);
+      void addToDetThickMap(const std::string&, double, double);
 
       /// Setup one set of measurement hists for a detector name.
       void regAndFillHist(const std::string&, const std::pair<double, double>&);
 
       /// this method checks if a histo is on THsvc already and caches a local pointer to it
       /// if the histo is not present, it creates and registers it
-      TProfile2D* getOrCreateProfile(std::string regName, TString histoname, TString xtitle, int nbinsx, float xmin, float xmax,TString ytitle, int nbinsy,float ymin, float ymax,TString ztitle);
+      TProfile2D* getOrCreateProfile(const std::string& regName, const TString& histoname, const TString& xtitle, int nbinsx, float xmin, float xmax,const TString& ytitle, int nbinsy,float ymin, float ymax,const TString& ztitle);
 
       /// Handle to the histogram service
       ServiceHandle<ITHistSvc> m_hSvc;
@@ -89,6 +123,8 @@ namespace G4UA
       std::map<std::string, TProfile*> m_etaMapRL;
       /// Rad-length profile hist in phi
       std::map<std::string, TProfile*> m_phiMapRL;
+
+
 
       /// Int-length profile hist in R-Z
       TProfile2D* m_rzProfIL;

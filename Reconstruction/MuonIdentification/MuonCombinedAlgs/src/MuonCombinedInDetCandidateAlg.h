@@ -5,8 +5,6 @@
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDINDETCANDIDATEALG_H
 #define MUONCOMBINEDALGS_MUONCOMBINEDINDETCANDIDATEALG_H
 
-#include <string>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
@@ -16,22 +14,15 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-namespace Trk {
-class ITrackSelectorTool;
-}
-
-namespace Muon {
-class IMuonSystemExtensionTool;
-}
+#include <string>
 
 class MuonCombinedInDetCandidateAlg : public AthAlgorithm {
   public:
     MuonCombinedInDetCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonCombinedInDetCandidateAlg();
+    ~MuonCombinedInDetCandidateAlg()=default;
 
     StatusCode initialize();
     StatusCode execute();
-    StatusCode finalize();
 
   private:
     bool m_doSiliconForwardMuons;
@@ -39,16 +30,16 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm {
     float m_extThreshold;
 
     SG::ReadHandleKeyArray<xAOD::TrackParticleContainer> m_indetTrackParticleLocation;
-    SG::ReadHandleKey<xAOD::TrackParticleContainer>      m_indetForwardTrackParticleLocation;
-    SG::WriteHandleKey<InDetCandidateCollection>         m_candidateCollectionName;
-    ToolHandle<Trk::ITrackSelectorTool>                  m_trackSelector{
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_indetForwardTrackParticleLocation;
+    SG::WriteHandleKey<InDetCandidateCollection> m_candidateCollectionName;
+    ToolHandle<Trk::ITrackSelectorTool> m_trackSelector{
         this, "TrackSelector", "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool",
         "Track selector tool"};
     ToolHandle<Trk::ITrackSelectorTool> m_forwardTrackSelector{
         this, "InDetForwardTrackSelector",
         "InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedForwardTrackSelectorTool",
         "Forward track selector tool"};
-    ToolHandle<Trk::ITrackSelectorTool>        m_currentTrackSelector;
+    ToolHandle<Trk::ITrackSelectorTool> m_currentTrackSelector;
     ToolHandle<Muon::IMuonSystemExtensionTool> m_muonSystemExtensionTool{
         this, "MuonSystemExtensionTool", "Muon::MuonSystemExtensionTool/MuonSystemExtensionTool",
         "Muon system extension tool"};

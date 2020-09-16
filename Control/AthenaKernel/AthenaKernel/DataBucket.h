@@ -132,7 +132,28 @@ namespace SG {
     T* ptr() { return m_ptr; }
     const T* cptr() const { return m_ptr; }
 
-  private:
+
+    /** 
+     * @brief Try a conversion using static SG_BASES information.
+     * @param clid The class ID to which to convert.
+     *
+     * This can all be unfolded at compile time, so is fast, but
+     * doesn't take into account SG_ADD_BASES.
+     */
+    void* tryStaticConversion (CLID clid);
+
+
+    /** 
+     * @brief Try a conversion using static SG_BASES information.
+     * @param tinfo The @a std::type_info of the type to which to convert.
+     *
+     * This can all be unfolded at compile time, so is fast, but
+     * doesn't take into account SG_ADD_BASES.
+     */
+    void* tryStaticConversion (const std::type_info& tinfo);
+
+
+private:
     T* m_ptr;  //we own the thing now!
 
     /// Objects made by copy conversion.

@@ -15,7 +15,6 @@
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
-
 /**
  *  
  * @brief Class for calculating vertex variables.
@@ -34,7 +33,7 @@ public:
     
     virtual StatusCode initialize() override;
     virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) const override; 
-    virtual StatusCode finalize() override;
+
     //-------------------------------------------------------------
     //! determines the transverse flight path significance from
     //! the primary vertex and the secondary vertex of tau candidate

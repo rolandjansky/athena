@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/PixelClusterCnv_p3_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "TestTools/leakcheck.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -85,7 +84,7 @@ void testit (const PixelID& pix_id, const InDet::PixelCluster& trans1)
 }
 
 
-void test1 (const PixelID& pix_id)
+void test1 ATLAS_NOT_THREAD_SAFE (const PixelID& pix_id)
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -153,7 +152,7 @@ std::unique_ptr<PixelID> make_idhelper()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::unique_ptr<PixelID> pix_id = make_idhelper();
   test1(*pix_id);
