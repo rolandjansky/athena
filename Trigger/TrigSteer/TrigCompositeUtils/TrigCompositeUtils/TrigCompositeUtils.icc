@@ -141,6 +141,9 @@ namespace TrigCompositeUtils {
     }
     auto it = std::remove_if(vector.begin(), vector.end(), [&](const ElementLink<CONTAINER>& el) {
 
+        /// handle explicit case of an empty string
+        if ( containerSGKey=="" ) return false;
+
 	bool newmatch = !std::regex_match( el.dataID(), std::regex(containerSGKey) );
 
 	if ( containerSGKey.find("*")==std::string::npos &&
