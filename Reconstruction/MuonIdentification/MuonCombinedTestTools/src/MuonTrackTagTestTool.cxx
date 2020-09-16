@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackTagTestTool.h"
@@ -25,19 +25,16 @@
 using namespace MuonCombined;
 
 
-MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string &type, const std::string &name, const IInterface *parent)
-    : AthAlgTool(type, name, parent), m_trackingGeometrySvc("AtlasTrackingGeometrySvc", name)
-{
+MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string &type, const std::string &name, const IInterface *parent) :
+  AthAlgTool(type, name, parent) {
     declareInterface<IMuonTrackTagTool>(this);
     declareProperty("Chi2Cut", m_chi2cut = 50.);
-    declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
 #ifdef MUONCOMBDEBUG
     declareProperty("Truth", m_truth = false);
 #endif
     m_msEntrance       = 0;
     m_trackingGeometry = 0;
 }
-
 
 StatusCode
 MuonTrackTagTestTool::initialize()
@@ -53,18 +50,6 @@ MuonTrackTagTestTool::initialize()
 
     return StatusCode::SUCCESS;
 }
-
-
-StatusCode
-MuonTrackTagTestTool::finalize()
-{
-
-    msg(MSG::INFO) << "Finalized successfully" << endmsg;
-
-
-    return StatusCode::SUCCESS;
-}
-
 
 double
 MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack) const

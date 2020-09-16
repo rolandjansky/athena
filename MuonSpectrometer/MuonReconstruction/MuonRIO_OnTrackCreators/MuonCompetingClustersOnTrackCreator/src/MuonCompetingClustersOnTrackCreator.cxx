@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,7 +18,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 
 #include <list>
 #include <vector>
@@ -28,14 +27,12 @@ namespace Muon {
 
   MuonCompetingClustersOnTrackCreator::MuonCompetingClustersOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa), m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this)
+    : AthAlgTool(ty,na,pa)
   {
     // algtool interface - necessary!
     declareInterface<IMuonCompetingClustersOnTrackCreator>(this);
     declareInterface<Trk::ICompetingRIOsOnTrackTool>(this);
   }
-
-  MuonCompetingClustersOnTrackCreator::~MuonCompetingClustersOnTrackCreator(){}
 
   StatusCode MuonCompetingClustersOnTrackCreator::initialize()
   {
@@ -43,11 +40,6 @@ namespace Muon {
     ATH_MSG_VERBOSE("MuonCompetingClustersOnTrackCreator::Initializing");
     ATH_CHECK( m_clusterCreator.retrieve() );
 
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCompetingClustersOnTrackCreator::finalize()
-  {
     return StatusCode::SUCCESS;
   }
   

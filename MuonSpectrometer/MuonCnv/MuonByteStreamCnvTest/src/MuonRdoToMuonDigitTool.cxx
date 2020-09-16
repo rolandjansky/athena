@@ -63,14 +63,6 @@
 
 MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std::string& name,const IInterface* pIID) 
   : AthAlgTool(type, name, pIID),
-    m_acSvc("ActiveStoreSvc", name),
-    m_cscCalibTool("CscCalibTool"),
-    m_mdtRdoDecoderTool("Muon::MdtRDO_Decoder"),
-    m_cscRdoDecoderTool("Muon::CscRDO_Decoder"),
-    m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder"),
-    m_tgcRdoDecoderTool("Muon::TgcRDO_Decoder"),
-    m_stgcRdoDecoderTool("Muon::STGC_RDO_Decoder"),
-    m_mmRdoDecoderTool("Muon::MM_RDO_Decoder"),
     m_tgcCabling(nullptr),
     m_is12foldTgc(true)
 {
@@ -83,14 +75,6 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("DecodeTgcRDO", m_decodeTgcRDO = true);
   declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = true);
   declareProperty("DecodeMM_RDO", m_decodeMmRDO = true);
-  
-  declareProperty("cscCalibTool",  m_cscCalibTool);
-  declareProperty("mdtRdoDecoderTool",  m_mdtRdoDecoderTool);
-  declareProperty("cscRdoDecoderTool",  m_cscRdoDecoderTool);
-  declareProperty("rpcRdoDecoderTool",  m_rpcRdoDecoderTool);
-  declareProperty("tgcRdoDecoderTool",  m_tgcRdoDecoderTool);
-  declareProperty("stgcRdoDecoderTool",  m_stgcRdoDecoderTool);
-  declareProperty("mmRdoDecoderTool",  m_mmRdoDecoderTool);
 
   declareProperty("show_warning_level_invalid_TGC_A09_SSW6_hit", m_show_warning_level_invalid_TGC_A09_SSW6_hit = false);
 }
