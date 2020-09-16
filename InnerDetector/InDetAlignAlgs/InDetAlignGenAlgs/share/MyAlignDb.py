@@ -1,6 +1,4 @@
 SCT_GMX_DetectorTool.Alignable = True
-###pixelTool.Alignable = 
-
 
 from IOVDbSvc.CondDB import conddb
 conddb.blockFolder("/Indet/AlignITk")

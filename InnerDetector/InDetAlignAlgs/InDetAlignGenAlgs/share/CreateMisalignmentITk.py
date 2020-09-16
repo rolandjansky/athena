@@ -12,7 +12,6 @@
 
 MisalignmentOnTopOfExistingSet = False
 ReadDBPoolFile = False
-#ReadDBPoolFile = True
 WriteDBPoolFile = True
 ROOToutput = True
 
@@ -119,7 +118,6 @@ include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 PoolSvc=Service("PoolSvc")
     
 if ROOToutput:
-#rel 14 stuff
     theApp.HistogramPersistency = "ROOT"
 
     NTupleSvc        = Service( "NTupleSvc" )

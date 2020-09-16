@@ -48,10 +48,7 @@ AlignmentOutFilename = OutFiles + '.pool.root'
 DatabaseFilename     = OutFiles + '.db'
 ASCIIFilename        = OutFiles
 
-
-#import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
 
 from InDetAlignGenTools.InDetAlignGenToolsConf import InDetAlignDBTool
 InDetDBTool = InDetAlignDBTool()
@@ -59,11 +56,9 @@ InDetDBTool.DBRoot = "/Indet/AlignITk"
 ToolSvc += InDetDBTool
 print InDetDBTool
 
-
 ## get a handle on the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
 
 print "CreateMisalignAlg: Creation of misalignment mode %s: %s" % (MisalignmentMode,MisalignModeMap.get(MisalignmentMode,'unknown'))
 
@@ -102,7 +97,6 @@ include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 PoolSvc=Service("PoolSvc")
     
 if ROOToutput:
-#rel 14 stuff
     theApp.HistogramPersistency = "ROOT"
 
     NTupleSvc        = Service( "NTupleSvc" )
@@ -113,7 +107,6 @@ if ReadDBPoolFile:
     from IOVDbSvc.CondDB import conddb
     # block folders that you want to override
     conddb.blockFolder("/Indet/Align")
-    #conddb.blockFolder("/TRT/Align")
     from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import CondProxyProvider
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr += CondProxyProvider()
