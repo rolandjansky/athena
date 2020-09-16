@@ -172,13 +172,13 @@ const xAOD::Vertex* MVATrackVertexAssociationTool::getUniqueMatchVertexInternal(
 
   bool match;
   float mvaOutput;
-  float minValue = 999.0; // MVA output ranges between 0 and 1
+  float maxValue = -1.0; // MVA output ranges between 0 and 1
   const xAOD::Vertex* bestMatchVertex = nullptr;
 
   for (const auto& vertex : vx_list) {
     match = isMatch(trk, *vertex, mvaOutput);
-    if (match && (mvaOutput < minValue)) {
-      minValue = mvaOutput;
+    if (match && (maxValue < mvaOutput)) {
+      maxValue = mvaOutput;
       bestMatchVertex = vertex;
     }
   }

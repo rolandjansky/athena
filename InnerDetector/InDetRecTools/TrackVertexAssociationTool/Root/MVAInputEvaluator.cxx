@@ -176,8 +176,8 @@ class ErrDZ: public MiniEvaluator {
 public:
   ErrDZ() {};
   ~ErrDZ() override final {};
-  float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt) const override final {
-    return std::sqrt(trk.definingParametersCovMatrix()(1, 1) + std::pow(evt.beamPosSigmaZ(), 2) + vx.covariancePosition()(2, 2));
+  float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, __attribute__((unused)) const xAOD::EventInfo& evt) const override final {
+    return std::sqrt(trk.definingParametersCovMatrix()(1, 1) + vx.covariancePosition()(2, 2));
   }
 };
 
@@ -194,11 +194,11 @@ class ErrDZSinTheta: public MiniEvaluator {
 public:
   ErrDZSinTheta() {};
   ~ErrDZSinTheta() override final {};
-  float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt) const override final {
+  float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, __attribute__((unused)) const xAOD::EventInfo& evt) const override final {
     float dz         = (trk.z0() + trk.vz() - vx.z());
     float sinTheta   = std::sin(trk.theta());
     float cosTheta   = std::cos(trk.theta());
-    float errSqDZ    = trk.definingParametersCovMatrix()(1, 1) + std::pow(evt.beamPosSigmaZ(), 2) + vx.covariancePosition()(2, 2);
+    float errSqDZ    = trk.definingParametersCovMatrix()(1, 1) + vx.covariancePosition()(2, 2);
     float errSqTheta = trk.definingParametersCovMatrix()(3, 3);
     float covZ0Theta = trk.definingParametersCovMatrix()(1, 3);
     return (errSqDZ * std::pow(sinTheta, 2) + std::pow(dz * cosTheta, 2) * errSqTheta + 2 * sinTheta * dz * cosTheta * covZ0Theta);
