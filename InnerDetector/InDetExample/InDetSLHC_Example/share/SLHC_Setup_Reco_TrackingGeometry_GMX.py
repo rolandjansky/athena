@@ -10,7 +10,7 @@ DetDescrVersion = jobproperties.Global.DetDescrVersion()
 splitGeo        = DetDescrVersion.split('-')
 TrkDetFlags.SLHC_Geometry           = True
 TrkDetFlags.MaterialStoreGateKey    = "/GLOBAL/TrackingGeo/LayerMaterialITK"
-if globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-17') or  globalflags.DetDescrVersion().startswith('ATLAS-P2-ITK-22') :
+if DetDescrVersion.startswith('ATLAS-P2-ITK-17') or DetDescrVersion.startswith('ATLAS-P2-ITK-22') :
   TrkDetFlags.MaterialVersion         = 20
 else:
   TrkDetFlags.MaterialVersion         = 21
