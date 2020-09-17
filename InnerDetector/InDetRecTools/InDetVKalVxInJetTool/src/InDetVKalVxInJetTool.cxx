@@ -62,7 +62,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_rLayerB   (0.),  // in jobO or initialize()
     m_rLayer1   (0.),
     m_rLayer2   (0.),
-    m_useVertexCleaning(false),
+    m_useVertexCleaningPix(false),
+    m_useVertexCleaningFMP(false),
     m_multiVertex(false),
     m_multiWithPrimary(false),
     m_getNegativeTail(false),
@@ -120,7 +121,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     declareProperty("Rlayer1",   m_rLayer1  );
     declareProperty("Rlayer2",   m_rLayer2  );
 
-    declareProperty("useVertexCleaning",     m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
+    declareProperty("useVertexCleaningPix", m_useVertexCleaningPix, "Clean vertices requiring track pixel hit patterns according to vertex position" );
+    declareProperty("useVertexCleaningFMP", m_useVertexCleaningFMP, "Clean vertices requiring track F(irst) M(easured) P(oints) matching to vertex position" );
 
     declareProperty("MultiVertex",        m_multiVertex,       "Run Multiple Secondary Vertices in jet finder"  );
     declareProperty("MultiWithPrimary",   m_multiWithPrimary,  "Find Multiple Secondary Vertices + primary vertex in jet. MultiVertex Finder only!"  );
@@ -245,8 +247,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
          m_hb_distVV     = new TH1D("distvv","Vertex-Vertex dist", 100,0., 20.);
          m_hb_diffPS     = new TH1D("diffPS","Primary-Secondary assoc", 200,-20., 20.);
          m_hb_trkPtMax   = new TH1D("trkPtMax","Maximal track Pt to jet", 100, 0., 5000.);
-         m_hb_blshared   = new TH1F("blshared","Number of shared hits in B-layer for R<BL", 5, 0., 5.);
-         m_hb_pxshared   = new TH1F("pxshared","Number of shared hits in pixel for R>BL", 5, 0., 5.);
          m_hb_rawVrtN    = new TH1F("rawVrtN","Number of raw vertices multivertex case", 20, 0., 20.);
          m_hb_lifetime   = new TH1F("lifetime","Distance/momentum", 100, 0., 5.);
          m_hb_trkPErr    = new TH1F("trkPErr","Track momentum error for P>10 GeV", 100, 0., 0.5);
@@ -299,8 +299,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"distVV",    m_hb_distVV);
        sc = hist_root->regHist(histDir+"diffPS",    m_hb_diffPS);
        sc = hist_root->regHist(histDir+"trkPtMax",  m_hb_trkPtMax);
-       sc = hist_root->regHist(histDir+"blshared",  m_hb_blshared);
-       sc = hist_root->regHist(histDir+"pxshared",  m_hb_pxshared);
        sc = hist_root->regHist(histDir+"rawVrtN",   m_hb_rawVrtN);
        sc = hist_root->regHist(histDir+"lifetime",  m_hb_lifetime);
        sc = hist_root->regHist(histDir+"trkPErr",   m_hb_trkPErr);
@@ -332,10 +330,11 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
           m_tuple->Branch("wgtB",        &m_curTup->wgtB,      "wgtB[ntrk]/F");
           m_tuple->Branch("wgtL",        &m_curTup->wgtL,      "wgtL[ntrk]/F");
           m_tuple->Branch("wgtG",        &m_curTup->wgtG,      "wgtG[ntrk]/F");
-          m_tuple->Branch("Sig3D",       &m_curTup->Sig3D,     "Sig3D[ntrk]/F");
+          m_tuple->Branch("sig3D",       &m_curTup->sig3D,     "sig3D[ntrk]/F");
           m_tuple->Branch("idMC",        &m_curTup->idMC,      "idMC[ntrk]/I");
           m_tuple->Branch("ibl",         &m_curTup->ibl,       "ibl[ntrk]/I");
           m_tuple->Branch("bl",          &m_curTup->bl,        "bl[ntrk]/I");
+          m_tuple->Branch("fhitR",       &m_curTup->fhitR,     "fhitRR[ntrk]/F");
           m_tuple->Branch("SigR",        &m_curTup->SigR,      "SigR[ntrk]/F");
           m_tuple->Branch("SigZ",        &m_curTup->SigZ,      "SigZ[ntrk]/F");
           m_tuple->Branch("d0",          &m_curTup->d0,        "d0[ntrk]/F");
@@ -352,6 +351,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
           m_tuple->Branch("VrtSig3D",    &m_curTup->VrtSig3D,  "VrtSig3D[nvrt]/F");
           m_tuple->Branch("VrtSig2D",    &m_curTup->VrtSig2D,  "VrtSig2D[nvrt]/F");
           m_tuple->Branch("VrtDR",       &m_curTup->VrtDR,     "VrtDR[nvrt]/F");
+          m_tuple->Branch("VrtErrR",     &m_curTup->VrtErrR,   "VrtErrR[nvrt]/F");
           m_tuple->Branch("itrk",        &m_curTup->itrk,      "itrk[nvrt]/I");
           m_tuple->Branch("jtrk",        &m_curTup->jtrk,      "jtrk[nvrt]/I");
           m_tuple->Branch("badV",        &m_curTup->badVrt,    "badV[nvrt]/I");

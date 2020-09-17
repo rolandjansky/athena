@@ -16,6 +16,7 @@
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -76,7 +77,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
+      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -84,7 +85,8 @@ namespace InDet {
     private:
         
       /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
-      const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::Layer*>& negLayers,
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
+                                                 (const std::vector<const Trk::Layer*>& negLayers,
                                                   const std::vector<const Trk::Layer*>& centralLayers,
                                                   const std::vector<const Trk::Layer*>& posLayers,
                                                   double rMin, double rMax,

@@ -18,11 +18,12 @@
 # define IOVDBMETADATATOOL_IIOVDBMETADATATOOL_H
 
 // Gaudi
-#include "GaudiKernel/IAlgTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 #include <string>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 class CondAttrListCollection;
+class IOVMetaDataContainer;
 
 /** 
  ** @class IIOVDbMetaDataTool
@@ -38,10 +39,11 @@ class CondAttrListCollection;
  **    - EndEvent:<pre>        End event number</pre>
  **/
 
-class IIOVDbMetaDataTool : virtual public IAlgTool 
+class IIOVDbMetaDataTool : virtual public IMetaDataTool,
+                           virtual public ILockableTool
 {
 
-public:    
+public:
   
     /// Retrieve interface ID
     static const InterfaceID& interfaceID() { 
@@ -69,6 +71,7 @@ public:
     /// occurs before BeginInputFile incident.
     virtual StatusCode  processInputFileMetaData(const std::string& fileName) = 0;
 
+    virtual IOVMetaDataContainer* findMetaDataContainer(const std::string& folderName) const = 0;
 };
 
 
