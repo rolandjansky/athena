@@ -201,7 +201,7 @@ public:
     float errSqDZ    = trk.definingParametersCovMatrix()(1, 1) + vx.covariancePosition()(2, 2);
     float errSqTheta = trk.definingParametersCovMatrix()(3, 3);
     float covZ0Theta = trk.definingParametersCovMatrix()(1, 3);
-    return (errSqDZ * std::pow(sinTheta, 2) + std::pow(dz * cosTheta, 2) * errSqTheta + 2 * sinTheta * dz * cosTheta * covZ0Theta);
+    return std::sqrt(errSqDZ * std::pow(sinTheta, 2) + std::pow(dz * cosTheta, 2) * errSqTheta + 2 * sinTheta * dz * cosTheta * covZ0Theta);
   }
 };
 
