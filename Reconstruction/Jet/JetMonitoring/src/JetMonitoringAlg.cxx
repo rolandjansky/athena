@@ -6,7 +6,6 @@
 
 #include "xAODJet/Jet.h"
 
-
 JetMonitoringAlg::JetMonitoringAlg( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)
 ,m_jetContainerKey("AntiKt4LCTopoJets"), m_jetFillerTools(this), m_failureOnMissingContainer(true), m_onlyPassingJets(true)
@@ -39,10 +38,10 @@ StatusCode JetMonitoringAlg::initialize() {
 
 
 StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
+
   if (m_triggerChainString != "" && m_onlyPassingJets) {
     ATH_MSG_DEBUG("JetMonitoringAlg::fillHistograms(const EventContext&) -> enter triggerChainString = "<<m_triggerChainString);
-   
-    ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
+    std::list<const xAOD::Jet*> tmpList;
     const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = getTrigDecisionTool()->features<xAOD::JetContainer>( m_triggerChainString );
     for(const auto& jetLinkInfo : fc) {
       if (!jetLinkInfo.isValid()) {
@@ -51,8 +50,12 @@ StatusCode JetMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
       }
       ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
       const xAOD::Jet *trigjet = dynamic_cast<const xAOD::Jet*>(*j);
-      tmpCont.push_back( trigjet );
+      tmpList.push_back( trigjet );
     }
+    auto sort = [this] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ;
+    tmpList.sort( sort );
+    ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);
+    for(const xAOD::Jet* jet : tmpList ) tmpCont.push_back(jet);
     const xAOD::JetContainer * trigJetsCont = tmpCont.asDataVector();
     if (trigJetsCont->empty()) {
       ATH_MSG_WARNING("Empty trigger jet container for chain "<<m_triggerChainString);

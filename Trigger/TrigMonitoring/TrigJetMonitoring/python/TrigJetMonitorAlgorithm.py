@@ -351,6 +351,8 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT,onlyUsePassingJet
    else:
      chainFolder = chain
 
+   if not athenaMT:
+     onlyUsePassingJets = False #does not work for legacy samples yet
    jetMonAlgSpecName = chain+"TrigMon"
    if not onlyUsePassingJets:
      chainFolder = chainFolder + "/ExpertHistos"
@@ -562,8 +564,9 @@ if __name__=='__main__':
 
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
-    chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
-    chainMonitorConfT.toAlg(helper)
+    if AthenaMT:
+      chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
+      chainMonitorConfT.toAlg(helper)
     chainMonitorConfF = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,False)
     chainMonitorConfF.toAlg(helper)
 
