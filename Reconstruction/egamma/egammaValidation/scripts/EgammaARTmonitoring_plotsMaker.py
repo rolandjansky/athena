@@ -229,6 +229,7 @@ def make_conversion_plot(f_base, f_nightly, result_file):
             baseline.SetMinimum(min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
             baseline.SetMaximum(max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
 
+            baseline.GetXaxis().SetTitle("R^{reco}_{conv. vtx} - R^{true}_{conv. vtx} [mm]")
             baseline.GetYaxis().SetTitle("normalized to unity")
 
             baseline.SetLineColor(folder['color'])
