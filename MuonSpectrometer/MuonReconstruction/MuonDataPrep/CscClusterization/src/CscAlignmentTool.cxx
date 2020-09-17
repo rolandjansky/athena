@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CscAlignmentTool.cxx
@@ -9,15 +9,11 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-using std::vector;
-using std::string;
-
 //**********************************************************************
 
-CscAlignmentTool::
-CscAlignmentTool(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),
-    m_pmuon_detmgr(0), m_phelper(0)
+CscAlignmentTool::CscAlignmentTool(const std::string& type, const std::string& aname, const IInterface* parent) :
+  AthAlgTool(type, aname, parent),
+  m_phelper(nullptr)
 {
   declareInterface<ICscAlignmentTool>(this);
   declareProperty("useAlignment", m_useAlignment=false); // in strips
@@ -28,10 +24,6 @@ CscAlignmentTool(string type, string aname, const IInterface* parent)
 
 //**********************************************************************
 
-CscAlignmentTool::~CscAlignmentTool() { }
-
-//**********************************************************************
-
 StatusCode CscAlignmentTool::initialize() {
 
   ATH_MSG_DEBUG ( "Initializing " << name() );
@@ -39,22 +31,11 @@ StatusCode CscAlignmentTool::initialize() {
   ATH_MSG_DEBUG ( "     EtaPos AlignConsts size :" << m_etaposAlignconsts.size() );
   ATH_MSG_DEBUG ( "     PhiPos AlignConsts size :" << m_phiposAlignconsts.size() );
 
-  // Retrieve the detector descriptor.
-  if ( detStore()->retrieve(m_pmuon_detmgr).isFailure() ) {
-    ATH_MSG_ERROR ( " Cannot retrieve MuonGeoModel " );
-    return StatusCode::RECOVERABLE;
-  }
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK_RECOVERABLE(detStore()->retrieve(muDetMgr));
   ATH_MSG_DEBUG ( "Retrieved geometry." );
-  m_phelper = m_pmuon_detmgr->cscIdHelper();
+  m_phelper = muDetMgr->cscIdHelper();
 
-
-  return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
-
-StatusCode CscAlignmentTool::finalize() {
-  ATH_MSG_VERBOSE ( "Finalizing " << name() );
   return StatusCode::SUCCESS;
 }
 

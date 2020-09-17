@@ -53,7 +53,7 @@ private:
   //       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
   StatusCode fillTagInfo() const;
 
-  const MuonGM::MuonDetectorManager* m_MuonMgr;
+  const MuonGM::MuonDetectorManager* m_MuonMgr; // no ReadCondHandleKey used here for now, since no alignment applied in digitisation
 
   IntegerProperty m_fast_debug{this, "FastDebug", 0, "bits for debugging 'fast' algos"};
   IntegerProperty m_monitoring{this, "Monitoring", 0, "bits for monitoring sequence"};

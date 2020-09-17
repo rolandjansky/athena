@@ -759,7 +759,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
   }
   
   if (m_useTof) {
-    double minTof = minimumTof(DigitId);
+    double minTof = minimumTof(DigitId, m_MuonGeoMgr);
     if(( hit.globalTime() < 0 || hit.globalTime() > 10*minTof) && m_DiscardEarlyHits) {
       ok = false;
       ATH_MSG_DEBUG( "MDTSimHit has invalid global time: " << hit.globalTime() << "   minimum Tof " << minTof );
@@ -854,7 +854,7 @@ bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSi
     
     // check if the hits lies within the TDC time window
     // subtrack the minimum Tof (= globalPosition().mag()/c) from the tof of the hit 
-    double relativeTime = driftTime - minimumTof(idDigit);
+    double relativeTime = driftTime - minimumTof(idDigit, m_MuonGeoMgr);
     bool insideMatch = insideMatchingWindow( relativeTime );
     bool insideMask = insideMaskWindow( relativeTime );
     if( insideMask && insideMatch ) {
@@ -964,12 +964,12 @@ int MdtDigitizationTool::digitizeTime(double time, bool isHPTDC, CLHEP::HepRando
 }
 
 
-double MdtDigitizationTool::minimumTof(Identifier DigitId) const { 
+double MdtDigitizationTool::minimumTof(Identifier DigitId, const MuonGM::MuonDetectorManager* detMgr) const { 
   if(!m_useTof) return 0.;
   
   // get distance to vertex for tof correction before applying the time window
   double distanceToVertex(0.);
-  const MuonGM::MdtReadoutElement* element = m_MuonGeoMgr->getMdtReadoutElement(DigitId);
+  const MuonGM::MdtReadoutElement* element = detMgr->getMdtReadoutElement(DigitId);
   
   if (0 == element) {
     ATH_MSG_ERROR( "MuonGeoManager does not return valid element for given id!" );
