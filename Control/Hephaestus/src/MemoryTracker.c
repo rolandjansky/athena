@@ -1137,7 +1137,13 @@ static PyMethodDef gFreeStatisticsMethods[] = {
 PyObject* initMemoryTrace();
 PyObject* initDoubleDeleteChecker();
 
-void initMemoryTracker() {
+#if PY_MAJOR_VERSION >= 3
+PyObject *
+PyInit_MemoryTracker(void)
+#else
+void initMemoryTracker()
+#endif
+{
    PyObject *memtrack;
    PyObject *chkpoints, *freestat;
    PyObject *ddcheck, *memtrace;
@@ -1213,4 +1219,8 @@ void initMemoryTracker() {
 /* double delete checker functionality */
    ddcheck = initDoubleDeleteChecker();
    PyModule_AddObject( memtrack, (char*)"DeleteChecker", ddcheck );
+
+#if PY_MAJOR_VERSION >= 3
+   return memtrack;
+#endif
 }
