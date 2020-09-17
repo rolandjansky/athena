@@ -119,7 +119,6 @@ bool ClustersMeanEMProbability (const xAOD::TauJet &tau, double &out);
 bool ClustersMeanFirstEngDens  (const xAOD::TauJet &tau, double &out);
 bool ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out);
 bool ClustersMeanSecondLambda  (const xAOD::TauJet &tau, double &out);
-bool ClustersMeanSecondR       (const xAOD::TauJet &tau, double &out);
 bool EMPOverTrkSysP            (const xAOD::TauJet &tau, double &out);
 
 

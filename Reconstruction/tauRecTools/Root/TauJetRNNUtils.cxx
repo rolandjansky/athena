@@ -127,7 +127,6 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("ClustersMeanCenterLambda",   Variables::ClustersMeanCenterLambda  );
     calc->insert("ClustersMeanFirstEngDens",   Variables::ClustersMeanFirstEngDens  );
     calc->insert("ClustersMeanPresamplerFrac", Variables::ClustersMeanPresamplerFrac);
-    calc->insert("ClustersMeanSecondR",        Variables::ClustersMeanSecondR  );
 
     // Track variable calculator functions
     calc->insert("pt_log", Variables::Track::pt_log);
@@ -338,13 +337,6 @@ bool     ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, ClustersMeanSecondLambda);
 
   return success;
-}
-bool     ClustersMeanSecondR(const xAOD::TauJet &tau, double &out){
-  float clustersMeanSecondR = tau.auxdata<float>("ClustersMeanSecondR");
-  //double ClustersMeanSecondR(0);
-  //  const auto success = tau.detail(TauDetail::ClustersMeanSecondR, ClustersMeanSecondR);
-  out = std::max(0.f, clustersMeanSecondR);
-  return true;
 }
 
 namespace Track {
