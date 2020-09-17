@@ -97,13 +97,6 @@ Trk::MultipleScatteringUpdator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-// finalize
-StatusCode
-Trk::MultipleScatteringUpdator::finalize() {
-  ATH_MSG_INFO("finalize() successful");
-  return StatusCode::SUCCESS;
-}
-
 double
 Trk::MultipleScatteringUpdator::sigmaSquare(const MaterialProperties &mat,
                                             double p,
