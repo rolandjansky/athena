@@ -714,11 +714,10 @@ StatusCode MuonRdoToMuonDigitTool::decodeTgc (const TgcRdo& rdoColl,
               }
 
 	      // check duplicate digits
-	      TgcDigitCollection::const_iterator it_tgcDigit;
 	      bool duplicate = false;
-	      for (it_tgcDigit=coll->begin(); it_tgcDigit != coll->end(); it_tgcDigit++) {
-		if ((newDigit->identify() == (*it_tgcDigit)->identify()) && 
-		    (newDigit->bcTag()    == (*it_tgcDigit)->bcTag())) {
+              for (const TgcDigit* digit : *coll) {
+		if ((newDigit->identify() == digit->identify()) && 
+		    (newDigit->bcTag()    == digit->bcTag())) {
 		  duplicate = true;
 		  ATH_MSG_DEBUG( "Duplicate TGC Digit removed"   );
 		  break;
