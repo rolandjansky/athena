@@ -107,21 +107,19 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         double ENG_FRAC_CORE = 0.0;
         double SECOND_ENG_DENS = 0.0;
 
-        // TODO: Replace numbers by human readable enums
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 404, CENTER_MAG) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
-
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 102, FIRST_ETA) )       ATH_MSG_WARNING("Couldn't retrieve FIRST_ETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 201, SECOND_R) )        ATH_MSG_WARNING("Couldn't retrieve SECOND_R moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 202, SECOND_LAMBDA) )   ATH_MSG_WARNING("Couldn't retrieve SECOND_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 301, DELTA_PHI) )       ATH_MSG_WARNING("Couldn't retrieve DELTA_PHI moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 302, DELTA_THETA) )     ATH_MSG_WARNING("Couldn't retrieve DELTA_THETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 501, CENTER_LAMBDA) )   ATH_MSG_WARNING("Couldn't retrieve CENTER_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 601, LATERAL) )         ATH_MSG_WARNING("Couldn't retrieve LATERAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 602, LONGITUDINAL) )    ATH_MSG_WARNING("Couldn't retrieve LONGITUDINAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 701, ENG_FRAC_EM) )     ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_EM moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 702, ENG_FRAC_MAX) )    ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_MAX moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 703, ENG_FRAC_CORE) )   ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_CORE moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment((xAOD::CaloCluster_v1::MomentType) 805, SECOND_ENG_DENS) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_ENG_DENS moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_MAG, CENTER_MAG) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ETA, FIRST_ETA) ) ATH_MSG_WARNING("Couldn't retrieve FIRST_ETA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, SECOND_R) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_R moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, SECOND_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_LAMBDA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_PHI, DELTA_PHI) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_PHI moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_THETA, DELTA_THETA) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_THETA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, CENTER_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_LAMBDA moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LATERAL, LATERAL) ) ATH_MSG_WARNING("Couldn't retrieve LATERAL moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LONGITUDINAL, LONGITUDINAL) ) ATH_MSG_WARNING("Couldn't retrieve LONGITUDINAL moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_EM, ENG_FRAC_EM) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_EM moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_MAX, ENG_FRAC_MAX) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_MAX moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_CORE, ENG_FRAC_CORE) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_CORE moment. Set it to 0.");
+        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_ENG_DENS, SECOND_ENG_DENS) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_ENG_DENS moment. Set it to 0.");
 
        	float E_EM1 = pPi0Cluster->eSample(CaloSampling::EMB1) + pPi0Cluster->eSample(CaloSampling::EME1);
 	      float E_EM2 = pPi0Cluster->eSample(CaloSampling::EMB2) + pPi0Cluster->eSample(CaloSampling::EME2);
