@@ -305,8 +305,8 @@ namespace InDet
    
    int getCount( const xAOD::TrackParticle& trk, const xAOD::SummaryType type ) const {
      uint8_t val;
-     if( !trk.summaryValue(val,type) ) return 0;
-     return val > 0 ? val : 0;
+     if( !trk.summaryValue(val,type) ) return -1; // infos can not be retrieved
+     return val;
    }
 
  };//end of class

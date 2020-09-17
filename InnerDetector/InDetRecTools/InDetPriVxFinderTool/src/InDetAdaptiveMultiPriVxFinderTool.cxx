@@ -359,17 +359,29 @@ bool InDetAdaptiveMultiPriVxFinderTool::vtxEtaDependentCut(const xAOD::TrackPart
     ATH_MSG_DEBUG("track error d0: " << fabs(Amg::error(covTrk, 0)) << " HIGHER than max err d0: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
   }
   else if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("SilHits: " << getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min SilHits: " << m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) << "");
+    if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < 0 ) {
+      etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
+      ATH_MSG_WARNING("Failed to access Silicon Hits Counts");
+    } 
+    else {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("SilHits: " << getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min SilHits: " << m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) << "");
+    }
   }
   else if ( getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("PixHits: " << getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min PixHits: " << m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) << ""); 
+    if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < 0 ) {
+      etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
+      ATH_MSG_WARNING("Failed to access Pixel Hits Counts");
+    }
+    else {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("PixHits: " << getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min PixHits: " << m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) << ""); 
+    }
   }
   ATH_MSG_DEBUG(" etaSelectionPassed (y/n): " << etaSelectionPassed_temp << "");
   return etaSelectionPassed_temp ; 
 }
-
+  
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiPriVxFinderTool::findVertex(const std::vector<const Trk::ITrackLink*> & trackVector)
 {
 
