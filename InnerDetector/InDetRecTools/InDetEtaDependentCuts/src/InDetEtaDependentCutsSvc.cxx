@@ -136,10 +136,10 @@ namespace InDet {
       ATH_MSG_INFO ("minPixelHits: " << m_minPixelHits);
       ATH_MSG_INFO ("minStripHits: " << m_minStripHits);
       ATH_MSG_INFO ("minPT: " << m_minPT);
-      ATH_MSG_INFO ("d0Max SEBASTIANO: " << m_IPd0Max);
-      ATH_MSG_INFO ("z0Max SEBASTIANO: " << m_IPz0Max);
-      ATH_MSG_INFO ("sigd0Max SEBASTIANO: " << m_sigIPd0Max);
-      ATH_MSG_INFO ("sigz0Max SEBASTIANO: " << m_sigIPz0Max);
+      ATH_MSG_INFO ("d0Max: " << m_IPd0Max);
+      ATH_MSG_INFO ("z0Max: " << m_IPz0Max);
+      ATH_MSG_INFO ("sigd0Max: " << m_sigIPd0Max);
+      ATH_MSG_INFO ("sigz0Max: " << m_sigIPz0Max);
       ATH_MSG_INFO ("minPTBrem: " << m_minPTBrem);
       ATH_MSG_INFO ("minSiNotShared: " << m_minSiNotShared);
       ATH_MSG_INFO ("nHolesGapMax: " << m_maxHolesGapPattern);
