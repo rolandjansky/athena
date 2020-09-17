@@ -150,9 +150,6 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
         "MuonDetectorManager",
         "Key of input MuonDetectorManager condition data",
     };
-
-    // keep track of full event being already processed
-    bool m_fullEventDone;
 };
 
 #endif
