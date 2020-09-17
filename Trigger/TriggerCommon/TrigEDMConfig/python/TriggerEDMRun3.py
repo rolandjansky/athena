@@ -456,6 +456,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrigCompositeAuxContainer#HLT_TrackCountAux.ntrks.pTcuts.z0cuts.counts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
 
+# HLTNav_* object list is built dynamically during job configuration, here we only define its output targets
+HLTNavEDMTargets = 'BS CostMonDS ESD AODFULL AODSLIM'
 
 #-------------------------------------------------------------------------------
 # EDM details list to store the transient-persistent version
@@ -496,3 +498,18 @@ def tpMap():
             continue
         l[tr] = persistent(tr)
     return l
+
+
+def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
+    """
+    Extend TriggerHLTListRun3 with HLT Navigation objects
+    """
+    for decisionCollection in allDecisions:
+        dynamic = '.-' # Exclude dynamic
+        if decisionCollection in hypoDecisions:
+            dynamic = '.' # Include dynamic
+        typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(decisionCollection)
+        typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(decisionCollection, dynamic)
+        edmList.extend([
+            (typeName,    HLTNavEDMTargets, 'Steer'),
+            (typeNameAux, HLTNavEDMTargets, 'Steer')])
