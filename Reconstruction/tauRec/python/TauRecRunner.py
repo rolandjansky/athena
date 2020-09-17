@@ -125,8 +125,8 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                        maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
             tools.append(taualgs.getTauWPDecoratorEleBDT())
             tools.append(taualgs.getTauEleRNNEvaluator("TauEleRNN",
-                                                         NetworkFile1P="taueveto_rnn_mc16d_1p.json",
-                                                         NetworkFile3P="taueveto_rnn_mc16d_3p.json",
+                                                         NetworkFile1P="rnneveto_mc16d_config_1p.json",
+                                                         NetworkFile3P="rnneveto_mc16d_config_3p.json",
                                                          OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
