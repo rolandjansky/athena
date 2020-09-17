@@ -24,14 +24,19 @@ import os
 if 'ATHENA_NPROC_NUM' in os.environ:
     del os.environ['ATHENA_NPROC_NUM']
 
+preExec = ';'.join([
+  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+])
+
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.max_events = 500
 rdo2aod.threads = 1
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
-rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
-rdo2aod.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
+rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
 
 tzmon = ExecStep.ExecStep('Tier0Mon')
 tzmon.type = 'other'

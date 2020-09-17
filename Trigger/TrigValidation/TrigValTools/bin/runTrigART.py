@@ -17,7 +17,7 @@ from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 def minimal_pattern(package):
     dict = {'TriggerTest':      '(test_trig_data_v1Dev_build|test_trig_data_newJO_build)',
             'TrigP1Test':       'test_trigP1_v1Dev_build',
-            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_mt1_build'}
+            'TrigAnalysisTest': 'test_trigAna_RDOtoRDOTrig_v1Dev_build'}
     if package == 'ALL':
         return '({})'.format('|'.join([v for v in dict.values() if v]))
     elif package in dict and dict[package] is not None:

@@ -28,12 +28,18 @@ import os
 if 'ATHENA_NPROC_NUM' in os.environ:
     del os.environ['ATHENA_NPROC_NUM']
 
+preExec = ';'.join([
+  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'TriggerFlags.triggerMenuSetup=\'Physics_pp_v7_primaries\'',
+  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+])
+
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.max_events = 500
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
-rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
+rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
 
 test = Test.Test()
 test.art_type = 'grid'

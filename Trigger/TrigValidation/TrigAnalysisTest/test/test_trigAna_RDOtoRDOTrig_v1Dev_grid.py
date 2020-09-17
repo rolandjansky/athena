@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1
+# art-description: Test of the RDOtoRDOTrigger transform with threads=1
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -25,19 +25,24 @@ import os
 if 'ATHENA_NPROC_NUM' in os.environ:
     del os.environ['ATHENA_NPROC_NUM']
 
-rdo2aod = ExecStep.ExecStep()
-rdo2aod.type = 'Reco_tf'
-rdo2aod.input = 'ttbar'
-rdo2aod.max_events = 500
-rdo2aod.threads = 1
-rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
-rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
+preExec = ';'.join([
+  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+])
+
+ex = ExecStep.ExecStep()
+ex.type = 'Reco_tf'
+ex.input = 'ttbar'
+ex.threads = 1
+ex.args = '--outputRDO_TRIGFile=RDO_TRIG.pool.root'
+ex.args += ' --preExec="all:{:s};"'.format(preExec)
 
 test = Test.Test()
 test.art_type = 'grid'
-test.exec_steps = [rdo2aod]
+test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
-add_analysis_steps(test)
+add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 import sys
 sys.exit(test.run())
