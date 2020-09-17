@@ -12,7 +12,6 @@
 #include <xAODForward/AFPSiHitContainer.h>
 
 #include <AthenaMonitoring/AthenaMonManager.h>
-#include <GaudiKernel/IJobOptionsSvc.h>
 #include <GaudiKernel/MsgStream.h>
 #include <GaudiKernel/StatusCode.h>
 

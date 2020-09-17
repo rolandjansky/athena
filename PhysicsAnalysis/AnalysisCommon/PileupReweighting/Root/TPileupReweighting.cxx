@@ -35,7 +35,7 @@ Description: Tool to get the calculated MC pileup weight.
 #include <TAxis.h>
 #include <TString.h>
 #include <TRandom3.h>
-
+#include <TObjString.h>
 
 ClassImp(CP::TPileupReweighting)
 

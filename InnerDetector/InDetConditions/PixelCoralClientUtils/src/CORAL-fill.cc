@@ -5,7 +5,7 @@
 #include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/CoralClient.hh"
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe PixCoralClient class is used.
+int main (int argc, char **argv){
   //printf("CORAL-fill starting \n");
 
     CAN::SerialNumber_t anal_id = 123456789;

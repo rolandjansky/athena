@@ -8,7 +8,6 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 PhysicsStream="Main"
 SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
@@ -123,6 +122,11 @@ def setupMenu():
         ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10', groups=BphysicsGroup),
         ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bDimu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bDimu2700_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bPhi_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bTau_L1MU11_2MU6', groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = [
 #        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial',stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
@@ -139,29 +143,4 @@ def setupMenu():
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
-
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-
-class Prescales(object):
-    #   Item name             | Prescale
-    #----------------------------------------------------------
-    L1Prescales = {}
-
-    #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Chains only need adding if have a Prescale value different from 1 (default)
-    #   - If the current pass_through value is non-zero,
-    #     the value given here will be used as pass_through rate
-    #     Assuming that pass through chains are configured so
-    #     in the slice files and won't change. Also prescale
-    #     and pass_through will not be used together.
-    #   - If only the first value is specified,
-    #     the default value of pass-through (=0) will be used
-    #----------------------------------------------------------
-    HLTPrescales = {
-        }
-
-    L1Prescales_cosmics  = {}
-    HLTPrescales_cosmics = {}
-    chain_list=[]
 

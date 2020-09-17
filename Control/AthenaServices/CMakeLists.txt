@@ -92,7 +92,6 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/TestSeedRunEvent.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
-   share/AthenaJobOptionsSvc_jobOptions.py
    share/test_tpcnvdb.py 
    share/AthenaOutputStream_test.txt 
    share/FPEControlSvc_test.txt 

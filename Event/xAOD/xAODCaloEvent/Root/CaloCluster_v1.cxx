@@ -907,4 +907,13 @@ namespace xAOD {
     return true;
   }
 
+
+#if !(defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS))
+size_t CaloCluster_v1::size() const { 
+    const CaloClusterCellLink* cl= getCellLinks();
+    if (!cl) return 0;
+    return cl->size(); 
+  }
+#endif // not defined(GENERATIONBASE) || defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
+
 } // namespace xAOD

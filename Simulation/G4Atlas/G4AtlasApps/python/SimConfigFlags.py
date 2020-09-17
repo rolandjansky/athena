@@ -86,7 +86,7 @@ def createSimConfigFlags():
         simstr = prevFlags.Sim.ISF.Simulator
         if simstr.endswith("MT"):
             simstr = simstr[:-2]
-        # Further specialsation possible in future
+        # Further specialization possible in future
         if simstr in ("FullG4", "PassBackG4"):
             doID = False
             doCALO = False
@@ -126,5 +126,13 @@ def createSimConfigFlags():
     scf.addFlag("Sim.Fatras.HadronIntProb", 1.) # hadronic interaction scale factor
     scf.addFlag("Sim.Fatras.GaussianMixtureModel", True) # use Gaussian mixture model for Multiple Scattering
     scf.addFlag("Sim.Fatras.BetheHeitlerScale", 1.) # scale to Bethe-Heitler contribution
+
+    # Run dependent simulation
+    # map from runNumber to timestamp; migrated from RunDMCFlags.py
+    def getRunToTimestampDict():
+        # this wrapper is intended to avoid an initial import
+        from RunToTimestampData import RunToTimestampDict
+        return RunToTimestampDict
+    scf.addFlag("Sim.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
 
     return scf

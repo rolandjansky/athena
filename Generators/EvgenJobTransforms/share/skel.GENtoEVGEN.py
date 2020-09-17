@@ -402,7 +402,8 @@ if evgenConfig.categories:
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
+# remove because it was removed from Database/AthenaPOOL/AthenaPoolCnvSvc
+#svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
 if hasattr(runArgs, "outputEVNTFile"):
   poolFile = runArgs.outputEVNTFile
 elif hasattr(runArgs, "outputEVNT_PreFile"):
@@ -434,19 +435,19 @@ svcMgr.EventSelector.RunNumber = int(dsid)
 
 ## Include information about generators in metadata
 import EventInfoMgt.EventInfoMgtInit
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number",str(dsid)]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["lhefGenerator", '+'.join( filter( gens_lhef, gennames ) ) ]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["generators", '+'.join(gennames)]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
-if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
-if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
-if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
-if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"mc_channel_number":str(dsid)})
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"lhefGenerator": '+'.join( filter( gens_lhef, gennames ) ) })
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"generators": '+'.join(gennames)})
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"evgenProcess": evgenConfig.process})
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"evgenTune": evgenConfig.tune})
+if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"hardPDF": evgenConfig.hardPDF})
+if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"softPDF": evgenConfig.softPDF})
+if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"randomSeed": str(runArgs.randomSeed)})
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag": runArgs.AMITag})
 
 ## Handle beam info
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_energy": str(int(runArgs.ecmEnergy*Units.GeV/2.0))})
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"beam_type": 'collisions'})
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface
@@ -456,7 +457,7 @@ include("EvgenJobTransforms/Generate_ecmenergies.py")
 include("EvgenJobTransforms/Generate_randomseeds.py")
 
 ## Add special config option (extended model info for BSM scenarios)
-svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
+svcMgr.TagInfoMgr.ExtraTagValuePairs.update({"specialConfiguration": evgenConfig.specialConfig })
 
 ## Remove TestHepMC if it's inappropriate for this generator combination
 # TODO: replace with direct del statements in the generator common JO fragments?
@@ -733,9 +734,9 @@ from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
 runPars.nEventsPerJob = evgenConfig.nEventsPerJob
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
-with open("config.pickle", 'w') as f:
-    import cPickle
-    cPickle.dump(runPars, f)
+with open("config.pickle", 'wb') as f:
+    import pickle
+    pickle.dump(runPars, f)
 
 
 ##==============================================================

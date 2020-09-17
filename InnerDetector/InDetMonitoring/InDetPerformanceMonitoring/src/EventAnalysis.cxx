@@ -4,7 +4,8 @@
 
 #include "CxxUtils/checker_macros.h"
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -13,12 +14,13 @@
 
 namespace{
   template <class HistoArrayType>
-  void registerHistogramType ATLAS_NOT_THREAD_SAFE // Thread unsafe PerfMonServices class is used.
-    (const HistoArrayType & h, const std::string &sampleName, const std::string & suffix){
+  void registerHistogramType
+    (ITHistSvc& histSvc,
+     const HistoArrayType & h, const std::string &sampleName, const std::string & suffix){
     unsigned int u = 1;
     const std::string titleRoot{"/ESD/" + sampleName + suffix};
     for ( auto & thisHisto:h ){
-      PerfMonServices::getHistogramService()->regHist( titleRoot + std::to_string(u), thisHisto.second ).ignore();
+      histSvc.regHist( titleRoot + std::to_string(u), thisHisto.second ).ignore();
       ++u;
     }
   }
@@ -40,18 +42,12 @@ EventAnalysis::~EventAnalysis()
 //=============================================================================
 // Public Accessors
 //=============================================================================
-void EventAnalysis::Init ATLAS_NOT_THREAD_SAFE () // Thread unsafe Register method is used.
+void EventAnalysis::Init()
 {
   // This must be called by an inheriting class in order to book
   //  & register histograms.
   BookHistograms();
   Register();
-}
-
-bool EventAnalysis::Reco()
-{
-  // This must be overriden by an inheriting class.
-  return false;
 }
 
 //=============================================================================
@@ -65,14 +61,16 @@ void EventAnalysis::BookHistograms()
 //=============================================================================
 // Private Accessors
 //=============================================================================
-void EventAnalysis::Register ATLAS_NOT_THREAD_SAFE () // Thread unsafe registerHistogramType fuction is used.
+void EventAnalysis::Register()
 {
+  ServiceHandle<ITHistSvc> histSvc ("THistSvc", "EventAnalysis");
+  
   // Register histograms in monitoring tool
-  registerHistogramType(m_x1DHistograms, m_xSampleName, "/1dhisto_");
-  registerHistogramType(m_x2DHistograms, m_xSampleName, "/2dhisto_");
+  registerHistogramType(*histSvc, m_x1DHistograms, m_xSampleName, "/1dhisto_");
+  registerHistogramType(*histSvc, m_x2DHistograms, m_xSampleName, "/2dhisto_");
 
-  registerHistogramType(m_x1DProfHistograms, m_xSampleName, "/1dprof_");
-  registerHistogramType(m_x2DProfHistograms, m_xSampleName, "/2dprof_");
+  registerHistogramType(*histSvc, m_x1DProfHistograms, m_xSampleName, "/1dprof_");
+  registerHistogramType(*histSvc, m_x2DProfHistograms, m_xSampleName, "/2dprof_");
 }
 
 

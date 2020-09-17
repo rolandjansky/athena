@@ -26,7 +26,7 @@ from AthenaCommon import CfgMgr
 import sys
 import cppyy
 import logging
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 from ROOT import egammaPID
 

@@ -22,6 +22,18 @@ def LArRawChannelBuilderDefault():
         theLArRawChannelBuilder=LArRawChannelBuilderAlg()
         if larRODFlags.keepDSPRaw():
             theLArRawChannelBuilder.LArRawChannelKey=larRODFlags.RawChannelFromDigitsContainerName()
+
+        if globalflags.DataSource() == 'data':
+           fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+           dbString="<db>COOLONL_LAR/CONDBR2</db>"
+        else:   
+           fld="/LAR/NoiseOfl/DSPThresholds"
+           dbString="<db>COOLOFL_LAR/OFLP200</db>"
+
+        theLArRawChannelBuilder.DSPThresholdsKey=fld
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder ("", fld+dbString, className="AthenaAttributeList")   
+
         topSequence += theLArRawChannelBuilder
 
         #Useless here but for backward compatiblity

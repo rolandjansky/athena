@@ -29,7 +29,6 @@
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "TrkSurfaces/Surface.h"
-#include "RegionSelector/IRegSelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonGeoModelTest/PerfUtils.h"
 
@@ -91,8 +90,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     declareProperty("buildCscRegionSelectorMap", m_check_cscrsmap);
     m_check_parent = 0;
     declareProperty("check_ParentStation", m_check_parent);
-    m_check_regsel = 0;
-    declareProperty("checkRegionSelectorMap", m_check_regsel);
 
     declareProperty("testMdtCache",m_testMdtCache=0);
     declareProperty("testRpcCache",m_testRpcCache=0);
@@ -150,7 +147,6 @@ MuonGMCheck::initialize()
     if (m_check_mdtrsmap) buildMdtRegionSelectorMap();
     if (m_check_tgcrsmap) buildTgcRegionSelectorMap();
     if (m_check_cscrsmap) buildCscRegionSelectorMap();
-    if (m_check_regsel) checkRegionSelectorMap();
     if (m_check_parent) checkParentStation();
   }
     
@@ -2978,16 +2974,6 @@ void MuonGMCheck::buildCscRegionSelectorMap()
              << std::endl;
      } // modules
      fout0.close();
-}
-
-void MuonGMCheck::checkRegionSelectorMap()
-{
-    IRegSelSvc* pRegionSelector;
-    StatusCode status = service("RegSelSvc", pRegionSelector);
-    if(status.isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve RegionSelector Svc" );
-      return;
-    }
 }
 
 void MuonGMCheck::testRpcCache()

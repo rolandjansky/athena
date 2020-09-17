@@ -9,19 +9,12 @@
 ## Description: Retrieve selector from mask mapping
 ##=============================================================================
 
-import cppyy
-
-try :
-  cppyy.loadDictionary('RingerSelectorToolsEnumsDict')
-except RuntimeError as e:
-  from AthenaCommon.Logging import logging
-  mlog = logging.getLogger( 'ElectronRingerSelectorMapping.py' )
-  mlog.error("Could not load RingerSelectorToolsEnums dictionary from cppyy.")
-  raise RuntimeError(e)
 
 from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import electronPIDmenu
 
 # Import from Ringer selector tools dictionary:
+import ROOT
+ROOT.gSystem.Load('libRingerSelectorToolsEnumsDict.so')
 from ROOT import Ringer
 
 from RingerSelectorTools.ElectronRingerSelectorDefs import *
@@ -54,8 +47,8 @@ class electronRingerPIDmenu (electronPIDmenu):
 #####################################################################################################
 
 ElectronRingerMap = {
-  (Ringer.Loose, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestLoose,
-  (Ringer.Medium, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestMedium,
-  (Ringer.Tight, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestTight,
-  (Ringer.NoCut, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestNoCut,
+  (Ringer.Requirement.Loose, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestLoose,
+  (Ringer.Requirement.Medium, electronRingerPIDmenu.testMenu): ElectronRingerSelectorTestMedium,
+  (Ringer.Requirement.Tight, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestTight,
+  (Ringer.Requirement.NoCut, electronRingerPIDmenu.testMenu):  ElectronRingerSelectorTestNoCut,
   }

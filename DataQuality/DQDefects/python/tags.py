@@ -45,7 +45,7 @@ class DefectsDBTagsMixin(object):
         """
         existing_tags = self.logics_tags
         if existing_tags:
-            new_id = max(int(t.split("-")[-1]) for t in existing_tags) + 1
+            new_id = max(int(str(t).split("-")[-1]) for t in existing_tags) + 1
         else:
             new_id = 0
         return DEFECT_LOGIC_TAG_FORMAT % new_id

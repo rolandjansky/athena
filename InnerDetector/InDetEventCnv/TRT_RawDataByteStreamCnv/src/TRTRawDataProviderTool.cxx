@@ -99,9 +99,7 @@ StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>
   std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
   const EventContext& ctx{Gaudi::Hive::currentContext()};
-  //  std::lock_guard<std::mutex> lock{m_mutex};
-  // Do not lock mutex because this convert method is non-const.
-  // But we should make this method const.
+  std::lock_guard<std::mutex> lock{m_mutex};
   CacheEntry* ent{m_cache.get(ctx)};
   if (ent->m_evt!=ctx.evt()) { // New event in this slot
     ent->m_LastLvl1ID = 0xffffffff;

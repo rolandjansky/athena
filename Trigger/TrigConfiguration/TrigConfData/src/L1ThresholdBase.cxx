@@ -149,9 +149,12 @@ TrigConf::L1ThrExtraInfoBase::thresholdTypeName() const
 }
 
 bool
-TrigConf::L1ThrExtraInfoBase::hasExtraInfo() const
+TrigConf::L1ThrExtraInfoBase::hasExtraInfo(const std::string & key) const
 {
-   return m_extraInfo.size()>0;
+   if( key.empty() ) {
+      return m_extraInfo.size()>0;
+   }
+   return m_extraInfo.count(key)>0;
 }
 
 

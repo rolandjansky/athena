@@ -5,7 +5,7 @@ include.block ('HIRecExample/heavyion_flagsAOD.py')
 from HIRecExample.HIRecExampleFlags import jobproperties
 
 if not jobproperties.HIRecExampleFlags.ppMode:
-  print "Applying HI AOD flags mods"
+  print ("Applying HI AOD flags mods")
 
   # AO (standard JetRec turned off)
   from JetRec.JetRecFlags import jetFlags

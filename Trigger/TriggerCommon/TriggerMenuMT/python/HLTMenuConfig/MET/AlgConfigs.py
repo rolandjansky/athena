@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from .ConfigHelpers import AlgConfig, jetRecoDictForMET
@@ -233,7 +233,7 @@ class CVFPufitConfig(AlgConfig):
         return "cvfpufit"
 
     def __init__(self, **recoDict):
-        super().__init__(**recoDict)
+        super(CVFPufitConfig, self).__init__(**recoDict)
         from .METRecoSequences import cvfClusterSequence
         from TrigEFMissingET.TrigEFMissingETConf import (
             HLT__MET__CVFPrepAlg,
@@ -269,7 +269,7 @@ class MHTPufitConfig(AlgConfig):
         return "mhtpufit"
 
     def __init__(self, **recoDict):
-        super().__init__(**recoDict)
+        super(MHTPufitConfig, self).__init__(**recoDict)
         from ..Jet.JetRecoSequences import jetRecoSequence
         from ..Jet.JetRecoConfiguration import defineJets
         from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (

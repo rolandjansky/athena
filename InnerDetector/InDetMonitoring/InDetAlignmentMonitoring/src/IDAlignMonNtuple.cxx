@@ -13,7 +13,6 @@
 #include <math.h>
 #include "TMath.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"

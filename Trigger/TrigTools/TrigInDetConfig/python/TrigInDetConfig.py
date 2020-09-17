@@ -67,7 +67,7 @@ def TrigInDetCondConfig( flags ):
   acc.merge(SCT_CablingCondAlgCfg(flags))
   SCT_ConfigurationConditionsTool=CompFactory.SCT_ConfigurationConditionsTool
   acc.addPublicTool(SCT_ConfigurationConditionsTool())
-  channelFolder = "/SCT/DAQ/Config/Chip"
+  channelFolder = "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip"
   moduleFolder = "/SCT/DAQ/Config/Module"
   murFolder = "/SCT/DAQ/Config/MUR"
   SCT_ConfigurationCondAlg=CompFactory.SCT_ConfigurationCondAlg
@@ -199,6 +199,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'PixelBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                   ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),

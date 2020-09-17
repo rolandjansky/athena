@@ -30,6 +30,16 @@ namespace {
 using namespace GSFUtils;
 
 /**
+ * @brief Helper struct to map position in
+ * triangular array to I, J indices
+ */
+struct triangularToIJ
+{
+  int16_t I = -1;
+  int16_t J = -1;
+};
+
+/**
  * Based on
  * https://www.sciencedirect.com/science/article/pii/089812218990103X
  * equation (16)
@@ -184,22 +194,22 @@ namespace GSFUtils {
  * Merge the componentsIn and return
  * which componets got merged.
  */
-std::vector<std::pair<int32_t, int32_t>>
+std::vector<std::pair<int16_t, int16_t>>
 findMerges(Component1D* componentsIn,
-           const int32_t inputSize,
-           const int32_t reducedSize)
+           const int16_t inputSize,
+           const int16_t reducedSize)
 {
   Component1D* components = static_cast<Component1D*>(
     __builtin_assume_aligned(componentsIn, alignment));
   // Based on the inputSize allocate enough space for the pairwise distances
-  const int32_t n = inputSize;
+  const int16_t n = inputSize;
   const int32_t nn = n * (n - 1) / 2;
   // Create a trianular mapping for the pairwise distances
   // We now that the size is nn
   std::vector<triangularToIJ> convert(nn);
-  for (int32_t i = 1; i < n; ++i) {
-    const int indexConst = (i - 1) * i / 2;
-    for (int32_t j = 0; j < i; ++j) {
+  for (int16_t i = 1; i < n; ++i) {
+    const int32_t indexConst = (i - 1) * i / 2;
+    for (int16_t j = 0; j < i; ++j) {
       convert[indexConst + j] = { i, j };
     }
   }
@@ -211,7 +221,7 @@ findMerges(Component1D* componentsIn,
     nn2, std::numeric_limits<float>::max());
 
   // vector to be returned
-  std::vector<std::pair<int32_t, int32_t>> merges;
+  std::vector<std::pair<int16_t, int16_t>> merges;
   merges.reserve(inputSize - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
@@ -222,8 +232,8 @@ findMerges(Component1D* componentsIn,
     // see if we have the next already
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
     const triangularToIJ conversion = convert[minIndex];
-    const int32_t mini = conversion.I;
-    const int32_t minj = conversion.J;
+    const int16_t mini = conversion.I;
+    const int16_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
     // re-calculate distances wrt the new component at mini

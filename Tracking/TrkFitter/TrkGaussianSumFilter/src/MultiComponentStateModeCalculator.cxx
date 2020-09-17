@@ -11,9 +11,9 @@
  */
 
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
+#include "CxxUtils/phihelper.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
-#include "CxxUtils/phihelper.h"
 #include <cmath>
 
 namespace {
@@ -93,8 +93,7 @@ width(int i, const std::array<std::vector<Component>, 5>& mixture)
   return pdf;
 }
 
-}//end of anonymous namespace
-
+} // end of anonymous namespace
 
 std::array<double, 10>
 Trk::MultiComponentStateModeCalculator::calculateMode(
@@ -195,7 +194,7 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
   // Loop over all the components in the multi-component state
   for (const Trk::ComponentParameters& component : multiComponentState) {
 
-    //And then for each component over each 5 parameters
+    // And then for each component over each 5 parameters
     for (size_t i = 0; i < 5; ++i) {
 
       const Trk::TrackParameters* componentParameters = component.first.get();

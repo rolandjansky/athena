@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "RPC_RawDataProviderToolCore.h"
 
@@ -15,18 +15,8 @@ Muon::RPC_RawDataProviderToolCore::RPC_RawDataProviderToolCore(
     const std::string& n,
     const IInterface*  p) :
     AthAlgTool(t, n, p),
-    m_robDataProvider ("ROBDataProviderSvc",n),
-    m_decoder("Muon::RpcROD_Decoder/RpcROD_Decoder", this)
-{
-    declareProperty("Decoder",     m_decoder);
-
+    m_robDataProvider ("ROBDataProviderSvc",n) {
 }
-
-Muon::RPC_RawDataProviderToolCore::~RPC_RawDataProviderToolCore() 
-{
-
-}
-
 
 StatusCode Muon::RPC_RawDataProviderToolCore::initialize()
 {

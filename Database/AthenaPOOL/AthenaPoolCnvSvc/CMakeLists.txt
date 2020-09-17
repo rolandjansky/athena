@@ -49,26 +49,22 @@ atlas_add_test( T_AthenaPoolCreateFuncs_test
 atlas_add_test( T_AthenaPoolViewVectorCnv_test
    SOURCES test/T_AthenaPoolViewVectorCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
 
 atlas_add_test( T_AthenaPoolxAODCnv_test
    SOURCES test/T_AthenaPoolxAODCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
 
 atlas_add_test( T_AthenaPoolAuxContainerCnv_test
    SOURCES test/T_AthenaPoolAuxContainerCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
 
 atlas_add_test( T_AthenaPoolTPCnvCnv_test
    SOURCES test/T_AthenaPoolTPCnvCnv_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib TestTools )
 
 atlas_add_test( T_AuxContainerCopyTPCnv_test
    SOURCES test/T_AuxContainerCopyTPCnv_test.cxx
@@ -77,4 +73,4 @@ atlas_add_test( T_AuxContainerCopyTPCnv_test
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.py share/*.txt )

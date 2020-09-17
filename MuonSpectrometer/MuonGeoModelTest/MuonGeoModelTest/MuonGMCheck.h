@@ -66,7 +66,6 @@ private:
 
     int m_check_first_last;
     int m_check_parent;
-    int m_check_regsel;
     int m_check_blines;
     int m_check_surfaces;
     int m_check_surfaces_details;
@@ -134,7 +133,6 @@ private:
     void checkreadoutrpcgeo();
     void checkParentStation();
     void checkreadouttgcgeo();
-    void checkRegionSelectorMap();
     void testMdtDetectorElementHash();
     void testRpcDetectorElementHash();
     void testTgcDetectorElementHash();

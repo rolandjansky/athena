@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORACOOL_CORACOOLDATABASESVCFACTORY_H
@@ -14,9 +14,10 @@
 // Richard Hawkings, started 27/10/06
 
 #include "CoraCool/CoraCoolDatabaseSvc.h"
+#include "CxxUtils/checker_macros.h"
 
-class CoraCoolDatabaseSvcFactory {
+class ATLAS_NOT_THREAD_SAFE CoraCoolDatabaseSvcFactory {
  public:
-  static CoraCoolDatabaseSvc& databaseService();
+  static CoraCoolDatabaseSvc& databaseService ATLAS_NOT_THREAD_SAFE ();
 };
 #endif // CORACOOL_CORACOOLDATABASESVCFACTORY_H

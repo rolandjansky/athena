@@ -3383,9 +3383,11 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
   for(int ieta = -1; ieta != 1+1; ieta++ ){
      if(ieta==0)continue;
 
-     bool isValid=false;
-     Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, ieta, iphi, idr , 1, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
-     if (!isValid) continue;
+     Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, ieta, iphi, idr , 1, 1, 1, 1, 1); // last 5 arguments are: int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip
+     if (!rpcId.is_valid()) {
+       ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<iname<<", eta="<<ieta<<", phi="<<iphi<<", doubletR="<<idr);
+       continue;
+     }
      const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(rpcId);
 	      
      if(!rpc)continue;
@@ -4754,14 +4756,12 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
   int kName = iName ;
   if(kName==1)kName=53;//BMLE
 
-  bool isValid=false;
-  Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, 1 , istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
-  if (!isValid) {
+  Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, 1 , istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId.is_valid()) {
     ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ="<<1<<", doubletPhi="<<idblPhi+1);
   }
-  isValid=false;
-  Identifier rpcId_c = m_idHelperSvc->rpcIdHelper().channelID(kName, -1 , istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
-  if (!isValid) {
+  Identifier rpcId_c = m_idHelperSvc->rpcIdHelper().channelID(kName, -1 , istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+  if (!rpcId_c.is_valid()) {
     ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=-1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ="<<1<<", doubletPhi="<<idblPhi+1);
   }
   const MuonGM::RpcReadoutElement* rpc   = MuonDetMgr->getRpcReadoutElement(rpcId);   
@@ -4808,9 +4808,11 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
 	  if(std::abs(ieta-8)==7&&ir==2&&kNameF==2)irc=1; 
 	  if(isec==12&&std::abs(ieta-8)==6&&ir==2&&kNameF==2)irc=1;	 
 											   
-        isValid=false;
-        Identifier id = m_idHelperSvc->rpcIdHelper().channelID(kNameF, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
-        if (!isValid) continue;
+        Identifier id = m_idHelperSvc->rpcIdHelper().channelID(kNameF, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
+        if (!id.is_valid()) {
+          ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kNameF<<", eta="<<ieta-8<<", phi="<<istatPhi+1<<", doubletR="<<irc<<", doubletZ="<<iz+1<<", doubletPhi="<<idblPhi+1);
+          continue;
+        }
     	  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);  
     	  if(!rpc) continue;   
 	  

@@ -91,6 +91,9 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
                 flags  += 'doMinBiasSlice=True;'
 
+        if ( flags=='' ) : 
+            print( "ERROR: no chains configured" )
+
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
@@ -120,25 +123,21 @@ class TrigInDetdictStep(Step):
     '''
     Execute TIDArdict for TrkNtuple files.
     '''
-    def __init__(self, name='TrigInDetdict'):
+    def __init__(self, name='TrigInDetdict', reference='Truth' ):
         super(TrigInDetdictStep, self).__init__(name)
         self.args=' '
         self.auto_report_result = True
         self.required = True
+        self.reference = reference
         self.executable = 'TIDArdict'
 
     def configure(self, test):
-        cmd = 'get_files -data TIDAdata-run3.dat'
-        os.system(cmd)
-        cmd = 'get_files -data TIDAdata-chains-run3.dat'
-        os.system(cmd)
-        cmd = 'get_files -data TIDAbeam.dat'
-        os.system(cmd)
-        cmd = 'get_files -data Test_bin.dat'
-        os.system(cmd)
-        cmd = 'get_files -data TIDAdata_cuts.dat'
-        os.system(cmd)
+        os.system( 'get_files -data TIDAbeam.dat' )
+        os.system( 'get_files -data Test_bin.dat' )
+        os.system( 'get_files -data TIDAdata-chains-run3.dat' )
         os.system( 'get_files -data TIDAhisto-panel.dat' )
+        os.system( 'get_files -data TIDAdata-run3.dat' )
+        os.system( 'get_files -data TIDAdata_cuts.dat' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat' )
         os.system( 'get_files -data TIDAdata_cuts-offline.dat' )
         super(TrigInDetdictStep, self).configure(test)
@@ -151,24 +150,33 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
-    def __init__(self, name='TrigInDetComp', level='L2', slice='muon', lowpt=False):
+    def __init__( self, name='TrigInDetComp', level='', slice='', input_file='data-hists.root', type='truth', lowpt=False ):
         super(TrigInDetCompStep, self).__init__(name)
 
-        self.input_file = 'data-hists.root'
-        self.output_dir = 'HLT-plots'
+        self.input_file = input_file
+        # self.output_dir = 'HLT-plots'
+        self.output_dir = ''
+
+        if level == '' : 
+            raise Exception( 'no level specified' )
+
+        if slice == '' : 
+            raise Exception( 'no slice specified' )
 
         self.level  = level
         self.slice  = slice
         self.lowpt  = lowpt
+        self.type   = type
         self.chains = ' '
         self.args   = ' --oldrms -c TIDAhisto-panel.dat '
         self.test   = ' '
-        self.type   = 'truth'
         self.auto_report_result = True
         self.required   = True
         self.executable = 'TIDAcomparitor'
     
+
     def configure(self, test):
+
         json_file     = 'TrigInDetValidation/comparitor.json'
         json_fullpath = FindFile(json_file, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
 
@@ -182,6 +190,7 @@ class TrigInDetCompStep(RefComparisonStep):
         self.output_dir = 'HLT'+self.level+'-plots'
 
         flag = self.level+self.slice
+
         if (self.lowpt):
             self.output_dir = self.output_dir+'-lowpt'    
             flag = flag+'Lowpt'
@@ -189,6 +198,8 @@ class TrigInDetCompStep(RefComparisonStep):
         data_object = data[flag]
 
         self.chains = data_object['chains']
+
+        # what is all this doing ? does it need to be so complicated ?
 
         if (self.test=='ttbar'):
             self.output_dir = self.output_dir+"-"+self.slice
@@ -200,13 +211,12 @@ class TrigInDetCompStep(RefComparisonStep):
         self.args += self.input_file + ' ' 
 
         if (self.reference == None):
-            # if no referenc found, use input file as reference - athout it doesn't matter - could use --noref
+            # if no reference found, use input file as reference - athout it doesn't matter - could use --noref
             self.args += self.input_file + ' ' 
         else:
             self.args += self.ref_file + ' ' 
 
-        self.args += self.chains + ' ' 
-        self.args += ' -d ' + self.output_dir
+        self.args += self.chains + ' -d ' + self.output_dir
 
         print( "TIDAComparitor " + self.args ) 
 

@@ -212,6 +212,8 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
+      self.__minRoIClusterEt         = 4500. * Units.MeV #Default cut to mimic rel21-ish
+
 
     if self.__indetflags.cutLevel() >= 14 :
       self.__minPT                   = 0.5 * Units.GeV
@@ -227,6 +229,7 @@ class ConfiguredNewTrackingCuts :
       # Designed to speed up reconstruction at minimal performance impact. 
       self.__roadWidth              = 12
       self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+      self.__maxZImpact              = 200
 
     if self.__indetflags.cutLevel() >= 18:
       # Further tuning of the pattern recognition designed to 

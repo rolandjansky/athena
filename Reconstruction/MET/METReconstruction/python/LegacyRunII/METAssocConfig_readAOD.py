@@ -63,7 +63,7 @@ def getAssociator(config,suffix,doPFlow=False,
     tool = None
 
     import cppyy
-    try: cppyy.loadDictionary('METReconstructionDict')
+    try: cppyy.load_library('libMETReconstructionDict')
     except: pass
 
     from AthenaCommon.AppMgr import ToolSvc

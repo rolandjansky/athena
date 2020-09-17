@@ -134,7 +134,7 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
 
   pxsum = sumPxInvis + sumPxLost;
   pysum = sumPyInvis + sumPyLost;
-  ptmiss = sqrt(pxsum*pxsum + pysum*pysum);
+  ptmiss = std::sqrt(pxsum*pxsum + pysum*pysum);
 
   // Finally, make filter decision for this event
   if (m_PtmissANDLepton) setFilterPassed(nleptons > 0 && ptmiss > m_PtminMissing);

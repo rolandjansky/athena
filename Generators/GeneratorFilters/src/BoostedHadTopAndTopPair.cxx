@@ -60,14 +60,14 @@ StatusCode BoostedHadTopAndTopPair::filterEvent() {
       }
   
       // pdgId W boson = 24
-      if ( abs(pdgId) != 24 || !isFinalParticle(part) ) continue; 
+      if ( std::abs(pdgId) != 24 || !isFinalParticle(part) ) continue; 
   
       if (isFromTop(part)){
         if (pdgId > 0) topChildrenMomentum.set(part->momentum().px() + momentumBofW(part).px(), part->momentum().py() + momentumBofW(part).py(), part->momentum().pz() + momentumBofW(part).pz(), part->momentum().e() + momentumBofW(part).e());
         else topbChildrenMomentum.set(part->momentum().px() + momentumBofW(part).px(), part->momentum().py() + momentumBofW(part).py(), part->momentum().pz() + momentumBofW(part).pz(), part->momentum().e() + momentumBofW(part).e());
 
         if (isHadronic(part)){
-          double pT = sqrt( pow( part->momentum().px() + momentumBofW(part).px(),2) + pow( part->momentum().py() + momentumBofW(part).py(),2)); 
+          double pT = std::sqrt( std::pow( part->momentum().px() + momentumBofW(part).px(),2) + std::pow( part->momentum().py() + momentumBofW(part).py(),2)); 
           if (pT > pTHadTopChildren){
             pTHadTopChildren = pT;
             if (pdgId > 0) pTHadTopList = topListMomentum.perp();

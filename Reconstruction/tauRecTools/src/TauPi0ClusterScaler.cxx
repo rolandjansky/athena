@@ -7,7 +7,6 @@
 // package:     Reconstruction/tauRec
 // authors:     Stephanie Yuen, Benedict Winter, Will Davey
 // date:        2014-08-04
-//
 //-----------------------------------------------------------------------------
 
 #include <vector>
@@ -19,14 +18,11 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
-using std::vector;
-using std::string;
-
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0ClusterScaler::TauPi0ClusterScaler( const string& name ) :
+TauPi0ClusterScaler::TauPi0ClusterScaler(const std::string& name) :
     TauRecToolBase(name)
 {
 }
@@ -39,18 +35,7 @@ TauPi0ClusterScaler::~TauPi0ClusterScaler()
 {
 }
 
-
-StatusCode TauPi0ClusterScaler::initialize()
-{
-  return StatusCode::SUCCESS;
-}
-
-StatusCode TauPi0ClusterScaler::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-
+//______________________________________________________________________________
 StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer) const
 {
     // Clear vector of cell-based charged PFO Links. 
@@ -82,6 +67,7 @@ StatusCode TauPi0ClusterScaler::executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD
     return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
 void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     // Set neutral PFO kinematics to vertex corrected cluster
@@ -92,7 +78,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
 
         // apply cluster vertex correction 
         if(pTau.vertexLink()){
-            auto clcorr = xAOD::CaloVertexedTopoCluster(*cl, (*pTau.vertexLink())->position());
+            auto clcorr = xAOD::CaloVertexedTopoCluster(*cl, pTau.vertex()->position());
             pfo->setP4(clcorr.pt(), clcorr.eta(), clcorr.phi(), 0.0);
         }
         else{
@@ -107,8 +93,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
     }
 }
 
-
-
+//______________________________________________________________________________
 void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& cPFOContainer) const
 {
     ATH_MSG_DEBUG("Creating charged PFOs");
@@ -137,6 +122,7 @@ void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContain
     }
 }
 
+//______________________________________________________________________________
 void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& chargedPFOContainer) const
 {
     ATH_MSG_DEBUG("Associating hadronic PFOs to charged PFOs");
@@ -153,7 +139,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAO
         ATH_MSG_DEBUG("hadPFO " << hadPFOLink.index() 
                       << ", eta: " << (*hadPFOLink)->eta() 
                       << ", phi: " << (*hadPFOLink)->phi() );
-        xAOD::PFO* chargedPFOMatch = 0;
+        xAOD::PFO* chargedPFOMatch = nullptr;
         // assign hadPFO to closest extrapolated chargedPFO track within dR<0.4
         float dRmin = 0.4; 
         for( auto chargedPFO : chargedPFOContainer ){
@@ -215,6 +201,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAO
     }
 }
 
+//______________________________________________________________________________
 void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) const
 {
     ATH_MSG_DEBUG("Associating charged PFOs to neutral PFOs");
@@ -252,7 +239,7 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD
                       << ", phi: " << phiCalo );
         
         // assign extrapolated chargedPFO to closest neutralPFO within dR<0.04
-        xAOD::PFO* neutralPFOMatch = 0;
+        xAOD::PFO* neutralPFOMatch = nullptr;
         float dRmin = 0.04; 
         for( auto neutralPFO : neutralPFOContainer ){
             // calculate dR (false means use eta instead of rapidity)
@@ -293,7 +280,7 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD
     }
 }
 
-
+//______________________________________________________________________________
 void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& neutralPFOContainer) const
 {
     ATH_MSG_DEBUG("Subtracting charged energy from neutral PFOs");
@@ -328,11 +315,10 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContaine
             neutralEnergy -= chargedEMEnergy;
             ATH_MSG_DEBUG("Subtracting charged energy: " << chargedEMEnergy );
         } 
-        float neutralPt = neutralEnergy / cosh(neutralPFO->eta());
+        float neutralPt = neutralEnergy / std::cosh(neutralPFO->eta());
         if(neutralPt <= 100.) neutralPt = 100.0;
         
         ATH_MSG_DEBUG("Neutral PFO pt, orig: " << neutralPFO->pt() << "  new: " << neutralPt); 
         neutralPFO->setP4(neutralPt , neutralPFO->eta(), neutralPFO->phi(), neutralPFO->m());
     }
 }
-

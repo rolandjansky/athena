@@ -78,6 +78,7 @@ namespace TrigConf {
       L1ThrExtraInfo_JETLegacy(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_JETLegacy() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_JETLegacy"; }
       unsigned int jetScale() const { return 1000 / resolutionMeV(); }
       float ptMinToTopoLargeWindow() const { return m_ptMinToTopoLargeWindowMeV / 1000.0f; }
       float ptMinToTopoSmallWindow() const { return m_ptMinToTopoSmallWindowMeV / 1000.0f; }
@@ -99,6 +100,7 @@ namespace TrigConf {
       L1ThrExtraInfo_XSLegacy(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_XSLegacy() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_XSLegacy"; }
       unsigned int xeMin() const { return m_xeMin; };
       unsigned int xeMax() const { return m_xeMax; };
       unsigned int teSqrtMin() const { return m_teSqrtMin; };
@@ -126,6 +128,7 @@ namespace TrigConf {
       L1ThrExtraInfo_eEMTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_eEMTAU() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_eEMTAU"; }
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
@@ -145,6 +148,7 @@ namespace TrigConf {
       L1ThrExtraInfo_jJ(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jJ() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_jJ"; }
       float ptMinToTopoLarge(int eta = 0) const { return ptMinToTopoLargeMeV(eta) / 1000.0f; }
       float ptMinToTopoSmall(int eta = 0) const { return ptMinToTopoSmallMeV(eta) / 1000.0f; }
       unsigned int ptMinToTopoLargeMeV(int eta = 0) const { return m_ptMinToTopoLargeMeV.at(eta); }
@@ -167,6 +171,7 @@ namespace TrigConf {
       L1ThrExtraInfo_jTAU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jTAU() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_jTAU"; }
       unsigned int ptMinToTopo() const { return m_ptMinToTopo; }
    private:
       /** Update the internal members */
@@ -181,6 +186,7 @@ namespace TrigConf {
       L1ThrExtraInfo_gXE(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_gXE() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_gXE"; }
    private:
       /** Update the internal members */
       void load();
@@ -193,6 +199,7 @@ namespace TrigConf {
       L1ThrExtraInfo_MU(const std::string & thrTypeName, const ptree & data) :
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_MU() = default;
+      virtual std::string className() const { return "L1ThrExtraInfo_MU"; }
       unsigned int rpcIdxForPt(unsigned int pt) const;
       unsigned int tgcIdxForPt(unsigned int pt) const;
       std::vector<unsigned int> knownRpcPtValues() const;

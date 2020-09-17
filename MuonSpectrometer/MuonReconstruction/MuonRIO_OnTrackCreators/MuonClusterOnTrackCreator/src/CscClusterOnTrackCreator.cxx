@@ -15,10 +15,6 @@
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
-
-#include "CscClusterization/ICscStripFitter.h"
-#include "CscClusterization/ICscClusterFitter.h"
-#include "CscClusterization/ICscClusterUtilTool.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "TrkRIO_OnTrack/check_cast.h"
@@ -35,9 +31,6 @@ namespace Muon {
   CscClusterOnTrackCreator::CscClusterOnTrackCreator
   (const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
-      m_stripFitter("CalibCscStripFitter/CalibCscStripFitter", this),
-      m_clusterFitter("QratCscClusterFitter/QratCscClusterFitter", this),
-      m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool", this),
       m_have_csc_tools(false)
   {
     // algtool interface - necessary!
@@ -48,9 +41,6 @@ namespace Muon {
     declareProperty("doCSC",  m_doCsc = true);
     declareProperty("doRPC",  m_doRpc = true);
     declareProperty("doTGC",  m_doTgc = true);
-    declareProperty("CscStripFitter",   m_stripFitter );
-    declareProperty("CscClusterFitter", m_clusterFitter );
-    declareProperty("CscClusterUtilTool", m_clusterUtilTool );
     declareProperty("FixedError",         m_fixedError = 5. );
     declareProperty("ErrorScaler",        m_errorScaler = 1. );
     declareProperty("ErrorScalerBeta",        m_errorScalerBeta = 0. );

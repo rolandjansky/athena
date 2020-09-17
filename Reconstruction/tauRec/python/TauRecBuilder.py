@@ -23,12 +23,11 @@ import traceback
 from RecExConfig.Configured import Configured
 from .TauRecConfigured import TauRecConfigured
 
-# global tauRec config keys
+# global tauRec config keys - to be replaced with tauRecFlags
 _outputType = "xAOD::TauJetContainer"
 _outputKey = "TauJets"
 _outputAuxType = "xAOD::TauJetAuxContainer"
 _outputAuxKey = "TauJetsAux."
-_track_collection = "InDetTrackParticles"
 
 ################################################################################
 ## @class TauRecCoreBuilder
@@ -40,14 +39,19 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
     Find clusters used for Pi0 identification and eflow variables.
     PhotonConversion will be run here too.
     """
-  
+    
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey,
                     'xAOD::TauTrackContainer' : 'TauTracks',
                     'xAOD::CaloClusterContainer' : 'TauShotClusters',
                     'xAOD::PFOContainer' : 'TauShotParticleFlowObjects',
                     'CaloCellContainer' : 'TauCommonPi0Cells',
                     }
-    
+
+    # drop TauCommonPi0Cells container from nominal xAODs, too heavy
+    _outputAOD = _output.copy()
+    _outputAOD.pop('CaloCellContainer')
+
+
     def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
@@ -65,7 +69,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         
         from RecExConfig.ObjKeyStore import objKeyStore
         objKeyStore.addManyTypesStreamESD(self._output)
-        objKeyStore.addManyTypesStreamAOD(self._output)              
+        objKeyStore.addManyTypesStreamAOD(self._outputAOD)              
         objKeyStore.addManyTypesTransient(self._output)              
         
         import tauRec.TauAlgorithmsHolder as taualgs

@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkEventTPCnv/V0ContainerCnv_tlp1.h"
+#include "CxxUtils/checker_macros.h"
 
 
 V0ContainerCnv_tlp1::V0ContainerCnv_tlp1()
@@ -59,6 +60,11 @@ persToTrans (const Trk::V0Container_tlp1* pers,
              V0Container* trans,
              MsgStream& msg)
 {
-  setPStorage (const_cast<Trk::V0Container_tlp1*> (pers));
+  // FIXME: TPConverter uses the same non-const member m_pStorage
+  // for both reading and writing, but we want it to be const
+  // in the former case.
+  Trk::V0Container_tlp1* pers_nc ATLAS_THREAD_SAFE =
+    const_cast<Trk::V0Container_tlp1*> (pers);
+  setPStorage (pers_nc);
   m_mainConverter.pstoreToTrans (0, trans, msg);
 }

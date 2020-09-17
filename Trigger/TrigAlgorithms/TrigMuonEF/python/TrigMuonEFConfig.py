@@ -440,7 +440,7 @@ def TMEF_MuonStauSegmentRegionRecoveryTool(name='TMEF_MuonStauSegmentRegionRecov
     if athenaCommonFlags.isOnline:
         kwargs.setdefault('MdtCondKey', "")
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
-    
+
 def TMEF_CombinedStauTrackBuilderFit( name='TMEF_CombinedStauTrackBuilderFit', **kwargs ):
    kwargs.setdefault('MdtRotCreator'                 , CfgGetter.getPublicTool('MdtDriftCircleOnTrackCreatorStau') )
    return TMEF_CombinedMuonTrackBuilder(name,**kwargs )
@@ -497,13 +497,15 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
 
         if MuonGeometryFlags.hasCSC(): self.CscClusterProvider = CfgGetter.getPublicTool("CscThresholdClusterBuilderTool")
 
+        muonLayerHoughTool = CfgGetter.getPublicTool("MuonLayerHoughTool")
+        muonLayerHoughTool.DoTruth=False
+
         self.SegmentsFinderTool = CfgGetter.getPublicToolClone( "TMEF_SegmentsFinderTool","MooSegmentFinder",
-                                                                HoughPatternFinder = CfgGetter.getPublicTool("MuonLayerHoughTool"),
+                                                                HoughPatternFinder = muonLayerHoughTool,
                                                                 Csc2dSegmentMaker=("Csc2dSegmentMaker/Csc2dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""),
                                                                 Csc4dSegmentMaker=("Csc4dSegmentMaker/Csc4dSegmentMaker" if MuonGeometryFlags.hasCSC() else ""))
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
-        CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
         CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
         self.MdtRawDataProvider = "TMEF_MdtRawDataProviderTool"
@@ -549,8 +551,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
         #CSC
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        #We use the clusters not the PRD hits directly for CSCs
-        self.CscPrepDataContainer="CSC_Clusters"
         #TGC
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool
