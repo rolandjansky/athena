@@ -8,11 +8,17 @@
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
+preExec = ';'.join([
+  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'TriggerFlags.triggerMenuSetup=\'Physics_pp_v7_primaries\'',
+  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+])
+
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
-rdo2aod.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
+rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
 
 physval = ExecStep.ExecStep('PhysVal')
 physval.type = 'Reco_tf'

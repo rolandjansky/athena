@@ -365,8 +365,8 @@ TrigSignatureMoniMT                                 INFO HLT_j85_ftf_pf_L1J20 #1
 TrigSignatureMoniMT                                 INFO -- #1538535401 Events         19         19         0          0          0          0          0          0          0          0          0          0          11         -          11
 TrigSignatureMoniMT                                 INFO -- #1538535401 Features                             0          0          0          0          0          0          0          0          0          0          16         -
 TrigSignatureMoniMT                                 INFO HLT_mb_sptrk_L1RD0_FILLED #4097312640
-TrigSignatureMoniMT                                 INFO -- #4097312640 Events         20         20         20         20         -          -          -          -          -          -          -          -          -          -          20
-TrigSignatureMoniMT                                 INFO -- #4097312640 Features                             20         20         -          -          -          -          -          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO -- #4097312640 Events         20         0          0          0          -          -          -          -          -          -          -          -          -          -          0
+TrigSignatureMoniMT                                 INFO -- #4097312640 Features                             0          0          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_mu0_muoncalib_L1MU20 #997163309
 TrigSignatureMoniMT                                 INFO -- #997163309 Events          8          8          0          0          0          0          0          -          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                 INFO -- #997163309 Features                              0          0          0          0          0          -          -          -          -          -          -          -
@@ -791,7 +791,7 @@ TrigSignatureMoniMT                                 INFO HLT_tilecalib_laser_Til
 TrigSignatureMoniMT                                 INFO -- #1063154655 Events         0          0          0          -          -          -          -          -          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                 INFO -- #1063154655 Features                             0          -          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_timeburner_L1All #819160059
-TrigSignatureMoniMT                                 INFO -- #819160059 Events          20         20         0          -          -          -          -          -          -          -          -          -          -          -          0
+TrigSignatureMoniMT                                 INFO -- #819160059 Events          20         0          0          -          -          -          -          -          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                 INFO -- #819160059 Features                              0          -          -          -          -          -          -          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_xe100_mht_L1XE50 #532175988
 TrigSignatureMoniMT                                 INFO -- #532175988 Events          10         10         0          0          0          0          0          0          0          0          0          0          9          -          9

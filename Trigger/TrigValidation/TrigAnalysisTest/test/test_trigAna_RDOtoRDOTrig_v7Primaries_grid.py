@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Test of the RDOtoRDOTrigger transform with threads=1
+# art-description: Test of the RDOtoRDOTrigger transform with serial athena (legacy trigger)
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -16,6 +16,9 @@
 # art-output: *perfmon*
 # art-output: prmon*
 # art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
@@ -25,12 +28,18 @@ import os
 if 'ATHENA_NPROC_NUM' in os.environ:
     del os.environ['ATHENA_NPROC_NUM']
 
+preExec = ';'.join([
+  'from TriggerJobOpts.TriggerFlags import TriggerFlags',
+  'TriggerFlags.triggerMenuSetup=\'Physics_pp_v7_primaries\'',
+  'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
+])
+
 ex = ExecStep.ExecStep()
 ex.type = 'Reco_tf'
 ex.input = 'ttbar'
-ex.threads = 1
+ex.max_events = 500
 ex.args = '--outputRDO_TRIGFile=RDO_TRIG.pool.root'
-ex.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\");"'
+ex.args += ' --preExec="all:{:s};"'.format(preExec)
 
 test = Test.Test()
 test.art_type = 'grid'

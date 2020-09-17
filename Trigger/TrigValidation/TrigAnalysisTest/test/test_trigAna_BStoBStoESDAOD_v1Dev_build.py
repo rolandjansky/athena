@@ -11,7 +11,7 @@ def findFile(pattern):
     '''Bash inline file name finder'''
     return '`find . -name \'{:s}\' | tail -n 1`'.format(pattern)
 
-menu_name = 'LS2_v1'
+menu_name = 'LS2_v1_TriggerValidation_mc_prescale'
 
 # Run athena BS->BS job
 BStoBS = ExecStep.ExecStep("BStoBS")
