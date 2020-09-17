@@ -435,15 +435,15 @@ if __name__ == '__main__':
 
     output_file = TFile("BN_ComparisonPlots_" + particle_type + ".hist.root", "RECREATE")
 
-    make_comparison_plots(particle_type, baseline_file, nightly_file, output_file)
-
-    make_profile_plots(baseline_file, nightly_file, output_file, particle_type)
-
-
     if particle_type == 'gamma':
 
         make_photon_fraction_plot(baseline_file, nightly_file,output_file)
         make_conversion_plot(baseline_file, nightly_file, output_file)
+
+    make_comparison_plots(particle_type, baseline_file, nightly_file, output_file)
+
+    make_profile_plots(baseline_file, nightly_file, output_file, particle_type)
+
 
 
 
