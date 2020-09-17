@@ -79,7 +79,7 @@ const InterfaceID& TRT_FillCablingData_DC3::interfaceID( )
 
 
   // Initialisation
-StatusCode TRT_FillCablingData_DC3::initialize ATLAS_NOT_THREAD_SAFE ( ) // thread unsafe TRT_FillCablingData_DC3::defineTables is used.
+StatusCode TRT_FillCablingData_DC3::initialize( )
 {
   ATH_MSG_INFO( "TRT_FillCablingData_DC3::initialize" ); 
 
@@ -173,7 +173,7 @@ void TRT_FillCablingData_DC3::defineParameters()
 
 
   // Fill Tables with IDs for all straws
-void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread unsafe std::exit is used.
+void TRT_FillCablingData_DC3::defineTables()
 {
    ATH_MSG_INFO( "In defineTables" ); 
 
@@ -351,7 +351,7 @@ void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread un
      if ( (rodhalf < 0) || (rodhalf > 1) )
      {
 	ATH_MSG_WARNING( "Invalid rod half: " << rodhalf );
-	exit( -1 );
+        std::abort();
      }
 
      if ( 0 == rodhalf )
@@ -483,7 +483,7 @@ void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread un
      if ( (rodhalf < 0) || (rodhalf > 1) )
      {
 	ATH_MSG_WARNING( "Invalid rod half: " << rodhalf );
-	exit( -1 );
+        std::abort();
      }
 
      if ( 0 == rodhalf )
@@ -875,7 +875,7 @@ void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread un
 	   {
 	     ATH_MSG_WARNING( i << " " << j << " " << my_Phi << " " << hex << StrawNumber );
 
-	     exit( -1 );
+             std::abort();
 	   }
 
 

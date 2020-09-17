@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelXml/GmxUtil.h"
@@ -32,10 +32,13 @@ GmxUtil::GmxUtil(GmxInterface &gmxInterface) {
 //
     eval.setStdMath();
 //
-//    Fetch the material special::Ether and make any shape with it to make a special logvol.
-//    When Geo2G4 finds any physvol using a logvol with material special::Ether, it creates a G4Assembly
+//    Fetch the material special::HyperUranium and make any shape with it to make a special logvol.
+//    When Geo2G4 finds any physvol using a logvol with material special::HyperUranium, it creates a G4Assembly
 //    instead of a G4Volume.
 //
+//    NB elsewhere special::ether is used to indicate a G4Assembly; HyperUranium is used here as a way to distinguish GeoModelXml assemblies from other assemblies and trigger distinct behaviour with regard to the copyNumbers which are assigned (ITkScheme, wherein the SiHitIdentifier is used as the copyNumber)
+// See ExtParameterisedVolumeBuilder::Build and Geo2G4AssemblyVolume::MakeImprint for how this propagates to G4
+
     m_assemblyLV = makeAssemblyLV();
 //
 //   Register tag handlers that produce a vector of items to add to the tree.
@@ -190,7 +193,7 @@ GeoLogVol * GmxUtil::makeAssemblyLV() {
                 log << MSG::ERROR << "GmxUtil::makeAssemblyLV: Unable to access Material Manager" << endmsg;
         }
         else {
-            const GeoMaterial *assembly_material = theMaterialManager->getMaterial("special::Ether");
+            const GeoMaterial *assembly_material = theMaterialManager->getMaterial("special::HyperUranium");
             GeoBox *box = new GeoBox(1., 1., 1.); // Simplest shape; it is irrelevant
             GeoLogVol *lv = new GeoLogVol(string("AssemblyLV"), box, assembly_material);
             return lv;
@@ -198,7 +201,7 @@ GeoLogVol * GmxUtil::makeAssemblyLV() {
     }
     return 0;
 #else
-    const GeoMaterial *assembly_material = new GeoMaterial("special::Ether", 1.e-20);
+    const GeoMaterial *assembly_material = new GeoMaterial("special::HyperUranium", 1.e-20);
     GeoElement *vacuum = new GeoElement("vacuum", "Mt", 1, 1);
     assembly_material->add(vacuum, 1.0);
     assembly_material->lock();

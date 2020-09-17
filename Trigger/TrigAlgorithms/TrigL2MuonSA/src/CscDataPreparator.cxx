@@ -61,8 +61,9 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_CHECK( m_regionSelector.retrieve() );
    
 
-   ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
-
+   ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty() && !m_doDecoding));
+   //Write Handle for CSC clusters (only if we run decoding)
+   ATH_CHECK(m_cscClustersKey.initialize(m_doDecoding));
    //
    return StatusCode::SUCCESS; 
 }
@@ -112,8 +113,22 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
     cscHashIDs_cluster.clear();
     if(to_full_decode) cscHashIDs_decode.clear();
     if( !cscHashIDs_decode.empty() || to_full_decode ){
-      if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster ).isFailure() ){
-        ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+      SG::WriteHandle<Muon::CscPrepDataContainer> wh_clusters(m_cscClustersKey);
+      if (!wh_clusters.isPresent()) {
+	Muon::CscPrepDataContainer* object = new Muon::CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
+      /// record the container in storeGate
+	ATH_CHECK(wh_clusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)));
+	if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster, object ).isFailure() ){
+	  ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+	}
+      } else {
+	//need to retrieve from evt store for Run 2 trigger (only used in non MT processing)
+	const Muon::CscPrepDataContainer* outputCollection_c = nullptr;
+	ATH_CHECK(evtStore()->retrieve(outputCollection_c, m_cscClustersKey.key()));
+	Muon::CscPrepDataContainer* object ATLAS_THREAD_SAFE = const_cast<Muon::CscPrepDataContainer*> (outputCollection_c);
+	if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster, object ).isFailure() ){
+	  ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+	}
       }
       cscHashIDs_decode.clear();
     }

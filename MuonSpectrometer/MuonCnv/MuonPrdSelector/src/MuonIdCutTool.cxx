@@ -11,9 +11,7 @@
 //Tool to impliment a set of cuts on an Identifier, and then determine if a given ID is in that set
 
 MuonIdCutTool::MuonIdCutTool(const std::string& t,const std::string& n,const IInterface* p)  :  
-  AthAlgTool(t,n,p),
-  m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
-{
+  AthAlgTool(t,n,p) {
   declareInterface<IMuonIdCutTool>(this);
   
   declareProperty("CutStationRegion",m_cutStationRegion = false ); //0 inner, 1 extra(BEE), 2 middle, 3 outer

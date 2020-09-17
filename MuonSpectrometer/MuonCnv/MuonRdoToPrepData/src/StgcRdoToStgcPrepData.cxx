@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "MuonRdoToPrepData/StgcRdoToStgcPrepData.h"
 
@@ -7,26 +7,16 @@
 
 StgcRdoToStgcPrepData::StgcRdoToStgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_decoderTool ("Muon::sTgcRdoToPrepDataTool/STGC_PrepDataProviderTool"),
   m_prdContainer("STGC_Measurements")
 {
   declareProperty("OutputCollection",   m_prdContainer);
 }
 
-StatusCode StgcRdoToStgcPrepData::finalize() {
-  ATH_MSG_DEBUG("in finalize()");
-  return StatusCode::SUCCESS;
-}
-
 StatusCode StgcRdoToStgcPrepData::initialize(){
   ATH_MSG_DEBUG(" in initialize()");
-
   ATH_CHECK(m_prdContainer.initialize());
-
   ATH_CHECK( m_decoderTool.retrieve() );
   ATH_MSG_INFO("Retrieved" << m_decoderTool);
-
-
   return StatusCode::SUCCESS;
 }
 

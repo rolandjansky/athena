@@ -5,32 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonMomentumCorrections )
 
-# Extra dependencies, based on the environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgMessaging
-   Control/AthToolSupport/AsgDataHandles
-   Event/xAOD/xAODMuon
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PRIVATE
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree RIO Physics )
 

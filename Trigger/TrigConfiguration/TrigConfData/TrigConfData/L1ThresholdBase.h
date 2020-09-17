@@ -89,14 +89,14 @@ namespace TrigConf {
 
       const std::string & thresholdTypeName() const;
 
-      bool hasExtraInfo() const;
+      bool hasExtraInfo( const std::string & key = "") const;
 
       unsigned int resolutionMeV() const { 
          return m_resolutionMeV;
       }
 
    protected:
-      virtual void upload() {
+      virtual void update() override {
          load();
       } 
       std::map<std::string, DataStructure> m_extraInfo{};

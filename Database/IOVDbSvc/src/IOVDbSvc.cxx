@@ -9,6 +9,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Guards.h"
 #include "GaudiKernel/IOpaqueAddress.h"
@@ -754,60 +755,58 @@ StatusCode IOVDbSvc::checkEventSel() {
   // if so, we can set IOV time already to allow conditons retrieval
   // in the initialise phase, needed for setting up simulation
 
-  SmartIF<IProperty> evtSel = service<IProperty>("EventSelector", /*createIf=*/ false);
-  if (!evtSel.isValid()) {
-    // do not return FAILURE if the EventSelector cannot be found, as this
-    // happens online when we have no EventSelector
-    ATH_MSG_DEBUG( "Could not retrieve 'EventSelector'" );
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc",name());
+  ATH_CHECK( joSvc.retrieve() );
+
+  if (!joSvc->has("EventSelector.OverrideRunNumber")) {
+    // do not return FAILURE if the EventSelector cannot be found, or it has
+    // no override property, can e.g. happen in online running
+    ATH_MSG_DEBUG( "No EventSelector.OverrideRunNumber property found" );
     return StatusCode::SUCCESS;
   }
 
   BooleanProperty bprop("OverrideRunNumber",false);
-  if (evtSel->getProperty(&bprop)) {
-    if (bprop.value()) {
-      // if flag is set, extract Run,LB and time
-      ATH_MSG_INFO(  "Setting run/LB/time from EventSelector override in initialize" );
-      uint32_t run,lumib;
-      uint64_t time;
-      bool allGood=true;
-      if (m_par_forceRunNumber.value()!=0 || 
-          m_par_forceLumiblockNumber.value()!=0)
-        ATH_MSG_WARNING( "forceRunNumber property also set" );
-      IntegerProperty iprop1("RunNumber",0);
-      if (evtSel->getProperty(&iprop1)) {
-        run=iprop1.value();
-      } else {
-        ATH_MSG_ERROR( "Unable to get RunNumber from EventSelector");
-        allGood=false;
-      }
-      IntegerProperty iprop2("FirstLB",0);
-      if (evtSel->getProperty(&iprop2)) {
-        lumib=iprop2.value();
-      } else {
-        ATH_MSG_ERROR( "Unable to get FirstLB from EventSelector");
-        allGood=false;
-      }
-      IntegerProperty iprop3("InitialTimeStamp",0);
-      if (evtSel->getProperty(&iprop3)) {
-        time=iprop3.value();
-      } else {
-        ATH_MSG_ERROR("Unable to get InitialTimeStamp from EventSelector" );
-        allGood=false;
-      }
-      if (allGood) {
-        m_iovTime.setRunEvent(run,lumib);
-        uint64_t nsTime=time*1000000000LL;
-        m_iovTime.setTimestamp(nsTime);
-        ATH_MSG_INFO( "run/LB/time set to [" << run << "," << lumib << " : " << nsTime << "]" );
-      } else {
-        ATH_MSG_ERROR( "run/LB/Time NOT changed" );
-      }
+  ATH_CHECK( bprop.fromString(joSvc->get("EventSelector.OverrideRunNumber")) );
+  if (bprop.value()) {
+    // if flag is set, extract Run,LB and time
+    ATH_MSG_INFO(  "Setting run/LB/time from EventSelector override in initialize" );
+    uint32_t run,lumib;
+    uint64_t time;
+    bool allGood=true;
+    if (m_par_forceRunNumber.value()!=0 ||
+        m_par_forceLumiblockNumber.value()!=0)
+      ATH_MSG_WARNING( "forceRunNumber property also set" );
+    IntegerProperty iprop1("RunNumber",0);
+    if (iprop1.fromString(joSvc->get("EventSelector.RunNumber","INVALID"))) {
+      run=iprop1.value();
+    } else {
+      ATH_MSG_ERROR( "Unable to get RunNumber from EventSelector");
+      allGood=false;
     }
-  } else {
-    // this is not treated as an error if EventSelector has no override prop
-    ATH_MSG_DEBUG("Unable to get OverrideRunNumber flag from EventSelector" );
-
+    IntegerProperty iprop2("FirstLB",0);
+    if (iprop2.fromString(joSvc->get("EventSelector.FirstLB","INVALID"))) {
+      lumib=iprop2.value();
+    } else {
+      ATH_MSG_ERROR( "Unable to get FirstLB from EventSelector");
+      allGood=false;
+    }
+    IntegerProperty iprop3("InitialTimeStamp",0);
+    if (iprop3.fromString(joSvc->get("EventSelector.InitialTimeStamp","INVALID"))) {
+      time=iprop3.value();
+    } else {
+      ATH_MSG_ERROR("Unable to get InitialTimeStamp from EventSelector" );
+      allGood=false;
+    }
+    if (allGood) {
+      m_iovTime.setRunEvent(run,lumib);
+      uint64_t nsTime=time*1000000000LL;
+      m_iovTime.setTimestamp(nsTime);
+      ATH_MSG_INFO( "run/LB/time set to [" << run << "," << lumib << " : " << nsTime << "]" );
+    } else {
+      ATH_MSG_ERROR( "run/LB/Time NOT changed" );
+    }
   }
+
   return StatusCode::SUCCESS;
 }
 

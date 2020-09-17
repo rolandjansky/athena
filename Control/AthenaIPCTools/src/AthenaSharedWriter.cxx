@@ -31,6 +31,7 @@ StatusCode AthenaSharedWriter::initialize() {
    }
    // Initialize IAthenaSharedWriterSvc
    ATH_CHECK(m_sharedWriterSvc.retrieve());
+   ATH_CHECK(m_sharedWriterSvc->share(m_numberOfClients.value()));
    return StatusCode::SUCCESS;
 }
 //___________________________________________________________________________

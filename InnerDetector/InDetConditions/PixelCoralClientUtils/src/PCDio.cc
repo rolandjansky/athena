@@ -40,7 +40,9 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
  */
-PCDio::PCDio(string connString, string tableName, int verbose) :
+PCDio::PCDio(const std::string& connString,
+             const std::string& tableName,
+             int verbose) :
   m_connString(connString), m_pixeltable(tableName),
   m_verbose(verbose), m_session(0) {}
 
@@ -72,7 +74,7 @@ void PCDio::init(coral::AccessMode access_mode)
 
 /** DB -> pcd.sav
  */
-void PCDio::load(string tag, int revision)
+void PCDio::load(const std::string& tag, int revision)
 {
   // start timer
   struct timeval start_time, end_time;
@@ -277,7 +279,7 @@ void PCDio::load(string tag, int revision)
 
 /** pcd.dat -> DB
  */
-void PCDio::save(string tag, int revision, string sources)
+void PCDio::save(const std::string& tag, int revision, const std::string& sources)
 {
   // start timer
   struct timeval start_time, end_time;

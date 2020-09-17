@@ -68,8 +68,8 @@
 
 /** Base class for the B-physcis xAOD helpers */
 namespace xAOD {
-
   class BPhysHelper {
+
 
     public:
       
@@ -232,9 +232,9 @@ namespace xAOD {
        *  @returns: true on success 
        */
       
-      bool setRefTrks(const std::vector<float>& px,
-                      const std::vector<float>& py,
-                      const std::vector<float>& pz);
+      bool setRefTrks(std::vector<float> px,
+                      std::vector<float> py,
+                      std::vector<float> pz);
 
       /** Sets refitted track momenta
        *  @param[in] refTrks  std::vector of refitted momenta as TVector3

@@ -73,7 +73,6 @@ CscPeakThresholdClusterBuilderTool::CscPeakThresholdClusterBuilderTool(const std
                                                                        const IInterface*  parent)
     : AthAlgTool(type, aname, parent),
       m_digit_key("CSC_Measurements"),
-      m_cluster_handle("CSC_Clusters"),
       m_fullEventDone(false)
 {
 
@@ -84,7 +83,6 @@ CscPeakThresholdClusterBuilderTool::CscPeakThresholdClusterBuilderTool(const std
     declareProperty("q3sum_threshold_eta", m_q3sum_threshold_eta = 38000.0);
     declareProperty("q3sum_threshold_phi", m_q3sum_threshold_phi = 33000.0);
     declareProperty("digit_key", m_digit_key);
-    declareProperty("cluster_key", m_cluster_handle);
 }
 
 //******************************************************************************
@@ -109,7 +107,6 @@ CscPeakThresholdClusterBuilderTool::initialize()
     ATH_MSG_DEBUG("  Precision cluster fitter is " << m_pfitter_prec.typeAndName());
     ATH_MSG_DEBUG("  Split cluster fitter is " << m_pfitter_split.typeAndName());
     ATH_MSG_DEBUG("  Input digit key is " << m_digit_key.key());
-    ATH_MSG_DEBUG("  Output cluster key is " << m_cluster_handle.key());
 
     // Retrieve the strip fitting tool.
     ATH_CHECK(m_pstrip_fitter.retrieve());
@@ -138,43 +135,24 @@ CscPeakThresholdClusterBuilderTool::initialize()
 
 StatusCode
 CscPeakThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& givenIDs,
-                                                std::vector<IdentifierHash>& decodedIds)
+                                                std::vector<IdentifierHash>& decodedIds,
+						Muon::CscPrepDataContainer *object)
 {
 
     // clear output vector of selected data collections containing data
     decodedIds.clear();
 
-    if (!m_cluster_handle.isPresent()) {
-        /// clean up the PrepRawData container
-        auto object = std::make_unique<CscPrepDataContainer>(m_idHelperSvc->cscIdHelper().module_hash_max());
-
-        /// record the container in storeGate
-        if (m_cluster_handle.record(std::move(object)).isFailure()) {
-            ATH_MSG_ERROR("Could not record container of CSC Cluster PrepData at " << m_cluster_handle.key());
-            return StatusCode::RECOVERABLE;
-        }
-        m_fullEventDone = false;
-        if (givenIDs.size() == 0) m_fullEventDone = true;
-
-    } else {
-        ATH_MSG_DEBUG("CSC Cluster PrepData Container is already in StoreGate ");
-        if (m_fullEventDone) {
-            ATH_MSG_DEBUG("Whole event has already been processed; nothing to do");
-            return StatusCode::SUCCESS;
-        }
-        if (givenIDs.size() == 0) m_fullEventDone = true;
-    }
 
     if (givenIDs.size() != 0) {
         for (unsigned int i = 0; i < givenIDs.size(); ++i) {
-            if (getClusters(givenIDs[i], decodedIds).isFailure()) {
+	  if (getClusters(givenIDs[i], decodedIds, object).isFailure()) {
                 ATH_MSG_ERROR("Unable to decode CSC RDO " << i << "th into CSC PrepRawData");
                 return StatusCode::RECOVERABLE;
             }
         }
     } else {
         // Clusterization is done for every area
-        if (getClusters(decodedIds).isFailure()) {
+      if (getClusters(decodedIds, object).isFailure()) {
             ATH_MSG_ERROR("Unable to decode CSC RDO into CSC PrepRawData");
             return StatusCode::RECOVERABLE;
         }
@@ -186,11 +164,11 @@ CscPeakThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& giv
 //******************************************************************************
 
 StatusCode
-CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds)
+CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer *pclusters)
 {
 
     // identifiers of collections already decoded and stored in the container will be skipped
-    if (m_cluster_handle->indexFindPtr(givenHashId) != nullptr) {
+    if (pclusters->indexFindPtr(givenHashId) != nullptr) {
         decodedIds.push_back(givenHashId);
         ATH_MSG_DEBUG("A collection already exists in the container for offline id hash. " << (int)givenHashId);
         return StatusCode::SUCCESS;
@@ -272,7 +250,7 @@ CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std:
         }
     }
     if (newCollection) {
-        if (m_cluster_handle->addCollection(newCollection, hash).isFailure()) {
+        if (pclusters->addCollection(newCollection, hash).isFailure()) {
             ATH_MSG_ERROR("Couldn't add CscPrepdataCollection to container!");
             return StatusCode::FAILURE;
         }
@@ -286,7 +264,7 @@ CscPeakThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std:
 //******************************************************************************
 
 StatusCode
-CscPeakThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds)
+CscPeakThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer *pclusters)
 {
 
     // Retrieve the CSC digits for this event.
@@ -357,7 +335,7 @@ CscPeakThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& dec
             }
         }
         if (newCollection) {
-            if (m_cluster_handle->addCollection(newCollection, hash).isFailure()) {
+            if (pclusters->addCollection(newCollection, hash).isFailure()) {
                 ATH_MSG_ERROR("Couldn't add CscPrepdataCollection to container!");
                 return StatusCode::FAILURE;
             }

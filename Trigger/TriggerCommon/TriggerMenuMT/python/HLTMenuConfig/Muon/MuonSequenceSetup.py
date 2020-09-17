@@ -255,13 +255,16 @@ def muEFSAAlgSequence(ConfigFlags):
     efsaViewsMaker.RequireParentView = True
     efsaViewsMaker.ViewFallThrough = True
 
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence, makeMuonPrepDataAlgs
+    #Run decoding again since we are using updated RoIs
+    viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=efsaViewsMaker.InViewRoIs)
     ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
     muEFSARecoSequence, sequenceOut = muEFSARecoSequence( efsaViewsMaker.InViewRoIs, 'RoI' )
  
-    efsaViewsMaker.ViewNodeName = muEFSARecoSequence.name()
-        
-    muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muEFSARecoSequence ] )
+    muefSASequence = parOR("muEFSARecoSequence", [viewAlgs_MuonPRD, muEFSARecoSequence])
+    efsaViewsMaker.ViewNodeName = muefSASequence.name()
+
+    muonEFSAonlySequence = seqAND( "muonEFSAonlySequence", [efsaViewsMaker, muefSASequence ] )
 
     return (muonEFSAonlySequence, efsaViewsMaker, sequenceOut)
 

@@ -41,4 +41,5 @@ atlas_add_component( Photospp_i
    LINK_LIBRARIES GaudiKernel Photospp_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/common/*.py )
+

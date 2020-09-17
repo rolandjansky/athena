@@ -114,9 +114,19 @@ TClass* objectIsA (PyObject* obj)
   if (*s == '<') ++s;
   if (strncmp (s, "ROOT.", 5) == 0)
     s += 5;
+  if (strncmp (s, "cppyy.gbl.", 10) == 0)
+    s += 10;
   const char* p = strstr (s, " object ");
   if (!p) return nullptr;
-  std::string name (s, p-s);
+  std::string name;
+  name.reserve (p-s + 10);
+  while (s < p) {
+    if (*s == '.')
+      name += "::";
+    else
+      name += *s;
+    ++s;
+  }
   TClass* cls = TClass::GetClass (name.c_str());
   Py_DECREF (repr);
   return cls;

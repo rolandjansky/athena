@@ -36,12 +36,12 @@
 /** @} */
 
 /*****************************************************************************/
-float xAOD::BPhysHypoHelper::mass()
+float xAOD::BPhysHypoHelper::mass() const
 {
   GET_FLOAT( m_hypo+"_mass" );
 }
 /*****************************************************************************/
-float xAOD::BPhysHypoHelper::massErr()
+float xAOD::BPhysHypoHelper::massErr() const
 {
   GET_FLOAT( m_hypo+"_massErr" );  
 }

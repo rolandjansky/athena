@@ -10,15 +10,28 @@ TrigConf::Chain::Chain()
 TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
+}
+
+TrigConf::Chain::Chain(const std::string & name, const boost::property_tree::ptree & data) 
+   : DataStructure(name, data)
+{
+   load();
 }
 
 void
 TrigConf::Chain::update()
 {
+   load();
+}
+
+void
+TrigConf::Chain::load()
+{
    if(! isInitialized() || empty() ) {
       return;
    }
+   m_name = getAttribute("name", true, m_name);
 }
 
 TrigConf::Chain::~Chain()

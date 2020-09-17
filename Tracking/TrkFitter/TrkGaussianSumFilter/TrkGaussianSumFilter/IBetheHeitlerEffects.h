@@ -50,14 +50,6 @@ struct GSFEnergyLossCache
     deltaPs.clear();
     deltaQOvePCov.clear();
   }
-
-  void resetAndAddDummyValues()
-  {
-    reset();
-    weights.push_back(1);
-    deltaPs.push_back(0);
-    deltaQOvePCov.push_back(0);
-  }
 };
 
 class MaterialProperties;

@@ -84,7 +84,7 @@ namespace CAN {
     template <class T>
     const std::map<std::string, std::map<std::string, T> > &getMap() const;
 
-    void throwValueDoesNotExist(const std::string &var_name, const std::string conn_name) const {
+    void throwValueDoesNotExist(const std::string &var_name, const std::string& conn_name) const {
       std::stringstream message;
       message << "No value of name " << var_name << " for connectivity object " << conn_name << ".";
       throw AnalysisResultValueNotFound("AnalysisResultList_t::value<T>",message.str());

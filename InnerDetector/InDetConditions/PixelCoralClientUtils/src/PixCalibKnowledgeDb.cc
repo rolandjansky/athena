@@ -40,7 +40,9 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
  */
-PixCalibKnowledgeDb::PixCalibKnowledgeDb(string connString, string tableName, int verbose) :
+PixCalibKnowledgeDb::PixCalibKnowledgeDb(const std::string& connString,
+                                         const std::string& tableName,
+                                         int verbose) :
   m_connString(connString), m_pixeltable(tableName),
   m_verbose(verbose), m_session(0) {}
 
@@ -70,7 +72,7 @@ void PixCalibKnowledgeDb::init(coral::AccessMode access_mode)
 }
 
 void PixCalibKnowledgeDb::saveCorrespondingConfig
-(long int UNIXTimeInSeconds, long int RunNumber, std::string calibtags_in_string, std::string idTag, std::string connTag, std::string cfgTag, std::string cfgModTag )
+(long int UNIXTimeInSeconds, long int RunNumber, const std::string& calibtags_in_string, const std::string& idTag, const std::string& connTag, const std::string& cfgTag, const std::string& cfgModTag )
 {
 
    // create tables if needed

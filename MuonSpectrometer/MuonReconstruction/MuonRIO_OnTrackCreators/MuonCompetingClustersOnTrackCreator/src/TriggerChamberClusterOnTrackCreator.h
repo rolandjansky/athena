@@ -69,7 +69,7 @@ public:
 private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Muon::IMuonClusterOnTrackCreator>	m_clusterCreator;
+    ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{this,"ClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
 
     // configuration
     bool						m_chooseBroadestCluster;

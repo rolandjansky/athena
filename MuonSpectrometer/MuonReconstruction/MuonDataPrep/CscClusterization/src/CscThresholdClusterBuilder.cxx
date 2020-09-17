@@ -15,7 +15,7 @@ using std::vector;
 
 //******************************************************************************
 CscThresholdClusterBuilder::CscThresholdClusterBuilder(const std::string& aname, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(aname, pSvcLocator)
+  : AthAlgorithm(aname, pSvcLocator)
 {
 }
 
@@ -35,8 +35,10 @@ CscThresholdClusterBuilder::initialize()
 
     // Retrieve the strip fitting tool.
     ATH_CHECK(m_cluster_builder.retrieve());
-
     ATH_MSG_DEBUG("Retrieved strip fitting tool " << m_cluster_builder);
+    // Initialise output cluster container
+    ATH_CHECK(m_pclusters.initialize());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
 }
 
@@ -53,26 +55,29 @@ CscThresholdClusterBuilder::execute()
         std::vector<IdentifierHash> givenIDs;
         std::vector<IdentifierHash> decodedIDs;
 
-        if (m_cluster_builder->getClusters(givenIDs, decodedIDs).isFailure()) {
-            ATH_MSG_ERROR("Cannot record CSC Cluster Container ");
-            return StatusCode::FAILURE;
+	//prepare output
+	SG::WriteHandle<Muon::CscPrepDataContainer> wh_pclusters(m_pclusters);
+	Muon::CscPrepDataContainer* object = new Muon::CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
+	if (!wh_pclusters.isPresent()) {
+	  /// record the container in storeGate
+	  if (wh_pclusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)).isFailure()) {
+            ATH_MSG_ERROR("Could not record container of CSC Cluster PrepData at " << m_pclusters.key());
+            return StatusCode::RECOVERABLE;
+	  }
+	} else {
+	  ATH_MSG_DEBUG("CSC Cluster PrepData Container is already in StoreGate; nothing to do ");
+	  return StatusCode::SUCCESS;
+	}
+
+        if (m_cluster_builder->getClusters(givenIDs, decodedIDs, object).isFailure()) {
+	  ATH_MSG_ERROR("CSC cluster building failed");
+	  return StatusCode::FAILURE;
         }
     } else {
-        ATH_MSG_ERROR("Initialization failed");
+        ATH_MSG_ERROR("No cluster builder tool initialised");
         return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
 }
 
-//******************************************************************************
-
-StatusCode
-CscThresholdClusterBuilder::finalize()
-{
-    ATH_MSG_VERBOSE("Finalizing " << name());
-    //  m_pclusters->release();
-    return StatusCode::SUCCESS;
-}
-
-//******************************************************************************
