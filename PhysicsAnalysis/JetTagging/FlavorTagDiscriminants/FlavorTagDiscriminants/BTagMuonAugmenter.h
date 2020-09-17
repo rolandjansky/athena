@@ -10,7 +10,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 
 namespace FlavorTagDiscriminants {
 
@@ -31,7 +31,7 @@ namespace FlavorTagDiscriminants {
     void augment(const xAOD::Jet& jet) const;
   private:
     // You'll probably have to add some accessors here
-    BTagTrackAugmenter m_btag_track_aug;
+    BTagTrackIpAccessor m_btag_track_aug;
     std::string m_muonAssociationName;
     float m_muonMinDR;
     float m_muonMinpT;

@@ -3,8 +3,8 @@
 */
 
 
-#ifndef BTAG_TRACK_AUGMENTER_HH
-#define BTAG_TRACK_AUGMENTER_HH
+#ifndef BTAG_TRACK_IP_ACCESSOR_HH
+#define BTAG_TRACK_IP_ACCESSOR_HH
 
 
 #include <vector>
@@ -26,9 +26,9 @@ struct BTagSignedIP {
   double ip3d_grade;
 };
 
-class BTagTrackAugmenter {
+class BTagTrackIpAccessor {
 public:
-  BTagTrackAugmenter(const std::string& prefix = "btagIp_" );
+  BTagTrackIpAccessor(const std::string& prefix = "btagIp_" );
   void augment(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
 
   // NOTE: this should be called in the derivations if possible,
@@ -41,20 +41,18 @@ public:
   // imediately afterword: it is only valid for the jet it is
   // assigned to!
   //
-  // Better advice: don't use this at all, use get_signed_ip() instead
+  // Better advice: don't use this at all, use getSignedIp() instead
   void augment_with_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet);
   double d0(const xAOD::TrackParticle &track) const;
   double d0Uncertainty(const xAOD::TrackParticle &track) const;
   double z0SinTheta(const xAOD::TrackParticle &track) const;
   double z0SinThetaUncertainty(const xAOD::TrackParticle &track) const;
 
-  BTagSignedIP get_signed_ip(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
+  BTagSignedIP getSignedIp(const xAOD::TrackParticle &track, const xAOD::Jet &jet) const;
   std::set<std::string> getTrackIpDataDependencyNames() const;
 private:
   typedef SG::AuxElement AE;
 
-  AE::ConstAccessor<float> m_ip_d0;
-  AE::ConstAccessor<float> m_ip_z0;
   AE::ConstAccessor<float> m_ip_d0_sigma;
   AE::ConstAccessor<float> m_ip_z0_sigma;
   AE::ConstAccessor<std::vector<float> > m_track_displacement;
