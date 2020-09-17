@@ -18,7 +18,7 @@ namespace PixelCalib{
 
     std::map< const Identifier, std::vector<double> > constMap = m_clustererrordata->getConstMap();
 
-    int entry_size = 8; // pixel Id + period + delta_x_slope + delta_x_offset + delta_err_x + delta_y_slope + delta_y_offset +  delta_err_y
+    int entry_size = 9; // pixel Id + period_phi + period_sinheta + delta_x_slope + delta_x_offset + delta_err_x + delta_y_slope + delta_y_offset +  delta_err_y
     int data_size = entry_size*constMap.size();
 
     std::vector<float> constants;
@@ -57,15 +57,16 @@ namespace PixelCalib{
       Identifier pixelId;
       pixelId.set(pixelId_str);
 
-      double period = constants[i*entry_size + 1];
-      double delta_x_slope = constants[i*entry_size + 2];
-      double delta_x_offset = constants[i*entry_size + 3];
-      double delta_err_x = constants[i*entry_size + 4];
-      double delta_y_slope = constants[i*entry_size + 5];
-      double delta_y_offset = constants[i*entry_size + 6];
-      double delta_err_y = constants[i*entry_size + 7];
+      double period_phi = constants[i*entry_size + 1];
+      double period_sinheta = constants[i*entry_size + 2];
+      double delta_x_slope = constants[i*entry_size + 3];
+      double delta_x_offset = constants[i*entry_size + 4];
+      double delta_err_x = constants[i*entry_size + 5];
+      double delta_y_slope = constants[i*entry_size + 6];
+      double delta_y_offset = constants[i*entry_size + 7];
+      double delta_err_y = constants[i*entry_size + 8];
       
-      m_clustererrordata->setDeltaError(&pixelId, period,
+      m_clustererrordata->setDeltaError(&pixelId, period_phi, period_sinheta,
 					delta_x_slope, delta_x_offset, delta_err_x,
 					delta_y_slope, delta_y_offset, delta_err_y);
 
