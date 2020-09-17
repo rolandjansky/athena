@@ -72,6 +72,9 @@ ConfigFlags.Digitization.PU.LowPtMinBiasInputCols = cols
 
 ConfigFlags.lock()
 
+# test this flag
+ConfigFlags.Sim.RunToTimestampDict
+
 # Core components
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
