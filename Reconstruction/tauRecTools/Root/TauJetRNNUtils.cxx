@@ -562,7 +562,7 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
   };
   std::sort(clusters.begin(), clusters.end(), et_cmp);
 
-  TLorentzVector LC_P4 = pTau.p4(xAOD::TauJetParameters::DetectorAxis);
+  TLorentzVector LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
   
   float clE(0.), Etot(0.);
   using MomentType = xAOD::CaloCluster::MomentType;
