@@ -283,7 +283,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-  Root::TAccept selectionPassed;
+  bool selectionPassed;
   for (TrackParticleDataVecIter itr  = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
     if (m_useBeamConstraint) {
       selectionPassed=m_trkFilter->accept(**itr,&beamposition);
@@ -300,32 +300,16 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     }
 
     /// eta dependent cuts ////
-    bool etaCuts = true ; // false
-     if (!etaCuts) 
-       {
-	  if (selectionPassed) 
-	    {
-	      ATH_MSG_INFO("etaCuts OFF");
-	      ElementLink<xAOD::TrackParticleContainer> link;
-	      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
-	      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
-	      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
-	      selectedTracks.push_back(linkTT);
-	    }
-	}
-      else 
-	{ 
-	  bool etaSelectionPassed = vtxEtaDependentCut(*itr);
-	  if (selectionPassed && etaSelectionPassed) 
-	    {
-	      ATH_MSG_INFO("etaCuts ON");
-	      ElementLink<xAOD::TrackParticleContainer> link;
-	      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
-	      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
-	      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
-	      selectedTracks.push_back(linkTT);
-	    }
-	}
+    bool etaCuts = not m_etaDependentCutsSvc.name().empty(); 
+    if (etaCuts) selectionPassed &= vtxEtaDependentCut(*itr); 
+    if (selectionPassed) {
+      ElementLink<xAOD::TrackParticleContainer> link;
+      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+      Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
+      linkTT->setStorableObject(*trackParticles); //@TODO: really?!
+      selectedTracks.push_back(linkTT);
+    }
+
   }
 
   ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
