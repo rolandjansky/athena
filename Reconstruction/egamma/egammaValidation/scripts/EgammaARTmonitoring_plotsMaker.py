@@ -117,6 +117,14 @@ photon_fraction_list = [
     {'name': 'truthPhotonConvRecoUnconvEfficiency', 'color': kPink + 2, 'title': 'True Conv #rightarrow Unconv'}
 ]
 
+photon_conversion_list = [
+    {'name': 'truthConvRecoConv2Si', 'color': kGreen + 2, 'title': 'True Conv #rightarrow Si-Si Conv'},
+    {'name': 'truthConvRecoConv1Si', 'color': kBlue + 2, 'title': 'True Conv #rightarrow 1 Si Conv'},
+    {'name': 'truthConvRecoConv1TRT', 'color': kRed + 2, 'title': 'True Conv #rightarrow 1 TRT Conv'},
+    {'name': 'truthConvRecoConv2TRT', 'color': kOrange + 2, 'title': 'True Conv #rightarrow TRT-TRT Conv'},
+    {'name': 'truthConvRecoConv2SiTRT', 'color': kCyan + 2, 'title': 'True Conv #rightarrow Si-TRT Conv'},
+]
+
 
 def get_key_names(file, directory=""):
     """
@@ -190,7 +198,65 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
               h_base_profile.SetTitle("")
               make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
+def make_conversion_plot(f_base, f_nightly, result_file):
+    """
+    This function creates conversion plots to study reco vs true 
+    converion radius for the various conversion categoried
+    """
+    for histo in get_key_names(f_nightly, 'truthConvRecoConv2Si'):
+        variable_name = histo.split("_", 1)[1]
 
+        if variable_name != "convRadiusTrueVsReco":
+            continue
+
+        c1 = TCanvas()
+
+        leg = TLegend(0.1, 0.75, 0.9, 0.9)
+        leg.SetNColumns(2)
+
+        for i, folder in enumerate(photon_conversion_list):
+
+            baseline = f_base.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
+            baseline.SetDirectory(0)
+            nightly = f_nightly.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
+            nightly.SetDirectory(0)
+
+            if baseline.Integral() != 0:
+                baseline.Scale(1/baseline.Integral())
+            if nightly.Integral() != 0:
+                nightly.Scale(1/nightly.Integral())
+
+            baseline.SetMinimum(min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
+            baseline.SetMaximum(max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
+
+            baseline.GetYaxis().SetTitle("normalized to unity")
+
+            baseline.SetLineColor(folder['color'])
+            nightly.SetLineColor(folder['color'])
+            baseline.SetMarkerColor(folder['color'])
+            nightly.SetMarkerColor(folder['color'])
+
+            baseline.SetMarkerStyle(1)
+            nightly.SetMarkerStyle(20)
+
+            leg.AddEntry(nightly, folder['title'], "p")
+
+            if i == 0:
+                baseline.Draw("hist ")
+            else:
+                baseline.Draw("same hist")
+
+            nightly.Draw("p same")
+
+        leg.Draw()
+
+        c1.Update()
+
+        result_file.cd()
+
+        c1.SaveAs("ConversionRadiusTrueVsReco.png")
+
+        c1.Write("ConversionRadiusTrueVsReco")
 
 
 def make_photon_fraction_plot(f_base, f_nightly, result_file):
@@ -376,6 +442,7 @@ if __name__ == '__main__':
     if particle_type == 'gamma':
 
         make_photon_fraction_plot(baseline_file, nightly_file,output_file)
+        make_conversion_plot(baseline_file, nightly_file, output_file)
 
 
 
