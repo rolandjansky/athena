@@ -35,9 +35,6 @@ namespace InDet {
       declareProperty("maxZImpact",              m_maxZImpact           =      {200.0}); // max Z IP
       declareProperty("IPsigd0Max",              m_sigIPd0Max           =      {999.0}); // error d0Max 
       declareProperty("IPsigz0Max",              m_sigIPz0Max           =      {999.0}); // error z0Max 
-      declareProperty("IPd0Max",                 m_IPd0Max              =         {2.}); // mm
-      declareProperty("IPz0Max",                 m_IPz0Max              =        {1.5}); // mm
-      //
       declareProperty("maxHolesPattern",         m_maxHolesPattern      =          {2}); // max holes in pattern
       declareProperty("maxHolesGapPattern",      m_maxHolesGapPattern   =          {2}); // max holes gap in pattern
       declareProperty("Xi2max",                  m_Xi2max               =        {9.0}); // Xi2 max
@@ -93,8 +90,6 @@ namespace InDet {
                                                                &m_phiWidthBrem        ,
                                                                &m_Xi2max              ,
                                                                &m_Xi2maxNoAdd         ,
-      							       &m_IPd0Max             ,
-							       &m_IPz0Max             ,
 							       &m_sigIPd0Max          ,
 							       &m_sigIPz0Max          };
                                             
@@ -136,8 +131,6 @@ namespace InDet {
       ATH_MSG_INFO ("minPixelHits: " << m_minPixelHits);
       ATH_MSG_INFO ("minStripHits: " << m_minStripHits);
       ATH_MSG_INFO ("minPT: " << m_minPT);
-      ATH_MSG_INFO ("d0Max: " << m_IPd0Max);
-      ATH_MSG_INFO ("z0Max: " << m_IPz0Max);
       ATH_MSG_INFO ("sigd0Max: " << m_sigIPd0Max);
       ATH_MSG_INFO ("sigz0Max: " << m_sigIPz0Max);
       ATH_MSG_INFO ("minPTBrem: " << m_minPTBrem);
@@ -160,8 +153,6 @@ namespace InDet {
       m_mapDoubleCuts[InDet::CutName::minPTBrem]          = m_minPTBrem;
       m_mapDoubleCuts[InDet::CutName::etaWidthBrem]       = m_etaWidthBrem;
       m_mapDoubleCuts[InDet::CutName::phiWidthBrem]       = m_phiWidthBrem;
-      m_mapDoubleCuts[InDet::CutName::IPd0Max]            = m_IPd0Max;
-      m_mapDoubleCuts[InDet::CutName::IPz0Max]            = m_IPz0Max;
       m_mapDoubleCuts[InDet::CutName::sigIPd0Max]         = m_sigIPd0Max;
       m_mapDoubleCuts[InDet::CutName::sigIPz0Max]         = m_sigIPz0Max;
 
@@ -281,20 +272,12 @@ namespace InDet {
     double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(double eta) {
       return getValueAtEta<double>(m_maxPrimaryImpact, eta);
     }
-  //
-    double InDetEtaDependentCutsSvc::getIPd0MaxAtEta(double eta) {
-      return getValueAtEta<double>(m_IPd0Max,eta);
-    }  
-    double InDetEtaDependentCutsSvc::getIPz0MaxAtEta(double eta) {
-      return getValueAtEta<double>(m_IPz0Max,eta);
-    }  
     double InDetEtaDependentCutsSvc::getSigIPd0MaxAtEta(double eta) {
       return getValueAtEta<double>(m_sigIPd0Max,eta);
     }  
     double InDetEtaDependentCutsSvc::getSigIPz0MaxAtEta(double eta) {
       return getValueAtEta<double>(m_sigIPz0Max,eta);
     }  
-  //
    double  InDetEtaDependentCutsSvc::getMaxChi2AtEta(double eta) {
       return getValueAtEta<double>(m_Xi2max, eta);
     }
