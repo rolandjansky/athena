@@ -967,8 +967,6 @@ def efmuisoRecoSequence( RoIs, Muons ):
 
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
-    if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-        TrackCollection = viewAlg.TrackName
 
   #Precision Tracking
   PTAlgs = [] #List of precision tracking algs
