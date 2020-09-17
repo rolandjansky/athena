@@ -218,7 +218,7 @@ namespace Muon {
     void insertHash( int sector, const IdentifierHash& hash, const Identifier& id );
 
     void matchTruth( std::set<Identifier>& truthHits, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
-    void initializeSectorMapping();
+    void initializeSectorMapping(const MuonGM::MuonDetectorManager* detMgr);
     void getTruth() const;
     void printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const;
 
@@ -232,7 +232,6 @@ namespace Muon {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool> m_printer{this, "printerTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
     ToolHandle<Muon::IMuonTruthSummaryTool> m_truthSummaryTool{this, "MuonTruthSummaryTool", "Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"};
-    const MuonGM::MuonDetectorManager* m_detMgr;
 
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
     std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;

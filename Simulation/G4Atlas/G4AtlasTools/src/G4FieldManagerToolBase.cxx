@@ -190,7 +190,7 @@ G4FieldManagerToolBase::createDriverAndStepper(std::string name, G4MagneticField
 // Create the stepper (Geant4 < 10.4)
 //=============================================================================
 G4MagIntegratorStepper*
-G4FieldManagerToolBase::getStepper(std::string name, G4MagneticField* field) const
+G4FieldManagerToolBase::getStepper(const std::string& name, G4MagneticField* field) const
 {
   ATH_MSG_DEBUG("getStepper");
   G4Mag_EqRhs* eqRhs(nullptr);

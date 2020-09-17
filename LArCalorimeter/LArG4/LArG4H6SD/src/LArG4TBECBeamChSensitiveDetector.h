@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4TBECBeamChSensitiveDetector.hh
-#ifndef __LArG4TBECBeamChSensitiveDetector_H__
-#define __LArG4TBECBeamChSensitiveDetector_H__
+#ifndef  LARG4H6SD_LARG4TBECBEAMCHSENSITIVEDETECTOR_H
+#define  LARG4H6SD_LARG4TBECBEAMCHSENSITIVEDETECTOR_H
 
 #include "LArG4TBECBeamChHit.h"
 

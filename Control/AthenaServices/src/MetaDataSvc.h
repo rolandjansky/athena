@@ -113,6 +113,19 @@ public: // Non-static members
 
    CLID remapMetaContCLID( const CLID& item_id ) const;
 
+   class ToolLockGuard {
+   public:
+      ToolLockGuard(const MetaDataSvc& mds) : m_mds(mds) { m_mds.lockTools(); }
+      ~ToolLockGuard() { m_mds.unlockTools(); }
+      ToolLockGuard(const ToolLockGuard&) = delete;
+      void operator=(const ToolLockGuard&) = delete;
+   private:
+      const MetaDataSvc& m_mds;
+   };
+
+   void lockTools() const;
+   void unlockTools() const;
+
 private:
    /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
    StatusCode addProxyToInputMetaDataStore(const std::string& tokenStr);
@@ -139,8 +152,9 @@ private: // data
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
-   /// MetaDataTools, vector with the MetaData tools.
+   /// MetaDataTools, vector with the MetaData tools
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
+
 };
- 
+
 #endif

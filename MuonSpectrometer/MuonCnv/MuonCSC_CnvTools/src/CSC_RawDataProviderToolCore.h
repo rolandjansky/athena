@@ -18,11 +18,6 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-namespace MuonGM
-{
-    class MuonDetectorManager;
-}
-
 namespace Muon
 {
 
@@ -47,8 +42,6 @@ protected:
 
   /** member variables for algorithm properties: */
   ToolHandle<ICSC_ROD_Decoder> m_decoder{this,"Decoder","Muon::CscROD_Decoder/CscROD_Decoder"};
-
-  const MuonGM::MuonDetectorManager* m_muonMgr;
   
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

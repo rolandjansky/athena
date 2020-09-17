@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4TBECBeamChCalculator
@@ -12,10 +12,10 @@
 #include "globals.hh"
 
 LArG4TBECBeamChCalculator::LArG4TBECBeamChCalculator(void)
+  : m_number (-1),
+    m_x (0),
+    m_y (0)
 {
-  m_number = -1;
-  m_x = 0.;
-  m_y = 0.;
   G4cout << "LArG4TBECBeamChCalculator ready" << G4endl;
 }
 

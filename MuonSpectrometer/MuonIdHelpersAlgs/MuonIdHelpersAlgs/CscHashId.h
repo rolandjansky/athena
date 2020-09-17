@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCHASHID_H
@@ -12,9 +12,6 @@
 
 class StoreGateSvc;
 class CscIdHelper;
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -23,20 +20,17 @@ class CscHashId: public AthAlgorithm {
 public:
 
   CscHashId (const std::string& name, ISvcLocator* pSvcLocator);
-  ~CscHashId();
+  ~CscHashId()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
 private:
 
   StatusCode cscHash();
 
 private:
-
   const CscIdHelper          * m_cscId;
-  const MuonGM::MuonDetectorManager  * m_muon_mgr;
 
 };
 

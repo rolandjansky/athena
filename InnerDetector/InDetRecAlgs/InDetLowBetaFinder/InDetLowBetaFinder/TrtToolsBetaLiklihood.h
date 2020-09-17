@@ -101,7 +101,8 @@ private:
   void TRT_SelectFEhits();                                                                                        //chooses decent looking hits to pass on to fitting
   void TRT_BitPattern(int hitP, int *lowPat, int *highPat, HIT &hit);                                             //parses TRT hits into useful info.  
   void TRT_PropLenCorr(HIT hit, int *corrLBits, float *corrLBitWeight, int *corrFBits, float *corrFBitWeight);    //fixes reflection in electronics.  
-  void TRT_FEbeta_min(float &beta, float &betaSigmaLo, float &betaSigmaUp);                                       //handles MINUIT for the TRT FE beta fit. 
+  void TRT_FEbeta_min ATLAS_NOT_THREAD_SAFE
+    (float &beta, float &betaSigmaLo, float &betaSigmaUp);                                       //handles MINUIT for the TRT FE beta fit. 
   void TRT_SelectFEpriors(TrtToolBetaLiklihood::HIT hit, int *corrLBits, float *corrLBitWeight);
   //void TRT_solveCubic(float DCrad, float &estDrift);
 };

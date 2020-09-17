@@ -30,7 +30,6 @@
 
 class MsgStream;
 class IOVDbConn;
-class IOVMetaDataContainer;
 class IOpaqueAddress;
 class IAddressCreator;
 class StoreGateSvc;
@@ -40,7 +39,8 @@ class CondAttrListCollection;
 class IOVDbFolder : public AthMessaging {
 public:
   IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream& msg,
-              IClassIDSvc* clidsvc,const bool checklock, const bool outputToFile=false,
+              IClassIDSvc* clidsvc, IIOVDbMetaDataTool* metadatatool,
+              const bool checklock, const bool outputToFile=false,
               const std::string & source="COOL_DATABASE");
   ~IOVDbFolder();
   
@@ -73,12 +73,16 @@ public:
   IOVRange currentRange() const;
 
   // set methods - used after folder creation to set properties externally
-  void setMetaCon(const IOVMetaDataContainer* con);
+
+  // mark this folder as using metadata from an input file
+  void useFileMetaData();
+  // set folder description
+  void setFolderDescription(const std::string& description);
   // set tag override, set override flag as well if setFlag is true
   // override flag prevents reading of FLMD for this folder if present
   void setTagOverride(const std::string& tag,const bool setFlag);
   // set writeMeta flag
-  void setWriteMeta(IIOVDbMetaDataTool* metadatatool);
+  void setWriteMeta();
   // set IOV overrides
   void setIOVOverride(const unsigned int run,const unsigned int lumiblock,
                       const unsigned int time);
@@ -212,19 +216,21 @@ private:
 
   void 
   specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
- 
-  
+
+
   StoreGateSvc*        p_detStore{nullptr};     // pointer to detector store
   IClassIDSvc*         p_clidSvc{nullptr};      // pointer to CLID service
   IIOVDbMetaDataTool*  p_metaDataTool{nullptr}; // pointer to metadata tool (writing)
   IOVDbConn*           m_conn{nullptr};         // pointer to corresponding IOVDbConn object (=0 FLMD)
   std::string m_foldername;       // COOL foldername
   std::string m_key;              // SG key where data is loaded (unique)
+  std::string m_folderDescription;// folder description
   bool m_multiversion{false};     // is folder multiversion
   bool m_timestamp{false};        // is folder indexed by timestamp (else runLB)
   bool m_tagoverride{false};      // is tag reset from override (needed for FLMD)
   bool m_notagoverride{false};    // tag must not be overridden from input file
   bool m_writemeta{false};        // is writing to metadata
+  bool m_useFileMetaData{false};  // is using input File MetaData
   bool m_fromMetaDataOnly{false}; // to be read from metadata only
   bool m_extensible{false};       // is this an extensible folder?
   bool m_named{false};            // folder has named channels
@@ -235,7 +241,6 @@ private:
   bool m_checklock{true};         // indicates if global tags should be checked locked
   cool::ValidityKey m_iovoverride{0};             // validity key to use
   IOVDbNamespace::FolderType m_foldertype;        // type of data in folder (enum)
-  const IOVMetaDataContainer* m_metacon{nullptr}; // metadata container (=0 if not FLMD)
 
   cool::ValidityKey m_cachelength{0}; // length of cache
   int m_cachehint{0};                 // cachehint value (set initial size to Nxchan)
@@ -298,7 +303,10 @@ inline bool IOVDbFolder::retrieved() const { return m_retrieved; }
 inline IOVDbNamespace::FolderType IOVDbFolder::folderType() const 
 {return m_foldertype;}
 
-inline bool IOVDbFolder::readMeta() const { return (m_metacon!=0); }
+inline void IOVDbFolder::setFolderDescription(const std::string& description)
+{ m_folderDescription = description; }
+
+inline bool IOVDbFolder::readMeta() const { return m_useFileMetaData; }
 
 inline bool IOVDbFolder::writeMeta() const { return m_writemeta; }
 

@@ -605,6 +605,7 @@ namespace InDet{
 	   m_curTup->Chi2[ipnt]=vrt.chi2;
 	   m_curTup->badVrt[ipnt]=vrt.badVrt;
 	   m_curTup->VrtDR[ipnt]=vrt.dRSVPV;
+	   m_curTup->VrtErrR[ipnt]= vrtRadiusError(vrt.fitVertex, vrt.errorMatrix);
            ipnt++; m_curTup->nVrt=ipnt;
         }
   } 

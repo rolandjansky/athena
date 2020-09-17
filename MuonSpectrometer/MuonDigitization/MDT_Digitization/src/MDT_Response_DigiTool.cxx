@@ -11,13 +11,9 @@
 
 using namespace MuonGM;
 
-MDT_Response_DigiTool::MDT_Response_DigiTool( const std::string& type,
-					      const std::string& name,
-					      const IInterface* parent )
-  : AthAlgTool(type,name,parent)
-	 , m_muonGeoMgr(0)
-	 , m_idHelper(0)
-{
+MDT_Response_DigiTool::MDT_Response_DigiTool( const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type,name,parent),
+	m_idHelper(nullptr) {
   declareInterface<IMDT_DigitizationTool>(this);
 
   declareProperty("ClusterDensity",   m_clusterDensity = 8.5);
@@ -62,30 +58,28 @@ MDT_Response_DigiTool::digitize(const MdtDigiToolInput& input, CLHEP::HepRandomE
 
 StatusCode MDT_Response_DigiTool::initialize()
 {
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
   if(detStore()->contains<MuonDetectorManager>( "Muon" )){
-    StatusCode status = detStore()->retrieve(m_muonGeoMgr);
-    if (status.isFailure()) {
-      ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-      return status;
-    }
-    else {
+      ATH_CHECK(detStore()->retrieve(muDetMgr));
       ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
       //initialize the MdtIdHelper
-      m_idHelper = m_muonGeoMgr->mdtIdHelper();
+      m_idHelper = muDetMgr->mdtIdHelper();
       ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
-      if(!m_idHelper) return status;
-    }
+      if(!m_idHelper) {
+        ATH_MSG_ERROR("MdtIdHelper is nullptr");
+        return StatusCode::FAILURE;
+      }
   }
  
-  initializeTube();
+  initializeTube(muDetMgr);
 
   return StatusCode::SUCCESS;
 }
 
-bool MDT_Response_DigiTool::initializeTube(){
+bool MDT_Response_DigiTool::initializeTube(const MuonGM::MuonDetectorManager* detMgr) {
 
   // initialize MDT_Response
-  double innerR(m_muonGeoMgr->getGenericMdtDescriptor()->innerRadius);
+  double innerR(detMgr->getGenericMdtDescriptor()->innerRadius);
 
   ATH_MSG_DEBUG("INITIALIZED Inner tube radius to " << innerR );
   m_tube.SetTubeRadius(innerR);
