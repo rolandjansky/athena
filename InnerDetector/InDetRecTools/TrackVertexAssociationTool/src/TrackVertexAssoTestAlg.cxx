@@ -1,34 +1,43 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-// TrackVertexAssoTestAlg.cxx
+
+// TrackVertexAssoTestAlg.cxx 
 // Implementation file for class TrackVertexAssoTestAlg
-// Author: Rachid Mazini, Bo Liu
-///////////////////////////////////////////////////////////////////
+// Author: Rachid Mazini, Bo Liu 
+/////////////////////////////////////////////////////////////////// 
 
 // TrackVertexAssociationTool includes
 #include "TrackVertexAssoTestAlg.h"
 
+// STL includes
+
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "AsgTools/MessageCheck.h"
 
-// ROOT includes
-#include "TH1F.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 using namespace std;
 
-///////////////////////////////////////////////////////////////////
-// Public methods:
-///////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////// 
+// Public methods: 
+/////////////////////////////////////////////////////////////////// 
 
 // Constructors
 ////////////////
-TrackVertexAssoTestAlg::TrackVertexAssoTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) :
-  EL::AnaAlgorithm( name, pSvcLocator )
+TrackVertexAssoTestAlg::TrackVertexAssoTestAlg( const std::string& name, 
+			  ISvcLocator* pSvcLocator ) : 
+  ::AthAlgorithm( name, pSvcLocator )
 {
+  //
   // Property declaration
+  // 
+  //declareProperty( "Property", m_nProperty );
   declareProperty( "TVATool", m_TVATool );
 }
 
@@ -45,19 +54,8 @@ StatusCode TrackVertexAssoTestAlg::initialize()
 
   ATH_CHECK( m_trkContname.initialize() );
   ATH_CHECK( m_vertexContname.initialize() );
-
-  // Retrieve tool from ToolHandle
-  ATH_CHECK( m_TVATool.retrieve() );
-
-  // Book our histograms
-  m_h_eff = new TEfficiency("_h_eff", "_h_eff", m_nbins, m_xmin, m_xmax);
-  m_h_eff->SetDirectory(0);
-  m_h_eff->SetStatisticOption(TEfficiency::kFNormal);
-  m_h_imp = new TEfficiency("_h_imp", "_h_imp", m_nbins, m_xmin, m_xmax);
-  m_h_imp->SetDirectory(0);
-  m_h_imp->SetStatisticOption(TEfficiency::kFNormal);
-  ANA_CHECK(book(TH1F("h_eff", "h_eff", m_nbins, m_xmin, m_xmax))); // TVA efficiency vs. eta
-  ANA_CHECK(book(TH1F("h_imp", "h_imp", m_nbins, m_xmin, m_xmax))); // TVA impurity vs. eta
+  //retrieve tool from ToolHandle
+  CHECK(m_TVATool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -66,18 +64,6 @@ StatusCode TrackVertexAssoTestAlg::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  for (int i = 1; i <= m_nbins; i++) {
-    hist("h_eff")->SetBinContent(i, m_h_eff->GetEfficiency(i));
-    hist("h_eff")->SetBinError(i, m_h_eff->GetEfficiencyErrorUp(i));
-    hist("h_imp")->SetBinContent(i, m_h_imp->GetEfficiency(i));
-    hist("h_imp")->SetBinError(i, m_h_imp->GetEfficiencyErrorUp(i));
-  }
-
-  delete m_h_eff;
-  m_h_eff = nullptr;
-  delete m_h_imp;
-  m_h_imp = nullptr;
-
   return StatusCode::SUCCESS;
 }
 
@@ -85,8 +71,9 @@ StatusCode TrackVertexAssoTestAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  // Retrieve containers
+  // retrieve containers
   SG::ReadHandle<xAOD::TrackParticleContainer> trkCont(m_trkContname);
+
   SG::ReadHandle<xAOD::VertexContainer> vxCont(m_vertexContname);
 
   if (!trkCont.isValid() || !vxCont.isValid()) {
@@ -156,9 +143,34 @@ StatusCode TrackVertexAssoTestAlg::execute()
   }
 
   // Example of accessing tracks matched to each vertex. Tracks are stored in a std::vector<xAOD::TrackParticle* >, for more details see TrackVertexAssociationMap.h
+
   // const xAOD::Vertex *pv=vxCont->at(0);
   // xAOD::TrackVertexAssociationList trkvxassoList = trkvxassoMap[pv];
   // ATH_MSG_INFO("Number of tracks associated to the PriVx: " << trkvxassoList.size());
 
+
+
   return StatusCode::SUCCESS;
 }
+
+/////////////////////////////////////////////////////////////////// 
+// Const methods: 
+///////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Non-const methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/////////////////////////////////////////////////////////////////// 
+// Protected methods: 
+/////////////////////////////////////////////////////////////////// 
+
+/////////////////////////////////////////////////////////////////// 
+// Const methods: 
+///////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////// 
+// Non-const methods: 
+/////////////////////////////////////////////////////////////////// 
+
+
