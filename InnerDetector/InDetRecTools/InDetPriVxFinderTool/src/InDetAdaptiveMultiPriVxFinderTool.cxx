@@ -356,7 +356,7 @@ bool InDetAdaptiveMultiPriVxFinderTool::vtxEtaDependentCut(const xAOD::TrackPart
   }
   else if ( fabs((trk)->d0())/Amg::error(covTrk,Trk::d0) > m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) ) {
     etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("track error d0: " << fabs(Amg::error(covTrk, 0)) << " HIGHER than max err d0: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
+    ATH_MSG_DEBUG("track error d0 significance: " << fabs(Amg::error(covTrk, 0))/Amg::error(covTrk,Trk::d0) << " HIGHER than max err d0 significance: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
   }
   else if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ) {
     if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < 0 ) {
