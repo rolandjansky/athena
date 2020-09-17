@@ -43,6 +43,7 @@ void load_packages( const char* options = "" ) {
    // Load the xAODRootAccess library, in a hard-coded way:
    gSystem->Load( "libxAODRootAccess" );
    gROOT->ProcessLine( "xAOD::Init().ignore()" );
+   gROOT->ProcessLine( "xAOD::LoadDictionaries().ignore()" );
 
    return;
 }

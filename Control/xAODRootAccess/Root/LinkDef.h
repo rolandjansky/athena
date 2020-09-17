@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: LinkDef.h 687014 2015-08-03 09:30:27Z krasznaa $
 #ifndef XAODROOTACCESS_LINKDEF_H
 #define XAODROOTACCESS_LINKDEF_H
 
@@ -19,6 +16,7 @@
 #include "xAODRootAccess/tools/TFileChecker.h"
 #include "xAODRootAccess/MakeTransientTree.h"
 #include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/LoadDictionaries.h"
 
 #ifdef __CINT__
 
@@ -47,6 +45,7 @@
 #pragma link C++ function xAOD::ClearTransientMetaTree;
 #pragma link C++ function xAOD::Init(const char*);
 #pragma link C++ function xAOD::SetMessageSourceWidth(size_t);
+#pragma link C++ function xAOD::LoadDictionaries();
 
 #endif // __CINT__
 #endif // XAODROOTACCESS_LINKDEF_H

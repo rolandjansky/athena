@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODConfigTool.h 631651 2014-11-27 18:33:16Z lheinric $
@@ -44,6 +44,9 @@ namespace TrigConf {
    public:
       /// Constructor for standalone usage
       xAODConfigTool( const std::string& name = "TrigConf::xAODConfigTool" );
+
+      /// Out-of-line dtor so that we don't need to define Impl in the header.
+      ~xAODConfigTool();
 
       /// @name Function(s) implementing the asg::IAsgTool interface
       /// @{
@@ -116,15 +119,14 @@ namespace TrigConf {
       /// The active configuration for the current event
       const xAOD::TriggerMenu* m_menu;
 
-      /// The "translated" LVL1 configuration object
-      CTPConfig m_ctpConfig;
-      /// The "translated" HLT configuration object
-      HLTChainList m_chainList;
-      /// The "translated" HLT configuration object
-      HLTSequenceList m_sequenceList;
-      /// The "translated" bunch group set object
-      BunchGroupSet m_bgSet;
-
+      // A few members moved to an impl class to hide them from cling.
+      // Otherwise, we get warnings about the use of boost::multi_index
+      // in TrigConfL1Data.
+      // Cling requires that the Impl class itself be declared public.
+   public:
+      struct Impl;
+   private:
+      std::unique_ptr<Impl> m_impl;
    }; // class xAODConfigTool
 
 } // namespace TrigConf

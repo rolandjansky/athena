@@ -26,6 +26,7 @@
 #include "TROOT.h"
 
 #include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/LoadDictionaries.h"
 
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/CorrectionCode.h"
@@ -45,6 +46,10 @@ namespace top {
   void xAODInit(bool failOnUnchecked) {
     if (!xAOD::Init()) {
       throw std::runtime_error("Failed xAOD::Init - no idea what to do, exiting");
+    }
+    if (xAOD::LoadDictionaries().isFailure()) {
+      ATH_MSG_WARNING("Failiure in xAOD::LoadDictionaries(). The job will "
+                      "likely not run correctly.");
     }
 
     //fail on unchecked error codes
@@ -460,21 +465,21 @@ namespace top {
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
     top::check(xaodEvent.readFrom(inputFile), "Cannot load inputFile");
     xaodEvent.getEntry(0);
-    
+
     bool gotDSID=false;
     unsigned int mcChannelNumber = ((unsigned int) -1);
-    
+
     std::string productionRelease="?", amiTag="?", AODFixVersion="?", AODCalibVersion="?", dataType="?", geometryVersion="?", conditionsTag="?",
                   beamType="?", simFlavour="?";
     float beamEnergy = 0, mcProcID = -1;
-    
+
     // Magical metadata tool to access FileMetaData object
     asg::AsgMetadataTool ATMetaData("OurNewMetaDataObject");
     bool readFMD=false;
 
     // Check it exists, and if it does we will work with it
     if (ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-      
+
       ATH_MSG_INFO("Trying to read FileMetaData");
 
       // Create pointer for FileMetaData which we will load
@@ -512,9 +517,9 @@ namespace top {
       readFMD=true;
     }
     if (!readFMD || !gotDSID || mcChannelNumber == ((unsigned int) -1)){  // in case FileMetaData is bugged and does not have DSID properly stored happens for example for files with 0 events in CollectionTree after skimming
-      
+
       ATH_MSG_INFO("FileMetaData not found or not readable, trying to read TruthMetaData");
-      
+
       bool gotTruthMetaData = true;
       const xAOD::TruthMetaDataContainer *truthMetadata =  nullptr;
       if (ATMetaData.inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {

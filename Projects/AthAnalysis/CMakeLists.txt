@@ -1,5 +1,6 @@
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+project( AthAnalysis )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
@@ -28,12 +29,6 @@ find_package( requests )
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
 find_package( AIDA )
-
-# Set up the runtime environment for NumPy.
-set( NumPyEnvironment_DIR "${CMAKE_SOURCE_DIR}"
-   CACHE PATH "Directory holding NumPyEnvironmentConfig.cmake" )
-mark_as_advanced( NumPyEnvironment_DIR )
-find_package( NumPyEnvironment )
 
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )

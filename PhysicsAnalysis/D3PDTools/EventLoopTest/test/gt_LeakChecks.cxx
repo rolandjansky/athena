@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // Framework include(s).
@@ -112,15 +112,15 @@ TEST_P( LeakCheckTests, batch ) {
 }
 
 // Perform the test with a number of different settings.
-INSTANTIATE_TEST_CASE_P( AllLeakCheckTests, LeakCheckTests,
-                         ::testing::Values( TestParams{ 0, 0 },
-                                            TestParams{ 1000, 0 },
-                                            TestParams{ 5000, 0 },
-                                            TestParams{ 20000, 0 },
-                                            TestParams{ 0, 1 },
-                                            TestParams{ 1000, 1 },
-                                            TestParams{ 5000, 1 },
-                                            TestParams{ 20000, 1 } ), );
+INSTANTIATE_TEST_SUITE_P( AllLeakCheckTests, LeakCheckTests,
+                          ::testing::Values( TestParams{ 0, 0 },
+                                             TestParams{ 1000, 0 },
+                                             TestParams{ 5000, 0 },
+                                             TestParams{ 20000, 0 },
+                                             TestParams{ 0, 1 },
+                                             TestParams{ 1000, 1 },
+                                             TestParams{ 5000, 1 },
+                                             TestParams{ 20000, 1 } ) );
 
 // Declare the main() function.
 ATLAS_GOOGLE_TEST_MAIN

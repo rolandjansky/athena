@@ -75,7 +75,7 @@ namespace xAOD {
       /// ROOT's description of the vector type
       ::TVirtualCollectionProxy* m_proxy;
       /// Assignment operator
-      mutable ::TMethodCall m_assign;
+      mutable ::TMethodCall* m_assign = nullptr;
       /// Pointer to a default element object in memory
       mutable void* m_defElt;
 

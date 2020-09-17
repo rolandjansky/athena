@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -23,6 +23,7 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 # Set up (Py)ROOT.
 import ROOT
 ROOT.xAOD.Init().ignore()
+ROOT.xAOD.LoadDictionaries().ignore()
 
 # this forces the jet algorithms dictionary to be loaded before
 # anything else, which works around some strange dictionary issues I
