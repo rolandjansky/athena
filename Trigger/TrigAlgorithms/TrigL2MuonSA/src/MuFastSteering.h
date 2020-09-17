@@ -24,6 +24,7 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "CscSegmentMaker.h"
 #include "CscRegUtils.h"
+#include "FtfRoadDefiner.h"
 
 //adding a part of DataHandle for AthenaMT
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -34,6 +35,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
 class IRegSelSvc;
@@ -83,6 +85,15 @@ class MuFastSteering : public HLT::FexAlgo,
 			       TrigRoiDescriptorCollection&	 		outputID,
 			       TrigRoiDescriptorCollection&	 		outputMS,
 			       DataVector<xAOD::TrigComposite>&			outputComposite );
+
+  /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
+  StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer             idtracks,
+				 const std::vector<const TrigRoiDescriptor*>    roids,
+				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
+				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
+				 TrigRoiDescriptorCollection&                   outputID,
+				 TrigRoiDescriptorCollection&                   outputMS );
 
   int L2MuonAlgoMap(const std::string& name);
 
@@ -168,6 +179,8 @@ class MuFastSteering : public HLT::FexAlgo,
 	this, "TrackFitter", "TrigL2MuonSA::MuFastTrackFitter", "track fitter" };
   ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator {
 	this, "TrackExtrapolator", "TrigL2MuonSA::MuFastTrackExtrapolator", "track extrapolator" };
+  ToolHandle<TrigL2MuonSA::FtfRoadDefiner>           m_ftfRoadDefiner {
+        this, "FtfRoadDefiner", "TrigL2MuonSA::FtfRoadDefiner", "ftf road definer" };
 
   /** Handle to MuonBackExtrapolator tool */
   ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool {
@@ -231,6 +244,7 @@ class MuFastSteering : public HLT::FexAlgo,
 
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0 };
 
+  Gaudi::Property< bool > m_insideOut { this, "InsideOutMode", false, "" };
   Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
@@ -257,6 +271,10 @@ class MuFastSteering : public HLT::FexAlgo,
   SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey{
 	this, "RecMuonRoI", "HLT_RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
 
+  //ReadHandle FTF Tracks
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_FTFtrackKey{
+	this, "TrackParticlesContainerName", "HLT_xAODTracks_Muon", "Name of the input data on xAOD::TrackParticleContainer produced by FTF for Inside-Out mode"};
+
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{
 	this, "MuonL2SAInfo", "MuonL2SAInfo", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
@@ -272,6 +290,10 @@ class MuFastSteering : public HLT::FexAlgo,
   //WriteHandle <TrigRoiDescriptor> for MS
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey{
 	this, "forMS", "forMS", "Name of the output data for MS"};
+
+  //WriteHandle <xAOD::L2CombinedMuonContainer> for Inside-out Mode
+  SG::WriteHandleKey<xAOD::L2CombinedMuonContainer> m_outputCBmuonCollKey{
+	this, "L2IOCB", "MuonL2CBInfo", "output CB Muon container name"};
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

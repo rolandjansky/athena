@@ -159,6 +159,10 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 
      ATH_CHECK( m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, itTrack, muonRoad) );
 
+     if ( itTrack.etaBin < -1 ) {
+       itTrack.etaBin = static_cast<int>((fabs(muonRoad.extFtfMiddleEta)-1.)/0.05);
+     }
+
      ATH_CHECK( m_ptFromAlphaBeta->setPt(itTrack,tgcFitResult) );
      
    }

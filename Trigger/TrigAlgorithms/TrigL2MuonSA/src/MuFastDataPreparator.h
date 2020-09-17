@@ -55,6 +55,7 @@ class MuFastDataPreparator: public AthAlgTool {
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
+			 const bool                  insideOut,
 			 TrigL2MuonSA::RpcHits&      rpcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -64,6 +65,7 @@ class MuFastDataPreparator: public AthAlgTool {
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
+			 const bool                  insideOut,
 			 TrigL2MuonSA::TgcHits&      tgcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,

@@ -111,6 +111,12 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::BAD_JOB_SETUP;
   }
 
+  // FtfRoadDefiner
+  if ( m_ftfRoadDefiner.retrieve().isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve " << m_ftfRoadDefiner);
+    return HLT::BAD_JOB_SETUP;
+  }
+
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -190,6 +196,16 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     ATH_MSG_ERROR("ReadHandleKey for DataVector<LVL1::RecMuonRoI> key:" << m_recRoiCollectionKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
   }
+  // for Inside-Out mode ---
+  if (m_FTFtrackKey.initialize(m_insideOut).isFailure() ) {
+    ATH_MSG_ERROR("ReadHandleKey for xAOD::TrackParticleContainer key:" << m_FTFtrackKey.key() << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
+  if (m_outputCBmuonCollKey.initialize(m_insideOut).isFailure() ) {
+    ATH_MSG_ERROR("ReadHandleKey for xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
+  // ----
   if (m_muFastContainerKey.initialize().isFailure() ) {
     ATH_MSG_ERROR("WriteHandleKey for xAOD::L2StandAloneMuonContainer key:" << m_muFastContainerKey.key() << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;
@@ -263,6 +279,7 @@ const LVL1::RecMuonRoI* matchingRecRoI( uint32_t roiWord,
 StatusCode MuFastSteering::execute()
 {
   ATH_MSG_DEBUG("StatusCode MuFastSteering::execute start");
+  ATH_MSG_DEBUG("InsideOutMode: " << m_insideOut);
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
   auto monitorIt	= Monitored::Group(m_monTool, totalTimer );
@@ -351,10 +368,39 @@ StatusCode MuFastSteering::execute()
   auto muMsContainer = SG::makeHandle(m_muMsContainerKey, ctx);
   ATH_CHECK(muMsContainer.record(std::make_unique<TrigRoiDescriptorCollection>()));
 
-  // to StatusCode findMuonSignature()
-  ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
-			      *muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));
 
+  // Inside-out L2Muon mode
+  if(m_insideOut) {
+    ATH_MSG_DEBUG("start inside-out mode...");
+
+    auto muonCBColl = SG::makeHandle (m_outputCBmuonCollKey, ctx);
+    ATH_CHECK( muonCBColl.record (std::make_unique<xAOD::L2CombinedMuonContainer>(),
+				  std::make_unique<xAOD::L2CombinedMuonAuxContainer>()) );
+
+    auto trackHandle = SG::makeHandle( m_FTFtrackKey, ctx );
+    const xAOD::TrackParticleContainer *tracks = trackHandle.cptr();
+    if (!trackHandle.isValid()){
+      ATH_MSG_ERROR("ReadHandle for TrackParticleContainer key:" << m_FTFtrackKey.key() << " isn't Valid");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_CHECK(findMuonSignatureIO(*tracks, internalRoI, recRoIVector,
+				  *muonCBColl, *muFastContainer, *muIdContainer, *muMsContainer ));
+
+    ATH_MSG_DEBUG("REGTEST: xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " size = " << muonCBColl->size());
+    xAOD::L2CombinedMuonContainer::const_iterator p_CBmuon = (*muonCBColl).begin();
+    xAOD::L2CombinedMuonContainer::const_iterator p_CBmuonEn = (*muonCBColl).end();
+    for (;p_CBmuon != p_CBmuonEn; ++p_CBmuon) {
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " pt = " << (*p_CBmuon)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: xAOD::L2CombinedMuonContainer key:" << m_outputCBmuonCollKey.key() << " eta/phi = " << (*p_CBmuon)->eta() << "/" << (*p_CBmuon)->phi());
+    }
+
+  }
+  else {
+    // to StatusCode findMuonSignature()
+    ATH_CHECK(findMuonSignature(internalRoI, recRoIVector,
+				*muFastContainer, *muIdContainer, *muMsContainer, *muCompositeContainer ));
+  }
 
   // DEBUG TEST: Recorded data objects
   ATH_MSG_DEBUG("Recorded data objects");
@@ -627,6 +673,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       m_tgcHits.clear();
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
+                                         m_insideOut,
                                          m_rpcHits,
                                          m_muonRoad,
                                          m_mdtRegion,
@@ -681,6 +728,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();
       stationFitterTimer.start();
       sc = m_stationFitter->findSuperPoints(*p_roi,
+                                            m_muonRoad,
                                             m_rpcFitResult,
                                             trackPatterns);
       if (!sc.isSuccess()) {
@@ -723,6 +771,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       m_tgcHits.clear();
       sc = m_dataPreparator->prepareData(*p_roi,
                                          *p_roids,
+                                         m_insideOut,
                                          m_tgcHits,
                                          m_muonRoad,
                                          m_mdtRegion,
@@ -773,9 +822,10 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
       if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();
       stationFitterTimer.start();
       if(!m_use_new_segmentfit){
-        sc = m_stationFitter->findSuperPoints(*p_roi,
-                                              m_tgcFitResult,
-                                              trackPatterns);
+        sc = m_stationFitter->findSuperPointsSimple(*p_roi,
+						    m_muonRoad,
+						    m_tgcFitResult,
+						    trackPatterns);
       }else{
         sc = m_stationFitter->findSuperPoints(*p_roi,
                                               m_muonRoad,
@@ -933,6 +983,384 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
   }
 
   ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignature success");
+  return StatusCode::SUCCESS;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer          idtracks,
+					       const std::vector<const TrigRoiDescriptor*> roids,
+					       const std::vector<const LVL1::RecMuonRoI*>  muonRoIs,
+					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
+					       DataVector<xAOD::L2StandAloneMuon>&         outputSAs,
+					       TrigRoiDescriptorCollection&                outputID,
+					       TrigRoiDescriptorCollection&                outputMS
+					       )
+{
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignatureIO start");
+  StatusCode sc = StatusCode::SUCCESS;
+
+  auto prepTimer           = Monitored::Timer( "TIME_Data_Preparator" );
+  auto patternTimer        = Monitored::Timer( "TIME_Pattern_Finder" );
+  auto stationFitterTimer  = Monitored::Timer( "TIME_Station_Fitter" );
+  auto trackFitterTimer    = Monitored::Timer( "TIME_Track_Fitter" );
+  auto trackExtraTimer     = Monitored::Timer( "TIME_Track_Extrapolator" );
+  auto calibrationTimer    = Monitored::Timer( "TIME_Calibration_Streamer" );
+
+  auto monitorIt       = Monitored::Group(m_monTool, prepTimer, patternTimer, stationFitterTimer,
+					  trackFitterTimer, trackExtraTimer, calibrationTimer );
+
+  if (m_use_timer) {
+    for (unsigned int i_timer=0; i_timer<m_timingTimers.size(); i_timer++) {
+      m_timingTimers[i_timer]->start();
+      m_timingTimers[i_timer]->pause();
+    }
+  }
+
+  if (m_use_timer) m_timingTimers[ITIMER_TOTAL_PROCESSING]->resume();
+  if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->resume();
+
+  DataVector<const TrigRoiDescriptor>::const_iterator p_roids;
+  DataVector<const LVL1::RecMuonRoI>::const_iterator p_roi;
+
+  //int npass = 0;
+  // muonRoIs = RecMURoIs, roids = MURoIs
+  p_roids = roids.begin();
+  for (p_roi=(muonRoIs).begin(); p_roi!=(muonRoIs).end(); ++p_roi) {
+    //p_roi = (muonRoIs.begin());
+    ATH_MSG_DEBUG("roi eta/phi: " << (*p_roi)->eta() << "/" << (*p_roi)->phi());
+
+    // idtracks loop
+    if ( (idtracks).size()== 0) ATH_MSG_DEBUG("IO TEST: xAOD::TrackParticleContainer has 0 tracks --> Can not use FTF tracks...");
+    else  ATH_MSG_DEBUG("IO TEST: xAOD::TrackParticleContainer has " << (idtracks).size() << " tracks --> Start inside-out mode!");
+
+    std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
+    for (auto idtrack : idtracks) {
+      ATH_MSG_DEBUG("IO TEST: FTF track key:" << m_FTFtrackKey.key() << " pt = " << idtrack->pt()/1000 << " GeV");
+      ATH_MSG_DEBUG("IO TEST: FTF track key:" << m_FTFtrackKey.key() << " eta/phi = " << idtrack->eta() << "/" << idtrack->phi());
+
+      prepTimer.start();
+      m_mdtHits_normal.clear();
+      m_mdtHits_overlap.clear();
+      m_cscHits.clear();
+      m_stgcHits.clear();
+      m_mmHits.clear();
+      m_rpcFitResult.Clear();
+      m_tgcFitResult.Clear();
+
+      m_muonRoad.Clear();
+
+      sc = m_ftfRoadDefiner->defineRoad(idtrack, m_muonRoad);
+      if (!sc.isSuccess()) {
+	ATH_MSG_WARNING("FtfRoadDefiner failed");
+	TrigL2MuonSA::TrackPattern trackPattern;
+	trackPatterns.push_back(trackPattern);
+	return StatusCode::SUCCESS;
+      } else {
+	ATH_MSG_DEBUG("FtfRoadDefiner::defineRoad success");
+      }
+
+      if ( std::abs(idtrack->eta()) < 1.05 ){
+	ATH_MSG_DEBUG("FTF track at IP is in  Barrel: " << idtrack->eta());
+      } else {
+	ATH_MSG_DEBUG("FTF track at IP is in  Endcap: " << idtrack->eta());
+      }
+
+      if ( std::abs(m_muonRoad.extFtfMiddleEta) < 1.05 ){ // Barrel Inside-out
+	ATH_MSG_DEBUG("m_muonRoad.extFtfMiddleEta Barrel: " << m_muonRoad.extFtfMiddleEta);
+
+	ATH_MSG_DEBUG("Barrel algorithm of IOmode starts");
+
+	m_muonRoad.setScales(m_scaleRoadBarrelInner,
+			     m_scaleRoadBarrelMiddle,
+			     m_scaleRoadBarrelOuter);
+
+	// Data preparation
+	m_rpcHits.clear();
+	m_tgcHits.clear();
+	sc = m_dataPreparator->prepareData(*p_roi,
+					   *p_roids,
+					   m_insideOut,
+					   m_rpcHits,
+					   m_muonRoad,
+					   m_mdtRegion,
+					   m_rpcFitResult,
+					   m_mdtHits_normal,
+					   m_mdtHits_overlap);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Data preparation failed");
+	  TrigL2MuonSA::TrackPattern trackPattern;
+	  trackPatterns.push_back(trackPattern);
+	  // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	} else {
+	  ATH_MSG_DEBUG("Data preparation success");
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
+	prepTimer.stop();
+
+	// if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+	//   ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
+	//   TrigL2MuonSA::TrackPattern trackPattern;
+	//   trackPatterns.push_back(trackPattern);
+	//   // Update output trigger element
+	//   updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+	// 		      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      // m_stgcHits, m_mmHits,
+	// 		      trackPatterns, outputSAs, outputID, outputMS);
+	//   return StatusCode::FAILURE;
+	// }
+
+	// Pattern finding
+	if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->resume();
+	patternTimer.start();
+	sc = m_patternFinder->findPatterns(m_muonRoad,
+					   m_mdtHits_normal,
+					   trackPatterns);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Pattern finder failed");
+	  // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
+	patternTimer.stop();
+
+	// Superpoint fit
+	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();
+	stationFitterTimer.start();
+	sc = m_stationFitter->findSuperPoints(*p_roi,
+					      m_muonRoad,
+					      m_rpcFitResult,
+					      trackPatterns);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Super point fitter failed");
+	  // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
+	stationFitterTimer.stop();
+
+	// Track fitting
+	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
+	trackFitterTimer.start();
+	sc = m_trackFitter->findTracks(*p_roi,
+				       m_rpcFitResult,
+				       trackPatterns);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Track fitter failed");
+	  // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+        }
+	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
+        trackFitterTimer.stop();
+
+      } else { // Endcap Inside-out
+	ATH_MSG_DEBUG("m_muonRoad.extFtfMiddleEta Endcap: " << m_muonRoad.extFtfMiddleEta);
+	ATH_MSG_DEBUG("Endcap algorithm of IOmode starts");
+
+	prepTimer.start();
+	// Data preparation
+	m_rpcHits.clear();
+	m_tgcHits.clear();
+	sc = m_dataPreparator->prepareData(*p_roi,
+					   *p_roids,
+					   m_insideOut,
+					   m_tgcHits,
+					   m_muonRoad,
+					   m_mdtRegion,
+					   m_tgcFitResult,
+					   m_mdtHits_normal,
+					   m_mdtHits_overlap,
+					   m_cscHits,
+					   m_stgcHits,
+					   m_mmHits);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Data preparation failed");
+	  TrigL2MuonSA::TrackPattern trackPattern;
+	  trackPatterns.push_back(trackPattern);
+	  // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	} else{
+	  ATH_MSG_DEBUG("Data preparation success");
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
+	prepTimer.stop();
+
+	// Pattern finding
+	if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->resume();
+	patternTimer.start();
+	sc = m_patternFinder->findPatterns(m_muonRoad,
+					   m_mdtHits_normal,
+					   m_stgcHits,
+					   m_mmHits,
+					   trackPatterns);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Pattern finder failed");
+	  // Update output trigger element
+          updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
+	patternTimer.stop();
+
+	// Superpoint fit
+	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();
+	stationFitterTimer.start();
+	sc = m_stationFitter->findSuperPointsSimple(*p_roi,
+						    m_muonRoad,
+						    m_tgcFitResult,
+						    trackPatterns);
+	/////csc SuperPoint
+	m_cscsegmaker->FindSuperPointCsc(m_cscHits,trackPatterns,m_tgcFitResult,m_muonRoad);
+	if (!sc.isSuccess()) {
+	  ATH_MSG_WARNING("Super point fitter failed");
+	  // Update output trigger element
+          updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+	  return StatusCode::SUCCESS;
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();
+	stationFitterTimer.stop();
+
+	// Track fittingh
+        if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();
+	trackFitterTimer.start();
+        sc = m_trackFitter->findTracks(*p_roi,
+				       m_tgcFitResult,
+				       trackPatterns,
+				       m_muonRoad);
+        if (!sc.isSuccess()) {
+          ATH_MSG_WARNING("Track fitter failed");
+          // Update output trigger element
+	  updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			      m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			      m_stgcHits, m_mmHits,
+			      trackPatterns, outputSAs, outputID, outputMS);
+          return StatusCode::SUCCESS;
+	}
+	if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();
+	trackFitterTimer.stop();
+
+      }
+
+      // fix if eta is strange
+      for (unsigned int i=0 ;i<trackPatterns.size(); i++) {
+	TrigL2MuonSA::TrackPattern track = trackPatterns[i];
+	const float ETA_LIMIT       = 2.8;
+	const float DELTA_ETA_LIMIT = 1.0;
+	float roiEta = (*p_roi)->eta();
+	const float ZERO_LIMIT = 1.e-5;
+	if (fabs(track.pt) > ZERO_LIMIT
+	    && ( fabs(track.etaMap) > ETA_LIMIT || fabs(track.etaMap-roiEta) > DELTA_ETA_LIMIT ) ) {
+          trackPatterns[i].etaMap = roiEta;
+        }
+      }
+
+      // // Track extrapolation for ID combined
+      // if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->resume();
+      // trackExtraTimer.start();
+      // sc = m_trackExtrapolator->extrapolateTrack(trackPatterns, m_winPt);
+      // if (sc != StatusCode::SUCCESS) {
+      // 	ATH_MSG_WARNING("Track extrapolator failed");
+      // 	// Update output trigger element
+      // 	updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+      // 			    m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+      // 			    m_stgcHits, m_mmHits,
+      // 			    trackPatterns, outputSAs, outputID, outputMS);
+      // 	return StatusCode::SUCCESS;
+      // }
+      // if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
+      // trackExtraTimer.stop();
+
+      // Update monitoring variables
+      sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns );
+      if (sc != StatusCode::SUCCESS) {
+	ATH_MSG_WARNING("Failed to update monitoring variables");
+	// Update output trigger element
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			    m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			    m_stgcHits, m_mmHits,
+			    trackPatterns, outputSAs, outputID, outputMS);
+	return StatusCode::SUCCESS;
+      }
+
+      // Update output trigger element
+      updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+			  m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
+			  m_stgcHits, m_mmHits,
+			  trackPatterns, outputSAs, outputID, outputMS);
+
+
+    }
+
+    ATH_MSG_DEBUG("trackPatterns->size(): " << trackPatterns.size());
+    for (unsigned int i = 0; i< trackPatterns.size(); i++){
+      TrigL2MuonSA::TrackPattern trackPattern = trackPatterns[i];
+      ATH_MSG_DEBUG("trackPattern pt/eta/phi: " << trackPattern.pt << "/" << trackPattern.etaVtx << "/" << trackPattern.phiVtx);
+    }
+
+    ATH_MSG_DEBUG("outputSAs size: " << outputSAs.size());
+    ATH_MSG_DEBUG("idtracks size: " << idtracks.size());
+    for (unsigned int i = 0; i< outputSAs.size(); i++){
+      xAOD::L2StandAloneMuon* outputSA = outputSAs[i];
+      ATH_MSG_DEBUG("outputSA pt/eta/phi: " << outputSA->pt() << "/" << outputSA->eta() << "/" << outputSA->phi());
+      ATH_MSG_DEBUG("idtrack pt/eta/phi: " << (idtracks[i]->pt())/1000. << "/" << idtracks[i]->eta() << "/" << idtracks[i]->phi());
+      xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
+      muonCB->makePrivateStore();
+      muonCB->setStrategy(-9);
+      muonCB->setErrorFlag(-9);
+      muonCB->setPt((idtracks[i]->pt())/1000.);
+      muonCB->setEta(idtracks[i]->eta());
+      muonCB->setPhi(idtracks[i]->phi());
+      ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, i);
+      muonCB->setMuSATrackLink(muonSAEL);
+
+      outputCBs.push_back(muonCB);
+    }
+
+    ATH_MSG_DEBUG("outputCBs size: " << outputCBs.size());
+    for (unsigned int i = 0; i< outputCBs.size(); i++){
+      xAOD::L2CombinedMuon* outputCB = outputCBs[i];
+      ATH_MSG_DEBUG("outputCB pt/eta/phi: " << outputCB->pt() << "/" << outputCB->eta() << "/" << outputCB->phi());
+    }
+
+  }
+
+  if (m_use_timer) m_timingTimers[ITIMER_TOTAL_PROCESSING]->pause();
+
+  if (m_use_timer) {
+    for (unsigned int i_timer=0; i_timer<m_timingTimers.size(); i_timer++) {
+      m_timingTimers[i_timer]->stop();
+    }
+  }
+
+  ATH_MSG_DEBUG("StatusCode MuFastSteering::findMuonSignatureIO success");
   return StatusCode::SUCCESS;
 }
 
