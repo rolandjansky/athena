@@ -298,15 +298,6 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       null.setCovariancePosition(vertexError);
       selectionPassed=m_trkFilter->accept(**itr,&null);
     }
-    
-  //   if (selectionPassed)
-  //   {
-  //     ElementLink<xAOD::TrackParticleContainer> link;
-  //     link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
-  //     Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
-  //     linkTT->setStorableObject(*trackParticles); //@TODO: really?!
-  //     selectedTracks.push_back(linkTT);
-  //   }
 
     /// eta dependent cuts ////
     bool etaCuts = true ; // false
