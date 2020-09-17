@@ -45,7 +45,7 @@ namespace PixelCalib{
 
   void PixelITkOfflineCalibData::setConstants(const std::vector<float> &constants){
 
-    int entry_size = 8;
+    int entry_size = 9;
     int map_size = constants.size()/entry_size;
 
     for(int i=0;i<map_size;i++){
