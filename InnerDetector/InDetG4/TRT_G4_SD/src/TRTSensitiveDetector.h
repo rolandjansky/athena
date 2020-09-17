@@ -84,7 +84,7 @@ class ATLAS_NOT_THREAD_SAFE TRTSensitiveDetector : public G4VSensitiveDetector /
   // The hits collection
   SG::WriteHandle<TRTUncompressedHitCollection> m_HitColl; //pUncompressedHitCollection;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
 
   TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
   TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;

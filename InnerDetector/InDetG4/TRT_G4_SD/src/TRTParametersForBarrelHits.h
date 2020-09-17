@@ -22,7 +22,7 @@ private:
 
   int m_printMessages; //FIXME not used
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
 
   int m_verboseLevel;
