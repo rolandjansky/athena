@@ -1,5 +1,6 @@
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+project( AthAnalysis )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
