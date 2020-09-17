@@ -144,6 +144,9 @@ namespace TauJetParameters
         JetRNNSigLoose          = 29,
         JetRNNSigMedium         = 30,
         JetRNNSigTight          = 31,
+        EleRNNLoose          = 32,
+        EleRNNMedium         = 33,
+        EleRNNTight          = 34,	
       };
 
     //-------------------------------------------------------------------------
