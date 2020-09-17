@@ -36,10 +36,11 @@ public: // Constructor and Destructor
 public:
 /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize() override;
-   virtual StatusCode start() override;
    virtual StatusCode stop() override;
    virtual StatusCode finalize() override;
    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+
+   virtual StatusCode share(int numClients = 0) override;
 
 private:
    ServiceHandle<IConversionSvc> m_cnvSvc{this,"AthenaPoolCnvSvc","AthenaPoolCnvSvc"};

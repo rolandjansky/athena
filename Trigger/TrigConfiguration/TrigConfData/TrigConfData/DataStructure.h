@@ -51,7 +51,9 @@ namespace TrigConf {
        * @param data Reference to the data container 
        */
       DataStructure(const ptree & data);
+      DataStructure(const std::string & name, const ptree & data);
       DataStructure(ptree && data);
+      DataStructure(const std::string & name, ptree && data);
 
       /** Destructor */
       virtual ~DataStructure();

@@ -222,8 +222,8 @@ def py_alg(algName, iface='IAlgorithm'):
     
     # handle pycomponents...
     from .Configurables import PyComponents
-    import cppyy
-    alg = cppyy.libPyROOT.MakeNullPointer(iface)
+    import ROOT
+    alg = ROOT.MakeNullPointer(iface)
     if not algmgr.getAlgorithm(algName, alg).isSuccess():
         return
 

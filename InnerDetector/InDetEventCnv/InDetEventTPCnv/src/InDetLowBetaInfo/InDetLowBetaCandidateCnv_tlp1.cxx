@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_tlp1.h"
@@ -16,11 +16,16 @@ void InDetLowBetaCandidateCnv_tlp1::setPStorage(InDetLowBetaCandidate_tlp1* stor
 }
 
 
-void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans ATLAS_NOT_THREAD_SAFE // const_cast is used.
+void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans
                                                                                            (const InDetLowBetaCandidate_tlp1 *pers,
 											    InDet::InDetLowBetaCandidate *trans,
 											    MsgStream &msg) {
-  setPStorage(const_cast<InDetLowBetaCandidate_tlp1*>(pers));
+  // FIXME: TPConverter uses the same non-const member m_pStorage
+  // for both reading and writing, but we want it to be const
+  // in the former case.
+  InDetLowBetaCandidate_tlp1 *pers_nc ATLAS_THREAD_SAFE =
+    const_cast<InDetLowBetaCandidate_tlp1*>(pers);
+  setPStorage(pers_nc);
   m_mainConverter.pstoreToTrans(0, trans, msg);
 }
 

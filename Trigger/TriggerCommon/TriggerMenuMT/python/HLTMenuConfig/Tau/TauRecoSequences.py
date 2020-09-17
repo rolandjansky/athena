@@ -101,6 +101,7 @@ def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     algo.Key_trigTauTrackInputContainer  = "HLT_tautrack_dummy"
     algo.Key_trigTauJetOutputContainer   = recordable("HLT_TrigTauRecMerged_MVA")
     algo.Key_trigTauTrackOutputContainer = recordable("HLT_tautrack_MVA")
+    algo.Key_trigJetSeedOutputKey        = recordable("HLT_jet_seed")
     return algo
 
 def tauCaloRecoSequence(InViewRoIs, SeqName):

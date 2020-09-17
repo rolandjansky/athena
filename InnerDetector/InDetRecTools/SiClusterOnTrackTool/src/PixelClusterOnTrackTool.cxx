@@ -60,13 +60,10 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
-  m_applydRcorrection(false),
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
   m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
   m_IBLParameterSvc("IBLParameterSvc", n),
-  m_dRMap(""),
-  m_dRMapName("dRMap"),
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
   m_usingTIDE_Ambi(false),
@@ -76,11 +73,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
-  declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
   declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
   declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapKey);//Remove Later
-  declareProperty("dRMapName", m_dRMapName);  //This is a string to prevent the scheduler seeing trkAmbSolver as both creating and requiring the map
   declareProperty("doNotRecalibrateNN", m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors", m_noNNandBroadErrors);
   declareProperty("RunningTIDE_Ambi", m_usingTIDE_Ambi);
@@ -133,9 +128,6 @@ InDet::PixelClusterOnTrackTool::initialize() {
 
   ATH_CHECK (detStore()->retrieve(m_pixelid, "PixelID"));
 
-  m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
-  ATH_CHECK( m_dRMap.initialize() );
-
   m_applyNNcorrection &= !m_splitClusterMapKey.key().empty();
   ATH_CHECK(m_splitClusterMapKey.initialize(m_applyNNcorrection));
   ATH_CHECK(m_NnClusterizationFactory.retrieve( DisableTool{!m_applyNNcorrection} ));
@@ -168,70 +160,6 @@ StatusCode
 InDet::PixelClusterOnTrackTool::finalize() {
 return StatusCode::SUCCESS;
 }
-
-void
-InDet::PixelClusterOnTrackTool::FillFromDataBase() const{
-    if (m_fX.empty()) {
-      const CondAttrListCollection *atrlistcol = nullptr;
-      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
-        // loop over objects in collection
-        for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
-          std::vector<float> fx, fy, fb, fc, fd;
-          const coral::AttributeList &atrlist = citr->second;
-
-          fx.push_back(atrlist["fX1"].data<float>());
-          fx.push_back(atrlist["fX2"].data<float>());
-          fx.push_back(atrlist["fX3"].data<float>());
-          fx.push_back(atrlist["fX4"].data<float>());
-          fx.push_back(atrlist["fX5"].data<float>());
-          fx.push_back(atrlist["fX6"].data<float>());
-          fx.push_back(atrlist["fX7"].data<float>());
-          m_fX.emplace_back(std::move(fx));
-
-          fy.push_back(atrlist["fY1"].data<float>());
-          fy.push_back(atrlist["fY2"].data<float>());
-          fy.push_back(atrlist["fY3"].data<float>());
-          fy.push_back(atrlist["fY4"].data<float>());
-          fy.push_back(atrlist["fY5"].data<float>());
-          fy.push_back(atrlist["fY6"].data<float>());
-          fy.push_back(atrlist["fY7"].data<float>());
-          m_fY.emplace_back(std::move(fy));
-
-          fb.push_back(atrlist["fB1"].data<float>());
-          fb.push_back(atrlist["fB2"].data<float>());
-          fb.push_back(atrlist["fB3"].data<float>());
-          fb.push_back(atrlist["fB4"].data<float>());
-          fb.push_back(atrlist["fB5"].data<float>());
-          fb.push_back(atrlist["fB6"].data<float>());
-          fb.push_back(atrlist["fB7"].data<float>());
-          m_fB.emplace_back(std::move(fb));
-
-          fc.push_back(atrlist["fC1"].data<float>());
-          fc.push_back(atrlist["fC2"].data<float>());
-          fc.push_back(atrlist["fC3"].data<float>());
-          fc.push_back(atrlist["fC4"].data<float>());
-          fc.push_back(atrlist["fC5"].data<float>());
-          fc.push_back(atrlist["fC6"].data<float>());
-          fc.push_back(atrlist["fC7"].data<float>());
-          m_fC.emplace_back(std::move(fc));
-
-          fd.push_back(atrlist["fD1"].data<float>());
-          fd.push_back(atrlist["fD2"].data<float>());
-          fd.push_back(atrlist["fD3"].data<float>());
-          fd.push_back(atrlist["fD4"].data<float>());
-          fd.push_back(atrlist["fD5"].data<float>());
-          fd.push_back(atrlist["fD6"].data<float>());
-          fd.push_back(atrlist["fD7"].data<float>());
-          m_fD.emplace_back(std::move(fd));
-        }
-      }else {
-        ATH_MSG_ERROR( "Cannot find covariance corrections for key "
-                        << "/PIXEL/PixelClustering/PixelCovCorr" << " - no correction " );
-        
-      }
-    }
-}
-
 
 ///////////////////////////////////////////////////////////////////
 // Trk::SiClusterOnTrack  production
@@ -954,102 +882,11 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
     return false;
   }
 
-  bool correctdR = false;
-  
-  std::array<float, 3> correctiondR = {{0., 0., 0.}};
-  
-  if(m_applydRcorrection){
-    SG::ReadHandle<InDet::DRMap> mapHandle(m_dRMap);
-    if(!mapHandle.isValid()){
-       ATH_MSG_ERROR("Error retreving " << m_dRMap.key());
-       return false;
-    }
-  
-    if(!mapHandle->empty() && pixelPrepCluster->isSplit() ){
-
-    const InDetDD::SiDetectorElement *det = pixelPrepCluster->detectorElement();
-
-    if (det->isBarrel()) {
-      int pixelLayer = m_pixelid->layer_disk(det->identify());
-
-      float correctiondRX = 1.0; // correction factor to be applied to covariance(!)
-      float correctiondRZ = 1.0; // correction factor to be applied to covariance(!)
-
-      const InDetDD::PixelModuleDesign *design(dynamic_cast<const InDetDD::PixelModuleDesign *>(&det->design()));
-      if (! design){
-        ATH_MSG_WARNING("Design cannot be cast to a pixel design");
-        return false;
-      }
-      const float pitchX = design->phiPitch();
-      const float pitchZ = design->etaPitch();
-
-      ATH_MSG_DEBUG("PixelClusterOnTrackTool: Trying to apply dR correction for pixelLayer " << pixelLayer);
-
-      InDet::DRMap::const_iterator it = mapHandle->find(pixelPrepCluster);
-      if (it != mapHandle->end()) {
-        correctdR = true;
-        float mindX = it->second.first;
-        float mindZ = it->second.second;
-        float mindXOverPitch = mindX / pitchX;
-        float mindZOverPitch = mindZ / pitchZ;
-
-        float dR = std::sqrt(mindX * mindX + mindZ * mindZ);
-
-        ATH_MSG_DEBUG(" ---- Min dX ---- " << mindX << " mindZ " << mindZ);
-
-        if (dR > 0. && dR < 2.0) {
-          correctiondRX = splineIBLPullX(mindXOverPitch, pixelLayer);
-          correctiondRZ = splineIBLPullX(mindZOverPitch, pixelLayer);
-
-          if (correctiondRX > 3.75) {
-            correctiondRX = 3.75;
-          }
-          if (correctiondRZ > 3.75) {
-            correctiondRZ = 3.75;
-          }
-        }else {
-          correctiondRX = 2.35;
-          correctiondRZ = 1.70;
-        }
-
-        ATH_MSG_DEBUG(
-          "PixelClusterOnTrackTool: Correction factor calculation for distX/pitch= " << mindXOverPitch << " -> " << correctiondRX << " distZ/pitch= " << mindZOverPitch << " -> " <<
-        correctiondRZ);
-      }else {
-        ATH_MSG_WARNING("Split Pixel cluster not found in dRmap! " << pixelPrepCluster);
-      }
-
-      ATH_MSG_DEBUG(
-        " ++++ Hit Error ++++ Layer " << pixelLayer << " Correction Flag " << m_applydRcorrection << " Split " << pixelPrepCluster->isSplit() << " Scaling " << correctiondRX << " " <<
-      correctiondRZ);
-
-      correctiondRX *= correctiondRX;
-      correctiondRZ *= correctiondRZ;
-
-      correctiondR[0] = correctiondRX * correctiondRX;
-      correctiondR[1] = correctiondRZ * correctiondRZ;
-      correctiondR[2] = correctiondRX * correctiondRZ;
-    }
-   }
-  }
   // AKM: now the not so nice part find the best match position option
   // Takes the error into account to scale the importance of the measurement
 
   if (numberOfSubclusters == 1) {
     finalposition = allLocalPositions[0];
-
-    if (correctdR) {
-      allErrorMatrix[0](0, 0) *= correctiondR[0];
-      allErrorMatrix[0](1, 1) *= correctiondR[1];
-      allErrorMatrix[0](0, 1) *= correctiondR[2];
-      allErrorMatrix[0](1, 0) *= correctiondR[2];
-      ATH_MSG_DEBUG(
-        " ++++ Hit Error ++++ " << numberOfSubclusters << " Split " << pixelPrepCluster->isSplit() << " Scaling " <<
-      std::sqrt(correctiondR[0]) << " " << std::sqrt(correctiondR[1]) << " Rescaled ErrX " << std::sqrt(allErrorMatrix[0](0,
-                                                                                                           0)) << " Rescaled ErrZ " <<
-      std::sqrt(allErrorMatrix[0](1, 1)));
-    }
-
     finalerrormatrix = allErrorMatrix[0];
     return true;
   }
@@ -1077,60 +914,6 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   }
 
   finalposition = allLocalPositions[index];
-
-  if (correctdR) {
-    allErrorMatrix[index](0, 0) *= correctiondR[0];
-    allErrorMatrix[index](1, 1) *= correctiondR[1];
-    allErrorMatrix[index](0, 1) *= correctiondR[2];
-    allErrorMatrix[index](1, 0) *= correctiondR[2];
-    ATH_MSG_DEBUG(
-      " ++++ Hit Error ++++ " << numberOfSubclusters << " Split " << pixelPrepCluster->isSplit() << " Scaling " <<
-    std::sqrt(correctiondR[0]) << " " << std::sqrt(correctiondR[1]) << " Rescaled ErrX " << std::sqrt(allErrorMatrix[index](0,
-                                                                                                             0)) << " Rescaled ErrZ " <<
-    std::sqrt(allErrorMatrix[index](1, 1)));
-  }
-
   finalerrormatrix = allErrorMatrix[index];
   return true;
-}
-
-double
-InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
-  std::lock_guard<std::mutex> lock(m_mutex);
-  FillFromDataBase();
-  const int fNp = m_fY[layer].size();
-  const int fKstep = 0;
-  const double fDelta = -1;
-  const auto result = std::minmax_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
-  const double fXmin = *(result.first);
-  const double fXmax = *(result.second);
-
-  int klow = 0;
-
-  if (x <= fXmin) {
-    klow = 0;
-  } else if (x >= fXmax) {
-    klow = fNp - 1;
-  } else {
-    if (fKstep) {
-      // Equidistant knots, use histogramming
-      klow = int((x - fXmin) / fDelta);
-      if (klow < fNp - 1) {
-        klow = fNp - 1;
-      }
-    } else {
-      int khig = fNp - 1, khalf;
-      // Non equidistant knots, binary search
-      while (khig - klow > 1) {
-        if (x > m_fX[layer][khalf = (klow + khig) / 2]) {
-          klow = khalf;
-        } else {
-          khig = khalf;
-        }
-      }
-    }
-  }
-  // Evaluate now
-  double dx = x - m_fX[layer][klow];
-  return(m_fY[layer][klow] + dx * (m_fB[layer][klow] + dx * (m_fC[layer][klow] + dx * m_fD[layer][klow])));
 }

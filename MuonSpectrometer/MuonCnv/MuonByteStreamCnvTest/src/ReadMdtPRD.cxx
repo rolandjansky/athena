@@ -52,7 +52,7 @@ StatusCode ReadMdtPRD::initialize()
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
-StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
+StatusCode ReadMdtPRD::execute()
 {
   ATH_MSG_DEBUG( "in execute()"  );
   
@@ -62,8 +62,8 @@ StatusCode ReadMdtPRD::execute ATLAS_NOT_THREAD_SAFE ()
  
   ATH_MSG_DEBUG("****** mdt->size() : " << mdt_container->size() );
 
-  const DataHandle<Muon::MdtPrepDataCollection> mdtCollection;
-  const DataHandle<Muon::MdtPrepDataCollection> lastColl;
+  SG::ConstIterator<Muon::MdtPrepDataCollection> mdtCollection;
+  SG::ConstIterator<Muon::MdtPrepDataCollection> lastColl;
 
   if (!m_mdtNtuple) return StatusCode::SUCCESS;
 

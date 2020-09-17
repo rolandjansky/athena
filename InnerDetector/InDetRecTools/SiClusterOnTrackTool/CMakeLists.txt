@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkTools/TrkAmbiguityProcessor
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
                           Control/StoreGate
@@ -40,7 +39,7 @@ atlas_add_component( SiClusterOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces TrkAmbiguityProcessorLib  StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtilsLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives GaudiKernel InDetPrepRawData InDetRIO_OnTrack TrkParameters TrkToolInterfaces StoreGateLib SGtests EventPrimitives InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SiClusterizationToolLib TrkSurfaces TrkRIO_OnTrack PixelConditionsData TrkNeuralNetworkUtilsLib TrkEventUtils)
 
 # Install files from the package:
 atlas_install_headers( SiClusterOnTrackTool )

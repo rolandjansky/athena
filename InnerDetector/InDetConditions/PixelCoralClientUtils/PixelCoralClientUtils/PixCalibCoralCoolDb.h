@@ -13,7 +13,7 @@
 class ATLAS_NOT_THREAD_SAFE PixCalibCoralCoolDb // Use of singleton databaseService
 {
  public:
-  PixCalibCoralCoolDb(std::string dbString, int verbose);
+  PixCalibCoralCoolDb(const std::string& dbString, int verbose);
   ~PixCalibCoralCoolDb();
 
   bool init();
@@ -23,7 +23,7 @@ class ATLAS_NOT_THREAD_SAFE PixCalibCoralCoolDb // Use of singleton databaseServ
 /* 	    cool::ValidityKey vk2); */
 
   bool saveCalibData(std::string textfile, long long FK);
-  bool referenceToRunInterval(long long FK, cool::ValidityKey vk1, cool::ValidityKey vk2, const std::string tagname );
+  bool referenceToRunInterval(long long FK, cool::ValidityKey vk1, cool::ValidityKey vk2, const std::string& tagname );
 
  private:
   std::string m_dbstring;

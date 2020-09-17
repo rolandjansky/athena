@@ -41,7 +41,9 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
 */
-PCDDb::PCDDb(std::string connString, std::string tableName, bool verbose, bool /*load_text*/) :
+PCDDb::PCDDb(const std::string& connString,
+             const std::string& tableName,
+             bool verbose, bool /*load_text*/) :
   m_verbose(verbose),
   m_session(0), m_connString(connString), m_pixeltable(tableName),
   m_query(0), m_query_2(0), m_cursor(0)
@@ -82,7 +84,7 @@ PCDDb::~PCDDb()
   }
 }
 
-bool PCDDb::init (std::string tag, int revision)
+bool PCDDb::init (const std::string& tag, int revision)
 {
   if (m_verbose) cout << "PCDDb::init(" << tag << ", " << revision << ")" << endl;
 

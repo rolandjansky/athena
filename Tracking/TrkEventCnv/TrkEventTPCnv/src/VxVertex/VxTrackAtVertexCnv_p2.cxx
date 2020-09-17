@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VxVertex/VxTrackAtVertex.h"
@@ -14,7 +14,7 @@
 
 #include "TrkParameters/TrackParameters.h"
 
-static FitQualityCnv_p1 fitQualityCnv;
+static const FitQualityCnv_p1 fitQualityCnv;
 
 void VxTrackAtVertexCnv_p2::persToTrans (const Trk::VxTrackAtVertex_p2 * persObj, Trk::VxTrackAtVertex * transObj, MsgStream & log) {
       // std::cout<<"ILIJA read VxTrackAtVertexCnv_p2 "<<std::endl;
