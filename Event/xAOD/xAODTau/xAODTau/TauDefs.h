@@ -90,7 +90,11 @@ namespace TauJetParameters
         //! RNN score for Jet rejection (not transformed)
         RNNJetScore           = 21,
         //! RNN score which is signal transformed/flattened
-        RNNJetScoreSigTrans   = 22 // new
+        RNNJetScoreSigTrans   = 22, // new
+        //! RNN score for Ele rejection (not transformed)
+        RNNEleScore           = 23,
+        //! RNN score which is signal transformed/flattened
+        RNNEleScoreSigTrans   = 24 // new
       };
 
     //-------------------------------------------------------------------------
