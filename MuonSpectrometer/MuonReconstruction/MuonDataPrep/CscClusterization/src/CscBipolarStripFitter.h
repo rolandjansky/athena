@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscBipolarStripFitter.h
-
 #ifndef CscBipolarStripFitter_H
 #define CscBipolarStripFitter_H
 ///////////////////////////////////////////
@@ -25,26 +23,20 @@ class CscIdHelper;
 namespace Muon {
 class CscStripPrepData;
 }
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 
 class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool {
 
   public:  // Ctors and dtor.
     // Constructor.
-    CscBipolarStripFitter(std::string, std::string, const IInterface *);
+    CscBipolarStripFitter(const std::string&, const std::string&, const IInterface*);
 
     // Destructor.
-    ~CscBipolarStripFitter();
+    ~CscBipolarStripFitter()=default;
 
   public:  // AlgTool methods
     // Initialization.
     StatusCode initialize();
-
-    // Finalization.
-    StatusCode finalize();
 
   public:  // Interface methods
     // Tell compiler not to hide other fit methods.
@@ -54,9 +46,7 @@ class CscBipolarStripFitter : virtual public ICscStripFitter, public AthAlgTool 
     // If that fit fails, the peak channel is used.
     Result fit(const ChargeList &charges, double samplingTime, Identifier &stripId) const;
 
-  private:  // data
-    // Pointer to muon geometry manager.
-    const MuonGM::MuonDetectorManager *m_pmuon_detmgr;
+  private:
     const CscIdHelper *                m_phelper;
 
     // Calibration tool.

@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// CSC_RawDataProviderToolCore.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "CSC_RawDataProviderToolCore.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "ByteStreamData/ROBData.h"
@@ -28,7 +24,6 @@ Muon::CSC_RawDataProviderToolCore::CSC_RawDataProviderToolCore(const std::string
                                                        const std::string& n,
                                                        const IInterface*  p) :
   AthAlgTool(t, n, p),
-  m_muonMgr(nullptr),
   m_robDataProvider("ROBDataProviderSvc",n),
   m_cabling("CSCcablingSvc", n)
 {
@@ -40,7 +35,6 @@ Muon::CSC_RawDataProviderToolCore::CSC_RawDataProviderToolCore(const std::string
 StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
 {
   
-  ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
   ATH_CHECK( m_cabling.retrieve() );
   ATH_CHECK( m_robDataProvider.retrieve() );
   ATH_MSG_INFO ( "Retrieved service " << m_robDataProvider );
@@ -51,8 +45,6 @@ StatusCode Muon::CSC_RawDataProviderToolCore::initialize()
   // Retrieve decoder
   ATH_CHECK(m_decoder.retrieve());
   ATH_MSG_INFO ( "Retrieved tool " << m_decoder );
-
-  ATH_MSG_INFO ( "The Muon Geometry version is " << m_muonMgr->geometryVersion() );
 
   ATH_CHECK( m_containerKey.initialize() );
   ATH_CHECK( m_eventInfoKey.initialize() );

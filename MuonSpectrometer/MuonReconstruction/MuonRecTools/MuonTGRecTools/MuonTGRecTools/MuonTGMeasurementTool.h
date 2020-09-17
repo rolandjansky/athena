@@ -89,7 +89,7 @@ private:
   SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 
       "MuonDetectorManager", 
       "Key of input MuonDetectorManager condition data"};    
-  const MuonGM::MuonDetectorManager* m_muonDetMgr;
+  const MuonGM::MuonDetectorManager* m_muonDetMgr; // nominal MuonDetectorManager from DetectorStore (used if UseDSManager=true)
  
   // -- algorithm members
   mutable MuonTGHits* m_hits           ATLAS_THREAD_SAFE; //Marked as thread-safe because it's disabled when running multi-threaded

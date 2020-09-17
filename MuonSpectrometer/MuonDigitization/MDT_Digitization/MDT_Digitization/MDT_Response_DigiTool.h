@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_MDT_RESPONSE_DIGITOOL_H
@@ -38,7 +38,7 @@ class MDT_Response_DigiTool : public AthAlgTool,
 
   StatusCode initialize();
 
-  bool initializeTube();
+  bool initializeTube(const MuonGM::MuonDetectorManager* detMgr);
 
  private:
   MDT_Response m_tube;
@@ -47,7 +47,6 @@ class MDT_Response_DigiTool : public AthAlgTool,
   double m_threshold;
   double m_attenuationLength;
 
-  const MuonGM::MuonDetectorManager* m_muonGeoMgr;
   const MdtIdHelper*         m_idHelper;
   bool m_DoQballGamma;
 };
