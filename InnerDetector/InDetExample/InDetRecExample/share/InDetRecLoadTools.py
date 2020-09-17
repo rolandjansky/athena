@@ -1956,8 +1956,8 @@ if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
   InDetVertexEtaDependentCutSvc = InDet__InDetEtaDependentCutsSvc("InDetVertexEtaDependentCutSvc")
   InDetVertexEtaDependentCutSvc.etaBins                 = [0., 2.0, 2.6, 4.0]
   InDetVertexEtaDependentCutSvc.minPT                   = [1000., 950., 900]
-  InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [500., 900.] # d0
-  InDetVertexEtaDependentCutSvc.maxZImpact              = [500., 900.] # z0
+  InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm] # d0
+  InDetVertexEtaDependentCutSvc.maxZImpact              = [200. * Units.mm] # z0
   InDetVertexEtaDependentCutSvc.IPsigd0Max              = [5.] # sig-d0
   InDetVertexEtaDependentCutSvc.IPsigz0Max              = [5.] # sig-z0
   # InDetVertexEtaDependentCutSvc.IPd0Max                 = [500., 900.] # -d0
