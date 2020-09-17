@@ -57,7 +57,7 @@ namespace TrigConf {
    private:
 
       /** Update the internal prescale map after modification of the data object */
-      virtual void update();
+      virtual void update() override;
 
       /** the prescale key */
       unsigned int m_psk {0};
