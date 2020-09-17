@@ -341,6 +341,8 @@ bool     ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
 }
 bool     ClustersMeanSecondR(const xAOD::TauJet &tau, double &out){
   float clustersMeanSecondR = tau.auxdata<float>("ClustersMeanSecondR");
+  //double ClustersMeanSecondR(0);
+  //  const auto success = tau.detail(TauDetail::ClustersMeanSecondR, ClustersMeanSecondR);
   out = std::max(0.f, clustersMeanSecondR);
   return true;
 }

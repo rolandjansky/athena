@@ -124,11 +124,11 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                        weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
                                                        maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
             tools.append(taualgs.getTauWPDecoratorEleBDT())
-            tools.append(taualgs.getTauEVetoRNNEvaluator("TauEVetoRNN",
+            tools.append(taualgs.getTauEleRNNEvaluator("TauEleRNN",
                                                          NetworkFile1P="taueveto_rnn_mc16d_1p.json",
-                                                         NetworkFile3P="taueveto_rnn_mc16d_3p.json",
-                                                         OutputVarname="RNNEVetoScore", MaxTracks=10, MaxClusters=6))
-            tools.append(taualgs.getTauWPDecoratorEVetoRNN())
+                                                         NetworkFile3P="taueveto_rnn_mc16d_1p.json",#test
+                                                         OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
             tools.append(taualgs.getTauEleOLRDecorator())              
             
