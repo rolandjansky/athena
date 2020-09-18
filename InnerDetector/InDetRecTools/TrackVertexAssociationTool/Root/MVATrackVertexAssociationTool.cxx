@@ -25,11 +25,7 @@
 namespace CP {
 
 MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& name) :
-  AsgTool(name),
-  m_isSequential(true),
-  m_wp("Tight"),
-  m_cut(-1.0),
-  m_usePathResolver(true)
+  AsgTool(name)
 {
   declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
   declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );

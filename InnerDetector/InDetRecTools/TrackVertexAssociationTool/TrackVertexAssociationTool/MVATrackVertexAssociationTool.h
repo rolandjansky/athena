@@ -81,16 +81,16 @@ private:
   std::string m_outputName;
 
   // Is the network sequential or functional
-  bool m_isSequential;
+  bool m_isSequential = true;
 
   // TVA working point
-  std::string m_wp;
+  std::string m_wp = "Tight";
 
   // TVA cut value on the output discriminant
-  float m_cut;
+  float m_cut = -1.0;
 
   // Use the PathResolver to find our input file
-  bool m_usePathResolver;
+  bool m_usePathResolver = true;
 
   // Input variable name/type map
   MVAInputEvaluator::InputSelectionMap m_inputMap;
