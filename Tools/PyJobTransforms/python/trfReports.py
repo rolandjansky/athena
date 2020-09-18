@@ -656,11 +656,8 @@ def exeResourceReport(exe, report):
 
     if exe.memStats:
         exeResource['memory'] = exe.memStats
-    #it failes when it is aligned with the other
-    #if exe.memFullEval:
-    #   exeResource['memoryAnalyse'] = exe.memFullEval
-        if exe.memFullEval:
-            exeResource['memoryAnalyse'] = exe.memFullEval
+    if exe.memAnalysis:
+        exeResource['memoryAnalysis'] = exe.memAnalysis
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:

@@ -106,17 +106,6 @@ def corruptionTestBS(filename):
     rc = p.returncode
     return rc
 
-class memoryMonitorReport():
-    '''
-    def __init__(self):
-        self._memFile = memFullStatFile
-        self._math = trfUtils.math()
-        self._fit = None
-        self._memTable = trfUtils.memFullFileToTable()
-    '''
-    def fitToMem(self, memFullStatFile):
-        result = trfUtils.analytic().get_fitted_data(memFullStatFile, x_name='Time', y_name='pss+swap', precision=2, tails=True)
-        return result
 
 ## @brief Class of patterns that can be ignored from athena logfiles
 class ignorePatterns(object):

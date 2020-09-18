@@ -38,7 +38,7 @@ msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, calcMemFull
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, analytic
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -183,6 +183,8 @@ class transformExecutor(object):
         self._exeStart = self._exeStop = None
         self._valStart = self._valStop = None
         self._memStats = {}
+        self._memLeakResult = {}
+        self._memFullFile = None
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
@@ -381,11 +383,8 @@ class transformExecutor(object):
         return self._memStats
 
     @property
-    def memFullEval(self):
-        if self._memFullFile:
-            return calcMemFull(self._memFullFile)
-        else:
-            return 'cant read full mem file'
+    def memAnalysis(self):
+        return self._memLeakResult
 
     @property
     def postExeCpuTime(self):
@@ -810,15 +809,6 @@ class scriptExecutor(transformExecutor):
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
 
-        ## check memory monitor results
-        # add information to the exit message if an excess has seen
-        fitResult = trfValidation.memoryMonitorReport().fitToMem(self._memFullFile)
-        if fitResult and self._errMsg:
-            msg.error('Excess in memory monitor parameter(s)')
-            self._errMsg = self._errMsg + "; high slope : {0}".format(fitResult['slope'])
-        #raise trfExceptions.TransformLogfileErrorException(trfExit.nameToCode('TRF_EXEC_LOGERROR'),
-        #                                                          'Fatal error in memory monitor: "{0}"'.format(exitErrorMessage))
-
 
 class athenaExecutor(scriptExecutor):
     _exitMessageLimit = 200 # Maximum error message length to report in the exitMsg
@@ -1216,6 +1206,25 @@ class athenaExecutor(scriptExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
+
+        ## Get results of memory monitor analysis (slope and chi2)
+        # the analysis is a linear fit to 'Time' vs 'pss' (fit to at least 5 data points)
+        # to obtain a good fit, tails are excluded from data
+        # if the slope of 'pss' is high (>5MB/s) and an error is already caught,
+        # a message will be added to the exit message
+        if self._memFullFile:
+            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
+            self._memLeakResult = analytic().getFittedData(self._memFullFile)
+            if self._memLeakResult:
+                if self._memLeakResult['slope'] > 5000:
+                    msg.warning('Possible memory leak; abnormal high values in memory monitor parameters (ignore this message if the job has finished successfully)')
+                    if deferredException is not None:
+                        deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
+            else:
+                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
+        else:
+            msg.info('No memory monitor file to be analysed')
+
 
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
@@ -1796,6 +1805,23 @@ class DQMergeExecutor(scriptExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
+
+        ## Get results of memory monitor analysis (slope and chi2)
+        # the analysis is a linear fit to 'Time' vs 'pss' (fit to at least 5 data points)
+        # if the slope of 'pss' is high (>5MB/s) and an error is already caught,
+        # a message will be added to the exit message
+        if self._memFullFile:
+            msg.info('Analysing memory monitor output file {0} for possible memory leak'.format(self._memFullFile))
+            self._memLeakResult = analytic().getFittedData(self._memFullFile)
+            if self._memLeakResult:
+                if self._memLeakResult['slope'] > 5000:
+                    msg.warning('Possible memory leak; abnormal high values in memory monitor parameters (ignore this message if the job has finished successfully)')
+                    if deferredException is not None:
+                        deferredException.errMsg = deferredException.errMsg + "; Possible memory leak: 'pss' slope: {0} KB/s".format(self._memLeakResult['slope'])
+            else:
+                msg.warning('Failed to analyse the memory monitor file {0}'.format(self._memFullFile))
+        else:
+            msg.info('No memory monitor file to be analysed')
 
 
 ## @brief Specialist execution class for merging NTUPLE files
