@@ -69,28 +69,28 @@ private:
   bool finalizeNetwork();
 
   // Input lwtnn network file
-  std::string m_fileName;
+  StringProperty m_fileName {this, "NetworkFileName", "", "Name of the input lwtnn network file."};
 
   // Vector of input variable names
-  std::vector<std::string> m_inputNames;
+  StringArrayProperty m_inputNames {this, "NetworkFileName", {}, "Vector of the network's input variable names (std::vector<std::string>)."};
 
   // Vector of input variable types
-  std::vector<int> m_inputTypes;
+  IntegerArrayProperty m_inputTypes {this, "InputTypes", {}, "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>)."};
 
   // Name of the output node to cut on
-  std::string m_outputName;
+  StringProperty m_outputName {this, "OutputNodeName", "", "Name of the output node to cut on for TVA."};
 
   // Is the network sequential or functional
-  bool m_isSequential = true;
+  BooleanProperty m_isSequential {this, "IsSequential", true, "Is the network sequential (true) or functional (false)."};
 
   // TVA working point
-  std::string m_wp = "Tight";
+  StringProperty m_wp {this, "WorkingPoint", "Tight", "TVA working point to apply."};
 
   // TVA cut value on the output discriminant
-  float m_cut = -1.0;
+  FloatProperty m_cut {this, "OutputCut", -1.0, "TVA cut value on the output value (set manually with \"Custom\" WP)."};
 
   // Use the PathResolver to find our input file
-  bool m_usePathResolver = true;
+  BooleanProperty m_usePathResolver {this, "UsePathResolver", true, "Use the PathResolver for finding the input lwtnn network file."};
 
   // Input variable name/type map
   MVAInputEvaluator::InputSelectionMap m_inputMap;
