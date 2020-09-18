@@ -87,17 +87,18 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreat
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg_LargeD0",
                                                                       MuonContainerLocation=MuonCbKeys.FinalMuonsLargeD0(),
                                                                       InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),
-                                                                      ExtrapolatedLocation="ExtraPolatedMuon_LargeD0",
-                                                                      ExtrapolatedTrackLocation="ExtraPolatedMuonTrack_LargeD0",
-                                                                      MSOnlyExtrapolatedLocation="MSOnlyExtraPolatedMuons_LargeD0",
-                                                                      MSOnlyExtrapolatedTrackLocation="MSOnlyExtraPolatedMuonTrack_LargeD0",
-                                                                      CombinedLocation=MuonCbKeys.CombinedFitTracksLargeD0(),
+                                                                      ExtrapolatedLocation="ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
+                                                                      #ExtrapolatedTrackLocation="ExtraPolatedMuonLRT",
+                                                                      MSOnlyExtrapolatedLocation="MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
+                                                                      #MSOnlyExtrapolatedTrackLocation="MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0(),
+                                                                      CombinedLocation="Combined"+MuonCbKeys.FinalMuonsLargeD0(),
                                                                       SegmentContainerName="MuonSegments_LargeD0",
                                                                       TrackSegmentContainerName="TrakMuonSegments_LargeD0",
                                                                       TagMaps=["muidcoTagMap_LargeD0","stacoTagMap_LargeD0","segmentTagMap_LargeD0","MuGirlMap_LargeD0","caloTagMap_LargeD0"],
                                                                       BuildSlowMuon= False,
                                                                       MakeClusters=False ,
-                                                                      MuonCreatorTool="MuonCombined::MuonCreatorTool/MuonCreatorTool_LRT"   )
+                                                                      MuonCreatorTool="MuonCombined::MuonCreatorTool/MuonCreatorTool_LRT",
+                                                                      OutputLevel=DEBUG   )
 
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")

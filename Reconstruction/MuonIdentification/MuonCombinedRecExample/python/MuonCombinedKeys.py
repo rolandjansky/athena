@@ -61,12 +61,6 @@ class CombinedFitTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'CombinedMuonTracks'
 
-class CombinedFitTracksLargeD0(JobProperty):
-    """StoreGate key for tracks from combined fit using large d0 inner tracking particles"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'CombinedMuonTracksLRT'
-
 class RefittedExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks with refitted extrapolation using the MS part of the combined track"""
     statusOn     = True
@@ -285,7 +279,6 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyTracks
 # Large d0 tracking muons
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(FinalMuonsLargeD0)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(InDetTrackParticlesLargeD0)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(CombinedFitTracksLargeD0)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(MuGirlMuonsLargeD0)
 
 

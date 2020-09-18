@@ -28,8 +28,9 @@ if DetFlags.detdescr.Muon_on():
    if InDetFlags.doR3LargeD0():
        MuonCombinedAODList+=[ "xAOD::MuonContainer#"+MuonCbKeys.FinalMuonsLargeD0() ]
        MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" ] # See note
-       MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#"+MuonCbKeys.CombinedFitTracksLargeD0()]
-       MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#"+MuonCbKeys.CombinedFitTracksLargeD0()+"Aux." + excludedAuxData]
+      
+       MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#Combined"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticles"]
+       MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#Combined"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticlesAux." + excludedAuxData]
 
    # Note: hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
 
