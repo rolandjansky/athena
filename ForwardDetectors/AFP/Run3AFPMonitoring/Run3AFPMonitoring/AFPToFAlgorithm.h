@@ -22,14 +22,13 @@ public:
 
 private:
 	std::map<std::string,int> m_HitmapGroupsToF;
-   
+
 	SG::ReadHandleKey<xAOD::AFPToFHitContainer> m_afpToFHitContainerKey;
 
 protected:
 	// Only 0 and 3 are ToF stations (farAside and farCside)
 	std::vector<std::string> m_stationNamesToF = { "farAside", "nearAside" , "nearCside" , "farCside" };
 
-   
 };
 #endif
 
