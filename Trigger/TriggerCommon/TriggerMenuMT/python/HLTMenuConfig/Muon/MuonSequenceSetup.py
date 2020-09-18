@@ -219,18 +219,13 @@ def mul2IOOvlpRmSequence():
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBIOHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muNames.L2CBName+"IOmode"
 
-    ### set up L2muOverlapRemoval ###
-    # from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombAlg
-    # trigL2MuonOverlapRemover = TrigL2MuonOverlapRemoverMucombAlg("TrigL2MuonIOOverlapRemoverMucombAlg")
-    # trigL2MuonOverlapRemover.L2MuonOverlapInfoFromMuCombAlg = muNames.L2CBName+"IOmode"
-
     # from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolwORFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2IOHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
-                         HypoToolGen = TrigmuCombHypoToolwORFromDict )
+                         HypoToolGen = Trigl2IOHypoToolwORFromDict )
 
 
 

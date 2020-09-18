@@ -119,7 +119,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPointsSimple(const LVL1::
 								    std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
   const double ZERO_LIMIT = 1e-5;
-  
+
   for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
     if (tgcFitResult.isSuccess) {

@@ -91,9 +91,7 @@ class MuFastSteering : public HLT::FexAlgo,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,
-				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs,
-				 TrigRoiDescriptorCollection&                   outputID,
-				 TrigRoiDescriptorCollection&                   outputMS );
+				 DataVector<xAOD::L2StandAloneMuon>&            outputSAs );
 
   int L2MuonAlgoMap(const std::string& name);
 
@@ -245,6 +243,7 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0 };
 
   Gaudi::Property< bool > m_insideOut { this, "InsideOutMode", false, "" };
+  Gaudi::Property< float > m_ftfminPt { this, "FTFminPt", 3500, "pT [MeV] threshold to FTF tracks for L2Muon Inside-out mode" };
   Gaudi::Property< bool > m_topoRoad { this, "topoRoad", false, "create road in barrel not to highly overlap surrounding L1 RoIs" };
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };

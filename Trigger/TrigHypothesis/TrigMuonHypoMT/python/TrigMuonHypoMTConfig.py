@@ -402,6 +402,36 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
     return tool
 
 
+
+def Trigl2IOHypoToolwORFromDict( chainDict ):
+
+    thresholds = getThresholdsFromDict( chainDict )
+
+    config = TrigmuCombHypoConfig()
+
+    tight = False # can be probably decoded from some of the proprties of the chain, expert work
+
+    acceptAll = False
+
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], thresholds, tight, acceptAll )
+
+    # Overlap Removal
+    tool.ApplyOR = True
+    tool.RequireDR       = True
+    tool.RequireMufastDR = False
+    tool.RequireMass     = True
+    tool.RequireSameSign = True
+    tool.EtaBins         = [0, 0.9, 1.1, 1.9, 2.1, 9.9]
+    tool.DRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
+    tool.MufastDRThres   = [0]
+    tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
+
+    # addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, "TrigmuCombHypoTool", chainDict['chainName'] )
+
+    return tool
+
+
+
 class TrigmuCombHypoConfig(object):
 
     log = logging.getLogger('TrigmuCombHypoConfig')
