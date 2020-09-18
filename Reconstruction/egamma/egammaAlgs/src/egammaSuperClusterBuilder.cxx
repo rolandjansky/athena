@@ -106,7 +106,7 @@ etaphi_range(const CaloDetDescrManager& dd_man,
 // Constructor.
 egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
                                                      ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 
   m_searchWindowPhiBarrel = m_searchWindowPhiCellsBarrel * s_cellPhiSize * 0.5;
