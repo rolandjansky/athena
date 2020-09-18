@@ -495,7 +495,7 @@ class readL1TopoConfigFromXML(JobProperty):
     def _do_action(self):
         """ setup some consistency """
         if self.get_Value():
-            TriggerFlags.inputL1TopoConfigFile = "TriggerMenuXML/L1TopoConfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            TriggerFlags.inputL1TopoConfigFile = "TriggerMenuXML/L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             TriggerFlags.inputL1TopoConfigFile = TriggerFlags.outputL1TopoConfigFile()
 
@@ -670,7 +670,7 @@ class inputL1TopoConfigFile(JobProperty):
     If TriggerFlags.readL1TopoConfigFromXML()==True, then this file is
     used for L1TopoConfiguration.
     
-    Defaults to L1TopoConfig_<triggerMenuSetup>_<menuVersion>.xml
+    Defaults to L1Topoconfig_<triggerMenuSetup>_<menuVersion>.xml
     """
     statusOn=True
     allowedType=['str']
@@ -678,7 +678,7 @@ class inputL1TopoConfigFile(JobProperty):
 
     def __call__(self):
         if self.get_Value() == "":
-            return "L1TopoConfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
+            return "L1Topoconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
         else:
             return self.get_Value()
         
