@@ -507,7 +507,10 @@ def addHLTNavigationToEDMList(edmList, allDecisions, hypoDecisions):
     for decisionCollection in allDecisions:
         dynamic = '.-' # Exclude dynamic
         if decisionCollection in hypoDecisions:
-            dynamic = '.' # Include dynamic
+            # Include dynamic
+            dynamic = '.remap_linkColIndices.remap_linkColKeys'
+            if 'PEBInfoWriter' in decisionCollection:
+                dynamic += '.PEBROBList.PEBSubDetList'
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(decisionCollection)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(decisionCollection, dynamic)
         edmList.extend([
