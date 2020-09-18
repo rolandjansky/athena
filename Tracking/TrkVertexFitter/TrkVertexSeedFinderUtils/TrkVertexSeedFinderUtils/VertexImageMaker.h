@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILIS_SIMPLEVERTEXCLUSTERFINDER_H
@@ -56,15 +56,15 @@ namespace Trk
     int    m_zbins;
 
     float m_xrange; //Range around histogram center in position space
-    float m_yrange; 
+    float m_yrange;
     float m_zrange;
-    
+
     //Filter parameters
     float m_a0Window;
     float m_a1Window;
     float m_a2Window;
     float m_a3Window;
-    
+
     int    m_cutoffFreqDenominator_xy;
     int    m_cutoffFreqDenominator_z;
 
@@ -73,26 +73,26 @@ namespace Trk
     //Other members:
 
     //Widths of histogram bins
-    float m_wx;        
-    float m_wy;          
+    float m_wx;
+    float m_wy;
     float m_wz;
 
-    //Total number of filter bins 
+    //Total number of filter bins
     int m_filttot;
 
     //The frequency space filter
     std::vector<float> m_histFSFilter;
 
     //the FFTW "plans" -- object that saves how the fourier transform is done
-    fftwf_plan m_plan_r2c;
-    fftwf_plan m_plan_c2r;
+    FFTW_MANGLE_DOUBLE(plan) m_plan_r2c;
+    FFTW_MANGLE_DOUBLE(plan) m_plan_c2r;
 
     //Method implementing the backprojection into the real space histogram
     void fillHist( VertexImage& image,
                    const std::vector<const Trk::TrackParameters*>& parametersList,
                    const xAOD::Vertex * constraint) const;
 
-    // Filtering methods   
+    // Filtering methods
     void filterFSHist (VertexImage& image) const;
     void initFSFilter();
   };

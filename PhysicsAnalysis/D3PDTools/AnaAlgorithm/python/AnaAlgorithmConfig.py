@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import(s):
 import ROOT
@@ -15,7 +15,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
 
     An example of using it in configuring an EventLoop job could look like:
 
-       job = ROOT.EL.Job() 
+       job = ROOT.EL.Job()
        ...
        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
        alg = AnaAlgorithmConfig( "EL::UnitTestAlg2/TestAlg",
@@ -45,14 +45,16 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
                                      property = 1.23 )
         """
 
-        # Call the base class's constructor:
-        super( AnaAlgorithmConfig, self ).__init__( typeAndName )
+        # Call the base class's constructor. Use the default constructor instead
+        # of the one receiving the type and name, to avoid ROOT-10872.
+        super( AnaAlgorithmConfig, self ).__init__()
+        self.setTypeAndName( typeAndName )
 
         # Initialise the properties of the algorihm:
         self._props = {}
 
         # Set the properties on the object:
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self.setPropertyFromString( key, stringPropValue( value ) )
             self._props[ key ] = copy.deepcopy( value )
             pass
@@ -160,7 +162,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
             pass
         result = AnaAlgorithmConfig._printHeader( name )
         result += '\n'
-        for key, value in sorted( self._props.iteritems() ):
+        for key, value in sorted( self._props.items() ):
             if isinstance( value, str ):
                 printedValue = "'%s'" % value
             else:
@@ -330,7 +332,7 @@ class PrivateToolConfig( object ):
         result = ' \n'
         result += AnaAlgorithmConfig._printHeader( name )
         result += '\n'
-        for key, value in sorted( self._props.iteritems() ):
+        for key, value in sorted( self._props.items() ):
             if isinstance( value, str ):
                 printedValue = "'%s'" % value
             else:

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Tadej Novak
 
@@ -29,7 +29,7 @@ svcMgr.EventSelector.InputCollections = [testFile]
 
 from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeEventAlgorithmsSequence
 algSeq = makeEventAlgorithmsSequence (dataType)
-print algSeq # For debugging
+print( algSeq ) # For debugging
 
 # Add all algorithms from the sequence to the job.
 athAlgSeq += algSeq

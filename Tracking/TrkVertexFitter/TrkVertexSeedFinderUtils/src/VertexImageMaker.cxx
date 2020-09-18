@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
@@ -11,11 +11,11 @@ namespace Trk
 
   VertexImageMaker::VertexImageMaker(const std::string& t, const std::string& n, const IInterface*  p) :
     base_class(t,n,p),
-    m_xbins(                   32         ) , 
+    m_xbins(                   32         ) ,
     m_ybins(                   32         ) ,
-    m_zbins(                 2048         ) ,   
+    m_zbins(                 2048         ) ,
     m_xrange(                   2.0       ) ,
-    m_yrange(                   2.0       ) , 
+    m_yrange(                   2.0       ) ,
     m_zrange(                 200.0       ) ,
     m_a0Window(                 0.35875   ) ,
     m_a1Window(                 0.48829   ) ,
@@ -24,7 +24,7 @@ namespace Trk
     m_cutoffFreqDenominator_xy( 2         ) ,
     m_cutoffFreqDenominator_z(  1         ) ,
     m_angularCutoffParameter(   0.75      ) ,
-    m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0), 
+    m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0),
     m_plan_r2c(nullptr), m_plan_c2r(nullptr)	          {
 
     declareProperty("xbins"                   , m_xbins                    );
@@ -45,7 +45,7 @@ namespace Trk
 
 
   StatusCode VertexImageMaker::initialize() {
-    
+
     //Calculate binwidths
     m_wx = 2*m_xrange/((float) m_xbins);
     m_wy = 2*m_yrange/((float) m_ybins);
@@ -59,15 +59,15 @@ namespace Trk
 
     //Allocate memory to histogram (used for both real and freq space)
     ATH_MSG_INFO( "Allocating memory to fftw - Histogram size : " << m_xbins << " , " << m_ybins << " , " << m_zbins  );
-    float* histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
+    double* histRS = static_cast<double*>(FFTW_MANGLE_DOUBLE(malloc)( sizeof(double) * m_filttot * 2 ));
     //Get a complex casted version for easier access to the freq space using same bin numbering
-    fftwf_complex* histFS = (fftwf_complex*) histRS;
+    FFTW_MANGLE_DOUBLE(complex)* histFS = reinterpret_cast<FFTW_MANGLE_DOUBLE(complex)*>(histRS);
 
     ATH_MSG_INFO( "Setting up FFTW plans"  );
-    m_plan_r2c = fftwf_plan_dft_r2c_3d(m_xbins, m_ybins, m_zbins, histRS, histFS, FFTW_MEASURE);
-    m_plan_c2r = fftwf_plan_dft_c2r_3d(m_xbins, m_ybins, m_zbins, histFS, histRS, FFTW_MEASURE);
+    m_plan_r2c = FFTW_MANGLE_DOUBLE(plan_dft_r2c_3d)(m_xbins, m_ybins, m_zbins, histRS, histFS, FFTW_MEASURE);
+    m_plan_c2r = FFTW_MANGLE_DOUBLE(plan_dft_c2r_3d)(m_xbins, m_ybins, m_zbins, histFS, histRS, FFTW_MEASURE);
 
-    fftwf_free( histRS );
+    FFTW_MANGLE_DOUBLE(free)( histRS );
 
 
     return StatusCode::SUCCESS;
@@ -75,12 +75,12 @@ namespace Trk
   }// End initialize
 
 
-  StatusCode VertexImageMaker::finalize() 
+  StatusCode VertexImageMaker::finalize()
   {
 
-    fftwf_destroy_plan(m_plan_r2c);
-    fftwf_destroy_plan(m_plan_c2r);
-    fftwf_cleanup();
+    FFTW_MANGLE_DOUBLE(destroy_plan)(m_plan_r2c);
+    FFTW_MANGLE_DOUBLE(destroy_plan)(m_plan_c2r);
+    FFTW_MANGLE_DOUBLE(cleanup)();
 
     ATH_MSG_INFO( "Finalize ImageingSeedFinder successful"  );
 
@@ -92,10 +92,10 @@ namespace Trk
   VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,
                                      const xAOD::Vertex * constraint ) const
   {
-    float* histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
-    fftwf_complex* histFS = (fftwf_complex*) histRS;
+    double* histRS = static_cast<double*>(FFTW_MANGLE_DOUBLE(malloc)( sizeof(double) * m_filttot * 2 ));
+    FFTW_MANGLE_DOUBLE(complex)* histFS = reinterpret_cast<FFTW_MANGLE_DOUBLE(complex)*>(histRS);
 
-    auto image = std::make_unique<VertexImage> (histRS, fftwf_free,
+    auto image = std::make_unique<VertexImage> (histRS, FFTW_MANGLE_DOUBLE(free),
                                                 m_xbins, m_ybins, m_zbins,
                                                 m_xrange, m_yrange, m_zrange);
 
@@ -105,14 +105,14 @@ namespace Trk
 
     //Forward transform
     ATH_MSG_DEBUG("R2C Fourier ..."  );
-    fftwf_execute_dft_r2c ( m_plan_r2c, histRS, histFS );
+    FFTW_MANGLE_DOUBLE(execute_dft_r2c) ( m_plan_r2c, histRS, histFS );
 
     ATH_MSG_DEBUG("Filtering ..."  );
     filterFSHist (*image);
 
     //back transform
     ATH_MSG_DEBUG("C2R Fourier"  );
-    fftwf_execute_dft_c2r ( m_plan_c2r, histFS, histRS );
+    FFTW_MANGLE_DOUBLE(execute_dft_c2r) ( m_plan_c2r, histFS, histRS );
 
     return image;
   }
@@ -146,8 +146,8 @@ namespace Trk
       z_max += constraint->position().z();
     }
 
-    float* histRS = image.getHist();
-    
+    double* histRS = image.getHist();
+
     //Resetting histogram
     for ( int iBin=0; iBin<m_filttot*2/*m_binstot*/; iBin++){
 	histRS[iBin] = 0.0;
@@ -158,11 +158,11 @@ namespace Trk
       //get parametric linearization of track first with t=0 at point given by track parameters (doesn't really matter where it is)
 
       //position
-      float x = par->position()[Trk::x]; 
+      float x = par->position()[Trk::x];
       float y = par->position()[Trk::y];
-      float z = par->position()[Trk::z]; 
+      float z = par->position()[Trk::z];
 
-      //3d slope of track is 
+      //3d slope of track is
       // | sinTheta*cosPhi |
       // | sinTheta*sinPhi |
       // |     cosTheta    |
@@ -195,7 +195,7 @@ namespace Trk
       float tMaxX = 0.0;
       float tMaxY = 0.0;
       float tMaxZ = 0.0;
-      
+
       //keep track of current value of t -- used to calculate path length in a bin
       float tcurr = 0.0;
 
@@ -206,10 +206,10 @@ namespace Trk
       float t[6] = {
         ( x_min - x )/(stcp),
         ( x_max - x )/(stcp),
-        
+
         ( y_min - y )/(stsp),
         ( y_max - y )/(stsp),
-        
+
         ( z_min - z )/(ct),
         ( z_max - z )/(ct)
       };
@@ -219,7 +219,7 @@ namespace Trk
       std::sort( t, t+6);
       bool fail = true;
       for(int i=0; i<6; ++i) {
-        
+
         float xcurr = x + t[i]*stcp;
         float ycurr = y + t[i]*stsp;
         float zcurr = z + t[i]*ct;
@@ -265,7 +265,7 @@ namespace Trk
       }
       if(fail) //miss box entirely so don't use this track
         continue;
-      
+
       //loop bins until we leave the box
       while( xbin>=0 && xbin< m_xbins &&
 	     ybin>=0 && ybin< m_ybins &&
@@ -313,7 +313,7 @@ namespace Trk
 
     const int cutx = (m_xbins/2)/m_cutoffFreqDenominator_xy;
     const int cuty = (m_ybins/2)/m_cutoffFreqDenominator_xy;
-    const int cutz = (m_zbins/2)/m_cutoffFreqDenominator_z; 
+    const int cutz = (m_zbins/2)/m_cutoffFreqDenominator_z;
 
     for(int ifilt=0; ifilt<m_filttot; ifilt++) {
 
@@ -334,7 +334,7 @@ namespace Trk
       float u3 = (1/m_wz)*((float) z)/((float) m_zbins);
 
       //limited acceptance filter
-      
+
       float magu = sqrt(u1*u1 + u2*u2 + u3*u3);
       //either choice for magu=0 gives the same filter
       float cosPsi = (magu>0) ? fabs(u3/magu)            : 1;
@@ -349,7 +349,7 @@ namespace Trk
       float denx = ((float) m_xbins)/m_cutoffFreqDenominator_xy;
       float deny = ((float) m_ybins)/m_cutoffFreqDenominator_xy;
       float denz = ((float) m_zbins)/m_cutoffFreqDenominator_z;
-      
+
       float rx =  ((float) x)/(denx);
       float ry =  ((float) y)/(deny);
       float rz =  ((float) z)/(denz);
@@ -367,8 +367,8 @@ namespace Trk
   // Filter frequency space histogram
   void VertexImageMaker::filterFSHist (VertexImage& image) const
   {
-    fftwf_complex* histFS = (fftwf_complex*) image.getHist();
-    
+    FFTW_MANGLE_DOUBLE(complex)* histFS = reinterpret_cast<FFTW_MANGLE_DOUBLE(complex)*>(image.getHist());
+
     for(int ifilt=0; ifilt<m_filttot; ifilt++) {
       histFS[ifilt][0] *= m_histFSFilter[ifilt];
       histFS[ifilt][1] *= m_histFSFilter[ifilt];
