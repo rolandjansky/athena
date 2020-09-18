@@ -428,11 +428,6 @@ SUSY15SlimmingHelper.AllVariables = [
                                      "VrtSecInclusive_All2TrksVertices", # only filled for debug, by default off
                                      ]
 
-if (not rerunVertexing or keepOriginalVertexContainer):
-  SUSY15SlimmingHelper.AllVariables += [
-                                        "VrtSecInclusive_SecondaryVertices"
-                                       ]
-
 
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
@@ -446,8 +441,6 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discr
                                         "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
                                         "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType",
                                         "Electrons.bkgMotherPdgId.bkgTruthOrigin",
-                                        "InDetTrackParticles.is_selected_2.is_associated_2.is_svtrk_final_2.pt_wrtSV_2.eta_wrtSV_2.phi_wrtSV_2.d0_wrtSV_2.z0_wrtSV_2.errP_wrtSV_2.errd0_wrtSV_2.errz0_wrtSV_2.chi2_toSV_2",
-                                        "InDetTrackParticles.is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV",
                                         "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons",
                                         "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
                                         "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs",
@@ -456,7 +449,20 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discr
                                         "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
                                         "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1",
 ]
+
+# Include dvtrack variables from re-running of VSI 
+original_dvtrack_vars = "is_selected.is_associated.is_svtrk_final.pt_wrtSV.eta_wrtSV.phi_wrtSV.d0_wrtSV.z0_wrtSV.errP_wrtSV.errd0_wrtSV.errz0_wrtSV.chi2_toSV".split(".")
+new_dvtrack_vars = [v + "_" + newVertexContainerSuffix for v in original_dvtrack_vars]
+SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(new_dvtrack_vars) ]
+
 SUSY15SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
+if (not rerunVertexing or keepOriginalVertexContainer):
+  SUSY15SlimmingHelper.AllVariables += [
+                                        "VrtSecInclusive_SecondaryVertices"
+                                       ]
+  SUSY15SlimmingHelper.ExtraVariables += [ "InDetTrackParticles." + ".".join(original_dvtrack_vars) ]
+
 
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
