@@ -16,7 +16,7 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext& , const std:
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
 
   // EFSA
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContSA = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_Muons_");
+  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContSA = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_Muons_.*");
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muSALinkInfo : featureContSA) {
     ATH_CHECK( muSALinkInfo.isValid() );
     const ElementLink<xAOD::MuonContainer> muSAEL = muSALinkInfo.link;
@@ -36,7 +36,7 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext& , const std:
 
 
   // EFCB
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContCB = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsCB");
+  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContCB = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsCB.*");
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muCBLinkInfo : featureContCB) {
     ATH_CHECK( muCBLinkInfo.isValid() );
     const ElementLink<xAOD::MuonContainer> muCBEL = muCBLinkInfo.link;
