@@ -64,8 +64,8 @@ int MMRawDataMonAlg::get_sectorPhi_from_stationPhi_stName(int stationPhi,const s
 int MMRawDataMonAlg::get_sectorEta_from_stationEta(int stationEta) const {
  
   //  1<-0  0-> 1
-  if (std::abs(stationEta==1)) return 0;                                                            
-  if (std::abs(stationEta==2)) return 1;
+  if (std::abs(stationEta)==1) return 0;                                                            
+  if (std::abs(stationEta)==2) return 1;
 
   return -1;
 
