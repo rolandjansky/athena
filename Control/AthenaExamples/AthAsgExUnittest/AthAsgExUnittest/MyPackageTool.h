@@ -6,26 +6,26 @@
 #define ATHASGEXUNITTEST_MYPACKAGETOOL_H 1
 
 #include "AsgTools/AsgTool.h"
-#include "IMyPackageTool.h"
+#include "AthAsgExUnittest/IMyPackageTool.h"
 
-class MyPackageTool: public asg::AsgTool, public virtual IMyPackageTool { 
-public: 
+class MyPackageTool: public asg::AsgTool, public virtual IMyPackageTool {
+public:
 
   ASG_TOOL_CLASS( MyPackageTool, IMyPackageTool )
   // Add another constructor for non-athena use cases
   MyPackageTool( const std::string& name );
-  
+
   // Initialize is required by AsgTool base class
   virtual StatusCode initialize() override;
 
   // This tools method
   virtual double useTheProperty() override;
 
-private: 
+private:
 
   double m_nProperty;
-  unsigned int m_enumProperty; 
+  unsigned int m_enumProperty;
 
-}; 
+};
 
 #endif //> !ATHASGEXUNITTEST_MYPACKAGETOOL_H

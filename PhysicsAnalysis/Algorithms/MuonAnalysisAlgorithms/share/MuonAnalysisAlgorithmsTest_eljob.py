@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020  CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -23,6 +23,9 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 # Set up (Py)ROOT.
 import ROOT
 ROOT.xAOD.Init().ignore()
+
+# Force-load some xAOD dictionaries. To avoid issues from ROOT-10940.
+ROOT.xAOD.TauJetContainer()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
@@ -58,7 +61,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from MuonAnalysisAlgorithms.MuonAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
-print algSeq # For debugging
+print( algSeq ) # For debugging
 for alg in algSeq:
     job.algsAdd( alg )
     pass

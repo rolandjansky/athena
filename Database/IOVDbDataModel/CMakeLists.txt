@@ -5,11 +5,11 @@ atlas_subdir( IOVDbDataModel )
 
 # Component(s) in the package:
 atlas_add_library( IOVDbDataModel
-                   src/*.cxx
-                   PUBLIC_HEADERS IOVDbDataModel
-                   LINK_LIBRARIES AthenaKernel AthenaPoolUtilities GaudiKernel RootUtils )
+   IOVDbDataModel/*.h src/*.cxx
+   PUBLIC_HEADERS IOVDbDataModel
+   LINK_LIBRARIES AthenaKernel AthenaPoolUtilities GaudiKernel )
 
 atlas_add_dictionary( IOVDbDataModelDict
-                      IOVDbDataModel/IOVDbDataModelDict.h
-                      IOVDbDataModel/selection.xml
-                      LINK_LIBRARIES IOVDbDataModel )
+   IOVDbDataModel/IOVDbDataModelDict.h
+   IOVDbDataModel/selection.xml
+   LINK_LIBRARIES RootUtilsPyROOT IOVDbDataModel )

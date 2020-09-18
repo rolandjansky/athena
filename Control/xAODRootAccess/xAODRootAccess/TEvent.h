@@ -102,7 +102,7 @@ namespace xAOD {
       /// Constructor connecting the objects to an input TTree/TChain
       TEvent( ::TTree* tree, EAuxMode mode = kUndefinedAccess );
       /// Destructor
-      ~TEvent();
+      virtual ~TEvent();
 
       /// Do not allow copy-constructing this object:
       TEvent( const TEvent& parent ) = delete;

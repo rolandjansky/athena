@@ -1,18 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "fftw3.h"
 #include <cmath>
 #include <iostream>
 
 namespace Trk {
 
-  VertexImage::VertexImage( float* array,
+  VertexImage::VertexImage( double* array,
                             arrayDeleter* deleter,
-                            int nx, int ny, int nz, 
+                            int nx, int ny, int nz,
                             float xrange, float yrange, float zrange) :
     m_hist_3d(array),
     m_deleter(deleter),
@@ -49,21 +48,21 @@ namespace Trk {
 
   // Find array indices of all bins adjacent to index
   std::vector<int> VertexImage::getAdjacentBins( int index ) const {
-    
+
     int x,y,z;
-    
+
     getInvRMBin( index, x,y,z );
-   
+
     std::vector<int> v;
-    
+
     if(x!=0) v.push_back(getRMBin( x-1, y, z));
     if(y!=0) v.push_back(getRMBin( x, y-1, z));
     if(z!=0) v.push_back(getRMBin( x, y, z-1));
-    
+
     if(x<m_nbinsx-1) v.push_back(getRMBin( x+1, y, z));
     if(y<m_nbinsy-1) v.push_back(getRMBin( x, y+1, z));
     if(z<m_nbinsz-1) v.push_back(getRMBin( x, y, z+1));
-    
+
     return v;
 
   }
@@ -90,7 +89,7 @@ namespace Trk {
           vret[z] += m_hist_3d[idx];
         }
       }
- 
+
     }
 
     return vret;
@@ -132,19 +131,19 @@ namespace Trk {
         double diffx = ((double) x+0.5) - meanx;
         //update mean x
         meanx += w*diffx/tot;
-        //update squared difference 
+        //update squared difference
         mx2 += w * diffx * (((double) x+0.5 ) - meanx);
-        
+
         //diff to last y mean
         double diffy = ((double) y+0.5) - meany;
         //update mean y
         meany += w*diffy/tot;
-        //update squared difference 
+        //update squared difference
         my2 += w * diffy * (((double) y +0.5) - meany);
-        
+
       }
     }
-    
+
     //If for some reason the total weight is 0 (empty histogram?), just project everything
     if( tot == 0 ) {
       return projectRectangleOnZ();
@@ -156,10 +155,10 @@ namespace Trk {
 
     //----------------------------------------
     //End 1 pass variant
-  
+
     // Project using any bin touched by n standard deviations:
-    // Cast bounds to int, add 1 to the max 
-    
+    // Cast bounds to int, add 1 to the max
+
     int xmin = meanx - sigmax*nsigmax;
     int xmax = meanx + sigmax*nsigmax + 1.;
 
@@ -197,7 +196,7 @@ namespace Trk {
     y = m_nbinsy/2;
     sigmax = m_nbinsx/2;
     sigmay = m_nbinsy/2;
-    
+
     float* hxy = new float[m_nbinsx*m_nbinsy];
     float sumPos = 0.0;
     int nPos = 0;
@@ -307,7 +306,7 @@ namespace Trk {
     double sigmay2 = -1/(2*sol[1]);
     double mux = sol[2] * sigmax2;
     double muy = sol[3] * sigmay2;
-    
+
     if (sigmax2 > 0 && sigmay2 > 0) {
       sigmax = (float) sqrt(sigmax2);
       sigmay = (float) sqrt(sigmay2);
@@ -337,7 +336,7 @@ namespace Trk {
 	  totalWeight += gauss;
         }
       }
-      vret[z] /= totalWeight; 
+      vret[z] /= totalWeight;
     }
 
     return vret;

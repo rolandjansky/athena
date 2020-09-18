@@ -59,5 +59,6 @@ atlas_add_test( TTreePatch_test
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TTreePatch_t.py )
 endif()
 
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
