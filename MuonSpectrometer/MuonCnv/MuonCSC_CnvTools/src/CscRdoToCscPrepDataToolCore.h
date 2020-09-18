@@ -78,8 +78,8 @@ namespace Muon {
     SG::ReadHandleKey<CscRawDataContainer> m_rdoContainerKey;
     
     /// CSC Calibration tools
-    ToolHandle<ICscCalibTool> m_cscCalibTool;
-    ToolHandle<ICSC_RDO_Decoder> m_cscRdoDecoderTool;
+    ToolHandle<ICscCalibTool> m_cscCalibTool{this,"CscCalibTool","CscCalibTool/CscCalibTool"};
+    ToolHandle<ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"CscRdoDecoderTool","Muon::CscRDO_Decoder/CscRDO_Decoder"};
 
     ServiceHandle<CSCcablingSvc> m_cabling;
     /// Identifier hash offset

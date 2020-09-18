@@ -9,7 +9,7 @@
 
 using namespace GSFUtils;
 namespace {
-constexpr int32_t n =72;
+constexpr int16_t n =72;
 constexpr std::array<Component1D,n> input = {
   { { -4.66462e-06, 1.06618e-11, 9.37928e+10, 0.00608503 },
     { -2.08263e-05, 7.533e-11, 1.32749e+10, 0.0274963 },
@@ -91,15 +91,15 @@ main()
 {
   AlignedDynArray<Component1D, alignment> components(n);
   // Create an array of all components to be merged
-  for (int32_t i = 0; i < n; ++i) {
+  for (int16_t i = 0; i < n; ++i) {
     components[i].mean = input[i].mean;
     components[i].cov = input[i].cov;
     components[i].invCov = input[i].invCov;
     components[i].weight = input[i].weight;
   }
-  std::vector<std::pair<int32_t, int32_t>> mergeOrder =
+  std::vector<std::pair<int16_t, int16_t>> mergeOrder =
     findMerges(components.buffer(), n, 12);
-  for (const auto& i : mergeOrder){  
+  for (const auto& i : mergeOrder){
     std::cout << "[" << i.first << ", " << i.second << "]" << '\n';
   }
   return 0;

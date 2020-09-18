@@ -213,7 +213,8 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         // take data from FLMD only if tag override is NOT set
         if (thisNamePtrPair.second->folderName()==fname && !(thisNamePtrPair.second->tagOverride())) {
           ATH_MSG_INFO( "Folder " << fname << " will be taken from file metadata" );
-          thisNamePtrPair.second->setMetaCon(&*cont);
+          thisNamePtrPair.second->useFileMetaData();
+          thisNamePtrPair.second->setFolderDescription( cont->folderDescription() );
           ++nused;
           break;
         }
@@ -905,7 +906,7 @@ StatusCode IOVDbSvc::setupFolders() {
     }
     // create the new folder, but only if a folder for this SG key has not
     // already been requested
-    IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,msg(),&(*m_h_clidSvc),
+    IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,msg(),&(*m_h_clidSvc), &(*m_h_metaDataTool),
                                         m_par_checklock, m_outputToFile.value(), m_par_source);
     const std::string& key=folder->key();
     if (m_foldermap.find(key)==m_foldermap.end()) {  //This check is too weak. For POOL-based folders, the SG key is in the folder description (not known at this point).
@@ -930,7 +931,7 @@ StatusCode IOVDbSvc::setupFolders() {
     for (const auto & thisFolder : m_foldermap) {
       IOVDbFolder* fptr=thisFolder.second;
       if ((fptr->folderName()).substr(0,match.size())==match) {
-        fptr->setWriteMeta(&(*m_h_metaDataTool));
+        fptr->setWriteMeta();
         ATH_MSG_INFO( "Folder " << fptr->folderName() << " will be written to file metadata" );
       }
     }//end loop over FolderMap

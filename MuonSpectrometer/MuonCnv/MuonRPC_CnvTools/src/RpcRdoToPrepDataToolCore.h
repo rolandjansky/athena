@@ -93,7 +93,7 @@ protected:
   SG::ReadHandleKey<RpcPadContainer>             m_rdoContainerKey;
 
   // Rob Data Provider handle 
-  ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
+  ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcRdoDecoderTool{this,"RdoDecoderTool","Muon::RpcRDO_Decoder"}; 
 
   SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};

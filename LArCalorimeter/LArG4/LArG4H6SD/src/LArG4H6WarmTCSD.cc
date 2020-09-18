@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H6WarmTCSD.h"
@@ -181,9 +181,9 @@ void LArG4H6WarmTCSD::EndOfAthenaEvent()
   //G4int HCID;
   G4String cnam;
   hitIt i;
-  for (i = m_hits.begin(); i != m_hits.end(); i++ ) {
+  for (const auto& p : m_hits) {
     //      m_Collection->insert( i->second );
-    m_Collection->push_back(i->second);
+    m_Collection->push_back(p.second);
   }
   m_hits.clear();
 }

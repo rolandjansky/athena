@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// CscAlignmentTool.h
 
 #ifndef CscAlignmentTool_H
 #define CscAlignmentTool_H
@@ -12,43 +10,32 @@
 //
 // Strip fitter using the parabolic fit fron the CSC calibration tool.
 
-#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CscClusterization/ICscAlignmentTool.h"
+
+#include <string>
+#include <vector>
+
 class Identifier;
 class CscIdHelper;
-namespace MuonGM 
-{
-    class MuonDetectorManager;
-}
 
 class CscAlignmentTool : virtual public ICscAlignmentTool, public AthAlgTool {
 
 public:  // Ctors and dtor.
 
   // Constructor.
-  CscAlignmentTool(std::string, std::string, const IInterface*);
+  CscAlignmentTool(const std::string&, const std::string&, const IInterface*);
 
   // Destructor.
-  ~CscAlignmentTool();
-
-public:  // AlgTool methods
+  ~CscAlignmentTool()=default;
 
   // Initialization.
   StatusCode initialize();
 
-  // Finalization.
-  StatusCode finalize();
-
 public:
   double getAlignmentOffset(Identifier pstripId) const;
 
-  
-
 private:  // data
-  // Pointer to muon geometry manager.
-  const MuonGM::MuonDetectorManager* m_pmuon_detmgr;
   const CscIdHelper* m_phelper;
 
   // Strip fitter.

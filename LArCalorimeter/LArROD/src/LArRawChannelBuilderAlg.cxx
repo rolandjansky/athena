@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilderAlg.h" 
@@ -7,6 +7,7 @@
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArCOOLConditions/LArDSPThresholdsFlat.h"
 #include <cmath>
 
 LArRawChannelBuilderAlg::LArRawChannelBuilderAlg(const std::string& name, ISvcLocator* pSvcLocator):
@@ -19,12 +20,13 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
   ATH_CHECK(m_shapeKey.initialize());
-  ATH_CHECK( m_cablingKey.initialize() );
+  ATH_CHECK(m_cablingKey.initialize() );
+  ATH_CHECK(m_thresholdsKey.initialize(m_useDBFortQ) );
 
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
 
   const std::string cutmsg = m_absECutFortQ.value() ? " fabs(E) < " : " E < "; 
-  ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << m_eCutFortQ.value() << " MeV");
+  ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << " taken from COOL folder "<<m_thresholdsKey.key());
   return StatusCode::SUCCESS;
 }     
 
@@ -56,6 +58,16 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
   SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
   
+  std::unique_ptr<LArDSPThresholdsFlat> dspThreshFlat;
+  if (m_useDBFortQ) {
+     SG::ReadCondHandle<AthenaAttributeList> dspThrshAttr (m_thresholdsKey, ctx);
+     dspThreshFlat = std::unique_ptr<LArDSPThresholdsFlat>(new LArDSPThresholdsFlat(*dspThrshAttr));
+     if (ATH_UNLIKELY(!dspThreshFlat->good())) {
+         ATH_MSG_ERROR( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_thresholdsKey.key()
+                   << ". Aborting." ); 
+         return StatusCode::FAILURE;
+     }
+  }
 
   //Loop over digits:
   for (const LArDigit* digit : *inputContainer) {
@@ -117,7 +129,9 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     if (saturated) prov|=0x0400;
 
     const float E1=m_absECutFortQ.value() ? std::fabs(E) : E;
-    if (E1>m_eCutFortQ.value()) {
+    float ecut(0.);
+    if (m_useDBFortQ) { ecut = dspThreshFlat->tQThr(id);} else { ecut = m_eCutFortQ;}
+    if (E1 > ecut) {
       ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
       prov|=0x2000; //  fill bit in provenance that time+quality information are available
 
@@ -185,6 +199,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 				  static_cast<int>(std::floor(tau+0.5)),
 				  iquaShort,prov,(CaloGain::CaloGain)gain);
   }
+
   return StatusCode::SUCCESS;
 }
 

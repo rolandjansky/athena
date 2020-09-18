@@ -58,7 +58,7 @@ namespace JiveXML {
     SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
     /// RPC decoder
-    ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcDecoder; 
+    ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcDecoder{this,"RpcRDO_Decoder","Muon::RpcRDO_Decoder"}; 
     
     ///Geo Model
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey", 

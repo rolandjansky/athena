@@ -13,7 +13,7 @@ RIO_OnTrackErrorScalingDbOverrideCondAlg::RIO_OnTrackErrorScalingDbOverrideCondA
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize ATLAS_NOT_THREAD_SAFE () {
+StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
   if (m_writeKey.key().empty()) {
     ATH_MSG_FATAL("No conditions data write key specified.");

@@ -40,7 +40,8 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "  CscDigitContainer key     " << m_cscDigitContainerKey.key());
 
   // initialize transient detector store and MuonDetDescrManager
-  ATH_CHECK(detStore()->retrieve(m_geoMgr));
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK(detStore()->retrieve(muDetMgr));
   ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
   if (m_onlyUseContainerName) {
@@ -54,7 +55,7 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_CHECK(m_pcalib.retrieve());
 
   //initialize the CSC digitizer
-  m_cscDigitizer = std::make_unique<CSC_Digitizer>(CscHitIdHelper::GetHelper(), m_geoMgr, &*(m_pcalib));
+  m_cscDigitizer = std::make_unique<CSC_Digitizer>(CscHitIdHelper::GetHelper(), muDetMgr, &*(m_pcalib));
   m_cscDigitizer->setAmplification(m_amplification);
   m_cscDigitizer->setDebug        ( msgLvl(MSG::DEBUG) );
   m_cscDigitizer->setDriftVelocity(m_driftVelocity);

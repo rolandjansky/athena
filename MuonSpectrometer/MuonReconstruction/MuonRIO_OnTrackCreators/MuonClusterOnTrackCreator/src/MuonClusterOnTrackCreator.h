@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,12 +10,12 @@
 #ifndef MuonClusterOnTrackCreator_H
 #define MuonClusterOnTrackCreator_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -35,9 +35,8 @@ namespace Muon {
   public:
 
     MuonClusterOnTrackCreator(const std::string&,const std::string&,const IInterface*);
-    virtual ~MuonClusterOnTrackCreator ();
+    virtual ~MuonClusterOnTrackCreator()=default;
     virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
  
     /** @brief Create new Muon::MuonClusterOnTrack from a Trk::PrepRawData and a predicted Trk::TrackParameter. 
         @param RIO Trk::PrepRawData object to be calibrated

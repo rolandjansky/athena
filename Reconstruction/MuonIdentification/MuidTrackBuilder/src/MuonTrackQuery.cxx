@@ -38,11 +38,9 @@ namespace Units = Athena::Units;
 namespace Rec {
 
 
-MuonTrackQuery::MuonTrackQuery(const std::string& type, const std::string& name, const IInterface* parent)
-    : AthAlgTool(type, name, parent), m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc", name)
-{
+MuonTrackQuery::MuonTrackQuery(const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type, name, parent) {
     declareInterface<IMuonTrackQuery>(this);
-    declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
 }
 
 StatusCode

@@ -189,8 +189,8 @@ namespace Muon {
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
-      ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool{this,"CalibrationTool","MdtCalibrationTool"};
+      ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
 
       // Configuration variables
       bool                                 m_doMdt; //!< Process MDT ROTs

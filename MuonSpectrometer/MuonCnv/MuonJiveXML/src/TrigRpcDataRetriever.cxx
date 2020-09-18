@@ -23,8 +23,7 @@ namespace JiveXML {
 
   TrigRpcDataRetriever::TrigRpcDataRetriever(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type, name, parent), 
-    m_typeName("RPC"), // same datatype name as RPC ! Must not be run together
-    m_rpcDecoder("Muon::RpcRDO_Decoder")
+    m_typeName("RPC") // same datatype name as RPC ! Must not be run together
   {
     declareInterface<IDataRetriever>(this);
     declareProperty("StoreGateKey",   m_sgKey = "RPCPAD", "StoreGate key for the RPC RDO container" );

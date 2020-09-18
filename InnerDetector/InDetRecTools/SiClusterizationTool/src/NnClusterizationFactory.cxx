@@ -154,12 +154,8 @@ namespace InDet {
       }
     }
 
-    if (!m_readKeyWithoutTrack.key().empty()) {
-      ATH_CHECK( m_readKeyWithoutTrack.initialize()  );
-    }
-    if (!m_readKeyWithTrack.key().empty()) {
-      ATH_CHECK( m_readKeyWithTrack.initialize());
-    }
+    ATH_CHECK( m_readKeyWithoutTrack.initialize( !m_readKeyWithoutTrack.key().empty() ) );
+    ATH_CHECK( m_readKeyWithTrack.initialize( !m_readKeyWithTrack.key().empty() ) );
 
     return StatusCode::SUCCESS;
   }

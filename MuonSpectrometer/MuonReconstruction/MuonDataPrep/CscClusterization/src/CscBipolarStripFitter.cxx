@@ -20,16 +20,14 @@
 //
 
 using Muon::CscStripPrepData;
-using std::string;
 
 typedef ICscStripFitter::Result     Result;
 typedef ICscStripFitter::ChargeList ChargeList;
 
 //**********************************************************************
 
-CscBipolarStripFitter::CscBipolarStripFitter(string type, string aname, const IInterface *parent)
+CscBipolarStripFitter::CscBipolarStripFitter(const std::string& type, const std::string& aname, const IInterface *parent)
     : AthAlgTool(type, aname, parent),
-      m_pmuon_detmgr(0),
       m_phelper(0),
       m_n(0),
       m_n2(0),
@@ -50,10 +48,6 @@ CscBipolarStripFitter::CscBipolarStripFitter(string type, string aname, const II
 
 //**********************************************************************
 
-CscBipolarStripFitter::~CscBipolarStripFitter() {}
-
-//**********************************************************************
-
 StatusCode
 CscBipolarStripFitter::initialize()
 {
@@ -70,11 +64,11 @@ CscBipolarStripFitter::initialize()
     /** CSC calibratin tool for the Condtiions Data base access */
     ATH_CHECK_RECOVERABLE(m_cscCalibTool.retrieve());
 
-    // Retrieve the detector descriptor.
-    ATH_CHECK_RECOVERABLE(detStore()->retrieve(m_pmuon_detmgr));
+    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    ATH_CHECK_RECOVERABLE(detStore()->retrieve(muDetMgr));
     ATH_MSG_DEBUG("Retrieved geometry.");
 
-    m_phelper = m_pmuon_detmgr->cscIdHelper();
+    m_phelper = muDetMgr->cscIdHelper();
 
     m_n          = m_cscCalibTool->getNumberOfIntegration();   // 12.;
     m_n2         = m_cscCalibTool->getNumberOfIntegration2();  // 11.66;
@@ -88,15 +82,6 @@ CscBipolarStripFitter::initialize()
     m_tsampling = m_cscCalibTool->getSamplingTime() / 2.;  //   50/2 =   25.;
 
 
-    return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
-
-StatusCode
-CscBipolarStripFitter::finalize()
-{
-    ATH_MSG_DEBUG("Finalizing " << name());
     return StatusCode::SUCCESS;
 }
 

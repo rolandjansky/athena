@@ -55,7 +55,7 @@ public:
 
 namespace {
   // register all kits with the help of a dummy function which sets a global anonymous bool
-  bool registered = ( [] () ATLAS_NOT_THREAD_SAFE -> bool {
+  bool registered = ( [] () -> bool {
     return
          RIO_OnTrackErrorScalingKitManager::instance().registerKit("RPCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("RPC"))
       && RIO_OnTrackErrorScalingKitManager::instance().registerKit("TGCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("TGC"))
