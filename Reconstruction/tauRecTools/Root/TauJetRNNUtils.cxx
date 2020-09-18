@@ -3,6 +3,7 @@
 */
 
 #include "tauRecTools/TauJetRNNUtils.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #define GeV 1000
 
@@ -267,19 +268,23 @@ bool     absleadTrackEta(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("ABS_ETA_LEAD_TRACK"));
   return true;
 }
+
 bool     leadTrackDeltaEta(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAETA"));
   return true;
 }
+
 bool     leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAPHI"));
   return true;
 }
+
 bool     EMFracFixed(const xAOD::TauJet &tau, double &out){
   float emFracFized = tau.auxdata<float>("EMFracFixed");
   out = std::max(emFracFized, 0.0f);
   return true;
 }
+
 bool     etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
   float etHotShotWinOverPtLeadTrk = tau.auxdata<float>("etHotShotWinOverPtLeadTrk");
   out = std::max(etHotShotWinOverPtLeadTrk, 1e-6f);
@@ -300,6 +305,7 @@ bool     PSFrac(const xAOD::TauJet &tau, double &out){
   
   return success;
 }
+
 bool     ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanCenterLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanCenterLambda, ClustersMeanCenterLambda);
@@ -307,18 +313,21 @@ bool     ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
 
   return success;
 }
+
 bool     ClustersMeanEMProbability(const xAOD::TauJet &tau, double &out){
   float ClustersMeanEMProbability;
   const auto success = tau.detail(TauDetail::ClustersMeanEMProbability, ClustersMeanEMProbability);
   out = std::max(0.f, ClustersMeanEMProbability);
   return success;
 }
+
 bool     ClustersMeanFirstEngDens(const xAOD::TauJet &tau, double &out){
   float ClustersMeanFirstEngDens;
   const auto success = tau.detail(TauDetail::ClustersMeanFirstEngDens, ClustersMeanFirstEngDens);
   out =  std::max(-10.f, ClustersMeanFirstEngDens);
   return success;
 }
+
 bool     ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
   float ClustersMeanPresamplerFrac;
   const auto success = tau.detail(TauDetail::ClustersMeanPresamplerFrac, ClustersMeanPresamplerFrac);
@@ -331,6 +340,7 @@ bool     ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
 
   return success;
 }
+
 bool     ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanSecondLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanSecondLambda, ClustersMeanSecondLambda);
@@ -533,27 +543,18 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
     return false;
   }
 
-  std::size_t nClustersTotal = 0;
   std::vector<const xAOD::CaloCluster *> clusters;
-
-  xAOD::JetConstituentVector jcv = jet_seed->getConstituents();
-  xAOD::JetConstituentVector::const_iterator it = jcv.begin();
-  xAOD::JetConstituentVector::const_iterator it_end = jcv.end();
-  for (; it != it_end; ++it) {
-    auto cl = dynamic_cast<const xAOD::CaloCluster *>((*it)->rawConstituent());
-    if (!cl) {
-	return false;
-    }
-    clusters.push_back(cl);
-    ++nClustersTotal;
-  }
+  bool            incShowerSubtracted(true);
+  TLorentzVector  LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
+  double          dRCut(0.2);
+  auto        check_clusters = tauRecTools::GetJetClusterList(jet_seed, clusters, incShowerSubtracted, LC_P4, dRCut);
+  std::size_t nClustersTotal = clusters.size();
 
   // Number of tracks to save
   std::size_t nClustersSave = nClustersTotal;
-  size_t      n_clusterMax(6);
+  std::size_t n_clusterMax(6);
   if (n_clusterMax > 0) {
-    nClustersSave = std::min(static_cast<std::size_t>(n_clusterMax),
-			       nClustersTotal);
+    nClustersSave = std::min((n_clusterMax),nClustersTotal);
   }
   // Sort clusters in descending et order
   auto et_cmp = [](const xAOD::CaloCluster *lhs,
@@ -561,8 +562,6 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
     return lhs->et() > rhs->et();
   };
   std::sort(clusters.begin(), clusters.end(), et_cmp);
-
-  TLorentzVector LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
   
   float clE(0.), Etot(0.);
   using MomentType = xAOD::CaloCluster::MomentType;
@@ -575,7 +574,7 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
 
     TLorentzVector cluster_P4;
     cluster_P4.SetPtEtaPhiM(1, cls->eta(), cls->phi(),0);
-    if(LC_P4.DeltaR(cluster_P4)>0.2)            continue;
+    if(LC_P4.DeltaR(cluster_P4)>dRCut)            continue;
     clE = cls->calE();
     Etot += clE;
   }
