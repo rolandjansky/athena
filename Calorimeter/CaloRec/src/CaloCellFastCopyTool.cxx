@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -33,7 +33,7 @@ CaloCellFastCopyTool::CaloCellFastCopyTool(const std::string& type,
   , m_srcCellContainerKey("AllCalo")
   , m_avoidDuplicates(false)
   , m_isFindCellFast(false)
-  , m_caloID(0)
+  , m_caloID(nullptr)
 {
   declareProperty("InputName", m_srcCellContainerKey);
   declareProperty("IncludeSamplings", m_acceptedSampleNames);
@@ -318,8 +318,7 @@ StatusCode CaloCellFastCopyTool::cloneAvoidingDuplicatesFindCellIsNotFast
 StatusCode CaloCellFastCopyTool::dispatchCopy(const CaloCellContainer* srcCont,
                                               CaloCellContainer* destCont) const
 {
-  typedef StatusCode (CaloCellFastCopyTool::*COPY_CELLS)(const CaloCellContainer* srcCont
-                                                         , CaloCellContainer* destCont) const;
+  using COPY_CELLS = StatusCode (CaloCellFastCopyTool::*)(const CaloCellContainer *, CaloCellContainer *) const;
 
   COPY_CELLS copyCells;
   if (m_isFindCellFast) {
@@ -353,8 +352,7 @@ StatusCode
 CaloCellFastCopyTool::dispatchCopyConst (const CaloCellContainer* srcCont,
                                          CaloConstCellContainer* destCont) const
 {
-  typedef StatusCode (CaloCellFastCopyTool::*COPY_CONST_CELLS)(const CaloCellContainer* srcCont
-                                                               , CaloConstCellContainer* destCont) const;
+  using COPY_CONST_CELLS = StatusCode (CaloCellFastCopyTool::*)(const CaloCellContainer *, CaloConstCellContainer *) const;
 
   COPY_CONST_CELLS copyConstCells;
   if (m_isFindCellFast) {

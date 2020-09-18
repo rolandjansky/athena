@@ -6,6 +6,7 @@
 #define TAUREC_TAUCALIBRATELC_H
 
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODEventInfo/EventInfo.h"
 
@@ -23,19 +24,19 @@ class TF1;
  */
 
 class TauCalibrateLC : public TauRecToolBase {
-public:
+  
+  public:
 
-  ASG_TOOL_CLASS2( TauCalibrateLC, TauRecToolBase, ITauToolBase )
+    ASG_TOOL_CLASS2( TauCalibrateLC, TauRecToolBase, ITauToolBase )
 
-  TauCalibrateLC(const std::string& name="TauCalibrateLC");
+    TauCalibrateLC(const std::string& name="TauCalibrateLC");
     ~TauCalibrateLC();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
 
-private:
+  private:
     static const int s_nProngBins = 2;
 
     std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
@@ -55,8 +56,15 @@ private:
     bool m_usePantauAxis; //!< switch for overwriting calo (eta,phi) with Pantau (eta,phi) 
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
-    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
+        "AveIntPerXKey", 
+        "EventInfo.AveIntPerXDecor",
+        "Decoration for Average Interaction Per Crossing"};
+  
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer {this,
+        "Key_vertexInputContainer",
+        "PrimaryVertices",
+        "input vertex container key"};
 };
 
 #endif

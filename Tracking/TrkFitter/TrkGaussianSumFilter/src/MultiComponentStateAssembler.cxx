@@ -166,8 +166,8 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache)
                                        cache.multiComponentState.end(),
                                        dummySmallestWeight,
                                        SortByLargerSimpleComponentWeight());
-    
-    //reverse iterate , so as to delete removing the last
+
+    // reverse iterate , so as to delete removing the last
     auto lower_than_reverse = std::make_reverse_iterator(lower_than);
     for (auto itr = cache.multiComponentState.rbegin();
          itr != lower_than_reverse;
@@ -206,4 +206,3 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache,
   }
   return doStateAssembly(cache, newWeight);
 }
-

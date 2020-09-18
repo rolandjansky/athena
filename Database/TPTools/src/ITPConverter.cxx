@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,9 +10,9 @@
 static
 void errorHandler()
 {
-   static const char *ignore_error = getenv("ATHENA_TP_IGNORE_NOT_FOUND");
+   static const char *const ignore_error = getenv("ATHENA_TP_IGNORE_NOT_FOUND");
    if( ignore_error )  return;
-   static const char *do_abort = getenv("ATHENA_TP_DIE_ON_NOT_FOUND");
+   static const char * const do_abort = getenv("ATHENA_TP_DIE_ON_NOT_FOUND");
    if( do_abort )  abort();
    throw std::runtime_error( "TP converter not found" );
 }

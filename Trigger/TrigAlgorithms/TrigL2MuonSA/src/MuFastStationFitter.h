@@ -20,6 +20,9 @@
 #include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "AlphaBetaEstimate.h"
 #include "PtFromAlphaBeta.h"
+#include "NswStationFitter.h"
+#include "StgcData.h"
+#include "MmData.h"
 
 namespace TrigL2MuonSA {
 
@@ -27,7 +30,7 @@ class MuFastStationFitter: public AthAlgTool
 {
    public:
 
-      MuFastStationFitter(const std::string& type, 
+      MuFastStationFitter(const std::string& type,
                           const std::string& name,
                           const IInterface*  parent);
     
@@ -107,6 +110,7 @@ class MuFastStationFitter: public AthAlgTool
 	this, "AlphaBetaEstimate", "TrigL2MuonSA::AlphaBetaEstimate"};
       ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta {
 	this, "PtFromAlphaBeta", "TrigL2MuonSA::PtFromAlphaBeta", ""};
+      ToolHandle<NswStationFitter> m_nswStationFitter {this, "NswStationFitter", "TrigL2MuonSA::NswStationFitter"};
 
       void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr);
       void findSubLayerCombination(std::vector<unsigned int> &a, int n,int r, std::vector<unsigned int> &b, int index ,int num,

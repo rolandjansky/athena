@@ -287,12 +287,12 @@ HepMC::ConstGenVertexPtr TauPrdVrt;
               TauPrdVrt = lepanc->production_vertex();
               for (auto taumom: TauPrdVrt->particles_in() ) {
                 int wzpdg = taumom->pdg_id();
-                if (abs(wzpdg) == 24 || abs(wzpdg) == 23 || (wzpdg == mompid && anceWZ > 0)) taufromWZ++;
+                if (std::abs(wzpdg) == 24 || std::abs(wzpdg) == 23 || (wzpdg == mompid && anceWZ > 0)) taufromWZ++;
                 if ( m_tesit == 1 ) ATH_MSG_DEBUG("tau mother =" << wzpdg);
               }
             }
 
-            if (abs(mompid)==24 || abs(mompid)==23 || (anceWZ > 0 && mompid==lepid) || (abs(mompid) == 15 && taufromWZ > 0)) momWZ++;
+            if (std::abs(mompid)==24 || std::abs(mompid)==23 || (anceWZ > 0 && mompid==lepid) || (std::abs(mompid) == 15 && taufromWZ > 0)) momWZ++;
           }  // end of lepton mother test loop
 
           if ( momWZ > 0 && anceWZ > 0 ) iWL++;
@@ -368,7 +368,7 @@ HepMC::ConstGenVertexPtr TauPrdVrt;
               ATH_MSG_DEBUG("lepton=" << lepid << "  " << ancecnt <<
                             "'th  ancestors=" << ancepid << "          status =" << ancestatus);
             }
-            if ( abs(ancepid) == 24 || abs(ancepid) == 23 )  anceWZ ++;
+            if ( std::abs(ancepid) == 24 || std::abs(ancepid) == 23 )  anceWZ ++;
             ancecnt ++;
           }  // end of lepton ancestors( mother, grandmother ... ) test
 
@@ -383,7 +383,7 @@ HepMC::ConstGenVertexPtr TauPrdVrt;
             if ( m_tesit == 1 ) {
               ATH_MSG_DEBUG(momcnt << "'th mom with pid= " << mompid << "                mom status = " << momstatus);
             }
-            if ( abs(mompid) ==15 ) {
+            if ( std::abs(mompid) ==15 ) {
               TauPrdVrt = (*lepanc)->production_vertex();
               HepMC::GenVertex::particle_iterator fstaum, lstaum;
               fstaum = TauPrdVrt->particles_begin(HepMC::parents);
@@ -391,12 +391,12 @@ HepMC::ConstGenVertexPtr TauPrdVrt;
               HepMC::GenVertex::particle_iterator taumom = fstaum;
               for (; taumom != lstaum; ++taumom ) {
                 int wzpdg = (*taumom)->pdg_id();
-                if (abs(wzpdg) == 24 || abs(wzpdg) == 23 || (wzpdg == mompid && anceWZ > 0)) taufromWZ++;
+                if (std::abs(wzpdg) == 24 || std::abs(wzpdg) == 23 || (wzpdg == mompid && anceWZ > 0)) taufromWZ++;
                 if ( m_tesit == 1 ) ATH_MSG_DEBUG("tau mother =" << wzpdg);
               }
             }
 
-            if (abs(mompid)==24 || abs(mompid)==23 || (anceWZ > 0 && mompid==lepid) || (abs(mompid) == 15 && taufromWZ > 0)) momWZ++;
+            if (std::abs(mompid)==24 || std::abs(mompid)==23 || (anceWZ > 0 && mompid==lepid) || (std::abs(mompid) == 15 && taufromWZ > 0)) momWZ++;
           }  // end of lepton mother test loop
 
           if ( momWZ > 0 && anceWZ > 0 ) iWL++;

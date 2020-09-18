@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigRawDataProvider/TrigPixRawDataProvider.h"
@@ -36,7 +36,7 @@ namespace InDet {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
     declareProperty("RawDataProviderTool", m_rawDataTool);
-    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixBSErr");
+    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixelByteStreamErrs");
   }
 
   TrigPixRawDataProvider::~TrigPixRawDataProvider(){
@@ -112,7 +112,7 @@ namespace InDet {
     }
 
     if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
-      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<int>::min());
+      m_decodingErrors = new IDCInDetBSErrContainer(m_rawDataTool->SizeOfIDCInDetBSErrContainer(),  std::numeric_limits<int>::min());
       ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
     } else {
       ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));

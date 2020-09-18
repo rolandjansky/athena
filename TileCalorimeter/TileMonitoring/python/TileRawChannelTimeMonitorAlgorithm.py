@@ -102,6 +102,7 @@ def TileRawChannelTimeMonitoringConfig(flags, **kwargs):
                                         tileRawChanTimeMonAlg, 'TileDigitizerTimeLB', topPath = 'Tile/RawChannelTime')
     for postfix, tool in digiTimeVsLBArray.Tools.items():
         ros, module, digitizer = [int(x) for x in postfix.split('_')[1:]]
+        digitizer += 1
 
         moduleName = Tile.getDrawerString(ros + 1, module)
         title = 'Run ' + run + ' ' + moduleName + ' Digitizer ' + str(digitizer)

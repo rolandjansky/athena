@@ -402,8 +402,8 @@ namespace G4UA{
       // get time of step as average between pre- and post-step point
       G4StepPoint* pre_step_point = aStep->GetPreStepPoint();
       G4StepPoint* post_step_point = aStep->GetPostStepPoint();
-      G4ThreeVector startPoint = pre_step_point->GetPosition();
-      G4ThreeVector endPoint   = post_step_point->GetPosition();
+      const G4ThreeVector& startPoint = pre_step_point->GetPosition();
+      const G4ThreeVector& endPoint   = post_step_point->GetPosition();
       G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
       // process upper hemisphere only in case PositiveYOnly is true

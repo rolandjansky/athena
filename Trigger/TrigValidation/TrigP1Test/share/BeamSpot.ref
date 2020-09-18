@@ -1,9 +1,3 @@
-BeamSpotCondAlg                                    DEBUG Property update for OutputLevel : new value = 2
-BeamSpotCondAlg                                     INFO Initializing BeamSpotCondAlg...
-BeamSpotCondAlg                                    DEBUG input handles: 1
-BeamSpotCondAlg                                    DEBUG output handles: 1
-BeamSpotCondAlg                                    DEBUG Data Deps for BeamSpotCondAlg
-BeamSpotCondAlg                                     INFO Finalizing BeamSpotCondAlg...
 BeamSpotCondAlg                            1   0   DEBUG Executing BeamSpotCondAlg...
 BeamSpotCondAlg                            1   0    INFO Read from condDB status 4 pos (0.06,1.06,-4.6) sigma (0.015,0.015,53) tilt (0,0) sigmaXY 0
 BeamSpotCondAlg                            1   0    INFO Recorded new InDet::BeamSpotData to BeamSpotData with range {[1,l:0] - [360026,l:2]} into conditions store.
@@ -134,3 +128,9 @@ InDet::InDetBeamSpotReader                49   0    INFO In event [360026,629138
 InDet::InDetBeamSpotReader                49   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
 InDet::InDetBeamSpotReader                50   0    INFO In event [360026,629151184,t:1536151929.445275770,l:10,b:2726]
 InDet::InDetBeamSpotReader                50   0    INFO BeamSpot Position: 0.09 1.09 -4.9, Sigma: 0.015 0.015 53, Tilt: 0 0, Status: 7
+BeamSpotCondAlg                                    DEBUG Property update for OutputLevel : new value = 2
+BeamSpotCondAlg                                     INFO Initializing BeamSpotCondAlg...
+BeamSpotCondAlg                                    DEBUG input handles: 1
+BeamSpotCondAlg                                    DEBUG output handles: 1
+BeamSpotCondAlg                                    DEBUG Data Deps for BeamSpotCondAlg
+BeamSpotCondAlg                                     INFO Finalizing BeamSpotCondAlg...

@@ -16,7 +16,6 @@ import logging
 import argparse
 import json
 from collections import OrderedDict
-import six
 
 
 default_ignore_patterns = [
@@ -106,11 +105,11 @@ def make_summary(result):
 
 def print_result(summary, full_result, print_messages=False):
     summary_str = 'Found the following number of messages:\n'
-    for p, n in six.iteritems(summary):
+    for p, n in summary.items():
         summary_str += '{:8d} {:s} messages\n'.format(n, p)
     logging.info(summary_str)
     if print_messages:
-        for p, lines in six.iteritems(full_result):
+        for p, lines in full_result.items():
             logging.info('##### The following %s messages were found #####', p)
             for line in lines:
                 print(line, end='')  # noqa: ATL901
@@ -144,8 +143,7 @@ def main():
             logging.error('Cannot open file %s, skipping', fname)
             continue
         logging.info('Analysing file %s', fname)
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(fname, **encargs) as f:
+        with open(fname, encoding='utf-8') as f:
             messages = extract_messages(f, start, end, ignore)
         summary = make_summary(messages)
         print_result(summary, messages, args.printMessages)

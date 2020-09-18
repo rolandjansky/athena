@@ -50,7 +50,7 @@
 	std::vector<int> endBCIDsVector;
 	
 	unsigned int efficiencyHistogramCounter=0;
-	
+
 	bool isInListVector(const int bcid, const std::vector<int>&arr)
 	{
 		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
@@ -74,7 +74,6 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 
 	m_StationPlaneGroup = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
 	m_StationGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
-
 
 	// We must declare to the framework in initialize what SG objects we are going to use:
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
@@ -127,6 +126,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto lb = Monitored::Scalar<int>("lb", 0);
 	auto muPerBCID = Monitored::Scalar<float>("muPerBCID", 0.0);
 	//auto run = Monitored::Scalar<int>("run",0);
+
 	auto weight = Monitored::Scalar<float>("weight", 1.0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
@@ -147,7 +147,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	auto planeHits = Monitored::Scalar<int>("planeHits", 0);
 	auto planeHitsAll = Monitored::Scalar<int>("planeHitsAll", 0);
-	
+
 	
 	lb = GetEventInfo(ctx)->lumiBlock();
 	muPerBCID = lbAverageInteractionsPerCrossing(ctx);
@@ -188,7 +188,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill(m_tools[m_StationGroup.at(m_stationnames.at(hitsItr->stationID()))], planeHits);
 			planeHitsAll = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
 			fill("AFPSiLayerTool", planeHitsAll);
-			
 		}
 		else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
 	}
@@ -210,6 +209,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		clusterX = cluster.x;
 		clusterY = cluster.y;
+
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
 	}
 	
@@ -356,4 +356,66 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 	}
 }
 
+void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, int &previouslbPlane, std::vector<std::vector<std::vector<unsigned int>>> &clusterCounterPlane, unsigned int &counterForEventsPlane, float &muPerBCID, char histogramType, AFPMon::AFPFastReco& fast) const
+{
+	float clustersPerPlaneFloat = 0;
+	for(const auto& cluster : fast.clusters()) 
+	{
+		if(lb > previouslbPlane && previouslbPlane != 0)
+		{
+			for(int i=0; i<4; i++)
+			{
+				for(int j=0; j<4; j++)
+				{
+					clustersPerPlaneFloat = clusterCounterPlane[previouslbPlane][i][j];
+					if(muPerBCID != 0 && clustersPerPlaneFloat != 0)
+					{
+						clustersPerPlaneFloat = clustersPerPlaneFloat/(muPerBCID*counterForEventsPlane);
+					}
+					else
+					{
+						clustersPerPlaneFloat = -0.1;
+					}
+				
+					if(histogramType == 'P')
+					{
+						auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 0.0);
+						clustersPerPlane = clustersPerPlaneFloat;
+						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
+					}
+					else if(histogramType == 'F')
+					{
+						auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
+						clustersPerPlaneFront = clustersPerPlaneFloat;
+						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
+					}
+					else if(histogramType == 'M')
+					{
+						auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
+						clustersPerPlaneMiddle = clustersPerPlaneFloat;
+						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
+					}
+					else if(histogramType == 'E')
+					{
+						auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
+						clustersPerPlaneEnd = clustersPerPlaneFloat;
+						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
+					}
+				}
+			}
+			previouslbPlane = lb;
+			++clusterCounterPlane[lb][cluster.station][cluster.layer];
+			counterForEventsPlane=1;
+		}
+		// First time in lumiblock (in plane)
+		else if(clusterCounterPlane[lb][cluster.station][cluster.layer] == 0) 
+		{
+			++clusterCounterPlane[lb][cluster.station][cluster.layer];
+			previouslbPlane = lb;
+		}	
+		// Lumiblock is same, so proceed
+		else if(lb==previouslbPlane)	// Same lumiblock
+		{++clusterCounterPlane[lb][cluster.station][cluster.layer];}
+	}
+}
 

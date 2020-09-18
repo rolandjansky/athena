@@ -240,12 +240,12 @@ StatusCode MuonBackgroundConverter::callGenerator()
                            << "   deltaPhi = " << deltaPhi 
                            << "   newPhi = "   << newPhi 
                            << "   phiSector = " << m_used);
-             newVertex.setX( rT * cos( oldPhi + deltaPhi ) );
-             newVertex.setY( rT * sin( oldPhi + deltaPhi ) );
+             newVertex.setX( rT * std::cos( oldPhi + deltaPhi ) );
+             newVertex.setY( rT * std::sin( oldPhi + deltaPhi ) );
              ATH_MSG_DEBUG("   old vertex = " << oldVertex.x() << " " << oldVertex.y() << " " << oldVertex.z()  
                            << "   new vertex = " << newVertex.x() << " " << newVertex.y() << " " << newVertex.z());
-             newMomentum.setPx( oldMomentum.px() * cos(deltaPhi) - oldMomentum.py() * sin(deltaPhi) );
-             newMomentum.setPy( oldMomentum.px() * sin(deltaPhi) + oldMomentum.py() * cos(deltaPhi) );
+             newMomentum.setPx( oldMomentum.px() * std::cos(deltaPhi) - oldMomentum.py() * std::sin(deltaPhi) );
+             newMomentum.setPy( oldMomentum.px() * std::sin(deltaPhi) + oldMomentum.py() * std::cos(deltaPhi) );
              ATH_MSG_DEBUG("   old 3-momentum = " << oldMomentum.px() << " " << oldMomentum.py() << " " << oldMomentum.pz() 
                            << "   new 3-momentum = " << newMomentum.px() << " " << newMomentum.py() << " " << newMomentum.pz() 
                                                 );

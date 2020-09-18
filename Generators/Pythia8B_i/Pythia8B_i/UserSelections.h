@@ -29,9 +29,9 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
 
 	// Human-readable aliases of the parameters and observables.
 	// Human-readable aliases of the parameters and observables.
-	double A0 = sqrt(params[0] * (1 - params[2]));
-	double Al = sqrt(params[1] * (1 - params[2]));
-	double As = sqrt(params[2]);
+	double A0 = std::sqrt(params[0] * (1 - params[2]));
+	double Al = std::sqrt(params[1] * (1 - params[2]));
+	double As = std::sqrt(params[2]);
 	double &GammaS = params[3];
 	double &DeltaGamma = params[4];
 	double &DeltaM = params[5];
@@ -40,25 +40,13 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
 	double &delta_l = params[8];
 	double delta_s = params[7] - params[9];
 
-/*
-	 cout << "a0 " << A0 << endl;
-	 cout << "al " << Al << endl;
-	 cout << "as " << As << endl;
-	 cout << "GammaS " << GammaS << endl;
-	 cout << "DeltaGamma " << DeltaGamma << endl;
-	 cout << "phiS " << phiS << endl;
-	 cout << "delta p " << delta_p << endl;
-	 cout << "delta l " << delta_l << endl;
-	 cout << "delta s " << delta_s << endl;
-*/
-
 	double &time = x[0];
 	//  double &timeErr    = x[1]; // pico seconds
 	double &tagprob = x[4]; // 0. anti-particle, 0.5 no tag, 1.0 particle
 	
   // Calculate A perpendicular from the other parameters
   double Ap = 0;
-  if ( 1. - As*As - A0*A0 - Al*Al >= 0 ) Ap = sqrt(1. - As*As - A0*A0 - Al*Al);
+  if ( 1. - As*As - A0*A0 - Al*Al >= 0 ) Ap = std::sqrt(1. - As*As - A0*A0 - Al*Al);
 
   // The tabulated function is Sum of: A[i] * ( B1[i] +/- B2[i] ) * C[i]
 	
@@ -120,18 +108,18 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
   if( std::abs(tagprob - 0.5) > 1e-6 ){   
 
 
-    ExpGSSinMT = std::exp(-time * GammaS) * sin(DeltaM * time);
-    ExpGSCosMT = std::exp(-time * GammaS) * cos(DeltaM * time);
+    ExpGSSinMT = std::exp(-time * GammaS) * std::sin(DeltaM * time);
+    ExpGSCosMT = std::exp(-time * GammaS) * std::cos(DeltaM * time);
 
 
     B2[0] = 2. * ExpGSSinMT * sinphiS * norm1;
     B2[1] = B2[0];
     B2[2] = -2. * ExpGSSinMT * sinphiS * norm2;
     B2[3] = B2[0];
-    B2[4] = ( ExpGSCosMT * std::sin(delta_p - delta_l) - cosphiS * cos(delta_p - delta_l) * ExpGSSinMT ) * norm3;
+    B2[4] = ( ExpGSCosMT * std::sin(delta_p - delta_l) - cosphiS * std::cos(delta_p - delta_l) * ExpGSSinMT ) * norm3;
     B2[5] = ( ExpGSCosMT * std::sin(delta_p) - cosphiS * std::cos(delta_p) * ExpGSSinMT ) * norm3;
     B2[6] = B2[2];
-    B2[7] = ( ExpGSCosMT * std::cos(delta_l - delta_s) - cosphiS * sin(delta_l - delta_s) * ExpGSSinMT ) * norm3;
+    B2[7] = ( ExpGSCosMT * std::cos(delta_l - delta_s) - cosphiS * std::sin(delta_l - delta_s) * ExpGSSinMT ) * norm3;
     B2[8] = B2[2];
     B2[9] = ( ExpGSCosMT * std::cos(delta_s) + cosphiS * std::sin(delta_s) * ExpGSSinMT ) * norm3;
 
@@ -160,18 +148,18 @@ double BsJpsiPhi_PDF(double *params, double *x, bool useHelicity) {
       double sin2thetak = 2. * std::sqrt(1. - costhetak * costhetak) * costhetak;
       double sin2thetal = 2. * std::sqrt(1. - costhetal * costhetal) * costhetal;
       double sin2chi = std::sin(2. * chi);
-      double sinthetak = sqrt(sinsqthetak);
+      double sinthetak = std::sqrt(sinsqthetak);
 
       C[0] = 2. * cossqthetak * sinsqthetal; //cossqpsi * (1. - sinsqtheta * cossqphi);
       C[1] = sinsqthetak * (1 - sinsqthetal * cossqchi); //sinsqpsi * (1. - sinsqtheta * sinsqphi);
       C[2] = sinsqthetak * (1 - sinsqthetal * sinsqchi); //sinsqpsi * sinsqtheta;
-      C[3] = 1. / sqrt(2.) * sin2thetak * sin2thetal * coschi; //* sin2psi * sinsqtheta * sin2phi;
+      C[3] = 1. / std::sqrt(2.) * sin2thetak * sin2thetal * coschi; //* sin2psi * sinsqtheta * sin2phi;
       C[4] = -1. * sinsqthetak * sinsqthetal * sin2chi; //sinsqpsi * sin2theta * sinphi;
-      C[5] = 1. / sqrt(2.) * sin2thetak * sin2thetal * sinchi; //* sin2psi * sin2theta * cosphi;
+      C[5] = 1. / std::sqrt(2.) * sin2thetak * sin2thetal * sinchi; //* sin2psi * sin2theta * cosphi;
       C[6] = 2. / 3. * sinsqthetal; //(1. - sinsqtheta * cossqphi);
-      C[7] = 1. / 3. * sqrt(6.) * sinthetak * sin2thetal * coschi; //sinpsi * sinsqtheta * sin2phi;
-      C[8] = 1. / 3. * sqrt(6.) * sinthetak * sin2thetal * sinchi; //sinpsi * sin2theta * cosphi;
-      C[9] = 4. / 3. * sqrt(3.) * costhetak * sinsqthetal; // cospsi * (1. - sinsqtheta * cossqphi); 
+      C[7] = 1. / 3. * std::sqrt(6.) * sinthetak * sin2thetal * coschi; //sinpsi * sinsqtheta * sin2phi;
+      C[8] = 1. / 3. * std::sqrt(6.) * sinthetak * sin2thetal * sinchi; //sinpsi * sin2theta * cosphi;
+      C[9] = 4. / 3. * std::sqrt(3.) * costhetak * sinsqthetal; // cospsi * (1. - sinsqtheta * cossqphi); 
 
     }
     else {
@@ -617,9 +605,9 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 				else
 					i_Kplus = 0;
 
-				if (abs(event[daughterlistKstar[0]].id()) == 211)
+				if (std::abs(event[daughterlistKstar[0]].id()) == 211)
 					i_piminus = daughterlistKstar[0];
-				else if (abs(event[daughterlistKstar[1]].id()) == 211)
+				else if (std::abs(event[daughterlistKstar[1]].id()) == 211)
 					i_piminus = daughterlistKstar[1];
 				else
 					i_piminus = 0;

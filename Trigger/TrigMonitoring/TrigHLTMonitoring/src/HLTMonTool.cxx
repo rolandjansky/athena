@@ -12,7 +12,6 @@
 */
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h" //x
 
 #include "GaudiKernel/GaudiException.h"

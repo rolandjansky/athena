@@ -24,6 +24,7 @@
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 
+#include "SCT_ConditionsData/SCT_FlaggedCondEnum.h"
 
 //Gaudi includes
 #include "AthenaKernel/Timeout.h"
@@ -37,11 +38,12 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 #include <cmath>
+#include <limits>
+#include <unordered_map>
 
 namespace InDet{
 
   using namespace InDet;
-  static const std::string maxRDOsReached("SCT_TrgClusterization: Exceeds max RDOs");
 
   //----------------------------------  
   //           Constructor:
@@ -268,9 +270,10 @@ namespace InDet{
     }
     
     // Prepare SCT_FlaggedCondData
-    SCT_FlaggedCondData* flaggedCondData{nullptr};
-    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
-      flaggedCondData = new SCT_FlaggedCondData{};
+    IDCInDetBSErrContainer* flaggedCondData{nullptr};
+    std::unordered_map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> flaggedCondMap;
+    if (!store()->transientContains<IDCInDetBSErrContainer>(m_flaggedCondDataName)) {
+      flaggedCondData = new IDCInDetBSErrContainer {m_idHelper->wafer_hash_max(), std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min()};
 
       if (store()->record(flaggedCondData, m_flaggedCondDataName, true, true).isFailure()) {
         ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
@@ -425,7 +428,12 @@ namespace InDet{
 	const size_t rdosize = RDO_Collection->size();
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = RDO_Collection->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -500,7 +508,12 @@ namespace InDet{
 	
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = rd->identifyHash();
-          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          if (flaggedCondMap.count(hid)==0) {
+            flaggedCondMap[hid]  = (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          } else {
+            flaggedCondMap[hid] |= (1 << SCT_FlaggedCondEnum::ExceedMaxRDOs);
+          }
+
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -549,6 +562,11 @@ namespace InDet{
       m_timerCluster->stop();
     }
 
+    // Fill flaggedCondData
+    for (auto [hash, error] : flaggedCondMap) {
+      flaggedCondData->setOrDrop(hash, error);
+    }
+    
     ATH_MSG_DEBUG( "REGTEST: Number of reconstructed clusters = " << m_numSctClusters );
 
     return HLT::OK;

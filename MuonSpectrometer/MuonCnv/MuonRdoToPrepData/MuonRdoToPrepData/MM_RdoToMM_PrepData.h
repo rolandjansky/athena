@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_RDOTOMM_PREPDATA_H
@@ -18,11 +18,10 @@ public:
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
 private:
 
-  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::MmRdoToPrepDataTool/MM_PrepDataProviderTool"};
   
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.

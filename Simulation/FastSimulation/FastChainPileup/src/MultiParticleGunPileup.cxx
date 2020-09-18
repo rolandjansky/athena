@@ -113,7 +113,7 @@ StatusCode MultiParticleGunPileup::callGenerator() {
       //evt->set_event_number(ievt); //Maybe dangerous to do this since the first event gets stacked last
       // Make and fill particles
       std::vector<SampledParticle> particles = m_partSampler->shoot();
-      for (auto p : particles){
+      for (const auto& p : particles){
 	// Debug printout of particle properties
 	std::cout << ievt << " DEBUG0," <<  p.m_pid << ", " << p.m_mom.E()<< ", " << p.m_mom.Pt()<< ", " << p.m_mom.M() << std::endl;
 	std::cout << ievt << " DEBUG1 (px,py,pz,E) = (" << p.m_mom.Px()<< ", " << p.m_mom.Py()<< ", " << p.m_mom.Pz()<< ", " << p.m_mom.E() <<")" << std::endl;
@@ -122,11 +122,11 @@ StatusCode MultiParticleGunPileup::callGenerator() {
 	// Make particle-creation vertex
 	// TODO: do something cleverer than one vertex per particle?
 	HepMC::FourVector pos(p.m_pos.X(), p.m_pos.Y(), p.m_pos.Z(), p.m_pos.T());
-	HepMC::GenVertexPtr   gv = new HepMC::GenVertex(pos);
+	HepMC::GenVertexPtr   gv = HepMC::newGenVertexPtr(pos);
 	evt->add_vertex(gv);
 	// Make particle with status == 1
 	HepMC::FourVector mom(p.m_mom.Px(), p.m_mom.Py(), p.m_mom.Pz(), p.m_mom.E());
-	HepMC::GenParticlePtr   gp = new HepMC::GenParticle;
+	HepMC::GenParticlePtr   gp = HepMC::newGenParticlePtr();
 	gp->set_status(1);
 	gp->set_pdg_id(p.m_pid);
 	gp->set_momentum(mom);

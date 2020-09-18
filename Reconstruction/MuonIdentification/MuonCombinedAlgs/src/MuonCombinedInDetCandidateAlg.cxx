@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
@@ -18,8 +17,6 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
     declareProperty("DoSiliconAssocForwardMuons", m_doSiliconForwardMuons = false);
     declareProperty("ExtensionPtThreshold", m_extThreshold = 2500);
 }
-
-MuonCombinedInDetCandidateAlg::~MuonCombinedInDetCandidateAlg() {}
 
 StatusCode
 MuonCombinedInDetCandidateAlg::initialize()
@@ -158,10 +155,4 @@ MuonCombinedInDetCandidateAlg::getCount(const xAOD::TrackParticle& tp, xAOD::Sum
     uint8_t val;
     if (!tp.summaryValue(val, type)) return 0;
     return static_cast<int>(val);
-}
-
-StatusCode
-MuonCombinedInDetCandidateAlg::finalize()
-{
-    return StatusCode::SUCCESS;
 }

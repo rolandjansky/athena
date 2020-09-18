@@ -6,7 +6,7 @@
 
 
 # load dict for MyCutClass
-pylcgdict.loadDictionary("PyAnalysisExamplesDict")
+pylcgdict.load_library("libPyAnalysisExamplesDict")
 
 # instantiate a C++ class from python
 obj = g.CallBackTest()

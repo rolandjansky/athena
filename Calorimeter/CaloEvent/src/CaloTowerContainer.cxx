@@ -1,22 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
 
 NAME:     CaloTowerContainer.cxx
-PACKAGE:  offline/Calorimeter/CaloRec 
+PACKAGE:  offline/Calorimeter/CaloRec
 
 AUTHORS:  S. Rajagopalan
 CREATED:  Oct 29, 2000
 
-PURPOSE:  
-          
+PURPOSE:
+
 Updated:  Jan 3, 2001    (HM)
-          QA. 
+          QA.
 
 Updated:  Feb 5, 2001    (HMa)
-          Moved from LArClusterRec to CaloRec. 
+          Moved from LArClusterRec to CaloRec.
 
 
 ********************************************************************/
@@ -53,7 +53,7 @@ CaloTowerContainer::CaloTowerContainer(const CaloTowerSeg& theSegmentation,
     m_towerSeg(theSegmentation)
 {
   if (!noTowers)
-    init(); 
+    init();
 }
 
 #ifdef CALOTOWERCONTAINER_USES_DATAPOOL
@@ -104,8 +104,8 @@ void CaloTowerContainer::swap (CaloTowerContainer& other)
   }
 }
 
-void CaloTowerContainer::init() 
-{ 
+void CaloTowerContainer::init()
+{
   // pre-size the container
   Base::clear (SG::VIEW_ELEMENTS);
   index_t etaBins = (index_t)m_towerSeg.neta();
@@ -117,20 +117,19 @@ void CaloTowerContainer::init()
   setTowers();
 #endif
 
-  static CaloPhiRange range;
 
   // get the eta/phi segmentation
   double deltaEta = m_towerSeg.deta();
   double minEta   = m_towerSeg.etamin() + deltaEta / 2.;
   double deltaPhi = m_towerSeg.dphi();
-  double minPhi   = range.fix (m_towerSeg.phimin() + deltaPhi / 2.);
+  double minPhi   = CaloPhiRange::fix (m_towerSeg.phimin() + deltaPhi / 2.);
 
   // insert empty towers
   // NOTE: eta/phi indexing is 1-based.
   for (index_t etaIndex = 1; etaIndex <= etaBins; ++etaIndex) {
     double theEta = minEta + (etaIndex-1) * deltaEta;
     for (index_t phiIndex = 1; phiIndex <= phiBins; ++phiIndex) {
-      double thePhi = range.fix (minPhi + (phiIndex-1) * deltaPhi);
+      double thePhi = CaloPhiRange::fix (minPhi + (phiIndex-1) * deltaPhi);
       index_t towerIndex   = this->getTowerIndex(etaIndex,phiIndex);
 #ifdef CALOTOWERCONTAINER_USES_DATAPOOL
       DataPool<CaloTower> towersPool (etaBins * phiBins);
@@ -168,8 +167,8 @@ CaloTowerContainer::~CaloTowerContainer()
 
 void CaloTowerContainer::setCalo(const CaloCell_ID::SUBCALO& theCalo)
 {
-  unsigned int intCalo = theCalo ; 
-  if ( std::find(m_caloRegions.begin(),m_caloRegions.end(),intCalo) 
+  unsigned int intCalo = theCalo ;
+  if ( std::find(m_caloRegions.begin(),m_caloRegions.end(),intCalo)
        == m_caloRegions.end() )
     {
       m_caloRegions.push_back(intCalo);
@@ -180,7 +179,7 @@ size_t
 CaloTowerContainer::getCalos(std::vector<CaloCell_ID::SUBCALO>& theCalos) const
 {
   theCalos.resize(m_caloRegions.size());
-  std::vector<unsigned int>::size_type i; 
+  std::vector<unsigned int>::size_type i;
   for(i=0;i<m_caloRegions.size();++i)
 	theCalos[i] = (CaloCell_ID::SUBCALO) m_caloRegions[i];
 
@@ -198,7 +197,7 @@ CaloTowerContainer::getCalos(std::vector<CaloCell_ID::SUBCALO>& theCalos) const
 // Kinematics Access //
 ///////////////////////
 
-// energy by index 
+// energy by index
 double CaloTowerContainer::energy(index_t etaIndex, index_t phiIndex) const
 {
   const CaloTower* t = this->getTower(etaIndex,phiIndex);
@@ -211,7 +210,7 @@ double CaloTowerContainer::energy(double theEta, double thePhi) const
   return t ? t->e() : 0;
 }
 
-// et by index 
+// et by index
 double CaloTowerContainer::et(index_t etaIndex, index_t phiIndex) const
 {
   const CaloTower* t = this->getTower(etaIndex, phiIndex);
@@ -236,7 +235,7 @@ bool CaloTowerContainer::getTowerIndices(const CaloTower* aTower,
 					 index_t& etaIndex,
 					 index_t& phiIndex) const
 {
-  return aTower != 0 
+  return aTower != nullptr
     ? this->getTowerIndices(aTower->eta(),aTower->phi(),etaIndex,phiIndex)
     : false;
 }
@@ -249,21 +248,10 @@ bool CaloTowerContainer::getTowerIndices(double theEta, double thePhi,
   return ( etaIndex != m_outOfRange && phiIndex != m_outOfRange );
 }
 
-// returns CaloTower pointer by index 
-const CaloTower* CaloTowerContainer::getTower(index_t etaIndex, 
+// returns CaloTower pointer by index
+const CaloTower* CaloTowerContainer::getTower(index_t etaIndex,
 					      index_t phiIndex) const
 
-{
-  index_t theIndex = this->getTowerIndex(etaIndex,phiIndex);
-  return theIndex != m_outOfRange 
-#ifdef CALOTOWERCONTAINER_USES_DATAPOOL
-    ? Base::operator[](theIndex)
-#else
-    ? &m_towers[theIndex]
-#endif
-    : (const CaloTower*)0;
-}
-CaloTower* CaloTowerContainer::getTower(index_t etaIndex, index_t phiIndex) 
 {
   index_t theIndex = this->getTowerIndex(etaIndex,phiIndex);
   return theIndex != m_outOfRange
@@ -272,16 +260,27 @@ CaloTower* CaloTowerContainer::getTower(index_t etaIndex, index_t phiIndex)
 #else
     ? &m_towers[theIndex]
 #endif
-    : (CaloTower*)0;
+    : (const CaloTower*)nullptr;
 }
-const CaloTower* CaloTowerContainer::getTower(double theEta, 
+CaloTower* CaloTowerContainer::getTower(index_t etaIndex, index_t phiIndex)
+{
+  index_t theIndex = this->getTowerIndex(etaIndex,phiIndex);
+  return theIndex != m_outOfRange
+#ifdef CALOTOWERCONTAINER_USES_DATAPOOL
+    ? Base::operator[](theIndex)
+#else
+    ? &m_towers[theIndex]
+#endif
+    : (CaloTower*)nullptr;
+}
+const CaloTower* CaloTowerContainer::getTower(double theEta,
 					      double thePhi) const
 {
   index_t etaIndex = m_outOfRange;
   index_t phiIndex = m_outOfRange;
-  return this->getTowerIndices(theEta,thePhi,etaIndex,phiIndex) 
+  return this->getTowerIndices(theEta,thePhi,etaIndex,phiIndex)
     ? (this->operator[])(this->getTowerIndex(etaIndex,phiIndex))
-    : (const CaloTower*)0;
+    : (const CaloTower*)nullptr;
 }
 CaloTower* CaloTowerContainer::getTower(double theEta, double thePhi)
 {
@@ -289,7 +288,7 @@ CaloTower* CaloTowerContainer::getTower(double theEta, double thePhi)
   index_t phiIndex = m_outOfRange;
   return this->getTowerIndices(theEta,thePhi,etaIndex,phiIndex)
     ? (this->operator[])(this->getTowerIndex(etaIndex,phiIndex))
-    : (CaloTower*)0;
+    : (CaloTower*)nullptr;
 }
 
 

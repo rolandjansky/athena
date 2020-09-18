@@ -17,6 +17,7 @@
 #include "IOVDbDataModel/IOVPayloadContainer.h"
 
 //fwd declarations
+class IIOVDbMetaDataTool;
 class IOVMetaDataContainer;
 class CondAttrListCollection;
 class AthenaAttributeList;
@@ -53,7 +54,30 @@ namespace IOVDbNamespace{
     CondAttrListCollection * m_attrListColl{};
     IOVDbNamespace::FolderType m_folderType{UNKNOWN};
     bool m_newedPtr{};
-  
   };
+
+
+   class FMDReadLock {
+   public:
+      FMDReadLock( const FMDReadLock& )=delete;
+      void operator=( const FMDReadLock& )=delete;
+      FMDReadLock( IIOVDbMetaDataTool* metadatatool );
+      ~FMDReadLock();
+      IOVMetaDataContainer* findFolder( const std::string& folderName );
+     private:
+      IIOVDbMetaDataTool* m_metadatatool {};
+   };
+
+   class SafeReadFromFileMetaData : private FMDReadLock, public ReadFromFileMetaData
+   {
+   public:
+      SafeReadFromFileMetaData( const std::string& folderName,
+                                IIOVDbMetaDataTool* metadatatool,
+                                const IOVTime & refTime, const bool useEpochTimestamp );
+      SafeReadFromFileMetaData( const std::string& folderName,
+                                IIOVDbMetaDataTool* metadatatool,
+                                const cool::ValidityKey & refTimeKey, const bool useEpochTimestamp);
+   };
+
 }//namespace
 #endif

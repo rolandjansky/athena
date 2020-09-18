@@ -20,32 +20,18 @@ def MagneticFieldSvcCfg(flags, **kwargs):
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )
             
 
-    # AtlasFieldSvc - old one
-    afsArgs = {
-      "name": "AtlasFieldSvc",
-    }
-    if flags.Common.isOnline:
-      afsArgs.update( UseDCS = False )
-      afsArgs.update( UseSoleCurrent = 7730 )
-      afsArgs.update( UseToroCurrent = 20400 )
-    else:
-      afsArgs.update( UseDCS = True )
-    if 'UseDCS' in kwargs:
-      afsArgs['UseDCS'] = kwargs['UseDCS']
-    mag_field_svc = CompFactory.MagField.AtlasFieldSvc(**afsArgs)  
-    result.addService(mag_field_svc, primary=True)
-
     # AtlasFieldMapCondAlg - for reading in map
     afmArgs = {
       "name": "AtlasFieldMapCondAlg",
     }
     if flags.Common.isOnline:
-      # Set UseMapsFromCOOL for online to force the map creation at start
-      afmArgs.update( UseMapsFromCOOL = False )
-    else:
-      # Otherwise read from cool
-      afmArgs.update( UseMapsFromCOOL = True )
+      # online has the map loaded at start
+      afmArgs.update( LoadMapOnStart = True )
+
+    # UseMapsFromCOOL is default for standard running
     afmArgs.update( UseMapsFromCOOL = True )
+    # However, for tests, this must be turned off. It is detected
+    # when UseDCS is set to False - UseDCS is directly an option for the field cache alg 
     if 'UseDCS' in kwargs and not kwargs['UseDCS']:
       afmArgs['UseMapsFromCOOL'] = False
     mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
@@ -62,6 +48,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       afcArgs.update( LockMapCurrents = True )
     else:
       afcArgs.update( UseDCS = True )
+    # For test, UseDCS is set to False
     if 'UseDCS' in kwargs:
       afcArgs['UseDCS'] = kwargs['UseDCS']
     mag_field_cache_cond_alg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 
@@ -89,7 +76,7 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     acc  = MagneticFieldSvcCfg(ConfigFlags)
-    log.verbose(acc.getPrimary())    
+    log.verbose(acc)
     cfg.merge(acc)
 
 

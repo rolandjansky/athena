@@ -1047,6 +1047,10 @@ namespace MuonCombined {
 		const MuGirlTag* muGirlTag = static_cast<const MuGirlTag*>(tag);
 		if(muGirlTag->combinedTrack()){
 		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(muGirlTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  if (!combtp.get()) {
+		    ATH_MSG_WARNING("MuGirl combtp is nullptr, continue");
+		    continue;
+		  }
 		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
 		  if(!caloExtension){
 		    ATH_MSG_WARNING("failed to get a calo extension for this MuGirl muon, don't use it");
@@ -1065,6 +1069,10 @@ namespace MuonCombined {
 		//since this isn't really a tunable parameter of the reconstruction, I'm not making it a property
                 if(cfTag->combinedTrack() && cfTag->combinedTrack()->perigeeParameters()->pT()<3000){
 		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(cfTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  if (!combtp.get()) {
+		    ATH_MSG_WARNING("MuidCo combtp is nullptr, continue");
+		    continue;
+		  }
 		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
 		  if(!caloExtension){
                     ATH_MSG_WARNING("failed to get a calo extension for this combined muon, don't use it");

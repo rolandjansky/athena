@@ -97,9 +97,9 @@ if ( True ) :
     "Offline",
     "Truth",
     "Vertex",
-    "Muons",
-    "Muons:Tight",
-    "Muons:Medium",
+    # "Muons",
+    # "Muons:Tight",
+    # "Muons:Medium",
   
     # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi:vtx=xPrimVx", 
     # "HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
@@ -114,7 +114,6 @@ if ( True ) :
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     #    "HLT_j.*b.*perf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",  
     
-    #EFHistoPrmVtx
     # "Electrons",                                                                                                                                    
                            
     # "Electrons_MediumCB",
@@ -147,8 +146,11 @@ if ( True ) :
     # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 
 
-    ":HLT_IDTrack_FS_FTF",
-    ":HLT_IDTrack_FS_FTF:roi=HLT_FSJET|Roi:vtx=HLT_IDVertex_FS",
+    #    ":HLT_IDTrack_FS_FTF",
+    #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+
+    "HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
+    "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF",
     "HLT_mu.*_idperf.*:HLT_IDTrack_Muon_FTF:roi=HLT_Roi_L2SAMuon",
@@ -162,8 +164,10 @@ if ( True ) :
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_IDTrig",
 
-    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
-    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
+#    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
+#    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
+    "HLT_e.*:HLT_IDTrack_Electron_FTF",
+    "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
@@ -175,7 +179,7 @@ if ( True ) :
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
 
-    "HLT_mb.*:HLT_IDTrack_Minbias_FTF",
+    "HLT_mb.*:HLT_IDTrack_MinBias_FTF",
     
 
     ]

@@ -31,16 +31,16 @@ BSubstruct::BSubstruct(const std::string &name, ISvcLocator *pSvcLocator)
 
 inline bool BSubstruct::hasCBQuark(int pdgID) const {
   // Fundamental particles have id <= 100.  None of them are b flavoured hadrons!
-  if (abs(pdgID) <= 100) return false;
+  if (std::abs(pdgID) <= 100) return false;
 
   // Any id over 10000000 is not part of the PDG numbering scheme
-  if (abs(pdgID) > 10000000) return false;
+  if (std::abs(pdgID) > 10000000) return false;
 
   // These are the digits of a number, e.g. 1*digits[1] + 2*digits[2] + 3*digits[3] = 321
   static int digits[] = {0, 1, 10, 100, 1000};
   // Check the 4th, 3rd and 2nd digit for the presence of 5
   for (size_t pos = 4; pos !=1 ; --pos) {
-    int digit = (abs(pdgID) / digits[pos]) % 10;
+    int digit = (std::abs(pdgID) / digits[pos]) % 10;
     if (m_doCHadrons && digit == 4) return true;
     if (m_doBHadrons && digit == 5) return true;
   }
@@ -60,7 +60,7 @@ inline double BSubstruct::deltaPhi(double phi1, double phi2) const {
 inline double BSubstruct::deltaR(double y1, double phi1, double y2, double phi2) const {
   double dy = y1 - y2;
   double dPhi = deltaPhi(phi1, phi2);
-  return sqrt(dy*dy + dPhi*dPhi);
+  return std::sqrt(dy*dy + dPhi*dPhi);
 }
 
 

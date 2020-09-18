@@ -47,10 +47,6 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonHitTimingTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   IMuonHitTimingTool::TimingResult MuonHitTimingTool::calculateTimingResult( const std::vector<const MuonClusterOnTrack*>& hits ) const {
     
     // treat case of no hits and the case the first pointer is zero (should not happen)

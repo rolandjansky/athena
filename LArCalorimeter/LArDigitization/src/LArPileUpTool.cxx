@@ -282,8 +282,8 @@ StatusCode LArPileUpTool::prepareEvent(const EventContext& ctx, unsigned int /*n
      ATH_MSG_DEBUG(" Trigger time used : " << m_trigtime);
   }
 
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), ctx );
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, ctx );
 
   // add random phase (i.e subtract it from trigtime)
   if (m_addPhase) {
@@ -631,7 +631,7 @@ StatusCode LArPileUpTool::mergeEvent(const EventContext& ctx)
    const std::vector<std::pair<float,float> >* TimeE;
    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr;
 
-   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
+   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this, m_randomStreamName);
    CLHEP::HepRandomEngine * engine = rngWrapper->getEngine(ctx);
 
    for( ; it!=it_end;++it) // now loop on cells

@@ -58,6 +58,8 @@ namespace InDet {
     bool isvertex{false};   ///< whether or not we contain a non-empty vertex list
     bool checketa{false};   ///< whether to apply eta cuts
 
+    int maxSeedsPerSP{0};   ///<Number of Seeds allowed to be built per central Seed
+    bool keepAllConfirmedSeeds{false};   ///<Do we keep an unlimited number of confirmed seeds per central SP?
     int iteration{0};   ///< iteration currently being run 
     int iteration0{0};
     int r_first{0}; ///< points to the index of the highest occupied radius bin 
@@ -127,13 +129,13 @@ namespace InDet {
     
     /// The following are parameters characterising individual space points within a seed (relative to the central point)
     std::vector<float> Zo;    ///< z0 estimate from 2 points
-    std::vector<float> Tz;    ///< 1/sintheta estimate from 2 points
+    std::vector<float> Tz;    ///< 1/tan(theta) == dz/dr estimate from 2 points
     std::vector<float> R;     ///< inverse distance to the central space point 
     std::vector<float> U;     ///< transformed U coordinate (x/(x²+y²)) in frame around central SP 
     std::vector<float> V;     ///< transformed V coordinate (y/(x²+y²)) in frame around central SP 
     std::vector<float> X;
     std::vector<float> Y;
-    std::vector<float> Er;
+    std::vector<float> Er;    ///< error component on 1/tan(theta)==dz/dr from the position errors on the space-points
     //@}
 
     InDet::SiSpacePointsSeed seedOutput;
@@ -187,6 +189,31 @@ namespace InDet {
     std::multimap<float,InDet::SiSpacePointsProSeedITK*> seeds_ITK;
     std::multimap<float,InDet::SiSpacePointsProSeedITK*>::iterator seed_ITK;
 
+
+    /// allow to resize the space-point container on-the-fly in case
+    /// more space is needed. 
+    /// This is a compromise to avoid a fixed array size while 
+    /// still minimising the number of re-allocations
+    void resizeSPCont(size_t increment=50, ToolType type = ToolType::ATLxk){
+      size_t currSize = SP.size();
+      size_t newSize = currSize + increment; 
+      if (type == ITK) {
+        SP_ITK.resize(newSize, nullptr);
+        X.resize(newSize, 0.);
+        Y.resize(newSize, 0.);
+      } else {
+        SP.resize(newSize, nullptr);
+      }
+      R.resize(newSize, 0.);
+      Tz.resize(newSize, 0.);
+      Er.resize(newSize, 0.);
+      U.resize(newSize, 0.);
+      V.resize(newSize, 0.);
+      if (type != Cosmic) {
+        Zo.resize(newSize, 0.);
+      }
+    }
+
     /// Initialize data members based on ToolType enum.
     /// This method has to be called just after creation in SiSPSeededTrackFinder.
     void initialize(ToolType type,
@@ -203,22 +230,7 @@ namespace InDet {
       } else if (type==ITK) {
         CmSp_ITK.reserve(500);
       }
-
-      if (type==ITK) {
-        SP_ITK.resize(maxsizeSP, nullptr);
-        X.resize(maxsizeSP, 0.);
-        Y.resize(maxsizeSP, 0.);
-      } else {
-        SP.resize(maxsizeSP, nullptr);
-      }
-      R.resize(maxsizeSP, 0.);
-      Tz.resize(maxsizeSP, 0.);
-      Er.resize(maxsizeSP, 0.);
-      U.resize(maxsizeSP, 0.);
-      V.resize(maxsizeSP, 0.);
-      if (type!=Cosmic) {
-        Zo.resize(maxsizeSP, 0.);
-      }
+      resizeSPCont(maxsizeSP,type); 
       seedPerSpCapacity = maxOneSize; 
       if (type==ATLxk) {
         OneSeeds_Pro.resize(maxOneSize);

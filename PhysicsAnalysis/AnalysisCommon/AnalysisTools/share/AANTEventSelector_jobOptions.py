@@ -4,7 +4,7 @@ theApp.EvtSel = "EventSelector"
 
 # set C++->Python converter for TTree
 import cppyy
-cppyy.loadDictionary("AnalysisToolsDict")
+cppyy.load_library("libAnalysisToolsDict")
 aantGate = cppyy.Namespace('').AANTTreeGate
 def aantConvFunc():
     return aantGate.getTree()

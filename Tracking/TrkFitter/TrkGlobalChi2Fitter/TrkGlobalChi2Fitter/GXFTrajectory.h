@@ -8,6 +8,12 @@
 #include "TrkGlobalChi2Fitter/GXFTrackState.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
+/**
+ * These headers, as well as other headers in the TrkGlobalChi2Fitter package
+ * use modern C++11 memory ownership semantics expressed through smart
+ * pointers. See GlobalChi2Fitter.h for more information.
+ */
+
 namespace Trk {
   class MeasurementBase;
   class MaterialEffectsBase;
@@ -27,15 +33,14 @@ namespace Trk {
   public:
     GXFTrajectory();
     GXFTrajectory(GXFTrajectory & rhs);
-    ~GXFTrajectory();
     GXFTrajectory & operator=(GXFTrajectory & rhs);
 
-    bool addMeasurementState(GXFTrackState *, int index = -1);
-    void addMaterialState(GXFTrackState *, int index = -1);
+    bool addMeasurementState(std::unique_ptr<GXFTrackState>, int index = -1);
+    void addMaterialState(std::unique_ptr<GXFTrackState>, int index = -1);
+    void addBasicState(std::unique_ptr<GXFTrackState>, int index = -1);
 
     void setReferenceParameters(std::unique_ptr<const TrackParameters>);
     void setScatteringAngles(std::vector < std::pair < double, double > >&);
-    void setTrackStates(std::vector < GXFTrackState * >&);
     void setBrems(std::vector<double> &);
     void setNumberOfPerigeeParameters(int);
     void setConverged(bool);
@@ -45,6 +50,8 @@ namespace Trk {
     void setPrevChi2(double);
     void setChi2(double);
     void setMass(double);
+
+    void conditionalSetCalorimeterEnergyLossState(GXFTrackState *);
 
     std::pair<GXFTrackState *, GXFTrackState *> findFirstLastMeasurement(void);
     bool hasKink(void);
@@ -64,7 +71,7 @@ namespace Trk {
     int numberOfPseudoMeasurements();
     int numberOfOutliers();
 
-    std::vector < GXFTrackState * >&trackStates();
+    std::vector<std::unique_ptr<GXFTrackState>> & trackStates();
     std::vector < std::pair < double, double >>&scatteringAngles();
     std::vector < std::pair < double, double >>&scatteringSigmas();
     std::vector<double> & brems();
@@ -97,7 +104,7 @@ namespace Trk {
     MagneticFieldProperties m_fieldprop = Trk::FullField;
 
   private:
-    std::vector < GXFTrackState * >m_states;  //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
+    std::vector<std::unique_ptr<GXFTrackState>> m_states;  //!< The vector of track states, i.e. measurements, scatterers, brem points, and holes
     int m_ndof;
     double m_chi2;
     double m_prevchi2;

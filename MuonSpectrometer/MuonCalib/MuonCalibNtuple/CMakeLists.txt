@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibNtuple )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibFitters
-                          MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibInterfaces
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonRDO
-                          PRIVATE
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS RIO Core Tree MathCore Hist pthread )

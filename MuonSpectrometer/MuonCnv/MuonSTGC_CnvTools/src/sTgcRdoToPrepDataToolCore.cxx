@@ -14,8 +14,7 @@ using namespace Muon;
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_fullEventDone(false),
-  m_stgcPrepDataContainer(0),
-  m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
+  m_stgcPrepDataContainer(0)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
   
@@ -25,7 +24,6 @@ Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
   declareProperty("InputCollection",    m_rdoContainerKey = std::string("sTGCRDO"),
 		  "RDO container to read");
   declareProperty("Merge",  m_merge = true);
-  declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
 }
 
 StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()

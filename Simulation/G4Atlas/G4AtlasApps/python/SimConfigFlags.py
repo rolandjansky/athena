@@ -77,11 +77,31 @@ def createSimConfigFlags():
 
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
-    scf.addFlag("Sim.ISF.HITSMergingRequired", {'ID':True, 'CALO':True, 'MUON':True})
     scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
     scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.DoMemoryMonitoring", True) # bool: run time monitoring
     scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
+    
+    def decideHITSMerging(prevFlags):
+        simstr = prevFlags.Sim.ISF.Simulator
+        if simstr.endswith("MT"):
+            simstr = simstr[:-2]
+        # Further specialization possible in future
+        if simstr in ("FullG4", "PassBackG4"):
+            doID = False
+            doCALO = False
+            doMUON = False
+        elif simstr in ("ATLFASTII", "G4FastCalo"):
+            doID = False
+            doCALO = True
+            doMUON = False
+        else:
+            doID = True
+            doCALO = True
+            doMUON = True
+        return {"ID": doID, "CALO": doCALO, "MUON": doMUON}
+
+    scf.addFlag("Sim.ISF.HITSMergingRequired", decideHITSMerging)
 
     scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
     scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
@@ -106,5 +126,13 @@ def createSimConfigFlags():
     scf.addFlag("Sim.Fatras.HadronIntProb", 1.) # hadronic interaction scale factor
     scf.addFlag("Sim.Fatras.GaussianMixtureModel", True) # use Gaussian mixture model for Multiple Scattering
     scf.addFlag("Sim.Fatras.BetheHeitlerScale", 1.) # scale to Bethe-Heitler contribution
+
+    # Run dependent simulation
+    # map from runNumber to timestamp; migrated from RunDMCFlags.py
+    def getRunToTimestampDict():
+        # this wrapper is intended to avoid an initial import
+        from G4AtlasApps.RunToTimestampData import RunToTimestampDict
+        return RunToTimestampDict
+    scf.addFlag("Sim.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
 
     return scf

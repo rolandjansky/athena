@@ -838,8 +838,8 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_property)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("propertyInt", "57")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".propertyInt", "57");
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -852,8 +852,8 @@ namespace asg
   TEST (AnaToolHandleTest, DISABLED_athena_job_options_misspelled)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("invalid", "57")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".invalid", "57");
 
     AnaToolHandle<IUnitTestTool1> handle ("asg::UnitTestTool1/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -863,11 +863,10 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_type_private)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle")));
-
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle");
+    joSvc->set ("ToolSvc." + name + ".regPublicHandle", "");
+    joSvc->set ("ToolSvc." + name + ".regPrivateHandle", "");
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
@@ -879,12 +878,12 @@ namespace asg
   TEST (AnaToolHandleTest, athena_job_options_subtool)
   {
     std::string name = makeUniqueName();
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name + ".anaPrivateHandle", StringProperty("propertyInt", "48")));
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle");
+    joSvc->set ("ToolSvc." + name + ".anaPrivateHandle.propertyInt", "48");
 
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", "")));
-    ASSERT_SUCCESS (joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", "")));
+    joSvc->set ("ToolSvc." + name + ".regPublicHandle", "");
+    joSvc->set ("ToolSvc." + name + ".regPrivateHandle", "");
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     EXPECT_TRUE (handle.isUserConfigured());

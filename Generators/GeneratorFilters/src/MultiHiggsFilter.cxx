@@ -91,7 +91,7 @@ StatusCode MultiHiggsFilter::filterEvent() {
 #else
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();
 	pitr!=genEvt->particles_end(); ++pitr ) {
-      if( abs((*pitr)->pdg_id()) == 25 && ( (*pitr)->status()==m_Status || !m_UseStatus)){
+      if( std::abs((*pitr)->pdg_id()) == 25 && ( (*pitr)->status()==m_Status || !m_UseStatus)){
 	HepMC::GenVertex::particle_iterator firstMother =
 	  (*pitr)->production_vertex()->particles_begin(HepMC::parents);
 	HepMC::GenVertex::particle_iterator endMother =

@@ -148,7 +148,7 @@ StatusCode TauRecToolBase::executeDev(xAOD::TauJet&) {
   return StatusCode::FAILURE;
 }
 #else
-StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
+StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
@@ -164,12 +164,7 @@ StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackConta
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const{
-  ATH_MSG_ERROR("function not implemented");
-  return StatusCode::FAILURE;
-}
-
-StatusCode TauRecToolBase::executeRNNTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&){
+StatusCode TauRecToolBase::executeTrackClassifier(xAOD::TauJet&, xAOD::TauTrackContainer&) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }

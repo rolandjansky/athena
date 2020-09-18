@@ -80,7 +80,7 @@ void QuasianalyticLineReconstruction::init(const double & r_road_width) {
 //:: SET THE MAXIMUM RADIUS ::
 //::::::::::::::::::::::::::::
 
-	m_r_max = 15.0;
+	m_r_max = 14.6;
 
 //::::::::::::::::::::::::
 //:: SET THE ROAD WIDTH ::
@@ -547,6 +547,11 @@ void QuasianalyticLineReconstruction::setTimeOut(const double & time_out) {
 
 }
 
+void QuasianalyticLineReconstruction::setMaxRadius(const double& maxR) {
+	if (maxR<7 || maxR>15) throw std::runtime_error(Form("File: %s, Line: %d\nQuasianalyticLineReconstruction::setMaxRadius() - given radius %.3f not supported, neither MDT nor sMDT", __FILE__, __LINE__, maxR));
+	m_r_max = maxR;
+}
+
 //*****************************************************************************
 
 //:::::::::::::::::::::::
@@ -865,10 +870,8 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 					m_track_hits[k]->localPosition().z()),
 					xhat, null, null);
 				double d(std::abs(m_track.signDistFrom(wire)));
-				m_chi2 = m_chi2+
-					std::pow(d-m_track_hits[k]->driftRadius(),
-						2)/
-					m_track_hits[k]->sigma2DriftRadius();
+				double r(std::abs(m_track_hits[k]->driftRadius()));
+				m_chi2 = m_chi2+std::pow(d-r,2)/m_track_hits[k]->sigma2DriftRadius();
 			}
 			r_segment.set(
 			m_chi2/static_cast<double>(m_nb_track_hits-2),

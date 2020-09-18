@@ -101,7 +101,7 @@ comment  = "Updated noise values"
 #===
 #==================================================
 #=== set shortcut
-cppyy.loadDictionary("STLAddRflx")
+cppyy.load_library("libSTLAddRflx")
 
 #=== get a logger
 log = CaloCondLogger.getLogger("CaloNoiseWriter")

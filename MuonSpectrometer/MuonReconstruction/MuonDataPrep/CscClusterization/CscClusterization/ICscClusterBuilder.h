@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ICscClusterBuilder.h
@@ -41,7 +41,7 @@ public:  // Static methods
   
 public:  // Interface methods
   
-  virtual StatusCode getClusters(std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect)=0;
+  virtual StatusCode getClusters(std::vector<IdentifierHash>& idVect,  std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object)=0;
 };
 #endif
 

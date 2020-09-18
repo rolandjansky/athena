@@ -62,6 +62,11 @@ def precisionPhotonRecoSequence(RoIs):
     collectionOut = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += trigTopoEgammaAlgo
 
+    # Add CaloIsolationTool
+    from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import TrigPhotonIsoBuilderCfg
+    isoBuilder = TrigPhotonIsoBuilderCfg()
+    thesequence += isoBuilder
+
     return (thesequence, collectionOut)
 
 

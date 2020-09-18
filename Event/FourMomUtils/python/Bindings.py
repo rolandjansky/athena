@@ -10,7 +10,7 @@ def _installBindings():
     """load the python bindings to FourMomUtils' function, at module import
     """
     import cppyy
-    cppyy.loadDictionary('libFourMomUtilsDict')
+    cppyy.load_library('liblibFourMomUtilsDict')
 
     x = cppyy.gbl.xAOD.Helpers._importHelper()
 

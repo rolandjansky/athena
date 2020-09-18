@@ -6,7 +6,7 @@ atlas_subdir( RootUtils )
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( Python COMPONENTS Development )
-find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore pthread )
+find_package( ROOT COMPONENTS RIO Hist Tree PyROOT Core MathCore ROOTTPython)
 string( REPLACE PyROOT Core ROOT_LIBRARIES_NOPYROOT "${ROOT_LIBRARIES}" )
 
 # Component(s) in the package:
@@ -52,6 +52,12 @@ atlas_add_test( TSMethodCall_test
                 test/TSMethodCall_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES ${ROOT_LIBRARIES} ${Python_LIBRARIES} ${Boost_LIBRARIES} TestTools RootUtils RootUtilsPyROOT )
+
+if( NOT XAOD_ANALYSIS )
+# Doesn't work in AnalysisBase because ROOT_INCLUDE_PATH is not set correctly.
+atlas_add_test( TTreePatch_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/TTreePatch_t.py )
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

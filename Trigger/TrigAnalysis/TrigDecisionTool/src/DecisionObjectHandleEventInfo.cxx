@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -7,6 +7,7 @@
 
 #include "EventInfo/TriggerInfo.h"
 #include "TrigDecisionTool/DecisionObjectHandleEventInfo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using namespace Trig;
 

@@ -192,7 +192,7 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
   float Rhad1(0), Rhad(0), Reta(0), Rphi(0), e277(0), weta2c(0), //emax2(0), 
     Eratio(0), DeltaE(0), f1(0), weta1c(0), wtot(0), fracm(0);
-   float ptcone20(0), ptcone30(0), ptcone40(0), etcone20(0), etcone30(0), etcone40(0);
+  float ptcone20(999), ptcone30(999), ptcone40(999), etcone20(999), etcone30(999), etcone40(999), topoetcone20(999), topoetcone30(999), topoetcone40(999);
 
 
   // variables based on HCAL
@@ -239,6 +239,12 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
 
   input.electron->isolationValue(etcone40, xAOD::Iso::etcone40);
 
+  input.electron->isolationValue(topoetcone20, xAOD::Iso::topoetcone20);
+
+  input.electron->isolationValue(topoetcone30, xAOD::Iso::topoetcone30);
+
+  input.electron->isolationValue(topoetcone40, xAOD::Iso::topoetcone40);
+
   ATH_MSG_DEBUG(" electron Cluster Et "<<ET);
   ATH_MSG_DEBUG( "  Rhad1  " << Rhad1 ) ;
   ATH_MSG_DEBUG( "  Rhad   " << Rhad ) ;
@@ -261,6 +267,9 @@ bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionE
   ATH_MSG_DEBUG( " etcone20 " << etcone20 ) ;
   ATH_MSG_DEBUG( " etcone30 " << etcone30 ) ;
   ATH_MSG_DEBUG( " etcone40 " << etcone40 ) ;
+  ATH_MSG_DEBUG( " topoetcone20 " << topoetcone20 ) ;
+  ATH_MSG_DEBUG( " topoetcone30 " << topoetcone30 ) ;
+  ATH_MSG_DEBUG( " topoetcone40 " << topoetcone40 ) ;
 
 
   if ( !pass ){

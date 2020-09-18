@@ -61,7 +61,7 @@ StatusCode TrackRecordFilter::execute(const EventContext& ctx) const {
   CHECK( filterCollection.record(std::make_unique<TrackRecordCollection>()) );
 
   // iterate over the collection
-  for (auto trkit : *trackCollection) {
+  for (const auto& trkit : *trackCollection) {
     int pdgId(trkit.GetPDGCode());
     ATH_MSG_VERBOSE ( "Track found with pdg id= " << trkit.GetPDGCode() << " with energy "<< trkit.GetEnergy() );
 

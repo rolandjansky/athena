@@ -89,7 +89,7 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
     const HepMC::GenEvent* genEvt = (*itr);
     for (auto part: *genEvt){
       if (part->status() != 1) continue;
-      const int abspid = abs(part->pdg_id());
+      const int abspid = std::abs(part->pdg_id());
       const double abseta = std::abs(part->momentum().pseudoRapidity());
       if (abspid == 11 && part->momentum().perp() > m_PtminElectron && abseta <= m_MaxEtaElectron) nelec++;
       if (abspid == 13 && part->momentum().perp() > m_PtminMuon     && abseta <= m_MaxEtaMuon) nmuon++;
@@ -134,7 +134,7 @@ StatusCode PtmissAndOrLeptonFilter::filterEvent() {
 
   pxsum = sumPxInvis + sumPxLost;
   pysum = sumPyInvis + sumPyLost;
-  ptmiss = sqrt(pxsum*pxsum + pysum*pysum);
+  ptmiss = std::sqrt(pxsum*pxsum + pysum*pysum);
 
   // Finally, make filter decision for this event
   if (m_PtmissANDLepton) setFilterPassed(nleptons > 0 && ptmiss > m_PtminMissing);

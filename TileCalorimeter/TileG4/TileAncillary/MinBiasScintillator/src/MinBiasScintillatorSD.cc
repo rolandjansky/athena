@@ -309,7 +309,7 @@ G4double MinBiasScintillatorSD::BirkLaw(const G4Step* aStep) const {
   //
   // RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
   //
-  const G4String myMaterial("Scintillator");
+  const G4String myMaterial("tile::Scintillator");
 
   const G4double destep(aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight());
   //  doesn't work with shower parameterization

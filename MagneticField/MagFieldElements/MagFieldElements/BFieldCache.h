@@ -11,15 +11,15 @@
  *
  * Masahiro Morii, Harvard University
  *
- * RD Schaffer , Christos Anastopoulos
+ * AthenaMT : RD Schaffer , Christos Anastopoulos
  */
 
 #ifndef BFIELDCACHE_H
 #define BFIELDCACHE_H
 
 #include "CxxUtils/restrict.h"
+#include "CxxUtils/vec.h"
 #include "MagFieldElements/BFieldVector.h"
-#include <cmath>
 
 class BFieldCache
 {
@@ -28,6 +28,7 @@ public:
   BFieldCache() = default;
   // make this cache invalid, so that inside() will fail
   void invalidate();
+
   // set the z, r, phi range that defines the bin
   void setRange(double zmin,
                 double zmax,
@@ -36,8 +37,10 @@ public:
                 double phimin,
                 double phimax);
 
-  // set field array, filled externally
-  void setField(double field[][8]);
+  // set the 3x8 field array.
+  void setField(const CxxUtils::vec<double, 8>& field1,
+                const CxxUtils::vec<double, 8>& field2,
+                const CxxUtils::vec<double, 8>& field3);
 
   // set the multiplicative factor for the field vectors
   void setBscale(double bscale);
@@ -53,9 +56,6 @@ public:
             double* ATH_RESTRICT B,
             double* ATH_RESTRICT deriv = nullptr) const;
 
-  // set the field values at each corner (rescale for current scale factor)
-  void printField() const;
-
 private:
   // bin range in z
   double m_zmin = 0.0;
@@ -65,10 +65,13 @@ private:
   double m_rmax = 0.0;
   // bin range in phi
   double m_phimin = 0.0;
-  double m_phimax = -1.0;          // bin range in phi
-  double m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
-  double m_field[3][8];            // (Bz,Br,Bphi) at 8 corners of the bin
-  double m_scale;                  // unit of m_field in kT
+  double m_phimax = -1.0;
+  // 1/(bin size) in z, r, phi
+  double m_invz;
+  double m_invr;
+  double m_invphi;
+  double m_scale;                   // unit of m_field in kT
+  alignas(16) double m_field[3][8]; // (Bz,Br,Bphi) at 8 corners of the bin
 };
 
 #include "MagFieldElements/BFieldCache.icc"

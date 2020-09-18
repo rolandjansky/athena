@@ -1,12 +1,12 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
  * @file SCT_FlaggedConditionTool.h
- * header file for service allowing one to flag modules as 'bad' with a reason
+ * header file for tool allowing one to flag modules as 'bad' with a reason
  * @author gwilliam@mail.cern.ch
  */
 
@@ -62,20 +62,20 @@ public:
   virtual int numBadIds(const EventContext& ctx) const override;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  virtual const SCT_FlaggedCondData* getBadIds() const override;
-  virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const override;
+  virtual const IDCInDetBSErrContainer* getBadIds() const override;
+  virtual const IDCInDetBSErrContainer* getBadIds(const EventContext& ctx) const override;
 
  private:
   // SCT_FlaggedCondData created by SCT_Clusterization
   // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionTool
-  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
+  SG::ReadHandleKey<IDCInDetBSErrContainer> m_badIds{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
 
   UnsignedIntegerProperty m_maxNumWarnForFailures{this, "MaxNumWarnForFailures", 5};
   mutable std::atomic_uint m_numWarnForFailures{0};
 
   const SCT_ID* m_sctID{nullptr}; //!< ID helper for SCT
 
-  const SCT_FlaggedCondData* getCondData(const EventContext& ctx) const;
+  const IDCInDetBSErrContainer* getCondData(const EventContext& ctx) const;
 };
 
 #endif // SCT_FlaggedConditionTool_h

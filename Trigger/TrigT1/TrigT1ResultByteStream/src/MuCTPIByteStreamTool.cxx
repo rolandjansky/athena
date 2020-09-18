@@ -157,7 +157,7 @@ StatusCode MuCTPIByteStreamTool::convert( const ROBF* rob, MuCTPI_RDO*& result )
     }
 
     // create MuCTPI RDO
-    result = new MuCTPI_RDO( candidateMultiplicity, dataWord );
+    result = new MuCTPI_RDO( std::move(candidateMultiplicity), std::move(dataWord) );
     return StatusCode::SUCCESS;
 
   }

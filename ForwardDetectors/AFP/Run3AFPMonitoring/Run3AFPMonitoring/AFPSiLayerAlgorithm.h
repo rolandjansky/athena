@@ -25,6 +25,7 @@ public:
 	virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
+
 	std::map<std::string,std::map<std::string,int>> m_StationPlaneGroup;
 	std::map<std::string,int> m_StationGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;

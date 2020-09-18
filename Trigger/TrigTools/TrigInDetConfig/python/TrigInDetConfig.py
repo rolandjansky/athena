@@ -11,6 +11,7 @@ class InDetCacheNames(object):
   SpacePointCachePix = "PixelSpacePointCache"
   SpacePointCacheSCT = "SctSpacePointCache"
   SCTBSErrCacheKey   = "SctBSErrCache"
+  SCTFlaggedCondCacheKey = "SctFlaggedCondCache"
   SCTRDOCacheKey     = "SctRDOCache"
   PixRDOCacheKey     = "PixRDOCache"
   PixBSErrCacheKey   = "PixBSErrCache"
@@ -26,6 +27,7 @@ def InDetIDCCacheCreatorCfg():
                                               SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                               SCTRDOCacheKey     = InDetCacheNames.SCTRDOCacheKey,
                                               SCTBSErrCacheKey   = InDetCacheNames.SCTBSErrCacheKey,
+                                              SCTFlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey,
                                               PixRDOCacheKey     = InDetCacheNames.PixRDOCacheKey,
                                               PixBSErrCacheKey   = InDetCacheNames.PixBSErrCacheKey)
 
@@ -65,7 +67,7 @@ def TrigInDetCondConfig( flags ):
   acc.merge(SCT_CablingCondAlgCfg(flags))
   SCT_ConfigurationConditionsTool=CompFactory.SCT_ConfigurationConditionsTool
   acc.addPublicTool(SCT_ConfigurationConditionsTool())
-  channelFolder = "/SCT/DAQ/Config/Chip"
+  channelFolder = "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip"
   moduleFolder = "/SCT/DAQ/Config/Module"
   murFolder = "/SCT/DAQ/Config/MUR"
   SCT_ConfigurationCondAlg=CompFactory.SCT_ConfigurationCondAlg
@@ -197,7 +199,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                   ('SCT_RDO_Cache', 'SctRDOCache'),
                                                                   ('SpacePointCache', 'PixelSpacePointCache'),
                                                                   ('SpacePointCache', 'SctSpacePointCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'PixelBSErrCache'),
                                                                   ('IDCInDetBSErrContainer_Cache', 'SctBSErrCache'),
+                                                                  ('IDCInDetBSErrContainer_Cache', 'SctFlaggedCondCache'),
                                                                   ('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                       # ('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_L2CaloEMClusters'),
                                                                   ('TrigRoiDescriptorCollection', 'StoreGateSvc+'+roisKey),
@@ -301,12 +305,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   InDet__MergedPixelsTool=CompFactory.InDet.MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool"+ signature,
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-                                                  )
+                                                  globalPosAlg            = InDetClusterMakerTool)
   # Enable duplcated RDO check for data15 because duplication mechanism was used.
   if len(flags.Input.ProjectName)>=6 and flags.Input.ProjectName[:6]=="data15":
     InDetMergedPixelsTool.CheckDuplicatedRDO = True
@@ -353,6 +352,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
+  InDetSCT_Clusterization.FlaggedCondCacheKey = InDetCacheNames.SCTFlaggedCondCacheKey
 
   InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
 

@@ -25,7 +25,7 @@ def ISFCollectionMergerCfg(flags,name="ISF_CollectionMerger", **kwargs):
     kwargs.setdefault( "InputTGCHits",              [ ] )
     hardscatterSG=""
     try:
-        if flags.Digitization.Pileup is True:
+        if flags.Sim.DoFullChain and (flags.Digitization.Pileup is True):
             hardscatterSG = "OriginalEvent_SG+"
     except RuntimeError as err:
         msg = logging.getLogger(name)

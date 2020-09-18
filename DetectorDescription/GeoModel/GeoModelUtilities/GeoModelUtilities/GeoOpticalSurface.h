@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoOpticalSurface_h
@@ -57,7 +57,9 @@ class GeoOpticalSurface : public RCBase
   void SetMaterialPropertiesTable(GeoMaterialPropertiesTable *mpt)
   { m_materialPropertiesTable = mpt; if(mpt) m_materialPropertiesTable->ref(); };
 
-  GeoMaterialPropertiesTable* GetMaterialPropertiesTable() const
+  GeoMaterialPropertiesTable* GetMaterialPropertiesTable()
+    { return m_materialPropertiesTable;};
+  const GeoMaterialPropertiesTable* GetMaterialPropertiesTable() const
     { return m_materialPropertiesTable;};
  
  private:

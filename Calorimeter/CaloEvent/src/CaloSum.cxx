@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -96,7 +96,7 @@ bool CaloSum::setRegion(const CaloRegion&          theRegion,
 			const std::vector<double>& highEtas)
 {
   // check matching vectors
-  if ( lowEtas.size() != highEtas.size() || lowEtas.size() == 0 )
+  if ( lowEtas.size() != highEtas.size() || lowEtas.empty() )
     {
       return false;
     }
@@ -113,7 +113,7 @@ bool CaloSum::setRegion(const CaloRegion&          theRegion,
       range_t theRange(lowEtas[i],highEtas[i]);
       (m_regionRanges[theRegion]).push_back(theRange);
     }
-  return m_regionRanges.size() > 0;
+  return !m_regionRanges.empty();
 }
 
 CaloSum::CaloVarType CaloSum::getVarType() const
@@ -330,7 +330,7 @@ bool CaloSum::getSums(const_iterator& theIterator,
   std::copy( (((*theIterator).second)[theIndex]).begin(),
 	     (((*theIterator).second)[theIndex]).end(),
 	     theSums.begin());
-  return theSums.size() > 0;
+  return !theSums.empty();
 }
 
 bool CaloSum::getSums(const_iterator& theIterator,
@@ -361,7 +361,7 @@ bool CaloSum::getSums(const CaloRegion&     theRegion,
       std::copy((((*theAccessor).second)[theIndex]).begin(),
 		(((*theAccessor).second)[theIndex]).end(),
 		theSums.begin());
-      return theSums.size() > 0;
+      return !theSums.empty();
     }
   return false;
 }

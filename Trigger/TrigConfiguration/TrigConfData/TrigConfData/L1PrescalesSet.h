@@ -40,6 +40,11 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1PrescalesSet();
 
+      // class name
+      virtual std::string className() const override {
+         return "L1PrescaleSet";
+      }
+
       /** number of L1 prescales */
       std::size_t size() const;
 
@@ -52,7 +57,7 @@ namespace TrigConf {
    private:
 
       /** Update the internal prescale map after modification of the data object */
-      virtual void update();
+      virtual void update() override;
 
       /** the prescale key */
       unsigned int m_psk {0};

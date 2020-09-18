@@ -201,5 +201,5 @@ CaloCompositeCellBase<NAV>::cell_end()   const
 template<class NAV>
 unsigned int CaloCompositeCellBase<NAV>::getNumberOfCells() const
 {
-  return this->size();
+  return this->nCells();
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,9 +20,9 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cstdio>
 #include <iostream>
-#include <stdio.h>
-#include <assert.h>
 #include <stdexcept>
 
 using CxxUtils::strformat;
@@ -1294,7 +1294,7 @@ Tile_Base_ID::initialize_base_from_dictionary (const IdDictMgr& dict_mgr,
     else {
       neighbourFile = dict_mgr.find_metadata("TILENEIGHBORS");
     }
-    if (!neighbourFile.size()) throw std::runtime_error("TileID: Cannot find the Tile Neighbour file name");
+    if (neighbourFile.empty()) throw std::runtime_error("TileID: Cannot find the Tile Neighbour file name");
     if(m_neighbour.initialize(this, neighbourFile)) return (1);
   }
 
@@ -1866,7 +1866,7 @@ int Tile_Base_ID::get_neighbours(const IdentifierHash& id_orig, const LArNeighbo
     
   }
 
-  if (neighbourList.size() > 0) result = 0;
+  if (!neighbourList.empty()) result = 0;
 
   return result;
 }

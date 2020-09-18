@@ -125,7 +125,7 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
          // loadAlgOutput(alg,ta_id,ta_bits);
          // loadAlgRegister(alg, ta_id);
          // loadAlgFixed(alg, ta_id);
-         idToAlgMap.insert(make_pair(ta_id,alg));
+         idToAlgMap.emplace(ta_id,std::move(alg));
          // tcaTarget.addAlgorithm(alg);
       }
 
@@ -135,9 +135,9 @@ bool TrigConf::L1TopoMenuLoader::loadTopoAlgos( TXC::L1TopoMenu& tcaTarget) {
       loadAllAlgsFixed(idToAlgMap);
 
       for( auto & e : idToAlgMap ) {
-         tcaTarget.addAlgorithm(e.second);
+         tcaTarget.addAlgorithm(std::move(e.second));
       }
-
+      idToAlgMap.clear();//invalid aftermove
       loadTopoConfig(tcaTarget);
       loadOutputList(tcaTarget,ctplinkid);
    } catch( const std::exception& e ) {

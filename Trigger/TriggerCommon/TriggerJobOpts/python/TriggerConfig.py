@@ -173,13 +173,14 @@ def triggerSummaryCfg(flags, hypos):
     allChains = OrderedDict()
 
     
-    for stepName, stepHypos in sorted( hypos.items() ):
+    # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
+    # to Step10 Step11 Step1 Step2
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
         # order hypos so that ComboHypos are last ones
         orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))  
         for hypo in orderedStepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
-
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
@@ -337,9 +338,9 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         typeName = 'xAOD::TrigCompositeContainer#{:s}'.format(item)
         typeNameAux = 'xAOD::TrigCompositeAuxContainer#{:s}Aux{:s}'.format(item, dynamic)
         if typeName not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeName] = [DataScoutingInfo.getFullHLTResultID(), DataScoutingInfo.getDataScoutingResultID('CostMonDS')]
         if typeNameAux not in list(ItemModuleDict.keys()):
-            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID()]
+            ItemModuleDict[typeNameAux] = [DataScoutingInfo.getFullHLTResultID(), DataScoutingInfo.getDataScoutingResultID('CostMonDS')]
 
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg, StreamTagMakerToolCfg, TriggerBitsMakerToolCfg
 

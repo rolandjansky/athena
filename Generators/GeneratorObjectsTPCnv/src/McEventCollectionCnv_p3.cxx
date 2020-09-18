@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McEventCollectionCnv_p3.cxx
@@ -18,33 +18,11 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p3.h"
 #include "HepMcDataPool.h"
 
-#if 0
-namespace {
-  // helper method to compute the number of particles and vertices in a
-  // whole McEventCollection
-  std::pair<unsigned int,unsigned int>
-  nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
-    unsigned int nParts = 0;
-    unsigned int nVerts = 0;
-    const McEventCollection::const_iterator itrEnd = mcEvents->end();
-    for ( McEventCollection::const_iterator itr = mcEvents->begin();
-          itr != itrEnd;
-          ++itr ) {
-      nParts += (*itr)->particles_size();
-      nVerts += (*itr)->vertices_size();
-    }
-
-    return std::make_pair( nParts, nVerts );
-  }
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////
-// Public methods:
-///////////////////////////////////////////////////////////////////
-
 // Constructors
-////////////////
+///////////////////////////////////////////////////////////////////
+
 
 McEventCollectionCnv_p3::McEventCollectionCnv_p3() :
   Base_t( )
@@ -63,16 +41,14 @@ McEventCollectionCnv_p3::operator=( const McEventCollectionCnv_p3& rhs )
   return *this;
 }
 
+///////////////////////////////////////////////////////////////////
 // Destructor
-///////////////
+///////////////////////////////////////////////////////////////////
 
 McEventCollectionCnv_p3::~McEventCollectionCnv_p3()
 {
 }
 
-///////////////////////////////////////////////////////////////////
-// Const methods:
-///////////////////////////////////////////////////////////////////
 
 void McEventCollectionCnv_p3::persToTrans( const McEventCollection_p3* persObj,
                                            McEventCollection* transObj,
@@ -180,13 +156,6 @@ void McEventCollectionCnv_p3::transToPers( const McEventCollection* /*transObj*/
   return;
 }
 
-///////////////////////////////////////////////////////////////////
-// Non-const methods:
-///////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////
-// Protected methods:
-///////////////////////////////////////////////////////////////////
 
 HepMC::GenVertexPtr
 McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
@@ -233,10 +202,6 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
                                             ParticlesMap_t& partToEndVtx,
                                             HepMC::DataPool* datapools ) const
 {
-  using std::abs;
-  using std::sqrt;
-  using std::pow;
-
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
   HepMC::GenParticlePtr p    = poolOfParticles.nextElementPtr();
   p->m_pdg_id              = persPart.m_pdgId;
@@ -256,7 +221,7 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
     p->m_momentum.setPx( persPart.m_px );
     p->m_momentum.setPy( persPart.m_py );
     p->m_momentum.setPz( persPart.m_pz );
-    double temp_e = sqrt( (long double)(persPart.m_px)*persPart.m_px +
+    double temp_e = std::sqrt( (long double)(persPart.m_px)*persPart.m_px +
                           (long double)(persPart.m_py)*persPart.m_py +
                           (long double)(persPart.m_pz)*persPart.m_pz +
                           (long double)(persPart.m_m) *persPart.m_m );
@@ -264,7 +229,7 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
   } else {
     const int signM2 = ( persPart.m_m >= 0. ? 1 : -1 );
     const double persPart_ene =
-      sqrt( abs((long double)(persPart.m_px)*persPart.m_px +
+      std::sqrt( std::abs((long double)(persPart.m_px)*persPart.m_px +
                 (long double)(persPart.m_py)*persPart.m_py +
                 (long double)(persPart.m_pz)*persPart.m_pz +
                 signM2* (long double)(persPart.m_m)* persPart.m_m));

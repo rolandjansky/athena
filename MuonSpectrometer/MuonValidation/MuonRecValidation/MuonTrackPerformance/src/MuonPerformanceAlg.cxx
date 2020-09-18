@@ -172,7 +172,6 @@ StatusCode MuonPerformanceAlg::execute()
     ATH_MSG_VERBOSE("Accepted Truth muon: pt " << truthMu->pt() << " eta " << truthMu->eta() );
 
     if (!insideID) m_ntruth[0] += 1;
-    if (!insideID) m_ntruth[8] += 1;
     if (!insideID) m_ntruth[9] += 1;
     if (!insideID) m_ntruth[10] += 1;
     if (insideID) for (int n = 1; n < 6; n++) m_ntruth[n] += 1;
@@ -180,7 +179,6 @@ StatusCode MuonPerformanceAlg::execute()
 
     if (truthMu->pt() > 5000.) {
       if (!insideID) m_ntruth5[0] += 1;
-      if (!insideID) m_ntruth5[8] += 1;
       if (!insideID) m_ntruth5[9] += 1;
       if (!insideID) m_ntruth5[10] += 1;
       if (insideID) for (int n = 1; n < 6; n++) m_ntruth5[n] += 1;
@@ -189,7 +187,6 @@ StatusCode MuonPerformanceAlg::execute()
 
     if (truthMu->pt() > 10000.) {
       if (!insideID) m_ntruth10[0] += 1;
-      if (!insideID) m_ntruth10[8] += 1;
       if (!insideID) m_ntruth10[9] += 1;
       if (!insideID) m_ntruth10[10] += 1;
       if (insideID) for (int n = 1; n < 6; n++) m_ntruth10[n] += 1;
@@ -321,11 +318,6 @@ StatusCode MuonPerformanceAlg::execute()
             if (truthMu->pt() > 5000.) m_nfound5[9] += 1;
             if (truthMu->pt() > 10000.) m_nfound10[9] += 1;
           } else if (loose) print(" Muon not found by Medium endcap ", truthMu);
-          if (tight) {
-            m_nfound[8] += 1;
-            if (truthMu->pt() > 5000.) m_nfound5[8] += 1;
-            if (truthMu->pt() > 10000.) m_nfound10[8] += 1;
-          } else if (medium) print(" Muon not found by Tight endcap ", truthMu);
         }
       } else {
         print(" No link Muon not found  by CaloTag and Calolikelihood ",  truthMu );
@@ -418,16 +410,13 @@ StatusCode MuonPerformanceAlg::execute()
             }
             if (loose) m_nfoundr[10] += 1;
             if (medium) m_nfoundr[9] += 1;
-            if (tight) m_nfoundr[8] += 1;
             if ((*link)->pt() > 5000.) {
               if (loose) m_nfoundr5[10] += 1;
               if (medium) m_nfoundr5[9] += 1;
-              if (tight) m_nfoundr5[8] += 1;
             }
             if ((*link)->pt() > 10000.) {
               if (loose) m_nfoundr10[10] += 1;
               if (medium) m_nfoundr10[9] += 1;
-              if (tight) m_nfoundr10[8] += 1;
             }
           }
         } else ATH_MSG_VERBOSE("No Track particle found on recoMuonLink");
@@ -533,19 +522,16 @@ StatusCode MuonPerformanceAlg::execute()
       else if (!insideID) {
         if (loose) m_nreco[10] += 1;
         if (medium) m_nreco[9] += 1;
-        if (tight) m_nreco[8] += 1;
         if (loose && fake) print(" Fake muon found by Loose Endcap ", mu);
         if (medium && fake && !loose) print(" Fake muon found by Medium Endcap ", mu);
         if (tight && !medium && fake) print(" Fake muon found by Tight Endcap ", mu);
         if (mu->pt() > 5000.) {
           if (loose) m_nreco5[10] += 1;
           if (medium) m_nreco5[9] += 1;
-          if (tight) m_nreco5[8] += 1;
         }
         if (mu->pt() > 10000.) {
           if (loose) m_nreco10[10] += 1;
           if (medium) m_nreco10[9] += 1;
-          if (tight) m_nreco10[8] += 1;
         }
         if ( ((mu->allAuthors() & 32)) || (mu->allAuthors() & 2) || (mu->allAuthors() & 4) ) {
           m_nreco[0] += 1;

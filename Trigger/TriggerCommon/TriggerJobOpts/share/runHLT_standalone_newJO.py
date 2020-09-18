@@ -9,10 +9,9 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
-#Temporarily turning off ID geometery until the configuration is fully migrated
-flags.Detector.GeometryPixel = False
-flags.Detector.GeometrySCT   = False
-flags.Detector.GeometryTRT   = False
+flags.Detector.GeometryPixel = True
+flags.Detector.GeometrySCT   = True
+flags.Detector.GeometryTRT   = True
 flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True
 flags.Detector.GeometryMDT   = True
@@ -39,7 +38,7 @@ flags.Exec.MaxEvents=50
 flags.Input.isMC = False
 flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
 
-flags.Trigger.L1Decoder.forceEnableAllChains = True
+
 flags.Concurrency.NumThreads=1
 flags.Concurrency.NumConcurrentEvents=1
 
@@ -76,6 +75,7 @@ from TrigInDetConfig.TrigInDetConfig import TrigInDetCondConfig
 acc.merge( TrigInDetCondConfig( flags ) )
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
+acc.getEventAlgo( "L1Decoder" ).ctpUnpacker.UseTBPBits=True # test setup
 
 
 
@@ -90,8 +90,6 @@ acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
-acc.foreach_component("*FastEMCaloAlgo*").OutputLevel = DEBUG
-acc.foreach_component("VDVFastEgammaCalo").OutputLevel =DEBUG
 
 fname = "runHLT_standalone_newJO.pkl"
 print( "Storing config in the file {}".format( fname ) )

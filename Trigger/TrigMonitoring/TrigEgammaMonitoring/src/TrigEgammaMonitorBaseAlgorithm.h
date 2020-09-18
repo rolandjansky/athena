@@ -88,6 +88,7 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     Gaudi::Property<bool> m_detailedHists{this, "DetailedHistograms", false};
   
 
+    asg::AcceptInfo m_accept;
 
     /** Helper methods **/
 

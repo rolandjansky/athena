@@ -26,7 +26,6 @@
 
 //MM digitization includes
 #include "MM_Digitization/MM_DigitizationTool.h"
-#include "MM_Digitization/IMM_DigitizationTool.h"
 #include "MM_Digitization/MM_DigitToolInput.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
@@ -38,14 +37,8 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-
-//Gaudi - Core
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
-
-//Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonChannelDesign.h"
@@ -62,8 +55,7 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "AtlasHepMC/GenParticle.h"
 
-//Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/RNGWrapper.h"
 
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
@@ -72,7 +64,6 @@
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
 
 //ROOT
-// #include "TH1.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TString.h"
@@ -88,138 +79,44 @@ using namespace MuonGM;
 /*******************************************************************************/
 MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::string& name, const IInterface* parent):
   PileUpToolBase(type, name, parent),
-  
-  // Services
-  m_storeGateService("StoreGateSvc", name),
   m_mergeSvc(nullptr),
-  m_rndmSvc("AtRndmGenSvc", name ),
-  m_rndmEngine(nullptr),
-  m_rndmEngineName("MuonDigitization"),
-  
-  // Tools
-  m_digitTool("MM_Response_DigitTool", this),
   m_file(nullptr),
   m_ntuple(nullptr),
-  
-  // Settings
-  m_energyThreshold(50.),
-  m_maskMultiplet(0),
-  m_writeOutputFile(false),
+  m_muonHelper(nullptr),
+  m_MuonGeoMgr(nullptr),
+  m_MMHitCollList(),
   m_timedHitCollection_MM(nullptr),
-  
-  m_inputObjectName(""),
-  
-  m_checkMMSimHits(true),
-  m_useTimeWindow(true),
-  
-  m_timeWindowLowerOffset(0),
-  m_timeWindowUpperOffset(0),
-  m_DiffMagSecondMuonHit (0),
-  
-  // Strip Response
-  m_StripsResponseSimulation(0),
-  m_qThreshold(0),							// Strips Charge Threshold
-  m_crossTalk1(0),							// Cross talk with nearest strip
-  m_crossTalk2(0),							// Cross talk with 2nd nearest strip
-
-  m_avalancheGain(0),
-  
-  // Electronics Response
-  m_ElectronicsResponseSimulation(0),
-  m_peakTime(0),
-  m_electronicsThreshold(0),
-  m_stripdeadtime(0),
-  m_ARTdeadtime(0),
-  
-  m_vmmNeighborLogic(true),
-  
-  m_vmmReadoutMode(""),
-  m_vmmARTMode(""),
-  
+  m_StripsResponseSimulation(nullptr),
+  m_ElectronicsResponseSimulation(nullptr),
+  m_driftVelocity(0),
   // Tree Branches...
-  m_n_Station_side(-999),
-  m_n_Station_eta(-999),
-  m_n_Station_phi(-999),
-  m_n_Station_multilayer(-999),
-  m_n_Station_layer(-999),
-  m_n_hitStripID(-999),
-  m_n_StrRespTrg_ID(-999),
-  m_n_strip_multiplicity(-999),
-  m_n_strip_multiplicity_2(-999),
-  m_n_hitPDGId(-99999999.),
-  m_n_hitOnSurface_x(-99999999.),
-  m_n_hitOnSurface_y(-99999999.),
-  m_n_hitDistToChannel(-99999999.),
-  m_n_hitIncomingAngle(-99999999.),
-  m_n_StrRespTrg_Time(-99999999.),
-  m_n_hitIncomingAngleRads(-99999999.),
-  m_n_hitKineticEnergy(-99999999.), 
-  m_n_hitDepositEnergy(-99999999.),
+  m_n_Station_side(-INT_MAX),
+  m_n_Station_eta(-INT_MAX),
+  m_n_Station_phi(-INT_MAX),
+  m_n_Station_multilayer(-INT_MAX),
+  m_n_Station_layer(-INT_MAX),
+  m_n_hitStripID(-INT_MAX),
+  m_n_StrRespTrg_ID(-INT_MAX),
+  m_n_strip_multiplicity(-INT_MAX),
+  m_n_strip_multiplicity_2(-INT_MAX),
+  m_n_hitPDGId(-INT_MAX),
+  m_n_hitOnSurface_x(-DBL_MAX),
+  m_n_hitOnSurface_y(-DBL_MAX),
+  m_n_hitDistToChannel(-DBL_MAX),
+  m_n_hitIncomingAngle(-DBL_MAX),
+  m_n_StrRespTrg_Time(-DBL_MAX),
+  m_n_hitIncomingAngleRads(-DBL_MAX),
+  m_n_hitKineticEnergy(-DBL_MAX),
+  m_n_hitDepositEnergy(-DBL_MAX),
   m_exitcode(0),
-  
   // Timings
-  m_tofCorrection(-99999999.),
-  m_bunchTime(-99999999.),
-  m_globalHitTime(-99999999.),
-  m_eventTime(-99999999.),
-  m_doSmearing(false),
-  m_smearingTool("Muon::NSWCalibSmearingTool/MMCalibSmearingTool",this),
-  m_calibrationTool("Muon::NSWCalibTool/NSWCalibTool",this)
-{
-  
-  declareInterface<IMuonDigitizationTool>(this);
-  
-  declareProperty("MCStore",             m_storeGateService);
-  declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
-  declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
-  
-  declareProperty("DigitizationTool",    m_digitTool,          "Tool which handle the digitization process");
-  declareProperty("EnergyThreshold",     m_energyThreshold = 50., "Minimal energy to produce a PRD"  );
-  declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
-  
-  declareProperty("SaveInternalHistos",  m_writeOutputFile = true   );
-  
-  //Object names
-  declareProperty("InputObjectName",     m_inputObjectName     =  "MicromegasSensitiveDetector");
-  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
-  
-  //Configurations
-  declareProperty("CheckSimHits",        m_checkMMSimHits      =  true,       "Control on the hit validity"); // Currently deprecated
-  
-  //Timing scheme
-  declareProperty("UseTimeWindow",       m_useTimeWindow  =  true);
-  declareProperty("WindowLowerOffset",   m_timeWindowLowerOffset = -300.); // processBunchXing between -250 and 150 ns (look at config file)
-  declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
-  declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
-  
-  // Constants vars for the MM_StripsResponseSimulation class
-  // qThreshold=2e, we accept a good strip if the charge is >=2e
-
-  //Three gas mixture mode,	Ar/CO2=93/7, Ar/CO2=80/20, Ar/CO2/Iso=93/5/2
-  //each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
-  declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
-  declareProperty("DriftGapWidth",              m_driftGapWidth = 5.168);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
-  declareProperty("crossTalk1",		          m_crossTalk1 = 0.1);       // Strip Cross Talk with Nearest Neighbor
-  declareProperty("crossTalk2",		          m_crossTalk2 = 0.03);      // Strip Cross Talk with 2nd Nearest Neighbor
-
-  declareProperty("AvalancheGain",				m_avalancheGain = 8.0e3); //avalanche Gain for rach gas mixture
-  
-  declareProperty("vmmReadoutMode",             m_vmmReadoutMode = "peak"      ); // For readout (DAQ) path. Can be "peak" or "threshold"
-  declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
-  
-  // Constants vars for the MM_ElectronicsResponseSimulation
-  declareProperty("peakTime",                m_peakTime = 100.);                 // The VMM peak time setting.
-  declareProperty("electronicsThreshold",    m_electronicsThreshold = 15000.0);  // 2*(Intrinsic noise ~3k e)
-  declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
-  declareProperty("ARTDeadTime",             m_ARTdeadtime   = 200.0);          // default value 200 ns = 8 BCs
-  declareProperty("VMMNeighborLogic",   m_vmmNeighborLogic  = true);  // default vmm neighbor logic on
-
-  declareProperty("doSmearing", m_doSmearing=false);    // set the usage or not of the smearing tool for realistic detector performance
-  declareProperty("SmearingTool",m_smearingTool);
-
-  declareProperty("CalibrationTool", m_calibrationTool);
-  
-}
+  m_tofCorrection(-FLT_MAX),
+  m_bunchTime(-FLT_MAX),
+  m_globalHitTime(-FLT_MAX),
+  m_eventTime(-FLT_MAX),
+  m_n_StrRespID(),
+  m_n_StrRespCharge(),
+  m_n_StrRespTime() {}
 
 /*******************************************************************************/
 // member function implementation
@@ -228,12 +125,8 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
 
-	// Initialize transient event store
-	ATH_CHECK(m_storeGateService.retrieve());
-
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	StoreGateSvc* detStore=nullptr;
-	m_MuonGeoMgr=nullptr;
 	ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
 	if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
 		ATH_CHECK( detStore->retrieve(m_MuonGeoMgr) );
@@ -243,19 +136,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_CHECK(m_idHelperSvc.retrieve());
 
 	// Digit tools
-	ATH_CHECK( m_digitTool.retrieve() );
-
-	// Random Service
-	ATH_CHECK( m_rndmSvc.retrieve() );
-
-	// Random Engine from Random Service
-	ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
-	m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-	if (m_rndmEngine == nullptr) {
-		ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName );
-		return StatusCode::FAILURE;
-	}
-
+	ATH_CHECK(m_digitTool.retrieve());
 
     //initialize the output WriteHandleKeys
     if(m_outputDigitCollectionKey.key()=="") {
@@ -352,30 +233,26 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// Configuring various VMM modes of signal readout
 	//
-	if(      TString(m_vmmReadoutMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmReadoutMode = "peak";
-	else if( TString(m_vmmReadoutMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmReadoutMode = "threshold";
-	else {
-		ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
-						<< m_vmmReadoutMode);
-	}
-	if(      TString(m_vmmARTMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmARTMode = "peak";
-	else if( TString(m_vmmARTMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmARTMode = "threshold";
-	else {
-		ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
-						<< m_vmmARTMode);
-	}
+    std::string vmmReadoutMode = m_vmmReadoutMode;
+    // convert vmmReadoutMode to lower case
+    std::for_each(vmmReadoutMode.begin(), vmmReadoutMode.end(), [](char & c) {
+        c = ::tolower(c);
+    });
+    if (vmmReadoutMode.find("peak")!=std::string::npos) m_vmmReadoutMode = "peak";
+    else if (vmmReadoutMode.find("threshold")!=std::string::npos) m_vmmReadoutMode = "threshold";
+	else ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmReadoutMode);
+    std::string vmmARTMode = m_vmmARTMode;
+    // convert vmmARTMode to lower case
+    std::for_each(vmmARTMode.begin(), vmmARTMode.end(), [](char & c) {
+        c = ::tolower(c);
+    });
+    if (vmmARTMode.find("peak")!=std::string::npos) m_vmmARTMode = "peak";
+    else if (vmmARTMode.find("threshold")!=std::string::npos) m_vmmARTMode = "threshold";
+    else ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmARTMode option! (Should be 'peak' or 'threshold'.) Contains: " << m_vmmARTMode);
 
-	if ( m_doSmearing ) {
-
-	  ATH_MSG_INFO("Running in smeared mode!");
-
-	}
-
+	if (m_doSmearing) ATH_MSG_INFO("Running in smeared mode!");
 
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
-	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
-	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
-	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService    );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
 	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
@@ -1338,3 +1215,4 @@ MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const 
 bool MM_DigitizationTool::checkMMSimHit( const MMSimHit& /*hit*/ ) const {
 	return true;
 }
+

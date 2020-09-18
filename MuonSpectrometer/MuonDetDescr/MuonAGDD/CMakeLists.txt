@@ -17,22 +17,6 @@ if( NOT SIMULATIONBASE )
    set( extra_lib AmdcAthLib )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/AGDD/AGDDControl
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/AGDD/AGDD2GeoSvc
-                          DetectorDescription/AGDD/AGDDKernel
-                          DetectorDescription/AGDD/AGDDModel
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDBase
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-			  MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          ${extra_dep} )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

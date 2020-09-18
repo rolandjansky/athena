@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonIdHelpers )
 
-# Declare the package's dependencies. In standalone mode this package doesn't
-# depend on anything.
-if( NOT XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      DetectorDescription/AtlasDetDescr
-      DetectorDescription/IdDict
-      DetectorDescription/Identifier
-      MuonSpectrometer/MuonStationIndex
-      PRIVATE
-      DetectorDescription/IdDictParser
-      GaudiKernel )
-endif()
-
 # Decide on the sources/libraries to use based on the build environment:
 if( NOT XAOD_STANDALONE )
    set( extra_sources src/*.cxx )

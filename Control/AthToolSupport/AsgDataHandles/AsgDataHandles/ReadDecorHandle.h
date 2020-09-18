@@ -21,7 +21,7 @@
 
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "AsgDataHandles/ReadHandle.h"
-// #include "AsgDataHandles/tools/DecorKeyHelpers.h"
+#include "AsgDataHandles/DecorKeyHelpers.h"
 // #include "AthContainers/AuxElement.h"
 // #include "GaudiKernel/EventContext.h"
 // #include <type_traits>

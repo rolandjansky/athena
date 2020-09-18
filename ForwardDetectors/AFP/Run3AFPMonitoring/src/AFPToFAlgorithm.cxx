@@ -66,9 +66,12 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	{
 		trainID = hitsItr->trainID();
 		barInTrainID = hitsItr->barInTrainID();
+<<<<<<< HEAD
 		
 		std::cout << "\t\t\tTrainID: " << trainID << "\n";
 		std::cout << "\t\t\tBarInTrainID: " << barInTrainID << "\n";
+=======
+>>>>>>> upstream/master
 
 		if(hitsItr->isSideA())
 		{

@@ -8,17 +8,20 @@ The main common check steps are defined in the TrigValSteering.CheckSteps module
 '''
 
 import os
+import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
+from AthenaCommon.Utils.unixtools import FindFile
 
 ##################################################
 # Exec (athena) steps for Reco_tf
 ##################################################
 
 class TrigInDetReco(ExecStep):
+
     def __init__(self, name='TrigInDetReco'):
         ExecStep.__init__(self, name)
 ##        super(TrigInDetReco, self).__init__(name)
@@ -39,6 +42,7 @@ class TrigInDetReco(ExecStep):
             'rec.doJetMissingETTag=False',
             'rec.doTau=False'
         ])
+
         self.preexec_aod = ';'.join([
             self.preexec_reco,
             'from ParticleBuilderOptions.AODFlags import AODFlags',
@@ -47,11 +51,13 @@ class TrigInDetReco(ExecStep):
             'AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)',
             'AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)'
         ])
+
         self.preexec_all = ';'.join([
             'from TriggerJobOpts.TriggerFlags import TriggerFlags',
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
-        self.postexec_trig = ' '
+        self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
+        self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
 
@@ -74,13 +80,19 @@ class TrigInDetReco(ExecStep):
                 flags += 'doTauSlice=True;'
             if (i=='bjet') :
                 chains += "'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20',"
-                flags += 'doBjetSlice=True;'
+                flags  += 'doBjetSlice=True;'
+            if ( i=='fsjet' or i=='fs' or i=='jet' ) :
+                chains += "'HLT_j45_ftf_L1J15',"
+                flags  += 'doJetSlice=True;'
             if (i=='beamspot') :
                 chains += "'HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15','HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15',"
-                flags += 'doBeamspotSlice=True;'
+                flags  += 'doBeamspotSlice=True;'
             if (i=='minbias') :
                 chains += "'HLT_mb_sptrk_L1RD0_FILLED',"
-                flags += 'doMinBiasSlice=True;'
+                flags  += 'doMinBiasSlice=True;'
+
+        if ( flags=='' ) : 
+            print( "ERROR: no chains configured" )
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
@@ -88,7 +100,7 @@ class TrigInDetReco(ExecStep):
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
         if (self.postexec_trig != ' '):
-            self.args += ' --postExec "RDOtoRDOTrigger:{:s};" '.format(self.postexec_trig)
+            self.args += ' --postExec "RDOtoRDOTrigger:{:s};" "RAWtoESD:{:s};" '.format(self.postexec_trig, self.postexec_reco)
         super(TrigInDetReco, self).configure(test)
 
 
@@ -111,24 +123,23 @@ class TrigInDetdictStep(Step):
     '''
     Execute TIDArdict for TrkNtuple files.
     '''
-    def __init__(self, name='TrigInDetdict'):
+    def __init__(self, name='TrigInDetdict', reference='Truth' ):
         super(TrigInDetdictStep, self).__init__(name)
         self.args=' '
         self.auto_report_result = True
         self.required = True
+        self.reference = reference
         self.executable = 'TIDArdict'
 
     def configure(self, test):
-        cmd = 'get_files TIDAdata-run3.dat'
-        os.system(cmd)
-        cmd = 'get_files TIDAdata-chains-run3.dat'
-        os.system(cmd)
-        cmd = 'get_files TIDAbeam.dat'
-        os.system(cmd)
-        cmd = 'get_files Test_bin.dat'
-        os.system(cmd)
-        cmd = 'get_files TIDAdata_cuts.dat'
-        os.system(cmd)
+        os.system( 'get_files -data TIDAbeam.dat' )
+        os.system( 'get_files -data Test_bin.dat' )
+        os.system( 'get_files -data TIDAdata-chains-run3.dat' )
+        os.system( 'get_files -data TIDAhisto-panel.dat' )
+        os.system( 'get_files -data TIDAdata-run3.dat' )
+        os.system( 'get_files -data TIDAdata_cuts.dat' )
+        os.system( 'get_files -data TIDAdata-run3-offline.dat' )
+        os.system( 'get_files -data TIDAdata_cuts-offline.dat' )
         super(TrigInDetdictStep, self).configure(test)
 
 
@@ -139,81 +150,76 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
-    def __init__(self, name='TrigInDetComp'):
+    def __init__( self, name='TrigInDetComp', level='', slice='', input_file='data-hists.root', type='truth', lowpt=False ):
         super(TrigInDetCompStep, self).__init__(name)
-        self.input_file = 'data-hists.root'
-        self.output_dir = 'HLT-plots'
+
+        self.input_file = input_file
+        # self.output_dir = 'HLT-plots'
+        self.output_dir = ''
+
+        if level == '' : 
+            raise Exception( 'no level specified' )
+
+        if slice == '' : 
+            raise Exception( 'no slice specified' )
+
+        self.level  = level
+        self.slice  = slice
+        self.lowpt  = lowpt
+        self.type   = type
         self.chains = ' '
-        self.args = ''
-        self.test = ' '
-        self.type = 'truth'
+        self.args   = ' --oldrms -c TIDAhisto-panel.dat '
+        self.test   = ' '
         self.auto_report_result = True
-        self.required = True
+        self.required   = True
         self.executable = 'TIDAcomparitor'
     
+
     def configure(self, test):
-        if (self.flag == 'L2muon'):
-            self.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-muon'
-        elif (self.flag == 'EFmuon'):
-            self.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-muon'
-        elif (self.flag == 'L2bjet'):
-            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-bjet'
-        elif (self.flag == 'EFbjet'):
-            self.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-bjet'
-        elif (self.flag == 'L2tau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-tau'
-        elif (self.flag == 'EFtau'):
-            self.chains = 'HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TAURoI'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-tau'
-        elif (self.flag == 'L2ele'):
-            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-electron'
-        elif (self.flag == 'EFele'):
-            self.chains = 'HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-electron'
-        elif (self.flag == 'L2FS'):
-            self.chains = 'HLT_IDTrack_FS_FTF'
-            self.output_dir = 'HLTL2-plots'
-            if (self.test=='ttbar'):
-                self.output_dir = self.output_dir+'-FS'
-        elif (self.flag == 'L2mb'):
-            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_FTF'
-            self.output_dir = 'HLTL2-plots'
-        elif (self.flag == 'EFmb'):
-            self.chains = 'HLT_mb_sptrk_L1RD0_FILLED:HLT_IDTrack_MinBias_IDTrig'
-            self.output_dir = 'HLTEF-plots'
-        else:
-            print('Unknown flag for comparitor step ', self.flag) 
+
+        json_file     = 'TrigInDetValidation/comparitor.json'
+        json_fullpath = FindFile(json_file, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
+
+        if not json_fullpath:
+            print('Failed to determine full path for input JSON %s', json_file)
+            return None
+
+        with open(json_fullpath) as f:
+            data = json.load(f)
+
+        self.output_dir = 'HLT'+self.level+'-plots'
+
+        flag = self.level+self.slice
+
+        if (self.lowpt):
+            self.output_dir = self.output_dir+'-lowpt'    
+            flag = flag+'Lowpt'
+            
+        data_object = data[flag]
+
+        self.chains = data_object['chains']
+
+        # what is all this doing ? does it need to be so complicated ?
+
+        if (self.test=='ttbar'):
+            self.output_dir = self.output_dir+"-"+self.slice
 
         if (self.type == 'offl'):
             self.output_dir = self.output_dir+'-offl'    
             self.input_file = 'data-hists-offline.root'
+
+        self.args += self.input_file + ' ' 
+
         if (self.reference == None):
-            # if no referenc found, use input file as reference
-            self.args += self.input_file+' '+self.input_file+' '+self.chains+' -d '+self.output_dir
+            # if no reference found, use input file as reference - athout it doesn't matter - could use --noref
+            self.args += self.input_file + ' ' 
         else:
-            self.args += self.input_file+' '+self.ref_file+' '+self.chains+' -d '+self.output_dir
+            self.args += self.ref_file + ' ' 
+
+        self.args += self.chains + ' -d ' + self.output_dir
+
+        print( "TIDAComparitor " + self.args ) 
+
         super(TrigInDetCompStep, self).configure(test)
 
 
@@ -225,7 +231,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     def __init__(self, name='TrigInDetCpuCost', ftf_times=True):
         super(TrigInDetCpuCostStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
-##        self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
+##      self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
         self.output_dir = 'times'
         self.args = '--auto '
         self.auto_report_result = True
@@ -243,5 +249,8 @@ class TrigInDetCpuCostStep(RefComparisonStep):
             self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:
             self.args += ' {} {} -o {} -p TIME'.format(self.input_file,self.reference,self.output_dir)
+
+        print( "TIDAcpucost " + self.args )    
+
         super(TrigInDetCpuCostStep, self).configure(test)
 

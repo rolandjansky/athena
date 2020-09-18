@@ -32,7 +32,7 @@ m_incShowerSubtr(true){
 
 bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
 
-    const xAOD::Jet* pSeed = *pTau.jetLink();
+    const xAOD::Jet* pSeed = pTau.jet();
     if(!pSeed) return false;
 
     // Loop through jets, get links to clusters
@@ -43,7 +43,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     for (auto pCluster : clusterList){
       // correct cluster
       if (pTau.vertexLink() && m_doVertexCorrection)
-	constituents.emplace_back (*pCluster, (*pTau.vertexLink())->position());
+	constituents.emplace_back (*pCluster, pTau.vertex()->position());
       else
         constituents.emplace_back (*pCluster);
     }
@@ -95,7 +95,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     if (this->m_numConstit < 2) this->m_totMass = DEFAULT;
     else {
         double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_totMass = mass2 > 0 ? sqrt(mass2) : -sqrt(-mass2);
+        this->m_totMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
     }
 
     // Calculate the average radius of the constituents wrt the tau centroid
@@ -149,7 +149,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     if (this->m_effNumConstit_int < 2) this->m_effMass = DEFAULT;
     else {
         double mass2 = sum_e * sum_e - (sum_px * sum_px + sum_py * sum_py + sum_pz * sum_pz);
-        this->m_effMass = mass2 > 0 ? sqrt(mass2) : -sqrt(-mass2);
+        this->m_effMass = mass2 > 0 ? std::sqrt(mass2) : -std::sqrt(-mass2);
     }
 
     // Calculate the average radius of the constituents wrt the tau centroid
@@ -175,7 +175,7 @@ TLorentzVector CaloClusterVariables::calculateTauCentroid(int nConst, const std:
         current_px = c.p4().Px();
         current_py = c.p4().Py();
         current_pz = c.p4().Pz();
-        modulus = sqrt(current_px * current_px + current_py * current_py + current_pz * current_pz);
+        modulus = std::sqrt(current_px * current_px + current_py * current_py + current_pz * current_pz);
         px += current_px / modulus;
         py += current_py / modulus;
         pz += current_pz / modulus;

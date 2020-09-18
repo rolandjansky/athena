@@ -65,7 +65,7 @@ namespace xAOD {
   }
 
 
-  typedef JetConstituentVector::iterator iterator;
+  using iterator = JetConstituentVector::iterator;
   
   iterator & iterator::operator++(){ m_index++; return *this ; }
   iterator & iterator::operator++(int) { ++m_index; return *this ; }
@@ -90,7 +90,7 @@ namespace xAOD {
   }
 
   bool JetConstituentVector::isValid() const {
-    typedef std::vector<ElementLink<IParticleContainer> > ELVector;
+    using ELVector = std::vector<ElementLink<IParticleContainer> >;
     for ( ELVector::const_iterator icon=m_elVector->begin(); icon!=m_elVector->end(); ++icon ) {
       ElementLink<IParticleContainer> el = *icon;
       if ( ! el.isValid() ) return false;

@@ -9,6 +9,16 @@
 #include <string>
 
 using namespace std;
+using namespace TXC;
+
+void traitTests(){
+  static_assert(std::is_nothrow_move_constructible<L1TopoMenu>::value);
+  static_assert(std::is_nothrow_move_constructible<L1TopoConfigAlg>::value);
+  static_assert(std::is_nothrow_move_constructible<TXC::L1TopoConfigGlobal>::value);//TXC::L1TopoConfigOutputList
+  static_assert(std::is_nothrow_move_constructible<TXC::L1TopoConfigOutputList>::value);
+  static_assert(std::is_nothrow_move_constructible<TXC::TopoConfigElement>::value);
+}
+
 
 int main(int argc, char* argv[]) {
    

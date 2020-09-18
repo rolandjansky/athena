@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/AthenaMonManager.h"
@@ -16,8 +16,8 @@
 #include "LWHistAthMonWrapper.h"
 #include "AthMonBench.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -472,25 +472,15 @@ initialize()
     m_d->m_environmentProp = Imp::s_environmentStr;
 
     // Provide a virtual Algorithm with a subset of the properties
-    IJobOptionsSvc* joSvc = 0;
-    sc = service( "JobOptionsSvc", joSvc );
-    if( !sc.isSuccess() ) {
-        msg(MSG::ERROR) << "!! Unable to locate the JobOptionsSvc service !!" << endmsg;
-        return sc;
-    }
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
+    ATH_CHECK( joSvc.retrieve() );
     ATH_MSG_DEBUG("  --> Found service \"JobOptionsSvc\"");
 
-    std::string client = name() + std::string("Properties");
+    const std::string client = name() + std::string("Properties");
     ATH_MSG_DEBUG("  --> Adding properties under name \"" << client << "\"");
-    StatusCode sc1 = joSvc->addPropertyToCatalogue( client, StringProperty("FileKey",m_d->m_fileKeyProp) );
-    StatusCode sc2 = joSvc->addPropertyToCatalogue( client, StringProperty("DataType",m_d->m_dataTypeProp) );
-    StatusCode sc3 = joSvc->addPropertyToCatalogue( client, StringProperty("Environment",m_d->m_environmentProp) );
-    joSvc->release();
-    if( !(sc1.isSuccess() && sc2.isSuccess() && sc3.isSuccess()) ) {
-        msg(MSG::ERROR) << "!! Unable to add properties to JobOptionsSvc service !!" << endmsg;
-        return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("  --> Added Properties");
+    joSvc->set( client + ".FileKey", m_d->m_fileKeyProp );
+    joSvc->set( client + ".DataType", m_d->m_dataTypeProp );
+    joSvc->set( client + ".Environment", m_d->m_environmentProp );
 
     //Determine (globally for now), whether or not LW histograms use a
     //ROOT backend (necessary for online monitoring, and perhaps for

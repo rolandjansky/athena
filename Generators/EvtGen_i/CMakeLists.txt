@@ -62,6 +62,6 @@ atlas_add_component( EvtGen_i
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} ${PHOTOSPP_LIBRARIES} ${TAUOLAPP_LIBRARIES} AtlasHepMCLib ${EVTGEN_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib GeneratorObjects AthenaKernel EvtGen_iLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.DEC share/*.table share/*.dec share/*.pdt )
+atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/*.DEC share/file/*.table share/file/*.dec share/file/*.pdt share/file/*.dat )
 

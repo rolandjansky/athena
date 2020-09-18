@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 789091 2016-12-10 05:10:19Z ssnyder $
-################################################################################
-# Package: PyDumper
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PyDumper )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers )
 
 # Cling needs to be able to see the headers.
 atlas_install_headers( PyDumper )

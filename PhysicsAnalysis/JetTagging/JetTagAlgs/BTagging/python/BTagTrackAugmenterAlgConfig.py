@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 Analysis__BTagTrackAugmenterAlg=CompFactory.Analysis.BTagTrackAugmenterAlg
 
-def BTagTrackAugmenterAlgCfg(ConfigFlags, **options):
+def BTagTrackAugmenterAlgCfg(ConfigFlags, TrackCollection = 'InDetTrackParticles', PrimaryVertexCollectionName = 'PrimaryVertices', **options):
     """Adds a SecVtxTool instance and registers it.
 
     input: name:               The tool's name.
@@ -16,6 +16,8 @@ def BTagTrackAugmenterAlgCfg(ConfigFlags, **options):
     # Minimal configuration
     options = {}
     options['name'] = ('BTagTrackAugmenter').lower()
+    options['TrackContainer'] = TrackCollection
+    options['PrimaryVertexContainer'] = PrimaryVertexCollectionName
 
     # -- create the track augmenter algorithm
     acc.addEventAlgo(Analysis__BTagTrackAugmenterAlg(**options))

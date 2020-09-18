@@ -5,12 +5,13 @@
 #ifndef MUON_MUONLAYERHASHPROVIDERTOOL_H
 #define MUON_MUONLAYERHASHPROVIDERTOOL_H
 
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
+#include <vector>
 
 static const InterfaceID IID_MuonLayerHashProviderTool("Muon::MuonLayerHashProviderTool",1,0);
 
@@ -46,9 +47,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonLayerHashProviderTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonLayerHashProviderTool();
+    virtual ~MuonLayerHashProviderTool()=default;
     StatusCode initialize();
-    StatusCode finalize();
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuonLayerHashProviderTool; }

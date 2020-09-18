@@ -53,7 +53,6 @@ class ITauToolBase : virtual public asg::IAsgTool
                                          const xAOD::TrackParticleContainer* trackContainer = nullptr) const = 0;
   virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) const = 0;
   virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const = 0;
-  virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) = 0;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) const = 0;
   virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
   					      xAOD::PFOContainer& hadronicPFOContainer, 
@@ -69,7 +68,7 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode executeDev(xAOD::TauJet& pTau) = 0;
 #else
   // CaloCellContainer not available in AnalysisBase
-  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) = 0;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) const = 0;
 #endif
   
   //-----------------------------------------------------------------

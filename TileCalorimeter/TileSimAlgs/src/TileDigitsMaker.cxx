@@ -367,8 +367,8 @@ StatusCode TileDigitsMaker::execute() {
   // Prepare RNG service
   ATHRNG::RNGWrapper* rngWrapper = nullptr;
   if (m_tileNoise || m_tileCoherNoise || m_rndmEvtOverlay) {
-    rngWrapper = m_rndmSvc->getEngine(this);
-    rngWrapper->setSeed( name(), ctx );
+    rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
+    rngWrapper->setSeed( m_randomStreamName, ctx );
   }
 
   static bool first = (msgLvl(MSG::VERBOSE) && !m_rndmEvtOverlay );

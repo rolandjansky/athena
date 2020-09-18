@@ -34,6 +34,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup.defineHistogram('lb,nSiHits', title='Total number of hits;lb;total number of Hits', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
     AFPSiGroup.defineHistogram('lb,muPerBCID', title='<mu>;lumiBlock;<mu>', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
     AFPSiGroup.defineHistogram('planeHitsAll', title='Number of hits per plane;plane; hits', type='TH1F', path='SiT/HitsPerPlanes', xbins=16, xmin=-0.5, xmax=15.5)
+
     #AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency;layerNumber', path='SiT/', xbins = 16, xmin=0.5, xmax=16.5, ybins=100, ymin=0, ymax=1)
     #AFPSiGroup.defineHistogram('layerEfficiency', type='TH1F', title='1D layer efficiency;layerEfficiency', path='SiT/', xbins=16, xmin=0.5, xmax=16.5)
 
@@ -46,7 +47,6 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     stationList = ['farAside', 'nearAside', 'nearCside', 'farCside']
 
     array = helper.addArray([stationList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
-
     array.defineHistogram('pixelColIDChip', title='Hits per column for station {0}, layer {1};pixelColIDChip; entries', path='PixelColIDChip/{0}', xbins=80, xmin=0.5, xmax=80.5)
     array.defineHistogram('pixelRowIDChip', title='Hits per row for station {0}, layer {1};pixelRowIDChip; entries', path='PixelRowIDChip/{0}', xbins=336, xmin=0.5, xmax=336.5)
     array.defineHistogram('pixelRowIDChip,pixelColIDChip', title='Hitmap for station {0}, layer {1};pixelRowIDChip;pixelColIDChip', type='TH2F', path='pixelColRow2D/{0}', xbins=336, xmin=0.5, xmax=336.5, ybins=80, ymin=0.5, ymax=80.5)
@@ -91,7 +91,6 @@ if __name__=='__main__':
 
     ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'AFPOutput56-337176-efficiency.root'
-    
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -107,5 +106,6 @@ if __name__=='__main__':
     cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
     cfg.run(10000)
+
 
 

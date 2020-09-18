@@ -8,7 +8,7 @@
 #                                                                      #
 ########################################################################
 
-__all__ =  ["GroomingDefinition","JetTrimming"]
+__all__ =  ["GroomingDefinition","JetTrimming","JetSoftDrop"]
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetGrooming')
@@ -58,7 +58,7 @@ class GroomingDefinition(object):
     def __checkGroomSpec(self,groomspec):
         # Check if options are supported (implemented)
         groomalg = groomspec["groomalg"]
-        supportedGrooming = ["Trim"]
+        supportedGrooming = ["Trim","SoftDrop"]
         if not groomspec["groomalg"] in supportedGrooming:
             jetlog.error("Unsupported grooming algorithm specification \"{}\"! Allowable options:")
             for groomalg in supportedGrooming:
@@ -132,4 +132,36 @@ class JetTrimming(GroomingDefinition):
         smallRstr = formatRvalue(smallR*10)
         
         groomstr = "TrimmedPtFrac{}SmallR{}".format(ptfracstr,smallRstr)
+        return groomstr
+
+class JetSoftDrop(GroomingDefinition):
+    def __init__(self,
+                 ungroomeddef,  # Ungroomed JetDefinition
+                 ungroomedname, # Input collection name (cannot be determined uniquely from inputdef)
+                 zcut,          # ZCut
+                 beta,          # Beta
+                 modifiers=[]): # JetModifiers to run after grooming
+
+        # Apart from groomalg and ToolType, these correspond to the
+        # grooming tool property values
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        JetSD = CompFactory.JetSoftDrop
+        groomspec = {
+            # Type of groomer
+            "groomalg": "SoftDrop",
+            # Configurable class
+            "ToolType": JetSD,
+            # Tool properties to set
+            "ZCut":   zcut,
+            "Beta":   beta,
+            }
+
+        super(JetSoftDrop,self).__init__(ungroomeddef,ungroomedname,groomspec,modifiers)
+
+    def groomSpecAsStr(self):
+        beta     = self.groomspec["Beta"]
+        betastr  = int(beta*100)
+        zcut     = self.groomspec["ZCut"]
+        zcutstr  = int(zcut*100)
+        groomstr = "SoftDropBeta{}Zcut{}".format(betastr,zcutstr)
         return groomstr

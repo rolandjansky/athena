@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
 """Unit tests for verifying setting of Gaudi/Athena job properties setting.
 This assumes that (modern versions of) AthExJobOptions and AthExHelloWorld
 are available to play with."""
 
-import unittest, sys
+import unittest
+import sys
 
 # NOTE: need to instantiate theApp to have the JobOptionsSvc created
 try:
@@ -18,12 +19,9 @@ theApp = GaudiPython.AppMgr()
 
 from AthenaCommon.AppMgr import theApp, ToolSvc
 from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.ServicesPythonize import *
 
-
-### data ---------------------------------------------------------------------
-__version__ = '1.0.0'
-__author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
+import AthenaPython.PyAthena as PyAthena
+JobOptionsSvc = PyAthena.py_svc( 'JobOptionsSvc', iface = 'Gaudi::Interfaces::IOptionsSvc')
 
 __all__ = [ 'BasicConfigurableWorkingsTestCase',
             'BasicJobOptionsTestCase' ]
@@ -32,12 +30,10 @@ __all__ = [ 'BasicConfigurableWorkingsTestCase',
 ### helper class for removing properties =====================================
 class JobOptionsTestBase( unittest.TestCase ):
    def tearDown( self ):
-      JobOptionsSvc.clean()
-      for client in JobOptionsSvc.getClients():
-         assert( len(JobOptionsSvc.getProperties( client )) == 0 ),\
-           '%s still has %d properties' %\
-           (client,len(JobOptionsSvc.getProperties( client )))
-         del client
+      # Clean JobOptionsSvc
+      for p in JobOptionsSvc.items():
+         JobOptionsSvc.pop(p._0)
+      assert len(JobOptionsSvc.items()) == 0, "JobOptionsSvc still has properties"
 
 
 ### setting of basic properties (a la HelloWorld) ============================
@@ -92,7 +88,7 @@ class BasicConfigurableWorkingsTestCase( unittest.TestCase ):
       exec ('del seq.%s' % name)
       seq.setup()
 
-      self.assertTrue( name not in JobOptionsSvc.getClients() )
+      self.assertFalse( JobOptionsSvc.has(name+'.MyInt') )
 
       del HelloWorld
 
@@ -150,31 +146,31 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       HelloWorld.setup()
 
       self.assertEqual( HelloWorld.MyInt, 42 )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyInt', '42' ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyInt' ), '42' )
 
       self.assertEqual( HelloWorld.MyBool, True )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyBool', 'True' ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyBool' ), 'True' )
 
       self.assertEqual( round( HelloWorld.MyDouble - 3.14159, 8 ), 0. )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyDouble', '3.14159' ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyDouble' ), '3.14159' )
 
     # the following may be too sensitive to non-consequential changes in formatting
       self.assertEqual( HelloWorld.MyStringVec,
          [ "Welcome", "to", "Athena", "Framework", "Tutorial", "!" ] )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyStringVec',
-         "['Welcome', 'to', 'Athena', 'Framework', 'Tutorial', '!']" ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyStringVec' ),
+         "['Welcome', 'to', 'Athena', 'Framework', 'Tutorial', '!']" )
 
       self.assertEqual( HelloWorld.MyDict,
          {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyDict',
-         {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyDict' ),
+         "{'Bonjour': 'Guten Tag', 'Good Morning': 'Bonjour', 'one': 'uno', 'Goeiedag': 'Ni Hao'}" )
       self.assertEqual( HelloWorld.MyTable, [(1, 1), (2, 4), (3, 9), (4, 16)] )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyTable',
-         "[(1, 1), (2, 4), (3, 9), (4, 16)]" ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyTable' ),
+         "[(1, 1), (2, 4), (3, 9), (4, 16)]" )
 
       self.assertEqual( HelloWorld.MyMatrix, [[1, 2, 3], [4, 5, 6], [7, 8, 9]] )
-      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyMatrix',
-         "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]" ) )
+      self.assertEqual( JobOptionsSvc.get( 'HelloWorld.MyMatrix' ),
+         "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]" )
 
    def test2SetToolProperties( self ):
       """Test setting of tool properties"""
@@ -202,10 +198,10 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
 
       self.assertEqual( HelloWorld.MyPrivateHelloTool.MyMessage, msg1 )
       client = HelloWorld.getName() + '.' + HelloWorld.MyPrivateHelloTool.getName()
-      self.assertTrue( JobOptionsSvc.verify( client, 'MyMessage', msg1 ) )
+      self.assertEqual( JobOptionsSvc.get( client + '.MyMessage' ), msg1 )
 
       self.assertEqual( ToolSvc.PublicHello.MyMessage, msg2 )
-      self.assertTrue( JobOptionsSvc.verify( 'ToolSvc.PublicHello', 'MyMessage', msg2 ) )
+      self.assertEqual( JobOptionsSvc.get( 'ToolSvc.PublicHello.MyMessage' ), msg2 )
 
    def test3SetAuditorProperties( self ):
       """Test setting of Auditor properties"""
@@ -214,18 +210,18 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       from AthenaCommon.AppMgr import ServiceMgr, theAuditorSvc
       from AthenaCommon.Constants import FATAL
 
-      import AthenaCommon.AtlasUnixStandardJob
+      import AthenaCommon.AtlasUnixStandardJob # noqa: F401
 
       theAuditorSvc += NameAuditor()
-      self.assertTrue( theAuditorSvc.NameAuditor.getFullName()\
-                    in ServiceMgr.AuditorSvc.Auditors )
+      self.assertTrue( theAuditorSvc.NameAuditor.getFullName()
+                       in ServiceMgr.AuditorSvc.Auditors )
 
       theAuditorSvc.NameAuditor.OutputLevel = FATAL
 
       theAuditorSvc.setup()
 
-      self.assertTrue( JobOptionsSvc.verify( 'AuditorSvc', 'Auditors', str(theAuditorSvc.Auditors) ) )
-      self.assertTrue( JobOptionsSvc.verify( 'NameAuditor', 'OutputLevel', str(FATAL) ) )
+      self.assertTrue( JobOptionsSvc.get( 'AuditorSvc.Auditors' ), str(theAuditorSvc.Auditors) )
+      self.assertTrue( JobOptionsSvc.get( 'NameAuditor.OutputLevel'), str(FATAL) )
 
 
 ## actual test run

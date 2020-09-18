@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 
@@ -255,7 +255,7 @@ std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRx
    } else {
      // mapping object exist, forward the call
      std::vector<L1CaloRxCoolChannelId> rxChannels = m_caloTTPpmRxIdMap->ppmToRxId(ppmCoolChannelId);
-     if(rxChannels.size()==0) {
+     if(rxChannels.empty()) {
          CaloID_Exception except;
          except.code(6) ;
          except.message(" Ppm channel ID not found in map ") ;

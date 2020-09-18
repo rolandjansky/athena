@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( ITrackToVertex )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkEvent/TrkNeutralParameters
-                          Tracking/TrkEvent/TrkParameters )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
@@ -20,11 +12,13 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( ITrackToVertex
                    PUBLIC_HEADERS ITrackToVertex
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking GaudiKernel TrkDetDescrUtils TrkNeutralParameters TrkParameters )
+		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking GaudiKernel TrkDetDescrUtils 
+		   TrkNeutralParameters TrkParameters CxxUtils)
 
 atlas_add_dictionary( ITrackToVertexDict
                       ITrackToVertex/ITrackToVertex.h
                       ITrackToVertex/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking GaudiKernel TrkDetDescrUtils TrkNeutralParameters TrkParameters ITrackToVertex )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODTracking GaudiKernel TrkDetDescrUtils 
+		      TrkNeutralParameters TrkParameters ITrackToVertex )
 

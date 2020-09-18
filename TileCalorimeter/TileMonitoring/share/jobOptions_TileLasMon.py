@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #*****************************************************************
@@ -7,6 +7,8 @@
 # """topOptions file for Tile Laser Reconstruciton and Monitoring in Athena""" 
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
+
+from __future__ import print_function
 
 MonitorOutput='Tile'
 
@@ -131,7 +133,7 @@ if not athenaCommonFlags.isOnline():
             FileNameVec = [ InputDirectory+'/'+FileName ]
             FormattedRunNumber = RunNumber
     else:
-       FormattedRunNumber = RunNumber
+        FormattedRunNumber = RunNumber
 
     svcMgr.EventSelector.SkipEvents = EvtMin
     theApp.EvtMax = EvtMax
@@ -244,7 +246,7 @@ TileLasRawChannelTimeMon = CfgMgr.TileRawChannelTimeMonTool ( name              
                                                               , TileRawChannelContainer = "TileRawChannelFit")
 
 topSequence.TileLasMon.AthenaMonTools += [ TileLasRawChannelTimeMon ]
-print TileLasRawChannelTimeMon
+print(TileLasRawChannelTimeMon)
 
 #-------------------------------
 #   Tile DQFrag monitoring
@@ -264,8 +266,8 @@ TileLasDQFragMon = CfgMgr.TileDQFragMonTool( name               = 'TileLasDQFrag
                                              , histoPathBase      = "/Tile/DMUErrors");
 
 topSequence.TileLasMon.AthenaMonTools += [ TileLasDQFragMon ];
-print TileLasDQFragMon
-print topSequence.TileLasMon
+print(TileLasDQFragMon)
+print(topSequence.TileLasMon)
 
 
 import os

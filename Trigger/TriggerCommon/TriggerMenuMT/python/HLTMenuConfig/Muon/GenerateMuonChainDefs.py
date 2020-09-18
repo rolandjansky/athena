@@ -33,19 +33,3 @@ def generateChainConfigs(chainDict):
     return theChainDef
 
 
-# this is obsolete: can we remove ? FP
-def mergeSerial(listOfChainDefs):
-
-    chaindef = listOfChainDefs[0]
-    listOfChainDefs.pop(0)
-    steps = chaindef.steps
-
-    for cdef in listOfChainDefs:
-        csteps = cdef.steps 
-        for step in csteps:
-            steps.append(step)
-
-    return chaindef
-
-
-

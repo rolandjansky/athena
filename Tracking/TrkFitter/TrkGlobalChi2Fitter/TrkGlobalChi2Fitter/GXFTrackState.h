@@ -14,10 +14,17 @@
 #define TRK_GXFTRACKSTATE_H
 
 #include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
+
+/**
+ * These headers, as well as other headers in the TrkGlobalChi2Fitter package
+ * use modern C++11 memory ownership semantics expressed through smart
+ * pointers. See GlobalChi2Fitter.h for more information.
+ */
 
 namespace Trk {
 
@@ -32,23 +39,18 @@ namespace Trk {
     GXFTrackState(GXFTrackState &);
 
     GXFTrackState(std::unique_ptr<const MeasurementBase>, std::unique_ptr<const TrackParameters>);
-    GXFTrackState(const TrackParameters *, TrackState::TrackStateType = TrackState::Hole);
-    GXFTrackState(GXFMaterialEffects *, const TrackParameters * trackpar);
+    GXFTrackState(std::unique_ptr<const TrackParameters>, TrackStateOnSurface::TrackStateOnSurfaceType);
+    GXFTrackState(std::unique_ptr<GXFMaterialEffects>, std::unique_ptr<const TrackParameters>);
     GXFTrackState & operator=(GXFTrackState &) = delete;
 
     void setMeasurement(std::unique_ptr<const MeasurementBase>);
     const MeasurementBase *measurement(void);
-    const MeasurementBase *takeMeasurement(void);
 
-    TrackState::TrackStateType trackStateType();
-    void setTrackStateType(TrackState::TrackStateType);
-    
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
     const TrackParameters *trackParameters(void);
-    const TrackParameters *takeTrackParameters(void);
     
     GXFMaterialEffects *materialEffects();
-    const Surface *surface();
+    const Surface *surface() const;
     void setJacobian(TransportJacobian &);
     Eigen::Matrix<double, 5, 5> & jacobian();
     Amg::MatrixX & derivatives();
@@ -61,7 +63,6 @@ namespace Trk {
 
     void setFitQuality(std::unique_ptr<const FitQualityOnSurface>);
     const FitQualityOnSurface *fitQuality(void);
-    const FitQualityOnSurface *takeFitQuality(void);
 
     TrackState::MeasurementType measurementType();
     void setMeasurementType(TrackState::MeasurementType);
@@ -83,9 +84,39 @@ namespace Trk {
     bool measuresPhi();
     void setMeasuresPhi(bool);
 
+    /**
+     * @brief Set a specific type, wiping all others.
+     *
+     * When called, this method will set the bit for a specific type to true or
+     * false. It will also set all other type bits to false.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Set a specific type bit.
+     *
+     * This method sets a specific bit in the type bitfield to the specified
+     * value, and does not touch any of the other bits.
+     *
+     * @param[in] type The track state type bit to set.
+     * @param[in] value The boolean value for the given bit (default true).
+     */
+    void setStateType(TrackStateOnSurface::TrackStateOnSurfaceType type, bool value=true);
+
+    /**
+     * @brief Retrieve the value of a specific type bit.
+     *
+     * @param[in] type The track state type bit to set.
+     * @return A boolean value indicating whether or not the type bit is set.
+     */
+    bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
+
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
-    TrackState::TrackStateType m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
+    std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
     std::unique_ptr<const TrackParameters> m_trackpar;  //!< track parameters
     std::unique_ptr<GXFMaterialEffects> m_materialEffects;      //!< Material effects on track (ie scatterer, brem)
     Eigen::Matrix<double, 5, 5> m_jacobian;    //!< Transport jacobian wrt previous state
@@ -101,6 +132,7 @@ namespace Trk {
     bool m_recalib;             //!< Has this measurement already been recalibrated?
     bool m_measphi;
     Amg::Vector3D m_globpos;
+    std::optional<std::vector<const TrackParameters *>> m_preholes;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -121,10 +153,6 @@ namespace Trk {
   inline const TrackParameters *GXFTrackState::trackParameters(void) {
     return m_trackpar.get();
   }
-  
-  inline const TrackParameters *GXFTrackState::takeTrackParameters(void) {
-    return m_trackpar.get();
-  }
 
   inline GXFMaterialEffects *GXFTrackState::materialEffects() {
     return m_materialEffects.get();
@@ -132,10 +160,6 @@ namespace Trk {
 
   inline TrackState::MeasurementType GXFTrackState::measurementType() {
     return m_mType;
-  }
-
-  inline TrackState::TrackStateType GXFTrackState::trackStateType() {
-    return m_tsType;
   }
 
   inline void GXFTrackState::setMeasurementType(TrackState::MeasurementType mt) {

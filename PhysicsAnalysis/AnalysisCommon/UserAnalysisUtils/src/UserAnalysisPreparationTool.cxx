@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*****************************************************************************
@@ -433,19 +433,10 @@ StatusCode UserAnalysisPreparationTool::caloClusterPreparation( std::string key 
   ATH_MSG_DEBUG("in caloClusterPreparation() ");
 
   /** create an empty container of all particles and record it */
-  CaloClusterContainer * caloClusters = new CaloClusterContainer( SG::VIEW_ELEMENTS );
-  StatusCode sc = evtStore()->record ( caloClusters, m_outputCaloClusterKey );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("Not able to create a collection of CaloClusters in StoreGate: key= " << m_outputCaloClusterKey);
-     return sc;
-  }
+  auto caloClusters = std::make_unique<ConstDataVector<CaloClusterContainer> >( SG::VIEW_ELEMENTS );
 
   const CaloClusterContainer * aod_caloClusters = 0;
-  sc = evtStore()->retrieve( aod_caloClusters, key );
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("No ESD/AOD/DPD caloCluster container found: key = " << key);
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve( aod_caloClusters, key ) );
   ATH_MSG_DEBUG("AOD CaloClusterContainer size is " << aod_caloClusters->size());
   m_numCaloClusters.first += aod_caloClusters->size();
 
@@ -459,10 +450,9 @@ StatusCode UserAnalysisPreparationTool::caloClusterPreparation( std::string key 
   }
   m_numCaloClusters.second += caloClusters->size();
 
-  sc = evtStore()->setConst( caloClusters );
-  if ( sc.isFailure() ) ATH_MSG_WARNING("Not able to lock the container of calo clusters ");
+  ATH_CHECK( evtStore()->record ( std::move (caloClusters), m_outputCaloClusterKey, false ) );
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 //-----------------------------------------------------------------------------------------------

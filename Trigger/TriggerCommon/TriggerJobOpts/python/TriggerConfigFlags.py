@@ -199,10 +199,22 @@ def createTriggerFlags():
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateL1Menu', False)
     
-    # L1 XML file name 
-    flags.addFlag('Trigger.LVL1ConfigFile',
-                  lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    def _deriveL1ConfigName(prevFlags):
+        import re
+        log = logging.getLogger('TrigConfigSvcCfg')
+        pattern = re.compile(r'_v\d+|DC14')
+        menuName=prevFlags.Trigger.triggerMenuSetup
+        patternPos = pattern.search(menuName)
+        if patternPos:
+            menuName=menuName[:patternPos.end()]
+        else:
+            log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+        
+        return "LVL1config_"+menuName+"_" + prevFlags.Trigger.menuVersion + ".xml"
 
+    # L1 XML file name 
+    flags.addFlag('Trigger.LVL1ConfigFile', _deriveL1ConfigName)
+   
     # L1 Json file name 
     flags.addFlag('Trigger.L1MenuFile',
                   lambda prevFlags: 'L1Menu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')

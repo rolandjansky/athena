@@ -270,7 +270,7 @@ TrigTraversal        INFO [All passing/failing features] All chains features siz
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
   Feature 3 pt:30, state:ACTIVE
-  Feature 4 pt:5, state:ACTIVE
+  Feature 4 pt:5, state:INACTIVE
 
 TrigTraversal        INFO [Final passing/failing feature] HLT_mufast_chain features size:2
   Feature 0 pt:20, state:ACTIVE
@@ -293,7 +293,7 @@ TrigTraversal        INFO [Final passing/failing feature] All chains features si
   Feature 0 pt:20, state:ACTIVE
   Feature 1 pt:21, state:ACTIVE
   Feature 2 pt:31, state:ACTIVE
-  Feature 3 pt:5, state:ACTIVE
+  Feature 3 pt:5, state:INACTIVE
 
  ---------- Check Explicit Type 
 TrigTraversal        INFO [Explicit Final Muon Features] HLT_mu_em_chain features size:2

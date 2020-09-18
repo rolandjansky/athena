@@ -86,7 +86,7 @@ class TruthParticle : public ParticleImpl<
    *  construct a @c TruthParticle from a @c HepMC::GenParticle and
    *  the @c TruthParticleContainer holding this @c TruthParticle
    */
-  TruthParticle( const HepMC::GenParticle* genParticle, 
+  TruthParticle( HepMC::ConstGenParticlePtr genParticle, 
 		 const TruthParticleContainer * container = 0 );
 
   /** Assignment operator
@@ -109,13 +109,13 @@ class TruthParticle : public ParticleImpl<
 //    */
 
   /// Retrieve the GenParticle mother of this TruthParticle
-  const HepMC::GenParticle* genMother(const std::size_t i=0) const;
+  HepMC::ConstGenParticlePtr genMother(const std::size_t i=0) const;
 
   /// Retrieve the GenParticle this TruthParticle has been made from (if any)
-  const HepMC::GenParticle* genParticle() const;
+  HepMC::ConstGenParticlePtr genParticle() const;
 
   /// Retrieve the i-th child (GenParticle) of this TruthParticle
-  const HepMC::GenParticle* genChild( const std::size_t i ) const;
+  HepMC::ConstGenParticlePtr genChild( const std::size_t i ) const;
 
   /** @{ HepMC::GenParticle forwarding interface
    */
@@ -207,9 +207,13 @@ class TruthParticle : public ParticleImpl<
   /// Return the PDG-Id of the i-th child of this particle
   PDG::pidType pdgDecay( const std::size_t i ) const;
 
+#ifdef HEPMC3
+//FIXME
+#else
   /// conversion operator: convert a @c TruthParticle to its underlying
   /// @c HepMC::GenParticle
   operator const HepMC::GenParticle&() const;
+#endif
 
   evtIndex_t genEventIndex() const {return m_nGenEventIdx;}
 
@@ -237,7 +241,7 @@ class TruthParticle : public ParticleImpl<
  protected: 
   
   /// Fill the data members of ParticleBase from the GenParticle
-  void setGenParticle( const HepMC::GenParticle* particle );
+  void setGenParticle( HepMC::ConstGenParticlePtr particle );
 
 
 
@@ -279,7 +283,7 @@ std::ostream& operator<<( std::ostream& out, const TruthParticle& mc );
 inline TruthParticle::~TruthParticle() 
 {}
 
-inline const HepMC::GenParticle* TruthParticle::genParticle() const
+inline HepMC::ConstGenParticlePtr TruthParticle::genParticle() const
 {
   return this->particleBase().genParticle();
 }
@@ -315,12 +319,18 @@ inline unsigned int TruthParticle::nParents() const
 inline unsigned int TruthParticle::nDecay() const 
 { return m_children.size(); }
 
+#ifdef HEPMC3
+
+//FIXME
+#else
+
 inline
 TruthParticle::operator const HepMC::GenParticle&() const
 {
   return *genParticle();
 }
 
+#endif
 inline void TruthParticle::setCharge( const ChargeType charge )
 {
   this->particleBase().setCharge( charge );

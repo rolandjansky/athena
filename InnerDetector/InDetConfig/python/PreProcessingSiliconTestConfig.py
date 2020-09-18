@@ -2,9 +2,6 @@
 
 ## this is test for clusterization configuration
 
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from AthenaConfiguration.ComponentFactory import CompFactory
-
 #import TrackReco 	   as TrackReco
 #import PixelGeoModelConfig      as PixelGeoModelConfig
 #import SCT_GeoModelConfig	as SCT_GeoModelConfig
@@ -21,10 +18,8 @@ def main(flags) :
     from ClusterizationConfig import InDetClusterizationAlgorithmsCfg
     result = InDetClusterizationAlgorithmsCfg(flags)
 
-    ## may be that should be put to the condition configuration
-    result.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos",
-                                        "/Indet/Beampos", "AthenaAttributeList"))
-    result.addCondAlgo(CompFactory.BeamSpotCondAlg(name = 'BeamSpotCondAlg'))
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc.merge(BeamSpotCondAlgCfg(flags))
 
     if flags.InDetFlags.doSpacePointFormation:
         result.merge(SPF.InDetSiElementPropertiesTableCondAlgCfg(flags))

@@ -112,11 +112,6 @@ if InDetTrigFlags.loadRotCreator():
                                                                       NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
 
     ToolSvc += TrigNnClusterizationFactory
-    
-    from IOVDbSvc.CondDB import conddb
-    if InDetTrigFlags.doTIDE_RescalePixelCovariances() :
-      if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
 
   else:
     TrigNnClusterizationFactory = None

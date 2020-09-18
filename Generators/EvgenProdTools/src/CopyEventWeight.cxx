@@ -10,10 +10,9 @@
 #include <algorithm>
 #include <cassert>
 
-using namespace std;
 
 
-CopyEventWeight::CopyEventWeight(const string& name, ISvcLocator* svcLoc)
+CopyEventWeight::CopyEventWeight(const std::string& name, ISvcLocator* svcLoc)
   : GenBase(name, svcLoc)
 {
   declareProperty("McWeightEventInfoKey", m_mcWeightEventInfoKey="McWeightEventInfo");
