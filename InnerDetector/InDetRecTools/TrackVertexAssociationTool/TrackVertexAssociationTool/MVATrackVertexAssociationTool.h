@@ -72,7 +72,7 @@ private:
   StringProperty m_fileName {this, "NetworkFileName", "", "Name of the input lwtnn network file."};
 
   // Vector of input variable names
-  StringArrayProperty m_inputNames {this, "NetworkFileName", {}, "Vector of the network's input variable names (std::vector<std::string>)."};
+  StringArrayProperty m_inputNames {this, "InputNames", {}, "Vector of the network's input variable names (std::vector<std::string>)."};
 
   // Vector of input variable types
   IntegerArrayProperty m_inputTypes {this, "InputTypes", {}, "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>)."};
