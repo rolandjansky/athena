@@ -1273,7 +1273,7 @@ class analytic():
                         fitResult = {"slope": slope, "chi2": chi2}
                         if slope:
                             HRslope, unit = self.formatBytes(slope)
-                            msg.info('current memory leak: {0} {1} (using {2} data points, chi2={3})'.format(HRslope, unit, len(x), chi2))
+                            msg.info('slope of the fitted line: {0} {1} (using {2} data points, chi2={3})'.format(HRslope, unit, len(x), chi2))
             else:
                 msg.warning('wrong length of table data, x={0}, y={1} (must be same and length>={2})'.format(x, y, minPoints))
 
