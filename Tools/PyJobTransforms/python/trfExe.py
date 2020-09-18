@@ -771,6 +771,7 @@ class scriptExecutor(transformExecutor):
                 self._memMonitor = False
                 self._memStats = {}
 
+
     def validate(self):
         if self._valStart is None:
             self._valStart = os.times()
@@ -808,6 +809,7 @@ class scriptExecutor(transformExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
+
 
 
 class athenaExecutor(scriptExecutor):
