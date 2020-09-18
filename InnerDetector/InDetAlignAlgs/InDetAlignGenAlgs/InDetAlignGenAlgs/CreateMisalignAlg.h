@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNMENT_CREATEMISALIGNALG_H
@@ -12,7 +12,6 @@
 #include <vector>
 
 // Gaudi includes
-// #include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/NTuple.h"
@@ -104,7 +103,6 @@ private:
     double                                 m_ScaleTRTBarrel;
     double                                 m_ScaleTRTEndcap;
 
-
     std::map<Identifier, HepGeom::Point3D<double> >  m_ModuleList;        //!< map of all SiIdentifiers to be misaligned and their centerpoints in global coordinates
 
     // Generated Initial Alignment NTuple
@@ -112,6 +110,10 @@ private:
 
     int         m_AthenaHashedID;
     int         m_HumanReadableID;
+
+    bool                                   m_doTRT;
+    bool                                   m_doPixel;
+    bool                                   m_doSCT;
 
     NTuple::Item<double> m_AlignResults_x;                    //!< Alignment parameter sensitive coordinate
     NTuple::Item<double> m_AlignResults_y;                    //!< AP not-so-sensitive coordinate

@@ -199,7 +199,7 @@ StatusCode SCT_GMX_DetectorTool::registerCallback(StoreGateSvc* detStore) {
 //
     StatusCode sc = StatusCode::FAILURE;
     if (m_alignable) {
-        std::string folderName = "/Indet/Align";
+        std::string folderName = "/Indet/AlignITk";
         if (detStore->contains<AlignableTransformContainer>(folderName)) {
             msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
             const DataHandle<AlignableTransformContainer> atc;
