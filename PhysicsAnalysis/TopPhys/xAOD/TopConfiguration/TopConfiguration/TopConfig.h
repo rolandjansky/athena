@@ -146,6 +146,14 @@ namespace top {
       }
     }
 
+    // List of NominalLoose branches to be removed
+    inline std::vector<std::string> filterNominalLooseBranches() const {return m_filterNominalLooseBranches;}
+    inline void setFilterNominalLooseBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterNominalLooseBranches = value;
+      }
+    }
+
     // Generators name
     inline std::string getGenerators() const {return m_generators;}
     inline void setGenerators(const std::string value) {
@@ -2045,7 +2053,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
-    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;

@@ -1000,6 +1000,17 @@ namespace top {
       this->setFilterParticleLevelBranches(branches);
     }
 
+    // Get list of nominal_Loose branches to be filtered
+    if (settings->value("FilterNominalLooseBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterNominalLooseBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterNominalLooseBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterNominalLooseBranches(branches);
+    }
+
     // Force recomputation of CP variables?
     if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
 

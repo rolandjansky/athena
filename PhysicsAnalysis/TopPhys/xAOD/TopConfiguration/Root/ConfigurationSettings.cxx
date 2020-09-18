@@ -376,6 +376,8 @@ namespace top {
                       "Comma separated list of names of the parton-level branches that will be removed from the output", " ");
     registerParameter("FilterParticleLevelBranches",
                       "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
+    registerParameter("FilterNominalLooseBranches",
+                      "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
