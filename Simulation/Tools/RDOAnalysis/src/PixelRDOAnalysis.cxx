@@ -696,7 +696,7 @@ StatusCode PixelRDOAnalysis::execute() {
           }          
         }        
 
-        if (detEl->isBarrel()) {
+        if (detEl->isBarrel() || detEl->isInclined()) {
           m_h_brlLayer->Fill(pixLayerDisk);
           m_h_brlPhiMod->Fill(pixPhiMod);
           m_h_brlEtaMod->Fill(pixEtaMod);
