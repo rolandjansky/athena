@@ -18,6 +18,7 @@
 #include "Gaudi/PluginService.h"
 #include "TestTools/leakcheck.h"
 #include "TestTools/initGaudi.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -205,7 +206,7 @@ void populate_surfaces()
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -237,7 +238,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   // This isn't really needed, except that without it, CommonMessaging
   // will leak memory, causing a Leakcheck failure.

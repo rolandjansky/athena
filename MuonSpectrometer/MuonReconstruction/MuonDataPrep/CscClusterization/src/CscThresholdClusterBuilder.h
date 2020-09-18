@@ -60,6 +60,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "CscClusterization/ICscClusterBuilder.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace MuonGM {
 class MuonDetectorManager;
@@ -87,8 +89,6 @@ class CscThresholdClusterBuilder : public AthAlgorithm {
     // Event processing.
     StatusCode execute();
 
-    // Finalization.
-    StatusCode finalize();
 
   private:  // data
     // Strip fitter.
@@ -97,6 +97,19 @@ class CscThresholdClusterBuilder : public AthAlgorithm {
         "cluster_builder",
         "CscThresholdClusterBuilderTool/CscThresholdClusterBuilderTool",
     };
+
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{
+        this,
+        "MuonIdHelperSvc",
+        "Muon::MuonIdHelperSvc/MuonIdHelperSvc",
+    };
+
+    SG::WriteHandleKey<Muon::CscPrepDataContainer> m_pclusters{
+        this, 
+	"cluster_key", 
+	"CSC_Clusters", 
+	"Ouput CSC Cluster container"};
+
 };
 
 #endif

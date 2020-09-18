@@ -95,7 +95,8 @@ std::string connectionString(const std::string &connection_string_in) {
 /** Constructor.
     Open a database identified by the connection string.
 */
-PixCoralClient::PixCoralClient(std::string id1, bool verbose, coral::AccessMode access_mode, const char* tableName)
+PixCoralClient::PixCoralClient(const std::string& id1,
+                               bool verbose, coral::AccessMode access_mode, const char* tableName)
   : m_connString(connectionString(id1)),
     m_accessMode(access_mode),
     m_connectionService(connectionService(verbose)),
@@ -180,7 +181,7 @@ void PixCoralClient::printTables(const char* /* option */)
 //--------------------------------------------------------------------------
 /** Get the description of a table identified by an input string on the database and print it on stdout.
  */
-void PixCoralClient::printTableDesc(std::string tableName)
+void PixCoralClient::printTableDesc(const std::string& tableName)
 {
   if (m_verbose) std::cout << "\nCOOLCORAL Client: " << tableName <<" Table description" << std::endl;
 
@@ -215,7 +216,7 @@ void PixCoralClient::printTableDesc(std::string tableName)
 /** Get the content of a table identified by an input string on the 
     database and print its number of lines.
  */
-void PixCoralClient::printTableContent(std::string tableName){
+void PixCoralClient::printTableContent(const std::string& tableName){
   if (m_verbose) std::cout << "\nCOOLCORAL Client: " << tableName 
 			   <<" Table content"<< std::endl;
    
@@ -553,7 +554,7 @@ void PixCoralClient::fillTables(const char* option){
 /** Get results for a particular analysis ID
     Optionally get only variable "varname" and/or connectivity object connName
  */
-void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, std::string varname, std::string connName){
+void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, const std::string& varname, const std::string& connName){
 
   std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
   if (varname != "") std::cout<<", variable " << varname;
@@ -1212,7 +1213,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
   unsigned int empty_conn_names=0;
   for (typename std::map<std::string, std::map<std::string, T> >::const_iterator iter=results->begin<T>();
        iter != results->end<T>();
-       iter ++) {
+       ++iter) {
 
     if (iter->first.empty()) {
       empty_var_names++;
@@ -1232,7 +1233,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
     std::unique_ptr<coral::IBulkOperation>  pixel_bulk_2(pixel_editor_2.bulkInsert(pixel_row_2,iter->second.size()));
     for (typename std::map<std::string, T >::const_iterator val_iter=iter->second.begin();
 	 val_iter != iter->second.end();
-	 val_iter ++) {
+	 ++val_iter) {
 
       if (val_iter->first.empty()) {
 	empty_conn_names++;
@@ -1429,7 +1430,7 @@ int PixCoralClient::fillTablePixelCalibData(long long fk, const char* option){
     and fill an AnalysisResultList_t container
     Optionally get only variable "varname" and/or connectivity object connName
  */
-CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, std::string varname, std::string connName){
+CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::string& varname, const std::string& connName){
 
   if (m_verbose) {
     std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
@@ -1566,7 +1567,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
     objects connName and fill an AnalysisResultList_t container
     Optionally get only variable "varname" 
  */
-CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, std::string varname){
+CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, const std::string& varname){
 
   if (m_verbose) {
     std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
@@ -2058,7 +2059,7 @@ PixelMap_t PixCoralClient::CLOBtoPixelMap(const std::string & clob) {
 //------------------------------------------------
 /// Get value from PVSS archive
 //------------------------------------------------
-double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const coral::TimeStamp &since, const coral::TimeStamp &until)
+double PixCoralClient::get_value_from_PVSSarch(const std::string& element_name, const coral::TimeStamp &since, const coral::TimeStamp &until)
 {
   double result=0;
 
@@ -2125,7 +2126,7 @@ double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const c
 //------------------------------------------------
 /// Get value from PVSS archive
 //------------------------------------------------
-double PixCoralClient::get_values_from_PVSSarch(std::string element_name, const coral::TimeStamp &since, const coral::TimeStamp &until){
+double PixCoralClient::get_values_from_PVSSarch(const std::string& element_name, const coral::TimeStamp &since, const coral::TimeStamp &until){
 
     double result=0;
 

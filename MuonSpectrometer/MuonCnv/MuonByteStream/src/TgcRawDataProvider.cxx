@@ -1,35 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/TgcRawDataProvider.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "eformat/SourceIdentifier.h"
 #include <algorithm>
 
 using eformat::helper::SourceIdentifier;
 
-// --------------------------------------------------------------------
-// Constructor
-
 Muon::TgcRawDataProvider::TgcRawDataProvider(const std::string& name,
         ISvcLocator* pSvcLocator) :
         AthAlgorithm(name, pSvcLocator),
-        m_rawDataTool     ("Muon::TGC_RawDataProviderToolMT/TgcRawDataProviderTool", this),
         m_regionSelector  ("RegSelSvc",name)
 {
-    declareProperty ("ProviderTool", m_rawDataTool);
     declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
-
-// Destructor
-
-Muon::TgcRawDataProvider::~TgcRawDataProvider()
-{}
-
-// --------------------------------------------------------------------
-// Initialize
 
 StatusCode Muon::TgcRawDataProvider::initialize()
 {
@@ -50,13 +36,6 @@ StatusCode Muon::TgcRawDataProvider::initialize()
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode Muon::TgcRawDataProvider::finalize()
-{
-    return StatusCode::SUCCESS;
-}
-// --------------------------------------------------------------------
-// Execute
 
 StatusCode Muon::TgcRawDataProvider::execute()
 {

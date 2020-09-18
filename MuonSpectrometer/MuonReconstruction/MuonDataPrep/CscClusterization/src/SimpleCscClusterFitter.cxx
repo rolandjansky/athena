@@ -46,7 +46,6 @@ SimpleCscClusterFitter::initialize()
     ATH_MSG_DEBUG("  Position option: " << m_option);
     ATH_MSG_DEBUG("  Intrinsic width: " << m_intrinsic_cluster_width << " mm");
 
-    ATH_CHECK(detStore()->retrieve(m_detMgr, "Muon"));
     ATH_CHECK(m_idHelperSvc.retrieve());
 
     if (m_alignmentTool.retrieve().isFailure()) {

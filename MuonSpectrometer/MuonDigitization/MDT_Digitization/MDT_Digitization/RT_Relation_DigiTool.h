@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_RT_RELATION_DIGITOOL_H
@@ -38,7 +38,7 @@ class RT_Relation_DigiTool : public AthAlgTool,
   
   virtual StatusCode initialize() override;
 
-  bool initializeTube();
+  bool initializeTube(const MuonGM::MuonDetectorManager* detMgr);
 
  private:
   double getDriftTime(double radius) const;
@@ -50,7 +50,6 @@ class RT_Relation_DigiTool : public AthAlgTool,
 
   std::vector <Rt_relation *> m_rt;
 
-  const MuonGM::MuonDetectorManager* m_muonGeoMgr;
   const MdtIdHelper*         m_idHelper;
 
 };

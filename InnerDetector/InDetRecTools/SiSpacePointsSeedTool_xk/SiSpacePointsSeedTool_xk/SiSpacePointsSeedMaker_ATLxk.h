@@ -246,7 +246,7 @@ namespace InDet {
     float m_dzdrmax0{0.};   ///< implicitly store eta cut
     float m_ipt{0.};    ///< inverse of 90% of the ptmin cut 
     float m_ipt2{0.};   ///< inverse square of 90% of the pt min cut 
-    static constexpr float m_COF{134*.05*9};    ///< conversion factor. A very magic number indeed. 
+    static constexpr float m_COF{134*.05*9};    ///< appears to be an approximated term related to multiple-scattering of particles traversing the ID during the seed formation 
 
     /// @name Binning parameters 
     ///@{
@@ -417,7 +417,7 @@ namespace InDet {
      std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endBottomCands,
      std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_topCands,
      std::array<std::vector<InDet::SiSpacePointForSeed*>::iterator, arraySizeNeighbourBins> & iter_endTopCands,
-     const int numberBottomCells, const int numberTopCells, int& nseed) const;
+     const int numberBottomCells, const int numberTopCells, int& nseed, const int zbin = -1) const;
 
     /// as above, but for the trigger 
     void production3SpTrigger

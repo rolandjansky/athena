@@ -382,6 +382,99 @@ def TrigBjetMonConfig(inputFlags):
             if chain[0:1] == "S" :
                 BjetMonGroup.defineHistogram(HistName, title='Distribution of number of 2-track SV1;Number of 2-track SV1;Events',
                                              path='Shifter/'+chain[2:],xbins=40,xmin=0.0,xmax=40.0)
+
+
+            HistName = 'RNNIP_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pu probability;RNNIP_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pu probability;RNNIP_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'RNNIP_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pc probability;RNNIP_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pc probability;RNNIP_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'RNNIP_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pb probability;RNNIP_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of RNNIP_pb probability;RNNIP_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+
+            HistName = 'DL1_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pu probability;DL1_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pc probability;DL1_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_pb probability;DL1_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1_mv_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1_mv LLR;DL1_mv;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+
+
+            HistName = 'DL1r_pu_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pu probability;DL1r_pu;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pu probability;DL1r_pu;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_pc_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pc probability;DL1r_pc;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pc probability;DL1r_pc;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_pb_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pb probability;DL1r_pb;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_pb probability;DL1r_pb;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=0.0,xmax=1.0)
+
+            HistName = 'DL1r_mv_tr_' + chain[2:]
+            if chain[0:1] == "E" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
+                                             path='Expert/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+            if chain[0:1] == "S" :
+                BjetMonGroup.defineHistogram(HistName, title='Distribution of DL1r_mv LLR;DL1r_mv;Events',
+                                             path='Shifter/'+chain[2:],xbins=200,xmin=-20.,xmax=10.)
+
+
             continue
 
 

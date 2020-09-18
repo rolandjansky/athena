@@ -9,14 +9,15 @@
 #include "IOVDbDataModel/IOVPayloadContainer.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
 
 using IOVDbNamespace::makeEpochOrRunLumi;
 
 namespace IOVDbNamespace{
-  ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container, 
-        const IOVTime & refTime, const bool useEpochTimestamp):
+  ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container,
+        const IOVTime & refTime, const bool useEpochTimestamp) :
         m_metaContainer(container), 
-        m_referenceTime(refTime){
+        m_referenceTime(refTime) {
     m_payload = (container) ? (container->payloadContainer()) : (nullptr);
     if (m_payload){
       IOVPayloadContainer::const_iterator pitr=m_payload->find(m_referenceTime);
@@ -30,10 +31,12 @@ namespace IOVDbNamespace{
     }
   }
   //
-  ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container, 
+  ReadFromFileMetaData::ReadFromFileMetaData( const IOVMetaDataContainer* container,
         const cool::ValidityKey & refTimeKey, const bool useEpochTimestamp)
-        :ReadFromFileMetaData(container,makeEpochOrRunLumi(refTimeKey,useEpochTimestamp),useEpochTimestamp){
-  }
+     : ReadFromFileMetaData( container,
+                             makeEpochOrRunLumi(refTimeKey,useEpochTimestamp),
+                             useEpochTimestamp )
+  { } 
   //
   ReadFromFileMetaData::~ReadFromFileMetaData(){
     if (m_newedPtr) delete m_pptr;
@@ -101,7 +104,36 @@ namespace IOVDbNamespace{
     return m_attrList;
   }
 
+//-----------------------------------------------------------------------
+   FMDReadLock::FMDReadLock( IIOVDbMetaDataTool* metadatatool )
+      : m_metadatatool(metadatatool)
+   {
+      m_metadatatool->lock_shared();
+   }
+
+   IOVMetaDataContainer* FMDReadLock::findFolder( const std::string& folderName )
+   {
+      return m_metadatatool->findMetaDataContainer( folderName );
+   }
+
+   FMDReadLock::~FMDReadLock() {
+      m_metadatatool->unlock_shared();
+   }
 
 
+  SafeReadFromFileMetaData::SafeReadFromFileMetaData(
+     const std::string& folderName,
+     IIOVDbMetaDataTool* metadatatool,
+     const IOVTime & refTime, const bool useEpochTimestamp )
+     :  FMDReadLock(metadatatool),
+        ReadFromFileMetaData( FMDReadLock::findFolder(folderName), refTime, useEpochTimestamp )
+  {  }
 
+  SafeReadFromFileMetaData::SafeReadFromFileMetaData(
+     const std::string& folderName,
+     IIOVDbMetaDataTool* metadatatool,
+     const cool::ValidityKey & refTimeKey, const bool useEpochTimestamp)
+     :  FMDReadLock(metadatatool),
+        ReadFromFileMetaData( FMDReadLock::findFolder(folderName), refTimeKey, useEpochTimestamp )
+  {  }
 }

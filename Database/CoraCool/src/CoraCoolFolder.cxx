@@ -139,7 +139,7 @@ int CoraCoolFolder::storeObject ATLAS_NOT_THREAD_SAFE (const cool::ValidityKey& 
 		   const_iterator begin,
 		   const_iterator end,
 		   const cool::ChannelId& channelId,
-		   const std::string tagName,
+		   const std::string& tagName,
 		   const bool userTagOnly) {
   // store objects into CORAL table, and reference in COOL table
   // generate new FK and PK for CORAL data as needed
@@ -274,7 +274,7 @@ void CoraCoolFolder::referenceObject(const cool::ValidityKey& since,
 		       const cool::ValidityKey& until,
 		       const coral::Attribute& fkey,
 		       const cool::ChannelId& channelId,
-		       const std::string tagName,
+		       const std::string& tagName,
 		       const bool userTagOnly) {
   // add reference to existing payload object
   // call COOL API, just checking fkey has correct name
@@ -293,7 +293,7 @@ void CoraCoolFolder::referenceObject(const cool::ValidityKey& since,
 		       const cool::ValidityKey& until,
 		       const int ifkey,
 		       const cool::ChannelId& channelId,
-		       const std::string tagName,
+		       const std::string& tagName,
 		       const bool userTagOnly) {
   // add reference to existing payload object, supplying key as int
   cool::Record fkeylist(m_coolfolder->payloadSpecification());
@@ -531,7 +531,7 @@ void CoraCoolFolder::bulkInsert(const_iterator begin,const_iterator end,
 
 CoraCoolObjectPtr CoraCoolFolder::findObject(
    const cool::ValidityKey& pointInTime, const cool::ChannelId& channelId, 
-   const std::string tagName) {
+   const std::string& tagName) {
   // first query cool to get foreign key
   m_log << coral::Debug << "CoraCoolFolder query time " << pointInTime << 
     " channel " << channelId << " tag " << tagName << coral::MessageStream::endmsg;

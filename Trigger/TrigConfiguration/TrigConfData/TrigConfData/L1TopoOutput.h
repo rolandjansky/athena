@@ -28,6 +28,11 @@ namespace TrigConf {
       /** Destructor */
       ~L1TopoOutput();
 
+      // class name
+      virtual std::string className() const override {
+         return "L1TopoOutput";
+      }
+
       /** Accessor to the algorithm name */
       const std::string & algName() const;
 

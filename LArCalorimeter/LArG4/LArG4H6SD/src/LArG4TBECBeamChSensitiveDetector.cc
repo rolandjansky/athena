@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4TBECBeamChSensitiveDetector
@@ -85,8 +85,8 @@ G4bool LArG4TBECBeamChSensitiveDetector::ProcessHits(G4Step* a_step,
 #endif
 
         G4bool found = false;
-        for(m_Hit_pointer i = m_Hits.begin(); i != m_Hits.end(); i ++){
-                if((*i)->getIdentifier() == ident){
+        for (const LArG4TBECBeamChHit* hit : m_Hits) {
+                if(hit->getIdentifier() == ident){
                         found = true;
                         break;
                 }

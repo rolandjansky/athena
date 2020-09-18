@@ -14,8 +14,6 @@
 // Constructor with parameters:
 RPC_PrepDataToxAOD::RPC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   MuonPrepDataToxAOD(name,pSvcLocator,"RPC_Measurements","RPC_SDO"),
-  m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-  m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
   m_inversePropagationSpeed(0.0048)
 {  
 }

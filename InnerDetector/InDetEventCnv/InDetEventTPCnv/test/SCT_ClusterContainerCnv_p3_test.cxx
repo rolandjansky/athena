@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/SCT_ClusterContainerCnv_p3_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -19,6 +17,7 @@
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -144,7 +143,7 @@ makeclusts(const SCT_ID& sct_id)
 }
 
 
-void test1(const SCT_ID& sct_id)
+void test1 ATLAS_NOT_THREAD_SAFE (const SCT_ID& sct_id)
 {
   std::cout << "test1\n";
 
@@ -180,7 +179,7 @@ const SCT_ID& make_dd()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("InDetEventTPCnv_test.txt", pSvcLoc)) {

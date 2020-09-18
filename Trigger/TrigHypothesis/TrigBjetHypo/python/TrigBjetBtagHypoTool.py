@@ -28,6 +28,12 @@ bTaggingWP = {
     'hmv2c1070' : 0.588,
     'hmv2c1077' : 0.192,
     'hmv2c1085' : -0.402,
+    # DL1r (Place Holder while we wait for WPs to be defined)
+    # Values taken from https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease21#DL1rnn_tagger
+    'dl1r60' : 4.31,
+    'dl1r70' : 2.98,
+    'dl1r77' : 2.23,
+    'dl1r85' : 1.32,
     }
 
 ####################################################################################################  
@@ -64,11 +70,22 @@ def decodeThreshold( threshold_btag ):
 
     log.debug("TrigBjetBtagHypoToolFromName: decoding threshold b%s", threshold_btag)
 
+    import re
+    tagger = "offperf" if threshold_btag == "offperf" else re.findall("(.*)[0-9]{2}",threshold_btag)[0]
+
+    allowedTaggers = ["offperf","hmv2c10","mv2c10","mv2c20","dl1r"]
+    if tagger not in allowedTaggers:
+        log.debug("tagger = %s not amidst allowed taggers ",threshold_btag)
+        assert False, "Can't recognize tagger during TrigBjetHypoTool configuration. Tagger = "+threshold_btag
+        return None
+
     tagger = "MV2c10"
-    if "mv2c20" in threshold_btag :
+    if"mv2c20" in threshold_btag :
         tagger = "MV2c20"
     elif "hmv2c10" in threshold_btag : 
         tagger = "MV2c00"
+    elif "dl1r" in threshold_btag : 
+        tagger = "DL1r"
 
     cut = bTaggingWP.get( threshold_btag,-20 )
     return [tagger,cut]
@@ -88,6 +105,7 @@ def getBjetBtagHypoConfiguration( name,conf_dict ):
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb
+    tool.cFraction = 0.03
 
     return tool
 

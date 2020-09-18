@@ -98,15 +98,16 @@ protected:
 
 public:
   // added table name -- A.X.
-  PixCoralClient(std::string id1, bool verbose = false, coral::AccessMode access_mode = coral::Update, const char* tableName = "CALIB_ANAL");
+  PixCoralClient(const std::string& id1,
+                 bool verbose = false, coral::AccessMode access_mode = coral::Update, const char* tableName = "CALIB_ANAL");
   PixCoralClient(bool verbose = false, coral::AccessMode access_mode = coral::Update, const char* tableName = "CALIB_ANAL");
   ~PixCoralClient();
 
   void disconnect();
   
   void printTables(const char* option = 0); // added option -- A.X.
-  void printTableDesc(std::string tableName);
-  void printTableContent(std::string tableName);
+  void printTableDesc(const std::string& tableName);
+  void printTableContent(const std::string& tableName);
   void createTables(const char* option = 0); // added option -- A.X.
   template <typename T> void createTable();
   template <typename T> int fillTable(long long fk, CAN::AnalysisResultList_t *results);
@@ -118,13 +119,13 @@ public:
   void fillTables(const char* option);
 
   //PVSS methods
-  double get_value_from_PVSSarch(std::string,const coral::TimeStamp &,const coral::TimeStamp &);
-  double get_values_from_PVSSarch(std::string,const coral::TimeStamp &,const coral::TimeStamp &);
+  double get_value_from_PVSSarch(const std::string&,const coral::TimeStamp &,const coral::TimeStamp &);
+  double get_values_from_PVSSarch(const std::string&,const coral::TimeStamp &,const coral::TimeStamp &);
   void get_alias_from_PVSSarch();
 
-  void queryTable(CAN::SerialNumber_t anal_id, std::string varname="", std::string connName="");
-  CAN::AnalysisResultList_t getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, std::string varname="", std::string connName="");
-  CAN::AnalysisResultList_t getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, std::string varname="");
+  void queryTable(CAN::SerialNumber_t anal_id, const std::string& varname="", const std::string& connName="");
+  CAN::AnalysisResultList_t getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::string& varname="", const std::string& connName="");
+  CAN::AnalysisResultList_t getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, const std::string& varname="");
 
   /** Get analysis results for a list of connectivity objects.
    * @param analysis_id list of analysis serial numbers,

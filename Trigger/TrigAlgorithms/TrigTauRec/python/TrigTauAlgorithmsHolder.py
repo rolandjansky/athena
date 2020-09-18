@@ -746,7 +746,6 @@ def getTauIDVarCalculator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
     TauIDVarCalculator = TauIDVarCalculator(name=_name)
-    TauIDVarCalculator.Key_vertexInputContainer = ""
     
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator

@@ -82,15 +82,6 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         ToolSvc += NnClusterizationFactory
 
-        # special setup for DVRetracking mode
-        # if InDetFlags.doDVRetracking() :
-           # COOL binding
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.doTIDE_RescalePixelCovariances() :
-            if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
-                # COOL binding
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
-
         if (InDetFlags.doPrintConfigurables()):
             printfunc (NnClusterizationFactory)
 elif InDetFlags.doPixelClusterSplitting():

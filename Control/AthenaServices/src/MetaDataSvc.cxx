@@ -581,6 +581,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       }
       for (SG::TransientAddress* tad : tList) {
          CLID clid = tad->clID();
+          ATH_MSG_VERBOSE("initInputMetaDataStore: add proxy for clid = " << clid << ", key = " << tad->name());
          if (m_inputDataStore->contains(tad->clID(), tad->name())) {
             ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains clid = " << clid << ", key = " << tad->name());
          } else {
@@ -619,4 +620,24 @@ CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
       return 167729019;   //  MetaCont<EventStreamInfo> CLID
    }
    return item_id;
+}
+
+
+void MetaDataSvc::lockTools() const
+{
+   ATH_MSG_DEBUG("Locking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->lock_shared();
+   }
+}
+
+
+void MetaDataSvc::unlockTools() const
+{
+   ATH_MSG_DEBUG("Unlocking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->unlock_shared();
+   }
 }

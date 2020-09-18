@@ -834,16 +834,6 @@ StatusCode HltEventLoopMgr::updateMagField(const ptree& pt) const
       auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
       auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
 
-      // Set currents on service (deprecated: ATLASRECTS-4687)
-      IProperty* fieldSvc{nullptr};
-      service("AtlasFieldSvc", fieldSvc, /*createIf=*/false).ignore();
-      if ( fieldSvc ) {
-        ATH_MSG_INFO("Setting field currents on AtlasFieldSvc");
-        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseSoleCurrent", sol_cur) );
-        ATH_CHECK( Gaudi::Utils::setProperty(fieldSvc, "UseToroCurrent", tor_cur) );
-      }
-      else ATH_MSG_WARNING("Cannot retrieve AtlasFieldSvc");
-
       // Set current on conditions alg
       const IAlgManager* algMgr = Gaudi::svcLocator()->as<IAlgManager>();
       IAlgorithm* fieldAlg{nullptr};

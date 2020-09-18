@@ -17,6 +17,8 @@
 // STL
 #include <vector>
 
+#include "CxxUtils/checker_macros.h"
+
 class EventIDRange;
 namespace Trk {
 
@@ -54,7 +56,7 @@ namespace Trk {
        *     TrackingGeometry is nullptr, range should be infinite (so
        *     intersecting with another range has no effect)
        */
-      virtual std::pair<EventIDRange, const TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const = 0;
+      virtual std::pair<EventIDRange, const TrackingGeometry*> trackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const = 0;
 
       /** The unique signature */
       virtual GeometrySignature geometrySignature() const = 0;

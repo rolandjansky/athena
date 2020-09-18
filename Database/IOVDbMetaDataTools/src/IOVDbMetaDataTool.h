@@ -20,10 +20,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/IMetaDataTool.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
 
 #include <string>  
+#include <shared_mutex>
 
 class StoreGateSvc;
 class IOVMetaDataContainer;
@@ -37,7 +37,6 @@ class IOVMetaDataContainer;
  **/
 
 class IOVDbMetaDataTool : virtual public AthAlgTool,
-                          virtual public IMetaDataTool,
                           virtual public IIncidentListener,
                           virtual public IIOVDbMetaDataTool
 {
@@ -88,9 +87,15 @@ public:
     /// occurs before BegininputFile incident.
     virtual StatusCode processInputFileMetaData(const std::string& fileName) override;
 
+    virtual IOVMetaDataContainer* findMetaDataContainer(const std::string& folderName) const override final;
+
+    // ILockableTool API implementation
+    virtual void lock_shared() const override final { m_mutex.lock_shared(); }
+    virtual void unlock_shared() const override final { m_mutex.unlock_shared(); }
+
 private:
 
-    /// return meta data containerr from the meta data store
+    /// return meta data container from the meta data store
     IOVMetaDataContainer* getMetaDataContainer(const std::string& folderName, 
                                                const std::string& folderDescription) const;
 
@@ -145,6 +150,10 @@ private:
     StringArrayProperty  m_attributesToBeRemoved;
     bool                 m_modifyFolders;
 
+    // mutex for R/W locking of the entire tool (and supposedly all metadata objects it works with)
+    mutable std::shared_mutex    m_mutex  ATLAS_THREAD_SAFE;
 };
 
 #endif // IOVDBMETADATATOOLS_IOVDBMETADATATOOL_H
+
+

@@ -4,7 +4,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRunClusterCorrections.h,v 1.4 2009-05-20 20:48:51 ssnyder Exp $
 /* @file  CaloRunClusterCorrections.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2009
@@ -21,15 +20,13 @@
 #include "CaloInterface/ISetCaloCellContainerName.h"
 #include "StoreGate/DataHandle.h" 
 #include "AthenaKernel/IOVSvcDefs.h"
-//#include "GaudiKernel/ServiceHandle.h"
 #include <vector>
 #include <string>
 #include <set>
 
-//#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloRec/Blob2ToolConstants.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "TileConditions/TileBadChannels.h"
@@ -362,7 +359,7 @@ private:
   bool m_noClearProps;
 
   /// The job options service.
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jos;
 
   /// The tool service.
   ServiceHandle<IToolSvc> m_toolsvc;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Geo2G4OpticalSurfaceFactory.h"
@@ -115,7 +115,7 @@ G4OpticalSurface* Geo2G4OpticalSurfaceFactory::Build(const GeoOpticalSurface* ge
 
   // Create material properties table
   Geo2G4MatPropTableFactory* tFactory = Geo2G4MatPropTableFactory::instance();
-  GeoMaterialPropertiesTable* geoPropTable = geoOpticalSurface->GetMaterialPropertiesTable();
+  const GeoMaterialPropertiesTable* geoPropTable = geoOpticalSurface->GetMaterialPropertiesTable();
 
   if(geoPropTable){
     G4MaterialPropertiesTable* g4PropTable = tFactory->Build(geoPropTable);

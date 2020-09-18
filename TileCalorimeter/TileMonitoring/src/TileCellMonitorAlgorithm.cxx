@@ -210,16 +210,16 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     detailOccupEnergies[partition].reserve(nChannelsInPartition);
   }
 
-  std::vector<float> occupEta[MAX_SAMP];
-  std::vector<float> occupPhi[MAX_SAMP];
-  std::vector<float> occupEnergy[MAX_SAMP];
+  std::vector<float> occupEta[SAMP_ALL];
+  std::vector<float> occupPhi[SAMP_ALL];
+  std::vector<float> occupEnergy[SAMP_ALL];
 
-  std::vector<float> overThrOccupEta[MAX_SAMP];
-  std::vector<float> overThrOccupPhi[MAX_SAMP];
+  std::vector<float> overThrOccupEta[SAMP_ALL];
+  std::vector<float> overThrOccupPhi[SAMP_ALL];
 
   std::vector<float> sampChanTime[Tile::MAX_ROS - 1][SAMP_ALL];
-  std::vector<float> sampEnergyDiff[Tile::MAX_ROS - 1][MAX_SAMP];
-  std::vector<float> sampTimeDiff[Tile::MAX_ROS - 1][MAX_SAMP];
+  std::vector<float> sampEnergyDiff[Tile::MAX_ROS - 1][SAMP_ALL];
+  std::vector<float> sampTimeDiff[Tile::MAX_ROS - 1][SAMP_ALL];
 
   PairBuilder moduleCorr[MAX_PART];
 

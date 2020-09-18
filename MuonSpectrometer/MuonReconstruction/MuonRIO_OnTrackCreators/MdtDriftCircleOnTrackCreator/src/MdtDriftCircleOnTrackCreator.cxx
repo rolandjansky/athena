@@ -25,8 +25,6 @@
 
 Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::string& ty,const std::string& na,const IInterface* pa) :
     AthAlgTool(ty,na,pa),
-    m_mdtCalibrationTool("MdtCalibrationTool", this),
-    m_mdtCalibrationDbTool("MdtCalibrationDbTool", this),
     m_mdtCalibSvcSettings(nullptr),
     m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
 {
@@ -71,9 +69,6 @@ Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::stri
   declareProperty("DoSegmentErrors",m_doSegments=true , "Use error strategy for segments");
   declareProperty("UseLooseErrors",m_looseErrors=false , "Use error strategy for MC");
   declareProperty("IsMC",m_isMC=false);
-
-  declareProperty("CalibrationTool",m_mdtCalibrationTool);
-  declareProperty("CalibrationDbTool",m_mdtCalibrationDbTool);
 }
 
 StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file TrkEventTPCnv/test/SegmentCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -23,6 +21,7 @@
 #include "TestTools/FLOATassert.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/leakcheck.h"
+#include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
 
@@ -48,7 +47,7 @@ public:
   { return *m_surf; }
   virtual const Amg::Vector3D& globalPosition() const override
   {
-    static Amg::Vector3D v (1, 2, 3);
+    static const Amg::Vector3D v (1, 2, 3);
     return v;
   }
   virtual MsgStream&    dump( MsgStream& /*out*/ ) const override
@@ -144,7 +143,7 @@ void testit (const Trk::Segment& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -208,7 +207,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   test1();
   return 0;

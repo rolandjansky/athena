@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_CSC_DIGITIZER_H
@@ -113,9 +113,6 @@ private:
   void fillMaps(const IdentifierHash hash, const double driftTime, const double stripCharge,
 		std::vector<IdentifierHash>& hashVec,
 		std::map<IdentifierHash,std::pair<double,double> >& data_map);
-  //  void fillSampleMaps(const IdentifierHash hash, const double driftTime, const double stripCharge,
-  //                      std::vector<IdentifierHash>& hashVec,
-  //                      std::map<IdentifierHash,std::vector<float> >& data_map); // new interface trying to provide 4 samples instead of q,t
   void fillSampleMaps(const IdentifierHash hash, const double driftTime, const double stripCharge,
                       std::vector<IdentifierHash>& hashVec,
                       std::map<IdentifierHash,std::vector<float> >& data_map, bool phase=0); // new interface trying to provide 4 samples instead of q,t
@@ -123,15 +120,11 @@ private:
 private:
   
   // private data members
-  CscHitIdHelper * m_cscHitHelper;
-  const   CscIdHelper * m_cscIdHelper;
-  const   MuonGM::MuonDetectorManager * m_muonMgr;
+  CscHitIdHelper* m_cscHitHelper;
+  const CscIdHelper* m_cscIdHelper;
+  const MuonGM::MuonDetectorManager* m_muonMgr; // cannot use ReadCondHandleKey since no athena component
   ICscCalibTool* m_pcalib;
-  // Calibration tool.
-  //  double m_FlatDist;
-  //  double m_GaussDist;  
-  //  double m_PoissonDist;  
-  //  double m_GammaDist;
+
   int    m_maxElectron;
   bool    m_NInterFromEnergyLoss;
   double m_electronEnergy;

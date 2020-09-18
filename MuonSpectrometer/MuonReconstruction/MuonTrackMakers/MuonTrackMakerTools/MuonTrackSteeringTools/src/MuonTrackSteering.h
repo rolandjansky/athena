@@ -133,33 +133,19 @@ namespace Muon {
 
   private:
 
-    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper",
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< Tool for general EDM manipulation
-    ToolHandle<MuonEDMPrinterTool>        m_printer
-      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects
-    ToolHandle<MuPatCandidateTool>        m_candidateTool
-      {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
-    ToolHandle<IMuonTrackBuilder>        m_trackBTool
-      {this, "TrackBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool
-      {this, "AmbiguityTool", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
-    ToolHandle<MooTrackBuilder> m_mooBTool
-      {this, "MooBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool
-      {this, "CandidateMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<IMuonTrackRefiner> m_trackRefineTool
-      {this, "TrackRefinementTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<IMuonSegmentFittingTool> m_segmentFitter
-      {this, "MuonSegmentFittingTool", "Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"};//<! segment fitting tool
-    ToolHandle<IMuonSegmentMerger> m_segmentMerger
-      {this, "MuonSegmentMerger", ""};//<! segment merger
-    ToolHandle<Muon::MuonTrackSelectorTool> m_trackSelector
-      {this, "MuonTrackSelector", "Muon::MuonTrackSelectorTool/MuonTrackSelectorTool"};//<! track selector
-    ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool
-      {this, "HoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};//<! track selector
-    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool    
-      {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper","Muon::MuonEDMHelperSvc/MuonEDMHelperSvc","Handle to the service providing the IMuonEDMHelperSvc interface" };
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<MuPatCandidateTool> m_candidateTool{this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
+    ToolHandle<IMuonTrackBuilder> m_trackBTool{this, "TrackBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool{this, "AmbiguityTool", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
+    ToolHandle<MooTrackBuilder> m_mooBTool{this, "MooBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool{this, "CandidateMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+    ToolHandle<IMuonTrackRefiner> m_trackRefineTool{this, "TrackRefinementTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<IMuonSegmentFittingTool> m_segmentFitter{this, "MuonSegmentFittingTool", "Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"};
+    ToolHandle<IMuonSegmentMerger> m_segmentMerger{this, "MuonSegmentMerger", ""};
+    ToolHandle<Muon::MuonTrackSelectorTool> m_trackSelector{this, "MuonTrackSelector", "Muon::MuonTrackSelectorTool/MuonTrackSelectorTool"};
+    ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool{this, "HoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
     mutable SegCol m_segmentsToDelete ATLAS_THREAD_SAFE;
     mutable std::vector<const MuonSegment*>  m_constsegmentsToDelete ATLAS_THREAD_SAFE;

@@ -92,12 +92,14 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
+    # Override the HIT file Run Number with one from a data run
+    flags.addFlag("Digitization.DataRunNumber", -1)
     
     # for PileUp digitization
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
     # LHC Bunch Structure (list of non-negative floats)
-    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Digitization.PileUpBunchSpacing))
+    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Beam.BunchSpacing))
     # Beam Gas input collections
     flags.addFlag("Digitization.PU.BeamGasInputCols", [])
     # LHC bunch spacing, in ns, to use in pileup digitization. Only multiples of 25 allowed.
