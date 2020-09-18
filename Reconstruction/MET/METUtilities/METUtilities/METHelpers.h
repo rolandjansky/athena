@@ -26,17 +26,17 @@ namespace met {
 
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets);
 
-  static StatusCode buildMETSum(const std::string& totalName,
-                                xAOD::MissingETContainer* metCont);
+  StatusCode buildMETSum(const std::string& totalName,
+                         xAOD::MissingETContainer* metCont);
 
-  static StatusCode buildMETSum(const std::string& totalName,
-                                xAOD::MissingETContainer* metCont,
-                                MissingETBase::Types::bitmask_t softTermsSource);
+  StatusCode buildMETSum(const std::string& totalName,
+                         xAOD::MissingETContainer* metCont,
+                         MissingETBase::Types::bitmask_t softTermsSource);
 
-  static StatusCode fillMET(xAOD::MissingET *& met,
-                            xAOD::MissingETContainer * metCont,
-                            const std::string& metKey,
-                            const MissingETBase::Types::bitmask_t metSource);
+  StatusCode fillMET(xAOD::MissingET *& met,
+                     xAOD::MissingETContainer * metCont,
+                     const std::string& metKey,
+                     const MissingETBase::Types::bitmask_t metSource);
 
 }
 
