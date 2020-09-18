@@ -29,8 +29,14 @@ if DetFlags.detdescr.Muon_on():
        MuonCombinedAODList+=[ "xAOD::MuonContainer#"+MuonCbKeys.FinalMuonsLargeD0() ]
        MuonCombinedAODList+=[ "xAOD::MuonAuxContainer#"+MuonCbKeys.FinalMuonsLargeD0()+"Aux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose" ] # See note
       
+       ### Combined muon track particles
        MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#Combined"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticles"]
        MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#Combined"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticlesAux." + excludedAuxData]
+       ### ME trackParticles
+       MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticles"]
+       MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticlesAux." + excludedAuxData]
+       MuonCombinedAODList+=[ "xAOD::TrackParticleContainer#MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticles"]
+       MuonCombinedAODList+=[ "xAOD::TrackParticleAuxContainer#MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0()+"TrackParticlesAux." + excludedAuxData]
 
    # Note: hack to remove derivation framework variables that are added by DRAW building and are supposed to be transient
 
