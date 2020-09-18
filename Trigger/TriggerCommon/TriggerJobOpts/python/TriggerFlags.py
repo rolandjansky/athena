@@ -523,7 +523,8 @@ class readLVL1configFromXML(JobProperty):
             TriggerFlags.inputLVL1configFile = TriggerFlags.outputLVL1configFile()
             TriggerFlags.Lvl1.items.set_On()
         else:
-            TriggerFlags.inputLVL1configFile = "TriggerMenuXML/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
+            menuXMLPackage = "TriggerMenuMT" if TriggerFlags.doMT() else "TriggerMenuXML"
+            TriggerFlags.inputLVL1configFile = menuXMLPackage + "/LVL1config_"+_getMenuBaseName(TriggerFlags.triggerMenuSetup())+"_" + TriggerFlags.menuVersion() + ".xml"
             xmlFile=TriggerFlags.inputLVL1configFile()
             from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
             if xmlFile!='NONE' and not os.path.exists(findFileInXMLPATH(xmlFile)):
@@ -567,7 +568,7 @@ class readHLTconfigFromXML(JobProperty):
                 nightlyPaths=os.environ['XMLPATH'].split(':')
 
                 for p in nightlyPaths:
-                    full_path_name = p+"/TriggerMenuXML/"+TriggerFlags.inputHLTconfigFile()
+                    full_path_name = p+"/"+TriggerFlags.inputHLTconfigFile()
                     if os.path.exists(full_path_name) is True:
                         log.info("The HLT xml file is: "+full_path_name)
                         success = True
