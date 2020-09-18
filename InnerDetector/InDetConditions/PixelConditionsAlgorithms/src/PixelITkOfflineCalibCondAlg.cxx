@@ -227,7 +227,7 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 	}
 
 	else if(moduleConstantsVec.size()==7){
-	  constants.emplace_back(0); // period_phi
+	  constants.emplace_back(moduleConstantsVec[0]); // period_phi
 	  for( auto& x : moduleConstantsVec ) constants.emplace_back(x);
 	}
 
