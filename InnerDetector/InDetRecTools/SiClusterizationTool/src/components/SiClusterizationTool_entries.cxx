@@ -10,7 +10,7 @@
 #include "SiClusterizationTool/TruthPixelClusterSplitter.h"
 #include "SiClusterizationTool/TruthClusterizationFactory.h"
 #include "SiClusterizationTool/TruthPixelClusterSplitProbTool.h"
-
+#include "../LWTNNCondAlg.h"
 #include "../TTrainedNetworkCondAlg.h"
 
 DECLARE_COMPONENT( InDet::MergedPixelsTool )
@@ -21,6 +21,7 @@ DECLARE_COMPONENT( InDet::TotPixelClusterSplitter )
 DECLARE_COMPONENT( InDet::NnPixelClusterSplitter )
 DECLARE_COMPONENT( InDet::NnClusterizationFactory )
 DECLARE_COMPONENT( InDet::TTrainedNetworkCondAlg )
+DECLARE_COMPONENT( InDet::LWTNNCondAlg )
 DECLARE_COMPONENT( InDet::NnPixelClusterSplitProbTool )
 DECLARE_COMPONENT( InDet::TruthPixelClusterSplitter )
 DECLARE_COMPONENT( InDet::TruthClusterizationFactory )

@@ -2,13 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
- #ifndef BTAGTOOL_NnClusterizationFactory_C
- #define BTAGTOOL_NnClusterizationFactory_C
+ #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
+ #define SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
 
  /******************************************************
      @class NnClusterizationFactory
      @author Giacinto Piacquadio (PH-ADE-ID)
-     Package : JetTagTools
+     Package : SiClusterizationTool
      Created : January 2011
      DESCRIPTION: Load neural networks used for clustering
                   and deal with:
@@ -37,6 +37,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SiClusterizationTool/TTrainedNetworkCollection.h"
+#include "SiClusterizationTool/LWTNNCollection.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
@@ -45,6 +46,11 @@
  class TTrainedNetwork;
  class TH1;
  class ICoolHistSvc;
+
+namespace lwt {
+  class NanReplacer;    
+  class LightweightGraph;
+}
 
 namespace Trk {
   class NeuralNetworkToHistoTool;
@@ -106,6 +112,7 @@ namespace InDet {
                                                   int sizeX=7,
                                                   int sizeY=7) const;
 
+    /* Public-facing method 1: no track parameters */
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       Amg::Vector3D & beamSpotPosition,
                                                       std::vector<Amg::MatrixX> & errors,
@@ -113,7 +120,7 @@ namespace InDet {
                                                       int sizeX=7,
                                                       int sizeY=7) const;
 
-
+    /* Public-facing method 1: with track parameters */
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       const Trk::Surface& pixelSurface,
                                                       const Trk::TrackParameters& trackParsAtSurface,
@@ -124,8 +131,13 @@ namespace InDet {
 
    private:
 
-    /* estimate position for both with and w/o tracks */
-    std::vector<Amg::Vector2D> estimatePositions(const TTrainedNetworkCollection &nn_collection,
+    // Handling lwtnn inputs
+    typedef std::map<std::string, std::map<std::string, double> > InputMap;
+
+    /* Estimate position for both with and w/o tracks */
+    /* Method 1: using older TTrainedNetworks */
+    std::vector<Amg::Vector2D> estimatePositionsTTN(
+                                                 const TTrainedNetworkCollection &nn_collection,
                                                  std::vector<double> inputData,
                                                  const NNinput& input,
                                                  const InDet::PixelCluster& pCluster,
@@ -133,6 +145,20 @@ namespace InDet {
                                                  int sizeY,
                                                  int numberSubClusters,
                                                  std::vector<Amg::MatrixX> & errors) const;
+
+    /* Estimate position for both with and w/o tracks */
+    /* Method 2: using lwtnn for more flexible interfacing */
+    std::vector<Amg::Vector2D> estimatePositionsLWTNN(
+                                                NnClusterizationFactory::InputMap & input, 
+                                                NNinput& rawInput,
+                                                const InDet::PixelCluster& pCluster,
+                                                int numberSubClusters,
+                                                std::vector<Amg::MatrixX> & errors) const;
+
+    // For error formatting in lwtnn cases
+    double correctedRMSX(double posPixels) const;
+
+    double correctedRMSY(double posPixels, double sizeY, std::vector<float>& pitches) const; 
 
      /* algorithmic component */
     NNinput createInput(const InDet::PixelCluster& pCluster,
@@ -157,7 +183,7 @@ namespace InDet {
                                       int sizeX,
                                       int sizeY) const;
 
-
+    InputMap flattenInput(NNinput & input) const;
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
                                                       const NNinput & input,
@@ -225,6 +251,10 @@ namespace InDet {
        {this, "NnCollectionWithTrackReadKey", "PixelClusterNNWithTrack",
         "The conditions store key for the pixel cluster NNs which needs tracks as input"};
 
+    SG::ReadCondHandleKey<LWTNNCollection> m_readKeyJSON
+       {this, "NnCollectionJSONReadKey", "PixelClusterNNJSON",
+        "The conditions key for the pixel cluster NNs configured via JSON file and accessed with lwtnn"};
+
     Gaudi::Property<unsigned int> m_maxSubClusters
        {this, "MaxSubClusters", 3, "Maximum number of sub cluster supported by the networks." };
 
@@ -242,6 +272,9 @@ namespace InDet {
 
     Gaudi::Property<bool> m_doRunI
        {this, "doRunI", false, "Use runI style network (outputs are not normalised; add pitches; use charge if not m_useToT)"};
+
+    Gaudi::Property<bool> m_useTTrainedNetworks
+       {this, "useTTrainedNetworks", false, "Use earlier (release-21-like) neural networks stored in ROOT files and accessed via TTrainedNetowrk."};
 
     Gaudi::Property<bool> m_useRecenteringNNWithouTracks
        {this, "useRecenteringNNWithoutTracks",false,"Recenter x position when evaluating NN without track input."};
