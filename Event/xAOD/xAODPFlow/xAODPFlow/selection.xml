@@ -48,7 +48,7 @@
    <class name="std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer_v1>,double> >" />
    <class name="std::vector<std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer_v1>,double> > >" />
    <class name="std::vector<xAOD::PFODetails::PFOLeptonType>" />
-   <class name="std::vector<std::vector<ElementLink<xAOD::FlowElementContainer_v1> > > " /> 
+   <!-- <class name="std::vector<std::vector<ElementLink<xAOD::FlowElementContainer_v1> > > " />  -->
    
 
 </lcgdict>
