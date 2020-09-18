@@ -140,10 +140,7 @@ namespace TrigCompositeUtils {
       return;
     }
     auto it = std::remove_if(vector.begin(), vector.end(), [&](const ElementLink<CONTAINER>& el) {
-        /// handle explicit case of an empty string
-        if ( containerSGKey=="" ) return false;
-        /// handle everything else	
-	return  !std::regex_match( el.dataID(), std::regex(containerSGKey) );
+ 	return  !std::regex_match( el.dataID(), std::regex(containerSGKey) );
       });
     // Collection has been re-ordered to put the bad elements at the end
     vector.erase(it, vector.end());
