@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RDO_CONTAINERCNV_H
@@ -17,11 +17,14 @@
 #include "TRT_RDO_ContainerCnv_p1.h"
 #include "TRT_LoLumRawDataContainerCnv_p1.h"
 #include "TRT_LoLumRawDataContainerCnv_p2.h"
+#include "TRT_LoLumRawDataContainerCnv_p3.h"
 
 
 // the latest persistent representation type of DataCollection:
-typedef  InDetRawDataContainer_p2         TRT_RDO_Container_PERS;
-typedef  TRT_LoLumRawDataContainerCnv_p2  TRT_RDO_ContainerCnv_PERS;
+//typedef  InDetRawDataContainer_p2         TRT_RDO_Container_PERS;
+//typedef  TRT_LoLumRawDataContainerCnv_p2  TRT_RDO_ContainerCnv_PERS;
+typedef  InDetRawDataContainer_p3         TRT_RDO_Container_PERS;
+typedef  TRT_LoLumRawDataContainerCnv_p3  TRT_RDO_ContainerCnv_PERS;
 
 typedef  T_AthenaPoolCustomCnv<TRT_RDO_Container, TRT_RDO_Container_PERS >   TRT_RDO_ContainerCnvBase;
 
@@ -30,10 +33,11 @@ class TRT_RDO_ContainerCnv : public TRT_RDO_ContainerCnvBase {
 
   // Converters need to be initialized (use ID helpers)
   // Thus they can't be local
-  TRT_RDO_ContainerCnv_p1   m_converter_p1;
+  TRT_RDO_ContainerCnv_p1           m_converter_p1;
   TRT_RDO_ContainerCnv_p0           m_converter_p0;
   TRT_LoLumRawDataContainerCnv_p1   m_converter_TP1;
   TRT_LoLumRawDataContainerCnv_p2   m_converter_TP2;
+  TRT_LoLumRawDataContainerCnv_p3   m_converter_TP3;
   TRT_RDO_ContainerCnv_PERS         m_converter_PERS;
 
   // Should not be needed at some point.
