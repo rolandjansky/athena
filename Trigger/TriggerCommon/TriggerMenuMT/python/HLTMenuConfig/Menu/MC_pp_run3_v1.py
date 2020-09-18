@@ -10,7 +10,6 @@
 #from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 
 def setupMenu():
@@ -58,6 +57,3 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = TriggerFlags.EnhancedBiasSlice.signatures() + [ ]
 
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-Prescales = physics_menu.Prescales

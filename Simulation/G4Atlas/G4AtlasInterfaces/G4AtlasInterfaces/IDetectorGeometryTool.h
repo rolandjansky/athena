@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASINTERFACES_IDETECTORGEOMETRYTOOL_H
@@ -53,7 +53,7 @@ class IDetectorGeometryTool : virtual public IAlgTool {
   
   virtual std::string GetDetectorName() const = 0;
   
-  virtual void SetDetectorName(std::string) = 0;
+  virtual void SetDetectorName(const std::string&) = 0;
   
   virtual void SetParent(IDetectorGeometryTool*) = 0;
   

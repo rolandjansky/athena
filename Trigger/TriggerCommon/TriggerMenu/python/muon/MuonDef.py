@@ -1022,10 +1022,10 @@ class L2EFChain_mu(L2EFChainDef):
                              'L2_mu_hypo1']]
     EFinputTE = ''
     if (self.doOvlpRm):
-      self.L2sequenceList += [[['L2_mu_step1'], [self.theL2OvlpRmConfig_mufast ],'L2_mu_step1_wOvlpRm']]
+      self.L2sequenceList += [[['L2_mu_hypo1'], [self.theL2OvlpRmConfig_mufast ],'L2_mu_step1_wOvlpRm']]
       EFinputTE = 'L2_mu_step1_wOvlpRm'
     else:
-      EFinputTE = 'L2_mu_step1'
+      EFinputTE = 'L2_mu_hypo1'
     self.EFsequenceList += [[[EFinputTE],
     	  		       [theEFAlg],
                              'EF_mu_step1']]
@@ -1035,7 +1035,7 @@ class L2EFChain_mu(L2EFChainDef):
     if (self.doOvlpRm):
       self.EFsequenceList += [[['EF_mu_hypo1'], [theEFOvlpRmConfig ],'EF_mu_step1_wOvlpRm']]
     if self.chainPart['isoInfo'] == "iloosems":
-        self.EFsequenceList += [[['EF_mu_step1'],
+        self.EFsequenceList += [[['EF_mu_hypo1'],
                                  trkfast+trkiso+trkprec,
                                  'EF_mu_step2']]
         self.EFsequenceList += [[['EF_mu_step2'],

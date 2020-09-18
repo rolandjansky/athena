@@ -1,27 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_CSCRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_CSCRAWDATAPROVIDER_H
 
-// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// interface to region selector service
 #include "IRegionSelector/IRegSelSvc.h"
-
-// ROI Descriptor classes
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "MuonAlignmentData/CorrContainer.h" // !!! REMOVEME: when MuonDetectorManager in cond store
-
-class CSCcablingSvc; 
-class IROBDataProviderSvc;
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+#include "MuonAlignmentData/CorrContainer.h" // for ALineMapContainer
 
 namespace Muon {
-class IMuonRawDataProviderTool;
 
 class CscRawDataProvider : public AthAlgorithm
 {
@@ -36,16 +29,13 @@ public:
   //! Execute
   virtual StatusCode execute();
 
-  //! Finalize
-  virtual StatusCode finalize();
-
   //! Destructor
-  ~CscRawDataProvider();
+  ~CscRawDataProvider()=default;
 
 
 private:
 
-  ToolHandle<Muon::IMuonRawDataProviderTool>  m_rawDataTool;
+  ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataTool{this,"ProviderTool","Muon::CSC_RawDataProviderToolMT/CscRawDataProviderTool"};
 
   /// Handle for region selector service
   ServiceHandle<IRegSelSvc> m_regionSelector;

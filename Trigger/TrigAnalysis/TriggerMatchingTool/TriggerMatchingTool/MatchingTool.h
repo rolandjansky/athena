@@ -41,7 +41,7 @@ protected:
 
 
 #ifndef XAOD_STANDALONE
-  void updateThreshold(Property& p);
+  void updateThreshold(Gaudi::Details::PropertyBase& p);
 #endif
 
 private:

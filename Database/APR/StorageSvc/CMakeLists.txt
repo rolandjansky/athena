@@ -1,21 +1,7 @@
-################################################################################
-# Package: StorageSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( StorageSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/DataModelRoot
-   Database/PersistentDataModel
-   PRIVATE
-   Database/APR/POOLCore
-   AtlasTest/TestTools
-   Control/AthContainers
-   GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Thread pthread )
@@ -28,14 +14,11 @@ atlas_add_library( StorageSvc src/*.cpp
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${UUID_LIBRARIES} CxxUtils DataModelRoot
    PersistentDataModel
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers
-   POOLCore GaudiKernel )
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers POOLCore )
 
-atlas_add_dictionary( StorageSvcDict StorageSvc/dict.h StorageSvc/dict.xml
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${UUID_LIBRARIES}
-   CxxUtils DataModelRoot PersistentDataModel TestTools AthContainers
-   GaudiKernel StorageSvc )
+atlas_add_dictionary( StorageSvcDict
+   StorageSvc/dict.h StorageSvc/dict.xml
+   LINK_LIBRARIES StorageSvc )
 
 # The test(s) of the package:
 atlas_add_test( StorageSvc_mtShape_test

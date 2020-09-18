@@ -290,6 +290,12 @@ class doR3LargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class storeSeparateLargeD0Container(InDetFlagsJobProperty):
+    """Separate the LargeD0 container from the main track container"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
     This flag is related with ProcessedESDTracks InDetKey """
@@ -502,6 +508,12 @@ class doHolesOnTrack(InDetFlagsJobProperty):
 
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class useActsPriVertexing(InDetFlagsJobProperty):
+    """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1073,12 +1085,6 @@ class doTIDE_Ambi(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
   
-class doTIDE_RescalePixelCovariances(InDetFlagsJobProperty):
-  """ Switch for running TIDE pixel cluster covariance rescaling """
-  statusOn     = True
-  allowedTypes = ['bool']
-  StoredValue  = False
-
 class doRefitInvalidCov(InDetFlagsJobProperty):
   """ Try Kalman fitter if the track fit in the ambiguity processor produces non positive definitematrices."""
   statusOn     = True
@@ -1138,6 +1144,12 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
+
+class useNNTTrainedNetworks(InDetFlagsJobProperty):
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
 
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
@@ -1345,7 +1357,6 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsTRT     , False)
        self.checkThenSet(self.doSlimming             , False)
        self.checkThenSet(self.doSGDeletion           , True )
-       self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
@@ -1642,7 +1653,6 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
-        self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsDisappearing, False)
 
     if rec.doExpressProcessing() :
@@ -1703,11 +1713,6 @@ class InDetJobProperties(JobPropertyContainer):
       self.doSpacePointFormation = self.preProcessing() and self.doSpacePointFormation() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doPRDFormation        = self.preProcessing() and self.doPRDFormation()        and (DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on() or DetFlags.makeRIO.TRT_on())
       
-      # --------------------------------------------------------------------
-      # ---- TIDE Pixel cluster covariance rescaling
-      # --------------------------------------------------------------------
-      self.doTIDE_RescalePixelCovariances = self.doTIDE_RescalePixelCovariances() and self.doPixelClusterSplitting() and self.pixelClusterSplittingType() == 'NeuralNet' and self.doTIDE_Ambi()
-
       # --------------------------------------------------------------------
       # --- 1st iteration, inside out tracking
       # --------------------------------------------------------------------
@@ -2219,8 +2224,6 @@ class InDetJobProperties(JobPropertyContainer):
             print('*   split prob1 cut:                     ', self.pixelClusterSplitProb1())
             print('*   split prob2 cut:                     ', self.pixelClusterSplitProb2())
             print('*   Min split   pt: [MeV]                ', self.pixelClusterSplitMinPt())
-            if self.doTIDE_RescalePixelCovariances():
-                print('*   rescaling pixel cluster covariances: ', self.doTIDE_RescalePixelCovariances())
           else:
             print('* - run new Pixel clustering with splitting using analog information')
             print('*   splitting technique: ', self.pixelClusterSplittingType())
@@ -2372,6 +2375,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* - primary vertexing cut setup   : ',self.primaryVertexCutSetup())
        if self.doPrimaryVertex3DFinding() :
           print('* - use 3D seed finding')
+       if self.useActsPriVertexing():
+          print('* - use Acts primary vertex finding')
        print('* - privtx cut level : ', self.priVtxCutLevel())
     if self.doParticleCreation() :
        print('* create TrackParticles')
@@ -2620,6 +2625,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPtLargeD0,
                             doLargeD0,
                             doR3LargeD0,
+                            storeSeparateLargeD0Container,
                             useExistingTracksAsInput,
                             cutLevel,
                             priVtxCutLevel,
@@ -2656,6 +2662,7 @@ _list_InDetJobProperties = [Enabled,
                             trackFitterType,
                             doHolesOnTrack,
                             useZvertexTool,
+                            useActsPriVertexing,
                             doSiSPSeededTrackFinder,
 #                            doTRTExtension,
                             doTRTExtensionNew,
@@ -2748,7 +2755,6 @@ _list_InDetJobProperties = [Enabled,
                             doTIDE_Ambi,
                             doRefitInvalidCov,
                             doRejectInvalidCov,
-                            doTIDE_RescalePixelCovariances,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,
@@ -2757,6 +2763,7 @@ _list_InDetJobProperties = [Enabled,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
+                            useNNTTrainedNetworks,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
                             doDBMstandalone,

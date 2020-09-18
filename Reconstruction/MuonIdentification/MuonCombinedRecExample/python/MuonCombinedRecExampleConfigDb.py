@@ -67,8 +67,7 @@ addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCreatorTool","StauCreatorT
 addTool("MuonCombinedRecExample.MuonCombinedTools.ExtrapolateMuonToIPTool","ExtrapolateMuonToIPTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCandidateTool","MuonCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTrackSummaryTool","MuonCombinedTrackSummaryTool")
-
-#addTool("MuonCombinedRecExample.CombinedMuonTrackSummary.CombinedMuonTrackSummary","CombinedMuonTrackSummary")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonPrintingTool","MuonPrintingTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.OutwardsCombinedMuonTrackBuilder","OutwardsCombinedMuonTrackBuilder")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonCombinedPropagator","MuonCombinedPropagator")
@@ -82,6 +81,8 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.TrackDepositInCaloTool","TrackDe
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTagLoose","CaloMuonTagLoose")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonTag","CaloMuonTag")
 addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonLikelihoodTool","CaloMuonLikelihoodTool")
+addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreTool","CaloMuonScoreTool")
+addService("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreONNXRuntimeSvc","CaloMuonScoreONNXRuntimeSvc")
 
 ####### muid tools
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMatchQuality","MuonMatchQuality")

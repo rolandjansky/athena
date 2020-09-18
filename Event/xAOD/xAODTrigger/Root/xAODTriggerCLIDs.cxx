@@ -30,4 +30,5 @@
 #include "xAODTrigger/TrigPassBitsAuxContainer.h"
 #include "xAODTrigger/RoiDescriptorStore.h"
 #include "xAODTrigger/RoiDescriptorStoreAuxInfo.h"
-
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIAuxContainer.h"

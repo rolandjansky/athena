@@ -68,10 +68,8 @@ class MinBiasChainConfig(ChainConfigurationBase):
         from IOVDbSvc.CondDB import conddb
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
 
         SpList = idAlgs[:-2]
 
@@ -121,14 +119,14 @@ class MinBiasChainConfig(ChainConfigurationBase):
         # prepare algorithms to run in views, first, inform scheduler that input data is available in parent view (has to be done by hand)
         idAlgs, verifier = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='', rois=TrkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
         verifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+InputRoI' ),
-                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'InDet::SCT_ClusterContainer' , 'StoreGateSvc+SCT_TrigClusters' ),
                                  ( 'SpacePointContainer' , 'StoreGateSvc+SCT_TrigSpacePoints' ),
                                  ( 'InDet::PixelClusterContainer' , 'StoreGateSvc+PixelTrigClusters' ),
                                  ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )]
 
         if globalflags.InputFormat.is_bytestream():
-          verifier.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+          verifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
 

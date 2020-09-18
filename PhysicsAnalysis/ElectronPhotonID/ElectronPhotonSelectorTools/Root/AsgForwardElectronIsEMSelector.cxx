@@ -22,8 +22,9 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/Vertex.h"
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgTools/CurrentContext.h"
 #include "PathResolver/PathResolver.h"
-#include "GaudiKernel/EventContext.h"
 #include "TEnv.h"
 #include <cstdint>
 //=============================================================================
@@ -32,8 +33,7 @@
 AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(const std::string& myname) :
   AsgTool(myname),
   m_configFile{""},
-  m_rootForwardTool{nullptr},
-  m_primVtxContKey{"PrimaryVertices"}
+  m_rootForwardTool{nullptr}
 {
   m_rootForwardTool = new Root::TForwardElectronIsEMSelector(myname.c_str());
 
@@ -41,7 +41,6 @@ AsgForwardElectronIsEMSelector::AsgForwardElectronIsEMSelector(const std::string
   declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
   declareProperty("usePVContainer", m_usePVCont=true, "Whether to use the PV container");
   declareProperty("nPVdefault", m_nPVdefault = 0, "The default number of PVs if not counted");
-  declareProperty("primaryVertexContainer", m_primVtxContKey="PrimaryVertices", "The primary vertex container name" );
 
   // Name of the quality to use
   declareProperty("isEMMask",

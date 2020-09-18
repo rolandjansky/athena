@@ -24,9 +24,6 @@ CscCalibTool::CscCalibTool
   declareProperty( "timeOffset", m_timeOffset = 46.825 );
 
   declareProperty( "IsOnline"  , m_onlineHLT = true); // This will be fed from jO
-  
-  // acceptable range for time offset for a successfull fit
-  declareProperty( "TimeOffsetRange", m_timeOffsetRange = 1.0); 
  
   // new latency starting from 2010...
   declareProperty( "Latency", m_latency = 100 ); // ns.....
@@ -63,15 +60,6 @@ Double_t dualbipfunc(const Double_t *x, const Double_t *par){
   return ( bipfunc(x,par) + bipfunc(x,&par[5]) );
 }
 
-StatusCode CscCalibTool::finalize() {
-  delete m_addedfunc;
-  delete m_bipolarFunc;
-  m_addedfunc = nullptr;
-  m_bipolarFunc = nullptr;
-  return StatusCode::SUCCESS;
-}
-
-
 StatusCode CscCalibTool::initialize() {
 
   ATH_MSG_DEBUG ( "Initializing Initializing CscCalibTool");
@@ -85,7 +73,6 @@ StatusCode CscCalibTool::initialize() {
   ATH_MSG_DEBUG ( "Bipolar function integrationNumber(N_2)   =" << m_integrationNumber2);
   ATH_MSG_DEBUG ( "SamplingTime                              =" << m_samplingTime);
   ATH_MSG_DEBUG ( "Signalwidth                               =" << m_signalWidth);
-  ATH_MSG_DEBUG ( "Parabola time offset                      =" << m_timeOffsetRange);
   ATH_MSG_DEBUG ( "timeOffset  (digitization)                =" << m_timeOffset);
   ATH_MSG_DEBUG ( "Is OnlineAccess (HLT) ??                  =" << m_onlineHLT);
   ATH_MSG_DEBUG ( "Force the use of the 2 sample charge?     =" << m_use2Samples);
@@ -100,8 +87,12 @@ StatusCode CscCalibTool::initialize() {
   m_messageCnt_t0phase=0;
 
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
-  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
+  if (m_addedfunc == nullptr) {
+    m_addedfunc   = std::make_unique<TF1>("addedfunc", dualbipfunc,    0, 500, 10, 1, TF1::EAddToList::kNo);
+  }
+  if (m_bipolarFunc == nullptr) {
+    m_bipolarFunc = std::make_unique<TF1>("bipolarFunc",   bipfunc, -500, 500,  5, 1, TF1::EAddToList::kNo);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -476,7 +467,7 @@ bool CscCalibTool::findCharge(const float samplingTime, const unsigned int sampl
   
   double timeOffset = -0.5*bb/aa;
 
-  ATH_MSG_VERBOSE("WP " << timeOffset << " " << m_timeOffsetRange); 
+  ATH_MSG_VERBOSE("WP " << timeOffset); 
   /** if the time offset is out of range **/ 
   if ( ( maxIndex == 0 && timeOffset < -2.0 )
        || ( maxIndex == 3 && timeOffset > 2.0) ) {

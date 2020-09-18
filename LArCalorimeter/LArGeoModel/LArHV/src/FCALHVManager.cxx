@@ -10,8 +10,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "LArIdentifier/LArElectrodeID.h"
@@ -37,7 +37,7 @@ public:
       }
     }
 
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
     if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) {
       throw std::runtime_error("FCALHVManager failed to retrieve LArElectrodeID");
     }
@@ -121,7 +121,7 @@ void FCALHVManager::update() const {
      m_c->payloadArray[i].voltage = -99999;
     }
 
-    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
 
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     IToolSvc* toolSvc;

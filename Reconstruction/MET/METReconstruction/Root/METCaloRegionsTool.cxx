@@ -75,6 +75,14 @@ namespace met {
     #else
     ATH_CHECK( m_noiseCDOKey.initialize() );
     #endif
+    // Either Cells or Clusters
+    if(m_calo_useCells) {
+      ATH_CHECK( m_caloCellKey.assign(m_input_data_key));
+    } else {
+      ATH_CHECK( m_caloClusterKey.assign(m_input_data_key));
+    } // end if use clusters if/else
+    ATH_CHECK( m_caloCellKey.initialize(m_calo_useCells) );
+    ATH_CHECK( m_caloClusterKey.initialize(!m_calo_useCells) );
 
     return StatusCode::SUCCESS;
   }
@@ -137,11 +145,12 @@ namespace met {
     // Either Cells or Clusters
     if(m_calo_useCells) {
       // Retrieve the cell container
-      SG::ReadHandle<CaloCellContainer> caloCellCont(m_input_data_key);
+      SG::ReadHandle<CaloCellContainer> caloCellCont(m_caloCellKey);
 
       #if defined(XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
       #else
       if (!caloCellCont.isValid()) {
+        ATH_MSG_WARNING("Couldn't set up ReadHandle for Calo Cell Container "<<m_input_data_key);
         ATH_MSG_WARNING("Unable to retrieve input cell cluster container");
           return StatusCode::SUCCESS;
 
@@ -151,7 +160,7 @@ namespace met {
       sc = fillCellMet(metCont,caloCellCont.cptr());
     } else {
       // Retrieve the calo container
-      SG::ReadHandle<CaloClusterContainer> caloClusCont(m_input_data_key);
+      SG::ReadHandle<CaloClusterContainer> caloClusCont(m_caloClusterKey);
       if (!caloClusCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
           return StatusCode::SUCCESS;

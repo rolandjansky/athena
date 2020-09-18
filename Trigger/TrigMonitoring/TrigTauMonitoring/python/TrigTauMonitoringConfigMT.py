@@ -75,7 +75,23 @@ class TrigTauMonAlgBuilder:
     self.configureHistograms()
 
 
+  def getTrigInfo( self, trigger ):
 
+    class TrigTauInfo(object):
+
+      def __init__(self, trigger):
+        self.__chain = trigger
+
+      def chain(self):
+        return self.__chain
+
+      def isL1Item(self):
+        return True if self.chain().startswith('L1') else False
+
+      def isRNN(self):
+        return True if "RNN" in self.chain() else False
+
+    return TrigTauInfo(trigger)
 
 
   def get_monitoring_mode(self):
@@ -119,7 +135,24 @@ class TrigTauMonAlgBuilder:
   def setDefaultProperties(self):
     
     # This will be removed for future.
-    monitoring_tau = ['HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM']
+    monitoring_tau = [
+    'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
+    'HLT_tau80_medium1_tracktwo_L1TAU60',
+    'HLT_tau0_perf_ptonly_L1TAU100',
+    'HLT_tau160_idperf_track_L1TAU100',
+    'HLT_tau160_idperf_tracktwo_L1TAU100',
+    'HLT_tau160_perf_tracktwo_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVA_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau160_medium1_tracktwo_L1TAU100',
+    'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
+    'HLT_tau80_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA_L1TAU60_DR-TAU20ITAU12I',
+    'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25'
+    ]
 
     self.tauList = monitoring_tau
 
@@ -149,24 +182,67 @@ class TrigTauMonAlgBuilder:
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
     for trigger in triggers:
-      self.bookRNNInputVars( monAlg, trigger, online=True )
-      self.bookRNNInputVars( monAlg, trigger, online=False )
+      info = self.getTrigInfo(trigger)
 
-
+      if info.isRNN() is True:
+        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
+        self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
+        self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=False )
+        self.bookRNNTrack( monAlg, trigger, online=True )
+        self.bookRNNTrack( monAlg, trigger, online=False )
+        self.bookRNNCluster( monAlg, trigger, online=True )
+        self.bookRNNCluster( monAlg, trigger, online=False )
   #
-  # Book Shower shapes
+  # Book RNN Variables
   #
-  def bookRNNInputVars( self, monAlg, trigger, online=True ):
+  def bookRNNInputVars( self, monAlg, trigger,nProng, online ):
 
-    monGroup = self.helper.addGroup( monAlg, trigger+'_RNNInputVars_' + ("HLT" if online else "Offline"), 
-                              self.basePath+'/'+trigger+'/RNNInputVars/' + ("HLT" if online else "Offline") )
+    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputScalar_'+nProng
 
-    monGroup.defineHistogram('centFrac', title='Centrality Fraction (1Prong); centFrac; Events',xbins=50,xmin=-0.05,xmax=1.2)
-    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk log (1Prong); etOverPtLeadTrk_log; Events',xbins=60,xmin=-3.,xmax=3.)
-    monGroup.defineHistogram('dRmax', title='max dR of associated tracks (1Prong); dRmax; Events',xbins=50,xmin=-0.1,xmax=0.3)
-    monGroup.defineHistogram('absipSigLeadTrk', title='AbsIpSigLeadTrk (1Prong); absipSigLeadTrk; Events',xbins=25,xmin=0.0,xmax=20.0)
-    monGroup.defineHistogram('sumPtTrkFrac', title='SumPtTrkFrac (1Prong); SumPtTrkFrac; Events',xbins=50,xmin=-0.5,xmax=1.1)
-    monGroup.defineHistogram('emPOverTrkSysP', title='EMPOverTrkSysP log (1Prong); EMPOverTrkSysP_log; Events',xbins=50,xmin=-5.,xmax=3.)
-    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox (1Prong); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
-    monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log (1Prong); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
-    monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log (1Prong); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
+    monGroup = self.helper.addGroup( monAlg, monGroupName, 
+                              self.basePath+'/'+monGroupName )
+
+    monGroup.defineHistogram('centFrac', title='Centrality Fraction ('+nProng+'); centFrac; Events',xbins=50,xmin=-0.05,xmax=1.2)
+    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk log ('+nProng+'); etOverPtLeadTrk_log; Events',xbins=60,xmin=-3.,xmax=3.)
+    monGroup.defineHistogram('dRmax', title='max dR of associated tracks ('+nProng+'); dRmax; Events',xbins=50,xmin=-0.1,xmax=0.3)
+    monGroup.defineHistogram('absipSigLeadTrk', title='AbsIpSigLeadTrk ('+nProng+'); absipSigLeadTrk; Events',xbins=25,xmin=0.0,xmax=20.0)
+    monGroup.defineHistogram('sumPtTrkFrac', title='SumPtTrkFrac ('+nProng+'); SumPtTrkFrac; Events',xbins=50,xmin=-0.5,xmax=1.1)
+    monGroup.defineHistogram('emPOverTrkSysP', title='EMPOverTrkSysP log ('+nProng+'); EMPOverTrkSysP_log; Events',xbins=50,xmin=-5.,xmax=3.)
+    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
+    monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
+    monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
+    if nProng=='MP':  monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+
+  def bookRNNTrack( self, monAlg, trigger, online ):
+
+    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputTrack'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupName )
+
+    monGroup.defineHistogram('track_pt_log',title='track_pt_log;track_pt_log;Events',xbins=20,xmin=2,xmax=7)
+    monGroup.defineHistogram('track_pt_jetseed_log',title='track_pt_jetseed_log;track_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
+    monGroup.defineHistogram('track_dEta',title='track_dEta;track_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5)
+    monGroup.defineHistogram('track_dPhi',title='track_dPhi;track_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5)
+    monGroup.defineHistogram('track_d0_abs_log',title='track_d0_abs_log;track_d0_abs_log;Events',xbins=50,xmin=-7,xmax=2)
+    monGroup.defineHistogram('track_z0sinThetaTJVA_abs_log',title='track_z0sinThetaTJVA_abs_log;track_z0sinThetaTJVA_abs_log;Events',xbins=50,xmin=-10,xmax=4)
+    monGroup.defineHistogram('track_nIBLHitsAndExp',title='track_nIBLHitsAndExp; track_nIBLHitsAndExp;Events',xbins=3,xmin=0,xmax=3)
+    monGroup.defineHistogram('track_nPixelHitsPlusDeadSensors',title='track_nPixelHitsPlusDeadSensors;track_nPixelHitsPlusDeadSensors;Events',xbins=11,xmin=0,xmax=11)
+    monGroup.defineHistogram('track_nSCTHitsPlusDeadSensors',title='track_nSCTHitsPlusDeadSensors;track_nSCTHitsPlusDeadSensors;Events',xbins=20,xmin=0,xmax=20)
+
+  def bookRNNCluster( self, monAlg, trigger, online ):
+
+    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputCluster'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupName )
+                              
+    monGroup.defineHistogram('cluster_et_log',title='cluster_et_log; cluster_et_log;Events',xbins=30,xmin=0,xmax=6)
+    monGroup.defineHistogram('cluster_pt_jetseed_log',title='cluster_pt_jetseed_log; cluster_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
+    monGroup.defineHistogram('cluster_dEta',title='cluster_dEta; cluster_dEta;Events',xbins=100,xmin=-0.5,xmax=0.5)
+    monGroup.defineHistogram('cluster_dPhi',title='cluster_dPhi; cluster_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5)
+    monGroup.defineHistogram('cluster_SECOND_R_log10',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+    monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+    monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+

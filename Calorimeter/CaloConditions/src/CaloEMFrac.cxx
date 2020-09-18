@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloEMFrac.cxx,v 1.2 2007-10-26 01:47:23 ssnyder Exp $
@@ -96,7 +96,7 @@ CaloEMFrac::getEMFracData(float eta,
   if ( iBin > -1 && iBin < (int)m_data.size() ) 
     return (& m_data[iBin]);
   else
-    return 0;
+    return nullptr;
 }
 
 

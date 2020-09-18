@@ -104,8 +104,14 @@ print tool1
 
 monMan.AthenaMonTools += [tool1]
 
+from InDetBoundaryCheckTool.InDetBoundaryCheckToolConf import InDet__InDetBoundaryCheckTool
+InDetBoundaryCheckTool = InDet__InDetBoundaryCheckTool(
+    name="InDetBoundaryCheckTool"
+)
+ToolSvc += InDetBoundaryCheckTool
+
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, usePixel = True, useSCT= True, CountDeadModulesAfterLastHit = True)
+InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool", Extrapolator = InDetExtrapolator, BoundaryCheckTool=InDetBoundaryCheckTool, CountDeadModulesAfterLastHit = True)
 ToolSvc += InDetHoleSearchTool
 print InDetHoleSearchTool
 

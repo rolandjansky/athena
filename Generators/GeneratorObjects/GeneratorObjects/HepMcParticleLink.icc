@@ -506,7 +506,7 @@ HepMcParticleLink::operator const HepMC::GenParticle* () const
 inline
 bool HepMcParticleLink::isValid() const
 {
-  return (0 != cptr());
+  return (nullptr != cptr());
 }
 
 

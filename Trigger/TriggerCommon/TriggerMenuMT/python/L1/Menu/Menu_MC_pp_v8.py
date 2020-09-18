@@ -240,7 +240,9 @@ def defineMenu():
         # AFP
 
         # MBTS
-
+        'L1_MBTS_1_EMPTY',
+        'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1_1_EMPTY',
 
         #--------------------------------
         # TOPO items
@@ -383,7 +385,12 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-        'L1_CEP-CJ50.ETA21'
+        'L1_CEP-CJ50.ETA21',
+
+        'L1_ALFA_ANY',
+        'L1_ALFA_ELAST15', 'L1_ALFA_ELAST18',
+        'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L', # L1_ALFA_Calib
+        'L1_ALFA_SYST9', 'L1_ALFA_SYST10', 'L1_ALFA_SYST11', 'L1_ALFA_SYST12', 'L1_ALFA_SYST17', 'L1_ALFA_SYST18', # L1_ALFA_SYS, L1_ALFA_SYS_Calib
 
         ]
     
@@ -579,6 +586,10 @@ def defineMenu():
 
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
         'L1_BCM_AC_UNPAIRED_ISO' : 163,
+
+        'L1_MBTS_1_EMPTY' : 164,
+        'L1_MBTS_2_EMPTY' : 166,
+        'L1_MBTS_1_1_EMPTY' : 168,
 
         'L1_EM20VH_3J20' : 26,
         'L1_MU10_3J20' : 173,

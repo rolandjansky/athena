@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -17,6 +17,7 @@
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
+#include "CxxUtils/checker_macros.h"
 
 template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
@@ -27,7 +28,12 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     // det element surface
     Identifier id =  Identifier32(persObj->m_associatedDetElementId);
     const SURFACE* detSurf =  static_cast<const SURFACE*>(m_eventCnvTool->getSurface(id));
-    surface= const_cast<SURFACE*>(detSurf); // Needed to fulfill interface...
+    // In this case, we return a surface object held by detdescr.
+    // We need to cast away const to match the createTransient interface.
+    // This is ugly, but in practice should be ok.
+    // FIXME: can this be done better?
+    SURFACE* surface_nc ATLAS_THREAD_SAFE = const_cast<SURFACE*>(detSurf);
+    surface= surface_nc; // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
     auto transform = std::make_unique<Amg::Transform3D>();

@@ -108,8 +108,6 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
    std::vector<int>         m_ValFromRDBEpsLengthCM  ; //!< Control precision printing  
    std::vector<int>         m_ValFromRDBEpsAngle     ; //!< Control precision printing
    
-   IRDBRecordset_ptr m_emptyRecordset ; //!< Pointer on an empty Recordset
-
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
 
    //Db Keys

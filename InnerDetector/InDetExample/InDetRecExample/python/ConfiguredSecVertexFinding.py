@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -17,7 +17,6 @@ class ConfiguredSecVertexFinding:
                  TrackParticles=None,
                  SecVertices=None,
                  Extrapolator=None,
-                 TrackSummaryTool=None,
                  MagFieldSvc=None,
                  printConfig=False):
 
@@ -43,7 +42,6 @@ class ConfiguredSecVertexFinding:
             FirstMeasuredPointLimit=VertexCuts.FirstMeasuredPointLimit(),
             usePhiCnst=VertexCuts.usePhiCnst(),
             useThetaCnst=VertexCuts.useThetaCnst())
-        ToolSvc += InDetSecVxFitterTool
         if (printConfig):
             print(InDetSecVxFitterTool)
         #
@@ -63,7 +61,6 @@ class ConfiguredSecVertexFinding:
             InDet__ConversionFinderUtils)
         InDetSecVxHelper = InDet__ConversionFinderUtils(
             name=prefix+"FinderUtils")
-        ToolSvc += InDetSecVxHelper
         if (printConfig):
             print(InDetSecVxHelper)
         #
@@ -73,7 +70,6 @@ class ConfiguredSecVertexFinding:
             InDet__InDetConversionTrackSelectorTool)
         InDetSecVxTrackSelector = InDet__InDetConversionTrackSelectorTool(
             name=prefix+"TrackSelector",
-            TrackSummaryTool=TrackSummaryTool,
             Extrapolator=Extrapolator,
             maxSiD0=VertexCuts.TrkSel_maxSiD0(),
             maxTrtD0=VertexCuts.TrkSel_maxTrtD0(),
@@ -88,7 +84,6 @@ class ConfiguredSecVertexFinding:
             significanceD0_Si=VertexCuts.TrkSel_significanceD0_Si(),
             RatioV0=VertexCuts.TrkSel_RatioV0())
 
-        ToolSvc += InDetSecVxTrackSelector
         if (printConfig):
             print(InDetSecVxTrackSelector)
         #
@@ -105,7 +100,6 @@ class ConfiguredSecVertexFinding:
             MaxEta=VertexCuts.TrkPairSel_MaxEta(),
             MaxInitDistance=VertexCuts.TrkPairSel_MaxInitDistance(),
             MinTrackAngle=VertexCuts.TrkPairSel_MinTrackAngle())
-        ToolSvc += InDetSecVxTrackPairsSelector
         if (printConfig):
             print(InDetSecVxTrackPairsSelector)
         #
@@ -118,7 +112,6 @@ class ConfiguredSecVertexFinding:
             MinDeltaR=VertexCuts.VtxPt_MinDeltaR(),
             MaxDeltaR=VertexCuts.VtxPt_MaxDeltaR(),
             MaxPhi=VertexCuts.VtxPt_MaxPhi())
-        ToolSvc += InDetSecVtxPointEstimator
         if (printConfig):
             print(InDetSecVtxPointEstimator)
         #
@@ -135,7 +128,6 @@ class ConfiguredSecVertexFinding:
             MinPt=VertexCuts.SecVtxPost_MinPt(),
             MaxdR=VertexCuts.SecVtxPost_MaxdR(),
             MaxPhiVtxTrk=VertexCuts.SecVtxPost_MaxPhiVtxTrk())
-        ToolSvc += InDetSecVtxPostSelector
         if (printConfig):
             print(InDetSecVtxPostSelector)
         #
@@ -151,7 +143,6 @@ class ConfiguredSecVertexFinding:
             MinInitialHitRadius=VertexCuts.SingleTrk_MinInitialHitRadius(),
             MinInitialHitRadius_noBlay=VertexCuts.SingleTrk_MinInitialHitRadius_noBlay(),
             MinRatioOfHLhits=VertexCuts.SingleTrk_MinRatioOfHLhits())
-        ToolSvc += InDetSingleTrackSecVtx
         if (printConfig):
             print(InDetSingleTrackSecVtx)
         #
@@ -175,7 +166,6 @@ class ConfiguredSecVertexFinding:
             MaxDistVtxHit=VertexCuts.Finder_MaxDistVtxHit(),
             MinFlightAngle=VertexCuts.Finder_MinFlightAngle(),
             MinInitVtxR=VertexCuts.Finder_MinInitVtxR())
-        ToolSvc += InDetSecVtxFinderTool
         if (printConfig):
             print(InDetSecVtxFinderTool)
 
@@ -199,6 +189,9 @@ class ConfiguredSecVertexFinding:
         #
         from InDetConversionFinder.InDetConversionFinderConf import (
             InDet__ConversionFinder)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += self.__InDetSecVtxFinderTool
+
         InDetSecVtxFinder = InDet__ConversionFinder(
             name=self.__prefix+"Finder",
             VertexFinderTool=self.__InDetSecVtxFinderTool,

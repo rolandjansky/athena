@@ -11,7 +11,7 @@ ServiceMgr.EventSelector.InputCollections = runArgs.inputEVNTFile
 ## output stream
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
-outStream = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNT_MRGFile)
+outStream = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNT_MRGFile, noTag=True)
 
 ## copy everything from the input file
 ## must force reading of all input objects

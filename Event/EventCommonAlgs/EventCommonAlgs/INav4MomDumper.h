@@ -68,7 +68,7 @@ class INav4MomDumper : public AthAlgorithm
 
   /// Callback method to configure the output stream into which we'll
   /// dump the informations from @c INavigable4MomentumCollection
-  void setupOutputStream( Property& outputStreamName );
+  void setupOutputStream( Gaudi::Details::PropertyBase& outputStreamName );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 

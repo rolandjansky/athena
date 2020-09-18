@@ -7,7 +7,7 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/PhysicalConstants.h"
 

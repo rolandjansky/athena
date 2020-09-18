@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBTRACKSUMMARY_H
@@ -7,13 +7,15 @@
 
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonCalibExtraUtils/MuonFixedIdManipulator.h"
+#include "CxxUtils/checker_macros.h"
+
 #include <string>
 #include <vector>
 #include <set>
 
 namespace MuonCalib {
 
-  class MuonCalibTrackSummary {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibTrackSummary {
   public:
 
     struct ChamberHitSummary {
@@ -31,24 +33,24 @@ namespace MuonCalib {
       MuonFixedId chId;
       bool isMdt() const { return chId.is_mdt(); }
 
-      int nhits() const     { return m_first.nhits + m_second.nhits; }
-      int nholes() const    { return m_first.nholes + m_second.nholes; }
-      int noutliers() const { return m_first.noutliers + m_second.noutliers; }
-      int ndeltas() const   { return m_first.ndeltas + m_second.ndeltas; }
+      int nhits ATLAS_NOT_THREAD_SAFE () const     { return m_first.nhits + m_second.nhits; }
+      int nholes ATLAS_NOT_THREAD_SAFE () const    { return m_first.nholes + m_second.nholes; }
+      int noutliers ATLAS_NOT_THREAD_SAFE () const { return m_first.noutliers + m_second.noutliers; }
+      int ndeltas ATLAS_NOT_THREAD_SAFE () const   { return m_first.ndeltas + m_second.ndeltas; }
 
-      int netaHits() const { return isMdt() ? nhits() : m_first.nhits; }
-      int nphiHits() const { return isMdt() ? 0       : m_second.nhits; }
+      int netaHits ATLAS_NOT_THREAD_SAFE () const { return isMdt() ? nhits() : m_first.nhits; }
+      int nphiHits ATLAS_NOT_THREAD_SAFE () const { return isMdt() ? 0       : m_second.nhits; }
 
-      int nMdtHitsMl1() const { return isMdt() ? m_first.nhits  : 0; }
-      int nMdtHitsMl2() const { return isMdt() ? m_second.nhits : 0; }
+      int nMdtHitsMl1 ATLAS_NOT_THREAD_SAFE () const { return isMdt() ? m_first.nhits  : 0; }
+      int nMdtHitsMl2 ATLAS_NOT_THREAD_SAFE () const { return isMdt() ? m_second.nhits : 0; }
 
       // before using make sure isMdt == true!
-      Projection& mdtMl1() const { return m_first; }
-      Projection& mdtMl2() const { return m_second; }
+      Projection& mdtMl1 ATLAS_NOT_THREAD_SAFE () const { return m_first; }
+      Projection& mdtMl2 ATLAS_NOT_THREAD_SAFE () const { return m_second; }
 
       // before using make sure isMdt == false!
-      Projection& etaProjection() const { return m_first; }
-      Projection& phiProjection() const { return m_second; }
+      Projection& etaProjection ATLAS_NOT_THREAD_SAFE () const { return m_first; }
+      Projection& phiProjection ATLAS_NOT_THREAD_SAFE () const { return m_second; }
       
 
       private:

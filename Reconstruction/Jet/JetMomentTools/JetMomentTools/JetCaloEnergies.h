@@ -8,11 +8,12 @@
 #define JETMOMENTTOOLS_JETCALOENERGIES_H
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "JetInterface/IJetDecorator.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "xAODJet/JetContainer.h"
 #include <vector>
 

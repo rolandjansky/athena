@@ -25,11 +25,6 @@ atlas_add_test( VersionedKey_test
                 test/VersionedKey_test.cxx
                 LINK_LIBRARIES SGTools )
 
-atlas_add_test( safe_clid_test
-                SOURCES
-                test/safe_clid_test.cxx
-                LINK_LIBRARIES SGTools )
-
 atlas_add_test( exceptions_test
                 SOURCES
                 test/exceptions_test.cxx
@@ -38,7 +33,7 @@ atlas_add_test( exceptions_test
 atlas_add_test( StringPool_test
                 SOURCES
                 test/StringPool_test.cxx
-                LINK_LIBRARIES SGTools )
+                LINK_LIBRARIES SGTools TestTools )
 
 atlas_add_test( DataProxy_test
                 SOURCES
@@ -63,4 +58,9 @@ atlas_add_test( CurrentEventStore_test
 atlas_add_test( SGFolderItem_test
                 SOURCES
                 test/SGFolderItem_test.cxx
+                LINK_LIBRARIES SGTools )
+
+atlas_add_test( transientKey_test
+                SOURCES
+                test/transientKey_test.cxx
                 LINK_LIBRARIES SGTools )

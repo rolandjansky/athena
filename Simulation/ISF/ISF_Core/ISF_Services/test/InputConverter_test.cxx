@@ -159,7 +159,7 @@ TEST_F(InputConverter_test, convertParticle_nullptr) {
 
 TEST_F(InputConverter_test, convertParticle_without_production_vertex) {
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
-  HepMC::GenParticle* genPart = new HepMC::GenParticle(mom,
+  HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr(mom,
                                                        123, // pdg
                                                        1 // status
                                                       );
@@ -177,7 +177,7 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
-  HepMC::GenParticle* genPart = new HepMC::GenParticle(mom,
+  HepMC::GenParticlePtr  genPart = new HepMC::GenParticle(mom,
                                                        11, // pdg id (e-)
                                                        1 // status
                                                       );
@@ -186,7 +186,7 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  HepMC::GenVertexPtr  prodVtx = new HepMC::GenVertex(pos, vtx_id);
   prodVtx->add_particle_out(genPart);
 
   // create dummy input McEventCollection containing a dummy GenEvent
@@ -232,7 +232,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
-  HepMC::GenParticle* genPart = new HepMC::GenParticle(mom,
+  HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr(mom,
                                                        22, // pdg id (gamma)
                                                        1 // status
                                                       );
@@ -241,7 +241,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_photon) {
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  HepMC::GenVertexPtr  prodVtx = HepMC::newGenVertexPtr(pos, vtx_id);
   prodVtx->add_particle_out(genPart);
 
   // create dummy input McEventCollection containing a dummy GenEvent
@@ -286,7 +286,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
   // dynamic allocation necessary as particle ownership is
   // handed over to a HepMC::GenVertex later
-  HepMC::GenParticle* genPart = new HepMC::GenParticle(mom,
+  HepMC::GenParticlePtr  genPart = HepMC::newGenParticlePtr(mom,
                                                        11, // pdg id (e-)
                                                        1 // status
                                                       );
@@ -295,7 +295,7 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
 
   HepMC::FourVector pos(9.8, 7.65, 4.3, 0.321); // NB: 4th component is time*c
   int vtx_id = -123;
-  HepMC::GenVertex *prodVtx = new HepMC::GenVertex(pos, vtx_id);
+  HepMC::GenVertexPtr  prodVtx = HepMC::newGenVertexPtr(pos, vtx_id);
   prodVtx->add_particle_out(genPart);
 
   // create dummy input McEventCollection containing a dummy GenEvent

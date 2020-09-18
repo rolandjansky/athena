@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -30,7 +30,7 @@ Updated:  Feb 5, 2001    (HMa)
 //////////////////////////////
 
 CaloTopoTowerContainer::CaloTopoTowerContainer()
-  : m_celltoclustermap(0),
+  : m_celltoclustermap(nullptr),
     m_minimumCellEnergy(0),
     m_minimumClusterEnergy (0),
     m_useCellWeights (false),
@@ -45,7 +45,7 @@ CaloTopoTowerContainer::CaloTopoTowerContainer()
 CaloTopoTowerContainer::CaloTopoTowerContainer(const CaloTowerSeg& theSegmentation,
                                                bool noTowers /*= false*/)
   : CaloTowerContainer(theSegmentation, noTowers),
-    m_celltoclustermap(0),
+    m_celltoclustermap(nullptr),
     m_minimumCellEnergy(0),
     m_minimumClusterEnergy (0),
     m_useCellWeights (false),

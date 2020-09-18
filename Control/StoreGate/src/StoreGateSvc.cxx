@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -11,8 +11,8 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/tools/SGImplSvc.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include <fstream>
 #include <algorithm>
 
@@ -123,22 +123,16 @@ StatusCode StoreGateSvc::initialize()    {
   IProperty* appmgrprop = 0;
   appmgr->queryInterface( IProperty::interfaceID(), (void**)&appmgrprop ).ignore();
   //all of the above to get the jo svc type
-  const Property& prop = appmgrprop->getProperty( "JobOptionsSvcType" );
-  IJobOptionsSvc* pJOSvc(0);
+  const Gaudi::Details::PropertyBase& prop = appmgrprop->getProperty( "JobOptionsSvcType" );
+  Gaudi::Interfaces::IOptionsSvc* pJOSvc(0);
   if ( serviceLocator()->service( prop.toString(), "JobOptionsSvc", pJOSvc ).isFailure() ) {
     error() << "Failed to retrieve JobOptionsSvc" << endmsg;
   }
   //copy our properties to the prototype (default) SGImplSvc
-  std::string implStoreName = name() + "_Impl";
-  const std::vector<const Property*>* props = pJOSvc->getProperties( name() );
-  if ( props ) {
-    std::vector<const Property*>::const_iterator prop(props->begin());
-    std::vector<const Property*>::const_iterator pEnd(props->end());
-    while (prop != pEnd) {
-      pJOSvc->addPropertyToCatalogue( implStoreName, **prop ).ignore();
-      ++prop;
-    }    
-  } 
+  const std::string implStoreName = name() + "_Impl";
+  for (const Gaudi::Details::PropertyBase* p : getProperties()) {
+    pJOSvc->set( implStoreName + "." + p->name(), p->toString() );
+  }
   pJOSvc->release();
   pJOSvc=0;
 

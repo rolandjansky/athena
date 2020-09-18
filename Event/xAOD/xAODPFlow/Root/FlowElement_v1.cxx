@@ -106,12 +106,12 @@ namespace xAOD {
     result.reserve( elV.size() );
     if(wV.empty()) {
       for(const auto& el: elV ){
-	result.push_back( { el.isValid() ? *el : nullptr , 1.} ) ; 
+	result.emplace_back( el.isValid() ? *el : nullptr , 1. ) ; 
       }
     } else {
       for(size_t i=0;i<elV.size();i++){
 	const xAOD::IParticle* p = elV[i].isValid() ? *(elV[i]) : nullptr;
-	result.push_back( {p , wV[i]} ); 
+	result.emplace_back(p , wV[i] ); 
       }
     }      
     return result;
@@ -175,12 +175,12 @@ namespace xAOD {
     result.reserve( elV.size() );
     if(wV.empty()) {
       for(const auto& el: elV ){
-	result.push_back( { el.isValid() ? *el : nullptr , 1.} ) ; 
+	result.emplace_back( el.isValid() ? *el : nullptr , 1. ) ; 
       }
     } else {
       for(size_t i=0;i<elV.size();i++){
 	const xAOD::IParticle* p = elV[i].isValid() ? *(elV[i]) : nullptr;
-	result.push_back( {p , wV[i]} ); 
+	result.emplace_back(p , wV[i] ); 
       }
     }      
     return result;

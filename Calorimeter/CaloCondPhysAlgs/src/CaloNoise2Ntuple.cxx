@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloNoise2Ntuple.h"
@@ -12,8 +12,8 @@
 //Constructor
 CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(NULL),
-  m_calo_id(NULL),
+  m_thistSvc(nullptr),
+  m_calo_id(nullptr),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_averageTool(""),
   m_noiseCDOKey(""),
@@ -29,7 +29,7 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   m_elecNoise(0),
   m_pileupNoise(0),
   m_average(0),
-  m_tree(NULL),
+  m_tree(nullptr),
   m_runNumber(0),
   m_lumiBlock(0)
 {

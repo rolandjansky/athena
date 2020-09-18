@@ -28,13 +28,13 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
 
   void printTgcPrepRawData(); //!< Prints information about the resultant PRDs.
 
-  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+  ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tool{this,"DecodingTool","Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool","tgc rdo to prep data conversion tool"};
+  ToolHandle<IRegSelTool> m_regsel_tgc{this,"RegSel_TGC","RegSelTool/RegSelTool_TGC"};
 
   bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
@@ -44,7 +44,6 @@ class TgcRdoToTgcPrepData : public AthAlgorithm {
 
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ToolHandle<IRegSelTool> m_regsel_tgc; //<! pointer to RegionSelectionTool
   SG::WriteHandleKey<Muon::TgcPrepDataContainer> m_tgcCollection;
 };
 

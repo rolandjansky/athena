@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -7,6 +7,7 @@
 
 #include "EventInfo/TriggerInfo.h"
 #include "TrigDecisionTool/DecisionObjectHandleEventInfo.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 using namespace Trig;
 
@@ -19,7 +20,7 @@ DecisionObjectHandleEventInfo::DecisionObjectHandleEventInfo( SG::ReadHandleKey<
 TriggerInfo const * DecisionObjectHandleEventInfo::getDecision() const {
 
   if ( !m_object && !m_oldEventInfoKey->empty() ) {
-    const EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<EventInfo> oldEventInfo = SG::makeHandle(*m_oldEventInfoKey, ctx);
     if( ! oldEventInfo.isValid() ) {
       static bool warningPrinted = false;

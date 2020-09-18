@@ -19,10 +19,6 @@ def sTGC_LastXing():
     return 175 
 
 def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
-    kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )   
-    # set rndm seeds
-    sTgcRndm = kwargs.setdefault("RndmEngine","sTGC_Digitization")
-    jobproperties.Digitization.rndmSeedList.addSeed(sTgcRndm, 49261510, 105132394 )
     if jobproperties.Digitization.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", sTGC_FirstXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py
         kwargs.setdefault("LastXing",  sTGC_LastXing() )  # this should match the range for the sTGC in Digitization/share/MuonDigitization.py   

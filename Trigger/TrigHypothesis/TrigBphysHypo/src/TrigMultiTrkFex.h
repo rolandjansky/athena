@@ -19,12 +19,9 @@
 
 // standard stuff
 #include <string>
-#include <map>
-#include <cmath> 
 #include <algorithm>
 
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "xAODTrigBphys/TrigBphysContainer.h"
 
 class TrigBphysHelperUtilsTool;
 class TrigTimer;
@@ -67,9 +64,6 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
 		   float mindR) ;
 
 
-  //void processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysContainer & outputContainer);
-  // void buildDiMu (const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer);
-  //void buildTriMu(const std::vector<const xAOD::Muon*> &muons, xAOD::TrigBphysContainer & outputContainer);
     
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
     

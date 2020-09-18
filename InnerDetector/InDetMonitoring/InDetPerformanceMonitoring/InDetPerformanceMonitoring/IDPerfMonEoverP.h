@@ -80,7 +80,7 @@ namespace Trk{
 typedef std::pair<const xAOD::Vertex* , int> VxPos;
 
 
-class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutable member variables are used without protection.
+class IDPerfMonEoverP : public AthAlgorithm
 {
  public:
 
@@ -101,30 +101,33 @@ class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutabl
 
   void clearValidationNtuple();
 
-  void validationAction() const;
+  void validationAction();
   void deleteAction() const;
 
-  void fillIsEM(const xAOD::Electron *eg) const;
+  void fillIsEM(const xAOD::Electron *eg);
 
-  void fillGeneral(const xAOD::Electron *eg) const;
+  void fillGeneral(const xAOD::Electron *eg);
 
   bool passMETCleaningCuts() const;
 
-  bool fillVertexInformation() const;
+  bool fillVertexInformation(std::map<const xAOD::TrackParticle*, VxPos >& trackParticleVertexMap,
+                             xAOD::Vertex const* & primaryVertexFirstCandidate);
 
-  bool storeMETinformation() const;
+  bool storeMETinformation();
 
   //  const Rec::TrackParticle* getTrackParticle(Trk::VxTrackAtVertex *trkAtVx) const;
   //  const xAOD::TrackParticle* getTrackParticle(const Trk::VxTrackAtVertex *trkAtVx) const;
-  VxPos findAssociatedVertex(const xAOD::Electron* ) const;
+  VxPos findAssociatedVertex(std::map<const xAOD::TrackParticle*, VxPos >& trackParticleVertexMap,
+                             const xAOD::Vertex* primaryVertexFirstCandidate,
+                             const xAOD::Electron* ) const;
 
   void extrapolateToTheCalo(const Trk::TrackParameters* trkPar, const xAOD::CaloCluster* cluster,
                             double* eta, double* phi, double* deltaEta, double* delatPhi );
 
-  void fillElectronInfo (const xAOD::Electron* p) const;
-  void fillTriggerInformation() const;
+  void fillElectronInfo (const xAOD::Electron* p);
+  void fillTriggerInformation();
 
-  bool fillLastMeasurement(const Trk::Track* track,const int fitter)const;
+  bool fillLastMeasurement(const Trk::Track* track,const int fitter);
 
   double correctIP_PV(int electron_i, bool do_d0);
 
@@ -180,9 +183,6 @@ class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutabl
   bool                            m_fillDetailedTree;
 
 
-  mutable std::map<const xAOD::TrackParticle*, VxPos >   m_trackParticleVertexMap;
-  //  mutable const Trk::VxCandidate*                        m_primaryVertexFirstCandidate;
-  mutable const xAOD::Vertex*                        m_primaryVertexFirstCandidate;
   //!< validation tree name - to be acessed by this from root
   std::string                     m_validationTreeName;
   //!< validation tree description - second argument in TTree
@@ -193,95 +193,95 @@ class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutabl
   TTree*                          m_validationTree;
 
 
-  mutable unsigned int            m_runNumber;
-  mutable unsigned int            m_evtNumber;
-  mutable unsigned int            m_lumi_block;
+  unsigned int            m_runNumber;
+  unsigned int            m_evtNumber;
+  unsigned int            m_lumi_block;
 
 
-  mutable int                     m_nelectrons;
-  mutable int                     m_electronCounter;           //!< counter for electrons
+  int                     m_nelectrons;
+  int                     m_electronCounter;           //!< counter for electrons
 
-  mutable float                   m_electronTheta[3][NOS_ELECTRONS];     //!< Track theta on Surface
-  mutable float                   m_electronPhi[3][NOS_ELECTRONS];       //!< Track Phi on electron
-  mutable float                   m_electronQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
-  mutable float                   m_electrond0[3][NOS_ELECTRONS];       //!< Track Phi on electron
-  mutable float                   m_electronz0[3][NOS_ELECTRONS];    //!< Track q over p on electron
+  float                   m_electronTheta[3][NOS_ELECTRONS];     //!< Track theta on Surface
+  float                   m_electronPhi[3][NOS_ELECTRONS];       //!< Track Phi on electron
+  float                   m_electronQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
+  float                   m_electrond0[3][NOS_ELECTRONS];       //!< Track Phi on electron
+  float                   m_electronz0[3][NOS_ELECTRONS];    //!< Track q over p on electron
 
-  mutable float                   m_electronLMQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
+  float                   m_electronLMQoverP[3][NOS_ELECTRONS];    //!< Track q over p on electron
 
-  mutable float                   m_electronErrTheta[3][NOS_ELECTRONS];  //!< Track theta error on electron
-  mutable float                   m_electronErrPhi[3][NOS_ELECTRONS];    //!< Track phi error on electron
-  mutable float                   m_electronErrQoverP[3][NOS_ELECTRONS];
-  mutable float                   m_electronErrd0[3][NOS_ELECTRONS];
-  mutable float                   m_electronErrz0[3][NOS_ELECTRONS];
-
-
-  mutable int                     m_nTRT[NOS_ELECTRONS];
-  mutable int                     m_nSCT[NOS_ELECTRONS];
-  mutable int                     m_nBLayer[NOS_ELECTRONS];
-  mutable int                     m_nPIX[NOS_ELECTRONS];
-  mutable int                     m_nTRTout[NOS_ELECTRONS];
-  mutable int                     m_nSCTout[NOS_ELECTRONS];
-  mutable int                     m_nPIXout[NOS_ELECTRONS];
-  mutable int                     m_nTRTHT[NOS_ELECTRONS];
-  mutable int                     m_nTRTHTout[NOS_ELECTRONS];
+  float                   m_electronErrTheta[3][NOS_ELECTRONS];  //!< Track theta error on electron
+  float                   m_electronErrPhi[3][NOS_ELECTRONS];    //!< Track phi error on electron
+  float                   m_electronErrQoverP[3][NOS_ELECTRONS];
+  float                   m_electronErrd0[3][NOS_ELECTRONS];
+  float                   m_electronErrz0[3][NOS_ELECTRONS];
 
 
-  mutable int                     m_author[NOS_ELECTRONS];
+  int                     m_nTRT[NOS_ELECTRONS];
+  int                     m_nSCT[NOS_ELECTRONS];
+  int                     m_nBLayer[NOS_ELECTRONS];
+  int                     m_nPIX[NOS_ELECTRONS];
+  int                     m_nTRTout[NOS_ELECTRONS];
+  int                     m_nSCTout[NOS_ELECTRONS];
+  int                     m_nPIXout[NOS_ELECTRONS];
+  int                     m_nTRTHT[NOS_ELECTRONS];
+  int                     m_nTRTHTout[NOS_ELECTRONS];
 
-  mutable float                   m_ClusterEnergy[NOS_ELECTRONS];
-  mutable float                   m_ClusterEta[NOS_ELECTRONS];
-  mutable float                   m_ClusterPhi[NOS_ELECTRONS];
 
-  mutable bool                    m_IsEMLoose[NOS_ELECTRONS];
-  mutable bool                    m_IsEMMedium[NOS_ELECTRONS];
-  mutable bool                    m_IsEMTight[NOS_ELECTRONS];
-  mutable bool                    m_IsEMTightTRT[NOS_ELECTRONS];
-  mutable bool                    m_isGoodOQ[NOS_ELECTRONS];
+  int                     m_author[NOS_ELECTRONS];
+
+  float                   m_ClusterEnergy[NOS_ELECTRONS];
+  float                   m_ClusterEta[NOS_ELECTRONS];
+  float                   m_ClusterPhi[NOS_ELECTRONS];
+
+  bool                    m_IsEMLoose[NOS_ELECTRONS];
+  bool                    m_IsEMMedium[NOS_ELECTRONS];
+  bool                    m_IsEMTight[NOS_ELECTRONS];
+  bool                    m_IsEMTightTRT[NOS_ELECTRONS];
+  bool                    m_isGoodOQ[NOS_ELECTRONS];
 
 
 
   //Vertex Resolution Information
-  mutable int   m_associatedToVtx[NOS_ELECTRONS];
-  mutable VxPos m_vxpos[NOS_ELECTRONS];
+  int   m_associatedToVtx[NOS_ELECTRONS];
+  VxPos m_vxpos[NOS_ELECTRONS];
 
   //Vertex information
-  mutable int   m_nbpv;
-  mutable int   m_pvtype[NO_PV];
-  mutable int   m_pvnbtk[NO_PV];
-  mutable float m_pvsumpt[NO_PV];
-  mutable float m_pvx[NO_PV];
-  mutable float m_pvy[NO_PV];
-  mutable float m_pvz[NO_PV];
-  mutable float m_errpvx[NO_PV];
-  mutable float m_errpvy[NO_PV];
-  mutable float m_errpvz[NO_PV];
-  mutable float m_covpvxpvy[NO_PV];
-  mutable float m_covpvypvz[NO_PV];
-  mutable float m_covpvzpvx[NO_PV];
+  int   m_nbpv;
+  int   m_pvtype[NO_PV];
+  int   m_pvnbtk[NO_PV];
+  float m_pvsumpt[NO_PV];
+  float m_pvx[NO_PV];
+  float m_pvy[NO_PV];
+  float m_pvz[NO_PV];
+  float m_errpvx[NO_PV];
+  float m_errpvy[NO_PV];
+  float m_errpvz[NO_PV];
+  float m_covpvxpvy[NO_PV];
+  float m_covpvypvz[NO_PV];
+  float m_covpvzpvx[NO_PV];
 
   //MET
-  mutable bool  m_METgoodness;
-  mutable float m_sumet;
-  mutable float m_missingEt;
-  mutable float m_missingEtx;
-  mutable float m_missingEty;
+  bool  m_METgoodness;
+  float m_sumet;
+  float m_missingEt;
+  float m_missingEtx;
+  float m_missingEty;
 
 
-  mutable float m_ePID_ShowerType[50][NOS_ELECTRONS];
-  mutable float m_ePID_IsolationType[50][NOS_ELECTRONS];
-  mutable float m_ePID_TrackCaloMatchType[50][NOS_ELECTRONS];
-  mutable float m_ePID_SummaryType[50][NOS_ELECTRONS];
-  //  mutable std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PIDNames;
-  mutable std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PID_ShowerType_Names;
-  mutable std::vector< std::pair <xAOD::Iso::IsolationType, std::string >  > m_PID_IsolationType_Names;
-  mutable std::vector< std::pair <xAOD::EgammaParameters::TrackCaloMatchType, std::string >  > m_PID_TrackCaloMatchType_Names;
-  mutable std::vector< std::pair <xAOD::SummaryType, std::string >  > m_PID_SummaryType_Names;
+  float m_ePID_ShowerType[50][NOS_ELECTRONS];
+  float m_ePID_IsolationType[50][NOS_ELECTRONS];
+  float m_ePID_TrackCaloMatchType[50][NOS_ELECTRONS];
+  float m_ePID_SummaryType[50][NOS_ELECTRONS];
+  //  std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PIDNames;
+  std::vector< std::pair <xAOD::EgammaParameters::ShowerShapeType, std::string >  > m_PID_ShowerType_Names;
+  std::vector< std::pair <xAOD::Iso::IsolationType, std::string >  > m_PID_IsolationType_Names;
+  std::vector< std::pair <xAOD::EgammaParameters::TrackCaloMatchType, std::string >  > m_PID_TrackCaloMatchType_Names;
+  std::vector< std::pair <xAOD::SummaryType, std::string >  > m_PID_SummaryType_Names;
 
 
 
-  mutable bool m_trigger[50];
-  mutable std::vector<std::string> m_triggerNames;
+  bool m_trigger[50];
+  std::vector<std::string> m_triggerNames;
 
 
   TH1F *  m_ZeeLooseMassOS_Cluster;

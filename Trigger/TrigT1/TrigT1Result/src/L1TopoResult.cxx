@@ -11,16 +11,8 @@
 
 namespace ROIB {
 
-  L1TopoResult::L1TopoResult( const Header& header, const Trailer& trailer, const L1TopoRDO& rdo)
-    : m_header(header), m_trailer(trailer), m_RDO(rdo)
-  {}
-
-
-  L1TopoResult::L1TopoResult()
-    : m_header(), m_trailer(), m_RDO()
-  {}
-
-  L1TopoResult::~L1TopoResult()
+  L1TopoResult::L1TopoResult( Header&& header, Trailer&& trailer, L1TopoRDO&& rdo) noexcept
+    : m_header(std::move(header)), m_trailer(std::move(trailer)), m_RDO(std::move(rdo))
   {}
 
   const Header& L1TopoResult::header() const {

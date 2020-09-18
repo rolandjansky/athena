@@ -22,7 +22,7 @@ namespace L1Topo {
   class Fibre {
   public:
     //! Construct from contents and encode word: vectors of up to 5 status flags and sizes. They will be inserted left to right in the order the are given. The correct ordering is left to the user. Note that status is encoded as a single bit as specified in the data format, copied from the least significant bit of the given integer. Similarly, the size is truncated to the least significant 4 bits of the given integer.  
-    Fibre(const std::vector<uint32_t> status, const std::vector<uint32_t> count);
+    Fibre(std::vector<uint32_t> &&status, std::vector<uint32_t> &&count);
     //! Construct from word and encode contents
     Fibre(const uint32_t word);
     //! access method

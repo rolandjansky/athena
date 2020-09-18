@@ -48,8 +48,8 @@ public:
 private:
 
   // Properties.
-  ToolHandleArray<IEventShapeTool> m_evstools;
-  ToolHandleArray<IJetExecuteTool> m_exetools;
+  ToolHandleArray<IEventShapeTool> m_evstools {this, "EventShapeTools", {}};
+  ToolHandleArray<IJetExecuteTool> m_exetools {this, "Tools", {}};
   int m_timer;
 
   // Clocks.

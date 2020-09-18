@@ -1,0 +1,65 @@
+/* -*- mode:c++ -*-
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
+template <class T, class FUNCT>
+StatusCode TrigMuonMonitorAlgorithm::fillVariablesRatioPlots(const EventContext &ctx, const xAOD::Muon* mu,
+                                                             std::string &&trigstep,
+                                                             xAOD::Muon::TrackParticleType type, 
+                                                             FUNCT matchFunc) const
+{
+
+  const xAOD::TrackParticle* OfflineTrack = mu->trackParticle(type);
+  if ( OfflineTrack ){
+    auto AboveCut = Monitored::Scalar<bool>(trigstep+"AboveCut",false);
+    float OffPt = OfflineTrack->pt()/1e3;
+    if ( OffPt > m_ratio_measurement_threshold ){
+      const T *trigMu = matchFunc(ctx, mu);
+      if ( trigMu ){
+        if ( std::abs( trigMu->pt() ) > m_ratio_measurement_threshold ) AboveCut = true;
+      }
+    }
+
+    auto lb = Monitored::Scalar<int>("LB",-1.0);
+    lb = GetEventInfo(ctx)->lumiBlock();
+    fill(m_group, lb, AboveCut);
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+template<class T>
+StatusCode TrigMuonMonitorAlgorithm::fillVariableEtaPhi(const EventContext &ctx,
+                                                        SG::ReadHandleKey<DataVector<T> > ReadHandleKey,
+                                                        std::string &&trigstep,
+                                                        std::tuple<bool,double,double> (*PosFunc)(const T*)) const
+{
+
+  using CONTAINER = DataVector<T>;
+  SG::ReadHandle<CONTAINER> trigmuons(ReadHandleKey, ctx);
+  if (! trigmuons.isValid() ) {
+    ATH_MSG_ERROR("evtStore() does not contain collection with name "<< ReadHandleKey);
+    return StatusCode::FAILURE;
+  }
+
+  for (const auto& trigmu : *trigmuons) {
+
+    auto Eta = Monitored::Scalar<float>(trigstep+"Eta",-999.);
+    auto Phi = Monitored::Scalar<float>(trigstep+"Phi",-999.);
+
+    const auto [status, trigEta, trigPhi] = PosFunc(trigmu);
+    if(!status) continue;
+    Eta = trigEta;
+    Phi = trigPhi;
+    fill(m_group, Eta, Phi);
+
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+template<class T>
+std::tuple<bool, double, double> TrigMuonMonitorAlgorithm::defaultPosFunc(const T* trig){ return std::forward_as_tuple(true, trig->eta(), trig->phi()); }

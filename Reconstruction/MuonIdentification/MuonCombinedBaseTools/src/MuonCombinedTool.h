@@ -37,7 +37,7 @@ namespace MuonCombined {
 
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandleArray<MuonCombined::IMuonCombinedTagTool> m_muonCombinedTagTools;
+    ToolHandleArray<MuonCombined::IMuonCombinedTagTool> m_muonCombinedTagTools{this,"MuonCombinedTagTools",{}};
     ToolHandle<MuonCombinedDebuggerTool> m_muonCombDebugger {this, "MuonCombinedDebuggerTool", "MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool"};
 
     Gaudi::Property<double> m_deltaEtaPreSelection {this, "DeltaEtaPreSelection", 0.5};

@@ -62,7 +62,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
 
   for (auto iterTTR : *coll) {
 
-    const HepPDT::ParticleData* particle = particleData(abs(iterTTR.GetPDGCode()));
+    const HepPDT::ParticleData* particle = particleData(std::abs(iterTTR.GetPDGCode()));
     double mass = particle->mass().value();
     double en = std::sqrt(mass*mass+iterTTR.GetMomentum().mag2());
 
@@ -112,7 +112,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
       }
 
       // Now scale it based on dTheta
-      double tempP = pow(particle4Momentum.x(),2)+pow(particle4Momentum.y(),2)+pow(particle4Momentum.z(),2);
+      double tempP = std::pow(particle4Momentum.x(),2)+std::pow(particle4Momentum.y(),2)+std::pow(particle4Momentum.z(),2);
       if ( tempP==0 ) {
         ATH_MSG_DEBUG("Our initial momentum had zero magnitude!!");
         perpendicularMomentum.setX(0);
@@ -122,7 +122,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
         perpendicularMomentum.setX(0);
         perpendicularMomentum.setY(0);
       } else {
-        double scale = ( tempP ) * sin(dTheta) / ( pow(perpendicularMomentum.x(),2)+pow(perpendicularMomentum.y(),2) );
+        double scale = ( tempP ) * std::sin(dTheta) / ( std::pow(perpendicularMomentum.x(),2)+std::pow(perpendicularMomentum.y(),2) );
         perpendicularMomentum.setX( perpendicularMomentum.x() * scale );
         perpendicularMomentum.setY( perpendicularMomentum.y() * scale );
 

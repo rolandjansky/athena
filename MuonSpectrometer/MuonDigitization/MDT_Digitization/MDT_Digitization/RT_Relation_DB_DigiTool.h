@@ -46,13 +46,11 @@ class RT_Relation_DB_DigiTool : public AthAlgTool, virtual public IMDT_Digitizat
     bool   isTubeEfficient(double radius,CLHEP::HepRandomEngine *rndmEngine) const;
     
     //Data members
-    double m_effRadius;
     double m_maxRadius;
     const MuonGM::MuonDetectorManager* m_muonGeoMgr;
     
-  protected:
-    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
-
+    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
+    Gaudi::Property<double> m_effRadius{this,"EffectiveRadius",14.4275};
 };
 
 

@@ -22,7 +22,7 @@ namespace coral {
 
 //using namespace cool;
 
-class ATLAS_NOT_THREAD_SAFE COOLCORALClient { // Thread unsafe coral::AttributeList is used.
+class COOLCORALClient {
 
 protected:
   std::string m_connString;

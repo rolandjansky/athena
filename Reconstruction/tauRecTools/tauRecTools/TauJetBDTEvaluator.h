@@ -29,7 +29,6 @@ class TauJetBDTEvaluator
     
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
-  virtual StatusCode finalize() override;
   
  private:
   std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;

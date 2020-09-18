@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "FlavorTagDiscriminants/customGetter.h"
-#include "FlavorTagDiscriminants/BTagTrackAugmenter.h"
+#include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
 
 namespace {
   // ______________________________________________________________________
@@ -31,7 +31,7 @@ namespace {
   class SignedD0SequenceGetter
   {
   private:
-    BTagTrackAugmenter m_augmenter;
+    BTagTrackIpAccessor m_augmenter;
   public:
     SignedD0SequenceGetter():
       m_augmenter()
@@ -42,7 +42,7 @@ namespace {
       std::vector<double> signed_d0;
       for (const auto* track: tracks) {
         signed_d0.push_back(
-          m_augmenter.get_signed_ip(*track, jet).ip3d_signed_d0_significance);
+          m_augmenter.getSignedIp(*track, jet).ip3d_signed_d0_significance);
       }
       return signed_d0;
     }
@@ -50,7 +50,7 @@ namespace {
   class SignedZ0SequenceGetter
   {
   private:
-    BTagTrackAugmenter m_augmenter;
+    BTagTrackIpAccessor m_augmenter;
   public:
     SignedZ0SequenceGetter():
       m_augmenter()
@@ -61,7 +61,7 @@ namespace {
       std::vector<double> signed_z0;
       for (const auto* track: tracks) {
         signed_z0.push_back(
-          m_augmenter.get_signed_ip(*track, jet).ip3d_signed_z0_significance);
+          m_augmenter.getSignedIp(*track, jet).ip3d_signed_z0_significance);
       }
       return signed_z0;
     }

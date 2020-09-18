@@ -209,7 +209,7 @@ StatusCode ParticleDecayer::setDecayPosition( HepMC::GenParticlePtr genpart, Hep
    double px = genpart->momentum().px();
    double py = genpart->momentum().py();
    double pz = genpart->momentum().pz();
-   double p  = sqrt(px*px + py*py + pz*pz);
+   double p  = std::sqrt(px*px + py*py + pz*pz);
 
    const CLHEP::HepLorentzVector posLV(((ctg*px/p)+(vtxp->position().x())), ((ctg*py/p)+(vtxp->position().y())), ((ctg*pz/p)+(vtxp->position().z())), ((ctg)+(vtxp->position().t())));
 
@@ -467,7 +467,7 @@ double ParticleDecayer::getParticleMass(int pid) {
   if (!PartPropStatus.isSuccess() || 0 == partPropSvc) throw GaudiException("PartPropSvc error", "I_ParticleDecayer", StatusCode::FAILURE);      
   m_particleTable = partPropSvc->PDT();
 
-  const HepPDT::ParticleData* particle = m_particleTable->particle(HepPDT::ParticleID(abs(pid)));
+  const HepPDT::ParticleData* particle = m_particleTable->particle(HepPDT::ParticleID(std::abs(pid)));
   return particle->mass().value();
 } 
 
@@ -549,7 +549,7 @@ StatusCode ParticleDecayer::getDecayProducts( CLHEP::HepLorentzVector parentLV,
    double theta_rf = std::acos(ct_rf);
 
    //construct p1 particle momentum in rest-frame (_rf)
-   double p1_rf = sqrt(parentMass*parentMass/4. - decayPartMass*decayPartMass);
+   double p1_rf = std::sqrt(parentMass*parentMass/4. - decayPartMass*decayPartMass);
    double px_rf = p1_rf*std::cos(phi_rf)*std::sin(theta_rf);
    double py_rf = p1_rf*std::sin(phi_rf)*std::sin(theta_rf);
    double pz_rf = p1_rf*ct_rf;

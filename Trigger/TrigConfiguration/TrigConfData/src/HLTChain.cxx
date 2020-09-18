@@ -10,15 +10,28 @@ TrigConf::Chain::Chain()
 TrigConf::Chain::Chain(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
+}
+
+TrigConf::Chain::Chain(const std::string & name, const boost::property_tree::ptree & data) 
+   : DataStructure(name, data)
+{
+   load();
 }
 
 void
 TrigConf::Chain::update()
 {
+   load();
+}
+
+void
+TrigConf::Chain::load()
+{
    if(! isInitialized() || empty() ) {
       return;
    }
+   m_name = getAttribute("name", true, m_name);
 }
 
 TrigConf::Chain::~Chain()
@@ -99,5 +112,20 @@ TrigConf::Chain::groups() const
    } 
 
    return grouplist;
+}
+
+std::vector<std::string>
+TrigConf::Chain::sequencers() const
+{
+
+   std::vector<std::string> seqlist;
+   const auto & seqs = getList("sequencers");
+   if( !seqs.empty() ) {
+      seqlist.reserve(seqs.size());
+      for( auto & seq : seqs ) {
+         seqlist.emplace_back( seq.getValue<std::string>() );
+      }
+   }
+   return seqlist;
 }
 

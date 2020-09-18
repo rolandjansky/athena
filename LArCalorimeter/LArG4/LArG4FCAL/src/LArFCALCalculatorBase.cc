@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,7 +12,8 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArG4BirksLaw.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // Geant4 includes
 #include "G4LogicalVolume.hh"
@@ -49,9 +50,8 @@ LArFCALCalculatorBase::LArFCALCalculatorBase(const std::string& name, ISvcLocato
 
 StatusCode LArFCALCalculatorBase::initialize()
 {
-  StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
-  if (detStore->retrieve(m_ChannelMap)==StatusCode::FAILURE) {
-  }
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore" ,"LArFCALCalculatorBase");
+  ATH_CHECK(detStore->retrieve(m_ChannelMap));
 
   if (m_BirksLaw) {
     const double Birks_LAr_density = 1.396;

@@ -19,6 +19,7 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetIdentifier/PixelID.h"
+#include "AmbiguityProcessorUtility.h"
 
 //==================================================================================================
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::DenseEnvironmentsAmbiguityScoreProcessorTool(const std::string& t, 
@@ -65,8 +66,8 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize(){
   ATH_CHECK( m_splitClusterMapKey_last.initialize(!m_splitClusterMapKey_last.key().empty()) );
   ATH_CHECK( m_splitClusterMapKey.initialize(!m_splitClusterMapKey.key().empty()) );
 
-  if (m_etaBounds.size() != TrackStat3::nRegions) {
-     ATH_MSG_FATAL("There must be exactly " << (TrackStat3::nRegions) << " eta bounds but "
+  if (m_etaBounds.size() != Counter::nRegions) {
+     ATH_MSG_FATAL("There must be exactly " << (Counter::nRegions) << " eta bounds but "
                    << m_etaBounds.size() << " are set." );
      return StatusCode::FAILURE;
   }
@@ -98,7 +99,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
     and then returns the tracks which have been selected*/
 
 void 
-Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<const Track*>* tracks,
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(const TrackCollection & tracks,
                                                     Trk::TracksScores* trackScoreTrackMap) const{
   InDet::PixelGangedClusterAmbiguities *splitClusterMap = nullptr;
   if(!m_splitClusterMapKey.key().empty()){
@@ -138,43 +139,27 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<const Tra
 
 //==================================================================================================
 void 
-Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector<const Track*>* tracks,
+Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(const TrackCollection & tracks,
                                                           Trk::TracksScores* trackScoreTrackMap) const{
-  TrackStat3 stat(m_etaBounds);
+  Counter stat(m_etaBounds);
   stat.newEvent();
   std::unique_ptr<Trk::PRDtoTrackMap> prdToTrackMap( m_assoTool->createPRDtoTrackMap() );
-  PrdSignatureSet prdSigSet;  
-  ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
-  for(const Track* a_track : *tracks) {
-    ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
-    stat.incrementCounterByRegion(EStatType::kNcandidates,a_track); // @TODO should go to the score processor
-    // only fitted tracks get hole search, input is not fitted
-    float score = m_scoringTool->score( *a_track, true);
-    ATH_MSG_DEBUG ("Track Score is "<< score);
-    // veto tracks with score 0
-    bool reject = (score==0);      
-    if (reject){
-      stat.incrementCounterByRegion(EStatType::kNcandScoreZero,a_track);
-    } else {// double track rejection
-      const std::vector<const Trk::PrepRawData*> & prds = m_assoTool->getPrdsOnTrack(*prdToTrackMap, *a_track);
-      // convert to set
-      //PrdSignature prdSig( prds.begin(),prds.end() );
-      // we try to insert it into the set, if we fail (pair.second), it then exits already
-      if ( !(prdSigSet.insert(prds)).second ) {
-        ATH_MSG_DEBUG ("Double track, reject it !");
-        stat.incrementCounterByRegion(EStatType::kNcandDouble,a_track);
-        reject = true;
-      } else {
-        ATH_MSG_DEBUG ("Insert new track in PrdSignatureSet");
-      }
-    }
-    if (!reject) {
-      // add track to map, map is sorted small to big ! set if fitted
-      ATH_MSG_VERBOSE ("Track ("<< a_track <<" --> "<< *a_track << ") has score "<<score);
-      trackScoreTrackMap->push_back( std::make_pair(a_track, -score));
+  PrdSignatureSet prdSigSet; 
+  ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks.size());
+  const std::array<ScoreCategory, 3> categoryMapping {ScoreCategory::kNcandScoreZero, ScoreCategory::kNcandDouble, ScoreCategory::kNaccept};
+  constexpr bool dropDuplicateTracks{true};
+  for(const Track* pThisTrack : tracks) {
+    ATH_MSG_VERBOSE ("Processing track candidate "<<pThisTrack);
+    stat.incrementCounterByRegion(ScoreCategory::kNcandidates,pThisTrack); // @TODO should go to the score processor
+    TrackScore score = m_scoringTool->score( *pThisTrack, true);
+    const auto category = AmbiguityProcessor::categoriseTrack(*pThisTrack, score, dropDuplicateTracks, m_assoTool, *prdToTrackMap, prdSigSet);
+    if (category<categoryMapping.size()) stat.incrementCounterByRegion(categoryMapping[category],pThisTrack);
+    ATH_MSG_DEBUG(AmbiguityProcessor::debugMessage[category]);
+    if (category == AmbiguityProcessor::TrackAccepted){
+      ATH_MSG_VERBOSE ("Track  ("<< pThisTrack <<") has score "<<score);
+      trackScoreTrackMap->push_back(std::make_pair(pThisTrack, -score));
     }
   }
-  ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap->size());
   {
      std::lock_guard<std::mutex> lock(m_statMutex);
      m_stat += stat;
@@ -280,7 +265,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
   std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
   sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
   for( const std::pair< const InDet::PixelCluster* const, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
-    sorted.push_back( pixelTrackItem );
+    sorted.emplace_back(pixelTrackItem );
   }
   std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,
                                               const std::pair< const InDet::PixelCluster*, const Trk::Track* > &b) {
@@ -312,8 +297,8 @@ void
 Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) const
 {
    auto parseFileName=[](const std::string & fullname){
-     auto dotPosition = fullname.rfind(".");
-     auto slashPosition = fullname.rfind("/");
+     auto dotPosition = fullname.rfind('.');
+     auto slashPosition = fullname.rfind('/');
      auto stringLength = dotPosition - slashPosition;
      return fullname.substr(slashPosition, stringLength);
    };
@@ -325,22 +310,22 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) cons
    out << __func__;
    out << "\n";
    out << "------------------------------------------------------------------------------------" << "\n";
-   out << "  Number of events processed      :   "<< m_stat.globalCount(TrackStat3::nEvents) << "\n";
-   if (m_stat.globalCount(TrackStat3::nInvalidTracks)>0) {
-      out << "  Number of invalid tracks        :   "<< m_stat.globalCount(TrackStat3::nInvalidTracks) << "\n";
+   out << "  Number of events processed      :   "<< m_stat.globalCount(Counter::nEvents) << "\n";
+   if (m_stat.globalCount(Counter::nInvalidTracks)>0) {
+      out << "  Number of invalid tracks        :   "<< m_stat.globalCount(Counter::nInvalidTracks) << "\n";
    }
-   if (m_stat.globalCount(TrackStat3::nTracksWithoutParam)>0) {
-      out << "  Tracks without parameters       :   "<< m_stat.globalCount(TrackStat3::nTracksWithoutParam) << "\n";
+   if (m_stat.globalCount(Counter::nTracksWithoutParam)>0) {
+      out << "  Tracks without parameters       :   "<< m_stat.globalCount(Counter::nTracksWithoutParam) << "\n";
    }
    out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << "\n";
    out << "------------------------------------------------------------------------------------" << "\n";
-   out << m_stat.dumpRegions("  Number of candidates at input   :",    EStatType::kNcandidates,iw);
-   out << m_stat.dumpRegions("  - candidates rejected score 0   :",    EStatType::kNcandScoreZero,iw);
-   out << m_stat.dumpRegions("  - candidates rejected as double :",    EStatType::kNcandDouble,iw);
+   out << m_stat.dumpRegions("  Number of candidates at input   :",    ScoreCategory::kNcandidates,iw);
+   out << m_stat.dumpRegions("  - candidates rejected score 0   :",    ScoreCategory::kNcandScoreZero,iw);
+   out << m_stat.dumpRegions("  - candidates rejected as double :",    ScoreCategory::kNcandDouble,iw);
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
-       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[TrackStat3::iBarrel] << " < Transition < " << m_etaBounds[TrackStat3::iTransi]
-       << " < Endcap < " << m_etaBounds[TrackStat3::iEndcap] << " < Forward < " << m_etaBounds[TrackStat3::iForwrd] << " )" << "\n";
+       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[Counter::iBarrel] << " < Transition < " << m_etaBounds[Counter::iTransi]
+       << " < Endcap < " << m_etaBounds[Counter::iEndcap] << " < Forward < " << m_etaBounds[Counter::iForwrd] << " )" << "\n";
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
 }

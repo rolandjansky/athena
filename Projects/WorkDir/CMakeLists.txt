@@ -52,6 +52,14 @@ check_language( CUDA )
 if( CMAKE_CUDA_COMPILER )
    enable_language( CUDA )
 endif()
+find_package( AtlasHIP QUIET )
+if( AtlasHIP_FOUND )
+   include( AtlasCheckLanguage )
+   atlas_check_language( HIP )
+   if( CMAKE_HIP_COMPILER )
+      enable_language( HIP )
+   endif()
+endif()
 
 # Set up where to find the AthenaPoolUtilitiesTest CMake code.
 if( IS_DIRECTORY

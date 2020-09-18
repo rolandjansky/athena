@@ -45,6 +45,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], disableEventTag=False 
       OutputFile = fileName,
       HelperTools = [ streamInfoTool, tct ],
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    result.addService(StoreGateSvc("MetaDataStore"))
    outputStream.MetadataStore = result.getService("MetaDataStore")
    outputStream.MetadataItemList = [ "EventStreamInfo#Stream" + streamName, "IOVMetaDataContainer#*" ]

@@ -5,25 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTGC_CnvTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonCablings/TGCcablingInterface
-                          MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonTrigCoinData
-                          Tracking/TrkDetDescr/TrkSurfaces )
-
 # External dependencies:
 find_package( Eigen )
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )

@@ -82,15 +82,6 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         ToolSvc += NnClusterizationFactory
 
-        # special setup for DVRetracking mode
-        # if InDetFlags.doDVRetracking() :
-           # COOL binding
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.doTIDE_RescalePixelCovariances() :
-            if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
-                # COOL binding
-                conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
-
         if (InDetFlags.doPrintConfigurables()):
             printfunc (NnClusterizationFactory)
 elif InDetFlags.doPixelClusterSplitting():
@@ -896,16 +887,29 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     # --- load adaptive multi primary vertex finder
     #
-    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(
-        name="InDetAdaptiveMultiPriVxFinderTool",
-        SeedFinder=InDetVtxSeedFinder,
-        VertexFitterTool=InDetVxFitterTool,
-        TrackSelector=InDetTrackSelectorTool,
-        useBeamConstraint=InDetFlags.useBeamConstraint(),
-        selectiontype=0,
-        TracksMaxZinterval=3,  # mm
-        do3dSplitting=InDetFlags.doPrimaryVertex3DFinding())
+    if not InDetFlags.useActsPriVertexing():
+      from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
+      InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetAdaptiveMultiPriVxFinderTool",
+                                                                      SeedFinder        = InDetVtxSeedFinder,
+                                                                      VertexFitterTool  = InDetVxFitterTool,
+                                                                      TrackSelector     = InDetTrackSelectorTool,
+                                                                      useBeamConstraint = InDetFlags.useBeamConstraint(),
+                                                                      selectiontype     = 0,
+  								                                                    TracksMaxZinterval = 3,#mm 
+                                                                      do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
+    else:
+      from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool
+      from ActsPriVtxFinder.ActsPriVtxFinderConf import ActsAdaptiveMultiPriVtxFinderTool
+      actsTrackingGeometryTool = getattr(ToolSvc,"ActsTrackingGeometryTool")
+      actsExtrapolationTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+      actsExtrapolationTool.TrackingGeometryTool = actsTrackingGeometryTool
+      InDetPriVxFinderTool = ActsAdaptiveMultiPriVtxFinderTool(name  = "ActsAdaptiveMultiPriVtxFinderTool",
+                                                               TrackSelector     = InDetTrackSelectorTool,
+                                                               useBeamConstraint = InDetFlags.useBeamConstraint(),
+                                                               tracksMaxZinterval = 3,#mm 
+                                                               do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
+                                                               TrackingGeometryTool = actsTrackingGeometryTool,
+                                                               ExtrapolationTool = actsExtrapolationTool)
 
   else:
     #

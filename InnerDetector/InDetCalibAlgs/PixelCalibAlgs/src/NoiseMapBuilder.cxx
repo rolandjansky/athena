@@ -358,7 +358,7 @@ StatusCode NoiseMapBuilder::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe D
       }
 
       // exclude module if containg FE synch errors
-      if (m_pixelConditionsTool->isBSError(modHash)) {
+      if (m_pixelConditionsTool->hasBSError(modHash)) {
 	ATH_MSG_VERBOSE("Module excluded as containing FE synch errors");
 	continue;
       }
@@ -582,7 +582,7 @@ StatusCode NoiseMapBuilder::finalize() {
         else if(layer == 3) { cut=m_layer2Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB2; comp="Layer2";  }
     } 
 
-    if (!m_pixelConditionsTool->isBSActive(modHash) && m_hitMaps[modHash]->GetEntries()==0) {
+    if (!m_pixelConditionsTool->hasBSError(modHash) && m_hitMaps[modHash]->GetEntries()==0) {
       if(bec == 0) {
 	if(layer == 0)      { disablePlotBI->Fill(modEta, modPhi, -1); }
 	else if(layer == 1) { disablePlotB0->Fill(modEta, modPhi, -1); }

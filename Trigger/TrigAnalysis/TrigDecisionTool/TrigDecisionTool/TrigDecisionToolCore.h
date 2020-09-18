@@ -62,7 +62,13 @@ namespace Trig {
 
     
   private:
-    SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;    
+
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+    SG::SlotSpecificObj<Trig::CacheGlobalMemory> m_cacheGlobalMemory;
+#else // Analysis or Standalone
+    Trig::CacheGlobalMemory m_cacheGlobalMemory;
+#endif
+
     Trig::ExpertMethods* m_expertMethods;
     TrigDecisionToolCore (const TrigDecisionToolCore&);
     TrigDecisionToolCore& operator= (const TrigDecisionToolCore&);

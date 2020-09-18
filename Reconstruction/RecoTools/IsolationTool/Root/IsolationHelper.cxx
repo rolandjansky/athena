@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <IsolationTool/IsolationHelper.h>
@@ -58,11 +58,7 @@ namespace CP {
 
 	bool IsolationHelper::correction(float& value, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, xAOD::Iso::IsolationCaloCorrection corr, xAOD::Iso::IsolationCaloCorrectionBitset corrMask) const {
 		if(corr == xAOD::Iso::pileupCorrection){
-			if(getPileupCorrection(value, par, type, corrMask)) {
-				return true;
-			} else {
-				return false;
-			}
+			return getPileupCorrection(value, par, type, corrMask);
 		} else {
 			auto acc = (corr == xAOD::Iso::ptCorrection)? xAOD::getIsolationCorrectionAccessor(type, corr) : xAOD::getIsolationCorrectionAccessor(xAOD::Iso::isolationFlavour(type), corr, xAOD::Iso::coreEnergy);
 			if(acc.isAvailable(par)) {
@@ -77,7 +73,7 @@ namespace CP {
 	bool IsolationHelper::correction(float& value, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, xAOD::Iso::IsolationCaloCorrectionBitset corrMask) const {
 		value = 0;
 		std::vector<xAOD::Iso::IsolationCaloCorrection> results;
-		m_caloIsoBitHelper.decode(corrMask, results);
+		xAOD::Iso::IsolationCaloCorrectionBitsetHelper::decode(corrMask, results);
 		for(auto c: results){
 			float temp = 0;
 			if(correction(temp, par, type, c, corrMask)) {
@@ -92,7 +88,7 @@ namespace CP {
 
 	bool IsolationHelper::isolation(float& value, const xAOD::IParticle& par, xAOD::Iso::IsolationType type, const std::vector<xAOD::Iso::IsolationCaloCorrection>& corrs) const {
 		xAOD::Iso::IsolationCaloCorrectionBitset mask = 0;
-		m_caloIsoBitHelper.encode(corrs, mask);
+		xAOD::Iso::IsolationCaloCorrectionBitsetHelper::encode(corrs, mask);
 
 		return isolation(value, par, type, mask); 
 	}
@@ -119,7 +115,7 @@ namespace CP {
 	}
 
 	bool IsolationHelper::updateIsolation(xAOD::MuonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, std::vector<xAOD::Iso::IsolationType>& types, xAOD::Iso::IsolationCaloCorrectionBitset corrMask, std::string muonkey, bool recordSG) const {
-		const xAOD::MuonContainer* muons(0);
+		const xAOD::MuonContainer* muons(nullptr);
 		ATH_CHECK( evtStore()->retrieve(muons,muonkey), false );
 		std::pair<xAOD::MuonContainer*,xAOD::ShallowAuxContainer*> shallowcopy = xAOD::shallowCopyContainer(*muons);
 		copy = shallowcopy.first;

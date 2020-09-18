@@ -170,7 +170,7 @@ std::vector< const Trk::PrepRawData* >
 Trk::PRD_AssociationTool::getPrdsOnTrack(const Maps& maps,
                                          const Trk::Track& track) const
 {
-  typedef std::vector<const PrepRawData*> PRDs_t;
+  using PRDs_t = std::vector<const PrepRawData *>;
 
   // test caching
   TrackPrepRawDataMap::const_iterator itvec = maps.m_trackPrepRawDataMap.find(&track);

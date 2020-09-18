@@ -5,17 +5,16 @@
 /** @file MetaDataSvc.cxx
  *  @brief This file contains the implementation for the MetaDataSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
- *  $Id: MetaDataSvc.cxx,v 1.46 2008-11-19 23:21:10 gemmeren Exp $
  **/
 
 #include "MetaDataSvc.h"
 
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/IAddressCreator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/FileIncident.h"
 
@@ -28,6 +27,8 @@
 
 #include <vector>
 #include <sstream>
+
+#include "boost/bind/bind.hpp"
 
 //________________________________________________________________________________
 MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::AthService(name, pSvcLocator),
@@ -142,21 +143,15 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot register myself with the IoComponentMgr.");
       return(StatusCode::FAILURE);
    }
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
+   ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc", name());
    if (!joSvc.retrieve().isSuccess()) {
       ATH_MSG_WARNING("Cannot get JobOptionsSvc.");
    } else {
-      const std::vector<const Property*>* evtselProps = joSvc->getProperties("EventSelector");
-      if (evtselProps != nullptr) {
-         for (std::vector<const Property*>::const_iterator iter = evtselProps->begin(),
-                         last = evtselProps->end(); iter != last; iter++) {
-            if ((*iter)->name() == "InputCollections") {
-               // Get EventSelector to force in-time initialization and FirstInputFile incident
-               ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
-               if (!evtsel.retrieve().isSuccess()) {
-                  ATH_MSG_WARNING("Cannot get EventSelector.");
-               }
-            }
+      if (joSvc->has("EventSelector.InputCollections")) {
+         // Get EventSelector to force in-time initialization and FirstInputFile incident
+         ServiceHandle<IEvtSelector> evtsel("EventSelector", this->name());
+         if (!evtsel.retrieve().isSuccess()) {
+            ATH_MSG_WARNING("Cannot get EventSelector.");
          }
       }
    }
@@ -383,6 +378,7 @@ void MetaDataSvc::handle(const Incident& inc) {
 
    if (inc.type() == "FirstInputFile") {
       // Register open/close callback actions
+     using namespace boost::placeholders;
       Io::bfcn_action_t boa = boost::bind(&MetaDataSvc::rootOpenAction, this, _1,_2);
       if (m_fileMgr->regAction(boa, Io::OPEN).isFailure()) {
          ATH_MSG_FATAL("Cannot register ROOT file open action with FileMgr.");
@@ -585,6 +581,7 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
       }
       for (SG::TransientAddress* tad : tList) {
          CLID clid = tad->clID();
+          ATH_MSG_VERBOSE("initInputMetaDataStore: add proxy for clid = " << clid << ", key = " << tad->name());
          if (m_inputDataStore->contains(tad->clID(), tad->name())) {
             ATH_MSG_DEBUG("initInputMetaDataStore: MetaData Store already contains clid = " << clid << ", key = " << tad->name());
          } else {
@@ -623,4 +620,24 @@ CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
       return 167729019;   //  MetaCont<EventStreamInfo> CLID
    }
    return item_id;
+}
+
+
+void MetaDataSvc::lockTools() const
+{
+   ATH_MSG_DEBUG("Locking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->lock_shared();
+   }
+}
+
+
+void MetaDataSvc::unlockTools() const
+{
+   ATH_MSG_DEBUG("Unlocking metadata tools");
+   for(auto tool : m_metaDataTools ) {
+      ILockableTool *lockable = dynamic_cast<ILockableTool*>( tool.get() );
+      if( lockable ) lockable->unlock_shared();
+   }
 }

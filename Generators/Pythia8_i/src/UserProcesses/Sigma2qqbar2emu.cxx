@@ -106,10 +106,10 @@ namespace Pythia8 {
     }
     
     // Info on the subprocess.
-    string name()    const {return "q qbar -> e mu (t:squark)";}
+    std::string name()    const {return "q qbar -> e mu (t:squark)";}
     //cab Need Codes for q qbar -> e+- mu-+
     int    code()    const {return 10001;}
-    string inFlux()  const {return "qq";}
+    std::string inFlux()  const {return "qq";}
     //cab It looks like here is where the final state is specified
     //cab electrons are +-11, muons are +-13
     int    id3Mass() const {return 11;}

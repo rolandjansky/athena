@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// ICscSegmentFinder.h
 
 #ifndef ICscSegmentFinder_H
 #define ICscSegmentFinder_H
 
 #include "GaudiKernel/IAlgTool.h"
-//#include "MuonRecToolInterfaces/IMuonSegmentMaker.h" // added..
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 
-//IMuonSegmentMaker.h
 namespace Muon {
     class MuonSegment;
     class MdtDriftCircleOnTrack;
@@ -30,7 +26,6 @@ namespace Trk {
 static const InterfaceID IID_ICscSegmentFinder("ICscSegmentFinder", 1, 0);
 
 class ICscSegmentFinder :  virtual public IAlgTool {
-  //class ICscSegmentFinder : public Muon::IMuonSegmentMaker {
   
 public:  // Static methods
 

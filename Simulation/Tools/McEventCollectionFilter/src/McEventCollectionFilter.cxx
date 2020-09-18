@@ -53,6 +53,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   , m_UseCSCHits(true) // On unless RUN3 symmetric layout
   , m_UseSTGCHits(false) // Off unless RUN3 layout
   , m_UseMMHits(false) // Off unless RUN3 layout
+  , m_UseBCMHits(true) //On unless RUN4 layout
   , m_RefBarcode(0)
 {
   declareProperty("TruthInput"        , m_inputTruthCollection);
@@ -83,6 +84,7 @@ McEventCollectionFilter::McEventCollectionFilter(const std::string& name, ISvcLo
   declareProperty("UseCSCHits"        , m_UseCSCHits);
   declareProperty("UseSTGCHits"       , m_UseSTGCHits);
   declareProperty("UseMMHits"         , m_UseMMHits);
+  declareProperty("UseBCMHits"        , m_UseBCMHits);
 
 }
 
@@ -114,7 +116,7 @@ StatusCode McEventCollectionFilter::execute(){
   //.......Reduce McEventCollection
   ATH_CHECK( ReduceMCEventCollection() );
 
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   ATH_CHECK( SiliconHitsTruthRelink() );
 
   //.......to relink all TRT hits to the new particle
@@ -144,6 +146,11 @@ StatusCode McEventCollectionFilter::execute(){
   //.......to relink all MM hits to the new particle
   if(m_UseMMHits) {
     ATH_CHECK( MM_HitsTruthRelink() );
+  }
+  
+  //.......to relink all BCM hits to the new particle
+  if(m_UseBCMHits) {
+    ATH_CHECK( BCMHitsTruthRelink() );
   }
 
   ATH_MSG_DEBUG( "succeded McEventCollectionFilter ..... " );
@@ -191,9 +198,9 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
 
   //to set geantino vertex as a truth primary vertex
-  HepMC::GenVertexPtr hScatVx = genEvt->barcode_to_vertex(-3);
+  HepMC::GenVertexPtr hScatVx = HepMC::barcode_to_vertex(genEvt,-3);
   if(hScatVx!=nullptr) {
-    HepMC::FourVector pmvxpos=hScatVx->position();
+    const HepMC::FourVector& pmvxpos=hScatVx->position();
     genVertex->set_position(pmvxpos);
     //to set geantino kinematic phi=eta=0, E=p=E_hard_scat
     HepMC::GenVertex::particles_in_const_iterator itrp =hScatVx->particles_in_const_begin();
@@ -222,7 +229,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
   //--------------------------------------
   if(m_IsKeepTRTElect){
     for(int i=0;i<(int) m_elecBarcode.size();i++){
-      HepMC::GenParticlePtr thePart=genEvt->barcode_to_particle(m_elecBarcode[i]);
+      HepMC::GenParticlePtr thePart=HepMC::barcode_to_particle(genEvt,m_elecBarcode[i]);
       if (!thePart){
         ATH_MSG_DEBUG( "Could not find particle for barcode " << m_elecBarcode[i] );
         continue;
@@ -232,7 +239,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
                                                                     thePart->status());
       HepMC::suggest_barcode(thePart_new, m_elecBarcode[i]);
 
-      HepMC::FourVector pos= vx->position();
+      const HepMC::FourVector& pos= vx->position();
       HepMC::GenVertexPtr vx_new = HepMC::newGenVertexPtr(pos);
       vx_new->add_particle_out(thePart_new);
       evt->add_vertex(vx_new);
@@ -241,7 +248,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 
   //.....add new vertex with geantino
   evt->add_vertex(genVertex);
-  m_RefBarcode=HepMC::barcode(*genPart);
+  m_RefBarcode=HepMC::barcode(genPart);
 
   m_outputTruthCollection->push_back(evt);
 
@@ -251,7 +258,7 @@ StatusCode McEventCollectionFilter::ReduceMCEventCollection(){
 //--------------------------------------------------------
 StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   //--------------------------------------------------------
-  //.......to relink all Si hits to the new particle
+  //.......to relink all Pixel/SCT hits to the new particle
   //--------------------------------------------------------
   //
   if(!m_inputPixelHits.isValid())
@@ -275,6 +282,16 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   if (!m_outputSCTHits.isValid()) m_outputSCTHits = std::make_unique<SiHitCollection>();
 
   ATH_CHECK(this->SiHitsTruthRelink(m_inputSCTHits,m_outputSCTHits));
+
+  return StatusCode::SUCCESS;
+}
+
+//--------------------------------------------------------
+StatusCode McEventCollectionFilter::BCMHitsTruthRelink(){
+  //--------------------------------------------------------
+  //.......to relink BCM hits to the new particle
+  //--------------------------------------------------------
+  //
 
   if(!m_inputBCMHits.isValid())
     {

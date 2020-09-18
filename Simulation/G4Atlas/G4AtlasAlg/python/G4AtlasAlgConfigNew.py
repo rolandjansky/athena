@@ -122,6 +122,10 @@ def G4AtlasAlgOutputCfg(ConfigFlags):
                      "TRTUncompressedHitCollection#*",
                      "TrackRecordCollection#CaloEntryLayer"]
 
+    if ConfigFlags.Detector.SimulateITk:
+        ItemList += ["SiHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
     if ConfigFlags.Detector.SimulateCalo:
         ItemList += ["CaloCalibrationHitContainer#*",
                      "LArHitContainer#*",
@@ -178,7 +182,7 @@ def G4AtlasAlgOutputCfg(ConfigFlags):
     #0153             ## Persistency of test-beam layout
     #0154             if layout.startswith('ctb') or layout.startswith('tb_Tile2000_'):
     #0155                 stream1.ItemList += ["TBElementContainer#*"]
-    acc = OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList)
+    acc = OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList, disableEventTag=True)
 
     # Make stream aware of aborted events
     OutputStreamHITS = acc.getEventAlgo("OutputStreamHITS")

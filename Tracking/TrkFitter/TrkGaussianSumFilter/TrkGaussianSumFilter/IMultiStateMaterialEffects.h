@@ -6,13 +6,12 @@
  * @file   IMultiStateMaterialEffects.h
  * @date   Thursday 17th February 2005
  * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
- * 
+ *
  * Abstract base class for defining material
  * effects including energy loss and multiple scattering for
  * use in the multi-component state environment. These
  * material effects will produce multi-component state
  */
-
 
 #ifndef Trk_IMultiStateMaterialEffects_H
 #define Trk_IMultiStateMaterialEffects_H
@@ -47,11 +46,12 @@ public:
       deltaParameters.reserve(6);
       deltaCovariances.reserve(6);
     }
-    Cache(Cache&&) = default;
-    Cache& operator=(Cache&&) = default;
-    ~Cache() = default;
-    Cache(const Cache&) = delete;
-    Cache& operator=(const Cache&) = delete;
+
+    Cache(Cache&&) noexcept = default;
+    Cache& operator=(Cache&&) noexcept = default;
+    Cache(const Cache&) noexcept = default;
+    Cache& operator=(const Cache&) noexcept = default;
+    ~Cache() noexcept = default;
 
     std::vector<double> weights;
     std::vector<double> deltaPs;
@@ -61,10 +61,11 @@ public:
      * "you must use the Eigen::aligned_allocator (not another aligned
      * allocator), and #include <Eigen/StdVector>."
      */
-    std::vector<AmgVector(5),Eigen::aligned_allocator<AmgVector(5)>>
+    std::vector<AmgVector(5), Eigen::aligned_allocator<AmgVector(5)>>
       deltaParameters;
     std::vector<AmgSymMatrix(5), Eigen::aligned_allocator<AmgSymMatrix(5)>>
       deltaCovariances;
+
     void reset()
     {
       weights.clear();
@@ -72,17 +73,14 @@ public:
       deltaParameters.clear();
       deltaCovariances.clear();
     }
+
     void resetAndAddDummyValues()
     {
       reset();
       weights.push_back(1);
       deltaPs.push_back(0);
-      AmgVector(5) newParameters;
-      newParameters.setZero();
-      deltaParameters.push_back( std::move(newParameters) );
-      AmgSymMatrix(5) newCovarianceMatrix;
-      newCovarianceMatrix.setZero();
-      deltaCovariances.push_back( std::move(newCovarianceMatrix) );
+      deltaParameters.emplace_back(AmgVector(5)::Zero());
+      deltaCovariances.emplace_back(AmgSymMatrix(5)::Zero());
     }
   };
 
@@ -99,7 +97,7 @@ public:
     IMultiStateMaterialEffects::Cache&,
     const ComponentParameters&,
     const MaterialProperties&,
-    double,
+    double pathLength,
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };

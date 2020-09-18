@@ -46,8 +46,11 @@ if not hasRDO_BKGInput and not hasBS_SKIMInput:
 
 # Set overlay specifics
 globalflags.isOverlay.set_Value_and_Lock(True)
+# Force MT mode
+overlayFlags.isOverlayMT.set_Value_and_Lock(True)
 if hasRDO_BKGInput:
     logOverlay.info('Running MC+MC overlay')
+    overlayFlags.isDataOverlay.set_Value_and_Lock(False)
     globalflags.DataSource.set_Value_and_Lock('geant4')
 else:
     logOverlay.info('Running MC+data overlay')
@@ -58,10 +61,6 @@ else:
 
     from AthenaCommon.BeamFlags import jobproperties
     jobproperties.Beam.beamType.set_Value_and_Lock('collisions')
-
-overlayFlags.isDataOverlay.set_Value_and_Lock(False)
-# TODO: temporarily force MT
-overlayFlags.isOverlayMT.set_Value_and_Lock(True)
 
 # Common athena flags
 if hasattr(overlayArgs, 'skipEvents'):
@@ -95,6 +94,10 @@ if hasattr(overlayArgs, 'geometryVersion'):
     globalflags.DetDescrVersion.set_Value_and_Lock(overlayArgs.geometryVersion)
 if hasattr(overlayArgs, 'conditionsTag'):
     globalflags.ConditionsTag.set_Value_and_Lock(overlayArgs.conditionsTag)
+if hasattr(overlayArgs, 'detectors'):
+    overlayDetectors = overlayArgs.detectors
+else:
+    overlayDetectors = None
 
 # Digitization flags
 if hasattr(overlayArgs, 'digiSeedOffset1'):
@@ -132,17 +135,13 @@ if 'DetFlags' in dir():
     logOverlay.warning(
         'DetFlags already defined! This means DetFlags should have been fully configured already..')
 else:
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.all_setOn()
-    DetFlags.bpipe_setOff()
-    DetFlags.FTK_setOff()
+    from OverlayConfiguration.OverlayHelpersLegacy import setupOverlayLegacyDetectorFlags
+    DetFlags = setupOverlayLegacyDetectorFlags(overlayDetectors)
 
-    if hasattr(overlayArgs, 'triggerConfig') and overlayArgs.triggerConfig == 'NONE':
-        DetFlags.LVL1_setOff()
-    else:
-        DetFlags.LVL1_setOn()
+if hasattr(overlayArgs, 'triggerConfig') and overlayArgs.triggerConfig == 'NONE':
+    DetFlags.LVL1_setOff()
 
-    DetFlags.digitize.LVL1_setOff()
+DetFlags.digitize.LVL1_setOff()
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if not MuonGeometryFlags.hasCSC():
@@ -216,6 +215,9 @@ include('EventOverlayJobTransforms/ConfiguredOverlayMT_jobOptions.py')  # noqa F
 
 # load the input properly
 include('EventOverlayJobTransforms/OverlayInput_jobOptions.py')  # noqa F821
+
+# Always schedule beam spot conditions for overlay
+include('Digitization/BeamSpot.py')  # noqa F821
 
 if DetFlags.overlay.Truth_on():
     include('EventOverlayJobTransforms/TruthOverlay_jobOptions.py')  # noqa F821

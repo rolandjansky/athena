@@ -953,7 +953,7 @@ bool TrigSteer::resetChainsROBRequestPreparation(std::vector<HLT::SteeringChain*
 void findAlgTypeName(const std::string& property, std::string& type_name,
 		     std::string& instance_name)
 {
-  int slash_pos = property.find_first_of("/");
+  int slash_pos = property.find_first_of('/');
   type_name = property.substr( 0, slash_pos );
   instance_name = (slash_pos > 0) ? property.substr( slash_pos + 1) : type_name;
   replace(instance_name.begin(), instance_name.end(), '/', '_');
@@ -962,7 +962,7 @@ void findAlgTypeName(const std::string& property, std::string& type_name,
 
 
 
-HLT::Algo* TrigSteer::getAlgo(std::string name)
+HLT::Algo* TrigSteer::getAlgo(const std::string& name)
 {
   HLT::Algo* algo = 0;
 
@@ -1387,7 +1387,7 @@ TrigSteer::configureCoherentPrescaling() {
   
 
    // now order chains in each prescaling group by value of prescale
-   for( PrescalingGroup::value_type g : prescaling_group) {
+   for( const PrescalingGroup::value_type& g : prescaling_group) {
       HLT::SteeringChain* previous = 0;
       for(HLT::SteeringChain* ch : g.second ) {
          ATH_MSG_DEBUG("Prescaling group: " << ch->prescaleGroup()

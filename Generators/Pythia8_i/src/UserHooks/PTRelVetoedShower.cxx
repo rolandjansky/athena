@@ -4,7 +4,6 @@
 
 #include "UserHooksUtils.h"
 #include "Pythia8_i/UserHooksFactory.h"
-#include "boost/lexical_cast.hpp"
 #include <stdexcept>
 #include <iostream>
 
@@ -76,7 +75,7 @@ namespace Pythia8{
       if(nPwgOutgoing == m_nPoWHEGFinal) return false;
       
       if(nPwgOutgoing != m_nPoWHEGFinal + 1){
-        throw std::runtime_error("Wrong number of final state PoWHEG legs: " + boost::lexical_cast<string>(nPwgOutgoing));
+        throw std::runtime_error("Wrong number of final state PoWHEG legs: " + std::to_string(nPwgOutgoing));
       }
       
       // momentum components to boost to CMS frame
@@ -86,7 +85,7 @@ namespace Pythia8{
       double eCMS  = 0.;
       
       // The outgoing powheg legs
-      vector<Particle> powhegLegs;
+      std::vector<Particle> powhegLegs;
       
       // Find the entries corresponding to outgoing legs from PoWHEG
       // start the loop at 1, since entry 0 represents the event as a whole
@@ -113,7 +112,7 @@ namespace Pythia8{
       
       // compare the pT of each leg to the powheg scale.
       // Set the scale to the lowest
-      for(vector<Particle>::const_iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::const_iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         double pTTmp = leg->pT();
         if(pTTmp < m_powhegScale )m_powhegScale = pTTmp;
@@ -126,16 +125,16 @@ namespace Pythia8{
       m_pzCMS *= norm;
       
       // ...and boost all outgoing legs to that frame
-      for(vector<Particle>::iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         leg->bst(m_pxCMS, m_pyCMS, m_pzCMS);
       }
       
-      for(vector<Particle>::const_iterator leg=powhegLegs.begin();
+      for(std::vector<Particle>::const_iterator leg=powhegLegs.begin();
           leg != powhegLegs.end(); ++leg){
         // calculate the pT relative to each other leg 
         // if any such pT is lower than the current scale, reset the scale to that value
-        for(vector<Particle>::const_iterator otherLeg = powhegLegs.begin();
+        for(std::vector<Particle>::const_iterator otherLeg = powhegLegs.begin();
             otherLeg != powhegLegs.end(); ++otherLeg){
           if(otherLeg == leg) continue;
           

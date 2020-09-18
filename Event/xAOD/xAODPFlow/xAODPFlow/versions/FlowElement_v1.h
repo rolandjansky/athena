@@ -28,7 +28,7 @@ namespace xAOD {
     using IParticle::IParticle;
     
     typedef unsigned long  signal_t; // 32-bit minimum
-    typedef unsigned short vertex_t;
+    typedef short vertex_t;
     using IParticle::FourMom_t ;
     
     /// Enum to encode the nature of the object this FlowElement represents
@@ -149,5 +149,9 @@ namespace xAOD {
   };
 
 }
+// Declare IParticle as a base class of FlowElement_v1:
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::FlowElement_v1, xAOD::IParticle );
+
 
 #endif

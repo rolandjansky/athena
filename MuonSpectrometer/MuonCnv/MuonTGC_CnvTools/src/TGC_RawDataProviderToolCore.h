@@ -48,7 +48,7 @@ namespace Muon {
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       /** Decoder for ROB fragment RDO conversion */
-      ToolHandle<ITGC_RodDecoder>         m_decoder;
+      ToolHandle<ITGC_RodDecoder> m_decoder{this,"Decoder","Muon::TGC_RodDecoderReadout/TGC_RodDecoderReadout"};
       /** RDO container key */
       SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{ this, "RdoLocation", "TGCRDO", "Name of the TGCRDO produced by RawDataProvider"};	//MT
 

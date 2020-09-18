@@ -25,7 +25,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IAppMgrUI.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -248,9 +247,6 @@ protected:
 
     ASSERT_TRUE( m_appMgr->configure().isSuccess() );
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
-
-    m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
-    ASSERT_TRUE( m_jobOptionsSvc.isValid() );
   }
 
   void TearDownGaudi() {
@@ -266,7 +262,6 @@ protected:
   IAppMgrUI*               m_appMgr = nullptr;
   SmartIF<ISvcLocator>     m_svcLoc;
   SmartIF<ISvcManager>     m_svcMgr;
-  SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
   SmartIF<IToolSvc>        m_toolSvc;
   SmartIF<IProperty>       m_propMgr;
 };
@@ -514,9 +509,9 @@ protected:
 
   TEST_F(SimKernelMT_test, filledInputCollection_expectFullConversion) {
     auto* genEvent = new HepMC::GenEvent{};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{};
+    HepMC::GenParticlePtr  genPart = new HepMC::GenParticle{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 0.12};
-    HepMC::GenParticle* genPart2 = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart2 = new HepMC::GenParticle{mom,
                                                           11,  // pdg id (e-)
                                                           1  // status
     };
@@ -731,7 +726,7 @@ protected:
   TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationTools_expectConvertedParticleSentToParticleKiller) {
     auto* genEvent = new HepMC::GenEvent{};
     HepMC::FourVector mom{12.3, 45.6, 78.9, 1234.5};
-    HepMC::GenParticle* genPart = new HepMC::GenParticle{mom,
+    HepMC::GenParticlePtr  genPart = new HepMC::GenParticle{mom,
                                                          11,  // pdg id (e-)
                                                          1  // status
     };

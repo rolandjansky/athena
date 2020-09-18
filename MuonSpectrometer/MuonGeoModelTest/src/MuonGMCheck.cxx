@@ -7,7 +7,6 @@
  -----------------------------------------
  ***************************************************************************/
 
-#include "MuonGeoModelTest/PerfUtils.h"
 #include "MuonGeoModelTest/MuonGMCheck.h"
 
 #include "MuonDigitContainer/RpcDigitContainer.h"
@@ -30,8 +29,8 @@
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "TrkSurfaces/Surface.h"
-#include "RegionSelector/IRegSelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "MuonGeoModelTest/PerfUtils.h"
 
 #include <boost/format.hpp>
 
@@ -48,8 +47,7 @@ using namespace MuonGM;
 
 MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    p_MuonMgr(nullptr),
-    m_fixedIdTool("MuonCalib::IdToFixedIdTool")
+    p_MuonMgr(nullptr)
 {
     m_mem = 0;
     m_cpu[0] = 0;
@@ -92,8 +90,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     declareProperty("buildCscRegionSelectorMap", m_check_cscrsmap);
     m_check_parent = 0;
     declareProperty("check_ParentStation", m_check_parent);
-    m_check_regsel = 0;
-    declareProperty("checkRegionSelectorMap", m_check_regsel);
 
     declareProperty("testMdtCache",m_testMdtCache=0);
     declareProperty("testRpcCache",m_testRpcCache=0);
@@ -104,9 +100,6 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator) :
     declareProperty("testRpcDetectorElementHash",m_testRpcDetectorElementHash=0);
     declareProperty("testTgcDetectorElementHash",m_testTgcDetectorElementHash=0);
     declareProperty("testCscDetectorElementHash",m_testCscDetectorElementHash=0);
-    
-        
-    declareProperty("idTool", m_fixedIdTool);
     
     m_print_level	   =	0;
     declareProperty("print_level",     m_print_level);
@@ -128,7 +121,8 @@ MuonGMCheck::initialize()
   // first get helpers 
   ATH_MSG_DEBUG("Get Muon Id Helpers from the det store (through their converters)" );
 	
-  ATH_CHECK( m_idHelperSvc.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  ATH_CHECK(m_fixedIdTool.retrieve());
 
   ATH_MSG_DEBUG( " Muon Id Helper retrieved from handle "  );
   showVmemCpu("initialize (IDHELPER retrieved from handle)");
@@ -153,7 +147,6 @@ MuonGMCheck::initialize()
     if (m_check_mdtrsmap) buildMdtRegionSelectorMap();
     if (m_check_tgcrsmap) buildTgcRegionSelectorMap();
     if (m_check_cscrsmap) buildCscRegionSelectorMap();
-    if (m_check_regsel) checkRegionSelectorMap();
     if (m_check_parent) checkParentStation();
   }
     
@@ -282,11 +275,11 @@ void MuonGMCheck::checkreadoutrpcgeo()
                                   <<sname_index<<" "<<seta_index<<" "<< sphi_index<<" "
                                   <<dbr_index<<" "<<dbz_index
                                   <<std::endl;
-                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                         const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
                          
                          if (!rpc) continue;
                          fout<<" ///////////////////// Found a RpcReadoutElement for indices = "
@@ -2983,16 +2976,6 @@ void MuonGMCheck::buildCscRegionSelectorMap()
      fout0.close();
 }
 
-void MuonGMCheck::checkRegionSelectorMap()
-{
-    IRegSelSvc* pRegionSelector;
-    StatusCode status = service("RegSelSvc", pRegionSelector);
-    if(status.isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve RegionSelector Svc" );
-      return;
-    }
-}
-
 void MuonGMCheck::testRpcCache()
 {
      ATH_MSG_INFO( " *************************** Building Rpc cache"  );
@@ -3011,36 +2994,26 @@ void MuonGMCheck::testRpcCache_here()
      std::string fileName = "testRpcCache_"+gVersion;
 
      int nre = 0;
-     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++ sname_index) 
-     {
-         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index)
-         {
-             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index)
-             {
-                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index)
-                 {
-                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index)
-                     {
-                         RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(sname_index,
-                                                                                        seta_index,
-                                                                                        sphi_index,
-                                                                                        dbr_index,
-                                                                                        dbz_index);
-
-			 if (!rpc) {
-			   continue;			 
-			 }
-                         nre++;
-                         
-
-                         Identifier idr = rpc->identify();
-
-			 ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr) );
-			 rpc->fillCache();
-		     }
-		 }
-	     }
-	 }
+     for (int sname_index = 0; sname_index<MuonDetectorManager::NRpcStatType; ++sname_index) {
+         for (int seta_index = 0; seta_index<MuonDetectorManager::NRpcStatEta; ++seta_index) {
+             for (int sphi_index = 0; sphi_index<MuonDetectorManager::NRpcStatPhi; ++sphi_index) {
+                 for (int dbr_index = 0; dbr_index<MuonDetectorManager::NDoubletR; ++dbr_index) {
+                     for (int dbz_index = 0; dbz_index<MuonDetectorManager::NDoubletZ; ++dbz_index) {
+                        int stationName = p_MuonMgr->rpcStationName(sname_index);
+                        bool isValid=false;
+                        Identifier id = p_MuonMgr->rpcIdHelper()->channelID(stationName, seta_index, sphi_index, dbr_index, dbz_index, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+                        if (!isValid) continue;
+                        const RpcReadoutElement* rpc = p_MuonMgr->getRpcReadoutElement(id);
+                        if (!rpc) {
+                          continue;			 
+                        }
+                        nre++;
+                        Identifier idr = rpc->identify();
+                        ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<m_idHelperSvc->rpcIdHelper().show_to_string(idr) );
+                     }
+                 }
+             }
+         }
      }
      ATH_MSG_INFO(" Rpc cache built !" );
 }

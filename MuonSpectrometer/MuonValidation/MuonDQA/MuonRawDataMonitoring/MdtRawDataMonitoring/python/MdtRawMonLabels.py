@@ -105,3 +105,50 @@ labels_sectorPhi15=['BIM1A15', 'BIM1C15', 'BIM2A15', 'BIM2C15', 'BIM3A15', 'BIM3
 
 labels_sectorPhi16=['BEE1A16', 'BEE1C16', 'BEE2A16', 'BEE2C16', 'BIS1A16', 'BIS1C16', 'BIS2A16', 'BIS2C16', 'BIS3A16', 'BIS3C16', 'BIS4A16', 'BIS4C16', 'BIS5A16', 'BIS5C16', 'BIS6A16', 'BIS6C16', 'BIS7A16', 'BIS7C16', 'BIS8A16', 'BIS8C16', 'BMS1A16', 'BMS1C16', 'BMS2A16', 'BMS2C16', 'BMS3A16', 'BMS3C16', 'BMS4A16', 'BMS4C16', 'BMS5A16', 'BMS5C16', 'BMS6A16', 'BMS6C16', 'BOS1A16', 'BOS1C16', 'BOS2A16', 'BOS2C16', 'BOS3A16', 'BOS3C16', 'BOS4A16', 'BOS4C16', 'BOS5A16', 'BOS5C16', 'BOS6A16', 'BOS6C16', 'EES1A16', 'EES1C16', 'EES2A16', 'EES2C16', 'EIS1A16', 'EIS1C16', 'EIS2A16', 'EIS2C16', 'EMS1A16', 'EMS1C16', 'EMS2A16', 'EMS2C16', 'EMS3A16', 'EMS3C16', 'EMS4A16', 'EMS4C16', 'EMS5A16', 'EMS5C16', 'EOS1A16', 'EOS1C16', 'EOS2A16', 'EOS2C16', 'EOS3A16', 'EOS3C16', 'EOS4A16', 'EOS4C16', 'EOS5A16', 'EOS5C16', 'EOS6A16', 'EOS6C16']
 
+label_empty = ['']
+
+labelY_OccupancyVsLB_BA01 = ['BIL']+label_empty*11+['BIS']+label_empty*11+['BME', 'BML']+label_empty*11+['BMS']+label_empty*11+['BOL']+label_empty*11+['BOS']+label_empty*11
+labelY_OccupancyVsLB_BC01 = labelY_OccupancyVsLB_BA01
+labelY_OccupancyVsLB_BA02 = ['BIL']+label_empty*11+['BIS']+label_empty*11+['BML']+label_empty*11+['BMS']+label_empty*11+['BOL']+label_empty*11+['BOS']+label_empty*11
+labelY_OccupancyVsLB_BC02 = labelY_OccupancyVsLB_BA02
+
+labelY_OccupancyVsLB_BA03 = ['BIL']+label_empty*5+['BIM']+label_empty*4+['BIR']+label_empty*5+['BIS']+label_empty*11+['BMF']+label_empty*2+['BMG']+label_empty*2+['BML']+label_empty*11+['BMS']+label_empty*5+['BOF']+label_empty*3+['BOG']+label_empty*4+['BOL']+label_empty*11+['BOS']+label_empty*5
+labelY_OccupancyVsLB_BC03 = ['BIL']+label_empty*5+['BIM']+label_empty*4+['BIR']+label_empty*5+['BIS']+label_empty*11+['BMF']+label_empty*2+['BMG']+label_empty*2+['BML']+label_empty*11+['BMS']+label_empty*5+['BOF']+label_empty*3+['BOG']+label_empty*3+['BOL']+label_empty*11+['BOS']+label_empty*6
+
+labelY_OccupancyVsLB_BA04 = ['BIL']+label_empty*5+['BIM']+label_empty*4+['BIR']+label_empty*5+['BIS']+label_empty*11+['BMF']+label_empty*2+['BMG']+label_empty*2+['BML']+label_empty*10+['BMS']+label_empty*5+['BOF']+label_empty*3+['BOG']+label_empty*4+['BOL']+label_empty*12+['BOS']+label_empty*4
+labelY_OccupancyVsLB_BC04 = ['BIL']+label_empty*5+['BIM']+label_empty*4+['BIR']+label_empty*5+['BIS']+label_empty*11+['BMF']+label_empty*2+['BMG']+label_empty*2+['BML']+label_empty*10+['BMS']+label_empty*5+['BOF']+label_empty*3+['BOG']+label_empty*3+['BOL']+label_empty*12+['BOS']+label_empty*5
+
+labelY_OccupancyVsLB_EA01 = ['BEE']+label_empty*3+['BIS']+label_empty*3+['EEL']+label_empty*3+['EES']+label_empty*3+['EIL']+label_empty*8+['EIS']+label_empty*3+['EML']+label_empty*9+['EMS']+label_empty*9+['EOL']+label_empty*11+['EOS']+label_empty*11 
+labelY_OccupancyVsLB_EC01 = labelY_OccupancyVsLB_EA01 
+labelY_OccupancyVsLB_EA03 = labelY_OccupancyVsLB_EA01
+labelY_OccupancyVsLB_EC03 = labelY_OccupancyVsLB_EA01
+
+
+labelY_OccupancyVsLB_EA02 = ['BEE']+label_empty*3+['BIS']+label_empty*3+['EEL']+label_empty*2+['EES']+label_empty*3+['EIL']+label_empty*7+['EIS']+label_empty*3+['EML']+label_empty*9+['EMS']+label_empty*9+['EOL']+label_empty*11+['EOS']+label_empty*11
+labelY_OccupancyVsLB_EC02 = labelY_OccupancyVsLB_EA02  
+
+labelY_OccupancyVsLB_EA04 = ['BEE']+label_empty*3+['BIS']+label_empty*3+['EEL']+label_empty*3+['EES']+label_empty*3+['EIL']+label_empty*7+['EIS']+label_empty*3+['EML']+label_empty*9+['EMS']+label_empty*9+['EOL']+label_empty*11+['EOS']+label_empty*11
+labelY_OccupancyVsLB_EC04 = labelY_OccupancyVsLB_EA04
+
+
+labelY_OccupancyVsLB = ['BA']+label_empty*15+['BC']+label_empty*15+['EA']+label_empty*15+['EC']+label_empty*15
+
+labelY_OccupancyVsLB_BA_Inner = ['BI1']+label_empty*17+['BI2']+label_empty*17+['BI3']+label_empty*17+['BI4']+label_empty*17+['BI5']+label_empty*17+['BI6']+label_empty*15+['BI7']+label_empty*7+['BI8']+label_empty*7
+labelY_OccupancyVsLB_BC_Inner=labelY_OccupancyVsLB_BA_Inner
+
+labelY_OccupancyVsLB_BA_Middle = ['BM1']+label_empty*15+['BM2']+label_empty*15+['BM3']+label_empty*15+['BM4']+label_empty*15+['BM5']+label_empty*15+['BM6']+label_empty*14
+labelY_OccupancyVsLB_BC_Middle=labelY_OccupancyVsLB_BA_Middle
+
+labelY_OccupancyVsLB_BA_OuterExtra=['BO0']+label_empty*2+['BO1']+label_empty*14+['BO2']+label_empty*15+['BO3']+label_empty*15+['BO4']+label_empty*15+['BO5']+label_empty*15+['BO6']+label_empty*15+['BO7,8']+label_empty*3+['BE1']+label_empty*7+['BE2']+label_empty*7
+labelY_OccupancyVsLB_BC_OuterExtra=['BO1']+label_empty*15+['BO2']+label_empty*15+['BO3']+label_empty*15+['BO4']+label_empty*15+['BO5']+label_empty*15+['BO6']+label_empty*15+['BO7,8']+label_empty*3+['BE1']+label_empty*7+['BE2']+label_empty*7
+
+labelY_OccupancyVsLB_EA_Inner = ['EI1']+label_empty*15+['EI2']+label_empty*15+['EI3']+label_empty*7+['EI4']+label_empty*7+['EI5']+label_empty*1
+labelY_OccupancyVsLB_EC_Inner = labelY_OccupancyVsLB_EA_Inner 
+
+labelY_OccupancyVsLB_EA_Middle = ['EM1']+label_empty*15+['EM2']+label_empty*15+['EM3']+label_empty*15+['EM4']+label_empty*15+['EM5']+label_empty*15
+labelY_OccupancyVsLB_EC_Middle = labelY_OccupancyVsLB_EA_Middle 
+
+labelY_OccupancyVsLB_EA_OuterExtra = ['EO1']+label_empty*15+['EO2']+label_empty*15+['EO3']+label_empty*15+['EO4']+label_empty*15+['EO5']+label_empty*15+['EO6']+label_empty*15+['EE1,2']+label_empty*6
+labelY_OccupancyVsLB_EC_OuterExtra = ['EO1']+label_empty*15+['EO2']+label_empty*15+['EO3']+label_empty*15+['EO4']+label_empty*15+['EO5']+label_empty*15+['EO6']+label_empty*15+['EE1']+label_empty*15+['EE2']+label_empty*14
+
+

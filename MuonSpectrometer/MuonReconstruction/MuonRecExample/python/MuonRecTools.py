@@ -65,7 +65,7 @@ def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
         kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
 
     if globalflags.DataSource() == 'data': # collisions real data or simulated first data
-        # scale CSC and hit errors 
+        # scale CSC and hit errors
         kwargs.setdefault("ErrorScalerBeta", 0.070 )
 
     return CfgMgr.Muon__CscClusterOnTrackCreator(name,**kwargs)
@@ -101,17 +101,20 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
 
         if globalflags.DataSource() == 'data': # collisions real data or simulated first data
             kwargs.setdefault("CreateTubeHit", True)  # BroadErrors
-            kwargs.setdefault("UseLooseErrors", muonRecFlags.useLooseErrorTuning())  # LooseErrors on data                            
+            kwargs.setdefault("UseLooseErrors", muonRecFlags.useLooseErrorTuning())  # LooseErrors on data
 
     if globalflags.DataSource() == 'data':
         kwargs.setdefault("IsMC", False)
     else:
         kwargs.setdefault("IsMC", True)
-                  
+
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("doMDT", True)
+
     return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
 
-    
+
 def MdtTubeHitOnTrackCreator(name="MdtTubeHitOnTrackCreator",**kwargs):
     kwargs["CreateTubeHit"] = True
     return MdtDriftCircleOnTrackCreator(name,**kwargs)
@@ -130,7 +133,7 @@ def AdjustableT0Tool(name="AdjustableT0Tool",**kwargs):
         kwargs.setdefault("DoTof", 0)
     else: # collisions simulation final precise cuts
         kwargs.setdefault("DoTof", 1)
-        
+
     from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import AdjT0__AdjustableT0Tool
     return AdjT0__AdjustableT0Tool(name,**kwargs)
 # end of factory function AdjustableT0ToolMboy
@@ -153,6 +156,8 @@ class MuonRotCreator(Trk__RIO_OnTrackCreator,ConfiguredBase):
         kwargs.setdefault("ToolMuonDriftCircle", "MdtDriftCircleOnTrackCreator")
         kwargs.setdefault("ToolMuonCluster", "MuonClusterOnTrackCreator")
         kwargs.setdefault("Mode", 'muon' )
+        from InDetRecExample.TrackingCommon import getInDetPixelClusterOnTrackToolDigital
+        kwargs.setdefault("ToolPixelCluster", getInDetPixelClusterOnTrackToolDigital( "PixelClusterOnTrackTool" ) )
         super(MuonRotCreator,self).__init__(name,**kwargs)
 # end of class MuonRotCreator
 
@@ -166,20 +171,20 @@ def MuonCombinePatternTool(name="MuonCombinePatternTool",**kwargs):
 # end of factory function MuonCombinePatternTool
 
 def MuonHoughPatternTool(name="MuonHoughPatternTool",**kwargs):
-    if muonStandaloneFlags.reconstructionMode() == 'collisions': 
+    if muonStandaloneFlags.reconstructionMode() == 'collisions':
         kwargs.setdefault("UseCosmics", True)
         kwargs.setdefault("NumberOfMaximaPerIterations", 1)
     return CfgMgr.MuonHoughPatternTool(name,**kwargs)
 # end of factory function MuonHoughPatternTool
 
-def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs): 
-    getPublicTool("MuonCombinePatternTool") 
-    getPublicTool("MuonHoughPatternTool") 
-    if muonStandaloneFlags.reconstructionMode() == 'collisions':  
+def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
+    getPublicTool("MuonCombinePatternTool")
+    getPublicTool("MuonHoughPatternTool")
+    if muonStandaloneFlags.reconstructionMode() == 'collisions':
         kwargs.setdefault("MDT_TDC_cut", False)
-    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:  
+    if muonStandaloneFlags.reconstructionMode() == 'collisions' or TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("RecordAll",False)
-    return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs) 
+    return CfgMgr.Muon__MuonHoughPatternFinderTool(name,**kwargs)
 
 #--------------------------------------------------------------------------------
 # Tracking geometry
@@ -377,11 +382,12 @@ def MdtMathSegmentFinder(name="MdtMathSegmentFinder",extraFlags=None,**kwargs):
     return CfgMgr.Muon__MdtMathSegmentFinder(name,**kwargs)
 
 def MdtMathT0FitSegmentFinder(name="MdtMathT0FitSegmentFinder",extraFlags=None,**kwargs):
-    if extraFlags is None: extraFlags = ExtraFlags()    
+    if extraFlags is None: extraFlags = ExtraFlags()
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
     return MdtMathSegmentFinder(name,extraFlags,**kwargs)
 
 def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**kwargs):
+    kwargs.setdefault("AmbiguityProcessor",getPublicTool("MuonAmbiProcessor"))
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
@@ -399,7 +405,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     doSegmentT0Fit = getattr(extraFlags,"doSegmentT0Fit", muonRecFlags.doSegmentT0Fit())
     updateSegmentSecondCoordinate = getattr(extraFlags,"updateSegmentSecondCoordinate", muonStandaloneFlags.updateSegmentSecondCoordinate())
     enableCurvedSegmentFinding = getattr(extraFlags,"enableCurvedSegmentFinding", muonStandaloneFlags.enableCurvedSegmentFinding())
-        
+
     kwargs.setdefault("RefitSegment", True)
     kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
     kwargs.setdefault("OutputFittedT0", True)
@@ -414,8 +420,8 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )
-    
-    if (beamType == 'singlebeam' or beamType == 'cosmics'): 
+
+    if (beamType == 'singlebeam' or beamType == 'cosmics'):
         kwargs.setdefault("SinAngleCut", 0.9)
         kwargs.setdefault("AddUnassociatedPhiHits", True)
         kwargs.setdefault("RecoverBadRpcCabling", True)
@@ -444,7 +450,7 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
 
 
 def DCMathT0FitSegmentMaker(name='DCMathT0FitSegmentMaker',extraFlags=None,**kwargs):
-    if extraFlags is None: extraFlags = ExtraFlags()    
+    if extraFlags is None: extraFlags = ExtraFlags()
     extraFlags.setFlagDefault('doSegmentT0Fit',True)
     return DCMathSegmentMaker(name,extraFlags,**kwargs)
 
@@ -458,7 +464,7 @@ def MuonLayerHoughTool(name='MuonLayerHoughTool',extraFlags=None,**kwargs):
     return CfgMgr.Muon__MuonLayerHoughTool(name,**kwargs)
 
 def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwargs):
-    prop = getPublicTool('AtlasRungeKuttaPropagator') 
+    prop = getPublicTool('AtlasRungeKuttaPropagator')
     kwargs.setdefault("SLPropagator", getPrivateToolClone('SLPropagator',prop) )
     # Think I need to do it this way because AtlasRungeKuttaPropagator isn't known to ConfigurableFactory.
     # If I directly call getPrivateTool('AtlasRungeKuttaPropagator') then it fails with:
@@ -482,8 +488,15 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
         getPrivateTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")
     getPublicTool("MdtTubeHitOnTrackCreator")
-        
+
     #getService("SomeService")
 
 else: # not (DetFlags.Muon_on() and rec.doMuon())
     logMuon.warning("Muon reconstruction tools only loaded on-demand because Muons")
+
+def MuonLayerSegmentFinderTool(name='MuonLayerSegmentFinderTool',extraFlags=None,**kwargs):
+    kwargs.setdefault("Csc2DSegmentMaker", getPublicTool("Csc2dSegmentMaker") if MuonGeometryFlags.hasCSC() else "")
+    kwargs.setdefault("Csc4DSegmentMaker", getPublicTool("Csc4dSegmentMaker") if MuonGeometryFlags.hasCSC() else "")
+    kwargs.setdefault("MuonClusterSegmentFinder",getPublicTool("MuonClusterSegmentFinder"))
+
+    return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)

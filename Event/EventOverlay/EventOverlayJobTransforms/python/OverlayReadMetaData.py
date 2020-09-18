@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -52,9 +52,9 @@ def checkTileCalibrationHitFormat(inputlist):
     elif nold > 0:
         from Digitization.DigitizationFlags import digitizationFlags
         digitizationFlags.experimentalDigi += ['OldTileCalibHitContainers']
-        logOverlayReadMetadata.info("Input file uses old TileCalibHitContainers names: %s", oldnames);
+        logOverlayReadMetadata.info("Input file uses old TileCalibHitContainers names: %s", oldnames)
     elif nnew > 0:
-        logOverlayReadMetadata.info("Input file uses new TileCalibHitContainers names: %s", newnames);
+        logOverlayReadMetadata.info("Input file uses new TileCalibHitContainers names: %s", newnames)
     return
 
 def listOptionalContainers(inputlist):
@@ -106,7 +106,7 @@ def doSpecialConfiguration(f):
     if "tag_info" in f.infos.keys():
         if "specialConfiguration" in f.infos["tag_info"]:
             item = f.infos["tag_info"]["specialConfiguration"]
-            logOverlayReadMetadata.info("specialConfiguration directive: %s" % item)
+            logOverlayReadMetadata.info("specialConfiguration directive: %s", item)
             spcitems = item.split(";")
             preIncludes=[]
             params = {}
@@ -123,7 +123,7 @@ def doSpecialConfiguration(f):
                     spcitem = "preInclude=" + spcitem
                 ## Handle k=v directives
                 k, v = spcitem.split("=")
-                logOverlayReadMetadata.info("specialConfiguration metadata item: %s => %s" % (k, v))
+                logOverlayReadMetadata.info("specialConfiguration metadata item: %s => %s", k, v)
                 ## Store preIncludes for including later.
                 if k == "preInclude":
                     incfiles = v.split(",")
@@ -134,7 +134,7 @@ def doSpecialConfiguration(f):
             ## Now that we've looked at and stored all the evgen metadata keys, we should do any requested preIncludes
             from AthenaCommon.Include import include
             for incfile in preIncludes:
-                logOverlayReadMetadata.info("Including %s as instructed by specialConfiguration metadata" % incfile)
+                logOverlayReadMetadata.info("Including %s as instructed by specialConfiguration metadata", incfile)
                 include(incfile)
             del preIncludes
             del params
@@ -182,11 +182,11 @@ def buildDict(inputtype, inputfile):
             try:
                 assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
                 metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
-            except:
+            except Exception:
                 try:
                     assert f.fileinfos['conditions_tag'] is not None
                     metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
-                except:
+                except Exception:
                     logOverlayReadMetadata.warning("Failed to find IOVDbGlobalTag.")
                     return metadatadict,taginfometadata,False
         if '/Digitization/Parameters' in f.infos['metadata'].keys():
@@ -285,7 +285,7 @@ def signalMetaDataCheck(metadatadict):
                 logOverlayReadMetadata.warning("Input DetDescrVersion does not match the value used in the Simulation step!")
                 from AthenaCommon.AppMgr import ServiceMgr
                 ## FIXME - should not be relying on GeoModelSvc being initialized at this point.
-                if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference==True:
+                if hasattr( ServiceMgr, "GeoModelSvc") and ServiceMgr.GeoModelSvc.IgnoreTagDifference is True:
                     logOverlayReadMetadata.warning("Global jobproperties: [DetDescrVersion = %s], Signal Simulation MetaData: [SimLayout = %s]",
                                                   globalflags.DetDescrVersion.get_Value(), metadatadict['SimLayout'])
                     logOverlayReadMetadata.warning("Ignore Tag Difference Requested - doing nothing.")
@@ -345,7 +345,7 @@ def signalMetaDataCheck(metadatadict):
             possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
-                if not subdet in metadatadict['SimulatedDetectors']:
+                if subdet not in metadatadict['SimulatedDetectors']:
                     attrname = subdet+"_setOff"
                     checkfn = getattr(DetFlags, attrname, None)
                     if checkfn is not None:
@@ -433,7 +433,7 @@ def pileupMetaDataCheck(sigsimdict,pileupsimdict):
     if (not skipPileUpCheck('SimulatedDetectors', pileuptype)) and ('SimulatedDetectors' in sigkeys):
         switchedOffSubDetectors=[]
         for subdet in sigsimdict['SimulatedDetectors']:
-            if not subdet in pileupsimdict['SimulatedDetectors']:
+            if subdet not in pileupsimdict['SimulatedDetectors']:
                 switchedOffSubDetectors+=[subdet]
         if switchedOffSubDetectors:
             logOverlayReadMetadata.error("%s sub-detectors were sinmulated in the signal sample, but not in the %s background sample: %s", len(switchedOffSubDetectors), longpileuptype, switchedOffSubDetectors)
@@ -451,7 +451,6 @@ def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
     logOverlayReadMetadata.debug("Signal /TagInfo ", sigtaginfodict)
     logOverlayReadMetadata.debug("Pileup /TagInfo ", pileuptaginfodict)
     sigkeys = sigtaginfodict.keys()
-    pileupType = "PreMixed"
     sigOnlyDict = dict()
     sigOnlyKeySet = set(sigkeys).difference(set(pileupkeys))
     logOverlayReadMetadata.debug("The following keys only appear in Signal /TagInfo MetaData:")
@@ -469,7 +468,6 @@ def tagInfoMetaDataCheck(sigtaginfodict,pileuptaginfodict):
 
 def readInputFileMetadata():
     logOverlayReadMetadata.info("Checking for Signal Simulation MetaData...")
-    import re
     import PyUtils.AthFile as af
     af.server.load_cache('digitization-afcache.ascii')
 
@@ -499,7 +497,7 @@ def readInputFileMetadata():
             logOverlayReadMetadata.info("Checking %s MetaData against Signal Simulation MetaData...", longpileuptype)
             pileupsimdict,pileuptaginfodict,result = buildDict(longpileuptype, athenaCommonFlags.PoolRDOInput.get_Value()[0])
             if not result:
-                logOverlayReadMetadata.warning("Failed to Create %s Simulation MetaData Dictionary from file %s.", longpileuptype, pileupfile)
+                logOverlayReadMetadata.warning("Failed to Create %s Simulation MetaData Dictionary from file %s.", longpileuptype, athenaCommonFlags.PoolHitsInput.get_Value()[0])
             else:
                 if pileupMetaDataCheck(sigsimdict,pileupsimdict):
                     logOverlayReadMetadata.info("Pre-mixed RDO File Simulation MetaData matches Signal Simulation MetaData.")

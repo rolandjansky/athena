@@ -1341,7 +1341,7 @@ SGImplSvc::t2pRemove(const void* const pTrans)
 }
 
 void
-SGImplSvc::msg_update_handler(Property& /*outputLevel*/)
+SGImplSvc::msg_update_handler(Gaudi::Details::PropertyBase& /*outputLevel*/)
 {
   setUpMessaging();
   updateMsgStreamOutputLevel( outputLevel() );

@@ -4,23 +4,23 @@
 
 #include "egammaBaseTool.h"
 
-
 egammaBaseTool::egammaBaseTool(const std::string& type,
-			       const std::string& name,
-			       const IInterface* parent):
-  AthAlgTool(type, name, parent)
-{ 
+                               const std::string& name,
+                               const IInterface* parent)
+  : AthAlgTool(type, name, parent)
+{
   declareInterface<IegammaBaseTool>(this);
 }
 
-egammaBaseTool::~egammaBaseTool() { 
-}
-
-StatusCode egammaBaseTool::initialize() {  
+StatusCode
+egammaBaseTool::initialize()
+{
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaBaseTool::finalize(){
+StatusCode
+egammaBaseTool::finalize()
+{
   return StatusCode::SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripDetectorTool.h"
@@ -8,7 +8,6 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
-//   ADA   #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -18,8 +17,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
-
-//   ADA   #include "CLIDSvc/tools/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 using InDetDD::SCT_DetectorManager;
@@ -30,7 +27,7 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface *parent) :
     GeoModelTool(type, name, parent),
-    m_detectorName("SCT"),
+    m_detectorName("ITkStrip"),
     m_alignable(false),
     m_gmxFilename(""),
     m_manager(0),
@@ -99,18 +96,19 @@ StatusCode StripDetectorTool::create() {
 //
     m_athenaComps = new InDetDD::AthenaComps("StripGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
-    //   ADA   m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
+    m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
+
 
     m_commonItems = new InDetDD::SiCommonItems(idHelper);
-    //   ADA  m_commonItems->setLorentzAngleSvc(m_lorentzAngleSvc);
 //
 //    Get options from python
 //
     InDetDDSLHC::StripOptions options;
     options.setAlignable(m_alignable);
     options.setGmxFilename(m_gmxFilename);
+    options.setDetectorName(m_detectorName);
 //
 //   Get the version
 //

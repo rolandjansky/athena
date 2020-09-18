@@ -8,7 +8,6 @@
 # always required are: name, stream and groups
 #['name', 'L1chainParts'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import addSliceChainsToPrescales
 
 PhysicsStream="Main"
 SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
@@ -24,7 +23,7 @@ MultiJetGroup = ['RATE:MultiJet', 'BW:Jet']
 SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
 #MultiBjetGroup = ['RATE:MultiBJet', 'BW:BJet']
 SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
-#MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
+MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
 MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
 ZeroBiasGroup = ['RATE:ZeroBias', 'BW:ZeroBias']
@@ -48,16 +47,25 @@ def setupMenu():
 
     TriggerFlags.MuonSlice.signatures = [
         #ATR-20049
+        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        #Planned Primaries
+        #-- 1 mu iso
+        ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=SingleMuonGroup),
+        #-- 1 mu
+        ChainProp(name='HLT_mu50_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU20', groups=SingleMuonGroup),
+        #-- 2 mu
+        ChainProp(name='HLT_mu22_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu14_L12MU10', groups=MultiMuonGroup),
+        #-- 2 mu iso invm
+        ChainProp(name='HLT_mu10_ivarmedium_mu10_10invm70_L12MU10', groups=MultiMuonGroup), 
+        #-- 3 mu
+        ChainProp(name='HLT_mu20_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], mergingStrategy='serial', groups=MultiMuonGroup),
         ChainProp(name='HLT_3mu6_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_3mu6_msonly_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
+        #-- 4 mu
         ChainProp(name='HLT_4mu4_L14MU4', l1SeedThresholds=['MU4'],   groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu50_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_2mu14_L12MU10', groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6Comb_L12MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
      ]
 
     TriggerFlags.EgammaSlice.signatures = [
@@ -114,9 +122,14 @@ def setupMenu():
         ChainProp(name='HLT_mu11_mu6_bJpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu10_bUpsimumu_L12MU10', groups=BphysicsGroup),
         ChainProp(name='HLT_mu11_mu6_bUpsimumu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bBmumu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bDimu_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bDimu2700_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bPhi_L1MU11_2MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu11_mu6_bTau_L1MU11_2MU6', groups=BphysicsGroup),
     ]
     TriggerFlags.CombinedSlice.signatures = [
-        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial',stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
+#        ChainProp(name='HLT_e3_etcut1step_mu6fast_L1EM8I_MU10', l1SeedThresholds=['EM8I', 'MU10'], mergingStrategy='serial',stream=[PhysicsStream], groups=MultiElectronGroup),    #L1 item thresholds in wrong order (EM first, then MU)
    ]
     TriggerFlags.HeavyIonSlice.signatures  = []
     TriggerFlags.BeamspotSlice.signatures  = []
@@ -131,27 +144,3 @@ def setupMenu():
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
     TriggerFlags.EnhancedBiasSlice.signatures = [ ]
 
-    addSliceChainsToPrescales(TriggerFlags, Prescales.HLTPrescales_cosmics)
-
-
-class Prescales(object):
-    #   Item name             | Prescale
-    #----------------------------------------------------------
-    L1Prescales = {}
-
-    #   Signature name   | [ HLTprescale, HLTpass-through, rerun]
-    #   - Prescale values should be a positive integer (default=1)
-    #   - If the current pass_through value is non-zero,
-    #     the value given here will be used as pass_through rate
-    #     Assuming that pass through chains are configured so
-    #     in the slice files and won't change. Also prescale
-    #     and pass_through will not be used together.
-    #   - If only the first value is specified,
-    #     the default value of pass-through (=0) will be used
-    #----------------------------------------------------------
-    HLTPrescales = {
-        }
-
-    L1Prescales_cosmics  = {}
-    HLTPrescales_cosmics = {}
-    chain_list=[]

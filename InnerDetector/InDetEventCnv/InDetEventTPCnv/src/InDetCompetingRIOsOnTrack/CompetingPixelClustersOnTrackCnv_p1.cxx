@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -19,15 +19,11 @@ CompetingPixelClustersOnTrackCnv_p1::persToTrans( const InDet::CompetingPixelClu
                                                        InDet::CompetingPixelClustersOnTrack *transObj, 
                                                        MsgStream &log )
 {
-  
-   std::vector< TPObjRef >::const_iterator  it = persObj->m_containedChildRots.begin(), 
-                                            itE = persObj->m_containedChildRots.end();
-                                            
    auto containedChildRots = new std::vector< const InDet::PixelClusterOnTrack * >;
    
-   for (; it!=itE;it++) {
+   for (const TPObjRef& ref : persObj->m_containedChildRots) {
        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
-       const InDet::PixelClusterOnTrack* mcot = dynamic_cast<const InDet::PixelClusterOnTrack*>(createTransFromPStore(&rotCnv, *it, log));
+       const InDet::PixelClusterOnTrack* mcot = dynamic_cast<const InDet::PixelClusterOnTrack*>(createTransFromPStore(&rotCnv, ref, log));
        containedChildRots->push_back( mcot );
    }
 

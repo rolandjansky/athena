@@ -2,9 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "AthenaKernel/getMessageSvc.h"
+#include "AsgMessaging/MessageCheck.h"
 
 namespace TrigCompositeUtils {
+
+  ANA_MSG_HEADER (msgFindLink)
 
   /**
    * @brief Creates and right away records the Container CONT with the key.
@@ -43,13 +45,12 @@ namespace TrigCompositeUtils {
   template<typename T>
   void
   findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* visitedCache) {
+    using namespace msgFindLink;
     if (visitedCache != nullptr) {
       // We only need to recursivly explore back from each node in the graph once.
       // We can keep a record of nodes which we have already explored, these we can safely skip over.
       if (visitedCache->count(start) == 1) {
         return; // Early exit
-      } else {
-        visitedCache->insert(start);
       }
     }
     ElementLinkVector<T> featureLinks;
@@ -73,11 +74,10 @@ namespace TrigCompositeUtils {
               // Similar case for tau, just with an ROI created in Step1
               const auto A = decisionToElementLink(start);
               const auto B = decisionToElementLink(li.source);
-              MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::findLink") << MSG::WARNING
-                << "Found '" << linkName << "' by multiple paths, but "
+              ANA_MSG_WARNING ("Found '" << linkName << "' by multiple paths, but "
                 << "the links are coming from different places in the navigation graph. " << std::endl
                 << "From A:" << A.dataID() << ":" << A.index() << " Dump:" << std::endl << *start << std::endl
-                << "From B:" << B.dataID() << ":" << B.index() << " Dump:" << std::endl << *(li.source) << endmsg;
+                               << "From B:" << B.dataID() << ":" << B.index() << " Dump:" << std::endl << *(li.source));
             }
             return true;
           }
@@ -96,6 +96,10 @@ namespace TrigCompositeUtils {
     for (const auto& seed : getLinkToPrevious(start)) {
       findLinks<T>(*seed, linkName, links, behaviour);
     }
+    // Fully explored this node
+    if (visitedCache != nullptr) {
+      visitedCache->insert(start);
+    }
   }
 
   template<typename T>
@@ -110,6 +114,7 @@ namespace TrigCompositeUtils {
   template<typename T>
   LinkInfo<T>
   findLink(const Decision* start, const std::string& linkName, const bool suppressMultipleLinksWarning) {
+    using namespace msgFindLink;
     // We use findLink in cases where there is only one link to be found, or if there are multiple then we 
     // only want the most recent.
     // Hence we can supply TrigDefs::lastFeatureOfType.                                                         /--> parent3(link)
@@ -118,9 +123,8 @@ namespace TrigCompositeUtils {
     // links will be returned (whichever of parent2 or parent3 happened to be the first seed of parent1).
     std::vector<LinkInfo<T>> links = findLinks<T>(start, linkName, TrigDefs::lastFeatureOfType);
     if (links.size() > 1 && !suppressMultipleLinksWarning) {
-      MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::findLink") << MSG::WARNING
-        << links.size() << " links found for " << linkName
-        << " returning the first link, consider using findLinks." << endmsg;
+      ANA_MSG_WARNING (links.size() << " links found for " << linkName
+                       << " returning the first link, consider using findLinks.");
     }
     if (links.size() > 0) {
       return links.at(0);
@@ -128,9 +132,10 @@ namespace TrigCompositeUtils {
     return LinkInfo<T>(); // invalid link
   }
 
+
   template<class CONTAINER>
   void filterLinkVectorByContainerKey(const std::string& containerSGKey, ElementLinkVector<CONTAINER>& vector) {
-    if (containerSGKey == "") {
+    if (containerSGKey.empty()) {
       return;
     }
     auto it = std::remove_if(vector.begin(), vector.end(), [&](const ElementLink<CONTAINER>& el) {
@@ -140,97 +145,144 @@ namespace TrigCompositeUtils {
     vector.erase(it, vector.end());
   }
 
+
   template<class CONTAINER>
-  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(
-    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector,
+  const std::vector< LinkInfo<CONTAINER> > recursiveGetFeaturesOfType(
+    const NavGraph& navGraph,
     const std::string containerSGKey,
     const bool lastFeatureOfType,
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {
 
-    std::vector< LinkInfo<CONTAINER> > features;
-    // For each unique path through the navigation for a given chain
-    for (const ElementLinkVector<DecisionContainer>& decisionPath : linkVector) {
-      // For each step along this path, starting at the terminus and working back towards L1
-      for (const ElementLink<DecisionContainer>& decisionObjLink : decisionPath) {
-        const Decision* decisionObj = (*decisionObjLink);
-        ElementLinkVector<CONTAINER> featureLinks;
+    std::vector< LinkInfo<CONTAINER> > features; // The return vector
+    std::set<const NavGraphNode*> fullyExploredFrom; // Lets us navigate more efficiently
 
-        // Look up what named links are available in the Decision Object
-        std::vector<std::string> availableLinkNames;
-        if (navElementLinkKey == "") { 
-          const std::vector<std::string> getSingleLinkNames = decisionObj->getObjectNames<CONTAINER>();
-          const std::vector<std::string> getCollectionLinkNames = decisionObj->getObjectCollectionNames<CONTAINER>();
-          std::copy(getSingleLinkNames.begin(), getSingleLinkNames.end(), std::back_inserter(availableLinkNames));
-          std::copy(getCollectionLinkNames.begin(), getCollectionLinkNames.end(), std::back_inserter(availableLinkNames));
-        } else { // Just looking for an explicitly named feature
-          availableLinkNames.push_back( navElementLinkKey );
-        }
+    // For each starting point through the navigation for a given chain-group
+    for (const NavGraphNode* finalNode : navGraph.finalNodes()) {
+      recursiveGetFeaturesOfTypeInternal<CONTAINER>(features,
+        fullyExploredFrom,
+        finalNode,
+        containerSGKey,
+        lastFeatureOfType,
+        navElementLinkKey,
+        chainIDs);
+    }
 
-        // Fetch the named links that we're interested in
-        for (const std::string& featureNameToGet : availableLinkNames) {
-          // This try block protects against ExcCLIDMismatch throws from
-          // features which do not derive from IParticle, when an IParticle interface is requested.
-          try {
-            // Slices may have added link collections. These links may have been to objects in different containers.
-            if (decisionObj->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-              ElementLinkVector<CONTAINER> collectionLinks = decisionObj->objectCollectionLinks<CONTAINER>( featureNameToGet );
-              filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, collectionLinks);
-              std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
-            }
-          } catch (SG::ExcCLIDMismatch&) {
-            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
-            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
-          }
-          try {
-            // Slices may have added single links. Note: the framework-specified "feature" link is always a single link.
-            if (decisionObj->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
-              ElementLinkVector<CONTAINER> singleEntryVector; // Filtering function operates on a vector
-              singleEntryVector.push_back( decisionObj->objectLink<CONTAINER>( featureNameToGet ) );
-              filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, singleEntryVector);
-              std::copy(singleEntryVector.begin(), singleEntryVector.end(), std::back_inserter(featureLinks));
-            }
-          } catch (SG::ExcCLIDMismatch&) {
-            // Silently. As above.
-          }
-        }
-
-        // Check if the Decsision object is active for a specific set of Chains-of-interest (as supplied by the TDT)
-        ActiveState state = ActiveState::UNSET;
-        if (chainIDs.size() > 0) {
-          // If we were given a list of chains to consider then we start assuming none passed this decisionObj
-          state = ActiveState::INACTIVE;
-          for (DecisionID id : chainIDs) {
-            if (std::count(decisionObj->decisions().begin(), decisionObj->decisions().end(), id) == 1) {
-              state = ActiveState::ACTIVE;
-              break;
-            }
-          }
-        }
-
-        // Copy the fetched links into the return vector
-        for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
-          typename std::vector<LinkInfo<CONTAINER>>::iterator vecIt = std::find_if(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } );
-          if (vecIt == features.end()) {
-            // Link did not already exist - add it to the output
-            features.emplace_back( decisionObj, featureLink, state );
-          } else {
-            // Link already existed - if the link's state in the return vector is INACTIVE but is ACTIVE here,
-            // then we need to change it to ACTIVE as this denotes one-or-more of the requested chains were active for the object.
-            if (vecIt->state == ActiveState::INACTIVE) {
-              vecIt->state = ActiveState::ACTIVE;
-            }
-          }
-        }
-
-        // Stop processing this path through the navigation if the lastFeatureOfType flag is set
-        if (featureLinks.size() && lastFeatureOfType) {
-          break;
-        }
-
-      } // for (decisionLink : decisionPath)
-    } // for (decisionPath : linkVector)
     return features;
   }
+
+
+  template<class CONTAINER>
+  void recursiveGetFeaturesOfTypeInternal(
+    std::vector< LinkInfo<CONTAINER> >& features, 
+    std::set<const NavGraphNode*>& fullyExploredFrom,
+    const NavGraphNode* navGraphNode, 
+    const std::string containerSGKey,
+    const bool lastFeatureOfType,
+    const std::string& navElementLinkKey,
+    const DecisionIDContainer chainIDs) {
+
+    if (fullyExploredFrom.count(navGraphNode) == 1) {
+      return; // Already explored down from here
+    }
+ 
+    const Decision* decisionObj = navGraphNode->node();
+    ElementLinkVector<CONTAINER> featureLinks;
+
+    // Look up what named links are available in the Decision Object
+    std::vector<std::string> availableLinkNames;
+    if (navElementLinkKey == "") { 
+      const std::vector<std::string> getSingleLinkNames = decisionObj->getObjectNames<CONTAINER>();
+      const std::vector<std::string> getCollectionLinkNames = decisionObj->getObjectCollectionNames<CONTAINER>();
+      std::copy(getSingleLinkNames.begin(), getSingleLinkNames.end(), std::back_inserter(availableLinkNames));
+      std::copy(getCollectionLinkNames.begin(), getCollectionLinkNames.end(), std::back_inserter(availableLinkNames));
+    } else { // Just looking for an explicitly named feature
+      availableLinkNames.push_back( navElementLinkKey );
+    }
+
+    // Fetch the named links that we're interested in
+    for (const std::string& featureNameToGet : availableLinkNames) {
+      // This try block protects against ExcCLIDMismatch throws from
+      // features which do not derive from IParticle, when an IParticle interface is requested.
+#ifndef XAOD_STANDALONE
+      try {
+#endif
+        // Slices may have added link collections. These links may have been to objects in different containers.
+        if (decisionObj->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
+          ElementLinkVector<CONTAINER> collectionLinks = decisionObj->objectCollectionLinks<CONTAINER>( featureNameToGet );
+          filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, collectionLinks);
+          std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
+        }
+#ifndef XAOD_STANDALONE
+      } catch (SG::ExcCLIDMismatch&) {
+        // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+        // We're fine to catch this silently and cary on looking at the next Decision object in the graph
+      }
+      try {
+#endif
+        // Slices may have added single links. Note: the framework-specified "feature" link is always a single link.
+        if (decisionObj->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
+          ElementLinkVector<CONTAINER> singleEntryVector; // Filtering function operates on a vector
+          singleEntryVector.push_back( decisionObj->objectLink<CONTAINER>( featureNameToGet ) );
+          filterLinkVectorByContainerKey<CONTAINER>(containerSGKey, singleEntryVector);
+          std::copy(singleEntryVector.begin(), singleEntryVector.end(), std::back_inserter(featureLinks));
+        }
+#ifndef XAOD_STANDALONE
+      } catch (SG::ExcCLIDMismatch&) {
+        // Silently. As above.
+      }
+#endif
+    }
+
+    // Check if the Decsision object is active for a specific set of Chains-of-interest (as supplied by the TDT)
+    ActiveState state = ActiveState::UNSET;
+    if (chainIDs.size() > 0) {
+      // If we were given a list of chains to consider then we start assuming none passed this decisionObj
+      state = ActiveState::INACTIVE;
+      for (DecisionID id : chainIDs) {
+        if (std::count(decisionObj->decisions().begin(), decisionObj->decisions().end(), id) == 1) {
+          state = ActiveState::ACTIVE;
+          break;
+        }
+      }
+    }
+    
+    // Copy the fetched links into the return vector
+    for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
+      typename std::vector<LinkInfo<CONTAINER>>::iterator vecIt = std::find_if(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } );
+      if (vecIt == features.end()) {
+        // Link did not already exist - add it to the output
+        features.emplace_back( decisionObj, featureLink, state );
+      } else {
+        // Link already existed - if the link's state in the return vector is INACTIVE but is ACTIVE here,
+        // then we need to change it to ACTIVE as this denotes one-or-more of the requested chains were active for the object.
+        if (vecIt->state == ActiveState::INACTIVE and state == ActiveState::ACTIVE) {
+          vecIt->state = ActiveState::ACTIVE;
+        }
+      }
+    }
+
+    // Stop processing this path through the navigation if the lastFeatureOfType flag is set
+    if (featureLinks.size() && lastFeatureOfType) {
+      return;
+    }
+
+    // Recurse to decisionObj's seeds
+    for (const NavGraphNode* seedNavNode : navGraphNode->seeds()) {
+      recursiveGetFeaturesOfTypeInternal<CONTAINER>(features,
+        fullyExploredFrom,
+        seedNavNode,
+        containerSGKey,
+        lastFeatureOfType,
+        navElementLinkKey,
+        chainIDs);
+    }
+
+    // If we encounter this node again in the future, we don't need to explore it again as it's now fully explored.
+
+    fullyExploredFrom.insert( navGraphNode );
+    return;
+  }
+
 
 }

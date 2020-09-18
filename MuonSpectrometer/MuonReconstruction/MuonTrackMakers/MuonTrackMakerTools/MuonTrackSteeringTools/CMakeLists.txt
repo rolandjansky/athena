@@ -5,46 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTrackSteeringTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/CxxUtils
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonStationIndex
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
-                          MuonSpectrometer/MuonReconstruction/MuonTrackMakers/MuonTrackMakerUtils
-                          Tracking/TrkDetDescr/TrkDetDescrUtils
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTrackSummary
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkExtrapolation/TrkExUtils
-                          Tracking/TrkFitter/TrkFitterInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkUtilityPackages/TrkDriftCircleMath
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions
-			  )
-
 # External dependencies:
 find_package( Eigen )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -55,7 +55,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 					   const IInterface* parent)
   
   : AthAlgTool(type, name, parent),
-    m_calo_id(0),
+    m_calo_id(nullptr),
     m_cellsKey(""),
     m_subcaloUsed(),
     m_cellThresholdOnEorAbsEinSigma    (    0.),
@@ -315,8 +315,8 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 
   //ATH_MSG_DEBUG( "Executing " << name());
 
-  typedef CaloTopoTmpHashCell<CaloTopoTmpClusterCell> HashCell;
-  typedef CaloTopoTmpHashCluster HashCluster;
+  using HashCell = CaloTopoTmpHashCell<CaloTopoTmpClusterCell>;
+  using HashCluster = CaloTopoTmpHashCluster;
 
   CaloPrefetch::ArenaHandlePrefetch<CaloTopoTmpClusterCell, SG::ArenaPoolAllocator, 2> tmpcell_pool;
   CaloPrefetch::ArenaHandlePrefetch<HashCluster,            SG::ArenaPoolAllocator, 2> tmpclus_pool;
@@ -547,8 +547,8 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	    }
 	    HashCluster *otherCluster = pNCell->getCaloTopoTmpHashCluster();
 	    if ( myCluster != otherCluster ) {
-	      HashCluster *toKill = 0;
-	      HashCluster *toKeep = 0;
+	      HashCluster *toKill = nullptr;
+	      HashCluster *toKeep = nullptr;
 	      if ( !otherCluster || isAboveNeighborThreshold ) {
 		if ( !otherCluster || otherCluster->size() < myCluster->size() ) {
 		  toKill = otherCluster;

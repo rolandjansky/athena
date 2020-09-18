@@ -13,6 +13,8 @@ regexEventStreamInfo = re.compile(r'^EventStreamInfo(_p\d+)?$')
 regexIOVMetaDataContainer = re.compile(r'^IOVMetaDataContainer(_p\d+)?$')
 regexByteStreamMetadataContainer = re.compile(r'^ByteStreamMetadataContainer(_p\d+)?$')
 regexXAODEventFormat = re.compile(r'^xAOD::EventFormat(_v\d+)?$')
+regexXAODTriggerMenu = re.compile(r'^DataVector<xAOD::TriggerMenu(_v\d+)?>$')
+regexXAODTriggerMenuAux = re.compile(r'^xAOD::TriggerMenuAuxContainer(_v\d+)?$')
 regex_cppname = re.compile(r'^([\w:]+)(<.*>)?$')
 # regex_persistent_class = re.compile(r'^([a-zA-Z]+_p\d+::)*[a-zA-Z]+_p\d+$')
 regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d+$')
@@ -146,6 +148,8 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '/Simulation/Parameters': 'IOVMetaDataContainer_p1',
                         '/Digitization/Parameters': 'IOVMetaDataContainer_p1',
                         '/EXT/DCS/MAGNETS/SENSORDATA': 'IOVMetaDataContainer_p1',
+                        'TriggerMenu': 'DataVector<xAOD::TriggerMenu_v1>',
+                        'TriggerMenuAux.': 'xAOD::TriggerMenuAuxContainer_v1',
                         '*': 'EventStreamInfo_p*'
                     }
 
@@ -157,6 +161,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 for i in range(0, nr_of_branches):
                     branch = metadata_branches.At(i)
                     name = branch.GetName()
+
 
                     class_name = branch.GetClassName()
 
@@ -184,7 +189,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
                     # assign the corresponding persistent class based of the name of the metadata container
                     if regexEventStreamInfo.match(class_name):
-                        if class_name.endswith('_p2'):
+                        if class_name.endswith('_p1'):
+                            persistent_instances[name] = ROOT.EventStreamInfo_p1()
+                        elif class_name.endswith('_p2'):
                             persistent_instances[name] = ROOT.EventStreamInfo_p2()
                         else:
                             persistent_instances[name] = ROOT.EventStreamInfo_p3()
@@ -192,6 +199,10 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
                     elif regexXAODEventFormat.match(class_name):
                         persistent_instances[name] = ROOT.xAOD.EventFormat_v1()
+                    elif regexXAODTriggerMenu.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuContainer_v1()
+                    elif regexXAODTriggerMenuAux.match(class_name):
+                        persistent_instances[name] = ROOT.xAOD.TriggerMenuAuxContainer_v1()
 
                     if name in persistent_instances:
                         branch.SetAddress(ROOT.AddressOf(persistent_instances[name]))
@@ -209,8 +220,13 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     if hasattr(content, 'm_folderName'):
                         key = getattr(content, 'm_folderName')
 
-                    meta_dict[filename][key] = _convert_value(content)
+                    aux = None
+                    if key == 'TriggerMenu' and 'TriggerMenuAux.' in persistent_instances:
+                        aux = persistent_instances['TriggerMenuAux.']
+                    elif key == 'TriggerMenuAux.':
+                        continue
 
+                    meta_dict[filename][key] = _convert_value(content, aux)
 
 
             # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
@@ -423,10 +439,11 @@ def _extract_fields(obj):
     return result
 
 
-def _convert_value(value):
-    if hasattr(value, '__cppname__'):
+def _convert_value(value, aux = None):
+    cl=value.__class__
+    if hasattr(cl, '__cpp_name__'):
 
-        result = regex_cppname.match(value.__cppname__)
+        result = regex_cppname.match(cl.__cpp_name__)
 
         if result:
             cpp_type = result.group(1)
@@ -439,28 +456,31 @@ def _convert_value(value):
             # elif cpp_type == 'long':
             #   return int(value)
 
-            elif value.__cppname__ == "_Bit_reference":
+            elif cl.__cpp_name__ == "_Bit_reference":
                 return bool(value)
 
             # special case which extracts data in a better format from IOVPayloadContainer_p1 class
-            elif value.__cppname__ == 'IOVMetaDataContainer_p1':
+            elif cl.__cpp_name__ == 'IOVMetaDataContainer_p1':
                 return _extract_fields_iovmdc(value)
 
-            elif value.__cppname__ == 'IOVPayloadContainer_p1':
+            elif cl.__cpp_name__ == 'IOVPayloadContainer_p1':
                 return _extract_fields_iovpc(value)
 
-            elif value.__cppname__ == 'xAOD::EventFormat_v1':
+            elif cl.__cpp_name__ == 'xAOD::EventFormat_v1':
                 return _extract_fields_ef(value)
 
-            elif (value.__cppname__ == 'EventStreamInfo_p2' or
-                  value.__cppname__ == 'EventStreamInfo_p3'):
+            elif cl.__cpp_name__ == 'DataVector<xAOD::TriggerMenu_v1>' :
+                return _extract_fields_triggermenu(interface=value, aux=aux)
+
+            elif (cl.__cpp_name__ == 'EventStreamInfo_p2' or
+                  cl.__cpp_name__ == 'EventStreamInfo_p3'):
                 return _extract_fields_esi(value)
 
-            elif (value.__cppname__ == 'EventType_p1' or
-                  value.__cppname__ == 'EventType_p3'):
+            elif (cl.__cpp_name__ == 'EventType_p1' or
+                  cl.__cpp_name__ == 'EventType_p3'):
                 return _convert_event_type_bitmask(_extract_fields(value))
 
-            elif regex_persistent_class.match(value.__cppname__):
+            elif regex_persistent_class.match(cl.__cpp_name__):
                 return _extract_fields(value)
 
     return value
@@ -555,7 +575,7 @@ def _extract_fields_esi(value):
     result['numberOfEvents'] = value.m_numberOfEvents
     result['runNumbers'] = list(value.m_runNumbers)
     result['lumiBlockNumbers'] = list(value.m_lumiBlockNumbers)
-    result['processingTags'] = list(value.m_processingTags)
+    result['processingTags'] = [str(v) for v in value.m_processingTags]
     result['itemList'] = []
 
     # Get the class name in the repository with CLID <clid>
@@ -572,6 +592,29 @@ def _extract_fields_ef(value):
 
     for ef_element in value:
         result[ef_element.first] = ef_element.second.className()
+
+    return result
+
+
+def _extract_fields_triggermenu(interface, aux):
+    L1Items = []
+    HLTChains = []
+
+    try:
+        interface.setStore( aux )
+        if interface.size() > 0:
+            # We make the assumption that the first stored SMK is
+            # representative of all events in the input collection.
+            firstMenu = interface.at(0)
+            L1Items = [ item for item in firstMenu.itemNames() ]
+            HLTChains = [ chain for chain in firstMenu.chainNames() ]
+    except Exception as err:
+        msg.warn('Problem reading xAOD::TriggerMenu:')
+        msg.warn(err)
+
+    result = {}
+    result['L1Items'] = L1Items
+    result['HLTChains'] = HLTChains
 
     return result
 
@@ -690,15 +733,17 @@ def promote_keys(meta_dict):
             if key in md['metadata_items'] and regexEventStreamInfo.match(md['metadata_items'][key]):
                 md.update(md[key])
 
-                if len(md['eventTypes']):
+                if 'eventTypes' in md and len(md['eventTypes']):
                     et = md['eventTypes'][0]
                     md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
                     md['mc_channel_number'] = et.get('mc_channel_number', 0)
                     md['eventTypes'] = et['type']
 
-
-                md['lumiBlockNumbers'] = md['lumiBlockNumbers']
-                md['processingTags'] = md[key]['processingTags']
+                if 'lumiBlockNumbers' in md[key]:
+                    md['lumiBlockNumbers'] = md[key]['lumiBlockNumbers']
+                
+                if 'processingTags' in md[key]:
+                    md['processingTags'] = md[key]['processingTags']
 
                 meta_dict[filename].pop(key)
                 break

@@ -121,6 +121,8 @@ class ComponentAccumulator(object):
              log = logging.getLogger("ComponentAccumulator")
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
+             import traceback
+             traceback.print_stack()
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
              log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
@@ -608,6 +610,7 @@ class ComponentAccumulator(object):
         # Without this here, pyroot can sometimes get confused
         # and report spurious type mismatch errors about this object.
         import ROOT
+        ROOT.gROOT.SetBatch(True)
         ROOT.Gaudi
 
         appPropsToSet, mspPropsToSet, bshPropsToSet = self.gatherProps(OutputLevel)
@@ -949,6 +952,8 @@ def conf2toConfigurable( comp, indent="" ):
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
                 pvalue=__listHelperToList(pvalue)
+                if pname not in alreadySetProperties:
+                    continue
                 if alreadySetProperties[pname] != pvalue:
                     _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
                     # create surrogate
@@ -1066,7 +1071,6 @@ def appendCAtoAthena(ca):
 
 
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
-    #preconfigured = ["AthMasterSeq", "AthCondSeq", "AthAlgSeq", "AthOutSeq", "AthRegSeq"]
 
     for seq in ca._allSequences:
         merged = False

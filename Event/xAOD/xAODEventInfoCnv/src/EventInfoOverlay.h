@@ -18,6 +18,11 @@
 #include <AthenaBaseComps/AthReentrantAlgorithm.h>
 #include <xAODEventInfo/EventInfo.h>
 
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+#include <StoreGate/ReadCondHandleKey.h>
+#include <BeamSpotConditionsData/BeamSpotData.h>
+#endif
+
 namespace xAODMaker
 {
 
@@ -30,6 +35,10 @@ public:
   virtual StatusCode execute(const EventContext& ctx) const override;
 
 private:
+#if !defined(XAOD_ANALYSIS) && !defined(SIMULATIONBASE) && !defined(GENERATIONBASE)
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+#endif
+
   SG::ReadHandleKey<xAOD::EventInfo> m_bkgInputKey{ this, "BkgInputKey", "Bkg_EventInfo", "ReadHandleKey for Background xAOD::EventInfo" };
   SG::ReadHandleKey<xAOD::EventInfo> m_signalInputKey{ this, "SignalInputKey", "Sig_EventInfo", "ReadHandleKey for Signal xAOD::EventInfo" };
   SG::WriteHandleKey<xAOD::EventInfo> m_outputKey{ this, "OutputKey", "EventInfo", "WriteHandleKey for Output xAOD::EventInfo" };

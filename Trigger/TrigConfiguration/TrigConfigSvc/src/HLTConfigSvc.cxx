@@ -16,7 +16,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Timing.h"
 
@@ -67,8 +66,6 @@ HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
                     "List of HLT Prescale keys associated with start Lumiblocks LB1uPSK1cLB2uPSK2" );
    declareProperty( "HistTimePrescaleUpdate", m_histProp_timePrescaleUpdate,
                     "Histogram of time for prescale update");
-   declareProperty( "PartitionName",    m_PartitionName,
-                    "Name of the partition for the trigger prescale update mechanism");
    declareProperty( "doMergedHLT",      m_setMergedHLT,
                     "Set true to run the merged HLT processing");
    declareProperty( "doMonitoring",     m_doMon,
@@ -195,28 +192,12 @@ HLTConfigSvc::initialize() {
       ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
       return StatusCode::SUCCESS;
    }
-   
-   // get the partition name
-   // non-empty job-property overwrite value from DataFlowConfig
-   if(m_PartitionName.value() !="") {
-      m_partition = m_PartitionName;
-   } else {
-      ServiceHandle<::IJobOptionsSvc> jobOptionsSvc("JobOptionsSvc", name());
-      if (jobOptionsSvc.retrieve().isFailure()) {
-         ATH_MSG_WARNING("Cannot retrieve JobOptionsSvc");
-      } else {
-         const Property* p=Gaudi::Utils::getProperty( jobOptionsSvc->getProperties("DataFlowConfig"), "DF_PartitionName");   
-         if (p != 0) m_partition = p->toString();
-      }
-   }
-
 
    if( fromDB() ) {
       ATH_MSG_INFO("    DB HLT PrescaleKey  = " << m_dbHLTPSKey);
       ATH_MSG_INFO("    DB HLT PrescaleKeys = " << m_dbHLTPSKeySet);
    }
-   ATH_MSG_INFO("    Partition           = " << m_partition);
-   ATH_MSG_INFO("    Run merged HLT      = " << m_setMergedHLT);
+    ATH_MSG_INFO("    Run merged HLT      = " << m_setMergedHLT);
 
 
    if( fromDB() && m_dbHLTPSKey!=0 && !m_dbconfig->m_hltkeys.empty() )
@@ -447,106 +428,26 @@ TrigConf::HLTConfigSvc::setL2LowerChainCounter(const CTPConfig* ctpcfg) {
 // query the TriggerDB for the list of lumiblocks and corresponding prescalekeys
 // will then load the and prescaleSets that have not yet been loaded
 StatusCode
-TrigConf::HLTConfigSvc::updatePrescaleSets(uint requestcount) {
+TrigConf::HLTConfigSvc::updatePrescaleSets(uint /*requestcount*/) {
 
    if( ! fromDB() ) { // xml 
       ATH_MSG_WARNING("Configured to not run from the database!");
       return StatusCode::SUCCESS;
    }
-   
-   if( !m_dbconfig->m_hltkeys.empty() ) {
-      ATH_MSG_WARNING("Has list of [(lb1,psk1), (lb2,psk2),...] defined!");
-      return StatusCode::SUCCESS;
-   }
 
-   // Start timer
-   longlong t1_ms = System::currentTime(System::milliSec);
-
-   // Load prescale set
-   CHECK(initStorageMgr());
-
-   bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>
-      (m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_HLTFrame.thePrescaleSetCollection(), requestcount, m_partition );
-
-   CHECK(freeStorageMgr());
-
-   // Stop timer and fill histogram
-   uint64_t t2_ms = System::currentTime(System::milliSec);
-   if (m_hist_timePrescaleUpdate) m_hist_timePrescaleUpdate->Fill(t2_ms-t1_ms);
-
-   if(!loadSuccess) {
-      ATH_MSG_WARNING("HLTConfigSvc::updatePrescaleSets(): loading failed");
-      return StatusCode::FAILURE;
-   } else {
-      ATH_MSG_INFO ( m_HLTFrame.thePrescaleSetCollection() );
-   }
-   return StatusCode::SUCCESS;
-}
-
-
-// Helper for assignPrescalesToChains
-namespace {
-   inline void fillPrescaleHist(TH2I* h, uint lb, int psk) {
-      if (h==0) return;
-      // Use alpha-numeric bin labels to ensure correct gathering
-      char buf_psk[12], buf_lb[12];
-      snprintf(buf_psk, sizeof(buf_psk), "%d", psk);  // faster than stringstream
-      snprintf(buf_lb, sizeof(buf_lb), "%03d", lb);
-      // Save number of bins and perform a locked Fill
-      int xbins = h->GetNbinsX();    
-      int ybins = h->GetNbinsY();
-      oh_lock_histogram<TH2I> locked_hist(h);
-
-      locked_hist->Fill(buf_lb, buf_psk, 1);
-
-      // Need to make sure that all bins have labels (see Savannah #58243)    
-      // Label additional bins on x-axis
-      if ( h->GetNbinsX()!=xbins ) {
-         const int N = h->GetNbinsX();
-         for (int b=xbins+2; b<=N; ++b) {
-            snprintf(buf_lb, sizeof(buf_lb), "%03d", ++lb);
-            locked_hist->GetXaxis()->SetBinLabel(b, buf_lb);
-         }
-      }
-      // Remove additional bins on y-axis
-      if ( h->GetNbinsY()!=ybins ) locked_hist->LabelsDeflate("Y");
-   }
+   ATH_MSG_ERROR("Running from DB is no longer supported in legacy trigger");
+   return StatusCode::FAILURE;
 }
 
 
 // Assigns the prescales that are valid for a given lumiblock to the chains
 // This method is called by TrigSteer on *every* event (keep it fast)
 StatusCode
-TrigConf::HLTConfigSvc::assignPrescalesToChains(uint lumiblock) {
+TrigConf::HLTConfigSvc::assignPrescalesToChains(uint /*lumiblock*/) {
 
    if(! fromDB() ) // xml
       return StatusCode::SUCCESS;
 
-   if(lumiblock == m_currentLumiblock) {
-      fillPrescaleHist(m_hist_prescaleLB, lumiblock, m_currentPSS);
-      return StatusCode::SUCCESS;
-   }
-
-   m_currentLumiblock = lumiblock;
-   
-   // get the HLTPrescaleSet
-   const HLTPrescaleSet* pss = m_HLTFrame.getPrescaleSetCollection().prescaleSet(lumiblock);
-   if (pss == 0) {
-      ATH_MSG_ERROR("Could not retrieve HLT prescale set for lumiblock = " << lumiblock);
-      return StatusCode::FAILURE;
-   }
-
-   fillPrescaleHist(m_hist_prescaleLB, lumiblock, pss->id());
-   
-   // still the same HLTPSS -> nothing to do
-   if(pss->id() ==  m_currentPSS) {
-      return StatusCode::SUCCESS;
-   }
-
-   ATH_MSG_INFO("Changing PSK from " << m_currentPSS << " to " << pss->id()
-                << " for lumiblock " << lumiblock);
-
-   applyPrescaleSet(*pss);
-   
-   return StatusCode::SUCCESS;
+   ATH_MSG_ERROR("Running from DB is no longer supported in legacy trigger");
+   return StatusCode::FAILURE;
 }

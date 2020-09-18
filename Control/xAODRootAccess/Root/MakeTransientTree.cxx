@@ -1,4 +1,6 @@
+//
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 
 // System include(s):
 #include <cstring>
@@ -15,10 +17,10 @@
 
 // Local include(s):
 #include "xAODRootAccess/MakeTransientTree.h"
-#include "xAODRootAccess/tools/TEventTree.h"
-#include "xAODRootAccess/tools/TEventBranch.h"
-#include "xAODRootAccess/tools/TMetaTree.h"
-#include "xAODRootAccess/tools/TMetaBranch.h"
+#include "xAODRootAccess/tools/xAODTEventTree.h"
+#include "xAODRootAccess/tools/xAODTEventBranch.h"
+#include "xAODRootAccess/tools/xAODTMetaTree.h"
+#include "xAODRootAccess/tools/xAODTMetaBranch.h"
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/TEvent.h"
 
@@ -235,8 +237,7 @@ namespace xAOD {
 
       // Create the transient tree:
       gROOT->cd();
-      std::unique_ptr< TEventTree > eventTree( new TEventTree( &event,
-                                                               treeName ) );
+      auto eventTree = std::make_unique< xAODTEventTree >( event, treeName );
 
       // Go back to the original directory:
       dir->cd();
@@ -295,10 +296,11 @@ namespace xAOD {
          }
 
          // If everything is right, let's make the branch:
-         TEventBranch* br = new TEventBranch( eventTree.get(), &event, ti,
-                                              efe.branchName().c_str(),
-                                              efe.className().c_str() );
-         eventTree->AddBranch( br );
+         auto br =
+            std::make_unique< xAODTEventBranch >( *eventTree, event, *ti,
+                                                  efe.branchName().c_str(),
+                                                  efe.className().c_str() );
+         eventTree->AddBranch( std::move( br ) );
 
       }
 
@@ -382,7 +384,7 @@ namespace xAOD {
 
       // Create the transient metadata tree:
       gROOT->cd();
-      std::unique_ptr< TMetaTree > metaTree( new TMetaTree( &event ) );
+      auto metaTree = std::make_unique< xAODTMetaTree >( event );
 
       // Go back to the original directory:
       dir->cd();
@@ -418,10 +420,10 @@ namespace xAOD {
          }
 
          // If everything is right, let's make the branch:
-         TMetaBranch* mbr = new TMetaBranch( metaTree.get(), &event, ti,
-                                             br->GetName(),
-                                             br->GetClassName() );
-         metaTree->AddBranch( mbr );
+         auto mbr = std::make_unique< xAODTMetaBranch >( *metaTree, event, *ti,
+                                                         br->GetName(),
+                                                         br->GetClassName() );
+         metaTree->AddBranch( std::move( mbr ) );
       }
 
       // Grab a simple pointer to the tree:

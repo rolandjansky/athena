@@ -19,10 +19,6 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   PileUpToolBase(type, name, pIID) {
 }
 
-CscDigitizationTool::~CscDigitizationTool()  {
-  delete m_cscDigitizer;
-}
-
 StatusCode CscDigitizationTool::initialize() {
 
   ATH_MSG_DEBUG ( "Initialized Properties :" );
@@ -44,7 +40,8 @@ StatusCode CscDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "  CscDigitContainer key     " << m_cscDigitContainerKey.key());
 
   // initialize transient detector store and MuonDetDescrManager
-  ATH_CHECK(detStore()->retrieve(m_geoMgr));
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK(detStore()->retrieve(muDetMgr));
   ATH_MSG_DEBUG ( "MuonDetectorManager retrieved from StoreGate.");
 
   if (m_onlyUseContainerName) {
@@ -57,11 +54,8 @@ StatusCode CscDigitizationTool::initialize() {
   /** CSC calibratin tool for the Condtiions Data base access */
   ATH_CHECK(m_pcalib.retrieve());
 
-  ICscCalibTool* cscCalibTool = &*(m_pcalib);
-
   //initialize the CSC digitizer
-  CscHitIdHelper * cscHitHelper = CscHitIdHelper::GetHelper();
-  m_cscDigitizer = new CSC_Digitizer(cscHitHelper, m_geoMgr, cscCalibTool);
+  m_cscDigitizer = std::make_unique<CSC_Digitizer>(CscHitIdHelper::GetHelper(), muDetMgr, &*(m_pcalib));
   m_cscDigitizer->setAmplification(m_amplification);
   m_cscDigitizer->setDebug        ( msgLvl(MSG::DEBUG) );
   m_cscDigitizer->setDriftVelocity(m_driftVelocity);
@@ -69,12 +63,10 @@ StatusCode CscDigitizationTool::initialize() {
   if (m_NInterFixed) {
     m_cscDigitizer->setNInterFixed();
   }
-
+  m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
   ATH_CHECK(m_cscDigitizer->initialize());
   
   ATH_CHECK(m_idHelperSvc.retrieve());
-
-  m_cscDigitizer->setWindow(m_timeWindowLowerOffset, m_timeWindowUpperOffset);
 
   // check the input object name
   if (m_hitsContainerKey.key().empty()) {

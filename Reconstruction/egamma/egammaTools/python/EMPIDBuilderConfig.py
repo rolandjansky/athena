@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 EMPIDBuilder=CompFactory.EMPIDBuilder
 from ROOT import egammaPID
 import cppyy
-cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+cppyy.load_library('libElectronPhotonSelectorToolsDict')
 
 
 def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
@@ -51,13 +51,6 @@ def EMPIDBuilderElectronCfg(flags, name='EMPIDBuilderElectron', **kwargs):
         acc.merge(LooseLHSelectorAcc)
         acc.merge(MediumLHSelectorAcc)
         acc.merge(TightLHSelectorAcc)
-
-    # Multi Lepton
-    AsgElectronMultiLeptonSelector=CompFactory.AsgElectronMultiLeptonSelector
-    if "genericIsEMselectors" not in kwargs:
-        MultiLeptonSelector = AsgElectronMultiLeptonSelector("MultiLeptonSelector")
-        kwargs["genericIsEMselectors"] = [MultiLeptonSelector]
-        kwargs["genericIsEMselectorResultNames"] = ["MultiLepton"]
 
     tool = EMPIDBuilder(name, **kwargs)
 

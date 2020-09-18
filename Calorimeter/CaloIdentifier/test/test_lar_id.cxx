@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Header: /build/atlas/cvs/atlas/offline/Calorimeter/CaloIdentifier/test/test_lar_id.cxx,v 1.25 2007-02-19 15:56:25 fledroit Exp $ 
@@ -15,7 +15,7 @@
 #include "GaudiKernel/System.h" 
 #include <iostream> 
  
-typedef Identifier::size_type  size_type ;
+using size_type = Identifier::size_type ;
 
 #if 0
 static void tab (size_t level) 

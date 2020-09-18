@@ -7,7 +7,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "DumpDecisions.h"
 
 

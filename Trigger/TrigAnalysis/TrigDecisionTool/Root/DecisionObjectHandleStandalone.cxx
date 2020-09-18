@@ -7,6 +7,9 @@
 // Local include(s):
 #include "TrigDecisionTool/DecisionObjectHandleStandalone.h"
 
+#include "AsgTools/CurrentContext.h"
+#include "AsgDataHandles/ReadHandle.h"
+
 // Include for the event store type:
 #ifdef XAOD_STANDALONE
 #   include "AsgTools/SgTEvent.h"
@@ -38,7 +41,7 @@ namespace Trig {
    DecisionObjectHandleStandalone::getDecision() const {
 
       if( ! m_decision && !m_deckey->empty() ) {
-         const EventContext ctx = Gaudi::Hive::currentContext();
+         const EventContext& ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigDecision> decisionReadHandle = SG::makeHandle(*m_deckey, ctx);
          if( ! decisionReadHandle.isValid() ) {
             static bool warningPrinted = false;
@@ -58,7 +61,7 @@ namespace Trig {
    DecisionObjectHandleStandalone::getNavigation() const {
 
       if( ! m_navigation && !m_navikey->empty() ) {
-         const EventContext ctx = Gaudi::Hive::currentContext();
+         const EventContext& ctx = Gaudi::Hive::currentContext();
          SG::ReadHandle<xAOD::TrigNavigation> navReadHandle = SG::makeHandle(*m_navikey, ctx);
          if( ! navReadHandle.isValid() ) {
             static bool warningPrinted = false;

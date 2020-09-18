@@ -1,21 +1,14 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-//  GeneralTOP.cpp
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoEvent/GenericTOB.h"
 
-unsigned int TCS::GenericTOB::fg_instances = 0;
-TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
+thread_local TCS::Heap<TCS::GenericTOB> TCS::GenericTOB::fg_heap("Generic",100);
 
 // default constructor
 TCS::GenericTOB::GenericTOB(uint32_t roiWord) :
    BaseTOB( roiWord )
 {
    m_tobType = JET;
-   ++fg_instances;
 }
 
 // constructor from generic data
@@ -27,27 +20,10 @@ TCS::GenericTOB::GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord)
    , m_EtDouble((double)Et)
    , m_etaDouble(((double)eta)/10.)
    , m_phiDouble(((double)phi)/10.)
-{
-   ++fg_instances;
-}
+{}
 
-// constructor from generic data
-TCS::GenericTOB::GenericTOB(const GenericTOB & other) :
-   BaseTOB(other)
-   , m_Et(other.m_Et)
-   , m_EtNarrow(other.EtNarrow())
-   , m_EtWide(other.EtWide())
-   , m_Ex(other.m_Ex)
-   , m_Ey(other.m_Ey)
-   , m_eta(other.m_eta)
-   , m_phi(other.m_phi)
-   , m_EtDouble(other.m_EtDouble)
-   , m_etaDouble(other.m_etaDouble)
-   , m_phiDouble(other.m_phiDouble)
-   , m_tobType(other.m_tobType)
-{
-   ++fg_instances;
-}
+// copy constructor
+TCS::GenericTOB::GenericTOB(const GenericTOB & other) = default;
 
 // constructor from jet
 TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
@@ -61,9 +37,7 @@ TCS::GenericTOB::GenericTOB(const JetTOB & jet, JetTOB::JetSize jetSize) :
    , m_etaDouble(jet.etaDouble())
    , m_phiDouble(jet.phiDouble())
    , m_tobType(JET)
-{
-   ++fg_instances;
-}
+{}
 
 // constructor from cluster
 TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
@@ -75,9 +49,7 @@ TCS::GenericTOB::GenericTOB(const ClusterTOB & cluster) :
    , m_etaDouble(cluster.etaDouble())
    , m_phiDouble(cluster.phiDouble())
    , m_tobType(cluster.tobType())
-{
-   ++fg_instances;
-}
+{}
 
 // constructor from muon
 TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
@@ -89,9 +61,7 @@ TCS::GenericTOB::GenericTOB(const MuonTOB & muon) :
    , m_etaDouble(((double)muon.eta())/10.)
    , m_phiDouble(((double)muon.phi())/10.)
    , m_tobType(MUON)
-{
-    ++fg_instances;
-}
+{}
 
 // constructor for latemuon
 TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
@@ -103,9 +73,7 @@ TCS::GenericTOB::GenericTOB(const LateMuonTOB & lateMuon) :
    , m_etaDouble(((double)lateMuon.eta())/10.)
    , m_phiDouble(((double)lateMuon.phi())/10.)
    , m_tobType(LATEMUON) 
-{
-    ++fg_instances;
-}
+{}
 
 // constructor for muonNextBC
 TCS::GenericTOB::GenericTOB(const MuonNextBCTOB & muonNextBC) :
@@ -117,9 +85,7 @@ TCS::GenericTOB::GenericTOB(const MuonNextBCTOB & muonNextBC) :
    , m_etaDouble(((double)muonNextBC.eta())/10.)
    , m_phiDouble(((double)muonNextBC.phi())/10.)
    , m_tobType(MUONNEXTBC) 
-{
-    ++fg_instances;
-}
+{}
 
 
 
@@ -130,29 +96,22 @@ TCS::GenericTOB::GenericTOB(const MetTOB & met) :
    , m_Ex(met.Ex())
    , m_Ey(met.Ey())
    , m_tobType(MET)
-{
-    ++fg_instances;
-}
+{}
 
 
 // destructor
-TCS::GenericTOB::~GenericTOB() {
-   --fg_instances;
-}
+TCS::GenericTOB::~GenericTOB() = default;
 
 
 TCS::GenericTOB*
 TCS::GenericTOB::createOnHeap(const GenericTOB& tob) {
-   //std::cout << "Creating GenericTOB #instance before creation " << fg_instances << ", heap size " << fg_heap.size() << ", heap capacity " << fg_heap.capacity() << std::endl;
    return fg_heap.create(tob);
 }
-
 
 void
 TCS::GenericTOB::clearHeap() {
    return fg_heap.clear();
 }
-
 
 void TCS::GenericTOB::print(std::ostream &o) const {
    o << "generic tob energy: " << Et() << ", eta: " << eta() << ", phi: " << phi();

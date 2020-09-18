@@ -59,7 +59,7 @@
 
 
 #include "LArCalibTest/FixLArElecCalib.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"

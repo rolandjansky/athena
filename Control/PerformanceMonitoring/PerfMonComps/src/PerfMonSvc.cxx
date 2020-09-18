@@ -35,7 +35,7 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -64,7 +64,8 @@
 #include "SemiDetHelper.h"
 
 // PyROOT includes
-#include "TPyException.h"
+#include "CPyCppyy/PyException.h"
+
 
 #define PMON_COMP_FMT \
   /* comp-id: /step/comp-name */			\
@@ -128,7 +129,7 @@ void throw_py_exception (bool display=true)
     // and print
     PyErr_Print();
   }
-  throw PyROOT::TPyException();
+  throw CPyCppyy::PyException();
 }
 
   std::string 
@@ -1095,12 +1096,12 @@ void PerfMonSvc::undeclareAll( const IInterface* iowner )
 ///////////////////////////////////////////////////////////////////
 // Non-const methods:
 ///////////////////////////////////////////////////////////////////
-void PerfMonSvc::setupProfiledAlgList( Property& /*profiledAlgNames*/ )
+void PerfMonSvc::setupProfiledAlgList( Gaudi::Details::PropertyBase& /*profiledAlgNames*/ )
 {
   return;
 }
 
-void PerfMonSvc::setupIoContainerList( Property& /*ioContainerNames*/ )
+void PerfMonSvc::setupIoContainerList( Gaudi::Details::PropertyBase& /*ioContainerNames*/ )
 {
 }
 

@@ -14,26 +14,20 @@
 #include "SiClusterizationTool/MergedPixelsTool.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "InDetRawData/InDetRawDataCollection.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/SiWidth.h"
-#include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelCluster.h"
-#include "InDetPrepRawData/PixelClusterParts.h"
-#include "InDetPrepRawData/PixelClusterSplitProb.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
-#include "InDetRecToolInterfaces/IPixelClusterSplitProbTool.h"
-#include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include <unordered_set>
 
 using CLHEP::micrometer;
-
 
 namespace InDet {
   
@@ -48,21 +42,12 @@ namespace InDet {
     }
   
   StatusCode  MergedPixelsTool::initialize(){
-    
     if (m_IBLParameterSvc.retrieve().isFailure()) { 
       ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
     } else { 
-      m_clusterSplitter.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_clusterSplitter.typeAndName(),"clusterSplitter")); 
-      m_splitProbTool.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_splitProbTool.typeAndName(),"clusterSplitter")); 
       m_IBLParameterSvc->setBoolParameters(m_IBLAbsent,"IBLAbsent");
     }  
-    
-    // for the cluster splitting
-    ATH_CHECK(m_splitProbTool.retrieve( EnableTool{not m_splitProbTool.empty()}));
-    ATH_CHECK(m_clusterSplitter.retrieve( EnableTool{not m_clusterSplitter.empty()} ));
-
     ATH_CHECK(m_pixelDetEleCollKey.initialize());
-    
     return PixelClusteringToolBase::initialize();
   }
 
@@ -72,264 +57,8 @@ namespace InDet {
    
     ATH_MSG_DEBUG("------------------- Clusterization Statistics ------------------------");
     ATH_MSG_DEBUG("-- # Processed Pixel Clusters     : " << m_processedClusters);
-    if(m_processedClusters){
-      ATH_MSG_DEBUG("-- # Clusters modified  (%)       : " << m_modifiedOrigClusters << " (" << double(m_modifiedOrigClusters)/double(m_processedClusters) << ")" );
-      ATH_MSG_DEBUG("-- # Clusters split into more (%) : " << m_splitOrigClusters << " (" << double(m_splitOrigClusters)/double(m_processedClusters) << ")" );
-      ATH_MSG_DEBUG("-- # Split Clusters created       : " << m_splitProdClusters);
-      ATH_MSG_DEBUG("-- # Large Pixel Clusters (%)     : " << m_largeClusters << " (" << double(m_largeClusters)/double(m_processedClusters) << ")" );
-    }
+    ATH_MSG_DEBUG("----------------------------------------------------------------------");
     return StatusCode::SUCCESS;
-  }
-
-  //-----------------------------------------------------------------------
-  // Called by the PixelPrepRawDataFormation algorithm once for every pixel 
-  // module (with non-empty RDO collection...). 
-  // It clusters together the RDOs with a pixell cell side in common.
-
-  PixelClusterCollection* MergedPixelsTool::clusterize( const InDetRawDataCollection<PixelRDORawData> &collection,
-                                                        const PixelID& pixelID) const
-  {
-    // call the fast clusterizetion method if required
-    if (m_doFastClustering) return clusterizeFast(collection, pixelID);    
-    
-    // Get the messaging service, print where you are
-    
-    // Get Identifier and IdentifierHash for these RDOs
-    Identifier elementID = collection.identify();
-    IdentifierHash idHash = collection.identifyHash();
-    
-    // Size of RDO's collection:
-    const unsigned int RDO_size = collection.size();
-    if ( RDO_size==0) {
-        // Empty RDO collection
-        ATH_MSG_DEBUG (" areNeighbours - problems ");
-        return 0;
-    }
-    
-    int clusterNumber = 0;
-    
-    // If module is bad, do not create a cluster collection
-    if (m_useModuleMap && !(m_summaryTool->isGood(idHash))) 
-      return 0;
-    
-    typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection;
-    
-    // Get detector info.
-    // Find detector element for these RDOs
-
-    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
-    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
-    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
-      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
-      return 0;
-    }
-    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(idHash);
-    
-    const Trk::RectangleBounds *mybounds=dynamic_cast<const Trk::RectangleBounds *>(&element->surface().bounds());
-    if (not mybounds) {
-      ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.cxx.");
-      return nullptr;
-    }
-    // RDOs will be accumulated as a vector of Identifier, which will
-    // be added to a vector of groups.
-    
-    RDO_GroupVector rdoGroups;
-    rdoGroups.reserve(RDO_size);
-    
-    // A similar structure is created for TOT information
-    TOT_GroupVector totGroups;
-    totGroups.reserve(RDO_size);
-    TOT_GroupVector lvl1Groups;
-    lvl1Groups.reserve(RDO_size);
-    
-   // loop on all RDOs
-    for(RDO_Collection::const_iterator nextRDO=collection.begin() ; 
-        nextRDO!=collection.end() ; ++nextRDO) {
-      Identifier rdoID= (*nextRDO)->identify();
-      // if a pixel is not skip it in clusterization
-      if ( m_usePixelMap && !(m_summaryTool->isGood(idHash,rdoID)) ) continue;
-      const int tot = (*nextRDO)->getToT();
-      const int lvl1= (*nextRDO)->getLVL1A();
-      // check if this is a ganged pixel    
-      Identifier gangedID;
-      const bool ganged= isGanged(rdoID, element, gangedID);  
-      if(ganged) {
-        ATH_MSG_VERBOSE("Ganged Pixel, row = " << pixelID.phi_index(rdoID) 
-        << "Ganged row = " << pixelID.phi_index(gangedID));   
-      }
-      else
-        ATH_MSG_VERBOSE("Not ganged Pixel, row = " << pixelID.phi_index(rdoID)); 
-      
-      // loop on all existing RDO groups, until you find that the RDO 
-      // is a neighbour of the group.
-      bool found= false;
-      
-      RDO_GroupVector::iterator firstGroup = rdoGroups.begin();
-      RDO_GroupVector::iterator lastGroup  = rdoGroups.end();
-      TOT_GroupVector::iterator totGroup   = totGroups.begin();    
-      TOT_GroupVector::iterator lvl1Group  = lvl1Groups.begin();
-      
-      while( !found && firstGroup!= lastGroup)
-        {
-          // Check if RDO is neighbour of the cluster
-          if (areNeighbours(**firstGroup, rdoID, element, pixelID)) {
-              // if RDO is a duplicate of one in the cluster, do not add it. 
-            // Instead the method isDuplicated check wether the new
-            // one has a larger LVL1 - if so it does replace the old 
-            // lvl1 with the new one.  
-            if(!m_checkDuplicatedRDO ||
-               (m_checkDuplicatedRDO && !isDuplicated(**firstGroup, **lvl1Group, rdoID, lvl1, pixelID))) {
-              (*firstGroup)->push_back(rdoID);
-              (*totGroup)->push_back(tot);
-              (*lvl1Group)->push_back(lvl1);
-              // see if it is a neighbour to  any other groups
-              checkForMerge(rdoID, firstGroup, lastGroup, 
-                            totGroup, lvl1Group, element, pixelID); 
-            } else {
-              ATH_MSG_VERBOSE("duplicate found");
-            }
-            found = true; 
-          }
-          ++firstGroup;
-          ++totGroup;
-          ++lvl1Group;
-        }
-        
-      // if RDO is isolated, create new cluster. 
-      if(!found) {
-        RDO_Vector* newGroup= new RDO_Vector;
-        rdoGroups.push_back(newGroup);
-        newGroup->push_back(rdoID);
-        TOT_Vector* newtotGroup = new TOT_Vector;
-        totGroups.push_back(newtotGroup);
-        newtotGroup->push_back(tot);
-        TOT_Vector* newlvl1Group = new TOT_Vector;
-        lvl1Groups.push_back(newlvl1Group);
-        newlvl1Group->push_back(lvl1);
-      }
-      
-      // Repeat for ganged pixel if necessary
-      if (! ganged) continue;
-      
-      ATH_MSG_VERBOSE("Ganged pixel, row = " << pixelID.phi_index(gangedID));
-      found= false;
-      
-      firstGroup = rdoGroups.begin();
-      lastGroup  = rdoGroups.end();
-      totGroup   = totGroups.begin();
-      lvl1Group  = lvl1Groups.begin();
-      
-      while( !found && firstGroup!= lastGroup) {
-        // if  neighbour of the cluster, add it to the cluster
-        if ( areNeighbours(**firstGroup, gangedID, element, pixelID) ) {
-          ATH_MSG_VERBOSE("Ganged pixel is neighbour of a cluster");
-
-          // if RDO is a duplicate of one in the cluster, do not add it. 
-          // Instead the method isDuplicated check wether the new
-          // one has a larger LVL1 - if so it does replace the old 
-          // lvl1 with the new one.  
-          
-          if(!m_checkDuplicatedRDO ||
-             (m_checkDuplicatedRDO && !isDuplicated(**firstGroup, **lvl1Group, gangedID, lvl1, pixelID))) {
-            (*firstGroup)->push_back(gangedID);
-            (*totGroup)->push_back(tot);
-            (*lvl1Group)->push_back(lvl1);
-            checkForMerge(gangedID, firstGroup, lastGroup, totGroup, lvl1Group, element, pixelID);
-          } else {
-            ATH_MSG_VERBOSE("duplicate found");
-          }
-          found = true;
-        }
-        ++firstGroup;
-        ++totGroup;
-        ++lvl1Group;
-      }
-      
-      // if  isolated, create new cluster.       
-      if(!found) {
-        ATH_MSG_VERBOSE("New cluster with ganged pixel");	
-        RDO_Vector* newGroup= new RDO_Vector;
-        rdoGroups.push_back(newGroup);
-        newGroup->push_back(gangedID);
-        TOT_Vector* newtotGroup = new TOT_Vector;
-        totGroups.push_back(newtotGroup);
-        newtotGroup->push_back(tot);
-        TOT_Vector* newlvl1Group = new TOT_Vector;
-        lvl1Groups.push_back(newlvl1Group);
-        newlvl1Group->push_back(lvl1);
-      }
-    }
-      
-    if(totGroups.size() != rdoGroups.size())
-      ATH_MSG_ERROR("Mismatch between RDO identifier and TOT info!");
-    // We now have groups of contiguous RDOs. Make clusters
-    // Make a new empty cluster collection
-    PixelClusterCollection  *clusterCollection =  new PixelClusterCollection(idHash);
-    clusterCollection->setIdentifier(elementID);
-    clusterCollection->reserve(rdoGroups.size());
-
-    std::vector<TOT_Vector *>::iterator totgroup = totGroups.begin();
-    std::vector<TOT_Vector *>::iterator lvl1group= lvl1Groups.begin();
-        
-    // LOOP over the RDO-groups to be clustered ----------------------------------------------------------------
-    // Logics in splitting is: the splitter is only activated clusters within min/max split size,
-    //  single pixel clusters are not split into more clusters, but can be modified if included by split size req.
-    //  additionally:
-    // (1) split size > m_minSplitSize : just follow output of the splitter
-    // (2) split size <= m_minSplitSize && no split done by the splitter : 
-    //      take position update of splitter if available (profit from NN), flag as split 
-    // (3) split size <= m_minSplitSize && split done : fallback to pseudo-emulation mode 
-    //      (i.e. do not allow splitting, but write split probabilities, do not flag as split)
-    // (E) if configured to run in emulation mode, flag as split, save split information, but never split
-    //
-    // (MAIN CLUSTERIZATION LOOP after connected component finding)
-    
-    for(std::vector<RDO_Vector *>::iterator group = rdoGroups.begin() ; group!= rdoGroups.end() ; ++group) {
-
-      // the size of the inition rdo group
-      const size_t groupSize = (**group).size();
-      
-      // If cluster is empty, i.e. it has been merged with another, 
-      // do not attempt to make cluster.
-      if ( groupSize > 0) {
-        ++m_processedClusters;
-        // create the original cluster - split & split probs are by default false and 0
-        PixelCluster* cluster = makeCluster(**group,
-                                            **totgroup,
-                                            **lvl1group,
-                                            element,
-                                            pixelID, 
-                                            ++clusterNumber);
-        
-        // no merging has been done;
-        if (cluster) { 
-          // statistics output
-          if ((**group).size() >= m_maxSplitSize ) ++m_largeClusters;
-          /** new: store hash id and index in the cluster:
-           * hash can be obtained from collection
-           * index is just the size of the coll before the push back
-           * this is needed for later to make the EL to IDC valid in the 
-           * RIO_OnTrack objects set method might be temporary, this tool 
-           * (MergedPixelsTool could be friend of the cluster objects)
-           */
-          cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
-          /** end new stuff */
-          clusterCollection->push_back(cluster);
-        }
-        (**group).clear();
-      }
-      delete *group;     // now copied into cluster
-      *group = 0;
-      delete *totgroup;  // won't be used any more (cluster class has not 
-      // TOT info at the moment).	
-      *totgroup=0;
-      totgroup++;
-      delete *lvl1group; // now used into cluster
-      *lvl1group=0;
-      lvl1group++;
-    }
-
-    return clusterCollection;
   }
 
   //-----------------------------------------------------------------------
@@ -465,7 +194,7 @@ namespace InDet {
         InDetDD::SiLocalPosition totCorrection(0,0,0);
         if(pixelID.is_barrel(elementID)) {
           deltax = 30*micrometer*(sensorThickness/(250*micrometer));
-          deltay = sensorThickness*fabs(globalPos.z())/globalPos.perp();
+          deltay = sensorThickness*std::abs(globalPos.z())/globalPos.perp();
           if(deltay > (design->etaPitch()) ) deltay = design->etaPitch();
         } else {
           deltax = 10*micrometer*sqrt(sensorThickness/(250*micrometer));
@@ -564,71 +293,14 @@ namespace InDet {
     }
   } 
   
-  
-  
+
   //-----------------------------------------------------------------------
-  // Checks if two RDO lists (would be clusters) whould be merged, 
-  // which do happen if there is a pair of pixel cells belonging to the 
-  // two different groups which have a side in common
-  
-  void MergedPixelsTool::checkForMerge(const Identifier& id, 
-                                       MergedPixelsTool::RDO_GroupVector::iterator  baseGroup,
-                                       MergedPixelsTool::RDO_GroupVector::iterator lastGroup,
-                                       MergedPixelsTool::TOT_GroupVector::iterator totGroup,
-                                       MergedPixelsTool::TOT_GroupVector::iterator lvl1Group,
-                                       const InDetDD::SiDetectorElement* element,
-                                       const PixelID& pixelID) const
-  {
-    // Look at each of groups that haven't already been checked to see if
-    // RDO identifier is in any of them. If so, copy vector to base group and 
-    // the vector that has been copied.
-    typedef RDO_Vector::const_iterator idIterator;
-    typedef TOT_Vector::const_iterator totIterator;
-    MergedPixelsTool::RDO_GroupVector::const_iterator nextGroup(baseGroup+1);
-    MergedPixelsTool::TOT_GroupVector::const_iterator nextTotGroup(totGroup+1);
-    MergedPixelsTool::TOT_GroupVector::const_iterator nextLvl1Group(lvl1Group+1);
-  
-    for (; nextGroup!= lastGroup; ++nextGroup) { 
-      if (areNeighbours(**nextGroup, id, element, pixelID)) {
-        // merge the RDO identifier groups
-        idIterator firstID = (*nextGroup)->begin();
-        idIterator lastID = (*nextGroup)->end();
-        for (; firstID != lastID; ++firstID) {
-          (*baseGroup)->push_back(*firstID);
-        }
-        (*nextGroup)->clear();
-        // merge the tot vectors
-        totIterator firstTot = (*nextTotGroup)->begin();
-        totIterator lastTot = (*nextTotGroup)->end();
-        for (; firstTot != lastTot; ++firstTot) {
-          (*totGroup)->push_back(*firstTot);
-        }
-        (*nextTotGroup)->clear();
-        // merge the tot vectors
-        totIterator firstLvl1 = (*nextLvl1Group)->begin();
-        totIterator lastLvl1 = (*nextLvl1Group)->end();
-        for (; firstLvl1 != lastLvl1; ++firstLvl1) {
-          (*lvl1Group)->push_back(*firstLvl1);
-        }
-        (*nextLvl1Group)->clear();
-      }
-      nextTotGroup++;
-      nextLvl1Group++;
-    }  
-  }
-  
-  //-----------------------------------------------------------------------
-  
-  
-  
- 
-  //-----------------------------------------------------------------------
-  // Called by the clusterize method if fast clustering is switched on.
   // Runs for every pixel module (with non-empty RDO collection...). 
   // It clusters together the RDOs with a pixell cell side in common
-  // using connected component analysis based on four-cell connectivity  
-  PixelClusterCollection*  MergedPixelsTool::clusterizeFast(const InDetRawDataCollection<PixelRDORawData> &collection,
-                                                            const PixelID& pixelID) const {
+  // using connected component analysis based on four-cell 
+  // or eight-cell (if m_addCorners == true) connectivity
+  PixelClusterCollection*  MergedPixelsTool::clusterize(const InDetRawDataCollection<PixelRDORawData> &collection,
+                                                        const PixelID& pixelID) const {
     
     // Size of RDO's collection:
     const unsigned int RDO_size = collection.size();
@@ -663,13 +335,18 @@ namespace InDet {
       return nullptr;
     }
     
+    // loop on the rdo collection and save the relevant quantities for each fired pixel
+    // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
-
+    std::unordered_set<Identifier> setOfIdentifiers{};
     for(const auto & rdo : collection) {
-      
       const Identifier rdoID= rdo->identify();
       if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
-          
+      //check for duplication:
+      //add to set of existing identifiers. If it fails (.second = false) then skip it.
+      if (not setOfIdentifiers.insert(rdoID).second)   continue;
+      // note that we don't understand, for now, why these duplicated RDO's occur
+      //
       const int lvl1= rdo->getLVL1A();      
       if (m_checkDuplicatedRDO and checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
       
@@ -677,14 +354,13 @@ namespace InDet {
       
       rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
       collectionID.push_back(RCI);
-      
       // check if this is a ganged pixel    
       Identifier gangedID;
       const bool ganged = isGanged(rdoID, element, gangedID);  
       
       if (not ganged) continue;
           
-      // if it is a ganged pixel, add its ganged RDO id to the collections
+      // if it is a ganged pixel, add its ganged RDO id to the collection
       rowcolID   RCI_ganged(-1, pixelID.phi_index(gangedID), pixelID.eta_index(gangedID), tot, lvl1, gangedID);
       collectionID.push_back(RCI_ganged);      
     }
@@ -695,47 +371,78 @@ namespace InDet {
     if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
     
     // initialize the networks
+    //
     std::vector<network> connections(collectionID.size());
 
     // Network production
     //
-    int r = 0, re = collectionID.size();
+    int collectionSize = collectionID.size();    
+    // the maximum number of elements to save can be either 2 or 3
+    // m_addCorners == true requires saving the bottom (or top), the side and the corner connection for each pixel,
+    // otherwise you only save bottom (or top) and the side
+    int maxElements = m_addCorners ? 3 : 2;
 
-    for(; r!=re-1; ++r) {
-
+    // start looping on the pixels
+    // for each pixel you build the network connection accordingly to the 4- or 8-cells connections
+    for(int currentPixel = 0; currentPixel!=collectionSize-1; ++currentPixel) {
       int NB  = 0;
-      int row = collectionID.at(r).ROW  ;
-      int col = collectionID.at(r).COL+1; 
-
-      for(int rn = r+1; rn!=re; ++rn) {
-                
-        int dc = collectionID.at(rn).COL - col;
+      int row = collectionID.at(currentPixel).ROW;
+      int col = collectionID.at(currentPixel).COL; 
+      //
+      auto & currentConnection = connections.at(currentPixel);
+      for(int otherPixel = currentPixel+1; otherPixel!=collectionSize; ++otherPixel) {
+        auto & otherConnection = connections.at(otherPixel);
+        int deltaCol = std::abs(collectionID.at(otherPixel).COL - col);
+        int deltaRow = std::abs(collectionID.at(otherPixel).ROW - row);
+        // break if you are too far way in columns, as these ones will be taken in the next iterations
+        if( deltaCol > 1) {
+          break;
+        }
+        // if you need the corners, you jump the next rows, as these ones will be taken in the next iterations
+        if ( m_addCorners and deltaRow > 1 ) {
+          continue;
+        }
         
-        if( dc > 0) break;
+        // Two default cases are considered:
+        // 1) top/bottom connection (deltaCol=1 and deltaRow=0)
+        // 2) side connection (deltaCol=0 and deltaRow=1)
+        // In both cases the satisfied condition is:
+        // deltaRow+deltaCol = 1
+        // 
+        // As an optional case (true by defaul) we save also add a corner connection:
+        // 3) corner connection (deltaCol=1 and deltaRow=1)
         
-        if( fabs(collectionID.at(rn).ROW-row)+dc == 0 ) {
-          connections.at(r).CON.at(connections.at(r).NC++) = rn;
-          connections.at(rn).CON.at(connections.at(rn).NC++) = r ;
-          if(++NB==2) break;
+        // this builds the single pixel connection and breaks if the max number of elements is reached:        
+        if( (deltaCol+deltaRow) == 1 or (m_addCorners and deltaCol == 1 and deltaRow == 1) ) {
+          try{
+            currentConnection.CON.at(currentConnection.NC++) = otherPixel;
+            otherConnection.CON.at(otherConnection.NC++) = currentPixel ;
+          } catch (const std::out_of_range & ){
+            throw std::runtime_error("attempt to access connection array beyond its size in MergedPixelsTool::clusterize");
+          }
+          if(++NB==maxElements) {
+            break;
+          }
         }
       }
     }
 
     // Pixels clusterization
     //
+    // Once the connections are built, the pixel clusterisation can start grouping together pixels
     int Ncluster = 0;
-    for(r=0; r!=re; ++r) {
-      if(collectionID.at(r).NCL < 0) {
-        collectionID.at(r).NCL = Ncluster;
-        addClusterNumber(r,Ncluster,connections,collectionID);
+    for(int currentPixel=0; currentPixel!=collectionSize; ++currentPixel) {
+      if(collectionID.at(currentPixel).NCL < 0) {
+        collectionID.at(currentPixel).NCL = Ncluster;
+        addClusterNumber(currentPixel,Ncluster,connections,collectionID);
         ++Ncluster;
       }
     }
 
     // Clusters sort in Ncluster order
     //
-    if(--re > 1) {
-      for(int i(1); i<re; ++i ) {
+    if(--collectionSize > 1) {
+      for(int i(1); i<collectionSize; ++i ) {
         rowcolID U  = collectionID.at(i+1);
         
         int j(i);
@@ -764,10 +471,10 @@ namespace InDet {
     Totg.reserve(collectionID.back().NCL);
     Lvl1.reserve(collectionID.back().NCL);
 
-    ++re;    
-    for(int i=1; i<=re; ++i) {
+    ++collectionSize;    
+    for(int i=1; i<=collectionSize; ++i) {
 
-      if(i!=re and collectionID.at(i).NCL==NCL0) {
+      if(i!=collectionSize and collectionID.at(i).NCL==NCL0) {
         DVid.push_back(collectionID.at(i).ID );
         Totg.push_back(collectionID.at(i).TOT);
         Lvl1.push_back(collectionID.at(i).LVL1);
@@ -783,29 +490,16 @@ namespace InDet {
                                             pixelID, 
                                             ++clusterNumber);
         
-        const size_t groupSize = DVid.size();        
-        
-        
-        
         // no merging has been done;
         if (cluster) { 
           // statistics output
-          if (groupSize >= m_maxSplitSize ) ++m_largeClusters;
-          /** new: store hash id and index in the cluster:
-           * hash can be obtained from collection
-           * index is just the size of the coll before the push back
-           * this is needed for later to make the EL to IDC valid in the 
-           * RIO_OnTrack objects set method might be temporary, this tool 
-           * (MergedPixelsTool could be friend of the cluster objects)
-           */
           cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
-          /** end new stuff */
           clusterCollection->push_back(cluster);
         }      
         
         
         // Preparation for next cluster
-        if (i!=re) {
+        if (i!=collectionSize) {
           NCL0   = collectionID.at(i).NCL                     ;
           DVid.clear(); DVid = {collectionID.at(i).ID };
           Totg.clear(); Totg = {collectionID.at(i).TOT};
@@ -816,16 +510,12 @@ namespace InDet {
 
     return clusterCollection;
   }
-
-  ///////////////////////////////////////////////////////////////////
-  // Clusterization for fast mode 
-  ///////////////////////////////////////////////////////////////////
   
   void MergedPixelsTool::addClusterNumber(const int& r, 
                                           const int& Ncluster,
                                           const std::vector<network>& connections,                                         
                                           std::vector<rowcolID>& collectionID) const {
-    for(int i=0; i!=connections.at(r).NC; ++i) {      
+    for(int i=0; i!=connections.at(r).NC; ++i) {  
       const int k = connections.at(r).CON.at(i);
       if(collectionID.at(k).NCL < 0) {
         collectionID.at(k).NCL = Ncluster;

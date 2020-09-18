@@ -27,7 +27,7 @@ namespace LArG4 {
     public:
 
       LArHECCalibrationWheelCalculator(const std::string& name, ISvcLocator *pSvcLocator);
-      void GeometryTypeUpdateHandler(Property&);
+      void GeometryTypeUpdateHandler(Gaudi::Details::PropertyBase&);
       StatusCode initialize() override final;
       virtual ~LArHECCalibrationWheelCalculator();
 

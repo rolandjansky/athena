@@ -2,14 +2,14 @@
   Copyright (C) 2020-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*************************************************************************************
-      GsfMaterialMixtureConvolution.cxx  -  description
-      -------------------------------------------------
-author               : amorley
-email                : amorley@cern.ch
-decription           : Implementation code for GSF material mixture convolution
-that uses less mem
-************************************************************************************/
+/**
+ * @file GsfMaterialMixtureConvolution.cxx
+ * @begin         Julay 20 2020
+ * @author        Anthony Morley
+ * @brief         Implementation code for GSF material mixture convolution
+ */
+
+
 
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
@@ -39,8 +39,6 @@ Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
-
-  ATH_CHECK(m_updator.retrieve());
 
   ATH_CHECK(m_materialEffects.retrieve());
 
@@ -274,10 +272,10 @@ Trk::GsfMaterialMixtureConvolution::update(
       // Store component weight
       caches[i].weights[j] *= inputState[i].second;
       // Ensure weight of component is not too small to save us from potential
-      // FPE's Value chosen to be sufficiently small so that the final state
-      // will not be impacted
-      if (caches[i].weights[j] < 1e-12) {
-        caches[i].weights[j] = 1e-12;
+      // FPE's Value. Weights are double so the min of float should
+      // be small enough and should be handled
+      if (caches[i].weights[j] < std::numeric_limits<float>::min()) {
+        caches[i].weights[j] = std::numeric_limits<float>::min();
       }
     }
     n += caches[i].weights.size();
@@ -349,7 +347,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   // Gather the merges -- order is important -- RHS is smaller than LHS
-  std::vector<std::pair<int32_t, int32_t>> merges;
+  std::vector<std::pair<int16_t, int16_t>> merges;
   if (n > m_maximumNumberOfComponents)
     merges = findMerges(components.buffer(), n, m_maximumNumberOfComponents);
 
@@ -358,8 +356,8 @@ Trk::GsfMaterialMixtureConvolution::update(
   int nMerges(0);
   std::vector<bool> isMerged(n, false);
   for (const auto& mergePair : merges) {
-    const int32_t mini = mergePair.first;
-    const int32_t minj = mergePair.second;
+    const int16_t mini = mergePair.first;
+    const int16_t minj = mergePair.second;
     if (isMerged[minj]) {
       ATH_MSG_WARNING("Component is already merged " << minj);
       for (const auto& mergePair2 : merges) {
@@ -371,10 +369,12 @@ Trk::GsfMaterialMixtureConvolution::update(
     // Get the first TP
     size_t stateIndex = indices[mini].first;
     size_t materialIndex = indices[mini].second;
-    AmgVector(5)& stateVector =
+
+    // Copy weight and first parameters as they are needed later on
+    // for updating the covariance
+    AmgVector(5) firstParameters =
       caches[stateIndex].deltaParameters[materialIndex];
-    AmgSymMatrix(5)& measuredCov =
-      caches[stateIndex].deltaCovariances[materialIndex];
+    double firstWeight = caches[stateIndex].weights[materialIndex];
 
     // Get the second TP
     size_t stateIndex2 = indices[minj].first;
@@ -384,20 +384,17 @@ Trk::GsfMaterialMixtureConvolution::update(
     ++nMerges;
     isMerged[minj] = true;
 
-    // Copy weight and first parameters as they are needed later on
-    const AmgVector(5) firstParameters = stateVector;
-    const double firstWeight = caches[stateIndex].weights[materialIndex];
-
     // Update first parameters and weight
     Trk::MultiComponentStateCombiner::combineParametersWithWeight(
       caches[stateIndex].deltaParameters[materialIndex],
       caches[stateIndex].weights[materialIndex],
       caches[stateIndex2].deltaParameters[materialIndex2],
       caches[stateIndex2].weights[materialIndex2]);
-    // Update first cov
+
+    // Update covariance
     Trk::MultiComponentStateCombiner::combineCovWithWeight(
       firstParameters,
-      measuredCov,
+      caches[stateIndex].deltaCovariances[materialIndex],
       firstWeight,
       caches[stateIndex2].deltaParameters[materialIndex2],
       caches[stateIndex2].deltaCovariances[materialIndex2],
@@ -409,8 +406,9 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   for (size_t i(0); i < n; ++i) {
-    if (isMerged[i])
+    if (isMerged[i]) {
       continue;
+    }
 
     // Build the TP
     size_t stateIndex = indices[i].first;

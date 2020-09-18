@@ -18,7 +18,6 @@
 #include "../ItemListSvc.h"
 #include "../AthenaSummarySvc.h"
 #include "../LoggedMessageSvc.h"
-#include "../AthenaJobOptionsSvc.h"
 #include "../RCUSvc.h"
 #include "../AthTPCnvSvc.h"
 #include "../EvtIdModifierSvc.h"
@@ -56,7 +55,6 @@ DECLARE_COMPONENT( DecisionSvc )
 DECLARE_COMPONENT( ItemListSvc )
 DECLARE_COMPONENT( AthenaSummarySvc )
 DECLARE_COMPONENT( LoggedMessageSvc )
-DECLARE_COMPONENT( Athena::JobOptionsSvc )
 DECLARE_COMPONENT( Athena::RCUSvc )
 DECLARE_COMPONENT( AthTPCnvSvc )
 DECLARE_COMPONENT( EvtIdModifierSvc )

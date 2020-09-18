@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( D3PDMakerTest )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthenaKernel
-                          Control/Navigation
-                          Event/FourMom
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Event/EventKernel
-                          Event/NavFourMom
-                          GaudiKernel
-                          MuonSpectrometer/MuonSimEvent
-                          PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-                          Simulation/G4Sim/TrackRecord )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -33,7 +16,7 @@ atlas_add_library( D3PDMakerTestLib
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthContainers Navigation FourMom ParticleEvent StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel EventKernel NavFourMom GaudiKernel MuonSimEvent D3PDMakerUtils TrackRecordLib )
 
 atlas_add_component( D3PDMakerTest
                      src/components/*.cxx

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTests/Analysis.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
 
@@ -43,38 +43,38 @@ namespace MyAnalysis {
   //Constructor
   Analysis:: Analysis(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_thistSvc(0),
-    m_hist_etraw_emb_s0(0),
-    m_hist_etraw_emb_s1(0),
-    m_hist_etraw_emb_s2(0),
-    m_hist_etraw_emb_s3(0),
-    m_hist_etraw_emec_s0(0),
-    m_hist_etraw_emec_s1(0),
-    m_hist_etraw_emec_s2(0),
-    m_hist_etraw_emec_s3(0),
-    m_hist_clusnoise(0),
-    m_hist_clusnoise1(0),
-    m_hist_clusnoise2(0),
-    m_hist_clusnoise3(0),
-    m_hist_ot(0),
-    m_hist_ot_em(0),
-    m_hist_ot_hec(0),
-    m_hist_ot_fcal(0),
-    m_hist_it(0),
-    m_hist_it_em(0),
-    m_hist_it_hec(0),
-    m_hist_it_fcal(0),
-    m_hist_hittime(0),
-    m_hist_hitener(0),
-    m_hist_nhitlar(0),
-    m_hist_cal0(0),
-    m_hist_cal1(0),
-    m_hist_cal2(0),
-    m_hist_cal3(0),
-    m_triggerTimeTool(0),
-    m_larem_id(0),
-    m_calodm_id(0),
-    m_ntuple(0)
+    m_thistSvc(nullptr),
+    m_hist_etraw_emb_s0(nullptr),
+    m_hist_etraw_emb_s1(nullptr),
+    m_hist_etraw_emb_s2(nullptr),
+    m_hist_etraw_emb_s3(nullptr),
+    m_hist_etraw_emec_s0(nullptr),
+    m_hist_etraw_emec_s1(nullptr),
+    m_hist_etraw_emec_s2(nullptr),
+    m_hist_etraw_emec_s3(nullptr),
+    m_hist_clusnoise(nullptr),
+    m_hist_clusnoise1(nullptr),
+    m_hist_clusnoise2(nullptr),
+    m_hist_clusnoise3(nullptr),
+    m_hist_ot(nullptr),
+    m_hist_ot_em(nullptr),
+    m_hist_ot_hec(nullptr),
+    m_hist_ot_fcal(nullptr),
+    m_hist_it(nullptr),
+    m_hist_it_em(nullptr),
+    m_hist_it_hec(nullptr),
+    m_hist_it_fcal(nullptr),
+    m_hist_hittime(nullptr),
+    m_hist_hitener(nullptr),
+    m_hist_nhitlar(nullptr),
+    m_hist_cal0(nullptr),
+    m_hist_cal1(nullptr),
+    m_hist_cal2(nullptr),
+    m_hist_cal3(nullptr),
+    m_triggerTimeTool(nullptr),
+    m_larem_id(nullptr),
+    m_calodm_id(nullptr),
+    m_ntuple(nullptr)
   {
 
     m_clusternoise=false;
@@ -228,7 +228,7 @@ namespace MyAnalysis {
        cell0.identifier=0;
        m_CellListEM.resize(ncellem,cell0);
 
-       const CaloDetDescrElement* calodde=0;
+       const CaloDetDescrElement* calodde=nullptr;
        for (int i=0;i<ncellem;i++){
          IdentifierHash idHash=i;
          Identifier id=m_larem_id->channel_id(idHash);
@@ -415,7 +415,7 @@ namespace MyAnalysis {
 
   if (m_useTriggerTime) {
 
-     IToolSvc* p_toolSvc = 0;
+     IToolSvc* p_toolSvc = nullptr;
      sc = service("ToolSvc", p_toolSvc);
      IAlgTool* algtool;
  
@@ -423,7 +423,7 @@ namespace MyAnalysis {
      sc = p_toolSvc->retrieveTool(theTool.type(), theTool.name(),algtool);
      if (sc.isFailure()) {
        ATH_MSG_ERROR( "Unable to find tool for " << m_triggerTimeToolName.value()  );
-        m_triggerTimeTool = 0;
+        m_triggerTimeTool = nullptr;
      }
      else {
         m_triggerTimeTool=dynamic_cast<ITriggerTime*>(algtool);

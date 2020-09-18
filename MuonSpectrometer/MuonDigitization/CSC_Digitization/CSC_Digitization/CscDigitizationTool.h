@@ -5,6 +5,8 @@
 #ifndef MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H
 #define MUONDIGITIZATION_CSCDIGITIZATIONTOOL_H
 
+#include <memory>
+
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -21,6 +23,8 @@
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+
+#include "CSC_Digitizer.h"
 
 // Author: Ketevi A. Assamagan
 // BNL, October 27, 2003
@@ -43,7 +47,7 @@ public:
 
   CscDigitizationTool(const std::string& type, const std::string& name, const IInterface* pIID);
 
-  ~CscDigitizationTool();
+  ~CscDigitizationTool() = default;
 
   virtual StatusCode initialize() override final;
 
@@ -88,8 +92,7 @@ private:
   SG::WriteHandleKey<CscSimDataCollection> m_cscSimDataCollectionWriteHandleKey{this,"CSCSimDataCollectionOutputName","CSC_SDO","WriteHandleKey for Output CscSimDataCollection"};
   SG::WriteHandleKey<CscDigitContainer> m_cscDigitContainerKey{this,"OutputObjectName","CSC_DIGITS","CSC digit container object"};
 
-  const MuonGM::MuonDetectorManager* m_geoMgr{nullptr};
-  CSC_Digitizer* m_cscDigitizer{nullptr};
+  std::unique_ptr<CSC_Digitizer> m_cscDigitizer{nullptr};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

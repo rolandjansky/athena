@@ -1,39 +1,39 @@
-Mon Aug  3 17:18:44 CEST 20?0
+Fri Sep 11 23:45:59 CEST 20?0
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5545 configurables from 8 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5568 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r2)
-                                          running on lxplus706.cern.ch on Mon Aug  3 17:18:52 20?0
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on aibuild028.cern.ch on Fri Sep 11 23:46:11 20?0
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3312 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 846 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 344 CLIDRegistry entries for module ALL
-ReadData            DEBUG Property update for OutputLevel : new value = 2
-ReadData             INFO in initialize()
+ClassIDSvc           INFO  getRegistryEntries: read 722 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 591 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 350 CLIDRegistry entries for module ALL
+EventInfoCnvAlg      INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
+EventInfoCnvAlg...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
 MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 MetaDataSvc         DEBUG Service base class initialized successfully
 AthenaPoolCnvSvc    DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-08-02T2137/Athena/22.0.16/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus706.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-09-10T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host aibuild028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -114,7 +114,7 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 1652 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1666 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
@@ -126,6 +126,11 @@ ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for m
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
 AthenaPoolAddre...  DEBUG Service base class initialized successfully
+AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
+EventInfoCnvAlg...WARNING Beam conditions service not available
+EventInfoCnvAlg...WARNING Will not fill beam spot information into xAOD::EventInfo
+ReadData            DEBUG Property update for OutputLevel : new value = 2
+ReadData             INFO in initialize()
 ReadData            DEBUG input handles: 2
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
@@ -154,7 +159,6 @@ Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
-AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
@@ -164,13 +168,15 @@ Stream1              INFO I/O reinitialization...
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG End initialize
 Stream1             DEBUG input handles: 0
-Stream1             DEBUG output handles: 1
+Stream1             DEBUG output handles: 2
 Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo)
 Stream1             DEBUG Adding private ToolHandle tool Stream1.ThinningCacheTool_Stream1 (Athena::ThinningCacheTool)
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+MagicTag' ) 
+  + OUTPUT  ( 'DataHeader' , 'StoreGateSvc+Stream1' ) 
+  + OUTPUT  ( 'SG::CompressionInfo' , 'StoreGateSvc+CompressionInfo_Stream1' ) 
   + OUTPUT  ( 'SG::SelectionVetoes' , 'StoreGateSvc+SelectionVetoes_Stream1' ) 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -273,17 +279,16 @@ WriteTag             INFO EventInfo event: 0  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 0  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 ClassIDSvc           INFO  getRegistryEntries: read 21 CLIDRegistry entries for module ALL
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 1
@@ -456,16 +461,15 @@ WriteTag             INFO EventInfo event: 1  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 1  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 2
@@ -532,16 +536,15 @@ WriteTag             INFO EventInfo event: 2  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 2  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 3
@@ -608,16 +611,15 @@ WriteTag             INFO EventInfo event: 3  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 3  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 4
@@ -684,16 +686,15 @@ WriteTag             INFO EventInfo event: 4  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 4  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 5
@@ -760,16 +761,15 @@ WriteTag             INFO EventInfo event: 5  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 5  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 6
@@ -836,16 +836,15 @@ WriteTag             INFO EventInfo event: 6  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 6  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 7
@@ -912,16 +911,15 @@ WriteTag             INFO EventInfo event: 7  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 7  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 8
@@ -988,16 +986,15 @@ WriteTag             INFO EventInfo event: 8  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 8  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 9
@@ -1064,16 +1061,15 @@ WriteTag             INFO EventInfo event: 9  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 9  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 10
@@ -1140,16 +1136,15 @@ WriteTag             INFO EventInfo event: 10  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 10  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
@@ -1216,16 +1211,15 @@ WriteTag             INFO EventInfo event: 11  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 11  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 12
@@ -1292,16 +1286,15 @@ WriteTag             INFO EventInfo event: 12  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 12  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 13
@@ -1368,16 +1361,15 @@ WriteTag             INFO EventInfo event: 13  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 13  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 14
@@ -1444,16 +1436,15 @@ WriteTag             INFO EventInfo event: 14  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 14  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 15
@@ -1520,16 +1511,15 @@ WriteTag             INFO EventInfo event: 15  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 15  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 16
@@ -1596,16 +1586,15 @@ WriteTag             INFO EventInfo event: 16  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 16  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 17
@@ -1672,16 +1661,15 @@ WriteTag             INFO EventInfo event: 17  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 17  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 18
@@ -1748,16 +1736,15 @@ WriteTag             INFO EventInfo event: 18  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 18  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 19
@@ -1824,16 +1811,15 @@ WriteTag             INFO EventInfo event: 19  run: 1
 WriteTag             INFO registered all data
 MagicWriteTag        INFO EventInfo event: 19  run: 1
 MagicWriteTag        INFO registered all data
-EventInfoTagBui...WARNING Did not find xAOD::EventInfo
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG addItemObjects(9103,"MyTracks") called
 Stream1             DEBUG            Key:MyTracks
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 9103,"MyTracks"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 20
@@ -1852,13 +1838,13 @@ MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 Stream1             DEBUG metadataItemList: [EventStreamInfo#Stream1, IOVMetaDataContainer#*]
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
 Stream1             DEBUG            Key:Stream1
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG  Added object 167728019,"Stream1"
 Stream1             DEBUG addItemObjects(1316383046,"*") called
 Stream1             DEBUG            Key:*
-Stream1             DEBUG      Comp Attr High: 0 with 7 mantissa bits.
-Stream1             DEBUG      Comp Attr Low: 0 with 15 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 7 mantissa bits.
+Stream1             DEBUG      Comp Attr 0 with 15 mantissa bits.
 Stream1             DEBUG connectOutput done for SimplePoolFile3.root
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -1900,7 +1886,6 @@ IncidentProcAlg2     INFO Finalize
 Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
 DecisionSvc          INFO Finalized successfully.
-AthenaPoolCnvSvc    DEBUG releasing all workers
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
@@ -1908,11 +1893,11 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 21
 cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 62
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.152(+-    1.22)/       0/      10 [ms] #= 66
 cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.317(+-    1.75)/       0/      10 [ms] #= 63
-cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.303(+-    1.71)/       0/      10 [ms] #= 66
-cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.139(+-    1.17)/       0/      10 [ms] #=144
-fRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=   0.484(+-    2.15)/       0/      10 [ms] #= 62
-ChronoStatSvc        INFO Time User   : Tot=  310 [ms]  #=  1
+cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.139(+-    1.66)/       0/      20 [ms] #=144
+fRep_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=   0.645(+-    3.04)/       0/      20 [ms] #= 62
+ChronoStatSvc        INFO Time User   : Tot=  430 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

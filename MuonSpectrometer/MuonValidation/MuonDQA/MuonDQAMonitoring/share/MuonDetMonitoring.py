@@ -14,16 +14,6 @@ topSequence = AlgSequence()
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec as recFlags
-
-##################################################################
-### To fix the bug --> https://savannah.cern.ch/bugs/?45447
-### This will make sure RegSelSvc is correctly configured
-from AthenaCommon.AppMgr import ServiceMgr
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-RegSelSvcMuonMon = RegSelSvcDefault()
-RegSelSvcMuonMon.enableMuon = True
-ServiceMgr += RegSelSvcMuonMon 
-##################################################################
  
 if not 'MuonDQADetFlags' in dir():
     printfunc ("MuonDQADetFlags.py: MuonDQADetFlags not yet imported - I import them now")

@@ -8,7 +8,7 @@
 
 const std::string AthAnalysisHelper::UNDEFINED = "__UNDEFINED__";
 
-ServiceHandle<IJobOptionsSvc> AthAnalysisHelper::joSvc = ServiceHandle<IJobOptionsSvc>("JobOptionsSvc","AthAnalysisHelper");
+ServiceHandle<Gaudi::Interfaces::IOptionsSvc> AthAnalysisHelper::joSvc = ServiceHandle<Gaudi::Interfaces::IOptionsSvc>("JobOptionsSvc","AthAnalysisHelper");
 
 //need a constructor, implemented here, so that the dictionary library is linked to 
 //the implementation library (see ldd libAthAnalysisBaseCompsDict.so ... needs a link)
@@ -49,32 +49,18 @@ bool AthAnalysisHelper::toolExists( const std::string& fullName ) {
 }
 
 void AthAnalysisHelper::dumpJobOptionProperties(const std::string& client) {
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+   ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
    if(joSvc.retrieve().isFailure()) return;
-   std::vector<std::string> clients = joSvc->getClients();
-   for(auto& cl : clients) {
-      if(cl.find(client)!=0) continue; //must start with client
-      auto props = joSvc->getProperties(cl);
-      if(!props) continue;
-      for(auto prop : *props) {
-         std::cout << cl << "." << prop->name() << " = " << prop->toString() << std::endl;
-      }
+   for(const auto& [name,value] : joSvc->items()) {
+     if(name.find(client)!=0) continue; //must start with client
+     std::cout << name << " = " << value << std::endl;
    }
-   joSvc.release().ignore();
 }
 
 std::string AthAnalysisHelper::getProperty(const std::string& client, const std::string& property) {
-   std::string out(UNDEFINED);
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
-   if(joSvc.retrieve().isFailure()) return out;
-   auto props = joSvc->getProperties(client);
-   if(!props) { joSvc.release().ignore(); return out; }
-   for(auto prop : *props) {
-     if(prop->name()!=property) continue;
-     out = prop->toString(); break;
-   }
-   joSvc.release().ignore();
-   return out;
+   ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AthAnalysisHelper");
+   if(joSvc.retrieve().isFailure()) return UNDEFINED;
+   return joSvc->get(client+"."+property, UNDEFINED);
 }
 
 void AthAnalysisHelper::printAuxElement(const SG::AuxElement& ae) {

@@ -79,6 +79,10 @@ class JetConstit(object):
         self.defineLabelAndContainerNames()
 
     @property
+    def prefix(self):
+        return self.__prefix
+
+    @property
     def modifiers(self):
         return self.__modifiers
     @modifiers.setter
@@ -221,7 +225,7 @@ class JetDefinition(object):
 
         self.ptmin = ptmin # The pt down to which FastJet is run
         self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept, may include calibration
-        if ptmin<1000. or ptminfilter<1000.:
+        if ptmin<1000.*MeV or ptminfilter<1000.*MeV:
             jetlog.warning("Very low filter threshold set: ptmin {0:.0f} MeV, ptminfilter {1:.0f} MeV. Are you sure?")
 
         self.ghostdefs = ghostdefs     # Objects to ghost-associate

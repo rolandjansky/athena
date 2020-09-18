@@ -33,6 +33,8 @@ class MonitorChainConfiguration(ChainConfigurationBase):
 
         if self.chainPartName == 'costmonitor':
             pass  # costmonitor is a streamer so has no steps
+        elif self.chainPartName == 'cscmon':
+            pass
         elif self.chainPartName == 'timeburner':
             chainSteps.append(self.getTimeBurnerStep())
         else:

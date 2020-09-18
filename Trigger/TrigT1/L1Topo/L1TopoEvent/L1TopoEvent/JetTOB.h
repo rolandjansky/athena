@@ -1,12 +1,7 @@
-/*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
-//  JetTOB.h
-//  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#ifndef __TopoCore__JetTOB__
-#define __TopoCore__JetTOB__
+#ifndef TopoCore_JetTOB
+#define TopoCore_JetTOB
 
 #include <iostream>
 
@@ -75,8 +70,6 @@ namespace TCS {
 
       static const Heap<TCS::JetTOB>& heap() { return fg_heap; }
 
-      static unsigned int instances() { return fg_instances; }
-
    private:
 
       static const unsigned int g_nBitsEt;
@@ -96,11 +89,9 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
-      static unsigned int fg_instances;
-
-      static Heap<TCS::JetTOB> fg_heap;
+      static thread_local Heap<TCS::JetTOB> fg_heap;
    };
    
-} // end of namespace TCS
+}
 
-#endif /* defined(__TopoCore__JetTOB__) */
+#endif

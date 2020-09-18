@@ -9,8 +9,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/EventContext.h"
+
+// Need to include this early; otherwise, we run into errors with
+// ReferenceWrapperAnyCompat in clang builds due the is_constructable
+// specialization defined there getting implicitly instantiated earlier.
+#include "Acts/Propagator/Propagator.hpp"
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
@@ -32,6 +37,7 @@
 namespace Acts {
 class Surface;
 class BoundaryCheck;
+class Logger;
 }
 
 
@@ -105,6 +111,7 @@ public:
 
 private:
   std::unique_ptr<ActsExtrapolationDetail::VariantPropagator> m_varProp;
+  std::unique_ptr<const Acts::Logger> m_logger{nullptr};
 
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 

@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/Service.h"
 #include "HitManagement/TimedHitPtr.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"

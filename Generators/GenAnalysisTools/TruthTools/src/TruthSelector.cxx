@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -56,7 +56,7 @@ TruthSelector::TruthSelector (const std::string& type, const std::string& name, 
 TruthSelector::~TruthSelector() {  }
 
 
-bool TruthSelector::selectParticle (const HepMC::GenParticle* particle, double minPt) {
+bool TruthSelector::selectParticle (HepMC::ConstGenParticlePtr particle, double minPt) {
     // skip null barcode
     int barCode = HepMC::barcode(particle);
     if (barCode == 0) return false;
@@ -72,7 +72,7 @@ bool TruthSelector::selectParticle (const HepMC::GenParticle* particle, double m
     if (pdgCode == 0) return false;
 
     // charged particle
-    const HepPDT::ParticleData*    particleData    = m_particleDataTable->particle(abs(pdgCode));
+    const HepPDT::ParticleData*    particleData    = m_particleDataTable->particle(std::abs(pdgCode));
     if (! particleData || particleData->charge() == 0.) return false;
 
     // momentum and eta cut-offs
@@ -115,16 +115,12 @@ const std::map<int,int>& TruthSelector::indetKineMap() {
     if (! mcCollection) return m_indetKineMap;
 
     const HepMC::GenEvent*    genEvent = *mcCollection->begin();
-    for (HepMC::GenEvent::particle_const_iterator particle = genEvent->particles_begin();
-     particle != genEvent->particles_end();
-     ++particle)
-    {
-    // select charged particle in allowed pt/eta range
-    if (! selectParticle(**particle,m_minPt)) continue;
+    for (auto particle: *genEvent)    {
+    if (! selectParticle(particle,m_minPt)) continue;
 
     // check start vertex in indet
-    if (! (**particle).production_vertex()) continue;
-    HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
+    if (! particle->production_vertex()) continue;
+    HepMC::FourVector     startVertex     = particle->production_vertex()->position();
     if (startVertex.perp()          > m_minREndPrimary
         || std::abs(startVertex.z())    > m_minZEndPrimary) continue;
 
@@ -132,9 +128,9 @@ const std::map<int,int>& TruthSelector::indetKineMap() {
     int kine = 0;
 
         // temporary for G4: kine == barcode
-        kine = HepMC::barcode(**particle);
+        kine = HepMC::barcode(particle);
 
-    m_indetKineMap[kine] = HepMC::barcode(**particle);
+    m_indetKineMap[kine] = HepMC::barcode(particle);
     }
     return m_indetKineMap;
 }
@@ -150,23 +146,20 @@ TruthSelector::indetMuons (double minPt)
     if (! mcCollection) return m_barcodes;
 
     const HepMC::GenEvent*    genEvent = *mcCollection->begin();
-    for (HepMC::GenEvent::particle_const_iterator particle = genEvent->particles_begin();
-     particle != genEvent->particles_end();
-     ++particle)
-    {
+    for (auto particle: *genEvent)    {
       // select charged particle in allowed pt/eta range
-      if (! selectParticle(**particle,minPt))        continue;
+      if (! selectParticle(particle,minPt))        continue;
 
       // select muon pdgCode
-      if (abs((**particle).pdg_id()) != 13)        continue;
+      if (std::abs(particle->pdg_id()) != 13)        continue;
 
       // check production vertex inside indet envelope
-      if (! (**particle).production_vertex())        continue;
-      HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
+      if (! particle->production_vertex())        continue;
+      HepMC::FourVector     startVertex     = particle->production_vertex()->position();
       if (startVertex.perp()        > m_maxRIndet
       || std::abs(startVertex.z())    > m_maxZIndet)    continue;
 
-    m_barcodes.push_back(HepMC::barcode(**particle));
+    m_barcodes.push_back(HepMC::barcode(particle));
     ATH_MSG_DEBUG(" select barcode #" << m_barcodes.size()
               << " at production vertex R,Z " << startVertex.perp()
               << ", " << startVertex.z() );
@@ -204,22 +197,19 @@ TruthSelector::reconstructablePrimaries (double minPt)
 
     ATH_MSG_DEBUG( "reconstructablePrimaries:" );
     const HepMC::GenEvent*    genEvent = *mcCollection->begin();
-    for (HepMC::GenEvent::particle_const_iterator particle = genEvent->particles_begin();
-     particle != genEvent->particles_end();
-     ++particle)
-    {
+    for (auto particle: *genEvent)    {
     // select charged particle in allowed pt/eta range
-    if (! selectParticle(**particle,minPt))            continue;
+    if (! selectParticle(particle,minPt))            continue;
 
     // reconstructable - depends on start/end vertex coords
-    if (! (**particle).production_vertex()) continue;
-    HepMC::FourVector     startVertex     = (**particle).production_vertex()->position();
+    if (! particle->production_vertex()) continue;
+    HepMC::FourVector     startVertex     = particle->production_vertex()->position();
     if (startVertex.perp()            > m_maxRStartPrimary
         || std::abs(startVertex.z())    > m_maxZStartPrimary)    continue;
 
-    if ((**particle).end_vertex() != 0)
+    if (particle->end_vertex())
     {
-        HepMC::FourVector     endVertex     = (**particle).end_vertex()->position();
+        HepMC::FourVector     endVertex     = particle->end_vertex()->position();
         if (endVertex.perp()               < m_minREndPrimary
         && std::abs(endVertex.z())    < m_minZEndPrimary)    continue;
     }
@@ -227,39 +217,39 @@ TruthSelector::reconstructablePrimaries (double minPt)
     // print stuff
     if (msgLvl(MSG::DEBUG))
     {
-        int    pdgCode        = (**particle).pdg_id();
-        double pt        = (**particle).momentum().perp();
+        int    pdgCode        = particle->pdg_id();
+        double pt        = particle->momentum().perp();
         int charge        = (*m_particleDataTable)[std::abs(pdgCode)]->charge();
         if (pdgCode < 0.) charge = -1;
         double mass        = (*m_particleDataTable)[std::abs(pdgCode)]->mass();
-        double cotTheta    = (**particle).momentum().z()/(**particle).momentum().perp();
+        double cotTheta    = particle->momentum().z()/particle->momentum().perp();
         double rEnd        = 0.;
         double zEnd        = 0.;
-        if ((**particle).end_vertex() != 0)
+        if (particle->end_vertex())
         {
-        rEnd    = (**particle).end_vertex()->position().perp();
-        zEnd    = (**particle).end_vertex()->position().z();
+        rEnd    = particle->end_vertex()->position().perp();
+        zEnd    = particle->end_vertex()->position().z();
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()
-               << "  barcode" << std::setw(7)    << HepMC::barcode(**particle)
+               << "  barcode" << std::setw(7)    << HepMC::barcode(particle)
                << "  start/end vertex R,Z"
                << std::setw(5) << std::setprecision(1)  << startVertex.perp() << ", "
                << std::setw(6) << std::setprecision(1)  << startVertex.z()    << " / "
                << std::setw(6) << std::setprecision(1)  << rEnd << ", "
                << std::setw(7) << std::setprecision(1)  << zEnd
                << "   pdg"    << std::setw(5) << pdgCode
-               << "   status" << std::setw(3) << (**particle).status()
+               << "   status" << std::setw(3) << particle->status()
                << "   pt" << std::setw(7) << std::setprecision(1) << pt/Gaudi::Units::GeV
                << "  cotTheta" << std::setw(8) << std::setprecision(4) << cotTheta
                << "  eta" << std::setw(6) << std::setprecision(2)
-               << (**particle).momentum().pseudoRapidity()
+               << particle->momentum().pseudoRapidity()
                << "  q" << std::setw(3) << charge
                << "  mass" << std::setw(7) << std::setprecision(4)
                << mass/Gaudi::Units::GeV );
     }
 
-    m_barcodes.push_back(HepMC::barcode(**particle));
+    m_barcodes.push_back(HepMC::barcode(particle));
     }
     return m_barcodes;
 }
@@ -276,24 +266,21 @@ TruthSelector::reconstructableSecondaries (double minPt)
 
     ATH_MSG_DEBUG( "reconstructableSecondaries:" );
     const HepMC::GenEvent*    genEvent = *mcCollection->begin();
-    for (HepMC::GenEvent::particle_const_iterator particle = genEvent->particles_begin();
-     particle != genEvent->particles_end();
-     ++particle)
-    {
+    for (auto particle: *genEvent)    {
     // select charged final-state particle in allowed pt/eta range
-    if (! selectParticle(**particle,minPt))                continue;
+    if (! selectParticle(particle,minPt))            continue;
 
     // reconstructable - depends on start/end vertex coords
-    if (! (**particle).production_vertex()) continue;
-    HepMC::FourVector    startVertex    = (**particle).production_vertex()->position();
+    if (! particle->production_vertex()) continue;
+    HepMC::FourVector    startVertex    = particle->production_vertex()->position();
     if ((startVertex.perp()            <= m_maxRStartPrimary
          && std::abs(startVertex.z())    <= m_maxZStartPrimary)
         || startVertex.perp()              >  m_maxRStartSecondary
         || std::abs(startVertex.z())    >  m_maxZStartSecondary)    continue;
 
-    if ((**particle).end_vertex() != 0)
+    if (particle->end_vertex() != 0)
     {
-        HepMC::FourVector      endVertex  = (**particle).end_vertex()->position();
+        HepMC::FourVector      endVertex  = particle->end_vertex()->position();
         if (endVertex.perp()               < m_minREndSecondary
         && std::abs(endVertex.z())    < m_minZEndSecondary)        continue;
     }
@@ -301,39 +288,39 @@ TruthSelector::reconstructableSecondaries (double minPt)
     // print stuff
     if (msgLvl(MSG::DEBUG))
     {
-        int    pdgCode        = (**particle).pdg_id();
-        double pt        = (**particle).momentum().perp();
+        int    pdgCode        = particle->pdg_id();
+        double pt        = particle->momentum().perp();
         int charge        = (*m_particleDataTable)[std::abs(pdgCode)]->charge();
         if (pdgCode < 0.) charge = -1;
         double mass        = (*m_particleDataTable)[std::abs(pdgCode)]->mass();
-        double cotTheta    = (**particle).momentum().z()/(**particle).momentum().perp();
+        double cotTheta    = particle->momentum().z()/particle->momentum().perp();
         double rEnd        = 0.;
         double zEnd        = 0.;
-        if ((**particle).end_vertex() != 0)
+        if (particle->end_vertex() )
         {
-        rEnd    = (**particle).end_vertex()->position().perp();
-        zEnd    = (**particle).end_vertex()->position().z();
+        rEnd    = particle->end_vertex()->position().perp();
+        zEnd    = particle->end_vertex()->position().z();
         }
         ATH_MSG_DEBUG( std::setiosflags(std::ios::fixed)
                << std::setw(6) << m_barcodes.size()
-               << "  barcode" << std::setw(7)    << HepMC::barcode(**particle)
+               << "  barcode" << std::setw(7)    << HepMC::barcode(particle)
                << "  start/end vertex R,Z"
                << std::setw(5) << std::setprecision(1)  << startVertex.perp() << ", "
                << std::setw(6) << std::setprecision(1)  << startVertex.z()    << " / "
                << std::setw(6) << std::setprecision(1)  << rEnd << ", "
                << std::setw(7) << std::setprecision(1)  << zEnd
                << "   pdg"    << std::setw(5) << pdgCode
-               << "   status" << std::setw(3) << (**particle).status()
+               << "   status" << std::setw(3) << particle->status()
                << "   pt" << std::setw(7) << std::setprecision(1) << pt/Gaudi::Units::GeV
                << "  cotTheta" << std::setw(8) << std::setprecision(4) << cotTheta
                << "  eta" << std::setw(6) << std::setprecision(2)
-               << (**particle).momentum().pseudoRapidity()
+               << particle->momentum().pseudoRapidity()
                << "  q" << std::setw(3) << charge
                << "  mass" << std::setw(7) << std::setprecision(4)
                << mass/Gaudi::Units::GeV );
     }
 
-    m_barcodes.push_back(HepMC::barcode(**particle));
+    m_barcodes.push_back(HepMC::barcode(particle));
     }
     return m_barcodes;
 }

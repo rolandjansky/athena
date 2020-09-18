@@ -129,7 +129,7 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
         std::find(pdgCodesBegin, pdgCodesEnd, std::abs(pdgIn))== pdgCodesEnd) {
       continue;
     }
-    HepMC::GenVertex* nextVtx = (*(curVtx->particles_out_const_begin()))->end_vertex();
+    auto nextVtx = (*(curVtx->particles_out_const_begin()))->end_vertex();
     if(!nextVtx) { continue; }
     ATH_MSG_DEBUG("Found a vertex to correct with incoming PDG code = " << pdgIn);
     ATH_MSG_VERBOSE("Next Vertex:");
@@ -143,7 +143,7 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
       curVtx->print();
     }
     if (applyPatch) {
-      HepMC::GenVertex* prevVtx = (*(curVtx->particles_in_const_begin()))->production_vertex();
+      auto prevVtx = (*(curVtx->particles_in_const_begin()))->production_vertex();
       ATH_MSG_VERBOSE("Previous Vertex:");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
         prevVtx->print();
@@ -158,7 +158,7 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
       }
     }
     if (removePatch) {
-      CLHEP::HepLorentzVector newPos = nextPos;
+      const CLHEP::HepLorentzVector& newPos = nextPos;
       curVtx->set_position(newPos);
       ATH_MSG_DEBUG("Revised current Vertex");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {

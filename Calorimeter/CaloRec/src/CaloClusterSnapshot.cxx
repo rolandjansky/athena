@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -70,7 +70,7 @@ CaloClusterSnapshot::execute(const EventContext& ctx,
     }
 
     //final cluster to snapshot:
-    typedef ElementLink<xAOD::CaloClusterContainer> ClusterLink_t;
+    using ClusterLink_t = ElementLink<xAOD::CaloClusterContainer>;
     ClusterLink_t outputEL (outputColl.name(), 0, ctx);
     for (size_t i=0;i<nClusters;++i) {
       (*clusColl)[i]->setSisterClusterLink(ClusterLink_t(outputEL, i));

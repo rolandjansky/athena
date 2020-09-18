@@ -23,15 +23,11 @@ def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **
   result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
   return result
 
-def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
   result = ComponentAccumulator()
-  if 'Extrapolator' not in kwargs:
-    tmpAcc =  InDetExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
-    result.merge(tmpAcc)
 
-  if ('SctSummaryTool' not in kwargs):
-    if flags.Detector.SCTOn:
+  if 'SctSummaryTool' not in kwargs:
+    if flags.Detector.RecoSCT:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)
       kwargs.setdefault("SctSummaryTool", tmpAcc.popPrivateTools())
       result.merge(tmpAcc)
@@ -43,11 +39,29 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("PixelLayerTool", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
+  kwargs.setdefault("UsePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("UseSCT", flags.Detector.RecoSCT)
+
+  indet_boundary_check_tool = CompFactory.InDet.InDetBoundaryCheckTool(name, **kwargs)
+  result.setPrivateTools(indet_boundary_check_tool)
+  return result
+
+
+def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
+  result = ComponentAccumulator()
+  if 'Extrapolator' not in kwargs:
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
+  if 'BoundaryCheckTool' not in kwargs:
+    tmpAcc = InDetBoundaryCheckToolCfg(flags)
+    kwargs.setdefault('BoundaryCheckTool', tmpAcc.popPrivateTools())
+    result.merge(tmpAcc)
+
   if flags.Beam.Type == "cosmics" :
     kwargs.setdefault("Cosmics", True)
 
-  kwargs.setdefault( "usePixel"                     , flags.Detector.PixelOn)
-  kwargs.setdefault( "useSCT"                       , flags.Detector.SCTOn)
   kwargs.setdefault( "CountDeadModulesAfterLastHit" , True)
 
   indet_hole_search_tool = CompFactory.InDet.InDetTrackHoleSearchTool(name, **kwargs)
@@ -138,7 +152,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
       print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
       SCTConfigurationFolderPath=''
 
-  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+"Chip",
+  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip"),
                "ModuleFolder"  : SCTConfigurationFolderPath+"Module",
                "MurFolder"     : SCTConfigurationFolderPath+"MUR"}
   cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags,name, cond_kwargs=cond_kwargs)
@@ -229,7 +243,7 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   return result
 
 def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs={}, **kwargs):
-  cond_kwargs.setdefault("ChannelFolder","/SCT/DAQ/Config/Chip")
+  cond_kwargs.setdefault("ChannelFolder", "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip")
   cond_kwargs.setdefault("ModuleFolder","/SCT/DAQ/Config/Module")
   cond_kwargs.setdefault("MurFolder","/SCT/DAQ/Config/MUR")
   cond_kwargs.setdefault("dbInstance","SCT")
@@ -285,14 +299,15 @@ def getSCTDAQConfigFolder(flags) :
 def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
   result = ComponentAccumulator()
   config_folder_prefix = getSCTDAQConfigFolder(flags)
-  kwargs.setdefault("ReadKeyChannel", config_folder_prefix+"Chip")
+  channelFolder = config_folder_prefix+("ChipSlim" if flags.Input.isMC else "Chip")
+  kwargs.setdefault("ReadKeyChannel", channelFolder)
   kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
   kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
 
   result.merge(addFoldersSplitOnline(flags,
                                            detDb="SCT",
-                                           online_folders=config_folder_prefix+"Chip",
-                                           offline_folders=config_folder_prefix+"Chip",
+                                           online_folders=channelFolder,
+                                           offline_folders=channelFolder,
                                            className='CondAttrListVec',
                                            splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
@@ -408,7 +423,7 @@ def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
   
   acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTool() )
+  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTools() )
   result.merge(acc)
 
   result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )

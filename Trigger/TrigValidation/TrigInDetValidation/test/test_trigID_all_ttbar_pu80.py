@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu80_grid
+# art-description: art job for all_ttbar_pu80
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
 # art-athena-mt: 4
+# art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -58,7 +60,7 @@ rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar_pu80'   
+rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -76,39 +78,49 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
+comp.test='ttbar'
 test.check_steps.append(comp)
  
  
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
+comp2.test='ttbar'
 test.check_steps.append(comp2)
 
-comp3=TrigInDetCompStep('CompareStep3')
-comp3.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
-comp3.output_dir = 'HLTEF-plots-bjet'
+
+comp3=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
+comp3.test='ttbar'
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('CompareStep4')
-comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
-comp4.output_dir = 'HLTEF-plots-electron'
+comp4=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
+comp4.test='ttbar'
 test.check_steps.append(comp4)
 
-comp5=TrigInDetCompStep('CompareStep5')
-comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
-comp5.output_dir = 'HLTEF-plots-tau'
+comp5=TrigInDetCompStep('Comp_L2tau','L2','tau')
+comp5.test='ttbar'
 test.check_steps.append(comp5)
 
+comp6=TrigInDetCompStep('Comp_EFtau','EF','tau')
+comp6.test='ttbar'
+test.check_steps.append(comp6)
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+comp7=TrigInDetCompStep('Comp_L2ele','L2','electron')
+comp7.test='ttbar'
+test.check_steps.append(comp7)
+
+comp8=TrigInDetCompStep('Comp_EFele','EF','electron')
+comp8.test='ttbar'
+test.check_steps.append(comp8)
+
+comp9=TrigInDetCompStep('Comp_L2FS','L2','FS')
+comp9.test='ttbar'
+test.check_steps.append(comp9)
+
+# CPU cost steps
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 

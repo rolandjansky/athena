@@ -15,18 +15,14 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include <vector>
 
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+
 /** Primary Vertex Finder.  InDetTrigPriVxFinder uses the
   InDetPrimaryVertexFinderTool in the package
   InnerDetector/InDetRecTools/InDetPriVxFinderTool. It only gives the
   trackcollection from storegate to it and records the returned
   VxContainer.
  */
-
-/* Forward declarations */
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 class IBeamCondSvc;
 
@@ -53,7 +49,7 @@ namespace InDet
     bool                 m_runWithoutField;
     
     ToolHandle< IVertexFinder > m_VertexFinderTool;
-    ServiceHandle< MagField::IMagFieldSvc> m_fieldSvc;
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
 
     bool                 m_retrieve_tracks_from_SG;

@@ -43,17 +43,17 @@ public:
     // Methods to compute the output (vector) based on the variable name
 
     // Computes high-level ID variables
-    bool compute(const std::string &name, const xAOD::TauJet &tau, double &out);
+    bool compute(const std::string &name, const xAOD::TauJet &tau, double &out) const;
 
     // Computes track variables
     bool compute(const std::string &name, const xAOD::TauJet &tau,
                  const std::vector<const xAOD::TauTrack *> &tracks,
-                 std::vector<double> &out);
+                 std::vector<double> &out) const;
 
     // Computes cluster variables
     bool compute(const std::string &name, const xAOD::TauJet &tau,
                  const std::vector<const xAOD::CaloCluster *> &clusters,
-                 std::vector<double> &out);
+                 std::vector<double> &out) const;
 
     // Methods to insert calculator functions into the lookup table
     void insert(const std::string &name, ScalarCalc func);

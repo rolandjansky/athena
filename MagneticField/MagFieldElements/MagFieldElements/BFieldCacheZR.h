@@ -22,40 +22,16 @@ class BFieldCacheZR
 {
 public:
   // default constructor sets unphysical boundaries, so that inside() will fail
-  BFieldCacheZR()
-    : m_zmin(0.0)
-    , m_zmax(-1.0)
-    , m_rmin(0.0)
-    , m_rmax(-1.0)
-  {}
+  BFieldCacheZR();
   // invalidate this cache, so that inside() will fail
-  void invalidate()
-  {
-    m_rmin = 0.0;
-    m_rmax = -1.0;
-  }
+  void invalidate();
   // set the z, r range that defines the bin
-  void setRange(double zmin, double zmax, double rmin, double rmax)
-  {
-    m_zmin = zmin;
-    m_zmax = zmax;
-    m_rmin = rmin;
-    m_rmax = rmax;
-    m_invz = 1.0 / (zmax - zmin);
-    m_invr = 1.0 / (rmax - rmin);
-  }
+  void setRange(double zmin, double zmax, double rmin, double rmax);
   // set the field values at each corner (rescale for current scale factor)
-  void setField(int i, const BFieldVectorZR& field, double scaleFactor = 1.0)
-  {
-    m_field[0][i] = scaleFactor * field[0];
-    m_field[1][i] = scaleFactor * field[1];
-  }
+  void setField(int i, const BFieldVectorZR& field, double scaleFactor = 1.0);
   // set the multiplicative factor for the field vectors
   // test if (z, r) is inside this bin
-  bool inside(double z, double r) const
-  {
-    return (z >= m_zmin && z <= m_zmax && r >= m_rmin && r <= m_rmax);
-  }
+  bool inside(double z, double r) const;
   // interpolate the field and return B[3].
   // also compute field derivatives if deriv[9] is given.
   void getB(const double*  ATH_RESTRICT xyz,

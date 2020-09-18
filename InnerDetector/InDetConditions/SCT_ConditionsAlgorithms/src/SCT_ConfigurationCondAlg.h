@@ -50,6 +50,7 @@ class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm
 
   static const std::string s_coolChannelFolderName;
   static const std::string s_coolChannelFolderName2;
+  static const std::string s_coolChannelFolderName2Slim;
   static const std::string s_coolModuleFolderName;
   static const std::string s_coolModuleFolderName2;
   static const std::string s_coolMurFolderName;

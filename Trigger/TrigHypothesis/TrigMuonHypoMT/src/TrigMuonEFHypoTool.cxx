@@ -77,17 +77,6 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
-  if(m_threeStationCut){
-    uint8_t nGoodPrcLayers=0;
-    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
-      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
-      return false;
-    }
-    if(std::abs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
-      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
-      return false;
-    }
-  }
 
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(m_type);
@@ -106,12 +95,26 @@ bool TrigMuonEFHypoTool::decideOnSingleObject(TrigMuonEFHypoTool::MuonEFInfo& in
         if (absEta > m_ptBins[cutIndex][k] && absEta <= m_ptBins[cutIndex][k+1]) threshold = m_ptThresholds[cutIndex][k];
       }
       if (std::abs(tr->pt())/Gaudi::Units::GeV > (threshold/Gaudi::Units::GeV)){
-        selPt.push_back(tr->pt()/Gaudi::Units::GeV);
-        selEta.push_back(tr->eta());
-        selPhi.push_back(tr->phi());
         result = true;
         // If trigger path name includes "muonqual", check whether the muon passes those criteria   
         if(m_muonqualityCut == true) result = passedQualityCuts(muon);
+	//cut on Nprecision layers (for 3layerEC msonly triggers)
+	if(m_threeStationCut){
+	  uint8_t nGoodPrcLayers=0;
+	  if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+	    ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+	    result=false;
+	  }
+	  if(std::abs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+	    ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+	    result=false;
+	  }
+	}
+      }
+      if(result == true){
+        selPt.push_back(tr->pt()/Gaudi::Units::GeV);
+        selEta.push_back(tr->eta());
+        selPhi.push_back(tr->phi());
       }
       ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/Gaudi::Units::GeV << " GeV "
       	      << " with Charge " << tr->charge()

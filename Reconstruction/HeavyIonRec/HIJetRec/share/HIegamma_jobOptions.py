@@ -9,7 +9,7 @@ import PerfMonComps.DomainsRegistry as pdr
 
 pdr.flag_domain('calo')
 from CaloRec.CaloRecFlags import jobproperties
-from AthenaCommon.Resilience import treatException        
+from AthenaCommon.Resilience import treatException
 from RecExConfig.RecFlags  import rec
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.DetFlags import DetFlags
@@ -26,25 +26,24 @@ jobproperties.egammaRecFlags.Enabled=True
 jobproperties.egammaRecFlags.cellContainerName='SubtractedCells'
 jobproperties.egammaRecFlags.doEgammaCaloSeeded=True
 jobproperties.egammaRecFlags.doEgammaForwardSeeded=False
-jobproperties.egammaRecFlags.doTopoCaloSeeded=False
 
-if DetFlags.haveRIO.Calo_on() :    
+if DetFlags.haveRIO.Calo_on() :
     #combined clusters
-    if jobproperties.CaloRecFlags.doCaloCluster() : 
+    if jobproperties.CaloRecFlags.doCaloCluster() :
         try:
             from CaloRec.CaloClusterSWCmbGetter import CaloClusterSWCmbGetter
             CaloClusterSWCmbGetter()
-        except Exception:    
+        except Exception:
             treatException("Problem with CaloSWCmbCluster. Switched off.")
-            jobproperties.CaloRecFlags.doCaloCluster=False        
+            jobproperties.CaloRecFlags.doCaloCluster=False
     #EM clusters
     if jobproperties.CaloRecFlags.doEmCluster() :
         try: include( "LArClusterRec/LArCluster_jobOptions.py" )
-        except Exception:        
+        except Exception:
             treatException("Problem with LArCluster. Switched off.")
-            jobproperties.CaloRecFlags.doEmCluster=False    
+            jobproperties.CaloRecFlags.doEmCluster=False
         # write digits of EM clusters
-        if jobproperties.CaloRecFlags.doEMDigits() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream': 
+        if jobproperties.CaloRecFlags.doEMDigits() and globalflags.DataSource()=='data' and globalflags.InputFormat() == 'bytestream':
             try: include ("LArClusterRec/LArDigits_fromEMCluster_jobptions.py")
             except Exception:
                 treatException("Problem with LArDigitsFromEMClust. Switched off.")
@@ -59,7 +58,7 @@ if DetFlags.haveRIO.Calo_on() :
 
     #EM Topoclusters
     if jobproperties.CaloRecFlags.doCaloEMTopoCluster() :
-        try: include( "CaloRec/EMTopoCluster_jobOptions.py" )    
+        try: include( "CaloRec/EMTopoCluster_jobOptions.py" )
         except Exception:
             treatException("Problem with EMTopoCluster. Switched off")
             jobproperties.CaloRecFlags.doCaloTopoCluster=False

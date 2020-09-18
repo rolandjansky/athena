@@ -10,6 +10,9 @@ import re
 
 def mergeChainDefs(listOfChainDefs, chainDict):
 
+    #chainDefList is a list of Chain() objects
+    #one for each part in the chain
+
     strategy = chainDict["mergingStrategy"]
     offset = chainDict["mergingOffset"]
     log.info("%s: Combine by using %s merging", chainDict['chainName'], strategy)
@@ -33,18 +36,23 @@ def mergeParallel(chainDefList, offset):
     nSteps = []
     chainName = ''
     l1Thresholds = []
-
+    alignmentGroups = []
 
     for cConfig in chainDefList:
         if chainName == '':
             chainName = cConfig.name
         elif chainName != cConfig.name:
             log.error("Something is wrong with the combined chain name: cConfig.name = %s while chainName = %s", cConfig.name, chainName)
-            
+        
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
-
+        if len(cConfig.alignmentGroups) > 1:
+            log.error("Merging an already merged chain? This is odd! %s",cConfig.alignmentGroups)
+        elif len(cConfig.alignmentGroups) == 1:
+            alignmentGroups.append(cConfig.alignmentGroups[0])
+        else: 
+            log.info("Alignment groups are empty for this combined chain - if this is not _newJO, this is not ok!")
     import itertools
     if 'zip_longest' in dir(itertools):
         from itertools import zip_longest
@@ -61,7 +69,8 @@ def mergeParallel(chainDefList, offset):
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)
         combChainSteps.append(combStep)
                                   
-    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
+    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds, 
+                                nSteps = nSteps, alignmentGroups = alignmentGroups)
 
     log.debug("Parallel merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
@@ -113,7 +122,7 @@ def mergeSerial(chainDefList):
     nSteps = []
     chainName = ''
     l1Thresholds = []
-
+    alignmentGroups = []
     log.debug('Merge chainDefList:')
     log.debug(chainDefList)
 
@@ -126,6 +135,9 @@ def mergeSerial(chainDefList):
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
         l1Thresholds.extend(cConfig.vseeds)
+        if len(cConfig.alignmentGroups) > 1:
+            log.error("Merging an already merged chain? This is odd! %s",cConfig.alignmentGroups)
+        alignmentGroups.append(cConfig.alignmentGroups[0])
 
     serialSteps = serial_zip(allSteps, chainName)
     mySerialSteps = deepcopy(serialSteps)
@@ -142,7 +154,8 @@ def mergeSerial(chainDefList):
     else:
         log.info("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
                                   
-    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
+    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds,
+                               nSteps = nSteps, alignmentGroups = alignmentGroups)
 
     log.debug("Serial merged chain %s with these steps:", chainName)
     for step in combinedChainDef.steps:
@@ -171,7 +184,6 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
             log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
-
 
             stepSeq.append(emptySeq)
             stepMult.append(1)

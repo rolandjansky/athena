@@ -5,48 +5,10 @@
 # Declare the package name:
 atlas_subdir( LArCafJobs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloInterface
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArRawEvent
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArCabling
-                          LArCalorimeter/LArCabling
-			   LArCalorimeter/LArBadChannelTool
-                          PhysicsAnalysis/AnalysisCommon/AnalysisTools
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          Reconstruction/egamma/egammaEvent
-                          Tools/PyJobTransformsCore
-                          Trigger/TrigAnalysis/TrigAnalysisInterfaces
-                          Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigConfiguration/TrigConfInterfaces
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DataQuality/DataQualityUtils
-                          Event/xAOD/xAODEventInfo
-                          Event/NavFourMom
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArRecEvent
-                          Trigger/TrigConfiguration/TrigConfHLTData
-                          Trigger/TrigT1/TrigT1Result 
-                          Generators/AtlasHepMC )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Matrix Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
 
 # Component(s) in the package:
 atlas_add_library( LArCafJobsLib
@@ -72,8 +34,8 @@ atlas_add_library( LArCafJobsLib
                    src/LArReadCells.cxx
                    PUBLIC_HEADERS LArCafJobs
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
-                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArToolsLib TrigDecisionToolLib CaloDetDescrLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result AtlasHepMCLib )
+                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArToolsLib TrigDecisionToolLib CaloDetDescrLib AthAnalysisToolsLib TrigAnalysisInterfaces CaloInterfaceLib 
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataQualityUtils Identifier xAODEventInfo LArRecConditions TrigConfHLTData TrigT1Result AtlasHepMCLib LArRecEvent )
 
 atlas_add_component( LArCafJobs
                      src/components/*.cxx

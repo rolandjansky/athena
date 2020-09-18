@@ -16,10 +16,4 @@ namespace Trk {
   {
     
   }
-  
-  Residual::~Residual()
-  {
-    
-  }
-  
 }

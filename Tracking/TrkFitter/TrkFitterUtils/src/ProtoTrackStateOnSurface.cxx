@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -22,15 +22,15 @@
 
 Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   :
-  m_measurement(0),
+  m_measurement(nullptr),
   m_iOwnMeasurement(false),
   m_tsType(Trk::TrackState::Fittable),
   m_iterationShowingOutlier(0),
-  m_forwardState(0),
-  m_smoothedState(0),
-  m_fitQuality(0),
-  m_dnaMaterialEffects(0),
-  m_protoMaterialEffects(0),
+  m_forwardState(nullptr),
+  m_smoothedState(nullptr),
+  m_fitQuality(nullptr),
+  m_dnaMaterialEffects(nullptr),
+  m_protoMaterialEffects(nullptr),
   m_stateID(0),
   m_identifier(),
   m_mType(Trk::TrackState::unidentified),
@@ -38,13 +38,13 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_forwardStateChi2(0.0),
   m_forwardStateNdof(0.0),
   m_backwardStateChi2(0.0),
-  m_transportJacobian ( 0 ),
+  m_transportJacobian ( nullptr ),
   m_iOwnJacobian ( true ),
-  m_referenceParameters ( 0 ),
+  m_referenceParameters ( nullptr ),
   m_iOwnRefPars( false ),
-  m_parametersDifference ( 0 ),
+  m_parametersDifference ( nullptr ),
   m_iOwnParametersDifference ( true ),
-  m_parametersCovariance(0),
+  m_parametersCovariance(nullptr),
   m_iOwnParametersCovariance(true),
   m_measurementDifferenceVector(nullptr)
 {
@@ -55,16 +55,16 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
 (const Trk::ProtoTrackStateOnSurface& rhs
  ):
   m_measurement(rhs.m_iOwnMeasurement
-                ? (rhs.m_measurement ? rhs.m_measurement->clone() : 0)
+                ? (rhs.m_measurement ? rhs.m_measurement->clone() : nullptr)
                 : rhs.m_measurement),
   m_iOwnMeasurement(rhs.m_iOwnMeasurement),
   m_tsType(rhs.m_tsType),
   m_iterationShowingOutlier(rhs.m_iterationShowingOutlier),
-  m_forwardState(rhs.m_forwardState ? rhs.m_forwardState->clone() : 0),
-  m_smoothedState(rhs.m_smoothedState ? rhs.m_smoothedState->clone() : 0),
-  m_fitQuality(rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : 0 ),
-  m_dnaMaterialEffects(rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : 0 ),
-  m_protoMaterialEffects(rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : 0 ),
+  m_forwardState(rhs.m_forwardState ? rhs.m_forwardState->clone() : nullptr),
+  m_smoothedState(rhs.m_smoothedState ? rhs.m_smoothedState->clone() : nullptr),
+  m_fitQuality(rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : nullptr ),
+  m_dnaMaterialEffects(rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : nullptr ),
+  m_protoMaterialEffects(rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : nullptr ),
   m_stateID(rhs.m_stateID),
   m_identifier(rhs.m_identifier),
   m_mType(rhs.m_mType),
@@ -72,15 +72,15 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_forwardStateChi2(rhs.m_forwardStateChi2),
   m_forwardStateNdof(rhs.m_forwardStateNdof),
   m_backwardStateChi2(rhs.m_backwardStateChi2),
-  m_transportJacobian ( rhs.m_iOwnJacobian ? ( ( rhs.m_transportJacobian?  new Trk::TransportJacobian ( *rhs.m_transportJacobian ) :0 ) ) : rhs.m_transportJacobian ),
+  m_transportJacobian ( rhs.m_iOwnJacobian ? ( ( rhs.m_transportJacobian?  new Trk::TransportJacobian ( *rhs.m_transportJacobian ) :nullptr ) ) : rhs.m_transportJacobian ),
   m_iOwnJacobian ( rhs.m_iOwnJacobian ),
-  m_referenceParameters ( rhs.m_referenceParameters ? rhs.m_referenceParameters->clone() : 0 ),
+  m_referenceParameters ( rhs.m_referenceParameters ? rhs.m_referenceParameters->clone() : nullptr ),
   m_iOwnRefPars ( rhs.m_iOwnRefPars ),
   m_parametersDifference ( rhs.m_iOwnParametersDifference?
-    ( rhs.m_parametersDifference? new AmgVector(5) ( *rhs.m_parametersDifference ) : 0 ) : rhs.m_parametersDifference),
+    ( rhs.m_parametersDifference? new AmgVector(5) ( *rhs.m_parametersDifference ) : nullptr ) : rhs.m_parametersDifference),
   m_iOwnParametersDifference ( rhs.m_iOwnParametersDifference ),
   m_parametersCovariance ( rhs.m_iOwnParametersCovariance?
-    ( rhs.m_parametersCovariance? new AmgSymMatrix(5) ( *rhs.m_parametersCovariance ) : 0 ) : rhs.m_parametersCovariance),
+    ( rhs.m_parametersCovariance? new AmgSymMatrix(5) ( *rhs.m_parametersCovariance ) : nullptr ) : rhs.m_parametersCovariance),
   m_iOwnParametersCovariance ( rhs.m_iOwnParametersCovariance ),
   m_measurementDifferenceVector(nullptr)
 {
@@ -100,11 +100,11 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_tsType(is_outlier ? Trk::TrackState::ExternalOutlier : 
            Trk::TrackState::Fittable),
   m_iterationShowingOutlier(0),
-  m_forwardState(0),
-  m_smoothedState(0),
-  m_fitQuality(0),
-  m_dnaMaterialEffects(0),
-  m_protoMaterialEffects(0),
+  m_forwardState(nullptr),
+  m_smoothedState(nullptr),
+  m_fitQuality(nullptr),
+  m_dnaMaterialEffects(nullptr),
+  m_protoMaterialEffects(nullptr),
   m_stateID(positionOnTrajectory),
   m_identifier(),
   m_mType(Trk::TrackState::unidentified),
@@ -116,9 +116,9 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_iOwnJacobian ( true ),
   m_referenceParameters ( inReferenceParameters ),
   m_iOwnRefPars ( true ),
-  m_parametersDifference (0),
+  m_parametersDifference (nullptr),
   m_iOwnParametersDifference(true),
-  m_parametersCovariance(0),
+  m_parametersCovariance(nullptr),
   m_iOwnParametersCovariance(true),
   m_measurementDifferenceVector(nullptr)
 {
@@ -135,15 +135,15 @@ Trk::ProtoTrackStateOnSurface::~ProtoTrackStateOnSurface()
   delete m_protoMaterialEffects;
   if ( m_iOwnJacobian ) {
     delete m_transportJacobian;
-    m_transportJacobian =0;
+    m_transportJacobian =nullptr;
   }
   if ( m_iOwnRefPars ) {
     delete m_referenceParameters;
-    m_referenceParameters =0;
+    m_referenceParameters =nullptr;
   }
   if ( m_iOwnParametersDifference ) {
     delete m_parametersDifference;
-    m_parametersDifference =0;
+    m_parametersDifference =nullptr;
   }
   
   if (m_iOwnParametersCovariance) {
@@ -163,16 +163,16 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
     if ( m_iOwnParametersDifference ) delete m_parametersDifference;
     if ( m_iOwnParametersCovariance ) delete m_parametersCovariance;
     m_measurement = rhs.m_iOwnMeasurement
-      ? (rhs.m_measurement ? rhs.m_measurement->clone() : 0)
+      ? (rhs.m_measurement ? rhs.m_measurement->clone() : nullptr)
       : rhs.m_measurement;
     m_iOwnMeasurement = rhs.m_iOwnMeasurement;
     m_tsType = rhs.m_tsType;
     m_iterationShowingOutlier = rhs.m_iterationShowingOutlier;
-    m_forwardState = rhs.m_forwardState ? rhs.m_forwardState->clone() : 0;
-    m_smoothedState = rhs.m_smoothedState ? rhs.m_smoothedState->clone() : 0;
-    m_fitQuality = rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : 0 ;
-    m_dnaMaterialEffects = rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : 0 ;
-    m_protoMaterialEffects = rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : 0 ;
+    m_forwardState = rhs.m_forwardState ? rhs.m_forwardState->clone() : nullptr;
+    m_smoothedState = rhs.m_smoothedState ? rhs.m_smoothedState->clone() : nullptr;
+    m_fitQuality = rhs.m_fitQuality ? new Trk::FitQualityOnSurface(*rhs.m_fitQuality) : nullptr ;
+    m_dnaMaterialEffects = rhs.m_dnaMaterialEffects ? new Trk::DNA_MaterialEffects(*rhs.m_dnaMaterialEffects) : nullptr ;
+    m_protoMaterialEffects = rhs.m_protoMaterialEffects ? new Trk::ProtoMaterialEffects(*rhs.m_protoMaterialEffects) : nullptr ;
     m_stateID          = rhs.m_stateID;
     m_identifier       = rhs.m_identifier;
     m_mType            = rhs.m_mType;
@@ -182,22 +182,22 @@ Trk::ProtoTrackStateOnSurface& Trk::ProtoTrackStateOnSurface::operator=(const Tr
     m_backwardStateChi2= rhs.m_backwardStateChi2;
     m_transportJacobian= rhs.m_iOwnJacobian
                          ? ( rhs.m_transportJacobian 
-                             ? new Trk::TransportJacobian ( *rhs.m_transportJacobian ) : 0 )
+                             ? new Trk::TransportJacobian ( *rhs.m_transportJacobian ) : nullptr )
                          : rhs.m_transportJacobian ;
     m_iOwnJacobian  = rhs.m_iOwnJacobian;
     m_referenceParameters= rhs.m_iOwnRefPars
                          ? ( rhs.m_referenceParameters
-                              ? rhs.m_referenceParameters->clone() : 0 )
+                              ? rhs.m_referenceParameters->clone() : nullptr )
                          : rhs.m_referenceParameters ;
     m_iOwnRefPars   = rhs.m_iOwnRefPars;
     m_parametersDifference= rhs.m_iOwnParametersDifference
                             ? ( rhs.m_parametersDifference
-                                ? new AmgVector(5)(*rhs.m_parametersDifference) : 0 )
+                                ? new AmgVector(5)(*rhs.m_parametersDifference) : nullptr )
                             : rhs.m_parametersDifference;
     m_iOwnParametersDifference= rhs.m_iOwnParametersDifference;
     m_parametersCovariance= rhs.m_iOwnParametersCovariance
                             ? ( rhs.m_parametersCovariance
-                                ? new AmgSymMatrix(5)(*rhs.m_parametersCovariance) : 0 )
+                                ? new AmgSymMatrix(5)(*rhs.m_parametersCovariance) : nullptr )
                             : rhs.m_parametersCovariance;
     m_iOwnParametersCovariance= rhs.m_iOwnParametersCovariance;
     m_measurementDifferenceVector.store(nullptr);
@@ -251,7 +251,7 @@ void Trk::ProtoTrackStateOnSurface::checkinMeasurement(const Trk::MeasurementBas
 void Trk::ProtoTrackStateOnSurface::replaceMeasurement(const Trk::MeasurementBase* meas,
                                                        Trk::TrackState::CalibrationType ct) 
 {
-  if (meas!=NULL && meas != m_measurement) { // chk that there *is* something to replace 
+  if (meas!=nullptr && meas != m_measurement) { // chk that there *is* something to replace 
     if (m_iOwnMeasurement) delete m_measurement;
     m_measurement = meas;
     m_iOwnMeasurement = true;
@@ -265,7 +265,7 @@ const Trk::MeasurementBase* Trk::ProtoTrackStateOnSurface::checkoutMeasurement()
 {
   if (!m_measurement) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutMeasurement!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::MeasurementBase* helper = m_measurement;
   m_measurement = nullptr;
@@ -293,10 +293,10 @@ const Trk::TransportJacobian* Trk::ProtoTrackStateOnSurface::checkoutTransportJa
 {
   if ( !m_transportJacobian ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutTransportJacobian!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::TransportJacobian* helper =  m_transportJacobian;
-  m_transportJacobian = 0;
+  m_transportJacobian = nullptr;
   if ( !m_iOwnJacobian ) return new Trk::TransportJacobian ( *m_transportJacobian );
   else {
     // not needed : m_iOwnJacobian=false;
@@ -320,11 +320,11 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutReferencePara
 {
   if ( !m_referenceParameters ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutReferenceParameters!" << std::endl;
-    return 0;
+    return nullptr;
   }
   m_measurementDifferenceVector.store(nullptr);
   const Trk::TrackParameters* helper = m_referenceParameters;
-  m_referenceParameters = 0;
+  m_referenceParameters = nullptr;
   if ( !m_iOwnRefPars ) return helper->clone();
   else {
     // m_iOwnRefPars=false;
@@ -348,10 +348,10 @@ const AmgVector(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersDifference(
 {
   if ( !m_parametersDifference ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutParametersDifference!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const AmgVector(5)* helper = m_parametersDifference;
-  m_parametersDifference = 0;
+  m_parametersDifference = nullptr;
   if ( !m_iOwnParametersDifference ) {
     return new AmgVector(5) ( *helper );
   } else {
@@ -375,11 +375,11 @@ const AmgSymMatrix(5)* Trk::ProtoTrackStateOnSurface::checkoutParametersCovarian
 {
   if ( !m_parametersCovariance ) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutParametersCovariance!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const AmgSymMatrix(5)* helper = m_parametersCovariance;
   // m_iOwnParametersCovariance=false; // in principle not needed as the pointer is anyhow set to NULL
-  m_parametersCovariance = 0;
+  m_parametersCovariance = nullptr;
   if ( !m_iOwnParametersCovariance ) {
     return new AmgSymMatrix(5) ( *helper );
   } else {
@@ -402,10 +402,10 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutForwardPar()
 {
   if (!m_forwardState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutForwardPar!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::TrackParameters* helper = m_forwardState;
-  m_forwardState = 0;
+  m_forwardState = nullptr;
   return helper;
 }
 
@@ -422,10 +422,10 @@ const Trk::TrackParameters* Trk::ProtoTrackStateOnSurface::checkoutSmoothedPar()
 {
   if (!m_smoothedState) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutSmoothedPar!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::TrackParameters* helper = m_smoothedState;
-  m_smoothedState = 0;
+  m_smoothedState = nullptr;
   return helper;
 }
 
@@ -442,10 +442,10 @@ const Trk::FitQualityOnSurface* Trk::ProtoTrackStateOnSurface::checkoutFitQualit
 {
   if (!m_fitQuality) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutFitQuality!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::FitQualityOnSurface* helper = m_fitQuality;
-  m_fitQuality = 0;
+  m_fitQuality = nullptr;
   return helper;
 }
 
@@ -478,10 +478,10 @@ const Trk::DNA_MaterialEffects* Trk::ProtoTrackStateOnSurface::checkoutDNA_Mater
 {
   if (!m_dnaMaterialEffects) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutDNA_MaterialEffects!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::DNA_MaterialEffects* helper = m_dnaMaterialEffects;
-  m_dnaMaterialEffects = 0;
+  m_dnaMaterialEffects = nullptr;
   return helper;
 }
 
@@ -499,10 +499,10 @@ const Trk::ProtoMaterialEffects* Trk::ProtoTrackStateOnSurface::checkoutMaterial
 {
   if (!m_protoMaterialEffects) {
     std::cout << "ProtoTrackStateOnSurface >>> WARNING possibly bad use of ::checkoutDNA_MaterialEffects!" << std::endl;
-    return 0;
+    return nullptr;
   }
   const Trk::ProtoMaterialEffects* helper = m_protoMaterialEffects;
-  m_protoMaterialEffects = 0;
+  m_protoMaterialEffects = nullptr;
   return helper;
 }
 
@@ -518,8 +518,8 @@ bool Trk::ProtoTrackStateOnSurface::isCluster() const
                || type == Trk::TrackState::CSC );
   } else {
     const Trk::Surface* sf = &(this->measurement()->associatedSurface());
-    return ( (sf->associatedDetectorElement() != NULL) 
-             && (NULL != dynamic_cast<const Trk::PlaneSurface*>(sf)));
+    return ( (sf->associatedDetectorElement() != nullptr) 
+             && (nullptr != dynamic_cast<const Trk::PlaneSurface*>(sf)));
   }
 }
 
@@ -532,8 +532,8 @@ bool Trk::ProtoTrackStateOnSurface::isDriftCircle() const
             || type == Trk::TrackState::MDT );
   } else {
     const Trk::Surface* sf = &(this->measurement()->associatedSurface());
-    return ( (sf->associatedDetectorElement() != NULL) 
-             && (NULL != dynamic_cast<const Trk::StraightLineSurface*>(sf)));
+    return ( (sf->associatedDetectorElement() != nullptr) 
+             && (nullptr != dynamic_cast<const Trk::StraightLineSurface*>(sf)));
   }
 }
 
@@ -543,7 +543,7 @@ const Trk::TrackStateOnSurface* Trk::ProtoTrackStateOnSurface::createState(bool 
   if (m_measurement && isOutlier()) typePattern.set(TrackStateOnSurface::Outlier);
   else if (m_measurement && !isOutlier()) typePattern.set(TrackStateOnSurface::Measurement);
   else if (!m_measurement && m_protoMaterialEffects) typePattern.set(TrackStateOnSurface::Scatterer);
-  else return 0;
+  else return nullptr;
 
   const Trk::MaterialEffectsBase* mefot = nullptr;
   if (m_dnaMaterialEffects) {
@@ -552,13 +552,13 @@ const Trk::TrackStateOnSurface* Trk::ProtoTrackStateOnSurface::createState(bool 
   } else if (m_protoMaterialEffects)
     mefot = m_protoMaterialEffects->makeMEOT();
   if (isOutlier() && makeSlimOutlier) {
-    return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : 0,
-                                   0,0,mefot,typePattern);
+    return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : nullptr,
+                                   nullptr,nullptr,mefot,typePattern);
   } else {
-    return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : 0,
+    return new TrackStateOnSurface(m_measurement ? checkoutMeasurement() : nullptr,
                                    checkoutSmoothedPar(),
 // for testing                     checkoutForwardPar(),
-                                   m_fitQuality ? checkoutFitQuality() : 0,
+                                   m_fitQuality ? checkoutFitQuality() : nullptr,
                                    mefot,typePattern);
   }
 }
@@ -574,7 +574,7 @@ const Trk::Surface *Trk::ProtoTrackStateOnSurface::surface() const {
     if (m_referenceParameters) {
         return &(m_referenceParameters->associatedSurface());
     }
-    return 0;
+    return nullptr;
 }
 
 const Amg::VectorX* Trk::ProtoTrackStateOnSurface::measurementDifference() const {

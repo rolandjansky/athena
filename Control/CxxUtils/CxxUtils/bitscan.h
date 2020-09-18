@@ -130,7 +130,7 @@ namespace CxxUtils {
    * @param x Number to check
    * @return Number of bits set in x.
    */
-#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
+#if defined(__x86_64__) && HAVE_TARGET_CLONES
   // We want to use the popcnt instruction for this if it's available.
   // However, we're still compiling for a Model-T x86_64 by default.
   // Use the target attribute and function multiversioning to use
@@ -146,7 +146,7 @@ namespace CxxUtils {
 #endif
   }
 
-#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
+#if defined(__x86_64__) && HAVE_TARGET_CLONES
   __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long x) {
@@ -158,7 +158,7 @@ namespace CxxUtils {
   }
 
 
-#if defined(__x86_64__) && HAVE_GCC_INTRINSICS
+#if defined(__x86_64__) && HAVE_TARGET_CLONES
   __attribute__ ((target_clones ("popcnt,default")))
 #endif
   inline unsigned count_ones(unsigned long long x) {

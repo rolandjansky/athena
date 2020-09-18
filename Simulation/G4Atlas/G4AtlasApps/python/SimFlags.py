@@ -831,6 +831,12 @@ class ExtraParticlesRanges(JobProperty):
     allowedTypes = ['str']
     StoredValue  = '111-556,1112-9090226'
 
+class G4EMProcessesParticleList(JobProperty):
+    """Steering of ISF: list of Geant4 particles to add EM processes to"""
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = [5132]
+
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):
     """

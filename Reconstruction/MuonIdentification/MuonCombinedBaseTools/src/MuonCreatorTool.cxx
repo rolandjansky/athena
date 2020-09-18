@@ -794,6 +794,7 @@ namespace MuonCombined {
       // init variables if necessary.
       
       mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloLRLikelihood);
+      mu.setParameter(static_cast<float>( 0.0 ), xAOD::Muon::CaloMuonScore);
       mu.setParameter(static_cast<int>( 0xFF ), xAOD::Muon::CaloMuonIDTag); 
       if ( m_fillExtraELossInfo) {
         // Here we can make sure that we store the extra calotag information - just always add it since this is then unambigious for debugging
@@ -805,8 +806,9 @@ namespace MuonCombined {
       return; 
     }
     
-    ATH_MSG_DEBUG("Adding Calo Muon  " << tag->author() << " type " << tag->type());
+    ATH_MSG_DEBUG("Adding Calo Muon with author " << tag->author() << ", type " << tag->type() << ", LHR " << tag->caloLRLikelihood() << ", CaloMuonScore " << tag->caloMuonScore() );
     mu.setParameter(static_cast<float>( tag->caloLRLikelihood() ), xAOD::Muon::CaloLRLikelihood);
+    mu.setParameter(static_cast<float>( tag->caloMuonScore() ), xAOD::Muon::CaloMuonScore);
     mu.setParameter(static_cast<int>( tag->caloMuonIdTag() ), xAOD::Muon::CaloMuonIDTag); 
     
     if ( m_fillExtraELossInfo) {
@@ -1045,6 +1047,10 @@ namespace MuonCombined {
 		const MuGirlTag* muGirlTag = static_cast<const MuGirlTag*>(tag);
 		if(muGirlTag->combinedTrack()){
 		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(muGirlTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  if (!combtp.get()) {
+		    ATH_MSG_WARNING("MuGirl combtp is nullptr, continue");
+		    continue;
+		  }
 		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
 		  if(!caloExtension){
 		    ATH_MSG_WARNING("failed to get a calo extension for this MuGirl muon, don't use it");
@@ -1063,6 +1069,10 @@ namespace MuonCombined {
 		//since this isn't really a tunable parameter of the reconstruction, I'm not making it a property
                 if(cfTag->combinedTrack() && cfTag->combinedTrack()->perigeeParameters()->pT()<3000){
 		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(cfTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  if (!combtp.get()) {
+		    ATH_MSG_WARNING("MuidCo combtp is nullptr, continue");
+		    continue;
+		  }
 		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
 		  if(!caloExtension){
                     ATH_MSG_WARNING("failed to get a calo extension for this combined muon, don't use it");

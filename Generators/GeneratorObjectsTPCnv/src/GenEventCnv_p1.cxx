@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // GenEventCnv_p1.cxx 
@@ -35,11 +35,6 @@ void GenEventCnv_p1::setDataPool( HepMC::DataPool* pool )
 { 
   m_pool = pool; 
 }
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-/////////////////////////////////////////////////////////////////// 
-
 
 void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj, 
 				  HepMC::GenEvent* transObj, 

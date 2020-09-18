@@ -96,7 +96,7 @@ class FilePeekerTool():
         peeked_data['nentries'] = esic.getNumberOfEvents(esi)
         peeked_data['lumi_block'] = list(esic.lumiBlockNumbers(esi))
         peeked_data['run_number'] = list(esic.runNumbers(esi))
-        peeked_data['stream_names'] = list(esic.processingTags(esi))
+        peeked_data['stream_names'] = [s for s in esic.processingTags(esi)]
 
         item_list = list( (cgen.getNameFromClid(i.first), i.second) for i in esic.itemList(esi))
         #reorder items to match that of StoreGate

@@ -37,7 +37,7 @@ public:
     const MagField::AtlasFieldMap* fieldMap() const { return m_fieldMap; }
     
     /** set values for field scale and service to be able to build the cache **/
-    bool initialize(double solFieldScale, double torFieldScale, 
+    void initialize(double solFieldScale, double torFieldScale, 
                     const MagField::AtlasFieldMap* fieldMap);
 
 private:

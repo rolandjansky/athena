@@ -19,42 +19,18 @@
 // #include <string>
 
 namespace Trk {
-  GXFTrackState::GXFTrackState():
-    m_measurement(nullptr),
-    m_tsType(TrackState::Fittable),
-    m_trackpar(nullptr), 
-    m_materialEffects(nullptr), 
-    m_jacobian {}, 
-    m_derivs(nullptr),
-    m_covariancematrix(nullptr),
-    m_fitqual(nullptr),
-    m_sinstereo(0),
-    m_mType(TrackState::unidentified),
-    m_recalib(false),
-    m_owntp(false),
-    m_ownmb(false), 
-    m_ownfq(false), 
-    m_owncov(false), 
-    m_measphi(false) 
-  {
-    m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
-  }
-
   GXFTrackState::GXFTrackState(GXFTrackState & rhs):
-    m_measurement(rhs.m_measurement != nullptr ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : nullptr), 
+    m_measurement(rhs.m_measurement != nullptr ? std::unique_ptr<const MeasurementBase>(rhs.m_measurement->clone()) : nullptr), 
     m_tsType(rhs.m_tsType), 
-    m_trackpar(rhs.m_trackpar),
-    m_materialEffects(rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs. m_materialEffects) : nullptr),
-    m_derivs(rhs.m_derivs != nullptr ? new Amg::MatrixX(*rhs.m_derivs) : nullptr),
-    m_covariancematrix(rhs.m_covariancematrix != nullptr ? (rhs.m_owncov ? new AmgSymMatrix(5) (*rhs.m_covariancematrix) : rhs.m_covariancematrix) : nullptr),
-    m_fitqual(rhs.m_fitqual != nullptr ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : nullptr), 
+    m_trackpar(std::unique_ptr<const TrackParameters>(rhs.m_trackpar != nullptr ? rhs.m_trackpar->clone() : nullptr)),
+    m_materialEffects(rhs.m_materialEffects != nullptr ? std::make_unique<GXFMaterialEffects>(*rhs. m_materialEffects) : nullptr),
+    m_derivs(rhs.m_derivs),
+    m_covariancematrix(rhs.m_covariancematrix),
+    m_covariance_set(rhs.m_covariance_set),
+    m_fitqual(rhs.m_fitqual ? std::make_unique<const FitQualityOnSurface>(*rhs.m_fitqual) : nullptr), 
     m_sinstereo(rhs.m_sinstereo),
     m_mType(rhs.m_mType), 
     m_recalib(rhs.m_recalib),
-    m_owntp(false),
-    m_ownmb(rhs.m_ownmb),
-    m_ownfq(rhs.m_ownfq), 
-    m_owncov(rhs.m_owncov), 
     m_measphi(rhs.m_measphi) 
   {
     for (int i = 0; i < 5; i++) {
@@ -66,209 +42,92 @@ namespace Trk {
   }
 
   GXFTrackState::GXFTrackState(
-    const MeasurementBase * measurement,
-    const TrackParameters * trackpar,
-    bool ownmb
+    std::unique_ptr<const MeasurementBase> measurement,
+    std::unique_ptr<const TrackParameters> trackpar
   ):
-    m_measurement(measurement),
-    m_tsType(TrackState::Fittable), 
-    m_trackpar(trackpar),
+    m_measurement(std::move(measurement)),
+    m_trackpar(std::move(trackpar)),
     m_materialEffects(nullptr), 
     m_jacobian {}, 
-    m_derivs(nullptr), 
-    m_covariancematrix(nullptr), 
+    m_derivs(), 
+    m_covariancematrix(),
+    m_covariance_set(false),
     m_fitqual(nullptr),
     m_sinstereo(0), 
     m_mType(TrackState::unidentified), 
     m_recalib(false),
-    m_owntp(false), 
-    m_ownmb(ownmb), 
-    m_ownfq(false), 
-    m_owncov(false),
     m_measphi(false) {
+    setStateType(TrackStateOnSurface::Measurement);
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
   }
 
   GXFTrackState::GXFTrackState(
-    const TrackParameters * trackpar
+    std::unique_ptr<const TrackParameters> trackpar,
+    TrackStateOnSurface::TrackStateOnSurfaceType tsType
   ):
     m_measurement(nullptr),
-    m_tsType(TrackState::Hole), 
-    m_trackpar(trackpar),
+    m_trackpar(std::move(trackpar)),
     m_materialEffects(nullptr), 
     m_jacobian {}, 
-    m_derivs(nullptr), 
-    m_covariancematrix(nullptr), 
+    m_derivs(), 
+    m_covariancematrix(), 
+    m_covariance_set(false),
     m_fitqual(nullptr),
     m_sinstereo(0), 
     m_mType(TrackState::unidentified), 
     m_recalib(false),
-    m_owntp(false), 
-    m_ownmb(false), 
-    m_ownfq(false), 
-    m_owncov(false),
     m_measphi(false) 
   {
+    setStateType(tsType);
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
   }
 
   GXFTrackState::GXFTrackState(
-    GXFMaterialEffects * mef,
-    const TrackParameters * trackpar
+    std::unique_ptr<GXFMaterialEffects> mef,
+    std::unique_ptr<const TrackParameters> trackpar
   ):
     m_measurement(nullptr),
-    m_tsType(TrackState::Scatterer), 
-    m_trackpar(trackpar),
-    m_materialEffects(mef), 
+    m_trackpar(std::move(trackpar)),
+    m_materialEffects(std::move(mef)), 
     m_jacobian {}, 
-    m_derivs(nullptr), 
-    m_covariancematrix(nullptr), 
+    m_derivs(), 
+    m_covariancematrix(),
+    m_covariance_set(false), 
     m_fitqual(nullptr),
     m_sinstereo(0), 
     m_mType(TrackState::unidentified), 
     m_recalib(false),
-    m_owntp(false), 
-    m_ownmb(false), 
-    m_ownfq(false), 
-    m_owncov(false),
     m_measphi(false) 
   {
     m_measerror[0] = m_measerror[1] = m_measerror[2] = m_measerror[3] = m_measerror[4] = -1;
-    
-    if (mef->sigmaDeltaTheta() == 0) {
-      m_tsType = TrackState::Brem;
+
+    if (m_materialEffects->sigmaDeltaTheta() == 0) {
+      setStateType(TrackStateOnSurface::BremPoint);
+    } else {
+      setStateType(TrackStateOnSurface::Scatterer);
     }
   }
 
-  Trk::GXFTrackState::~GXFTrackState() {
-    if (m_ownmb) {
-      delete m_measurement;
-    }
-    
-    if (m_owntp) {
-      delete m_trackpar;
-    }
-    
-    delete m_materialEffects;
-    
-    if (m_owncov) {
-      delete m_covariancematrix;
-    }
-    
-    if (m_ownfq) {
-      delete m_fitqual;
-    }
-    
-    delete m_derivs;
-  }
-
-  GXFTrackState & GXFTrackState::operator =(GXFTrackState & rhs) {
-    if (this != &rhs) {
-      if (m_ownmb) {
-        delete m_measurement;
-      }
-      
-      if (m_owntp) {
-        delete m_trackpar;
-      }
-      
-      m_measurement = rhs.m_measurement != nullptr ? (rhs.m_ownmb ? rhs.m_measurement->clone() : rhs.m_measurement) : nullptr;
-      m_tsType = rhs.m_tsType;
-      m_trackpar = rhs.m_trackpar;
-      m_materialEffects = rhs.m_materialEffects != nullptr ? new GXFMaterialEffects(*rhs.m_materialEffects) : nullptr;
-      m_derivs = rhs.m_derivs != nullptr ? new Amg::MatrixX(*rhs.m_derivs) : nullptr;
-      
-      delete m_covariancematrix;
-      
-      m_covariancematrix = (
-        rhs.m_covariancematrix != nullptr ? (
-          rhs.m_owncov ? 
-          new AmgSymMatrix(5) (*rhs.m_covariancematrix) : 
-          rhs.m_covariancematrix
-        ) : nullptr
-      );
-
-      m_fitqual = rhs.m_fitqual != nullptr ? (rhs.m_ownfq ? new FitQualityOnSurface(*rhs.m_fitqual) : rhs.m_fitqual) : nullptr;
-      m_sinstereo = rhs.m_sinstereo;
-      m_mType = rhs.m_mType;
-      m_recalib = rhs.m_recalib;
-      m_owntp = false;
-      m_ownmb = rhs.m_ownmb;
-      m_ownfq = rhs.m_ownfq;
-      m_owncov = rhs.m_owncov;
-      m_measphi = rhs.m_measphi;
-
-      for (int i = 0; i < 5; i++) {
-        m_measerror[i] = rhs.m_measerror[i];
-        for (int j = 0; j < 5; j++) {
-          m_jacobian(i, j) = rhs.m_jacobian(i, j);
-        }
-      }
-    }
-    
-    return *this;
-  }
-
-  void GXFTrackState::setMeasurement(const MeasurementBase * meas) {
-    if (m_ownmb) {
-      delete m_measurement;
-    }
-    
-    m_measurement = meas;
+  void GXFTrackState::setMeasurement(std::unique_ptr<const MeasurementBase> meas) {
+    m_measurement = std::move(meas);
     m_recalib = true;
-    m_ownmb = true;
   }
 
-  const MeasurementBase *GXFTrackState::measurement(bool takeownership) {
-    const MeasurementBase *meas = m_measurement;
+  const MeasurementBase *GXFTrackState::measurement(void) {
+    return m_measurement.get();
+  }  
 
-    if ((meas != nullptr) && !m_ownmb && takeownership) {
-      meas = meas->clone();
-    }
-    if (takeownership) {
-      m_ownmb = false;
-    }
-    return meas;
+  void GXFTrackState::setTrackParameters(std::unique_ptr<const TrackParameters> par) {
+    m_trackpar = std::move(par);
   }
 
-  void
-    GXFTrackState::setTrackParameters(const TrackParameters * par) {
-    if ((m_trackpar != nullptr) && m_owntp) {
-      delete m_trackpar;
-    }
-    m_trackpar = par;
-    m_owntp = true;
-  }
-
-  void
-    GXFTrackState::setMaterialEffects(GXFMaterialEffects * mef) {
-    
-      delete m_materialEffects;
-    
-    m_materialEffects = mef;
-  }
-
-  void
-    GXFTrackState::setJacobian(TransportJacobian * jac) {
-    for (int i = 0; i < 5; i++) {
-      for (int j = 0; j < 5; j++) {
-        m_jacobian(i, j) = (*jac)(i, j);
-      }
-    }
-    delete jac;
+  void GXFTrackState::setJacobian(TransportJacobian & jac) {
+    m_jacobian = jac;
   }
 
   void
     GXFTrackState::setDerivatives(Amg::MatrixX & deriv) {
-    
-      delete m_derivs;
-
-    m_derivs = new Amg::MatrixX(deriv);
-  }
-
-  void
-    GXFTrackState::setTrackStateType(TrackState::TrackStateType tstype) {
-    m_tsType = tstype;
+    m_derivs = deriv;
   }
 
   double *GXFTrackState::measurementErrors() {
@@ -294,7 +153,7 @@ namespace Trk {
     m_sinstereo = sinstereo;
   }
 
-  const Surface *GXFTrackState::surface() {
+  const Surface *GXFTrackState::surface() const {
     if (m_measurement != nullptr) {
       return &m_measurement->associatedSurface();
     } if (m_trackpar != nullptr) {
@@ -308,44 +167,34 @@ namespace Trk {
 
   void
     GXFTrackState::setTrackCovariance(AmgSymMatrix(5) * covmat) {
-    if ((m_covariancematrix != nullptr) && m_owncov) {
-      delete m_covariancematrix;
-    }
-    m_covariancematrix = covmat;
-    if (covmat != nullptr) {
-      m_owncov = true;
+    if (covmat == nullptr) {
+      m_covariance_set = false;
+    } else {
+      m_covariance_set = true;
+      m_covariancematrix = *covmat;
     }
   }
 
-  void
-    GXFTrackState::setFitQuality(const FitQualityOnSurface * fitqual) {
-    if ((m_fitqual != nullptr) && m_ownfq) {
-      delete m_fitqual;
-    }
-    m_fitqual = fitqual;
-    m_ownfq = true;
+  void GXFTrackState::setFitQuality(std::unique_ptr<const FitQualityOnSurface> fitqual) {
+    m_fitqual = std::move(fitqual);
   }
 
-  const FitQualityOnSurface *GXFTrackState::fitQuality(bool takeownership) {
-    if (takeownership) {
-      m_ownfq = false;
-    }
-    return m_fitqual;
+  const FitQualityOnSurface *GXFTrackState::fitQuality(void) {
+    return m_fitqual.get();
   }
 
   int
     GXFTrackState::numberOfMeasuredParameters() {
     int nmeas = 0;
 
-    if (m_tsType == TrackState::Fittable
-        || m_tsType == TrackState::GeneralOutlier) {
+    if (getStateType(TrackStateOnSurface::Measurement) || getStateType(TrackStateOnSurface::Outlier)) {
       for (double i : m_measerror) {
         if (i > 0) {
           nmeas++;
         }
       }
     }
-    // else if (m_tsType==TrackState::Scatterer) nmeas=2;
+
     return nmeas;
   }
 
@@ -377,5 +226,27 @@ namespace Trk {
   void
     GXFTrackState::setRecalibrated(bool isrecal) {
     m_recalib = isrecal;
+  }
+
+  bool GXFTrackState::hasTrackCovariance(void) {
+    return m_covariance_set;
+  }
+
+  void GXFTrackState::zeroTrackCovariance(void) {
+    m_covariance_set = true;
+    m_covariancematrix.setZero();
+  }
+
+  void GXFTrackState::resetStateType(TrackStateOnSurface::TrackStateOnSurfaceType t, bool v) {
+    m_tsType.reset();
+    setStateType(t, v);
+  }
+
+  void GXFTrackState::setStateType(TrackStateOnSurface::TrackStateOnSurfaceType t, bool v) {
+    m_tsType[t] = v;
+  }
+
+  bool GXFTrackState::getStateType(TrackStateOnSurface::TrackStateOnSurfaceType t) const {
+    return m_tsType.test(t);
   }
 }

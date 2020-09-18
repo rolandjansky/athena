@@ -6,6 +6,8 @@
 # art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
 # art-input-nfiles: 4
 # art-athena-mt: 4
+# art-memory: 4096
+# art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -53,13 +55,13 @@ for opt,arg in opts:
 
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
-rdo2aod.max_events = 2000 # TODO: 2000 events
+rdo2aod.max_events = 8000 
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:
-    rdo2aod.input = 'Zmumu_pu40'
+    rdo2aod.input = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json  
 else:
     rdo2aod.input = ''
     rdo2aod.args += '--inputRDOFile=$ArtInFile '
@@ -75,30 +77,48 @@ if (not exclude):
  
 # Run Tidardict
 if ((not exclude) or postproc ):
-    rdict = TrigInDetdictStep()
+    rdict = TrigInDetdictStep('TrigInDetDict')
     rdict.args='TIDAdata-run3.dat -f data-hists.root -p 13 -b Test_bin.dat '
     test.check_steps.append(rdict)
+    rdict2 = TrigInDetdictStep('TrigInDetDict2')
+    rdict2.args='TIDAdata-run3.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    test.check_steps.append(rdict2)
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('CompareStep1')
-comp.chains = 'HLT_mu24_idperf:HLT_IDTrack_Muon_FTF'
-comp.output_dir = 'HLTL2-plots-muon'
+comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
 test.check_steps.append(comp)
- 
- 
-comp2=TrigInDetCompStep('CompareStep2')
-comp2.chains='HLT_mu24_idperf:HLT_IDTrack_Muon_FTF HLT_mu24_idperf:HLT_IDTrack_Muon_IDTrig'
-comp2.output_dir = 'HLTEF-plots-muon'
+  
+comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
 test.check_steps.append(comp2)
 
+comp3=TrigInDetCompStep('Comp_L2muon_off','L2','muon')
+comp3.type = 'offl'
+test.check_steps.append(comp3)
 
-cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+comp4=TrigInDetCompStep('Comp_EFmuon_off','EF','muon')
+comp4.type = 'offl'
+test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('Comp_L2muonLowpt','L2','muon',lowpt=True)
+test.check_steps.append(comp5)
+  
+comp6=TrigInDetCompStep('Comp_EFmuonLowpt','EF','muon',lowpt=True)
+test.check_steps.append(comp6)
+
+comp7=TrigInDetCompStep('Comp_L2muonLowpt_off','L2','muon',lowpt=True)
+comp7.type = 'offl'
+test.check_steps.append(comp7)
+  
+comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
+comp8.type = 'offl'
+test.check_steps.append(comp8)
+
+# CPU cost steps
+cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)
- 
+
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-cpucost2.args += '  -p FastTrack'
-cpucost2.output_dir = 'times-FTF' 
 test.check_steps.append(cpucost2)
 
 import sys

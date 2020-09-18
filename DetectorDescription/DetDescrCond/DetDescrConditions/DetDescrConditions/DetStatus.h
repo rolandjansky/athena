@@ -9,14 +9,14 @@
 
 #include<string>
 
-class DetStatus {
+class DetStatus final {
  public:
   DetStatus();
   // constructor with parameters
   DetStatus(const int fullcode, 
 	    const float deadfrac, const float deadthrust);
 
-  virtual ~DetStatus();
+  ~DetStatus() = default;
 
   // access functions
   int code() const;
@@ -30,8 +30,6 @@ class DetStatus {
   float m_deadfrac;
   float m_deadthrust;
 };
-
-inline DetStatus::~DetStatus() {}
 
 inline int DetStatus::code() const { return m_code<0 ? m_code : m_code & 3; }
 inline int DetStatus::fullCode() const { return m_code; }

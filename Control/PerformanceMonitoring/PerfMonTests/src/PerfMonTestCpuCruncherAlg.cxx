@@ -15,7 +15,7 @@
 #include <cmath>
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // PerfMonTests includes

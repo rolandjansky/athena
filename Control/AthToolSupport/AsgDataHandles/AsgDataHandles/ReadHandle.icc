@@ -175,6 +175,18 @@ ReadHandle<T>::get (const EventContext& /*ctx*/) const
 
 
 /**
+* @brief Is the referenced object present in SG?
+*
+* Const method; the handle does not change as a result of this.
+*/
+template <class T>
+bool ReadHandle<T>::isPresent() const
+{
+return isPresent_impl (key());
+}
+
+
+/**
  * @brief Is the referenced object present in SG?
  * @param key SG key to test.
  *
@@ -284,6 +296,19 @@ const T* get (const ReadHandleKey<T>& key,
   if (key.key().empty()) return nullptr;
   ReadHandle<T> h (key, ctx);
   return h.get();
+}
+
+
+/**
+ * @brief Protected constructor used by WriteDecorHandle.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context, or nullptr to use the global default.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const VarHandleKey& key, const EventContext* ctx)
+  : VarHandleBase (key, ctx)
+{
 }
 
 

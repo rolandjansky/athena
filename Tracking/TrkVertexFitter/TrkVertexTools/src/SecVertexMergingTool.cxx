@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -92,7 +92,7 @@ namespace Trk{
        std::vector<const xAOD::TrackParticle*> combinedTracks;
        std::vector<ElementLink<xAOD::TrackParticleContainer>> tpLinks1 =
          vx->trackParticleLinks();
-       if (tpLinks1.size() >= 1) {
+       if (!tpLinks1.empty()) {
          for (const auto& tp_EL : tpLinks1) {
            const xAOD::TrackParticle* trk = *tp_EL;
            combinedTracks.push_back(trk);
@@ -109,7 +109,7 @@ namespace Trk{
            if (newmerge) {
              combinedTracks.clear();
              tpLinks1 = vx->trackParticleLinks();
-             if (tpLinks1.size() < 1)
+             if (tpLinks1.empty())
                break;
              for (const auto& tp_EL : tpLinks1) {
                const xAOD::TrackParticle* trk = *tp_EL;
@@ -128,7 +128,7 @@ namespace Trk{
 
            const std::vector<ElementLink<xAOD::TrackParticleContainer>>
              tpLinks2 = mergeCand->trackParticleLinks();
-           if (tpLinks2.size() < 1)
+           if (tpLinks2.empty())
              continue;
 
            for (const auto& tp_EL : tpLinks2) {
@@ -141,7 +141,7 @@ namespace Trk{
 
            // call the fitter -> using xAOD::TrackParticle it should set the
            // track links for us
-           xAOD::Vertex* mergedVtx = 0;
+           xAOD::Vertex* mergedVtx = nullptr;
            // no interface for no constraint and no starting point, so use
            // starting point of original vertex
            Amg::Vector3D start(0.5 * (vx->position() + mergeCand->position()));
@@ -220,7 +220,7 @@ namespace Trk{
        ATH_MSG_DEBUG("Merged sumPt2 " << vx->auxdataConst<float>("sumPt2"));
 
        // whether we merged or not, can add vx to the container
-       if (vx != NULL)
+       if (vx != nullptr)
          NewContainer->push_back(vx);
      }
 
@@ -255,8 +255,7 @@ namespace Trk{
 //    ATH_MSG_DEBUG(" Compatibility/significance when merging vertices : " << sigma );
     ATH_MSG_DEBUG(" Compatibility/significance when merging vertices : " << sigma );
 
-    if( sigma < m_minDist ) return true;
-    else  return false;
+    return sigma < m_minDist;
     
   }
 

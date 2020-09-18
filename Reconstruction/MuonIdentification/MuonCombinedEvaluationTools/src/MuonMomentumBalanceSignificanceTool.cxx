@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/////////////////////////////////////////////////////////////////////////////
-// MuonMomentumBalanceSignificanceTool
-// 
-//  (c) ATLAS Combined Muon software
-//////////////////////////////////////////////////////////////////////////////
-
-//<<<<<< INCLUDES
 
 #include "MuonMomentumBalanceSignificanceTool.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -18,57 +10,14 @@
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "GaudiKernel/SystemOfUnits.h"
-//#include "TrkGeometry/TrackingVolume.h"
-//#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 
 using Gaudi::Units::GeV;
 
-namespace Rec
-{
-    
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+namespace Rec {
 
-MuonMomentumBalanceSignificanceTool::MuonMomentumBalanceSignificanceTool
-(const std::string&      type,
- const std::string&      name, 
- const IInterface*       parent)
-  : AthAlgTool              (type, name, parent)
-    //m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",name),
-    //m_calorimeterVolume     (0),
-    //m_indetVolume           (0)
-
-{
-  declareInterface<IMuonMomentumBalanceSignificance>(this);
-}
-
-MuonMomentumBalanceSignificanceTool::~MuonMomentumBalanceSignificanceTool (void) 
- {}
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
-StatusCode MuonMomentumBalanceSignificanceTool::initialize()
-{
-  ATH_MSG_INFO( "Initializing MuonMomentumBalanceSignificanceTool - package version " << PACKAGE_VERSION );
-  /*
-  // need to know which TrackingVolume we are in: indet/calo/spectrometer
-  // no we don't, these aren't used any more
-  if (m_trackingVolumesSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Retrieved Svc " << m_trackingVolumesSvc );
-    m_calorimeterVolume     = 
-      new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-    m_indetVolume           =
-      new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
-  }
-  */
-  return StatusCode::SUCCESS;
-}
-
-StatusCode MuonMomentumBalanceSignificanceTool::finalize()
-{
-  ATH_MSG_VERBOSE( "Finalizing " << name() );
-  return StatusCode::SUCCESS;
+MuonMomentumBalanceSignificanceTool::MuonMomentumBalanceSignificanceTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  AthAlgTool(type, name, parent) {
+    declareInterface<IMuonMomentumBalanceSignificance>(this);
 }
 
 double

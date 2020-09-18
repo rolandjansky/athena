@@ -174,11 +174,23 @@ namespace InDet {
       Trk::MagneticFieldProperties m_fieldprop; //!< Magnetic field properties
       //@}
 
+      ///Array entries for data.statistic counter 
+      typedef enum {
+        TwoCluster,
+        WrongRoad,
+        WrongInit,
+        CantFindTrk,
+        NotNewTrk,
+        BremAttempt,
+        NumberOfStats,
+        Success,
+      } EStat_t;
+
       ///////////////////////////////////////////////////////////////////
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      bool findTrack
+      EStat_t findTrack
         (SiCombinatorialTrackFinderData_xk& data,
          const Trk::TrackParameters&, 
 	 const std::vector<const Trk::SpacePoint*>&,
@@ -205,6 +217,7 @@ namespace InDet {
       MsgStream& dumpevent(SiCombinatorialTrackFinderData_xk& data, MsgStream& out) const;
 
       void initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const;
+      virtual void fillStatistic(SiCombinatorialTrackFinderData_xk& data, std::array<bool,NumberOfStats>& information) const override;
 
     };
 

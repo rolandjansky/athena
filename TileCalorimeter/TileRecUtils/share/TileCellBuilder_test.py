@@ -481,8 +481,8 @@ class TestAlg (Alg):
 
         for c in ccc:
             lcell = [c.ene1(), c.ene2(), c.time1(), c.time2(),
-                     ord(c.qual1()), ord(c.qual2()),
-                     ord(c.qbit1()), ord(c.qbit2()),
+                     c.qual1(), c.qual2(),
+                     c.qbit1(), c.qbit2(),
                      c.gain1(), c.gain2()]
 
             cid = c.ID()

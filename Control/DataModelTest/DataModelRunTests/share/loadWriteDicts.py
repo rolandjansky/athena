@@ -18,10 +18,11 @@ from AthenaPython.PyAthenaComps import Alg, StatusCode
 class LoadWriteDicts (Alg):
     def initialize (self):
         import ROOT
+        ROOT.gROOT.SetBatch(True)
         import cppyy
-        cppyy.loadDictionary("libDataModelTestDataCommonDict")
-        cppyy.loadDictionary("libDataModelTestDataWriteDict")
-        cppyy.loadDictionary("libDataModelTestDataWriteCnvDict")
+        cppyy.load_library("libDataModelTestDataCommonDict")
+        cppyy.load_library("libDataModelTestDataWriteDict")
+        cppyy.load_library("libDataModelTestDataWriteCnvDict")
         ROOT.DMTest.B
         ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
         ROOT.DMTest.setTrigConverterLibrary ('libDataModelTestDataWriteSerCnv.so')

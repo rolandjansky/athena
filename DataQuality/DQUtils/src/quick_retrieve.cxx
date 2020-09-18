@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define likely(x)       __builtin_expect((x),1)
@@ -21,7 +21,7 @@
 #include <CoolApplication/DatabaseSvcFactory.h>
 
 #include <boost/typeof/typeof.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <boost/function.hpp>
 
 #include <vector>
@@ -33,6 +33,7 @@ using std::string;
 using std::vector;
 
 using boost::bind;
+using boost::placeholders::_1;
 
 using cool::DatabaseSvcFactory;
 using cool::IDatabasePtr;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBRAWHITASSICATIONMAP_H
@@ -9,6 +9,7 @@
 #include "MuonCalibEventBase/MuonCalibRawRpcHit.h"
 #include "MuonCalibEventBase/MuonCalibRawTgcHit.h"
 #include "MuonCalibEventBase/MuonCalibRawCscHit.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <map>
 
@@ -21,7 +22,7 @@ namespace MuonCalib {
 
      @author niels.van.eldik@cern.ch
   */
-  class MuonCalibRawHitAssociationMap  {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibRawHitAssociationMap  {
   public:
     /** get raw csc hit for given Identifier, returns 0 if not on track */
     const MuonCalibRawCscHit* getRawCscHit( const MuonFixedId& id ) const;

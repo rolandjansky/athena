@@ -3,6 +3,17 @@
 */
 
 namespace Trk {
+
+inline FitQuality::FitQuality(double chiSquared, double numberDoF)
+  : m_chiSquared(chiSquared)
+  , m_numberDoF(numberDoF)
+{}
+
+inline FitQuality::FitQuality(double chiSquared, int numberDoF)
+  : m_chiSquared(double(chiSquared))
+  , m_numberDoF(numberDoF)
+{}
+
 inline FitQuality*
 FitQuality::clone() const
 {
@@ -26,14 +37,18 @@ FitQuality::doubleNumberDoF() const
 {
   return m_numberDoF;
 }
-inline Trk::FitQuality::FitQuality(double chiSquared, int numberDoF)
-  : m_chiSquared(double(chiSquared))
-  , m_numberDoF(numberDoF)
-{}
+/** set the @f$ \chi^2 @f$*/
+inline void
+FitQuality::setChiSquared(double chiSquared)
+{
+  m_chiSquared = chiSquared;
+}
 
-inline Trk::FitQuality::FitQuality(double chiSquared, double numberDoF)
-  : m_chiSquared(chiSquared)
-  , m_numberDoF(numberDoF)
-{}
+/** set the number of degrees of freedom*/
+inline void
+FitQuality::setNumberDoF(double numberDoF)
+{
+  m_numberDoF = numberDoF;
+}
 
 }

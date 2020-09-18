@@ -33,7 +33,6 @@
 
 class TLorentzVector;
 class IChronoStatSvc;
-namespace Rec{ class TrackParticle; }
 namespace MVAUtils { class BDT; }
 namespace Trk {  class TrkVKalVrtFitter; }
 
@@ -47,7 +46,6 @@ namespace InDet {
 //Interface itself
 
       virtual std::vector<float> trkTypeWgts( const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
-      virtual std::vector<float> trkTypeWgts( const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
 
   };
 
@@ -68,7 +66,6 @@ namespace InDet {
       virtual StatusCode finalize() override;
 
       virtual std::vector<float> trkTypeWgts(const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
-      virtual std::vector<float> trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
 
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
@@ -95,17 +92,6 @@ namespace InDet {
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
     int m_initialised{};
-
-    float m_Sig3D{};
-    float m_prbP{};
-    float m_d0{};
-    float m_pTvsJet{};
-    float m_SigZ{};
-    float m_SigR{};
-    float m_ptjet{};
-    float m_etatrk{};
-    float m_ibl{};
-    float m_bl{};
  };
 
 

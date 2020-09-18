@@ -260,7 +260,7 @@ public:
                              Amg::Vector3D& glob) const = 0;
 
   /** This method returns the GlobalPosition from a LocalPosition
-   * uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * uses the per surface localToGlobal and performs dynamic allocations.
    * The caller is responsible for deleting the ptr.
    */
   Amg::Vector3D* localToGlobal(const Amg::Vector2D& locpos) const;
@@ -273,8 +273,7 @@ public:
   /** This method returns the GlobalPosition from a LocalPosition
    * The LocalPosition can be outside Surface bounds - for generality with
    * momentum
-   *
-   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * Uses the per surface localToGlobal and performs dynamic allocations.
    * The caller is responsible for deleting the ptr.
    */
 
@@ -291,14 +290,13 @@ public:
 
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds.
-   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * Uses the per surface localToGlobal and performs dynamic allocations.
    * The caller is responsible for deleting the ptr.
    */
   Amg::Vector3D* localToGlobal(const LocalParameters& locpars) const;
 
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds.
-   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
    * Return by value no memory allocation
    */
   Amg::Vector3D localToGlobalPos(const LocalParameters& locpars) const;
@@ -306,7 +304,7 @@ public:
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds - for generality with
    * momentum
-   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
+   * Uses the per surface localToGlobal and performs dynamic allocations.
    * The caller is responsible for deleting the ptr.
    */
   Amg::Vector3D* localToGlobal(const LocalParameters& locpars,
@@ -315,7 +313,6 @@ public:
   /** This method returns the GlobalPosition from LocalParameters
    * The LocalParameters can be outside Surface bounds - for generality with
    * momentum
-   * Uses the per surface localToGlobal and pefrorms dynamic allocations.
    * Return by value no memory allocation
    */
   Amg::Vector3D localToGlobalPos(const LocalParameters& locpars,
@@ -472,7 +469,7 @@ protected:
   */
   const Layer* m_materialLayer;
 
-  /** pointer to surface owner : 0  free surface */
+  /** enum for surface owner : 0  free surface */
   SurfaceOwner m_owner;
 
   /**Tolerance for being on Surface */

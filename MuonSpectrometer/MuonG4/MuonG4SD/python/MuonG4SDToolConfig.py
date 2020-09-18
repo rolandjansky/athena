@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from ISF_Algorithms.collection_merger_helpersNew import CollectionMergerCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -9,9 +9,12 @@ def CSCSensitiveDetectorCosmicsCfg(ConfigFlags, name="CSCSensitiveDetectorCosmic
     bare_collection_name = "CSC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "CSCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::CscArCO2"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -21,9 +24,12 @@ def CSCSensitiveDetectorCfg(ConfigFlags, name="CSCSensitiveDetector", **kwargs):
     bare_collection_name = "CSC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "CSCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::CscArCO2"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -43,9 +49,12 @@ def MDTSensitiveDetectorCosmicsCfg(ConfigFlags, name="MDTSensitiveDetectorCosmic
     bare_collection_name = "MDT_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "MDTHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::SensitiveGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -57,9 +66,12 @@ def MDTSensitiveDetectorCfg(ConfigFlags, name="MDTSensitiveDetector", **kwargs):
     bare_collection_name = "MDT_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "MDTHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::SensitiveGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -69,7 +81,8 @@ def MDTSensitiveDetectorCfg(ConfigFlags, name="MDTSensitiveDetector", **kwargs):
 
 def MicromegasSensitiveDetectorCfg(ConfigFlags, name="MicromegasSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::MM_Sensitive"])
-    kwargs.setdefault("OutputCollectionNames", ["MicromegasSensitiveDetector"]) # need ISF_Collection merger in acc?
+    kwargs.setdefault("OutputCollectionNames", ["MicromegasSensitiveDetector"])
+    # TODO add support for Micromegas to ISF_CollectionMerger
     result=ComponentAccumulator()
     result.setPrivateTools( MicromegasSensitiveDetectorTool(name, **kwargs) )
     return result
@@ -79,9 +92,12 @@ def RPCSensitiveDetectorCosmicsCfg(ConfigFlags, name="RPCSensitiveDetectorCosmic
     bare_collection_name = "RPC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "RPCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::gazGap"])
     kwargs.setdefault("OutputCollectionNames", [bare_collection_name]) #is this correct?
 
@@ -93,9 +109,12 @@ def RPCSensitiveDetectorCfg(ConfigFlags, name="RPCSensitiveDetector", **kwargs):
     bare_collection_name = "RPC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "RPCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::gazGap"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -107,9 +126,12 @@ def TGCSensitiveDetectorCosmicsCfg(ConfigFlags, name="TGCSensitiveDetectorCosmic
     bare_collection_name = "TGC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "TGCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::muo::TGCGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -121,9 +143,12 @@ def TGCSensitiveDetectorCfg(ConfigFlags, name="TGCSensitiveDetector", **kwargs):
     bare_collection_name = "TGC_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "TGCHits"
-    result, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
-                                                              mergeable_collection_suffix,
-                                                              merger_input_property)
+    region = "MUON"
+    result, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                       bare_collection_name,
+                                                       mergeable_collection_suffix,
+                                                       merger_input_property,
+                                                       region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::muo::TGCGas"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
@@ -134,7 +159,7 @@ def TGCSensitiveDetectorCfg(ConfigFlags, name="TGCSensitiveDetector", **kwargs):
 def sTGCSensitiveDetectorCfg(ConfigFlags, name="sTGCSensitiveDetector", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["Muon::sTGC_Sensitive"])
     kwargs.setdefault("OutputCollectionNames", ["sTGCSensitiveDetector"])
-
+    # TODO add support for Micromegas to ISF_CollectionMerger
     result=ComponentAccumulator()
     result.setPrivateTools( sTGCSensitiveDetectorTool(name, **kwargs) )
     return result

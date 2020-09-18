@@ -3,7 +3,6 @@
 ## @file OutputStreamAthenaPool.py
 ## @brief Helper methods to create output streams
 ## @author Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: OutputStreamAthenaPool.py,v 1.10 2009-04-27 18:19:34 gemmeren Exp $
 ###############################################################
 
 from __future__ import print_function
@@ -30,6 +29,7 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
       WritingTool = writingTool,
       ItemList    = [ "EventInfo#*" ]
       )
+   outputStream.ExtraOutputs += [("DataHeader", "StoreGateSvc+" + streamName)]
    #outputStream.ItemList += [ "xAOD::EventInfo#*" ]
    outputStream.MetadataStore = svcMgr.MetaDataStore
    outputStream.MetadataItemList = [ "EventStreamInfo#" + streamName, "IOVMetaDataContainer#*" ]

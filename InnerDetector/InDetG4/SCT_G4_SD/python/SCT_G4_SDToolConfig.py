@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -14,8 +14,12 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
     bare_collection_name = "SCT_Hits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "SCTHits"
-
-    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name, mergeable_collection_suffix, merger_input_property)
+    region = "ID"
+    acc, hits_collection_name = CollectionMergerCfg(ConfigFlags,
+                                                    bare_collection_name,
+                                                    mergeable_collection_suffix,
+                                                    merger_input_property,
+                                                    region)
     kwargs.setdefault("LogicalVolumeNames", ["SCT::BRLSensor","SCT::ECSensor0","SCT::ECSensor1",
                                               "SCT::ECSensor2","SCT::ECSensor3"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
@@ -26,9 +30,9 @@ def SctSensorSDCfg(ConfigFlags, name="SctSensorSD", **kwargs):
 
 def SLHC_SctSensorSDCfg(ConfigFlags, name="SLHC_SctSensorSD", **kwargs):
 
-    kwargs.setdefault("LogicalVolumeNames", ["SCT::BRLSensor","SCT::BRLSensorSS","SCT::BRLSensorMS",
-                                             "SCT::ECSensor0","SCT::ECSensor1","SCT::ECSensor2",
-                                             "SCT::ECSensor3","SCT::ECSensor4","SCT::ECSensor5"])
+    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensor","ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
+                                             "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
+                                             "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
     return SctSensorSDCfg(ConfigFlags, name, **kwargs)
 
 
@@ -41,4 +45,3 @@ def SctSensor_CTBCfg(name="SctSensor_CTB", **kwargs):
     kwargs.setdefault("LogicalVolumeNames", ["SCT::ECSensor0"])
     kwargs.setdefault("OutputCollectionNames", ["SCT_Hits"])
     return SctSensor_CTBTool(name, **kwargs)
-  

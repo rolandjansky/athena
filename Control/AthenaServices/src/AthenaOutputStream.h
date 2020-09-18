@@ -17,7 +17,7 @@
 
 // Required for inheritance
 #include "GaudiKernel/IDataSelector.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -27,6 +27,7 @@
 #include "GaudiKernel/IIoComponent.h"
 
 #include "SelectionVetoes.h"
+#include "CompressionInfo.h"
 
 // forward declarations
 class IClassIDSvc;
@@ -158,15 +159,20 @@ private:
    SG::WriteHandleKey<SG::SelectionVetoes> m_selVetoesKey
    { this, "SelVetoesKey", "" };
 
+   /// Key used for recording lossy float compressed variable information
+   /// to the event store.
+   SG::WriteHandleKey<SG::CompressionInfo> m_compInfoKey
+   { this, "CompInfoKey", "" };
+
 protected:
    /// Handler for ItemNames Property
-   void itemListHandler(Property& /* theProp */);
+   void itemListHandler(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void excludeListHandler(Property& /* theProp */);
+   void excludeListHandler(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void compressionListHandlerHigh(Property& /* theProp */);
+   void compressionListHandlerHigh(Gaudi::Details::PropertyBase& /* theProp */);
    /// Handler for ItemNames Property
-   void compressionListHandlerLow(Property& /* theProp */);
+   void compressionListHandlerLow(Gaudi::Details::PropertyBase& /* theProp */);
 
 public:
    typedef std::vector<std::pair<std::string, std::string> > TypeKeyPairs;
@@ -201,7 +207,7 @@ public:
 
 private:
    /// Add item data objects to output streamer list
-  void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes);
+  void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes, SG::CompressionInfo& compInfo);
 
    void handleVariableSelection (SG::IAuxStoreIO& auxio,
                                  SG::DataProxy& itemProxy,
@@ -218,6 +224,10 @@ private:
    /// Write MetaData for this stream (by default) or for a substream outputFN (in ES mode)
    void writeMetaData( const std::string outputFN="" );
 
+   /// Helper function for building the compression lists
+   std::set<std::string> buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
+                                              const CLID& item_id,
+                                              const std::string& item_key) const;
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H

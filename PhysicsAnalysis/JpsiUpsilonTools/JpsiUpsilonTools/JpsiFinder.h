@@ -42,14 +42,14 @@ namespace Analysis {
     enum MuonTypes{ CC=0, CT=1, TT=2};
     struct JpsiCandidate
     {
-        const xAOD::TrackParticle* trackParticle1;
-        const xAOD::TrackParticle* trackParticle2;
-        const xAOD::Muon* muon1;
-        const xAOD::Muon* muon2;
-        const xAOD::TrackParticleContainer* collection1;
-        const xAOD::TrackParticleContainer* collection2;
-        PairType pairType;
-        MuonTypes muonTypes;
+        const xAOD::TrackParticle* trackParticle1 = nullptr;
+        const xAOD::TrackParticle* trackParticle2 = nullptr;
+        const xAOD::Muon* muon1 = nullptr;
+        const xAOD::Muon* muon2 = nullptr;
+        const xAOD::TrackParticleContainer* collection1 = nullptr;
+        const xAOD::TrackParticleContainer* collection2 = nullptr;
+        PairType pairType{MUMU};
+        MuonTypes muonTypes{CC};
     };
     
     class JpsiFinder:  public Analysis::ICandidateSearch, public AthAlgTool

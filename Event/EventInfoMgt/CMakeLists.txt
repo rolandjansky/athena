@@ -1,23 +1,7 @@
-################################################################################
-# Package: EventInfoMgt
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventInfoMgt )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/SGTools
-                          Control/StoreGate
-			  Control/AthenaBaseComps
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/IOVDbMetaDataTools
-                          Event/EventInfo
-                          Event/EventInfoUtils
-                          )
 
 atlas_add_library( EventInfoMgtLib
                    INTERFACE
@@ -28,12 +12,10 @@ atlas_add_library( EventInfoMgtLib
 atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
-                     LINK_LIBRARIES AthenaKernel GaudiKernel 
-                     SGTools StoreGateLib SGtests AthenaBaseComps
-                     AthenaPoolUtilities EventInfo EventInfoUtils IOVDbMetaDataToolsLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo EventInfoMgtLib EventInfoUtils IOVDbMetaDataToolsLib SGTools StoreGateLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/EventInfoMgt_jobOptions.py )
 atlas_install_scripts( share/dumpRunNumber.py )
 

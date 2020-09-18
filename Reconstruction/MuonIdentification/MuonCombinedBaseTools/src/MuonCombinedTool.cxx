@@ -12,10 +12,11 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
+#include "MuonCombinedTool.h"
+
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCombinedEvent/MuonCandidate.h"
-#include "MuonCombinedTool.h"
 
 namespace MuonCombined {
 
@@ -23,7 +24,6 @@ namespace MuonCombined {
     AthAlgTool(type, name, parent)
   {
     declareInterface<IMuonCombinedTool>(this);
-    declareProperty("MuonCombinedTagTools", m_muonCombinedTagTools);
   }
 
   StatusCode MuonCombinedTool::initialize() {

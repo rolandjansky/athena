@@ -12,6 +12,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include <stdexcept>
+#include <utility>
 
 using std::vector;
 using std::string;
@@ -217,7 +218,7 @@ int gcm_key::get_var(int var)const{
 }
 
 par_par::par_par(double the_h,int xct,int uvct,double uver,const string& set,bool ql,bool dlm,bool qbg,double the_qt,std_align mis,std_align cor,bool fill_tab,int cs,const string&pd,const string&tg):
-  h(the_h),ctx(xct),ctuv(uvct),uverr(uver),setup(set),islarge(ql),q_dlm(dlm),genbg(qbg),qt(the_qt),misal(mis),corr(cor),fill_val(fill_tab),colskip(cs),pcrep_dir(pd),tag(tg) {}
+  h(the_h),ctx(xct),ctuv(uvct),uverr(uver),setup(set),islarge(ql),q_dlm(dlm),genbg(qbg),qt(the_qt),misal(std::move(mis)),corr(std::move(cor)),fill_val(fill_tab),colskip(cs),pcrep_dir(pd),tag(tg) {}
 
 string par_par::print_pars(const vector<int>&hide) const{
   vector<bool>sho(gcm_key().varmax(),true);

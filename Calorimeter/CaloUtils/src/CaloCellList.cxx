@@ -131,7 +131,7 @@ CaloCellList::doSelect(const CaloDetDescrManager& mgr,
   m_theCellVector.clear();
   m_energy = 0;
   m_et = 0;
-  if (m_cellcont->size() == 0){
+  if (m_cellcont->empty()){
     return;
   }
   std::vector<IdentifierHash> calo_mgr_vect;

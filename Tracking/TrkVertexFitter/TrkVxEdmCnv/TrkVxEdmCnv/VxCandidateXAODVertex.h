@@ -11,6 +11,10 @@
 #ifndef VXEDMXAODCNV_VXCANDIDATEXAODVERTEX_H
 #define VXEDMXAODCNV_VXCANDIDATEXAODVERTEX_H
 
+
+#include "IVxCandidateXAODVertex.h"
+#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+
 // STL includes
 #include <string>
 
@@ -19,12 +23,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "IVxCandidateXAODVertex.h"
-
-// Forward declaration
-namespace Trk{
-  class IVertexLinearizedTrackFactory;
-}
 
 namespace Trk {
 
@@ -46,30 +44,32 @@ class VxCandidateXAODVertex
 	     const std::string& name, 
 	     const IInterface* parent );
 
-  /// Destructor: 
-  virtual ~VxCandidateXAODVertex(); 
+  /// Destructor:
+  virtual ~VxCandidateXAODVertex() = default;
 
   // Athena algtool's Hooks
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
   /**
    * Convert xAOD::Vertex to a VxCandidate. Return object is own by the clients.
    */
-  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) const;
+  virtual StatusCode createVxCandidate(
+    const xAOD::Vertex& xAODVx,
+    Trk::VxCandidate*& vxVertex) const override;
 
   /**
    * Convert a VxCandidate to a VxVertex. Return object is own by the clients.
    */
-  virtual StatusCode createXAODVertex(const Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx);
+  virtual StatusCode createXAODVertex(const Trk::VxCandidate& vxVertex,
+                                      xAOD::Vertex*& xAODVx) const override;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
- private: 
+  ///////////////////////////////////////////////////////////////////
+  // Private data:
+  ///////////////////////////////////////////////////////////////////
+private: 
 
   /// Default constructor: 
   VxCandidateXAODVertex();

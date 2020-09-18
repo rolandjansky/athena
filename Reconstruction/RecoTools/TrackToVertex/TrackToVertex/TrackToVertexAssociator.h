@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrackToVertexAssociator.h 
@@ -31,6 +31,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "CxxUtils/checker_macros.h"
 
 // Forward declaration
 class StoreGateSvc;
@@ -47,7 +48,7 @@ namespace Trk {
 
 namespace Reco {
     
-    class TrackToVertexAssociator
+    class ATLAS_NOT_THREAD_SAFE TrackToVertexAssociator
   : virtual public ITrackToVertexAssociator,
             public AthAlgTool, virtual public IIncidentListener {
  
@@ -74,26 +75,26 @@ namespace Reco {
    void handle(const Incident& inc) ;
       
    /** Interface method for use with TrackParticle  - AOD */
-   const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::TrackParticleBase& part) const;
+   const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::TrackParticleBase& part) const;
    
    /** Interface method for use with Track  - ESD */
-   const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::Track& trk) const;
+   const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::Track& trk) const;
                                              
    /** Interface method for use with ParametersBase - parameters */
-   const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::TrackParameters& pbase) const;
+   const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::TrackParameters& pbase) const;
 
    /** Interface method for use with neutral TPs */
-   const std::vector<TrackToVertexAssociation>* associateTrack(const Trk::NeutralParameters& pars) const;
+   const std::vector<TrackToVertexAssociation>* associateTrack ATLAS_NOT_THREAD_SAFE (const Trk::NeutralParameters& pars) const;
   private: 
 
-   template < class T > const std::vector<TrackToVertexAssociation>* runAssociation(const T& input) const;
+   template < class T > const std::vector<TrackToVertexAssociation>* runAssociation ATLAS_NOT_THREAD_SAFE (const T& input) const;
  
    // Default constructor: 
    TrackToVertexAssociator();
 
    // private methods 
-   StatusCode updateCache() const;
-   StatusCode cleanCache() const;
+   StatusCode updateCache ATLAS_NOT_THREAD_SAFE () const;
+   StatusCode cleanCache ATLAS_NOT_THREAD_SAFE  () const;
       
    // Services
    ServiceHandle<StoreGateSvc>                   m_storeGate;     //!< Event store

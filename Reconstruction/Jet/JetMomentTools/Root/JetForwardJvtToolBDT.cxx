@@ -25,7 +25,6 @@ const double GeV = 1000.;
 JetForwardJvtToolBDT::JetForwardJvtToolBDT(const std::string& name) :
   asg::AsgTool(name)
 {
-  declareInterface<IJetDecorator>(this);
 }
 
 // Destructor

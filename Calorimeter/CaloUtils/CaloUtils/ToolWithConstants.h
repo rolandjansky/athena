@@ -8,7 +8,7 @@
  * @date Apr, 2020
  * @brief Hold constants for a tool.
  *
- * An extension to Gaudi componts to manage a set of Constants,
+ * An extension to Gaudi components to manage a set of Constants,
  * which are like properties but are set from COOL with the possibility
  * of overriding them from job options.
  *
@@ -26,7 +26,7 @@
 #include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/concepts.h"
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include <string>
 #include <sstream>
 #include <type_traits>

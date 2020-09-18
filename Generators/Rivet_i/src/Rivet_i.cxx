@@ -31,8 +31,6 @@
 #include <memory>
 #include <regex>
 
-using namespace std;
-
 
 /// Convert to inherit from GenBase, now we're developing Rivet 2 interfacing for R19+ only
 
@@ -60,7 +58,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("WeightCap", m_weightcap=-1.0);
 }
 
-string getenv_str(const string& key) {
+std::string getenv_str(const std::string& key) {
   char const* val = getenv(key.c_str());
   return val == NULL ? string() : string(val);
 }
@@ -74,7 +72,7 @@ StatusCode Rivet_i::initialize() {
   // Set RIVET_ANALYSIS_PATH based on alg setup
 
   // First set (overwrite, if necessary) the RIVET_ANALYSIS_PATH variable
-  string env_rap(getenv_str("RIVET_ANALYSIS_PATH"));
+  std::string env_rap(getenv_str("RIVET_ANALYSIS_PATH"));
   if (m_anapath.size() > 0) {
     ATH_MSG_INFO("Setting Rivet plugin analyses loader env path: " << m_anapath);
     if (!env_rap.empty()) ATH_MSG_INFO("Overwriting environment's RIVET_ANALYSIS_PATH = " << env_rap << "!");
@@ -82,25 +80,25 @@ StatusCode Rivet_i::initialize() {
   }
 
   // Now horrid runtime ATLAS env variable and CMT path mangling to work out the std analysis plugin search paths
-  vector<string> anapaths;
-  const string cmtpath = getenv_str("CMTPATH");
+  std::vector<std::string> anapaths;
+  const std::string cmtpath = getenv_str("CMTPATH");
   if (cmtpath.empty()) {
     ATH_MSG_WARNING("$CMTPATH variable not set: finding the main analysis plugin directory will be difficult...");
   } else {
-    vector<string> cmtpaths;
+    std::vector<std::string> cmtpaths;
     std::stringstream ss(cmtpath);
     std::string item;
     while (std::getline(ss, item, ':')) {
       cmtpaths.push_back(std::move(item));
     }
-    const string cmtconfig = getenv_str("CMTCONFIG");
+    const std::string cmtconfig = getenv_str("CMTCONFIG");
     if (cmtconfig.empty()) {
       ATH_MSG_WARNING("$CMTCONFIG variable not set: finding the main analysis plugin directory will be difficult...");
     } 
     else {
-      const string libpath = "/InstallArea/" + cmtconfig + "/lib";
-      for (const string& p : cmtpaths) {
-        const string cmtlibpath = p + libpath;
+      const std::string libpath = "/InstallArea/" + cmtconfig + "/lib";
+      for (const std::string& p : cmtpaths) {
+        const std::string cmtlibpath = p + libpath;
         if (PathResolver::find_file_from_list("RivetMCAnalyses.so", cmtlibpath).empty()) continue;
         ATH_MSG_INFO("Appending " + cmtlibpath + " to default Rivet analysis search path");
         anapaths.push_back(cmtlibpath);
@@ -111,7 +109,7 @@ StatusCode Rivet_i::initialize() {
 
   // Then re-grab RIVET_ANALYSIS_PATH and append all the discovered std plugin paths to it
   string anapathstr = getenv_str("RIVET_ANALYSIS_PATH");
-  for (const string& ap : anapaths) {
+  for (const std::string& ap : anapaths) {
     if (anapathstr.size() > 0) anapathstr += ":";
     anapathstr += ap;
   }
@@ -135,13 +133,13 @@ StatusCode Rivet_i::initialize() {
 
   // Get all available analysis names
   if (msgLvl(MSG::VERBOSE)) {
-    vector<string> analysisNames = Rivet::AnalysisLoader::analysisNames();
+    std::vector<std::string> analysisNames = Rivet::AnalysisLoader::analysisNames();
     ATH_MSG_VERBOSE("List of available Rivet analyses:");
-    for (const string& a : analysisNames)  ATH_MSG_VERBOSE(" " + a);
+    for (const std::string& a : analysisNames)  ATH_MSG_VERBOSE(" " + a);
   }
 
   // Add analyses
-  for (const string& a : m_analysisNames) {
+  for (const std::string& a : m_analysisNames) {
     ATH_MSG_INFO("Loading Rivet analysis " << a);
     m_analysisHandler->addAnalysis(a);
     Rivet::Log::setLevel("Rivet.Analysis."+a, rivetLevel(msg().level()));
@@ -222,7 +220,7 @@ StatusCode Rivet_i::finalize() {
 
 
   // Write out YODA file (add .yoda suffix if missing)
-  if (m_file.find(".yoda") == string::npos) m_file += ".yoda";
+  if (m_file.find(".yoda") == std::string::npos) m_file += ".yoda";
   m_analysisHandler->writeData(m_file);
 
   return StatusCode::SUCCESS;
@@ -231,7 +229,7 @@ StatusCode Rivet_i::finalize() {
 
 /// Helper function to sort GenParticles by descending energy
 /// @todo Move into GeneratorUtils (with many friends)
-bool cmpGenParticleByEDesc(const HepMC::GenParticlePtr a, const HepMC::GenParticlePtr b) {
+bool cmpGenParticleByEDesc(HepMC::ConstGenParticlePtr a, HepMC::ConstGenParticlePtr b) {
   return a->momentum().e() > b->momentum().e();
 }
 
@@ -286,20 +284,20 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   const HepMC::WeightContainer& old_wc = event->weights();
   std::ostringstream stream;
   old_wc.print(stream);
-  string str =  stream.str();
+  std::string str =  stream.str();
   // if it only has one element, 
   // then it doesn't use named weights
   // --> no need for weight-name cleaning
   if (str.size() > 1) {
-    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    std::vector<std::string> orig_order(m_hepMCWeightSvc->weightNames().size());
     for (const auto& item : m_hepMCWeightSvc->weightNames()) {
       orig_order[item.second] = item.first;
     }
-    map<string, double> new_name_to_value;
-    map<string, string> old_name_to_new_name;
+    std::map<std::string, double> new_name_to_value;
+    std::map<std::string, std::string> old_name_to_new_name;
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
-    vector<pair<string,string> > w_subs = {
+    std::vector<std::pair<std::string,std::string> > w_subs = {
       {" nominal ",""},
       {" set = ","_"},
       {" = ","_"},
@@ -316,11 +314,11 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
          i != std::sregex_iterator(); ++i ) {
       std::smatch m = *i;
-      vector<string> temp = ::split(m.str(), "[,]");
+      std::vector<std::string> temp = ::split(m.str(), "[,]");
       if (temp.size() == 2 || temp.size() == 3) {
-        string wname = temp[0];
+        std::string wname = temp[0];
         if (temp.size() == 3)  wname += "," + temp[1];
-        string old_name = string(wname);
+        std::string old_name = std::string(wname);
         double value = old_wc[wname];
         for (const auto& sub : w_subs) {
           size_t start_pos = wname.find(sub.first);
@@ -333,8 +331,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
         old_name_to_new_name[old_name] = wname;
       }
     }
-    for (const string& old_name : orig_order) {
-      const string& new_name = old_name_to_new_name[old_name];
+    for (const std::string& old_name : orig_order) {
+      const std::string& new_name = old_name_to_new_name[old_name];
       new_wc[ new_name ] = new_name_to_value[new_name];
     }
     // end of weight-name cleaning

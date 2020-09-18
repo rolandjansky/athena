@@ -7,11 +7,11 @@
 #ifndef TRIGMUONEF_MUONFILTERALG_H
 #define TRIGMUONEF_MUONFILTERALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODMuon/MuonContainer.h"
 
-class MuonFilterAlg : public AthAlgorithm
+class MuonFilterAlg : public AthReentrantAlgorithm
 {
   public :
 
@@ -25,7 +25,7 @@ class MuonFilterAlg : public AthAlgorithm
     StatusCode finalize();
   
     /** execute the filter alg */
-    StatusCode execute();
+    StatusCode execute(const EventContext& ctx) const;
 
 
   private :

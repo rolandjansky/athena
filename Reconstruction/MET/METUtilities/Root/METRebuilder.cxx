@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METRebuilder.cxx
@@ -38,8 +38,11 @@
 // Track errors
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteHandle.h"
+
 #ifndef ROOTCORE
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #endif
 
 namespace met {
@@ -213,14 +216,14 @@ namespace met {
 	ATH_CHECK( trkSelTool->initialize() );
 	m_trkseltool = ToolHandle<InDet::IInDetTrackSelectionTool>(trkSelTool);
 #else
-	ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc",name());
+	ServiceHandle<Gaudi::Interfaces::IOptionsSvc> josvc("JobOptionsSvc",name());
 	std::string toolName = "IDTrkSel_METUtil";
 	ATH_MSG_INFO("METRebuilder: Autoconfiguring " << toolName);
 	m_trkseltool.setTypeAndName("InDet::InDetTrackSelectionTool/"+toolName);
 	std::string fullToolName = "ToolSvc."+toolName;
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,FloatProperty("maxZ0SinTheta",1.5)) );
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,FloatProperty("maxD0overSigmaD0",1.5)) );
-	ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,StringProperty("CutLevel","TightPrimary")) );
+    josvc->set(fullToolName + ".maxZ0SinTheta", Gaudi::Utils::toString<float>(1.5));
+    josvc->set(fullToolName + ".maxD0overSigmaD0",Gaudi::Utils::toString<float>(1.5));
+    josvc->set(fullToolName + ".CutLevel","TightPrimary");
 #endif
       }
       ATH_CHECK( m_trkseltool.retrieve() );

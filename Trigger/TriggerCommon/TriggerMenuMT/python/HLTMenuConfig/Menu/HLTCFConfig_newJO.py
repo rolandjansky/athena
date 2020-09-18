@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isInputMakerBase, isHypoBase, isComboHypoAlg
@@ -61,10 +62,23 @@ def generateDecisionTree(chains):
         """
         name = "Menu{}{}".format(stepNumber, stepName)
         seq = seqAND( name )
+
         allRecoSeqName = getRecosStepSeq( stepNumber ).name
         acc.addSequence(seq, parentName = allRecoSeqName )
         return seq
 
+    @memoize
+    def getComboSequences( stepNumber, stepName ):
+        """
+        """
+        singleMenuSeqName = getSingleMenuSeq( stepNumber, stepName ).name
+
+        stepComboName = "Combo{}{}".format(stepNumber,stepName)
+        acc.addSequence( seqAND(stepComboName), parentName=singleMenuSeqName )
+
+        stepComboRecoName ="ComboReco{}{}".format(stepNumber, stepName)
+        acc.addSequence( parOR(stepComboRecoName), parentName=stepComboName )
+        return acc.getSequence(stepComboName), acc.getSequence(stepComboRecoName)
 
     @memoize
     def getFilterAlg( stepNumber, stepName ):
@@ -83,7 +97,7 @@ def generateDecisionTree(chains):
 
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
-            
+
     @memoize
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
@@ -106,6 +120,14 @@ def generateDecisionTree(chains):
             return result
         else:
             raise Exception("No input maker in seq "+seq.name)
+    @memoize
+    def findComboHypoAlg( stepCounter, stepName ):
+        seq = getSingleMenuSeq( stepCounter, stepName )
+        algs = findAllAlgorithms( seq )
+        for alg in algs:
+            if isComboHypoAlg(alg):
+                return alg
+        raise Exception("No combo hypo alg in seq "+seq.name)
 
     @memoize
     def findHypoAlg( stepCounter, stepName ):
@@ -115,6 +137,7 @@ def generateDecisionTree(chains):
             if isHypoBase(alg):
                 return alg
         raise Exception("No hypo alg in seq "+seq.name)
+
 
     @memoize
     def findAllHypoAlgs( stepCounter, stepName ):
@@ -130,22 +153,15 @@ def generateDecisionTree(chains):
         else:
             raise Exception("No hypo alg in seq "+seq.name)
 
-    @memoize
-    def findComboHypoAlg( stepCounter, stepName ):
-        seq = getSingleMenuSeq( stepCounter, stepName )
-        algs = findAllAlgorithms( seq )
-        for alg in algs:
-            if isComboHypoAlg(alg):
-                return alg
-        raise Exception("No combo hypo alg in seq "+seq.name)
 
     def addAndAssureUniqness( prop, toadd, context="" ):
-        if toadd not in prop:
-            log.info("{} value {} not there".format(context, toadd))
-            return list( prop ) + [ toadd ]
-        else:
-            log.info("{} value {} already there".format(context, toadd))
-            return list( prop )
+        if isinstance(toadd, str):
+            toadd = [toadd]
+        missing = []
+        for t in toadd:
+            if t not in prop:
+                missing.append( t )
+        return list( prop ) + missing
 
     def assureUnsetOrTheSame(prop, toadd, context):
         """
@@ -156,44 +172,52 @@ def generateDecisionTree(chains):
         if prop != toadd:
             raise Exception("{}, when setting property found conflicting values, existing {} and new {}".format(context, prop, toadd))
 
+    def clearUnderscores(s):
+        p = s
+        while True:
+            n = p.replace("__", "_")
+            if p == n:
+                return p.rstrip("_")
+            p = n
 
+    @memoize
+    def prevStepOutput( chain, stepCounter ):
+        """
+        Returns list of decision collections that are outputs of previous step as well as the hypo alg name that outpus it
+        """
+        prevHypoAlgName = ""
+        if stepCounter == 1: # L1 seed
+            out = chain.L1decisions
+        else:
+            prevCounter = stepCounter-1
+            prevName = chain.steps[prevCounter-1].name # counting steps from 1, for indexing need one less
+            prevStep = chain.steps[prevCounter-1]
+            if prevStep.isCombo:
+                prevHypoAlg = findComboHypoAlg( prevCounter, prevName )
+            else:
+                prevHypoAlg = findHypoAlg( prevCounter, prevName )
+            out = prevHypoAlg.HypoOutputDecisions
+            prevHypoAlgName = prevHypoAlg.name
+
+        return [out] if isinstance( out, str) else out, prevHypoAlgName # normalise to list
+
+    # CF construction logic
     # create all sequences and filter algs, merge CAs from signatures (decision CF)
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
             getFilterAlg( stepCounter, step.name )
-            recoSeqName = getSingleMenuSeq( stepCounter, step.name ).name
-
+            menuSeqName = getSingleMenuSeq( stepCounter, step.name ).name
             if step.isCombo:
-                # add merged reco sequence
-                stepRecoName = step.name + CFNaming.RECO_POSTFIX
-                stepViewName = step.name + CFNaming.VIEW_POSTFIX
-
-                acc.addSequence( seqAND(stepViewName), parentName=recoSeqName )
-                acc.addSequence( parOR(stepRecoName), parentName=stepViewName )
-
+                # add sequences that allows reconstructions to be run in parallel, followed (in sequence) by the combo hypo
+                comboSeq, comboRecoSeq = getComboSequences( stepCounter, step.name )
                 for sequence in step.sequences:
-                    for stepView in sequence.ca.getSequence().Members:
-                        for viewMember in stepView.Members:
-                            if isHypoBase(viewMember):
-                                # add hypo alg to view sequence
-                                acc.addEventAlgo( viewMember, sequenceName=stepViewName )
-                            else:
-                                # add reco sequence to merged _reco
-                                for recoAlg in viewMember.Members:
-                                    acc.addSequence( recoAlg, parentName=stepRecoName )
+                    acc.merge( sequence.ca, sequenceName=comboRecoSeq.name)
 
-                    # elements from ca were moved above to the appropriate sequences
-                    # so sequence and algorithms are considered as merged
-                    sequence.ca._algorithms = {}
-                    sequence.ca._sequence.Members = []
-                    acc.merge(sequence.ca, sequenceName=recoSeqName)
-
-                # create combo hypo
-                comboHypo = CompFactory.ComboHypo( step.combo.Alg.getName() )
-                acc.addEventAlgo( comboHypo, sequenceName=stepViewName )
-
+                comboHypo = CompFactory.ComboHypo( "CH"+step.name )
+                acc.addEventAlgo( comboHypo, sequenceName=comboSeq.name )
+                pass
             else:
-                acc.merge( step.sequences[0].ca, sequenceName=recoSeqName )
+                acc.merge( step.sequences[0].ca, sequenceName=menuSeqName )
 
 
     # cleanup settings made by Chain & related objects (can be removed in the future)
@@ -220,84 +244,88 @@ def generateDecisionTree(chains):
                 comboHypoAlg.HypoOutputDecisions = []
 
 
-    # connect all outputs (decision DF)
+    # connect all outputs (decision DF) and add chains to filter on
     for chain in chains:
+
         for stepCounter, step in enumerate( chain.steps, 1 ):
-            for seqCounter, sequence in enumerate( step.sequences ):
+            # Filters linking
+            filterAlg = getFilterAlg( stepCounter, step.name )
 
-                # Filters linking
-                filterAlg = getFilterAlg( stepCounter, step.name )
-                if step.isCombo:
-                    chainDictLegs = ' '.join(map(str, [dic['chainName'] for dic in step.chainDicts]))
-                    filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chainDictLegs, "{} filter alg chains".format( filterAlg.name ) )
-                else:
-                    filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chain.name, "{} filter alg chains".format( filterAlg.name ) )
+            def __setup(sequenceCounter, chainDict):
+                '''
+                Local function to setup filter/input makers/hypo algs  IO
+                '''
+                # set chain to filter on
+                filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chainDict["chainName"], "{} filter alg chains".format( filterAlg.name ) )
 
-                if stepCounter == 1:
-                    filterAlg.Input = addAndAssureUniqness( filterAlg.Input, chain.L1decisions[0], "{} L1 input".format( filterAlg.name ) )
-                else: # look into the previous step
-                    hypoOutput = findHypoAlg( stepCounter-1, chain.steps[chain.steps.index( step )-1].name ).HypoOutputDecisions
-                    filterAlg.Input = addAndAssureUniqness( filterAlg.Input, hypoOutput, "{} input".format( filterAlg.name ) )
+                filterIn, prevHypoName = prevStepOutput( chain, stepCounter)
+                filterAlg.Input = addAndAssureUniqness( filterAlg.Input, filterIn, "{} input".format( filterAlg.name ) )
+                filterOut = [ clearUnderscores(CFNaming.filterOutName( filterAlg.name,  s ).replace(prevHypoName, "")) for s in filterIn ]
+                filterAlg.Output = addAndAssureUniqness( filterAlg.Output, filterOut, "{} output".format( filterAlg.name ) )
 
-                # Input Maker linking
-                im = findAllInputMakers( stepCounter, step.name )[seqCounter]
-                for i in filterAlg.Input:
-                    filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
-                    filterAlg.Output = addAndAssureUniqness( filterAlg.Output, filterOutputName, "{} output".format( filterAlg.name ) )
-                    im.InputMakerInputDecisions = addAndAssureUniqness( im.InputMakerInputDecisions,  filterOutputName, "{} input".format( im.name ) )
+                im = findAllInputMakers( stepCounter, step.name )[sequenceCounter]
+                im.InputMakerInputDecisions = addAndAssureUniqness( im.InputMakerInputDecisions,  filterOut[sequenceCounter], "{} input".format( im.name ) )
+                imOut = CFNaming.inputMakerOutName( im.name )
+                im.InputMakerOutputDecisions = assureUnsetOrTheSame( im.InputMakerOutputDecisions, imOut, "{} IM output".format( im.name ) )
 
-                imOutputName = CFNaming.inputMakerOutName( im.name )
-                im.InputMakerOutputDecisions = assureUnsetOrTheSame( im.InputMakerOutputDecisions, imOutputName, "{} IM output".format( im.name ) )
-                
                 # Hypo linking
-                hypoAlg = findAllHypoAlgs( stepCounter, step.name )[seqCounter]
+                hypoAlg = findAllHypoAlgs( stepCounter, step.name )[sequenceCounter]
                 hypoAlg.HypoInputDecisions = assureUnsetOrTheSame( hypoAlg.HypoInputDecisions, im.InputMakerOutputDecisions,
                     "{} hypo input".format( hypoAlg.name ) )
-                hypoOutName = CFNaming.hypoAlgOutName( hypoAlg.name )
-                hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOutName,
+                hypoOut = CFNaming.hypoAlgOutName( hypoAlg.name )
+                hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOut,
                     "{} hypo output".format( hypoAlg.name )  )
+                hypoAlg.HypoTools.append( step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict ) )
+                pass
 
-                # Hypo Tools
-                if step.isCombo:
-                    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
-                    chainDictLeg = splitChainInDict(chain.name)[seqCounter]
-                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( chainDictLeg ) )
-
-                    # to be deleted after ComboHypos will be properly configured and included in DF
-                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
-                else:
-                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
-
-            # Combo Hypo linking
             if step.isCombo:
-                comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
-                comboHypoAlg.MultiplicitiesMap[chain.name] = step.multiplicity
+                for seqCounter in range( len( step.sequences ) ) :
+                    chainLegDict = splitChainInDict( chain.name )[seqCounter]
+                    __setup( seqCounter, chainLegDict )
 
-                comboInputList = findAllHypoAlgs( stepCounter, step.name )
-                for comboInput in comboInputList:
-                    comboHypoAlg.HypoInputDecisions = addAndAssureUniqness( comboHypoAlg.HypoInputDecisions, comboInput.name, 
-                        "{} comboHypo input".format( comboHypoAlg.name ) )
-                    
-                    comboOutName = CFNaming.comboHypoOutputName( comboHypoAlg.name, comboInput.name )
-                    comboHypoAlg.HypoOutputDecisions = addAndAssureUniqness( comboHypoAlg.HypoOutputDecisions, comboOutName, 
-                        "{} comboHypo output".format( comboHypoAlg.name ) )
+                    comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
+                    comboHypoAlg.MultiplicitiesMap[chain.name] = step.multiplicity
 
-                # Combo Hypo Tools
-                for comboToolConf in step.comboToolConfs:
-                    comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+                    elementaryHypos = findAllHypoAlgs( stepCounter, step.name )
+                    for hypo in elementaryHypos:
+                        if hypo == comboHypoAlg:
+                            continue
+                        comboHypoAlg.HypoInputDecisions = addAndAssureUniqness( comboHypoAlg.HypoInputDecisions, hypo.HypoOutputDecisions,
+                            "{} comboHypo input".format( comboHypoAlg.name ) )
+
+                        comboOut = CFNaming.comboHypoOutputName( comboHypoAlg.name, hypo.name )
+                        comboHypoAlg.HypoOutputDecisions = addAndAssureUniqness( comboHypoAlg.HypoOutputDecisions, comboOut,
+                            "{} comboHypo output".format( comboHypoAlg.name ) )
+
+                    # Combo Hypo Tools
+                    for comboToolConf in step.comboToolConfs:
+                        comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+
+            else:
+                assert len( step.sequences ) == 1, "chain {} step {} is not combo bye has number of sequences = {}".format( chain.name, stepCounter, len( step.sequences ) )
+                __setup( 0,  TriggerConfigHLT.getChainDictFromChainName( chain.name ) )
 
 
     for chain in chains:
+        log.info( "CF algorithms for chain {}".format( chain.name ) )
         for stepCounter, step in enumerate( chain.steps, 1 ):
             filterAlg = getFilterAlg( stepCounter, step.name )
-            log.info("FilterAlg {} Inputs {} Outputs {}".format( filterAlg.name, filterAlg.Input, filterAlg.Output ) )
+            log.info(" FilterAlg {} Inputs {} Outputs {} Chains {}".format( filterAlg.name, filterAlg.Input, filterAlg.Output, filterAlg.Chains ) )
 
             imAlg = findInputMaker( stepCounter, step.name )
-            log.info("InputMaker {} Inputs {} Outputs {}".format( imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ) )
+            log.info("  InputMaker {} Inputs {} Outputs {}".format( imAlg.name, imAlg.InputMakerInputDecisions, imAlg.InputMakerOutputDecisions ) )
+            if step.isCombo:
+                hypoAlgs = findAllHypoAlgs( stepCounter, step.name )
+                for hypoAlg in hypoAlgs:
+                    if isComboHypoAlg(hypoAlg):
+                        continue
+                    log.info("   HypoAlg {} Inputs {} Outputs {} Tools {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions, [t.name for t in hypoAlg.HypoTools] ) )
+                combo = findComboHypoAlg(  stepCounter, step.name )
+                log.info("  ComboHypoAlg {} Inputs {} Outputs {} Multiplicities {}".format( combo.name, combo.HypoInputDecisions, combo.HypoOutputDecisions, combo.MultiplicitiesMap ) )
 
-            hypoAlg = findHypoAlg( stepCounter, step.name )
-            log.info("HypoAlg {} Inputs {} Outputs {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions ) )
-
+            else:
+                hypoAlg = findHypoAlg( stepCounter, step.name )
+                log.info("  HypoAlg {} Inputs {} Outputs {} Tools {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions, [t.name for t in hypoAlg.HypoTools] ) )
     return acc
 
 

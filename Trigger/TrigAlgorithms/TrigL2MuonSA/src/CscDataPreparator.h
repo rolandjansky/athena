@@ -12,7 +12,7 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TgcData.h"
 #include "CscData.h"
 #include "RecMuonRoIUtils.h"
@@ -60,7 +60,7 @@ namespace TrigL2MuonSA {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // Region Selector
-    ServiceHandle<IRegSelSvc>  m_regionSelector;
+    ToolHandle<IRegSelTool> m_regionSelector;
 
     // Tool handles for BS conversion and Rdo to Prep Data conversion
     ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
@@ -72,7 +72,10 @@ namespace TrigL2MuonSA {
     ToolHandle<ICscClusterBuilder> m_cscClusterProvider{
       this, "CscClusterProvider", "CscThresholdClusterBuilderTool"};
 
+    //If we don't do the decoding in the algorithm, we need to read in the cluster container
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{ this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};
+    //If we do the decoding in the algorithm, we need to run the clustering and record the container
+    SG::WriteHandleKey<Muon::CscPrepDataContainer> m_cscClustersKey{ this, "CSClusterContainer", "CSC_Clusters", "Name of the CSCClusterContainer to write out"};
 
     // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
     Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the CSCs" };

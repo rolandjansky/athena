@@ -30,18 +30,18 @@
  * The reasons for accepting an event are stored in the output as a
  * TrigComposite for offline debugging.
  *
- * $Id: $
  */
 
 #include "TrigInterfaces/AllTEAlgo.h"
 
 #include "GaudiKernel/HistoProperty.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "TrigConfInterfaces/IL1TopoConfigSvc.h"
 
 #include <vector>
 #include <map>
 
 class ITHistSvc;
-class IROBDataProviderSvc;
 class TH1F;    /// for monitoring purposes
 class TH2F;    /// for monitoring purposes
 class TProfile;/// for monitoring purposes
@@ -53,10 +53,6 @@ class L1TopoTOB;
 
 namespace HLT {
 class IScaler;
-}
-
-namespace TrigConf {
-class IL1TopoConfigSvc;
 }
 
 class AcceptL1TopoMonitor : public HLT::AllTEAlgo {
@@ -98,14 +94,14 @@ private:
        @brief Monitor L1Topo block info from ROIB: header and fiber status
      */
     void monitorBlock(uint32_t sourceID, L1Topo::Header& header, std::vector<uint32_t>& vFibreSizes, std::vector<uint32_t>& vFibreStatus, std::vector<L1Topo::L1TopoTOB>& daqTobs);
-    bool bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, std::string extraName, std::string extraTitle);
-    bool bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge);
+    bool bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const Histo1DProperty& prop, const std::string& extraName, const std::string& extraTitle);
+    bool bookAndRegisterHist(ServiceHandle<ITHistSvc>&, TH1F*& , const std::string& hName, const std::string& hTitle, int bins, float lowEdge, float highEdge);
     /**
         @brief compare two bitsets and histogram the differences
 
         return true if the same, otherwise false
     */
-    bool compBitSets(std::string leftLabel, std::string rightLabel,
+    bool compBitSets(const std::string& leftLabel, const std::string& rightLabel,
                      const std::bitset<m_nTopoCTPOutputs>& left,
                      const std::bitset<m_nTopoCTPOutputs>& right,
                      TH1F*& hist);

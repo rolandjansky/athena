@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODBASE_IPARTICLE_H
@@ -41,8 +41,12 @@ namespace xAOD {
 
    public:
       /// Virtual destructor, to make vtable happy...
-      virtual ~IParticle() {}
-
+      virtual ~IParticle() = default;
+      IParticle() = default;
+      IParticle(const IParticle&) = default;
+      IParticle& operator=(const IParticle&) = default;
+      IParticle(IParticle&&) = delete;
+      IParticle& operator=(IParticle&&) = delete;
 
       /// @name Functions describing the 4-momentum of the object
       /// @{

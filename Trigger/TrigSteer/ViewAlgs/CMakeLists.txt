@@ -7,7 +7,6 @@ atlas_subdir( ViewAlgs )
 atlas_add_library( ViewAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
-                   INTERFACE
                    LINK_LIBRARIES AthContainers AthLinks GaudiKernel DecisionHandlingLib MuonCombinedEvent xAODJet xAODMuon TrigCompositeUtilsLib xAODTrigger )
 
 atlas_add_component( ViewAlgs

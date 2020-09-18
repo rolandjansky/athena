@@ -134,7 +134,7 @@ LArVectorProxy TestData::data (const HWIdentifier& id) const
 class TestOFC : public ILArOFC
 {
 public:
-  typedef LArVectorProxy OFCRef_t;
+  using OFCRef_t = LArVectorProxy;
 
   TestOFC (size_t nofc, const std::vector<HWIdentifier>& hwids)
     : m_data (1234, nofc, hwids)
@@ -308,7 +308,7 @@ void test1 (ISvcLocator* svcloc,
 
   CondCont<CaloBCIDCoeffs>* cc_coeffs = nullptr;
   assert( conditionStore->retrieve (cc_coeffs, "CaloBCIDCoeffs").isSuccess() );
-  const CaloBCIDCoeffs* coeffs = 0;
+  const CaloBCIDCoeffs* coeffs = nullptr;
   const EventIDRange* range_coeffs = nullptr;
   assert (cc_coeffs->find (runlbn (10, 50), coeffs, &range_coeffs));
   assert (range_coeffs->start().lumi_block() == 20);

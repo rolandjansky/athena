@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNNUtils.h"
@@ -12,7 +12,7 @@ VarCalc::VarCalc() : asg::AsgMessaging("TauJetRNNUtils::VarCalc") {
 }
 
 bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
-                      double &out) {
+                      double &out) const {
     // Retrieve calculator function
     ScalarCalc func = nullptr;
     try {
@@ -28,7 +28,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
 
 bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
                       const std::vector<const xAOD::TauTrack *> &tracks,
-                      std::vector<double> &out) {
+                      std::vector<double> &out) const {
     out.clear();
 
     // Retrieve calculator function
@@ -53,7 +53,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
 
 bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
                       const std::vector<const xAOD::CaloCluster *> &clusters,
-                      std::vector<double> &out) {
+                      std::vector<double> &out) const {
     out.clear();
 
     // Retrieve calculator function

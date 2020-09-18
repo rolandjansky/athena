@@ -17,27 +17,18 @@
 RpcRdoToRpcPrepData::RpcRdoToRpcPrepData(const std::string& name, ISvcLocator* pSvcLocator) 
     :
     AthAlgorithm(name, pSvcLocator),
-    m_tool( "Muon::RpcRdoToPrepDataTool/RpcRdoToPrepDataTool",this), 
     m_print_inputRdo(false),
     m_print_prepData(false),
     m_seededDecoding(false),
     m_roiCollectionKey("OutputRoIs"),
-    m_regsel_rpc("RegSelTool/RegSelTool_RPC",this),
     m_rpcCollection("RPC_Measurements")
 {
-    declareProperty("DecodingTool",       m_tool,       "rpc rdo to prep data conversion tool" );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
     declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-    declareProperty("RegSel_RPC", m_regsel_rpc);
     declareProperty("OutputCollection", m_rpcCollection);
 }  
-
-StatusCode RpcRdoToRpcPrepData::finalize() {
-  ATH_MSG_DEBUG("in finalize()");
-  return StatusCode::SUCCESS;
-}
 
 StatusCode RpcRdoToRpcPrepData::initialize(){
     

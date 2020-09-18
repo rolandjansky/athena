@@ -76,7 +76,7 @@ void test1()
   assert (a5[0] == 1.5);
   assert (rep.m_data.empty());
 
-  assert (tc.clsname() == "");
+  assert (tc.clsname().empty());
   tc.clsname ("abc");
   assert (tc.clsname() == "abc");
 

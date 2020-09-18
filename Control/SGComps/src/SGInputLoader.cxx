@@ -11,7 +11,7 @@
 #include "SGInputLoader.h"
 
 // FrameWork includes
-#include "GaudiKernel/Property.h"
+#include "Gaudi/Property.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/VarHandleKey.h"
 #include "AthenaKernel/StoreID.h"
@@ -141,7 +141,7 @@ SGInputLoader::execute()
 //---------------------------------------------------------------------------------
 
 void
-SGInputLoader::loader(Property& p ) {
+SGInputLoader::loader(Gaudi::Details::PropertyBase& p ) {
 
   ATH_MSG_DEBUG("setting prop ExtraOutputs to " <<  p.toString());
 

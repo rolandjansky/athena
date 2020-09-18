@@ -226,6 +226,9 @@ private:
     /// conditionsRun from the first BeginRun incident (HLT)
     EventIDBase::number_type       m_conditionsRun { EventIDBase::UNDEFNUM };
 
+    /// current run number from BeginRun incident
+    EventIDBase::number_type       m_currentRun { EventIDBase::UNDEFNUM };
+
     /// IOVRange of last TagInfo added to the file meta data
     IOVRange                       m_lastIOVRange { IOVRange(IOVTime(), IOVTime()) };
 

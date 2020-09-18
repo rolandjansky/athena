@@ -4,7 +4,7 @@
 
 // JetECPSFractionTool.cxx
 
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
@@ -22,8 +22,6 @@ using xAOD::JetFourMom_t;
 
 JetECPSFractionTool::JetECPSFractionTool(std::string myname)
 : asg::AsgTool(myname) {
-
-  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************
