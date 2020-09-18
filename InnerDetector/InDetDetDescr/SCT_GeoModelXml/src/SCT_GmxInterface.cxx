@@ -347,6 +347,7 @@ void SCT_GmxInterface::addAlignable(int level, map<string, int> &index, GeoVFull
 /*
  *    Get the offline-id appropriate to the level (0 = wafer, 1 = module, 2 = wheel/cylinder, 3 = part, i.e barrel or an endcap)
  */
+
     const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
     Identifier id;
     switch (level) {
