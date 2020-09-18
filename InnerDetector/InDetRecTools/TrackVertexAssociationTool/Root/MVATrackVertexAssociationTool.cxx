@@ -240,7 +240,7 @@ bool MVATrackVertexAssociationTool::initializeNetwork() {
   }
   std::ifstream netFile(fileName);
   if (!netFile) {
-    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not properly open file: " + fileName);
+    throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : could not properly open input network file: " + fileName);
   }
 
   // For sequential:
@@ -252,7 +252,7 @@ bool MVATrackVertexAssociationTool::initializeNetwork() {
   else {
     lwt::GraphConfig netDef = lwt::parse_json_graph(netFile);
     if (netDef.inputs.size() != 1) {
-      throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : network in file \"" + m_fileName + "\" has more than 1 input node: # of input nodes = " + std::to_string(netDef.inputs.size()));
+      throw std::runtime_error("ERROR in CP::MVATrackVertexAssociationTool::initializeNetwork : network in file \"" + fileName + "\" has more than 1 input node: # of input nodes = " + std::to_string(netDef.inputs.size()));
     }
     m_inputNodeName = netDef.inputs[0].name;
     m_graph = new lwt::LightweightGraph(netDef);
