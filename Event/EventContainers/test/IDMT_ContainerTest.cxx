@@ -4,6 +4,7 @@
 
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
+#undef NDEBUG
 #include "EventContainers/IdentifiableContainerMT.h" 
 #include "EventContainers/SelectAllObject.h"
 #include "EventContainers/IdentifiableContTemp.h"
@@ -53,7 +54,7 @@ namespace IDC_TEST
         typedef std::vector<DIGIT*>::const_iterator const_iterator; 
 
         MyCollection( ) :m_id(0) { return; } 
-        MyCollection(const MyID& id ){ m_id=id; return; } 
+        MyCollection(const MyID& id ) : m_id(id) {  } 
         ~MyCollection()         {
             std::vector<DIGIT*>::const_iterator it = m_vector.begin();
             std::vector<DIGIT*>::const_iterator it_end = m_vector.end();
@@ -344,11 +345,8 @@ int ID_ContainerTest::execute(EventContainers::Mode mode){
 }
 {//Repeat with post incrementor operator
     SELECTOR select(m_container); 
-    digit_const_iterator it1 = select.begin(); 
-    digit_const_iterator it2 = select.end(); 
-    nd = 0 ; 
-    for(; it1!=it2; it1++){
-        const MyDigit* digit = *it1; 
+    nd = 0 ;
+    for (const MyDigit* digit : select) {
         volatile float t = digit->val(); 
         t = t + 1.; 
         ++nd; 
@@ -517,11 +515,8 @@ int ID_ContainerTest::execute(EventContainers::Mode mode){
     }
 
     SELECTOR select(container2); 
-    digit_const_iterator it1 = select.begin(); 
-    digit_const_iterator it2 = select.end(); 
-    nd = 0 ; 
-    for(; it1!=it2; it1++){
-        const MyDigit* digit = *it1; 
+    nd = 0 ;
+    for (const MyDigit* digit : select) {
         volatile float t = digit->val(); 
         t = t + 1.; 
         ++nd; 
@@ -560,7 +555,8 @@ int ID_ContainerTest::execute(EventContainers::Mode mode){
 //            std::cout << "error:addCollection->" << p->identifyHash() << std::endl;
     std::vector<IdentifierHash> cacheshouldcontain = { IdentifierHash(0), IdentifierHash(3), IdentifierHash(10) };
     std::vector<IdentifierHash> IDCshouldContain = { IdentifierHash(0), IdentifierHash(10) };
-    assert(cache->ids().size() == 3);
+    size_t sz = cache->ids().size();
+    assert(sz == 3);
     if(cache->ids() != cacheshouldcontain){
         std::cout << __FILE__ << " cache does not contain correct elements" << std::endl;
         std::abort();
