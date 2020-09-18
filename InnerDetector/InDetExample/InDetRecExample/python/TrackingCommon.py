@@ -276,6 +276,23 @@ def getPixelClusterNnCondAlg(**kwargs) :
     from SiClusterizationTool.SiClusterizationToolConf import InDet__TTrainedNetworkCondAlg
     return InDet__TTrainedNetworkCondAlg(kwargs.pop("name", 'PixelClusterNnCondAlg'), **kwargs)
 
+def getLWTNNCondAlg(**kwargs) :
+
+    # Check for the folder
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalibJSON'):
+        # COOL binding
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixelClustering/PixelNNCalibJSON",
+                                    "/PIXEL/PixelClustering/PixelNNCalibJSON",className='CondAttrListCollection')
+
+    # What we'll store it as
+    kwargs=setDefaults(kwargs,
+                       WriteKey = 'PixelClusterNNJSON')
+
+    # Set up the algorithm
+    from SiClusterizationTool.SiClusterizationToolConf import InDet__LWTNNCondAlg
+    return InDet__LWTNNCondAlg(kwargs.pop("name", "LWTNNCondAlg"),**kwargs)
+
 def getPixelClusterNnWithTrackCondAlg(**kwargs) :
 
     kwargs = setDefaults( kwargs,
@@ -308,10 +325,33 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     if 'PixelLorentzAngleTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelLorentzAngleTool = getPixelLorentzAngleTool())
 
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    
+    if useTTrainedNetworks :
+      log.debug("Setting up TTrainedNetworks")
+      createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+      createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    else :
+
+      ######################################
+      # Temporary - pixel clustering setup #
+      ######################################
+      # Allow use of folder that exists but is not yet in global tag.
+      # Different names in different DB instances....
+      if not ('conddb' in dir()):
+        from IOVDbSvc.CondDB import conddb
+
+      if (conddb.dbmc == "OFLP200" or (conddb.dbdata=="OFLP200" and globalflags.DataSource=='data')) :
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-00")
+      if ((conddb.dbmc == "CONDBR2" and globalflags.DataSource!='data') or conddb.dbdata == "CONDBR2") :
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-00")
+      ## End of temporary code
+
+      log.debug("Setting up lwtnn system")
+      createAndAddCondAlg( getLWTNNCondAlg,                  'LWTNNCondAlg')
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults( kwargs,
@@ -321,8 +361,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
                           useRecenteringNNWithTracks         = False if do_runI else False,  # default,
                           correctLorShiftBarrelWithoutTracks = 0,
                           correctLorShiftBarrelWithTracks    = 0.030 if do_runI else 0.000,  # default,
+                          useTTrainedNetworks                = useTTrainedNetworks,
                           NnCollectionReadKey                = 'PixelClusterNN',
-                          NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack')
+                          NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack',
+                          NnCollectionJSONReadKey            = 'PixelClusterNNJSON')
     return InDet__NnClusterizationFactory(name=the_name, **kwargs)
 
 @makePublicTool

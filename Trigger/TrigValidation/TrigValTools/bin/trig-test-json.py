@@ -12,7 +12,6 @@ import re
 import sys
 import logging
 import os
-import six
 from collections import OrderedDict
 from TrigValTools.TrigARTUtils import first_existing_file, newest_file
 
@@ -84,7 +83,7 @@ def convert_to_megabytes(number, unit):
         "GB": 1024,
         'TB': 1024**2
     }
-    for unit_name, mult in six.iteritems(multipliers):
+    for unit_name, mult in multipliers.items():
         if unit_name == unit:
             return float(number)*mult
     logging.error("Unit conversion failed from {} to MB".format(unit))

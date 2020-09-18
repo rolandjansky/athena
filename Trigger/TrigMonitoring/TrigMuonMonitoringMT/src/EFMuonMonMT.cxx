@@ -11,6 +11,15 @@ EFMuonMonMT :: EFMuonMonMT(const std::string& name, ISvcLocator* pSvcLocator )
   : TrigMuonMonitorAlgorithm(name, pSvcLocator)
 {}
 
+
+StatusCode EFMuonMonMT :: initialize(){
+  StatusCode sc = TrigMuonMonitorAlgorithm::initialize();
+  ATH_CHECK( m_EFSAMuonContainerKey.initialize() );
+  ATH_CHECK( m_EFCBMuonContainerKey.initialize() );
+  return sc;
+}
+
+
 StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext& , const std::string &chain) const {
 
   ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
@@ -20,18 +29,19 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext& , const std:
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muSALinkInfo : featureContSA) {
     ATH_CHECK( muSALinkInfo.isValid() );
     const ElementLink<xAOD::MuonContainer> muSAEL = muSALinkInfo.link;
-    if ( ! (*muSAEL)->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle) ) continue;
+    const xAOD::TrackParticle* EFSATrack = (*muSAEL)->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+    if ( !EFSATrack ) continue;
 
     // basic EDM variables
-    auto EFSAPt = Monitored::Scalar<float>(m_group+"_EFSA_Pt",-999.);
-    auto EFSAEta = Monitored::Scalar<float>(m_group+"_EFSA_Eta",-999.);
-    auto EFSAPhi = Monitored::Scalar<float>(m_group+"_EFSA_Phi",-999.);
+    auto EFSAPt = Monitored::Scalar<float>(chain+"_EFSA_Pt",-999.);
+    auto EFSAEta = Monitored::Scalar<float>(chain+"_EFSA_Eta",-999.);
+    auto EFSAPhi = Monitored::Scalar<float>(chain+"_EFSA_Phi",-999.);
 
-    EFSAPt = (*muSAEL)->pt()/1e3 * (*muSAEL)->charge(); // convert to GeV
-    EFSAEta = (*muSAEL)->eta();
-    EFSAPhi = (*muSAEL)->phi();
+    EFSAPt = EFSATrack->pt()/1e3 * EFSATrack->charge(); // convert to GeV
+    EFSAEta = EFSATrack->eta();
+    EFSAPhi = EFSATrack->phi();
 
-    fill(m_group, EFSAPt, EFSAEta, EFSAPhi);
+    fill(m_group+"_"+chain, EFSAPt, EFSAEta, EFSAPhi);
   }
 
 
@@ -40,18 +50,19 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext& , const std:
   for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muCBLinkInfo : featureContCB) {
     ATH_CHECK( muCBLinkInfo.isValid() );
     const ElementLink<xAOD::MuonContainer> muCBEL = muCBLinkInfo.link;
-    if ( ! (*muCBEL)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle) ) continue;
+    const xAOD::TrackParticle* EFCBTrack = (*muCBEL)->trackParticle(xAOD::Muon::TrackParticleType::CombinedTrackParticle);
+    if ( !EFCBTrack ) continue;
 
     // basic EDM variables
-    auto EFCBPt = Monitored::Scalar<float>(m_group+"_EFCB_Pt",-999.);
-    auto EFCBEta = Monitored::Scalar<float>(m_group+"_EFCB_Eta",-999.);
-    auto EFCBPhi = Monitored::Scalar<float>(m_group+"_EFCB_Phi",-999.);
+    auto EFCBPt = Monitored::Scalar<float>(chain+"_EFCB_Pt",-999.);
+    auto EFCBEta = Monitored::Scalar<float>(chain+"_EFCB_Eta",-999.);
+    auto EFCBPhi = Monitored::Scalar<float>(chain+"_EFCB_Phi",-999.);
 
-    EFCBPt = (*muCBEL)->pt()/1e3 * (*muCBEL)->charge(); // convert to GeV
-    EFCBEta = (*muCBEL)->eta();
-    EFCBPhi = (*muCBEL)->phi();
+    EFCBPt = EFCBTrack->pt()/1e3 * EFCBTrack->charge(); // convert to GeV
+    EFCBEta = EFCBTrack->eta();
+    EFCBPhi = EFCBTrack->phi();
 
-    fill(m_group, EFCBPt, EFCBEta, EFCBPhi);
+    fill(m_group+"_"+chain, EFCBPt, EFCBEta, EFCBPhi);
   }
 
   return StatusCode::SUCCESS;
@@ -68,25 +79,25 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
 
   // OfflineSA
   if( OfflineSATrack ){
-    auto OfflineSAPt = Monitored::Scalar<float>(m_group+"_OfflineSA_Pt",-999.);
-    auto OfflineSAEta = Monitored::Scalar<float>(m_group+"_OfflineSA_Eta",-999.);
-    auto OfflineSAPhi = Monitored::Scalar<float>(m_group+"_OfflineSA_Phi",-999.);
+    auto OfflineSAPt = Monitored::Scalar<float>(chain+"_OfflineSA_Pt",-999.);
+    auto OfflineSAEta = Monitored::Scalar<float>(chain+"_OfflineSA_Eta",-999.);
+    auto OfflineSAPhi = Monitored::Scalar<float>(chain+"_OfflineSA_Phi",-999.);
 
-    auto matchedEFSA = Monitored::Scalar<bool>(m_group+"_matchedEFSA",false);
-    auto matchedL2SA = Monitored::Scalar<bool>(m_group+"_matchedL2SA",false);
+    auto matchedEFSA = Monitored::Scalar<bool>(chain+"_matchedEFSA",false);
+    auto matchedL2SA = Monitored::Scalar<bool>(chain+"_matchedL2SA",false);
 
-    auto OfflineSAmatchedL2SAPt = Monitored::Scalar<float>(m_group+"_OfflineSAmatchedL2SA_Pt",-999.);
-    auto OfflineSAmatchedL2SAEta = Monitored::Scalar<float>(m_group+"_OfflineSAmatchedL2SA_Eta",-999.);
-    auto OfflineSAmatchedL2SAPhi = Monitored::Scalar<float>(m_group+"_OfflineSAmatchedL2SA_Phi",-999.);
+    auto OfflineSAmatchedL2SAPt = Monitored::Scalar<float>(chain+"_OfflineSAmatchedL2SA_Pt",-999.);
+    auto OfflineSAmatchedL2SAEta = Monitored::Scalar<float>(chain+"_OfflineSAmatchedL2SA_Eta",-999.);
+    auto OfflineSAmatchedL2SAPhi = Monitored::Scalar<float>(chain+"_OfflineSAmatchedL2SA_Phi",-999.);
  
-    auto MatchedEFSAPt = Monitored::Scalar<float>(m_group+"_MatchedEFSA_Pt",-999.);
-    auto MatchedEFSAEta = Monitored::Scalar<float>(m_group+"_MatchedEFSA_Eta",-999.);
-    auto MatchedEFSAPhi = Monitored::Scalar<float>(m_group+"_MatchedEFSA_Phi",-999.);
+    auto MatchedEFSAPt = Monitored::Scalar<float>(chain+"_MatchedEFSA_Pt",-999.);
+    auto MatchedEFSAEta = Monitored::Scalar<float>(chain+"_MatchedEFSA_Eta",-999.);
+    auto MatchedEFSAPhi = Monitored::Scalar<float>(chain+"_MatchedEFSA_Phi",-999.);
 
-    auto SAdR = Monitored::Scalar<float>(m_group+"_SAdR",1000.);
-    auto SAdPt = Monitored::Scalar<float>(m_group+"_SAdPt",-999.);
-    auto SAdEta = Monitored::Scalar<float>(m_group+"_SAdEta",-999.);
-    auto SAdPhi = Monitored::Scalar<float>(m_group+"_SAdPhi",-999.);
+    auto SAdR = Monitored::Scalar<float>(chain+"_SAdR",1000.);
+    auto SAdPt = Monitored::Scalar<float>(chain+"_SAdPt",-999.);
+    auto SAdEta = Monitored::Scalar<float>(chain+"_SAdEta",-999.);
+    auto SAdPhi = Monitored::Scalar<float>(chain+"_SAdPhi",-999.);
 
     // basic EDM variables
     OfflineSAPt = OfflineSATrack->pt()/1e3 * OfflineSATrack->charge(); // convert to GeV
@@ -132,32 +143,32 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
         }
       }
     }
-    fill(m_group, OfflineSAPt, OfflineSAEta, OfflineSAPhi, OfflineSAmatchedL2SAPt, OfflineSAmatchedL2SAEta, OfflineSAmatchedL2SAPhi,
+    fill(m_group+"_"+chain, OfflineSAPt, OfflineSAEta, OfflineSAPhi, OfflineSAmatchedL2SAPt, OfflineSAmatchedL2SAEta, OfflineSAmatchedL2SAPhi,
          MatchedEFSAPt, MatchedEFSAEta, MatchedEFSAPhi, SAdPt, SAdEta, SAdPhi, SAdR, matchedEFSA, matchedL2SA);
   }
 
 
   // OfflineCB
   if( OfflineCBTrack ){
-    auto OfflineCBPt = Monitored::Scalar<float>(m_group+"_OfflineCB_Pt",-999.);
-    auto OfflineCBEta = Monitored::Scalar<float>(m_group+"_OfflineCB_Eta",-999.);
-    auto OfflineCBPhi = Monitored::Scalar<float>(m_group+"_OfflineCB_Phi",-999.);
+    auto OfflineCBPt = Monitored::Scalar<float>(chain+"_OfflineCB_Pt",-999.);
+    auto OfflineCBEta = Monitored::Scalar<float>(chain+"_OfflineCB_Eta",-999.);
+    auto OfflineCBPhi = Monitored::Scalar<float>(chain+"_OfflineCB_Phi",-999.);
 
-    auto matchedEFCB = Monitored::Scalar<bool>(m_group+"_matchedEFCB",false);
-    auto matchedL2CB = Monitored::Scalar<bool>(m_group+"_matchedL2CB",false);
+    auto matchedEFCB = Monitored::Scalar<bool>(chain+"_matchedEFCB",false);
+    auto matchedL2CB = Monitored::Scalar<bool>(chain+"_matchedL2CB",false);
 
-    auto OfflineCBmatchedL2CBPt = Monitored::Scalar<float>(m_group+"_OfflineCBmatchedL2CB_Pt",-999.);
-    auto OfflineCBmatchedL2CBEta = Monitored::Scalar<float>(m_group+"_OfflineCBmatchedL2CB_Eta",-999.);
-    auto OfflineCBmatchedL2CBPhi = Monitored::Scalar<float>(m_group+"_OfflineCBmatchedL2CB_Phi",-999.);
+    auto OfflineCBmatchedL2CBPt = Monitored::Scalar<float>(chain+"_OfflineCBmatchedL2CB_Pt",-999.);
+    auto OfflineCBmatchedL2CBEta = Monitored::Scalar<float>(chain+"_OfflineCBmatchedL2CB_Eta",-999.);
+    auto OfflineCBmatchedL2CBPhi = Monitored::Scalar<float>(chain+"_OfflineCBmatchedL2CB_Phi",-999.);
  
-    auto MatchedEFCBPt = Monitored::Scalar<float>(m_group+"_MatchedEFCB_Pt",-999.);
-    auto MatchedEFCBEta = Monitored::Scalar<float>(m_group+"_MatchedEFCB_Eta",-999.);
-    auto MatchedEFCBPhi = Monitored::Scalar<float>(m_group+"_MatchedEFCB_Phi",-999.);
+    auto MatchedEFCBPt = Monitored::Scalar<float>(chain+"_MatchedEFCB_Pt",-999.);
+    auto MatchedEFCBEta = Monitored::Scalar<float>(chain+"_MatchedEFCB_Eta",-999.);
+    auto MatchedEFCBPhi = Monitored::Scalar<float>(chain+"_MatchedEFCB_Phi",-999.);
   
-    auto CBdR = Monitored::Scalar<float>(m_group+"_CBdR",1000.);
-    auto CBdPt = Monitored::Scalar<float>(m_group+"_CBdPt",-999.);
-    auto CBdEta = Monitored::Scalar<float>(m_group+"_CBdEta",-999.);
-    auto CBdPhi = Monitored::Scalar<float>(m_group+"_CBdPhi",-999.);
+    auto CBdR = Monitored::Scalar<float>(chain+"_CBdR",1000.);
+    auto CBdPt = Monitored::Scalar<float>(chain+"_CBdPt",-999.);
+    auto CBdEta = Monitored::Scalar<float>(chain+"_CBdEta",-999.);
+    auto CBdPhi = Monitored::Scalar<float>(chain+"_CBdPhi",-999.);
 
     // basic EDM variables
     OfflineCBPt = OfflineCBTrack->pt()/1e3 * OfflineCBTrack->charge(); // convert to GeV
@@ -203,9 +214,36 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
         }
       }
     }
-    fill(m_group, OfflineCBPt, OfflineCBEta, OfflineCBPhi, OfflineCBmatchedL2CBPt, OfflineCBmatchedL2CBEta, OfflineCBmatchedL2CBPhi,
+    fill(m_group+"_"+chain, OfflineCBPt, OfflineCBEta, OfflineCBPhi, OfflineCBmatchedL2CBPt, OfflineCBmatchedL2CBEta, OfflineCBmatchedL2CBPhi,
          MatchedEFCBPt, MatchedEFCBEta, MatchedEFCBPhi, CBdPt, CBdEta, CBdPhi, CBdR, matchedEFCB, matchedL2CB);
   }
 
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode EFMuonMonMT :: fillVariables(const EventContext &ctx) const {
+
+  ATH_MSG_DEBUG ("Filling histograms for " << name() << "...");
+
+  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFSAMuonContainerKey, "EFSA", &MuonMatchingTool::PosForMatchSATrack));
+  ATH_CHECK( fillVariableEtaPhi<xAOD::Muon>(ctx, m_EFCBMuonContainerKey, "EFCB", &MuonMatchingTool::PosForMatchCBTrack));
+
+  return StatusCode::SUCCESS;
+
+}
+
+
+StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuon(const EventContext &ctx, const xAOD::Muon* mu) const {
+
+  ATH_CHECK( fillVariablesRatioPlots<xAOD::Muon>(ctx, mu, "EFSA", xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle,
+                                                 [this](const EventContext &ctx, const xAOD::Muon *mu){ return m_matchTool->matchEFSAReadHandle(ctx,mu); }
+                                                 )); 
+
+  ATH_CHECK( fillVariablesRatioPlots<xAOD::Muon>(ctx, mu, "EFCB", xAOD::Muon::TrackParticleType::CombinedTrackParticle,
+                                                 [this](const EventContext &ctx, const xAOD::Muon *mu){ return m_matchTool->matchEFCBReadHandle(ctx,mu); }
+                                                 )); 
+
+  return StatusCode::SUCCESS;
+
 }

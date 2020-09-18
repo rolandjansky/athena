@@ -173,6 +173,7 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSLHCVeryForward", False ) # Turn running of SLHC reconstruction for Very Forward extension on and off 
   icf.addFlag("InDet.doTRTGlobalOccupancy", False) # Turn running of Event Info TRT Occupancy Filling Alg on and off (also whether it is used in TRT PID calculation) 
   icf.addFlag("InDet.doNNToTCalibration", False ) # USe ToT calibration for NN clustering rather than Charge 
+  icf.addFlag("InDet.useNNTTrainedNetworks", True ) # Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available.
   icf.addFlag("InDet.keepAdditionalHitsOnTrackParticle", False) # Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!) 
   icf.addFlag("InDet.doSCTModuleVeto", False) # Turn on SCT_ModuleVetoSvc, allowing it to be configured later 
   icf.addFlag("InDet.doParticleConversion", False) # In case anyone still wants to do Rec->xAOD TrackParticle Conversion 
