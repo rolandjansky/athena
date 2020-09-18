@@ -9,11 +9,11 @@
 
 def Run3AFPExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
 
-    from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
-    BunchCrossingCondAlgDefault()
-
-
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result.merge(BunchCrossingCondAlgCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'Run3AFPMonitorCfg')
@@ -70,7 +70,8 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     arrayOneList.defineHistogram('barInTrainID,trainID', title='ToF hit bar vs train {0};barInTrainID;trainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
-    return helper.result()
+    result.merge(helper.result())
+    return result
     
 
 if __name__=='__main__':
@@ -100,9 +101,6 @@ if __name__=='__main__':
     
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
-    
-    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
-    cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
     cfg.run(50000)
 
