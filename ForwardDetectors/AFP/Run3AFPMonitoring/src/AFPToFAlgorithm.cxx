@@ -27,7 +27,8 @@ AFPToFAlgorithm::~AFPToFAlgorithm() {}
 StatusCode AFPToFAlgorithm::initialize() {
 	using namespace Monitored;
 
-	m_HitmapGroupsToF = buildToolMap<int>(m_tools,"AFPToFTool", m_stationNamesToF);
+	m_StationNamesGroup = buildToolMap<int>(m_tools,"AFPToFTool", m_stationNamesToF);
+	m_TrainsToFGroup = buildToolMap<int>(m_tools, "AFPToFTool", m_trainsToF);
 
 	// We must declare to the framework in initialize what SG objects we are going to use
 	SG::ReadHandleKey<xAOD::AFPToFHitContainer> afpToFHitContainerKey("AFPToFHits");
@@ -47,6 +48,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
 	auto trainID = Monitored::Scalar<int>("trainID", 0); 
 	auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
+	auto barInTrainAll = Monitored::Scalar<int>("barInTrainAll", 0);
     
 	lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -66,12 +68,6 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	{
 		trainID = hitsItr->trainID();
 		barInTrainID = hitsItr->barInTrainID();
-<<<<<<< HEAD
-		
-		std::cout << "\t\t\tTrainID: " << trainID << "\n";
-		std::cout << "\t\t\tBarInTrainID: " << barInTrainID << "\n";
-=======
->>>>>>> upstream/master
 
 		if(hitsItr->isSideA())
 		{
@@ -86,7 +82,10 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
 		if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)
 		{
-			fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], barInTrainID, trainID);
+			fill(m_tools[m_StationNamesGroup.at(m_stationNamesToF.at(hitsItr->stationID()))], barInTrainID, trainID);
+			fill(m_tools[m_TrainsToFGroup.at(m_trainsToF.at(trainID))], barInTrainID);
+			barInTrainAll = (trainID*4)+barInTrainID;
+			fill("AFPToFTool", barInTrainAll);
 		}
 	}
 
