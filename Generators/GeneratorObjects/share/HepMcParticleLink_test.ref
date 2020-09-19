@@ -1,9 +1,9 @@
-[==========] Running 9 tests from 1 test case.
+[==========] Running 9 tests from 1 test suite.
 [----------] Global test environment set-up.
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
-                                          running on pc-camb05 on Wed Apr 29 13:48:28 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on 36d5a1e47246 on Sat Sep 12 19:54:17 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -13,12 +13,12 @@ ApplicationMgr Ready
 [----------] 9 tests from HepMcParticleLink_test
 [ RUN      ] HepMcParticleLink_test.old_test
 *** HepMcParticleLink_test starts ***
-ClassIDSvc           INFO  getRegistryEntries: read 817 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 821 CLIDRegistry entries for module ALL
 HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
 *** HepMcParticleLink_test OK ***
-[       OK ] HepMcParticleLink_test.old_test (53 ms)
+[       OK ] HepMcParticleLink_test.old_test (45 ms)
 [ RUN      ] HepMcParticleLink_test.broken_event_link
-ClassIDSvc           INFO  getRegistryEntries: read 1070 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1086 CLIDRegistry entries for module ALL
 [       OK ] HepMcParticleLink_test.broken_event_link (1 ms)
 [ RUN      ] HepMcParticleLink_test.truth_event_link_first_event
 [       OK ] HepMcParticleLink_test.truth_event_link_first_event (0 ms)
@@ -37,8 +37,8 @@ HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 
 [       OK ] HepMcParticleLink_test.truth_event_link_cut_events (0 ms)
 [ RUN      ] HepMcParticleLink_test.max_event_number
 [       OK ] HepMcParticleLink_test.max_event_number (0 ms)
-[----------] 9 tests from HepMcParticleLink_test (54 ms total)
+[----------] 9 tests from HepMcParticleLink_test (46 ms total)
 
 [----------] Global test environment tear-down
-[==========] 9 tests from 1 test case ran. (176 ms total)
+[==========] 9 tests from 1 test suite ran. (255 ms total)
 [  PASSED  ] 9 tests.

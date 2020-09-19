@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // A unit test for the track selection tool. Currently this compares the pre-defined cut levels
@@ -46,7 +46,7 @@ uint8_t getSum(const TrackParticle&, xAOD::SummaryType);
 void dumpTrack( const TrackParticle& );
 
 int main( int argc, char* argv[] ) {
-  
+
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
 #define CHECK( ARG ) do {ASG_CHECK_SA( APP_NAME, ARG );} while (false)
@@ -58,7 +58,7 @@ int main( int argc, char* argv[] ) {
      Error( APP_NAME, "Could not find $ROOTCORE_TEST_FILE." );
      return 1;
    }
- 
+
   // fail on an unchecked StatusCode
    StatusCode::enableFailure();
 
@@ -113,8 +113,10 @@ int main( int argc, char* argv[] ) {
       if( e < entries ) {
          entries = e;
       }
+   } else if( entries > 100 ) {
+      entries = 100;
    }
-   
+
    for (Long64_t entry = 0; entry < entries; ++entry) {
      CHECK( !event.getEntry(entry) );
 
@@ -179,7 +181,7 @@ bool passNoCut( const TrackParticle&, const xAOD::Vertex* )
 bool passLoose( const TrackParticle& trk, const xAOD::Vertex* )
 {
   if (std::fabs(trk.eta()) > 2.5) return false;
-  
+
   uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
   uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
   if (nPixHits + nSctHits < 7) return false;
@@ -193,7 +195,7 @@ bool passLoose( const TrackParticle& trk, const xAOD::Vertex* )
   if (nSiHoles > 2) return false;
   if (nPixHoles > 1) return false;
 
-  return true;  
+  return true;
 }
 
 bool passLoosePrimary( const TrackParticle& trk, const xAOD::Vertex* )
@@ -300,7 +302,7 @@ bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx )
   if (nPixHits < 1) return false;
   uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
   if (nSctHits < 6) return false;
-  
+
   if (trk.pt() > 10.0*1e3 && TMath::Prob(trk.chiSquared(), trk.numberDoF()) < 0.01) return false;
 
   if (std::fabs(trk.d0()) > 1.5) return false;
@@ -331,7 +333,7 @@ bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx )
   if (pt >= 0.4 && nSctHits < 6) return false;
   else if (pt >= 0.3 && nSctHits < 4) return false;
   else if (nSctHits < 2) return false;
-  
+
   if (std::fabs(trk.d0()) > 1.5) return false;
   if (vtx != nullptr) {
     if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.5) return false;
@@ -360,14 +362,14 @@ bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx )
   if (pt >= 0.4 && nSctHits < 8) return false;
   else if (pt >= 0.3 && nSctHits < 6) return false;
   else if (nSctHits < 4) return false;
-  
+
   if (std::fabs(trk.d0()) > 1.0) return false;
   if (vtx != nullptr) {
     if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.0) return false;
   }
 
   if (trk.chiSquared() / trk.numberDoF() > 6.0) return false;
-  
+
   return true;
 }
 
@@ -381,7 +383,7 @@ bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* )
   uint8_t nIBLHits = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
   uint8_t expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
   uint8_t nBLHits = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
-  
+
   // make an exception is there is an IBL hit, and the hole is in the BLayer
   if (nIBLHits >= 1) {
     if (expectBL && nBLHits ==0) return true;

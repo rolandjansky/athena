@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexSeedFinderUtils/test/GaussianTrackDensity_test.cxx
@@ -23,9 +23,6 @@
 #include <cassert>
 #include <cmath>
 
-
-// Can't link against these --- they're in a component library.
-#include "../src/GaussianTrackDensity.cxx"
 
 
 using Gaudi::Units::mm;
