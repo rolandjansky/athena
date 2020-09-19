@@ -49,7 +49,7 @@
 namespace {
 	//commonly used axes
 	const Amg::Vector3D gXAxis(1.0, 0.0, 0.0), gYAxis(0.0, 1.0, 0.0), gZAxis(0.0, 0.0, 1.0);
-	//commonly used angles, +-90 degree, 180 degree
+	//commonly used angles, ±90°, 180°
 	const double p90deg(90.0 * Gaudi::Units::deg), m90deg(-90.0 * Gaudi::Units::deg), p180deg(180.0 * Gaudi::Units::deg);
 }
 

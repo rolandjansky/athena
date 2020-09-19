@@ -236,7 +236,7 @@ TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(cons
   float trk_z0 = trk.z0();
   float beamspot_z0 = trk.vz();
   float theta = trk.theta();
-  // calculate deltaz * sin theta
+  // calculate Δz * sin θ
   dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
 
   // If vertex fit information is flagged to be used,

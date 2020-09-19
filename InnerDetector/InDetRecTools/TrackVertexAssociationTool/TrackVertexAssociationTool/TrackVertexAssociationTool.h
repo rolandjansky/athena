@@ -64,7 +64,7 @@ namespace CP {
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo key" };
 
       /// Checks if a track-vertex pair passes the cuts.  Returns
-      /// deltaz * sin theta of the pair in `dzSinTheta` if successful.
+      /// Δz * sin θ of the pair in `dzSinTheta` if successful.
       MatchStatus isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,
                    float &dzSinTheta) const;
 

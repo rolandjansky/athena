@@ -111,8 +111,8 @@ Trk::EnergyLoss* iFatras::EnergyLossSamplerBetheHeitler::energyLoss( const Trk::
 
 
   //Bethe-Heitler for electron brem description as described here:
-  // "A Gaussian-mixture approximation of the Bethe-Heitler model of electron energy loss by bremsstrahlung"
-  // R. Fruehwirth
+  // "A Gaussian-mixture approximation of the Bethe–Heitler model of electron energy loss by bremsstrahlung"
+  // R. Frühwirth
   
   double u = CLHEP::RandGamma::shoot(m_randomEngine, pathLength / log(2.), 1.);
   double z = exp( -1. * u );

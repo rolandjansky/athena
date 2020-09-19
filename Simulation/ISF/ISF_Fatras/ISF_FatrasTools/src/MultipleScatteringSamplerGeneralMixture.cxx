@@ -103,8 +103,8 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::simTheta(const Trk::Mat
   
   if (particle != Trk::electron) {
     //----------------------------------------------------------------------------------------------//
-    //see Mixture models of multiple scattering: computation and simulation. - R.Fruehwirth, M. Liendl. -
-    //Computer Physics Communications 141 (2001) 230 246
+    //see Mixture models of multiple scattering: computation and simulation. - R.Frühwirth, M. Liendl. -
+    //Computer Physics Communications 141 (2001) 230–246
     //----------------------------------------------------------------------------------------------//
     std::vector<double> scattering_params;
     // Decide which mixture is best
