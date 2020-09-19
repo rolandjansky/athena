@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexSeedFinderUtils/test/Trk2dDistanceSeeder_test.cxx
@@ -22,11 +22,6 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
-
-// Can't link against these --- they're in a component library.
-#include "../src/Trk2dDistanceSeeder.cxx"
-#include "../src/PointOnTrack.cxx"
-#include "../src/TwoTracks.cxx"
 
 // for the field map
 #include "PathResolver/PathResolver.h"

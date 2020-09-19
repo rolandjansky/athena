@@ -22,11 +22,12 @@ set( AnalysisBaseReleaseEnvironment_ENVIRONMENT
    SET ROOTCOREDIR \${AnalysisBase_DIR}
    SET ROOTCOREBIN \${AnalysisBase_DIR} )
 
-# Since this project may be built on platforms that provide Python 3
-# out of the box, let's explicitly stick to Python 2 (coming from the
-# externals project) for now.
-set( ATLAS_FORCE_PYTHON2 TRUE CACHE BOOL
-   "Force the usage of Python 2 in the AnalysisBase project" )
+# Find the first "acceptable" Python version according to our search path, and
+# don't search for the absolute newest. (Which could result in picking up
+# Python from /usr on modern OS-es.)
+set( Python_FIND_STRATEGY "LOCATION" CACHE STRING
+   "Search mode for FindPython.cmake" )
+mark_as_advanced( Python_FIND_STRATEGY )
 
 # Do not use Boost's CMake code when building AnalysisBase.
 set( Boost_NO_BOOST_CMAKE TRUE CACHE BOOL
