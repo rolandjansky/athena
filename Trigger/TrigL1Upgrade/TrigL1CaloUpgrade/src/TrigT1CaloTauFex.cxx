@@ -326,7 +326,7 @@ void TrigT1CaloTauFex::IsolationCorett(const std::vector<const CaloCell*>& scell
         float deltaphiInner = 0.05;
         for(auto scell : scells) {
                 if ( std::abs( scell->eta() - etacell) > deltaetaOuter2 ) continue;
-                if (scell->caloDDE()->getSampling()!=1 && scell->caloDDE()->getSampling()!=5 && cell->caloDDE()->getSampling()!=4 && cell->caloDDE()->getSampling()!=8) deltaetaOuter1 = 1.0; // tighter isolation in 1° and 2° layers
+                if (scell->caloDDE()->getSampling()!=1 && scell->caloDDE()->getSampling()!=5 && cell->caloDDE()->getSampling()!=4 && cell->caloDDE()->getSampling()!=8) deltaetaOuter1 = 1.0; // tighter isolation in 1 deg  and 2 deg layers
                 float dphi = std::abs( scell->phi() - phicell);
                 dphi = std::abs( M_PI - dphi );
                 dphi = std::abs( M_PI - dphi );

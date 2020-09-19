@@ -598,7 +598,7 @@ double SensorSim3DTool::getMobility(double electricField, bool isHoleBit) {
   double ecrit = 0;
   double beta = 0;
 
-  //These parameterizations come from C. Jacoboni et al., Solid‐State Electronics 20 (1977) 77‐89. (see also https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
+  //These parameterizations come from C. Jacoboni et al., Solid-State Electronics 20 (1977) 77-89. (see also https://cds.cern.ch/record/684187/files/indet-2001-004.pdf).
 
   if (!isHoleBit) {
     vsat = 15.3 * pow(m_temperature, -0.87); // mm/ns

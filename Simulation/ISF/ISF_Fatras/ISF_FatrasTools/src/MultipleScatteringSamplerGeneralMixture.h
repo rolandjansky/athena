@@ -76,7 +76,7 @@ namespace iFatras {
       static double         s_log_RossiGreisen;      //!< main factor for Rossi-Greisen formula
       
       
-      // ========= General mixture model R.Frühwirth, M. Liendl. Comp. Phys. Comm. 141 (2001) 230–246 =========
+      // ========= General mixture model R.Fruehwirth, M. Liendl. Comp. Phys. Comm. 141 (2001) 230-246 =========
       static double	    s_genMixScale;	    //!< General mixture model: Scaling factor
       
       //!< General mixture model: get parameters for single gaussian simulation

@@ -60,7 +60,7 @@ public:
               const xAOD::VertexContainer &vxCont) const;
 
   /// Compares the track trk with each track in vx_list using isCompatible,
-  /// and returns the compatible track with the smallest Δz * sin θ.
+  /// and returns the compatible track with the smallest delta z * sin theta.
   const xAOD::Vertex *
   getUniqueMatchVertex(const xAOD::TrackParticle &trk,
                        std::vector<const xAOD::Vertex *> &vx_list) const;
@@ -87,7 +87,7 @@ private:
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo key" };
 
   /// Checks if a track-vertex pair passes the cuts.  Returns
-  /// Δz * sin θ of the pair in `dzSinTheta` if successful.
+  /// deltaz * sin theta of the pair in `dzSinTheta` if successful.
   bool isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,
                float &dzSinTheta) const;
 

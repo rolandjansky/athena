@@ -87,7 +87,7 @@ namespace InDet {
     float dzdrmin{0.};    //<! store eta cuts interpreted as dz/dr 
     float dzdrmax{0.};    //<! store eta cuts interpreted as dz/dr 
     float ipt2C{0.};  ///< inverse of 90% of the pt cut, squared, multiplied by a magic conversion factor 
-    float ipt2K{0.};  ///< 1 / (K * 0.9 * pt cut)², allows us to directly apply our pt cut on the (2R)² estimate we obtain from the seed
+    float ipt2K{0.};  ///< 1 / (K * 0.9 * pt cut)^2, allows us to directly apply our pt cut on the (2R)^2 estimate we obtain from the seed
     float COFK{0.};   ///< a magic number 
     float zminU{0.};
     float zmaxU{0.};
@@ -131,8 +131,8 @@ namespace InDet {
     std::vector<float> Zo;    ///< z0 estimate from 2 points
     std::vector<float> Tz;    ///< 1/tan(theta) == dz/dr estimate from 2 points
     std::vector<float> R;     ///< inverse distance to the central space point 
-    std::vector<float> U;     ///< transformed U coordinate (x/(x²+y²)) in frame around central SP 
-    std::vector<float> V;     ///< transformed V coordinate (y/(x²+y²)) in frame around central SP 
+    std::vector<float> U;     ///< transformed U coordinate (x/(x^2+y^2)) in frame around central SP 
+    std::vector<float> V;     ///< transformed V coordinate (y/(x^2+y^2)) in frame around central SP 
     std::vector<float> X;
     std::vector<float> Y;
     std::vector<float> Er;    ///< error component on 1/tan(theta)==dz/dr from the position errors on the space-points
