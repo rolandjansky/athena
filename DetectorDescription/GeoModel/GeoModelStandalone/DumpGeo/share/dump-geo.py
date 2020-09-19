@@ -43,7 +43,7 @@ if not 'vp1MuonAGDD2GeoSwitches' in dir(): vp1MuonAGDD2GeoSwitches=[]
 if not 'vp1NSWAGDDFiles' in dir(): vp1NSWAGDDFiles=[]
 if not 'vp1MuonLayout' in dir(): vp1MuonLayout=""
 
-def vp1CfgErr(s): print "VP1 CONFIGURATION ERROR: %s" % s
+def vp1CfgErr(s): print ("VP1 CONFIGURATION ERROR: %s" % s)
 
 if (vp1Fatras and not vp1ID):
     vp1CfgErr("Fatras can not be enabled without inner detector. Turning off Fatras.")
@@ -63,13 +63,6 @@ if (vp1FatrasCalo and not vp1Calo):
 if ( vp1FatrasTruthKey != "" and not vp1Fatras ):
     vp1CfgErr("FatrasTruthKey set but Fatras not enabled. Unsetting FatrasTruthKey.")
     vp1FatrasTruthKey=""
-
-#print "*** VP1 NOTE *** setting COIN_GLXGLUE env vars to make screenshots working remotely..."
-#print "*** VP1 NOTE *** COIN_GLXGLUE_NO_GLX13_PBUFFERS=1 - " + "COIN_GLXGLUE_NO_PBUFFERS=1"
-#os.putenv("COIN_GLXGLUE_NO_GLX13_PBUFFERS","1")
-#os.putenv("COIN_GLXGLUE_NO_PBUFFERS","1")
-
-
 
 #Set VP1ATLREL integer so we can do e.g. "if VP1ATLREL>=160002:"
 include('DumpGeo/vp1FragmentConstructVP1ATLREL.py')
@@ -181,9 +174,9 @@ if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
 DetFlags.Print()
 if (vp1CustomGeometry):
-    print "Configuring Custom geometry."
+    print ("Configuring Custom geometry.")
 if (vp1SLHC):
-  print "Setting up SLHC configuration"
+  print ("Setting up SLHC configuration")
   rec.doTrigger.set_Value_and_Lock(False)
   from AthenaCommon.GlobalFlags import globalflags
   from AthenaCommon.GlobalFlags import jobproperties
@@ -221,16 +214,16 @@ from AtlasGeoModel import GeoModelInit
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 if vp1GeoModelStats:
-  print "printing GeoModel stats to file (Svc.StatisticsToFile=TRUE)..."
+  print ("printing GeoModel stats to file (Svc.StatisticsToFile=TRUE)...")
   svcMgr.GeoModelSvc.StatisticsToFile = True
 
 if vp1Cavern:
-  print "vp1.py - Initializing the visualization of the Cavern Infrastructure..."
+  print ("vp1.py - Initializing the visualization of the Cavern Infrastructure...")
   from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
   svcMgr.GeoModelSvc.DetectorTools += [ CavernInfraDetectorTool() ]
 
 if vp1ToyDetector:
-  print "vp1.py - Initializing the visualization of the GeoModelExamples 'ToyDetector'..."
+  print ("vp1.py - Initializing the visualization of the GeoModelExamples 'ToyDetector'...")
   from GeoModelExamples.GeoModelExamplesConf import ToyDetectorTool
   svcMgr.GeoModelSvc.DetectorTools += [ ToyDetectorTool() ]
 
@@ -283,30 +276,7 @@ if (vp1Muon):
                     b.ReadAGDD=False
                     b.XMLFiles=vp1NSWAGDDFiles
 
-    # if(vp1FullToroids or vp1NSW):
-    #     from AtlasGeoModel import Agdd2Geo
-    # else:
-    #     from AthenaCommon.GlobalFlags import globalflags
-    #     DDV = globalflags.DetDescrVersion()
-    #     if(DDV.__contains__('ATLAS-GEO')):
-    #         seconddash = DDV.find('-',8);
-    #         majorddversstr = DDV[seconddash+1:seconddash+3];
-    #         majorddversint = int(majorddversstr);
-    #         if(majorddversint>10):
-    #             # Additional material in the muon system
-    #             from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-    #             AGDD2GeoSvc=AGDD2GeoSvc()
-    #             AGDD2GeoSvc.PrintSections=False
-    #             AGDD2GeoSvc.Sections += ["ATLAS Feet"]
-    #             AGDD2GeoSvc.Sections += ["Atlas Barrel Toroidal Magnets"]
-    #             AGDD2GeoSvc.Sections += ["Atlas ECT Toroidal Magnets"]
-    #             AGDD2GeoSvc.DisableSections = False
-    #             AGDD2GeoSvc.Locked = False
-    #             theApp.CreateSvc += ["AGDD2GeoSvc"]
-    #             svcMgr += AGDD2GeoSvc
-
 #MagneticField:
-#include("BFieldAth/BFieldAth_jobOptions.py") # OLD
 import MagFieldServices.SetupField # NEW
 
 if (vp1Fatras):
@@ -436,14 +406,14 @@ if vp1Extrapolator and (vp1ID or vp1Muon):
     #                                Propagators = [ VP1Propagator ] )
 
     ToolSvc += VP1Extrapolator
-    print VP1Extrapolator
+    print (VP1Extrapolator)
     #We should append to variable instead:
     os.putenv("VP1_JOBCFG_EXTRA_VP1_EXTRAPOLATORS","Trk::Extrapolator/"+VP1ExtraPolatorName)
 
     from TrkExEngine.AtlasExtrapolationEngine import AtlasExtrapolationEngine
     ExtrapolationEngine = AtlasExtrapolationEngine(name='Extrapolation', nameprefix='Atlas')
     ToolSvc += ExtrapolationEngine
-    print ExtrapolationEngine
+    print (ExtrapolationEngine)
 
 #Fitter:
 if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
@@ -499,8 +469,8 @@ if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
        ToolMuonDriftCircle = MdtTubeHitOnTrackCreator ,
                                                  Mode = 'all')
     ToolSvc += VP1RotCreator
-    print VP1RotCreator
-    print MdtTubeHitOnTrackCreator
+    print (VP1RotCreator)
+    print (MdtTubeHitOnTrackCreator)
 
     from TrkKalmanFitter.TrkKalmanFitterConf import Trk__KalmanFitter as ConfiguredKalmanFitter
     VP1KalmanFitter = ConfiguredKalmanFitter(name                           = 'VP1KalmanFitter',
@@ -515,7 +485,7 @@ if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
 
     ToolSvc += VP1KalmanFitter
 
-    print VP1KalmanFitter
+    print (VP1KalmanFitter)
     os.putenv("VP1_JOBCFG_EXTRA_VP1_FITTERS",VP1KalmanFitter.name())
 
 
@@ -545,7 +515,7 @@ if vp1Fitter and vp1Extrapolator and (vp1ID or vp1Muon):
                                              SignedDriftRadius     = True,
                                              RecalculateDerivatives= True
                                              )
-    print VP1GlobalChi2Fitter
+    print (VP1GlobalChi2Fitter)
     ToolSvc += VP1GlobalChi2Fitter
 
     VP1GlobalChi2Fitter.OutputLevel=DEBUG
