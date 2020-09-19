@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATFACTORYSLHC_H
@@ -17,7 +17,7 @@ class InDetServMatFactorySLHC : public InDetDD::DetectorFactoryBase {
  public:
   
   // Constructor:
-  InDetServMatFactorySLHC(const InDetServMatAthenaComps * athenaComps);
+  InDetServMatFactorySLHC(InDetServMatAthenaComps * athenaComps);
 
   // Destructor:
   ~InDetServMatFactorySLHC();
@@ -46,7 +46,7 @@ class InDetServMatFactorySLHC : public InDetDD::DetectorFactoryBase {
   IRDBRecordset_ptr m_InDetServGenEnvelope;
 
   // Need acceess to derived version
-  const InDetServMatAthenaComps * m_athenaComps;
+  InDetServMatAthenaComps * m_athenaComps;
 
   // private data
   InDetDD::InDetServMatManager *m_manager;
