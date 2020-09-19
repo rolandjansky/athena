@@ -986,7 +986,6 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
     msg(MSG::INFO)<<"initTrigRoadsModel has been called"<<endmsg;
-    //    msg(MSG::INFO)<<"ToolHandle in initTrigRoadsModel - <"<<m_condTriggerTool<<">"<<endmsg;
 
     std::string roads_dir;
     roads_dir = PathResolver::find_directory (m_database_repository, "DATAPATH");

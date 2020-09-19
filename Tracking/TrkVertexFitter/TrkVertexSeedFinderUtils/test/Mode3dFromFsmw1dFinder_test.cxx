@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexSeedFinderUtils/test/Mode3dFromFsmw1dFinder_test.cxx
@@ -22,8 +22,6 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-
-
 
 
 using Gaudi::Units::mm;

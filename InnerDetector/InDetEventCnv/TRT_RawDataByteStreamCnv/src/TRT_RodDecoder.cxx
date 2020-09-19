@@ -186,7 +186,7 @@ StatusCode TRT_RodDecoder::initialize()
     std::vector<int>::iterator it;
 
     for ( it=m_LoadCompressTableVersions.begin() ; 
-	  it < m_LoadCompressTableVersions.end(); it++ )
+	  it < m_LoadCompressTableVersions.end(); ++it )
      {
        if ( (*it < 4) || (*it > m_maxCompressionVersion) )
        {
@@ -1743,7 +1743,7 @@ TRT_RodDecoder::update() {
 			  Ctable->m_TableVersion );
 
 	 delete Ctable;
-	 catrIt++;
+	 ++catrIt;
 
 	 continue;
        }
@@ -1754,7 +1754,7 @@ TRT_RodDecoder::update() {
 	 ATH_MSG_DEBUG( "Table " << Ctable->m_TableVersion 
 			  << " already loaded!  Not overwriting" );
 	 delete Ctable;
-	 catrIt++;
+         ++catrIt;
 
 	 continue;
        }
@@ -1843,7 +1843,7 @@ TRT_RodDecoder::update() {
        }
 #endif /* NOTDEF */
 
-       catrIt++;
+       ++catrIt;
 
     }
 

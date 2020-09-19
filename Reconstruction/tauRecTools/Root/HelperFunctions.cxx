@@ -67,26 +67,27 @@ std::vector<TString> tauRecTools::parseStringMVAUtilsBDT(const TString& str, con
 
 //________________________________________________________________________________
 std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile){
+  using namespace tauRecTools::msgHelperFunction;
   std::unique_ptr<TFile> fBDT(TFile::Open(weightFile));
   if(!fBDT){
-    std::cerr << "ERROR Cannot find tau input BDT file: " << weightFile << std::endl;
+    ANA_MSG_ERROR("configureMVABDT: Cannot find tau input BDT file: " << weightFile );
     return nullptr;
   }
   
   TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
   if(!tBDT){
-    std::cerr << "ERROR Cannot find tau input BDT tree" << std::endl;
+    ANA_MSG_ERROR("configureMVABDT: Cannot find tau input BDT tree");
     return nullptr;
   }    
 
-  std::cout << "tauRecTools::configureMVABDT opened file: " << weightFile << std::endl;
+  ANA_MSG_INFO("configureMVABDT: opened file: " << weightFile);
 
   std::vector<float*> vars;
 
   //parsing of variables done here from TNamed object
   TNamed* n_varList = dynamic_cast<TNamed*> (fBDT->Get("varList"));
   if(!n_varList) {
-    std::cerr << "ERROR no Variable List in file : " << weightFile << std::endl;
+    ANA_MSG_ERROR("configureMVABDT: no Variable List in file: " << weightFile );
     return nullptr;
   }
   std::vector<TString> varList_ar = tauRecTools::parseStringMVAUtilsBDT(n_varList->GetTitle());
@@ -96,7 +97,7 @@ std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT( std::map<TString, f
     if(str.Length()==0) continue;
     std::map<TString, float*>::iterator itr = availableVars.find(str);
     if(itr==availableVars.end()){
-      std::cerr << "ERROR Variable : " << str << " is not available" << std::endl;
+      ANA_MSG_ERROR("configureMVABDT: Variable : " << str << " is not available" );
       return nullptr;
     }
     vars.push_back( itr->second );
@@ -108,6 +109,44 @@ std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT( std::map<TString, f
   fBDT->Close();
   return reader;
 }
+
+//________________________________________________________________________________
+std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT(std::vector<TString>& availableVars, const TString& weightFile) {
+  using namespace tauRecTools::msgHelperFunction;
+  std::unique_ptr<TFile> fBDT(TFile::Open(weightFile));
+  if(!fBDT){
+    ANA_MSG_ERROR("configureMVABDT: Cannot find tau input BDT file: " << weightFile );
+    return nullptr;
+  }
+  
+  TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
+  if(!tBDT){
+    ANA_MSG_ERROR("configureMVABDT: Cannot find tau input BDT tree");
+    return nullptr;
+  }    
+
+  ANA_MSG_INFO("configureMVABDT: opened file: " << weightFile);
+
+  //parsing of variables done here from TNamed object
+  TNamed* n_varList = dynamic_cast<TNamed*> (fBDT->Get("varList"));
+  if(!n_varList) {
+    ANA_MSG_ERROR("configureMVABDT: no Variable List in file: " << weightFile );
+    return nullptr;
+  }
+  std::vector<TString> varList_ar = tauRecTools::parseStringMVAUtilsBDT(n_varList->GetTitle());
+  delete n_varList;
+
+  availableVars.clear();
+  for(const TString& str : varList_ar) {
+    availableVars.push_back( str );
+  }
+  
+  auto reader = std::make_unique<MVAUtils::BDT>(tBDT);
+
+  fBDT->Close();
+  return reader;
+}
+
 
 //________________________________________________________________________________
 const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted, TLorentzVector dRVector, double dRCut){

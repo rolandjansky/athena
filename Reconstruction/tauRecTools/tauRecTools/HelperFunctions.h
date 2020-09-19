@@ -28,6 +28,8 @@ namespace tauRecTools
   bool sortTracks(const ElementLink<xAOD::TauTrackContainer> &l1, const ElementLink<xAOD::TauTrackContainer> &l2);
 
   std::unique_ptr<MVAUtils::BDT> configureMVABDT( std::map<TString, float*> &availableVars, const TString& weightFile);
+  // initialise the BDT and return the list of input variable names
+  std::unique_ptr<MVAUtils::BDT> configureMVABDT(std::vector<TString>& variableNames, const TString& weightFile);
 
   std::vector<TString> parseString(const TString& str, const TString& delim=",");
   std::vector<TString> parseStringMVAUtilsBDT(const TString& str, const TString& delim=",");

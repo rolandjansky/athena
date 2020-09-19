@@ -1,12 +1,13 @@
 // Emacs -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGNAVSTRUCTURE_TRIGHOLDERSTRUCTURE
 #define TRIGNAVSTRUCTURE_TRIGHOLDERSTRUCTURE
 #include <map>
+#include <memory>
 #include <string>
 
 #include <boost/variant.hpp>
@@ -20,23 +21,23 @@ namespace HLT{
   class TrigHolderStructure : public asg::AsgMessaging {
   public:
     TrigHolderStructure();
- 
+
     void reset();
-    
+
     bool registerHolder(const std::shared_ptr<BaseHolder>& holder);
-    
+
     template<typename HolderType = BaseHolder>
-    HolderType* getHolder(class_id_type clid, const boost::variant<sub_index_type,std::string>& stiOrLabel) const {    
+    HolderType* getHolder(class_id_type clid, const boost::variant<sub_index_type,std::string>& stiOrLabel) const {
       return getCastHolder<HolderType>(getBaseHolder(clid,getSubTypeIndex(clid,stiOrLabel)));
     }
 
     template<typename HolderType = BaseHolder>
-    HolderType* getHolderForFeature(const TriggerElement::FeatureAccessHelper& fea) const {    
+    HolderType* getHolderForFeature(const TriggerElement::FeatureAccessHelper& fea) const {
       return getCastHolder<HolderType>(getBaseHolder(fea.getCLID(),fea.getIndex().subTypeIndex()));
     }
-    
+
     template<typename HolderType = BaseHolder>
-    std::vector<HolderType*> getAllHolders() const {    
+    std::vector<HolderType*> getAllHolders() const {
       std::vector<HolderType*> result;
       for(auto& clid_indexmap : m_holderByClidAndIndex){
 	for(auto& index_holder : clid_indexmap.second){
@@ -53,7 +54,7 @@ namespace HLT{
       if(lookup_it == m_holderByClidAndIndex.end()) return result;
 
       for(auto& index_holder : lookup_it->second){
-	result.push_back(getCastHolder<HolderType>(index_holder.second.get()));	
+	result.push_back(getCastHolder<HolderType>(index_holder.second.get()));
       }
       return result;
     }
@@ -67,7 +68,7 @@ namespace HLT{
 
       auto lookup_it = m_lookupSubIndex.find(clid);
       if(lookup_it == m_lookupSubIndex.end()) return invalid_sub_index;
-      
+
       auto it = lookup_it->second.find(boost::get<std::string>(stiOrLabel));
       if(it==lookup_it->second.end()) return invalid_sub_index;
 
@@ -84,14 +85,14 @@ namespace HLT{
 
       auto lookup_it = m_lookupLabels.find(clid);
       if(lookup_it == m_lookupLabels.end()) return invalid_label;
-      
+
       auto it = lookup_it->second.find(boost::get<sub_index_type>(stiOrLabel));
       if(it==lookup_it->second.end()) return invalid_label;
 
       return  it->second;
     }
 
-    
+
   private:
 
     BaseHolder* getBaseHolder(class_id_type clid,sub_index_type sti) const;

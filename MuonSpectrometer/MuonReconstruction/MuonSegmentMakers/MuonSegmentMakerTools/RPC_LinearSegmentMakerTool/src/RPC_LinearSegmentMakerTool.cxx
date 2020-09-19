@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RPC_LinearSegmentMakerTool/RPC_LinearSegmentMakerTool.h"
@@ -19,7 +19,7 @@ RPC_LinearSegmentMakerTool::RPC_LinearSegmentMakerTool(const std::string& type,
                                                        const std::string& name,
                                                        const IInterface* pIID) :
 AthAlgTool(type, name, pIID),
-m_pIdHelper(NULL)
+m_pIdHelper(nullptr)
 {
     declareInterface<Muon::IMuonSegmentMaker>(this);
     declareProperty("OutlierChi2", m_fExclChi2 = 10.0);
@@ -28,28 +28,11 @@ m_pIdHelper(NULL)
 StatusCode RPC_LinearSegmentMakerTool::initialize()
 {
     ATH_MSG_INFO("Initializing RPC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION );
-    StatusCode sc = StatusCode::SUCCESS;
 
-    // initialize RpcIdHelper
-    StoreGateSvc* pDetStore = NULL;
-    sc = svcLoc()->service("DetectorStore", pDetStore);
-    if (sc.isFailure() || pDetStore == NULL)
-    {
-        ATH_MSG_ERROR("Cannot locate DetectorStore");
-        return sc;
-    }
-    sc = pDetStore->retrieve(m_pMuonMgr);
-    if (sc.isFailure() || m_pMuonMgr == NULL)
-    {
-        ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
-        return sc;
-    }
-    m_pIdHelper = m_pMuonMgr->rpcIdHelper();
-    return StatusCode::SUCCESS;
-}
+    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    ATH_CHECK(detStore()->retrieve(muDetMgr));
 
-StatusCode RPC_LinearSegmentMakerTool::Finalize()
-{
+    m_pIdHelper = muDetMgr->rpcIdHelper();
     return StatusCode::SUCCESS;
 }
 

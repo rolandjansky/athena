@@ -13,22 +13,18 @@
 TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) 
   :
   AthAlgorithm(name, pSvcLocator),
-  m_tool( "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", this), 
   m_print_inputRdo(false),
   m_print_prepData(false),
   m_setting(0),
   m_seededDecoding(false),
   m_roiCollectionKey("OutputRoIs"),
-  m_regsel_tgc("RegSelTool/RegSelTool_TGC",this),
   m_tgcCollection("TGC_Measurements")
 {
-  declareProperty("DecodingTool",       m_tool,       "tgc rdo to prep data conversion tool" );
   declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
   declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
   declareProperty("Setting",            m_setting,        "0 is default unseeded decoding"); 
   declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
   declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-  declareProperty("RegSel_TGC", m_regsel_tgc);
   declareProperty("OutputCollection",   m_tgcCollection);
 
   // m_setting=314321 means 
@@ -38,11 +34,6 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   // Execution #3 is mode=4 seeded mode (just one hash vector with hashes of 0 to 1577 and 0 to 1577, intentional duplication!)
   // Execution #4 is mode=1 unseeded mode
   // Execution #5 is mode=3 seeded mode (just one hash vector with hashes of 0 to 1577)
-}  
-
-StatusCode TgcRdoToTgcPrepData::finalize() {
-  ATH_MSG_DEBUG( "in finalize()"  );
-  return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRdoToTgcPrepData::initialize(){

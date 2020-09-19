@@ -206,11 +206,6 @@ def tauIdTrackSequence( RoIs , name):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-
     if globalflags.InputFormat.is_bytestream():
       viewVerify.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
@@ -290,11 +285,6 @@ def tauCoreTrackSequence( RoIs, name ):
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
-
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 

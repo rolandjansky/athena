@@ -450,7 +450,7 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
           vrtVrtDist(primVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
           double tmpProb=TMath::Prob( curVrt.chi2, 1);                 //Chi2 of the original 2tr vertex
           bool trkGood=false;
-          if(xAODwrk)trkGood=Check1TrVertexInPixel(xAODwrk->listJetTracks[curVrt.selTrk[0]],curVrt.vertex,curVrt.vertexCov);
+          if(xAODwrk)trkGood=check1TrVertexInPixel(xAODwrk->listJetTracks[curVrt.selTrk[0]],curVrt.vertex,curVrt.vertexCov);
           if(trkGood && tmpProb>0.01){  /* accept only good tracks coming from good 2tr vertex*/
              //if( useMaterialRejection && insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
              std::vector<double> Impact,ImpactError;   double Signif3DP = 0;
@@ -489,10 +489,19 @@ InDetVKalVxInJetTool::getVrtSecMulti(workVectorArrxAOD* xAODwrk,
 //        Dist3D=((*wrkVrtSet)[iv].vertex-primVrt.position()).mag();            /* Not needed currently*/
 //        if(PrmVrtAdded && iv==PrmVrtAdded && Dist3D<3.5) continue;  /* Skip added primary vertex */
 //-----------------------------------------------------------------------------------------
-          if(nth==2 && m_useVertexCleaning){
-        if(xAODwrk){
-	       if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,curVrt.vertexCov))continue;
-            }
+          if(nth==2 && xAODwrk){
+// Check track pixel hit patterns vs vertex position.
+             if(m_useVertexCleaningPix){
+	       if(!check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,curVrt.vertexCov))continue;
+             }
+// Check track first measured points vs vertex position.
+             if(m_useVertexCleaningFMP){
+               float ihitR  = xAODwrk->tmpListTracks[0]->radiusOfFirstHit();
+               float jhitR  = xAODwrk->tmpListTracks[1]->radiusOfFirstHit();
+	       float vrErr  = vrtRadiusError(curVrt.vertex, curVrt.vertexCov);
+               if(std::abs(ihitR-jhitR)>25.) continue;                            // Hits in different pixel layers
+               if( curVrt.vertex.perp()-std::min(ihitR,jhitR) > 2.*vrErr) continue; // Vertex is behind hit in pixel 
+             }
 	  }
 //
 //---  Check interactions on pixel layers

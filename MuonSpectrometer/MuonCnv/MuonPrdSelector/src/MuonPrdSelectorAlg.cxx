@@ -9,7 +9,6 @@
 // Constructor with parameters:
 MuonPrdSelectorAlg::MuonPrdSelectorAlg(const std::string &name, ISvcLocator *pSvcLocator) 
   : AthAlgorithm(name,pSvcLocator),
-    m_muonIdCutTool("MuonIdCutTool/MuonIdCutTool"),
     m_mdtPRDs_in(0), m_rpcPRDs_in(0), m_tgcPRDs_in(0), m_cscPRDs_in(0),
     m_mdtPRDs_out(0), m_rpcPRDs_out(0), m_tgcPRDs_out(0), m_cscPRDs_out(0)
 {

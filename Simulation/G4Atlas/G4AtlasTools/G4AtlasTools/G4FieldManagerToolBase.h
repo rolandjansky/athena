@@ -55,7 +55,7 @@ class G4FieldManagerToolBase : public extends<AthAlgTool, IFieldManagerTool>
 #if G4VERSION_NUMBER < 1040
     /// Common method to construct a stepper of requested type.
     G4MagIntegratorStepper*
-    getStepper(std::string stepperType, G4MagneticField* field) const;
+    getStepper(const std::string& stepperType, G4MagneticField* field) const;
 #endif
 
     /// Common method to apply configuredfield parameters

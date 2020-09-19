@@ -10,11 +10,6 @@
 
 namespace xAOD {
 
-   TPyEvent::TPyEvent()
-      : TEvent() {
-
-   }
-
    ::Bool_t TPyEvent::contains( const std::string& key,
                                 const std::string& type ) {
 
@@ -49,7 +44,7 @@ namespace xAOD {
                     "Type name \"%s\" not known", type.c_str() );
          return kFALSE;
       }
-      
+
       // Check if the dictionary can return a type_info:
       const std::type_info* ti = cl->GetTypeInfo();
       if( ! ti ) {
@@ -58,7 +53,7 @@ namespace xAOD {
                     type.c_str() );
          return kFALSE;
       }
-      
+
       // Let the base class do the work:
       return TEvent::transientContains( key, *ti, kFALSE );
    }

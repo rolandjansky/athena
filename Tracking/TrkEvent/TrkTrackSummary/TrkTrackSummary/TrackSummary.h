@@ -36,6 +36,7 @@ namespace Trk {
     class Track;
     class InDetTrackSummary;
     class MuonTrackSummary;
+    class TrackSummaryTool;
 
 /** enumerates the different types of information stored in Summary. Use in get(const SummaryType type), for for example, summary.get(numOfPixelHits)
 When adding a new transient information type, please make sure to increase numberOfTrackSummaryTypes.*/
@@ -197,6 +198,7 @@ class TrackSummary
 public:
     friend class InDet::InDetTrackSummaryHelperTool;
     friend class Muon::MuonTrackSummaryHelperTool;
+    friend class Trk::TrackSummaryTool;
 
     /** Value set in the cxx file to -1. If any of the values returned by get(const SummaryType& type)==SummaryTypeNotSet then this means that 
     the information has not been filled. i.e. ID information cannot be filled if the TrackSummaryTool does not have access to the InDetTrackSummaryHelperTool*/

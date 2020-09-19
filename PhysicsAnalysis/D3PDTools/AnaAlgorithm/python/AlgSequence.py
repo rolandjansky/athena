@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Check if we have the Athena package available. If yes, just use that code.
 try:
@@ -241,7 +241,7 @@ except ImportError:
             """
             return self
 
-        def next( self ):
+        def __next__( self ):
             """Function implementing the recursive iteration over an AlgSequence
 
             This is where most of the logic is. The iterator loops over the
@@ -263,14 +263,14 @@ except ImportError:
             # sub-sequence.
             if self._iterator:
                 try:
-                    return self._iterator.next()
+                    return self._iterator.__next__()
                 except StopIteration:
                     # If the sub-sequence is exhaused, then switch to the
                     # next element in our sequence, and call this function
                     # recursively.
                     self._index += 1
                     self._iterator = None
-                    return self.next()
+                    return self.__next__()
                 pass
 
             # If we are not iterating over a sub-sequence at the moment, let's
@@ -281,7 +281,7 @@ except ImportError:
             # iterating mode", and call this function recursively in that mode.
             if isinstance( element, AlgSequence ):
                 self._iterator = AlgSequenceIterator( element )
-                return self.next()
+                return self.__next__()
 
             # Apparently it's an algorithm we found. So update the internal
             # index, and simply return the algorithm.
