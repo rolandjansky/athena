@@ -1961,7 +1961,6 @@ if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
   InDetVertexEtaDependentCutSvc.IPsigd0Max              = [5.] # sig-d0
   InDetVertexEtaDependentCutSvc.minClusters             = [1]  # min Si Hits
   InDetVertexEtaDependentCutSvc.minPixelHits            = [1]  # min Pixel Hits 
-  InDetPriVxFinderTool.InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
   svcMgr += InDetVertexEtaDependentCutSvc
 
   
