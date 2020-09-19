@@ -1337,7 +1337,7 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
     ATH_MSG_DEBUG("idtracks size: " << idtracks.size());
     for (unsigned int i = 0; i< outputSAs.size(); i++){
       xAOD::L2StandAloneMuon* outputSA = outputSAs[i];
-      ATH_MSG_DEBUG("outputSA pt/eta/phi: " << outputSA->pt() << "/" << outputSA->eta() << "/" << outputSA->phi());
+      ATH_MSG_DEBUG("outputSA pt/eta/phi: " << outputSA->pt() << "/" << outputSA->etaMS() << "/" << outputSA->phiMS());
     }
 
     ATH_MSG_DEBUG("outputCBs size: " << outputCBs.size());
