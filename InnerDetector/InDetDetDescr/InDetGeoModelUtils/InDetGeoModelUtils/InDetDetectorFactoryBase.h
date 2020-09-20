@@ -25,6 +25,7 @@ public:
   {}
 
   StoreGateSvc * detStore () {return m_athenaComps->detStore();}
+  const StoreGateSvc * detStore () const {return m_athenaComps->detStore();}
 
   const IGeoDbTagSvc * geoDbTagSvc() const {return m_athenaComps->geoDbTagSvc();}
 

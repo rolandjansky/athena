@@ -34,6 +34,7 @@ public:
   void setRDBAccessSvc(IRDBAccessSvc *);
   void setGeometryDBSvc(IGeometryDBSvc *);
 
+  const StoreGateSvc * detStore() const;
   const IGeoDbTagSvc * geoDbTagSvc() const;
   const IGeometryDBSvc * geomDB() const;
   
@@ -58,6 +59,11 @@ inline StoreGateSvc * AthenaComps::detStore()
   return m_detStore;
 }
 
+inline const StoreGateSvc * AthenaComps::detStore() const
+{
+  return m_detStore;
+}
+
 inline const IGeoDbTagSvc * AthenaComps::geoDbTagSvc() const
 {
   return m_geoDbTagSvc;
@@ -72,6 +78,7 @@ inline IGeoDbTagSvc * AthenaComps::geoDbTagSvc()
 {
   return m_geoDbTagSvc;
 }
+
 
 inline IRDBAccessSvc * AthenaComps::rdbAccessSvc()
 {
