@@ -174,7 +174,7 @@ bool etOverPtLeadTrk(const xAOD::TauJet &tau, double &out) {
     float etOverPtLeadTrk;
     const auto success = tau.detail(TauDetail::etOverPtLeadTrk,
                                     etOverPtLeadTrk);
-    out = TMath::Log10(std::max(etOverPtLeadTrk, 0.1f));
+    out = std::log10(std::max(etOverPtLeadTrk, 0.1f));
     return success;
 }
 
@@ -203,7 +203,7 @@ bool SumPtTrkFrac(const xAOD::TauJet &tau, double &out) {
 bool EMPOverTrkSysP(const xAOD::TauJet &tau, double &out) {
     float EMPOverTrkSysP;
     const auto success = tau.detail(TauDetail::EMPOverTrkSysP, EMPOverTrkSysP);
-    out = TMath::Log10(std::max(EMPOverTrkSysP, 1e-3f));
+    out = std::log10(std::max(EMPOverTrkSysP, 1e-3f));
     return success;
 }
 
@@ -218,7 +218,7 @@ bool ptRatioEflowApprox(const xAOD::TauJet &tau, double &out) {
 bool mEflowApprox(const xAOD::TauJet &tau, double &out) {
     float mEflowApprox;
     const auto success = tau.detail(TauDetail::mEflowApprox, mEflowApprox);
-    out = TMath::Log10(std::max(mEflowApprox, 140.0f));
+    out = std::log10(std::max(mEflowApprox, 140.0f));
     return success;
 }
 
@@ -233,34 +233,34 @@ bool trFlightPathSig(const xAOD::TauJet &tau, double &out) {
     float trFlightPathSig;
     const auto success = tau.detail(TauDetail::trFlightPathSig,
                                     trFlightPathSig);
-    out = TMath::Log10(std::max(trFlightPathSig, 0.01f));
+    out = std::log10(std::max(trFlightPathSig, 0.01f));
     return success;
 }
 
 bool massTrkSys(const xAOD::TauJet &tau, double &out) {
     float massTrkSys;
     const auto success = tau.detail(TauDetail::massTrkSys, massTrkSys);
-    out = TMath::Log10(std::max(massTrkSys, 140.0f));
+    out = std::log10(std::max(massTrkSys, 140.0f));
     return success;
 }
 
 bool pt(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.pt() / GeV, 100.0));
+    out = std::log10(std::min(tau.pt() / GeV, 100.0));
     return true;
 }
 
 bool ptDetectorAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptDetectorAxis() / GeV, 100.0));
+    out = std::log10(std::min(tau.ptDetectorAxis() / GeV, 100.0));
     return true;
 }
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
-    out = TMath::Log10(std::min(tau.ptIntermediateAxis() /GeV, 100.0));
+    out = std::log10(std::min(tau.ptIntermediateAxis() /GeV, 100.0));
     return true;
 }
 
 bool ptJetSeed_log(const xAOD::TauJet &tau, double &out) {
-  out = TMath::Log10(std::max(tau.ptJetSeed(), 1e-3));
+  out = std::log10(std::max(tau.ptJetSeed(), 1e-3));
   return true;
 }
 
@@ -288,7 +288,7 @@ bool EMFracFixed(const xAOD::TauJet &tau, double &out){
 bool etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
   float etHotShotWinOverPtLeadTrk = tau.auxdata<float>("etHotShotWinOverPtLeadTrk");
   out = std::max(etHotShotWinOverPtLeadTrk, 1e-6f);
-  out = TMath::Log10(out);
+  out = std::log10(out);
   return true;
 }
 
@@ -353,25 +353,25 @@ namespace Track {
 
 bool pt_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
             double &out) {
-    out = TMath::Log10(track.pt());
+    out = std::log10(track.pt());
     return true;
 }
 
 bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::TauTrack& /*track*/,
                     double &out) {
-    out = TMath::Log10(tau.ptJetSeed());
+    out = std::log10(tau.ptJetSeed());
     return true;
 }
 
 bool d0_abs_log(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
                 double &out) {
-    out = TMath::Log10(TMath::Abs(track.track()->d0()) + 1e-6);
+    out = std::log10(TMath::Abs(track.track()->d0()) + 1e-6);
     return true;
 }
 
 bool z0sinThetaTJVA_abs_log(const xAOD::TauJet& tau, const xAOD::TauTrack &track,
                             double &out) {
-    out = TMath::Log10(TMath::Abs(track.z0sinThetaTJVA(tau)) + 1e-6);
+    out = std::log10(TMath::Abs(track.z0sinThetaTJVA(tau)) + 1e-6);
     return true;
 }
 
@@ -458,13 +458,13 @@ using MomentType = xAOD::CaloCluster::MomentType;
 
 bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
             double &out) {
-    out = TMath::Log10(cluster.et());
+    out = std::log10(cluster.et());
     return true;
 }
 
 bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::CaloCluster& /*cluster*/,
                     double &out) {
-    out = TMath::Log10(tau.ptJetSeed());
+    out = std::log10(tau.ptJetSeed());
     return true;
 }
 
@@ -483,21 +483,21 @@ bool dPhi(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster,
 bool SECOND_R(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
               double &out) {
     const auto success = cluster.retrieveMoment(MomentType::SECOND_R, out);
-    out = TMath::Log10(out + 0.1);
+    out = std::log10(out + 0.1);
     return success;
 }
 
 bool SECOND_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
                    double &out) {
     const auto success = cluster.retrieveMoment(MomentType::SECOND_LAMBDA, out);
-    out = TMath::Log10(out + 0.1);
+    out = std::log10(out + 0.1);
     return success;
 }
 
 bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
                    double &out) {
     const auto success = cluster.retrieveMoment(MomentType::CENTER_LAMBDA, out);
-    out = TMath::Log10(out + 1e-6);
+    out = std::log10(out + 1e-6);
     return success;
 }
 
@@ -536,7 +536,7 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
   }
 
   std::vector<const xAOD::CaloCluster *> clusters;
-  bool            incShowerSubtracted(true);
+  bool            incShowerSubtracted(false);
   TLorentzVector  LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
   double          dRCut(0.2);
   auto        check_clusters = tauRecTools::GetJetClusterList(jet_seed, clusters, incShowerSubtracted, LC_P4, dRCut);
@@ -576,7 +576,7 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
   // so we need to evaluate the differance of log10(cluster_firstEngDens) and the ClustersMeanFirstEngDens
   float min_FirstEng = 1e-10;
   float cluster_FirstEngDens       = std::max(cluster.getMomentValue(MomentType::FIRST_ENG_DENS), (double)min_FirstEng);
-  out = TMath::Log10(cluster_FirstEngDens/std::max(Etot, min_FirstEng)) - tau.auxdata<float>("ClustersMeanFirstEngDens");
+  out = std::log10(cluster_FirstEngDens/std::max(Etot, min_FirstEng)) - tau.auxdata<float>("ClustersMeanFirstEngDens");
   
   return true;
 }
