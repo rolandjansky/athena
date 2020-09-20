@@ -260,45 +260,45 @@ bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
 }
 
 bool ptJetSeed_log(const xAOD::TauJet &tau, double &out) {
-  out = TMath::Log10(std::max(tau.ptJetSeed()/*tau.auxdata<float>("trk_ptJetSeed")*/, 1e-3));// tau.ptJetSeed()
+  out = TMath::Log10(std::max(tau.ptJetSeed(), 1e-3));
   return true;
 }
 
-bool     absleadTrackEta(const xAOD::TauJet &tau, double &out){
+bool absleadTrackEta(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("ABS_ETA_LEAD_TRACK"));
   return true;
 }
 
-bool     leadTrackDeltaEta(const xAOD::TauJet &tau, double &out){
+bool leadTrackDeltaEta(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAETA"));
   return true;
 }
 
-bool     leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
+bool leadTrackDeltaPhi(const xAOD::TauJet &tau, double &out){
   out = std::max(0.f, tau.auxdata<float>("TAU_ABSDELTAPHI"));
   return true;
 }
 
-bool     EMFracFixed(const xAOD::TauJet &tau, double &out){
+bool EMFracFixed(const xAOD::TauJet &tau, double &out){
   float emFracFized = tau.auxdata<float>("EMFracFixed");
   out = std::max(emFracFized, 0.0f);
   return true;
 }
 
-bool     etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
+bool etHotShotWinOverPtLeadTrk(const xAOD::TauJet &tau, double &out){
   float etHotShotWinOverPtLeadTrk = tau.auxdata<float>("etHotShotWinOverPtLeadTrk");
   out = std::max(etHotShotWinOverPtLeadTrk, 1e-6f);
-  out = std::log10(out);
+  out = TMath::Log10(out);
   return true;
 }
 
-bool     hadLeakFracFixed(const xAOD::TauJet &tau, double &out){
+bool hadLeakFracFixed(const xAOD::TauJet &tau, double &out){
   float hadLeakFracFixed = tau.auxdata<float>("hadLeakFracFixed");
   out = std::max(0.f, hadLeakFracFixed);
   return true;
 }
 
-bool     PSFrac(const xAOD::TauJet &tau, double &out){
+bool PSFrac(const xAOD::TauJet &tau, double &out){
   float PSFrac;
   const auto success = tau.detail(TauDetail::PSSFraction, PSFrac);
   out = std::max(0.f,PSFrac);
@@ -306,7 +306,7 @@ bool     PSFrac(const xAOD::TauJet &tau, double &out){
   return success;
 }
 
-bool     ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
+bool ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanCenterLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanCenterLambda, ClustersMeanCenterLambda);
   out = std::max(0.f, ClustersMeanCenterLambda);
@@ -314,21 +314,21 @@ bool     ClustersMeanCenterLambda(const xAOD::TauJet &tau, double &out){
   return success;
 }
 
-bool     ClustersMeanEMProbability(const xAOD::TauJet &tau, double &out){
+bool ClustersMeanEMProbability(const xAOD::TauJet &tau, double &out){
   float ClustersMeanEMProbability;
   const auto success = tau.detail(TauDetail::ClustersMeanEMProbability, ClustersMeanEMProbability);
   out = std::max(0.f, ClustersMeanEMProbability);
   return success;
 }
 
-bool     ClustersMeanFirstEngDens(const xAOD::TauJet &tau, double &out){
+bool ClustersMeanFirstEngDens(const xAOD::TauJet &tau, double &out){
   float ClustersMeanFirstEngDens;
   const auto success = tau.detail(TauDetail::ClustersMeanFirstEngDens, ClustersMeanFirstEngDens);
   out =  std::max(-10.f, ClustersMeanFirstEngDens);
   return success;
 }
 
-bool     ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
+bool ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
   float ClustersMeanPresamplerFrac;
   const auto success = tau.detail(TauDetail::ClustersMeanPresamplerFrac, ClustersMeanPresamplerFrac);
   out = ClustersMeanPresamplerFrac;
@@ -341,7 +341,7 @@ bool     ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
   return success;
 }
 
-bool     ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
+bool ClustersMeanSecondLambda(const xAOD::TauJet &tau, double &out){
   float ClustersMeanSecondLambda;
   const auto success = tau.detail(TauDetail::ClustersMeanSecondLambda, ClustersMeanSecondLambda);
   out = std::max(0.f, ClustersMeanSecondLambda);
@@ -502,7 +502,6 @@ bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster
 }
 
 bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
-  (void)tau;
   float ClustersMeanSecondLambda = tau.auxdata<float>("ClustersMeanSecondLambda");
 
   double secondLambda(0);
@@ -514,7 +513,6 @@ bool SECOND_LAMBDAOverClustersMeanSecondLambda   (const xAOD::TauJet &tau, const
 }
 
 bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
-  (void)tau;
   float ClustersMeanCenterLambda = tau.auxdata<float>("ClustersMeanCenterLambda");
 
   double centerLambda(0);
@@ -525,12 +523,6 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const
     out = centerLambda/ClustersMeanCenterLambda;
   }
 
-  if (std::isnan(std::abs(out))){
-    out = 0.;
-  }
-  if (std::isinf(out)){
-    out = 250.;
-  }
   out = std::min(out, 250.);
 
   return success;
@@ -538,7 +530,7 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const
 
 
 bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
-  const xAOD::Jet *jet_seed = (*tau.jetLink());
+  const xAOD::Jet *jet_seed = tau.jet();
   if (!jet_seed) {
     return false;
   }
