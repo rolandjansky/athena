@@ -5,6 +5,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
+# art-input: mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00
 # art-athena-mt: 4
 # art-memory: 4096
 # art-output: *.txt
