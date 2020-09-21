@@ -6,11 +6,12 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-#from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkHiggs.TruthCategories import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from AthenaCommon.GlobalFlags import globalflags
 
 if globalflags.DataSource()=='geant4':
@@ -104,11 +105,18 @@ augmentationTools.append(HIGG8D1TauOrlElLLHDecWrapper)
 if globalflags.DataSource()=='geant4':
     from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier   
     from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification 
-    HIGG8D1BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",
-                                                                                           MCTruthClassifierTool = BkgElectronMCTruthClassifier)
+    HIGG8D1BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
     ToolSvc += HIGG8D1BkgElectronClassificationTool
     augmentationTools.append(HIGG8D1BkgElectronClassificationTool)
     print "BkgElectronClassificationTool: ", HIGG8D1BkgElectronClassificationTool
+
+    from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+    HIGG8D1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MuonTruthClassifierFallback", MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Muons")
+    HIGG8D1ElectronTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "ElectronTruthClassifierFallback", MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Electrons")
+    ToolSvc += HIGG8D1MuonTruthClassifierFallback
+    ToolSvc += HIGG8D1ElectronTruthClassifierFallback
+    augmentationTools.append(HIGG8D1MuonTruthClassifierFallback)
+    augmentationTools.append(HIGG8D1ElectronTruthClassifierFallback)
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION
@@ -153,58 +161,28 @@ if globalflags.DataSource()=='geant4':
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)
 #==============================================================================
-# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginClassifier.cxx
-# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/src/HadronOriginClassifier.cxx -- HOC
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/src/HadronOriginDecorator.cxx
 # list of ttbar samples by mc_channel_number
 HIGG8D1DSIDList=[
-    410000,
-    410001,
-    410002,
-    410003,
-    410004,
-    410007,
-    410008,
-    410009,
-    301528,
-    301529,
-    301530,
-    301531,
-    301532,
-    303722,
-    303723,
-    303724,
-    303725,
-    303726,
-    407009,
-    407010,
-    407011,
-    407012,
-    410120,
-    410121,
-    426090,
-    426091,
-    426092,
-    426093,
-    426094,
-    426095,
-    426096,
-    426097,
-    429007,
-    410501,
-    410502,
-    410503,
-    410504,
-    410505,
-    410511,
-    410512,
-    410225,
-    410226,
-    410250,
-    410251,
-    410252,
-    410525,
-    410527
-    ]
+                 410081,
+                 410250,#in HOC, Sherpa
+                 410251,#in HOC, Sherpa
+                 410252,#in HOC, Sherpa
+                 410397,
+                 410398,
+                 410399,
+                 410464,#in HOC, Pythia8
+                 410465,#in HOC, Pythia8
+                 410470,#in HOC, Pythia8
+                 410471,#in HOC, Pythia8
+                 410472,#in HOC, Pythia8
+                 410480,#in HOC, Pythia8
+                 410501,#in HOC, Pythia8
+                 410503,#in HOC, Pythia8
+                 410544,
+                 411287
+                ]
 
 import PyUtils.AthFile as af
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -470,6 +448,27 @@ HIGG8D1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 DerivationFrameworkJob += HIGG8D1Seq
 
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+# Adding PFlow b-jets
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
+
+# Augment AntiKt4 jets with QG tagging variables
+truthjetalg='AntiKt4TruthJets'
+if not DerivationFrameworkIsMonteCarlo:
+	truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG8D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=HIGG8D1Seq,algname="QGTaggerToolPFAlg",truthjetalg=truthjetalg) 
+
+# MVfJvt #
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=HIGG8D1Seq, algname='JetForwardJvtToolBDTAlg')
+
+# PFlow fJvt #
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG8D1Seq, algname='JetForwardPFlowJvtToolAlg')
 
 #====================================================================
 # SLIMMING TOOL
@@ -497,26 +496,25 @@ HIGG8D1SlimmingHelper.SmartCollections = ["AntiKt4EMPFlowJets",
                                           "TauJets",
                                           "TauMVATESJets"]
 
-				
-# Adding PFlow b-jets
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
-
 # Adding PFlow MET
 HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"] 
 
-HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.extrapolatedMuonSpectrometerTrackParticleLink.scatteringCurvatureSignificance.scatteringNeighbourSignificance",
-                                        "Electrons.author.charge",
-                                        "AntiKt4EMTopoJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
-                                        "AntiKt4EMPFlowJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt",
+HIGG8D1SlimmingHelper.ExtraVariables = [
+                                        "Muons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
+                                        "Electrons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
+                                        "AntiKt4EMTopoJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt",
+                                        "AntiKt4EMPFlowJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.ConeTruthLabelID.PartonTruthLabelID.SumPtTrkPt1000.Jvt.JvtJvfcorr.JvtRpt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksC1.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt",
                                         "AntiKt4TruthDressedWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
                                         "AntiKt4TruthJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
                                         "AntiKt4TruthWZJets.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt",
-                                        #"AntiKt4LCTopoJets.ConeTruthLabelID.PartonTruthLabelID",
                                         "GSFTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "CombinedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
                                         "ExtrapolatedMuonTrackParticles.z0.vz.definingParametersCovMatrix",
-                                        "PrimaryVertices.x.y"]
+                                        "PrimaryVertices.x.y",
+                                        "BTagging_AntiKt4EMTopo_201810.JetVertexCharge_discriminant",
+                                        "BTagging_AntiKt4EMPFlow_201810.JetVertexCharge_discriminant",
+                                        "BTagging_AntiKt4EMPFlow_201903.JetVertexCharge_discriminant"
+                                       ]
 
 #Adding Egamma details
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
