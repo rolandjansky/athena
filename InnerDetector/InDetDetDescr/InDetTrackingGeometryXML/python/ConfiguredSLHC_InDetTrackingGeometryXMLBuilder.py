@@ -14,6 +14,7 @@ from XMLReaderJobProperties import XMLReaderFlags
 
 # define the class
 class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeometryBuilder ):
+  
     # constructor
     def __init__(self,name = 'InDetTrackingXMLGeometryBuilder',
                       namePrefix = '',
@@ -290,7 +291,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
         # add to SvcMgr
         ServiceMgr += AtlasEnvelopeSvc
         
-
         # the tracking geometry builder
         InDet__StagedTrackingGeometryBuilder.__init__(self,namePrefix+name,\
                                                       BeamPipeBuilder           = BeamPipeBuilder,\
@@ -304,8 +304,8 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
                                                       TrackingVolumeCreator     = InDetCylinderVolumeCreator,
                                                       LayerArrayCreator         = InDetLayerArrayCreator,
                                                       CheckForRingLayout        = isRingLayout,
-                                                      BuildBoundaryLayers       = False,
-                                                      ReplaceAllJointBoundaries = TrkDetFlags.InDetBuildMaterialBoundaries(),
+                                                      BuildBoundaryLayers       = TrkDetFlags.InDetBuildMaterialBoundaries(),
+                                                      ReplaceAllJointBoundaries = TrkDetFlags.InDetBuildJointBoundaries(),
                                                       OutputLevel               = TrkDetFlags.InDetBuildingOutputLevel(),
                                                       ExitVolumeName            = TrkDetFlags.InDetContainerName(),
                                                       MagneticFieldMode         = TrkDetFlags.MagneticFieldMode(),

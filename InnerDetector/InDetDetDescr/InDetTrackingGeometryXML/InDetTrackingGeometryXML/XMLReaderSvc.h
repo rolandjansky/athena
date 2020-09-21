@@ -58,6 +58,7 @@ namespace InDet {
     std::vector<StaveTmp*> getSCTStaveTemplate(unsigned int ilayer) const;
     BarrelLayerTmp *getSCTBarrelLayerTemplate(unsigned int ilayer) const;
     EndcapLayerTmp *getSCTEndcapLayerTemplate(unsigned int ilayer) const;
+    std::vector< std::pair<float, float> > getPixelPassiveBarrelLayers() const;
 
     // Layer building helpers
     inline bool doSCT() const { return m_doSCT; }
@@ -87,6 +88,7 @@ namespace InDet {
     void parseModuleXML(DOMNode* node);
     void parseStaveXML(DOMNode* node, std::vector< StaveTmp *>& vtmp);
     void parseBarrelLayerXML(DOMNode* node, std::vector< BarrelLayerTmp *>& vtmp);
+    void parsePassiveBarrelLayerXML(DOMNode* node);
     void parseEndcapXML(DOMNode* node, std::vector< EndcapLayerTmp *>& vtmp);
     // Other processing methods
     void computeModuleSize(ModuleTmp *module);
@@ -125,6 +127,8 @@ namespace InDet {
     std::vector< StaveTmp *>       m_tmp_sctStave; 
     std::vector< BarrelLayerTmp *> m_tmp_sctBarrelLayer; 
     std::vector< EndcapLayerTmp *> m_tmp_sctEndcapLayer; 
+    
+    std::vector< std::pair<float, float> > m_pixBarrelLayerPassiveRadiiHalfLength;
 
     bool m_doPix, m_doSCT, m_isGMX, m_createDict, m_readXMLfromDB;  
   };
