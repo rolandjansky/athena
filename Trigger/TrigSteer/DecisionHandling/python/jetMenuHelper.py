@@ -2,6 +2,7 @@
 #
 
 from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence, jetCFSequence
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def jetDictFromString(jet_def_string):
     """ Function to retrieve the jet dictionaory from string"""
@@ -36,10 +37,10 @@ def jetDictFromString(jet_def_string):
 def jetCFSequenceFromString(jet_def_string):
     """ Function to retrieve jet Reco sequence from string"""
     jetRecoDict=jetDictFromString(jet_def_string)
-    return jetCFSequence(None,**jetRecoDict)	
+    return jetCFSequence(ConfigFlags,**jetRecoDict)	
     
  
 def jetMenuSequenceFromString(jet_def_string):
     """ Function to retrieve jet menu sequence from string"""
     jetRecoDict=jetDictFromString(jet_def_string)
-    return jetMenuSequence(None,**jetRecoDict) # First arg dummy flags for RecoFragmentsPool
+    return jetMenuSequence(ConfigFlags,**jetRecoDict) # First arg dummy flags for RecoFragmentsPool
