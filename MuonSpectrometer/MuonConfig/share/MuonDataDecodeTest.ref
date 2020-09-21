@@ -579,7 +579,6 @@ MdtRawDataProvi...   INFO initialize() successful in MdtRawDataProvider.MDT_RawD
 ClassIDSvc           INFO  getRegistryEntries: read 1008 CLIDRegistry entries for module ALL
 CscRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscROD_Decoder/CscROD_Decoder')
-CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
 ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 RpcRdoToRpcPrep...   INFO package version = MuonRPC_CnvTools-00-00-00
