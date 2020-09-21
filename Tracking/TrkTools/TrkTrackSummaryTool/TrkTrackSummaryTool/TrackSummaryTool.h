@@ -280,6 +280,10 @@ private:
                                                1,
                                                "" };
 
+  Gaudi::Property<bool> m_alwaysRecomputeHoles {
+    this, "AlwaysRecomputeHoles", false, ""
+  };
+
   /**atlas id helper*/
   const AtlasDetectorID* m_detID;
 

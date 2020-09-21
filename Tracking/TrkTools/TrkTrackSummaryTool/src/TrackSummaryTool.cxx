@@ -270,7 +270,15 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
       <<track.info().dumpInfo()<<"). This should never happen! ");
   }
 
-  if (doHolesInDet || doHolesMuon)
+  bool hole_search_done = (
+    information[Trk::numberOfPixelHoles] != -1 &&
+    information[Trk::numberOfSCTHoles] != -1 &&
+    information[Trk::numberOfSCTDoubleHoles] != -1 &&
+    information[Trk::numberOfPixelDeadSensors] != -1 &&
+    information[Trk::numberOfSCTDeadSensors] != -1
+  );
+
+  if ((doHolesInDet || doHolesMuon) && (!hole_search_done || m_alwaysRecomputeHoles.value()))
   {
     if (m_pixelExists)
     {

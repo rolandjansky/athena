@@ -1,37 +1,36 @@
-[==========] Running 7 tests from 1 test case.
+[==========] Running 7 tests from 1 test suite.
 [----------] Global test environment set-up.
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Fri Feb 17 22:54:02 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on 36d5a1e47246 on Sat Sep 12 19:55:44 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 [----------] 7 tests from BeamEffectsAlg_test
 [ RUN      ] BeamEffectsAlg_test.empty_alg_execute
-ClassIDSvc           INFO  getRegistryEntries: read 1507 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2101 CLIDRegistry entries for module ALL
 BeamEffectsAlg      FATAL No input McEventCollection called GEN_EVENT in StoreGate.
-[       OK ] BeamEffectsAlg_test.empty_alg_execute (179 ms)
+[       OK ] BeamEffectsAlg_test.empty_alg_execute (16 ms)
 [ RUN      ] BeamEffectsAlg_test.set_properties
-ClassIDSvc           INFO  getRegistryEntries: read 359 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 430 CLIDRegistry entries for module ALL
 [       OK ] BeamEffectsAlg_test.set_properties (1 ms)
 [ RUN      ] BeamEffectsAlg_test.patchSignalProcessVertex_empty_GenEvent
 BeamEffectsAlg    WARNING No signal_process_vertex found. Empty GenEvent!
 [       OK ] BeamEffectsAlg_test.patchSignalProcessVertex_empty_GenEvent (0 ms)
 [ RUN      ] BeamEffectsAlg_test.signal_process_vertex_exists
-[       OK ] BeamEffectsAlg_test.signal_process_vertex_exists (1 ms)
+[       OK ] BeamEffectsAlg_test.signal_process_vertex_exists (0 ms)
 [ RUN      ] BeamEffectsAlg_test.add_signal_process_vertex_atlasG4
 [       OK ] BeamEffectsAlg_test.add_signal_process_vertex_atlasG4 (0 ms)
 [ RUN      ] BeamEffectsAlg_test.add_signal_process_vertex_isfG4
 [       OK ] BeamEffectsAlg_test.add_signal_process_vertex_isfG4 (0 ms)
 [ RUN      ] BeamEffectsAlg_test.execute_pass_through
-[       OK ] BeamEffectsAlg_test.execute_pass_through (0 ms)
-[----------] 7 tests from BeamEffectsAlg_test (19 ms total)
+[       OK ] BeamEffectsAlg_test.execute_pass_through (1 ms)
+[----------] 7 tests from BeamEffectsAlg_test (18 ms total)
 
 [----------] Global test environment tear-down
-[==========] 7 tests from 1 test case ran. (75 ms total)
+[==========] 7 tests from 1 test suite ran. (244 ms total)
 [  PASSED  ] 7 tests.

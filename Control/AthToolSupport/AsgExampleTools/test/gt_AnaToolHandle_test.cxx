@@ -1006,7 +1006,7 @@ namespace asg
     {
       ASSERT_SUCCESS (th3.setProperty ("usePublic", true));
     }
-    
+
     ASSERT_SUCCESS (th3.initialize ());
     if (value == -1)
     {
@@ -1018,7 +1018,7 @@ namespace asg
     }
   }
 
-  INSTANTIATE_TEST_CASE_P
+  INSTANTIATE_TEST_SUITE_P
   (MySubtoolTest1, SubtoolTest, ::testing::Values
    (std::make_tuple ("regPublicHandle",  "public",  "ATH"),
     std::make_tuple ("anaPublicHandle",  "public",  "ATH"),
@@ -1037,7 +1037,7 @@ namespace asg
     std::make_tuple ("regPrivateHandle", "private", "empty"),
     std::make_tuple ("anaPrivateHandle", "private", "empty"),
     std::make_tuple ("regPrivateHandle", "private", "none"),
-    std::make_tuple ("anaPrivateHandle", "private", "none")),);
+    std::make_tuple ("anaPrivateHandle", "private", "none")));
 }
 
 ATLAS_GOOGLE_TEST_MAIN
