@@ -18,7 +18,7 @@ atlas_add_library( xAODPFlow
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODPFlow/selection.xml
    OUTPUT _selectionFile
-   CONTAINERS "xAOD::PFOContainer_v1" "xAOD::TrackCaloClusterContainer_v1" )
+   CONTAINERS "xAOD::PFOContainer_v1" "xAOD::TrackCaloClusterContainer_v1"  "xAOD::FlowElementContainer_v1")
 
 atlas_add_dictionary( xAODPFlowDict
    xAODPFlow/xAODPFlowDict.h
