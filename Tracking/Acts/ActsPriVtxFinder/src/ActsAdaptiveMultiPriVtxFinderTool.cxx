@@ -79,7 +79,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     // Create a custom std::function to extract BoundParameters 
     // from TrackWrapper
-    std::function<Acts::BoundParameters(TrackWrapper)> extractParameters =
+    std::function<Acts::BoundTrackParameters(TrackWrapper)> extractParameters =
         [](TrackWrapper params) { return params.parameters(); };
 
     // Vertex fitter configuration
@@ -250,7 +250,13 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
       , 0. , 0. , 0. , 0., 0., 1.;
 
-      allTracks.emplace_back(trk.get(),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
+      Amg::Vector3D test(0, 0, 0); 
+      std::cout << test.phi() << std::endl;
+      std::cout << bug << std::endl;
+
+      allTracks.emplace_back(trk.get(),Acts::BoundTrackParameters(geoContext, covMat, actsParams, perigeeSurface));
+
+      std::cout << test.theta() << std::endl;
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;
@@ -366,7 +372,7 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov->col(Trk::qOverP) *= 1_MeV;
@@ -405,5 +411,3 @@ ActsAdaptiveMultiPriVtxFinderTool::estimateSignalCompatibility(xAOD::Vertex* vtx
   }
   return totalPt2 * std::sqrt((double) nTracks);
 }
-
-
