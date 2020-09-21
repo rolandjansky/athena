@@ -121,15 +121,19 @@ class yj(PowhegV2):
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("renscfact", self.default_scales[1])
-        # Reweighting needs to already be run during the initial event generation for this process.
-        # The reason is that the additional event weight multiplied by a special Sudakov reweighting factor
-        # for enhanced photon radiation sampling (needed to get good signal statistics) needs to be written
-        # into the LHE file to be able to use it later as the nominal event weight. Any additional multiweights
-        # also use this weight as the reference weight. The "bare" weight not including the Sudakov reweighting
-        # factor is unphysical and should not be used.
-        # To enable the reweighting, rwl_add is set to 1 and a rwl_file provided (which is written automatically when
-        # this constructor is called).
-        self.add_keyword("rwl_add", 1)
+        # Reweighting needs to already be run during the initial event
+        # generation for this process. The reason is that the additional event
+        # weight multiplied by a special Sudakov reweighting factor for enhanced
+        # photon radiation sampling (needed to get good signal statistics) needs
+        # to be written into the LHE file to be able to use it later as the
+        # nominal event weight. Any additional multiweights also use this weight
+        # as the reference weight. The "bare" weight not including the Sudakov
+        # reweighting factor is unphysical and should not be used. To enable the
+        # reweighting, a rwl_file provided (which is written
+        # automatically when this constructor is called).
+        # Note that rwl_add has to be set to 0! This parameter is for adding
+        # further weights to an LHE file from a previous run
+        self.add_keyword("rwl_add", 0)
         self.add_keyword("rwl_file", 'reweighting_needed_for_enhancedradfac.xml')
         self.add_keyword("rwl_format_rwgt")
         self.add_keyword("rwl_group_events")
