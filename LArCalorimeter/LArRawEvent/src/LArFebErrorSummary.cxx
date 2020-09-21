@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArFebErrorSummary.h"
 
 // static constants
-std::string LArFebErrorSummary::m_errorStrings[N_LArFebErrorType] = {
+const std::string LArFebErrorSummary::m_errorStrings[N_LArFebErrorType] = {
     "Parity","BCID","SampleHeader","EVTID","ScacStatus","ScaOutOfRange",
     "GainMismatch","TypeMismatch","NumOfSamples","EmptyDataBlock","DspBlockSize","CheckSum", "MissingHeader",
     "BadGain" } ;

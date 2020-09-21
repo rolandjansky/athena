@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EG_RESOLUTION_H
 #define EG_RESOLUTION_H
 
-#include <stdlib.h>
-#include <math.h>
-
-#include "AsgTools/AsgMessaging.h"
-
+#include <cstdlib>
+#include <cmath>
 #include "xAODEgamma/Egamma.h"
 #include "TH1.h"
 #include "TFile.h"
@@ -26,7 +23,7 @@
 
 */
 
-class eg_resolution : public asg::AsgMessaging{
+class eg_resolution {
 
  public:
   /** @brief constructor (initialization done there reading root files with resolution fit parameters */

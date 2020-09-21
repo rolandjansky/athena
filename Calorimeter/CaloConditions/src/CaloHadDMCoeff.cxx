@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadDMCoeff.h"
@@ -40,7 +40,7 @@ const CaloHadDMCoeff::HadDMArea * CaloHadDMCoeff::getHadDMArea(int n_area) const
    if(n_area >= 0 && n_area<(int)m_DMAreaSet.size() ) {
       return &(m_DMAreaSet[n_area]);
    } else {
-      return 0;
+      return nullptr;
    }
 }
 

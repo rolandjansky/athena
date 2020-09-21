@@ -9,9 +9,11 @@
 //
 // Masahiro Morii, Harvard University
 //
+//
 #ifndef BFIELDZONE_H
 #define BFIELDZONE_H
 
+#include "CxxUtils/restrict.h"
 #include "MagFieldElements/BFieldCond.h"
 #include "MagFieldElements/BFieldMesh.h"
 #include <vector>
@@ -27,65 +29,31 @@ public:
              double rmax,
              double phimin,
              double phimax,
-             double scale)
-    : BFieldMesh<short>(zmin, zmax, rmin, rmax, phimin, phimax, scale)
-    , m_id(id)
-  {
-    ;
-  }
+             double scale);
   // add elements to vectors
-  void appendCond(const BFieldCond& cond) { m_cond.push_back(cond); }
+  void appendCond(const BFieldCond& cond);
   // compute Biot-Savart magnetic field and add to B[3]
-  inline void addBiotSavart(const double* xyz,
-                            double* B,
-                            double* deriv = nullptr) const;
+  void addBiotSavart(const double* ATH_RESTRICT xyz,
+                     double* ATH_RESTRICT B,
+                     double* ATH_RESTRICT deriv = nullptr) const;
   // scale B field by a multiplicative factor: RDS 2019/09 - no longer used.
   // Scaling is done in cachec
-  void scaleField(double factor)
-  {
-    scaleBscale(factor);
-    for (unsigned i = 0; i < ncond(); i++) {
-      m_cond[i].scaleCurrent(factor);
-    }
-  }
+  void scaleField(double factor);
   // accessors
-  int id() const { return m_id; }
-  unsigned ncond() const { return m_cond.size(); }
-  const BFieldCond& cond(int i) const { return m_cond[i]; }
-  const std::vector<BFieldCond>* condVector() const { return &m_cond; }
-  int memSize() const
-  {
-    return BFieldMesh<short>::memSize() + sizeof(int) +
-           sizeof(BFieldCond) * m_cond.capacity();
-  }
+  int id() const;
+  unsigned ncond() const;
+  const BFieldCond& cond(int i) const;
+  const std::vector<BFieldCond>* condVector() const;
+  int memSize() const;
   // adjust the min/max edges to a new value
-  void adjustMin(int i, double x)
-  {
-    m_min[i] = x;
-    m_mesh[i].front() = x;
-  }
-  void adjustMax(int i, double x)
-  {
-    m_max[i] = x;
-    m_mesh[i].back() = x;
-  }
+  void adjustMin(int i, double x);
+  void adjustMax(int i, double x);
 
 private:
   int m_id;                       // zone ID number
   std::vector<BFieldCond> m_cond; // list of current conductors
 };
 
-// inline functions
-
-//
-// Compute magnetic field due to the conductors
-//
-void
-BFieldZone::addBiotSavart(const double* xyz, double* B, double* deriv) const
-{
-  for (unsigned i = 0; i < m_cond.size(); i++) {
-    m_cond[i].addBiotSavart(1, xyz, B, deriv);
-  }
-}
+#include "BFieldZone.icc"
 
 #endif

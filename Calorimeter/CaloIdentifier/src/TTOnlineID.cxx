@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/TTOnlineID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "Identifier/IdentifierHash.h"
-#include "IdDict/IdDictDefs.h"
 #include "CxxUtils/StrFormat.h"
 #include "GaudiKernel/MsgStream.h"
+#include "IdDict/IdDictDefs.h"
+#include "Identifier/IdentifierHash.h"
 #include <algorithm>
-#include <string>
-#include <set>
-#include <stdio.h>
+#include <cassert>
+#include <cmath>
+#include <cstdio>
 #include <iostream>
-#include <math.h>
-#include <assert.h>
+#include <set>
+#include <string>
 
 using CxxUtils::strformat;
 
@@ -27,7 +27,7 @@ TTOnlineID::TTOnlineID(void) :
   m_module_index(999),
   m_submodule_index(999),
   m_channel_index(999),
-  m_dict(0),
+  m_dict(nullptr),
   m_crateHashMax(0),
   m_moduleHashMax(0),
   m_submoduleHashMax(0),
@@ -149,7 +149,7 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   // retrieve the calo tag from the DB
   std::string tag = m_dict->dict_tag();
-  bool oldTag = ( tag.size()==0 || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
+  bool oldTag = ( tag.empty() || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
   log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endmsg;
 
   //int detzsideValue   = -1;
@@ -382,7 +382,7 @@ int TTOnlineID::initLevelsFromDict(void)
 
   // retrieve the calo tag from the DB
   std::string tag = m_dict->dict_tag();
-  bool oldTag = ( tag.size()==0 || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
+  bool oldTag = ( tag.empty() || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
   log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endmsg;
 
   // Save index to a Online LVL1 region for unpacking - search with region name

@@ -15,13 +15,16 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include "CxxUtils/checker_macros.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
 
-class ATLAS_NOT_THREAD_SAFE IDPerfMonZmumu : public AthAlgorithm // Thread unsafe ZmumuEvent class is used.
+class IDPerfMonZmumu : public AthAlgorithm
 {
  public:
   // Constructors & destructors
@@ -42,7 +45,7 @@ class ATLAS_NOT_THREAD_SAFE IDPerfMonZmumu : public AthAlgorithm // Thread unsaf
   void RegisterHistograms();
   void FillRecParameters(const Trk::Track* track, double charge);
   StatusCode FillTruthParameters(const xAOD::TrackParticle* track);
-  const xAOD::TruthParticle* getTruthParticle( const xAOD::IParticle& p );
+  const xAOD::TruthParticle* getTruthParticle ( const xAOD::IParticle& p );
 
   // The Z0 tagger.
   ZmumuEvent     m_xZmm;
@@ -61,6 +64,11 @@ class ATLAS_NOT_THREAD_SAFE IDPerfMonZmumu : public AthAlgorithm // Thread unsaf
 
   /** @brief tool to extrapolate tracks to BL*/
   ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey
+  { this, "VertexContainerKey", "PrimaryVertices", "" };
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey
+  { this, "MuonContainerKey", "Muons", "" };
 
   //Validation Ntuple Stuff
   //!< boolean to switch to validation mode

@@ -195,7 +195,7 @@ FastShowerCellBuilderTool::~FastShowerCellBuilderTool()
   }
 }
 
-void FastShowerCellBuilderTool::LoadParametrizationsFromDir(std::string dir)
+void FastShowerCellBuilderTool::LoadParametrizationsFromDir(const std::string& dir)
 {
   TString curdir=gSystem->pwd();
   TString dirname=dir.c_str();
@@ -521,7 +521,7 @@ StatusCode FastShowerCellBuilderTool::OpenParamSource(std::string insource)
     }
     insource.erase(0,3);
 
-    std::string::size_type strpos=insource.find(":");
+    std::string::size_type strpos=insource.find(':');
     if(strpos==std::string::npos) {
       ATH_MSG_WARNING("Could not parse string for database entry : "<< insource);
       return StatusCode::SUCCESS;
@@ -530,7 +530,7 @@ StatusCode FastShowerCellBuilderTool::OpenParamSource(std::string insource)
     ATH_MSG_DEBUG("  folder "<< cool_folder);
     insource.erase(0,strpos+1);
 
-    strpos=insource.find(":");
+    strpos=insource.find(':');
     std::string str_cool_channel=insource.substr(0,strpos);
     if(strpos==std::string::npos) {
       ATH_MSG_WARNING("Could not parse string for database entry "<< insource);
@@ -2269,9 +2269,8 @@ FastShowerCellBuilderTool::process (CaloCellContainer* theCellContainer,
           particles.push_back(*istart);
         }
     }
-  particles = MC::filter_keep(particles, FastCaloSimIsGenSimulStable);
-
-
+  auto last_good = std::remove_if(particles.begin(), particles.end(),[](auto & part) { return FastCaloSimIsGenSimulStable(part) == false; });
+  particles.erase(last_good, particles.end());
 
 
   const BarcodeEnergyDepositMap* MuonEnergyMap=0;
@@ -2517,7 +2516,7 @@ std::vector<Trk::HitInfo>* FastShowerCellBuilderTool::caloHits(const HepMC::GenP
   // geantinos not handled by PdgToParticleHypothesis - fix there
   if ( pdgId == 999 ) pHypothesis = Trk::geantino;
 
-  HepMC::GenVertex *vtx = part.production_vertex();
+  auto vtx = part.production_vertex();
   Amg::Vector3D pos(0.,0.,0.);    // default
 
   if (vtx) {

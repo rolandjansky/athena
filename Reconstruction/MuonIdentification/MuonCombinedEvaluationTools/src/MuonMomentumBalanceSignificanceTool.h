@@ -1,25 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MuonMomentumBalanceSignificanceTool.h, (c) ATLAS Combined Muon software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMOMENTUMBALANCESIGNIFICANCETOOL_H
 #define MUONMOMENTUMBALANCESIGNIFICANCETOOL_H
 
+#include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCombinedToolInterfaces/IMuonMomentumBalanceSignificance.h"
-
-/*
-namespace Trk {
-  class ITrackingVolumesSvc;
-  class Volume;
-}
-*/
 
 namespace Rec
 {
@@ -36,10 +25,7 @@ namespace Rec
     MuonMomentumBalanceSignificanceTool (const std::string& type, 
                                          const std::string& name,
                                          const IInterface* parent);
-    ~MuonMomentumBalanceSignificanceTool (void); // destructor
-  
-    StatusCode		initialize();
-    StatusCode		finalize();
+    ~MuonMomentumBalanceSignificanceTool()=default;
 
     /** Calculate momentum (im)balance significance of a muon (method will simply step down to the relevant track */
     double     momentumBalanceSignificance (const xAOD::Muon& muon) const;
@@ -48,13 +34,6 @@ namespace Rec
     double     momentumBalanceSignificance (const Trk::Track& track) const;
 
   private:
-
-    // tools and services
-    //ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc; //!< geometry for analysing track lengths
-
-    // constants 
-    //const Trk::Volume*                  m_calorimeterVolume; //!< cache the calo volume pointer
-    //const Trk::Volume*                  m_indetVolume;       //!< cache the ID volume pointer
 
   };
  

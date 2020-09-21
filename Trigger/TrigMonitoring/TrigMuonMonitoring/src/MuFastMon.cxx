@@ -8,7 +8,6 @@
  *             Kunihiro Nagano (nagano@mail.cern.ch)
  */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolTest.h"
 

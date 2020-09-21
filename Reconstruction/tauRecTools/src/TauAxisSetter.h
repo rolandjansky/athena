@@ -33,14 +33,8 @@ class TauAxisSetter : public TauRecToolBase {
     /** @brief Destructor */
     ~TauAxisSetter();
 
-    /** @brief Initialization of this tool */
-    virtual StatusCode initialize() override;
-   
     /** @brief Execution of this tool */ 
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
-    
-    /** @brief Finalization of this tool */
-    virtual StatusCode finalize() override;
 
   private:
 

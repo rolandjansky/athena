@@ -39,6 +39,28 @@ def getSpecialConfiguration(flags):
     return out
 
 
+def constBunchSpacingPattern(constBunchSpacing):
+    """Return a valid value for Digitization.BeamIntensity, which 
+    matches the specified constBunchSpacing
+    """
+    if type(constBunchSpacing) is not int:
+        raise TypeError("constBunchSpacing must be int, "
+                        "not %s" % type(constBunchSpacing).__name__)
+    if constBunchSpacing % 25 != 0:
+        raise ValueError("constBunchSpacing must be a multiple of 25, "
+                            "not %s" % constBunchSpacing)
+    
+    # special case
+    if constBunchSpacing == 25 :
+        return [1.0]
+    
+    # general case
+    pattern = [0.0, 1.0]
+    nBunches = (constBunchSpacing//25) - 2
+    pattern += nBunches*[0.0]
+    return pattern
+
+
 def createDigitizationCfgFlags():
     """Return an AthConfigFlags object with required flags"""
     flags = AthConfigFlags()
@@ -70,6 +92,52 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.RandomSeedOffset", 0)
     # Digitization extra input dependencies
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
+    # Override the HIT file Run Number with one from a data run
+    flags.addFlag("Digitization.DataRunNumber", -1)
+    
+    # for PileUp digitization
+    # Beam Halo input collections
+    flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
+    # LHC Bunch Structure (list of non-negative floats)
+    flags.addFlag("Digitization.PU.BeamIntensityPattern", lambda prevFlags: constBunchSpacingPattern(prevFlags.Beam.BunchSpacing))
+    # Beam Gas input collections
+    flags.addFlag("Digitization.PU.BeamGasInputCols", [])
+    # LHC bunch spacing, in ns, to use in pileup digitization. Only multiples of 25 allowed.
+    # Not necessarily equal to Beam.BunchSpacing
+    flags.addFlag("Digitization.PU.BunchSpacing", 0)
+    # PileUp branch crossing parameters
+    flags.addFlag("Digitization.PU.InitialBunchCrossing", -32)
+    flags.addFlag("Digitization.PU.FinalBunchCrossing", 6)
+    # Add the cavern background every bunch, independent of any bunch structure?
+    flags.addFlag("Digitization.PU.CavernIgnoresBeamInt", False)
+    # Cavern input collections
+    flags.addFlag("Digitization.PU.CavernInputCols", [])
+    # Central bunch crossing location in the BeamIntensityPattern
+    flags.addFlag("Digitization.PU.FixedT0BunchCrossing", 0)
+    # Superimpose mixed high pt minimum bias events (pile-up) on signal events?
+    # If so, set this to a list of: High Pt Mixed ND, SD, DD minimum bias input collections
+    flags.addFlag("Digitization.PU.HighPtMinBiasInputCols", [])
+    # Superimpose mixed low pt minimum bias events (pile-up) on signal events?
+    # If so, set this to a list of: Low Pt Mixed ND, SD, DD minimum bias input collections
+    flags.addFlag("Digitization.PU.LowPtMinBiasInputCols", [])
+    # Number of low pt min-bias events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfLowPtMinBias", 0.0)
+    # Number of high pt min-bias events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfHighPtMinBias", 0.0)
+    # Number of beam gas events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfBeamGas", 0.0)
+    # Number of beam halo events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfBeamHalo", 0.0)
+    # Number of mixed ND, SD, DD min-bias events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfCollisions", 0.0)
+    # Number of cavern events to superimpose per signal event per beam crossing
+    flags.addFlag("Digitization.PU.NumberOfCavern", 0.0)
+    # Repeating pattern to determine which events to simulate when using Stepping Cache
+    flags.addFlag("Digitization.PU.SignalPatternForSteppingCache", [])
+    # Configure EvtIdModifierSvc with a list of dictionaries of the form:
+    # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'dt': 104.496, 'evts': 1, 'mu': 0.005, 'force_new': False}
+    flags.addFlag("Digitization.PU.RunAndLumiOverrideList", [])
+    
     return flags
 
 

@@ -23,10 +23,6 @@ input quantities into the output
 -----------------------------------------------*/
 /*******************************************************************************/
 
-namespace MuonGM{
-  class MuonDetectorManager;
-}
-
 class MM_Response_DigitTool : public AthAlgTool, virtual public IMM_DigitizationTool {
  public:
   MM_Response_DigitTool( const std::string& type, const std::string& name, const IInterface* parent);
@@ -34,11 +30,6 @@ class MM_Response_DigitTool : public AthAlgTool, virtual public IMM_Digitization
   MM_DigitToolOutput digitize(/* const MmDigitToolInput& input */ );
   StatusCode initialize();
   bool initializeStrip();
-
- private:
-
-  // const MuonGM::MuonDetectorManager* m_muonGeoMgr;
-  // ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
  protected:
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

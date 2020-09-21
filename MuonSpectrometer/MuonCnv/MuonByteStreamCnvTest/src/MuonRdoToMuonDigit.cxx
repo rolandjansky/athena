@@ -4,12 +4,8 @@
 
 #include "MuonByteStreamCnvTest/MuonRdoToMuonDigit.h"
 
-MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, 
-				 ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_digTool("MuonRdoToMuonDigitTool", this )
-{
-   declareProperty("MuonRdoToMuonDigitTool", m_digTool);
+MuonRdoToMuonDigit::MuonRdoToMuonDigit(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode MuonRdoToMuonDigit::initialize()

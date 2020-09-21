@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
-
-// $Id$
 /**
  * @file AthenaKernel/test/MetaContDataBucket_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -91,7 +87,7 @@ CLASS_DEF( TestContBase, 98770271, 1 )
 CLASS_DEF( TestCont, 86960140, 1 )
 CLASS_DEF( TestPayload, 128629149, 1 )
 
-SG_BASE( TestCont, TestContBase );
+SG_BASES( TestCont, TestContBase );
 
 
 void test1()

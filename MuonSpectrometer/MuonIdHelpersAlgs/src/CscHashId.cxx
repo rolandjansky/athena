@@ -16,22 +16,16 @@
 
 CscHashId::CscHashId(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_cscId(NULL), m_muon_mgr(NULL)
-   {
-
+  m_cscId(nullptr) {
 }
-
-CscHashId::~CscHashId()
-{}
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode CscHashId::initialize(){
 
   ATH_MSG_DEBUG( " in initialize()"  );
-            
-  ATH_CHECK( detStore()->retrieve( m_muon_mgr ) );
-  m_cscId = m_muon_mgr->cscIdHelper();
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK(detStore()->retrieve(muDetMgr));
+  m_cscId = muDetMgr->cscIdHelper();
 
   return StatusCode::SUCCESS;
 }
@@ -44,12 +38,6 @@ StatusCode CscHashId::execute() {
 
   ATH_MSG_DEBUG( "in execute()"  );
   ATH_CHECK(  cscHash() );
-  return StatusCode::SUCCESS;
-}
-
-StatusCode CscHashId::finalize() {
- 
-  ATH_MSG_DEBUG( "in finalize()"  );
   return StatusCode::SUCCESS;
 }
 

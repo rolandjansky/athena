@@ -106,7 +106,7 @@ namespace Muon {
     void layers( const MdtCluster& cl, int& all, int& inTime, int& inTimeAndBefore ) const;
 
     const MdtIdHelper* m_mdtIdHelper;
-    const MuonGM::MuonDetectorManager* m_detMgr;
+    const MuonGM::MuonDetectorManager* m_detMgr; // cannot use ReadCondHandleKey since no athena component
     const MuonGM::MdtReadoutElement* detEl1;
     const MuonGM::MdtReadoutElement* detEl2;
     unsigned int nlay;

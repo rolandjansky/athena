@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( CalibNtupleUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          PRIVATE
-                          MuonSpectrometer/MuonCalib/MuonCalibIdentifier
-                          MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibStl )
-
 # External dependencies:
 find_package( ROOT COMPONENTS MathCore MathMore Graf Hist Core Tree RIO pthread Minuit Minuit2 Matrix Physics HistPainter Rint Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

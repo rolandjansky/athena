@@ -4,8 +4,6 @@
 
 #include "Pythia8_i/UserResonanceFactory.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include <vector>
 #include <stdexcept>

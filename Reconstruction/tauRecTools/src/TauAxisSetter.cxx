@@ -12,28 +12,19 @@
 #include "xAODTau/TauJet.h"
 #include "CaloUtils/CaloVertexedCluster.h"
 
-
-
+//______________________________________________________________________________
 TauAxisSetter::TauAxisSetter(const std::string& name) :
 TauRecToolBase(name) {
 }
 
-
-
+//______________________________________________________________________________
 TauAxisSetter::~TauAxisSetter() { 
 }
 
-
-
-StatusCode TauAxisSetter::initialize() {
-  return StatusCode::SUCCESS;
-}
-
-
-
+//______________________________________________________________________________
 StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
 
-  const xAOD::Jet* pJetSeed = (*pTau.jetLink());
+  const xAOD::Jet* pJetSeed = pTau.jet();
   if (!pJetSeed) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
@@ -91,7 +82,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
     ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr, baryCenter, m_clusterCone));
     for (auto cluster : clusterList){
       if (pTau.vertexLink()) {
-        tauInterAxis += xAOD::CaloVertexedCluster(*cluster, (*pTau.vertexLink())->position()).p4();
+        tauInterAxis += xAOD::CaloVertexedCluster(*cluster, pTau.vertex()->position()).p4();
       }
       else {
         tauInterAxis += xAOD::CaloVertexedCluster(*cluster).p4();
@@ -104,12 +95,6 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   }
 
   return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TauAxisSetter::finalize() {
-    return StatusCode::SUCCESS;
 }
 
 #endif

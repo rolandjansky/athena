@@ -681,9 +681,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        double mass = m_hijjet2.pmsg(isg, jparton);
 
        double ptsq = px*px + py*py;
-       double e = sqrt(ptsq + pz*pz + mass*mass);
-       double mt = sqrt(ptsq + mass*mass);
-       double pt = sqrt(ptsq);
+       double e = std::sqrt(ptsq + pz*pz + mass*mass);
+       double mt = std::sqrt(ptsq + mass*mass);
+       double pt = std::sqrt(ptsq);
 
        double pseud = 0.5*std::log((e + pz)/(e - pz));
 
@@ -718,9 +718,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        double mass = m_hijjet1.pjpm(iproj, jparton);
 
        double ptsq = px*px + py*py;
-       double e = sqrt(ptsq + pz*pz + mass*mass);
-       double mt = sqrt(ptsq + mass*mass);
-       double pt = sqrt(ptsq);
+       double e = std::sqrt(ptsq + pz*pz + mass*mass);
+       double mt = std::sqrt(ptsq + mass*mass);
+       double pt = std::sqrt(ptsq);
 
        double pseud = 0.5*std::log((e + pz)/(e - pz));
 
@@ -752,9 +752,9 @@ Hijing::fillEvt(HepMC::GenEvent* evt)
        double mass = m_hijjet1.pjtm(itarg, jparton);
 
        double ptsq = px*px + py*py;
-       double e = sqrt(ptsq + pz*pz + mass*mass);
-       double mt = sqrt(ptsq + mass*mass);
-       double pt = sqrt(ptsq);
+       double e = std::sqrt(ptsq + pz*pz + mass*mass);
+       double mt = std::sqrt(ptsq + mass*mass);
+       double pt = std::sqrt(ptsq);
 
        double pseud = 0.5*std::log((e + pz)/(e - pz));
 

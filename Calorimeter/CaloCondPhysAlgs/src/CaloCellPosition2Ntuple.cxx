@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloCellPosition2Ntuple.h"
@@ -14,8 +14,8 @@
 //Constructor
 CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_thistSvc(NULL),
-  m_calo_id(NULL),
+  m_thistSvc(nullptr),
+  m_calo_id(nullptr),
   m_key("LArCellPositionShift"),
   m_Hash(0),
   m_OffId(0),
@@ -26,7 +26,7 @@ CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLo
   m_dy(0),
   m_dz(0),
   m_volume(0), 
-  m_tree(NULL)
+  m_tree(nullptr)
 {
   declareProperty("inputKey",m_key,"Key for CaloCellPositionShift");
 }

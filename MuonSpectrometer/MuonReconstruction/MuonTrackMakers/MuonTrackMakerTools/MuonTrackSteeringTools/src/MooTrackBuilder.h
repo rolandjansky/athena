@@ -106,7 +106,7 @@ namespace Muon {
         @param track the track
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* refit( Trk::Track& track ) const override;
+    virtual std::unique_ptr<Trk::Track> refit( Trk::Track& track ) const override;
 
     /** @brief combine two MCTBCandidateEntries
         @param firstEntry  the first entry
@@ -114,7 +114,7 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    Trk::Track* combine( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
+    std::unique_ptr<Trk::Track> combine( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry,
                          const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief combine two MCTBCandidateEntries
@@ -141,7 +141,7 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* combine( const MuonSegment& seg1, const MuonSegment& seg2,
+    virtual std::unique_ptr<Trk::Track> combine( const MuonSegment& seg1, const MuonSegment& seg2,
                          const PrepVec* patternPhiHits = 0 ) const override;
 
     /** @brief combine a track with a segment
@@ -150,25 +150,25 @@ namespace Muon {
         @param externalPhiHits if provided, the external phi hits will be used instead of the phi hits on the segment
         @return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* combine( const Trk::Track& track, const MuonSegment& seg,
-                         const PrepVec* patternPhiHits = 0 ) const override;
+    virtual std::unique_ptr<Trk::Track> combine( const Trk::Track& track, const MuonSegment& seg,
+						 const PrepVec* patternPhiHits = 0 ) const override;
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
         @param track a reference to a Track
         @param seg a reference to a MuonSegment
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
-    std::vector<Trk::Track*>* combineWithSegmentFinding( const Trk::Track& track, const MuonSegment& seg,
-                                                         const PrepVec* patternPhiHits = 0 ) const;
+    std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const Trk::Track& track, const MuonSegment& seg,
+									 const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
         @param candidate a reference to a MuPatTrack
         @param segInfo a reference to a MuPatSegment
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
-    std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate,
-                                                         const MuPatSegment& segInfo,
-                                                         const PrepVec* patternPhiHits = 0 ) const;
+    std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const MuPatTrack& candidate,
+									 const MuPatSegment& segInfo,
+									 const PrepVec* patternPhiHits = 0 ) const;
 
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
@@ -177,10 +177,10 @@ namespace Muon {
         @param chIds identifiers of the chambers in which the search should be performed (should be in same station layer)
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
-    std::vector<Trk::Track*>* combineWithSegmentFinding( const MuPatTrack& candidate,
-                                                         const Trk::TrackParameters& pars,
-                                                         const std::set<Identifier>& chIds,
-                                                         const PrepVec* patternPhiHits = 0 ) const; 
+    std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const MuPatTrack& candidate,
+									 const Trk::TrackParameters& pars,
+									 const std::set<Identifier>& chIds,
+									 const PrepVec* patternPhiHits = 0 ) const; 
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
         @param track a reference to a Track
@@ -188,10 +188,10 @@ namespace Muon {
         @param chIds identifiers of the chambers in which the search should be performed (should be in same station layer)
         @return a pointer to vector of tracks, the ownership of the vector and the tracks is passed to the client calling the tool.
      */
-    std::vector<Trk::Track*>* combineWithSegmentFinding( const Trk::Track& track,
-                                                         const Trk::TrackParameters& pars,
-                                                         const std::set<Identifier>& chIds,
-                                                         const PrepVec* patternPhiHits = 0 ) const;
+    std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const Trk::Track& track,
+									 const Trk::TrackParameters& pars,
+									 const std::set<Identifier>& chIds,
+									 const PrepVec* patternPhiHits = 0 ) const;
 
     /** @brief find closest TrackParameters to the position. Closest is defined as closest in z in the endcap and
         closest in r in the barrel.
@@ -218,12 +218,12 @@ namespace Muon {
 
 
     /** recalibrate hits on track */
-    virtual Trk::Track* recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const override;
+    virtual std::unique_ptr<Trk::Track> recalibrateHitsOnTrack( const Trk::Track& track, bool doMdts, bool doCompetingClusters  ) const override;
 
     /** split given track if it crosses the calorimeter volume, code assumes that the track was already extrapolated to the
         muon entry record using the MuonTrackExtrapolationTool. It uses the double perigee to spot the tracks to be split.
     */
-    std::pair<Trk::Track*,Trk::Track*> splitTrack( const Trk::Track& track ) const;
+    std::pair<std::unique_ptr<Trk::Track>,std::unique_ptr<Trk::Track> > splitTrack( const Trk::Track& track ) const;
 
     /** @brief identify whether two track are split */
     bool isSplitTrack( const Trk::Track& track1, const Trk::Track& track2 ) const;
@@ -238,13 +238,13 @@ namespace Muon {
                 The ownership of the tracks is passed to the client calling the tool.
 
     */
-    virtual std::vector<MuPatTrack*>* find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const override;
+    virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const override;
 
     /** @brief interface for tools which refine the hit content of a given track
         @param track input track
         @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    virtual MuPatTrack* refine( MuPatTrack& track ) const override;
+    virtual void refine( MuPatTrack& track ) const override;
 
   private:
 

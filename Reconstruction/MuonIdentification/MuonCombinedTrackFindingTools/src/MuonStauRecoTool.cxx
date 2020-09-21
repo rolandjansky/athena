@@ -28,8 +28,6 @@
 #include "MdtCalibData/IRtResolution.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "MuonInsideOutRecoTool.h"
-
 namespace MuonCombined {
 
   std::string printIntersectionToString( const Muon::MuonSystemExtension::Intersection& intersection ) {
@@ -1165,7 +1163,6 @@ namespace MuonCombined {
     if( result.status != 0 ) maximumData.betaSeeds.push_back( BetaSeed(result.beta,1.));
 
   }
-
 
   void MuonStauRecoTool::findSegments(  const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData, 
                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments,

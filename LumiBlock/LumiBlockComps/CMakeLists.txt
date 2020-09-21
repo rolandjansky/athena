@@ -50,15 +50,15 @@ atlas_install_joboptions( share/*.txt )
 
 atlas_add_test( LBDurationCondAlg_test
    SOURCES test/LBDurationCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib TestTools )
 
 atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities TestTools )
 
 atlas_add_test( TrigLiveFractionCondAlg_test
    SOURCES test/TrigLiveFractionCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib TestTools )
 
 atlas_add_test( LuminosityCondAlgConfig_test
                 SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig

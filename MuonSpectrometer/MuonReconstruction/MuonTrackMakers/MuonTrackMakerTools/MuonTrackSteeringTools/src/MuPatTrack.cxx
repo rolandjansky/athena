@@ -72,22 +72,20 @@ namespace Muon {
 
 
   // member functions
-  MuPatTrack::MuPatTrack( const std::vector<MuPatSegment*>& segments, const Trk::Track* track , MuPatSegment* seedSeg )
+  MuPatTrack::MuPatTrack( const std::vector<MuPatSegment*>& segments, std::unique_ptr<Trk::Track>& track , MuPatSegment* seedSeg )
    : MuPatCandidateBase()
    , created(Unknown)
    , lastSegmentChange(Unknown)
    , m_segments(segments)
-   , m_track(track)
    , m_seedSeg(0)
-   , m_ownTrack(true)
    , mboyInfo(0)
   {
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " new track " << this << std::endl;
 #endif
+    m_track.swap(track);
     // increase segment counters
     modifySegmentCounters(+1);
-//  m_hasMomentum = hasMomentum(*track);
     m_hasMomentum = hasMomentum();
 #ifdef MCTB_OBJECT_COUNTERS
     addInstance();
@@ -100,15 +98,14 @@ namespace Muon {
     else if (segments.size()) m_seedSeg = segments[0];
   }
 
-  MuPatTrack::MuPatTrack( MuPatSegment* segment, const Trk::Track* track )
+  MuPatTrack::MuPatTrack( MuPatSegment* segment, std::unique_ptr<Trk::Track>& track )
    : MuPatCandidateBase()
    , created(Unknown)
    , lastSegmentChange(Unknown)
-   , m_track(track)
    , m_seedSeg(0)
-   , m_ownTrack(true)
    , mboyInfo(0)
   {
+    m_track.swap(track);
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " new track " << this << std::endl;
 #endif
@@ -116,7 +113,6 @@ namespace Muon {
     m_segments.push_back(segment);
     // increase segment counters
     modifySegmentCounters(+1);
-//  m_hasMomentum = hasMomentum(*track);
     m_hasMomentum = hasMomentum();
 #ifdef MCTB_OBJECT_COUNTERS
     addInstance();
@@ -127,15 +123,14 @@ namespace Muon {
     m_excludedSegments.clear();
   }
 
-  MuPatTrack::MuPatTrack( MuPatSegment* segment1,  MuPatSegment* segment2, const Trk::Track* track , MuPatSegment* seedSeg )
+  MuPatTrack::MuPatTrack( MuPatSegment* segment1,  MuPatSegment* segment2, std::unique_ptr<Trk::Track>& track , MuPatSegment* seedSeg )
    : MuPatCandidateBase()
    , created(Unknown)
    , lastSegmentChange(Unknown)
-   , m_track(track)
    , m_seedSeg(0)
-   , m_ownTrack(true)
    , mboyInfo(0)
   {
+    m_track.swap(track);
 #ifdef MCTB_OBJECT_POINTERS
    std::cout << " new track " << this << std::endl;
 #endif
@@ -144,7 +139,6 @@ namespace Muon {
     m_segments.push_back(segment2);
     // increase segment counters
     modifySegmentCounters(+1);
-//  m_hasMomentum = hasMomentum(*track);
     m_hasMomentum = hasMomentum();
 #ifdef MCTB_OBJECT_COUNTERS
     addInstance();
@@ -163,7 +157,6 @@ namespace Muon {
     std::cout << " delete trackcan " << this << std::endl;
 #endif
     modifySegmentCounters(-1);
-    if (m_ownTrack) delete m_track;
     if (mboyInfo) delete mboyInfo;
 #ifdef MCTB_OBJECT_COUNTERS
     removeInstance();
@@ -178,13 +171,12 @@ namespace Muon {
    , lastSegmentChange(can.lastSegmentChange)
    , m_segments(can.m_segments)
    , m_excludedSegments(can.m_excludedSegments)
-   , m_track(can.m_track)
    , m_seedSeg(can.m_seedSeg)
-   , m_ownTrack(false)
   {
 #ifdef MCTB_OBJECT_POINTERS
     std::cout << " ctor track " << this << std::endl;
 #endif
+    m_track=std::make_unique<Trk::Track>(can.track());
     m_hasMomentum = can.m_hasMomentum;
     // increase segment counters
     modifySegmentCounters(+1);
@@ -246,11 +238,9 @@ namespace Muon {
       m_segments = can.m_segments;
       m_excludedSegments = can.m_excludedSegments;
 
-      if (m_ownTrack) delete m_track;
-      m_track = can.m_track;
+      m_track = std::make_unique<Trk::Track>(can.track());
       m_chambers = can.m_chambers;
       m_stations = can.m_stations;
-      m_ownTrack = false;
       m_hasMomentum = can.m_hasMomentum;
       m_seedSeg = can.m_seedSeg;
 
@@ -327,22 +317,15 @@ namespace Muon {
     return hasMom;
   }
 
-  void MuPatTrack::updateTrack( const Trk::Track* track ) {
-    if (m_ownTrack && m_track != track) delete m_track;
-    m_track = track;
-    m_ownTrack = true;
-  }
-
-  const Trk::Track& MuPatTrack::releaseTrack() {
-    m_ownTrack = false;
-    return *m_track;
+  void MuPatTrack::updateTrack( std::unique_ptr<Trk::Track>& track ) {
+    m_track.swap(track);
   }
 
   void MuPatTrack::addExcludedSegment( MuPatSegment* segment ) {
     m_excludedSegments.push_back(segment);
   }
 
-  void MuPatTrack::addSegment( MuPatSegment* segment, const Trk::Track* newTrack ) {
+  void MuPatTrack::addSegment( MuPatSegment* segment, std::unique_ptr<Trk::Track>& newTrack ) {
     // add segment and increase counter
     m_segments.push_back(segment);
     segment->addTrack(this);
@@ -353,11 +336,8 @@ namespace Muon {
 
     if( newTrack ){
       // delete old track, assign new
-      if ( m_ownTrack && m_track != newTrack ) delete m_track;
-      m_track = newTrack;
-      m_ownTrack = true;
+      m_track.swap(newTrack);
     }
-//  m_hasMomentum = hasMomentum(*newTrack);
     m_hasMomentum = hasMomentum();
   }
 
@@ -366,7 +346,6 @@ namespace Muon {
     std::vector<MuPatSegment*>::iterator it = m_segments.begin();
     std::vector<MuPatSegment*>::iterator it_end = m_segments.end();
     for( ;it!=it_end; ++it ) {
-      //std::cout << " modifying " << *it << std::endl;
       std::set<MuonStationIndex::ChIndex>::const_iterator chit = (*it)->chambers().begin();
       std::set<MuonStationIndex::ChIndex>::const_iterator chit_end = (*it)->chambers().end();
       for( ;chit!=chit_end;++chit ) addChamber( *chit );

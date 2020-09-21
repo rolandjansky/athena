@@ -1,29 +1,13 @@
-################################################################################
-# Package: AthenaPoolExampleAlgorithms
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolExampleAlgorithms )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleData
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/AthenaPOOL/DBDataModel
-                          Event/ByteStreamData
-                          Event/EventBookkeeperMetaData
-                          Event/EventInfo
-                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthenaPoolExampleAlgorithms
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolExampleData AthenaPoolUtilities DBDataModel ByteStreamData ByteStreamData_test EventBookkeeperMetaData EventInfo GaudiKernel )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthenaPoolExampleData AthenaPoolUtilities EventBookkeeperMetaData EventInfo GaudiKernel PersistentDataModel StoreGateLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -283,7 +283,7 @@ int  CaloNeighbourRegion::getNeighbours(const IdentifierHash caloHash, std::vect
 //###############################################################################
 
 CaloNeighbours::CaloNeighbours() :
-  m_calo_id(0)
+  m_calo_id(nullptr)
 { }
 
 //###############################################################################
@@ -295,7 +295,7 @@ CaloNeighbours::~CaloNeighbours()
 //###############################################################################
 
 int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
-                               std::string filename)
+                               const std::string& filename)
 {
   int result =0;
   //  std::cout << " CaloNeighbours::initialize " << std::endl;
@@ -306,7 +306,7 @@ int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
   std::string file = PathResolver::find_file (filename, "DATAPATH");
   //    std::cout << "Reading file  " << file << std::endl;
   std::ifstream fin;
-  if (file != "") {
+  if (!file.empty()) {
     fin.open(file.c_str());
   }
   else {
@@ -341,11 +341,11 @@ int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
     do {  
       fin.getline(aLine,sizeof(aLine)-1);
       sLine = std::string(aLine);
-    } while (sLine == "" && !fin.eof());
-    isComment = ( sLine.find("#") != std::string::npos );
+    } while (sLine.empty() && !fin.eof());
+    isComment = ( sLine.find('#') != std::string::npos );
   }
   do {
-    while ( sLine == "" && !fin.eof()) {
+    while ( sLine.empty() && !fin.eof()) {
       fin.getline(aLine,sizeof(aLine)-1);
       sLine = std::string(aLine);
     }
@@ -403,10 +403,10 @@ int CaloNeighbours::initialize(const CaloCell_Base_ID* caloID,
 	std::map<IdentifierHash, std::vector<IdentifierHash>, ltIdHash> neighbourMapPlus,neighbourMapMinus;
 
 	do {
-	  while ( !endOfBlock && sLine == "" && !fin.eof()) {
+	  while ( !endOfBlock && sLine.empty() && !fin.eof()) {
 	    fin.getline(aLine,sizeof(aLine)-1);
 	    sLine = std::string(aLine);
-	    if ( sLine == "" || fin.eof() )
+	    if ( sLine.empty() || fin.eof() )
 	      endOfBlock = true;
 	  }
 	  if (!endOfBlock) {

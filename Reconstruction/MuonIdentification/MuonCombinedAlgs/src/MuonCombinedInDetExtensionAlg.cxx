@@ -5,20 +5,10 @@
 #include "MuonCombinedInDetExtensionAlg.h"
 
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
-
 
 MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator)
-{
-    declareProperty("MuonCombinedInDetExtensionTools", m_muonCombinedInDetExtensionTools);
-    declareProperty("usePRDs", m_usePRDs = false);
-    declareProperty("HasCSC", m_hasCSC = true);
-    declareProperty("HasSTgc", m_hasSTGC = true);
-    declareProperty("HasMM", m_hasMM = true);
+    : AthAlgorithm(name, pSvcLocator) {
 }
-
-MuonCombinedInDetExtensionAlg::~MuonCombinedInDetExtensionAlg() {}
 
 StatusCode
 MuonCombinedInDetExtensionAlg::initialize()
@@ -104,12 +94,5 @@ MuonCombinedInDetExtensionAlg::execute()
             tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments);
     }
 
-    return StatusCode::SUCCESS;
-}
-
-
-StatusCode
-MuonCombinedInDetExtensionAlg::finalize()
-{
     return StatusCode::SUCCESS;
 }

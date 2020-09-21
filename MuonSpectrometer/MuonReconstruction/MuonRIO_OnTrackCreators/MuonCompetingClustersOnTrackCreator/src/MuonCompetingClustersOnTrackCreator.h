@@ -1,44 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//  Header file for class  MdtOnTrackTool 
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Interface for MuonDriftCircleOnTrack production
 // (for MDT technology)
-///////////////////////////////////////////////////////////////////
-// Version 1.0 18/07/2004 
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUON_MUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 #define MUON_MUONCOMPETINGCLUSTERSONTRACKCREATOR_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-class Identifier;
-class MdtIdHelper;
-
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-
-
-
 namespace Muon {
-
-  class IMuonTofTool;
-  class MdtPrepData;
-  class MdtDriftCircleOnTrack;
-  class IMuonClusterOnTrackCreator;
-
   /**
      @brief Tool to create MuonCompetingClustersOnTrack objects 
   */
@@ -47,9 +26,8 @@ namespace Muon {
   public:
 
     MuonCompetingClustersOnTrackCreator(const std::string&,const std::string&,const IInterface*);
-    virtual ~MuonCompetingClustersOnTrackCreator ();
+    virtual ~MuonCompetingClustersOnTrackCreator()=default;
     virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
 
     /** method for the creation of a single 
 	Trk::CompetingRIOsOnTrack:
@@ -79,9 +57,7 @@ namespace Muon {
 
 
   private:
- 
-   ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_clusterCreator;        //<! pointer to muon cluster rio ontrack creator
-
+   ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{this,"ClusterCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator","pointer to muon cluster rio ontrack creator"};
  
   };
 

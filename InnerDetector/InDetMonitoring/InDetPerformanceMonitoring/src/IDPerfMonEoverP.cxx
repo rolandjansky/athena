@@ -66,7 +66,6 @@ IDPerfMonEoverP::IDPerfMonEoverP(const std::string& name,
   m_isDATA(true),
   m_validationMode(true),
   m_fillDetailedTree(false),
-  m_primaryVertexFirstCandidate{},
   m_validationTreeName("EGrefitter"),
   m_validationTreeDescription("egamma track refitter caches"),
   m_validationTreeFolder("/eoverpValidation/efitterValidation"),
@@ -462,8 +461,8 @@ StatusCode IDPerfMonEoverP::execute()
 {
   ATH_MSG_DEBUG( "Executing IDPerfMonEoverP" );
   StatusCode sc(StatusCode::SUCCESS);
-  m_trackParticleVertexMap.clear();
-  m_primaryVertexFirstCandidate = 0;
+  std::map<const xAOD::TrackParticle*, VxPos > trackParticleVertexMap;
+  const xAOD::Vertex* primaryVertexFirstCandidate = nullptr;
   if (m_validationMode){
    clearValidationNtuple();
   }else{
@@ -484,7 +483,7 @@ StatusCode IDPerfMonEoverP::execute()
 
   ATH_MSG_DEBUG("Retrieved Trigger info.");
   fillTriggerInformation();
-  if ( fillVertexInformation() ){
+  if ( fillVertexInformation(trackParticleVertexMap, primaryVertexFirstCandidate) ){
     ATH_MSG_DEBUG("Retrieved Primary Vertex info.");
   } else {
     ATH_MSG_DEBUG("No Primary Vertex");
@@ -554,7 +553,9 @@ StatusCode IDPerfMonEoverP::execute()
     }
 
     //Find which if any vertex the electron track is associated to
-    VxPos myVxPos = findAssociatedVertex( pThisElectron );
+    VxPos myVxPos = findAssociatedVertex( trackParticleVertexMap,
+                                          primaryVertexFirstCandidate,
+                                          pThisElectron );
     m_associatedToVtx[m_electronCounter] = myVxPos.second;
     if( mytp->track() ){
       const Trk::Track* oTrkTrack = mytp->track();
@@ -683,7 +684,7 @@ void IDPerfMonEoverP::addToValidationNtuple(const Trk::Perigee* perigee,const xA
 
 
 
-void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
+void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg)
 {
   ATH_MSG_DEBUG(  "fillIsEM" );
   int el_goodOQ = (int)eg->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
@@ -713,7 +714,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
 }
 
 
-void IDPerfMonEoverP::fillGeneral(const xAOD::Electron *eg) const
+void IDPerfMonEoverP::fillGeneral(const xAOD::Electron *eg)
 {
   ATH_MSG_DEBUG(  "fillGeneral" );
   const xAOD::CaloCluster* cluster = eg->caloCluster();
@@ -800,7 +801,7 @@ void IDPerfMonEoverP::deleteAction() const
 
 }
 
-void IDPerfMonEoverP::validationAction() const
+void IDPerfMonEoverP::validationAction()
 {
   ATH_MSG_DEBUG( "Writing Data to ntuple" );
 
@@ -814,7 +815,7 @@ void IDPerfMonEoverP::validationAction() const
 }
 
 
-bool IDPerfMonEoverP::storeMETinformation() const
+bool IDPerfMonEoverP::storeMETinformation()
 {
   ATH_MSG_VERBOSE("In storeMETinformation()");
   const xAOD::MissingETContainer *pMissingCont(0);
@@ -857,7 +858,8 @@ bool IDPerfMonEoverP::passMETCleaningCuts() const
   return cleanJet;
 }
 
-bool IDPerfMonEoverP::fillVertexInformation() const
+bool IDPerfMonEoverP::fillVertexInformation(std::map<const xAOD::TrackParticle*, VxPos >& trackParticleVertexMap,
+                                            xAOD::Vertex const* & primaryVertexFirstCandidate)
 {
   ATH_MSG_DEBUG( "fillVertexInformation()" );
   const xAOD::VertexContainer* vxContainer(0);
@@ -871,8 +873,8 @@ bool IDPerfMonEoverP::fillVertexInformation() const
     if(vxContainer) {
       ATH_MSG_DEBUG("Nb of reco primary vertex for coll "
 		    << " = " << vxContainer->size() );
-      m_primaryVertexFirstCandidate = std::begin(*vxContainer)[0];
-      ATH_MSG_DEBUG( "The primary vertex : " << m_primaryVertexFirstCandidate->type() );
+      primaryVertexFirstCandidate = std::begin(*vxContainer)[0];
+      ATH_MSG_DEBUG( "The primary vertex : " << primaryVertexFirstCandidate->type() );
       for(const auto* vxI : *vxContainer ) {
         int type = (int)(vxI)->vertexType();
 	const xAOD::Vertex* primaryVertex = vxI;
@@ -884,7 +886,7 @@ bool IDPerfMonEoverP::fillVertexInformation() const
 	  for(const auto& tp_elem : tpLinks ){
 	    const xAOD::TrackParticle* trk = *tp_elem;
 	    VxPos myVxPos = std::make_pair(vxI,npv);
-	    m_trackParticleVertexMap.insert( std::make_pair( trk, myVxPos )  );
+	    trackParticleVertexMap.insert( std::make_pair( trk, myVxPos )  );
 	    if(trk) {
 	      sumpt += trk->p4().Perp();
 	    }
@@ -927,20 +929,22 @@ bool IDPerfMonEoverP::fillVertexInformation() const
   return true;
 }
 
-VxPos IDPerfMonEoverP::findAssociatedVertex(const xAOD::Electron* eg) const
+VxPos IDPerfMonEoverP::findAssociatedVertex(std::map<const xAOD::TrackParticle*, VxPos >& trackParticleVertexMap,
+                                            const xAOD::Vertex* primaryVertexFirstCandidate,
+                                            const xAOD::Electron* eg) const
 {
   ATH_MSG_VERBOSE("In findAssociatedVertex()");
   std::map<const xAOD::TrackParticle*, VxPos>::iterator tpVx =
-    m_trackParticleVertexMap.find(eg->trackParticle());
-  if (tpVx == m_trackParticleVertexMap.end() ){
-    return std::make_pair( m_primaryVertexFirstCandidate,-1 );
+    trackParticleVertexMap.find(eg->trackParticle());
+  if (tpVx == trackParticleVertexMap.end() ){
+    return std::make_pair( primaryVertexFirstCandidate,-1 );
   } else
     return (*tpVx).second;
 
 }
 
 
-void IDPerfMonEoverP::fillTriggerInformation() const
+void IDPerfMonEoverP::fillTriggerInformation()
 {
   ATH_MSG_VERBOSE("In fillTriggerInformation()");
   ATH_MSG_DEBUG( "Pass state All = " << m_trigDec->isPassed( ".*" ) );
@@ -959,7 +963,7 @@ void IDPerfMonEoverP::fillTriggerInformation() const
   return;
 }
 
-void IDPerfMonEoverP::fillElectronInfo (const xAOD::Electron *p) const
+void IDPerfMonEoverP::fillElectronInfo (const xAOD::Electron *p)
 {
   ATH_MSG_VERBOSE(  "In fillElectronInfo()" );
   for (size_t i = 0; i < m_PID_ShowerType_Names.size(); i++) {
@@ -980,7 +984,7 @@ for (size_t i = 0; i < m_PID_SummaryType_Names.size(); i++) {
 
 }
 
-bool IDPerfMonEoverP::fillLastMeasurement(const Trk::Track* track, const int fitter)const
+bool IDPerfMonEoverP::fillLastMeasurement(const Trk::Track* track, const int fitter)
 {
   ATH_MSG_VERBOSE("In fillLastMeasurement()");
   if(!track) return false;

@@ -5,27 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCondTool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/DetDescrCond/DetDescrConditions
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          PRIVATE
-                          Control/SGTools
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/Identifier
-                          MuonSpectrometer/MuonAlignment/MuonAlignmentData
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

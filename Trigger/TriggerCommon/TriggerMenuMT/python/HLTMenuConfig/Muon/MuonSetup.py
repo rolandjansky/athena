@@ -359,6 +359,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                           CscRawDataProvider   = "",
                                                           CscPrepDataProvider  = "",
                                                           CscClusterProvider   = "")
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+    L2CscDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
     ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
@@ -368,6 +370,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding = False,
                                                         MDT_RawDataProvider = "",
                                                         MdtPrepDataProvider = "")
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
+  L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
 
   ### RPC RDO data - turn off the data decoding here ###
@@ -379,6 +383,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding           = False,
                                                         DecodeBS             = False)
   ToolSvc += L2RpcDataPreparator
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+  L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
 
 
   ### TGC data preparation - turn off the data decoding here ###
@@ -388,6 +394,36 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                                         DoDecoding = False,
                                                         TgcPrepDataProvider  = "",
                                                         TgcRawDataProvider = "")
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+  L2TgcDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
+
+
+  ### sTGC RDO data - turn off the data decoding here ###
+  if MuonGeometryFlags.hasSTGC():
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__StgcDataPreparator
+    L2StgcDataPreparator = TrigL2MuonSA__StgcDataPreparator(name = "L2MuonSAStgcDataPreparator",
+                                                            StgcPrepDataProvider  = "",
+                                                            StgcPrepDataContainer = "STGC_Measurements",
+                                                            StgcRawDataProvider   = "",
+                                                            DoDecoding           = False,
+                                                            DecodeBS             = False)
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+    L2StgcDataPreparator.RegSel_STGC = makeRegSelTool_sTGC()
+    ToolSvc += L2StgcDataPreparator
+
+
+  ### MM RDO data - turn off the data decoding here ###
+  if MuonGeometryFlags.hasMM():
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MmDataPreparator
+    L2MmDataPreparator = TrigL2MuonSA__MmDataPreparator(name = "L2MuonSAMmDataPreparator",
+                                                        MmPrepDataProvider  = "",
+                                                        MmPrepDataContainer = "MM_Measurements",
+                                                        # MmRawDataProvider   = "",
+                                                        DoDecoding           = False,
+                                                        DecodeBS             = False)
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
+    L2MmDataPreparator.RegSel_MM = makeRegSelTool_MM()
+    ToolSvc += L2MmDataPreparator
 
   ### set up MuFastSteering ###
   from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
@@ -396,10 +432,20 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
   if MuonGeometryFlags.hasCSC():
-    MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator
-  MuFastDataPreparator.MDTDataPreparator = L2MdtDataPreparator
-  MuFastDataPreparator.RPCDataPreparator = L2RpcDataPreparator
-  MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
+    MuFastDataPreparator.CSCDataPreparator  = L2CscDataPreparator
+  else:
+    MuFastDataPreparator.CSCDataPreparator  = ""
+  MuFastDataPreparator.MDTDataPreparator  = L2MdtDataPreparator
+  MuFastDataPreparator.RPCDataPreparator  = L2RpcDataPreparator
+  MuFastDataPreparator.TGCDataPreparator  = L2TgcDataPreparator
+  if MuonGeometryFlags.hasSTGC():
+    MuFastDataPreparator.STGCDataPreparator = L2StgcDataPreparator
+  else:
+    MuFastDataPreparator.STGCDataPreparator = ""
+  if MuonGeometryFlags.hasMM():
+    MuFastDataPreparator.MMDataPreparator   = L2MmDataPreparator
+  else:
+    MuFastDataPreparator.MMDataPreparator   = ""
   
   muFastAlg.DataPreparator = MuFastDataPreparator
 
@@ -453,13 +499,9 @@ def muCombRecoSequence( RoIs, name ):
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
 
-  # These objects must be loaded from SGIL if not from CondInputLoader
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
     ViewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -522,31 +564,16 @@ def muEFSARecoSequence( RoIs, name ):
   EFMuonViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( "EFMuonViewDataVerifier_" + name )
   EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                         ( 'CaloCellContainer' , 'StoreGateSvc+AllCalo' ),
-                                        ( 'TrackCollection' , 'StoreGateSvc+Tracks' )]
+                                        ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
+                                        ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   efAlgs.append( EFMuonViewDataVerifier )
 
   # Only load these objects if they aren't available in conddb
   from IOVDbSvc.CondDB import conddb
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   if not conddb.folderRequested( "/MDT/DQMF/DEAD_ELEMENT" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
   if not conddb.folderRequested( "/MDT/TUBE_STATUS/DEAD_TUBE" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
-    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
-
-  if name != 'FS':
-    # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
-    EFMuonViewDataVerifier.DataObjects += [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                           ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' )]
-    if MuonGeometryFlags.hasCSC():
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                             ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
-                                             ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements')]
 
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
   from AthenaCommon.AlgSequence import AthSequencer
@@ -660,13 +687,7 @@ def muEFCBRecoSequence( RoIs, name ):
   from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                       ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-    ViewVerifyMS.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
   if not conddb.folderRequested( "/PIXEL/PixdEdx" ):
-    topSequence.SGInputLoader.Load += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
     ViewVerifyMS.DataObjects += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
 
   if not globalflags.InputFormat.is_bytestream():
@@ -690,10 +711,11 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'TrackCollection' , 'StoreGateSvc+'+TrackCollection ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
     if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                     ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     muEFCBRecoSequence += ViewVerifyTrk
 
@@ -915,15 +937,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
 
   # Make sure required objects are still available at whole-event level
-  from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                       ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-    viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                               ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-
   if not globalflags.InputFormat.is_bytestream():
     viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
@@ -951,6 +966,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
   trigEFmuIso.MuonContName = muNames.EFIsoMuonName
+  trigEFmuIso.ptcone02Name = Muons+".ptcone02"
+  trigEFmuIso.ptcone03Name = Muons+".ptcone03"
 
   efmuisoRecoSequence += trigEFmuIso
 

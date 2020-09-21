@@ -78,6 +78,9 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_overThrOccupGainGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellDetailOccMapOvThrGain",
                                                                          Tile::MAX_ROS - 1, Tile::MAX_GAIN, nL1Triggers);
 
+  m_nCellsGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellsNumberLB",
+                                                  Tile::MAX_ROS, nL1Triggers);
+
   m_nCellsOverThrGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellOccOvThrBCID",
                                                          Tile::MAX_ROS, nL1Triggers);
 
@@ -86,6 +89,11 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
 
   m_overThrEtaPhiGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEtaPhiOvThr",
                                                          MAX_SAMP, nL1Triggers);
+
+  if (m_fillChannelTimeHistograms) {
+    m_chanTimeSampGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileChannelTime",
+                                                                       Tile::MAX_ROS - 1, MAX_SAMP, nL1Triggers);
+  }
 
   m_eneDiffSampGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellEneDiff",
                                                                     Tile::MAX_ROS - 1, MAX_SAMP, nL1Triggers);
@@ -202,15 +210,16 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     detailOccupEnergies[partition].reserve(nChannelsInPartition);
   }
 
-  std::vector<float> occupEta[MAX_SAMP];
-  std::vector<float> occupPhi[MAX_SAMP];
-  std::vector<float> occupEnergy[MAX_SAMP];
+  std::vector<float> occupEta[SAMP_ALL];
+  std::vector<float> occupPhi[SAMP_ALL];
+  std::vector<float> occupEnergy[SAMP_ALL];
 
-  std::vector<float> overThrOccupEta[MAX_SAMP];
-  std::vector<float> overThrOccupPhi[MAX_SAMP];
+  std::vector<float> overThrOccupEta[SAMP_ALL];
+  std::vector<float> overThrOccupPhi[SAMP_ALL];
 
-  std::vector<float> sampEnergyDiff[Tile::MAX_ROS - 1][MAX_SAMP];
-  std::vector<float> sampTimeDiff[Tile::MAX_ROS - 1][MAX_SAMP];
+  std::vector<float> sampChanTime[Tile::MAX_ROS - 1][SAMP_ALL];
+  std::vector<float> sampEnergyDiff[Tile::MAX_ROS - 1][SAMP_ALL];
+  std::vector<float> sampTimeDiff[Tile::MAX_ROS - 1][SAMP_ALL];
 
   PairBuilder moduleCorr[MAX_PART];
 
@@ -465,6 +474,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
               chanTimeDrawer[partition1].push_back(drawer);
               chanTimeChannel[partition1].push_back(channel1);
               chanTimeDigitizer[partition1].push_back(getDigitizer(channel1));
+              if (m_fillChannelTimeHistograms) {
+                sampChanTime[partition1][sample].push_back(time1);
+              }
             }
 
             if (isOkChannel2 && energy2 > m_energyThresholdForTime) {
@@ -472,6 +484,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
               chanTimeDrawer[partition2].push_back(drawer);
               chanTimeChannel[partition2].push_back(channel2);
               chanTimeDigitizer[partition2].push_back(getDigitizer(channel2));
+              if (m_fillChannelTimeHistograms) {
+                sampChanTime[partition2][sample].push_back(time2);
+              }
             }
           }
 
@@ -782,6 +797,18 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       }
     }
 
+    if (m_fillChannelTimeHistograms) {
+      for (unsigned int sample = 0; sample < SAMP_ALL; ++sample) {
+        if (!sampChanTime[partition][sample].empty()) {
+          auto monChanTime = Monitored::Collection("time", sampChanTime[partition][sample]);
+          for (int l1TriggerIdx : l1TriggersIndices) {
+            fill(m_tools[m_chanTimeSampGroups[partition][sample][l1TriggerIdx]], monChanTime);
+            fill(m_tools[m_chanTimeSampGroups[partition][SAMP_ALL][l1TriggerIdx]], monChanTime);
+          }
+        }
+      }
+    }
+
     if (m_fillTimeAndEnergyDiffHistograms) {
       for (unsigned int sample = 0; sample < SAMP_ALL; ++sample) {
         if (!sampEnergyDiff[partition][sample].empty()) {
@@ -817,6 +844,9 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     }
 
     for (int l1TriggerIdx : l1TriggersIndices) {
+      auto monCellsNumber = Monitored::Scalar<float>("nCells", nCells[partition]);
+      fill(m_tools[m_nCellsGroups[partition][l1TriggerIdx]], lumiBlock, monCellsNumber);
+
       auto monBCID = Monitored::Scalar<unsigned int>("BCID", bcid);
       auto monCellsNumberOvThr = Monitored::Scalar<float>("nCells", nCellsOverThreshold[partition]);
       fill(m_tools[m_nCellsOverThrGroups[partition][l1TriggerIdx]], monBCID, monCellsNumberOvThr);

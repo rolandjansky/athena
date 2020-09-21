@@ -11,8 +11,8 @@
 
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "PathResolver/PathResolver.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 using std::string;
 using xAOD::JetFourMom_t;
@@ -39,19 +39,20 @@ StatusCode JetVertexTaggerTool::initialize() {
   ATH_MSG_INFO("  Reading JVT file from:\n    " << m_jvtfileName << "\n");
   ATH_MSG_INFO("                     resolved in  :\n    " << m_fn << "\n\n");
 
-  m_jvtfile = TFile::Open(m_fn);
-  if(!m_jvtfile){
+  std::unique_ptr<TFile> jvtfile {TFile::Open(m_fn)};
+  if(!jvtfile){
     ATH_MSG_FATAL("Cannot open JVTLikelihoodFile: " << m_fn);
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_VERBOSE("\n Reading JVT likelihood histogram from:\n    " << m_fn << "\n\n");
 
-  m_jvthisto = (TH2F*)m_jvtfile->Get(std::string(m_jvtlikelihoodHistName).c_str() );
+  m_jvthisto = (TH2F*)jvtfile->Get(std::string(m_jvtlikelihoodHistName).c_str() );
   if(!m_jvthisto){
     ATH_MSG_FATAL( "\n  Found JVT file, but JVT histogram missing. Aborting..." );
     return StatusCode::FAILURE;
   }
+  m_jvthisto->SetDirectory (nullptr);
 
   m_jvfCorrKey = m_jetContainerName + "." + m_jvfCorrKey.key();
   m_sumPtTrkKey = m_jetContainerName + "." + m_sumPtTrkKey.key();
@@ -149,13 +150,6 @@ float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string scale) co
 }
 
 //**********************************************************************
-
-StatusCode JetVertexTaggerTool::finalize() {
-  ATH_MSG_INFO("Finalizing JetVertexTaggerTool " << name());
-  m_jvtfile->Close();
-
-  return StatusCode::SUCCESS;
-}
 
 const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
 {

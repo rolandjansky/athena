@@ -199,11 +199,11 @@ void TrtToolBetaLiklihood::TRT_BitPattern(int hitP, int *lowPat, int *highPat, H
 
 
 //MINUIT apparently doesn't cope with member functions...
-void TRT_FEbeta_fcn(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
+void TRT_FEbeta_fcn ATLAS_NOT_THREAD_SAFE (Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
 //...and also functions called therein:
 void TRT_solveCubic(float DCrad, float &estDrift);
 
-void TrtToolBetaLiklihood::TRT_FEbeta_min(float &beta, float &betaSigmaLo, float &betaSigmaUp){
+void TrtToolBetaLiklihood::TRT_FEbeta_min ATLAS_NOT_THREAD_SAFE (float &beta, float &betaSigmaLo, float &betaSigmaUp){
   //std::cout << "waypoint 6" << std::endl;
   // Minuit variables
   Double_t arglist[10] = {0,0,0,0,0,0,0,0,0,0};

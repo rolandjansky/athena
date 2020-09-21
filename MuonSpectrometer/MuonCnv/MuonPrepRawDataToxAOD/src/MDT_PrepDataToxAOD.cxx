@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,10 +16,7 @@
 
 // Constructor with parameters:
 MDT_PrepDataToxAOD::MDT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonPrepDataToxAOD(name,pSvcLocator,"MDT_DriftCircles","MDT_SDO"),
-  m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator")
-{
-
+  MuonPrepDataToxAOD(name,pSvcLocator,"MDT_DriftCircles","MDT_SDO") {
 }
 
 StatusCode MDT_PrepDataToxAOD::initialize() {

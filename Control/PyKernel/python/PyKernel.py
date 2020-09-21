@@ -21,7 +21,6 @@ __docformat__ = "restructuredtext en"
 import re
 import types
 import cppyy
-from . import PyKHist
 from math import *
 from AthenaCommon.SystemOfUnits import *
 
@@ -750,90 +749,6 @@ def dumpSG ():
     print (GNS.StoreGate.pointer().dump())
 
 
-# book 1D/2D-histogram
-def book (*args):
-    '''
-    Book AIDA histogram (1D/2D) and register it to HistogramSvc.
-    Return reference to the histogram
-    
-    for 1D-histogram
-      book (path, title, nbinx, xmin, xmax)
-             
-    for 2D-histogram
-      book (path, title, nbinx, xmin, xmax, nbiny, ymin, ymax)
-
-    :Parameters:
-      - `args`: variable length parameter
-      
-             * path : path to the histogram
-
-             * title : title property of the histogram
-             
-             * nbinx : number of bins on the axis X
-             
-             * xmin : lower histogram edge on the axis X
-              
-             * xmax : upper histogram edge on the axis X
-
-             * nbiny : number of bins on the axis Y
-             
-             * ymin : lower histogram edge on the axis Y
-             
-             * ymax : upper histogram edge on the axis Y
-
-    **examples**::
-
-      athena> h = book("/stat/test1","Test1",100,0,100*GeV)
-      athena> h = book("/stat/test2","Test2",100,0,100*GeV,100,-50*GeV,50*GeV)
-
-    For detail, see `PyAnalysisExamples/HistTest.py`_
-
-    .. _PyAnalysisExamples/HistTest.py: http://atlas-sw.cern.ch/cgi-bin/viewcvs-atlas.cgi/offline/PhysicsAnalysis/PyAnalysis/PyAnalysisExamples/share/HistTest.py?rev=HEAD&content-type=text/vnd.viewcvs-markup
-      
-    '''
-    h = apply(theApp.histSvc().book, args)
-    # 1D hist
-    if (str(h).find('Histogram 1D') != -1):
-        return PyKHist.PyKHist1D(h)
-    # 2D hist
-    if (str(h).find('Histogram 2D') != -1):
-        return PyKHist.PyKHist2D(h)
-    # else
-    return None
-
-
-# book Profile-histogram
-def bookProf (*args):
-    '''
-    Book AIDA profile-histogram and register it to HistogramSvc.
-    Return reference to the histogram
-
-    Usually
-      bookProf (path, title, nbinx, xmin, xmax)
-
-    :Parameters:
-      - `args`: variable length parameter
-      
-             * path : path to the histogram
-
-             * title : title property of the histogram
-             
-             * nbinx : number of bins on the axis X
-             
-             * xmin : lower histogram edge on the axis X
-              
-             * xmax : upper histogram edge on the axis X
-
-    **examples**::
-
-      athena> h = bookProf("/stat/testp","Testp",100,0,100*GeV)
-
-    For detail, see `book`
-      
-    '''
-    return PyKHist.PyKHistProf(apply(theApp.histSvc()._ihs.bookProf, args))
-
-
 # unregister histogram from HistogramSvc
 def unregister (path):
     '''
@@ -860,29 +775,6 @@ def dumpHist ():
       
     '''
     theApp.histSvc().dump()
-
-
-# retrieve histograms from HistogramSvc
-def retrieveHist (path):
-    '''
-    Retrieve histograms from HistogramSvc
-
-    :param path: path to the histogram
-
-    **examples**::
-
-      athena> h = retrieveHist("/stat/elec_n")
-      
-    '''
-    h = theApp.histSvc().retrieve(path)
-    # 1D hist
-    if (str(h).find('Histogram 1D') != -1):
-        return PyKHist.PyKHist1D(h)
-    # 2D hist
-    if (str(h).find('Histogram 2D') != -1):
-        return PyKHist.PyKHist2D(h)
-    # else
-    return None
 
 
 # set event loop type to pre-process

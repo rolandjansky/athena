@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( CalibNtupleReader )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          PRIVATE
-                          DetectorDescription/GeoPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )

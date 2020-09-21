@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCellGroup.h"
-#include <stdlib.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdlib>
 #include <limits>
 
 CaloCellGroup::CaloCellGroup() :
@@ -15,7 +15,7 @@ CaloCellGroup::CaloCellGroup() :
   m_emeciw(false),
   m_hec(false),
   m_fcal(false),
-  m_caloCellId(NULL)
+  m_caloCellId(nullptr)
 {
 }
 
@@ -36,7 +36,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
   std::string valuesStr;
   
   std::size_t pos1,pos2;
-  pos1=definition.find("[");
+  pos1=definition.find('[');
   if( pos1==std::string::npos) {
     complain(logStr,definition);
     return false;
@@ -70,7 +70,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
   size_t len;
   pos1=0;
   do {
-    pos2=subCaloStr.find(",",pos1);
+    pos2=subCaloStr.find(',',pos1);
     if (pos2==std::string::npos)
       len=subCaloStr.size();
     else
@@ -126,13 +126,13 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
       else {//Found '-'
 	std::string lStr=subdef.substr(0,pos1);
 	std::string uStr=subdef.substr(pos1+1);
-	if (lStr.size()>0) {
+	if (!lStr.empty()) {
 	  if (isdigit(lStr[0]))
 	      lower=atol(lStr.c_str());
 	  else
 	    logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endmsg;
         }
-	if (uStr.size()>0) {
+	if (!uStr.empty()) {
 	  if (isdigit(uStr[0]))
 	    upper=atol(uStr.c_str());
 	  else
@@ -140,7 +140,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
         }
       }    
     }//end not *
-    m_fieldBoundaries.push_back(std::make_pair(lower,upper));
+    m_fieldBoundaries.emplace_back(lower,upper);
   }//end loop over fields
 
 
@@ -215,7 +215,7 @@ bool CaloCellGroup::inGroup(const Identifier id) const {
 
 
 
-void CaloCellGroup::complain(MsgStream& logStr, const std::string problem) const {
+void CaloCellGroup::complain(MsgStream& logStr, const std::string& problem) const {
   logStr << MSG::ERROR << "Malformed definition string '"<<problem << "'" << endmsg;
   return;
 }
@@ -229,7 +229,7 @@ bool CaloCellGroupList::setDefinition(const CaloCell_ID* caloCellId, const std::
   m_groups.clear();
   m_defaults.clear();
 
-  if (definitions.size()==0) {
+  if (definitions.empty()) {
     logStr << MSG::WARNING << "No definition string found" << endmsg;
     return true;
   }

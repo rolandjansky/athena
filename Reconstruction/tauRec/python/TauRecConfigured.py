@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -43,9 +43,8 @@ class TauRecConfigured ( Configured ) :
                                                         Key_tauShotClusOutputContainer="TauShotClusters",
                                                         Key_tauShotPFOOutputContainer="TauShotParticleFlowObjects",
                                                         Key_tauPi0CellOutputContainer="TauCommonPi0Cells",
-                                                        #MaxEta = 2.5,                                                                         
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
-                                                        MinPt = 10.*GeV,
+                                                        MinPt = tauFlags.tauRecSeedMinPt(),
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)

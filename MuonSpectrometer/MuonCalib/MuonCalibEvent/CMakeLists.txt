@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          MuonSpectrometer/MuonCalib/MuonCalibEventBase
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          PRIVATE
-                          GaudiKernel
-                          MuonSpectrometer/MuonCalib/MuonCalibITools )
-
 # External dependencies:
 find_package( Eigen )
 

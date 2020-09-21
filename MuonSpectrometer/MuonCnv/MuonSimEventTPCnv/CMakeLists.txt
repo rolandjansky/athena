@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonSimEventTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          GaudiKernel
-                          Generators/GeneratorObjectsTPCnv
-                          MuonSpectrometer/MuonSimEvent
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/StoreGate
-                          DetectorDescription/GeoPrimitives )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

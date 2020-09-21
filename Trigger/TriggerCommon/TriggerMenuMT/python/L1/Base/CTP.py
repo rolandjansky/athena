@@ -17,8 +17,7 @@ class CTP(object):
         self.random          = Random( names = ['Random0', 'Random1', 'Random2', 'Random3'], cuts = [1, 1, 1, 1] )
         self.bunchGroupSet   = BunchGroupSet()
         self.counters        = MenuMonCountersCollection()   # monitoring counters in the menu
-        
-        
+
     def setBunchGroupSetName(self, name):
         self.bunchGroupSet.name = name
         return self.bunchGroupSet
@@ -39,6 +38,19 @@ class CTP(object):
         # mark the L1 Items that they should be monitored
         MonitorDef.applyItemCounter( menuItems )
         pass
+
+    def checkConnectorAvailability(self, availableConnectors, menuToLoad):
+        inputConnectorList = []
+        inputConnectorList += self.inputConnectors["optical"].values()
+        inputConnectorList += self.inputConnectors["electrical"].values()
+        inputConnectorList += self.inputConnectors["ctpin"]["slot7"].values()
+        inputConnectorList += self.inputConnectors["ctpin"]["slot8"].values()
+        inputConnectorList += self.inputConnectors["ctpin"]["slot9"].values()
+        for connName in inputConnectorList:
+            if connName != '' and connName not in availableConnectors:
+                msg = "Connector '%s' requested in L1/Config/CTPConfig.py not defined as menu input. Please add it to L1/Menu/Menu_%s_inputs.py" % (connName, menuToLoad)
+                log.error(msg)
+                raise RuntimeError(msg)
 
     def json(self):
         confObj = odict()

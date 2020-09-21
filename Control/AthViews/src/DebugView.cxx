@@ -51,8 +51,7 @@ SG::DataProxy * DebugView::proxy( const CLID& id, const std::string& key ) const
 SG::DataProxy * DebugView::findProxy( const CLID& id, const std::string& key, const bool allowFallThrough ) const
 {
   auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
-  const std::string viewKey = m_name + "_" + key;
-  auto localProxy = m_store->proxy( id, viewKey );
+  auto localProxy = m_store->proxy( id, viewKey(key) );
   if ( isValid( localProxy ) ) {
     return localProxy;
   }
@@ -134,12 +133,10 @@ SG::DataProxy * DebugView::proxy( const void* const pTransient ) const
 
 SG::DataProxy * DebugView::recordObject( SG::DataObjectSharedPtr<DataObject> obj, const std::string& key, bool allowMods, bool returnExisting )
 {
-  const std::string viewKey = m_name + "_" + key;
-
   // Warn if fallthrough already happened for the object
   if ( m_fallList.find( key ) != m_fallList.end() ) {
     ATH_MSG_WARNING( "Key " << key << " was recorded to view " << m_name << " but was previously retrieved via fallthrough" );
   }
 
-  return m_store->recordObject( obj, viewKey, allowMods, returnExisting );
+  return m_store->recordObject( obj, viewKey(key), allowMods, returnExisting );
 }

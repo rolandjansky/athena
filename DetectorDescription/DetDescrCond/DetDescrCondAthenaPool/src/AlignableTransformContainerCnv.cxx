@@ -22,8 +22,8 @@ AlignableTransform_PERS* AlignableTransformContainerCnv::createPersistent(Aligna
 
 AlignableTransform_TRANS* AlignableTransformContainerCnv::createTransient() {
     MsgStream log(msgSvc(), "AlignableTransformContainerCnv" );
-    static pool::Guid   p1_guid("BA1A841C-8D92-45AE-9AD1-9AF7A1736844");
-    static pool::Guid   p0_guid("E779C6B5-3F2A-473E-B35E-6CCB345E0665");
+    static const pool::Guid   p1_guid("BA1A841C-8D92-45AE-9AD1-9AF7A1736844");
+    static const pool::Guid   p0_guid("E779C6B5-3F2A-473E-B35E-6CCB345E0665");
     if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "AlignableTransformContainer read p1" << endmsg;

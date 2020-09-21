@@ -29,8 +29,8 @@ namespace xAOD {
    class TPyEvent : public TEvent {
 
    public:
-      /// Default constructor
-      TPyEvent();
+      /// Inherit the constructor(s) of @c xAOD::TEvent
+      using TEvent::TEvent;
 
       /// Function checking if an object is available from the store
       ::Bool_t contains( const std::string& key, const std::string& type );

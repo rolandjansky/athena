@@ -48,6 +48,7 @@ fatjetcontexts = {
     "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
     "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
     "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015.config","00-04-77","EtaJES_JMS"),
+    "TrigSoftDrop":  ("JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config","00-04-82","EtaJES_JMS"),
 }
 
 # List AFII config files separately, to avoid needing to specify a different context
@@ -65,6 +66,8 @@ calibcontexts = {
     "AntiKt10LCTopo":fatjetcontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
+    # Large-R PFlow Soft Drop CSSK
+    "AntiKt10EMPFlowCSSKSoftDropBeta100Zcut10":fatjetcontexts,
     # R-Scan
     "AntiKt2LCTopo":rscanlc2,
     "AntiKt6LCTopo":rscanlc6,
@@ -77,10 +80,6 @@ hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow", "TrigAntiKt4EMT
 # then forwards the configuration to defineJetCalibTool, returning the output.
 # At present the interface allows for the calibseq to be chosen freely, other
 # than checking that the data source is data for the in situ correction.
-# The calibarea could be made configurable as well, but then might need to be
-# added to the tool name to ensure uniqueness.
-# Due to the hackiness of DualUseConfig public tool handling, we need to pass
-# an AlgSequence...
 def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = "", pvname = "PrimaryVertices", gscdepth = "auto"):
     # In principle we could autoconfigure
     if data_type not in ['data','mc','afii']:
@@ -119,7 +118,11 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
         _pvname = ""
         if "Residual" in _calibseq or "GSC" in _calibseq and gscdepth!="EM3":
             _pvname = pvname
-        return defineJetCalibTool(jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
+        # HACK: For testing while we don't have finalised calibrations for trigger PF jets
+        _jetcollection = jetcollection
+        if "PFlow" in jetcollection and context=="TrigSoftDrop":
+            _jetcollection = jetcollection.replace("EMPFlow","UFO")
+        return defineJetCalibTool(_jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
     except KeyError as e:
         jetcaliblog.error("Context '{0}' not found for jet collection '{1}'".format(context,jetcollection))
         jetcaliblog.error("Options are '{0}".format(','.join(jetcontexts.keys())))
@@ -151,6 +154,7 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     calibcontext, data_type, calibseq, rhoname, pvname, gscdepth = getCalibSpecsFromString(modspec)
     if calibseq=="":
         cfg, calibarea, calibseq = calibcontexts[jetdef.basename][calibcontext]
+
     # For now, only dependent on calibseq -- can ignore Insitu, which is
     # added when getting the concrete tool
     prereqs = []

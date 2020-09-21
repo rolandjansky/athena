@@ -64,8 +64,3 @@ StatusCode TauJetBDTEvaluator::execute(xAOD::TauJet& xTau) const {
   
   return StatusCode::SUCCESS;
 }
-
-//________________________________________
-StatusCode TauJetBDTEvaluator::finalize(){ 
-  return StatusCode::SUCCESS;
-}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -98,7 +98,7 @@ IdContext CaloIDHelper::HashGroup::context() const
  */
 CaloIDHelper::CaloIDHelper (const std::string& name)
   : m_name (name),
-    m_dict(0)
+    m_dict(nullptr)
 {
 }
 
@@ -127,7 +127,7 @@ int CaloIDHelper::get_id  (const IdentifierHash& hash_id,
   size_t end   = (context) ? context->end_index()  : 0; 
 
   if (0 == begin) { 
-    const HashGroup* hg = 0;
+    const HashGroup* hg = nullptr;
     if (m_channels.end_index() == end) hg = &m_channels;
     else if (m_regions.end_index() == end) hg = &m_regions;
 
@@ -166,7 +166,7 @@ int CaloIDHelper::get_hash  (const Identifier& id, IdentifierHash& hash_id, cons
   size_t end   = (context) ? context->end_index()  : 0; 
 
   if (0 == begin) { 
-    const HashGroup* hg = 0;
+    const HashGroup* hg = nullptr;
     if (m_channels.end_index() == end) hg = &m_channels;
     else if (m_regions.end_index() == end) hg = &m_regions;
 

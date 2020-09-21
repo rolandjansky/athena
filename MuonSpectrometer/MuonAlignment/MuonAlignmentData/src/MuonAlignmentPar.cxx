@@ -8,7 +8,7 @@ MuonAlignmentPar::MuonAlignmentPar() :
   m_Jff(0), m_Jzz(0), m_Job(0), m_isNew(false)
 { }
 
-void MuonAlignmentPar::setAmdbId(std::string type, int jff, int jzz, int job) 
+void MuonAlignmentPar::setAmdbId(const std::string& type, int jff, int jzz, int job) 
 {
   m_Type = type;
   m_Jff  = jff;

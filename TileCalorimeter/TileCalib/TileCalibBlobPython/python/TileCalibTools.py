@@ -28,14 +28,6 @@ import six
 #sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 sys.path.append('/afs/cern.ch/user/t/tilebeam/offline/utils/python/')
 
-cppyy.makeClass('std::vector<float>')
-cppyy.makeClass('std::vector<std::vector<float> >')
-cppyy.makeClass('std::vector<int>')
-cppyy.makeClass('std::vector<std::vector<int> >')
-cppyy.makeClass('std::vector<unsigned int>')
-cppyy.makeClass('std::vector<std::vector<unsigned int> >')
-
-
 from TileCalibBlobObjs.Classes import TileCalibUtils, TileCalibDrawerCmt, \
      TileCalibDrawerInt, TileCalibDrawerOfc, TileCalibDrawerBch, \
      TileCalibDrawerFlt, TileCalibType
@@ -500,10 +492,8 @@ class TileBlobWriter(TileCalibLogger):
         #=== create default vectors based on calibDrawerType
         self.__calibDrawerType = calibDrawerType
         if   calibDrawerType=='Flt':
-            cppyy.makeClass('std::vector<float>')
             self.__defVec = cppyy.gbl.std.vector('std::vector<float>')()
         elif calibDrawerType=='Bch' or calibDrawerType=='Int':
-            cppyy.makeClass('std::vector<unsigned int>')
             self.__defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         else:
             raise Exception("Unknown calibDrawerType: %s" % calibDrawerType)

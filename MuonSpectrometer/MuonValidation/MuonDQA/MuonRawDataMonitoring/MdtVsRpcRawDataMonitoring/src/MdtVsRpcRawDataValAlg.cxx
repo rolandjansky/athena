@@ -225,16 +225,17 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 		layerSector_name  = sector_name + layer_name  ;
 
-		int stname_index = irpcstationName;
-		if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-	        else stname_index = irpcstationName-2;
 		int NetaStrips = 0 ;
-                int ShiftEtaStripsDoubletZ[4];
+        int ShiftEtaStripsDoubletZ[4];
 		for(int idbz=0; idbz!= 3; idbz++){
-		  ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
-		  const MuonGM::RpcReadoutElement* rpc = 
-		    MuonDetMgr->getRpcReadoutElement(stname_index, irpcstationEta+8, irpcstationPhi-1, irpcdoubletR-1, idbz);
-		  if(rpc != NULL ){
+          ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
+          Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName, irpcstationEta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+          if (!id.is_valid()) {
+            ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<irpcstationEta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
+            continue;
+          }
+		  const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
+		  if(rpc){
 		    NetaStrips +=  rpc->NetaStrips();
 		  } 
 		}
@@ -252,15 +253,18 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  /////// NB !!!!!
 		  // the eta strip number increases going far away from IP
 		  // the phi strip numeber increases going from HV side to RO side
-		  int stname_index = irpcstationName;
-		  if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
-		  else stname_index = irpcstationName-2;
 		  float stripzmin   =      0 ;
 		  float stripzmax   = -10000 ;
-		  for(int ieta=0; ieta!= 17; ieta++){
+          // the RpcIdHelper stationEta ranges from -8 to 8
+		  for(int ieta=-8; ieta<9; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
-		      const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(stname_index, ieta, irpcstationPhi-1, irpcdoubletR-1, idbz);
-		      if(rpc != NULL ){
+              Identifier id = m_idHelperSvc->rpcIdHelper().channelID(irpcstationName,ieta,irpcstationPhi,irpcdoubletR,idbz+1, 1, 1, 1, 1); // last 4 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip
+              if (!id.is_valid()) {
+                ATH_MSG_DEBUG("Could not find valid Identifier for station="<<irpcstationName<<", eta="<<ieta<<", phi="<<irpcstationPhi<<", doubletR="<<irpcdoubletR<<", doubletZ="<<idbz+1<<", continuing...");
+                continue;
+              }
+		      const MuonGM::RpcReadoutElement* rpc = MuonDetMgr->getRpcReadoutElement(id);
+		      if(rpc){
 			const Amg::Vector3D r1 = rpc-> globalPosition();
 			float pitch = rpc-> StripPitch(0)  ;
 		
@@ -271,7 +275,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			float z2 = float ( r1.z() + ( rpc -> NetaStrips() )* pitch / 2 );
 			if ( z2 > stripzmax ) { stripzmax = z2 ; }	      
 	      
-		      } //check if rpc!=NULL
+		      } //check for nullptr
 		    } //for loop in idbz 
 	      	      
 		  } // for loop in etastation
@@ -280,12 +284,12 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  float wirezmax     = -10000. ;
 		  float wirezmin     = +10000. ;
 		  float foundmin     =      0  ;	
-				  
+		  int stname_index = irpcstationName;  
 		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
 		  else stname_index = irpcstationName;
 		  for(int eta=0; eta!=17; eta++){ 
 		    const MuonGM::MdtReadoutElement* lastdescr = MuonDetMgr->getMdtReadoutElement(stname_index, eta, irpcstationPhi-1, imdt_multi_near-1);
-		    if(lastdescr==NULL)continue;
+		    if(!lastdescr)continue;
 		
 		    const Amg::Vector3D lastelc = lastdescr->globalPosition();
 		    int NtubesPerLayerlast = lastdescr->getNtubesperlayer();
@@ -392,7 +396,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			    NetaTubes = 0;
 			    if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
 			    const MuonGM::MdtReadoutElement* mdt = MuonDetMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi_near-1);
-			    if(mdt==NULL)continue; // protection
+			    if(!mdt)continue; // protection
 			    NetaTubes = mdt->getNtubesperlayer();
 			    m_layer_name_list.push_back(hardware_name+layer_name); 
 			    if (NetaTubes!=0) bookMDTvsRPCHistograms(hardware_name,layer_name, NetaStrips, 0 , NetaStrips, NetaTubes, 0, NetaTubes);

@@ -4,13 +4,13 @@
 //
 
 // MyPackage includes
-#include "../src/MyPackageTool.h"
+#include "AthAsgExUnittest/MyPackageTool.h"
 
 MyPackageTool::MyPackageTool( const std::string& name ) : asg::AsgTool( name ) {
   //example property declarations with default values
-  declareProperty( "Property", m_nProperty = 3.0, 
+  declareProperty( "Property", m_nProperty = 3.0,
                    "Please describe the property here" );
-  declareProperty( "ENumProperty", m_enumProperty = Val1, 
+  declareProperty( "ENumProperty", m_enumProperty = Val1,
                    "Please define enums inside your classes, not just in namespaces" );
 }
 
@@ -27,4 +27,3 @@ StatusCode MyPackageTool::initialize() {
 double MyPackageTool::useTheProperty() {
   return m_nProperty;
 }
-

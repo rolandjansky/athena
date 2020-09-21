@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.02.2007, AUTHOR: OLIVER KORTNER
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef MuonCalib_MdtStationT0ContainerH
 #define MuonCalib_MdtStationT0ContainerH
@@ -24,11 +20,6 @@
 ///
 /// \date 01.02.2007
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// STL //
 #include <vector>
 #include <string>
 
@@ -39,16 +30,16 @@ class MdtStationT0Container {
 public:
 // Constructors //
 	MdtStationT0Container(void) :
-m_t0(2, std::vector< std::vector<double> >(4,  std::vector<double>(72, 9e9))),
-m_adc(2, std::vector< std::vector<double> >(4,  std::vector<double>(72, 9e9))),
+m_t0(2, std::vector< std::vector<double> >(4,  std::vector<double>(78, 9e9))),
+m_adc(2, std::vector< std::vector<double> >(4,  std::vector<double>(78, 9e9))),
 m_t0_loaded(false)
 	 {
 	 }
 		///< Default constructor.
 
 	MdtStationT0Container(const std::string & file_name): 
-m_t0(2, std::vector< std::vector<double> >(4,  std::vector<double>(72, 9e9))),
-m_adc(2, std::vector< std::vector<double> >(4,  std::vector<double>(72, 9e9))),
+m_t0(2, std::vector< std::vector<double> >(4,  std::vector<double>(78, 9e9))),
+m_adc(2, std::vector< std::vector<double> >(4,  std::vector<double>(78, 9e9))),
 m_t0_loaded(false)
 	{
 		readT0File(file_name);

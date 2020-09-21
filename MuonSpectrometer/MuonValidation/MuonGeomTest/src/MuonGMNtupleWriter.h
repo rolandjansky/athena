@@ -5,10 +5,10 @@
 #ifndef MUONGM_MUONGMNTUPLEWRITER_H
 #define MUONGM_MUONGMNTUPLEWRITER_H
 
-// Athena & Gaudi includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrkValidationUtils/SurfaceNtupleBranch.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TTree;
 
@@ -25,20 +25,12 @@ namespace MuonGM {
 
   public:
 
-    /** Standard Athena-Algorithm Constructor */
     MuonGMNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator);
 
-    /** Default Destructor */
-    virtual ~MuonGMNtupleWriter();
+    virtual ~MuonGMNtupleWriter()=default;
 
-    /** standard Athena-Algorithm method */
     StatusCode          initialize();
-
-    /** standard Athena-Algorithm method */
     StatusCode          execute();
-       
-    /** standard Athena-Algorithm method */
-    StatusCode          finalize();
        
   protected:
     void fillNtuple();

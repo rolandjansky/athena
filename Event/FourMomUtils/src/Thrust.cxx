@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FourMomUtils/Thrust.h"
@@ -16,7 +16,7 @@ using std::abs;
 using std::exp;
 
 CLHEP::Hep3Vector
-thrust( const I4MomIter_t iBeg, const I4MomIter_t iEnd,
+thrust( const I4MomIter_t& iBeg, const I4MomIter_t& iEnd,
   double& thrust_major, double& thrust_minor, bool useThreeD)
 {
   /*

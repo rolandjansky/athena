@@ -18,6 +18,7 @@
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 // Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -144,7 +145,7 @@ namespace InDet {
       /** AlgTool finalize method */
       StatusCode finalize();
       /** TrackingGeometry Interface methode */
-      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
+      std::pair<EventIDRange, const Trk::TrackingGeometry*> trackingGeometry ATLAS_NOT_THREAD_SAFE (const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> tVolPair) const; 
 
       /** The unique signature */
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
@@ -166,7 +167,8 @@ namespace InDet {
                                    
                                    
       /** Private helper method to flush the cache into the id volumes - return volume is the one to be provided */
-      const Trk::TrackingVolume* createFlushVolume(std::vector<InDet::LayerSetup>& layerSetupCache,
+      const Trk::TrackingVolume* createFlushVolume ATLAS_NOT_THREAD_SAFE
+                                                  (std::vector<InDet::LayerSetup>& layerSetupCache,
                                                    double innerRadius, double& outerRadius, double extendZ) const;                                                         
         
       /** Private helper method, creates a TrackingVolume - and checks if configured - for Ring Layout 
@@ -182,7 +184,8 @@ namespace InDet {
       /** Private helper method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers
           - in case of a ring layout the subvolumes are created and the rMax is adapted                                             
          */
-      const Trk::TrackingVolume* packVolumeTriple(const LayerSetup& layerSetup,
+      const Trk::TrackingVolume* packVolumeTriple ATLAS_NOT_THREAD_SAFE
+                                                 (const LayerSetup& layerSetup,
                                                   double rMin, double& rMax,
                                                   double zMin, double zPosCentral) const;      
       

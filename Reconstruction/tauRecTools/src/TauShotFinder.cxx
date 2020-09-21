@@ -8,7 +8,6 @@
 // package:     Reconstruction/tauRec
 // authors:     Will Davey, Benedict Winter, Stephanie Yuen
 // date:        2013-05-22
-//
 //-----------------------------------------------------------------------------
 
 #include <boost/scoped_ptr.hpp>
@@ -23,14 +22,11 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODPFlow/PFO.h"
 
-using std::vector;
-using std::string;
-
 //-------------------------------------------------------------------------
 // Constructor
 //-------------------------------------------------------------------------
 
-TauShotFinder::TauShotFinder(   const string& name ) :
+TauShotFinder::TauShotFinder(const std::string& name) :
     TauRecToolBase(name) {
 }
 
@@ -41,6 +37,7 @@ TauShotFinder::TauShotFinder(   const string& name ) :
 TauShotFinder::~TauShotFinder() {
 }
 
+//______________________________________________________________________________
 StatusCode TauShotFinder::initialize() {
     
     // retrieve tools
@@ -55,17 +52,13 @@ StatusCode TauShotFinder::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauShotFinder::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
+//______________________________________________________________________________
 StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer,
 					    xAOD::PFOContainer& tauShotPFOContainer) const {
 
     ATH_MSG_DEBUG("execute");
     // Any tau needs to have shot PFO vectors. Set empty vectors before nTrack cut
-    vector<ElementLink<xAOD::PFOContainer> > empty;
+    std::vector<ElementLink<xAOD::PFOContainer> > empty;
     pTau.setShotPFOLinks(empty);
     
     //---------------------------------------------------------------------
@@ -86,7 +79,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
     const CaloCellContainer *pCellContainer = caloCellInHandle.cptr();;
     
     // get only EM cells within dR<0.4
-    vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
+    std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
     emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
     boost::scoped_ptr<CaloCellList> pCells(new CaloCellList(pCellContainer,emSubCaloBlocks)); 
     pCells->select(pTau.eta(), pTau.phi(), 0.4); 
@@ -254,7 +247,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
         shot->setAttribute<int>(xAOD::PFODetails::PFOAttributes::tauShots_nPhotons, nPhotons);
 
         // remove shot(s) from list
-        vector<const CaloCell*>::iterator cellItrNonConst;
+	std::vector<const CaloCell*>::iterator cellItrNonConst;
         cellItrNonConst = std::find(seedCells.begin(),seedCells.end(),cell);
         seedCells.erase(cellItrNonConst);
         if( mergePhi ){
@@ -267,6 +260,7 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloCluste
     return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
 std::vector<const CaloCell*> TauShotFinder::getNeighbours(const CaloCellContainer* pCellContainer, 
 							  const CaloCell* cell, 
 							  int maxDepth) const
@@ -277,6 +271,7 @@ std::vector<const CaloCell*> TauShotFinder::getNeighbours(const CaloCellContaine
     return cells; 
 }
 
+//______________________________________________________________________________
 void TauShotFinder::addNeighbours(const CaloCellContainer* pCellContainer,
                                   const CaloCell* cell, 
                                   std::vector<const CaloCell*>& cells,
@@ -306,6 +301,7 @@ void TauShotFinder::addNeighbours(const CaloCellContainer* pCellContainer,
     } 
 }
 
+//______________________________________________________________________________
 bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash, bool next) const{
     std::vector<IdentifierHash> neigHashes;
     if( next ) m_calo_id->get_neighbours(cell1Hash,LArNeighbours::nextInPhi,neigHashes);
@@ -317,6 +313,7 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
     return false;
 }
 
+//______________________________________________________________________________
 float TauShotFinder::getEtaBin(float seedEta) const {
     float absSeedEta=std::abs(seedEta);
     if(absSeedEta < 0.80)      return 0; // Central Barrel
@@ -326,6 +323,7 @@ float TauShotFinder::getEtaBin(float seedEta) const {
     else return 4;                           // endcap, coarse granularity
 }
 
+//______________________________________________________________________________
 float TauShotFinder::getNPhotons(int etaBin, float seedEnergy) const {
     // no photon counting in crack region, e.g. [1.39, 1.51]
     if(etaBin==2) return 0;
@@ -340,6 +338,7 @@ float TauShotFinder::getNPhotons(int etaBin, float seedEnergy) const {
     return 1;
 }
 
+//______________________________________________________________________________
 // some really slick c++ way of doing sort (since we need to use the member m_caloWeightTool)
 TauShotFinder::ptSort::ptSort( const TauShotFinder& info ) : m_info(info) { } 
 bool TauShotFinder::ptSort::operator()( const CaloCell* c1, const CaloCell* c2 ){

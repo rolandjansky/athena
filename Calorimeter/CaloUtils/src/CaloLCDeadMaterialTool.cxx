@@ -103,7 +103,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
     }
     msg() << endmsg;
     for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
-      std::vector<int > *vtmp=0;
+      std::vector<int > *vtmp=nullptr;
       if((*it).first == "AREA_DMFIT") {
         vtmp = &m_interpolateDimensionsFit;
       }else if((*it).first == "AREA_DMLOOKUP") {
@@ -203,10 +203,10 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster, const EventC
     return StatusCode::FAILURE;
   }
 
-  const CaloLocalHadCoeff* data(0);
+  const CaloLocalHadCoeff* data(nullptr);
   SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key,ctx);
   data = *rch;
-  if(data==0) {
+  if(data==nullptr) {
     ATH_MSG_ERROR("Unable to access conditions object");
     return StatusCode::FAILURE;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,109 +17,75 @@
 
 // Constructor with parameters:
 ExtrapolateMuonToIP::ExtrapolateMuonToIP(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_backExtrapolator("ExtrapolateMuonToIPTool/ExtrapolateMuonToIPTool"),
-  m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-{  
+  AthAlgorithm(name,pSvcLocator)
+{
   // Get parameter values from jobOptions file
-  declareProperty("BackExtrapolator",              m_backExtrapolator );
   declareProperty("MuonTrackLocation",             m_muonTrackLocation = "MooreTracks");
   declareProperty("ExtrapolatedMuonTrackLocation", m_extrapolateMuonTrackLocation = "MooreExtrapolatedTracks" );
-
 }
 
 // Initialize method:
 StatusCode ExtrapolateMuonToIP::initialize()
 {
-  
-  if( AthAlgorithm::initialize().isFailure() ){
-    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::initialize(), failed" << endmsg;
-    return StatusCode::FAILURE;
+  if (!m_backExtrapolator.empty()) {
+    ATH_CHECK(m_backExtrapolator.retrieve());
+  }
+  if (!m_printer.empty()) {
+    ATH_CHECK(m_printer.retrieve());
   }
 
-  msg(MSG::INFO) << "ExtrapolateMuonToIP::initialize()" << endmsg;
-
-  if(!m_backExtrapolator.empty()){
-    if(m_backExtrapolator.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_backExtrapolator << endmsg;
-      return StatusCode::FAILURE;
-    }else{
-      msg(MSG::DEBUG) << "Retrieved tool " << m_backExtrapolator << endmsg;
-    }
-  }
-
-  if( !m_printer.empty() ){
-    if(m_printer.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_printer << endmsg;
-      return StatusCode::FAILURE;
-    }else{
-      msg(MSG::DEBUG) << "Retrieved tool " << m_printer << endmsg;
-    }  
-  }
-
+  ATH_MSG_INFO("ExtrapolateMuonToIP::initialize() -- done");
   return StatusCode::SUCCESS;
 }
 
 // Execute method:
-StatusCode ExtrapolateMuonToIP::execute() 
+StatusCode ExtrapolateMuonToIP::execute()
 {
   // retrieve muon tracks
   const TrackCollection* muonTracks = 0;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Retrieving "<<m_muonTrackLocation<<endmsg;
-  StatusCode sc = evtStore()->retrieve(muonTracks, m_muonTrackLocation);
-  if (sc.isFailure()){
-    msg(MSG::INFO) << "Track collection named " << m_muonTrackLocation << " not found." << endmsg;
-    return StatusCode::SUCCESS;
-  }else{ 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon Tracks found at " << m_muonTrackLocation << " size " << muonTracks->size() << endmsg; 
-  }
+  ATH_MSG_DEBUG("Retrieving " << m_muonTrackLocation);
+
+  ATH_CHECK(evtStore()->retrieve(muonTracks, m_muonTrackLocation));
+  ATH_MSG_DEBUG("Muon Tracks found at " << m_muonTrackLocation << " size " << muonTracks->size());
 
   // use tool to perform back extrapolation
   TrackCollection* extrapolateTracks = m_backExtrapolator->extrapolate(*muonTracks);
   if( !extrapolateTracks) {
-    msg(MSG::WARNING) << "BackExtrapolator returned zero pointer, creating empty collection " << endmsg;
+    ATH_MSG_WARNING("BackExtrapolator returned zero pointer, creating empty collection ");
     extrapolateTracks = new TrackCollection();
   }
 
 
-if (evtStore()->contains<TrackCollection>(m_extrapolateMuonTrackLocation)) 
-     { 
-         const TrackCollection* extrapolatedTracks; 
-         if (StatusCode::SUCCESS == evtStore()->retrieve(extrapolatedTracks, 
-                                                         m_extrapolateMuonTrackLocation)) 
-         { 
-              
-             if (StatusCode::SUCCESS == evtStore()->remove(extrapolatedTracks)) 
-             { 
-                 ATH_MSG_VERBOSE( " removed pre-existing extrapolated track collection" ); 
-             } 
-         } 
-    } 
+if (evtStore()->contains<TrackCollection>(m_extrapolateMuonTrackLocation))
+     {
+         const TrackCollection* extrapolatedTracks;
+         ATH_CHECK(evtStore()->retrieve(extrapolatedTracks,
+                                        m_extrapolateMuonTrackLocation));
+         if (StatusCode::SUCCESS == evtStore()->remove(extrapolatedTracks))
+         {
+           ATH_MSG_VERBOSE( " removed pre-existing extrapolated track collection" );
+         }
+    }
 
 
-  sc = evtStore()->record(extrapolateTracks, m_extrapolateMuonTrackLocation);
+  StatusCode sc = evtStore()->record(extrapolateTracks, m_extrapolateMuonTrackLocation);
   if (sc.isFailure()){
-    msg(MSG::WARNING) <<"Could not record Track collection named " << m_extrapolateMuonTrackLocation << endmsg;
+    ATH_MSG_WARNING("Could not record Track collection named " << m_extrapolateMuonTrackLocation);
     return StatusCode::SUCCESS;
-  }else{ 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolated muons tracks recoreded at " << m_extrapolateMuonTrackLocation << " size " << extrapolateTracks->size() << endmsg; 
+  } else {
+    ATH_MSG_DEBUG("Extrapolated muons tracks recoreded at " << m_extrapolateMuonTrackLocation << " size " << extrapolateTracks->size());
   }
 
   // now create track particles
-  
+
 
   return StatusCode::SUCCESS;
 }
 
 // Finalize method:
-StatusCode ExtrapolateMuonToIP::finalize() 
+StatusCode ExtrapolateMuonToIP::finalize()
 {
-  if( AthAlgorithm::finalize().isFailure() ){
-    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::finalize(), failed" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  msg(MSG::INFO) << "ExtrapolateMuonToIP::finalize()" << endmsg;
+  ATH_MSG_INFO("ExtrapolateMuonToIP::finalize()");
   return StatusCode::SUCCESS;
 }
 

@@ -5,30 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonClusterSegmentMakerTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          MuonSpectrometer/MuonCnv/MuonPrepRawDataProviderTools
-                          MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonDataPrep/MuonClusterization
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonRecUtils/MuonLinearSegmentMakerUtilities
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkFitter/TrkFitterInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces 
-                          Generators/AtlasHepMC )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

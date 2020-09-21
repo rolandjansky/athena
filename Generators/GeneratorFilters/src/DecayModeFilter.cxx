@@ -6,7 +6,6 @@
 #include <cmath>
 #include <sstream>
 
-using namespace std;
 
 
 inline bool isIn(const std::vector<unsigned int>& pdgs, int pdg) {
@@ -195,7 +194,7 @@ StatusCode DecayModeFilter::filterEvent() {
 }
 
 
-string DecayModeFilter::printChain(HepMC::ConstGenParticlePtr parent) const {
+std::string DecayModeFilter::printChain(HepMC::ConstGenParticlePtr parent) const {
   if (!parent) return std::string("");
   std::stringstream ss;
   ss << " " << std::abs(parent->pdg_id()) << " ->  ";

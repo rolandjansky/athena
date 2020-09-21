@@ -11,13 +11,15 @@
 
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 using xAOD::JetFourMom_t;
 //using AODTracking::FourMom_t;
 //using xAOD::TrackParticle::FourMom_t;
 
 JetTrackSumMomentsTool::JetTrackSumMomentsTool(const std::string& name)
   : asg::AsgTool(name) {
-  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************

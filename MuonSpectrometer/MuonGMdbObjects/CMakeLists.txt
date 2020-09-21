@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonGMdbObjects )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( Amdcsimrec/AmdcDb
-                          Database/RDBAccessSvc )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )

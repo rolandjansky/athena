@@ -115,11 +115,10 @@ namespace Muon {
 
     void addToStationMap(std::map<int,std::vector<std::pair<int, int> > > &stationmap, std::map<int,std::vector<std::pair<int, int> > >::iterator &it, int &stationcode, const int &hit_begin, const int &hit_end) const;
 
-    ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool{this,"muonHoughPatternTool","MuonHoughPatternTool"};    //!< Pointer to concrete tool
-    ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool{this,"muonCombinePatternTool","MuonCombinePatternTool"};   //!< Pointer to concrete tool  
+    ToolHandle <IMuonHoughPatternTool> m_muonHoughPatternTool{this,"muonHoughPatternTool","MuonHoughPatternTool"};    //!< Pointer to concrete tool
+    ToolHandle <Muon::IMuonCombinePatternTool> m_muonCombinePatternTool{this,"muonCombinePatternTool","MuonCombinePatternTool"};   //!< Pointer to concrete tool  
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    /** ToolHandle for EDM printing of segments */
-    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"printerTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"printerTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool","ToolHandle for EDM printing of segments"};
  
     /** reweight hits (true) */
     Gaudi::Property<bool>       m_hit_reweights{this,"HitReweights",true};

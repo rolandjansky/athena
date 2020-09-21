@@ -6,7 +6,7 @@
 
 # load dict for MyCutClass
 import cppyy
-cppyy.loadDictionary("PyAnalysisExamplesDict")
+cppyy.load_library("libPyAnalysisExamplesDict")
 
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence

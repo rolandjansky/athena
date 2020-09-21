@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -86,7 +86,7 @@ CaloSubdetNames::alignVolName(CaloSubdetNames::ALIGNVOL alvol)
 }
 
 CaloSubdetNames::ALIGNVOL 
-CaloSubdetNames::alignVolEnum(std::string reconame)
+CaloSubdetNames::alignVolEnum(const std::string& reconame)
 {
   for ( unsigned int i = 0; i < (unsigned int) CaloSubdetNames::UNKNOWN; i++)
     {

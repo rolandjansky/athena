@@ -54,4 +54,3 @@ void* DataBucketBase::cast (CLID /*clid*/,
 {
   return cast (tinfo, irt, isConst);
 }
-

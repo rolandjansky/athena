@@ -434,7 +434,11 @@ class SCT_ConditionsToolsSetup:
 
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip")
+    from AthenaCommon.GlobalFlags import globalflags
+    if (globalflags.DataSource() == 'data'):
+      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip")
+    else:
+      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/ChipSlim") # For MC (OFLP200)
     sct_ConfigurationConditionsToolSetup.setModuleFolder(sctdaqpath+"/Module")
     sct_ConfigurationConditionsToolSetup.setMurFolder(sctdaqpath+"/MUR")
     sct_ConfigurationConditionsToolSetup.setToolName(instanceName)

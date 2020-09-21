@@ -18,26 +18,17 @@
 
 CscRdoToCscPrepData::CscRdoToCscPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_muonRdoToPrepDataTool ("Muon::CscRdoToCscPrepDataTool/CscRdoToPrepDataTool", this),
     m_print_inputRdo(false),
     m_print_prepData(false),
     m_seededDecoding(false),
     m_roiCollectionKey("OutputRoIs"),
-    m_regsel_csc("RegSelTool/RegSelTool_CSC",this),
     m_cscCollection("CSC_Measurements")
 {
-    declareProperty("CscRdoToCscPrepDataTool",     m_muonRdoToPrepDataTool );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
     declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-    declareProperty("RegSel_CSC", m_regsel_csc);
     declareProperty("OutputCollection", m_cscCollection);
-}
-
-StatusCode CscRdoToCscPrepData::finalize() {
-  ATH_MSG_DEBUG("in finalize()");
-  return StatusCode::SUCCESS;
 }
 
 StatusCode CscRdoToCscPrepData::initialize(){

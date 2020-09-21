@@ -25,6 +25,7 @@ namespace TrigConf {
        * @param data The data containing the HLT chain configuration 
        */      
       Chain(const boost::property_tree::ptree & data);
+      Chain(const std::string & name, const boost::property_tree::ptree & data);
 
       /** Destructor */
       virtual ~Chain();
@@ -55,9 +56,12 @@ namespace TrigConf {
       /** Accessor to the groups this chain belongs to */
       std::vector<std::string> groups() const;
 
+      /** Accessor to the sequencers this chain belongs to */
+      std::vector<std::string> sequencers() const;
+
    private:
       void update() override;
-
+      void load();
    };
 
 }

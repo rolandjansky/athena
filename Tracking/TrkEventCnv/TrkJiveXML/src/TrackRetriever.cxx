@@ -30,7 +30,7 @@
 
 // for residuals
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-#include "TrkEventPrimitives/ResidualPull.h"    
+#include "TrkEventPrimitives/ResidualPull.h"
 
 // for detector id
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -47,8 +47,8 @@ namespace JiveXML {
 		* out in the old format using @f$ \cot\theta @f$ and @f$ q/p_T @f$
 		* @return the perigee parameter object for further use
 		*/
-		const Trk::Perigee* getPerigeeParameters( const Trk::Track* track, 
-		    DataVect& pt, DataVect& d0, DataVect& z0, DataVect& phi0, 
+		const Trk::Perigee* getPerigeeParameters( const Trk::Track* track,
+		    DataVect& pt, DataVect& d0, DataVect& z0, DataVect& phi0,
 		    DataVect& cotTheta, DataVect& covMatrix){
 
 			/**
@@ -86,7 +86,7 @@ namespace JiveXML {
 				double measuredQoverp = perigee->parameters()[Trk::qOverP];
 				const Trk::JacobianThetaPToCotThetaPt theJac( measuredTheta, measuredQoverp );
 				covVert = covariance->similarity(theJac);
-			}else{	
+			}else{
 				for ( int ii=0; ii<20; ii++){ // placeholder. Do this nicer.
 					covVert(ii) = 0.;
 				}
@@ -97,7 +97,7 @@ namespace JiveXML {
 			const long scale = 10000;
 			const double thisScale(scale/100.);
 			// Migration: Now only has diagonal elements from covariance matrix ?
-			covMatrix.push_back(DataType(covVert(0)*thisScale)); // 5 elements 
+			covMatrix.push_back(DataType(covVert(0)*thisScale)); // 5 elements
 			covMatrix.push_back(DataType(covVert(1)*thisScale));
 			covMatrix.push_back(DataType(covVert(2)*thisScale));
 			covMatrix.push_back(DataType(covVert(3)*thisScale));
@@ -114,7 +114,7 @@ namespace JiveXML {
 
 		/**
 		* Get a list of track-State on Surfaces for measurement and
-		* outlier hits, sorted using the perigee comparison functions 
+		* outlier hits, sorted using the perigee comparison functions
 		* @return a std::vector of Trk::TrackStateOnSurface*
 		*/
 		std::vector<const Trk::TrackStateOnSurface*> getTrackStateOnSurfaces( const Trk::Track* track, const Trk::Perigee* perigee, bool doHitsSorting){
@@ -170,8 +170,8 @@ namespace JiveXML {
 					polylineY.push_back(DataType(pos.y()*onetenth));
 					polylineZ.push_back(DataType(pos.z()*onetenth));
 					++numPoly;
-				} 
-			} 
+				}
+			}
 			//Store counter as well
 			numPolyline.push_back(DataType(numPoly));
 		}
@@ -181,13 +181,13 @@ namespace JiveXML {
 		* Retrieve all the basic hit information from the Trk::TrackStateOnSurface
 		* @return the reconstruction input object (RIO) for further use
 		*/
-		const Trk::RIO_OnTrack* getBaseInfoFromHit( const Trk::TrackStateOnSurface* tsos, const AtlasDetectorID* idHelper, 
+		const Trk::RIO_OnTrack* getBaseInfoFromHit( const Trk::TrackStateOnSurface* tsos, const AtlasDetectorID* idHelper,
 		  DataVect& isOutlier, DataVect& hits, DataVect& driftSign, DataVect& tsosDetType){
 
 			//Get corresponding measurement
 			const Trk::MeasurementBase *measurement = tsos->measurementOnTrack();
 
-			//If measurement is invalid, return imediately 
+			//If measurement is invalid, return imediately
 			if ( ! measurement ) return nullptr ;
 
 			// get RIO_OnTrack
@@ -258,7 +258,7 @@ namespace JiveXML {
 			double ResLoc1 = -99.;
 			double ResLoc2 = -99.;
 			double PullLoc1 = -99.;
-			double PullLoc2 = -99.;              
+			double PullLoc2 = -99.;
 
 			// get TrackParameters on the surface to calculate residual
 			const Trk::TrackParameters* tsosParameters = tsos->trackParameters();
@@ -275,13 +275,13 @@ namespace JiveXML {
 				const Trk::ResidualPull* residualPull = residualPullCalculator->residualPull(rot, tsosParameters,Trk::ResidualPull::Biased);
 
 				if (residualPull) {
-					//Get the first residual 
+					//Get the first residual
 					ResLoc1 = residualPull->residual()[Trk::loc1];
 					//Get the second residual for more than 1 dimension
 					if (residualPull->dimension() >= 2) ResLoc2 = residualPull->residual()[Trk::loc2];
 
 					if ((residualPull->isPullValid()) ) {
-						//Get the first residual 
+						//Get the first residual
 						PullLoc1 = residualPull->pull()[Trk::loc1];
 						//Get the second residual for more than 1 dimension
 						if (residualPull->dimension() >= 2) PullLoc2 = residualPull->pull()[Trk::loc2];
@@ -289,11 +289,11 @@ namespace JiveXML {
 				} // end if residualPull
 			} // end if tsosParameters
 
-			//Finally store the values 
+			//Finally store the values
 			tsosResLoc1.push_back( ResLoc1 );
 			tsosResLoc2.push_back( ResLoc2 );
 			tsosPullLoc1.push_back( PullLoc1 );
-			tsosPullLoc2.push_back( PullLoc2 );              
+			tsosPullLoc2.push_back( PullLoc2 );
 		}
 
 		/**
@@ -350,7 +350,7 @@ namespace JiveXML {
 				declareProperty("TrackTruthColName"       , m_TrackTruthCollection = "TrackTruthCollection",
 				"Track collection from which to retrieve the truth associations for the priority track collection");
 				declareProperty("DoWriteHLT"              , m_doWriteHLT = false, "Whether to write HLTAutoKey objects");
-				declareProperty("DoWriteResiduals"        , m_doWriteResiduals = true, "Whether to write TrackResiduals"); 
+				declareProperty("DoWriteResiduals"        , m_doWriteResiduals = true, "Whether to write TrackResiduals");
 				declareProperty("DoHitsSorting"    , m_doHitsSorting = false, "Whether to sort hits (TrackStateOnSurfaces)");
 				declareProperty("DoHitsDetails"    , m_doHitsDetails = true, "Whether to write hits details (TrackStateOnSurfaces)");
 		}
@@ -397,7 +397,7 @@ namespace JiveXML {
 		*/
 		StatusCode TrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 			//be verbose
-			if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+			if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg;
 			//Generate a list of requested track collections
 			typedef std::pair< TrackCollection , std::string > tracksNamePair;
 			std::vector< tracksNamePair > requestedTrackColls;
@@ -498,7 +498,7 @@ namespace JiveXML {
 				evtStore()->retrieve(truthCollection, collectionName+"Truth").ignore();
 			  ATH_MSG_DEBUG( "Found TrackTruthCollection with key " <<  collectionName << "Truth" );
 			// No matching track truth collection found at all
-			} else { 
+			} else {
 			  ATH_MSG_DEBUG( "Could not find matching TrackTruthCollection for " << collectionName );
 			  truthCollection = nullptr ;
 		  }
@@ -563,8 +563,8 @@ namespace JiveXML {
 				/**
 				* Get number of Pix/SCT/TRT hits
 				*/
-				const Trk::TrackSummary* summary = nullptr;       
-				summary = m_trackSumTool->createSummary(**track);
+        std::unique_ptr<Trk::TrackSummary> summary = nullptr;
+				summary = m_trackSumTool->summary(**track);
 
 				if(not summary){
 					ATH_MSG_DEBUG( "Track summary is NULL " );
@@ -606,7 +606,7 @@ namespace JiveXML {
 				tsosResLoc1.reserve(tsosResLoc1.size()+TSoSVec.size());
 				tsosResLoc2.reserve(tsosResLoc2.size()+TSoSVec.size());
 				tsosPullLoc1.reserve(tsosPullLoc1.size()+TSoSVec.size());
-				tsosPullLoc2.reserve(tsosPullLoc2.size()+TSoSVec.size());              
+				tsosPullLoc2.reserve(tsosPullLoc2.size()+TSoSVec.size());
 				tsosDetType.reserve(tsosDetType.size()+TSoSVec.size());
 
 				//Now loop over tracks and fill them
@@ -623,7 +623,7 @@ namespace JiveXML {
 						if (!rot){
 							ATH_MSG_VERBOSE( "Could not obtain RIO for TSoS of type " << (*TSoSItr)->dumpType() );
 							continue ;
-						} 
+						}
 						//count this as a hit
 						++nHits;
 

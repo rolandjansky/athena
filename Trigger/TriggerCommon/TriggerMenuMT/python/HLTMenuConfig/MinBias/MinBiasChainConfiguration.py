@@ -68,10 +68,8 @@ class MinBiasChainConfig(ChainConfigurationBase):
         from IOVDbSvc.CondDB import conddb
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
 
         SpList = idAlgs[:-2]
 
@@ -128,7 +126,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                  ( 'SpacePointContainer' , 'StoreGateSvc+PixelTrigSpacePoints' )]
 
         if globalflags.InputFormat.is_bytestream():
-          verifier.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+          verifier.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
 

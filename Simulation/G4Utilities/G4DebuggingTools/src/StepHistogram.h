@@ -96,7 +96,7 @@ namespace G4UA{
       HistoMapMap_t histoMapMap2D_mat_RZ_E;
 
       // rather complicated function that merges two maps
-      void mergeMaps(HistoMapMap_t &selfMap, HistoMapMap_t refMap);
+      void mergeMaps(HistoMapMap_t &selfMap, const HistoMapMap_t& refMap);
 
       // function needed by ActionToolBaseReport base class
       void merge(const Report & rep);
@@ -123,17 +123,17 @@ namespace G4UA{
 
     // initialize and fill histogram in a map
     void InitializeFillHistogram2D(HistoMapMap_t &hMapMap, const char* suffix,
-                                                G4String pdgId, G4String vol,
+                                                const G4String& pdgId, const G4String& vol,
                                                 int nbinsx, double xmin, double xmax, 
                                                 int nbinsy, double ymin, double ymax, 
                                                 double valuex, double valuey, double weight);
 
     void InitializeFillHistogram(HistoMapMap_t &hMapMap, const char* suffix,
-                                 G4String pdgId, G4String vol,
+                                 const G4String& pdgId, const G4String& vol,
                                  int nbins, double xmin, double xmax, double value, double weight);
 
     void InitializeFillHistogram(HistoMapMap_t &hMapMap, const char* suffix,
-                                 G4String pdgId, G4String vol,
+                                 const G4String& pdgId, const G4String& vol,
                                  int nbins, double *edges, double value, double weight);
 
     float m_initialKineticEnergyOfStep;

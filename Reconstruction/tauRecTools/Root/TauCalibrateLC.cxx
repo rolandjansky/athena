@@ -5,6 +5,7 @@
 #include "tauRecTools/TauCalibrateLC.h"
 
 #include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #include "TFile.h"
 #include "TF1.h"
@@ -32,7 +33,7 @@ TauCalibrateLC::~TauCalibrateLC() {
 StatusCode TauCalibrateLC::initialize() {
 
   if (inTrigger()) {
-    ATH_CHECK( m_eventInfoKey.initialize() );
+    ATH_CHECK( m_aveIntPerXKey.initialize() );
   }
   else {
     ATH_CHECK( m_vertexInputContainer.initialize() );
@@ -62,9 +63,9 @@ StatusCode TauCalibrateLC::initialize() {
   //retrieve number of eta bins from file
   m_nEtaBins = m_etaBinHist->GetNbinsX(); //member var
   if (m_nEtaBins==6)
-    ATH_MSG_INFO("using 2011 tau energy calibration");
+    ATH_MSG_INFO("using tau energy calibration with 6 eta bins");
   else if (m_nEtaBins==5)
-    ATH_MSG_INFO("using 2012 tau energy calibration");
+    ATH_MSG_INFO("using tau energy calibration with 5 eta bins");
   else {
     ATH_MSG_FATAL("Wrong or broken tau energy calibration file");
     return StatusCode::FAILURE;
@@ -141,27 +142,24 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
   if (m_doEnergyCorr) {
 
     // get detector axis values
-    double eta = pTau.etaDetectorAxis();
-    double absEta = std::abs(eta);
+    double absEta = std::abs( pTau.etaDetectorAxis() );
     int etaBin = m_etaBinHist->GetXaxis()->FindBin(absEta) - 1;
         
     if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
-
 
     int nVertex = 0;
     
     // Obtain pileup
     if (inTrigger())  { // online: retrieved from EventInfo 
-      SG::ReadHandle<xAOD::EventInfo> eventInfoHandle( m_eventInfoKey );
-      if (!eventInfoHandle.isValid()) {
-        ATH_MSG_ERROR( "Could not retrieve HiveDataObj with key " << eventInfoHandle.key() << ", will set nVertex = " << m_averageNPV );
+      SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+      if (!eventInfoDecorHandle.isPresent()) {
+        ATH_MSG_WARNING ( "EventInfo decoration not available! Will set nVertex = " << m_averageNPV );
         nVertex = m_averageNPV;
       }
       else {
-        const xAOD::EventInfo* eventInfo = eventInfoHandle.cptr();
-        nVertex = eventInfo->averageInteractionsPerCrossing();
+        nVertex = eventInfoDecorHandle(0);
         ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
-      }
+      } 
     }  
     else { // offline: count the primary vertex container
       SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
@@ -220,7 +218,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
       
     double energyFinal = energyPileupCorr / calibConst;
       
-    if (not m_doPtResponse) energyFinal /= cosh(pTau.eta()) ; 
+    if (not m_doPtResponse) energyFinal /= std::cosh(pTau.eta()) ; 
     pTau.setP4( energyFinal * GeV, pTau.eta(), pTau.phi(), pTau.m());
 
     ATH_MSG_DEBUG("Energy at LC scale = " << energyLC << " pile-up offset " << offset << " calib. const. = " << calibConst << " final energy = " << energyFinal);
@@ -252,7 +250,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
     }      
 
     ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr << " ; phi " << phi << "; corrected phi " << phiCorr );
-    pTau.setP4( pTau.e() / cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
+    pTau.setP4( pTau.e() / std::cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
     pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
@@ -260,13 +258,5 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }
 
-  return StatusCode::SUCCESS;
-}
-
-//-----------------------------------------------------------------------------
-// Finalize
-//-----------------------------------------------------------------------------
-
-StatusCode TauCalibrateLC::finalize() {
   return StatusCode::SUCCESS;
 }

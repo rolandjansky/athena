@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -39,7 +39,7 @@
 #include "LArRecEvent/LArCell.h"
 
 
-CalibHitToCaloCell::CalibHitToCaloCell(std::string name, ISvcLocator* pSvcLocator)
+CalibHitToCaloCell::CalibHitToCaloCell(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator),
      m_store_Tot(false),
      m_store_Vis(false),
@@ -48,8 +48,8 @@ CalibHitToCaloCell::CalibHitToCaloCell(std::string name, ISvcLocator* pSvcLocato
      m_storeUnknown(false),
      m_caloCell_Tot("TotalCalibCell"), m_caloCell_Vis("VisCalibCell"), 
      m_caloCell_Em(""), m_caloCell_NonEm(""),
-     m_caloCell_ID(0),
-     m_caloDM_ID(0),
+     m_caloCell_ID(nullptr),
+     m_caloDM_ID(nullptr),
      //m_tile_ID(0),
      //m_larEm_ID(0),
      //m_larHec_ID(0),
@@ -91,10 +91,10 @@ StatusCode CalibHitToCaloCell::initialize()
   ATH_CHECK(  detStore()->retrieve(m_caloCell_ID) );
   ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
 
-  if(m_caloCell_Tot   != "")    m_store_Tot   = true;   else m_store_Tot   = false;
-  if(m_caloCell_Vis   != "")	m_store_Vis   = true;   else m_store_Vis   = false;
-  if(m_caloCell_Em    != "")	m_store_Em    = true;   else m_store_Em    = false;
-  if(m_caloCell_NonEm != "")	m_store_NonEm = true;   else m_store_NonEm = false;
+  m_store_Tot = !m_caloCell_Tot.empty();
+  m_store_Vis = !m_caloCell_Vis.empty();
+  m_store_Em = !m_caloCell_Em.empty();
+  m_store_NonEm = !m_caloCell_NonEm.empty();
 
   ATH_MSG_INFO("initialisation completed" );
   return StatusCode::SUCCESS;
@@ -108,10 +108,10 @@ StatusCode CalibHitToCaloCell::execute()
     ATH_CHECK(  detStore()->retrieve(caloDDMgr, "CaloMgr") );
 
     // OUTPUT CONTAINERS
-    CaloCellContainer* cnt   = 0;
-    CaloCellContainer* cnt_1 = 0; 
-    CaloCellContainer* cnt_2 = 0;
-    CaloCellContainer* cnt_3 = 0;
+    CaloCellContainer* cnt   = nullptr;
+    CaloCellContainer* cnt_1 = nullptr; 
+    CaloCellContainer* cnt_2 = nullptr;
+    CaloCellContainer* cnt_3 = nullptr;
     if(m_store_Tot)    cnt   = new CaloCellContainer();
     if(m_store_Vis)    cnt_1 = new CaloCellContainer(); 
     if(m_store_Em)     cnt_2 = new CaloCellContainer();
@@ -356,7 +356,7 @@ StatusCode CalibHitToCaloCell::execute()
 
     //Now, put LArCells in the containers keeping
     //the order. First goes EM, then HEC and so on
-    if(m_Cells_Tot.size()!=0)
+    if(!m_Cells_Tot.empty())
     {
 	for(int itr=0; itr!=m_nchan; itr++)
 	{

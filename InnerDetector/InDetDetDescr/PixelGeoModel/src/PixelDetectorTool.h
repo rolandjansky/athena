@@ -16,6 +16,8 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class PixelGeoModelAthenaComps;
 
 namespace InDetDD {
@@ -35,8 +37,8 @@ class PixelDetectorTool final : public GeoModelTool {
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
-  // Register callback function on ConDB object
-  virtual StatusCode registerCallback() override final;
+  // Register callback function on CondDB object
+  virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
 
   // Callback function itself
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;

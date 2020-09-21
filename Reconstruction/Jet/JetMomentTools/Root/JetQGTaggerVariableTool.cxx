@@ -8,8 +8,8 @@
 
 #include "JetMomentTools/JetQGTaggerVariableTool.h"
 #include "PathResolver/PathResolver.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
 
 
 using std::string;
@@ -19,7 +19,6 @@ using xAOD::JetFourMom_t;
 
 JetQGTaggerVariableTool::JetQGTaggerVariableTool(const std::string& name)
 : asg::AsgTool(name){
-  declareInterface<IJetDecorator>(this);
 }
 
 //**********************************************************************

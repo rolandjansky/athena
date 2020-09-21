@@ -4,14 +4,13 @@
 
 #include "tauRecTools/TauWPDecorator.h"
 
-#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <algorithm>
 #include "TFile.h"
 #include "TH2.h"
 
-
-
+//______________________________________________________________________________
 TauWPDecorator::TauWPDecorator(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("UseEleBDT", m_electronMode = false);
@@ -34,13 +33,11 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
   declareProperty("DecorWPCutEffs3P", m_decorWPEffs3p);
 }
 
-
-
+//______________________________________________________________________________
 TauWPDecorator::~TauWPDecorator() {
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   // Find and open file
   std::string fileName;
@@ -91,8 +88,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   return StatusCode::SUCCESS;  
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::storeLimits(int nProng) {
   std::shared_ptr<std::vector<m_pair_t>> histArray = nullptr;
   if (nProng == 0) {
@@ -131,17 +127,17 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   return StatusCode::SUCCESS;
 }
 
+//______________________________________________________________________________
 double TauWPDecorator::transformScore(double score, double cutLow, double effLow, double cutHigh, double effHigh) const {
   double efficiency = effLow + (score - cutLow)/(cutHigh - cutLow) * (effHigh - effLow);
   double scoreTrans = 1.0 - efficiency;
   return scoreTrans;
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::initialize() {
 
-  ATH_CHECK( m_eventInfo.initialize() );
+  ATH_CHECK( m_aveIntPerXKey.initialize() );
 
   // 0p is for trigger only
   if (!m_file0p.empty()) {
@@ -172,8 +168,7 @@ StatusCode TauWPDecorator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
-
+//______________________________________________________________________________
 StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const { 
   // obtain the dependent variables of the efficiency 
   // -- x variable is tau pt
@@ -186,14 +181,13 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
      yVariable = std::abs(acc_absEta(pTau));
   } 
   else {
-    SG::ReadHandle<xAOD::EventInfo> eventinfoInHandle( m_eventInfo );
-    if (!eventinfoInHandle.isValid()) {
-        ATH_MSG_ERROR("Could not retrieve HiveDataObj with key " << eventinfoInHandle.key() << ", mu is set to be .0");
+    SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+    if (!eventInfoDecorHandle.isPresent()) {
+      ATH_MSG_WARNING ( "EventInfo decoration not available! Will set yVariable=0." );
     }
     else {
-        const xAOD::EventInfo* eventInfo = eventinfoInHandle.cptr();    
-        yVariable = eventInfo->averageInteractionsPerCrossing();
-    }
+      yVariable = eventInfoDecorHandle(0);
+    } 
   }
 
   int nProng = pTau.nTracks();
@@ -304,11 +298,5 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau) const {
     }
   }
   
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode TauWPDecorator::finalize() {
   return StatusCode::SUCCESS;
 }

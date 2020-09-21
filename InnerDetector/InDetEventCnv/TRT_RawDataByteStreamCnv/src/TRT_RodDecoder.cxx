@@ -186,7 +186,7 @@ StatusCode TRT_RodDecoder::initialize()
     std::vector<int>::iterator it;
 
     for ( it=m_LoadCompressTableVersions.begin() ; 
-	  it < m_LoadCompressTableVersions.end(); it++ )
+	  it < m_LoadCompressTableVersions.end(); ++it )
      {
        if ( (*it < 4) || (*it > m_maxCompressionVersion) )
        {
@@ -557,11 +557,12 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
   const Identifier NULLId(0);
 
   TRT_RDORawData*                   rdo     = 0;
-  TRT_RDO_Collection*               theColl = 0;
 
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
   robFrag->rod_data( vint );
+
+  std::unordered_map<IdentifierHash, std::unique_ptr<TRT_RDO_Collection> > colls;
   
   // loop over the data in the fragment
   unsigned int i;
@@ -633,30 +634,28 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 	    }
 	}
 
+      // Skip if this collection has already been done.
+      if (rdoIdc->indexFindPtr (idHash)) {
+        continue;
+      }
+    
       // get the collection
-      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
+      std::unique_ptr<TRT_RDO_Collection>& theColl = colls[idHash];
 
       // Check if the Collection is already created.
-      if ( theColl == nullptr )
+      if ( !theColl  )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
 			  << " does not exist, create it " );
 #endif
 	  // create new collection
-	  theColl = new TRT_RDO_Collection ( idHash );
+          theColl = std::make_unique<TRT_RDO_Collection> ( idHash );
 	  // get identifier from the hash, this is not nice
 	  Identifier ident;
 	  m_trt_id->get_id(idHash,ident,&m_straw_layer_context);
 	  // get the Identifier to be nice to downstream clients
 	  theColl->setIdentifier(ident);
-	  // add collection into IDC
-	  StatusCode sc = rdoIdc->addCollection(theColl, idHash);
-	  if ( sc.isFailure() )
-	  {
-	     ATH_MSG_WARNING ( "Failed to add TRT RDO collection to container" );
-	    return sc;
-	  }
 	}
 
       // Now the Collection is there for sure. Create RDO and push it
@@ -675,6 +674,11 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
       theColl->push_back( rdo );
       
     } // End of loop over all words in ROD
+
+  // add collections into IDC
+  for (auto& p : colls) {
+    ATH_CHECK( rdoIdc->addCollection (p.second.release(), p.first) );
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -731,13 +735,14 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
   const Identifier NULLId(0);
   
   TRT_RDORawData*                   rdo     = 0;
-  TRT_RDO_Collection*               theColl = 0;
 
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
   robFrag->rod_data( vint );
   
+  std::unordered_map<IdentifierHash, std::unique_ptr<TRT_RDO_Collection> > colls;
+
   int bit=0;
   int v;
   
@@ -810,7 +815,7 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
       // Make an Identifier for the RDO and get the IdHash
       idStraw = m_CablingSvc->getIdentifier( (eformat::SubDetector) 0 /*unused*/, robid, 
 					    bufferOffset, idHash );
-    
+
       if ( NULLId == idStraw )
 	{
 #ifdef TRT_BSC_DEBUG
@@ -854,30 +859,28 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	    }
 	}
       
+      // Skip if this collection has already been done.
+      if (rdoIdc->indexFindPtr (idHash)) {
+        continue;
+      }
+    
       // get the collection
-      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
+      std::unique_ptr<TRT_RDO_Collection>& theColl = colls[idHash];
       
       // Check if the Collection is already created.
-      if (  theColl==nullptr )
+      if (  !theColl )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
 			  << " does not exist, create it " );
 #endif
 	  // create new collection
-	  theColl = new TRT_RDO_Collection ( idHash );
+          theColl = std::make_unique<TRT_RDO_Collection> ( idHash );
 	  // get identifier from the hash, this is not nice
 	  Identifier ident;
 	  m_trt_id->get_id( idHash, ident, &m_straw_layer_context );
 	  // get the Identifier to be nice to downstream clients
 	  theColl->setIdentifier(ident);
-	  // add collection into IDC
-	  StatusCode sc = rdoIdc->addCollection(theColl, idHash);
-	  if ( sc.isFailure() )
-	  {
-	     ATH_MSG_WARNING ( "Failed to add TRT RDO collection to container" );
-	    return sc;
-	  }
 	}
       
       // Now the Collection is there for sure. Create RDO and push it
@@ -907,6 +910,11 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
       theColl->push_back( rdo );
       
     }  //   End of loop over all words in ROD
+  
+  // add collections into IDC
+  for (auto& p : colls) {
+    ATH_CHECK( rdoIdc->addCollection (p.second.release(), p.first) );
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -964,12 +972,13 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
   const Identifier NULLId(0);
   
   TRT_RDORawData*                   rdo     = 0;
-  TRT_RDO_Collection*               theColl = 0;
   
   // get the data of the fragment
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
   robFrag->rod_data( vint );
   
+  std::unordered_map<IdentifierHash, std::unique_ptr<TRT_RDO_Collection> > colls;
+
   int bit=0;
   int v,l;
   int i;
@@ -1130,30 +1139,28 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 	    }
 	}
       
+      // Skip if this collection has already been done.
+      if (rdoIdc->indexFindPtr (idHash)) {
+        continue;
+      }
+    
       // get the collection
-      ATH_CHECK(rdoIdc->naughtyRetrieve( idHash, theColl ));
+      std::unique_ptr<TRT_RDO_Collection>& theColl = colls[idHash];
       
       // Check if the Collection is already created.
-      if ( theColl == nullptr )
+      if ( !theColl )
 	{
 #ifdef TRT_BSC_DEBUG
 	   ATH_MSG_DEBUG( " Collection ID = " << idHash \
 			  << " does not exist, create it " );
 #endif
 	  // create new collection
-	  theColl = new TRT_RDO_Collection ( idHash );
+          theColl = std::make_unique<TRT_RDO_Collection> ( idHash );
 	  // get identifier from the hash, this is not nice
 	  Identifier ident;
 	  m_trt_id->get_id( idHash, ident, &m_straw_layer_context );
 	  // get the Identifier to be nice to downstream clients
 	  theColl->setIdentifier(ident);
-	  // add collection into IDC
-	  StatusCode sc = rdoIdc->addCollection(theColl, idHash);
-	  if ( sc.isFailure() )
-	  {
-	     ATH_MSG_WARNING ( "Failed to add TRT RDO collection to container" );
-	    return sc;
-	  }
 	}
       
       // Now the Collection is there for sure. Create RDO and push it
@@ -1185,6 +1192,10 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
     } // if phase == 1
   }  //   End of loop over all words in ROD
 
+  // add collections into IDC
+  for (auto& p : colls) {
+    ATH_CHECK( rdoIdc->addCollection (p.second.release(), p.first) );
+  }
 
   //  ATH_MSG_INFO( "Input: " << in_ptr << " / " << v_size << "   Output: " << out_ptr << " / 1920" );
 
@@ -1732,7 +1743,7 @@ TRT_RodDecoder::update() {
 			  Ctable->m_TableVersion );
 
 	 delete Ctable;
-	 catrIt++;
+	 ++catrIt;
 
 	 continue;
        }
@@ -1743,7 +1754,7 @@ TRT_RodDecoder::update() {
 	 ATH_MSG_DEBUG( "Table " << Ctable->m_TableVersion 
 			  << " already loaded!  Not overwriting" );
 	 delete Ctable;
-	 catrIt++;
+         ++catrIt;
 
 	 continue;
        }
@@ -1832,7 +1843,7 @@ TRT_RodDecoder::update() {
        }
 #endif /* NOTDEF */
 
-       catrIt++;
+       ++catrIt;
 
     }
 

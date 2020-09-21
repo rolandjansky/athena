@@ -4,7 +4,7 @@
 atlas_subdir( GoogleTestTools )
 
 # External package dependencies:
-find_package( GMock )
+find_package( GTest )
 
 # In standalone mode we just use the headers from the package. While in
 # offline mode we build a proper library.
@@ -17,13 +17,11 @@ else()
   atlas_add_library( GoogleTestTools
     GoogleTestTools/*.h src/*.cxx
     PUBLIC_HEADERS GoogleTestTools
-    INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS}
-    LINK_LIBRARIES ${GMOCK_LIBRARIES}
-    PRIVATE_LINK_LIBRARIES GaudiKernel )
+    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+    LINK_LIBRARIES ${GTEST_LIBRARIES} GaudiKernel )
 endif()
 
 # Unit tests for InitGaudiGoogleTest:
 atlas_add_test( GoogleTestToolsTests
   SOURCES test/gt_GoogleTestTools.cxx
-  INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} 
-  LINK_LIBRARIES ${GMOCK_LIBRARIES} GaudiKernel GoogleTestTools )
+  LINK_LIBRARIES GoogleTestTools )

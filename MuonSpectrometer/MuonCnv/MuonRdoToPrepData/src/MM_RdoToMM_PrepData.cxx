@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRdoToPrepData/MM_RdoToMM_PrepData.h"
@@ -7,18 +7,11 @@
 
 MM_RdoToMM_PrepData::MM_RdoToMM_PrepData(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_tool("Muon::MmRdoToPrepDataTool/MM_PrepDataProviderTool"),
   m_print_inputRdo(false),
   m_print_prepData(false)
 {
-  declareProperty("DecodingTool",       m_tool,       "mdt rdo to prep data conversion tool" );
   declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
   declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
-}
-
-StatusCode MM_RdoToMM_PrepData::finalize() {
-  ATH_MSG_DEBUG("in finalize()");
-  return StatusCode::SUCCESS;
 }
 
 StatusCode MM_RdoToMM_PrepData::initialize(){

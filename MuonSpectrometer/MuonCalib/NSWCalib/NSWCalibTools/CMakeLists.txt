@@ -4,17 +4,6 @@
   
 # Declare the package name:
 atlas_subdir( NSWCalibTools )
-   
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                           GaudiKernel
-                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                           MuonSpectrometer/MuonIdHelpers
-                           MagneticField/MagFieldElements
-                           MagneticField/MagFieldConditions
-                           PRIVATE
-                           MuonSpectrometer/MuonRDO
-                           Control/AthenaBaseComps )
   
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist )

@@ -1,3 +1,9 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 tilemon_log = logging.getLogger('TileLasMonState.py')
 
@@ -190,9 +196,9 @@ if 'UpdatePeriod' in dir():
 if 'BufferSize' not in dir():
     BufferSize=10
 try:
-     ByteStreamEmonInputSvc.BufferSize = BufferSize
+    ByteStreamEmonInputSvc.BufferSize = BufferSize
 except Exception:
-     treatException("Could not set BufferSize")
+    treatException("Could not set BufferSize")
 
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude
@@ -201,7 +207,7 @@ if 'PublishInclude' in dir():
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
-print ByteStreamEmonInputSvc
+print(ByteStreamEmonInputSvc)
 
 include("TileMonitoring/jobOptions_TileLasMon.py")
 
@@ -245,9 +251,9 @@ class ShowLVL1(PyAthena.Alg):
         ev = self.sg.retrieve('EventInfo')
 
         # Print some LVL1 information
-        print "Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number()
+        print("Run:",ev.event_ID().run_number(),"Event:",ev.event_ID().event_number())
         for x in  ev.trigger_info().level1TriggerInfo():
-            print "0x%08x" % x
+            print("0x%08x" % x)
 
         return PyAthena.StatusCode.Success        
 

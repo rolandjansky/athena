@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoTransform.h"  
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/Units.h"
-#include "GeoModelInterfaces/AbsMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"

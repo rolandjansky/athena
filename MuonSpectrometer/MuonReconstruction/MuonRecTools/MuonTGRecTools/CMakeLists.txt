@@ -5,47 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonTGRecTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          Control/AthContainers
-                          Control/StoreGate
-                          Event/EventPrimitives
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonStationIndex
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          MuonSpectrometer/MuonReconstruction/MuonTrackMakers/MuonTrackMakerUtils
-                          Simulation/G4Sim/TrackRecord
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkSegment
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkFitter/TrkFitterUtils
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Event/xAOD/xAODTracking
-                          MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonSimData
-                          MuonSpectrometer/MuonSimEvent
-                          Reconstruction/RecoTools/RecoToolInterfaces
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
-
 # External dependencies:
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

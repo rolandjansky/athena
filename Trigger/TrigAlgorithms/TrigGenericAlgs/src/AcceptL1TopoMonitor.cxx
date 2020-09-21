@@ -291,13 +291,13 @@ HLT::ErrorCode AcceptL1TopoMonitor::hltFinalize()
     return HLT::OK;
 }
 //----------------------------------------------------------
-bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, std::string extraName, std::string extraTitle)
+bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const Histo1DProperty& prop, const std::string& extraName, const std::string& extraTitle)
 {
-    auto p = prop.value();
+    const auto& p = prop.value();
     return bookAndRegisterHist(rootHistSvc, hist, p.title()+extraName, p.title()+extraTitle, p.bins(), p.lowEdge(), p.highEdge());
 }
 //----------------------------------------------------------
-bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge)
+bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, const std::string& hName, const std::string& hTitle, int bins, float lowEdge, float highEdge)
 {
     // booking path
     std::string path = std::string("/EXPERT/")+name()+"/";
@@ -547,7 +547,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
     }
     for (auto & r : l1TopoResults){
         //ATH_MSG_VERBOSE( r.dump() );
-        auto rdo=r.rdo();
+        const auto& rdo=r.rdo();
         ATH_MSG_DEBUG( "Found ROI RDO with source ID "<<L1Topo::formatHex8(rdo.getSourceID()) );
         m_histSIDsViaConverters->Fill(m_allSIDLabelsToInts.at(rdo.getSourceID()));
         auto errors = rdo.getErrors();
@@ -556,7 +556,7 @@ StatusCode AcceptL1TopoMonitor::doCnvMon(bool prescalForDAQROBAccess)
             m_histTopoProblems->Fill(static_cast<float>(Problems::ROI_CNV_ERR));
             m_hasGenericRoiError = true;
         }
-        const std::vector<uint32_t> cDataWords = rdo.getDataWords();
+        const std::vector<uint32_t>& cDataWords = rdo.getDataWords();
         if ( cDataWords.empty() ) {
             ATH_MSG_INFO( "L1TopoRDO ROI payload is empty" );
             m_histTopoProblems->Fill(static_cast<float>(Problems::ROI_PAYLOAD_EMPTY));
@@ -950,7 +950,7 @@ StatusCode AcceptL1TopoMonitor::doSimDaq(bool prescalForDAQROBAccess)
     return StatusCode::SUCCESS;
 }
 //----------------------------------------------------------
-bool AcceptL1TopoMonitor::compBitSets(std::string leftLabel, std::string rightLabel,
+bool AcceptL1TopoMonitor::compBitSets(const std::string& leftLabel, const std::string& rightLabel,
                                       const std::bitset<m_nTopoCTPOutputs>& left,
                                       const std::bitset<m_nTopoCTPOutputs>& right,
                                       TH1F*& hist)

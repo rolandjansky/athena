@@ -83,12 +83,33 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2ele','L2','ele')
+comp=TrigInDetCompStep('Comp_L2ele','L2','electron')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFele','EF','ele')
+comp2=TrigInDetCompStep('Comp_EFele','EF','electron')
 test.check_steps.append(comp2)
 
+comp3=TrigInDetCompStep('Comp_L2eleLowpt','L2','electron',lowpt=True)
+test.check_steps.append(comp3)
+
+comp4=TrigInDetCompStep('Comp_EFeleLowpt','EF','electron',lowpt=True)
+test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('Comp_L2ele_off','L2','electron')
+comp5.type='offl'
+test.check_steps.append(comp5)
+  
+comp6=TrigInDetCompStep('Comp_EFele_off','EF','electron')
+comp6.type='offl'
+test.check_steps.append(comp6)
+
+comp7=TrigInDetCompStep('Comp_L2eleLowpt_off','L2','electron',lowpt=True)
+comp7.type='offl'
+test.check_steps.append(comp7)
+
+comp8=TrigInDetCompStep('Comp_EFeleLowpt_off','EF','electron',lowpt=True)
+comp8.type='offl'
+test.check_steps.append(comp8)
 
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)

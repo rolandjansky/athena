@@ -26,14 +26,8 @@ class JetSeedBuilder : public TauRecToolBase {
     /** @brief Destructor */
     virtual ~JetSeedBuilder();
 
-    /** @brief Initialization of this tool */
-    virtual StatusCode initialize() override;
-   
     /** @brief Executation of this tool */ 
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
-    
-    /** @brief Finalization of this tool */
-    virtual StatusCode finalize() override;
 };
 
 #endif	/* JETSEEDBUILDER_H */

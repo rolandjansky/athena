@@ -187,11 +187,8 @@ StatusCode TauProcessorAlg::execute() {
 	else if ( tool->type() == "TauTrackFinder") {
 	  sc = tool->executeTrackFinder(*pTau, *pTauTrackCont);
 	}
-	else if ( tool->type() == "tauRecTools::TauTrackClassifier") {
+	else if ( tool->type() == "tauRecTools::TauTrackClassifier" || tool->type() == "tauRecTools::TauTrackRNNClassifier" ) {
 	  sc = tool->executeTrackClassifier(*pTau, *pTauTrackCont);
-	}
-	else if ( tool->type() == "tauRecTools::TauTrackRNNClassifier") {
-	  sc = tool->executeRNNTrackClassifier(*pTau, *pTauTrackCont);
 	}
 	else if ( tool->type() == "TauShotFinder"){
 	  sc = tool->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);

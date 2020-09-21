@@ -232,7 +232,7 @@ StatusCode ToolConstant<T>::CProperty::fromString( const std::string& value )
     throw ExcConstantReset (m_impl.m_toolName, this->name());
   }
 
-  // Convert from string and sae as the value of the property.
+  // Convert from string and save as the value of the property.
   CaloRec::Arrayrep rep (value, m_impl.m_toolName);
   m_impl.m_constants.setrep (this->name(), rep);
   T val;

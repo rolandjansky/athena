@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonByteStreamCnvTest )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          MuonSpectrometer/MuonCablings/RPCcablingInterface
-                          MuonSpectrometer/MuonCalib/CscCalib/CscCalibTools
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonDigitization/MuonDigToolInterfaces
-                          MuonSpectrometer/MuonRDO
-                          Trigger/TrigT1/TrigT1RPChardware
-                          Trigger/TrigT1/TrigT1RPClogic
-                          PRIVATE
-                          Event/EventInfoMgt
-                          MuonSpectrometer/MuonCablings/MuonMDT_Cabling
-                          MuonSpectrometer/MuonCablings/TGCcablingInterface
-                          MuonSpectrometer/MuonCnv/MuonCSC_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonMDT_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonRPC_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonTGC_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonSTGC_CnvTools
-                          MuonSpectrometer/MuonCnv/MuonMM_CnvTools
-                          MuonSpectrometer/MuonDigitContainer
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData 
-                          MuonSpectrometer/MuonConditions/MuonCondCabling/RPC_CondCabling
-			  MuonSpectrometer/MuonCablings/MuonCablingData )
-
 # Component(s) in the package:
 atlas_add_library( MuonByteStreamCnvTestLib
                    src/*.cxx

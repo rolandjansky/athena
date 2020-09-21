@@ -6,6 +6,9 @@
 
 #include "JetMomentTools/JetPtAssociationTool.h"
 
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 using std::string;
 using xAOD::IParticle;
 using xAOD::Jet;
@@ -17,7 +20,6 @@ using xAOD::JetConstituentVector;
 
 JetPtAssociationTool::JetPtAssociationTool(std::string myname)
   : asg::AsgTool(myname) {
-  declareInterface<IJetDecorator>(this);
 
 }
 
@@ -29,8 +31,8 @@ StatusCode JetPtAssociationTool::initialize() {
     ATH_MSG_ERROR("JetPtAssociationTool needs to have its input jet container configured!");
     return StatusCode::FAILURE;
   }
-  m_assocFracKey = m_jetContainerName + "." + m_aname + m_assocFracKey.key();
-  m_assocLinkKey = m_jetContainerName + "." + m_aname + m_assocLinkKey.key();
+  m_assocFracKey = m_jetContainerName.key() + "." + m_aname + m_assocFracKey.key();
+  m_assocLinkKey = m_jetContainerName.key() + "." + m_aname + m_assocLinkKey.key();
 
   ATH_CHECK(m_assocFracKey.initialize());
   ATH_CHECK(m_assocLinkKey.initialize());

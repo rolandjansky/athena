@@ -52,7 +52,7 @@ if DetFlags.overlay.Truth_on():
 
 if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["PixelRDO_Container#*"]
-   outStream.ItemList += ["InDetBSErrContainer#*"]
+   outStream.ItemList += ["IDCInDetBSErrContainer#*"]
 if DetFlags.overlay.SCT_on():
    outStream.ItemList += ["SCT_RDO_Container#*"]
 if DetFlags.overlay.TRT_on():
@@ -69,7 +69,7 @@ if DetFlags.overlay.LAr_on():
    outStream.ItemList+=["LArFebErrorSummary#*"]
 if DetFlags.overlay.Tile_on():
    outStream.ItemList += [ "TileRawChannelContainer#*" ]
-   if overlayFlags.isDataOverlay() or 'AddCaloDigi' in digitizationFlags.experimentalDigi():
+   if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
        outStream.ItemList += [ "TileDigitsContainer#*" ]
    else:
        outStream.ItemList += [ "TileDigitsContainer#TileDigitsFlt" ]

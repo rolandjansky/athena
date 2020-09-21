@@ -299,6 +299,19 @@ const T* get (const ReadHandleKey<T>& key,
 }
 
 
+/**
+ * @brief Protected constructor used by WriteDecorHandle.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context, or nullptr to use the global default.
+ */
+template <class T>
+inline
+ReadHandle<T>::ReadHandle (const VarHandleKey& key, const EventContext* ctx)
+  : VarHandleBase (key, ctx)
+{
+}
+
+
 } /* namespace SG */
 
 

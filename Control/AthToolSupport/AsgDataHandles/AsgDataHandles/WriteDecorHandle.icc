@@ -1,0 +1,419 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file AsgDataHandles/WriteDecorHandle.icc
+ * @author Nils Krumnack <Nils.Erik.Krumnack@cern.h>
+ * @author scott snyder <snyder@bnl.gov> (for original version)
+ * @brief Handle class for adding a decoration to an object.
+ */
+
+
+// #include "CxxUtils/checker_macros.h"
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor from a WriteDecorHandleKey.
+ * @param key The key object holding the clid/key/store/attr.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ */
+template <class T, class D>
+WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key)
+  : Base (key, nullptr),
+    // m_contHandle (key.contHandleKey()),
+    m_acc (SG::decorKeyFromKey (key.key()))
+    // m_madeAlias (false)
+{
+}
+
+
+// /**
+//  * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+//  * @param key The key object holding the clid/key.
+//  * @param ctx The event context.
+//  *
+//  * This will raise an exception if the StoreGate key is blank,
+//  * or if the event store cannot be found.
+//  *
+//  * If the default event store has been requested, then the thread-specific
+//  * store from the event context will be used.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key,
+//                                           const EventContext& ctx)
+//   : Base (key, &ctx),
+//     m_contHandle (key.contHandleKey(), ctx),
+//     m_acc (SG::decorKeyFromKey (key.key())),
+//     m_madeAlias (false)
+// {
+// }
+
+
+// /**
+//  * @brief Copy constructor.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandle& rhs)
+//   : Base (rhs),
+//     m_contHandle (rhs.m_contHandle),
+//     m_acc (rhs.m_acc),
+//     m_madeAlias (rhs.m_madeAlias)
+// {
+// }
+
+
+// /**
+//  * @brief Move constructor.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
+//   : Base (std::move (rhs)),
+//     m_contHandle (std::move (rhs.m_contHandle)),
+//     m_acc (std::move (rhs.m_acc)),
+//     m_madeAlias (rhs.m_madeAlias)
+// {
+//   rhs.m_madeAlias = false;
+// }
+
+
+// /**
+//  * @brief Destructor.  This will lock the decoration.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>::~WriteDecorHandle()
+// {
+//   // Lock the decoration.  But don't do anything if we haven't touched it.
+//   if (m_madeAlias) {
+//     const IConstAuxStore* store = this->vectorData()->getConstStore();
+//     if (store) {
+//       IConstAuxStore* store_nc ATLAS_THREAD_SAFE = const_cast<IConstAuxStore*> (store);
+//       store_nc->lockDecoration (auxid());
+//     }
+//   }
+// }
+
+
+// /**
+//  * @brief Assignment operator.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (const WriteDecorHandle& rhs)
+// {
+//   if (this != &rhs) {
+//     *static_cast<Base*>(this) = rhs;
+//     m_acc = rhs.m_acc;
+//     m_contHandle = rhs.m_contHandle;
+//     m_madeAlias = rhs.m_madeAlias;
+//   }
+//   return *this;
+// }
+
+
+// /**
+//  * @brief Move operator.
+//  */
+// template <class T, class D>
+// WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rhs)
+// {
+//   if (this != &rhs) {
+//     *static_cast<Base*>(this) = std::move (rhs);
+//     m_acc = std::move (rhs.m_acc);
+//     m_contHandle = std::move (rhs.m_contHandle);
+//     m_madeAlias = rhs.m_madeAlias;
+//     rhs.m_madeAlias = false;
+//   }
+//   return *this;
+// }
+
+
+// /**
+//  * @brief Is the referenced container present in SG?
+//  *
+//  * Note that this tests for the presence of the _container_,
+//  * not for the decoration.
+//  *
+//  * Const method; the handle does not change as a result of this.
+//  */
+// template <class T, class D>
+// bool WriteDecorHandle<T, D>::isPresent() const
+// {
+//   return m_contHandle.isPresent();
+// }
+
+
+// /**
+//  * @brief Explicitly set the event store.
+//  * @param store The new event store.
+//  *
+//  * This implicitly does a reset().
+//  *
+//  * We need to override this so that the setting gets made on the container
+//  * handle as well.
+//  */
+// template <class T, class D>
+// StatusCode WriteDecorHandle<T, D>::setProxyDict (IProxyDict* store)
+// {
+//   m_madeAlias = false;
+//   if (m_contHandle.setProxyDict (store).isFailure())
+//     return StatusCode::FAILURE;
+//   return Base::setProxyDict (store);
+// }
+
+
+/**
+ * @brief Fetch the variable for one element, as a reference.
+ * @param e The element for which to fetch the variable.
+ */
+template <class T, class D>
+typename WriteDecorHandle<T, D>::reference_type
+WriteDecorHandle<T, D>::operator() (const AuxElement& e)
+{
+  this->cptr();
+  return m_acc (e);
+}
+
+
+// /**
+//  * @brief Fetch the variable for one element, as a reference.
+//  * @param index The index of the desired element.
+//  *
+//  * This looks up the variable in the object referenced by this handle.
+//  * For a standalone object, pass an index of 0.
+//  */
+// template <class T, class D>
+// typename WriteDecorHandle<T, D>::reference_type
+// WriteDecorHandle<T, D>::operator() (size_t i)
+// {
+//   this->cptr();
+//   return m_acc (*this->vectorData(), i);
+// }
+
+
+// /**
+//  * @brief Get a pointer to the start of the auxiliary data array,
+//  *        for the referenced object.
+//  */
+// template <class T, class D>
+// typename WriteDecorHandle<T, D>::container_pointer_type
+// WriteDecorHandle<T, D>::getDecorationArray()
+// {
+//   return reinterpret_cast<container_pointer_type>
+//     (this->vectorData()->getDecorationArray (m_acc.auxid()));
+// }
+
+
+// /**
+//  * @brief Test to see if this variable exists in the store,
+//  *        for the referenced object.
+//  *        Specialization for the case of a standalone object
+//  *        (@c T derives from @c SG::AuxElement).
+//  */
+// template <class T, class D>
+// inline
+// bool WriteDecorHandle<T, D>::isAvailable (std::true_type)
+// {
+//   if (this->m_ptr) {
+//     const SG::AuxVectorData* obj = static_cast<const T*>(this->m_ptr)->container();
+//     if (obj) {
+//       return obj->isAvailable (m_acc.auxid());
+//     }
+//   }
+
+//   return false;
+// }
+
+
+// /**
+//  * @brief Test to see if this variable exists in the store,
+//  *        for the referenced object.
+//  *        Specialization for the case of a container
+//  *        (@c T does not derive from @c SG::AuxElement).
+//  */
+// template <class T, class D>
+// inline
+// bool WriteDecorHandle<T, D>::isAvailable (std::false_type)
+// {
+//   if (this->m_ptr) {
+//     return static_cast<const T*>(this->m_ptr)->isAvailable (m_acc.auxid());
+//   }
+
+//   return false;
+// }
+
+
+// /**
+//  * @brief Test to see if this variable exists in the store,
+//  *        for the referenced object.
+//  */
+// template <class T, class D>
+// inline
+// bool WriteDecorHandle<T, D>::isAvailable()
+// {
+//   if (!this->m_ptr) {
+//     ReadHandle<T>::typeless_dataPointer_impl (true);
+//   }
+//   // We can't just use vectorData() because that will create the decoration
+//   // as a side effect.
+//   return isAvailable (typename std::is_base_of<SG::AuxElement, T>::type());
+// }
+
+
+// /**
+//  * @brief Return the aux id for this variable.
+//  */
+// template <class T, class D>
+// SG::auxid_t WriteDecorHandle<T, D>::auxid() const
+// {
+//   return m_acc.auxid();
+// }
+
+
+// /**
+//  * @brief Retrieve an object from StoreGate.
+//  * @param quiet If true, suppress failure messages.
+//  *
+//  * Extended for decoration handles: when we first retrieve the object,
+//  * we make an alias for the decoration and also create the decoration itself.
+//  */
+// template <class T, class D>
+// void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
+// {
+//   if (this->m_ptr && this->m_madeAlias)
+//     return this->m_ptr;
+//   if (m_contHandle.alias (WriteHandleKey<T> (this->key())).isFailure())
+//     return nullptr;
+//   if (!this->m_ptr) {
+//     ReadHandle<T>::typeless_dataPointer_impl (quiet);
+//   }
+//   // Important to call the base class method above before calling vectorData;
+//   // otherwise, we'll get an infinite recursion.
+//   // Also don't call getDecorationArray if the container is empty.
+//   if (this->m_ptr && this->vectorData()->size_v() > 0) {
+//     m_acc.getDecorationArray (*this->vectorData());
+//   }
+//   this->m_madeAlias = true;
+//   return this->m_ptr;
+// }
+
+
+// /** 
+//  * @brief Return the referenced object as a @c SG::AuxVectorData.
+//  *        Specialization for the case of a standalone object
+//  *        (@c T derives from @c SG::AuxElement).
+//  */
+// template <class T, class D>
+// const SG::AuxVectorData* WriteDecorHandle<T, D>::vectorData (std::true_type)
+// {
+//   return (*this)->container();
+// }
+
+
+// /** 
+//  * @brief Return the referenced object as a @c SG::AuxVectorData.
+//  *        Specialization for the case of a container
+//  *        (@c T does not derive from @c SG::AuxElement).
+//  */
+// template <class T, class D>
+// const SG::AuxVectorData* WriteDecorHandle<T, D>::vectorData (std::false_type)
+// {
+//   return this->cptr();
+// }
+
+
+// /** 
+//  * @brief Return the referenced object as a @c SG::AuxVectorData.
+//  *
+//  * If @c T is a container object, then this should be the object itself.
+//  * But if it is a standalone object, deriving from @c SG::AuxElement,
+//  * then we need to call container() on the object.
+//  */
+// template <class T, class D>
+// const SG::AuxVectorData* WriteDecorHandle<T, D>::vectorData()
+// {
+//   return vectorData (typename std::is_base_of<SG::AuxElement, T>::type());
+// }
+
+
+/**
+ * @brief Return a @c WriteDecorHandle referencing @c key.
+ * @param key The key object holding the clid/key/store.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * The type of the decoration must be included as an explicit template parameter:
+ *
+ *@code
+ *   auto handle = SG::makeHandle<float> (key);
+ @endcode
+ *
+ * Note that @c D comes first in the argument list.  It's given explicitly,
+ * while @c T is inferred from @c key.
+ */
+template <class D, class T>
+WriteDecorHandle<T, D> makeHandle (const WriteDecorHandleKey<T>& key)
+{
+  return WriteDecorHandle<T, D> (key);
+}
+
+
+/**
+ * @brief Return a @c WriteDecorHandle referencing @c key for an explicit context.
+ * @param key The key object holding the clid/key/store.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ *
+ * The type of the decoration must be included as an explicit template parameter:
+ *
+ *@code
+ *   auto handle = SG::makeHandle<float> (key, ctx);
+ @endcode
+ *
+ * Note that @c D comes first in the argument list.  It's given explicitly,
+ * while @c T is inferred from @c key.
+ */
+template <class D, class T>
+WriteDecorHandle<T, D> makeHandle (const WriteDecorHandleKey<T>& key,
+                                   const EventContext& ctx)
+{
+  return WriteDecorHandle<T, D> (key, ctx);
+}
+
+
+// /**
+//  * @brief These two signatures are to catch cases where the explicit
+//  *        template argument is omitted from the @c makeHandle call
+//  *        and give an error tailored to that.  Otherwise, the @c makeHandle
+//  *        call for @c ReadHandle would match, potentially giving a much
+//  *        more confusing error.
+//  */
+// template <class T>
+// void makeHandle (const WriteDecorHandleKey<T>& /*key*/)
+// {
+//   // If you see an error from here, you've forgotten the explicit template
+//   // argument to @c makeHandle giving the decoration type.
+//   // See the examples of @c makeHandle above.
+//   return T::makeHandleForDecorationsRequiresExplicitTemplateArgument();
+// }
+// template <class T>
+// void makeHandle (const WriteDecorHandleKey<T>& /*key*/,
+//                  const EventContext& /*ctx*/)
+// {
+//   // If you see an error from here, you've forgotten the explicit template
+//   // argument to @c makeHandle giving the decoration type.
+//   // See the examples of @c makeHandle above.
+//   return T::makeHandleForDecorationsRequiresExplicitTemplateArgument();
+// }
+
+
+} // namespace SG

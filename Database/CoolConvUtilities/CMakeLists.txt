@@ -1,15 +1,7 @@
-################################################################################
-# Package: CoolConvUtilities
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CoolConvUtilities )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Database/APR/FileCatalog
-                          Database/APR/PersistencySvc
-                          Database/CoraCool )
 
 # External dependencies:
 find_package( COOL COMPONENTS CoolKernel CoolApplication )

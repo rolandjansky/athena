@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/LArHEC_ID.h"
@@ -10,10 +10,10 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include <string>
-#include <set>
+#include <cmath>
 #include <iostream>
-#include <math.h>
+#include <set>
+#include <string>
 
 
 LArHEC_ID::LArHEC_ID(void) :

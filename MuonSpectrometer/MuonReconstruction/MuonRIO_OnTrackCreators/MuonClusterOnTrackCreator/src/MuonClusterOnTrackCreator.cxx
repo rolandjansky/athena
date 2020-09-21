@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,10 +48,6 @@ namespace Muon {
     declareProperty("FixedErrorCscPhi", m_fixedErrorCscPhi = 5. );
   }
 
-
-  MuonClusterOnTrackCreator::~MuonClusterOnTrackCreator(){}
-
-
   StatusCode MuonClusterOnTrackCreator::initialize()
   {
     if( AthAlgTool::initialize().isFailure() ){
@@ -63,13 +59,6 @@ namespace Muon {
 
     return StatusCode::SUCCESS;
   }
-
-  StatusCode MuonClusterOnTrackCreator::finalize()
-  {
-    return AthAlgTool::finalize();
-  }
-
-
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::createRIO_OnTrack(const Trk::PrepRawData& RIO,
 									 const Amg::Vector3D& GP) const

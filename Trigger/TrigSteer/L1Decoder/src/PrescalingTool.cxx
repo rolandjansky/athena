@@ -6,6 +6,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/Ranlux64Engine.h"
+#include "xAODEventInfo/EventInfo.h"
 
 const std::function< CLHEP::HepRandomEngine*(void) > PSTRanluxFactory = [](void)->CLHEP::HepRandomEngine*{
    return new CLHEP::Ranlux64Engine();
@@ -25,6 +26,8 @@ StatusCode
 PrescalingTool::initialize()
 {
    ATH_CHECK(m_hltPrescaleSetInputKey.initialize( ! m_hltPrescaleSetInputKey.key().empty() ));
+   ATH_CHECK( m_eventInfoKey.initialize() );
+
    if ( !m_monTool.empty() ) ATH_CHECK(m_monTool.retrieve());
 
    return StatusCode::SUCCESS;
@@ -68,7 +71,17 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
    remainActive.reserve( initiallyActive.size() );
 
    // create the seed from the event time
-   size_t seed = ctx.eventID().time_stamp() ^ ctx.eventID().time_stamp_ns_offset();
+   /**
+       Note: the event time needs to be taken from the EventInfo instead EventContext.eventID, which is commonly done!
+       This is due to the special case when the trigger is run in a partition with preloaded data and the parameter @c
+       HLTEventLoopMgr.forceStartOfRunTime is set >0. In that case the @c EventContext.EventID is forced to the be the 
+       SOR time for each event. Using the @c EventContext.eventID would lead to a constant seed and a scewed prescaling.
+    */
+   auto eventInfoHandle = SG::makeHandle( m_eventInfoKey, ctx );
+   CHECK( eventInfoHandle.isValid() );
+   size_t seed = eventInfoHandle->timeStamp() ^ eventInfoHandle->timeStampNSOffset();
+
+
    CLHEP::HepRandomEngine* engine = m_RNGEngines.getEngine( ctx );
    engine->setSeed( seed, 0 );
 

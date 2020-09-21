@@ -1,12 +1,17 @@
 #! /usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 
 import unittest
 import ROOT
 import itertools
-ROOT.PyConfig.IgnoreCommandLineOptions = True
+import sys
 
+# Do the xAOD environment setup before anything else. To avoid any unwanted
+# warning messages while opening xAOD files (for testing whether they can) be
+# opened...
+ROOT.xAOD.Init().ignore()
 
 def arange(xmin, xmax, delta):
     # just to don't inject dep from numpy
@@ -31,7 +36,9 @@ def xAOD_electron_generator(tree):
 class TestLayer(unittest.TestCase):
     def setUp(self):
         self.egammaLayerRecalibTool = ROOT.egammaLayerRecalibTool
-        self.output_file = ROOT.TFile("test_output.root", "recreate")
+        self.output_file = ROOT.TFile.Open("test_output.root", "recreate")
+        self.assertTrue( self.output_file != ROOT.nullptr )
+        ROOT.CP.CorrectionCode.enableFailure()
 
     def tearDown(self):
         self.output_file.Close()
@@ -83,7 +90,7 @@ class TestLayer(unittest.TestCase):
 
         inputs = self.example_inputs()
 
-        tool.scale_inputs(inputs)
+        self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
         self.assertAlmostEqual(inputs.E0raw,
                                self.example_inputs().E0raw * (1 + 0.01), places=5)
         self.assertAlmostEqual(inputs.E1raw, self.example_inputs().E1raw)
@@ -95,7 +102,7 @@ class TestLayer(unittest.TestCase):
         tool.add_scale(modifier2, amounter2)
 
         inputs.eta = -0.03
-        tool.scale_inputs(inputs)
+        self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
         self.assertAlmostEqual(inputs.E1raw,
                                self.example_inputs().E1raw, places=5)
         self.assertAlmostEqual(inputs.E0raw,
@@ -103,7 +110,7 @@ class TestLayer(unittest.TestCase):
 
         inputs = self.example_inputs()
         inputs.eta = 0.03
-        tool.scale_inputs(inputs)
+        self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
         self.assertAlmostEqual(inputs.E1raw,
                                self.example_inputs().E1raw * (1. + 0.05), places=5)
         self.assertAlmostEqual(inputs.E0raw,
@@ -114,7 +121,7 @@ class TestLayer(unittest.TestCase):
         inputs = self.example_inputs()
         inputs.eta = 2.
 
-        tool.scale_inputs(inputs)
+        self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
         self.assertAlmostEqual(inputs.E1raw,
                                self.example_inputs().E1raw * (1. + 0.01), places=5)
         self.assertAlmostEqual(inputs.E0raw,
@@ -122,7 +129,7 @@ class TestLayer(unittest.TestCase):
 
         inputs = self.example_inputs()
         inputs.eta = -2.
-        tool.scale_inputs(inputs)
+        self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
         self.assertAlmostEqual(inputs.E1raw,
                                self.example_inputs().E1raw * (1. + 0.01), places=5)
         self.assertAlmostEqual(inputs.E0raw,
@@ -139,7 +146,7 @@ class TestLayer(unittest.TestCase):
             inputs.eta = i * 0.05 - 2.5
             bin = histo_ps_tot_error.FindBin(inputs.eta)
             amount = histo_ps_tot_error.GetBinContent(bin)
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
             self.assertAlmostEqual(inputs.E0raw,
                                    self.example_inputs().E0raw / amount, places=5)
 
@@ -157,7 +164,7 @@ class TestLayer(unittest.TestCase):
         for i in range(100):
             inputs = self.example_inputs()
             inputs.eta = i * 0.05 - 2.5
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
             self.assertAlmostEqual(inputs.E0raw, self.example_inputs().E0raw)
             self.assertAlmostEqual(inputs.E1raw, self.example_inputs().E1raw)
 
@@ -169,7 +176,7 @@ class TestLayer(unittest.TestCase):
             inputs = self.example_inputs()
             inputs.eta = eta
             inputs.RunNumber = 200803
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
             self.assertAlmostEqual(inputs.E1raw, self.example_inputs().E1raw)
             self.assertAlmostEqual(inputs.E2raw, self.example_inputs().E2raw)
             self.assertAlmostEqual(inputs.eta, eta, 4)
@@ -179,7 +186,7 @@ class TestLayer(unittest.TestCase):
             inputs = self.example_inputs()
             inputs.eta = eta
             inputs.RunNumber = 212810
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
             if eta > 1.5:
                 self.assertAlmostEqual(inputs.E0raw, self.example_inputs().E0raw)
 
@@ -192,7 +199,7 @@ class TestLayer(unittest.TestCase):
 
             alpha = 0.97 if (abs(inputs.eta) < 1.425) else 1
 
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
 
             self.assertAlmostEqual(inputs.E0raw, self.example_inputs().E0raw, 5)
             self.assertAlmostEqual(inputs.E1raw, self.example_inputs().E1raw / alpha, 5)
@@ -200,7 +207,8 @@ class TestLayer(unittest.TestCase):
     def _test_layer1_2010_v5(self): # TODO: fix path
         tool = self.egammaLayerRecalibTool('layer1_2010_v5')
 
-        f = ROOT.TFile("$ROOTCOREDIR/data/egammaLayerRecalibTool/egammaLayerRecalibTunes.root")
+        f = ROOT.TFile.Open("$ROOTCOREDIR/data/egammaLayerRecalibTool/egammaLayerRecalibTunes.root", "READ")
+        self.assertTrue(f != ROOT.nullptr)
         histo = f.Get("hE1E2ave_2010")
         etas = [histo.GetBinCenter(i) for i in range(histo.GetNbinsX())]
 
@@ -221,7 +229,8 @@ class TestLayer(unittest.TestCase):
     def _oldtest_multi_modifier(self): # TODO: fix path
         tool = self.egammaLayerRecalibTool('layer1_2')
         tool.add_scale('ps_1')
-        f = ROOT.TFile("$ROOTCOREDIR/data/egammaLayerRecalibTool/EnergyRescalerData.root")
+        f = ROOT.TFile.Open("$ROOTCOREDIR/data/egammaLayerRecalibTool/EnergyRescalerData.root", "READ")
+        self.assertTrue(f != ROOT.nullptr)
         histo_ps_tot_error = f.Get("Scales/2011/alphaPSmod_b12Fit_errTot")
 
         for i in range(100):
@@ -233,49 +242,43 @@ class TestLayer(unittest.TestCase):
 
             alpha = 0.97 if (abs(inputs.eta) < 1.425) else 1.05
 
-            tool.scale_inputs(inputs)
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
             self.assertAlmostEqual(inputs.E0raw, self.example_inputs().E0raw / amount, places=5)
             self.assertAlmostEqual(inputs.E1raw, self.example_inputs().E1raw / alpha, 5)
 
 
 def is_file_readable(path):
-    f = ROOT.TFile.Open(path)
+    f = ROOT.TFile.Open(path, "READ")
     return bool(f)
 
 
-@unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
+filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
+@unittest.skipIf(not is_file_readable(filename),
                  "input file not available")
 class TestLayerxAOD(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        """ using a filename where the egamma.e() is already computed
-        v1 MVA calibration
-        """
-        filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
-        if (not ROOT.xAOD.Init().isSuccess()):
-            print("Failed xAOD.Init()")
 
+    def setUp(self):
         treeName = "CollectionTree"
+        self.file = ROOT.TFile.Open(filename, "READ")
+        self.assertTrue(self.file != ROOT.nullptr)
+        self.tree = ROOT.xAOD.MakeTransientTree(self.file, treeName)
+        self.assertTrue(self.tree != ROOT.nullptr)
 
-        f = ROOT.TFile.Open(filename)
-        if not f:
-            print("file %s not found" % filename)
-        cls.tree = ROOT.xAOD.MakeTransientTree(f, treeName)
-
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
         ROOT.xAOD.ClearTransientTrees()
+        self.file.Close()
 
     def test_decoration(self):
         tune = "2012_alt_with_layer2"
         tool = ROOT.egammaLayerRecalibTool(tune)
+        ROOT.CP.CorrectionCode.enableFailure()
 
         N = 200
         i = 0
         for el in itertools.islice(xAOD_electron_generator(self.tree), None, N):
             event_info = self.tree.EventInfo
 
-            self.assertTrue(tool.applyCorrection(el, event_info).code() == ROOT.CP.CorrectionCode.Ok)
+            self.assertTrue(tool.applyCorrection(el, event_info) == ROOT.CP.CorrectionCode.Ok)
 
             inputs = ROOT.StdCalibrationInputs()
             inputs.RunNumber = event_info.runNumber()
@@ -286,12 +289,12 @@ class TestLayerxAOD(unittest.TestCase):
             inputs.phi = el.caloCluster().phi()
             inputs.eta = el.caloCluster().eta()
 
-            tool.scale_inputs(inputs)
-            self.assertAlmostEqual(inputs.E0raw, el.caloCluster().auxdataConst("double")("correctedcl_Es0"))
-            self.assertAlmostEqual(inputs.E1raw, el.caloCluster().auxdataConst("double")("correctedcl_Es1"))
-            self.assertAlmostEqual(inputs.E2raw, el.caloCluster().auxdataConst("double")("correctedcl_Es2"))
-            self.assertAlmostEqual(inputs.E3raw, el.caloCluster().auxdataConst("double")("correctedcl_Es3"))
-#            self.assertTrue(el.caloCluster().auxdataConst("string")("layer_correction") == tune) # TODO: check why not working in 2.4
+            self.assertTrue(tool.scale_inputs(inputs) == ROOT.CP.CorrectionCode.Ok)
+            self.assertAlmostEqual(inputs.E0raw, el.caloCluster().auxdataConst["double"]("correctedcl_Es0"))
+            self.assertAlmostEqual(inputs.E1raw, el.caloCluster().auxdataConst["double"]("correctedcl_Es1"))
+            self.assertAlmostEqual(inputs.E2raw, el.caloCluster().auxdataConst["double"]("correctedcl_Es2"))
+            self.assertAlmostEqual(inputs.E3raw, el.caloCluster().auxdataConst["double"]("correctedcl_Es3"))
+#            self.assertTrue(el.caloCluster().auxdataConst["string"]("layer_correction") == tune) # TODO: check why not working in 2.4
             i += 1
 
         self.assertGreater(i, 10, msg="too few electrons")
@@ -311,10 +314,11 @@ class TestLayerxAOD(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     ROOT.gStyle.SetCanvasDefH(800)
     ROOT.gStyle.SetCanvasDefW(800)
     ROOT.gStyle.SetPadTickX(1)
     ROOT.gStyle.SetPadTickY(1)
 
-    unittest.main()
+    ROOT.PyConfig.IgnoreCommandLineOptions = True
+
+    sys.exit( unittest.main() )

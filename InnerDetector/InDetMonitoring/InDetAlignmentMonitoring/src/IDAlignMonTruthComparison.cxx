@@ -15,7 +15,6 @@
 #include "TMath.h"
 #include "TROOT.h"
 
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AtlasHepMC/GenParticle.h"

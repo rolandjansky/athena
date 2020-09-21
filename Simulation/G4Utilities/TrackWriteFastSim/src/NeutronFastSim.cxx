@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackWriteFastSim/NeutronFastSim.h"
@@ -51,7 +51,7 @@ G4bool NeutronFastSim::ModelTrigger(const G4FastTrack& fastTrack)
 
   // Not a neutron... Pick it up if the primary had eta>6.0
   AtlasG4EventUserInfo *atlasG4EvtUserInfo=static_cast<AtlasG4EventUserInfo*>(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-  HepMC::GenParticlePtr gp = atlasG4EvtUserInfo->GetCurrentPrimary();
+  HepMC::ConstGenParticlePtr gp = atlasG4EvtUserInfo->GetCurrentPrimary();
   if (std::abs(gp->momentum().eta())>m_etaCut && HepMC::barcode(gp)<200000){
     return true;
   } else {

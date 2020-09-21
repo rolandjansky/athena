@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonPattern )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          Control/AthContainers
-                          DetectorDescription/GeoPrimitives
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/TrkTruthData
-                          Tracking/TrkExtrapolation/TrkExUtils )
-
 # External dependencies:
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

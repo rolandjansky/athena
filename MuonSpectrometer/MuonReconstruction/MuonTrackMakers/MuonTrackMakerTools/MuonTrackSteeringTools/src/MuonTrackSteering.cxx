@@ -124,8 +124,7 @@ namespace Muon {
       SegColIt sit_end = m_segmentsToDelete.end();
       for( ;sit!=sit_end;++sit ){
         if( !(*sit)->tracks().empty() ) {
-          ATH_MSG_WARNING("Detected segment/track association issue for segment ");// << std::endl
-          //			<< m_candidateTool->print(**sit) );
+          ATH_MSG_WARNING("Detected segment/track association issue for segment ");
           std::set<MuPatTrack*>::const_iterator tit = (*sit)->tracks().begin();
           std::set<MuPatTrack*>::const_iterator tit_end = (*sit)->tracks().end();
           for( ;tit!=tit_end; ++tit ){
@@ -384,7 +383,7 @@ namespace Muon {
     ATH_MSG_DEBUG("List of all strategies: " << m_strategies.size() );
     for (unsigned int i=0;i<m_strategies.size();++i) ATH_MSG_DEBUG((*(m_strategies[i])));
 
-    std::vector<MuPatTrack*>* resultAll = new std::vector<MuPatTrack*>();
+    std::vector<std::unique_ptr<MuPatTrack> > resultAll;
 
     // Outermost loop over strategies!
     for (unsigned int i=0;i<m_strategies.size();++i){
@@ -392,15 +391,13 @@ namespace Muon {
 
       const MuonTrackSteeringStrategy& strategy = *m_strategies[i];
 
-      std::vector<MuPatTrack*>* result = new std::vector<MuPatTrack*>();
+      std::vector<std::unique_ptr<MuPatTrack> > result;
 
 
       // Segments that will be looped over...
       SegColVec mySegColVec( strategy.getAll().size() );
 
-      //db+
       ATH_MSG_VERBOSE("Segments to be looped on: " << mySegColVec.size() );
-      //-
 
       std::set<MuonStationIndex::StIndex> stations;
       // Preprocessing : loop over layers
@@ -496,7 +493,6 @@ namespace Muon {
       } else {
         seeds = strategy.seeds();
         if (0==seeds.size()){
-          //cutSeeds = false; // If there are no seed layers, then we will loop through all layers and not cut seeds
           for (unsigned int j=0;j<mySegColVec.size();++j) seeds.push_back(j);
         }
       }
@@ -546,80 +542,32 @@ namespace Muon {
 
           if ( segsInCone > m_segThreshold && seedSeg->quality<m_segQCut[0]+1 ) continue;
 
-          std::vector<MuPatTrack*>* found = findTrackFromSeed( *seedSeg , *(m_strategies[i]) , seeds[lin] , mySegColVec );
+          std::vector<std::unique_ptr<MuPatTrack> > found = findTrackFromSeed( *seedSeg , *(m_strategies[i]) , seeds[lin] , mySegColVec );
 
-          if(found) {
-            ATH_MSG_VERBOSE("  Tracks for seed: " << std::endl << " --- " <<  m_candidateTool->print(*result) );
-            result->insert( result->end() , found->begin() , found->end() );
-            delete found;
+	  ATH_MSG_VERBOSE("  Tracks for seed: " << std::endl << " --- " <<  m_candidateTool->print(result) );
+          if(!found.empty()) {
+            result.insert( result.end() , std::make_move_iterator(found.begin()) , std::make_move_iterator(found.end()) );
           }
         } // End of loop over segments in a layer
       } // Done with loop over seed layers
 
       // Post-processing : refinement
-      if( result && !result->empty()){
-        std::vector<MuPatTrack*>* refined = strategy.option(MuonTrackSteeringStrategy::DoRefinement) ? refineTracks( *result ) : 0;
-        if(refined) {
-          // if the refinement was ran and produced new candidates, loop over existing ones and delete those that are
-          // not in the refined collection. Once done delete the old result and replace it with the refined tracks
-          std::vector<MuPatTrack*>::iterator tit = result->begin();
-          std::vector<MuPatTrack*>::iterator tit_end = result->end();
-          for( ;tit!=tit_end;++tit ){
-            std::vector<MuPatTrack*>::iterator pos = std::find(refined->begin(),refined->end(),*tit);
-            if( pos == refined->end() ) delete *tit;
-          }
-          delete result;
-          result = refined;
-        }
-      }
+      if(!result.empty() && strategy.option(MuonTrackSteeringStrategy::DoRefinement)) refineTracks( result );
+
       // Post-processing : ambiguity resolution
-      if(msgLvl(MSG::DEBUG) && result && !result->empty()){
+      if(msgLvl(MSG::DEBUG) && !result.empty()){
         msg(MSG::DEBUG)  << "Initial track collection for strategy: " << strategy.getName()
-          << "  " << m_candidateTool->print(*result) << endmsg;
+          << "  " << m_candidateTool->print(result) << endmsg;
       }
 
-      if( result && !result->empty()){
-        std::vector<MuPatTrack*>* resolved = strategy.option(MuonTrackSteeringStrategy::DoAmbiSolving) ? solveAmbiguities( *result ) : 0;
-        if(resolved) {
-          // if the refinement was ran and produced new candidates, loop over existing ones and delete those that are
-          // not in the refined collection. Once done delete the old result and replace it with the refined tracks
-          std::vector<MuPatTrack*>::iterator tit = result->begin();
-          std::vector<MuPatTrack*>::iterator tit_end = result->end();
-          for( ;tit!=tit_end;++tit ){
-            std::vector<MuPatTrack*>::iterator pos = std::find(resolved->begin(),resolved->end(),*tit);
-            if( pos == resolved->end() ) delete *tit;
-          }
-          delete result;
-          result = resolved;
-        }
-      }
-      if( result && !result->empty()) resultAll->insert(resultAll->end(),result->begin(),result->end());
+      if( !result.empty() && strategy.option(MuonTrackSteeringStrategy::DoAmbiSolving)) solveAmbiguities( result );
 
-      delete result;
+      if( !result.empty()) resultAll.insert(resultAll.end(),std::make_move_iterator(result.begin()),std::make_move_iterator(result.end()));
 
     } // Done with loop over strategies
 
-    if( resultAll && !resultAll->empty()){
-      std::vector<MuPatTrack*>* resolved = solveAmbiguities( *resultAll );
-
-      if(resolved) {
-        if( m_doSummary ) ATH_MSG_INFO("Ambiguity solving: input " << resultAll->size() << " after ambi solving " << resolved->size() );
-        else              ATH_MSG_DEBUG("Ambiguity solving: input " << resultAll->size() << " after ambi solving " << resolved->size() );
-        // if the refinement was ran and produced new candidates, loop over existing ones and delete those that are
-        // not in the refined collection. Once done delete the old result and replace it with the refined tracks
-        std::vector<MuPatTrack*>::iterator tit = resultAll->begin();
-        std::vector<MuPatTrack*>::iterator tit_end = resultAll->end();
-
-        for( ;tit!=tit_end;++tit ){
-          std::vector<MuPatTrack*>::iterator pos = std::find(resolved->begin(),resolved->end(),*tit);
-          if( pos == resolved->end() ) delete *tit;
-        }
-      } else {
-        for (auto trk : *resultAll) delete trk;
-      }
-      delete resultAll;
-      resultAll = resolved;
-
+    if( !resultAll.empty()){
+      solveAmbiguities( resultAll );
     }
 
     if( m_outputSingleStationTracks ){
@@ -636,28 +584,20 @@ namespace Muon {
           if( (*sit)->quality < 2 ) continue;
 
           // fit segment and add the track if fit ok
-          Trk::Track* segmentTrack = m_segmentFitter->fit(*(*sit)->segment);
+	  std::unique_ptr<Trk::Track> segmentTrack(m_segmentFitter->fit(*(*sit)->segment));
           if( segmentTrack ) {
             //Try to recover hits on the track
-            Trk::Track* recoveredTrack = m_muonHoleRecoverTool->recover(*segmentTrack);
-            if(recoveredTrack){
-              delete segmentTrack;
-              segmentTrack = recoveredTrack;
-            }
+	    std::unique_ptr<Trk::Track> recoveredTrack(m_muonHoleRecoverTool->recover(*segmentTrack));
+            if(recoveredTrack) segmentTrack.swap(recoveredTrack);
 
             // generate a track summary for this track 
             if (m_trackSummaryTool.isEnabled()) {
               m_trackSummaryTool->computeAndReplaceTrackSummary(*segmentTrack, nullptr, false);
             }
 
-            MuPatTrack* can = m_candidateTool->createCandidate( **sit, segmentTrack );
-            if( can ) {
-              if( !resultAll ) resultAll = new std::vector<MuPatTrack*>();
-              resultAll->push_back(can);
-            }else{
-              ATH_MSG_WARNING("Failed to create MuPatTrack");
-              delete segmentTrack;
-            }
+	    std::unique_ptr<MuPatTrack> can = m_candidateTool->createCandidate( **sit, segmentTrack );
+            if( can ) resultAll.push_back(std::move(can));
+            else ATH_MSG_WARNING("Failed to create MuPatTrack");
           }
         }
       }
@@ -665,45 +605,22 @@ namespace Muon {
 
 
     // Output all the tracks that we are ending with
-    if( resultAll && !resultAll->empty()){
-      if( m_doSummary ) ATH_MSG_INFO("Final Output : " << m_candidateTool->print(*resultAll) << endmsg);
-      else              ATH_MSG_DEBUG("Final Output : " << m_candidateTool->print(*resultAll) << endmsg);
+    if( !resultAll.empty()){
+      if( m_doSummary ) ATH_MSG_INFO("Final Output : " << m_candidateTool->print(resultAll) << endmsg);
+      else              ATH_MSG_DEBUG("Final Output : " << m_candidateTool->print(resultAll) << endmsg);
     }
-    TrackCollection* finalTrack = 0;
-    if( resultAll && !resultAll->empty()){
-      finalTrack = selectTracks(*resultAll,true);
+    TrackCollection* finalTrack = nullptr;
+    if( !resultAll.empty()){
+      finalTrack = selectTracks(resultAll);
+    }
 
-      // clean up candidates
-      std::for_each( resultAll->begin(),resultAll->end(),MuonDeleteObject<MuPatTrack>() );
-    }
-    delete resultAll;
     return finalTrack;
   }
 
   //-----------------------------------------------------------------------------------------------------------
 
-  //const MuonTrackSteering::SegColVec* mmm__segColVec = 0;
-
   std::string print( const MuPatSegment& /* seg */ ){
     return "";
-    /*
-    if( !mmm__segColVec ) return "";
-    const MuonTrackSteering::SegColVec& segs = *mmm__segColVec;
-    int index = -1;
-    for(unsigned int i=0;i<segs.size();++i ){
-      for(unsigned int j=0;j<segs[i].size();++j ){
-        if( &seg == segs[i][j] ){
-          index = j;
-          break;
-        }
-      }
-      if( index != -1 ) break;
-    }
-
-    std::ostringstream s;
-    s << "Seg:" << Muon::MuonStationIndex::chName(seg.chIndex) << "_" << index;
-    return s.str();
-    */
   }
 
   std::string print( const std::vector<MuPatSegment*>& segVec ){
@@ -722,22 +639,21 @@ namespace Muon {
     return s.str();
   }
 
-  std::string print( const std::vector<MuPatTrack*>& tracks ){
+  std::string print( const std::vector<std::unique_ptr<MuPatTrack> >& tracks ){
     std::ostringstream s;
-    std::vector<MuPatTrack*>::const_iterator tit = tracks.begin();
-    std::vector<MuPatTrack*>::const_iterator tit_end = tracks.end();
+    std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit = tracks.begin();
+    std::vector<std::unique_ptr<MuPatTrack> >::const_iterator tit_end = tracks.end();
     for( ;tit!=tit_end;++tit ) s << std::endl << print(**tit);
 
     return s.str();
   }
 
-  std::vector<MuPatTrack*> * MuonTrackSteering::findTrackFromSeed( MuPatSegment& seedSeg , const MuonTrackSteeringStrategy & strat , const unsigned int layer , const SegColVec& segs ) const {
+  std::vector<std::unique_ptr<MuPatTrack> > MuonTrackSteering::findTrackFromSeed( MuPatSegment& seedSeg , const MuonTrackSteeringStrategy & strat , 
+										  const unsigned int layer , const SegColVec& segs ) const {
 
     //the resulting vector of tracks to be returned
-    std::vector<MuPatTrack*> *result = new std::vector<MuPatTrack*>();
+    std::vector<std::unique_ptr<MuPatTrack> > result;
     ATH_MSG_DEBUG("Working on seed: " << std::endl << " --- " <<  m_candidateTool->print(seedSeg) );
-    //mmm__segColVec = &segs;
-    //std::cout << "Working on seed: " << std::endl << " --- " << print(seedSeg) << " layer " << layer << " max  " << strat.getAll().size() << std::endl;
     m_findingDepth = 0;
     m_seedCombinatorics = 0;
     const unsigned int endLayer = strat.getAll().size();
@@ -787,38 +703,22 @@ namespace Muon {
         }
       }
 
-      std::vector<MuPatTrack*> *tracks=0;
+      std::vector<std::unique_ptr<MuPatTrack> > tracks;
 
-      if (matchedSegs.size()!=0 && m_useTightMatching)
-      {
-        tracks = m_trackBTool->find(seedSeg, matchedSegs);
-
-        //ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " Adding layer: " << ilayer << " with "
-        //		 <<  matchedSegs.size() << " matched segments " << m_candidateTool->print(matchedSegs) );
-      }
-      else{
-        tracks = m_trackBTool->find(seedSeg, segs[ilayer]);
-        //        ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " Adding layer: " << ilayer << " with "
-        // 		      <<  segs[ilayer].size() << " segments " << m_candidateTool->print(segs[ilayer]) );
-
-        //std::cout<< std::setw(m_findingDepth) << " " << " Adding layer: " << ilayer << " with " <<  segs[ilayer].size() << " segments " << print(segs[ilayer]) << std::endl;
-      }
+      if (matchedSegs.size()!=0 && m_useTightMatching) tracks = m_trackBTool->find(seedSeg, matchedSegs);
+      else tracks = m_trackBTool->find(seedSeg, segs[ilayer]);
       ++m_seedCombinatorics;
       ++m_findingDepth;
-      if( tracks && !tracks->empty() )
+      if( !tracks.empty() )
       {
-
         // if we reached the end of the sequence, we should save what we have else continue to next layer
         if( ilayer+1==strat.getAll().size()){
-          result->insert(result->end(),tracks->begin(),tracks->end());
-          delete tracks;
+          result.insert(result.end(),std::make_move_iterator(tracks.begin()),std::make_move_iterator(tracks.end()));
           break;
         }
 
-        std::vector<MuPatTrack*>::iterator cit     = tracks->begin();
-        std::vector<MuPatTrack*>::iterator cit_end = tracks->end();
-        //std::cout << std::setw(m_findingDepth) << " " << "found tracks " << tracks->size() << print(*tracks) << std::endl;
-
+        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit     = tracks.begin();
+        std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = tracks.end();
 
         //loop on found tracks
         for( ; cit!=cit_end; ++cit )
@@ -828,91 +728,52 @@ namespace Muon {
           if ( nextLayer < strat.getAll().size() )
           {
             int cutLevel = tightCuts ? 1 : 0;
-            std::vector<MuPatTrack*>* nextTracks = extendWithLayer(**cit,segs,nextLayer,endLayer,cutLevel);
-            if (nextTracks && !nextTracks->empty()) {
-              //std::cout << std::setw(m_findingDepth) << " " << "found tracks ( " << nextLayer << ") " << nextTracks->size() << print(*nextTracks) << std::endl;
-              //ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension successful adding new candidates " << nextTracks->size() );
-              result->insert(result->end(),nextTracks->begin(),nextTracks->end());
-              //std::vector<MuPatTrack*>::iterator ssit = nextTracks->begin();
-              //for( ;ssit!=nextTracks->end(); ++ssit ) //std::cout << " adding track can " << *ssit << std::endl;
-              std::vector<MuPatTrack*>::const_iterator pos =  std::find(result->begin(),result->end(),*cit );
-              if( pos == result->end() ) delete *cit;
+            std::vector<std::unique_ptr<MuPatTrack> > nextTracks = extendWithLayer(**cit,segs,nextLayer,endLayer,cutLevel);
+            if (!nextTracks.empty()) {
+              result.insert(result.end(),std::make_move_iterator(nextTracks.begin()),std::make_move_iterator(nextTracks.end()));
             }else{
-              std::vector<MuPatTrack*>::const_iterator pos =  std::find(result->begin(),result->end(),*cit );
-              if( pos == result->end() ){
-                //std::cout << std::setw(m_findingDepth) << " " << "extension failed (" << nextLayer << ") for candidate " << *cit << print(**cit) << std::endl;
-                result->push_back(*cit);
-              }else{
-                ATH_MSG_WARNING("Candidate already included in result");
-              }
+	      result.push_back(std::move(*cit));
             }
-            delete nextTracks;
           }
         }
       }
-      delete tracks;
     }
-    //std::cout << "Result for seed: " << std::endl << " --- " <<  m_candidateTool->print(*result) <<std::endl;
 
-    ATH_MSG_DEBUG("Constructed " << result->size() << " tracks with strategy " << strat.getName() );
+    ATH_MSG_DEBUG("Constructed " << result.size() << " tracks with strategy " << strat.getName() );
     return result;
   }
 
-  std::vector<MuPatTrack*> * MuonTrackSteering::extendWithLayer(MuPatTrack& candidate, const SegColVec& segs,unsigned int nextlayer, const unsigned int endlayer, int cutLevel ) const
+  std::vector<std::unique_ptr<MuPatTrack> > MuonTrackSteering::extendWithLayer(MuPatTrack& candidate, const SegColVec& segs, unsigned int nextlayer, 
+									       const unsigned int endlayer, int cutLevel ) const
   {
     ++m_findingDepth;
-    //std::cout << std::setw(m_findingDepth) << " " << "extendWithLayer " << m_seedCombinatorics << "  "
-    //<< nextlayer << " end " << endlayer << " " << print(candidate) << std::endl;
 
-    std::vector<MuPatTrack*> *result = new std::vector<MuPatTrack*>();
+    std::vector<std::unique_ptr<MuPatTrack> > result;
     if ( nextlayer < endlayer )
     {
       for (;nextlayer!=endlayer;nextlayer++)
       {
         if (segs[nextlayer].empty()) continue;
 
-        // 	  ATH_MSG_DEBUG(std::setw(m_findingDepth) << " " << " Extending track with layer " << nextlayer
-        // 			<< " segments " << m_candidateTool->print(segs[nextlayer]) );
-        //std::cout << std::setw(m_findingDepth) << " " << " Extending track with layer " << nextlayer << " segments " << print(segs[nextlayer]) << std::endl;
-        std::vector<MuPatTrack*> *nextTracks=0;
+        std::vector<std::unique_ptr<MuPatTrack> > nextTracks;
         nextTracks = m_trackBTool->find(candidate, segs[nextlayer] );
         ++m_seedCombinatorics;
 
-        if (nextTracks && !nextTracks->empty())
+        if (!nextTracks.empty())
         {
-          // 	    ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer
-          // 			   << " " << nextTracks->size() );
-          //std::cout << std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer << " " << nextTracks->size() << std::endl;
-          std::vector<MuPatTrack*>::iterator cit     = nextTracks->begin();
-          std::vector<MuPatTrack*>::iterator cit_end = nextTracks->end();
+          std::vector<std::unique_ptr<MuPatTrack> >::iterator cit     = nextTracks.begin();
+          std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = nextTracks.end();
           for(; cit!=cit_end; ++cit )
           {
-            std::vector<MuPatTrack*>* nextTracks2 = extendWithLayer((**cit), segs, nextlayer+1, endlayer, cutLevel);
-            if (nextTracks2 &&  !nextTracks2->empty()) {
-              // 		  ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension successful adding new candidates " << nextTracks->size() );
-              //std::cout << std::setw(m_findingDepth) << " " << " extension successful adding new candidates " << nextTracks->size() << print(*nextTracks) << std::endl;
-              //std::vector<MuPatTrack*>::iterator ssit = nextTracks2->begin();
-              //for( ;ssit!=nextTracks2->end(); ++ssit ) //std::cout << " adding track can " << *ssit << std::endl;
-              result->insert(result->end(),nextTracks2->begin(),nextTracks2->end());
-              std::vector<MuPatTrack*>::const_iterator pos =  std::find(result->begin(),result->end(),*cit );
-              if( pos == result->end() ) delete *cit;
-
-            }else{
-              std::vector<MuPatTrack*>::const_iterator pos =  std::find(result->begin(),result->end(),*cit );
-              if( pos == result->end() ){
-
-                // 		    ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension failed, adding original" );
-                //std::cout << std::setw(m_findingDepth) << " " << " extension failed, adding original " << *cit << print(**cit) << std::endl;
-                result->push_back(*cit);
-              }else{
-                ATH_MSG_WARNING("Candidate already included in result");
-              }
-
+            std::vector<std::unique_ptr<MuPatTrack> > nextTracks2 = extendWithLayer((**cit), segs, nextlayer+1, endlayer, cutLevel);
+            if (!nextTracks2.empty()) {
+              result.insert(result.end(),std::make_move_iterator(nextTracks2.begin()),std::make_move_iterator(nextTracks2.end()));
             }
-            delete nextTracks2;
+	    else{
+	      result.push_back(std::move(*cit));
+            }
           }
         }
-        delete nextTracks;
       }
     }
     --m_findingDepth;
@@ -920,99 +781,75 @@ namespace Muon {
   }
 
   //-----------------------------------------------------------------------------------------------------------
-  TrackCollection* MuonTrackSteering::selectTracks(std::vector<MuPatTrack*>& candidates, bool takeOwnership ) const {
+  TrackCollection* MuonTrackSteering::selectTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates, bool takeOwnership ) const {
     TrackCollection* result = takeOwnership ? new TrackCollection() : new TrackCollection(SG::VIEW_ELEMENTS);
     result->reserve(candidates.size());
-    std::vector<MuPatTrack*>::iterator cit     = candidates.begin();
-    std::vector<MuPatTrack*>::iterator cit_end = candidates.end();
+    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit     = candidates.begin();
+    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = candidates.end();
     for( ; cit!=cit_end; ++cit ){
       // if track selector is configured, use it and remove bad tracks
       if(!m_trackSelector.empty() && !m_trackSelector->decision((*cit)->track())) continue;
 
-      if( takeOwnership ) {
-        // To remove warning. It seems, that is thread-safe
-        // It is very bad way to use const_cast
-        Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->releaseTrack() );
-        // add track summary to this track
-        if (m_trackSummaryTool.isEnabled()) {
-          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
-        }
-        result->push_back( track );
+      Trk::Track* track;
+      if(takeOwnership) track=new Trk::Track((*cit)->track());
+      else track=&(*cit)->track();
+      // add track summary to this track
+      if (m_trackSummaryTool.isEnabled()) {
+	m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
       }
-      else {
-        Trk::Track* track ATLAS_THREAD_SAFE = const_cast<Trk::Track*>( &(*cit)->track() );
-        // add track summary to this track
-        if (m_trackSummaryTool.isEnabled()) {
-          m_trackSummaryTool->computeAndReplaceTrackSummary(*track, nullptr, false);
-        }
-        result->push_back( track );
-      }
+      result->push_back( track );
     }
     return result;
   }
 
-  std::vector<MuPatTrack*> * MuonTrackSteering::refineTracks(std::vector<MuPatTrack*>& candidates) const {
-    std::vector<MuPatTrack*> * result = new std::vector<MuPatTrack*>();
+  void MuonTrackSteering::refineTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates) const {
 
-    std::vector<MuPatTrack*>::iterator cit     = candidates.begin();
-    std::vector<MuPatTrack*>::iterator cit_end = candidates.end();
+    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit     = candidates.begin();
+    std::vector<std::unique_ptr<MuPatTrack> >::iterator cit_end = candidates.end();
     for( ; cit!=cit_end; ++cit )
     {
-      MuPatTrack *refinedMuPatTrack=0;
-      refinedMuPatTrack =  m_trackRefineTool->refine(**cit);
-
-      if (refinedMuPatTrack) {
-        //std::cout << std::endl << " after " << m_candidateTool->print(*refinedMuPatTrack) << std::endl;
-        result->push_back(refinedMuPatTrack);
-      }
+      m_trackRefineTool->refine(**cit);
     }
-    return result;
   }
 
   //-----------------------------------------------------------------------------------------------------------
 
-  std::vector<MuPatTrack*> * MuonTrackSteering::solveAmbiguities( std::vector< MuPatTrack* >& tracks , const MuonTrackSteeringStrategy* /*strat*/ ) const {
+  void MuonTrackSteering::solveAmbiguities( std::vector< std::unique_ptr<MuPatTrack> >& tracks , const MuonTrackSteeringStrategy* /*strat*/ ) const {
 
     //the resulting vector of tracks to be returned
-
-    TrackCollection* trkColl = selectTracks(tracks,false);
+    std::unique_ptr<TrackCollection> trkColl(selectTracks(tracks,false));
     if( !trkColl || trkColl->empty() ){
-      delete trkColl;
-      return 0;
+      return;
     }
 
-    TrackCollection* resolvedTracks = m_ambiTool->process(trkColl);
+    std::unique_ptr<TrackCollection> resolvedTracks(m_ambiTool->process(trkColl.get()));
     if( !resolvedTracks ){
-      delete trkColl;
-      return 0;
+      return;
     }
 
     ATH_MSG_DEBUG("   resolved track candidates: old size " << trkColl->size()
       << " new size " << resolvedTracks->size() );
 
-    std::vector<MuPatTrack*> *result = new std::vector<MuPatTrack*>();
-
-    TrackCollection::iterator tit = resolvedTracks->begin();
+    TrackCollection::iterator tit;
     TrackCollection::iterator tit_end = resolvedTracks->end();
-    std::vector<MuPatTrack*>::iterator pat = tracks.begin();
-    std::vector<MuPatTrack*>::iterator pat_end = tracks.end();
-    for( ;tit!=tit_end;++tit ){
-      MuPatTrack* can = 0;
-      for( pat=tracks.begin(); pat!=pat_end;++pat ){
+    std::vector<std::unique_ptr<MuPatTrack> >::iterator pat = tracks.begin();
+    for(;pat!=tracks.end();){
+      bool found=false;
+      for(tit=resolvedTracks->begin();tit!=tit_end;++tit ){
         if ( &(*pat)->track() == *tit ) {
-          can = *pat;
+	  found=true;
           break;
         }
       }
-      if( can ) result->push_back( can );
-      else {
-        delete *pat;
+      if(!found){
+	pat=tracks.erase(pat);
+      }
+      else{
+	++pat;
       }
     }
 
-    delete resolvedTracks;
-    delete trkColl;
-    return result;
+    return;
   }
 
   //-----------------------------------------------------------------------------------------------------------

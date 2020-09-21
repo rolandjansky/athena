@@ -10,10 +10,10 @@ PACKAGE:  offline/Calorimeter/CaloRec
 AUTHORS:  H. Ma
 CREATED:  Apr 2001
 
-PURPOSE:  Cluster base class.  
+PURPOSE:  Cluster base class.
           Implements CaloCluster methods
 
-Updated:  Redesign.  May 21, 2001 
+Updated:  Redesign.  May 21, 2001
           CaloCluster is a concrete class
 
 Updated:  Redesign.  Feb 17, 2004 P Loch
@@ -23,7 +23,7 @@ Updated:  Aug, 2004 sss
           Fix phi range problem and a potential division by zero.
 
 Updated:  30 Jun, 2005 S.Menke
-          updateKine uses |E| instead of E for the position calculation 
+          updateKine uses |E| instead of E for the position calculation
           and updates all data members now
 
 ********************************************************************/
@@ -105,19 +105,19 @@ CaloCluster::CaloCluster(double eta0 /*= 0*/, double phi0 /*= 0*/,
   m_badChannelData.clear();
 }
 
-/*! 
+/*!
  *
  *  \param pCluster pointer to non-modifiable cluster (origin)
  *
  *  The copy constructor for \a CaloCluster creates explicit copies of all
- *  data members, with the exception of the links to the external data 
+ *  data members, with the exception of the links to the external data
  *  objects. These are only partly copied, meaning the data object itself
- *  is copied (new instance), but the container information is NOT copied. 
+ *  is copied (new instance), but the container information is NOT copied.
  *  The new cluster therefore owns the new external data objects until those
  *  are explictely pushed into a container. Then the owenership is transferred
  *  to the container.
  */
-CaloCluster::CaloCluster(const CaloCluster* pCluster) 
+CaloCluster::CaloCluster(const CaloCluster* pCluster)
   : CaloCompositeKineBase(),
     CaloCompositeCellBase<CaloClusterNavigable>(),
     m_dataStore(pCluster->m_dataStore),
@@ -153,12 +153,12 @@ CaloCluster::CaloCluster(const CaloCluster* pCluster)
   // deep copy external data
   bool isExternalShowerThere = false;
   if ( pCluster->m_dataLink.isValid()) {
-   if (*(pCluster->m_dataLink) != 0) isExternalShowerThere  = true;
+   if (*(pCluster->m_dataLink) != nullptr) isExternalShowerThere  = true;
   }
   CaloShower* pData = isExternalShowerThere
     ? new CaloShower(*(pCluster->m_dataLink)) : new CaloShower();
   m_shower = pData;
-  CaloCellLink* pLink = pCluster->getCellLink() != 0 ? new CaloCellLink(pCluster->getCellLink()) : new CaloCellLink();
+  CaloCellLink* pLink = pCluster->getCellLink() != nullptr ? new CaloCellLink(pCluster->getCellLink()) : new CaloCellLink();
   this->setStores(pData,pLink,
 		  m_ownDataStore);
   P4EEtaPhiM::setE(pCluster->m_e);
@@ -170,16 +170,16 @@ CaloCluster::CaloCluster(const CaloCluster* pCluster)
   for (unsigned int i=0;i<pCluster->m_badChannelData.size();i++) {
     m_badChannelData.push_back(CaloClusterBadChannelData((pCluster->m_badChannelData)[i]));
   }
-} 
+}
 
-CaloCluster::CaloCluster(const CaloCluster& rCluster) 
+CaloCluster::CaloCluster(const CaloCluster& rCluster)
   : I4Momentum(rCluster),
     P4EEtaPhiMBase(rCluster),
     INavigable(rCluster),
     IAthenaBarCode(rCluster),
     INavigable4Momentum(rCluster),
-    CaloCompositeKineBase(),
-    CaloCompositeCellBase<CaloClusterNavigable>(),
+    CaloCompositeKineBase(rCluster),
+    CaloCompositeCellBase<CaloClusterNavigable>(rCluster),
     ISignalState(),
     m_dataStore(rCluster.m_dataStore),
     m_momentStore(rCluster.m_momentStore),
@@ -214,12 +214,12 @@ CaloCluster::CaloCluster(const CaloCluster& rCluster)
   // deep copy external data
   bool isExternalShowerThere = false;
   if ( rCluster.m_dataLink.isValid()) {
-   if (*(rCluster.m_dataLink) != 0) isExternalShowerThere  = true; 
+   if (*(rCluster.m_dataLink) != nullptr) isExternalShowerThere  = true;
   }
   CaloShower* pData = isExternalShowerThere
     ? new CaloShower(*(rCluster.m_dataLink)) : new CaloShower();
   m_shower = pData;
-  CaloCellLink* pLink = rCluster.getCellLink() != 0 ? new CaloCellLink(rCluster.getCellLink()) : new CaloCellLink();
+  CaloCellLink* pLink = rCluster.getCellLink() != nullptr ? new CaloCellLink(rCluster.getCellLink()) : new CaloCellLink();
   this->setStores(pData,pLink,
 		  m_ownDataStore);
   // energy etc may be corrected, so overwrite!
@@ -232,20 +232,20 @@ CaloCluster::CaloCluster(const CaloCluster& rCluster)
   for (unsigned int i=0;i<rCluster.m_badChannelData.size();i++) {
     m_badChannelData.push_back(CaloClusterBadChannelData((rCluster.m_badChannelData)[i]));
   }
-} 
+}
 
 ////////////////
 // Destructor //
 ////////////////
 
-/*! 
+/*!
  *
  * The cluster destructs the associated external data objects \a CaloCellLink
  * and \a CaloShower as long as it owns them. Ownership is lost once these
  * objects have been pushed into their corresponding storable collection. This
- * is checked by the cluster on destruction. 
+ * is checked by the cluster on destruction.
  */
-CaloCluster::~CaloCluster() 
+CaloCluster::~CaloCluster()
 {
   //if ( m_ownDataStore && *m_dataLink !=  0 ) delete *m_dataLink;
   if ( m_ownDataStore && m_dataLink.isValid() ) delete *m_dataLink;
@@ -262,9 +262,8 @@ CaloCluster::~CaloCluster()
  */
 void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 {
-  static CaloPhiRange range;
 
-  // update global kinematics 
+  // update global kinematics
   //
   // for the update of the position the normalization is not a trival
   // thing. The previous implementation used the sum of weighted
@@ -284,8 +283,8 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   // weight might be negative for removing cells
   // therefore the AbsEnergy can be negative ...
   double theAbsEnergy = weight * fabs(theEnergyNoWeight);
-  double thePhi       = proxim(cellPhi,this->phi()); 
-  double theNewEta    = 
+  double thePhi       = proxim(cellPhi,this->phi());
+  double theNewEta    =
     m_posNorm * this->eta() + theAbsEnergy * cellEta;
   double theNewPhi    = m_posNorm * this->phi() + theAbsEnergy * thePhi;
   double theNewEnergy = this->e() + theEnergy;
@@ -294,9 +293,9 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   if ( m_posNorm != 0. )
     {
       this->setEta(theNewEta/m_posNorm);
-      this->setPhi(range.fix (theNewPhi/m_posNorm));
+      this->setPhi(CaloPhiRange::fix (theNewPhi/m_posNorm));
     }
-  else 
+  else
     {
       this->setEta(0);
       this->setPhi(0);
@@ -306,7 +305,7 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 
   // calculate the cluster time from cells which provide a time
   // two modes are under discussion - either use an energy^2 weighted
-  // average (sigma_t ~ 1/E) or just the time of the leading cell 
+  // average (sigma_t ~ 1/E) or just the time of the leading cell
   // for now the energy^2 weighted average is implemented ...
 
   // need sampling number already for time
@@ -328,17 +327,17 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   if ( theCell->provenance() & pmask ) {
     // keep the sign of weight for the time norm in case a cell is removed
     double theTimeNorm = fabs(weight) * theEnergy * theEnergyNoWeight;
-    
-    double theNewTime = m_timeNorm * this->getTime() 
+
+    double theNewTime = m_timeNorm * this->getTime()
       + theTimeNorm * theCell->time();
-    
+
     m_timeNorm += theTimeNorm;
-    
+
     if ( m_timeNorm != 0. )
       {
 	this->setTime(theNewTime/m_timeNorm);
       }
-    else 
+    else
       {
 	this->setTime(0);
       }
@@ -353,12 +352,12 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 
   // update sampling quantities
 
-  // This has gotten a bit more involved. To handle the stores for the 
+  // This has gotten a bit more involved. To handle the stores for the
   // data correctly, a pointer to each store (can be different for each
   // variable type) has to be retrieved first (internal function). As all
-  // variables need the sampling energy, we start with this store. Note that 
+  // variables need the sampling energy, we start with this store. Note that
   // the store for each variable can be defined by calling the corresponding
-  // set method before the first \a updateKine invocation. 
+  // set method before the first \a updateKine invocation.
 
   ////////////////////////
   // Energy in Sampling //
@@ -368,8 +367,8 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   if ( ! this->isLocked(typeE) )
     {
       CaloSamplingData* pEStore = this->getDataStore(typeE,true);
-      if ( pEStore != 0 ) 
-	{  
+      if ( pEStore != nullptr )
+	{
 	  // note that this is a reference to a modifiable data word!
 	  pEStore->retrieveData(typeE,sam) += theEnergy;
 	}
@@ -389,26 +388,26 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
     {
       // central azimuth
       CaloSamplingData* pPhiStore = this->getDataStore(typePhi,true);
-      if ( pPhiStore != 0 )
+      if ( pPhiStore != nullptr )
 	{
 	  double& refPhiSamp = pPhiStore->retrieveData(typePhi,sam);
 	  thePhi     = proxim(cellPhi,refPhiSamp);
-	  theNewPhi  = theNewNorm != 0. 
-	    ? range.fix((theOldNorm*refPhiSamp+theAbsEnergy*thePhi)/theNewNorm)
+	  theNewPhi  = theNewNorm != 0.
+	    ? CaloPhiRange::fix((theOldNorm*refPhiSamp+theAbsEnergy*thePhi)/theNewNorm)
 	    : double(0);
 
 	  // spread in azimuth
-	  CaloVariableType::VariableType typeDPhi = 
+	  CaloVariableType::VariableType typeDPhi =
 	    CaloVariableType::DELTA_PHI;
 	  if ( ! this->isLocked(typeDPhi) )
 	    {
 	      CaloSamplingData* pDPhiStore = this->getDataStore(typeDPhi,true);
-	      if ( pDPhiStore != 0 )
+	      if ( pDPhiStore != nullptr )
 		{
 		  // non-const reference -> modification in place!
 		  double& refDPhiSamp = pDPhiStore->retrieveData(typeDPhi,sam);
-		  double wP2 
-		    = theOldNorm * 
+		  double wP2
+		    = theOldNorm *
 		    ( refDPhiSamp*refDPhiSamp + refPhiSamp*refPhiSamp)
 		    + theAbsEnergy * thePhi * thePhi;
 		  refDPhiSamp = theNewNorm != 0.
@@ -439,7 +438,7 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   if ( ! this->isLocked(typeEta) )
     {
       CaloSamplingData* pEtaStore = this->getDataStore(typeEta,true);
-      if ( pEtaStore != 0 )
+      if ( pEtaStore != nullptr )
 	{
 	  double& refEtaSamp = pEtaStore->retrieveData(typeEta,sam);
 	  double  theNewEta  = theNewNorm != 0.
@@ -447,18 +446,18 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 	    : double(0);
 
 	  // spread in eta
-	  CaloVariableType::VariableType typeDEta = 
+	  CaloVariableType::VariableType typeDEta =
 	    CaloVariableType::DELTA_ETA;
 	  if ( ! this->isLocked(typeDEta) )
 	    {
 	      CaloSamplingData* pDEtaStore = this->getDataStore(typeDEta,true);
-	      if ( pDEtaStore != 0 )
+	      if ( pDEtaStore != nullptr )
 		{
 		  double& refDEtaSamp = pDEtaStore->retrieveData(typeDEta,sam);
 		  double wE2 = theOldNorm * (refDEtaSamp * refDEtaSamp +
 					     refEtaSamp  * refEtaSamp )
 		    + theAbsEnergy * cellEta * cellEta;
-		  refDEtaSamp = theNewNorm != 0 
+		  refDEtaSamp = theNewNorm != 0
 		    ? wE2 / theNewNorm - theNewEta * theNewEta
 		    : double(0);
 		  if ( refDEtaSamp > 0. )
@@ -484,7 +483,7 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
   if ( ! this->isLocked(typeEMax) )
     {
       CaloSamplingData* pEMaxStore = this->getDataStore(typeEMax,true);
-      if ( pEMaxStore != 0 )
+      if ( pEMaxStore != nullptr )
 	{
 	  double& refEMaxSamp = pEMaxStore->retrieveData(typeEMax,sam);
 	  if ( refEMaxSamp < theEnergy )
@@ -492,15 +491,15 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 	      // set new maximum energy
 	      refEMaxSamp = theEnergy;
 	      // set new eta
-	      CaloVariableType::VariableType typeEtaMax = 
+	      CaloVariableType::VariableType typeEtaMax =
 		CaloVariableType::MAX_ETA;
 	      if ( ! this->isLocked(typeEtaMax) )
 		{
-		  CaloSamplingData* pEtaMaxStore = 
+		  CaloSamplingData* pEtaMaxStore =
 		    this->getDataStore(typeEtaMax,true);
-		  if ( pEtaMaxStore != 0 )
+		  if ( pEtaMaxStore != nullptr )
 		    {
-		      pEtaMaxStore->retrieveData(typeEtaMax,sam) = 
+		      pEtaMaxStore->retrieveData(typeEtaMax,sam) =
 			cellEta;
 		    }
 		}
@@ -509,26 +508,26 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 		CaloVariableType::MAX_PHI;
 	      if ( ! this->isLocked(typePhiMax) )
 		{
-		  CaloSamplingData* pPhiMaxStore = 
+		  CaloSamplingData* pPhiMaxStore =
 		    this->getDataStore(typePhiMax,true);
-		  if ( pPhiMaxStore != 0 )
+		  if ( pPhiMaxStore != nullptr )
 		    {
 		      pPhiMaxStore->retrieveData(typePhiMax,sam) = thePhi;
 		    }
 		} // lock on phi of maximum sampling signal
 	    } // maximum condition
-	} // data store pointer 
+	} // data store pointer
     } // lock on max energy
 
-  if ( theEnergy != 0) 
+  if ( theEnergy != 0)
     {
       // check sampling bit
-      m_samplingPattern = 
-	m_samplingPattern | CaloSamplingHelper::getSamplingBit(sam); 
+      m_samplingPattern =
+	m_samplingPattern | CaloSamplingHelper::getSamplingBit(sam);
       // count cells in endcap
 
-      switch(sam) 
-	{  
+      switch(sam)
+	{
 	case CaloSampling::PreSamplerE:
 	case CaloSampling::EME1:
 	case CaloSampling::EME2:
@@ -550,11 +549,11 @@ void CaloCluster::updateKine(const CaloCell* theCell, double weight)
 
   if ( m_nBarrel < 0 ) m_nBarrel = 0;
   if ( m_nEndcap < 0 ) m_nEndcap = 0;
-  
+
   m_barrel = (m_nBarrel>0);
   m_endcap = (m_nEndcap>0);
 
-  return; 
+  return;
 }
 
 
@@ -646,7 +645,7 @@ void accumCell (const CaloCell& cell, CellAccum& accum, const WEIGHT& w)
   // weight might be negative for removing cells
   // therefore the AbsEnergy can be negative ...
   double theAbsEnergy = weight * fabs(theEnergyNoWeight);
-      
+
   CaloSampling::CaloSample sam = dde->getSampling();
   accum.PresenceInSample[sam] = true;
   double cellEta = dde->eta();
@@ -678,8 +677,8 @@ void accumCell (const CaloCell& cell, CellAccum& accum, const WEIGHT& w)
   if ( theEnergy != 0)
   {
     // count cells in endcap
-    switch(sam) 
-    {  
+    switch(sam)
+    {
     case CaloSampling::PreSamplerE:
     case CaloSampling::EME1:
     case CaloSampling::EME2:
@@ -740,7 +739,7 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
 {
   //static CaloPhiRange range;
 
-  // update global kinematics 
+  // update global kinematics
   //
   // for the update of the position the normalization is not a trival
   // thing. The previous implementation used the sum of weighted
@@ -764,14 +763,14 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
     accumCells (*this, accum, AccumWeight(this));
   else
     accumCells (*this, accum, AccumNoWeight());
-  
+
   if ( m_posNorm != 0. )
   {
     double inorm = 1 / m_posNorm;
     this->setEta(accum.theNewEta * inorm);
     this->setPhi(CaloPhiRange::fix(accum.theNewPhi * inorm));
   }
-  else 
+  else
   {
     this->setEta(0);
     this->setPhi(0);
@@ -781,7 +780,7 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
 
   if ( m_timeNorm != 0. )
     this->setTime(accum.theNewTime/m_timeNorm);
-  else 
+  else
     this->setTime(0);
 
 
@@ -805,7 +804,7 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
     }
   }
 
-#define SETVAR(v, a) maybeSetVariable(v, a, a+sizeof(a)/sizeof(a[0]))
+#define SETVAR(v, a) maybeSetVariable(v, a, (a)+sizeof(a)/sizeof((a)[0]))
   SETVAR (CaloVariableType::ENERGY,     accum.EnergyInSample);
   SETVAR (CaloVariableType::ETA,        accum.EtaInSample);
   SETVAR (CaloVariableType::PHI,        accum.PhiInSample);
@@ -816,20 +815,20 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
 
   if ( m_nBarrel < 0 ) m_nBarrel = 0;
   if ( m_nEndcap < 0 ) m_nEndcap = 0;
-  
+
   m_barrel = (m_nBarrel>0);
   m_endcap = (m_nEndcap>0);
-  return; 
+  return;
 }
 
 ///////////////////////////
 // Basic Data Management //
 ///////////////////////////
 
-/*! 
+/*!
  *   \param varType    variable type indicator
  *   \param samType    sampling type indicator
- *   \param useLink  extends checks to external data store only if 
+ *   \param useLink  extends checks to external data store only if
  *                     <tt>true</tt>
  *
  *   This method first checks if the requested data is in the \a CaloCluster
@@ -837,13 +836,13 @@ void CaloCluster::calculateKine(const bool useweight,const bool updateLayers)
  *   store if the \a traceLink flag is set to <tt>true</tt>. This allows
  *   full control of the data source by the client.
  */
-double 
+double
 CaloCluster::getVariable(const variable_type& varType,
 			 const sampling_type& samType,
 			 bool                 useLink ) const
 {
   const CaloSamplingData* pDataStore = this->getDataStore(varType,useLink);
-  return pDataStore != 0 
+  return pDataStore != nullptr
     ? pDataStore->retrieveData(varType,samType)
     : double(0);
 }
@@ -863,10 +862,10 @@ CaloCluster::getVariable(const variable_type& varType,
 			 bool                 useLink) const
 {
   const CaloSamplingData* pDataStore = this->getDataStore(varType,useLink);
-  return pDataStore != 0 ? pDataStore->retrieveData(varType,varList) : false; 
+  return pDataStore != nullptr ? pDataStore->retrieveData(varType,varList) : false;
 }
 
-/*! 
+/*!
  *  \param varType  variable type
  *  \param samType  sampling indicator
  *  \param varData  data value
@@ -881,24 +880,24 @@ CaloCluster::setVariable(const variable_type& varType,
   // check samplingpattern
   if(!this->hasSampling(samType)){
     //    std::cout << " Cluster does not have sampling " << samType << std::endl;
-    m_samplingPattern = 
-      m_samplingPattern | CaloSamplingHelper::getSamplingBit(samType); 
+    m_samplingPattern =
+      m_samplingPattern | CaloSamplingHelper::getSamplingBit(samType);
   }
 
   // allocate modifiable data store
   CaloSamplingData* pDataStore = this->getDataStore(varType,useLink);
-  return pDataStore != 0 
+  return pDataStore != nullptr
     ? pDataStore->storeData(varType,samType,varData)
     : false;
 }
 
-bool 
+bool
 CaloCluster::setVariable(const variable_type&           varType,
 			 const std::vector<double>& varList,
 			 bool                           useLink)
 {
   CaloSamplingData* pDataStore = this->getDataStore(varType,useLink);
-  return pDataStore != 0 
+  return pDataStore != nullptr
     ? pDataStore->storeData(varType,varList)
     : false;
 }
@@ -911,15 +910,15 @@ CaloCluster::setVariable(const variable_type&           varType,
 void
 CaloCluster::setenergymax(sampling_type sampling, double m)
 {
-  if ( this->isEMSampling(sampling) ) 
+  if ( this->isEMSampling(sampling) )
     this->setVariable(CaloVariableType::MAX_ENERGY,sampling,m,true);
-} 
+}
 
 void CaloCluster::setetamax(sampling_type sampling, double m)
 {
   if ( this->isEMSampling(sampling) )
     this->setVariable(CaloVariableType::MAX_ETA,sampling,m,true);
-} 
+}
 
 void CaloCluster::setphimax(sampling_type sampling, double m)
 {
@@ -933,9 +932,9 @@ void CaloCluster::setphimax(sampling_type sampling, double m)
  */
 void CaloCluster::setetasize(sampling_type sampling, double size)
 {
-  if ( this->isEMSampling(sampling) ) 
+  if ( this->isEMSampling(sampling) )
     this->setVariable(CaloVariableType::DELTA_ETA,sampling,size,true);
-} 
+}
 
 /*!
  *  \param sampling calorimeter sampling indicator
@@ -943,17 +942,17 @@ void CaloCluster::setetasize(sampling_type sampling, double size)
  */
 void CaloCluster::setphisize(sampling_type sampling, double size)
 {
-  if ( this->isEMSampling(sampling) ) 
+  if ( this->isEMSampling(sampling) )
     this->setVariable(CaloVariableType::DELTA_PHI,sampling,size,true);
 }
 /*!
  *
  *  Rewrite \f$ e_{0} \varphi_{0} + e_{1} \varphi_{1} \f$ as
- *  \f$ \left( e_{0} + e_{1} \right) \varphi_{0} + 
+ *  \f$ \left( e_{0} + e_{1} \right) \varphi_{0} +
  *      e_{1} \left( \varphi_{1} - \varphi_{0} \right) \f$ for
  *  \f$ \varphi \f$ calculation.
  */
-double 
+double
 CaloCluster::variableBE(const variable_type& varType,
 			const int& sam) const
 {
@@ -967,9 +966,9 @@ CaloCluster::variableBE(const variable_type& varType,
       // offsets for sampling indicators
       unsigned int bOff = (unsigned int)CaloSampling::PreSamplerB;
       unsigned int eOff = (unsigned int)CaloSampling::PreSamplerE;
-      CaloSampling::CaloSample bSample = 
+      CaloSampling::CaloSample bSample =
 	(CaloSampling::CaloSample)(bOff+iSamp);
-      CaloSampling::CaloSample eSample = 
+      CaloSampling::CaloSample eSample =
 	(CaloSampling::CaloSample)(eOff+iSamp);
       double eBarrel = this->getVariable(CaloVariableType::ENERGY,
 					     bSample,true);
@@ -1002,10 +1001,9 @@ CaloCluster::variableBE(const variable_type& varType,
 	{
 	case CaloVariableType::PHI:
 	  {
-	    static CaloPhiRange phiRange;
-	    double phiSum = 
-	      eSum * vBarrel + eEndCap * phiRange.diff(vEndCap,vBarrel);
-	    vAverage = phiRange.fix(phiSum/eSum);
+	    double phiSum =
+	      eSum * vBarrel + eEndCap * CaloPhiRange::diff(vEndCap,vBarrel);
+	    vAverage = CaloPhiRange::fix(phiSum/eSum);
 	    break;
 	  }
 	case CaloVariableType::ETA:
@@ -1030,11 +1028,11 @@ CaloCluster::variableBE(const variable_type& varType,
   if ( this->inBarrel() )
     {
       unsigned int bOff = (unsigned int)CaloSampling::PreSamplerB;
-      CaloSampling::CaloSample bSample = 
+      CaloSampling::CaloSample bSample =
 	(CaloSampling::CaloSample)(bOff+iSamp);
       return this->getVariable(varType,bSample);
     }
-	  
+
   // endcap only
   if ( this->inEndcap() )
     {
@@ -1044,45 +1042,45 @@ CaloCluster::variableBE(const variable_type& varType,
       return this->getVariable(varType,eSample);
     }
 
-  // just in case 
-  return m_errorValue; 
+  // just in case
+  return m_errorValue;
 }
 
 /*!
  *
  * \param  varType    reference to non-modifiable variable type indicator
- * \param  traceLink  flag allows tracing external storelinks if set 
+ * \param  traceLink  flag allows tracing external storelinks if set
  *                    <tt>true</tt>
  *
  * Dynamically allocates the correct store (local cache or external) depending
  * on availability and indicator. The store is non-modifiable.
  */
-const CaloSamplingData* 
+const CaloSamplingData*
 CaloCluster::getDataStore(const variable_type& varType,bool traceLink) const
 {
   //
-  //DEBUGstd::cout << "[CaloCluster@" << this 
+  //DEBUGstd::cout << "[CaloCluster@" << this
 	//DEBUG    << "]::getDataStore - const data store pointer requested, "
 	//DEBUG    << "try internal pointer = " << &m_dataStore;
 
-  // check if variable in local data store 
-  if ( m_dataStore.contains(varType) ) 
+  // check if variable in local data store
+  if ( m_dataStore.contains(varType) )
     {
       //      std::cout << "...successful!" << std::endl;
       return &m_dataStore;
     }
- 
-  // check linked data store if requested 
-  if ( traceLink && m_dataLink.isValid()) 
-    { 
+
+  // check linked data store if requested
+  if ( traceLink && m_dataLink.isValid())
+    {
   //DEBUG    std::cout << "... unsuccessful, use linked pointer "
   //DEBUG    		<< &((*m_dataLink)->getSamplingStore()) << std::endl;
       return &((*m_dataLink)->getSamplingStore());
     }
 
-  //DEBUGstd::cout << "... failed, no external or internal pointer available!" 
+  //DEBUGstd::cout << "... failed, no external or internal pointer available!"
 	//DEBUG    << std::endl;
-  return (const CaloSamplingData*)0;
+  return (const CaloSamplingData*)nullptr;
 }
 
 /*!
@@ -1097,7 +1095,7 @@ CaloCluster::getDataStore(const variable_type& varType,bool traceLink) const
 CaloSamplingData*
 CaloCluster::getDataStore(const variable_type& varType,bool traceLink)
 {
-  if ( m_dataStore.contains(varType) ) 
+  if ( m_dataStore.contains(varType) )
     {
       return &m_dataStore;
     }
@@ -1114,7 +1112,7 @@ CaloCluster::getDataStore(const variable_type& varType,bool traceLink)
       return &(m_shower->getSamplingStore());
     }
 
-  return (CaloSamplingData*)0;
+  return (CaloSamplingData*)nullptr;
 }
 
 /////////////
@@ -1125,8 +1123,8 @@ CaloCluster::moment_iterator CaloCluster::beginMoment(bool useLink) const
 {
   moment_iterator iMom;
   // get store pointers
-  const CaloClusterMomentStore* pFirstMomStore = 0;
-  const CaloClusterMomentStore* pSecndMomStore = 0;
+  const CaloClusterMomentStore* pFirstMomStore = nullptr;
+  const CaloClusterMomentStore* pSecndMomStore = nullptr;
   // try to return valid iterator to first data object...
   if ( this->getMomentStorePtrs(pFirstMomStore,pSecndMomStore,
 				useLink) ) //DEBUG,"begin") )
@@ -1139,19 +1137,19 @@ CaloCluster::moment_iterator CaloCluster::beginMoment(bool useLink) const
       iMom = moment_iterator();
     }
 
-  return iMom; 
+  return iMom;
 }
 
 
 CaloCluster::moment_iterator CaloCluster::endMoment(bool useLink) const
 {
-  const CaloClusterMomentStore* pFirstMomStore = 0;
-  const CaloClusterMomentStore* pSecndMomStore = 0;
+  const CaloClusterMomentStore* pFirstMomStore = nullptr;
+  const CaloClusterMomentStore* pSecndMomStore = nullptr;
   if ( this->getMomentStorePtrs(pFirstMomStore,pSecndMomStore,useLink) )
                                 //DEBUG,"end") )
     {
-      CaloClusterMomentStore::moment_iterator lMom = 
-	pSecndMomStore != 0 && pSecndMomStore->size() > 0 
+      CaloClusterMomentStore::moment_iterator lMom =
+	pSecndMomStore != nullptr && pSecndMomStore->size() > 0
 	? pSecndMomStore->end()
 	: pFirstMomStore->end();
       return moment_iterator(lMom,pFirstMomStore,pSecndMomStore);
@@ -1162,7 +1160,7 @@ CaloCluster::moment_iterator CaloCluster::endMoment(bool useLink) const
     }
 }
 
-const CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink) const 
+const CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink) const
 {
   // follow link policy
   if ( !useLink ) return &m_momentStore;
@@ -1171,10 +1169,10 @@ const CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink) const
   if ( ( m_dataLink.isValid() || m_ownDataStore ) && m_dataLink.isValid() )
     return &((*m_dataLink)->getMomentStore());
 
-  return (const CaloClusterMomentStore*)0;
+  return (const CaloClusterMomentStore*)nullptr;
 }
 
-CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink) 
+CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink)
 {
   // follow link policy: do not use link!
   if ( !useLink ) return &m_momentStore;
@@ -1187,11 +1185,11 @@ CaloClusterMomentStore* CaloCluster::getMomentStore(bool useLink)
       return this->getMomentStore(useLink);
     }
 
-  if ( m_shower || m_ownDataStore ) 
+  if ( m_shower || m_ownDataStore )
     {
       return &(m_shower->getMomentStore());
     }
-  return (CaloClusterMomentStore*)0;
+  return (CaloClusterMomentStore*)nullptr;
 }
 
 CaloClusterMomentStore* CaloCluster::getMomentStore(const moment_type& momType,
@@ -1200,10 +1198,10 @@ CaloClusterMomentStore* CaloCluster::getMomentStore(const moment_type& momType,
   // this is the "write" implementation!
   return m_momentStore.contains(momType)
     ? &m_momentStore                 // moment already in local store
-    : this->getMomentStore(useLink); // retrieve local or external 
+    : this->getMomentStore(useLink); // retrieve local or external
 }
 
-const CaloClusterMomentStore* 
+const CaloClusterMomentStore*
 CaloCluster::getMomentStore(const moment_type& momType, bool  useLink) const
 {
   // local store
@@ -1212,9 +1210,9 @@ CaloCluster::getMomentStore(const moment_type& momType, bool  useLink) const
   // external store
   const CaloClusterMomentStore* pMomStore = this->getMomentStore(useLink);
 
-  // 
-  return pMomStore != 0 && pMomStore->contains(momType)
-    ? pMomStore : (const CaloClusterMomentStore*) 0;
+  //
+  return pMomStore != nullptr && pMomStore->contains(momType)
+    ? pMomStore : (const CaloClusterMomentStore*) nullptr;
 }
 
 bool
@@ -1228,9 +1226,9 @@ CaloCluster::getMomentStorePtrs(const CaloClusterMomentStore*&
   // first store is assumed local by default
   pFirstMomStore = this->getMomentStore();
   // second store is assumed NOT to exist by default
-  pSecndMomStore = 0;
+  pSecndMomStore = nullptr;
   // local first store does not exist or is empty...
-  if ( pFirstMomStore == 0 || pFirstMomStore->size() == 0 ) 
+  if ( pFirstMomStore == nullptr || pFirstMomStore->size() == 0 )
     {
       // ...try to make external store the first one!
       pFirstMomStore = this->getMomentStore(useLink);
@@ -1238,10 +1236,10 @@ CaloCluster::getMomentStorePtrs(const CaloClusterMomentStore*&
   // local first store exists...
   else
     {
-      // ...check if second store available! 
-      pSecndMomStore = useLink ? this->getMomentStore(useLink) : 0;
+      // ...check if second store available!
+      pSecndMomStore = useLink ? this->getMomentStore(useLink) : nullptr;
     }
-  return pFirstMomStore != 0;
+  return pFirstMomStore != nullptr;
 }
 
 /*!
@@ -1256,7 +1254,7 @@ void CaloCluster::insertMoment(const moment_type&  momType,
   // use momType for getMomentStore to override useLink in case
   // the moment has already been stored and should just be updated ...
   CaloClusterMomentStore* pMomStore = this->getMomentStore(momType,useLink);
-  if ( pMomStore != 0 ) pMomStore->insert(momType,momData);
+  if ( pMomStore != nullptr ) pMomStore->insert(momType,momData);
 }
 /*!
  *
@@ -1265,21 +1263,21 @@ void CaloCluster::insertMoment(const moment_type&  momType,
  *   \param  useLink extends checks to external data store if
  *                   <tt>true</tt>
  *
- *   Returns <tt>true</tt> if requested moment type in cluster. 
+ *   Returns <tt>true</tt> if requested moment type in cluster.
  */
-bool 
+bool
 CaloCluster::retrieveMoment(const moment_type& momType,
 			    moment_value&      momData,
 			    bool               useLink) const
 {
   const CaloClusterMomentStore* pMomStore = this->getMomentStore(momType,
 								 useLink);
-  return pMomStore != 0
+  return pMomStore != nullptr
     ? pMomStore->retrieve(momType,momData)
     : false;
 }
 
-bool 
+bool
 CaloCluster::retrieveMoment(const moment_type& momType,
 			    double&            momValue,
 			    bool               useLink) const
@@ -1341,7 +1339,7 @@ double CaloCluster::getCalE()   const   { return P4EEtaPhiM::e(); }
 double CaloCluster::getCalEta() const   { return P4EEtaPhiM::eta(); }
 double CaloCluster::getCalPhi() const   { return P4EEtaPhiM::phi(); }
 double CaloCluster::getCalM()   const   { return P4EEtaPhiM::m(); }
- 
+
 void CaloCluster::setCalE(double e)     { P4EEtaPhiM::setE(e); }
 void CaloCluster::setCalEta(double eta) { P4EEtaPhiM::setEta(eta); }
 void CaloCluster::setCalPhi(double phi) { P4EEtaPhiM::setPhi(phi); }
@@ -1350,12 +1348,12 @@ void CaloCluster::setCalM(double m)     { P4EEtaPhiM::setM(m); }
 bool CaloCluster::setSignalState(signalstate_t s)
 {
   if ( !this->hasSignalState(s) ) return false;
-  
+
   m_signalState = s;
-  
-  return 
-    s == statename_t::CALIBRATED    ? this->setStateCal() : 
-    s == statename_t::ALTCALIBRATED ? this->setStateAlt() : 
+
+  return
+    s == statename_t::CALIBRATED    ? this->setStateCal() :
+    s == statename_t::ALTCALIBRATED ? this->setStateAlt() :
     s == statename_t::UNCALIBRATED  ? this->setStateRaw() :
     false;
 }
@@ -1379,59 +1377,59 @@ void CaloCluster::resetSignalState()
 
 bool CaloCluster::setStateRaw()
 {
-  // std::cout << "CaloCluster [" << this 
+  // std::cout << "CaloCluster [" << this
   //	    << "] setStateRaw()" << std::endl;
   m_getE   = &CaloCluster::getRawE;
   m_getEta = &CaloCluster::getRawEta;
   m_getPhi = &CaloCluster::getRawPhi;
-  m_getM   = &CaloCluster::getRawM;  
+  m_getM   = &CaloCluster::getRawM;
   //
   m_setE   = &CaloCluster::setRawE;
   m_setEta = &CaloCluster::setRawEta;
   m_setPhi = &CaloCluster::setRawPhi;
   m_setM   = &CaloCluster::setRawM;
   //
-  return true;  
+  return true;
 }
 
 bool CaloCluster::setStateAlt()
 {
-  // std::cout << "CaloCluster [" << this 
+  // std::cout << "CaloCluster [" << this
   //	    << "] setStateAlt()" << std::endl;
   m_getE   = &CaloCluster::getAltE;
   m_getEta = &CaloCluster::getAltEta;
   m_getPhi = &CaloCluster::getAltPhi;
-  m_getM   = &CaloCluster::getAltM;  
+  m_getM   = &CaloCluster::getAltM;
   //
   m_setE   = &CaloCluster::setAltE;
   m_setEta = &CaloCluster::setAltEta;
   m_setPhi = &CaloCluster::setAltPhi;
   m_setM   = &CaloCluster::setAltM;
-  return true;  
+  return true;
 }
 
 bool CaloCluster::setStateCal()
 {
-  // std::cout << "CaloCluster [" << this 
+  // std::cout << "CaloCluster [" << this
   //	    << "] setStateCal()" << std::endl;
   m_getE   = &CaloCluster::getCalE;
   m_getEta = &CaloCluster::getCalEta;
   m_getPhi = &CaloCluster::getCalPhi;
-  m_getM   = &CaloCluster::getCalM;  
+  m_getM   = &CaloCluster::getCalM;
   //
   m_setE   = &CaloCluster::setCalE;
   m_setEta = &CaloCluster::setCalEta;
   m_setPhi = &CaloCluster::setCalPhi;
   m_setM   = &CaloCluster::setCalM;
-  return true;  
+  return true;
 }
 
-void CaloCluster::addBadChannel(const CaloClusterBadChannelData& badChannel) 
+void CaloCluster::addBadChannel(const CaloClusterBadChannelData& badChannel)
 {
  m_badChannelData.push_back(badChannel);
 }
 
-void CaloCluster::resetBadChannel() 
+void CaloCluster::resetBadChannel()
 {
  m_badChannelData.clear();
 }
@@ -1444,8 +1442,8 @@ const CaloCluster::badChannelList* CaloCluster::getBadChannel() const
 unsigned int CaloCluster::getClusterEtaSize() const{
 
   unsigned int size = 0;
-  if(m_clusterSize==SW_55ele || 
-     m_clusterSize==SW_55gam || 
+  if(m_clusterSize==SW_55ele ||
+     m_clusterSize==SW_55gam ||
      m_clusterSize==SW_55Econv){
     size = 5;
   }else if(m_clusterSize==SW_35ele ||
@@ -1458,7 +1456,7 @@ unsigned int CaloCluster::getClusterEtaSize() const{
   }else if(m_clusterSize==SW_7_11){
     size = 7;
   }
-  
+
   return size;
 
 }
@@ -1466,8 +1464,8 @@ unsigned int CaloCluster::getClusterEtaSize() const{
 unsigned int CaloCluster::getClusterPhiSize() const{
 
   unsigned int size = 0;
-  if(m_clusterSize==SW_55ele || 
-     m_clusterSize==SW_55gam || 
+  if(m_clusterSize==SW_55ele ||
+     m_clusterSize==SW_55gam ||
      m_clusterSize==SW_55Econv ||
      m_clusterSize==SW_35ele ||
      m_clusterSize==SW_35gam ||
@@ -1481,7 +1479,7 @@ unsigned int CaloCluster::getClusterPhiSize() const{
   }else if(m_clusterSize==SW_7_11){
     size = 11;
   }
-  
+
   return size;
 
 }
@@ -1520,11 +1518,11 @@ unsigned int CaloCluster::samplingPattern() const
 // loop in the ESD_18.0.0 test of CaloAthenaPool.
 
 /*! \brief Default constructor builds unusable iterator */
-CaloCluster::MomentStoreIter::MomentStoreIter() : m_iter(), m_firstStore(0), m_secndStore(0) { }
+CaloCluster::MomentStoreIter::MomentStoreIter() : m_iter(), m_firstStore(nullptr), m_secndStore(nullptr) { }
 /*! \brief Standard constructor for a useable iterator */
-CaloCluster::MomentStoreIter::MomentStoreIter(moment_iterator_i iter,
-                const moment_store* firstStore, 
-                                              const moment_store* secndStore/*=0*/) 
+CaloCluster::MomentStoreIter::MomentStoreIter(const moment_iterator_i& iter,
+                const moment_store* firstStore,
+                                              const moment_store* secndStore/*=0*/)
   : m_iter(iter), m_firstStore(firstStore), m_secndStore(secndStore)
 { }
 /*! Destructor */
@@ -1535,7 +1533,7 @@ CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::next()
 {
   m_iter++;
   if ( m_iter == m_firstStore->end() &&
-       ( m_secndStore != 0 && m_secndStore->size() > 0 ) ) 
+       ( m_secndStore != nullptr && m_secndStore->size() > 0 ) )
   {
     m_iter = m_secndStore->begin();
   }
@@ -1543,23 +1541,23 @@ CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::next()
 }
 
 /*! Step back iterator */
-CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::prev() 
+CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::prev()
 {
-  if ( m_secndStore != 0 && m_iter == m_secndStore->begin() )
+  if ( m_secndStore != nullptr && m_iter == m_secndStore->begin() )
   {
     m_iter = m_firstStore->end();
   }
   m_iter--;
   return *this;
 }
-     
+
 /*! \brief Post-advance operator */
 CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator++()    { return this->next(); }
 /*! \brief Pre-advance operator */
 CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator++(int) { return this->next(); }
-/*! \brief Post-step back operator */    
+/*! \brief Post-step back operator */
 CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--()    { return this->prev(); }
-/*! \brief Pre-step back operator */ 
+/*! \brief Pre-step back operator */
 CaloCluster::MomentStoreIter CaloCluster::MomentStoreIter::operator--(int) { return this->prev(); }
 
 /*! \brief Equality comparator */
