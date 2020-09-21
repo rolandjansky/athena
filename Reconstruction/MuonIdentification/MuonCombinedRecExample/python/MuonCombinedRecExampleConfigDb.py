@@ -50,7 +50,7 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreat
 
 # tracking tools
 addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "AtlasTrackSummaryTool" )
-addTool("Trk::ParticleCaloExtensionTool", "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator", StartFromPerigee = True)
+addTool("Trk::ParticleCaloExtensionTool", "MuonParticleCaloExtensionTool", Extrapolator = "AtlasExtrapolator")
 
 # put this here until it is set in the appropriate package
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagMatchingTool","MuTagMatchingTool")
