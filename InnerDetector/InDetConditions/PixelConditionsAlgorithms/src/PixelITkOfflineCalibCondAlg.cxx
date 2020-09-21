@@ -216,7 +216,8 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 
 	// Format v1 with no incident angle dependance
 	if(moduleConstantsVec.size()==4){
-	  constants.emplace_back(0); // period
+	  constants.emplace_back(0); // period_phi
+	  constants.emplace_back(0); // period_sinheta
 	  constants.emplace_back(0); // delta_x_slope
 	  constants.emplace_back(moduleConstantsVec[0]); // delta_x_offset
 	  constants.emplace_back(moduleConstantsVec[1]); // delta_error_x
@@ -225,8 +226,13 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 	  constants.emplace_back(moduleConstantsVec[3]); // delta_error_y
 	}
 
-	// Format v2 with incident angle dependance
 	else if(moduleConstantsVec.size()==7){
+	  constants.emplace_back(moduleConstantsVec[0]); // period_phi
+	  for( auto& x : moduleConstantsVec ) constants.emplace_back(x);
+	}
+
+	// Format v3 with incident angle dependance + different eta-phi periods
+	else if(moduleConstantsVec.size()==8){
 	  for( auto& x : moduleConstantsVec ) constants.emplace_back(x);
 	}
 
