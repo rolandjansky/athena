@@ -21,33 +21,6 @@ else()
         Control/AthenaBaseComps )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMissingET
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODTracking
-   InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Reconstruction/MET/METInterface
-   PRIVATE
-   Event/EventPrimitives
-   Event/FourMomUtils
-   Event/xAOD/xAODCore
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   PhysicsAnalysis/TauID/TauAnalysisTools
-   ​PhysicsAnalysis/​ElectronPhotonID/​ElectronPhotonFourMomentumCorrection
-   Reconstruction/Jet/JetCalibTools
-   Reconstruction/tauRecTools
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO )
 find_package( GTest )
