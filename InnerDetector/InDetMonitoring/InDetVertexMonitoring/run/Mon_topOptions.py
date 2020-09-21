@@ -81,7 +81,7 @@ myVx.DoControlPlots = False
 myVx.OutputLevel = WARNING
 
 if not 'DQMonFlags' in dir():
-    print "DQMonFlags not yet imported - I import them now"
+    print("DQMonFlags not yet imported - I import them now")
     from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 #DQMonFlags.useTrigger = False 
