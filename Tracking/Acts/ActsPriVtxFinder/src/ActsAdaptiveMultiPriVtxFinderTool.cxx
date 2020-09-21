@@ -249,14 +249,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       , cov(3,0) , cov(3,1) , cov(3,2) , cov(3,3) , cov(3,4) *1./(1_MeV) , 0 
       , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
       , 0. , 0. , 0. , 0., 0., 1.;
-
-      Amg::Vector3D test(0, 0, 0); 
-      std::cout << test.phi() << std::endl;
-      std::cout << bug << std::endl;
-
+      
       allTracks.emplace_back(trk.get(),Acts::BoundTrackParameters(geoContext, covMat, actsParams, perigeeSurface));
-
-      std::cout << test.theta() << std::endl;
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;
