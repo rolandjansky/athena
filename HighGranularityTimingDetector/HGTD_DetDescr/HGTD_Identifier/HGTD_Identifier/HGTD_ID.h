@@ -246,6 +246,9 @@ private:
 
     int         init_hashes(void);
 
+    size_type                   m_hgtd_region_index;
+    size_type                   m_INDET_INDEX;
+    size_type                   m_HGTD_INDEX;
     size_type                   m_ENDCAP_INDEX;
     size_type                   m_DISK_INDEX;
     size_type                   m_SIDE_INDEX;
@@ -263,18 +266,14 @@ private:
 
     id_vec                      m_wafer_vec;
 
+    IdDictFieldImplementation   m_indet_impl;
+    IdDictFieldImplementation   m_hgtd_impl;
     IdDictFieldImplementation   m_ec_impl;
     IdDictFieldImplementation   m_disk_impl;
     IdDictFieldImplementation   m_side_impl;
     IdDictFieldImplementation   m_quad_impl;
     IdDictFieldImplementation   m_row_impl;
     IdDictFieldImplementation   m_mod_impl;
-    IdDictFieldImplementation   m_ec_shift_impl;
-    IdDictFieldImplementation   m_disk_shift_impl;
-    IdDictFieldImplementation   m_side_shift_impl;
-    IdDictFieldImplementation   m_quad_shift_impl;
-    IdDictFieldImplementation   m_row_shift_impl;
-    IdDictFieldImplementation   m_mod_shift_impl;
     IdDictFieldImplementation   m_phi_index_impl;
     IdDictFieldImplementation   m_eta_index_impl;
 
@@ -301,18 +300,20 @@ HGTD_ID::wafer_id ( int endcap,
     // Build identifier
     Identifier result((Identifier::value_type)0);
 
-    // // Pack fields independently
-    // m_indet_impl.pack    (indet_field_value(), result);
-    // m_pixel_impl.pack    (pixel_field_value(), result);
-    // m_bec_impl.pack      (barrel_ec,           result);
-    // m_lay_disk_impl.pack (layer_disk,          result);
-    // m_phi_mod_impl.pack  (phi_module,          result);
-    // m_eta_mod_impl.pack  (eta_module,          result);
+    // Pack fields independently
+    m_indet_impl.pack    (indet_field_value(), result);
+    m_hgtd_impl.pack     (hgtd_field_value(),  result);
+    m_ec_impl.pack       (endcap,              result);
+    m_disk_impl.pack     (disk,                result);
+    m_side_impl.pack     (side,                result);
+    m_quad_impl.pack     (quadrant,            result);
+    m_row_impl.pack      (row,                 result);
+    m_mod_impl.pack      (module,              result);
 
-    // // Do checks
-    // if(m_do_checks) {
-    //     wafer_id_checks ( barrel_ec, layer_disk, phi_module, eta_module );
-    // }
+    // Do checks
+    if(m_do_checks) {
+        wafer_id_checks ( endcap, disk, side, quadrant, row, module );
+    }
 
     return result;
 }
@@ -348,24 +349,28 @@ HGTD_ID::pixel_id ( int endcap,
 
     // Build identifier
     Identifier result((Identifier::value_type)0);
-    // m_indet_impl.pack          (indet_field_value(), result);
-    // m_pixel_impl.pack          (pixel_field_value(), result);
-    // m_bec_impl.pack            (barrel_ec,   result);
-    // m_lay_disk_impl.pack       (layer_disk,  result);
-    // m_phi_mod_impl.pack        (phi_module,  result);
-    // m_eta_mod_impl.pack        (eta_module,  result);
-    // m_phi_index_impl.pack      (phi_index,   result);
-    // m_eta_index_impl.pack      (eta_index,   result);
+    m_indet_impl.pack          (indet_field_value(), result);
+    m_hgtd_impl.pack           (hgtd_field_value(),  result);
+    m_ec_impl.pack             (endcap,              result);
+    m_disk_impl.pack           (disk,                result);
+    m_side_impl.pack           (side,                result);
+    m_quad_impl.pack           (quadrant,            result);
+    m_row_impl.pack            (row,                 result);
+    m_mod_impl.pack            (module,              result);
+    m_phi_index_impl.pack      (phi_index,           result);
+    m_eta_index_impl.pack      (eta_index,           result);
 
-    // if(m_do_checks) {
+    if(m_do_checks) {
 
-    //     pixel_id_checks ( barrel_ec, 
-    //                       layer_disk, 
-    //                       phi_module, 
-    //                       eta_module, 
-    //                       phi_index,
-    //                       eta_index);
-    // }
+        pixel_id_checks ( endcap,
+                          disk,
+                          side,
+                          quadrant,
+                          row,
+                          module,
+                          phi_index,
+                          eta_index);
+    }
     
     return result;
 }
@@ -402,23 +407,23 @@ HGTD_ID::pixel_id       (const ExpandedIdentifier& id) const
 
 //----------------------------------------------------------------------------
 inline Identifier  
-HGTD_ID::pixel_id ( const Identifier& wafer_id, 
+HGTD_ID::pixel_id ( const Identifier& wafer_id,
                     int phi_index,
                     int eta_index) const
 {
     Identifier result(wafer_id);
-    // m_phi_index_impl.reset     (result);
-    // m_eta_index_impl.reset     (result);
-    // m_phi_index_impl.pack      (phi_index,   result);
-    // m_eta_index_impl.pack      (eta_index, result);
+    m_phi_index_impl.reset     (result);
+    m_eta_index_impl.reset     (result);
+    m_phi_index_impl.pack      (phi_index,   result);
+    m_eta_index_impl.pack      (eta_index, result);
     return (result);
 }
 
 //----------------------------------------------------------------------------
 inline IdentifierHash      HGTD_ID::wafer_hash      (Identifier wafer_id) const
 {
-    id_vec_it it = std::lower_bound(m_wafer_vec.begin(), 
-                                    m_wafer_vec.end(), 
+    id_vec_it it = std::lower_bound(m_wafer_vec.begin(),
+                                    m_wafer_vec.end(),
                                     wafer_id);
     // Require that wafer_id matches the one in vector
     if (it != m_wafer_vec.end() && wafer_id == (*it)) {
@@ -464,9 +469,9 @@ inline IdContext
 HGTD_ID::wafer_context          (void) const
 {
     ExpandedIdentifier id;
-    // return (IdContext(id, 0, m_ETA_MODULE_INDEX));
+    // return (IdContext(id, 0, m_ETA_MODULE_INDEX)); // from Pixel_ID
     // TODO: figure out what needs to go in this constructor
-    return (IdContext(id, 0, 0));
+    return (IdContext(id, 0, m_MODULE_INDEX));
 }
 
 //----------------------------------------------------------------------------
@@ -475,17 +480,16 @@ HGTD_ID::pixel_context  (void) const
 {
     // For pixel only, the prefix is the first two levels
     ExpandedIdentifier id;
-    // id << indet_field_value() << pixel_field_value(); // TODO: add hgtd_field_value() method to AtlasDetectorID base class
-    // return (IdContext(id, m_BARREL_EC_INDEX, m_ETA_INDEX_INDEX));
+    id << indet_field_value() << hgtd_field_value();
+    // return (IdContext(id, m_BARREL_EC_INDEX, m_ETA_INDEX_INDEX)); // from Pixel_ID
     // TODO: figure out what needs to go in this constructor
-    return (IdContext(id, 0, 0));
+    return (IdContext(id, m_ENDCAP_INDEX, m_ETA_INDEX_INDEX));
 }
 
 //----------------------------------------------------------------------------
 inline int
 HGTD_ID::endcap       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_ec_impl.unpack(id));
 }
 
@@ -493,7 +497,6 @@ HGTD_ID::endcap       (const Identifier& id) const
 inline int
 HGTD_ID::disk       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_disk_impl.unpack(id));
 }
 
@@ -501,7 +504,6 @@ HGTD_ID::disk       (const Identifier& id) const
 inline int
 HGTD_ID::side       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_side_impl.unpack(id));
 }
 
@@ -509,7 +511,6 @@ HGTD_ID::side       (const Identifier& id) const
 inline int
 HGTD_ID::quadrant       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_quad_impl.unpack(id));
 }
 
@@ -517,7 +518,6 @@ HGTD_ID::quadrant       (const Identifier& id) const
 inline int
 HGTD_ID::row       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_row_impl.unpack(id));
 }
 
@@ -525,7 +525,6 @@ HGTD_ID::row       (const Identifier& id) const
 inline int
 HGTD_ID::module       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_mod_impl.unpack(id));
 }
 
@@ -533,7 +532,6 @@ HGTD_ID::module       (const Identifier& id) const
 inline int
 HGTD_ID::phi_index       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_phi_index_impl.unpack(id));
 }
 
@@ -541,7 +539,6 @@ HGTD_ID::phi_index       (const Identifier& id) const
 inline int
 HGTD_ID::eta_index       (const Identifier& id) const
 {
-    // Normal unshifted id
     return (m_eta_index_impl.unpack(id));
 }
 
