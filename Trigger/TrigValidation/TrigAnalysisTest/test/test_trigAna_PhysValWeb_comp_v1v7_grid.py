@@ -26,10 +26,10 @@ from TrigValTools.TrigValSteering import Test, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
 
 downloadLegacyTrig = CheckSteps.DownloadRefStep('DownloadLegacyTriggerNTUP')
-downloadLegacyTrig.artjobname = 'test_trigAna_PhysValWeb_v7Primaries_grid.py'
+downloadLegacyTrig.artjobname = 'test_trigAna_RDOtoPhysval_v7Primaries_grid.py'
 
 downloadRun3Trig = CheckSteps.DownloadRefStep('DownloadRun3TriggerNTUP')
-downloadRun3Trig.artjobname = 'test_trigAna_PhysValWeb_v1Dev_grid.py'
+downloadRun3Trig.artjobname = 'test_trigAna_RDOtoPhysval_v1Dev_grid.py'
 downloadRun3Trig.args += ' --dst="."'
 
 test = Test.Test()
