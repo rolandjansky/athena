@@ -44,10 +44,6 @@ output the muon calibration input.
     StatusCode execute();
 
   private:
-
-    /** retrieve patterns and segments from storegate */
-    //    const Muon::MuonSegmentCollection* retrieveSegments();
-  
     /** retrieve patterns from storegate */
     const MuonSegmentCombinationCollection* retrieveSegmentCombinations() const;
     const Trk::SegmentCollection* retrieveSegments(const std::string colName) const;
