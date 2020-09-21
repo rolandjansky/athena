@@ -22,6 +22,8 @@
 
 namespace met {
 
+  ANA_MSG_HEADER (msgMET)
+
   const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets);

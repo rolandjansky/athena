@@ -19,7 +19,7 @@
 #include "TFile.h"
 
 // FrameWork includes
-#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
 // METInterface includes
@@ -28,17 +28,19 @@
 // EDM includes
 #include "xAODJet/JetContainer.h"
 
-// Tracking Tool
+// Tool interfaces
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 
 // Forward declarations - tool interfaces
 class IJetCalibrationTool;
-namespace CP {
+
+/*namespace CP {
   class IMuonCalibrationAndSmearingTool;
   class IEgammaCalibrationAndSmearingTool;
-}
+}*/
 class ITauToolBase;
-class IJERTool;
 
 namespace met {
 
@@ -90,7 +92,6 @@ namespace met {
     /// Default constructor:
     METSignificance();
 
-    asg::AnaToolHandle<IJERTool>                              m_jerTool;
     asg::AnaToolHandle<IJetCalibrationTool>                   m_jetCalibTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>   m_muonCalibrationAndSmearingTool;
     asg::AnaToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibTool;
@@ -138,7 +139,6 @@ namespace met {
     bool   m_treatPUJetsOld;
     bool   m_doPhiReso;
     bool   m_applyBias;
-    bool   m_jerRun1;
     bool   m_jerForEMu;
 
     bool m_isDataJet;
@@ -175,9 +175,9 @@ namespace met {
 
     // Jet Uncertainties
     TFile *m_file;
-    TH2F *h_phi_reso_pt20;
-    TH2F *h_phi_reso_pt50;
-    TH2F *h_phi_reso_pt100;
+    TH2F *m_phi_reso_pt20;
+    TH2F *m_phi_reso_pt50;
+    TH2F *m_phi_reso_pt100;
 
     std::string m_configPrefix;
     std::string m_configJetPhiResoFile;

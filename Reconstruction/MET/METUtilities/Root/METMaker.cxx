@@ -80,8 +80,6 @@ namespace met {
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
 
-  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
-
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////

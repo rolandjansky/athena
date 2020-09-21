@@ -19,6 +19,18 @@
 // Jet EDM
 #include "xAODJet/JetAttributes.h"
 
+// Other xAOD EDM
+#include "xAODTruth/TruthParticle.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
+
+#include "PathResolver/PathResolver.h"
+
+// Needed for xAOD::get_eta_calo() function
+#include "​ElectronPhotonFourMomentumCorrection/​EgammaCalibrationAndSmearingTool.h"
+
 namespace met {
     
   typedef ElementLink<xAOD::IParticleContainer> iplink_t;
@@ -35,14 +47,12 @@ namespace met {
     
   METSignificance::METSignificance(const std::string& name) :
     AsgTool(name),
-    m_jerTool(""),
     m_jetCalibTool(""),
     m_muonCalibrationAndSmearingTool(""),
     m_egammaCalibTool(""),
     m_tCombinedP4FromRecoTaus(""),
     m_GeV(1.0e3),
     m_softTermParam(met::Random),
-    m_jerRun1(false),
     m_jerForEMu(false),
     m_jetPtThr(-1.0),
     m_jetEtaThr(-1.0),
@@ -59,9 +69,9 @@ namespace met {
     m_ht(0.0),
     m_sumet(0.0),
     m_file(0),
-    h_phi_reso_pt20(0),
-    h_phi_reso_pt50(0),
-    h_phi_reso_pt100(0)
+    m_phi_reso_pt20(0),
+    m_phi_reso_pt50(0),
+    m_phi_reso_pt100(0)
   {
     declareProperty("SoftTermParam",        m_softTermParam = met::Random );
     declareProperty("SoftTermReso",         m_softTermReso  = 10.0        );
@@ -80,7 +90,6 @@ namespace met {
     declareProperty("JetCollection",        m_JetCollection         = "AntiKt4EMTopo" );
 
     // properties to delete eventually
-    declareProperty("DoRun1JER",   m_jerRun1       = false   );
     declareProperty("IsDataJet",   m_isDataJet     = false   );
     declareProperty("IsDataMuon",  m_isDataMuon    = false   );
     declareProperty("IsAFII",      m_isAFII        = false   );
@@ -89,12 +98,12 @@ namespace met {
     std::string configpath  = PathResolverFindCalibFile(m_configPrefix+m_configJetPhiResoFile);
     m_file = TFile::Open(configpath.c_str());
     if(m_file){
-      h_phi_reso_pt20 = static_cast<TH2F *>(m_file->Get("phi_reso_pt20"));
-      if(!h_phi_reso_pt20) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
-      h_phi_reso_pt50 = static_cast<TH2F *>(m_file->Get("phi_reso_pt50"));
-      if(!h_phi_reso_pt50) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
-      h_phi_reso_pt100 = static_cast<TH2F *>(m_file->Get("phi_reso_pt100"));
-      if(!h_phi_reso_pt100) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+      m_phi_reso_pt20 = static_cast<TH2F *>(m_file->Get("phi_reso_pt20"));
+      if(!m_phi_reso_pt20) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+      m_phi_reso_pt50 = static_cast<TH2F *>(m_file->Get("phi_reso_pt50"));
+      if(!m_phi_reso_pt50) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
+      m_phi_reso_pt100 = static_cast<TH2F *>(m_file->Get("phi_reso_pt100"));
+      if(!m_phi_reso_pt100) ATH_MSG_ERROR("PU Jet Uncertainty Histogram not valid");
     }
     else{
       ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
@@ -109,38 +118,28 @@ namespace met {
     ATH_MSG_INFO("Set up JER tools");
     std::string toolName;
     std::string jetcoll = "AntiKt4EMTopoJets";
-    if(m_jerRun1){
-      toolName = "JERTool_" + jetcoll;
+    toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
+    ATH_MSG_INFO("Set up jet resolution tool");
+    m_jetCalibTool.setTypeAndName(toolName);
 
-      m_jerTool.setTypeAndName("JERTool/METSigAutoConf_"+toolName);
-      ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
-      ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
-      ATH_CHECK(m_jerTool.retrieve());
-    }
-    else{
-      toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
-      ATH_MSG_INFO("Set up jet resolution tool");
-      m_jetCalibTool.setTypeAndName(toolName);
-  
-      if( !m_jetCalibTool.isUserConfigured() ){
+    if( !m_jetCalibTool.isUserConfigured() ){
 
-        std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
-        std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-        std::string calibArea = "00-04-81";
-        if(m_JetCollection=="AntiKt4EMPFlow"){
-          config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
-          calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
-          calibArea = "00-04-81";        
-        }
-      
-        ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
-        ANA_CHECK( m_jetCalibTool.setProperty("JetCollection",m_JetCollection) );
-        ANA_CHECK( m_jetCalibTool.setProperty("ConfigFile",config) );
-        ANA_CHECK( m_jetCalibTool.setProperty("CalibSequence",calibSeq) );
-        ANA_CHECK( m_jetCalibTool.setProperty("CalibArea",calibArea) );
-        ANA_CHECK( m_jetCalibTool.setProperty("IsData",false) ); // configure for MC due to technical reasons. Both data and MC smearing are available with this setting.
-        ANA_CHECK( m_jetCalibTool.retrieve() );
+      std::string config = "JES_data2017_2016_2015_Recommendation_Aug2018_rel21.config";
+      std::string calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+      std::string calibArea = "00-04-81";
+      if(m_JetCollection=="AntiKt4EMPFlow"){
+        config = "JES_data2017_2016_2015_Recommendation_PFlow_Aug2018_rel21.config";
+        calibSeq = "JetArea_Residual_EtaJES_GSC_Smear";
+        calibArea = "00-04-81";        
       }
+    
+      ANA_CHECK( ASG_MAKE_ANA_TOOL(m_jetCalibTool, JetCalibrationTool) );
+      ANA_CHECK( m_jetCalibTool.setProperty("JetCollection",m_JetCollection) );
+      ANA_CHECK( m_jetCalibTool.setProperty("ConfigFile",config) );
+      ANA_CHECK( m_jetCalibTool.setProperty("CalibSequence",calibSeq) );
+      ANA_CHECK( m_jetCalibTool.setProperty("CalibArea",calibArea) );
+      ANA_CHECK( m_jetCalibTool.setProperty("IsData",false) ); // configure for MC due to technical reasons. Both data and MC smearing are available with this setting.
+      ANA_CHECK( m_jetCalibTool.retrieve() );
     }
 
     ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
@@ -168,9 +167,9 @@ namespace met {
   StatusCode METSignificance::finalize(){
 
     ATH_MSG_INFO ("Finalizing " << name() << "...");
-    delete h_phi_reso_pt20;
-    delete h_phi_reso_pt50;
-    delete h_phi_reso_pt100;
+    delete m_phi_reso_pt20;
+    delete m_phi_reso_pt50;
+    delete m_phi_reso_pt100;
 
     return StatusCode::SUCCESS;
   }
@@ -507,16 +506,10 @@ namespace met {
     if(m_jetPtThr>0.0 && m_jetPtThr>jet->pt())          return StatusCode::SUCCESS;
     if(m_jetEtaThr>0.0 && m_jetEtaThr<fabs(jet->eta())) return StatusCode::SUCCESS;
 
-    if(m_jerRun1){
-      if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
-      else            pt_reso = m_jerTool->getRelResolutionMC(jet);
-    }
-    else{
-      ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
-      ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
-      pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
-      pt_reso = pt_reso_dbl_max; 
-    }
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionData(*jet, pt_reso_dbl_data));
+    ATH_CHECK(m_jetCalibTool->getNominalResolutionMC(*jet, pt_reso_dbl_mc));
+    pt_reso_dbl_max = std::max(pt_reso_dbl_data,pt_reso_dbl_mc);
+    pt_reso = pt_reso_dbl_max;
 
     ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
 
@@ -921,17 +914,17 @@ namespace met {
     ybin = jet_phi>0.0 ? int(jet_phi/0.4)+9 : int(jet_phi/0.4)+8;
 
     // Stored as bin content = Mean, error = RMS, we want to use the RMS.
-    if(!h_phi_reso_pt20 || !h_phi_reso_pt50 || !h_phi_reso_pt100){
+    if(!m_phi_reso_pt20 || !m_phi_reso_pt50 || !m_phi_reso_pt100){
       ATH_MSG_ERROR("Jet Phi Resolution histograms are invalid.");
       return 0.0;
     }
 
     // Collect the phi resolution
     if(jet_pt<50.0)
-      return h_phi_reso_pt20->GetBinError(xbin, ybin);
+      return m_phi_reso_pt20->GetBinError(xbin, ybin);
     else if(jet_pt<100.0)
-      return h_phi_reso_pt50->GetBinError(xbin, ybin);
-    return h_phi_reso_pt100->GetBinError(xbin, ybin);
+      return m_phi_reso_pt50->GetBinError(xbin, ybin);
+    return m_phi_reso_pt100->GetBinError(xbin, ybin);
   }
 
   std::tuple<double,double,double> METSignificance::CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi){

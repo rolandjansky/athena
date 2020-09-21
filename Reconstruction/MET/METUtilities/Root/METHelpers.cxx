@@ -29,6 +29,8 @@
 
 namespace met {
 
+  ANA_MSG_SOURCE (msgMET, "METUtilities")
+
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets)
   {
     std::vector<const xAOD::TrackParticle*> jet_tracks;
@@ -62,11 +64,12 @@ namespace met {
   StatusCode buildMETSum(const std::string& totalName,
                          xAOD::MissingETContainer* metCont)
   {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
+    using namespace msgMET;
+    ANA_MSG_DEBUG("Build MET total: " << totalName);
  
     xAOD::MissingET* metFinal = nullptr;
     if(fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS){
-      ATH_MSG_ERROR("failed to fill MET term");
+      ANA_MSG_ERROR("failed to fill MET term");
       return StatusCode::FAILURE;
     }
  
@@ -75,7 +78,7 @@ namespace met {
       *metFinal += **iMET;
     }
  
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
+    ANA_MSG_DEBUG( "Rebuilt MET Final --"
                   << " mpx: " << metFinal->mpx()
                   << " mpy: " << metFinal->mpy()
                  );
@@ -87,7 +90,7 @@ namespace met {
                          xAOD::MissingETContainer* metCont,
                          MissingETBase::Types::bitmask_t softTermsSource)
   {
-
+    using namespace msgMET;
     ANA_MSG_DEBUG("Build MET total: " << totalName);
 
     xAOD::MissingET* metFinal = nullptr;
@@ -120,7 +123,7 @@ namespace met {
                       xAOD::MissingETContainer * metCont,
                       const std::string& metKey,
                       const MissingETBase::Types::bitmask_t metSource){
-
+    using namespace msgMET;
     if(met != nullptr){
       ANA_MSG_ERROR("You can't fill a filled MET value");
       return StatusCode::FAILURE;
