@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 namespace TXC {
   
@@ -116,6 +117,10 @@ namespace TXC {
       std::vector<TriggerLine> m_triggerlines;
 
       TXC::TriggerLine m_undef{"UNDEF","",0,0,0,0,0};
+
+      std::set<std::string> m_triggernames;
+
+      std::set<unsigned int> m_triggercounters;
       
    };
 
