@@ -36,9 +36,9 @@ find_package( lwtnn REQUIRED )
 atlas_add_library( TrackVertexAssociationToolLib
    Root/*.cxx
    PUBLIC_HEADERS TrackVertexAssociationTool
-   PRIVATE_INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
-   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking AsgDataHandlesLib
-   PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver ${LWTNN_LIBRARIES} )
+   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
+   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking AsgDataHandlesLib ${LWTNN_LIBRARIES}
+   PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrackVertexAssociationTool
