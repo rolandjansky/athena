@@ -22,7 +22,7 @@
 // STL
 #include <string>
 
-using gid = Acts::GeometryID;
+using gid = Acts::GeometryIdentifier;
 
 ActsWriteTrackingGeometryTransforms::ActsWriteTrackingGeometryTransforms(const std::string& name,
                                  ISvcLocator* pSvcLocator)
@@ -58,7 +58,7 @@ StatusCode ActsWriteTrackingGeometryTransforms::execute() {
       return;
     }
 
-    gid geoID = srf->geoID();
+    gid geoID = srf->geometryId();
     os << geoID.volume() << ";";
     os << geoID.boundary() << ";";
     os << geoID.layer() << ";";
