@@ -537,7 +537,7 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
 
   std::vector<const xAOD::CaloCluster *> clusters;
   bool            incShowerSubtracted(false);
-  TLorentzVector  LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
+  const TLorentzVector&  LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
   double          dRCut(0.2);
   auto        check_clusters = tauRecTools::GetJetClusterList(jet_seed, clusters, incShowerSubtracted, LC_P4, dRCut);
   std::size_t nClustersTotal = clusters.size();
@@ -555,20 +555,15 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
   };
   std::sort(clusters.begin(), clusters.end(), et_cmp);
   
-  float clE(0.), Etot(0.);
+  float Etot(0.);
   using MomentType = xAOD::CaloCluster::MomentType;
+  const xAOD::CaloCluster *cls(0);
   for (std::size_t i = 0; i < nClustersSave; ++i) {
-    auto cls = clusters[i];
+    cls = clusters[i];
 
-    // gipezzul: 2019-09-16
-    //now evaluate the avarage values for: lambda, second lambda, EMProb, presamplerFrac
-    //DR selection from: https://gitlab.cern.ch/atlas/athena/blob/master/Reconstruction/tauRecTools/Root/MvaTESVariableDecorator.cxx
-
-    TLorentzVector cluster_P4;
-    cluster_P4.SetPtEtaPhiM(1, cls->eta(), cls->phi(),0);
+    TLorentzVector cluster_P4 = cls->p4(xAOD::CaloCluster::State::CALIBRATED);
     if(LC_P4.DeltaR(cluster_P4)>dRCut)            continue;
-    clE = cls->calE();
-    Etot += clE;
+    Etot += cls->calE();
   }
 	
   // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
