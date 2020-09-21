@@ -40,7 +40,8 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPToFGroup.defineHistogram('lb,nTofHits', title='Multiplicity;lb;total number of Hits', type='TProfile', path='ToF/', xbins=1000, xmin=-0.5, xmax=999.5) 
     AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;bar', path='ToF/', xbins=4, xmin=-0.5, xmax=3.5)
     AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;bar', path='ToF/', xbins=4, xmin=-0.5, xmax=3.5)
-    AFPToFGroup.defineHistogram('barInTrainAll', title='Number of hits in bar per plane; barInTrain;hits',type='TH1F', path='ToF/HitsPerBarsInTrain', xbins=16, xmin=-0.5, xmax=15.5)
+    AFPToFGroup.defineHistogram('barInTrainAllA', title='Number of hits in bar per plane; barInTrain;hits',type='TH1F', path='ToF/HitsPerBarsInTrain', xbins=16, xmin=-0.5, xmax=15.5)
+    AFPToFGroup.defineHistogram('barInTrainAllC', title='Number of hits in bar per plane; barInTrain;hits',type='TH1F', path='ToF/HitsPerBarsInTrain', xbins=16, xmin=-0.5, xmax=15.5)
 
     # Using a map of groups
     layerList = ['P0','P1', 'P2', 'P3'] ## TODO XXX adapt to the enum/xAOD namespace names
@@ -75,7 +76,8 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     
     arrayToF.defineHistogram('barInTrainID,trainID', title='ToF hit bar vs train {0};barInTrainID;trainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
     arrayToF = helper.addArray([trainList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
-    arrayToF.defineHistogram('barInTrainID', title='Total hits per bars in {}; barID; hits', type='TH1F', path='HitsPerBarsInTrain', xbins=4,xmin=-0.5,xmax=3.5)
+    arrayToF.defineHistogram('barInTrainIDA', title='Total hits per bars in {}; barID; hits', type='TH1F', path='HitsPerBarsInTrain/farAside', xbins=4,xmin=-0.5,xmax=3.5)
+    arrayToF.defineHistogram('barInTrainIDC', title='Total hits per bars in {}; barID; hits', type='TH1F', path='HitsPerBarsInTrain/farCside', xbins=4,xmin=-0.5,xmax=3.5)
     
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()
@@ -94,9 +96,9 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000002.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput59-test.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput61-337371-449k.root'
     
     ConfigFlags.lock()
 
@@ -112,6 +114,6 @@ if __name__=='__main__':
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run(5000)
+    cfg.run()
 
 
