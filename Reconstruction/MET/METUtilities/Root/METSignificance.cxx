@@ -26,10 +26,11 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "tauRecTools/CombinedP4FromRecoTaus.h"
 #include "PathResolver/PathResolver.h"
 
 // Needed for xAOD::get_eta_calo() function
-#include "​ElectronPhotonFourMomentumCorrection/​EgammaCalibrationAndSmearingTool.h"
+#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 namespace met {
     
@@ -557,7 +558,7 @@ namespace met {
     }
     else{
       const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
-      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->GetCaloResolution(tau);
+      pt_reso = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())->getCaloResolution(*tau);
       // For taus, this is not a relative resolution. So we divide by pT
       pt_reso /=tau->pt();
       if(m_doPhiReso) phi_reso = tau->pt()*0.01;

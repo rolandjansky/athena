@@ -32,15 +32,8 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-
-// Forward declarations - tool interfaces
-class IJetCalibrationTool;
-
-/*namespace CP {
-  class IMuonCalibrationAndSmearingTool;
-  class IEgammaCalibrationAndSmearingTool;
-}*/
-class ITauToolBase;
+#include "JetCalibTools/IJetCalibrationTool.h"
+#include "tauRecTools/ITauToolBase.h"
 
 namespace met {
 

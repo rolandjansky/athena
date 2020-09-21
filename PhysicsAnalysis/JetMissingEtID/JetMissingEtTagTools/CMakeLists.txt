@@ -14,8 +14,8 @@ atlas_add_library( JetMissingEtTagToolsLib
                    PUBLIC_HEADERS JetMissingEtTagTools
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities xAODJet GaudiKernel TagEvent AnalysisUtilsLib JetSelectorToolsLib FTagAnalysisInterfacesLib JetCalibToolsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers xAODCore xAODMissingET xAODParticleEvent JetUtils METInterface METUtilities)
+                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities xAODJet GaudiKernel TagEvent AnalysisUtilsLib JetSelectorToolsLib FTagAnalysisInterfacesLib JetCalibToolsLib METUtilitiesLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers xAODCore xAODMissingET xAODParticleEvent JetUtils METInterface)
 
 atlas_add_component( JetMissingEtTagTools
                      src/components/*.cxx
