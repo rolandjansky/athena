@@ -36,7 +36,7 @@ class TrackingGeometry;
 class CylinderVolumeHelper;
 class ILayerBuilder;
 
-class GeometryID;
+class GeometryIdentifier;
 class BinnedSurfaceMaterial;
 
 }

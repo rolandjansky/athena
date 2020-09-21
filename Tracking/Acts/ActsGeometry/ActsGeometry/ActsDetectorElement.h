@@ -43,10 +43,10 @@ public:
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  ActsDetectorElement(std::shared_ptr<const Acts::Transform3D> trf,
-                          const InDetDD::TRT_BaseElement* detElem,
-                          const Identifier& id // we need explicit ID here b/c of straws
-                          );
+  ActsDetectorElement(const Acts::Transform3D& trf,
+                      const InDetDD::TRT_BaseElement* detElem,
+                      const Identifier& id // we need explicit ID here b/c of straws
+                      );
 
   ///  Destructor
   virtual ~ActsDetectorElement() {}

@@ -26,11 +26,12 @@
 #include "Acts/MagneticField/ConstantBField.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
+#include "Acts/Propagator/SurfaceCollector.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 #include <cmath>
 
@@ -59,39 +60,37 @@ public:
 private:
   // set up options for propagation
   using SteppingLogger = Acts::detail::SteppingLogger;
-  using DebugOutput = Acts::DebugOutputActor;
   using EndOfWorld = Acts::EndOfWorldReached;
-  using ResultType = Acts::Result<std::pair<ActsPropagationOutput,
-                                            DebugOutput::result_type>>;
+  using ResultType = Acts::Result<ActsPropagationOutput>;
 
 
 public:
   virtual
   ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
-                   const Acts::BoundParameters& startParameters,
+                   const Acts::BoundTrackParameters& startParameters,
                    Acts::NavigationDirection navDir = Acts::forward,
                    double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
   std::unique_ptr<const Acts::CurvilinearParameters>
   propagate(const EventContext& ctx,
-            const Acts::BoundParameters& startParameters,
+            const Acts::BoundTrackParameters& startParameters,
             Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
   ActsPropagationOutput
   propagationSteps(const EventContext& ctx,
-                   const Acts::BoundParameters& startParameters,
+                   const Acts::BoundTrackParameters& startParameters,
                    const Acts::Surface& target,
                    Acts::NavigationDirection navDir = Acts::forward,
                    double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
-  std::unique_ptr<const Acts::BoundParameters>
+  std::unique_ptr<const Acts::BoundTrackParameters>
   propagate(const EventContext& ctx,
-            const Acts::BoundParameters& startParameters,
+            const Acts::BoundTrackParameters& startParameters,
             const Acts::Surface& target,
             Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const override;
