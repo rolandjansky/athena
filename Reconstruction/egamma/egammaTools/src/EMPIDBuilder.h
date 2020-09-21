@@ -69,7 +69,7 @@ private:
     "The selector result names"
   };
 
-  ToolHandleArray<CP::ISelectionTool> m_genericIsEMselectors{
+  ToolHandleArray<IAsgSelectionTool> m_genericIsEMselectors{
     this,
     "genericIsEMselectors",
     {},
