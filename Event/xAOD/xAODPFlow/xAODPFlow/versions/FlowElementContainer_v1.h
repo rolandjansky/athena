@@ -13,8 +13,7 @@
 
 // Local include(s):
 #include "xAODPFlow/versions/FlowElement_v1.h"
-// initialise the base class of the FlowElementContainer as an IParticle
-//DATAVECTOR_BASE(xAOD::FlowElement_v1, xAOD::IParticle);
+
 namespace xAOD {
    /// The container is a simple typedef for now
    typedef DataVector< xAOD::FlowElement_v1 > FlowElementContainer_v1;

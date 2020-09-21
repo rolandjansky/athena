@@ -254,7 +254,7 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    topSequence += PFEGammaPFOAssoc
 
 #Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements or True: 
+if jobproperties.eflowRecFlags.useFlowElements: 
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
   PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
   topSequence += PFChargedFlowElementCreatorAlgorithm 

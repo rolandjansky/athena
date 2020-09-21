@@ -358,7 +358,6 @@ namespace xAOD {
   }; // class Jet
 
 
-
 } // namespace xAOD
 
 // Declare IParticle as a base class of Jet_v1:

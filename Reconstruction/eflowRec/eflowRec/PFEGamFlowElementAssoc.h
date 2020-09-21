@@ -24,15 +24,13 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "xAODPFlow/FlowElementContainer.h"
 /**                                                                                                                                                                                     
-This is the algorithm, which inherits from AthAlgorithm, that adds element links 
-between particle flow objects (Flow Elements) and Egamma objects. The algorithm associates charged (c) Flow Elements 
-to all electron and converted photon tracks, and neutral (n) Flow Elements to all electron and photon clusters. 
-This is done by adding decorations to the "Electron" and "Photon" container, for charged Charged Flow Elements and Neutral Flow Elements separately, 
-in the form of vectors of element links to the associated Flow Elements. 
-The algorithm also adds decorations to the "JetETMissNeutralParticleFlowObjects" and 
-"JetETMissChargedParticleFlowObjects" containers, 
-in the form of vectors of element links to the associated electrons and photons.
-*/
+This is the algorithm, which inherits from AthAlgorithm, that adds element links between particle flow objects (Flow Elements) and Egamma objects. The algorithm associates charged (c) Flow Elements to all electron and converted photon tracks, and neutral (n) Flow Elements to all electron and photon clusters. 
+
+This is done by adding decorations to the "Electron" and "Photon" container, for charged Charged Flow Elements and Neutral Flow Elements separately, in the form of vectors of element links to the associated Flow Elements. 
+The algorithm also adds decorations to the "JetETMissNeutralFlowElements" and 
+"JetETMissChargedParticleFlowElements" containers, in the form of vectors of element links to the associated electrons and photons.
+
+**/
 class PFEGamFlowElementAssoc : public AthReentrantAlgorithm {
 
 public:
