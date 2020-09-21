@@ -114,6 +114,7 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   //   Loop over Neutral FlowElements
   //////////////////////////////////////////////////
   if(m_LinkNeutralFEClusters){
+    ATH_MSG_DEBUG("Experimental: Cluster Linkers between neutral FEs and Muons are used");
     for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
       //get the index of the cluster corresponding to the Neutral FlowElements
       size_t FEclusterindex=FE->otherObjects().at(0)->index();
@@ -146,11 +147,14 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   //////////////////////////////////////////////////
   // Add the vectors of the Flow Element Links as decoations to the muon container
   for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
-    muonChargedFEWriteDecorHandle(*muon)=muonChargedFEVec.at(muon->index());
-
+    muonChargedFEWriteDecorHandle(*muon)=muonChargedFEVec.at(muon->index());    
   } // end of muon loop
-  for(const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle){
-    muonNeutralFEWriteDecorHandle(*muon)=muonNeutralFEVec.at(muon->index());
+  if(m_LinkNeutralFEClusters){
+    for(const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle){
+      if(muonNeutralFEVec.size()>0){
+	muonNeutralFEWriteDecorHandle(*muon)=muonNeutralFEVec.at(muon->index());
+      }
+    }
   }
   ATH_MSG_DEBUG("Execute completed successfully");   
   
