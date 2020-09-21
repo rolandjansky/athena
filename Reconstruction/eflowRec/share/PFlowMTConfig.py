@@ -246,7 +246,7 @@ topSequence += PFONeutralCreatorAlgorithm
 from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
 jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
-print("CONFIG_FLOW_ALG_AND_PFEGAMASSOC")
+
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
@@ -267,7 +267,6 @@ if jobproperties.eflowRecFlags.useFlowElements or True:
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
 
-  print("MATTFLOWALG")
   from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
   PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
   topSequence +=PFEGamFlowElementAssoc
