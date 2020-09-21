@@ -231,7 +231,7 @@ public:
   FitWeight() {};
   ~FitWeight() override final {};
   float eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, __attribute__((unused)) const xAOD::EventInfo& evt) const override final {
-    std::vector<const xAOD::TrackParticle*> fitTrks = toVector((const std::vector<ElementLink<xAOD::TrackParticleContainer>>&)vx.trackParticleLinks());
+    std::vector<const xAOD::TrackParticle*> fitTrks = toVector(vx.trackParticleLinks());
     float weight = 0.0;
     int pos = inVector(&trk, fitTrks);
     if (pos != -1) {
@@ -300,123 +300,123 @@ public:
 namespace CP {
 
 MVAInputEvaluator::~MVAInputEvaluator() {
-  this->clear();
+  clear();
 }
 
 void MVAInputEvaluator::add(const std::string& name, const MVAInputEvaluator::Input& type) {
   using Input = MVAInputEvaluator::Input;
-  for (auto it = m_evalMap.begin(); it != m_evalMap.end(); it++) {
-    if (name == it->first) {
+  for (const auto& kv : m_evalMap) {
+    if (name == kv.first) {
       throw std::runtime_error("ERROR in CP::MVAInputEvaluator::add : input name is already present in map: " + name);
     }
   }
   switch (type) {
     case Input::Pt: {
-      m_evalMap[name] = new ::Pt();
+      m_evalMap[name] = std::make_unique<::Pt>(::Pt());
       break;
     }
     case Input::Eta: {
-      m_evalMap[name] = new ::Eta();
+      m_evalMap[name] = std::make_unique<::Eta>(::Eta());
       break;
     }
     case Input::M: {
-      m_evalMap[name] = new ::M();
+      m_evalMap[name] = std::make_unique<::M>(::M());
       break;
     }
     case Input::D0: {
-      m_evalMap[name] = new ::D0();
+      m_evalMap[name] = std::make_unique<::D0>(::D0());
       break;
     }
     case Input::ErrD0: {
-      m_evalMap[name] = new ::ErrD0();
+      m_evalMap[name] = std::make_unique<::ErrD0>(::ErrD0());
       break;
     }
     case Input::Z0: {
-      m_evalMap[name] = new ::Z0();
+      m_evalMap[name] = std::make_unique<::Z0>(::Z0());
       break;
     }
     case Input::ErrZ0: {
-      m_evalMap[name] = new ::ErrZ0();
+      m_evalMap[name] = std::make_unique<::ErrZ0>(::ErrZ0());
       break;
     }
     case Input::Phi: {
-      m_evalMap[name] = new ::Phi();
+      m_evalMap[name] = std::make_unique<::Phi>(::Phi());
       break;
     }
     case Input::ErrPhi: {
-      m_evalMap[name] = new ::ErrPhi();
+      m_evalMap[name] = std::make_unique<::ErrPhi>(::ErrPhi());
       break;
     }
     case Input::Theta: {
-      m_evalMap[name] = new ::Theta();
+      m_evalMap[name] = std::make_unique<::Theta>(::Theta());
       break;
     }
     case Input::ErrTheta: {
-      m_evalMap[name] = new ::ErrTheta();
+      m_evalMap[name] = std::make_unique<::ErrTheta>(::ErrTheta());
       break;
     }
     case Input::QOverP: {
-      m_evalMap[name] = new ::QOverP();
+      m_evalMap[name] = std::make_unique<::QOverP>(::QOverP());
       break;
     }
     case Input::ErrQOverP: {
-      m_evalMap[name] = new ::ErrQOverP();
+      m_evalMap[name] = std::make_unique<::ErrQOverP>(::ErrQOverP());
       break;
     }
     case Input::ChiSq: {
-      m_evalMap[name] = new ::ChiSq();
+      m_evalMap[name] = std::make_unique<::ChiSq>(::ChiSq());
       break;
     }
     case Input::RedChiSq: {
-      m_evalMap[name] = new ::RedChiSq();
+      m_evalMap[name] = std::make_unique<::RedChiSq>(::RedChiSq());
       break;
     }
     case Input::D0Sig: {
-      m_evalMap[name] = new ::D0Sig();
+      m_evalMap[name] = std::make_unique<::D0Sig>(::D0Sig());
       break;
     }
     case Input::DZ: {
-      m_evalMap[name] = new ::DZ();
+      m_evalMap[name] = std::make_unique<::DZ>(::DZ());
       break;
     }
     case Input::ErrDZ: {
-      m_evalMap[name] = new ::ErrDZ();
+      m_evalMap[name] = std::make_unique<::ErrDZ>(::ErrDZ());
       break;
     }
     case Input::DZSinTheta: {
-      m_evalMap[name] = new ::DZSinTheta();
+      m_evalMap[name] = std::make_unique<::DZSinTheta>(::DZSinTheta());
       break;
     }
     case Input::ErrDZSinTheta: {
-      m_evalMap[name] = new ::ErrDZSinTheta();
+      m_evalMap[name] = std::make_unique<::ErrDZSinTheta>(::ErrDZSinTheta());
       break;
     }
     case Input::FitWeight: {
-      m_evalMap[name] = new ::FitWeight();
+      m_evalMap[name] = std::make_unique<::FitWeight>(::FitWeight());
       break;
     }
     case Input::VxX: {
-      m_evalMap[name] = new ::VxX();
+      m_evalMap[name] = std::make_unique<::VxX>(::VxX());
       break;
     }
     case Input::ErrVxX: {
-      m_evalMap[name] = new ::ErrVxX();
+      m_evalMap[name] = std::make_unique<::ErrVxX>(::ErrVxX());
       break;
     }
     case Input::VxY: {
-      m_evalMap[name] = new ::VxY();
+      m_evalMap[name] = std::make_unique<::VxY>(::VxY());
       break;
     }
     case Input::ErrVxY: {
-      m_evalMap[name] = new ::ErrVxY();
+      m_evalMap[name] = std::make_unique<::ErrVxY>(::ErrVxY());
       break;
     }
     case Input::VxZ: {
-      m_evalMap[name] = new ::VxZ();
+      m_evalMap[name] = std::make_unique<::VxZ>(::VxZ());
       break;
     }
     case Input::ErrVxZ: {
-      m_evalMap[name] = new ::ErrVxZ();
+      m_evalMap[name] = std::make_unique<::ErrVxZ>(::ErrVxZ());
       break;
     }
     default: {
@@ -427,27 +427,22 @@ void MVAInputEvaluator::add(const std::string& name, const MVAInputEvaluator::In
 }
 
 void MVAInputEvaluator::load(const MVAInputEvaluator::InputSelectionMap& selection) {
-  this->clear();
-  std::string k;
-  for (auto it = selection.begin(); it != selection.end(); it++) {
-    this->add(it->first, it->second);
+  clear();
+  for (const auto& kv : selection) {
+    add(kv.first, kv.second);
   }
   return;
 }
 
 void MVAInputEvaluator::eval(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt, std::map<std::string, double>& input) const {
   input.clear();
-  for (auto it = m_evalMap.begin(); it != m_evalMap.end(); it++) {
-    input[it->first] = it->second->eval(trk, vx, evt);
+  for (const auto& kv : m_evalMap) {
+    input[kv.first] = kv.second->eval(trk, vx, evt);
   }
   return;
 }
 
 void MVAInputEvaluator::clear() {
-  for (auto it = m_evalMap.begin(); it != m_evalMap.end(); it++) {
-    delete it->second;
-    it->second = nullptr;
-  }
   m_evalMap.clear();
   return;
 }

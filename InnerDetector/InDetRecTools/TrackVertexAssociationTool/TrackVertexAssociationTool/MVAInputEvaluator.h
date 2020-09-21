@@ -7,6 +7,7 @@
 
 #include <iterator>
 #include <map>
+#include <memory>
 #include <string>
 
 namespace CP {
@@ -59,7 +60,7 @@ public:
   // Defines the mapping of strings to Inputs:
   typedef std::map<std::string, Input> InputSelectionMap;
   // Defines the mapping of those same strings to MiniEvaluators:
-  typedef std::map<std::string, MiniEvaluator*> InputEvaluatorMap;
+  typedef std::map<std::string, std::unique_ptr<MiniEvaluator>> InputEvaluatorMap;
 
   void add(const std::string& name, const MVAInputEvaluator::Input& type);
   void load(const MVAInputEvaluator::InputSelectionMap& selection);

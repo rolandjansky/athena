@@ -18,15 +18,13 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/LightweightGraph.hh"
+
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
-
-// Forward declarations
-namespace lwt {
-  class LightweightNeuralNetwork;
-  class LightweightGraph;
-}
 
 namespace CP {
 
@@ -64,9 +62,8 @@ private:
   template <typename T>
   const xAOD::Vertex* getUniqueMatchVertexInternal(const xAOD::TrackParticle& trk, const T& vx_list) const;
 
-  bool initializeNetwork();
+  StatusCode initializeNetwork();
   float evaluateNetwork(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt) const;
-  bool finalizeNetwork();
 
   // Input lwtnn network file
   StringProperty m_fileName {this, "NetworkFileName", "", "Name of the input lwtnn network file."};
@@ -105,8 +102,8 @@ private:
   std::string m_inputNodeName = ""; //!
 
   // Network as implemented using lwtnn
-  lwt::LightweightNeuralNetwork* m_network = nullptr; //!
-  lwt::LightweightGraph*         m_graph   = nullptr; //!
+  std::unique_ptr<lwt::LightweightNeuralNetwork> m_network; //!
+  std::unique_ptr<lwt::LightweightGraph>         m_graph;   //!
 
 };
 
