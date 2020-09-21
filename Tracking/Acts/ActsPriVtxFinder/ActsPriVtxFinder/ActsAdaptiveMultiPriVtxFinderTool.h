@@ -5,10 +5,6 @@
 #ifndef ACTSPRIVTXFINDER_ACTSADAPTIVEMULTIPRIVTXFINDERTOOL_H
 #define ACTSPRIVTXFINDER_ACTSADAPTIVEMULTIPRIVTXFINDERTOOL_H
 
-#include "TrkParameters/TrackParameters.h"
-
-#include "Acts/Propagator/Propagator.hpp"
-
 // ATHENA
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
