@@ -11,7 +11,6 @@
 #include "CaloClusterCorrDBWriter.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include "CaloRec/ToolWithConstantsMixin.h"
 #include "CaloConditions/ToolConstants.h"
 #include "AthenaKernel/errorcheck.h"
 
