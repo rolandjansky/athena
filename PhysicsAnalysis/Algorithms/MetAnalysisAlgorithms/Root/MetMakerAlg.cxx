@@ -71,7 +71,7 @@ namespace CP
     ANA_CHECK (evtStore()->retrieve(metMap, m_metAssociationName));
 
     // Helper keeps track of object selection flags for this map
-    MissingETAssociationHelper metHelper(&(*metMap));
+    xAOD::MissingETAssociationHelper metHelper(&(*metMap));
 
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         auto met = std::make_unique<xAOD::MissingETContainer> ();

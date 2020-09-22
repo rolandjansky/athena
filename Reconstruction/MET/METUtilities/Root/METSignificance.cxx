@@ -30,7 +30,12 @@
 #include "PathResolver/PathResolver.h"
 
 // Needed for xAOD::get_eta_calo() function
+
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
+
+#ifdef XAOD_STANDALONE
+#include "JetCalibTools/JetCalibrationTool.h"
+#endif
 
 namespace met {
     
