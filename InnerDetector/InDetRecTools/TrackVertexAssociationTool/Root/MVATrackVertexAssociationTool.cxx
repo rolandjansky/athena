@@ -25,7 +25,7 @@ namespace CP {
 MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& name) :
   AsgTool(name)
 {
-  #ifndef XAOD_STANDALONE
+  #ifdef XAOD_STANDALONE
   declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
   declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );
   declareProperty("InputTypes",      m_inputTypes,      "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");

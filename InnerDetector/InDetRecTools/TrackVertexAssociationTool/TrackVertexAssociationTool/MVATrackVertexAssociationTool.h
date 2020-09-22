@@ -66,7 +66,7 @@ private:
   float evaluateNetwork(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt) const;
 
   // For AnalysisBase
-  #ifndef XAOD_STANDALONE
+  #ifdef XAOD_STANDALONE
 
   // Input lwtnn network file
   std::string m_fileName = "";
