@@ -74,7 +74,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
         ATH_MSG_DEBUG("No Beamspot object in tau candidate");
       }
     }
-    else if (pTau.vertexLink()) { // offline: obtain tau vertex by link
+    else if (pTau.vertexLink().isValid()) { // offline: obtain tau vertex by link
       vxcand = pTau.vertex() ;
       //check if vertex has a valid type (skip if vertex has type NoVtx)
       if (vxcand->vertexType() != xAOD::VxType::NoVtx) {
@@ -118,7 +118,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
   //try to find secondary vertex if more than 1 track and the tau vertex is available
-  if ( pTau.nTracks() < 2 ||  !pTau.vertexLink() ) {
+  if ( pTau.nTracks() < 2 ||  !pTau.vertexLink().isValid() ) {
     return StatusCode::SUCCESS;
   }
 
@@ -171,12 +171,11 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 //-------------------------------------------------------------------------
 double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const {
 
-  const xAOD::Vertex* pVertex = nullptr;
-  if (pTau.vertexLink()) pVertex = pTau.vertex();
-  if (!pVertex) {
+  if (! pTau.vertexLink().isValid()) {
     ATH_MSG_WARNING("No primary vertex information for calculation of transverse flight path significance");
     return -11111.;
   }
+  const xAOD::Vertex* pVertex = pTau.vertex();
 
   double fpx = secVertex.position().x() - pVertex->position().x();
   double fpy = secVertex.position().y() - pVertex->position().y();
