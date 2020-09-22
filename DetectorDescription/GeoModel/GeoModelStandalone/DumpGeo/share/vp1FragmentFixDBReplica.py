@@ -10,7 +10,7 @@ if globalflags.DataSource() == 'data' and os.getenv("FRONTIER_SERVER") == None :
     # Patch dblookup.xml to avoid any attempt to use sqlite replicas
     print ("VP1 Info: real data mode and Frontier environment not set - need to patch dblookup.xml to avoid using local sqlite replicas.")
     if os.path.exists("dblookup.xml"):
-        print "VP1 Warning: dblookup.xml already found in run directory. Will not attempt to created patched copy."
+        print ("VP1 Warning: dblookup.xml already found in run directory. Will not attempt to created patched copy.")
         os.putenv("CORAL_DBLOOKUP_PATH",".")
     else:
         if os.getenv("CORAL_AUTH_PATH") == None or not os.path.isdir(os.getenv("CORAL_AUTH_PATH")):
