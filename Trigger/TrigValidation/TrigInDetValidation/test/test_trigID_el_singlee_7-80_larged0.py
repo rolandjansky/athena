@@ -81,7 +81,7 @@ if ((not exclude) or postproc ):
     rdict.args='TIDAdata-run3.dat -f data-hists.root -p 11 -b Test_bin.dat '
     test.check_steps.append(rdict)
     rdict2 = TrigInDetdictStep('TrigInDetDict2')
-    rdict2.args='TIDAdata-run3.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
     test.check_steps.append(rdict2)
 
  
