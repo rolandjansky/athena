@@ -48,15 +48,6 @@ class IEnvelopeDefSvc : virtual public IInterface {
     const RZPairVector &getMuonRZBoundary()     const { return getRZBoundary(AtlasDetDescr::fAtlasMS);      }
     const RZPairVector &getCavernRZBoundary()   const { return getRZBoundary(AtlasDetDescr::fAtlasCavern);  }
 
-    /** legacy methods
-          Any client should update to use the methods defined above!
-          The following lecagy methods will be phased out once all clients have migrated to the new methods above */
-    RZPairVector &getBeamPipeRZValues( unsigned short = 0) const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasForward) ); }
-    RZPairVector &getInDetRZValues( unsigned short = 0)    const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasID) );      }
-    RZPairVector &getCaloRZValues( unsigned short = 0)     const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasCalo) );    }
-    RZPairVector &getMuonRZValues( unsigned short = 0)     const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasMS) );      }
-    RZPairVector &getCavernRZValues( unsigned short = 0)   const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasCavern) );  }
-
   protected:
     /** mirror the given srcRZ RZPairVector in the XY-plane to describe all corner points
      in (r,z) space in the dstRZ RZPairVector */
