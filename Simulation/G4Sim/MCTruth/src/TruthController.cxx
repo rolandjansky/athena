@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MCTruth/TruthController.h"
 #include "SimHelpers/TrackVisualizationHelper.h"
 
-TruthController* TruthController::s_thePointer=TruthController::getTruthController() ;
-
-TruthController* TruthController::getTruthController()
+const TruthController* TruthController::getTruthController()
 {
-  if (!s_thePointer) s_thePointer = new TruthController;
-  return s_thePointer;
+  static const TruthController tc;
+  return &tc;
 }
 
 TruthController::TruthController()
