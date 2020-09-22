@@ -331,12 +331,7 @@ bool ClustersMeanFirstEngDens(const xAOD::TauJet &tau, double &out){
 bool ClustersMeanPresamplerFrac(const xAOD::TauJet &tau, double &out){
   float ClustersMeanPresamplerFrac;
   const auto success = tau.detail(TauDetail::ClustersMeanPresamplerFrac, ClustersMeanPresamplerFrac);
-  out = ClustersMeanPresamplerFrac;
-
-  if (std::isnan(std::abs(out))){
-	out = 0.;
-  }
-  out = std::max(0., out);
+  out = std::max(0.f, ClustersMeanPresamplerFrac);
 
   return success;
 }
@@ -562,7 +557,6 @@ bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const
     cls = clusters[i];
 
     TLorentzVector cluster_P4 = cls->p4(xAOD::CaloCluster::State::CALIBRATED);
-    if(LC_P4.DeltaR(cluster_P4)>dRCut)            continue;
     Etot += cls->calE();
   }
 	
