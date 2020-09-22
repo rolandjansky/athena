@@ -331,7 +331,7 @@ namespace Muon {
       results = m_clusterUtilTool->getRefitCluster(MClus,tantheta);
       results0 = m_clusterUtilTool->getRefitCluster(MClus,0);
 
-      if(&results[0]==nullptr || &results0[0]==nullptr){
+      if(results.empty() || results0.empty()){
 	ATH_MSG_VERBOSE("No fit result");
 	return new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus(),MClus->time());
       }
