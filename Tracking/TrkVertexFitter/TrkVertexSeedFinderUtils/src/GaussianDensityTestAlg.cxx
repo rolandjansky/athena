@@ -15,8 +15,8 @@
 // FrameWork includes
 #include "Gaudi/Property.h"
 
-#include "xAODTracking/Vertex.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
+#include "xAODTracking/Vertex.h"
 
 #include <limits>
 

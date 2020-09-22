@@ -10,18 +10,18 @@
 
 
 #undef NDEBUG
-#include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
-#include "TestTools/initGaudi.h"
+#include "TInterpreter.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/ubsan_suppress.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "TInterpreter.h"
-#include <iostream>
+#include "TestTools/initGaudi.h"
+#include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
 // for the field map
 #include "PathResolver/PathResolver.h"
@@ -30,8 +30,8 @@
 
 // for populating conditions store
 #include "SGTools/TestStore.h"
-#include "StoreGate/WriteCondHandleKey.h"
 #include "StoreGate/WriteCondHandle.h"
+#include "StoreGate/WriteCondHandleKey.h"
 
 // for the conditions data
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
