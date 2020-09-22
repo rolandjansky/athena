@@ -30,6 +30,9 @@ find_package( requests )
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
 find_package( AIDA )
 
+# Package(s) needed only by the analysers, not the analysis release itself.
+find_package( nlohmann_json )
+
 # Conditional compile flags:
 add_definitions( -DXAOD_ANALYSIS )
 add_definitions( -DROOTCORE_RELEASE_SERIES=25 )
