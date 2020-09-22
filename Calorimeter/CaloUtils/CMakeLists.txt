@@ -12,7 +12,7 @@ atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PUBLIC_HEADERS CaloUtils
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloInterfaceLib CxxUtils FourMom GaudiKernel Navigation StoreGateLib xAODCaloEvent
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelInterfaces Identifier SGTools )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelInterfaces Identifier SGTools TestTools )
 
 atlas_add_component( CaloUtils src/components/*.cxx
    LINK_LIBRARIES CaloUtilsLib )
