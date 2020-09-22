@@ -204,8 +204,9 @@ def TrigJetMonConfig(inputFlags):
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
     # kinematic plots
-    chainMonitorConfT = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,True)
-    chainMonitorConfT.toAlg(helper)
+    if AthenaMT:
+      chainMonitorConfT = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,True)
+      chainMonitorConfT.toAlg(helper)
     chainMonitorConfF = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT,False)
     chainMonitorConfF.toAlg(helper)
     # efficiency plots
