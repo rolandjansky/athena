@@ -63,7 +63,7 @@
 using InDetDD::SCT_DetectorManager; 
 using InDetDD::SiCommonItems; 
 
-SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaComps,
+SCT_DetectorFactory::SCT_DetectorFactory(SCT_GeoModelAthenaComps * athenaComps,
 					 const SCT_Options & options)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_useDynamicAlignFolders(false)

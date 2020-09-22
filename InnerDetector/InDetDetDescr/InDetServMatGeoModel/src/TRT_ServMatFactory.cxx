@@ -33,7 +33,7 @@
 #include <sstream>
 #include <iostream>
 
-TRT_ServMatFactory::TRT_ServMatFactory(const InDetDD::AthenaComps * athenaComps)
+TRT_ServMatFactory::TRT_ServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::SubDetectorFactoryBase(athenaComps)
 {
 }

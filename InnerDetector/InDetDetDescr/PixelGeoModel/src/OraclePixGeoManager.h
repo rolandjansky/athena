@@ -174,7 +174,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
 
  public:
 
-  OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe init method is used.
+  OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe init method is used.
   ~OraclePixGeoManager();
   
   void init();

@@ -36,7 +36,7 @@ class ATLAS_NOT_THREAD_SAFE TRTDetectorFactory_Full : public InDetDD::DetectorFa
   //--------------------------Public Interface:--------------------------------//
   //                                                                           //
   // Constructor:                                                              //
-  TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,            //
+  TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaComps,                  //
 			  const ITRT_StrawStatusSummaryTool * sumTool,         //
 			  bool useOldActiveGasMixture,                         //
 			  bool DC2CompatibleBarrelCoordinates,                 //
