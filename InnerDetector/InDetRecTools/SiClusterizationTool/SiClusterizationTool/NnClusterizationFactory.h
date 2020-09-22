@@ -138,12 +138,14 @@ namespace InDet {
     // Handling inputs and outputs
     typedef std::map<std::string, std::map<std::string, double> > InputMap;
 
-    // lwtnn version
+    // lwtnn versions
     std::vector<Amg::Vector2D> estimatePositions(NnClusterizationFactory::InputMap & input, 
                                                 NNinput* rawInput,
                                                 const InDet::PixelCluster& pCluster,
                                                 int numberSubClusters,
                                                 std::vector<Amg::MatrixX> & errors);
+
+    std::vector<double> estimateNumberOfParticles(NnClusterizationFactory::InputMap & input);
 
     // For error formatting in lwtnn version
     double correctedRMSX(double posPixels);

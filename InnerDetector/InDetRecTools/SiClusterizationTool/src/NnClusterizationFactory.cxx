@@ -251,6 +251,7 @@ namespace InDet {
     std::ostringstream configStream;
 
     // First, extract configuration for the number network.
+    m_useLwtnnNumber = true;
     pt::ptree subtreeNumberNetwork = parentTree.get_child("NumberNetwork");
     // If this json is empty, we aren't using
     // lwtnn for the number network.
@@ -470,6 +471,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
                                                                          int sizeY)
   {
 
+    ATH_MSG_DEBUG("Entering estimateNumberOfParticles (no track)");
+
     double tanl=0;
     
     NNinput* input=createInput(pCluster,
@@ -502,6 +505,18 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     ATH_MSG_VERBOSE(" NOTRACK Prob of n. particles (1): " << resultNN_NoTrack[0] << 
 		    " (2): " << resultNN_NoTrack[1] <<
 		    " (3): " << resultNN_NoTrack[2]);
+
+    // If we're using new networks via lwtnn, call those now
+    if (m_useLwtnnNumber) {
+      NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
+      auto test_num = estimateNumberOfParticles(nnInputData);
+      ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
+      delete input;
+      input=0;
+      return test_num;
+    }
+    
+    // Otherwise return old result
     
     delete input;
     input=0;
@@ -515,6 +530,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
                                                                          int sizeX,
                                                                          int sizeY)
   {
+
+    ATH_MSG_DEBUG("Entering estimateNumberOfParticles (with track)");
     
     Amg::Vector3D dummyBS(0,0,0);
 
@@ -547,10 +564,38 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
     ATH_MSG_VERBOSE(" Prob of n. particles (1): " << resultNN[0] << " (2): " << resultNN[1] << " (3): " << resultNN[2]);
 
+    // If we're using new networks via lwtnn, call those now
+    if (m_useLwtnnNumber) {
+      NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
+      auto test_num = estimateNumberOfParticles(nnInputData);
+      ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
+      delete input;
+      input=0;
+      return test_num;
+    }
+    
+    // Otherwise return old result
+
     delete input;
     input=0;
 
     return resultNN;
+  }
+
+  std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(NnClusterizationFactory::InputMap & input)
+  {
+    ATH_MSG_DEBUG("Using lwtnn number network");
+    // Evaluate the number network once per cluster
+    lwt::ValueMap discriminant = m_lwnnNumber->compute(input);
+    double num0 = discriminant["output_number0"];
+    double num1 = discriminant["output_number1"];
+    double num2 = discriminant["output_number2"];
+    // Get normalized predictions
+    double prob1 = num0/(num0+num1+num2);
+    double prob2 = num1/(num0+num1+num2);
+    double prob3 = num2/(num0+num1+num2);
+    std::vector<double> number_probabilities{prob1, prob2, prob3};
+    return number_probabilities;
   }
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
