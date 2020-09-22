@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -367,7 +367,7 @@ void TRTCalibrator::MakeBDKeys(int bec, int low, int mod, int brd, int chp, int 
 
 }
 
-bool TRTCalibrator::calibrate() {
+bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
 
   float run,evt,trk,r,dr,t,rtrack,ttrack,t0,ephase,sid;
   Identifier ident;

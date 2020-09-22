@@ -109,7 +109,7 @@ def collectL1DecoderDecisionObjects(l1decoder):
 
 def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     decisionObjects = set()
-    for step, stepHypos in six.iteritems (hypos):
+    for step, stepHypos in sorted(six.iteritems (hypos)):
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
                          hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )

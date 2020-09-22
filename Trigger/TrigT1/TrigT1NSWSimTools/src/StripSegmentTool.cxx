@@ -142,6 +142,11 @@ namespace NSWL1 {
     float step=(range.second-range.first)/nSlices;
     if(val<=range.first) return 0;
     if(val>=range.second) return nSlices-1;
+
+    //the loop gets stuck if the value is between the last and second-to-last step (255-256)
+    if(val>=range.first+(nSlices-1)*step){
+      return nSlices-1;
+    }
     for(uint8_t i=0;i<nSlices;i++){
             if(range.first+i*step>=val){
                 return i;
@@ -288,6 +293,7 @@ namespace NSWL1 {
             continue;
          }
          
+         //S.I instead of doing all these stuff like below, which is quite error prone  why dont we use TVectors?
          if(glx>=0 && gly>=0){
              phi=atan(gly/glx);
          }
@@ -304,7 +310,7 @@ namespace NSWL1 {
          else{
             ATH_MSG_ERROR("Unexpected error, global x or global y are not a number");//S.I does this even necessary ? then what ?
          }
-        
+
         //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
         //if(std::abs(dtheta)>15) return StatusCode::SUCCESS; 
         
@@ -315,13 +321,11 @@ namespace NSWL1 {
         sign= (std::abs(theta_inf)<std::abs(theta)) ? 1: -1;
         float delta_r=delta_z*tan(theta_inf);
         float rfar=avg_r+sign*delta_r;
-
  
         if( rfar > m_rbounds.second || rfar < m_rbounds.first ){
             ATH_MSG_WARNING("measured r is out of detector envelope! rfar="<<rfar<<" rmax="<<m_rbounds.second);
             return StatusCode::SUCCESS;
         }
-        
         
         uint8_t rIndex=0;
         switch(m_ridxScheme){
@@ -334,7 +338,6 @@ namespace NSWL1 {
             default:
                 break;   
         }
-        
         
         bool phiRes=true;
         bool lowRes=false;//we do not have a recipe  for a singlewedge trigger.  so lowres is always false for now
@@ -441,3 +444,4 @@ namespace NSWL1 {
     }
 
 }
+ 

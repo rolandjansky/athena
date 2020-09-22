@@ -135,7 +135,7 @@ float UpgradePerformanceFunctions::getMETResolution(float sumEtMeV, METSyst syst
 //  /*Transition*/
 //  else if (sumEtGeV<m_highsumet[PUcondition]) 
 //    METPUresoNom=m_Ress[PUcondition]->Eval(m_lowsumet[PUcondition])+((sumEtGeV-m_lowsumet[PUcondition])*(m_par1[PUcondition]+m_par2[PUcondition]*sqrt(m_highsumet[PUcondition])-m_Ress[PUcondition]->Eval(m_lowsumet[PUcondition]))/(m_highsumet[PUcondition]-m_lowsumet[PUcondition]));
-//  /*Z´ fit*/   
+//  /*Z' fit*/   
 //  else METPUresoNom=m_par1[PUcondition]+m_par2[PUcondition]*sqrt(sumEtGeV);
 //  
 //  //5% systematics sample dependence, and extrapolation at low sumET wiht the fit

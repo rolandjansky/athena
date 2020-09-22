@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelUtilities/GeoMaterialPropertiesTable.h"
@@ -89,7 +89,7 @@ GeoMaterialPropertiesTable::GeoMatPMap_ConstIt GeoMaterialPropertiesTable::endPM
 
 void GeoMaterialPropertiesTable::DumpTable() const
 {
-  for(GeoMatPVMap_ConstIt i=m_MPT.begin(); i!=m_MPT.end(); i++) 
+  for(GeoMatPVMap_ConstIt i=m_MPT.begin(); i!=m_MPT.end(); ++i) 
   {
     std::cout << (*i).first << "\n";
     if((*i).second != 0)

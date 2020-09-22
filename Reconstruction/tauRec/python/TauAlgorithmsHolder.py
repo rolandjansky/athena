@@ -78,6 +78,7 @@ def getTauAxis():
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
                                     VertexCorrection = True,
+                                    TauVertexCorrection = getTauVertexCorrection(),
                                     IncShowerSubtr = tauFlags.useShowerSubClusters() )
                                     
     cached_instances[_name] = TauAxisSetter                
@@ -309,7 +310,7 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          VertexCorrection = True,
+                                                          TauVertexCorrection = getTauVertexCorrection(),
                                                           IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                        )
     
@@ -388,6 +389,7 @@ def getPi0ClusterCreator():
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
                                                 Key_Pi0ClusterContainer="TauPi0SubtractedClusters",
+                                                TauVertexCorrection = getTauVertexCorrection(),
                                                 IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                 )
     
@@ -678,6 +680,7 @@ def getMvaTESVariableDecorator():
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
                                                       Key_vertexInputContainer=_DefaultVertexContainer,
+                                                      TauVertexCorrection = getTauVertexCorrection(),
                                                       IncShowerSubtr = tauFlags.useShowerSubClusters() )
     cached_instances[_name] = MvaTESVariableDecorator
     return MvaTESVariableDecorator
@@ -891,6 +894,7 @@ def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P=
                                               InputLayerClusters=InputLayerClusters,
                                               OutputLayer=OutputLayer,
                                               OutputNode=OutputNode,
+                                              TauVertexCorrection = getTauVertexCorrection(),
                                               IncShowerSubtr = tauFlags.useShowerSubClusters() )
     cached_instances[_name] = myTauJetRNNEvaluator
     return myTauJetRNNEvaluator
@@ -911,9 +915,11 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
 
 def getTauIDVarCalculator():
     _name = sPrefix + 'TauIDVarCalculator'
-    from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
+    from tauRecTools.tauRecToolsConf import TauIDVarCalculator   
+
     myTauIDVarCalculator = TauIDVarCalculator(name=_name,
-                                              IncShowerSubtr = tauFlags.useShowerSubClusters() )
+                                              IncShowerSubtr = tauFlags.useShowerSubClusters(),
+                                              TauVertexCorrection = getTauVertexCorrection())
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
 
@@ -936,6 +942,31 @@ def getTauEleOLRDecorator():
                                               EleOLRFile="eVetoAODfix.root")
     cached_instances[_name] = myTauEleOLRDecorator
     return myTauEleOLRDecorator
+
+def getTauVertexCorrection():
+    from tauRec.tauRecFlags import tauFlags
+    from tauRecTools.tauRecToolsConf import TauVertexCorrection
+    from JetRec.JetRecFlags import jetFlags
+
+    _name = sPrefix + 'TauVertexCorrection'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
+
+    myTauVertexCorrection = TauVertexCorrection(name = _name,
+                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
+                                                VertexCorrection = True,
+                                                JetVertexCorrection = doJetVertexCorrection)
+    
+    cached_instances[_name] = myTauVertexCorrection
+    return myTauVertexCorrection
+
 
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string

@@ -16,7 +16,7 @@ def MuonTrackConfig(inputFlags, isOld=False):
 
     helper = AthMonitorCfgHelper(inputFlags, "MuonTrackMonitoringConfig")
 
-    muonTrackAlg = helper.addAlgorithm(MuonTrackMonitorAlgorithm, "MuonTrackMonitorAlgorithm")
+    muonTrackAlg = helper.addAlgorithm(MuonTrackMonitorAlgorithm, "MuonTrackMonitorAlg")
 
     myGroup = helper.addGroup(muonTrackAlg, "MuonTrackMonitorAlgorithm", "MuonPhysics/")
 

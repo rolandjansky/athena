@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Track Recorder Sensitive Detector Tool.
@@ -18,8 +18,6 @@ TrackRecorderSDTool::TrackRecorderSDTool(const std::string& type, const std::str
   , m_SD_type(1)
 {
   declareProperty("SD_type", m_SD_type);
-  std::cout << "TrackRecorderSDTool Constructor: name" << name << std::endl;
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

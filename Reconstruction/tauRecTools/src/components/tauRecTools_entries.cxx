@@ -28,6 +28,7 @@
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
+#include "tauRecTools/TauVertexCorrection.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( JetSeedBuilder )
@@ -61,3 +62,4 @@ DECLARE_COMPONENT( TauEleOLRDecorator )
 DECLARE_COMPONENT( TauIDVarCalculator )
 DECLARE_COMPONENT( TauJetRNNEvaluator )
 DECLARE_COMPONENT( TauDecayModeNNClassifier )
+DECLARE_COMPONENT( TauVertexCorrection )

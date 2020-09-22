@@ -434,7 +434,7 @@ class RingSetConf_v1 : public SG::AuxElement {
     void setSectionEndIdx(unsigned sectionEndIdx);
     /// @}
  
-    /// @{ Print @name RingSetConf_v1 methods:
+    /// @{ Print @name RingSetConf_v1 methods:
     /**
      * @brief Print @name RingSetConf_v1 using ostream:
      **/

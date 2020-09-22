@@ -132,7 +132,7 @@ class RingSet_v1 : public SG::AuxElement {
     RingSet_v1& operator=(const RingSet_v1& clrings);
     /// @}
 
-    /// @{ Print @name RingSet_v1 methods:
+    /// @{ Print @name RingSet_v1 methods:
     /**
      * @brief Print @name RingSet_v1 using ostream:
      **/

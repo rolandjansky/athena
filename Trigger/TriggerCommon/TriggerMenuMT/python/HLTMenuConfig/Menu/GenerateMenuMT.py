@@ -209,7 +209,7 @@ class GenerateMenuMT(object):
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
         alignmentGroup_sets_to_align = analyseCombinations(combinations_in_menu, alignmentGroups_to_align)
         
-        log.debug('Aligning the following signatures with sets: %s',alignmentGroup_sets_to_align)
+        log.debug('Aligning the following signatures with sets: %s',sorted(alignmentGroup_sets_to_align))
         log.debug('Length of each of the alignment groups: %s',length_of_configs)
 
         for chainDict,chainConfig,lengthOfChainConfigs in all_chains:
