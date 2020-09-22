@@ -91,6 +91,10 @@ def setup(TOPQname, stream):
     # EXTRA VARIABLES FROM DerivationFrameworkTop.TOPQCommonExtraContent
     #=================================================================
     TOPQSlimmingHelper.ExtraVariables = []
+
+    # add AFP
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AFP
+
     # for jets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMTopoJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
