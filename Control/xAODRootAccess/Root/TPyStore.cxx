@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TPyStore.cxx 659468 2015-04-08 14:31:56Z krasznaa $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -13,11 +11,6 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 
 namespace xAOD {
-
-   TPyStore::TPyStore()
-      : TStore() {
-
-   }
 
    /// This function can be used in the same manner as
    /// TStore::contains<...>(...), but instead of providing a type, one gives it
@@ -77,7 +70,7 @@ namespace xAOD {
                     "Type name \"%s\" not known", type.c_str() );
          return kFALSE;
       }
-      
+
       // Check if the dictionary can return a type_info:
       const std::type_info* ti = cl->GetTypeInfo();
       if( ! ti ) {

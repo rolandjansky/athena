@@ -10,7 +10,6 @@ import argparse
 import shutil
 import subprocess
 import json
-import six
 from TrigValTools.TrigARTUtils import package_prefix, find_scripts, remember_cwd
 
 
@@ -121,7 +120,7 @@ def analyse_results(all_test_results):
     max_len_col1 = len(max(table.keys(), key=len))
     max_len_col2 = len(max(table.values(), key=len))
     logging.info('-'*(max_len_col1+max_len_col2+7))
-    for k, v in six.iteritems(table):
+    for k, v in table.items():
         logging.info('| {col1:<{width1}} | {col2:<{width2}} |'.format(
             col1=k, width1=max_len_col1,
             col2=v, width2=max_len_col2))

@@ -91,6 +91,39 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
    */
   virtual StatusCode fillVariablesPerOfflineMuonPerChain(const EventContext &ctx, const xAOD::Muon* mu, const std::string &chain) const;
 
+
+  /**
+   * @brief Function that fills variables of ratio plots.
+   * @see @c TrigMuonMonitorAlgorithm.icc for the implementation
+   * @param ctx @c EventContext provided by athenaMT
+   * @param mu Pointer to an offline muon provided in @c fillHistograms
+   * @param trigstep trigger step
+   * @param type xAOD::Muon::TrackParticleType of offline muon
+   * @param matchFunc Function pointer that implements cuts for the online muon candidates gotten by ReadHandle. 
+   */
+  template <class T, class FUNCT>
+  StatusCode fillVariablesRatioPlots(const EventContext &ctx, const xAOD::Muon* mu,
+                                     std::string &&trigstep,
+                                     xAOD::Muon::TrackParticleType type,
+                                     FUNCT matchFunc) const;
+
+  /**
+   * @brief Function that fills variables of etaphi2D plots.
+   * @see @c TrigMuonMonitorAlgorithm.icc for the implementation
+   * @param ctx @c EventContext provided by athenaMT
+   * @param ReadHandleKey SG::ReadHandleKey of online muon.
+   * @param trigstep trigger step
+   * @param PosFunc Function pointer that implements cuts for the online muon candidates. 
+   */
+  template<class T>
+  StatusCode fillVariableEtaPhi(const EventContext &ctx,
+                                SG::ReadHandleKey<DataVector<T> > ReadHandleKey,
+                                std::string &&trigstep,
+                                std::tuple<bool,double,double> (*PosFunc)(const T*) = &TrigMuonMonitorAlgorithm::defaultPosFunc<T>) const;
+
+  template<class T> static inline std::tuple<bool, double, double> defaultPosFunc(const T* trig);
+
+
   // ToolHandle
   ToolHandle<MuonMatchingTool> m_matchTool {this, "MuonMatchingTool", "MuonMatchingTool", "Tool for matching offline and online objects"};
 
@@ -105,7 +138,11 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
   /// Name of monitored group
   Gaudi::Property<std::string> m_group {this, "Group", "", "Histogram group"};
 
+  /// Threshold for ratio measurement
+  const float m_ratio_measurement_threshold = 4;
 
 };
+
+#include "TrigMuonMonitorAlgorithm.icc"
 
 #endif //TRIGMUONMONITORINGMT_TRIGMUONMONITORALGORITHM_H

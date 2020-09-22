@@ -13,7 +13,7 @@
 class TRTParameters;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersOfBarrelStraws // Thread unsafe TRTParameters class is used.
+class TRTParametersOfBarrelStraws
 {
   friend class TRTConstructionOfBarrelStraws;
 
@@ -21,14 +21,14 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfBarrelStraws // Thread unsafe TRTPara
     TRTParametersOfBarrelStraws();
     ~TRTParametersOfBarrelStraws();
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-    bool msgLevel (MSG::Level lvl) const   { return m_msg.get().level() <= lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+    bool msgLevel (MSG::Level lvl)   { return m_msg.get().level() <= lvl; }
 
   private:
     TRTParametersOfBarrelStraws (const TRTParametersOfBarrelStraws&); 
     TRTParametersOfBarrelStraws& operator= (const TRTParametersOfBarrelStraws&); 
     void DefineParameters();
-    void PrintParameters() const;
+    void PrintParameters(MsgStream& msg) const;
 
     double m_outerRadiusOfStrawHole;
     double m_lengthOfStrawHole;
@@ -61,10 +61,9 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfBarrelStraws // Thread unsafe TRTPara
     double m_outerRadiusOfWire;
     double m_lengthOfWire;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
 
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif

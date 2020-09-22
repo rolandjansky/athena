@@ -90,6 +90,8 @@ namespace HLT
          */
         Tower(PufitMultiGrid *parent, std::size_t index);
 
+        Tower(const Tower&) = default;
+
         /**
          * @brief Copy assignment operator
          *

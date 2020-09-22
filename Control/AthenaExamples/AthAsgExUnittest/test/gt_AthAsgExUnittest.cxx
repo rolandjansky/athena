@@ -12,10 +12,11 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
-#include "../src/IMyPackageTool.h"
+#include "AthAsgExUnittest/IMyPackageTool.h"
+#include "AthAsgExUnittest/MyPackageTool.h"
 
-#include "../src/MyPackageTool.h"
-#include "../src/MyPackageAlg.h"
+#include "GaudiKernel/IAlgManager.h"
+#include "Gaudi/Algorithm.h"
 
 #include <iostream>
 #include <fstream>
@@ -44,25 +45,19 @@ namespace Athena_test {
     EXPECT_TRUE( myTool.getProperty( "Property", prop ).isSuccess() );
     EXPECT_EQ( std::stod( prop ), 42.0 );
   }
-  
+
   TEST_F( MyPackageToolTest, enumProperty ) {
     EXPECT_TRUE( myTool.setProperty( "EnumProperty", IMyPackageTool::Val2 ).isSuccess() );
     EXPECT_TRUE( myTool.initialize().isSuccess() );
     std::string prop;
     EXPECT_TRUE( myTool.getProperty( "EnumProperty", prop ).isSuccess() );
-    EXPECT_EQ( std::stoi( prop ), IMyPackageTool::Val2 ); 
+    EXPECT_EQ( std::stoi( prop ), IMyPackageTool::Val2 );
   }
-  
+
   // Algorithm test suite:
 
   class MyPackageAlgTest : public InitGaudiGoogleTest {
   public:
-
-    MyPackageAlgTest() 
-    //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
-      : myAlg(nullptr)
-    {}
-
     virtual void SetUp() override {
       // Algorithm and Tool properties via service:
       // see: Control/AthAnalysisBaseComps/AthAnalysisBaseComps/AthAnalysisHelper.h
@@ -76,8 +71,15 @@ namespace Athena_test {
       EXPECT_TRUE( AthAnalysisHelper::addPropertyToCatalogue( "MyPackageAlg.AnotherName",
                                                               "Property",
                                                               42.0 ).isSuccess() );
-      // Create instance of my algorithm directly in dual_use package
-      myAlg= new MyPackageAlg( "MyPackageAlg", Gaudi::svcLocator() );
+      // Create instance of my algorithm through Gaudi.
+      IAlgManager* algMgr = svcMgr.as< IAlgManager >();
+      EXPECT_TRUE( algMgr != nullptr );
+      IAlgorithm* alg = nullptr;
+      EXPECT_TRUE( algMgr->createAlgorithm( "MyPackageAlg", "MyPackageAlg",
+                                            alg ).isSuccess() );
+      EXPECT_TRUE( alg != nullptr );
+      myAlg = dynamic_cast< Algorithm* >( alg );
+      EXPECT_TRUE( myAlg != nullptr );
     }
 
     MyPackageTool* getMyTool() {
@@ -89,14 +91,14 @@ namespace Athena_test {
       return mpt;
     }
 
-    MyPackageAlg* myAlg;
+    Algorithm* myAlg = nullptr;
 
   };
-  
+
   TEST_F( MyPackageAlgTest, initialise ) {
     EXPECT_TRUE( myAlg->initialize().isSuccess() );
   }
-  
+
   TEST_F( MyPackageAlgTest, setProperty ) {
     EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ).isSuccess() );
     EXPECT_TRUE( myAlg->initialize().isSuccess() );
@@ -104,14 +106,14 @@ namespace Athena_test {
     EXPECT_TRUE( myAlg->getProperty( "MyProperty", prop ).isSuccess() );
     EXPECT_EQ( prop, "5" );
   }
-  
+
   TEST_F( MyPackageAlgTest, sysInitialize ) {
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     std::string prop;
     EXPECT_TRUE( myAlg->getProperty( "MyProperty", prop ).isSuccess() );
     EXPECT_EQ( std::stoi( prop ), 21 );
   }
-  
+
   TEST_F( MyPackageAlgTest, toolProperty ) {
     // sysInitialize() gets properties then call initialize()
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
@@ -120,11 +122,10 @@ namespace Athena_test {
     EXPECT_TRUE( mpt->getProperty( "Property", prop ).isSuccess() );
     EXPECT_EQ( std::stod( prop ), 42.0 );
   }
-  
+
 }
 
 int main( int argc, char **argv ) {
   ::testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
-

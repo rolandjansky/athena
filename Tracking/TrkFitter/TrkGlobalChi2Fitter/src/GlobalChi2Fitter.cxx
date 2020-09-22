@@ -33,6 +33,7 @@
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -7188,7 +7189,21 @@ namespace Trk {
       info.setTrackProperties(TrackInfo::StraightTrack);
     }
 
-    return std::make_unique<Track>(info, trajectory.release(), qual.release());
+    std::unique_ptr<Track> rv = std::make_unique<Track>(info, trajectory.release(), qual.release());
+
+    /*
+     * Here, we create a track summary and attach it to our newly created
+     * track. Note that this code only runs if the m_createSummary Gaudi
+     * property is set. In cases where having a track summary on the track is
+     * not desired, such as for compatibility with other tools, this can be
+     * turned off.
+     */
+    if (m_createSummary.value()) {
+      std::unique_ptr<TrackSummary> ts = std::make_unique<TrackSummary>();
+      rv->setTrackSummary(std::move(ts));
+    }
+
+    return rv;
   }
 
   GlobalChi2Fitter::~GlobalChi2Fitter() {

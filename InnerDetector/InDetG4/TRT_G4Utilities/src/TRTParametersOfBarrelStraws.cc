@@ -21,7 +21,7 @@ TRTParametersOfBarrelStraws::TRTParametersOfBarrelStraws(): m_msg("TRTParameters
   DefineParameters();
 
   if (m_pParameters->GetInteger("PrintParametersOfBarrelStraws"))
-    PrintParameters();
+    PrintParameters(m_msg.get());
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTParametersOfBarrelStraws done" << endmsg;
 }
@@ -91,12 +91,11 @@ void TRTParametersOfBarrelStraws::DefineParameters()
 
 // Called by TRTParametersOfBarrelStraws
 
-void TRTParametersOfBarrelStraws::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTUtilities and TRTOutputFile classes are used.
+void TRTParametersOfBarrelStraws::PrintParameters(MsgStream& msg) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
 						<< endmsg;
 
-  TRTUtilities* pUtilities = TRTUtilities::GetPointer();
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -106,50 +105,60 @@ void TRTParametersOfBarrelStraws::PrintParameters ATLAS_NOT_THREAD_SAFE () const
          << std::endl;
 
   output << "Parameters of barrel straw hole:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfStrawHole,
-                                  m_lengthOfStrawHole);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_outerRadiusOfStrawHole,
+                                    m_lengthOfStrawHole);
 
   output << std::endl << "Parameters of barrel straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfStraw, m_lengthOfStraw);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_outerRadiusOfStraw, m_lengthOfStraw);
 
   output << std::endl << "Parameters of barrel straw wire:" << std::endl;
-  pUtilities->PrintTubeParameters(m_outerRadiusOfWire, m_lengthOfWire);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_outerRadiusOfWire, m_lengthOfWire);
 
   output << std::endl << "Parameters of barrel straw twister:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfTwister,
-    m_outerRadiusOfTwister, m_lengthOfTwister);
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfTwister,
+                                    m_outerRadiusOfTwister, m_lengthOfTwister);
 
   output << std::endl << "Parameters of gas S for short straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfGas, m_outerRadiusOfGas,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfGas, m_outerRadiusOfGas,
     m_lengthOfGasS, m_positionOfGasS);
 
   output << std::endl << "Parameters of dead region SA for short straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfDeadRegion,
     m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionSA);
 
   output << std::endl << "Parameters of long dead region SB for short straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfDeadRegion,
     m_outerRadiusOfDeadRegion, m_lengthOfLongDeadRegion,
     m_positionOfLongDeadRegionSB);
 
   output << std::endl << "Parameters of gas L for long straw:" << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfGas, m_outerRadiusOfGas,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfGas, m_outerRadiusOfGas,
     m_lengthOfGasL, m_positionOfGasL);
 
   output << std::endl << "Parameters of dead region LA for long straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfDeadRegion,
     m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionLA);
 
   output << std::endl << "Parameters of dead region LB for long straw:"
          << std::endl;
-  pUtilities->PrintTubeParameters(m_innerRadiusOfDeadRegion,
+  TRTUtilities::PrintTubeParameters(*pOutputFile,
+                                    m_innerRadiusOfDeadRegion,
     m_outerRadiusOfDeadRegion, m_lengthOfDeadRegion, m_positionOfDeadRegionLB);
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
 						<< " done" << endmsg;
 }

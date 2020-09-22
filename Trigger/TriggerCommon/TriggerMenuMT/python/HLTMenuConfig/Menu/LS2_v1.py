@@ -191,33 +191,43 @@ def setupMenu():
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subjesgscIS_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subresjesgscIS_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subjesgscIS_011jvt_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subjesgscIS_015jvt_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subjesgscIS_059jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subresjesgscIS_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesgscIS_ftf_011jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesgscIS_ftf_015jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesgscIS_ftf_059jvt_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
 
-        ChainProp(name='HLT_j45_ftf_pf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subjesgscIS_pf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_subresjesgscIS_pf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j85_ftf_pf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j420_ftf_subjesgscIS_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j420_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_pf_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_csskpf_nojcalib_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_csskpf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10t_lcw_nojcalib_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10sd_lcw_nojcalib_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_pf_nojcalib_ftf_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_csskpf_nojcalib_ftf_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_csskpf_nojcalib_ftf_35smcINF_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10sd_csskpf_nojcalib_ftf_35smcINF_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_csskpf_jes_ftf_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10sd_csskpf_jes_ftf_35smcINF_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10sd_csskpf_jes_ftf_35smcINF_L1J100', groups=SingleJetGroup),
 
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
@@ -227,9 +237,9 @@ def setupMenu():
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
-        ChainProp(name="HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j275_ftf_subjesgscIS_boffperf_split_L1J100", groups=SingleBjetGroup),
-        ChainProp(name="HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j275_subjesgscIS_ftf_boffperf_split_L1J100", groups=SingleBjetGroup),
+        ChainProp(name="HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20", groups=SingleBjetGroup),
     ]
 
     TriggerFlags.TauSlice.signatures = TriggerFlags.TauSlice.signatures() + [
@@ -284,16 +294,24 @@ def setupMenu():
         # Primary e-mu chains
         ChainProp(name='HLT_e17_lhloose_mu14_L1EM15VH_MU10', l1SeedThresholds=['EM15VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e7_lhmedium_mu24_L1MU20',l1SeedThresholds=['EM3','MU20'],  mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-        # Test photon-muon chain (isolation is there to have different number of steps)
+        ChainProp(name='HLT_e12_lhloose_2mu10_L12MU10', l1SeedThresholds=['EM8VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+
+        # Primary g-mu chains
         ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
-    
-        # electron + photon stay in the same step - these need to be parallel merged!
+        ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], mergingStrategy='serial', stream=[PhysicsStream], groups=MultiElectronGroup), # unsure what EM seed should be    
+
+        # Primary e-g chains: electron + photon stay in the same step - these need to be parallel merged!
+        # test
         ChainProp(name='HLT_e3_etcut1step_g5_etcut_L12EM3',l1SeedThresholds=['EM3','EM3'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
-  
+        # primaries
+        ChainProp(name='HLT_e24_lhmedium_g25_medium_L12EM20VH', l1SeedThresholds=['EM20VH','EM20VH'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH', l1SeedThresholds=['EM20VH','EM10VH'], mergingStrategy='parallel', stream=[PhysicsStream], groups=MultiElectronGroup), # unsure about l1SeedThresholds
+
         # Test chains for muon + jet/MET merging/aligning
         ChainProp(name='HLT_mu6fast_xe30_mht_L1XE10', l1SeedThresholds=['MU6','XE10'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
-        ChainProp(name='HLT_mu6fast_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),
-    
+        ChainProp(name='HLT_mu6fast_j45_nojcalib_L1J20', l1SeedThresholds=['MU6','J20'], mergingStrategy='serial', stream=[PhysicsStream], groups=SingleMETGroup),    
     
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
+//
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -50,6 +50,7 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TTree.h>
+#include <TObjString.h>
 #include <fstream>
 #include <memory>
 
@@ -400,7 +401,7 @@ namespace EL
 
     for (auto& module : m_modules)
       ANA_CHECK (module->preInitialize (*this));
-    
+
     return ::StatusCode::SUCCESS;
   }
 
@@ -967,7 +968,7 @@ namespace EL
     addModule (std::make_unique<Detail::GridReportingModule> ());
     ANA_CHECK (initialize());
 
-    std::vector<std::string> fileList; 
+    std::vector<std::string> fileList;
     {
       std::ifstream infile("input.txt");
       while (infile) {
@@ -980,7 +981,7 @@ namespace EL
           fileList.push_back(sFile);
         }
       }
-    } 
+    }
     if (fileList.size() == 0) {
       ANA_MSG_ERROR ("no input files provided");
       //User was expecting input after all.
@@ -1018,12 +1019,12 @@ namespace EL
       summaryfile << "Files read: " << nFiles << std::endl;
       for (unsigned int i = 0; i < nFiles; i++) {
         summaryfile << "  " << fileList.at(i) << std::endl;
-      }      
+      }
       summaryfile << "Events Read:    " << eventsProcessed << std::endl;
       summaryfile.close();
     }
     else {
       //cout << "Failed to write summary file.\n";
-    } 
+    }
   }
 }

@@ -9,7 +9,6 @@
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This unit test uses thread unsafe TRTParameters and TRTOutputFile classes.
 
 namespace utf = boost::unit_test;
 
@@ -22,7 +21,6 @@ struct setupParameters{
  
   ~setupParameters(){
     BOOST_TEST_MESSAGE("ending test");
-    delete p;
   }
 };
 
@@ -35,7 +33,6 @@ struct setupOutputFile{
  
   ~setupOutputFile(){
     BOOST_TEST_MESSAGE("ending test");
-    delete p;
   }
 };
 

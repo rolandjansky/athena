@@ -160,15 +160,18 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
                                       bool doHolesInDet,
                                       bool doHolesMuon) const
 {
-  // first check if track has summary already and then return a clone
+  std::unique_ptr<Trk::TrackSummary> ts;
+
+  // first check if track has summary already and then clone it.
   if (track.trackSummary()!=nullptr) {
     ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
-    return std::make_unique<Trk::TrackSummary>(*(track.trackSummary()));
+    ts = std::make_unique<Trk::TrackSummary>(*(track.trackSummary()));
+  } else {
+    ts = std::make_unique<Trk::TrackSummary>();
   }
-  // Create and initialize information vector and bit pattern
-  unsigned int numberOfTrackSummaryTypes = Trk::numberOfTrackSummaryTypes+1;
-  // put values to -1 of they are not evaluated
-  std::vector<int> information(numberOfTrackSummaryTypes,-1);
+
+  std::vector<int> & information = ts->m_information;
+  information.resize(std::min(information.size(), static_cast<size_t>(numberOfTrackSummaryTypes)));
 
   // Troels.Petersen@cern.ch:
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
@@ -267,7 +270,15 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
       <<track.info().dumpInfo()<<"). This should never happen! ");
   }
 
-  if (doHolesInDet || doHolesMuon)
+  bool hole_search_done = (
+    information[Trk::numberOfPixelHoles] != -1 &&
+    information[Trk::numberOfSCTHoles] != -1 &&
+    information[Trk::numberOfSCTDoubleHoles] != -1 &&
+    information[Trk::numberOfPixelDeadSensors] != -1 &&
+    information[Trk::numberOfSCTDeadSensors] != -1
+  );
+
+  if ((doHolesInDet || doHolesMuon) && (!hole_search_done || m_alwaysRecomputeHoles.value()))
   {
     if (m_pixelExists)
     {
@@ -294,12 +305,12 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     eProbability.push_back(0.0);
   }
 
-  std::unique_ptr<TrackSummary> ts=std::make_unique<TrackSummary>(information,
-                                                                  eProbability,
-                                                                  hitPattern,
-                                                                  dedx,
-                                                                  nhitsuseddedx,
-                                                                  noverflowhitsdedx);
+  ts->m_eProbability = eProbability;
+  ts->m_idHitPattern = hitPattern.to_ulong();
+  ts->m_dedx = dedx;
+  ts->m_nhitsdedx = nhitsuseddedx;
+  ts->m_nhitsoverflowdedx = noverflowhitsdedx;
+
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
     m_idTool->addDetailedTrackSummary(track,*ts);

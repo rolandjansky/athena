@@ -3,6 +3,7 @@
 # art-description: art job for fsjet_pu40
 # art-type: grid
 # art-include: master/Athena
+# art-input: valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-memory: 4096

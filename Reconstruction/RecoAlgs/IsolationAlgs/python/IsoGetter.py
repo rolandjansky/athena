@@ -68,8 +68,13 @@ from egammaTools.egammaExtrapolators import egammaExtrapolator
 CaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
                                   Extrapolator = egammaExtrapolator)
 
+#adding this to address a rare crash when calculating etCone iso for muons, the tool is not used by any other part of the code
+MuonCaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
+                                      Extrapolator = egammaExtrapolator,
+                                      StartFromPerigee = True)
+
 CaloCellAssocTool =  ToolFactory (Rec__ParticleCaloCellAssociationTool,
-                                  ParticleCaloExtensionTool = CaloExtensionTool)
+                                  ParticleCaloExtensionTool = MuonCaloExtensionTool)
 
 
 # configuration for ED computation

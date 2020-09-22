@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_VERTEXIMAGE_H
@@ -20,9 +20,9 @@ namespace Trk {
     // Construct with pointer to the array, numbers of bins in x,y,z
     // and flag for whether fourier transforms were done in place.
     // in-place filtering has extra padding in the array to fit the complex frequency space histogram
-    VertexImage( float* array,
+    VertexImage( double* array,
                  arrayDeleter* deleter,
-                 int nx, int ny, int nz, 
+                 int nx, int ny, int nz,
                  float xrange, float yrange, float zrange);
 
 
@@ -37,8 +37,8 @@ namespace Trk {
     VertexImage& operator= (const VertexImage&) = delete;
 
     // Direct access to the histogram array
-          float * getHist()       { return m_hist_3d; }
-    const float * getHist() const { return m_hist_3d; }
+          double * getHist()       { return m_hist_3d; }
+    const double * getHist() const { return m_hist_3d; }
 
     // Get the row major index of an x,y,z bin
     int getRMBin( const int & x, const int & y, const int & z ) const;
@@ -55,14 +55,14 @@ namespace Trk {
     // Get the actual relative (to histogram center) position
     float getRelPosX(float binx) const { return -m_xrange + binx*m_wx; }
     float getRelPosY(float biny) const { return -m_yrange + biny*m_wy; }
-    float getRelPosZ(float binz) const { return -m_zrange + binz*m_wz; } 
+    float getRelPosZ(float binz) const { return -m_zrange + binz*m_wz; }
 
     // Get the indices of all adjacent bins in 3D
     std::vector<int> getAdjacentBins( int index ) const;
 
     // -----------------------------------------------
     // Get rectangular projections onto 1D z-direction
-    
+
     // Project full range
     std::vector<float> projectRectangleOnZ() const;
     // Project specified rectangle from {x,y}min inclusive to {x,y}max exclusive
@@ -84,7 +84,7 @@ namespace Trk {
   private:
 
     // The actual histogram array
-    float * m_hist_3d;
+    double * m_hist_3d;
 
     // Function to delete the array.
     arrayDeleter* m_deleter;
@@ -93,7 +93,7 @@ namespace Trk {
     int m_nbinsx;
     int m_nbinsy;
     int m_nbinsz;
-    
+
     // Physical (half) range of the histogram in x,y,z (spans from -range to +range)
     float m_xrange;
     float m_yrange;
