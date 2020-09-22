@@ -68,7 +68,7 @@ def setupCommonServices():
 
     # setup ROOT6
     from PyUtils.Helpers import ROOT6Setup
-    ROOT6Setup()
+    ROOT6Setup(batch=True)
 
     # Setup online THistSvc unless specifically configured otherwise
     #    setup the THistSvc early and force the creation of the THistSvc 
