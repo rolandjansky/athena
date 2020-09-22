@@ -30,7 +30,6 @@ class opt:
     doMuon           = True           # ConfigFlags.Trigger.doMuon
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
-    enableCostD3PD   = False          # enable cost monitoring
     doWriteRDOTrigger = False         # Write out RDOTrigger?
     doWriteBS        = True           # Write out BS?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
