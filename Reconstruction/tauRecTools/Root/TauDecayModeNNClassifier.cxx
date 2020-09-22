@@ -9,6 +9,7 @@
 #include "PathResolver/PathResolver.h"
 
 // standard library include(s)
+#include <array>
 #include <functional>
 #include <algorithm>
 #include <fstream>
