@@ -11,7 +11,6 @@ import logging
 import argparse
 import subprocess
 import errno
-from six import iteritems
 from collections import OrderedDict
 from TrigValTools.TrigARTUtils import find_scripts, remember_cwd
 
@@ -117,7 +116,7 @@ def main():
     logging.info('RESULTS SUMMARY:')
     logging.info('='*(max_name_len+11))
     final_code = 0
-    for script, result in iteritems(results):
+    for script, result in results.items():
         logging.info('| %s : %4d |', '{:{width}s}'.format(script, width=max_name_len), result)
         if abs(result) > final_code:
             final_code = abs(result)

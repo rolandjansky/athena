@@ -447,7 +447,6 @@ Trk::Extrapolator::finalize()
                  << Trk::Extrapolator::Cache::s_containerSizeMax.val());
   }
 
-  ATH_MSG_INFO("finalize() successful");
   return StatusCode::SUCCESS;
 }
 

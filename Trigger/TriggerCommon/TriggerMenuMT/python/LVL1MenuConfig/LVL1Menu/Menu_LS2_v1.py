@@ -457,6 +457,8 @@ def defineMenu():
 
         # MBTS
         "L1_MBTS_1_EMPTY",
+        "L1_MBTS_2_EMPTY",
+        "L1_MBTS_1_1_EMPTY",
         # beam splashes
         
         #Overlay
@@ -786,7 +788,7 @@ def defineMenu():
         'L1_TAU20IM_2TAU12IM' : 58,
         'L1_TAU60_2TAU40' : 458,
         'L1_2TAU5' : 59,
-        'L1_2TAU8' : 166,
+        #'L1_2TAU8' : 166,
         'L1_EM15VHI_2TAU12IM' : 60,
         'L1_EM15VHI_2TAU12IM_J25_3J12' : 61,
         'L1_EM15VHI_2TAU12IM_4J12' : 5,
@@ -991,6 +993,8 @@ def defineMenu():
         'L1_CEP-CJ60' : 162,
         #'L1_CEP-CJ50' : 164,
         'L1_MBTS_1_EMPTY' : 164,
+        'L1_MBTS_2_EMPTY' : 166,
+        'L1_MBTS_1_1_EMPTY' : 168,
         'L1_BPH-8M15-2MU4-BO' : 165,
         'L1_CALREQ2' : 511,
         'L1_ALFA_B7L1U' : 489,

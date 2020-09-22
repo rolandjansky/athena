@@ -29,9 +29,9 @@
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuPatCandidateTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "MooTrackBuilder.h"
 #include "MooCandidateMatchingTool.h"
+#include "MuonTrackSelectorTool.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
@@ -100,7 +100,7 @@ namespace Muon {
     TrackCollection* find( const MuonSegmentCollection& coll ) const override;
 
   private:
-    TrackCollection *selectTracks(std::vector<MuPatTrack*> & candidates, bool takeOwnership = true ) const;
+    TrackCollection *selectTracks(std::vector<std::unique_ptr<MuPatTrack> > & candidates, bool takeOwnership = true ) const;
 
     /** actual find method */
     TrackCollection* findTracks( SegColVec& chamberSegments, SegColVec& stationSegments ) const;
@@ -112,54 +112,40 @@ namespace Muon {
     const MuonTrackSteeringStrategy* decodeStrategy(const std::string& strategy) const;
     bool decodeList(const std::string& input, std::vector<std::string>& list) const;
 
-    std::vector<MuPatTrack*> *extendWithLayer(MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer, const unsigned int endlayer, int cutLevel = 0 ) const;
+    std::vector<std::unique_ptr<MuPatTrack> > extendWithLayer(MuPatTrack& candidate, const SegColVec& segcol, unsigned int nextlayer, const unsigned int endlayer, int cutLevel = 0 ) const;
     /** @brief Find tracks starting from a good segment
         @param seedSeg the seeding MuonSegment pointer
         @param strat the current track finding strategy
         @param layer the current layer for the seed
     */
-    std::vector< MuPatTrack* > * findTrackFromSeed( MuPatSegment& seedSeg , const MuonTrackSteeringStrategy & strat , const unsigned int layer , const SegColVec& segs ) const;
+    std::vector< std::unique_ptr<MuPatTrack> > findTrackFromSeed( MuPatSegment& seedSeg , const MuonTrackSteeringStrategy & strat , const unsigned int layer , const SegColVec& segs ) const;
 
-    std::vector<MuPatTrack*> * refineTracks(std::vector<MuPatTrack*>& candidates) const;
+    void refineTracks(std::vector<std::unique_ptr<MuPatTrack> >& candidates) const;
 
     /** @brief Resolve ambiguities among tracks for a single strategy
                This allows a strategy-specific ambiguity solving (with some options per strategy)
         @param vector of tracks that were found
         @param strat the steering strategy
     */
-    std::vector<MuPatTrack*> *solveAmbiguities( std::vector< MuPatTrack* >& tracks , const MuonTrackSteeringStrategy* strat = 0 ) const;
+    void solveAmbiguities( std::vector< std::unique_ptr<MuPatTrack> >& tracks , const MuonTrackSteeringStrategy* strat = 0 ) const;
 
     void combineOverlapSegments( std::vector< MuPatSegment*>& ch1, std::vector< MuPatSegment*>& ch2, SegColVec& stationSegments, StSet& stationsWithSegments ) const;
 
   private:
 
-    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper",
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc",
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< Tool for general EDM manipulation
-    ToolHandle<MuonEDMPrinterTool>        m_printer
-      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects
-    ToolHandle<MuPatCandidateTool>        m_candidateTool
-      {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
-    ToolHandle<IMuonTrackBuilder>        m_trackBTool
-      {this, "TrackBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool
-      {this, "AmbiguityTool", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"}; // FIXME - remove mutable once MR27716 goes in.
-    ToolHandle<MooTrackBuilder> m_mooBTool
-      {this, "MooBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool
-      {this, "CandidateMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<IMuonTrackRefiner> m_trackRefineTool
-      {this, "TrackRefinementTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};//<! Temporary tool for helping to combine two segments
-    ToolHandle<IMuonSegmentFittingTool> m_segmentFitter
-      {this, "MuonSegmentFittingTool", "Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"};//<! segment fitting tool
-    ToolHandle<IMuonSegmentMerger> m_segmentMerger
-      {this, "MuonSegmentMerger", ""};//<! segment merger
-    ToolHandle<Trk::ITrackSelectorTool> m_trackSelector
-      {this, "MuonTrackSelector", "Muon::MuonTrackSelectorTool/MuonTrackSelectorTool"};//<! track selector
-    ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool
-      {this, "HoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};//<! track selector
-    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool    
-      {this, "TrackSummaryTool", "MuonTrackSummaryTool"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper","Muon::MuonEDMHelperSvc/MuonEDMHelperSvc","Handle to the service providing the IMuonEDMHelperSvc interface" };
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<MuPatCandidateTool> m_candidateTool{this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
+    ToolHandle<IMuonTrackBuilder> m_trackBTool{this, "TrackBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiTool{this, "AmbiguityTool", "Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
+    ToolHandle<MooTrackBuilder> m_mooBTool{this, "MooBuilderTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<MooCandidateMatchingTool> m_candidateMatchingTool{this, "CandidateMatchingTool", "Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"};
+    ToolHandle<IMuonTrackRefiner> m_trackRefineTool{this, "TrackRefinementTool", "Muon::MooTrackBuilder/MooMuonTrackBuilder"};
+    ToolHandle<IMuonSegmentFittingTool> m_segmentFitter{this, "MuonSegmentFittingTool", "Muon::MuonSegmentFittingTool/MuonSegmentFittingTool"};
+    ToolHandle<IMuonSegmentMerger> m_segmentMerger{this, "MuonSegmentMerger", ""};
+    ToolHandle<Muon::MuonTrackSelectorTool> m_trackSelector{this, "MuonTrackSelector", "Muon::MuonTrackSelectorTool/MuonTrackSelectorTool"};
+    ToolHandle<IMuonHoleRecoveryTool> m_muonHoleRecoverTool{this, "HoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "MuonTrackSummaryTool"};
 
     mutable SegCol m_segmentsToDelete ATLAS_THREAD_SAFE;
     mutable std::vector<const MuonSegment*>  m_constsegmentsToDelete ATLAS_THREAD_SAFE;

@@ -52,6 +52,30 @@ def getAtlasExtrapolator():
     return theAtlasExtrapolator
 
 ########################################################################
+def getTauVertexCorrection():
+    from tauRec.tauRecFlags import tauFlags
+    from tauRecTools.tauRecToolsConf import TauVertexCorrection
+
+    _name = sPrefix + 'TauVertexCorrection'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    # FIXME:doJetVertexCorrection need to be False even though origin correction
+    # is turned on in jet reconstruction. 
+    # If the seed jet is PFlow jets, then the tau axis will be corrected to point 
+    # at PV0, but the clusters will not be corrected.
+
+    doJetVertexCorrection = False
+
+    myTauVertexCorrection = TauVertexCorrection(name = _name,
+                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
+                                                VertexCorrection = doVertexCorrection,
+                                                JetVertexCorrection = doJetVertexCorrection)
+    
+    cached_instances[_name] = myTauVertexCorrection
+    return myTauVertexCorrection
+
 # JetSeedBuilder
 def getJetSeedBuilder():
     _name = sPrefix + 'JetSeedBuilder'
@@ -76,7 +100,8 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    VertexCorrection = doVertexCorrection
+                                    VertexCorrection = doVertexCorrection,
+                                    TauVertexCorrection = getTauVertexCorrection()
                                   )
     # No Axis correction at trigger level
                                     
@@ -123,7 +148,8 @@ def getMvaTESVariableDecorator():
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
-    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
+                                                      TauVertexCorrection = getTauVertexCorrection())
 
     MvaTESVariableDecorator.Key_vertexInputContainer = ""
 
@@ -357,7 +383,7 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          VertexCorrection = doVertexCorrection
+                                                          TauVertexCorrection = getTauVertexCorrection()
                                                         )
     
     cached_instances[_name] = TauSubstructureVariables
@@ -708,7 +734,7 @@ def getTauTrackClassifier():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     input_file_name = 'EFtracks_BDT_classifier_v0.root'
     BDTcut = 0.45
@@ -720,7 +746,7 @@ def getTauTrackClassifier():
         InputWeightsPath = input_file_name,
         Threshold        = BDTcut,
         DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.unclassified, 
+        ExpectedFlag     = ROOT.xAOD.TauJetParameters.TauTrackFlag.unclassified, 
         inTrigger        = True
     )
 
@@ -745,8 +771,8 @@ def getTauIDVarCalculator():
     
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
-    TauIDVarCalculator = TauIDVarCalculator(name=_name)
-    TauIDVarCalculator.Key_vertexInputContainer = ""
+    TauIDVarCalculator = TauIDVarCalculator(name=_name,
+                                            TauVertexCorrection=getTauVertexCorrection())
     
     ToolSvc += TauIDVarCalculator                                 
     cached_instances[_name] = TauIDVarCalculator
@@ -798,7 +824,8 @@ def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", 
                                       InputLayerTracks=InputLayerTracks,
                                       InputLayerClusters=InputLayerClusters,
                                       OutputLayer=OutputLayer,
-                                      OutputNode=OutputNode)
+                                      OutputNode=OutputNode,
+                                      TauVertexCorrection=getTauVertexCorrection())
 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator
@@ -816,7 +843,7 @@ def getTauWPDecoratorJetBDT():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -824,10 +851,10 @@ def getTauWPDecoratorJetBDT():
                                      flatteningFile1Prong = "FlatJetBDT1P_trigger_v1.root", 
                                      flatteningFile3Prong = "FlatJetBDT3P_trigger_v1.root", 
                                      CutEnumVals=[
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigVeryLoose, 
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigLoose,
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigMedium, 
-                                         ROOT.xAOD.TauJetParameters.JetBDTSigTight],
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigVeryLoose, 
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigLoose,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigMedium, 
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetBDTSigTight],
                                      SigEff1P = [0.995, 0.99, 0.97, 0.90],
                                      SigEff3P = [0.995, 0.94, 0.88, 0.78],
                                      ScoreName = "BDTJetScore",
@@ -850,7 +877,7 @@ def getTauWPDecoratorJetRNN():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
+    cppyy.load_library('libxAODTau_cDict')
 
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
@@ -859,8 +886,8 @@ def getTauWPDecoratorJetRNN():
                                      flatteningFile1Prong = "rnnid_flat_1p_v4.root",
                                      flatteningFile3Prong = "rnnid_flat_mp_v4.root",
                                      CutEnumVals =
-                                     [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
-                                       ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                     [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
+                                       ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                      SigEff0P = [0.98, 0.90, 0.65, 0.50],
                                      SigEff1P = [0.992, 0.99, 0.965, 0.94],
                                      SigEff3P = [0.99, 0.98, 0.865, 0.80],

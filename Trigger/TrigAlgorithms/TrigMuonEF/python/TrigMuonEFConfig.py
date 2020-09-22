@@ -551,8 +551,6 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
         #CSC
         ToolSvc += CscRdoToCscPrepDataTool
         self.CscPrepDataProvider=CscRdoToCscPrepDataTool
-        #We use the clusters not the PRD hits directly for CSCs
-        self.CscPrepDataContainer="CSC_Clusters"
         #TGC
         ToolSvc += TgcRdoToTgcPrepDataTool
         self.TgcPrepDataProvider=TgcRdoToTgcPrepDataTool

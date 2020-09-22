@@ -42,11 +42,7 @@ def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
 
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
     tools = [getPublicTool("MuonInsideOutRecoTool") ]
-    from MuonLayerSegmentMakerTools.MuonLayerSegmentMakerToolsConf import Muon__MuonLayerSegmentFinderTool
-    from AthenaCommon.AppMgr import ToolSvc
-    MuonLayerSegmentFinderTool = Muon__MuonLayerSegmentFinderTool("MuonLayerSegmentFinderTool", Csc2DSegmentMaker=(getPublicTool("Csc2dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""), Csc4DSegmentMaker=(getPublicTool("Csc4dSegmentMaker") if MuonGeometryFlags.hasCSC() else ""))
-    ToolSvc += MuonLayerSegmentFinderTool
-    tools[0].MuonLayerSegmentFinderTool = MuonLayerSegmentFinderTool
+
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("usePRDs",True)
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
@@ -66,14 +62,14 @@ def MuGirlStauAlg(name="MuGirlStauAlg",**kwargs):
     kwargs.setdefault("METrackCollection","")
     kwargs.setdefault("SegmentCollection","MuGirlStauSegments")
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
-      
+
 def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs.setdefault("TrackSelector",getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool") )
     if muonCombinedRecFlags.doSiAssocForwardMuons() and InDetFlags.doForwardTracks():
         kwargs.setdefault("DoSiliconAssocForwardMuons", True )
         kwargs.setdefault("InDetForwardTrackSelector", getPublicTool("MuonCombinedInDetDetailedForwardTrackSelectorTool") )
-    
+
     kwargs.setdefault("MuonSystemExtensionTool", getPublicTool("MuonSystemExtensionTool"))
 
     return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
@@ -113,11 +109,11 @@ def recordMuonCreatorAlgObjs (kw):
     if val('MakeClusters'):
         objs['CaloClusterCellLinkContainer'] =  val('CaloClusterCellLinkName') + '_links'
         objs['xAOD::CaloClusterContainer'] =  val('ClusterContainerName')
-        
+
     from RecExConfig.ObjKeyStore import objKeyStore
     objKeyStore.addManyTypesTransient (objs)
     return
-    
+
 def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
     recordMuonCreatorAlgObjs (kwargs)
@@ -155,30 +151,32 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         if not self.isEnabled(): return
 
         topSequence = AlgSequence()
-                      
+
         #if jobproperties.Beam.beamType()=='collisions':
             # creates input collections for ID and MS candidates
-        topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg") 
-        topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg") 
-            
+        topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg")
+        topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg")
+
             # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():
-            topSequence += getAlgorithm("MuonCombinedAlg") 
+            topSequence += getAlgorithm("MuonCombinedAlg")
 
         if muonCombinedRecFlags.doMuGirl():
-            topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
+            topSequence += getAlgorithm("MuonInsideOutRecoAlg")
             if muonCombinedRecFlags.doMuGirlLowBeta():
                 topSequence += getAlgorithm("MuGirlStauAlg")
 
         if muonCombinedRecFlags.doCaloTrkMuId():
-            topSequence += getAlgorithm("MuonCaloTagAlg") 
-            
+            topSequence += getAlgorithm("MuonCaloTagAlg")
+
         if muonCombinedRecFlags.doMuonSegmentTagger():
             getPublicTool("MuonSegmentTagTool")
-            topSequence += getAlgorithm("MuonSegmentTagAlg") 
+            topSequence += getAlgorithm("MuonSegmentTagAlg")
 
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
-        
+        # setting this here, in the new configuration it will be easier to do
+        topSequence.MuonCreatorAlg.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
+
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

@@ -21,7 +21,7 @@ class MuonRdoToMuonDigit : public AthAlgorithm {
 
  private:
 
-   ToolHandle<IMuonDigitizationTool> m_digTool;
+   ToolHandle<IMuonDigitizationTool> m_digTool{this,"MuonRdoToMuonDigitTool","MuonRdoToMuonDigitTool"};
 };
 
 #endif

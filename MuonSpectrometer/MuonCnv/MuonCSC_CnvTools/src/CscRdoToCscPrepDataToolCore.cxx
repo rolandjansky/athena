@@ -35,17 +35,12 @@ const InterfaceID& CscRdoToCscPrepDataToolCore::interfaceID()
 CscRdoToCscPrepDataToolCore::CscRdoToCscPrepDataToolCore
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_cscCalibTool( "CscCalibTool/CscCalibTool", this),
-    m_cscRdoDecoderTool ("Muon::CscRDO_Decoder/CscRDO_Decoder", this),
     m_cabling( "CSCcablingSvc" ,name),
     m_fullEventDone(false) {
 
   declareInterface<IMuonRdoToPrepDataTool>(this);
   declareProperty("CSCHashIdOffset",     m_cscOffset = 22000);
-  declareProperty("DecodeData",          m_decodeData = true ); 
-  // tools 
-  declareProperty("CscCalibTool",        m_cscCalibTool );
-  declareProperty("CscRdoDecoderTool",   m_cscRdoDecoderTool );
+  declareProperty("DecodeData",          m_decodeData = true );
   // DataHandle
   declareProperty("RDOContainer",        m_rdoContainerKey = std::string("CSCRDO"),"CscRawDataContainer to retrieve");
   declareProperty("OutputCollection", 	 m_outputCollectionKey = std::string("CSC_Measurements"),"Muon::CscStripPrepDataContainer to record");

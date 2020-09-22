@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _PixCalibKnowledgeDb_h_
-#define _PixCalibKnowledgeDb_h_
+#ifndef PIXELCORALCLIENTUTILS_PIXCALIBKNOWLEDGEDB_H
+#define PIXELCORALCLIENTUTILS_PIXCALIBKNOWLEDGEDB_H
 
 #include "RelationalAccess/AccessMode.h"
 
@@ -16,13 +16,15 @@ namespace coral {
 class PixCalibKnowledgeDb
 {
  public:
-  PixCalibKnowledgeDb(std::string connString, std::string tableName, int verbose);
+  PixCalibKnowledgeDb(const std::string& connString,
+                      const std::string& tableName,
+                      int verbose);
   ~PixCalibKnowledgeDb();
 
   void init(coral::AccessMode access_mode);
   //long long findFK(std::string tag);
 
-  void saveCorrespondingConfig(long int UnixTimeInSeconds, long int RunNumber, std::string calibtags_in_string, std::string idTag, std::string connTag, std::string cfgTag, std::string cfgModTag );
+  void saveCorrespondingConfig(long int UnixTimeInSeconds, long int RunNumber, const std::string& calibtags_in_string, const std::string& idTag, const std::string& connTag, const std::string& cfgTag, const std::string& cfgModTag );
 
   void readCorrespondingCalibTag(long int Utime);
 

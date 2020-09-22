@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterContainerCnv_p1.h"
@@ -52,7 +52,7 @@ void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterCont
     persCont->m_collections.resize(transCont->numberOfCollections());
 //     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
   
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
 //         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
         const InDet::SCT_ClusterCollection& collection = (**it_Coll);

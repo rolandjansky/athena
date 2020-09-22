@@ -11,11 +11,17 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
 
     kwargs.setdefault("name", "LArRawChannelBuilder")
     kwargs.setdefault("firstSample", configFlags.LAr.ROD.FirstSample)
+    obj = "AthenaAttributeList"
+    dspkey = 'Run2DSPThresholdsKey'
     if configFlags.Input.isMC:
         # need OFC configuration, which includes appropriate ElecCalibDb
         acc.merge(LArOFCCondAlgCfg(configFlags))
         kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         kwargs.setdefault("ShapeKey", "LArShapeSym")
+        fld="/LAR/NoiseOfl/DSPThresholds"
+        sgkey=fld
+        dbString="OFLP200"
+        dbInstance="LAR_OFL"
         if configFlags.Digitization.PileUpPremixing:
             kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix() + "LArDigitContainer_MC")
         else:
@@ -27,6 +33,21 @@ def LArRawChannelBuilderAlgCfg(configFlags, **kwargs):
             kwargs.setdefault("LArRawChannelKey", "LArRawChannels")
         else:
             kwargs.setdefault("LArRawChannelKey", "LArRawChannels_FromDigits")
+        if 'COMP200' in configFlags.IOVDb.DatabaseInstance:
+            fld='/LAR/Configuration/DSPThreshold/Thresholds'
+            obj='LArDSPThresholdsComplete'
+            dspkey = 'Run1DSPThresholdsKey'
+            sgkey='LArDSPThresholds'
+        else:
+            fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
+            sgkey=fld
+        dbString="CONDBR2"
+        dbInstance="LAR_ONL"
+
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(configFlags,fld, dbInstance, className=obj, db=dbString))
+
+    kwargs.setdefault(dspkey, sgkey)
 
     acc.addEventAlgo(LArRawChannelBuilderAlg(**kwargs))
 
@@ -44,6 +65,7 @@ if __name__=="__main__":
 
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Input.isMC = False
     ConfigFlags.lock()
 
 

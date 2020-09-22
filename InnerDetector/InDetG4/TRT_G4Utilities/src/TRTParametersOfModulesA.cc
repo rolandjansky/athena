@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -245,7 +245,7 @@ void TRTParametersOfModulesA::DefineParameters()
   delete [] numberOfShortStrawsInLayersA;
 
   if (m_pParameters->GetInteger("PrintParametersOfModulesA"))
-    PrintParameters(xGlobalOfHolesA, yGlobalOfHolesA);
+    PrintParameters(m_msg.get(), xGlobalOfHolesA, yGlobalOfHolesA);
 
   delete [] xGlobalOfHolesA;
   delete [] yGlobalOfHolesA;
@@ -256,10 +256,10 @@ void TRTParametersOfModulesA::DefineParameters()
 
   // Called by DefineParameters
 
-void TRTParametersOfModulesA::PrintParameters(double* xGlobalOfHolesA,
+void TRTParametersOfModulesA::PrintParameters(MsgStream& msg, double* xGlobalOfHolesA,
   double* yGlobalOfHolesA) const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesA::PrintParameters" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesA::PrintParameters" << endmsg;
 
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
@@ -359,5 +359,5 @@ void TRTParametersOfModulesA::PrintParameters(double* xGlobalOfHolesA,
 
   output << std::endl;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfModulesA::PrintParameters done" << endmsg;
+  if (msg.level() <= MSG::VERBOSE) msg << MSG::VERBOSE << "######### Method TRTParametersOfModulesA::PrintParameters done" << endmsg;
 }

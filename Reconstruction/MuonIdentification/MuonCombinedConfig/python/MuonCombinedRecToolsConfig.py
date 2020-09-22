@@ -224,7 +224,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("TrackParticleCreator", acc.getPrimary() )
     result.merge(acc)
 
-    acc = ParticleCaloExtensionToolCfg(flags)
+    acc = ParticleCaloExtensionToolCfg(flags,StartFromPerigee=True)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
 
@@ -391,6 +391,11 @@ def iPatFitterCfg(flags, name='iPatFitter', **kwargs):
         acc = MuonCombinedTrackSummaryToolCfg(flags)
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() )
         result.merge(acc)
+
+    from TrkConfig.SolenoidalIntersectorConfig import SolenoidalIntersectorCfg
+    acc = SolenoidalIntersectorCfg (flags)
+    kwargs.setdefault ('SolenoidalIntersector', acc.popPrivateTools())
+    result.merge (acc)
 
     tool = CompFactory.Trk.iPatFitter(name,**kwargs)
     result.setPrivateTools(tool)

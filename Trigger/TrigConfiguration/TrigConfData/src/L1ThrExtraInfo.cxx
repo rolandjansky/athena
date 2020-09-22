@@ -40,10 +40,16 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
 
 std::weak_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::addExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
-   if( auto extraInfo = L1ThrExtraInfo::createExtraInfo( thrTypeName, data) ) {
-      auto success = m_thrExtraInfo.emplace(thrTypeName, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>(std::move(extraInfo)));
-      return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( success.first->second );
-   };
+   try {
+      if( auto extraInfo = L1ThrExtraInfo::createExtraInfo( thrTypeName, data) ) {
+         auto success = m_thrExtraInfo.emplace(thrTypeName, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>(std::move(extraInfo)));
+         return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( success.first->second );
+      }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "L1ThrExtraInfo::addExtraInfo: exception occured when building extra info for " << thrTypeName << std::endl;
+      throw;
+   }
    return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( m_emptyInfo );
 }
 
@@ -153,13 +159,15 @@ TrigConf::L1ThrExtraInfo_EMTAULegacy::load()
 void
 TrigConf::L1ThrExtraInfo_XSLegacy::load()
 {
-   auto sig = m_extraInfo["significance"];
-   m_xeMin = sig.getAttribute<unsigned int>("xeMin");
-   m_xeMax = sig.getAttribute<unsigned int>("xeMax");
-   m_teSqrtMin = sig.getAttribute<unsigned int>("teSqrtMin");
-   m_teSqrtMax = sig.getAttribute<unsigned int>("teSqrtMax");
-   m_xsSigmaScale = sig.getAttribute<unsigned int>("xsSigmaScale");
-   m_xsSigmaOffset = sig.getAttribute<unsigned int>("xsSigmaOffset");
+   if( hasExtraInfo("significance") ) {
+      auto & sig = m_extraInfo["significance"];
+      m_xeMin = sig.getAttribute<unsigned int>("xeMin");
+      m_xeMax = sig.getAttribute<unsigned int>("xeMax");
+      m_teSqrtMin = sig.getAttribute<unsigned int>("teSqrtMin");
+      m_teSqrtMax = sig.getAttribute<unsigned int>("teSqrtMax");
+      m_xsSigmaScale = sig.getAttribute<unsigned int>("xsSigmaScale");
+      m_xsSigmaOffset = sig.getAttribute<unsigned int>("xsSigmaOffset");
+   }
 }
 
 
@@ -213,9 +221,9 @@ TrigConf::L1ThrExtraInfo_eEMTAU::load()
             auto wp = (y.first == "Loose") ? Isolation::WP::LOOSE : ( (y.first == "Medium") ? Isolation::WP::MEDIUM : Isolation::WP::TIGHT );
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
-               auto etamin = c.second.get_child("etamin").get_value<unsigned int>();
-               auto etamax = c.second.get_child("etamax").get_value<unsigned int>();
-               auto priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
                iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }

@@ -68,7 +68,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // get the primary vertex
-  const xAOD::Vertex* pVertex = pTau.vertexLink() ? pTau.vertex() : nullptr;
+  const xAOD::Vertex* pVertex = nullptr;
+  if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        

@@ -63,11 +63,11 @@ namespace SG {
     if ( clid == m_clid ) {
       return clid == PyCLID 
 	? m_pyObj
-	: ObjectProxy_ASVOIDPTR(m_pyObj);
+	: CPPInstance_ASVOIDPTR(m_pyObj);
     }
     void* address = (m_clid == PyCLID)
       ? (void*)m_pyObj
-      : ObjectProxy_ASVOIDPTR(m_pyObj);
+      : CPPInstance_ASVOIDPTR(m_pyObj);
 
     // try SG-based conversion functions
     {
@@ -84,7 +84,7 @@ namespace SG {
     }
 
     // this will be a conversion for a class instance only (see below:
-    // verified that only a ObjectProxy is expected), so bind with cast
+    // verified that only a CPPInstance is expected), so bind with cast
     std::string pytpstr = RootUtils::PyGetString(pytp).first;
     TClass* cls = TClass::GetClass (pytpstr.c_str());
     if (!cls) {
@@ -93,13 +93,13 @@ namespace SG {
       return 0;
     }
     TClass* act_class = cls->GetActualClass (address);
-    PyObject* value = TPython::ObjectProxy_FromVoidPtr (address, act_class->GetName());
+    PyObject* value = TPython::CPPInstance_FromVoidPtr (address, act_class->GetName());
 
-    if ( value && TPython::ObjectProxy_Check(value) ) {
-      return ObjectProxy_ASVOIDPTR(value);
+    if ( value && TPython::CPPInstance_Check(value) ) {
+      return CPPInstance_ASVOIDPTR(value);
     }
     Py_XDECREF(value);
-    throw PyROOT::TPyException();
+    throw CPyCppyy::PyException();
     return 0;
   }
 
@@ -116,9 +116,9 @@ namespace SG {
     // if requested type is same than myself ==> no conversion needed
     TClass* tcls = objectIsA (m_pyObj);
     if ( tcls && (tinfo == *(tcls->GetTypeInfo())) ) {
-      return ObjectProxy_ASVOIDPTR(m_pyObj);
+      return CPPInstance_ASVOIDPTR(m_pyObj);
     }
-    void* address = ObjectProxy_ASVOIDPTR(m_pyObj);
+    void* address = CPPInstance_ASVOIDPTR(m_pyObj);
 
     // try SG-based conversion functions
     {
@@ -127,7 +127,7 @@ namespace SG {
     }
 
     // this will be a conversion for a class instance only (see below:
-    // verified that only a ObjectProxy is expected), so bind with cast
+    // verified that only a CPPInstance is expected), so bind with cast
     TClass* clsnew = TClass::GetClass (tinfo);
     if (!clsnew) {
       PyErr_SetString
@@ -136,11 +136,11 @@ namespace SG {
       return 0;
     }
     TClass* act_class = clsnew->GetActualClass (address);
-    PyObject* value = TPython::ObjectProxy_FromVoidPtr (address, act_class->GetName());
+    PyObject* value = TPython::CPPInstance_FromVoidPtr (address, act_class->GetName());
     PyErr_Clear();
 
-    if ( value && TPython::ObjectProxy_Check(value) ) {
-      return ObjectProxy_ASVOIDPTR(value);
+    if ( value && TPython::CPPInstance_Check(value) ) {
+      return CPPInstance_ASVOIDPTR(value);
     }
     Py_XDECREF(value);
     //throw PyROOT::TPyException();

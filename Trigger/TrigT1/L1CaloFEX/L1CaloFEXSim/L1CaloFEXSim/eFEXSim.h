@@ -41,9 +41,9 @@ namespace LVL1 {
     virtual ~eFEXSim();
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() ;
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  () ;
+    virtual StatusCode finalize  () override;
 
     virtual void init (int id) override ;
 

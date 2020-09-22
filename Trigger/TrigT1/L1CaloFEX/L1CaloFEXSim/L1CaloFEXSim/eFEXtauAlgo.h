@@ -32,7 +32,7 @@ namespace LVL1 {
     eFEXtauAlgo(const std::string& type, const std::string& name, const IInterface* parent);
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() ;
+    virtual StatusCode initialize() override;
     
     /** Destructor */
     virtual ~eFEXtauAlgo();
@@ -69,8 +69,6 @@ namespace LVL1 {
     unsigned int m_hadcells[3][3];
     unsigned int m_twrcells[3][3];
     unsigned int m_seed;
-    unsigned int m_et;
-    float m_iso;
     bool m_cellsSet = false;
     bool m_und = true;
     bool m_offPhi = 2;

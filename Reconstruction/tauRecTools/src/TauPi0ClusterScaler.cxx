@@ -77,7 +77,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
         const xAOD::CaloCluster* cl = pfo->cluster(0);
 
         // apply cluster vertex correction 
-        if(pTau.vertexLink()){
+        if(pTau.vertexLink().isValid()){
             auto clcorr = xAOD::CaloVertexedTopoCluster(*cl, pTau.vertex()->position());
             pfo->setP4(clcorr.pt(), clcorr.eta(), clcorr.phi(), 0.0);
         }
@@ -139,7 +139,7 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAO
         ATH_MSG_DEBUG("hadPFO " << hadPFOLink.index() 
                       << ", eta: " << (*hadPFOLink)->eta() 
                       << ", phi: " << (*hadPFOLink)->phi() );
-        xAOD::PFO* chargedPFOMatch = 0;
+        xAOD::PFO* chargedPFOMatch = nullptr;
         // assign hadPFO to closest extrapolated chargedPFO track within dR<0.4
         float dRmin = 0.4; 
         for( auto chargedPFO : chargedPFOContainer ){
@@ -239,7 +239,7 @@ void TauPi0ClusterScaler::associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD
                       << ", phi: " << phiCalo );
         
         // assign extrapolated chargedPFO to closest neutralPFO within dR<0.04
-        xAOD::PFO* neutralPFOMatch = 0;
+        xAOD::PFO* neutralPFOMatch = nullptr;
         float dRmin = 0.04; 
         for( auto neutralPFO : neutralPFOContainer ){
             // calculate dR (false means use eta instead of rapidity)

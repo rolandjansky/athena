@@ -15,6 +15,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
@@ -43,7 +44,7 @@ void testit (const InDet::PixelGangedClusterAmbiguities& trans1)
 }
 
 
-void test1 (const InDet::PixelClusterContainer& cont)
+void test1 ATLAS_NOT_THREAD_SAFE (const InDet::PixelClusterContainer& cont)
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -115,7 +116,7 @@ const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("InDetEventTPCnv_test.txt", pSvcLoc)) {

@@ -92,7 +92,7 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
     # need to set all the following through the __dict__ b/c of iPropert.__setattr__
 
     # the expect IEventSeek
-      self.__dict__[ '_evtSeek' ] = cppyy.gbl.BindObject( cppself, cppyy.gbl.IEventSeek )
+      self.__dict__[ '_evtSeek' ] = cppyy.bind_object( cppself, cppyy.gbl.IEventSeek )
 
     # the IService needed for iService._isvc and likewise iProperty._ip
       self.__dict__[ '_isvc' ] = PyGaudi.InterfaceCast( cppyy.gbl.IService )( self._evtSeek )

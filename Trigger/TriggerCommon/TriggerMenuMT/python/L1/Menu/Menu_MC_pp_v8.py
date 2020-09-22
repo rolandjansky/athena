@@ -242,6 +242,8 @@ def defineMenu():
 
         # MBTS
         'L1_MBTS_1_EMPTY',
+        'L1_MBTS_2_EMPTY',
+        'L1_MBTS_1_1_EMPTY',
 
         #--------------------------------
         # TOPO items
@@ -588,6 +590,8 @@ def defineMenu():
         'L1_BCM_AC_UNPAIRED_ISO' : 163,
 
         'L1_MBTS_1_EMPTY' : 164,
+        'L1_MBTS_2_EMPTY' : 166,
+        'L1_MBTS_1_1_EMPTY' : 168,
 
         'L1_EM20VH_3J20' : 26,
         'L1_MU10_3J20' : 173,

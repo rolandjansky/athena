@@ -52,9 +52,6 @@ namespace Trk {
       /** AlgTool initailize method.*/
       virtual StatusCode initialize() override;
       
-      /** AlgTool finalize method */
-      virtual StatusCode finalize() override;
-        
       /** Calculate the sigma on theta introduced by multiple scattering,
           according to the RutherFord-Scott Formula           
       */

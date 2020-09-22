@@ -12,7 +12,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "../src/IMyPackageTool.h"
+#include "AthAsgExUnittest/IMyPackageTool.h"
 
 #include <string>
 #include <iostream>
@@ -25,7 +25,7 @@ namespace Athena_test {
   class MyPackageAlgTest : public InitGaudiGoogleTest {
   public:
 
-    MyPackageAlgTest() 
+    MyPackageAlgTest()
     //  : InitGaudiGoogleTest( MSG::INFO ) // get usual message blurb
       : myAlg(nullptr)
     {}
@@ -61,29 +61,29 @@ namespace Athena_test {
     Gaudi::Algorithm* myAlg;
 
   };
-  
+
   TEST_F( MyPackageAlgTest, getDefaultPropertyValue ) {
     int prop= getIntProperty( "MyProperty" );
     EXPECT_EQ( prop, 1 );
   }
-  
+
   TEST_F( MyPackageAlgTest, initialise ) {
     EXPECT_TRUE( myAlg->initialize().isSuccess() );
   }
-  
+
   TEST_F( MyPackageAlgTest, setProperty ) {
     EXPECT_TRUE( myAlg->setProperty( "MyProperty", 5 ).isSuccess() );
     EXPECT_TRUE( myAlg->initialize().isSuccess() );
     int prop= getIntProperty( "MyProperty" );
     EXPECT_EQ( prop, 5 );
   }
-  
+
   TEST_F( MyPackageAlgTest, getPropertyFromCatalogue ) {
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
     int prop= getIntProperty( "MyProperty" );
     EXPECT_EQ( prop, 21 );
   }
-  
+
   TEST_F( MyPackageAlgTest, toolProperty ) {
     // sysInitialize() gets properties then calls initialize()
     EXPECT_TRUE( myAlg->sysInitialize().isSuccess() );
@@ -91,7 +91,7 @@ namespace Athena_test {
     double prop= mpt->useTheProperty();
     EXPECT_EQ( prop, 42.0 );
   }
-  
+
 }
 
 int main( int argc, char **argv ) {

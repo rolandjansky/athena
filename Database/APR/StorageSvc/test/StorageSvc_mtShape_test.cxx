@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <thread>
+#include <set>
 
 using namespace pool;
 using namespace std;

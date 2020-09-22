@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATETOOL_H
@@ -83,7 +83,7 @@ namespace Muon {
 	@param[in] seg   the MuPatSegment to be added, ownership is NOT passed!
         @param[out] true if any segment was removed from the track, false if not
     */
-    bool extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, const Trk::Track* track ) const;
+    bool extendWithSegment( MuPatTrack& can, MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief create a track candidate from one segment
 	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
@@ -91,7 +91,7 @@ namespace Muon {
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( MuPatSegment& segInfo, const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( MuPatSegment& segInfo, std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief create a track candidate from two segments
 	@param[in] seg1 the first MuPatSegment to be added, ownership is NOT passed!
@@ -99,18 +99,18 @@ namespace Muon {
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( MuPatSegment& segInfo1, MuPatSegment& segInfo2, std::unique_ptr<Trk::Track>& track ) const;
 
 
     /** @brief create a track candidate from a track 
 	@param[in] track the new track, ownership is passed to the candidate
 	@param[out] the new candidate, ownership is passed to caller
     */
-    MuPatTrack* createCandidate( const Trk::Track* track ) const;
+    std::unique_ptr<MuPatTrack> createCandidate( std::unique_ptr<Trk::Track>& track ) const;
 
     /** @brief set the new track in the candidate, and update candidate contents. Candidate takes ownership of track.
         Returns whether segments have been removed compared to the pre-existing list of segments. */
-    bool updateTrack( MuPatTrack& candidate, const Trk::Track* track ) const;
+    bool updateTrack( MuPatTrack& candidate, std::unique_ptr<Trk::Track>& track ) const;
     
     /** @brief recalculate the chamber indices on the candidate and reset them. Return whether segment has been removed. */
     bool recalculateCandidateSegmentContent( MuPatTrack& candidate ) const;
@@ -119,13 +119,7 @@ namespace Muon {
 	@param[in] can the MuPatTrack to be copied
 	@param[out] the new candidate, ownership is passed to caller. The new candidate will not own the track (lazy pointer copy)
     */
-    MuPatTrack* copyCandidate( MuPatTrack& canIn ) const;
-
-    /** @brief copy a candidate and transfer the track ownwership from the old to the new candidate.
-	@param[in] can the MuPatTrack to be copied. After the copy, it will no longer own the track (but keeps pointer to it)
-	@param[out] the new candidate, ownership is passed to caller. The new candidate will own the track.
-    */
-    MuPatTrack* copyCandidateAndTransferTrack( MuPatTrack& canIn ) const;
+    std::unique_ptr<MuPatTrack> copyCandidate( MuPatTrack* canIn ) const;
 
     /** @brief create a MuPatSegment object from a segment
 	@param[in] segment  input segment
@@ -155,7 +149,7 @@ namespace Muon {
   
     std::string print( const MuPatTrack& track, int level = 0 ) const;
 
-    std::string print( const std::vector<MuPatTrack*>& tracks, int level = 0 ) const;
+    std::string print( const std::vector<std::unique_ptr<MuPatTrack> >& tracks, int level = 0 ) const;
 
   private:
 
@@ -172,23 +166,14 @@ namespace Muon {
                                     MeasVec& allHits,
                                     MeasVec& measurementsToBeDeleted ) const;
     
-    ToolHandle<IMdtDriftCircleOnTrackCreator>         m_mdtRotCreator     
-      {this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"};     //<! tool to calibrate MDT hits
-    ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator     
-      {this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"};      //<! tool to calibrate CSC hits
-    ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator 
-      {this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"}; //<! tool to create competing clusters on track
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc 
-      {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>                    m_printer           
-      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"}; //!< tool to print            //<! tool to print EDM objects
-    ToolHandle<MuPatHitTool>                          m_hitHandler        
-      {this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
-    ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector   
-      {this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};
+    ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this, "MdtRotCreator", "Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator","tool to calibrate MDT hits"};
+    ToolHandle<IMuonClusterOnTrackCreator> m_cscRotCreator{this, "CscRotCreator", "Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator","tool to calibrate CSC hits"};
+    ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator{this, "CompetingClustersCreator", "Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator","tool to create competing clusters on track"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<MuPatHitTool> m_hitHandler{this, "HitTool", "Muon::MuPatHitTool/MuPatHitTool", "Tool to manipulate hit lists"};
+    ToolHandle<Muon::IMuonSegmentSelectionTool> m_segmentSelector{this, "SegmentSelector", "Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", "Tool to resolve track ambiguities"};
 
     Gaudi::Property<bool>  m_createCompetingROTsPhi {this,"CreateCompetingROTsPhi" , false };
     Gaudi::Property<bool>  m_createCompetingROTsEta {this,"CreateCompetingROTsEta" , true };

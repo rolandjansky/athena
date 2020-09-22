@@ -13,7 +13,7 @@
 class TRTParameters;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersOfModulesC // Thread unsafe TRTParameters class is used.
+class TRTParametersOfModulesC
 {
   friend class TRTConstructionOfModulesC;
 
@@ -21,14 +21,14 @@ public:
   TRTParametersOfModulesC();
   ~TRTParametersOfModulesC();
   
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl) const    { return m_msg.get().level() <= lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
   
 private:
   TRTParametersOfModulesC (const TRTParametersOfModulesC&); 
   TRTParametersOfModulesC& operator= (const TRTParametersOfModulesC&); 
   void DefineParameters();
-  void PrintParameters(double*, double*) const;
+  void PrintParameters(MsgStream& msg, double*, double*) const;
   
   double m_baseOfShellTrd1C;
   double m_heightOfShellTrd1C;
@@ -75,9 +75,9 @@ private:
   double* m_xOfHolesForCoolingTubesC;
   double* m_zOfHolesForCoolingTubesC;
   
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
 
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember m_msg;
 
 };
 

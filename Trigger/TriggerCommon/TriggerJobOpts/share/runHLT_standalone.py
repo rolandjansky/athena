@@ -589,7 +589,13 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
         log.error("Failed to find L1Decoder or DecisionSummaryMakerAlg, cannot determine Decision names for output configuration")
         decObj = []
         decObjHypoOut = []
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, decObj=decObj, decObjHypoOut=decObjHypoOut, summaryAlg=summaryMakerAlg)
+
+    # Add HLT Navigation to EDM list
+    from TrigEDMConfig import TriggerEDMRun3
+    TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
+
+    # Configure output writing
+    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
 # Non-ComponentAccumulator Cost Monitoring

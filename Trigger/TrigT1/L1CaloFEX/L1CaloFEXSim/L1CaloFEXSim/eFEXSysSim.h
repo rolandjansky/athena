@@ -43,9 +43,9 @@ namespace LVL1 {
     eFEXSysSim&& operator= (const eFEXSysSim& ) = delete;
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize() ;
+    virtual StatusCode initialize() override;
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  () ;
+    virtual StatusCode finalize  () override;
 
     virtual StatusCode execute() override ;
 

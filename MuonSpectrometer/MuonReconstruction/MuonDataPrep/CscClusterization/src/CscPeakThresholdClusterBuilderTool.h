@@ -89,7 +89,7 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
     StatusCode initialize();
 
     // Event processing.
-    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect);
+    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object);
 
     // Finalization.
     StatusCode finalize();
@@ -101,8 +101,8 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
     //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
     int        make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,
                              Muon::CscPrepDataCollection*& collection);
-    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect);
-    StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect);
+    StatusCode getClusters(IdentifierHash idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
+    StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
 
   private:  // data
     // Properties.
@@ -150,9 +150,6 @@ class CscPeakThresholdClusterBuilderTool : virtual public ICscClusterBuilder, pu
         "MuonDetectorManager",
         "Key of input MuonDetectorManager condition data",
     };
-
-    // keep track of full event being already processed
-    bool m_fullEventDone;
 };
 
 #endif

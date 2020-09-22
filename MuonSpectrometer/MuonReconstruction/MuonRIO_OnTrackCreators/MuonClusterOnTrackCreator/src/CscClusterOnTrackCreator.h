@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,21 +9,20 @@
 #ifndef CscClusterOnTrackCreator_H
 #define CscClusterOnTrackCreator_H
 
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "MuonRecToolInterfaces/ICscClusterOnTrackCreator.h"
-#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonRIO_OnTrack/MuonEtaPhiRIO_OnTrackErrorScaling.h"
-
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
-
+#include "CscClusterization/ICscStripFitter.h"
+#include "CscClusterization/ICscClusterFitter.h"
+#include "CscClusterization/ICscClusterUtilTool.h"
 
 namespace Muon {
 
@@ -94,13 +93,14 @@ namespace Muon {
 
 
   private:
-
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<ICscStripFitter>          m_stripFitter;
-    ToolHandle<ICscClusterFitter>        m_clusterFitter;
-    ToolHandle<ICscClusterUtilTool>      m_clusterUtilTool;
+    ToolHandle<ICscStripFitter> m_stripFitter{this,"CscStripFitter","CalibCscStripFitter/CalibCscStripFitter"};
+    ToolHandle<ICscClusterFitter> m_clusterFitter{this,"CscClusterFitter","QratCscClusterFitter/QratCscClusterFitter"};
+    ToolHandle<ICscClusterUtilTool> m_clusterUtilTool{this,"CscClusterUtilTool","CscClusterUtilTool/CscClusterUtilTool"};
+
     bool m_have_csc_tools;
+
 
   SG::ReadCondHandleKey<RIO_OnTrackErrorScaling> m_cscErrorScalingKey
    {this,"CSCErrorScalingKey", "" /*"/MUON/TrkErrorScalingCSC"*/, "Key for CSC error scaling conditions data. No error scaling if empty."};

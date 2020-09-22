@@ -221,7 +221,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
     # ---- obtain dictionary parts for signature defining patterns ----
     from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
-
+    
+    from .MenuAlignmentTools import getAlignmentGroupFromPattern
+    
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
                      'trigType': sigToken, 'extra': ''}
@@ -256,7 +258,10 @@ def analyseChainName(chainName, L1thresholds, L1item):
             log.debug("multichainindex: %s", multichainindex)
 
             sName = getSignatureNameFromToken(cpart)
+            
             groupdict['signature'] = sName
+            groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
+            
             log.debug('groupdictionary groupdict: %s', groupdict)
             mdicts.append(groupdict)
 
@@ -338,6 +343,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
         chainProperties['multiplicity'] = multiplicity
         chainProperties['threshold']=mdicts[chainindex]['threshold']
         chainProperties['signature']=mdicts[chainindex]['signature']
+        chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern(mdicts[chainindex]['signature'], mdicts[chainindex]['extra'])
 
         # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
         # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
@@ -358,11 +364,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
             parts.pop(0)
 
 
-        #---- Check if topo is a bphsyics topo -> change signature ----
+        #---- Check if topo is a bphysics topo -> change signature ----
         from .SignatureDicts import AllowedTopos_Bphysics
         for t in genchainDict['topo']:
             if (t in AllowedTopos_Bphysics):
                 chainProperties['signature'] = 'Bphysics'
+                chainProperties['alignmentGroup'] = getAlignmentGroupFromPattern('Bphysics', mdicts[chainindex]['extra'])
+
 
 
         # ---- import the relevant dictionaries for each part of the chain ----
@@ -448,7 +456,9 @@ def analyseChainName(chainName, L1thresholds, L1item):
     for cPart in allChainProperties:
         if cPart['signature'] == 'Jet' and cPart['bTag'] != '':
             cPart['signature'] = 'Bjet'
+            cPart['alignmentGroup'] = getAlignmentGroupFromPattern('Bjet', cPart['extra'])
         genchainDict['signatures'] += [cPart['signature']]
+        genchainDict['alignmentGroups'] += [cPart['alignmentGroup']]
 
     #genchainDict['signature'] = allChainProperties[0]['signature']
 
@@ -480,7 +490,8 @@ def dictFromChainName(chainInfo):
         mergingOrder    = []
         topoStartFrom   = ''
 
-    elif 'ChainProp' in str(type(chainInfo)):
+    elif 'ChainProp' in str(type(chainInfo)):	
+        #this is how we define chains in the menu - the normal behaviour of this function
         chainName       = chainInfo.name
         l1Thresholds    = chainInfo.l1SeedThresholds
         stream          = chainInfo.stream
