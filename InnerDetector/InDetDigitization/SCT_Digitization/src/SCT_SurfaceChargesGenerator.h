@@ -35,6 +35,8 @@
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
+#include "SCT_InducedChargedModel.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
 
@@ -180,6 +182,10 @@ private:
   double m_center;
   double m_tanLorentz;
   bool m_isBarrel;
+
+  // For Induced Charged Module, M.Togawa
+  SCT_InducedChargedModel *InducedChargedModel;
+  bool m_doInducedChargedModel;  //!< Flag to use Induced Charged Model
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H
