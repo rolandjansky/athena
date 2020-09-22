@@ -1,13 +1,7 @@
-################################################################################
-# Package: DQUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DQUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Database/CoraCool )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -20,7 +14,6 @@ find_package( six )
 find_package( sqlalchemy )
 
 string(REPLACE "-Wl,--as-needed" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
-
 
 # Component(s) in the package:
 atlas_add_library( DQUtils
