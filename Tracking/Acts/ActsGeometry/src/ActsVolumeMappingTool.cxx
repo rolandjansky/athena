@@ -50,7 +50,7 @@ ActsVolumeMappingTool::initialize()
   m_mapper = std::make_shared<Acts::VolumeMaterialMapper>(
       smmConfig,
       std::move(propagator),
-      Acts::getDefaultLogger("VolumeMaterialMapper", Acts::Logging::INFO));
+      makeActsAthenaLogger(this, "VolumeMaterialMapper"));
 
   m_geoContext = m_trackingGeometryTool->getNominalGeometryContext().any();
 

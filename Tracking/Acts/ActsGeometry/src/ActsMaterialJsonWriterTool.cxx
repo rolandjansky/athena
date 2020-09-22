@@ -4,6 +4,8 @@
 
 #include "ActsGeometry/ActsMaterialJsonWriterTool.h"
 
+#include "ActsInterop/Logger.h"
+
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -24,7 +26,8 @@ ActsMaterialJsonWriterTool::initialize()
 {
   ATH_MSG_INFO("Starting Material writer");
 
-  m_cfg = Acts::JsonGeometryConverter::Config("JsonGeometryConverter",Acts::Logging::INFO);
+  m_cfg.name = "JsonGeometryConverter";
+  m_cfg.logger = makeActsAthenaLogger(this, "JsonGeometryConverter");
   m_cfg.processSensitives = m_processSensitives;
   m_cfg.processApproaches = m_processApproaches;
   m_cfg.processRepresenting = m_processRepresenting;
@@ -50,6 +53,7 @@ ActsMaterialJsonWriterTool::write(const Acts::JsonGeometryConverter::DetectorMat
 void
 ActsMaterialJsonWriterTool::write(const Acts::TrackingGeometry& tGeometry) const
 {
+
   // Evoke the converter
   Acts::JsonGeometryConverter jmConverter(m_cfg);
   auto jout = jmConverter.trackingGeometryToJson(tGeometry);
