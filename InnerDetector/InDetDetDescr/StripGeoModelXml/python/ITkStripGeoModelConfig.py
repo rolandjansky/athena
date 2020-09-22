@@ -15,6 +15,9 @@ def ITkStripGeometryCfg( flags ):
     #ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     ITkStripDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkStripDetectorTool.DetectorName = "ITkStrip"
+    if flags.ITk.useLocalGeometry:
+      #Setting this filename triggers reading from local file rather than DB  
+      ITkStripDetectorTool.GmxFilename = flags.ITk.stripGeometryFilename 
     geoModelSvc.DetectorTools += [ ITkStripDetectorTool ]
     
     """
