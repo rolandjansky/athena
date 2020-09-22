@@ -12,7 +12,7 @@
 
 
 TRT_HitCollection_PERS* TRTUncompressedHitCollectionCnv::createPersistent(TRTUncompressedHitCollection* transCont) {
-    MsgStream mlog(messageService(), "TRT_HitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "TRT_HitCollectionConverter" );
     TRT_HitCollectionCnv_PERS   converter;
     TRT_HitCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
@@ -20,7 +20,7 @@ TRT_HitCollection_PERS* TRTUncompressedHitCollectionCnv::createPersistent(TRTUnc
 
 
 TRTUncompressedHitCollection* TRTUncompressedHitCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "TRT_HitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "TRT_HitCollectionConverter" );
     TRT_HitCollectionCnv_p1   converter_p1;
     TRT_HitCollectionCnv_p2   converter_p2;
     TRT_HitCollectionCnv_p3   converter_p3;

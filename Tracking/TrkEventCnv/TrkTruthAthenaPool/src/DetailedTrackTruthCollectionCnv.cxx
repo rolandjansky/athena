@@ -30,7 +30,7 @@ DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* sv
 
 //================================================================
 DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersistent(DetailedTrackTruthCollection* trans) {
-  MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv");
+  MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv");
   log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p2"<<endreq;
 
   //orig: return new DetailedTrackTruthCollectionPERS( *reinterpret_cast<DetailedTrackTruthCollectionPERS*>(trans) );
@@ -42,7 +42,7 @@ DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersist
 
 //================================================================
 DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv" );
   DetailedTrackTruthCollection *trans(0);
 
   if (compareClassGuid(p3_guid)) {

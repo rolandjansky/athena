@@ -33,7 +33,7 @@ TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) :
 
 //================================================================
 TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCollection* trans) {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv");
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv");
   log<<MSG::DEBUG<<"Writing TrackTruthCollection_p1"<<endreq;
   TrackTruthCollectionPERS* pers=new TrackTruthCollectionPERS();
   m_converter_p1.transToPers(trans,pers,log); 
@@ -42,7 +42,7 @@ TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCo
 
 //================================================================
 TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv" );
   std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
 
   if (compareClassGuid(p2_guid)) {

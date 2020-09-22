@@ -11,7 +11,7 @@
 
 
 SiHitCollection_PERS* SiHitCollectionCnv::createPersistent(SiHitCollection* transCont) {
-  MsgStream mlog(messageService(), "SiHitCollectionConverter" );
+  MsgStream mlog(msgSvc(), "SiHitCollectionConverter" );
   SiHitCollectionCnv_PERS converter;
   SiHitCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
   return persObj;
@@ -19,7 +19,7 @@ SiHitCollection_PERS* SiHitCollectionCnv::createPersistent(SiHitCollection* tran
 
 
 SiHitCollection* SiHitCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "SiHitCollectionConverter" );
+    MsgStream mlog(msgSvc(), "SiHitCollectionConverter" );
     SiHitCollectionCnv_p1   converter_p1;
     SiHitCollectionCnv_p2   converter_p2;
     SiHitCollectionCnv_p3   converter_p3;

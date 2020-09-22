@@ -23,7 +23,7 @@ PRD_MultiTruthCollectionCnv::PRD_MultiTruthCollectionCnv(ISvcLocator* svcLoc) :
 
 //================================================================
 PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_MultiTruthCollection* trans) {
-  MsgStream log(messageService(), "PRD_MultiTruthCollectionCnv");
+  MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv");
   log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p2"<<endreq;
   PRD_MultiTruthCollectionPERS* pers=new PRD_MultiTruthCollectionPERS();
   m_converter_p2.transToPers(trans,pers,log);
@@ -32,7 +32,7 @@ PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_
 
 //================================================================
 PRD_MultiTruthCollection* PRD_MultiTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "PRD_MultiTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv" );
   std::auto_ptr<PRD_MultiTruthCollection> trans(new PRD_MultiTruthCollection());
 
   if (compareClassGuid(p3_guid)) {

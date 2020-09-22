@@ -6,7 +6,7 @@
 
 
 InDetSimDataCollection_PERS* InDetSimDataCollectionCnv::createPersistent(InDetSimDataCollection* transCont) {
-    MsgStream mlog(messageService(), "InDetSimDataCollectionCnv" );
+    MsgStream mlog(msgSvc(), "InDetSimDataCollectionCnv" );
     InDetSimDataCollectionCnv_PERS   converter;
     InDetSimDataCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
@@ -14,7 +14,7 @@ InDetSimDataCollection_PERS* InDetSimDataCollectionCnv::createPersistent(InDetSi
 
 
 InDetSimDataCollection* InDetSimDataCollectionCnv::createTransient() {
-    MsgStream mlog(messageService(), "InDetSimDataCollection" );
+    MsgStream mlog(msgSvc(), "InDetSimDataCollection" );
     InDetSimDataCollectionCnv_p1   converter_p1;
     InDetSimDataCollectionCnv_p2   converter_p2;
     InDetSimDataCollectionCnv_p3   converter_p3;
