@@ -9,7 +9,7 @@
 '''
 
 from __future__ import print_function
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec, ToolSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec
 
 
 # *********************************************
@@ -145,6 +145,13 @@ def standardJetMonitoring(inputFlags):
     Details of what goes into jet monitoring is implemented by dedicated functions such as jetMonAlgConfig().
     """
 
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    rv = ComponentAccumulator()
+
+    # do not run monitoring in RAWtoESD
+    if inputFlags.DQ.Environment == 'tier0Raw':
+        return rv
+
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'JetMonitoring')
 
@@ -161,4 +168,5 @@ def standardJetMonitoring(inputFlags):
     for conf in jetAlgConfs:        
         conf.toAlg(helper) # adds the conf as a JetMonitoringAlg to the helper
     
-    return helper.result() # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+    rv.merge(helper.result())  # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
+    return rv

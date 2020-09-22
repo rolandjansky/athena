@@ -833,6 +833,8 @@ def __indent( indent = ""):
 def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
     _log = logging.getLogger( "__setProperties".ljust(30) )
     for pname, pvalue in six.iteritems( sourceConf2Instance._properties ):
+        if destConfigurableInstance.__class__.__name__ == 'AlgSequence' and pname == 'Members':
+            continue
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, __indent( indent ) ) for tool in pvalue] )
@@ -858,7 +860,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
                 pass
             setattr( destConfigurableInstance, pname, pvalue )
 
-def conf2toConfigurable( comp, indent="" ):
+def conf2toConfigurable( comp, indent="", suppressDupes=False ):
     """
     Method converts from Conf2 ( comp argument ) to old Configurable
     If the Configurable of the same name exists, the properties merging process is invoked
@@ -933,9 +935,11 @@ def conf2toConfigurable( comp, indent="" ):
             return listOrDictHelper
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
-        _log.debug( "{}Checking if setting is the same {}".format( indent, existingConfigurableInstance.getFullName() ) )
+        _log.debug( "{}Checking if setting is the same {} {}".format( indent, existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() ) )
         alreadySetProperties = dict([ (pname, pvalue) for pname,pvalue
                                       in six.iteritems(existingConfigurableInstance.getValuedProperties()) ])
+        _log.debug("Existing properties: {}".format(alreadySetProperties))
+        _log.debug("New properties: {}".format(newConf2Instance._properties))
         for pname, pvalue in six.iteritems( newConf2Instance._properties ): # six.iteritems(comp._properties):
             if __isOldConfigurable( pvalue ):
                 _log.warning( "{}New configuration object {} property {} has legacy configuration components assigned to it {}"
@@ -943,10 +947,31 @@ def conf2toConfigurable( comp, indent="" ):
                 _log.warning( "Skipping comparison, no guarantees about configuration consistency" )
                 continue
             propType = newConf2Instance._descriptors[pname].cpp_type
-            _log.debug("{}Comparing type: {}".format(indent, propType))
+            _log.debug("{}Comparing type: {} for: {}".format(indent, propType, pname))
             if  "PrivateToolHandleArray" in  propType:
-                for oldC, newC in zip( alreadySetProperties[pname], pvalue):
-                    __areSettingsSame( oldC, newC, __indent(indent))
+                toolDict = {_.getName(): _ for _ in alreadySetProperties[pname]}
+                _log.debug('Private tool properties? {}'.format(toolDict))
+                newCdict = {_.getName() : _ for _ in pvalue}
+                oldCset = set(toolDict); newCset = set(newCdict)
+                _log.debug('Private tool property names? {} {}'.format(oldCset, newCset))
+                for oldC in oldCset & newCset:
+                    __areSettingsSame( toolDict[oldC], newCdict[oldC], __indent(indent))
+                for newC in newCset-oldCset:
+                    # clone new config to old array
+                    alreadySetProperties[pname].append(conf2toConfigurable(newCdict[newC]))
+            elif "PublicToolHandleArray" in propType:
+                toolSet = {_.getName() for _ in alreadySetProperties[pname]}
+                _log.debug('Public tool handle array properties? {} {}'.format(toolSet, pvalue))
+                # strings?
+                for newC in pvalue:
+                    if isinstance(newC, six.string_types):
+                        pubtoolclass, pubtoolname = newC.split('/')
+                        if pubtoolname not in toolSet:
+                            klass = __findConfigurableClass( pubtoolclass )
+                            alreadySetProperties[pname].append(klass( pubtoolname ))
+                    else:
+                        _log.warning('Not handling actual Configurable2s for public tool merging yet')
+                        raise Exception()           
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
                 existingVal = getattr(existingConfigurableInstance, pname)
                 if isinstance( pvalue, str ):
@@ -955,10 +980,13 @@ def conf2toConfigurable( comp, indent="" ):
                     _log.debug( "{}Some kind of handle  and, object type {} existing {}".format( indent, type(pvalue), type(existingVal) ) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
-                pvalue=__listHelperToList(pvalue)
+                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
+                    pvalue=pvalue.data
+
                 if pname not in alreadySetProperties:
-                    continue
-                if alreadySetProperties[pname] != pvalue:
+                    _log.info("{}Adding property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
+                    setattr(existingConfigurableInstance, pname, pvalue)
+                elif alreadySetProperties[pname] != pvalue:
                     _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
@@ -975,7 +1003,7 @@ def conf2toConfigurable( comp, indent="" ):
         _log.debug( "{}Pre-existing configurable {} was found, checking if has the same properties".format( indent, comp.getName() ) )
         __areSettingsSame( existingConfigurable, comp )
         _log.debug( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
-        instance = existingConfigurable
+        instance = existingConfigurable if not suppressDupes else None
     else: # create new configurable
         _log.debug( "{}Creating component configurable {}".format( indent, comp.getFullJobOptName() ) )
         configurableClass = __findConfigurableClass( comp.getFullJobOptName().split( "/" )[0] )
@@ -1008,6 +1036,13 @@ def appendCAtoAthena(ca):
 
 
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
+    if len( ca.getPublicTools() ) != 0:
+        _log.info( "Merging public tools" )
+        for comp in ca.getPublicTools():
+            instance = conf2toConfigurable( comp, indent="  " )
+            if instance not in ToolSvc:
+                ToolSvc += instance
+
     if len(ca.getServices()) != 0:
         _log.info( "Merging services" )
         for comp in ca.getServices():
@@ -1021,13 +1056,6 @@ def appendCAtoAthena(ca):
             instance = conf2toConfigurable( comp, indent="  " )
             if instance not in athCondSeq:
                 athCondSeq += instance
-
-    if len( ca.getPublicTools() ) != 0:
-        _log.info( "Merging public tools" )
-        for comp in ca.getPublicTools():
-            instance = conf2toConfigurable( comp, indent="  " )
-            if instance not in ToolSvc:
-                ToolSvc += instance
 
     if len( ca.getAppProps() ) != 0:
         _log.info( "Merging ApplicationMgr properties" )
@@ -1070,8 +1098,10 @@ def appendCAtoAthena(ca):
             if el.__class__.__name__ == "AthSequencer":
                 __mergeSequences( sequence, el, __indent( indent ) )
             elif el.getGaudiType() == "Algorithm":
-                sequence += conf2toConfigurable( el, indent=__indent( indent ) )
-                _log.info( "{}Algorithm {} and added to the sequence {}".format( __indent( indent ),  el.getFullJobOptName(), sequence.name() ) )
+                toadd = conf2toConfigurable( el, indent=__indent( indent ), suppressDupes=True)
+                if toadd is not None:
+                    sequence += toadd
+                    _log.info( "{}Algorithm {} and added to the sequence {}".format( __indent( indent ),  el.getFullJobOptName(), sequence.name() ) )
 
 
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
