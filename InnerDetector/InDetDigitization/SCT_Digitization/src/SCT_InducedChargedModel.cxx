@@ -431,6 +431,7 @@ void SCT_InducedChargedModel::loadICMParameters(){
 
   if(m_VD<-180 || m_VD>70 ){
     m_EfieldModel = 1; // Change to FDM
+    std::cout<<"Changed to Flat Diode Model since deplettion volage is out of range. (-180 < m_VD < 70 is allow.)"<<Std::endl;  
   }
 
   // For Ramo Potential 
