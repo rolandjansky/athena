@@ -207,7 +207,7 @@ InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle
 /** Email from Andi Salzburger to Shaun Roe **
 
    the correct way is actually to extrapolate it.
-   So you'd need to retrieve the extrapolator:
+   So you would need to retrieve the extrapolator:
     TooHandle<IExtrapolator> m_extrapolator;
 
    -> retrieve it in your code and use the AtlasExtrapolator (which is fully configured, and can be imported in python
