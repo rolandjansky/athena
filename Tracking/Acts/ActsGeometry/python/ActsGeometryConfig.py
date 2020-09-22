@@ -35,12 +35,14 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc" ) :
       from AthenaCommon.Logging import log
       log.warning("ConfigFlags indicate %s should be built. Not all ID subdetectors are set, but I'll set all of them up to capture the extra setup happening here.", ", ".join(subDetectors))
       
+  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors)
 
-    
-  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors = subDetectors)
-
-  from AthenaCommon.Constants import VERBOSE
-  actsTrackingGeometrySvc.OutputLevel = VERBOSE
+  if configFlags.TrackingGeometry.MaterialSource == "Input":
+    actsTrackingGeometrySvc.UseMaterialMap = True
+    actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
+  if configFlags.TrackingGeometry.MaterialSource.find(".json") != -1:  
+    actsTrackingGeometrySvc.UseMaterialMap = True
+    actsTrackingGeometrySvc.MaterialMapInputFile = configFlags.TrackingGeometry.MaterialSource
   result.addService(actsTrackingGeometrySvc)
   return result
 
@@ -96,7 +98,7 @@ def ActsAlignmentCondAlgCfg(configFlags, name = "ActsAlignmentCondAlg", **kwargs
   return result
 
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-def ActsExtrapolationToolCfg(configFlags, name = "ActsExtrapolationTool" ) :
+def ActsExtrapolationToolCfg(configFlags, name="ActsExtrapolationTool", **kwargs) :
   result=ComponentAccumulator()
   
   acc  = MagneticFieldSvcCfg(configFlags)
@@ -106,6 +108,73 @@ def ActsExtrapolationToolCfg(configFlags, name = "ActsExtrapolationTool" ) :
   result.merge(acc)
   
   Acts_ActsExtrapolationTool = CompFactory.ActsExtrapolationTool
-  actsExtrapolationTool = Acts_ActsExtrapolationTool(name)
+  actsExtrapolationTool = Acts_ActsExtrapolationTool(name, **kwargs)
   result.addPublicTool(actsExtrapolationTool, primary=True)
+  return result
+
+
+def ActsMaterialTrackWriterSvcCfg(name="ActsMaterialTrackWriterSvc",
+                                  FilePath="MaterialTracks_mapping.root",
+                                  TreeName="material-tracks") :
+  result = ComponentAccumulator()
+
+  Acts_ActsMaterialTrackWriterSvc = CompFactory.ActsMaterialTrackWriterSvc
+  ActsMaterialTrackWriterSvc = Acts_ActsMaterialTrackWriterSvc(name, 
+                                                               FilePath=FilePath,
+                                                               TreeName=TreeName)
+
+  from AthenaCommon.Constants import INFO
+  ActsMaterialTrackWriterSvc.OutputLevel = INFO
+  result.addService(ActsMaterialTrackWriterSvc, primary=True)
+  return result
+
+def ActsMaterialStepConverterToolCfg(name = "ActsMaterialStepConverterTool" ) :
+  result=ComponentAccumulator()
+  
+  Acts_ActsMaterialStepConverterTool = CompFactory.ActsMaterialStepConverterTool
+  ActsMaterialStepConverterTool = Acts_ActsMaterialStepConverterTool(name)
+
+  from AthenaCommon.Constants import INFO
+  ActsMaterialStepConverterTool.OutputLevel = INFO
+
+  result.addPublicTool(ActsMaterialStepConverterTool, primary=True)
+  return result
+
+def ActsSurfaceMappingToolCfg(configFlags, name = "ActsSurfaceMappingTool" ) :
+  result=ComponentAccumulator()
+    
+  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  result.merge(acc)
+
+  Acts_ActsSurfaceMappingTool = CompFactory.ActsSurfaceMappingTool
+  ActsSurfaceMappingTool = Acts_ActsSurfaceMappingTool(name)
+
+  from AthenaCommon.Constants import INFO
+  ActsSurfaceMappingTool.OutputLevel = INFO
+
+  result.addPublicTool(ActsSurfaceMappingTool, primary=True)
+  return result
+
+def ActsMaterialJsonWriterToolCfg(name= "ActsMaterialJsonWriterTool", **kwargs) :
+  result=ComponentAccumulator()
+    
+  Acts_ActsMaterialJsonWriterTool = CompFactory.ActsMaterialJsonWriterTool
+  ActsMaterialJsonWriterTool = Acts_ActsMaterialJsonWriterTool(name, **kwargs)
+
+  from AthenaCommon.Constants import INFO
+  ActsMaterialJsonWriterTool.OutputLevel = INFO
+
+  result.addPublicTool(ActsMaterialJsonWriterTool, primary=True)
+  return result
+
+def ActsObjWriterToolCfg(name= "ActsObjWriterTool", **kwargs) :
+  result=ComponentAccumulator()
+    
+  Acts_ActsObjWriterTool = CompFactory.ActsObjWriterTool
+  ActsObjWriterTool = Acts_ActsObjWriterTool(name, **kwargs)
+
+  from AthenaCommon.Constants import INFO
+  ActsObjWriterTool.OutputLevel = INFO
+
+  result.addPublicTool(ActsObjWriterTool, primary=True)
   return result
