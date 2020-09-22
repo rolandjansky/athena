@@ -1460,6 +1460,24 @@ def getSolenoidalIntersector(name="SolenoidalIntersector", **kwargs) :
     from TrkExSolenoidalIntersector.TrkExSolenoidalIntersectorConf import Trk__SolenoidalIntersector
     return Trk__SolenoidalIntersector(the_name, **setDefaults(kwargs, SolenoidParameterizationKey = 'SolenoidParametrization'))
 
+def hasSplitProb(key) :
+    # @TODO find better solution,
+    import re
+    pat=re.compile('.*Dense.*')
+    from AthenaCommon.AppMgr import ToolSvc
+    for a_tool in ToolSvc.getChildren() :
+        if pat.match( a_tool.getFullName() ) != None :
+            print ('DEBUG split prob probabily set by %s' % a_tool.getFullName() )
+            return True
+
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if IsInInputFile('Trk::ClusterSplitProbabilityContainer',key) :
+        print ('DEBUG split prob  %s in inputfile ' % key )
+        return True
+
+    print ('DEBUG split prob is not set.' )
+    return False
+
 def combinedClusterSplitProbName() :
     # precisely mimics the configuration in InDetRec_jobOptions
     # chaings in InDetRec_jobOptions to the ClusterSplitProbContainer also have to be implemented here
@@ -1547,7 +1565,7 @@ def combinedClusterSplitProbName() :
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() :
       ClusterSplitProbContainer = '' # @TODO correct  ?
 
-    return ClusterSplitProbContainer
+    return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
 
 def pixelClusterSplitProbName() :
     ClusterSplitProbContainer=combinedClusterSplitProbName()
@@ -1558,5 +1576,5 @@ def pixelClusterSplitProbName() :
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
-    return ClusterSplitProbContainer
+    return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
 
