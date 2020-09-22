@@ -95,7 +95,7 @@ ActsCaloTrackingVolumeBuilder::trackingVolume(
   }
 
   std::shared_ptr<Acts::TrackingVolume> calo
-      = Acts::TrackingVolume::create(Acts::Transform3D::Identity()),
+      = Acts::TrackingVolume::create(Acts::Transform3D::Identity(),
                                      caloVolBounds,
                                      std::move(boxStore),
                                      std::move(cellVols),

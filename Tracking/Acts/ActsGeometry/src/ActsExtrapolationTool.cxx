@@ -154,7 +154,6 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       auto& propRes = *result;
 
       auto steppingResults = propRes.template get<SteppingLogger::result_type>();
-      auto debugOutput = propRes.template get<DebugOutput::result_type>();
       auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
@@ -278,7 +277,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
       auto materialResult = propRes.template get<Acts::MaterialInteractor::result_type>();
       output.first = std::move(steppingResults.steps);
       output.second = std::move(materialResult);
-      return std::move(output));
+      return std::move(output);
     }, *m_varProp);
 
   if (!res.ok()) {

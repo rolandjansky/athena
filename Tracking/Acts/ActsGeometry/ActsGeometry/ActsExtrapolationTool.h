@@ -73,7 +73,7 @@ public:
                    double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
-  std::unique_ptr<const Acts::CurvilinearParameters>
+  std::unique_ptr<const Acts::CurvilinearTrackParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundTrackParameters& startParameters,
             Acts::NavigationDirection navDir = Acts::forward,
