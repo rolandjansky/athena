@@ -49,8 +49,12 @@ def defineHistogramsCalo(monAlg, group,helper,histoNameSuffix=""):
 def METMonitoringConfig(inputFlags):    
 # '''Function to configures some algorithms in the monitoring system.'''
 
-#    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator  
-#    result = ComponentAccumulator()
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
+
+    # do not run monitoring in RAWtoESD
+    if inputFlags.DQ.Environment == 'tier0Raw':
+        return result
 
     from AthenaMonitoring import AthMonitorCfgHelper     
 #    helper = AthMonitorCfgHelper(inputFlags,'AthMonitorCfg') 
@@ -289,4 +293,6 @@ def METMonitoringConfig(inputFlags):
     BadJetsGroup = helper.addGroup(BadJets_EMTopoMETMonAlg,"METMonitor","MissingEt/AllTriggers/BadJets/MET_Calo/EMTopo")
     for mets in emtopomet_types:
         defineHistograms(BadJets_EMTopoMETMonAlg, BadJetsGroup,helper,mets)
-    return helper.result()
+
+    result.merge(helper.result())
+    return result
