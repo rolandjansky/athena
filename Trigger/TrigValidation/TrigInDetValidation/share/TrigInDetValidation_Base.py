@@ -34,6 +34,7 @@ local    = False
 exclude  = False
 postproc = False
 
+
 for opt,arg in opts:
     if opt in ("-l", "--local"):
         local=True
@@ -44,8 +45,10 @@ for opt,arg in opts:
     if opt=="-n":
         LEvents=arg
 
-
-rdo2aod = TrigInDetReco()
+if 'postexec' in dir() :
+    rdo2aod = TrigInDetReco( postexec_file=postexec )
+else :
+    rdo2aod = TrigInDetReco()
 
 # test specific variables ...
 
