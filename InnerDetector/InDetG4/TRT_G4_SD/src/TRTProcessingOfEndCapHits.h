@@ -46,7 +46,7 @@ private:
   int m_numberOfStrawsInIDSectorsAB;
   int m_numberOfStrawsInIDSectorC;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTSensitiveDetector* m_pSensitiveDetector;
 
   int m_verboseLevel;
