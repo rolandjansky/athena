@@ -56,16 +56,13 @@ using namespace TrigConf;
 
 HLTConfigSvc::HLTConfigSvc( const string& name, ISvcLocator* pSvcLocator ) :
    base_class(name, pSvcLocator),
-   m_eventStore( "StoreGateSvc/StoreGateSvc",  name ),
-   m_histProp_timePrescaleUpdate(Gaudi::Histo1DDef("Time for prescale update",0,200,100))
+   m_eventStore( "StoreGateSvc/StoreGateSvc",  name )
 {
    base_class::declareCommonProperties();
 
    declareProperty( "DBHLTPSKey",       m_dbHLTPSKey );
    declareProperty( "DBHLTPSKeySet",    m_dbHLTPSKeySet,
                     "List of HLT Prescale keys associated with start Lumiblocks LB1uPSK1cLB2uPSK2" );
-   declareProperty( "HistTimePrescaleUpdate", m_histProp_timePrescaleUpdate,
-                    "Histogram of time for prescale update");
    declareProperty( "doMergedHLT",      m_setMergedHLT,
                     "Set true to run the merged HLT processing");
    declareProperty( "doMonitoring",     m_doMon,
@@ -286,8 +283,6 @@ TrigConf::HLTConfigSvc::start() {
 
    ATH_MSG_INFO("HLTConfigSvc::start");
 
-   // Book histograms
-   if (m_doMon) bookHistograms().ignore();
    m_currentLumiblock = 0;
 
    if( ! fromDB() ) // xml config
@@ -336,39 +331,6 @@ TrigConf::HLTConfigSvc::applyPrescaleSet(const TrigConf::HLTPrescaleSet& pss) {
 
   m_currentPSS = pss.id();
 
-}
-
-
-StatusCode
-TrigConf::HLTConfigSvc::bookHistograms() {
-
-   ServiceHandle<ITHistSvc> histSvc("THistSvc", name());
-
-   CHECK(histSvc.retrieve());
-
-   const std::string histPath = "/EXPERT/" + name() + "/";
-
-   m_hist_timePrescaleUpdate = new TH1F("TimePrescaleUpdate",
-                                        (m_histProp_timePrescaleUpdate.value().title() + ";time [ms]").c_str(),
-                                        m_histProp_timePrescaleUpdate.value().bins(),
-                                        m_histProp_timePrescaleUpdate.value().lowEdge(),
-                                        m_histProp_timePrescaleUpdate.value().highEdge());
-   const int nLB(1), nKey(1);
-   m_hist_prescaleLB = new TH2I("PrescaleKey_LB","Prescale key used in LB;Lumiblock;Prescale key",
-                                nLB, 0, nLB, nKey, 0, nKey);
-
-   // try to register, delete if failure
-   TH1** hists[] = { (TH1**)&m_hist_timePrescaleUpdate,
-                     (TH1**)&m_hist_prescaleLB };
-   for ( TH1** h: hists ) {
-      if ( *h && histSvc->regHist(histPath + (*h)->GetName(), *h).isFailure() ) {
-         ATH_MSG_WARNING("Cannot register histogram " << (*h)->GetName());
-         delete *h;
-         *h = 0;
-      }
-   }
-
-   return StatusCode::SUCCESS;
 }
 
 
@@ -428,26 +390,60 @@ TrigConf::HLTConfigSvc::setL2LowerChainCounter(const CTPConfig* ctpcfg) {
 // query the TriggerDB for the list of lumiblocks and corresponding prescalekeys
 // will then load the and prescaleSets that have not yet been loaded
 StatusCode
-TrigConf::HLTConfigSvc::updatePrescaleSets(uint /*requestcount*/) {
+TrigConf::HLTConfigSvc::updatePrescaleSets(uint requestcount) {
 
    if( ! fromDB() ) { // xml 
       ATH_MSG_WARNING("Configured to not run from the database!");
       return StatusCode::SUCCESS;
    }
 
-   ATH_MSG_ERROR("Running from DB is no longer supported in legacy trigger");
-   return StatusCode::FAILURE;
+   if( !m_dbconfig->m_hltkeys.empty() ) {
+      ATH_MSG_WARNING("Has list of [(lb1,psk1), (lb2,psk2),...] defined!");
+      return StatusCode::SUCCESS;
+   }
+
+   // Load prescale set
+   CHECK(initStorageMgr());
+
+   bool loadSuccess = dynamic_cast<TrigConf::StorageMgr*>
+     (m_storageMgr)->hltPrescaleSetCollectionLoader().load( m_HLTFrame.thePrescaleSetCollection(), requestcount, "" );
+
+   CHECK(freeStorageMgr());
+
+   if(!loadSuccess) {
+      ATH_MSG_WARNING("HLTConfigSvc::updatePrescaleSets(): loading failed");
+      return StatusCode::FAILURE;
+   } else {
+      ATH_MSG_INFO ( m_HLTFrame.thePrescaleSetCollection() );
+   }
+   return StatusCode::SUCCESS;
 }
 
 
 // Assigns the prescales that are valid for a given lumiblock to the chains
 // This method is called by TrigSteer on *every* event (keep it fast)
 StatusCode
-TrigConf::HLTConfigSvc::assignPrescalesToChains(uint /*lumiblock*/) {
+TrigConf::HLTConfigSvc::assignPrescalesToChains(uint lumiblock) {
 
    if(! fromDB() ) // xml
       return StatusCode::SUCCESS;
 
-   ATH_MSG_ERROR("Running from DB is no longer supported in legacy trigger");
+   // get the HLTPrescaleSet
+   const HLTPrescaleSet* pss = m_HLTFrame.getPrescaleSetCollection().prescaleSet(lumiblock);
+   if (pss == 0) {
+      ATH_MSG_ERROR("Could not retrieve HLT prescale set for lumiblock = " << lumiblock);
+      return StatusCode::FAILURE;
+   }
+
+   // still the same HLTPSS -> nothing to do
+   if(pss->id() ==  m_currentPSS) {
+      return StatusCode::SUCCESS;
+   }
+
+   ATH_MSG_INFO("Changing PSK from " << m_currentPSS << " to " << pss->id()
+                << " for lumiblock " << lumiblock);
+
+   applyPrescaleSet(*pss);
+
    return StatusCode::FAILURE;
 }
