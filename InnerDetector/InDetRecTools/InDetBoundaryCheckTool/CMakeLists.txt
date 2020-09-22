@@ -6,16 +6,6 @@ atlas_subdir(
     InDetBoundaryCheckTool
 )
 
-# Declare the package's dependencies
-atlas_depends_on_subdirs( 
-    PUBLIC
-    Control/AthenaBaseComps
-    Tracking/TrkTools/TrkToolInterfaces
-    InnerDetector/InDetConditions/InDetConditionsSummaryService
-    InnerDetector/InDetDetDescr/InDetReadoutGeometry
-    InnerDetector/InDetRecToolInterfaces
-)
-
 # Component(s) in the package:
 atlas_add_component(
     InDetBoundaryCheckTool
@@ -28,6 +18,8 @@ atlas_add_component(
     TrkToolInterfaces
     TrkTrack
     InDetReadoutGeometry
+    InDetConditionsSummaryService
+    InDetRecToolInterfaces
 )
 
 # Install files from the package:
