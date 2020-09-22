@@ -22,7 +22,7 @@ SliceIDDict = {
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
-    'Calibration'   : 'calib',
+    'Calib'   : 'calib',
     #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
@@ -609,7 +609,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
 ##stramingInfo not use in ChainConfiguration, only to distinguish streaming
 
 CalibChainParts = {
-    'signature'      : ['Calibration'],
+    'signature'      : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : AllowedCalibChainIdentifiers,
@@ -625,7 +625,7 @@ CalibChainParts = {
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----
 CalibChainParts_Default = {
-    'signature'      : ['Calibration'],
+    'signature'      : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : [],
@@ -818,7 +818,7 @@ def getSignatureInformation(signature):
         return [HeavyIonChainParts_Default, HeavyIonChainParts]
     if signature == "Cosmic":
         return [CosmicChainParts_Default, CosmicChainParts]
-    if signature == "Calibration":
+    if signature == "Calib":
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]

@@ -2,12 +2,12 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibrationChainConfiguration")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
 #----------------------------------------------------------------
-class CalibrationChainConfiguration(ChainConfigurationBase):
+class CalibChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)

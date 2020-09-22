@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
-from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibrationChainConfiguration import CalibrationChainConfiguration as CalibrationChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.CalibCosmicMon.CalibChainConfiguration import CalibChainConfiguration as CalibChainConfiguration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
@@ -22,7 +22,7 @@ def generateChainConfigs( chainDict ):
     #needed to move to the correct format [{}]->{}
     for subChainDict in listOfChainDicts:
         
-        Calib = CalibrationChainConfiguration(subChainDict).assembleChain() 
+        Calib = CalibChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Calib]
         log.debug('length of chaindefs %s', len(listOfChainDefs) )

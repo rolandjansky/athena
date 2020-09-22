@@ -45,7 +45,6 @@ class opt:
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
 #Individual slice flags
     doCalibSlice        = True
-    # doCalibrationSlice  = True
     doTestSlice         = True
     doHeavyIonSlice     = True
     doEnhancedBiasSlice = True
