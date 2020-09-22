@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArAccumulatedDigit.h"
@@ -32,10 +32,10 @@ LArAccumulatedDigit::LArAccumulatedDigit(HWIdentifier & channel_value,
 
   /** @brief Constructor (second type)*/      
 LArAccumulatedDigit::LArAccumulatedDigit(HWIdentifier & channel_value)
+  : m_hardwareID (channel_value),
+    m_gain       ((CaloGain::CaloGain) 0),
+    m_nTrigger   (0)
 {
-  m_hardwareID = channel_value;
-  m_gain       = (CaloGain::CaloGain) 0;
-  m_nTrigger   = 0;
 }
 
 /** Destructor */
@@ -114,8 +114,10 @@ bool LArAccumulatedDigit::setAddDigit(const std::vector<short>& digit) {
 
 
 
-bool LArAccumulatedDigit::setAddSubStep(const CaloGain::CaloGain gain_value, const HWIdentifier chid, 
-					const std::vector<uint64_t> sampleSum, const std::vector <uint64_t> sampleSquare, 
+bool LArAccumulatedDigit::setAddSubStep(const CaloGain::CaloGain gain_value,
+                                        const HWIdentifier chid, 
+					const std::vector<uint64_t>& sampleSum,
+                                        const std::vector <uint64_t>& sampleSquare, 
 					const unsigned nTrigger)
 {
   size_t i;
