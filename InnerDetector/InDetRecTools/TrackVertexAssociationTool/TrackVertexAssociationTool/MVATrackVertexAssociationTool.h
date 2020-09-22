@@ -36,7 +36,10 @@ public:
   MVATrackVertexAssociationTool(const std::string& name);
 
   virtual StatusCode initialize() override;
+  // For Athena
+  #ifndef XAOD_STANDALONE
   virtual StatusCode finalize() override;
+  #endif
 
   virtual bool isCompatible(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const override;
 

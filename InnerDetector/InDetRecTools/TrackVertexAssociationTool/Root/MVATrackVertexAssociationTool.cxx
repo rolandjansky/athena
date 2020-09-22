@@ -25,6 +25,7 @@ namespace CP {
 MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& name) :
   AsgTool(name)
 {
+  // For AnalysisBase
   #ifdef XAOD_STANDALONE
   declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
   declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );
@@ -75,7 +76,8 @@ StatusCode MVATrackVertexAssociationTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-#ifdef XAOD_STANDALONE
+// For Athena
+#ifndef XAOD_STANDALONE
 StatusCode MVATrackVertexAssociationTool::finalize() {
   ATH_MSG_INFO("Finalizing MVATrackVertexAssociationTool.");
   return StatusCode::SUCCESS;
