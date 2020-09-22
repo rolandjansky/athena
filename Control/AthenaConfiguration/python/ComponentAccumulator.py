@@ -27,11 +27,12 @@ class ConfigurationError(RuntimeError):
 
 _basicServicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService','EvtIdModifierSvc'))
 
-def printProperties(msg, c, nestLevel = 0):
+def printProperties(msg, c, nestLevel = 0, printDefaults=False):
     # Iterate in sorted order.
     propnames= sorted(c._descriptors.keys())
     for propname in propnames:
-        if not c.is_property_set(propname): 
+        
+        if not printDefaults and not c.is_property_set(propname):
             continue
         propval=getattr(c,propname)
         # Ignore empty lists
@@ -42,7 +43,10 @@ def printProperties(msg, c, nestLevel = 0):
         if propname in ["DetStore","EvtStore"]:
             continue
 
-
+        if isinstance( propval, GaudiConfig2.Configurable ):
+            msg.info( " "*nestLevel +"    * {0}: {1}/{2}".format(propname, propval.__cpp_type__, propval.getName()))
+            printProperties(msg, propval, nestLevel+3)
+            continue
         if isinstance(propval,GaudiHandles.PublicToolHandleArray):
             ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
@@ -141,12 +145,12 @@ class ComponentAccumulator(object):
         self._msg=logging.getLogger('ComponentAccumulator')
 
 
-    def printCondAlgs(self, summariseProps=False, onlyComponents=[]):
+    def printCondAlgs(self, summariseProps=False, onlyComponents=[], printDefaults=False):
         self._msg.info( "Condition Algorithms" )
         for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
             self._msg.info( " " +"\\__ "+ c.name +" (cond alg)" )
             if summariseProps and flag:
-                printProperties(self._msg, c, 1)
+                printProperties(self._msg, c, 1, printDefaults)
         return
         
 
@@ -155,7 +159,7 @@ class ComponentAccumulator(object):
     # in the list with a trailing `-', then only the name of the component
     # will be printed, not its properties.
     def printConfig(self, withDetails=False, summariseProps=False,
-                    onlyComponents = []):
+                    onlyComponents = [], printDefaults=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( "Event Algorithm Sequences" )
 
@@ -179,7 +183,7 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.info( " "*nestLevel +"\\__ "+ c.name +" (alg)" )
                         if summariseProps and flag:
-                            printProperties(self._msg, c, nestLevel)
+                            printProperties(self._msg, c, nestLevel, printDefaults)
 
             for n,s in enumerate(self._allSequences):
                 self._msg.info( "Top sequence {}".format(n) )
@@ -195,7 +199,7 @@ class ComponentAccumulator(object):
             self._msg.info( "  {0},".format(t.getFullJobOptName()) )
             # Not nested, for now
             if summariseProps and flag:
-                printProperties(self._msg, t)
+                printProperties(self._msg, t, printDefaults)
         self._msg.info( "]" )
         self._msg.info( "Private Tools")
         self._msg.info( "[" )
@@ -204,12 +208,12 @@ class ComponentAccumulator(object):
                 self._msg.info( "  {0},".format(t.getFullJobOptsName()) )
                 # Not nested, for now
                 if summariseProps and flag:
-                    printProperties(self._msg, t)
+                    printProperties(self._msg, t, printDefaults)
         else:
             if self._privateTools is not None:
                 self._msg.info( "  {0},".format(self._privateTools.getFullJobOptName()) )
                 if summariseProps:
-                    printProperties(self._msg, self._privateTools)
+                    printProperties(self._msg, self._privateTools, printDefaults)
         self._msg.info( "]" )
         self._msg.info( "TheApp properties" )
         for k,v in six.iteritems(self._theAppProps):
