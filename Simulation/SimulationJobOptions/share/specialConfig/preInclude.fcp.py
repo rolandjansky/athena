@@ -5,39 +5,34 @@
 def load_files_for_fcp_scenario(MASS, CHARGE, X, Y):
     import os, shutil, sys
 
-    print X, Y
     CODE=int(20000000)+int(X)*1000+int(Y)*10
-    print CODE
+    print("Trying to load %d, %d for particle with code %d" % (X, Y, CODE))
 
-    ALINE1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 fcp           +".format(code=CODE,intmass=int(MASS))
-    ALINE2="W {code}                         0.E+00         +0.0E+00 -0.0E+00 fcp           +".format(code=CODE)
-    BLINE1="{code}  {intmass}.00  {fcharge}  0.0 # fcp".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
-    BLINE2="-{code}  {intmass}.00  -{fcharge}  0.0 # fcpBar".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
+    pdgLine1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 fcp           +\n".format(code=CODE,intmass=int(MASS))
+    pdgLine2="W {code}                         0.E+00         +0.0E+00 -0.0E+00 fcp           +\n".format(code=CODE)
+    particleLine1="{code}  {intmass}.00  {fcharge}  0.0 # fcp\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
+    particleLine2="-{code}  {intmass}.00  -{fcharge}  0.0 # fcpBar\n".format(code=CODE,intmass=int(MASS), fcharge=float(CHARGE))
 
     pdgmod = os.path.isfile('PDGTABLE.MeV')
     if pdgmod is True:
         os.remove('PDGTABLE.MeV')
     os.system('get_files -data PDGTABLE.MeV')
     f=open('PDGTABLE.MeV','a')
-    f.writelines(str(ALINE1))
-    f.writelines('\n')
-    f.writelines(str(ALINE2))
-    f.writelines('\n')
+    f.writelines(str(pdgLine1))
+    f.writelines(str(pdgLine2))
     f.close()
     partmod = os.path.isfile('particles.txt')
     if partmod is True:
         os.remove('particles.txt')
     f=open('particles.txt','w')
-    f.writelines(str(BLINE1))
-    f.writelines('\n')
-    f.writelines(str(BLINE2))
-    f.writelines('\n')
+    f.writelines(str(particleLine1))
+    f.writelines(str(particleLine2))
     f.close()
 
-    del ALINE1
-    del ALINE2
-    del BLINE1
-    del BLINE2
+    del pdgLine1
+    del pdgLine2
+    del particleLine1
+    del particleLine2
 
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -72,11 +67,6 @@ if doG4SimConfig:
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
-    # FIXME ideally would include this file early enough, so that the unlocking is not required
-    #simFlags.EquationOfMotion.unlock()
-    #simFlags.EquationOfMotion.set_On()
-    #simFlags.EquationOfMotion.set_Value_and_Lock("G4mplEqMagElectricField")#"MonopoleEquationOfMotion")
-    #simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
     simFlags.OptionalUserActionList.addAction('G4UA::MonopoleLooperKillerTool')
