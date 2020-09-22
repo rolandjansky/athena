@@ -75,7 +75,7 @@ StatusCode MVATrackVertexAssociationTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-#ifndef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE
 StatusCode MVATrackVertexAssociationTool::finalize() {
   ATH_MSG_INFO("Finalizing MVATrackVertexAssociationTool.");
   return StatusCode::SUCCESS;
