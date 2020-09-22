@@ -90,7 +90,7 @@ StatusCode PixMapDBWriter::execute(){
 }
 
 
-StatusCode PixMapDBWriter::finalize ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe DetectorSpecialPixelMap and ModuleSpecialPixelMap classes are used.
+StatusCode PixMapDBWriter::finalize (){
   ATH_MSG_INFO( "Finalizing PixMapDBWriter" );
 
   ATH_MSG_DEBUG( "Reading map of special pixels from file" );
