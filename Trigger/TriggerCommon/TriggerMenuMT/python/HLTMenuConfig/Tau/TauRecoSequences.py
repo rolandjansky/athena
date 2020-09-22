@@ -142,7 +142,6 @@ def tauCaloSequence(ConfigFlags):
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
     tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                   ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
@@ -169,7 +168,6 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]

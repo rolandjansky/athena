@@ -65,12 +65,6 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                            ( 'PixelID' , 'DetectorStore+PixelID' ),
                                            ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
-        from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
-          verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-        if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
-          verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-
         SpList = idAlgs[:-2]
 
         SpCount=TrigCountSpacePointsMT()
