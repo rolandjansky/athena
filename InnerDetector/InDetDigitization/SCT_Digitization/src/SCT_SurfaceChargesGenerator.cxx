@@ -63,7 +63,7 @@ parent)
     m_doHistoTrap(false),
     m_doRamo(false),
     m_doCTrap(false),
-    m_doInducedChargedModel(true),
+    m_doInducedChargedModel(false),
     m_thistSvc(nullptr),
     m_h_efieldz(nullptr),
     m_h_efield(nullptr),
