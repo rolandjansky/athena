@@ -24,7 +24,18 @@ namespace CP {
 
 MVATrackVertexAssociationTool::MVATrackVertexAssociationTool(const std::string& name) :
   AsgTool(name)
-{}
+{
+  #ifndef XAOD_STANDALONE
+  declareProperty("NetworkFileName", m_fileName,        "Name of the input lwtnn network file."                                                              );
+  declareProperty("InputNames",      m_inputNames,      "Vector of the network's input variable names (std::vector<std::string>)."                           );
+  declareProperty("InputTypes",      m_inputTypes,      "Vector of the network's input variable evaluator types (std::vector<CP::MVAEvaluatorInput::Input>).");
+  declareProperty("OutputNodeName",  m_outputName,      "Name of the output node to cut on for TVA."                                                         );
+  declareProperty("IsSequential",    m_isSequential,    "Is the network sequential (true) or functional (false)."                                            );
+  declareProperty("WorkingPoint",    m_wp,              "TVA working point to apply."                                                                        );
+  declareProperty("OutputCut",       m_cut,             "TVA cut value on the output value (set manually with \"Custom\" WP)."                               );
+  declareProperty("UsePathResolver", m_usePathResolver, "Use the PathResolver for finding the input lwtnn network file."                                     );
+  #endif
+}
 
 StatusCode MVATrackVertexAssociationTool::initialize() {
 
@@ -64,10 +75,12 @@ StatusCode MVATrackVertexAssociationTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
+#ifndef XAOD_STANDALONE
 StatusCode MVATrackVertexAssociationTool::finalize() {
   ATH_MSG_INFO("Finalizing MVATrackVertexAssociationTool.");
   return StatusCode::SUCCESS;
 }
+#endif
 
 bool MVATrackVertexAssociationTool::isCompatible(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const {
   float mvaOutput;

@@ -65,6 +65,36 @@ private:
   StatusCode initializeNetwork();
   float evaluateNetwork(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx, const xAOD::EventInfo& evt) const;
 
+  // For AnalysisBase
+  #ifndef XAOD_STANDALONE
+
+  // Input lwtnn network file
+  std::string m_fileName = "";
+
+  // Vector of input variable names
+  std::vector<std::string> m_inputNames = {};
+
+  // Vector of input variable types
+  std::vector<int> m_inputTypes = {};
+
+  // Name of the output node to cut on
+  std::string m_outputName = "";
+
+  // Is the network sequential or functional
+  bool m_isSequential = true;
+
+  // TVA working point
+  std::string m_wp = "Tight";
+
+  // TVA cut value on the output discriminant
+  float m_cut = -1.0;
+
+  // Use the PathResolver to find our input file
+  bool m_usePathResolver = true;
+
+  // For Athena
+  #else
+
   // Input lwtnn network file
   StringProperty m_fileName {this, "NetworkFileName", "", "Name of the input lwtnn network file."};
 
@@ -88,6 +118,8 @@ private:
 
   // Use the PathResolver to find our input file
   BooleanProperty m_usePathResolver {this, "UsePathResolver", true, "Use the PathResolver for finding the input lwtnn network file."};
+
+  #endif
 
   // Input variable name/type map
   MVAInputEvaluator::InputSelectionMap m_inputMap;
