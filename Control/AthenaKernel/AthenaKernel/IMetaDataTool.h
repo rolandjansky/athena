@@ -32,9 +32,19 @@ public: // Non-static members
   virtual StatusCode metaDataStop() = 0;
 
   /// Gaudi boilerplate
-   static const InterfaceID& interfaceID();
-private: // Data
+  static const InterfaceID& interfaceID();
 };
+
+/** @class ILockableTool
+ *  @brief This class provides the locking interface that MetaData tools can implement.
+           MetaDataSvc will use these methods when writing out MetaData
+ **/
+class ILockableTool {
+public:
+   virtual void lock_shared() const = 0;
+   virtual void unlock_shared() const = 0;
+};
+
 
 inline const InterfaceID& IMetaDataTool::interfaceID() {
    static const InterfaceID IID("IMetaDataTool", 1, 0);

@@ -42,7 +42,7 @@ StatusCode TauPi0CreateROI::initialize() {
 }
 
 //______________________________________________________________________________
-StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) {
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, std::vector<CaloCell*>& addedCellsMap) const {
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 

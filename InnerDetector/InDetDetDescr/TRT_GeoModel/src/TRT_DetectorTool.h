@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" //for Argon
+#include "CxxUtils/checker_macros.h"
 #include <string>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,8 +38,8 @@ public:
     virtual StatusCode create() override final;
     virtual StatusCode clear() override final;
 
-    // Register callback function on ConDB object
-    virtual StatusCode registerCallback() override final;
+    // Register callback function on CondDB object
+    virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override final;
 
     // Callback function itself
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override final;

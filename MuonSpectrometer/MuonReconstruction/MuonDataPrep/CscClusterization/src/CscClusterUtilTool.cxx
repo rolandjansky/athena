@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscClusterUtilTool.cxx
-
 #include "CscClusterUtilTool.h"
 
 #include "CscClusterization/ICscClusterFitter.h"
@@ -20,24 +18,17 @@ using Muon::CscPrepData;
 using Muon::CscStripPrepData;
 using Muon::CscStripPrepDataCollection;
 using Muon::CscStripPrepDataContainer;
-using std::string;
-using std::vector;
 
 //**********************************************************************
 
-CscClusterUtilTool::CscClusterUtilTool(string type, string aname, const IInterface* parent)
+CscClusterUtilTool::CscClusterUtilTool(const std::string& type, const std::string& aname, const IInterface* parent)
     : AthAlgTool(type, aname, parent),
-      m_pmuon_detmgr(0),
       m_phelper(0),
       m_cscStripLocation("CSC_Measurements")
 {
     declareInterface<ICscClusterUtilTool>(this);
     declareProperty("CscStripPrepDataLocation", m_cscStripLocation);
 }
-
-//**********************************************************************
-
-CscClusterUtilTool::~CscClusterUtilTool() {}
 
 //**********************************************************************
 
@@ -58,20 +49,11 @@ CscClusterUtilTool::initialize()
     ATH_CHECK(m_precClusterFitter.retrieve());
     ATH_MSG_DEBUG("Retrieved CSC precision cluster fitting tool");
 
-    // Retrieve the detector descriptor.
-    ATH_CHECK_RECOVERABLE(detStore()->retrieve(m_pmuon_detmgr));
+    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    ATH_CHECK_RECOVERABLE(detStore()->retrieve(muDetMgr));
     ATH_MSG_DEBUG("Retrieved geometry.");
-    m_phelper = m_pmuon_detmgr->cscIdHelper();
+    m_phelper = muDetMgr->cscIdHelper();
 
-    return StatusCode::SUCCESS;
-}
-
-//**********************************************************************
-
-StatusCode
-CscClusterUtilTool::finalize()
-{
-    ATH_MSG_VERBOSE("Finalizing " << name());
     return StatusCode::SUCCESS;
 }
 
@@ -123,7 +105,7 @@ CscClusterUtilTool::getStripFits(const CscPrepData* MClus, ICscClusterFitter::St
 
     sfits.clear();
 
-    vector<const CscStripPrepData*> strPrepDatas = getStrips(MClus);
+    std::vector<const CscStripPrepData*> strPrepDatas = getStrips(MClus);
     for (unsigned int i = 0; i < strPrepDatas.size(); ++i) {
         ICscClusterFitter::StripFit sfit;
         sfit = m_stripFitter->fit(*strPrepDatas[i]);
@@ -155,17 +137,17 @@ CscClusterUtilTool::getRefitCluster(const CscPrepData* MClus, double tantheta) c
 }
 /////////////////////////////////////////////////////////////////////////////
 
-vector<const CscStripPrepData*>
+std::vector<const CscStripPrepData*>
 CscClusterUtilTool::getStrips(const CscPrepData* MClus) const
 {
 
-    vector<const CscStripPrepData*> strips;
+    std::vector<const CscStripPrepData*> strips;
     if (!MClus) {
         ATH_MSG_WARNING(" Muon::CscPrepData* pprd is empty !");
         return strips;
     }
 
-    vector<Identifier> prd_digit_ids = MClus->rdoList();
+    std::vector<Identifier> prd_digit_ids = MClus->rdoList();
 
     SG::ReadHandle<Muon::CscStripPrepDataContainer> pdigcont(m_cscStripLocation);
 

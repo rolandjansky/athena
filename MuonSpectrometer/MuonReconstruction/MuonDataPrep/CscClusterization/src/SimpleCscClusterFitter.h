@@ -46,8 +46,6 @@ class SimpleCscClusterFitter : virtual public ICscClusterFitter, public AthAlgTo
     double      m_defaultErrorScaler_eta;
     double      m_defaultErrorScaler_phi;
 
-    const MuonGM::MuonDetectorManager* m_detMgr;
-
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
                                                         "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

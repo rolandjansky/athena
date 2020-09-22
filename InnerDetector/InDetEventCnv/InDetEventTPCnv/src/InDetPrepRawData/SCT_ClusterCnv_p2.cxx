@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -38,10 +38,9 @@ SCT_ClusterCnv_p2::createSCT_Cluster (const InDet::SCT_Cluster_p2* persObj,
   //Identifier::value_type id32 = transObj->identify().get_compact(); 
   //Identifier id32 = transObj->identify(); 
   std::vector<Identifier>::iterator tit = rdoList.begin();
-  for (std::vector<InDet::SCT_Cluster_p2::rdo_diff_type>::const_iterator it=persObj->m_rdoList.begin(); it != persObj->m_rdoList.end(); it++) {
- 
-    *tit = Identifier(m_sctId2->strip_id_offset(clusId,*it) );
-    tit++;
+  for (const InDet::SCT_Cluster_p2::rdo_diff_type& rdo : persObj->m_rdoList) {
+    *tit = Identifier(m_sctId2->strip_id_offset(clusId,rdo) );
+    ++tit;
   }
   
   InDet::SiWidth sw;
@@ -100,10 +99,9 @@ void SCT_ClusterCnv_p2::transToPers( const InDet::SCT_Cluster *transObj, InDet::
   std::vector<InDet::SCT_Cluster_p2::rdo_diff_type>::iterator pit = persObj->m_rdoList.begin(); 
   
   
-  for (std::vector<Identifier>::const_iterator it=transObj->rdoList().begin(); it != transObj->rdoList().end(); it++) {
-    //*pit = static_cast<InDet::SCT_Cluster_p2::rdo_diff_type>(it->get_compact() - id32);
-    *pit = static_cast<InDet::SCT_Cluster_p2::rdo_diff_type>( m_sctId2->calc_offset(id32, *it) );
-    pit++;
+  for (const Identifier& id : transObj->rdoList()) {
+    *pit = static_cast<InDet::SCT_Cluster_p2::rdo_diff_type>( m_sctId2->calc_offset(id32, id) );
+    ++pit;
   }
   
 }

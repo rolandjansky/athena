@@ -4,8 +4,6 @@
 
 #include "TGC_PrepDataToxAOD.h"
 
-#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "MuonRIO_OnTrack/TgcClusterOnTrack.h"
 #include "TrkEventPrimitives/ResidualPull.h"
 #include "StoreGate/ReadHandle.h"
@@ -13,10 +11,7 @@
 #include <bitset>
 
 TGC_PrepDataToxAOD::TGC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO"),
-  m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-  m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
-{  
+  MuonPrepDataToxAOD(name,pSvcLocator,"TGC_MeasurementsAllBCs","TGC_SDO") {  
 }
 
 // Execute method:

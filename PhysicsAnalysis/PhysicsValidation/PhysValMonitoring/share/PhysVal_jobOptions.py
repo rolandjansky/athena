@@ -48,6 +48,7 @@ for val in validations:
 
 for tool in monMan.AthenaMonTools:
     tool.EnableLumi = False
+    tool.ManagerName = 'PhysValMonManager'
     
 from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc

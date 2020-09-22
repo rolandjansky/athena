@@ -6,7 +6,6 @@
 #include "TrkExTools/MultipleScatteringUpdator.h"
 #include "TrkExTools/TimedExtrapolator.h"
 #include "TrkExTools/NIMatEffUpdator.h"
-#include "TrkExTools/NavigatorValidation.h"
 
 using namespace Trk;
 
@@ -18,5 +17,4 @@ DECLARE_COMPONENT( EnergyLossUpdator )
 DECLARE_COMPONENT( MultipleScatteringUpdator )
 DECLARE_COMPONENT( NIMatEffUpdator )
 DECLARE_COMPONENT( TimedExtrapolator )
-DECLARE_COMPONENT( NavigatorValidation )
 

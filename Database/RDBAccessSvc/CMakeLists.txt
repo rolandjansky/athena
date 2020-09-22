@@ -1,16 +1,7 @@
-################################################################################
-# Package: RDBAccessSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RDBAccessSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CxxUtils )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
@@ -31,8 +22,7 @@ atlas_add_component( RDBAccessSvc
                      src/RDBQuery.cxx
                      src/SourceCompAlg.cxx
                      src/components/RDBAccessSvc_entries.cxx
-                     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps CxxUtils GaudiKernel RDBAccessSvcLib )
+                     LINK_LIBRARIES AthenaBaseComps CxxUtils RDBAccessSvcLib )
 
 atlas_add_executable( geomdb2sqlite
                       replicator/geomdb2sqlite.cpp

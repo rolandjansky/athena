@@ -31,9 +31,10 @@ public:
 
         void SetCurrentlyTraced(HepMC::GenParticlePtr p) {m_currentlyTraced=p;}
 
-        HepMC::GenParticlePtr GetCurrentPrimary() const {return m_currentPrimary;}
+        HepMC::ConstGenParticlePtr GetCurrentPrimary() const {return m_currentPrimary;}
 
-        HepMC::GenParticlePtr GetCurrentlyTraced() const {return m_currentlyTraced;}
+        HepMC::GenParticlePtr GetCurrentlyTraced() {return m_currentlyTraced;}
+        HepMC::ConstGenParticlePtr GetCurrentlyTraced() const {return m_currentlyTraced;}
         int SecondaryParticleBarCode() {m_secondaryParticleBarCode++;
                                         return m_secondaryParticleBarCode;}
         int SecondaryVertexBarCode() {m_secondaryVertexBarCode--;

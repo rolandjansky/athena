@@ -25,7 +25,8 @@ using namespace std;
 //
 // this code is based on CoraCoolExample by R. Hawkings
 //
-PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int /*verbose*/) :
+PixCalibCoralCoolDb::PixCalibCoralCoolDb(const std::string& dbString,
+                                         int /*verbose*/) :
   m_dbstring(dbString)
 {
 
@@ -207,7 +208,7 @@ bool PixCalibCoralCoolDb::saveCalibData ( string textfile , long long FK )
   return true;
 }
 
-bool PixCalibCoralCoolDb::referenceToRunInterval(long long FK, cool::ValidityKey vk1,cool::ValidityKey vk2, const std::string tagname)
+bool PixCalibCoralCoolDb::referenceToRunInterval(long long FK, cool::ValidityKey vk1,cool::ValidityKey vk2, const std::string& tagname)
 {
   cool::RecordSpecification payloadspec;
   // primary / foreign keys

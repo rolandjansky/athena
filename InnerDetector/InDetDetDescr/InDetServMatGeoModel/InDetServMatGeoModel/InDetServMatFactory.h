@@ -18,7 +18,7 @@ class InDetServMatFactory : public InDetDD::DetectorFactoryBase  {
  public:
   
   // Constructor:
-  InDetServMatFactory(const InDetDD::AthenaComps * athenaComps);
+  InDetServMatFactory(InDetDD::AthenaComps * athenaComps);
 
   // Destructor:
   ~InDetServMatFactory();

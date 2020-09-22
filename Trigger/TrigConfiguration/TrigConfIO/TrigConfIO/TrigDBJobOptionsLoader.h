@@ -18,6 +18,8 @@
 
 #include "TrigConfIO/TrigDBLoader.h"
 
+#include <map>
+
 namespace TrigConf {
 
    /**
@@ -49,6 +51,8 @@ namespace TrigConf {
       bool loadJobOptions ( unsigned int smk,
                             DataStructure & jobOptions,
                             const std::string & outFileName = "") const;
+   private:
+      std::map<size_t, QueryDefinition> m_queries;
    };
 
 }

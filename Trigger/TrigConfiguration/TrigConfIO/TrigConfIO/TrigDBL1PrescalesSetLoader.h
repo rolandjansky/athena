@@ -40,6 +40,8 @@ namespace TrigConf {
                              L1PrescalesSet & l1pss,
                              const std::string & outFileName = "") const;
 
+   private:
+      std::map<size_t, QueryDefinition> m_queries;
    };
 
 }

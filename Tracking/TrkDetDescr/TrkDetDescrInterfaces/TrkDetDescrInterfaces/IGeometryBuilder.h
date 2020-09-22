@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,6 +15,8 @@
 #include "TrkDetDescrUtils/GeometrySignature.h"
 // STL
 #include <vector>
+
+#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -49,7 +51,7 @@ namespace Trk {
            - optionally a pointer to a tvol is given to wrap the TrackingGeometry around
            - optionally a vector of pointers to TrackingVolume is given for glueing
         */
-      virtual const TrackingGeometry* trackingGeometry(const TrackingVolume* tvol = 0) const = 0;
+      virtual const TrackingGeometry* trackingGeometry ATLAS_NOT_THREAD_SAFE (const TrackingVolume* tvol = 0) const = 0;
 
       /** The unique signature */
       virtual GeometrySignature geometrySignature() const = 0;

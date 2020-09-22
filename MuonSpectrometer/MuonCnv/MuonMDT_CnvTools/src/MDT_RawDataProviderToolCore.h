@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLCORE_H
@@ -19,10 +19,9 @@
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonRDO/MdtCsm_Cache.h"
-
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
 class MdtCsmContainer;
-class IROBDataProviderSvc;
 
 namespace Muon 
 {
@@ -38,29 +37,25 @@ class MDT_RawDataProviderToolCore : public AthAlgTool
   MDT_RawDataProviderToolCore(const std::string&,const std::string&,const IInterface*);
 
   /** default destructor */
-  virtual ~MDT_RawDataProviderToolCore ();
+  virtual ~MDT_RawDataProviderToolCore()=default;
     
   /** standard Athena-Algorithm method */
   virtual StatusCode initialize();
-    
-  /** standard Athena-Algorithm method */
-  virtual StatusCode finalize  ();
   
   /** Convert method */
-    virtual StatusCode convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer);
+  virtual StatusCode convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer);
 
   protected:
 
-  ToolHandle<MdtROD_Decoder>        m_decoder; 
-  SG::WriteHandleKey<MdtCsmContainer>   m_rdoContainerKey{
-	this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
+  ToolHandle<MdtROD_Decoder> m_decoder{this,"Decoder","MdtROD_Decoder/MdtROD_Decoder"}; 
+  SG::WriteHandleKey<MdtCsmContainer> m_rdoContainerKey{this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   unsigned int m_maxhashtoUse;
 
   // Rob Data Provider handle 
-  ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+  ServiceHandle<IROBDataProviderSvc> m_robDataProvider{this,"ROBDataProviderSvc","ROBDataProviderSvc"};
 
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 

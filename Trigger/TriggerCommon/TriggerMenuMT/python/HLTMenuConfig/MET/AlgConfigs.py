@@ -8,6 +8,8 @@ from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
 import TrigEFMissingET.PUClassification as PUClassification
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger(__name__)
@@ -121,8 +123,8 @@ class MHTConfig(AlgConfig):
         # TODO - right now jet calibration is hardcoded to EM
         jetRecoDict["calib"] = "em"
         jetRecoDict["jetCalib"] = "subjes"
-        jetSeq, jetName = RecoFragmentsPool.retrieve(
-            jetRecoSequence, None, dataSource="data", **jetRecoDict
+        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
+            jetRecoSequence, ConfigFlags, **jetRecoDict
         )
 
         self.inputs = [jetSeq]
@@ -142,8 +144,8 @@ class TrkMHTConfig(AlgConfig):
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
         # TODO - right now jet calibration is hardcoded to EM
         jetRecoDict["calib"] = "em"
-        jetSeq, jetName = RecoFragmentsPool.retrieve(
-            jetRecoSequence, None, dataSource="data", **jetRecoDict
+        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
+            jetRecoSequence, ConfigFlags, **jetRecoDict
         )
 
         # These are the names set by the upstream algorithms. Unfortunately
@@ -281,8 +283,8 @@ class MHTPufitConfig(AlgConfig):
         # If this is PFlow then set the calib type to "em"
         if recoDict["jetDataType"] == "pf":
             jetRecoDict["calib"] = "em"
-        jetSeq, jetName = RecoFragmentsPool.retrieve(
-            jetRecoSequence, flags=None, dataSource="data", **jetRecoDict
+        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
+            jetRecoSequence, flags=ConfigFlags, **jetRecoDict
         )
 
         # We need to get the input name that the jet sequence used

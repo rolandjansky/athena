@@ -62,6 +62,7 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "CscClusterization/ICscClusterBuilder.h"
+#include "MuonPrepRawData/CscPrepDataContainer.h"
 
 class ICscCalibTool;
 class ICscStripFitter;
@@ -96,7 +97,7 @@ class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public
     StatusCode initialize();
 
     // Event processing.
-    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect);
+    StatusCode getClusters(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *object);
 
     // Finalization.
     StatusCode finalize();
@@ -120,7 +121,6 @@ class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public
     std::string                                        m_noiseOptionStr;
     NoiseOption                                        m_noiseOption;
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;  // SG key for input digits
-    SG::WriteHandleKey<Muon::CscPrepDataContainer>     m_pclusters;  // SG key for output clusters
 
     // Calibration tool.
     ToolHandle<ICscCalibTool> m_cscCalibTool{
@@ -166,9 +166,6 @@ class CscThresholdClusterBuilderTool : virtual public ICscClusterBuilder, public
         "MuonDetectorManager",
         "Key of input MuonDetectorManager condition data",
     };
-
-    // keep track of full event being already processed
-    bool m_fullEventDone;
 
     bool m_makeNarrowClusterThreeStrips;
 };

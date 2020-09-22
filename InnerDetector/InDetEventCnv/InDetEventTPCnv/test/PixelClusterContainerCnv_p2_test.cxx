@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/PixelClusterContainerCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +16,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -167,7 +166,7 @@ makeclusts()
 }
 
 
-void test1()
+void test1 ATLAS_NOT_THREAD_SAFE ()
 {
   std::cout << "test1\n";
 
@@ -200,7 +199,7 @@ void make_dd()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("InDetEventTPCnv_test.txt", pSvcLoc)) {

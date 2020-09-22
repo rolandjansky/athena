@@ -10,7 +10,6 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauJet.h"
-#include "CaloUtils/CaloVertexedCluster.h"
 
 //______________________________________________________________________________
 TauAxisSetter::TauAxisSetter(const std::string& name) :
@@ -21,19 +20,26 @@ TauRecToolBase(name) {
 TauAxisSetter::~TauAxisSetter() { 
 }
 
-//______________________________________________________________________________
-StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
 
-  const xAOD::Jet* pJetSeed = pTau.jet();
-  if (!pJetSeed) {
+
+StatusCode TauAxisSetter::initialize() {
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
+  if (! pTau.jetLink().isValid()) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
   }
+  const xAOD::Jet* jetSeed = pTau.jet();
 
   // Barycenter is the sum of cluster p4 in the seed jet
   TLorentzVector baryCenter;  
   
-  xAOD::JetConstituentVector constituents = pJetSeed->getConstituents();
+  xAOD::JetConstituentVector constituents = jetSeed->getConstituents();
   for (const xAOD::JetConstituent* constituent : constituents) {
     TLorentzVector constituentP4;
     constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
@@ -74,18 +80,28 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   pTau.setP4(xAOD::TauJetParameters::DetectorAxis, tauDetectorAxis.Pt(), tauDetectorAxis.Eta(), tauDetectorAxis.Phi(), tauDetectorAxis.M());
 
 
-  if(m_doVertexCorrection) {
+  if (m_doVertexCorrection) {
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    
     // calculate tau intermediate axis (corrected for tau vertex)
     TLorentzVector tauInterAxis;
 
-    std::vector<const xAOD::CaloCluster*> clusterList;
-    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr, baryCenter, m_clusterCone));
-    for (auto cluster : clusterList){
-      if (pTau.vertexLink()) {
-        tauInterAxis += xAOD::CaloVertexedCluster(*cluster, pTau.vertex()->position()).p4();
-      }
-      else {
-        tauInterAxis += xAOD::CaloVertexedCluster(*cluster).p4();
+    if (tauVertex == jetVertex) {
+      tauInterAxis = tauDetectorAxis;
+    }
+    else {
+      for (const xAOD::JetConstituent* constituent : constituents) {
+        TLorentzVector constituentP4;
+        constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+      
+        double dR = baryCenter.DeltaR(constituentP4);
+        if (dR > m_clusterCone) continue;
+        
+        TLorentzVector vertexCorrectedP4 = m_tauVertexCorrection->getVertexCorrectedP4(*constituent, tauVertex, jetVertex); 
+        tauInterAxis += vertexCorrectedP4;
       }
     }
 

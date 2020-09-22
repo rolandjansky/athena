@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@ public:
   // overload base class function to add technology specific information
   void addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::RpcPrepData& prd, const MuonSimData* sdo ) const;
 private:
-  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator;
-  ToolHandle<Trk::IResidualPullCalculator>     m_pullCalculator;
+  ToolHandle<Muon::IMuonClusterOnTrackCreator> m_clusterCreator{this,"ClusterOnTrackCreator","Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"};
+  ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator{this,"PullCalculator","Trk::ResidualPullCalculator/ResidualPullCalculator"};
   double m_inversePropagationSpeed;
 };
 

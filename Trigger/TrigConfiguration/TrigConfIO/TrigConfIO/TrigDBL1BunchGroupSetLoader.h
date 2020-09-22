@@ -39,7 +39,9 @@ namespace TrigConf {
       bool loadBunchGroupSet ( unsigned int bgsk,
                                L1BunchGroupSet & bgs,
                                const std::string & outFileName = "") const;
-      
+
+   private:
+      std::map<size_t, QueryDefinition> m_queries;
 
    };
 

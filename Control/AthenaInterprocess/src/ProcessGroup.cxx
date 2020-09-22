@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaInterprocess/ProcessGroup.h"
@@ -46,7 +46,7 @@ ProcessGroup::~ProcessGroup()
 {
 }
 
-pid_t ProcessGroup::launchProcess()
+pid_t ProcessGroup::launchProcess ATLAS_NOT_THREAD_SAFE ()
 {
   if(m_pgid==-1)
     return -1;
@@ -72,7 +72,7 @@ pid_t ProcessGroup::launchProcess()
   return newpid;
 }
 
-int ProcessGroup::map_async(const IMessageDecoder* func, const ScheduledWork* args, pid_t pid) {
+int ProcessGroup::map_async ATLAS_NOT_THREAD_SAFE (const IMessageDecoder* func, const ScheduledWork* args, pid_t pid) {
   // If pid=0, map the function-object 'func' onto all current child processes. Does
   // not wait for the results, but will return success only if the writing to
   // all the child queues succeeds.
@@ -105,7 +105,7 @@ int ProcessGroup::map_async(const IMessageDecoder* func, const ScheduledWork* ar
   }
 }
 
-int ProcessGroup::wait(int options)
+int ProcessGroup::wait ATLAS_NOT_THREAD_SAFE (int options)
 {
   // Wait for all child processes and store their status codes in m_statuses
   if(m_processes.empty())
@@ -206,7 +206,7 @@ const std::vector<ProcessStatus>& ProcessGroup::getStatuses() const
   return m_statuses;
 }
 
-bool ProcessGroup::create()
+bool ProcessGroup::create ATLAS_NOT_THREAD_SAFE ()
 {
 // TODO: this code leaves the queues from the previous children visible to all
 // their subsequent siblings. This can be helped by creating the queue first

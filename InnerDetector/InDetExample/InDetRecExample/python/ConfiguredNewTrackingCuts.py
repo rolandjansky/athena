@@ -229,6 +229,7 @@ class ConfiguredNewTrackingCuts :
       # Designed to speed up reconstruction at minimal performance impact. 
       self.__roadWidth              = 12
       self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+      self.__maxZImpact              = 200
 
     if self.__indetflags.cutLevel() >= 18:
       # Further tuning of the pattern recognition designed to 

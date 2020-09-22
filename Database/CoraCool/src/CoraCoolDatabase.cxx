@@ -34,7 +34,7 @@
 #include "CxxUtils/checker_macros.h"
 
 // constructor with external COOL database reference
-CoraCoolDatabase::CoraCoolDatabase(const std::string dbconn,
+CoraCoolDatabase::CoraCoolDatabase(const std::string& dbconn,
                                    cool::IDatabasePtr cooldb,
                                    coral::IConnectionService& coralsvc,
                                    const bool readonly) :
@@ -193,9 +193,9 @@ CoraCoolFolderPtr CoraCoolDatabase::createFolder(const std::string& coolpath,
      const std::string& coraltable,
      const cool::IRecordSpecification& fkspec,
      const cool::IRecordSpecification& payloadspec,
-     const std::string coralfk,
-     const std::string coralpk,
-     const std::string description,
+     const std::string& coralfk,
+     const std::string& coralpk,
+     const std::string& description,
      const cool::FolderVersioning::Mode mode,
      const bool createParents) {
 
@@ -313,7 +313,7 @@ bool CoraCoolDatabase::existsFolder(const std::string& coolfolder) {
   }
 }
 
-bool CoraCoolDatabase::parseFolderDescription(const std::string folderdesc,
+bool CoraCoolDatabase::parseFolderDescription(const std::string& folderdesc,
 					      std::string& tablename,
 					      std::string& keycolcool,
 					      std::string& fkeycolcoral,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_VolumeSplitter_H
@@ -18,7 +18,7 @@ namespace InDetDD {
   public:
     VolumeSplitter();
     ~VolumeSplitter();
-    const std::vector<const ServiceVolume *> & splitAll(const Zone & zone,  const std::vector<const ServiceVolume *>);
+    const std::vector<const ServiceVolume *> & splitAll(const Zone & zone,  const std::vector<const ServiceVolume *>&);
     void split(const Zone & zone, const ServiceVolume & origVolume);
     const std::vector<const ServiceVolume *> & getVolumes() const {return m_volumes;}
     // Take ownership of volumes. If called user must delete the volumes. 

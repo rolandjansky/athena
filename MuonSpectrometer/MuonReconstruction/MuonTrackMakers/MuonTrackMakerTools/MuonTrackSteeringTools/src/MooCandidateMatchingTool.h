@@ -172,31 +172,21 @@ namespace Muon {
     double m_matchChiSquaredCut;
     double m_matchChiSquaredCutTight;
     
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc 
-      {this, "edmHelper", 
-      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
-      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
-    ToolHandle<MuonEDMPrinterTool>        m_printer
-      {this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};            //<! tool to print EDM objects
-    ToolHandle<Trk::IExtrapolator>        m_slExtrapolator 
-      {this, "SLExtrapolator", "Trk::Extrapolator/MuonStraightLineExtrapolator"};     //<! straight line extrapolator
-    ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator 
-      {this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator"};  //<! curved extrapolator
-    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingTool 
-      {this, "SegmentMatchingTool", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"};
-    ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingToolTight
-      {this, "SegmentMatchingToolTight", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc{this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface" };
+
+    ToolHandle<MuonEDMPrinterTool> m_printer{this, "MuonPrinterTool", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool","tool to print EDM objects"};
+    ToolHandle<Trk::IExtrapolator> m_slExtrapolator{this, "SLExtrapolator", "Trk::Extrapolator/MuonStraightLineExtrapolator","straight line extrapolator"};
+    ToolHandle<Trk::IExtrapolator> m_atlasExtrapolator{this, "Extrapolator", "Trk::Extrapolator/AtlasExtrapolator","curved extrapolator"};
+    ToolHandle<IMuonSegmentMatchingTool> m_segmentMatchingTool{this, "SegmentMatchingTool", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"};
+    ToolHandle<IMuonSegmentMatchingTool> m_segmentMatchingToolTight{this, "SegmentMatchingToolTight", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
+    ToolHandle<MuPatCandidateTool> m_candidateTool{this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
+
     // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
-                                                                               "Name of the Magnetic Field conditions object key"};
-    ToolHandle<MuPatCandidateTool>        m_candidateTool    
-      {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
-    
-    Gaudi::Property<int>                                   m_trackSegmentPreMatchingStrategy 
-      {this, "TrackSegmentPreMatching", 0, "0=no segments match,1=any segment match,2=all segment match"}; //!< 0=no segments match,1=any segment match,2=all segment match
-    Gaudi::Property<bool>                                  m_doTrackSegmentMatching 
-      {this, "DoTrackSegmentMatching", false, "Apply dedicated track-segment matching"}; //!< apply track-segment matching or not
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{this,"AtlasFieldCacheCondObj","fieldCondObj","Name of the Magnetic Field conditions object key"};
+
+    Gaudi::Property<int> m_trackSegmentPreMatchingStrategy{this, "TrackSegmentPreMatching", 0, "0=no segments match,1=any segment match,2=all segment match"};
+    Gaudi::Property<bool> m_doTrackSegmentMatching{this, "DoTrackSegmentMatching", false, "Apply dedicated track-segment matching"};
 
     /** matching counters */
     mutable std::atomic_uint m_goodSegmentMatches {0};

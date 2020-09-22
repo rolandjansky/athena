@@ -106,14 +106,14 @@ class MuonRdoToMuonDigitTool : virtual public IMuonDigitizationTool, public AthA
  private:
 
   // store gate transactions
-  ServiceHandle<ActiveStoreSvc> m_acSvc;
-  ToolHandle<ICscCalibTool>     m_cscCalibTool;
-  ToolHandle<Muon::IMDT_RDO_Decoder>  m_mdtRdoDecoderTool;
-  ToolHandle<Muon::ICSC_RDO_Decoder>  m_cscRdoDecoderTool;
-  ToolHandle<Muon::IRPC_RDO_Decoder>  m_rpcRdoDecoderTool;
-  ToolHandle<Muon::ITGC_RDO_Decoder>  m_tgcRdoDecoderTool;
-  ToolHandle<Muon::ISTGC_RDO_Decoder>  m_stgcRdoDecoderTool;
-  ToolHandle<Muon::IMM_RDO_Decoder>  m_mmRdoDecoderTool;
+  ServiceHandle<ActiveStoreSvc> m_acSvc{this,"ActiveStoreSvc","ActiveStoreSvc"};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this,"cscCalibTool","CscCalibTool"};
+  ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtRdoDecoderTool{this,"mdtRdoDecoderTool","Muon::MdtRDO_Decoder"};
+  ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this,"cscRdoDecoderTool","Muon::CscRDO_Decoder"};
+  ToolHandle<Muon::IRPC_RDO_Decoder> m_rpcRdoDecoderTool{this,"rpcRdoDecoderTool","Muon::RpcRDO_Decoder"};
+  ToolHandle<Muon::ITGC_RDO_Decoder> m_tgcRdoDecoderTool{this,"tgcRdoDecoderTool","Muon::TgcRDO_Decoder"};
+  ToolHandle<Muon::ISTGC_RDO_Decoder> m_stgcRdoDecoderTool{this,"stgcRdoDecoderTool","Muon::STGC_RDO_Decoder"};
+  ToolHandle<Muon::IMM_RDO_Decoder> m_mmRdoDecoderTool{this,"mmRdoDecoderTool","Muon::MM_RDO_Decoder"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
   SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 

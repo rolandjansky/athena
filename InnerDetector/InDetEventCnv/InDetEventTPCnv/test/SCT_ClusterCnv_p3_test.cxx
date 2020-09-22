@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file InDetEventTPCnv/test/SCT_ClusterCnv_p3_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -15,6 +13,7 @@
 #include "TestTools/leakcheck.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "IdDictParser/IdDictParser.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -76,7 +75,7 @@ void testit (const SCT_ID& sct_id, const InDet::SCT_Cluster& trans1)
 }
 
 
-void test1 (const SCT_ID& sct_id)
+void test1 ATLAS_NOT_THREAD_SAFE (const SCT_ID& sct_id)
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -116,7 +115,7 @@ std::unique_ptr<SCT_ID> make_idhelper()
 }
 
 
-int main()
+int main ATLAS_NOT_THREAD_SAFE ()
 {
   std::unique_ptr<SCT_ID> sct_id = make_idhelper();
   test1(*sct_id);

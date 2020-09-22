@@ -40,8 +40,6 @@ StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
 
-  ATH_CHECK(m_updator.retrieve());
-
   ATH_CHECK(m_materialEffects.retrieve());
 
   return StatusCode::SUCCESS;
@@ -349,7 +347,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   // Gather the merges -- order is important -- RHS is smaller than LHS
-  std::vector<std::pair<int32_t, int32_t>> merges;
+  std::vector<std::pair<int16_t, int16_t>> merges;
   if (n > m_maximumNumberOfComponents)
     merges = findMerges(components.buffer(), n, m_maximumNumberOfComponents);
 
@@ -358,8 +356,8 @@ Trk::GsfMaterialMixtureConvolution::update(
   int nMerges(0);
   std::vector<bool> isMerged(n, false);
   for (const auto& mergePair : merges) {
-    const int32_t mini = mergePair.first;
-    const int32_t minj = mergePair.second;
+    const int16_t mini = mergePair.first;
+    const int16_t minj = mergePair.second;
     if (isMerged[minj]) {
       ATH_MSG_WARNING("Component is already merged " << minj);
       for (const auto& mergePair2 : merges) {

@@ -10,7 +10,7 @@ find_package( CLHEP )
 atlas_add_library( SubDetectorEnvelopesLib
                    INTERFACE
                    PUBLIC_HEADERS SubDetectorEnvelopes
-                   LINK_LIBRARIES GaudiKernel AtlasDetDescr )
+                   LINK_LIBRARIES GaudiKernel AtlasDetDescr CxxUtils )
 
 atlas_add_component( SubDetectorEnvelopes
                      src/*.cxx

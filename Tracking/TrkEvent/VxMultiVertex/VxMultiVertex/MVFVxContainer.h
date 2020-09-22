@@ -18,7 +18,7 @@
  *  MVFVxCandidate objects alone would beed to be 
  *  stored. In the resent reconstruction, the 
  *  VxContainer is used to store any kind of
- *  Trk::VxCandidate´s.
+ *  Trk::VxCandidate.
  *
  *  begin   : 18-08-2006
  *  authors  Giacinto Piacquadio (Freiburg University)

@@ -13,7 +13,7 @@ RIO_OnTrackErrorScalingDbOverrideCondAlg::RIO_OnTrackErrorScalingDbOverrideCondA
 {
 }
 
-StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize ATLAS_NOT_THREAD_SAFE () {
+StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
   if (m_writeKey.key().empty()) {
     ATH_MSG_FATAL("No conditions data write key specified.");
@@ -98,6 +98,7 @@ StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::execute() {
     std::vector<float>::const_iterator  param_iter = m_errorScalingParameters.begin();
     unsigned int set_i=0;
     for (unsigned int n_params : m_useNParametersPerSet ) {
+      // cppcheck-suppress assertWithSideEffect
       assert( set_i < error_scaling->params().size() );
       error_scaling->params()[set_i].clear();
       error_scaling->params()[set_i].reserve(n_params);

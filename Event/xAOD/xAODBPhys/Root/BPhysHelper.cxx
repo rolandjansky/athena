@@ -283,9 +283,9 @@ float xAOD::BPhysHelper::refTrkCharge(const size_t index) const
 }
 
 /*****************************************************************************/
-bool xAOD::BPhysHelper::setRefTrks(const std::vector<float>& px,
-                                   const std::vector<float>& py,
-                                   const std::vector<float>& pz)
+bool xAOD::BPhysHelper::setRefTrks(std::vector<float> px,
+                                   std::vector<float> py,
+                                   std::vector<float> pz)
 {
   // sanity check:
   if(px.size()!=py.size() || px.size()!=pz.size())
@@ -301,9 +301,9 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<float>& px,
   static const SG::AuxElement::Decorator< std::vector<float> > refTrackPzDeco("RefTrackPz");
   
   // store the elements:
-  refTrackPxDeco(*m_b) = px;
-  refTrackPyDeco(*m_b) = py;
-  refTrackPzDeco(*m_b) = pz;
+  refTrackPxDeco(*m_b) = std::move(px);
+  refTrackPyDeco(*m_b) = std::move(py);
+  refTrackPzDeco(*m_b) = std::move(pz);
   
   return true;
 }
@@ -319,7 +319,9 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<TVector3>& refTrks)
   std::vector<float> px;  
   std::vector<float> py;  
   std::vector<float> pz;
-  
+  px.reserve(refTrks.size());
+  py.reserve(refTrks.size());
+  pz.reserve(refTrks.size());
   // loop over refitted track momenta and store the components
   std::vector<TVector3>::const_iterator refTrksItr = refTrks.begin();
   for(; refTrksItr!=refTrks.end(); ++refTrksItr) {
@@ -329,7 +331,7 @@ bool xAOD::BPhysHelper::setRefTrks(const std::vector<TVector3>& refTrks)
   }
   
   // call overloaded method:
-  return setRefTrks(px,py,pz);
+  return setRefTrks(std::move(px),std::move(py),std::move(pz));
 
 }
 
@@ -342,9 +344,12 @@ bool xAOD::BPhysHelper::setRefTrks()
   std::vector<float> px;
   std::vector<float> py;
   std::vector<float> pz;
-  
+  const auto N = vtx()->vxTrackAtVertex().size();
+  px.reserve(N);
+  py.reserve(N);
+  pz.reserve(N);
   // loop over refitted tracks at vertex
-  for(uint i=0; i<vtx()->vxTrackAtVertex().size(); ++i) {
+  for(uint i=0; i<N; ++i) {
     const Trk::TrackParameters* aPerigee = vtx()->vxTrackAtVertex()[i].perigeeAtVertex();
     //sanity check
     if(!aPerigee) 
@@ -357,7 +362,7 @@ bool xAOD::BPhysHelper::setRefTrks()
   }
   
   // store as augmentation:
-  setRefTrks(px, py, pz);
+  setRefTrks(std::move(px), std::move(py), std::move(pz));
   
   // all OK
   return true;
@@ -506,7 +511,7 @@ bool xAOD::BPhysHelper::setMuons(const std::vector<const xAOD::Muon*>& muons,
   } // end of loop over muons
   
   // all OK: store muon links in the aux store
-  muonLinksDecor(*m_b) = muonLinks;
+  muonLinksDecor(*m_b) = std::move(muonLinks);
   
   return true;
   
@@ -586,7 +591,7 @@ bool xAOD::BPhysHelper::setElectrons(const std::vector<const xAOD::Electron*>& e
   } // end of loop over electrons
   
   // all OK: store electron links in the aux store
-  electronLinksDecor(*m_b) = electronLinks;
+  electronLinksDecor(*m_b) = std::move(electronLinks);
   
   return true;
   
@@ -668,7 +673,7 @@ bool xAOD::BPhysHelper::setPrecedingVertices(const std::vector<const xAOD::Verte
   } // end of loop over preceding vertices
   
   // all OK: store preceding vertex links in the aux store
-  precedingVertexLinksDecor(*m_b) = precedingVertexLinks;
+  precedingVertexLinksDecor(*m_b) = std::move(precedingVertexLinks);
   
   return true;
   
@@ -749,7 +754,7 @@ bool xAOD::BPhysHelper::setCascadeVertices(const std::vector<const xAOD::Vertex*
   } // end of loop over cascade vertices
   
   // all OK: store cascade vertex links in the aux store
-  cascadeVertexLinksDecor(*m_b) = cascadeVertexLinks;
+  cascadeVertexLinksDecor(*m_b) = std::move(cascadeVertexLinks);
   
   return true;
   

@@ -156,6 +156,8 @@ class MuonRotCreator(Trk__RIO_OnTrackCreator,ConfiguredBase):
         kwargs.setdefault("ToolMuonDriftCircle", "MdtDriftCircleOnTrackCreator")
         kwargs.setdefault("ToolMuonCluster", "MuonClusterOnTrackCreator")
         kwargs.setdefault("Mode", 'muon' )
+        from InDetRecExample.TrackingCommon import getInDetPixelClusterOnTrackToolDigital
+        kwargs.setdefault("ToolPixelCluster", getInDetPixelClusterOnTrackToolDigital( "PixelClusterOnTrackTool" ) )
         super(MuonRotCreator,self).__init__(name,**kwargs)
 # end of class MuonRotCreator
 

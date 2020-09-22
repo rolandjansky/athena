@@ -15,6 +15,7 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
+from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 from DigitizationPUConfigNew_test_setup import (
     test_HighPtMinbiasHitsFile,
@@ -29,6 +30,8 @@ from DigitizationPUConfigNew_test_setup import (
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
 
+evtMax = 4
+
 # Configure
 ConfigFlags.Input.Files = defaultTestFiles.HITS
 ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
@@ -40,6 +43,8 @@ ConfigFlags.Concurrency.NumConcurrentEvents = 1
 ConfigFlags.Beam.BunchSpacing = 25
 # TODO deduplicate NumberOfCollisions?
 ConfigFlags.Beam.NumberOfCollisions = 20.
+
+ConfigFlags.Exec.MaxEvents = evtMax
 
 ConfigFlags.LAr.ROD.NumberOfCollisions = 20
 ConfigFlags.LAr.ROD.nSamples = 4
@@ -68,6 +73,9 @@ ConfigFlags.Digitization.PU.LowPtMinBiasInputCols = cols
 
 ConfigFlags.lock()
 
+# test this flag
+ConfigFlags.Sim.RunToTimestampDict
+
 # Core components
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
@@ -80,32 +88,29 @@ if "EventInfo" not in ConfigFlags.Input.Collections:
                                  inputKey="McEventInfo",
                                  outputKey="EventInfo"))
 
-# TODO migrate the rest of getStandardSignalOnlyTruthPileUpTools, relocate
+from Digitization.RunDependentConfigNew import EvtIdModifierSvcCfg
+acc.merge(EvtIdModifierSvcCfg(ConfigFlags))
+
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from MCTruthSimAlgs.MCTruthSimAlgsConfigNew import (
-    SignalOnlyMcEventCollToolCfg,
-    MergeTruthJetsToolCfg,
-    TruthJetRangeCfg,
+    SignalOnlyMcEventCollCfg,
+    MergeTruthJetsCfg,
+    MergeMuonEntryLayerCfg,
+    MergeCalibHitsCfg,
 )
 
-# TODO Cfgs for these
-tool = acc.popToolsAndMerge(SignalOnlyMcEventCollToolCfg(ConfigFlags))
-acc.merge(PileUpToolsCfg(ConfigFlags, PileUpTools=tool))
+acc.merge(SignalOnlyMcEventCollCfg(ConfigFlags))
+acc.merge(MergeTruthJetsCfg(ConfigFlags))
+acc.merge(MergeMuonEntryLayerCfg(ConfigFlags))
+acc.merge(MergeCalibHitsCfg(ConfigFlags))
 
-tool = acc.popToolsAndMerge(MergeTruthJetsToolCfg(ConfigFlags))
-acc.merge(PileUpToolsCfg(ConfigFlags, PileUpTools=tool))
-
-# TODO PileUpXingFolder in all individual parts
-# to replace Simulation/Digitization/python/PileUpMergeSvcConfig.py
-IntervalsList = []
-IntervalsList.append(TruthJetRangeCfg(ConfigFlags))
-acc.addService(CompFactory.PileUpMergeSvc("PileUpMergeSvc", Intervals=IntervalsList))
 
 # Migration of --digiSteeringConf
 # TODO configure output
 #acc.getEventAlgo("OutputStreamRDO").AcceptAlgs = ["StandardPileUpToolsAlg"]
 
 # Dump config
+acc.merge(JobOptsDumperCfg(ConfigFlags, FileName="DigiPUConfig.txt"))
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
 acc.printConfig(withDetails=True)
@@ -115,6 +120,6 @@ ConfigFlags.dump()
 acc.wasMerged()
 # TODO uncomment running in the test once successful
 # Execute and finish
-#sc = acc.run(maxEvents=1)
+#sc = acc.run(maxEvents=evtMax)
 # Success should be 0
 #sys.exit(not sc.isSuccess())

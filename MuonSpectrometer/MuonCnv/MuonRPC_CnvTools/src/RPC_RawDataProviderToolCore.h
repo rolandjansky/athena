@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPCRAWDATAPROVIDERTOOLCORE_H
@@ -19,8 +19,6 @@ class IROBDataProviderSvc;
 
 namespace Muon
 {
-    class IRpcROD_Decoder;
-
     /**
      * Base class for tools to decode RPC raw data.
      * 
@@ -35,7 +33,7 @@ namespace Muon
                                   const std::string& n, 
                                   const IInterface* p);
       
-      virtual ~RPC_RawDataProviderToolCore();
+      virtual ~RPC_RawDataProviderToolCore()=default;
       
       virtual StatusCode initialize();
      
@@ -51,10 +49,10 @@ namespace Muon
       SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
       // Rob Data Provider handle 
-      ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+      ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
       // ROD decoding tool
-      ToolHandle<IRpcROD_Decoder>         m_decoder;
+      ToolHandle<IRpcROD_Decoder> m_decoder{this,"Decoder","Muon::RpcROD_Decoder/RpcROD_Decoder"};
       
       // WriteHandleKey for RPC PAD container
       SG::WriteHandleKey<RpcPadContainer>            m_containerKey {

@@ -1,30 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/MdtRawDataProvider.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+
 #include <algorithm>
-// --------------------------------------------------------------------
-// Constructor
 
 Muon::MdtRawDataProvider::MdtRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::MDT_RawDataProviderToolMT/MdtRawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name) 
 {
-  declareProperty ("ProviderTool", m_rawDataTool);
   declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
-
-// Destructor
-
-Muon::MdtRawDataProvider::~MdtRawDataProvider(){
-}
-
-// --------------------------------------------------------------------
-// Initialize
 
 StatusCode Muon::MdtRawDataProvider::initialize() {
 
@@ -45,12 +33,6 @@ StatusCode Muon::MdtRawDataProvider::initialize() {
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode Muon::MdtRawDataProvider::finalize() {
-  return StatusCode::SUCCESS;
-}
-// --------------------------------------------------------------------
-// Execute
 
 StatusCode Muon::MdtRawDataProvider::execute() {
   ATH_MSG_VERBOSE( "MdtRawDataProvider::execute" );
