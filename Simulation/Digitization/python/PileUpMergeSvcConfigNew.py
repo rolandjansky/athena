@@ -6,22 +6,19 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 
-def PileUpMergeSvcCfg(flags, name="PileUpMergeSvc", **kwargs):
+def PileUpMergeSvcCfg(flags, name="PileUpMergeSvc", Intervals=[], **kwargs):
     """Return ComponentAccumulator with PileUpMergeSvc
 
-    If doing XingByXingPileUp, the "Intervals" keyword argument should
-    be set with PileUpXingFolder tools.
-    Otherwise, "Intervals" is should be empty, and we enforce that here.
+    If doing XingByXingPileUp, Intervals should contian PileUpXingFolder tools.
+    Otherwise it should be empty, and we enforce that here.
     """
     acc = ComponentAccumulator()
 
     if flags.Digitization.DoXingByXingPileUp:
         # handle input type variety
-        Intervals = kwargs.setdefault("Intervals", [])
         if not isinstance(Intervals, list):
-            kwargs["Intervals"] = [Intervals]
-    else:
-        kwargs["Intervals"] = []
+            Intervals = [Intervals]
+        kwargs["Intervals"] = Intervals
 
     acc.addService(CompFactory.PileUpMergeSvc(name, **kwargs))
     return acc

@@ -11,20 +11,14 @@
   Track Particles
   */
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "TrkCaloExtension/CaloExtensionCollection.h"
-
-#include "ITrackToVertex/ITrackToVertex.h"
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
-
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/VertexContainer.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
@@ -57,20 +51,12 @@ to be done: `uniqueExtension = theTrackExtrapolatorTool->caloExtension(*track);`
 theTrackExtrapolatorTool->caloExtension(*track).get();` as it has unpredictable
 behavior.
 */
-class CaloExtensionBuilderAlg : public AthAlgorithm
+class CaloExtensionBuilderAlg : public AthReentrantAlgorithm
 {
 public:
-  using AthAlgorithm::AthAlgorithm;
-
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
   virtual StatusCode initialize() override final;
-  virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final
-  {
-    return execute_r(Algorithm::getContext());
-  }
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   /** @brief the Calo Extension tool*/
@@ -78,15 +64,6 @@ private:
     this,
     "LastCaloExtentionTool",
     "Trk::CaloExtensionBuilderTool"
-  };
-
-  /// Manages the track selection. It should be able to handle both pflow and
-  /// tau selections
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelection{
-    this,
-    "TrkSelection",
-    "TrkSelectionCaloExtensionBuilder",
-    "Tool that handles the track selection"
   };
 
   /// output particle calo extension collection

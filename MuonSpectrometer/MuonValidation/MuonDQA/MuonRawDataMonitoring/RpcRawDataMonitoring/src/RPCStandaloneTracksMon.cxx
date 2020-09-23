@@ -103,13 +103,10 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty("Muon_Trigger_Items",   m_muon_triggers);
   declareProperty("TriggerDecisionTool",  m_trigDecTool);
   
-  declareProperty("MuonSegmentCollection",	     m_muonSegmentsName     = "MuonSegments");
   declareProperty("MuonTrackCollection",	     m_muonTracksName	    = "MuonSpectrometerTrackParticles");
   declareProperty("MuonExtrapolatedTrackCollection", m_muonExtrapTracksName = "ExtrapolatedMuonTrackParticles");
   declareProperty("InDetTrackParticles",	     m_innerTracksName      = "InDetTrackParticles");
   declareProperty("MSVertexCollection",              m_msVertexCollection   = "MSDisplacedVertex");
-  
-  
   
   declareProperty("MuonDeltaRMatching"          , m_MuonDeltaRMatching         =   0.15 ); 
   declareProperty("requireMuonCombinedTight"    , m_requireMuonCombinedTight   = false  );
@@ -289,26 +286,15 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
       }
   }
     
-   //Muon tracks
-     
-//       // retrieve containers
-//       const xAOD::MuonSegmentContainer*     MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >        (m_muonSegmentsName);       
-//       const xAOD::TrackParticleContainer*   tracksMS     = evtStore()->retrieve< const xAOD::TrackParticleContainer >        (m_muonTracksName);      
-         SG::ReadHandle<xAOD::MuonContainer> Muons(m_muonsName);
+   //Muon tracks   
+   SG::ReadHandle<xAOD::MuonContainer> Muons(m_muonsName);
 	 ATH_MSG_DEBUG ("Muon container with key: " << m_muonsName.key()<<" found");
-//       const xAOD::VertexContainer*	       MSVertices   = evtStore()->retrieve< const xAOD::VertexContainer >           (m_msVertexCollection);
-//       const xAOD::TrackParticleContainer*   METracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
-//       const xAOD::TrackParticleContainer*   IDTracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >     ( m_innerTracksName );
-  
-      
-      
+
       SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc);
       ATH_MSG_DEBUG ( "RpcPrepDataContainer " << m_key_rpc.key() <<" found");
 
       SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
-      //int RunNumber = eventInfo->runNumber();
-      //long int EventNumber = eventInfo->eventNumber();
       long int BCID   =  eventInfo->       bcid()  ;
       int lumiBlock   =  eventInfo->  lumiBlock()  ; 
       

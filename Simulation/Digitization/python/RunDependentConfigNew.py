@@ -111,7 +111,7 @@ def EvtIdModifierSvcCfg(flags, name="EvtIdModifierSvc", **kwargs):
     if len(Modifiers) > 0:
         kwargs.setdefault("Modifiers", Modifiers)
 
-    acc.addService(CompFactory.EvtIdModifierSvc(name, **kwargs))
+    acc.addService(CompFactory.EvtIdModifierSvc(name, **kwargs), create=True)
     return acc
 
 
