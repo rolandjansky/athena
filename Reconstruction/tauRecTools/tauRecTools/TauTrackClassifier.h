@@ -68,7 +68,6 @@ class TrackMVABDT
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
   StatusCode initialize() override;
-  StatusCode finalize() override;
   
   // executes MVA object to get the BDT score, makes the decision and resets
   // classification flags
