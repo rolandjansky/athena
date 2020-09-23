@@ -1256,12 +1256,18 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
         orig_input = this_run_name+'/events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
 
-    #Removing empty lines in LHE
+    #Removing empty lines and bad comments in LHE
     nEmpty=0
     with open(orig_input,'r') as fileobject:
         for line in fileobject:
             if line.strip():
-                mod_output.write(line)
+                if '#' not in line:
+                    mod_output.write(line)
+                elif '>' not in line[ line.find('#'): ]:
+                    mod_output.write(line)
+                else:
+                    mglog.warning('Found bad LHE line with an XML mark in a comment: "'+line.strip()+'"')
+                    mod_output.write(line[:line.find('#')]+'#'+ (line[line.find('#'):].replace('>','-')))
             else:
                 nEmpty=nEmpty+1
     mod_output.close()
