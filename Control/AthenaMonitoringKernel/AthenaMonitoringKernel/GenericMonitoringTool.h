@@ -21,7 +21,7 @@
 
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
-
+#include "AthenaMonitoringKernel/HistogramFiller.h"
 
 /* Here, by forward declaring these two classes, which appear as parameters and values
    in GenericMonitoringTool functions only as pointers (not as the objects themselves),
@@ -81,8 +81,9 @@ private:
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   Gaudi::Property<bool> m_failOnEmpty { this, "FailOnEmpty", true, "Fail in initialize() if no histograms defined" };
 
-  std::unordered_map<std::string, std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerMap; //!< map from variables to fillers
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< plain list of fillers
   mutable std::mutex m_fillMutex;
+  mutable Monitored::HistogramFiller::VariablesPack m_vars ATLAS_THREAD_SAFE;
 };
 
 /**
