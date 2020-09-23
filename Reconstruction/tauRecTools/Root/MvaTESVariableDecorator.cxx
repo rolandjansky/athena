@@ -98,7 +98,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
 
   // Loop through clusters and jet constituents
   for (const xAOD::CaloCluster* cluster : clusterList){
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
   
     if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
 

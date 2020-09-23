@@ -81,8 +81,8 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     
     TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
 
-    for (auto cluster: pPi0ClusterContainer){
-        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    for (const xAOD::CaloCluster* cluster: pPi0ClusterContainer){
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
         
         // selection
         if (clusterP4.Pt() < m_clusterEtCut)   continue;
@@ -272,7 +272,7 @@ std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap
 
         for (; clusterItr != clusterItrEnd; ++clusterItr){
             xAOD::CaloCluster* cluster = (xAOD::CaloCluster*) (*clusterItr);
-            TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+            TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
             
             weightInCluster=-1.;
             if (clusterP4.Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
@@ -443,14 +443,14 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOC
     StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr);
     if (!sc) return false;
 
-    for (auto cluster : clusterList){
+    for (const xAOD::CaloCluster* cluster : clusterList){
         // Procedure: 
         // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
         // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
         // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
-        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
         
         if(clusterP4.E()<=0.) continue;
 

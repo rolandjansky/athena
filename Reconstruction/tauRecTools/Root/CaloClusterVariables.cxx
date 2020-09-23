@@ -44,7 +44,7 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau, const ToolHandle<ITa
 
     std::vector<TLorentzVector> clusterP4Vector;
     for (const xAOD::CaloCluster* cluster : clusterList) {
-      TLorentzVector clusterP4 = tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+      TLorentzVector clusterP4 = tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
       clusterP4Vector.push_back(clusterP4);
     }
 
