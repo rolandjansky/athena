@@ -9,6 +9,7 @@ from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -28,11 +29,10 @@ def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
     # Default 0 no dataproxy reset
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["SiHitCollection#BCMHits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
-def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
+def BCM_DigitizationToolCommonCfg(flags, name="BCM_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured BCM_DigitizationTool"""
     # take initial ComponentAccumulator from RNG
     acc = RNG(flags.Random.Engine)
@@ -64,9 +64,27 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", BCM_FirstXing())
         kwargs.setdefault("LastXing",  BCM_LastXing())
-    
+
     BCM_DigitizationTool = CompFactory.BCM_DigitizationTool
     acc.setPrivateTools(BCM_DigitizationTool(name, **kwargs))
+    return acc
+
+
+def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
+    """Return ComponentAccumulator with BCM_DigitizationTool for non-overlay"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(BCM_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
+    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name))
+    acc.setPrivateTools(tool)
+    return acc
+
+
+def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **kwargs):
+    """Return ComponentAccumulator with BCM_DigitizationTool for Overlay"""
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(BCM_DigitizationToolCommonCfg(flags, name))
+    acc.setPrivateTools(tool)
     return acc
 
 
@@ -85,6 +103,8 @@ def BCM_OutputCfg(flags):
 def BCM_DigitizationBasicCfg(flags, **kwargs):
     """Return ComponentAccumulator for BCM digitization"""
     acc = PixelGeometryCfg(flags)
+    rangetool = acc.popToolsAndMerge(BCM_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if "PileUpTools" not in kwargs:
         PileUpTools = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags))
         kwargs["PileUpTools"] = PileUpTools
@@ -97,7 +117,7 @@ def BCM_OverlayDigitizationBasicCfg(flags, name="BCM_OverlayDigitization", **kwa
     acc = PixelGeometryCfg(flags)
 
     if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool"))
+        tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags))
         kwargs["DigitizationTool"] = tool
 
     if flags.Concurrency.NumThreads > 0:
