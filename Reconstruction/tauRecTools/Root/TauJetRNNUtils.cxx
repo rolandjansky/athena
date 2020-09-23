@@ -525,16 +525,15 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const
 
 
 bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
-  const xAOD::Jet *jet_seed = tau.jet();
-  if (!jet_seed) {
+  if (!tau.jetLink().isValid()){
     return false;
   }
-
+  const xAOD::Jet *jetSeed = tau.jet();
+   
   std::vector<const xAOD::CaloCluster *> clusters;
-  bool            incShowerSubtracted(false);
-  const TLorentzVector&  LC_P4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
-  double          dRCut(0.2);
-  auto        check_clusters = tauRecTools::GetJetClusterList(jet_seed, clusters, incShowerSubtracted, LC_P4, dRCut);
+  bool            incShowerSubtracted(true);
+  auto check_tauClusters = tauRecTools::GetJetClusterList(jetSeed, clusters, incShowerSubtracted);
+
   std::size_t nClustersTotal = clusters.size();
 
   // Number of tracks to save
