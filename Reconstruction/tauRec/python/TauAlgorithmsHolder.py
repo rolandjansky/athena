@@ -944,6 +944,7 @@ def getTauEleRNNEvaluator(_n,
                               InputLayerClusters=InputLayerClusters,
                               OutputLayer=OutputLayer,
                               OutputNode=OutputNode,
+                              TauVertexCorrection = getTauVertexCorrection(),
                               IncShowerSubtr = tauFlags.useShowerSubClusters())
 
     cached_instances[_name] = tool
