@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 
 namespace Trk 
@@ -18,8 +19,6 @@ namespace Trk
   class PrepRawData;
   class PRDtoTrackMap;
   
-  static const InterfaceID IID_IAmbiTrackSelectionTool("InDet::IAmbiTrackSelectionTool", 1, 0);
-
   /** @class Trk::IAmbiTrackSelectionTool
       @brief Interface for building new tracks using information about shared and already associated hits.
 
@@ -28,7 +27,7 @@ namespace Trk
 
   class IAmbiTrackSelectionTool : virtual public IAlgTool {
   public:
-    static const InterfaceID& interfaceID( ) ;
+    DeclareInterfaceID( IAmbiTrackSelectionTool, 1, 0 );
 
     /** Performs cleaning of a track from already used hits.
         @param track the input track to be checked and cleaned.
@@ -40,15 +39,13 @@ namespace Trk
         replacing the input track. The second element of the returned tuple is true if the input track does not
         reuire cleaning, fulfils the quality criteria and should be kept.
     */
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
-                                                            const Trk::TrackScore score,
-                                                            Trk::PRDtoTrackMap &prd_to_track_map) const =0;
+    // Implementation in InDetDenseEnvAmbiTrackSelectionTool
+    // is not thread-safe.
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack ATLAS_NOT_THREAD_SAFE
+      (const Trk::Track *track,
+       const Trk::TrackScore score,
+       Trk::PRDtoTrackMap &prd_to_track_map) const =0;
   };
-
-  inline const InterfaceID& Trk::IAmbiTrackSelectionTool::interfaceID()
-    { 
-      return IID_IAmbiTrackSelectionTool; 
-    }
 
 } // end of namespace
 
