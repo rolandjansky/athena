@@ -29,7 +29,6 @@
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
