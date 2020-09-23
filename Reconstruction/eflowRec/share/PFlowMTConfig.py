@@ -13,7 +13,7 @@ TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExte
 
 #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
 from RecExConfig.RecFlags import rec
-if True == rec.readESD:
+if rec.readESD==True:
    TrackCaloExtensionTool.PFParticleCache = ""
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
