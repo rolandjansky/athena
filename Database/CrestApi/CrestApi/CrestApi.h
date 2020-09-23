@@ -143,7 +143,7 @@ namespace Crest {
 
 /**
  * General auxiliary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags…).
+ * requests with the concrete kinds of data (iovs|payloads|tags...).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
@@ -169,7 +169,7 @@ namespace Crest {
 
 /**
  * General auxillary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags…).
+ * requests with the concrete kinds of data (iovs|payloads|tags...).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)

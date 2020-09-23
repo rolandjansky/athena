@@ -108,17 +108,18 @@ def makeInDetPrecisionTracking( whichSignature,
                                                 doHolesInDet           = True )
   
   if doTRTextension:
-      if "electron" in whichSignature  or "tau" in whichSignature :
+      if "electron" in whichSignature or "tau" in whichSignature :
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
       Parameter_config = True 
       SummaryTool_config = trigTrackSummaryTool
+      ToolSvc += SummaryTool_config
   else:
       SummaryTool_config = InDetTrigTrackSummaryTool
       Parameter_config = False
 
 
-  ToolSvc += SummaryTool_config
+  #
 
 
   #-----------------------------------------------------------------------------
@@ -135,27 +136,11 @@ def makeInDetPrecisionTracking( whichSignature,
 
 
   #TODO: Need option to change scoring tool based on the slice (beamgas)
-  
+
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
-
   from InDetRecExample import TrackingCommon as TrackingCommon
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
-  InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(     name               = '%sAmbiguityScoreProcessor%s'%(algNamePrefix, signature),
-                                                             ScoringTool        = InDetTrigAmbiScoringTool,
-                                                             AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                             SelectionTool      = InDetTrigAmbiTrackSelectionTool)
-
-
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
-  InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
-                                                   TrackInput              = [ inputFTFtracks ],
-                                                   TrackOutput             = 'ScoredMap'+signature,
-                                                   AmbiguityScoreProcessor = InDetTrigAmbiguityScoreProcessor 
-  ) 
-         
-  
-  
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
+
   from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
   InDetTrigMTAmbiguityProcessor = ProcessorTool(name             = '%sAmbiguityProcessor%s' %(algNamePrefix,signature),
                                                 Fitter           = InDetTrigTrackFitter,
@@ -163,8 +148,20 @@ def makeInDetPrecisionTracking( whichSignature,
                                                 AssociationTool  = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
                                                 TrackSummaryTool = SummaryTool_config,
                                                 SelectionTool    = InDetTrigAmbiTrackSelectionTool)
-  
+
   ToolSvc += InDetTrigMTAmbiguityProcessor
+  print (InDetTrigMTAmbiguityProcessor)
+  print (InDetTrigAmbiScoringTool)
+  print (InDetTrigAmbiTrackSelectionTool)
+  
+  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+  InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
+                                                   TrackInput              = [ inputFTFtracks ],
+                                                   TrackOutput             = 'ScoredMap'+signature,
+                                                   AmbiguityScoreProcessor = None,
+                                                   #AmbiguityScoreProcessor = InDetTrigMTAmbiguityProcessor,
+  )
+  print (InDetTrigAmbiguityScore)
   
   
   from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
@@ -174,7 +171,9 @@ def makeInDetPrecisionTracking( whichSignature,
                                                        AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
   
 
+
   ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
+
   if doTRTextension:
 
             proxySignature = whichSignature

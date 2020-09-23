@@ -47,13 +47,6 @@ StatusCode TauVertexVariables::initialize() {
 }
 
 //-----------------------------------------------------------------------------
-// Finalizer
-//-----------------------------------------------------------------------------
-StatusCode TauVertexVariables::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) const {
@@ -81,8 +74,8 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
         ATH_MSG_DEBUG("No Beamspot object in tau candidate");
       }
     }
-    else if (pTau.vertexLink()) { // offline: obtain tau vertex by link
-      vxcand = *(pTau.vertexLink()) ;
+    else if (pTau.vertexLink().isValid()) { // offline: obtain tau vertex by link
+      vxcand = pTau.vertex() ;
       //check if vertex has a valid type (skip if vertex has type NoVtx)
       if (vxcand->vertexType() != xAOD::VxType::NoVtx) {
 	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(pTau.track(0)->track(), vxcand));
@@ -122,18 +115,10 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
     ATH_MSG_DEBUG("Tau has no tracks");
   }
 
-  float ipSigLeadTrk;
-  float ipZ0SinThetaSigLeadTrk;
-
-  if (pTau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
-    ATH_MSG_VERBOSE("IP significance lead track " << ipSigLeadTrk);
-  if (pTau.detail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, ipZ0SinThetaSigLeadTrk))
-    ATH_MSG_VERBOSE("IP Z0 significance lead track " << ipZ0SinThetaSigLeadTrk);
-
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(-1111.));
   
   //try to find secondary vertex if more than 1 track and the tau vertex is available
-  if ( pTau.nTracks() < 2 ||  !pTau.vertexLink() ) {
+  if ( pTau.nTracks() < 2 ||  !pTau.vertexLink().isValid() ) {
     return StatusCode::SUCCESS;
   }
 
@@ -152,8 +137,8 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // get the starting point for the fit using Trk::Tracks
-  Amg::Vector3D seedPoint = m_SeedFinder->findSeed(origTracks);
-  ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << TMath::Sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
+  const Amg::Vector3D& seedPoint = m_SeedFinder->findSeed(origTracks);
+  ATH_MSG_VERBOSE("seedPoint x/y/perp=" << seedPoint.x() <<  " " << seedPoint.y() << " "<< seedPoint.z() << " " << std::sqrt(seedPoint.x()*seedPoint.x()+seedPoint.y()+seedPoint.y()));
 
   // fitting the vertex itself
   xAOD::Vertex* xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
@@ -163,7 +148,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
   }
 
   // get the transverse flight path significance
-  float trFlightPS = trFlightPathSig(pTau, *xAODvertex);
+  double trFlightPS = trFlightPathSig(pTau, *xAODvertex);
   pTau.setDetail(xAOD::TauJetParameters::trFlightPathSig, (float)(trFlightPS));
   ATH_MSG_VERBOSE("transverse flight path significance="<<trFlightPS);
 
@@ -186,12 +171,11 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 //-------------------------------------------------------------------------
 double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const {
 
-  const xAOD::Vertex* pVertex = nullptr;
-  if (pTau.vertexLink()) pVertex = *pTau.vertexLink();
-  if (!pVertex) {
+  if (! pTau.vertexLink().isValid()) {
     ATH_MSG_WARNING("No primary vertex information for calculation of transverse flight path significance");
     return -11111.;
   }
+  const xAOD::Vertex* pVertex = pTau.vertex();
 
   double fpx = secVertex.position().x() - pVertex->position().x();
   double fpy = secVertex.position().y() - pVertex->position().y();

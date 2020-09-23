@@ -1,15 +1,15 @@
 {
     "L2muon":{ 
-        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon"
+        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon"
     },
     "EFmuon":{ 
-        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_RoI_L2SAMuonforEF"  
+        "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon  HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuonforEF"  
     },
     "L2muonLowpt":{ 
-        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon"
+        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon"
     },
     "EFmuonLowpt":{ 
-        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_RoI_L2SAMuon  HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_RoI_L2SAMuonforEF"  
+        "chains" : "HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon  HLT_mu6_idperf_L1MU6:HLT_IDTrack_Muon_IDTrig:HLT_Roi_L2SAMuonforEF"  
     },
     "L2electron":{ 
         "chains" : "HLT_e17_lhvloose_nod0_L1EM15VH:HLT_IDTrack_Electron_FTF"

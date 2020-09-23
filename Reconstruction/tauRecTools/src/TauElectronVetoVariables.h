@@ -31,10 +31,9 @@ public:
     virtual ~TauElectronVetoVariables();
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
 private:
-    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", false, "switch of vertex correction"}; 
+    Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"}; 
     Gaudi::Property<bool> m_useOldCalo{this,"useOldCalo",false,"If true, it uses the CaloExtensionTool for calculating track extrapolation. Otherwise, it allows the code to read from the cache created by CaloExtensionBuilderalg."};
     Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
     ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool {this, 

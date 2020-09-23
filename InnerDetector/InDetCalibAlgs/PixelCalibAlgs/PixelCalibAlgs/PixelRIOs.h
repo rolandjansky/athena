@@ -20,7 +20,7 @@ class PixelChargeInterpolationCalibration;
 class PixelChargeInterpolationValidation;
 
 
-class ATLAS_NOT_THREAD_SAFE PixelRIOs { // Thread unsafe PixelChargeInterpolationCalibration class is used.
+class PixelRIOs {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
    Int_t           fCurrent; //!current Tree number in a TChain

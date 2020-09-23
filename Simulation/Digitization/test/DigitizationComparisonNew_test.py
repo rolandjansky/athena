@@ -23,7 +23,7 @@ from MuonConfig.CSC_DigitizationConfig import CSC_DigitizationDigitToRDOCfg
 from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
-from OverlayConfiguration.OverlayTestHelpers import JobOptsDumperCfg
+from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 
 # Set up logging and new style config
@@ -103,7 +103,7 @@ TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMaxForAmpCorrection = 25.
 TileRChMaker.TileRawChannelBuilderFitOverflow.TimeMinForAmpCorrection = -25.
 
 # Dump config
-acc.merge(JobOptsDumperCfg(ConfigFlags))
+acc.merge(JobOptsDumperCfg(ConfigFlags, FileName="DigiComparisonConfig.txt"))
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
 acc.printConfig(withDetails=True, summariseProps=True)

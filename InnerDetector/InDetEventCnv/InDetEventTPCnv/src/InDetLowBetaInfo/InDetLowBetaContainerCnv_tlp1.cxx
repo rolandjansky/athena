@@ -20,11 +20,16 @@ void InDetLowBetaContainerCnv_tlp1::setPStorage(
   m_lowBetaCandidateCnv.setPStorage(&storage->m_lowBetaCandidate);
 }
 
-void T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>::persToTrans ATLAS_NOT_THREAD_SAFE // const_cast is used.
+void T_TPCnv<InDet::InDetLowBetaContainer, InDetLowBetaContainer_tlp1>::persToTrans
             (const InDetLowBetaContainer_tlp1 *pers,
              InDet::InDetLowBetaContainer *trans,
              MsgStream &msg) {
-  this->setTLPersObject(const_cast<InDetLowBetaContainer_tlp1*>(pers));
+  // FIXME: TPConverter uses the same non-const member m_pStorage
+  // for both reading and writing, but we want it to be const
+  // in the former case.
+  InDetLowBetaContainer_tlp1 *pers_nc ATLAS_THREAD_SAFE =
+    const_cast<InDetLowBetaContainer_tlp1*>(pers);
+  this->setTLPersObject(pers_nc);
   m_mainConverter.pstoreToTrans(0, trans, msg);
   this->clearTLPersObject();
 

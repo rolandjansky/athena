@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_TRT_SERVMATFACTORY_H
@@ -17,7 +17,7 @@ class TRT_ServMatFactory : public InDetDD::SubDetectorFactoryBase  {
  public:
   
   // Constructor:
-  TRT_ServMatFactory(const InDetDD::AthenaComps * athenaComps);
+  TRT_ServMatFactory(InDetDD::AthenaComps * athenaComps);
 
   // Destructor:
   ~TRT_ServMatFactory();

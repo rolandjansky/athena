@@ -3,6 +3,51 @@
 */
 
 #include "CxxUtils/vec.h"
+// constructor
+template<class T>
+BFieldMesh<T>::BFieldMesh(double zmin,
+                          double zmax,
+                          double rmin,
+                          double rmax,
+                          double phimin,
+                          double phimax,
+                          double bscale)
+  : m_scale(bscale)
+  , m_nomScale(bscale)
+{
+  m_min = { zmin, rmin, phimin };
+  m_max = { zmax, rmax, phimax };
+}
+// set ranges
+template<class T>
+void
+BFieldMesh<T>::setRange(double zmin,
+                        double zmax,
+                        double rmin,
+                        double rmax,
+                        double phimin,
+                        double phimax)
+{
+  m_min = { zmin, rmin, phimin };
+  m_max = { zmax, rmax, phimax };
+}
+
+// set bscale
+template<class T>
+void
+BFieldMesh<T>::setBscale(double bscale)
+{
+  m_scale = m_nomScale = bscale;
+}
+
+// scale bscale by a factor
+template<class T>
+void
+BFieldMesh<T>::scaleBscale(double factor)
+{
+  m_scale = factor * m_nomScale;
+}
+
 //
 // Reserve space in the vectors to avoid unnecessary memory re-allocations.
 //
@@ -14,6 +59,77 @@ BFieldMesh<T>::reserve(int nz, int nr, int nphi, int nfield)
   m_mesh[1].reserve(nr);
   m_mesh[2].reserve(nphi);
   m_field.reserve(nfield);
+}
+
+template<class T>
+void
+BFieldMesh<T>::reserve(int nz, int nr, int nphi)
+{
+  reserve(nz, nr, nphi, nz * nr * nphi);
+}
+
+// add elements to vectors
+template<class T>
+void
+BFieldMesh<T>::appendMesh(int i, double mesh)
+{
+  m_mesh[i].push_back(mesh);
+}
+
+template<class T>
+void
+BFieldMesh<T>::appendField(const BFieldVector<T>& field)
+{
+  m_field.push_back(field);
+}
+
+//
+// Construct the look-up table to accelerate bin-finding.
+//
+template<class T>
+void
+BFieldMesh<T>::buildLUT()
+{
+  for (int j = 0; j < 3; ++j) { // z, r, phi
+    // align the m_mesh edges to m_min/m_max
+    m_mesh[j].front() = m_min[j];
+    m_mesh[j].back() = m_max[j];
+    // determine the unit size, q, to be used in the LUTs
+    const double width = m_mesh[j].back() - m_mesh[j].front();
+    double q(width);
+    for (unsigned i = 0; i < m_mesh[j].size() - 1; ++i) {
+      q = std::min(q, m_mesh[j][i + 1] - m_mesh[j][i]);
+    }
+    // find the number of units in the LUT
+    int n = int(width / q) + 1;
+    q = width / (n + 0.5);
+    m_invUnit[j] = 1.0 / q; // new unit size
+    ++n;
+    int m = 0;                    // mesh number
+    for (int i = 0; i < n; ++i) { // LUT index
+      if (i * q + m_mesh[j].front() > m_mesh[j][m + 1]) {
+        m++;
+      }
+      m_LUT[j].push_back(m);
+    }
+  }
+  m_roff = m_mesh[2].size();          // index offset for incrementing r by 1
+  m_zoff = m_roff * m_mesh[1].size(); // index offset for incrementing z by 1
+}
+
+template<class T>
+int
+BFieldMesh<T>::memSize() const
+{
+  int size = 0;
+  size += sizeof(double) * 10;
+  size += sizeof(int) * 2;
+  for (int i = 0; i < 3; ++i) {
+    size += sizeof(double) * m_mesh[i].capacity();
+    size += sizeof(int) * m_LUT[i].capacity();
+  }
+  size += sizeof(BFieldVector<T>) * m_field.capacity();
+  return size;
 }
 
 //
@@ -244,53 +360,95 @@ BFieldMesh<T>::getB(const double* ATH_RESTRICT xyz,
     deriv[8] = dBdz[0];
   }
 }
-
-//
-// Construct the look-up table to accelerate bin-finding.
-//
+// accessors
 template<class T>
-void
-BFieldMesh<T>::buildLUT()
+double
+BFieldMesh<T>::min(size_t i) const
 {
-  for (int j = 0; j < 3; ++j) { // z, r, phi
-    // align the m_mesh edges to m_min/m_max
-    m_mesh[j].front() = m_min[j];
-    m_mesh[j].back() = m_max[j];
-    // determine the unit size, q, to be used in the LUTs
-    const double width = m_mesh[j].back() - m_mesh[j].front();
-    double q(width);
-    for (unsigned i = 0; i < m_mesh[j].size() - 1; ++i) {
-      q = std::min(q, m_mesh[j][i + 1] - m_mesh[j][i]);
-    }
-    // find the number of units in the LUT
-    int n = int(width / q) + 1;
-    q = width / (n + 0.5);
-    m_invUnit[j] = 1.0 / q; // new unit size
-    ++n;
-    int m = 0;                    // mesh number
-    for (int i = 0; i < n; ++i) { // LUT index
-      if (i * q + m_mesh[j].front() > m_mesh[j][m + 1]) {
-        m++;
-      }
-      m_LUT[j].push_back(m);
-    }
-  }
-  m_roff = m_mesh[2].size();          // index offset for incrementing r by 1
-  m_zoff = m_roff * m_mesh[1].size(); // index offset for incrementing z by 1
+  return m_min[i];
 }
 
 template<class T>
-int
-BFieldMesh<T>::memSize() const
+double
+BFieldMesh<T>::max(size_t i) const
 {
-  int size = 0;
-  size += sizeof(double) * 10;
-  size += sizeof(int) * 2;
-  for (int i = 0; i < 3; ++i) {
-    size += sizeof(double) * m_mesh[i].capacity();
-    size += sizeof(int) * m_LUT[i].capacity();
-  }
-  size += sizeof(BFieldVector<T>) * m_field.capacity();
-  return size;
+  return m_max[i];
+}
+
+template<class T>
+double
+BFieldMesh<T>::zmin() const
+{
+  return m_min[0];
+}
+
+template<class T>
+double
+BFieldMesh<T>::zmax() const
+{
+  return m_max[0];
+}
+
+template<class T>
+double
+BFieldMesh<T>::rmin() const
+{
+  return m_min[1];
+}
+
+template<class T>
+double
+BFieldMesh<T>::rmax() const
+{
+  return m_max[1];
+}
+
+template<class T>
+double
+BFieldMesh<T>::phimin() const
+{
+  return m_min[2];
+}
+
+template<class T>
+double
+BFieldMesh<T>::phimax() const
+{
+  return m_max[2];
+}
+
+template<class T>
+unsigned
+BFieldMesh<T>::nmesh(size_t i) const
+{
+  return m_mesh[i].size();
+}
+
+template<class T>
+double
+BFieldMesh<T>::mesh(size_t i, size_t j) const
+{
+  return m_mesh[i][j];
+}
+
+template<class T>
+unsigned
+BFieldMesh<T>::nfield() const
+{
+  return m_field.size();
+}
+
+template<class T>
+const BFieldVector<T>&
+BFieldMesh<T>::field(size_t i) const
+{
+  return m_field[i];
+}
+
+template<class T>
+double
+BFieldMesh<T>::bscale() const
+{
+  return m_scale;
 }
 

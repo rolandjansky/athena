@@ -45,7 +45,7 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    if( constituentAcc.isAvailable(jet) ) constituentAcc( jet ).resize(0);
    if( constituentWeightAcc.isAvailable(jet) ) constituentWeightAcc( jet ).resize(0);
 
-   //save unsubtracted kinematics as moment if they don’t exist already...
+   //save unsubtracted kinematics as moment if they don't exist already...
    xAOD::IParticle::FourMom_t unsubtractedP4;
    unsubtractedP4 = jet.p4();
    jet.setJetP4(HIJetRec::unsubtractedJetState(),jet.jetP4());

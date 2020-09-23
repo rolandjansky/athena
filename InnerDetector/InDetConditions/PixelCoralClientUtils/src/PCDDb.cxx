@@ -41,7 +41,9 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
 */
-PCDDb::PCDDb(std::string connString, std::string tableName, bool verbose, bool /*load_text*/) :
+PCDDb::PCDDb(const std::string& connString,
+             const std::string& tableName,
+             bool verbose, bool /*load_text*/) :
   m_verbose(verbose),
   m_session(0), m_connString(connString), m_pixeltable(tableName),
   m_query(0), m_query_2(0), m_cursor(0)
@@ -82,7 +84,7 @@ PCDDb::~PCDDb()
   }
 }
 
-bool PCDDb::init ATLAS_NOT_THREAD_SAFE (std::string tag, int revision) // Thread unsafe coral::AttributeList class is used.
+bool PCDDb::init (const std::string& tag, int revision)
 {
   if (m_verbose) cout << "PCDDb::init(" << tag << ", " << revision << ")" << endl;
 
@@ -99,7 +101,7 @@ bool PCDDb::init ATLAS_NOT_THREAD_SAFE (std::string tag, int revision) // Thread
   m_query->defineOutputType("DATE",coral::AttributeSpecification::typeNameForType<time_t>());
   m_query->addToOutputList("FK");
 
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok
   std::string pixel_cond = m_pixeltable+".TAG = :tag";
   pixel_condData.extend<string>( "tag" );
   pixel_condData[0].data<string>() = tag;
@@ -113,7 +115,8 @@ bool PCDDb::init ATLAS_NOT_THREAD_SAFE (std::string tag, int revision) // Thread
     const coral::AttributeList &row0 = cursor.currentRow();
     if (m_verbose) {
       time_t timet = row0[3].data<time_t>();
-      string time = ctime(&timet);
+      char buf[32];
+      string time = ctime_r(&timet, buf);
       cout << "  TAG = " << row0[0].data<string>()
 	   << "  REVISION = " << row0[1].data<int>()
 	   << "  SOURCES = " << row0[2].data<string>()
@@ -142,7 +145,7 @@ bool PCDDb::init ATLAS_NOT_THREAD_SAFE (std::string tag, int revision) // Thread
 
 	// Second query to get entries
 	string pixel_cond_2 = (*tName)+".FK = :fk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>( "fk" );
 	pixel_condData_2[0].data<long long>() = row0[4].data<long long>();
 	m_query_2->setCondition( pixel_cond_2, pixel_condData_2);

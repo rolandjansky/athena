@@ -27,6 +27,7 @@ def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    import MuonCombinedRecExample.CombinedMuonTrackSummary
    from AthenaCommon.AppMgr import ToolSvc
    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+   kwargs.setdefault("MuonLayerSegmentFinderTool", getPublicTool("MuonLayerSegmentFinderTool"))
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
@@ -44,7 +45,7 @@ def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
    return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
 
 def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):
-   kwargs.setdefault("MdtCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )   
+   kwargs.setdefault("MdtCreator", getPublicTool("MdtDriftCircleOnTrackCreatorStau") )
    return DCMathSegmentMaker(name,**kwargs)
 
 def MuonStauChamberHoleRecoveryTool(name="MuonStauChamberHoleRecoveryTool",**kwargs):

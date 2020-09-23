@@ -118,9 +118,32 @@ def generateL1Menu( flags ):
 
 # configuration of L1ConfigSvc
 @memoize
+def getL1TopoConfigSvc( flags ):
+    log = logging.getLogger('TrigConfigSvcCfg')
+    # configure config svc
+    TrigConf__L1TopoConfigSvc = CompFactory.getComp("TrigConf::L1TopoConfigSvc")
+    l1topoConfigSvc = TrigConf__L1TopoConfigSvc("L1TopoConfigSvc")
+
+    l1topoConfigSvc.ConfigSource = "XML"
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    l1topoXMLFile = TriggerFlags.inputL1TopoConfigFile() if flags is None else flags.Trigger.LVL1TopoConfigFile
+    # check if file exists in this directory otherwise add the package to aid path resolution
+    # also a '/' in the file name indicates that no package needs to be added
+    import os.path
+    if not ( "/" in l1topoXMLFile or os.path.isfile(l1topoXMLFile) ):
+        l1topoXMLFile = "TriggerMenuMT/" + l1topoXMLFile
+    l1topoConfigSvc.XMLMenuFile = l1topoXMLFile
+    log.info( "Configured L1TopoConfigSvc with input file : %s", l1topoXMLFile )
+
+    from AthenaCommon.AppMgr import theApp
+    theApp.CreateSvc += [ "TrigConf::L1TopoConfigSvc/L1TopoConfigSvc" ]
+    return l1topoConfigSvc
+
+
+# configuration of L1ConfigSvc
+@memoize
 def getL1ConfigSvc( flags ):
     log = logging.getLogger('TrigConfigSvcCfg')
-    from AthenaCommon.Logging import log
     # generate menu file
     generatedFile = generateL1Menu( flags )
 

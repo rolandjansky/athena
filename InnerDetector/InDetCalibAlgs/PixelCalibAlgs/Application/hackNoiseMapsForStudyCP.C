@@ -25,9 +25,9 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
-std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
-std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-std::vector<int> getPositionFromDCSID (const std::string& module_name);
+using PixelMap_t = std::vector< std::pair< std::string, std::vector<int> > >;
+std::string getDCSIDFromPosition (PixelMap_t& map, int barrel_ec, int layer, int module_phi, int module_eta);
+std::vector<int> getPositionFromDCSID (PixelMap_t& map, const std::string& module_name);
 
 double ComputeMuChip(TH2D* modhisto, int chip)
 {
@@ -122,7 +122,7 @@ int ComputePoisson(double probcut, double mu) {
   return nhits;
 }
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is used.
+int main (int argc, char* argv[]){
 
   //std::string option;
 
@@ -567,6 +567,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
   int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
   std::vector<int> tmp_position;
   tmp_position.resize(4);
+  PixelMap_t pixelMapping;
   //int counter = 0; // debug
   while(ifs >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp_module_name) {
     tmp_position[0] = tmp_barrel_ec;
@@ -594,7 +595,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
       noiseMap = noiseMaps[moduleID];
     }
 
-    std::vector<int> position = getPositionFromDCSID(moduleID);
+    std::vector<int> position = getPositionFromDCSID(pixelMapping, moduleID);
     int barrel = position[0];
     int layer = position[1];
     int module_phi = position[2];
@@ -984,7 +985,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
   return 0;
 }
 
-std::string getDCSIDFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer, int module_phi, int module_eta){ // Global variable is used.
+std::string getDCSIDFromPosition (PixelMap_t& pixelMapping, int barrel_ec, int layer, int module_phi, int module_eta){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
@@ -1000,7 +1001,7 @@ std::string getDCSIDFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer
   return std::string("Error!");
 }
 
-std::vector<int> getPositionFromDCSID ATLAS_NOT_THREAD_SAFE (const std::string& module_name){ // Global variable is used.
+std::vector<int> getPositionFromDCSID (PixelMap_t& pixelMapping, const std::string& module_name){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].first == module_name)
     return pixelMapping[ii].second;

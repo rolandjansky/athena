@@ -5,21 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonPrepRawDataProviderTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          MuonSpectrometer/MuonIdHelpers
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonLayerEvent
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
-                          PRIVATE
-                          Event/EventPrimitives
-                          MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
-                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces )
-
 # Component(s) in the package:
 atlas_add_library( MuonPrepRawDataProviderToolsLib
                    src/*.cxx

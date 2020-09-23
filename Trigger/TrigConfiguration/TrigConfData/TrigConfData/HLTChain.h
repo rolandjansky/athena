@@ -25,6 +25,7 @@ namespace TrigConf {
        * @param data The data containing the HLT chain configuration 
        */      
       Chain(const boost::property_tree::ptree & data);
+      Chain(const std::string & name, const boost::property_tree::ptree & data);
 
       /** Destructor */
       virtual ~Chain();
@@ -60,7 +61,7 @@ namespace TrigConf {
 
    private:
       void update() override;
-
+      void load();
    };
 
 }

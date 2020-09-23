@@ -24,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=()
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -89,9 +89,11 @@ fi
 
 # Get the version of AthSimulation for the build.
 version=`cat ${thisdir}/version.txt`
+# Generate hash of any extra cmake arguments.
+cmakehash=`echo -n "${EXTRACMAKE}" | openssl md5 | awk '{print $2}'`
 
 # Check if previous externals build can be reused:
-externals_stamp=${BUILDDIR}/build/AthSimulationExternals/externals-${version}.stamp
+externals_stamp=${BUILDDIR}/build/AthSimulationExternals/externals-${version}-${cmakehash}.stamp
 if [ -f ${externals_stamp} ]; then
     if diff -q ${externals_stamp} ${thisdir}/externals.txt; then
         echo "Correct version of externals already available in ${BUILDDIR}"

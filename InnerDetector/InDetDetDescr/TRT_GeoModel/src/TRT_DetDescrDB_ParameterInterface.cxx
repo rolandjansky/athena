@@ -14,7 +14,7 @@
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 
 //_________________________________________________________________________________________
-TRT_DetDescrDB_ParameterInterface::TRT_DetDescrDB_ParameterInterface(const InDetDD::AthenaComps * athenaComps) :
+TRT_DetDescrDB_ParameterInterface::TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps) :
   TRTParameterInterface(),  m_athenaComps(athenaComps), m_distortedMatManager(0), m_placements(0)
 { SetValues(); }
 

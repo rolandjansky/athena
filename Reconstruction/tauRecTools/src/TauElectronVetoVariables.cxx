@@ -3,24 +3,6 @@
 */
 
 #ifndef XAOD_ANALYSIS
-//-----------------------------------------------------------------------------
-// file:        tau1p3pEleVeto.cxx
-// package:     Reconstruction/tauRec
-// authors:     Zofia Czyczula
-// date:        2006-09-27
-//
-// 
-// This tool veto electrons.
-//
-// MODIFIED:
-// 02-04-2007 - (AK) protection against missing egamma Collection
-// 25-03-2008 - (AK for ZC) upgade of the code
-// 28-03-1008 - (AK) fix for protection against missing egamma Collection 
-//               ERROR->WARNING
-// 15/04/2008 - (AK) fixing compilation warning bug #35463
-// 03-10-2008 - (ZC) upgarade of the code 
-// 16/03/2010 - (AK) use the cell id instead of the pointer 
-//-----------------------------------------------------------------------------
 
 #include <algorithm>
 #include <cmath>
@@ -51,14 +33,6 @@ TauRecToolBase(name) {
 // Destructor
 //-------------------------------------------------------------------------
 TauElectronVetoVariables::~TauElectronVetoVariables() { }
-
-//-------------------------------------------------------------------------
-// Finalizer
-//-------------------------------------------------------------------------
-StatusCode TauElectronVetoVariables::finalize()
-{
-  return StatusCode::SUCCESS;
-}
 
 //-------------------------------------------------------------------------
 // Initializer
@@ -194,11 +168,11 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
       }
     }
 
-    const xAOD::Jet* pJetSeed = (*pTau.jetLink());
-    if (!pJetSeed) {
+    if (! pTau.jetLink().isValid()) {
       ATH_MSG_ERROR("tau does not have jet seed for electron veto cell variable calculation");
       return StatusCode::FAILURE;
     }
+    const xAOD::Jet* pJetSeed = pTau.jet();
 
     // Loop through jets, get links to clusters
     std::vector<const xAOD::CaloCluster*> clusterList;
@@ -219,8 +193,8 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
 	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;
 	    else cellSeen.set(pCell->caloDDE()->calo_hash());
 
-        if (m_doVertexCorrection && pTau.vertexLink()) {
-          CaloVertexedCell vxCell (*pCell, (*pTau.vertexLink())->position());
+        if (m_doVertexCorrection && pTau.vertexLink().isValid()) {
+          CaloVertexedCell vxCell (*pCell, pTau.vertex()->position());
           cellPhi = vxCell.phi();
           cellEta = vxCell.eta();
           cellET = vxCell.et();

@@ -90,7 +90,7 @@ StatusCode
 Trk::MaterialEffectsUpdator::initialize()
 {
 
-  ATH_MSG_INFO("Minimal momentum cut for material update : " << m_momentumCut << " MeV");
+  ATH_MSG_DEBUG("Minimal momentum cut for material update : " << m_momentumCut << " MeV");
 
   // retrieve the EnergyLoss Updator and Material Effects updator
   if (m_doEloss) {

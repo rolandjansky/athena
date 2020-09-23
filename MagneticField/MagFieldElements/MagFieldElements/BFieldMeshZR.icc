@@ -36,3 +36,89 @@ BFieldMeshZR::getCache(double z,
   cache.setField(3, m_field[im0 + m_zoff + 1], scaleFactor);
 }
 
+inline BFieldMeshZR::BFieldMeshZR(double zmin,
+                                  double zmax,
+                                  double rmin,
+                                  double rmax)
+{
+  m_min = { zmin, rmin };
+  m_max = { zmax, rmax };
+}
+
+inline void
+BFieldMeshZR::reserve(int nz, int nr)
+{
+  m_mesh[0].reserve(nz);
+  m_mesh[1].reserve(nr);
+  m_field.reserve(nz * nr);
+}
+// add elements to vectors
+inline void
+BFieldMeshZR::appendMesh(int i, double mesh)
+{
+  m_mesh[i].push_back(mesh);
+}
+inline void
+BFieldMeshZR::appendField(const BFieldVectorZR& field)
+{
+  m_field.push_back(field);
+}
+
+// test if a point is inside this zone
+inline bool
+BFieldMeshZR::inside(double z, double r) const
+{
+  return (z >= zmin() && z <= zmax() && r >= rmin() && r <= rmax());
+}
+
+inline double
+BFieldMeshZR::min(size_t i) const
+{
+  return m_min[i];
+}
+inline double
+BFieldMeshZR::max(size_t i) const
+{
+  return m_max[i];
+}
+inline double
+BFieldMeshZR::zmin() const
+{
+  return m_min[0];
+}
+inline double
+BFieldMeshZR::zmax() const
+{
+  return m_max[0];
+}
+inline double
+BFieldMeshZR::rmin() const
+{
+  return m_min[1];
+}
+inline double
+BFieldMeshZR::rmax() const
+{
+  return m_max[1];
+}
+inline unsigned
+BFieldMeshZR::nmesh(size_t i) const
+{
+  return m_mesh[i].size();
+}
+inline double
+BFieldMeshZR::mesh(size_t i, size_t j) const
+{
+  return m_mesh[i][j];
+}
+inline unsigned
+BFieldMeshZR::nfield() const
+{
+  return m_field.size();
+}
+inline const BFieldVectorZR&
+BFieldMeshZR::field(size_t i) const
+{
+  return m_field[i];
+}
+

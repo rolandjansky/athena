@@ -10,7 +10,6 @@ import os
 import re
 import subprocess
 import json
-import six
 import glob
 
 from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
@@ -147,9 +146,8 @@ class LogMergeStep(Step):
                 self.log_files.append(f)
 
     def merge_logs(self):
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
         try:
-            with open(self.merged_name, 'w', **encargs) as merged_file:
+            with open(self.merged_name, 'w', encoding='utf-8') as merged_file:
                 for log_name in self.log_files:
                     if not os.path.isfile(log_name):
                         if self.warn_if_missing:
@@ -157,7 +155,7 @@ class LogMergeStep(Step):
                             merged_file.write(
                                 '### WARNING Missing {} ###\n'.format(log_name))
                         continue
-                    with open(log_name, **encargs) as log_file:
+                    with open(log_name, encoding='utf-8') as log_file:
                         merged_file.write('### {} ###\n'.format(log_name))
                         for line in log_file:
                             merged_file.write(line)
@@ -305,11 +303,10 @@ class RegTestStep(RefComparisonStep):
         if not os.path.isfile(log_file):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(log_file, **encargs) as f_in:
+        with open(log_file, encoding='utf-8') as f_in:
             matches = re.findall('({}.*).*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
-            with open(self.input_file, 'w', **encargs) as f_out:
+            with open(self.input_file, 'w', encoding='utf-8') as f_out:
                 for line in matches:
                     linestr = str(line[0]) if type(line) is tuple else line
                     f_out.write(linestr+'\n')
@@ -563,8 +560,7 @@ class ZeroCountsStep(Step):
                 self.name, input_file)
             return -1
         lines_checked = 0
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
-        with open(input_file, **encargs) as f_in:
+        with open(input_file, encoding='utf-8') as f_in:
             for line in f_in.readlines():
                 split_line = line.split()
                 lines_checked += 1
@@ -648,7 +644,7 @@ class MessageCountStep(Step):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
-                for level, threshold in six.iteritems(self.thresholds):
+                for level, threshold in self.thresholds.items():
                     if summary[level] > threshold:
                         self.result += 1
                         self.log.info(

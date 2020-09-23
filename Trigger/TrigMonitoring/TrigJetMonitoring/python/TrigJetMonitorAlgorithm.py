@@ -35,8 +35,9 @@ Chain2L1JetCollDict = { # set L1 jet collection name for L1 jet chains
 # HLT jet collections and chains to monitor
 ############################################
 
-Chain2JetCollDict = dict() # set HLT jet collection for AT and legacy master HLT jet chains
-JetCollections    = dict() # List of HLT jet collections for AT and legacy master
+Chain2JetCollDict  = dict() # set HLT jet collection for AT and legacy master HLT jet chains
+JetCollections     = dict() # List of HLT jet collections for AT and legacy master
+TurnOnCurves       = dict() # List reference chains and offline jet collections to be used for producing turn-on curves
 
 # AthenaMT
 JetCollections['MT'] = [
@@ -66,6 +67,15 @@ Chain2JetCollDict['MT'] = {
   'HLT_j45_ftf_pf_nojcalib_L1J20'          : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',
   'HLT_j45_ftf_csskpf_nojcalib_L1J20'      : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',
 }
+TurnOnCurves['MT'] = { # ref chain, offline jet coll
+  'HLT_j420_L1J100'                        : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_3j200_L1J100'                       : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_j460_a10r_L1J100'                   : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j80_L1J15','AntiKt4EMTopoJets'],
+  'HLT_j85_ftf_pf_L1J20'                   : ['HLT_j45_ftf_pf_L1J20','AntiKt4EMPFlowJets'],
+}
 
 # Legacy
 JetCollections['Legacy'] = [
@@ -84,6 +94,31 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_5j70_0eta240'                       : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
+TurnOnCurves['Legacy'] = { # ref chain, offline jet coll
+  'HLT_j420'                               : ['HLT_j175','AntiKt4EMTopoJets'],
+  'HLT_j260_320eta490'                     : ['HLT_j45_320eta490','AntiKt4EMTopoJets'],
+  'HLT_j460_a10r_L1J100'                   : ['HLT_j175','AntiKt4EMTopoJets'],
+  'HLT_j460_a10_lcw_subjes_L1J100'         : ['HLT_j175','AntiKt4EMTopoJets'],
+  'HLT_j460_a10t_lcw_jes_L1J100'           : ['HLT_j175','AntiKt4EMTopoJets'],
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : ['HLT_j175','AntiKt4EMTopoJets'],
+  'HLT_3j200'                              : ['HLT_j175','AntiKt4EMTopoJets'],
+}
+
+#########################################################
+# Helpful functions
+#########################################################
+
+def getEtaRange(chain):
+  if 'eta' in chain:
+    etaParts    = chain.split('eta')
+    etaMinTemp  = etaParts[0].split('_')
+    etaMin      = etaMinTemp[len(etaMinTemp)-1]
+    etaMin      = int(etaMin)/10
+    etaMax      = etaParts[1].split('_')[0]
+    etaMax      = int(etaMax)/10
+    return etaMin,etaMax
+  else: # by default central
+    return 0,2.5
 
 #########################################################
 # Schedule more histograms for dedicated jet collections
@@ -168,8 +203,18 @@ def TrigJetMonConfig(inputFlags):
 
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
+    # kinematic plots
     chainMonitorConf = jetChainMonitoringConfig(inputFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
+    # efficiency plots
+    refChain       = 'NONE'
+    offlineJetColl = 'NONE'
+    if chain in TurnOnCurves[InputType]:
+      refChain       = TurnOnCurves[InputType][chain][0]
+      offlineJetColl = TurnOnCurves[InputType][chain][1]
+    if offlineJetColl != 'NONE' and refChain != 'NONE':
+      effMonitorConf = jetEfficiencyMonitoringConfig(inputFlags,jetcoll,offlineJetColl,chain,refChain,AthenaMT)
+      effMonitorConf.toAlg(helper)
 
   # the AthMonitorCfgHelper returns an accumulator to be used by the general configuration system.
   return helper.result()
@@ -302,19 +347,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
    else:
      chainFolder = chain
 
-   # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
-   # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
-   # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
-   # This implies defining a little function which declares to the monitoring framework which variables to histogram and how.
-   #  this is done here.
-   def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
-       # create a monitoring group with the histo path starting from the parentAlg
-       group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
-       # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
-
-   from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
-   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
+   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec
        chain+"TrigMon",
        JetContainerName = jetcoll,
        TriggerChain = chain,
@@ -329,6 +362,56 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            "eta",
            "et",
            "phi",
+   )
+
+   return trigConf
+
+def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,refChain,athenaMT):
+   '''Function to configures some algorithms in the monitoring system.'''
+
+   # Remap online Run 2 jet collections
+   from TrigJetMonitoring import JetCollRemapping
+   jetcollFolder = onlinejetcoll
+   if onlinejetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
+     jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[onlinejetcoll]
+
+   # Remap Run 2 jet chain name to Run 3 jet chain
+   from TrigJetMonitoring import JetChainRemapping
+   if chain in JetChainRemapping.JetChainRun2ToRun3:
+     chainFolder = JetChainRemapping.JetChainRun2ToRun3[chain]
+   else:
+     chainFolder = chain
+
+   # We schedule a new JetAlg which will be acting only when a TriggerChain fired (using the TriggerChain from the base classes).
+   # We'll plot 1 histo build by a dedicated JetHistoTriggEfficiency tool.
+   # So we'll have to explicitely give a specification via the generic dicionnary 'ToolSpec'
+   # This implies defining a little function which declares to the monitoring framework which variables to histogram and how.
+   #  this is done here.
+   def defineHistoForJetTrigg(conf, parentAlg, monhelper , path):
+       # create a monitoring group with the histo path starting from the parentAlg
+       group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
+       # define the histogram
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
+
+   # Get jet index and eta selection for offline jets
+   parts        = chain.split('j')
+   multiplicity = parts[0].split('_')[1]
+   if multiplicity != '': index = int(multiplicity) - 1 # single-threhold multijet chains
+   else: index = 0 # single-jet chain
+   etaMin,etaMax = getEtaRange(chain)
+
+   from JetMonitoring.JetMonitoringConfig import retrieveVarToolConf
+   trigConf = JetMonAlgSpec( # the usual JetMonAlgSpec 
+       chain+"TrigEffMon",
+       JetContainerName          = offlinejetcoll,
+       TriggerChain              = refChain, # reference chain
+       defaultPath               = chainFolder,
+       topLevelDir               = "HLT/JetMon/Online/",
+       bottomLevelDir            = jetcollFolder,
+       failureOnMissingContainer = True,
+       )
+   trigConf.appendHistos(
+       SelectSpec( 'eff', '{}<|eta|<{}'.format(etaMin,etaMax), chainFolder, SelectedIndex=index, FillerTools = [
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
@@ -336,6 +419,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
                     Var=retrieveVarToolConf("pt"), # In this context we can not just pass a str alias to describe a histo variable
                                                    # so we use retrieveVarToolConf("pt") which returns a full specification for the "pt" histo variable.
                     ProbeTrigChain=chain,defineHistoFunc=defineHistoForJetTrigg),
+       ] ),
    )
 
    if 'smc' in chain:
@@ -357,6 +441,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
      )
 
    return trigConf
+
 
 if __name__=='__main__':
 
@@ -437,6 +522,17 @@ if __name__=='__main__':
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
     chainMonitorConf = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT)
     chainMonitorConf.toAlg(helper)
+
+  # Produce efficiency plots
+  for chain in Chain2JetCollDict[InputType]:
+    refChain       = 'NONE'
+    offlineJetColl = 'NONE'
+    if chain in TurnOnCurves[InputType]:
+      refChain       = TurnOnCurves[InputType][chain][0]
+      offlineJetColl = TurnOnCurves[InputType][chain][1]
+    if offlineJetColl != 'NONE' and refChain != 'NONE':
+      effMonitorConf = jetEfficiencyMonitoringConfig(ConfigFlags,jetcoll,offlineJetColl,chain,refChain,AthenaMT)
+      effMonitorConf.toAlg(helper)
 
   cfg.merge(helper.result())
   

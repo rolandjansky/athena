@@ -382,10 +382,6 @@ namespace PixelConvert {
     return ID;
   }
 
-  typedef std::map<unsigned int,unsigned int> modulemap;
-
-  modulemap* hashIndex=0;
-  modulemap* SNIndex=0;
   const std::string datafile("NamingConversions.txt");
 
   /*
@@ -400,15 +396,17 @@ namespace PixelConvert {
    * file named as in the string datafile initialized above.
    */
 
-  int ReadMap ATLAS_NOT_THREAD_SAFE (const std::string& filename ) { // Global variables are used.
+  int ReadMap (const std::string& filename,
+               Map& map)
+  {
     std::cerr << "INFO: Opening data file " << filename << std::endl; 
     std::ifstream f(filename.c_str());
     if ( !f.good() ) {
       std::cerr << "ERROR: Cannot open data file " << filename << std::endl; 
       return -1;
     }
-    hashIndex= new modulemap;
-    SNIndex= new modulemap;
+    map.m_hashIndex = std::make_unique<PixelConvert::Map::modulemap>();
+    map.m_SNIndex = std::make_unique<PixelConvert::Map::modulemap>();
     unsigned int hashID, SN;
     std::string dummy;
     getline(f,dummy); // read header line
@@ -418,28 +416,28 @@ namespace PixelConvert {
       // std::cerr << "Read from " << filename << "\t" << hashID << "\t" << SN << std::endl; 
       if ( f.bad() ) {
 	std::cerr << "ERROR: error reading " << filename 
-		  << " after " << hashIndex->size() << " entries" 
+		  << " after " << map.m_hashIndex->size() << " entries" 
 		  << std::endl;
 	f.close();
 	return -2;
       } else if ( f.eof() ) break;
-      hashIndex->insert(std::make_pair(hashID,SN));
-      SNIndex->insert(std::make_pair(SN,hashID));
+      map.m_hashIndex->insert(std::make_pair(hashID,SN));
+      map.m_SNIndex->insert(std::make_pair(SN,hashID));
     }
     std::cerr << "INFO: end of file " << filename 
-	      << " after " << hashIndex->size() << " entries" 
+	      << " after " << map.m_hashIndex->size() << " entries" 
 	      << std::endl;
     f.close();
     return 0;
   }
 
-  unsigned int GetID ATLAS_NOT_THREAD_SAFE (const unsigned int moduleID) { // Global variables are used.
-    // if maps are not previously loaded, read in the file 
-    if ( !hashIndex || !SNIndex ) ReadMap(datafile);
+  unsigned int GetID (const Map& map,
+                      const unsigned int moduleID)
+  {
     if ( moduleID>=510000 && moduleID<=519999 ) 
-      return (*SNIndex)[moduleID];
+      return (*map.m_SNIndex)[moduleID];
     else 
-      return (*hashIndex)[moduleID];
+      return (*map.m_hashIndex)[moduleID];
   }
 
 }

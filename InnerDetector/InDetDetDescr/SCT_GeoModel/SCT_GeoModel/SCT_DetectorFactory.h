@@ -24,7 +24,7 @@ class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase
   
  public: 
   // Constructor
-  SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaComps, 
+  SCT_DetectorFactory(SCT_GeoModelAthenaComps * athenaComps, 
 		      const SCT_Options & options) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::DetectorFactoryBase::rdbAccessSvc() method is used.
 
   // Destructor

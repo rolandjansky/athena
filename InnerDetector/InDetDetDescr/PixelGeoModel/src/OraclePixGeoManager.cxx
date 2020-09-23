@@ -41,7 +41,7 @@ using InDetDD::PixelDetectorManager;
 
 using namespace std;
 
-OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athenaComps)
+OraclePixGeoManager::OraclePixGeoManager(PixelGeoModelAthenaComps * athenaComps)
   : PixelGeometryManager(athenaComps), 
     m_eta(0),
     m_phi(0),

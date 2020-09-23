@@ -1,3 +1,7 @@
+#/*
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#*/
+
 #Construct VP1ATLREL integer based on AtlasVersion environment
 #variable, needed to make script work across releases. As an example
 #14.0.1 becomes 140001. Any parts not recognised are replaced with 99.
@@ -17,4 +21,4 @@ if not 'VP1ATLREL' in dir():
         if versionMinor>99: versionMinor=99
         if versionMinor==99 or versionPatch>99: versionPatch=99
         VP1ATLREL=10000*versionMajor+100*versionMinor+versionPatch
-        print "VP1ATLREL: "+str(VP1ATLREL)
+        print ("VP1ATLREL: "+str(VP1ATLREL))

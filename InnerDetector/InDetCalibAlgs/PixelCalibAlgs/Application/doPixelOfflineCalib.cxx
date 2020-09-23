@@ -11,11 +11,11 @@
 using namespace PixelCalib;
 
 /// the function that does the job!
-int doAll ATLAS_NOT_THREAD_SAFE (std::string input_file, std::string input_tag, // Thread unsafe OfflineCalibrationLoop class is used.
-	  std::string output_tag,
-		std::string collection,
-	  std::string reference_file, std::string reference_tag,
-	  int maxentries){
+int doAll (std::string input_file, std::string input_tag,
+           std::string output_tag,
+           std::string collection,
+           std::string reference_file, std::string reference_tag,
+           int maxentries){
 
 	OfflineCalibrationLoop *s = 0;
 
@@ -38,7 +38,7 @@ int doAll ATLAS_NOT_THREAD_SAFE (std::string input_file, std::string input_tag, 
 }
 
 /// main does include the input interpretation
-int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe doAll function is used.
+int main (int argc, char *argv[]){
 
 std::cout << "ciao" << std::endl;
 

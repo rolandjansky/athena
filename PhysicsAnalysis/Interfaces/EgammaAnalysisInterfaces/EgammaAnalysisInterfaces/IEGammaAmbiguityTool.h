@@ -36,10 +36,9 @@ namespace xAOD {
       ambiguousTrackLowPt=2,
       ambiguousTrackHighEoverP=3,
       ambiguousTrackNoPixel =4,
-      ambiguousVertexEoverPBetterThanTrackEoverP=5,
-      photon=6,
-      // this falls at the end to avoid problems in other tools (el ID) using bitwise operations
-      ambiguousNoInnermost=7,
+      ambiguousNoInnermost=5,
+      ambiguousVertexEoverPBetterThanTrackEoverP=6,
+      photon=7,
       unknown=8,
     };
   }

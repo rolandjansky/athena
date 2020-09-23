@@ -6,15 +6,6 @@
 # The name of the package:
 atlas_subdir( TauAnalysisAlgorithms )
 
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODTau
-   PhysicsAnalysis/Algorithms/SelectionHelpers
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/TauID/TauAnalysisTools )
-
 atlas_add_library( TauAnalysisAlgorithmsLib
    TauAnalysisAlgorithms/*.h TauAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS TauAnalysisAlgorithms

@@ -27,7 +27,7 @@ os.system('get_files -symlink -remove -jo setMagFieldCurrents.py')
 
 # Create a symlink to the first input file
 input_file = get_input('data').paths[0]
-run_no = eformat.istream(input_file)[0].run_no()
+run_no = eformat.istream(str(input_file))[0].run_no()  # `str` needed only for Python2
 try:
    os.remove('raw.data')
 except Exception:

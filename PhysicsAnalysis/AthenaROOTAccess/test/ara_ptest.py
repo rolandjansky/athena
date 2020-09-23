@@ -15,7 +15,7 @@ import ROOT
 import cppyy
 import AthenaROOTAccess.transientTree
 
-cppyy.loadDictionary("libDataModelTestDataWriteDict")
+cppyy.load_library("liblibDataModelTestDataWriteDict")
 
 f = ROOT.TFile ('../../../Control/DataModelTest/DataModelRunTests/run/SimplePoolFile.root')
 tt = AthenaROOTAccess.transientTree.makeTree (f,

@@ -48,9 +48,6 @@ class TauWPDecorator : public TauRecToolBase {
     /** @brief Executation of this tool */
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
     
-    /** @brief Finalization of this tool */
-    virtual StatusCode finalize() override;
-
   private:
 
     /** 

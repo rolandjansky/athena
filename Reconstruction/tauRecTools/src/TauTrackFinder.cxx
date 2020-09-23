@@ -11,12 +11,11 @@
 #include "xAODTau/TauTrackContainer.h"
 
 #include "TauTrackFinder.h"
-#include "tauRecTools/KineUtils.h"
 #include "tauRecTools/TrackSort.h"
 
 
-TauTrackFinder::TauTrackFinder(const std::string& name ) :
-        TauRecToolBase(name) {
+TauTrackFinder::TauTrackFinder(const std::string& name) :
+  TauRecToolBase(name) {
     m_EMSamplings = {CaloSampling::EME1, CaloSampling::EMB1};
     m_HadSamplings = {CaloSampling::TileBar1, CaloSampling::HEC1, CaloSampling::TileExt1};
 }
@@ -38,11 +37,6 @@ StatusCode TauTrackFinder::initialize() {
     // use CaloExtensionTool when key is empty 
     ATH_CHECK( m_ParticleCacheKey.initialize(SG::AllowEmpty) );
 
-    return StatusCode::SUCCESS;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::finalize() {
     return StatusCode::SUCCESS;
 }
 
@@ -74,7 +68,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   }
 
   // get the primary vertex
-  const xAOD::Vertex* pVertex = pTau.vertexLink()!=0 ? (*pTau.vertexLink()) : NULL;
+  const xAOD::Vertex* pVertex = nullptr;
+  if (pTau.vertexLink().isValid()) pVertex = pTau.vertex();
 
   // retrieve tracks wrt a vertex                                                                                                                              
   // as a vertex is used: tau origin / PV / beamspot / 0,0,0 (in this order, depending on availability)                                                        
@@ -224,7 +219,7 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& p
         const xAOD::TrackParticle& trackParticle,
         const xAOD::Vertex* primaryVertex) const
 {
-    double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),trackParticle.eta(),trackParticle.phi());
+    double dR = pTau.p4().DeltaR(trackParticle.p4());
 
     if (dR > m_maxJetDr_wide) return NotTauTrack;
 

@@ -20,6 +20,10 @@ StatusCode MuonMatchingTool :: initialize(){
   }
   ATH_CHECK( m_MuonContainerKey.initialize() );
   ATH_CHECK( m_MuonRoIContainerKey.initialize() );
+  ATH_CHECK( m_L2MuonSAContainerKey.initialize() );
+  ATH_CHECK( m_L2muCombContainerKey.initialize() );
+  ATH_CHECK( m_EFSAMuonContainerKey.initialize() );
+  ATH_CHECK( m_EFCBMuonContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -79,6 +83,20 @@ const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matc
   return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, "HLT_Muons_", &MuonMatchingTool::PosForMatchSATrack) : muonLinkInfo;
 }
 
+const xAOD::Muon* MuonMatchingTool :: matchEFSAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFSAReadHandle()");
+  const xAOD::TrackParticle* MuonTrack = nullptr;
+  using Type = xAOD::Muon::TrackParticleType;
+  std::vector<Type> types { Type::ExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MSOnlyExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MuonSpectrometerTrackParticle};
+  for (Type type : types){
+    MuonTrack = mu->trackParticle(type);
+    if (MuonTrack) break;
+  }
+  return MuonTrack ? matchReadHandle<xAOD::Muon>( MuonTrack, m_EFreqdR, m_EFSAMuonContainerKey, ctx, &MuonMatchingTool::PosForMatchSATrack) : nullptr;
+}
+
 
 const xAOD::Muon* MuonMatchingTool :: matchEFCB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchEFCB()");
@@ -92,6 +110,12 @@ const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> MuonMatchingTool :: matc
   TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> muonLinkInfo;
   const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
   return MuonTrack ? matchLinkInfo<xAOD::Muon>(MuonTrack, trig, m_EFreqdR, pass, "HLT_MuonsCB", &MuonMatchingTool::PosForMatchCBTrack) : muonLinkInfo;
+}
+
+const xAOD::Muon* MuonMatchingTool :: matchEFCBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchEFCBReadHandle()");
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? matchReadHandle<xAOD::Muon>( MuonTrack, m_EFreqdR, m_EFCBMuonContainerKey, ctx, &MuonMatchingTool::PosForMatchCBTrack) : nullptr;
 }
 
 
@@ -121,6 +145,28 @@ const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> MuonMatching
   return matchLinkInfo<xAOD::L2StandAloneMuon>( mu, trig, 1000., pass, "HLT_MuonL2SAInfo");
 }
 
+const xAOD::L2StandAloneMuon* MuonMatchingTool :: matchL2SAReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchL2SAReadHandle()");
+  float reqdR = m_L2SAreqdR;
+  if(m_use_extrapolator){
+    reqdR = reqdRL1byPt(mu->pt());
+    const Amg::Vector3D extPos = offlineMuonAtPivot(mu);
+    if(extPos.norm()>ZERO_LIMIT){
+      return matchReadHandle<xAOD::L2StandAloneMuon>( &extPos, reqdR, m_L2MuonSAContainerKey, ctx);
+    }
+  }
+  const xAOD::TrackParticle* MuonTrack = nullptr;
+  using Type = xAOD::Muon::TrackParticleType;
+  std::vector<Type> types { Type::ExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MSOnlyExtrapolatedMuonSpectrometerTrackParticle,
+                            Type::MuonSpectrometerTrackParticle};
+  for (Type type : types){
+    MuonTrack = mu->trackParticle(type);
+    if (MuonTrack) break;
+  }
+  return MuonTrack ? matchReadHandle<xAOD::L2StandAloneMuon>( MuonTrack, reqdR, m_L2MuonSAContainerKey, ctx) : nullptr;
+}
+
 
 const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CB(  const xAOD::Muon *mu, std::string trig, bool &pass) const {
   ATH_MSG_DEBUG("MuonMonitoring::matchL2CB()");
@@ -131,6 +177,12 @@ const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> MuonMatchingTo
   ATH_MSG_DEBUG("MuonMonitoring::searchL2CBLinkInfo()");
   bool pass = false;
   return matchLinkInfo<xAOD::L2CombinedMuon>( mu, trig,  1000., pass, "HLT_MuonL2CBInfo");
+}
+
+const xAOD::L2CombinedMuon* MuonMatchingTool :: matchL2CBReadHandle( const EventContext& ctx, const xAOD::Muon *mu) const {
+  ATH_MSG_DEBUG("MuonMonitoring::matchL2CBReadHandle()");
+  const xAOD::TrackParticle* MuonTrack = mu->trackParticle(xAOD::Muon::TrackParticleType::Primary);
+  return MuonTrack ? matchReadHandle<xAOD::L2CombinedMuon>( MuonTrack, m_L2CBreqdR, m_L2muCombContainerKey, ctx) : nullptr;
 }
 
 

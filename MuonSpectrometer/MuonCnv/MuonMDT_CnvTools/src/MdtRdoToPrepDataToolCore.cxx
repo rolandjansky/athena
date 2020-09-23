@@ -29,11 +29,8 @@ namespace {
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
-  m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()),
   m_calibratePrepData(true),
-  m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder", this),
   m_fullEventDone(false),
   m_BMEpresent(false),
   m_BMGpresent(false),
@@ -61,13 +58,12 @@ Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, c
   // DataHandle
   declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
   declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
-
-  declareProperty("CalibrationTool",m_calibrationTool);
 }
 
 StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(AthAlgTool::initialize());
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
+  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+  ATH_CHECK(detStore()->retrieve(muDetMgr));
   ATH_CHECK(m_calibrationTool.retrieve());
   ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with pointer = "<<m_calibrationTool);
   ATH_CHECK(m_idHelperSvc.retrieve());
@@ -106,10 +102,10 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
     for(int phi=6; phi<8; phi++) { // phi sectors
       for(int eta=1; eta<4; eta++) { // eta sectors
         for(int side=-1; side<2; side+=2) { // side
-          if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
-          for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+          if( !muDetMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+          for(int roe=1; roe<=( muDetMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
             const MdtReadoutElement* mdtRE =
-                  dynamic_cast<const MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+                  dynamic_cast<const MdtReadoutElement*> ( ( muDetMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
             if(mdtRE) initDeadChannels(mdtRE);
           }
         }
@@ -122,11 +118,6 @@ StatusCode Muon::MdtRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(m_mdtPrepDataContainerKey.initialize());
   ATH_CHECK(m_readKey.initialize());
   ATH_CHECK(m_muDetMgrKey.initialize());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode Muon::MdtRdoToPrepDataToolCore::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

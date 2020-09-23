@@ -5,12 +5,17 @@
 #ifndef TAUREC_TAUPI0CLUSTERCREATOR_H
 #define	TAUREC_TAUPI0CLUSTERCREATOR_H
 
-#include <string>
-#include <vector>
 #include "tauRecTools/TauRecToolBase.h"
+#include "tauRecTools/ITauVertexCorrection.h"
+
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
+#include "AsgTools/ToolHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
+
+#include <string>
+#include <vector>
 
 /**
  * @brief Creates Pi0 clusters (Pi0 Finder).
@@ -27,7 +32,6 @@ public:
     virtual ~TauPi0ClusterCreator();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
 						xAOD::CaloClusterContainer& pi0CaloClusContainer,
@@ -62,13 +66,13 @@ private:
     /** @brief get hadronic cluster PFOs*/
     bool setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronicClusterContainer) const;
 
-    /** @brief pt threshold for pi0 candidate clusters */
     Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
-    
     Gaudi::Property<bool> m_incShowerSubtr {this, "IncShowerSubtr", true, "use shower subtracted clusters in calo calculations"};
 
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
 
+    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
+      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
 #endif	/* TAUPI0CLUSTERCREATOR_H */

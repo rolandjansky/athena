@@ -44,7 +44,7 @@ class TrigApp(object):
       for p in jobOptSvc.items():
          name = p._0
          value = p._1
-         client, prop = name.split('.',1)
+         client, prop = name.rsplit('.',1)
          if reClient.match(client) and reProp.match(prop):
             self.log.info("Changing %s.%s from '%s' to '%s'", client, prop, value, newValue)
             iprop = iProperty(client)

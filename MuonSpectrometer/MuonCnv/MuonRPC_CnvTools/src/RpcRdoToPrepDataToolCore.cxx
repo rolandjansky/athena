@@ -30,7 +30,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
     m_reduceCablingOverlap(true),         //!< toggle on/off the overlap removal
     m_timeShift(0.),                      //!< any global time shift ?!
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
     m_fullEventDone(false)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
@@ -44,8 +43,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
   declareProperty("timeShift",                 m_timeShift                  = -12.5); // Zmumu muons are at t=0 in PRD time-domain
   
   declareProperty("DecodeData",                m_decodeData = true );
-  // tools 
-  declareProperty ("RdoDecoderTool",           m_rpcRdoDecoderTool);
   
   declareProperty("RPCInfoFromDb",             m_RPCInfoFromDb  = false );
   // DataHandle

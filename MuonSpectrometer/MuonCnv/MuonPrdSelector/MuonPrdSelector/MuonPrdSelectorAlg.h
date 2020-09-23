@@ -14,7 +14,7 @@
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-#include "MuonPrdSelector/MuonIdCutTool.h"
+#include "MuonPrdSelector/IMuonIdCutTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <utility>
@@ -54,7 +54,7 @@ class MuonPrdSelectorAlg : public AthAlgorithm  {
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  ToolHandle<IMuonIdCutTool>             m_muonIdCutTool;  //defines the cuts
+  ToolHandle<IMuonIdCutTool> m_muonIdCutTool{this,"MuonIdCutTool","MuonIdCutTool/MuonIdCutTool","defines the cuts"};
 
   std::string         m_inputContainer_mdt; //container names
   std::string         m_inputContainer_rpc;

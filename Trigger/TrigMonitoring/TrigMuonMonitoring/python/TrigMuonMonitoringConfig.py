@@ -38,9 +38,8 @@ def TrigMuonMonitoringTool():
 
 
 def getTriggerStreamOfFile():
-	from PyUtils.MetaReaderPeeker import metadata
-	stag = metadata['triggerStreamOfFile']
-	return stag
+	from RecExConfig.RecFlags import rec
+	return rec.triggerStream()
 
 
 def setL2HypoTENames( HLTMuonMon, hltmonList):

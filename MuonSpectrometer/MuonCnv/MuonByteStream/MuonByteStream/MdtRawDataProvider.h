@@ -1,25 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_MDTRAWDATAPROVIDER_H
 
-// Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// interface to region selector service
 #include "IRegionSelector/IRegSelSvc.h"
-
-// ROI Descriptor classes
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
 namespace Muon {
-class IMuonRawDataProviderTool;
 
 class MdtRawDataProvider : public AthAlgorithm
 {
@@ -34,16 +29,13 @@ public:
   //! Execute
   virtual StatusCode execute();
 
-  //! Finalize
-  virtual StatusCode finalize();
-
   //! Destructur
-  ~MdtRawDataProvider();
+  ~MdtRawDataProvider()=default;
 
 
 private:
   /// Tool handle for raw data provider tool
-  ToolHandle<Muon::IMuonRawDataProviderTool>  m_rawDataTool;
+  ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataTool{this,"ProviderTool","Muon::MDT_RawDataProviderToolMT/MdtRawDataProviderTool"};
 
   /// Handle for region selector service
   ServiceHandle<IRegSelSvc> m_regionSelector;

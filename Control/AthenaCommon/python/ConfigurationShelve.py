@@ -272,7 +272,6 @@ def loadJobOptionsCatalogue( cfg_fname ):
    """Load properties from a pickle file, previously dumped by
    storeConfiguration, back into the JobOptionsSvc.
    """
-
  # read jobopt catalogue dump and pycomps back in
    cfg = open( cfg_fname, 'rb' )
 
@@ -297,7 +296,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
    theApp.__class__.setup = noop
 
    import AthenaPython.PyAthena as PyAthena
-   josvc = PyAthena.py_svc( 'JobOptionsSvc', createIf = False, iface = 'IJobOptionsSvc' )
+   josvc = PyAthena.py_svc( 'JobOptionsSvc', createIf = False, iface = 'Gaudi::Interfaces::IOptionsSvc')
 
  # restore job catalogue entries
    import GaudiPython.Bindings as gaudi
@@ -306,17 +305,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
          # ApplicationMgr properties are already set
          continue
       for n,v in six.iteritems(jocat[ client ]):
-         # In Gaudi v28, the second argument of the ctor is passed by move,
-         # which pyroot doesn't handle correctly.  Do this as a workaround.
-         p = gaudi.StringProperty()
-         p.setName(n)
-         try:
-            p.fromString(v).ignore()
-         except Exception:
-            print ("Failed to convert",n,v)
-
-         if not josvc.addPropertyToCatalogue( client, p ).isSuccess():
-            raise RuntimeError( 'could not add property [%s.%s = %s]' % (client, n, v) )
+         josvc.set( client+'.'+n, v )
 
  # restore special services properties
    for client in jocfg:

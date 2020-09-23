@@ -134,6 +134,8 @@ if hasattr(runArgs,"preInclude"):
 # Now, include the master top options from RecExCommon.
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+for tool in monMan.AthenaMonTools:
+    tool.ManagerName = 'PhysValMonManager'
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

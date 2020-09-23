@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoraCoolObject.cxx
@@ -23,7 +23,7 @@ void CoraCoolObject::add(const coral::AttributeList& data) {
   if (m_spec==0) {
     m_payload.push_back(data);
   } else {
-    m_payload.push_back(coral::AttributeList(*m_spec,true));
+    m_payload.emplace_back(*m_spec,true);
     m_payload.back().fastCopyData(data);
   }
 }

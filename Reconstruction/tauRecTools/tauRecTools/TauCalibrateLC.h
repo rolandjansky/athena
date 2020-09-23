@@ -33,7 +33,6 @@ class TauCalibrateLC : public TauRecToolBase {
     ~TauCalibrateLC();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
 

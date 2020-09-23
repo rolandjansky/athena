@@ -40,8 +40,8 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     def contains( self, key, type ):
         # Determine the class name:
         clname = type.__name__
-        if hasattr( type, "__cppname__" ):
-            clname = type.__cppname__
+        if hasattr( type, "__cpp_name__" ):
+            clname = type.__cpp_name__
             pass
         # Call the parent class's function:
         return super( TPyEvent, self ).contains( key, clname )
@@ -64,8 +64,8 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     def transientContains( self, key, type ):
         # Determine the class name:
         clname = type.__name__
-        if hasattr( type, "__cppname__" ):
-            clname = type.__cppname__
+        if hasattr( type, "__cpp_name__" ):
+            clname = type.__cpp_name__
             pass
         # Call the parent class's function:
         return super( TPyEvent,
@@ -91,8 +91,8 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     def record( self, obj, key, basketSize = 32000, splitLevel = 0 ):
         # Determine the class name:
         clname = obj.__class__.__name__
-        if hasattr( obj.__class__, "__cppname__" ):
-            clname = obj.__class__.__cppname__
+        if hasattr( obj.__class__, "__cpp_name__" ):
+            clname = obj.__class__.__cpp_name__
             pass
         # Call the parent class's function:
         return super( TPyEvent, self ).record( 0, obj, key, clname, basketSize,

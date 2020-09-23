@@ -11,7 +11,7 @@ import cppyy
 
 import PyCool
 
-cppyy.loadDictionary("DQUtilsDict")
+cppyy.load_library("libDQUtilsDict.so")
 
 quick_retrieve = cppyy.gbl.quick_retrieve
 browse_coracool = cppyy.gbl.browse_coracool

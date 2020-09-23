@@ -5,6 +5,7 @@
 # art-type: grid
 # art-include: master/Athena
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
+# art-input: mc15_13TeV.361203.Pythia8_A2_MSTW2008LO_ND_minbias.recon.RDO.e3639_s2606_s2174_r7661_tid07858100_00
 # art-athena-mt: 4
 # art-memory: 4096
 # art-output: *.txt
@@ -33,8 +34,7 @@ Threads = 1
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = 'Truth'
-
+TrackReference = [ 'Truth', 'Offline' ]
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

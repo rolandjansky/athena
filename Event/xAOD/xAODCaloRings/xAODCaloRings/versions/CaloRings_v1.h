@@ -193,7 +193,7 @@ class CaloRings_v1 : public SG::AuxElement {
 
     
     /// Print @name CaloRings_v1 methods:
-    /// @{
+    /// @{
     /**
      * @brief Print @name CaloRings_v1 using ostream:
      **/

@@ -54,6 +54,15 @@ namespace EL
     explicit AnaAlgorithmConfig (const std::string& val_typeAndName);
 
 
+    /// \brief Virtual destructor, to make PyROOT happy
+    ///
+    /// Without it ROOT 6.22+ does not allow Python classes to inherit from this
+    /// type.
+    ///
+  public:
+    virtual ~AnaAlgorithmConfig() = default;
+
+
     /// \brief whether we use XAODs
     /// \par Guarantee
     ///   no-fail

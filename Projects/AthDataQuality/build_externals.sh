@@ -100,4 +100,4 @@ AtlasExternalsVersion=$(awk '/^AtlasExternalsVersion/{print $3}' ${thisdir}/exte
 # Check out AthenaExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AtlasExternalsVersion} \
-    -s ${BUILDDIR}/src/atlasexternals 2>&1 | tee ${BUILDDIR}/src/checkout.atlasexternals.log 
+    -s ${BUILDDIR}/src/atlasexternals 2>&1 | tee ${BUILDDIR}/src/checkout.atlasexternals.log

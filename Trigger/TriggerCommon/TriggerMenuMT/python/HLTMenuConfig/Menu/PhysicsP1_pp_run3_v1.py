@@ -13,7 +13,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 import TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 as physics_menu 
 
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,EgammaStreamersGroup,TauStreamersGroup,JetStreamersGroup,METStreamersGroup,MinBiasGroup
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,SinglePhotonGroup,EgammaStreamersGroup,TauStreamersGroup,JetStreamersGroup,METStreamersGroup,MinBiasGroup,ZeroBiasGroup
 
 
 def addP1Signatures():
@@ -131,10 +131,17 @@ def addP1Signatures():
         ChainProp(name='HLT_noalg_cosmiccalo_L1J12_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
         ChainProp(name='HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY', stream=['CosmicCalo','express'],groups=['RATE:Cosmic_Calo','BW:Jet']),
 #        ChainProp(name='HLT_noalg_cosmiccalo_L1RD1_BGRP10', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo','express'],groups=['RATE:Calibration','BW:Detector']),
+
+        # MBTS
+        ChainProp(name='HLT_noalg_L1MBTS_1_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup), #ATR-21740
+        ChainProp(name='HLT_noalg_mb_L1RD2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup), # ATR-21367
+        ChainProp(name='HLT_noalg_zb_L1ZB',        l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'],groups=ZeroBiasGroup),# ATR-21367
     ]
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
           ChainProp(name='HLT_costmonitor_CostMonDS_L1All',        l1SeedThresholds=['FSNOSEED'], stream=['CostMonitoring'], groups=['RATE:Monitoring','BW:Other']),
           ChainProp(name='HLT_timeburner_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['Online','RATE:DISCARD','BW:DISCARD']),
+       ChainProp(name='HLT_cscmon_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
+
     ]
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits

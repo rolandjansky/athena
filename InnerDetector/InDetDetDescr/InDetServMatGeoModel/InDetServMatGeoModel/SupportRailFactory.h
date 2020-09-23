@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SUPPORTRAILFACTORY_H
@@ -14,7 +14,7 @@ class SupportRailFactory : public InDetDD::SubDetectorFactoryBase {
  public:
   
   // Constructor:
-  SupportRailFactory(const InDetDD::AthenaComps * athenaComps, 
+  SupportRailFactory(InDetDD::AthenaComps * athenaComps, 
 		     InDetMaterialManager * matManager);
     
   // Destructor:

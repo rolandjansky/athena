@@ -313,7 +313,7 @@ jtm += WeightPFOTool("pflowweighter")
 # Trigger xAODType.ObjectType dict entry loading
 import cppyy
 try:
-    cppyy.loadDictionary('xAODBaseObjectTypeDict')
+    cppyy.load_library('libxAODBaseObjectTypeDict')
 except:
     pass
 from ROOT import xAODType

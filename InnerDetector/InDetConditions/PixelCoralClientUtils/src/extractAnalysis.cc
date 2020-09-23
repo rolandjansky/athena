@@ -13,7 +13,7 @@
 #include<fstream>
 using namespace std;
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe const_iterator end is used.
+int main (int argc, char **argv){
 
   int iarg = 1;
   bool verbose = false;
