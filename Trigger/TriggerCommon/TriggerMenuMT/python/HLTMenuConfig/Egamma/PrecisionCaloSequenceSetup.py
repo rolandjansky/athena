@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Constants import DEBUG
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import seqAND
@@ -47,7 +46,6 @@ def precisionCaloMenuSequence(name):
 
     thePrecisionCaloHypo = TrigEgammaPrecisionCaloHypoAlgMT(name+"precisionCaloHypo")
     thePrecisionCaloHypo.CaloClusters = sequenceOut
-    thePrecisionCaloHypo.OutputLevel = DEBUG
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionCaloViewsMaker, 
