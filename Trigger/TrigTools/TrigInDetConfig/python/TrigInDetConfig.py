@@ -729,7 +729,7 @@ def indetInViewRecoCfg( inflags, viewMakerName, signature='' ):
   There would certainly be additional algorithms
   """
   # redirect InDet.Tracking flags to point to a specific trigger setting
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking.Electron")
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signature)
 
 
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
@@ -766,7 +766,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))
 
-    acc.merge( TrigInDetConfig( ConfigFlags ) )
+    acc.merge( indetInViewRecoCfg( ConfigFlags, viewMakerName="IMTest", signature="Electron" ) )
     from RegionSelector.RegSelConfig import regSelCfg
     rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )

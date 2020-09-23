@@ -6,7 +6,6 @@ from InDetConfig.TrackingCutsFlags import createTrackingFlags
 
 def __sliceFlags():
     flags = createTrackingFlags()
-    flags.minPT = Units.GeV * 0.5 # TODO revise values
     flags.addFlag("seedRadBinWidth", 2)
     flags.addFlag("d0SeedMax", 4.0)
     flags.addFlag("d0SeedPPSMax", 1.7)
@@ -17,6 +16,7 @@ def __sliceFlags():
 
 def __electronFlags():
     flags = __sliceFlags()
+    flags.minPT = Units.GeV * 0.5 # TODO revise values
     flags.checkRedundantSeeds=True
     return flags
 
