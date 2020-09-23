@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/WriteDecorHandle.h" 
@@ -15,7 +15,7 @@
 
 
 #include "eflowRec/PFEGamFlowElementAssoc.h" 
-#include <typeinfo> // temp debug for type checks on objects
+
 
 typedef ElementLink<xAOD::ElectronContainer> ElectronLink_t; 
 typedef ElementLink<xAOD::PhotonContainer> PhotonLink_t;
@@ -28,17 +28,17 @@ const std::string& name,
   AthReentrantAlgorithm(name,pSvcLocator)
 {
 // Class initializer 
-declareProperty ("ElectronNeutralFEDecorKey", m_electronNeutralFEWriteDecorKey = "Electrons.neutralfeLinks");   
-declareProperty ("ElectronChargedFEDecorKey", m_electronChargedFEWriteDecorKey = "Electrons.chargedfeLinks");   
+declareProperty ("ElectronNeutralFEDecorKey", m_electronNeutralFEWriteDecorKey = "Electrons.neutralFELinks");   
+declareProperty ("ElectronChargedFEDecorKey", m_electronChargedFEWriteDecorKey = "Electrons.chargedFELinks");   
 
-declareProperty ("NeutralFEElectronDecorKey", m_neutralfeElectronWriteDecorKey = "JetETMissNeutralFlowElements.fe_ElectronLinks");   
+declareProperty ("NeutralFEElectronDecorKey", m_neutralFEElectronWriteDecorKey = "JetETMissNeutralFlowElements.FE_ElectronLinks");   
 
-declareProperty ("ChargedFEElectronDecorKey", m_chargedfeElectronWriteDecorKey = "JetETMissChargedFlowElements.fe_ElectronLinks"); 
+declareProperty ("ChargedFEElectronDecorKey", m_chargedFEElectronWriteDecorKey = "JetETMissChargedFlowElements.FE_ElectronLinks"); 
 
-declareProperty ("PhotonNeutralFEDecorKey", m_photonNeutralFEWriteDecorKey = "Photons.neutralfeLinks");
-declareProperty ("PhotonChargedFEDecorKey", m_photonChargedFEWriteDecorKey = "Photons.chargedfeLinks");
-declareProperty ("NeutralFEPhotonDecorKey", m_neutralfePhotonWriteDecorKey = "JetETMissNeutralFlowElements.fe_PhotonLinks");
-declareProperty ("ChargedFEPhotonDecorKey", m_chargedfePhotonWriteDecorKey = "JetETMissChargedFlowElements.fe_PhotonLinks");
+declareProperty ("PhotonNeutralFEDecorKey", m_photonNeutralFEWriteDecorKey = "Photons.neutralFELinks");
+declareProperty ("PhotonChargedFEDecorKey", m_photonChargedFEWriteDecorKey = "Photons.chargedFELinks");
+declareProperty ("NeutralFEPhotonDecorKey", m_neutralFEPhotonWriteDecorKey = "JetETMissNeutralFlowElements.FE_PhotonLinks");
+declareProperty ("ChargedFEPhotonDecorKey", m_chargedFEPhotonWriteDecorKey = "JetETMissChargedFlowElements.FE_PhotonLinks");
 }
 
 // Class destructor 
@@ -50,19 +50,19 @@ StatusCode PFEGamFlowElementAssoc::initialize()
   ATH_MSG_DEBUG("Initializing "<<name() << "...");
  ATH_CHECK(m_electronNeutralFEWriteDecorKey.initialize());   
  ATH_CHECK(m_electronChargedFEWriteDecorKey.initialize());   
- ATH_CHECK(m_neutralfeElectronWriteDecorKey.initialize());   
- ATH_CHECK(m_chargedfeElectronWriteDecorKey.initialize());  
+ ATH_CHECK(m_neutralFEElectronWriteDecorKey.initialize());   
+ ATH_CHECK(m_chargedFEElectronWriteDecorKey.initialize());  
 
  ATH_CHECK(m_photonNeutralFEWriteDecorKey.initialize());
  ATH_CHECK(m_photonChargedFEWriteDecorKey.initialize());
- ATH_CHECK(m_neutralfePhotonWriteDecorKey.initialize());
- ATH_CHECK(m_chargedfePhotonWriteDecorKey.initialize());
+ ATH_CHECK(m_neutralFEPhotonWriteDecorKey.initialize());
+ ATH_CHECK(m_chargedFEPhotonWriteDecorKey.initialize());
 
  //Init ReadHandleKeys
  ATH_CHECK(m_photonReadHandleKey.initialize());
  ATH_CHECK(m_electronReadHandleKey.initialize());
- ATH_CHECK(m_chargedfeReadHandleKey.initialize());
- ATH_CHECK(m_neutralfeReadHandleKey.initialize());
+ ATH_CHECK(m_chargedFEReadHandleKey.initialize());
+ ATH_CHECK(m_neutralFEReadHandleKey.initialize());
 
  ATH_MSG_DEBUG("Initialization completed successfully");   
 
@@ -85,14 +85,14 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
   //Electron Write Handle
   SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronNeutralFEWriteDecorHandle (m_electronNeutralFEWriteDecorKey,ctx);   
   SG::WriteDecorHandle<xAOD::ElectronContainer, std::vector<FlowElementLink_t> > electronChargedFEWriteDecorHandle (m_electronChargedFEWriteDecorKey,ctx);   
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralfeElectronWriteDecorHandle (m_neutralfeElectronWriteDecorKey,ctx);   
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedfeElectronWriteDecorHandle (m_chargedfeElectronWriteDecorKey,ctx); 
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > neutralFEElectronWriteDecorHandle (m_neutralFEElectronWriteDecorKey,ctx);   
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<ElectronLink_t> > chargedFEElectronWriteDecorHandle (m_chargedFEElectronWriteDecorKey,ctx); 
 
   //Photon Write Handle
   SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonNeutralFEWriteDecorHandle (m_photonNeutralFEWriteDecorKey,ctx);
   SG::WriteDecorHandle<xAOD::PhotonContainer, std::vector<FlowElementLink_t> > photonChargedFEWriteDecorHandle (m_photonChargedFEWriteDecorKey,ctx);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralfePhotonWriteDecorHandle (m_neutralfePhotonWriteDecorKey,ctx);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedfePhotonWriteDecorHandle (m_chargedfePhotonWriteDecorKey,ctx);  
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > neutralFEPhotonWriteDecorHandle (m_neutralFEPhotonWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector<PhotonLink_t> > chargedFEPhotonWriteDecorHandle (m_chargedFEPhotonWriteDecorKey,ctx);  
   
   
   // This is the READ handles (so the input containers for electron, photon, FE)
@@ -101,8 +101,8 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
   SG::ReadHandle<xAOD::PhotonContainer> photonReadHandle (m_photonReadHandleKey,ctx);
   
   // Charged and Neutral PFlow "Flow elements"
-  SG::ReadHandle<xAOD::FlowElementContainer> neutralfeReadHandle (m_neutralfeReadHandleKey,ctx);   
-  SG::ReadHandle<xAOD::FlowElementContainer> chargedfeReadHandle (m_chargedfeReadHandleKey,ctx);   
+  SG::ReadHandle<xAOD::FlowElementContainer> neutralFEReadHandle (m_neutralFEReadHandleKey,ctx);   
+  SG::ReadHandle<xAOD::FlowElementContainer> chargedFEReadHandle (m_chargedFEReadHandleKey,ctx);   
   
   // now initialise some Flow element link containers
   std::vector<std::vector<FlowElementLink_t>> electronNeutralFEVec(electronReadHandle->size());
@@ -118,13 +118,13 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
   ///////////////////////////
   // Loop over neutral flow elements (FEs)
   ///////////////////////////
-  for (const xAOD::FlowElement* fe: *neutralfeElectronWriteDecorHandle){
+  for (const xAOD::FlowElement* FE: *neutralFEElectronWriteDecorHandle){
     //Obtain the index of the FE calo-cluster
-    size_t feClusterIndex=fe->otherObjects().at(0)->index();
+    size_t FEClusterIndex=FE->otherObjects().at(0)->index();
 
     // init the linkers
-    std::vector<ElectronLink_t> feElectronLinks;
-    std::vector<PhotonLink_t> fePhotonLinks;
+    std::vector<ElectronLink_t> FEElectronLinks;
+    std::vector<PhotonLink_t> FEPhotonLinks;
     
     //Loop over electrons:
     for (const xAOD::Electron* electron: *electronNeutralFEWriteDecorHandle){
@@ -137,11 +137,11 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	// obtain the index of the electron seed topocluster
 	size_t electronClusterIndex=cluster->index();	
 	//match the indices: Cluster match between Flow Element (FE) and electron
-	if(electronClusterIndex==feClusterIndex){
-	  feElectronLinks.push_back( ElectronLink_t(*electronReadHandle,electron->index()) );
+	if(electronClusterIndex==FEClusterIndex){
+	  FEElectronLinks.push_back( ElectronLink_t(*electronReadHandle,electron->index()) );
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
-	  electronNeutralFEVec.at(electron->index()).push_back(FlowElementLink_t(*neutralfeReadHandle, fe->index()) );
+	  electronNeutralFEVec.at(electron->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );
 	}// end of matching block
 
       } // end loop over cluster
@@ -157,12 +157,12 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	//retrieve index of the cluster
 	size_t photonClusterIndex=cluster->index();
 	//do the matching
-	if(photonClusterIndex==feClusterIndex){
+	if(photonClusterIndex==FEClusterIndex){
 	  // Add flow element (FE) links to photon
-	  fePhotonLinks.push_back( PhotonLink_t(*photonReadHandle,photon->index()) );
+	  FEPhotonLinks.push_back( PhotonLink_t(*photonReadHandle,photon->index()) );
 	  //Add Flow Element (FE) link to a vector
 	  //index() is the unique index of the Flow Element in the container
-	  photonNeutralFEVec.at(photon->index()).push_back(FlowElementLink_t(*neutralfeReadHandle, fe->index()) );	  
+	  photonNeutralFEVec.at(photon->index()).push_back(FlowElementLink_t(*neutralFEReadHandle, FE->index()) );	  
 	}// end of matching block
       } // end of neutral loop
       
@@ -170,20 +170,20 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
     }// end of photon loop
     
     //Add vector of electron element links as decoration to FlowElement container
-    neutralfeElectronWriteDecorHandle (*fe)=feElectronLinks;
-    neutralfePhotonWriteDecorHandle (*fe)=fePhotonLinks;
+    neutralFEElectronWriteDecorHandle (*FE)=FEElectronLinks;
+    neutralFEPhotonWriteDecorHandle (*FE)=FEPhotonLinks;
 
   } // end neutral FE loop
 
   ////////////////////////////////////////////////////////
   //             Loop over charged Flow Elements (FEs)
   ////////////////////////////////////////////////////////
-  for (const xAOD::FlowElement* fe: *chargedfeElectronWriteDecorHandle){
+  for (const xAOD::FlowElement* FE: *chargedFEElectronWriteDecorHandle){
     // retrieve the track from the Flow element
-    size_t feTrackIndex=fe->chargedObjects().at(0)->index();
+    size_t FETrackIndex=FE->chargedObjects().at(0)->index();
     // Initialise a vector of element links to electrons/Photons
-    std::vector<ElectronLink_t> feElectronLinks;
-    std::vector<PhotonLink_t> fePhotonLinks;
+    std::vector<ElectronLink_t> FEElectronLinks;
+    std::vector<PhotonLink_t> FEPhotonLinks;
 
     //loop over electrons
     for (const xAOD::Electron* electron: *electronChargedFEWriteDecorHandle){
@@ -194,13 +194,13 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	 size_t electronTrackIndex = electronTrack->index();
 
 	 //link to FE if track indices match
-	 if(electronTrackIndex==feTrackIndex){
+	 if(electronTrackIndex==FETrackIndex){
 	   // Add electron element link to a vector 
 	   // index() is the unique index of the electron in the electron container 
-	   feElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) );
-	   // Add fe element link to a vector 
+	   FEElectronLinks.push_back( ElectronLink_t(*electronReadHandle, electron->index()) );
+	   // Add FE element link to a vector 
 	   // index() is the unique index of the cFE in the cFE container 
-	   electronChargedFEVec.at(electron->index()).push_back( FlowElementLink_t(*chargedfeReadHandle, fe->index()) );  
+	   electronChargedFEVec.at(electron->index()).push_back( FlowElementLink_t(*chargedFEReadHandle, FE->index()) );  
 
 	 }//end of matching block
 	 
@@ -215,13 +215,13 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 	size_t photonTrackIndex=photonTrack->index();
 	
 	// Link the photon to the Flow Element (FE) if the track indices match
-	if (photonTrackIndex==feTrackIndex){
+	if (photonTrackIndex==FETrackIndex){
 	            // Add photon element link to a vector
           // index() is the unique index of the photon in the photon container
-          fePhotonLinks.push_back( PhotonLink_t(*photonReadHandle, photon->index()) );
-          // Add fe element link to a vector
+          FEPhotonLinks.push_back( PhotonLink_t(*photonReadHandle, photon->index()) );
+          // Add FE element link to a vector
           // index() is the unique index of the cFE in the cFE container
-          photonChargedFEVec.at(photon->index()).push_back( FlowElementLink_t(*chargedfeReadHandle, fe->index()) );
+          photonChargedFEVec.at(photon->index()).push_back( FlowElementLink_t(*chargedFEReadHandle, FE->index()) );
 	}// end of matching block
 
       }// end of loop on tracks
@@ -230,9 +230,9 @@ StatusCode PFEGamFlowElementAssoc::execute(const EventContext &ctx) const
 
 
     // Add vector of electron element links as decoration to FE container     
-    chargedfeElectronWriteDecorHandle (*fe) = feElectronLinks;  
+    chargedFEElectronWriteDecorHandle (*FE) = FEElectronLinks;  
     // Add vector of photon element links as decoration to FE container
-    chargedfePhotonWriteDecorHandle (*fe) = fePhotonLinks;
+    chargedFEPhotonWriteDecorHandle (*FE) = FEPhotonLinks;
 
   } // end of charged FE loop
   

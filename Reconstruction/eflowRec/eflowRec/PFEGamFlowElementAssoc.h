@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -24,7 +24,7 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "xAODPFlow/FlowElementContainer.h"
 /**                                                                                                                                                                                     
-This is the algorithm, which inherits from AthAlgorithm, that adds element links between particle flow objects (Flow Elements) and Egamma objects. The algorithm associates charged (c) Flow Elements to all electron and converted photon tracks, and neutral (n) Flow Elements to all electron and photon clusters. 
+This is the algorithm, which inherits from AthReentrantAlgorithm, that adds element links between particle flow objects (Flow Elements) and Egamma objects. The algorithm associates charged (c) Flow Elements to all electron and converted photon tracks, and neutral (n) Flow Elements to all electron and photon clusters. 
 
 This is done by adding decorations to the "Electron" and "Photon" container, for charged Charged Flow Elements and Neutral Flow Elements separately, in the form of vectors of element links to the associated Flow Elements. 
 The algorithm also adds decorations to the "JetETMissNeutralFlowElements" and 
@@ -51,9 +51,9 @@ private:
   SG::ReadHandleKey<xAOD::PhotonContainer>m_photonReadHandleKey{this,"PhotonContainer","Photons","ReadHandleKey for PhotonContainer"};
 
   //Readhandles for FlowElements.
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralfeReadHandleKey{this,"JetEtMissNeutralFlowElementContainer","JetETMissNeutralFlowElements","ReadHandleKey for neutral FlowElements"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_neutralFEReadHandleKey{this,"JetEtMissNeutralFlowElementContainer","JetETMissNeutralFlowElements","ReadHandleKey for neutral FlowElements"};
   
-  SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedfeReadHandleKey{this,"JetEtMissChargedFlowElementContainer","JetETMissChargedFlowElements","ReadHandleKey for charged FlowElements"};
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedFEReadHandleKey{this,"JetEtMissChargedFlowElementContainer","JetETMissChargedFlowElements","ReadHandleKey for charged FlowElements"};
 
 
   /** The write key for adding Neutral Flow Element element link decorations to electrons */ 
@@ -61,18 +61,18 @@ private:
   /** The write key for adding Charged Flow Element element link decorations to electrons */
   SG::WriteDecorHandleKey<xAOD::ElectronContainer> m_electronChargedFEWriteDecorKey;
   /** The write key for adding electron element link decorations to Neutral Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralfeElectronWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralFEElectronWriteDecorKey;
   /** The write key for adding electron element link decorations to Charged Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedfeElectronWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedFEElectronWriteDecorKey;
 
   /** The write key for adding Neutral Flow Element element link decorations to photons */
   SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralFEWriteDecorKey;
   /** The write key for adding Charged Flow Element element link decorations to photons */
   SG::WriteDecorHandleKey<xAOD::PhotonContainer> m_photonChargedFEWriteDecorKey;
   /** The write key for adding photon element link decorations to Neutral Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralfePhotonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralFEPhotonWriteDecorKey;
   /** The write key for adding photon element link decorations to Charged Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedfePhotonWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedFEPhotonWriteDecorKey;
 
  
 };
