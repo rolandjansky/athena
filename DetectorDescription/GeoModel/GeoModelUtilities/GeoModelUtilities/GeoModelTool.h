@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELTOOL_H
@@ -9,6 +9,7 @@
 
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 
 class GeoVDetectorManager;
 
@@ -22,10 +23,11 @@ public:
     // Standard Destructor
     virtual ~GeoModelTool();
 
-    virtual GeoVDetectorManager* manager() const;
+    virtual GeoVDetectorManager* manager();
+    virtual const GeoVDetectorManager* manager() const;
 
     virtual StatusCode clear() override;	
-    virtual StatusCode registerCallback() override;
+    virtual StatusCode registerCallback ATLAS_NOT_THREAD_SAFE () override;
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
 
 protected:

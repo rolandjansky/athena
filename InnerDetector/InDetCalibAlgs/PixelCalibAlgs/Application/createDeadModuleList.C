@@ -21,11 +21,11 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
-std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
-std::vector< std::pair< int, std::vector<int> > > hashMapping;
-std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
-std::vector<int> getPositionFromDCSID (const std::string& module_name);
+using PixelMap_t = std::vector< std::pair< std::string, std::vector<int> > >;
+using HashMap_t = std::vector< std::pair< int, std::vector<int> > >;
+std::string getDCSIDFromPosition (PixelMap_t& pixelMapping, int barrel_ec, int layer, int module_phi, int module_eta);
+int getHashFromPosition (HashMap_t& hashMapping, int barrel_ec, int layer, int module_phi, int module_eta);
+std::vector<int> getPositionFromDCSID (PixelMap_t& pixelMapping, const std::string& module_name);
 
 std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
   std::stringstream ss(s);
@@ -51,7 +51,7 @@ bool is_file_exist(const char *fileName)
 
 using namespace std;
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is used.
+int main (int argc, char* argv[]){
   const bool isIBL = true;
 
   //-----------------------------------
@@ -220,8 +220,10 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
   const unsigned int maxPathStringLength{3000};
   if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
-      exit(EXIT_FAILURE);
+      return(EXIT_FAILURE);
   }
+  PixelMap_t pixelMapping;
+  HashMap_t hashMapping;
   std::stringstream tmpSstr{};
   tmpSstr<<tmppath;
   std::string cmtpath(tmpSstr.str());
@@ -338,12 +340,12 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
     std::vector<std::string>::const_iterator module_iter;
     for(module_iter = (iter->second).begin(); module_iter != (iter->second).end(); ++module_iter){
       std::string moduleID = *module_iter;
-      std::vector<int> position = getPositionFromDCSID(moduleID);
+      std::vector<int> position = getPositionFromDCSID(pixelMapping, moduleID);
       int barrel = position[0];
       int layer = position[1];
       int module_phi = position[2];
       int module_eta = position[3];
-      pyFile << getHashFromPosition(barrel, layer, module_phi, module_eta) << ", ";
+      pyFile << getHashFromPosition(hashMapping, barrel, layer, module_phi, module_eta) << ", ";
     }
     pyFile << "])" << std::endl;;
   }
@@ -505,7 +507,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char* argv[]){ // Global variable is u
     int layer = position[1];
     int module_phi = position[2];
     int module_eta = position[3];
-    pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ " << getHashFromPosition(barrel, layer, module_phi, module_eta) << " ] # " << moduleID << std::endl;
+    pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ " << getHashFromPosition(hashMapping, barrel, layer, module_phi, module_eta) << " ] # " << moduleID << std::endl;
   }
   pyFile[LB].close();
 } 
@@ -518,7 +520,7 @@ delete hitMapFile;
 return 0;
 }
 
-std::string getDCSIDFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer, int module_phi, int module_eta){ // Global variable is used.
+std::string getDCSIDFromPosition (PixelMap_t& pixelMapping, int barrel_ec, int layer, int module_phi, int module_eta){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
@@ -534,7 +536,7 @@ std::string getDCSIDFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer
   return std::string("Error!");
 }
 
-int getHashFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer, int module_phi, int module_eta){ // Global variable is used.
+int getHashFromPosition (HashMap_t& hashMapping, int barrel_ec, int layer, int module_phi, int module_eta){
   for(unsigned int ii = 0; ii < hashMapping.size(); ii++) {
     if (hashMapping[ii].second.size() != 4) {
       std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
@@ -550,7 +552,7 @@ int getHashFromPosition ATLAS_NOT_THREAD_SAFE (int barrel_ec, int layer, int mod
   return 0;
 }
 
-std::vector<int> getPositionFromDCSID ATLAS_NOT_THREAD_SAFE (const std::string& module_name){ // Global variable is used.
+std::vector<int> getPositionFromDCSID (PixelMap_t& pixelMapping, const std::string& module_name){
   for(unsigned int ii = 0; ii < pixelMapping.size(); ii++) {
     if (pixelMapping[ii].first == module_name)
       return pixelMapping[ii].second;

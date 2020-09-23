@@ -30,7 +30,7 @@ using InDetDD::SiCommonItems;
 using namespace PixelGeoDC2;
 
 
-PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)						 
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0)

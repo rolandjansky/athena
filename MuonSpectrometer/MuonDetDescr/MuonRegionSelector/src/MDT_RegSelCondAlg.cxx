@@ -39,8 +39,27 @@ MDT_RegSelCondAlg::MDT_RegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 
 
 
-std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const MuonMDT_CablingMap* cabling ) const { 
-  
+
+StatusCode MDT_RegSelCondAlg::initialize() {
+  ATH_CHECK(MuonRegSelCondAlg::initialize());
+  ATH_CHECK(m_cablingKey.initialize());
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+std::unique_ptr<RegSelSiLUT> MDT_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
+
+  SG::ReadCondHandle<MuonMDT_CablingMap> cabling( m_cablingKey, ctx );
+
+  if( !cabling.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << cabling.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }   
+
+  /// create the new lookup table
+
   const MuonGM::MuonDetectorManager* manager = nullptr; // again 0 would do as well here 
   
   StatusCode sc = detStore()->retrieve( manager );

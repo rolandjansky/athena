@@ -21,12 +21,22 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_ofcKey.initialize());	 
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_cablingKey.initialize() );
-  ATH_CHECK(m_thresholdsKey.initialize(m_useDBFortQ) );
+  ATH_CHECK(m_run1DSPThresholdsKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK(m_run2DSPThresholdsKey.initialize(SG::AllowEmpty) );
+  if (m_useDBFortQ) {
+    if (m_run1DSPThresholdsKey.empty() && m_run2DSPThresholdsKey.empty()) {
+      ATH_MSG_ERROR ("useDB requested but neither Run1DSPThresholdsKey nor Run2DSPThresholdsKey initialized.");
+      return StatusCode::FAILURE;
+    }
+  }
 
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
 
   const std::string cutmsg = m_absECutFortQ.value() ? " fabs(E) < " : " E < "; 
-  ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << " taken from COOL folder "<<m_thresholdsKey.key());
+  ATH_MSG_INFO("Energy cut for time and quality computation: " << cutmsg << 
+               " taken from COOL folder "<<
+               m_run1DSPThresholdsKey.key() << " (run1) " <<
+               m_run2DSPThresholdsKey.key() << " (run2) ");
   return StatusCode::SUCCESS;
 }     
 
@@ -58,15 +68,26 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
   SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
   
-  std::unique_ptr<LArDSPThresholdsFlat> dspThreshFlat;
+  std::unique_ptr<LArDSPThresholdsFlat> run2DSPThresh;
+  const LArDSPThresholdsComplete* run1DSPThresh = nullptr;
   if (m_useDBFortQ) {
-     SG::ReadCondHandle<AthenaAttributeList> dspThrshAttr (m_thresholdsKey, ctx);
-     dspThreshFlat = std::unique_ptr<LArDSPThresholdsFlat>(new LArDSPThresholdsFlat(*dspThrshAttr));
-     if (ATH_UNLIKELY(!dspThreshFlat->good())) {
-         ATH_MSG_ERROR( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_thresholdsKey.key()
-                   << ". Aborting." ); 
-         return StatusCode::FAILURE;
-     }
+    if (!m_run2DSPThresholdsKey.empty()) {
+      SG::ReadCondHandle<AthenaAttributeList> dspThrshAttr (m_run2DSPThresholdsKey, ctx);
+      run2DSPThresh = std::unique_ptr<LArDSPThresholdsFlat>(new LArDSPThresholdsFlat(*dspThrshAttr));
+      if (ATH_UNLIKELY(!run2DSPThresh->good())) {
+        ATH_MSG_ERROR( "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_run2DSPThresholdsKey.key()
+                       << ". Aborting." ); 
+        return StatusCode::FAILURE;
+      }
+    }
+    else if (!m_run1DSPThresholdsKey.empty()) {
+      SG::ReadCondHandle<LArDSPThresholdsComplete> dspThresh (m_run1DSPThresholdsKey, ctx);
+      run1DSPThresh = dspThresh.cptr();
+    }
+    else {
+      ATH_MSG_ERROR( "No DSP threshold configured.");
+      return StatusCode::FAILURE;
+    }
   }
 
   //Loop over digits:
@@ -130,7 +151,21 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
 
     const float E1=m_absECutFortQ.value() ? std::fabs(E) : E;
     float ecut(0.);
-    if (m_useDBFortQ) { ecut = dspThreshFlat->tQThr(id);} else { ecut = m_eCutFortQ;}
+    if (m_useDBFortQ) {
+      if (run2DSPThresh) {
+        ecut = run2DSPThresh->tQThr(id);
+      }
+      else if (run1DSPThresh) {
+        ecut = run1DSPThresh->tQThr(id);
+      }
+      else {
+        ATH_MSG_ERROR ("DSP threshold problem");
+        return StatusCode::FAILURE;
+      }
+    }
+    else {
+      ecut = m_eCutFortQ;
+    }
     if (E1 > ecut) {
       ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
       prov|=0x2000; //  fill bit in provenance that time+quality information are available

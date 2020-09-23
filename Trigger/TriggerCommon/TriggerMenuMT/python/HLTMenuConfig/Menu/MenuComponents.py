@@ -517,15 +517,16 @@ class CAMenuSequence(MenuSequence):
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    __slots__='name','steps','vseeds','L1decisions'
-    def __init__(self, name, ChainSteps, L1Thresholds):
+    __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions'
+    def __init__(self, name, ChainSteps, L1Thresholds, nSteps = [], alignmentGroups = []):
         """
         Construct the Chain from the steps
         Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
         """
         self.name = name
         self.steps=ChainSteps
-
+        self.nSteps = nSteps
+        self.alignmentGroups = alignmentGroups
         self.vseeds=L1Thresholds
 
         from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection

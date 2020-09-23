@@ -13,7 +13,7 @@
 class TRTParameters;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersOfWheelsC // Thread unsafe TRTParameters class is used.
+class TRTParametersOfWheelsC
 {
   friend class TRTConstructionOfWheelsC;
 
@@ -21,15 +21,15 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfWheelsC // Thread unsafe TRTParameter
     TRTParametersOfWheelsC();
     ~TRTParametersOfWheelsC();
 
-     MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-     bool msgLevel (MSG::Level lvl) const   { return m_msg.get().level() <= lvl; }
+     MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+     bool msgLevel (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
   private:
     TRTParametersOfWheelsC (const TRTParametersOfWheelsC&); 
     TRTParametersOfWheelsC& operator= (const TRTParametersOfWheelsC&); 
 
     void DefineParameters();
-    void PrintParameters() const;
+    void PrintParameters(MsgStream& msg) const;
 
     int m_numberOfWheelsC;
     double m_distanceBetweenWheelsC;
@@ -66,9 +66,9 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfWheelsC // Thread unsafe TRTParameter
     double m_outerRadiusOfThinRadiatorC;
     double m_lengthOfThinRadiatorC;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
  
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif

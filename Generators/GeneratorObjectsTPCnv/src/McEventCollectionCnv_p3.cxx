@@ -83,6 +83,16 @@ void McEventCollectionCnv_p3::persToTrans( const McEventCollection_p3* persObj,
     const GenEvent_p3& persEvt = *itr;
 
     HepMC::GenEvent * genEvt        = poolOfEvents.nextElementPtr();
+#ifdef HEPMC3
+    genEvt->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(persEvt.m_signalProcessId));
+    genEvt->set_event_number(persEvt.m_eventNbr);
+    genEvt->add_attribute("event_scale",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_eventScale));
+    genEvt->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQCD));
+    genEvt->add_attribute("alphaQED",std::make_shared<HepMC3::DoubleAttribute>(persEvt.m_alphaQED));
+    genEvt->weights()= persEvt.m_weights;
+    genEvt->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(persEvt.m_randomStates));
+
+#else
     genEvt->m_signal_process_id     = persEvt.m_signalProcessId;
     genEvt->m_event_number          = persEvt.m_eventNbr;
     genEvt->m_event_scale           = persEvt.m_eventScale;
@@ -94,6 +104,7 @@ void McEventCollectionCnv_p3::persToTrans( const McEventCollection_p3* persObj,
     genEvt->m_vertex_barcodes.clear();
     genEvt->m_particle_barcodes.clear();
     genEvt->m_pdf_info = 0;         //> not available at that time...
+#endif
 
     transObj->push_back( genEvt );
 
@@ -163,6 +174,16 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
                                           ParticlesMap_t& partToEndVtx,
                                           HepMC::DataPool* datapools ) const
 {
+
+#ifdef HEPMC3
+  DataPool<HepMC::GenVertexPtr>& poolOfVertices = datapools->vtx;
+  HepMC::GenVertexPtr vtx=*(poolOfVertices.nextElementPtr());
+  vtx->set_position( HepMC::FourVector(persVtx.m_x,persVtx.m_y,persVtx.m_z,persVtx.m_t) );
+  //AV ID cannot be assigned in HepMC3. And its meaning in HepMC2 is not clear.
+  // vtx->m_id      = persVtx.m_id;
+  vtx->add_attribute("weights",std::make_shared<HepMC3::VectorFloatAttribute>(persVtx.m_weights));
+  vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
+#else
   DataPool<HepMC::GenVertex>& poolOfVertices = datapools->vtx;
   HepMC::GenVertexPtr vtx = poolOfVertices.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
@@ -177,6 +198,7 @@ McEventCollectionCnv_p3::createGenVertex( const McEventCollection_p3& persEvt,
                                     persVtx.m_weights.end() );
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
+#endif
 
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
@@ -202,6 +224,44 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
                                             ParticlesMap_t& partToEndVtx,
                                             HepMC::DataPool* datapools ) const
 {
+
+#ifdef HEPMC3
+  DataPool<HepMC::GenParticlePtr>& poolOfParticles = datapools->part;
+  HepMC::GenParticlePtr p    = *(poolOfParticles.nextElementPtr());
+  p->set_pdg_id(persPart.m_pdgId);
+  p->set_status(persPart.m_status);
+  // Note: do the E calculation in extended (long double) precision.
+  // That happens implicitly on x86 with optimization on; saying it
+  // explicitly ensures that we get the same results with and without
+  // optimization.  (If this is a performance issue for platforms
+  // other than x86, one could change to double for those platforms.)
+  double temp_e=0.0;
+  if ( 0 == persPart.m_recoMethod ) {
+    temp_e = std::sqrt( (long double)(persPart.m_px)*persPart.m_px +
+                          (long double)(persPart.m_py)*persPart.m_py +
+                          (long double)(persPart.m_pz)*persPart.m_pz +
+                          (long double)(persPart.m_m) *persPart.m_m );
+  } else {
+    const int signM2 = ( persPart.m_m >= 0. ? 1 : -1 );
+    const double persPart_ene =
+      std::sqrt( std::abs((long double)(persPart.m_px)*persPart.m_px +
+                (long double)(persPart.m_py)*persPart.m_py +
+                (long double)(persPart.m_pz)*persPart.m_pz +
+                signM2* (long double)(persPart.m_m)* persPart.m_m));
+    const int signEne = ( persPart.m_recoMethod == 1 ? 1 : -1 );
+    temp_e=signEne * persPart_ene;
+  }
+  p->set_momentum(HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,temp_e));
+  // setup flow
+  // fillin' the flow
+  std::vector<int> flows;
+  const unsigned int nFlow = persPart.m_flow.size();
+  for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow ) {
+  flows.push_back(persPart.m_flow[iFlow].second );
+  }
+  //We construct it here as vector w/o gaps.
+  p->add_attribute("flows", std::make_shared<HepMC3::VectorIntAttribute>(flows));
+#else
   DataPool<HepMC::GenParticle>& poolOfParticles = datapools->part;
   HepMC::GenParticlePtr p    = poolOfParticles.nextElementPtr();
   p->m_pdg_id              = persPart.m_pdgId;
@@ -246,6 +306,7 @@ McEventCollectionCnv_p3::createGenParticle( const GenParticle_p3& persPart,
     p->m_flow.set_icode( persPart.m_flow[iFlow].first,
                          persPart.m_flow[iFlow].second );
   }
+#endif
 
   if ( persPart.m_endVtx != 0 ) {
     partToEndVtx[p] = persPart.m_endVtx;

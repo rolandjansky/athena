@@ -62,6 +62,16 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
     m_pool->part.reserve( m_pool->part.allocated() + nParts );
   }
 
+#ifdef HEPMC3
+  transObj->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(persObj->m_signalProcessId ));
+  transObj->set_event_number(persObj->m_eventNbr);
+  transObj->add_attribute("event_scale",std::make_shared<HepMC3::DoubleAttribute>(persObj->m_eventScale));
+  transObj->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(persObj->m_alphaQCD));
+  transObj->add_attribute("alphaQED",std::make_shared<HepMC3::DoubleAttribute>(persObj->m_alphaQED));
+  transObj->weights()= persObj->m_weights;
+  transObj->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(persObj->m_randomStates));
+
+#else  
   transObj->set_signal_process_id( persObj->m_signalProcessId );
   transObj->set_event_number( persObj->m_eventNbr );
   transObj->set_event_scale ( persObj->m_eventScale );
@@ -78,6 +88,7 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
 
   transObj->m_pdf_info = 0;         //> not available at that time...
 
+#endif
   // create a temporary map associating the barcode of an end-vtx to its 
   // particle.
   // As not all particles are stable (d'oh!) we take 50% of the number of
@@ -142,6 +153,12 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
 				 const GenVertex_p1& persVtx,
 				 ParticlesMap_t& partToEndVtx ) const
 {
+#ifdef HEPMC3
+  HepMC::GenVertexPtr vtx = *(m_pool->vtx.nextElementPtr());
+  vtx->set_position( HepMC::FourVector(persVtx.m_x,persVtx.m_y,persVtx.m_z,persVtx.m_t) );
+  vtx->add_attribute("weights",std::make_shared<HepMC3::VectorDoubleAttribute>(persVtx.m_weights));
+  vtx->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persVtx.m_barcode));
+#else
   HepMC::GenVertexPtr vtx = m_pool->vtx.nextElementPtr();
   vtx->m_position.setX( persVtx.m_x );
   vtx->m_position.setY( persVtx.m_y );
@@ -153,6 +170,7 @@ GenEventCnv_p1::createGenVertex( const GenEvent_p1& persEvt,
   vtx->m_weights = persVtx.m_weights;
   vtx->m_event   = 0;
   vtx->m_barcode = persVtx.m_barcode;
+#endif
   
   // handle the in-going (orphans) particles
   const unsigned int nPartsIn = persVtx.m_particlesIn.size();
@@ -175,6 +193,23 @@ HepMC::GenParticlePtr
 GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
 				   ParticlesMap_t& partToEndVtx ) const
 {
+#ifdef HEPMC3
+  HepMC::GenParticlePtr p = *(m_pool->part.nextElementPtr());
+  p->set_momentum( HepMC::FourVector(persPart.m_px,persPart.m_py,persPart.m_pz,persPart.m_ene));
+  p->set_pdg_id(persPart.m_pdgId);
+  p->set_status(persPart.m_status);
+  p->add_attribute("phi",std::make_shared<HepMC3::DoubleAttribute>(persPart.m_phiPolarization));
+  p->add_attribute("theta",std::make_shared<HepMC3::DoubleAttribute>(persPart.m_thetaPolarization));
+  p->add_attribute("barcode",std::make_shared<HepMC3::IntAttribute>(persPart.m_barcode));
+  // fillin' the flow
+  std::vector<int> flows;
+  const unsigned int nFlow = persPart.m_flow.size();
+  for ( unsigned int iFlow= 0; iFlow != nFlow; ++iFlow ) {
+  flows.push_back(persPart.m_flow[iFlow].second );
+  }
+  //We construct it here as vector w/o gaps.
+  p->add_attribute("flows", std::make_shared<HepMC3::VectorIntAttribute>(flows));
+#else
 
 
   HepMC::GenParticlePtr p = m_pool->part.nextElementPtr();
@@ -196,6 +231,7 @@ GenEventCnv_p1::createGenParticle( const GenParticle_p1& persPart,
     p->m_flow.set_icode( persPart.m_flow[iFlow].first, 
 			 persPart.m_flow[iFlow].second );
   }
+#endif
 
   if ( persPart.m_endVtx != 0 ) {
     partToEndVtx[p] = persPart.m_endVtx;

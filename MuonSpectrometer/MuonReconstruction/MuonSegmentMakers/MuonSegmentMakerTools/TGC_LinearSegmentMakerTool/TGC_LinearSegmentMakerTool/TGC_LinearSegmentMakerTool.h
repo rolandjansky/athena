@@ -8,21 +8,15 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
-//#include "CLHEP/Vector/TwoVector.h"
 #include "TrkExInterfaces/IIntersector.h"
 
 class TgcIdHelper;
-
-namespace MuonGM {
-class MuonDetectorManager;
-}
 
 class TGC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, public AthAlgTool {
   public:
     TGC_LinearSegmentMakerTool(const std::string& type, const std::string& name, const IInterface* pIID);
 
     StatusCode   initialize();
-    StatusCode   Finalize();
     virtual void find(const std::vector<const Trk::RIO_OnTrack*>&, Trk::SegmentCollection*) const {}
 
     virtual void find(const std::vector<const Trk::RIO_OnTrack*>&, const std::vector<const Trk::RIO_OnTrack*>&) const {}
@@ -46,7 +40,6 @@ class TGC_LinearSegmentMakerTool : virtual public Muon::IMuonSegmentMaker, publi
                       double momentum = 1e9) const;
 
   private:
-    const MuonGM::MuonDetectorManager* m_pMuonMgr;
     const TgcIdHelper*                 m_pIdHelper;
     DoubleProperty                     m_fExclChi2;
 

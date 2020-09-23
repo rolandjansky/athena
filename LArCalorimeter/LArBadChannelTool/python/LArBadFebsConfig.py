@@ -3,52 +3,34 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 LArBadFebCondAlg=CompFactory.LArBadFebCondAlg
-from IOVDbSvc.IOVDbSvcConfig import addFolders
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
-def LArKnownBadFebCfg(configFlags, tag=""):
+def LArKnownBadFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
 
     if configFlags.GeoModel.Run == "RUN1":
-        foldername=""
+        rekey=""
     else:    
-        if configFlags.Common.isOnline or configFlags.Input.isMC:
-            foldername="/LAR/BadChannels/KnownBADFEBs"
-        else:
-            foldername="/LAR/BadChannelsOfl/KnownBADFEBs"
-        pass
- 
-        if configFlags.Common.isOnline: 
-            dbname="LAR"
-        else:
-            dbname="LAR_OFL"
-        pass
-    pass    
+        rekey="/LAR/BadChannels/KnownBADFEBs"
+        result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/KnownBADFEBs",
+                                           f"/LAR/BadChannelsOfl/KnownBADFEBs<key>{rekey}</key>",tag=tag,
+                                           className="AthenaAttributeList"))  
 
-    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="AthenaAttributeList"))
-    result.addCondAlgo(LArBadFebCondAlg("LArKonwnBadFebCondAlg",ReadKey=foldername,WriteKey="LArKnownBadFEBs"))
+    result.addCondAlgo(LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey=rekey,WriteKey="LArKnownBadFEBs"))
     return result
 
-def LArKnownMNBFebCfg(configFlags, tag=""):
+def LArKnownMNBFebCfg(configFlags, tag=None):
     result=ComponentAccumulator()
 
     if configFlags.GeoModel.Run == "RUN1":
-        foldername=""
-    else:    
-        if configFlags.Common.isOnline or configFlags.Input.isMC:
-            foldername="/LAR/BadChannels/KnownMNBFEBs"
-        else:
-            foldername="/LAR/BadChannelsOfl/KnownMNBFEBs"
-        pass
- 
-        if configFlags.Common.isOnline: 
-            dbname="LAR"
-        else:
-            dbname="LAR_OFL"
-        pass
-    pass    
+        rekey=""
+    else:
+        rekey="/LAR/BadChannels/KnownMNBFEBs"
+        result.merge(addFoldersSplitOnline(configFlags,"LAR","/LAR/BadChannels/KnownMNBFEBs",
+                                           f"/LAR/BadChannelsOfl/KnownMNBFEBs<key>{rekey}</key>",tag=tag,
+                                           className="AthenaAttributeList"))   
 
-    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="AthenaAttributeList"))
-    result.addCondAlgo(LArBadFebCondAlg("LArKonwnMNBFebCondAlg",ReadKey=foldername,WriteKey="LArKnownMNBFEBs"))
+    result.addCondAlgo(LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey=rekey,WriteKey="LArKnownMNBFEBs"))
     return result
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena
@@ -50,7 +50,7 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
   
-    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
+    for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, ++it_Coll)  {
         // Add in new collection
         const InDet::PixelClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;

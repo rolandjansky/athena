@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArDigitContainer.h"
@@ -27,7 +27,7 @@ LArDigitContainer::operator std::string () const {
  int counter = 0 ;
  const LArDigit * digit ;    
  
-     for(it = this->begin() ; it != this->end() ; it++ ){ // Loop over Hits
+     for(it = this->begin() ; it != this->end() ; ++it ){ // Loop over Hits
      
        digit = *it ;
              

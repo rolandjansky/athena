@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -15,7 +15,7 @@ dataType = athArgs.data_type
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
 
-print("Running on data type: " + dataType)
+print("Running on data type: %s" % str(dataType))
 
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
@@ -29,7 +29,7 @@ svcMgr.EventSelector.InputCollections = [testFile]
 
 from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeOverlapSequence
 algSeq = makeOverlapSequence (dataType)
-print algSeq # For debugging
+print( algSeq ) # For debugging
 
 # Add all algorithms from the sequence to the job.
 athAlgSeq += algSeq

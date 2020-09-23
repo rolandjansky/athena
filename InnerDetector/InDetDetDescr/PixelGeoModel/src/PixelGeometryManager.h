@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelGeometryManager_H
@@ -29,7 +29,7 @@ class PixelGeometryManager {
 
 public:
   
-  PixelGeometryManager(const PixelGeoModelAthenaComps * athenaComps);
+  PixelGeometryManager(PixelGeoModelAthenaComps * athenaComps);
   virtual ~PixelGeometryManager();
 
   //
@@ -621,6 +621,7 @@ public:
   //Declaring the Method providing Verbosity Level
   bool msgLvl (MSG::Level lvl) const { return m_athenaComps->msgLvl(lvl); }
 
+  PixelGeoModelAthenaComps * athenaComps() {return m_athenaComps;}
   const PixelGeoModelAthenaComps * athenaComps() const {return m_athenaComps;}
 
   /////
@@ -661,7 +662,7 @@ public:
 private:
   
   // Access to athena components
-  const PixelGeoModelAthenaComps * m_athenaComps;
+  PixelGeoModelAthenaComps * m_athenaComps;
 
 
 };

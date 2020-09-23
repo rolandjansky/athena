@@ -82,7 +82,7 @@ double magn(GeoTrf::Vector2D& vector)
 }
 /////////////////////////////////// Constructor //////////////////////////////////
 //
-TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,
+TRTDetectorFactory_Full::TRTDetectorFactory_Full(InDetDD::AthenaComps * athenaComps,
 						 const ITRT_StrawStatusSummaryTool* sumTool, // added for Argon
 						 bool useOldActiveGasMixture,
 						 bool DC2CompatibleBarrelCoordinates,

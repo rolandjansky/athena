@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
+SCT_DataBase::SCT_DataBase(SCT_GeoModelAthenaComps * athenaComps)
 {
   m_athenaComps = athenaComps;
 
@@ -188,7 +188,7 @@ SCT_DataBase::SCT_DataBase(const SCT_GeoModelAthenaComps * athenaComps)
 
 }
 
-const SCT_GeoModelAthenaComps* SCT_DataBase::athenaComps() const { return m_athenaComps; }
+SCT_GeoModelAthenaComps* SCT_DataBase::athenaComps() { return m_athenaComps; }
 
 IRDBRecordset_ptr SCT_DataBase::weightTable() const {return m_weightTable;}
 

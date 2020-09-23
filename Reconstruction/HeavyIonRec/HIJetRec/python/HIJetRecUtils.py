@@ -84,14 +84,14 @@ def AddPtAssociationTools(R, doTracks=True) :
         tname='hitrackassoc_04'
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTrack"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTrack"))
         tlist += [ jtm.tools[tname] ]
     if jetFlags.useTruth():
         cname='AntiKt%dTruthJets' % int(10*R)
         tname='truthassoc_0%d' % int(10*R)
         if tname not in jtm.tools:
             JetPtAssociationTool=CompFactory.JetPtAssociationTool
-            jtm.add(JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth"))
+            jtm.add(JetPtAssociationTool(tname, JetContainer=cname, AssociationName="GhostTruth"))
         tlist += [ jtm.tools[tname] ]
     return tlist
 

@@ -175,6 +175,8 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
 
         # runs over outputs and create xAODMuon collection
         topSequence += getAlgorithm("MuonCreatorAlg")
+        # setting this here, in the new configuration it will be easier to do
+        topSequence.MuonCreatorAlg.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
 
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

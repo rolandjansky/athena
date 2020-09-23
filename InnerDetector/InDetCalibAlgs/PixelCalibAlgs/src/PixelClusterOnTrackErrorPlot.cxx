@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelClusterOnTrackErrorPlot_cxx
@@ -158,11 +158,11 @@ std::vector < TH1F* > *PixelClusterOnTrackErrorPlot::HistogramsFromConstants(
 //	std::cout << "n bins: " << nbinhisto << std::endl;
 //	std::cout << "===============================================" << std::endl;
 
-	static int pass = 0;
-	pass++; 
+	static std::atomic<int> pass = 0;
+        int p = pass++;
 	for(int i = 0; i < nhisto; i++){
 		std::ostringstream NameString, TitleString;
-		NameString << csbins[i] << "_" << direction << pass
+		NameString << csbins[i] << "_" << direction << p
 			<< "clustersize_ " << csbins[i]+1;
 		if(title != "") TitleString << title;
 		else TitleString << "Local " + xory + " - "

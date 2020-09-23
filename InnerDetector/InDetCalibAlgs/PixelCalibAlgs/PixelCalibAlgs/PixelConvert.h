@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCALIBALGS_PIXELCONVERT_H
@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <memory>
 
 
 /*
@@ -184,8 +185,15 @@ namespace PixelConvert {
   */
   std::string DCSID(const std::string& OnlineID);
 
-  int ReadMap(const std::string& filename);
-  unsigned int GetID(const unsigned int moduleID);
+
+  struct Map
+  {
+    typedef std::map<unsigned int,unsigned int> modulemap;
+    std::unique_ptr<modulemap> m_hashIndex;
+    std::unique_ptr<modulemap> m_SNIndex;
+  };
+  int ReadMap(const std::string& filename, Map& map);
+  unsigned int GetID(const Map& map, const unsigned int moduleID);
 
 }
 

@@ -12,14 +12,22 @@ def LArFEBMonConfigOld(inputFlags, cellDebug=False, dspDebug=False):
 
 
 def LArFEBMonConfig(inputFlags, cellDebug=False, dspDebug=False):
-
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArFEBMonAlgCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArFEBMonConfigCore(helper, CompFactory.LArFEBMonAlg,inputFlags,cellDebug, dspDebug)
 
-    return helper.result()
+    rv = ComponentAccumulator()
+
+    # adding LArFebErrorSummary algo
+    from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
+    rv.merge(LArFebErrorSummaryMakerCfg(inputFlags))
+    
+    rv.merge(helper.result())
+
+    return rv
 
 def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebug=False):
 
@@ -74,14 +82,7 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
            conddb.addFolder (db, fld, className=obj)
        larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'
 
-    # adding LArFebErrorSummary algo
-    if isRun3Cfg() :
-        from LArROD.LArFebErrorSummaryMakerConfig import LArFebErrorSummaryMakerCfg
-        acc = LArFebErrorSummaryMakerCfg(inputFlags)
-        helper.resobj.merge(acc)
-    else :
-        #put here what to do else
-        pass
+
     Group = helper.addGroup(
         larFEBMonAlg,
         GroupName,

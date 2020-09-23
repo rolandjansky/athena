@@ -38,7 +38,7 @@ CaloCalibrationHitContainer::operator std::string () const
  int counter = 0 ;
  CaloCalibrationHit * hit ;    
  
-     for(it = this->begin() ; it != this->end() ; it++ ){ // Loop over Hits
+     for(it = this->begin() ; it != this->end() ; ++it ){ // Loop over Hits
      
        hit = *it ;
              

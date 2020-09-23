@@ -3,8 +3,6 @@
 */
 
 #include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
-
-#include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MdtCalibData/MdtRtRelation.h"
 #include "MdtCalibData/MdtFullCalibData.h"
@@ -25,13 +23,10 @@
 
 Muon::MdtDriftCircleOnTrackCreator::MdtDriftCircleOnTrackCreator(const std::string& ty,const std::string& na,const IInterface* pa) :
     AthAlgTool(ty,na,pa),
-    m_mdtCalibSvcSettings(nullptr),
+    m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings()), // create calibration service settings 
     m_errorStrategy(Muon::MuonDriftCircleErrorStrategyInput())
 {
-  // create calibration service settings 
-  m_mdtCalibSvcSettings = new MdtCalibrationSvcSettings();
-  
-  // algtool interface - necessary!
+    // algtool interface - necessary!
   declareInterface<IMdtDriftCircleOnTrackCreator>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
   
@@ -102,26 +97,31 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
     // By default use one of the real strategies - don't default to unknown!
     m_errorStrategy.setStrategy(MuonDriftCircleErrorStrategy::Muon);
   }
-  ATH_MSG_INFO("Constructed default MuonDriftCircleErrorStrategy: ");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BroadError ) ) ATH_MSG_INFO(" Broad");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ScaledError ) ) ATH_MSG_INFO(" Scaled"); 
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::FixedError ) ) ATH_MSG_INFO(" Fixed");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ParameterisedErrors ) ) ATH_MSG_INFO(" Parm");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::StationError ) ) ATH_MSG_INFO(" Station");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition ) ) ATH_MSG_INFO(" ErrAtPos");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::T0Refit ) ) ATH_MSG_INFO(" T0");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection ) ) ATH_MSG_INFO(" WireG");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection ) ) ATH_MSG_INFO(" TOF");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::PropCorrection ) ) ATH_MSG_INFO(" Prop");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TempCorrection ) ) ATH_MSG_INFO(" Temp");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::MagFieldCorrection ) ) ATH_MSG_INFO(" Mag");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagTimeCorrection ) ) ATH_MSG_INFO(" WireT");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::SlewCorrection ) ) ATH_MSG_INFO(" Slew");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BackgroundCorrection ) ) ATH_MSG_INFO(" Back");
-  if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) ATH_MSG_INFO(" Seg");
-  
-  if( !m_isMC && m_looseErrors )  ATH_MSG_INFO( "Using Data Loose error tuning");
-  if( !m_isMC && !m_looseErrors ) ATH_MSG_INFO( "Using Data Tight error tuning");
+  if (msgLevel(MSG::INFO)) {
+    std::stringstream ss;
+    ss << "Constructed default MuonDriftCircleErrorStrategy:";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BroadError ) ) ss << " Broad";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ScaledError ) ) ss << " Scaled"; 
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::FixedError ) ) ss << " Fixed";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ParameterisedErrors ) ) ss << " Parm";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::StationError ) ) ss << " Station";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::ErrorAtPredictedPosition ) ) ss << " ErrAtPos";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::T0Refit ) ) ss << " T0";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagGeomCorrection ) ) ss << " WireG";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TofCorrection ) ) ss << " TOF";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::PropCorrection ) ) ss << " Prop";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::TempCorrection ) ) ss << " Temp";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::MagFieldCorrection ) ) ss << " Mag";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::WireSagTimeCorrection ) ) ss << " WireT";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::SlewCorrection ) ) ss << " Slew";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::BackgroundCorrection ) ) ss << " Back";
+    if( m_errorStrategy.creationParameter(MuonDriftCircleErrorStrategy::Segment ) ) ss << " Seg";
+    ss << ". ";
+    if( !m_isMC && m_looseErrors )  ss << "Using Data Loose error tuning";
+    if( !m_isMC && !m_looseErrors ) ss <<  "Using Data Tight error tuning";
+
+    msg(MSG::INFO) << ss.str() << endmsg;
+  }
   if( m_isMC )                    ATH_MSG_INFO( "Using MC error tuning");
   ATH_MSG_VERBOSE( "A correction is made if set to true: do_MDT = " << m_doMdt ); 
   
@@ -141,11 +141,6 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
   return StatusCode::SUCCESS; 
 } 
 
-StatusCode Muon::MdtDriftCircleOnTrackCreator::finalize()
-{
-  delete m_mdtCalibSvcSettings;
-  return AthAlgTool::finalize(); 
-}
 
 Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::createRIO_OnTrack( 
                                                                                          const MdtPrepData& mdtPrd,

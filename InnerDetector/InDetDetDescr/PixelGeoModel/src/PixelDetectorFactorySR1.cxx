@@ -31,7 +31,7 @@
 using InDetDD::PixelDetectorManager; 
 using InDetDD::SiCommonItems; 
 
-PixelDetectorFactorySR1::PixelDetectorFactorySR1(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactorySR1::PixelDetectorFactorySR1(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0)

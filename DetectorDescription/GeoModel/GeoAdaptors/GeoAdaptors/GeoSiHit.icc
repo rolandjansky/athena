@@ -32,7 +32,8 @@ inline void GeoSiHit::init() {
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
   m_hit = &h;
-  if (!s_sct || ! s_pix) init();
+  //If neither manager exists, may need to re-initialize...
+  if (!s_sct && !s_pix) init();
 }
 
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {

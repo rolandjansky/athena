@@ -47,7 +47,7 @@ namespace Muon {
     TrkDriftCircleMath::MdtChamberGeometry* m_mdtGeometry;
     const MuonGM::MdtReadoutElement*        m_detElMl0;
     const MuonGM::MdtReadoutElement*        m_detElMl1;
-    const MuonGM::MuonDetectorManager*      m_detMgr;
+    const MuonGM::MuonDetectorManager*      m_detMgr; // cannot use ReadCondHandleKey since no athena component
     const MdtCondDbData*                    m_dbData;
     const Muon::IMuonIdHelperSvc*           m_idHelperSvc;
     std::set<Identifier>                    m_deadTubesML;

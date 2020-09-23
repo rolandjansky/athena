@@ -22,7 +22,6 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3")
 while getopts ":t:b:fch" opt; do
     case $opt in
         t)
@@ -101,4 +100,4 @@ AtlasExternalsVersion=$(awk '/^AtlasExternalsVersion/{print $3}' ${thisdir}/exte
 # Check out AthenaExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AtlasExternalsVersion} \
-    -s ${BUILDDIR}/src/atlasexternals 2>&1 | tee ${BUILDDIR}/src/checkout.atlasexternals.log 
+    -s ${BUILDDIR}/src/atlasexternals 2>&1 | tee ${BUILDDIR}/src/checkout.atlasexternals.log

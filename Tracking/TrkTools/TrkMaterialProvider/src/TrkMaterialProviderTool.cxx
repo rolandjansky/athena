@@ -1002,7 +1002,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
 }
 
 
-//////////////////////////////////////////////// Privé //////////////////////////////////////////////////////
+//////////////////////////////////////////////// Privat //////////////////////////////////////////////////////
  
 /**Helper to get last calo TSOS with TP*/
 const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloExitTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const

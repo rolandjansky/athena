@@ -34,7 +34,6 @@ def generateChains( flags,  chainDict ):
     l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
                                  CaloClusters = recordable('HLT_FastCaloEMClusters'))
 
-
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
     fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),

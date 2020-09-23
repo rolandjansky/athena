@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_SQUIRRELCAGEFACTORY_H
@@ -14,7 +14,7 @@ class SquirrelCageFactory : public InDetDD::SubDetectorFactoryBase  {
  public:
   
   // Constructor:
-  SquirrelCageFactory(const InDetDD::AthenaComps * athenaComps, 
+  SquirrelCageFactory(InDetDD::AthenaComps * athenaComps, 
 		      InDetMaterialManager * matManager);
   
   // Destructor:

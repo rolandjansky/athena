@@ -51,7 +51,7 @@ private:
   int* m_strawIDToLayerIDB;
   int* m_strawIDToLayerIDC;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTSensitiveDetector* m_pSensitiveDetector;
 
   int m_verboseLevel;

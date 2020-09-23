@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArRawChannel_H
@@ -140,6 +140,7 @@ LArRawChannel::LArRawChannel( HWIdentifier chan_id,
         m_time(time), 
         m_gain(gain)
 { m_qualProv[0] = quality;
+  // cppcheck-suppress objectIndex
   m_qualProv[1] = provenance;
 } 
 
@@ -169,7 +170,11 @@ LArRawChannel::quality() const { return m_qualProv[0]; }
 
 inline
 uint16_t
-LArRawChannel::provenance() const { return m_qualProv[1]; }
+LArRawChannel::provenance() const
+{
+  // cppcheck-suppress objectIndex
+  return m_qualProv[1];
+}
 
 inline
 CaloGain::CaloGain 

@@ -418,6 +418,9 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    if( m_metaDataSvc->prepareOutput(outputFN).isFailure() ) {
       throw GaudiException("Failed on MetaDataSvc prepareOutput", name(), StatusCode::FAILURE);
    }
+   // lock all metadata to prevent updates during writing
+   MetaDataSvc::ToolLockGuard   tool_guard( *m_metaDataSvc );
+
    // Always force a final commit in stop - mainly applies to AthenaPool
    if (m_writeOnFinalize) {
       if (write().isFailure()) {  // true mean write AND commit

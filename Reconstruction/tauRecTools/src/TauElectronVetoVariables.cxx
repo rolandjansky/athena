@@ -168,11 +168,11 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
       }
     }
 
-    const xAOD::Jet* pJetSeed = pTau.jet();
-    if (!pJetSeed) {
+    if (! pTau.jetLink().isValid()) {
       ATH_MSG_ERROR("tau does not have jet seed for electron veto cell variable calculation");
       return StatusCode::FAILURE;
     }
+    const xAOD::Jet* pJetSeed = pTau.jet();
 
     // Loop through jets, get links to clusters
     std::vector<const xAOD::CaloCluster*> clusterList;
@@ -193,7 +193,7 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
 	    if (cellSeen.test(pCell->caloDDE()->calo_hash())) continue;
 	    else cellSeen.set(pCell->caloDDE()->calo_hash());
 
-        if (m_doVertexCorrection && pTau.vertexLink()) {
+        if (m_doVertexCorrection && pTau.vertexLink().isValid()) {
           CaloVertexedCell vxCell (*pCell, pTau.vertex()->position());
           cellPhi = vxCell.phi();
           cellEta = vxCell.eta();
