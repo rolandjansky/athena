@@ -295,12 +295,12 @@ class AthConfigFlags(object):
             #End loop over flags
             pass
 
-        #Last sanity check: Make sure that teh replaced section still contains teh same names:
-        if (replacedNames!=replacementNames):
+        #Last sanity check: Make sure that the replaced section still contains the same names:
+        if not replacementNames.issuperset(replacedNames):
             _msg.error(replacedNames)
             _msg.error(replacementNames)
-            raise RuntimeError("Attempt to replace incompatible subsets: None matching flag names are "
-                               + repr(replacedNames ^ replacementNames ))
+            raise RuntimeError("Attempt to replace incompatible flags subsets: distinct flag are "
+                               + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
         newFlags._dynaflags = deepcopy(self._dynaflags)
         return newFlags
