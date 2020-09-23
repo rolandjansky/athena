@@ -91,7 +91,7 @@ def error_check(errors):
         debug_files = glob.glob('*debug.log')+glob.glob('*/*debug.log')
         for debug_file in debug_files:
             # This protects against somebody piping their output to my_debug.log and it being caught here
-            has_subproc = os.access(os.path.dirname(debug_file)+'/SubProcesses',os.R_OK)
+            has_subproc = os.access(os.path.join(os.path.dirname(debug_file),'SubProcesses'),os.R_OK)
             if has_subproc:
                 my_debug_file = debug_file
                 break
