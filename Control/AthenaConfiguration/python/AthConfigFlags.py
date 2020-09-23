@@ -82,6 +82,7 @@ class FlagAddress(object):
 
         if self._flags.hasFlag( merged ):
             return self._flags._get( merged )
+            self.dump("Trig.*")
         raise RuntimeError( "No such flag: {}  The name is likely incomplete.".format(merged) )
 
     def __setattr__( self, name, value ):
@@ -203,6 +204,9 @@ class AthConfigFlags(object):
         for f in self._flagdict.keys():
             if f.startswith(path):
                 return True
+        for c in self._dynaflags.keys():
+            if c.startswith(path):
+                return True
         return False
 
     def hasFlag(self, name):
@@ -318,24 +322,28 @@ class AthConfigFlags(object):
             self._flagdict[fullName]=flag
 
         for (name,loader) in other._dynaflags.items():
-            if prefix+"."+name in self._dynaflags:
-                raise KeyError("Duplicated dynamic flags name: {}".format( name ) )
-        self._dynaflags.update(other._dynaflags)
-            #self.join( loader(), name )
-
+            fullName = prefix+"."+name if prefix != "" else name
+            if fullName in self._dynaflags:
+                raise KeyError("Duplicated dynamic flags name: {}".format( fullName ) )
+            _msg.debug("Joining dynamic flags with %s", fullName)
+            self._dynaflags[fullName] = loader
         return
 
-    def dump(self):
+    def dump(self, pattern=".*"):
+        import re
+        compiled = re.compile(pattern)
         print("{:40} : {}".format( "Flag Name","Value" ) )
         for name in sorted(self._flagdict):
-            print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
+            if compiled.match(name):
+                print("{:40} : {}".format( name, repr(self._flagdict[name] ) ) )
 
         if len(self._dynaflags) == 0:
             return
         print("Flag categories that can be loaded dynamically")
         print("{:25} : {:>30} : {}".format( "Category","Generator name", "Defined in" ) )
         for name,gen_and_prefix in sorted(self._dynaflags.items()):
-            print("{:25} : {:>30} : {}".format( name, gen_and_prefix[0].__name__, '/'.join(gen_and_prefix[0].__code__.co_filename.split('/')[-2:]) ) )
+            if compiled.match(name):
+                print("{:25} : {:>30} : {}".format( name, gen_and_prefix[0].__name__, '/'.join(gen_and_prefix[0].__code__.co_filename.split('/')[-2:]) ) )
 
 
     def initAll(self):
