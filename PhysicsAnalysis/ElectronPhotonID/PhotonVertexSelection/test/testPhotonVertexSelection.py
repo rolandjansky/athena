@@ -129,6 +129,9 @@ else:
   # Initialize the xAOD infrastructure:
   ROOT.xAOD.Init().ignore()
   ROOT.xAOD.EgammaContainer()
+  ROOT.xAOD.CaloClusterContainer()
+  ROOT.xAOD.MuonContainer()
+  ROOT.xAOD.TauJetContainer()
 
   # Setup the tools
   vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
