@@ -40,7 +40,7 @@ That's all.
 
 _Please note this also allow you to run all native Rivet/Yoda commands without the wrapper as well._
 
-This sets up Rivet3. In case you want to fall back to Rivet2 (more precisely to v2.7.2), you can do
+This sets up Rivet3. In case you want to fall back to Rivet2 (more precisely to v2.7.2), you can use
 
 ```
 asetup 21.6.16,AthGeneration 
@@ -71,7 +71,7 @@ If for some reason, you do need to revert back to an older Rivet version, feel f
 # Running Rivet over a local EVNT file
 
 Standalone Rivet cannot deal with EVNT files, but that's why we have a `Rivet_i` wrapper in Athena.
-As with everything in Athena, this requires some JOs. We've added an example to this repo. 
+As with everything in Athena, this requires some JOs. We've added an [example](share/example/local_jO.py) to this repo. 
 These JOs are very simple. Take a look:
 
 ```
@@ -112,7 +112,7 @@ Hint: In the example above, the output files will be zipped since the additional
 increase the file size significantly. You do not need to unzip the files, since all of the other 
 Rivet scripts (`yodamerge`, `rivet-mkhtml`, etc.) happily read in zipped yodas! 
 
-More `Rivet_i` options are defined [here](https://gitlab.cern.ch/atlas/athena/blob/21.6/Generators/Rivet_i/src/Rivet_i.cxx).
+More `Rivet_i` options are defined [here](src/Rivet_i.cxx).
 
 
 
@@ -229,16 +229,17 @@ it might be more efficient to tweak the number of input files per jobs
 using the `--nFilesPerJob` flag.
 
 
-This can also be done by the PMG systemtics tool, which can also combine the outputs.
-The package can be obtained using following the
-README.md on 
-[this gitlab repository](https://gitlab.cern.ch/atlas-physics/pmg/tools/systematics-tools/tree/master#installation-on-afs).
+This can also be done by the 
+[PMG systemtics tool](https://gitlab.cern.ch/atlas-physics/pmg/tools/systematics-tools/tree/master#installation-on-afs),
+which can also combine the outputs.
 
 
 
 # Run Rivet on-the-fly with Gen_tf
 
-Rivet jobs can be run in the same job as a Gen_tf run, 
+**Note that due to a bug in HepMC, this feature did not work with Rivet3 until release 21.6.44,AthGeneration or later.**
+
+Rivet jobs can be run in the same job as a `Gen_tf` run, 
 without needing to modify the standard production jO fragment. 
 The easiest and the recommended way is to use `--rivetAnas` 
 option followed by the list of rivet analysis separated by commas. One example is shown below. 
@@ -263,7 +264,7 @@ only the yoda file is saved.
 
 # Running Rivet over the on-the-fly variations
 
-Multiweight support is at the heart of the Rivet v3. We recommend you use it.
+Multiweight support is at the heart of the Rivet3. We recommend you use it.
 It will book one histogram per available weight variation behind the scenes for you
 and add them all to the same output file (with a `histogram name [weight name]` suffix).
 
@@ -421,7 +422,8 @@ book(_h_myhisto,"_h_myhisto",10,0,200);
 ```
 
 Omitting the `"_h_myhisto"` part will result in it being interpreted as an autobooked histogram 
-from a reference yoda file, with the numbers corresponding to d,x and y. 
+from a reference yoda file, with the numbers corresponding to `d`, `x` and `y` from the usual
+`d01-x01-y01` names assigened by HepData.
 
 
 ## How to implement ATLAS truth jet collections in my routine?
@@ -568,5 +570,5 @@ For left-aligned text in the top left corner, something like the following shoul
 yodascale -c '.* 10x' file.yoda
 ````
 
-will create a file-scaled.yoda, where every histogram will be scaled by a factor of 10.
+will create a `file-scaled.yoda`, where every histogram will be scaled by a factor of 10.
 
