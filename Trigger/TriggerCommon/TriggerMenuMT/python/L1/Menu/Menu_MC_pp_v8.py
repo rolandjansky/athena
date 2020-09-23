@@ -816,7 +816,6 @@ def defineMenu():
         'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 477,
         'L1_eEM15VH_MU10' : 478,
         'L1_eEM18VHI_3jJ20' : 489,
-        # 'L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20' :  490,
         'L1_ALFA_ANY' : 490,
         'L1_eEM20VH_3eEM10VH' : 491,
         'L1_eEM22VHI' : 492,
