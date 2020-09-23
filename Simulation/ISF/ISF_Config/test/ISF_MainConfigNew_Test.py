@@ -157,7 +157,7 @@ if __name__ == '__main__':
     eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
     if hasattr(eventSelector, "OverrideRunNumberFromInput"):
         eventSelector.OverrideRunNumberFromInput = True
-    cfg.addService(evtIdModifierSvc)
+    cfg.addService(evtIdModifierSvc, create=True)
     # ... up to here?
 
     # add BeamEffectsAlg
