@@ -248,6 +248,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 			for(int i = 0; i < 4; i++)
 			{
 				clustersPerStationFloat = clusterCounterStationA[previouslbStationA][i];
+				clusterCounterStationA[previouslbStationA][i] = 0;
 				if(muPerBCID != 0 && clustersPerStationFloat!=0)
 				{
 					clustersPerStationFloat = clustersPerStationFloat/(muPerBCID*counterForEventsStationA*4);
@@ -305,6 +306,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 				for(int j=0; j<4; j++)
 				{
 					clustersPerPlaneFloat = clusterCounterPlane[previouslbPlane][i][j];
+					clusterCounterPlane[previouslbPlane][i][j] = 0;
 					if(muPerBCID != 0 && clustersPerPlaneFloat != 0)
 					{
 						clustersPerPlaneFloat = clustersPerPlaneFloat/(muPerBCID*counterForEventsPlane);

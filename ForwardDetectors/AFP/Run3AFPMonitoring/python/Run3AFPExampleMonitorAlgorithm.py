@@ -9,9 +9,11 @@
 
 def Run3AFPExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    result = ComponentAccumulator()
 
-    from LumiBlockComps.BunchCrossingCondAlgDefault import BunchCrossingCondAlgDefault
-    BunchCrossingCondAlgDefault()
+    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+    result.merge(BunchCrossingCondAlgCfg(inputFlags))
     
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'Run3AFPMonitorCfg')
@@ -80,7 +82,8 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     arrayToF.defineHistogram('barInTrainIDC', title='Total hits per bars in {}; barID; hits', type='TH1F', path='HitsPerBarsInTrain/farCside', xbins=4,xmin=-0.5,xmax=3.5)
     
     # Finalize. The return value should be a tuple of the ComponentAccumulator
-    return helper.result()
+    result.merge(helper.result())
+    return result
     
 
 if __name__=='__main__':
@@ -96,9 +99,9 @@ if __name__=='__main__':
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000002.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337371.calibration_AFP.daq.AOD_EXT0/user.ladamczy.22326990.EXT0._000001.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput61-337371-449k.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput63-test.root'
     
     ConfigFlags.lock()
 
@@ -110,10 +113,7 @@ if __name__=='__main__':
     
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
-    
-    from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
-    cfg.merge (BunchCrossingCondAlgCfg(ConfigFlags))
 
-    cfg.run()
+    cfg.run(10000)
 
 
