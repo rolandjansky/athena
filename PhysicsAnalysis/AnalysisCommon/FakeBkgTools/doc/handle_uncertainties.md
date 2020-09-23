@@ -7,18 +7,30 @@ The fake lepton background prediction is subject to a set of systematic uncertai
 The tools derive from `CP::ISystematicTool`, therefore up and down variations of the total yields (or event weight) according to each propagated source of uncertainty, can be obtained in an usual way. For example:
 
 ```c++
-/// only forApplyFakeFactor and  AsymptMatrixTool!
+/// after the event loop
+auto sysvars = tool->affectingSystematics();
+for(auto& sysvar : sysvars)
+{
+    float yield, unused;
+    ATH_CHECK( tool->applySystematicVariation({sysvar}) );
+    ATH_CHECK( tool->getTotalYield(yield, unused, unused) );
+}
+```
+
+It can also be done similarly at the level of event weights:
+
+```c++
 tool->initialize();
 auto sysvars = tool->affectingSystematics();
 { /// event loop
     ATH_CHECK( tool->addEvent(particles) ); /// call only once per event!
     for(auto& sysvar : sysvars)
     {
+        float weight;
         ATH_CHECK( tool->applySystematicVariation({sysvar}) );
-        ATH_CHECK( tool->getEventWeight(weight, statUp, statDown) );
+        ATH_CHECK( tool->getEventWeight(weight, "2T", ">=1F") );
     }
 }
-/// or loop here over variations with getTotalYield()
 ```
 As stated in the example above, `addEvent()` must be called **only once per event**, otherwise there will be double-counting. Looping over systematic variations should only be done for calls to `getTotalYield()` and `getEventWeight()`.
 
