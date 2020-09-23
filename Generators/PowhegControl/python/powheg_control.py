@@ -240,7 +240,7 @@ class PowhegControl(object):
             logger.warning("Please use the cross-section printed in the log file before showering begins.")
 
         # Schedule reweighting if more than the nominal weight is requested
-        if len(self.__event_weight_groups) > 0:
+        if len(self.__event_weight_groups) > 1:
             # Change the order so that scale comes first and user-defined is last
             __ordered_event_weight_groups_list = []
             for __key in ["scale_variation", "PDF_variation"]:
