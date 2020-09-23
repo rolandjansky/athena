@@ -117,43 +117,53 @@ StatusCode
 }
 
 /*
- * First the methods to create a new or clone the existing
+ * Method that creates a new summary for the track.
+ * First calculates a summary according to job options.
+ * If one is present it uses it as starting point (cloning it).
+ * But adds relavant info.
+ * And then sets the Track Summary for the non-const
+ * track.
  */
-void Trk::TrackSummaryTool::computeAndReplaceTrackSummary(Trk::Track &track,
-                                                          const Trk::PRDtoTrackMap *prd_to_track_map,
-                                                          bool suppress_hole_search) const {
-  track.setTrackSummary(
-    createSummary(
-      track,
-      prd_to_track_map,
-      m_doHolesInDet & !suppress_hole_search,
-      m_doHolesMuon  & !suppress_hole_search
-    )
-  );
-}
-
-std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& track) const
+void
+Trk::TrackSummaryTool::computeAndReplaceTrackSummary(
+  Trk::Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  bool suppress_hole_search) const
 {
-  return createSummary(track, nullptr, m_doHolesInDet, m_doHolesMuon );
+  track.setTrackSummary(createSummary(track,
+                                      prd_to_track_map,
+                                      m_doHolesInDet & !suppress_hole_search,
+                                      m_doHolesMuon & !suppress_hole_search));
 }
 
-std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summary( const Track& track,
-                                                                   const Trk::PRDtoTrackMap *prd_to_track_map) const
+std::unique_ptr<Trk::TrackSummary>
+Trk::TrackSummaryTool::summary(const Track& track) const
 {
-  return createSummary(track, prd_to_track_map, m_doHolesInDet, m_doHolesMuon );
+  return createSummary(track, nullptr, m_doHolesInDet, m_doHolesMuon);
 }
 
-std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summaryNoHoleSearch( const Track& track) const
+std::unique_ptr<Trk::TrackSummary>
+Trk::TrackSummaryTool::summary(const Track& track,
+                               const Trk::PRDtoTrackMap* prd_to_track_map) const
 {
-  return createSummary(track, nullptr, false, false );
+  return createSummary(track, prd_to_track_map, m_doHolesInDet, m_doHolesMuon);
 }
 
-std::unique_ptr<Trk::TrackSummary> Trk::TrackSummaryTool::summaryNoHoleSearch( const Track& track,
-                                                                               const Trk::PRDtoTrackMap *prd_to_track_map) const
+std::unique_ptr<Trk::TrackSummary>
+Trk::TrackSummaryTool::summaryNoHoleSearch(const Track& track) const
 {
-  return createSummary(track, prd_to_track_map, false, false );
+  return createSummary(track, nullptr, false, false);
 }
 
+std::unique_ptr<Trk::TrackSummary>
+Trk::TrackSummaryTool::summaryNoHoleSearch(
+  const Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map) const
+{
+  return createSummary(track, prd_to_track_map, false, false);
+}
+
+//Method to create a new summary
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::createSummary( const Track& track,
                                       const Trk::PRDtoTrackMap *prd_to_track_map,
@@ -169,59 +179,71 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
   } else {
     ts = std::make_unique<Trk::TrackSummary>();
   }
+  //fill the summary
+  fillSummary(*ts, track, prd_to_track_map, doHolesInDet, doHolesMuon);
+  return ts;
+}
 
-  std::vector<int> & information = ts->m_information;
-  information.resize(std::min(information.size(), static_cast<size_t>(numberOfTrackSummaryTypes)));
+// Method filling the summary with information
+void
+Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,
+                                   const Trk::Track& track,
+                                   const Trk::PRDtoTrackMap *prd_to_track_map,
+                                   bool doHolesInDet,
+                                   bool doHolesMuon) const {
 
-  // Troels.Petersen@cern.ch:
-  unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
-  std::vector<float> eProbability(numberOfeProbabilityTypes,0.5);
+std::vector<int>& information = ts.m_information;
+information.resize(std::min(information.size(),
+                            static_cast<size_t>(numberOfTrackSummaryTypes)));
 
-  float dedx=-1;
-  int nhitsuseddedx=-1;
-  int noverflowhitsdedx=-1;
+// Troels.Petersen@cern.ch:
+unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes + 1;
+std::vector<float> eProbability(numberOfeProbabilityTypes, 0.5);
+
+  float dedx = -1;
+  int nhitsuseddedx = -1;
+  int noverflowhitsdedx = -1;
 
   // Now set values to 0 for the ones we evaluate
   if (!m_idTool.empty()) {
-    if (m_pixelExists)
-    {
-      information [numberOfContribPixelLayers]   = 0;
-      information [numberOfInnermostPixelLayerHits] = 0;
-      information [numberOfInnermostPixelLayerOutliers] = 0;
-      information [numberOfNextToInnermostPixelLayerHits] = 0;
-      information [numberOfNextToInnermostPixelLayerOutliers] = 0;
-      information [numberOfPixelHits]            = 0;
-      information [numberOfPixelOutliers]        = 0;
-      information [numberOfGangedPixels]         = 0;
-      information [numberOfGangedFlaggedFakes]   = 0;
-      information [numberOfPixelSpoiltHits]      = 0;
-      information [numberOfGangedFlaggedFakes]   = 0;
-      information [numberOfPixelSplitHits]       = 0;
-      information [numberOfInnermostLayerSplitHits] = 0;
-      information [numberOfNextToInnermostLayerSplitHits] = 0;
-      if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
+    if (m_pixelExists) {
+      information[numberOfContribPixelLayers] = 0;
+      information[numberOfInnermostPixelLayerHits] = 0;
+      information[numberOfInnermostPixelLayerOutliers] = 0;
+      information[numberOfNextToInnermostPixelLayerHits] = 0;
+      information[numberOfNextToInnermostPixelLayerOutliers] = 0;
+      information[numberOfPixelHits] = 0;
+      information[numberOfPixelOutliers] = 0;
+      information[numberOfGangedPixels] = 0;
+      information[numberOfGangedFlaggedFakes] = 0;
+      information[numberOfPixelSpoiltHits] = 0;
+      information[numberOfGangedFlaggedFakes] = 0;
+      information[numberOfPixelSplitHits] = 0;
+      information[numberOfInnermostLayerSplitHits] = 0;
+      information[numberOfNextToInnermostLayerSplitHits] = 0;
+      if (track.info().trackFitter() != TrackInfo::Unknown &&
+          !m_dedxtool.empty()) {
         dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
       }
-      information [Trk::numberOfDBMHits]                  = 0;
+      information[Trk::numberOfDBMHits] = 0;
     }
-    information [numberOfSCTHits]                  = 0;
-    information [numberOfSCTSpoiltHits]            = 0;
-    information [numberOfSCTOutliers]              = 0;
-    information [numberOfTRTHits]                  = 0;
-    information [numberOfTRTXenonHits]             = 0;
-    information [numberOfTRTHighThresholdHits]     = 0;
-    information [numberOfTRTHighThresholdHitsTotal]= 0;
-    information [numberOfTRTOutliers]              = 0;
-    information [numberOfTRTHighThresholdOutliers] = 0;
-    information [numberOfTRTTubeHits]              = 0;
-    information [numberOfTRTSharedHits]            = 0;
+    information[numberOfSCTHits] = 0;
+    information[numberOfSCTSpoiltHits] = 0;
+    information[numberOfSCTOutliers] = 0;
+    information[numberOfTRTHits] = 0;
+    information[numberOfTRTXenonHits] = 0;
+    information[numberOfTRTHighThresholdHits] = 0;
+    information[numberOfTRTHighThresholdHitsTotal] = 0;
+    information[numberOfTRTOutliers] = 0;
+    information[numberOfTRTHighThresholdOutliers] = 0;
+    information[numberOfTRTTubeHits] = 0;
+    information[numberOfTRTSharedHits] = 0;
 
     // Troels.Petersen@cern.ch:
-    if ( !m_eProbabilityTool.empty() ) {
+    if (!m_eProbabilityTool.empty()) {
       eProbability = m_eProbabilityTool->electronProbability(track);
     }
   }
-
 
   if (m_doSharedHits) {
     information [numberOfSCTSharedHits]      = 0;
@@ -297,43 +319,22 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     eProbability.push_back(0.0);
   }
 
-  ts->m_eProbability = eProbability;
-  ts->m_idHitPattern = hitPattern.to_ulong();
-  ts->m_dedx = dedx;
-  ts->m_nhitsdedx = nhitsuseddedx;
-  ts->m_nhitsoverflowdedx = noverflowhitsdedx;
+  ts.m_eProbability = eProbability;
+  ts.m_idHitPattern = hitPattern.to_ulong();
+  ts.m_dedx = dedx;
+  ts.m_nhitsdedx = nhitsuseddedx;
+  ts.m_nhitsoverflowdedx = noverflowhitsdedx;
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
-    m_idTool->addDetailedTrackSummary(track,*ts);
+    m_idTool->addDetailedTrackSummary(track,ts);
   }
   // add detailed summary for muons
   if( m_addMuonDetailedSummary && !m_muonTool.empty() ){
-    m_muonTool->addDetailedTrackSummary(track,*ts);
+    m_muonTool->addDetailedTrackSummary(track,ts);
   }
   // move this part to VERBOSE
-  ATH_MSG_VERBOSE ( *ts << endmsg << "Finished!");
-
-  return ts;
-}
-
-/*
- * The the update methods
- */
-
-void Trk::TrackSummaryTool::updateTrack(Track& track,const Trk::PRDtoTrackMap *prd_to_track_map) const
-{
-  // first check if track has summary already.
-  computeAndReplaceTrackSummary(track,prd_to_track_map,false /*DO NOT suppress hole search*/);
-}
-
-void
-Trk::TrackSummaryTool::updateTrackNoHoleSearch(Track& track,
-                                               const Trk::PRDtoTrackMap* prd_to_track_map) const
-{
-  // first check if track has summary already.
-  computeAndReplaceTrackSummary(track, prd_to_track_map, true /*suppress hole search*/);
-  m_idTool->updateExpectedHitInfo(track, *track.trackSummary()); /*Needed for expected B-Layer*/
+  ATH_MSG_VERBOSE ( ts << endmsg << "Finished!");
 }
 
 void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
