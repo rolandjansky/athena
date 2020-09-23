@@ -17,14 +17,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
          
 
 #include "MMRawDataMonitoring/MMRawDataMonAlg.h"
-#include <TError.h>
 #include <string>
-#include <TBox.h>
-#include <TList.h>
-#include <TLine.h>
-#include <TColor.h>
-#include <TString.h>
-#include <TRegexp.h>
 #include <stdexcept>
 
 int MMRawDataMonAlg::get_PCB_from_channel(int channel) const {
