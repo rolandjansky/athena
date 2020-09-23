@@ -128,10 +128,17 @@ else:
 
   # Initialize the xAOD infrastructure:
   ROOT.xAOD.Init().ignore()
-  ROOT.xAOD.EgammaContainer()
-  ROOT.xAOD.CaloClusterContainer()
-  ROOT.xAOD.MuonContainer()
-  ROOT.xAOD.TauJetContainer()
+  ROOT.xAOD.TruthParticleContaniner()
+  ROOT.xAOD.MuonRoIContaniner()
+  ROOT.xAOD.CaloClusterContaniner()
+  ROOT.xAOD.TrackParticleContaniner()
+  ROOT.xAOD.ElectronContaniner()
+  ROOT.xAOD.MuonContaniner()
+  ROOT.xAOD.JetContaniner()
+  ROOT.xAOD.TauJetContaniner()
+  ROOT.xAOD.PFOContaniner()
+  ROOT.xAOD.TrigElectronContaniner()
+  ROOT.xAOD.L2CombinedMuonContaniner()
 
   # Setup the tools
   vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
