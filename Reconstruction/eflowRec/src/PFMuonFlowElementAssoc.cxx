@@ -1,5 +1,5 @@
 /*  
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFMuonFlowElementAssoc.h" 
@@ -8,7 +8,6 @@
 #include "xAODMuon/Muon.h"
 #include "xAODPFlow/FlowElementContainer.h" 
 #include "xAODPFlow/FlowElement.h" 
-#include <typeinfo> // temp debug to check object
 
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t; 
 typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
@@ -18,13 +17,13 @@ typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t;
 // ============================================================= 
 PFMuonFlowElementAssoc::PFMuonFlowElementAssoc(const std::string& name, 
 		   ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {   
   // Declare the decoration keys   
-  declareProperty ("MuonChargedFlowElementDecorKey", m_muonChargedFEWriteDecorKey = "Muons.chargedfeLinks");   // updated muon container with the new link 
-  declareProperty("ChargedFlowElementMuonDecorKey", m_ChargedFEmuonWriteDecorKey="JetETMissChargedFlowElements.fe_MuonLinks"); // updated Charge
-  declareProperty ("MuonNeutralFlowElementDecorKey", m_muonNeutralFEWriteDecorKey = "Muons.neutralfeLinks");
-  declareProperty ("NeutralFlowElementMuonDecorKey",m_NeutralFEmuonWriteDecorKey = "JetETMissNeutralFlowElements.fe_MuonLinks");
+  declareProperty ("MuonChargedFlowElementDecorKey", m_muonChargedFEWriteDecorKey = "Muons.chargedFELinks");   // updated muon container with the new link 
+  declareProperty("ChargedFlowElementMuonDecorKey", m_ChargedFEmuonWriteDecorKey="JetETMissChargedFlowElements.FE_MuonLinks"); // updated Charge
+  declareProperty ("MuonNeutralFlowElementDecorKey", m_muonNeutralFEWriteDecorKey = "Muons.neutralFELinks");
+  declareProperty ("NeutralFlowElementMuonDecorKey",m_NeutralFEmuonWriteDecorKey = "JetETMissNeutralFlowElements.FE_MuonLinks");
 } 
 PFMuonFlowElementAssoc::~PFMuonFlowElementAssoc() {} 
 
@@ -40,6 +39,10 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
   ATH_CHECK(m_ChargedFEmuonWriteDecorKey.initialize());
   ATH_CHECK(m_NeutralFEmuonWriteDecorKey.initialize());
 
+  //init ReadHandleKeys
+  ATH_CHECK(m_muonReadHandleKey.initialize());
+  ATH_CHECK(m_chargedFEReadHandleKey.initialize());
+  ATH_CHECK(m_neutralFEReadHandleKey.initialize());
 
   ATH_MSG_DEBUG("Initialization completed successfully");   
 
@@ -52,24 +55,25 @@ StatusCode PFMuonFlowElementAssoc::finalize() {
 } 
 
 // ========================================================================= 
-StatusCode PFMuonFlowElementAssoc::execute() {   
+StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const 
+{   
   
-  // WriteDecorHandles for the charged Flow Elements and Muons
+  // WriteDecorHandles for the charged/neutral Flow Elements and Muons
   // Links a Muon that has a track to a charged flow element if possible
   
   ATH_MSG_DEBUG("Started execute step");
 
   // Get container for muons
-  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonNeutralFEWriteDecorHandle (m_muonNeutralFEWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonNeutralFEWriteDecorHandle (m_muonNeutralFEWriteDecorKey,ctx);
   // get container for charged flow elements
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey);
-  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > ChargedFEmuonWriteDecorHandle (m_ChargedFEmuonWriteDecorKey,ctx);
+  SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<MuonLink_t> > NeutralFEmuonWriteDecorHandle(m_NeutralFEmuonWriteDecorKey,ctx);
 
   //store readhandles for muon and charged flow elements
-  SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonChargedFEWriteDecorKey.contHandleKey()); // readhandle for muon
-  SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_ChargedFEmuonWriteDecorKey.contHandleKey());
-  SG::ReadHandle<xAOD::FlowElementContainer> NeutralFEReadHandle(m_NeutralFEmuonWriteDecorKey.contHandleKey());
+  SG::ReadHandle<xAOD::MuonContainer> muonReadHandle (m_muonReadHandleKey,ctx); // readhandle for muon
+  SG::ReadHandle<xAOD::FlowElementContainer> ChargedFEReadHandle(m_chargedFEReadHandleKey,ctx);
+  SG::ReadHandle<xAOD::FlowElementContainer> NeutralFEReadHandle(m_neutralFEReadHandleKey,ctx);
   
   //now init some Flow element link containers
   std::vector<std::vector<FlowElementLink_t> > muonChargedFEVec(muonReadHandle->size());
@@ -81,10 +85,10 @@ StatusCode PFMuonFlowElementAssoc::execute() {
   //     CHARGED LOOP
   //////////////////////////////
   for (const xAOD::FlowElement* FE: *ChargedFEmuonWriteDecorHandle){
-    //get the track associated to the charged flow element (or at least the index of said track
+    //get the track associated to the charged flow element (or at least the index of said track)
     size_t FETrackIndex=FE->chargedObjects().at(0)->index();
     // Init a vector of element links to muons
-    std::vector<MuonLink_t> feMuonLinks;
+    std::vector<MuonLink_t> FEMuonLinks;
     
     //loop over muons in container
     for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
@@ -97,7 +101,7 @@ StatusCode PFMuonFlowElementAssoc::execute() {
 	  if(MuonTrkIndex==FETrackIndex){
 	    // Add Muon element link to a vector
 	    // index() is the unique index of the muon in the muon container
-	    feMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
+	    FEMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
 	    // Add flow element link to a vector
 	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 	    muonChargedFEVec.at(muon->index()).push_back(FlowElementLink_t(*ChargedFEReadHandle,FE->index()));
@@ -107,7 +111,7 @@ StatusCode PFMuonFlowElementAssoc::execute() {
     }// end of muon loop
     
     // Add vector of muon element links as decoration to FlowElement container
-    ChargedFEmuonWriteDecorHandle(*FE) = feMuonLinks;
+    ChargedFEmuonWriteDecorHandle(*FE) = FEMuonLinks;
   } // end of charged Flow Element loop
 
   //////////////////////////////////////////////////
@@ -120,7 +124,7 @@ StatusCode PFMuonFlowElementAssoc::execute() {
       size_t FEclusterindex=FE->otherObjects().at(0)->index();
       
       //design the vector of ElementLinks
-      std::vector<MuonLink_t> feMuonLinks;
+      std::vector<MuonLink_t> FEMuonLinks;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
 	//Retrieve the ElementLink vector of clusters      
 	const ElementLink<xAOD::CaloClusterContainer> ClusterLink=muon->clusterLink();
@@ -132,13 +136,13 @@ StatusCode PFMuonFlowElementAssoc::execute() {
 	  if(cluster_index==FEclusterindex){
 	    // Add Muon element link to a vector
 	    // index() is the unique index of the muon in the muon container   
-	    feMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+	    FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 	    muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
 	  } // end of matching cluster index block	    	
 	}  // loop over elementlink vector
       } // loop over muons
-      NeutralFEmuonWriteDecorHandle(*FE)=feMuonLinks;
+      NeutralFEmuonWriteDecorHandle(*FE)=FEMuonLinks;
     } // loop over neutral FE
   }// end of the Gaudi check block
   
