@@ -41,15 +41,18 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   atlas_add_test( testJobData
-      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFullSim
-      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-      PROPERTIES TIMEOUT 600 )
-   atlas_add_test( testJobFastSim
-      SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-      PROPERTIES TIMEOUT 600 )
+  #TODO: These tests are temporarily disabled AnalysisBase for migration from R21 to R22.
+  #      They need to be updated to Python 3 to be re-ennabled.
+  #
+  # atlas_add_test( testJobData
+  #    SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+  #    PROPERTIES TIMEOUT 600 )
+  # atlas_add_test( testJobFullSim
+  #    SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+  #    PROPERTIES TIMEOUT 600 )
+  # atlas_add_test( testJobFastSim
+  #    SCRIPT MetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+  #    PROPERTIES TIMEOUT 600 )
 elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
    atlas_add_test( testJobData
       SCRIPT athena.py
