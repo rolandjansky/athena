@@ -10,6 +10,16 @@
 # EXTRA VARIABLES - Data & MC
 #================================
 # Full list: DerivationFrameworkEGamma/python/ElectronsCPContent.py
+
+TOPQExtraVariables_AFP = ["AFPSiHitContainer."
+                         + "depositedCharge."
+                         + "timeOverThreshold."
+                         + "stationID."
+                         + "pixelLayerID."
+                         + "pixelRowIDChip."
+                         + "pixelColIDChip."
+                         ]
+
 TOPQExtraVariables_Electrons  = ["Electrons."
                                  + "etcone30."
                                  + "etcone40."
