@@ -26,6 +26,7 @@ public:
   static const InterfaceID& interfaceID();
 
   using  ITrackSummaryTool::summary;
+  using  ITrackSummaryTool::updateTrackSummary;
   using  ITrackSummaryTool::summaryNoHoleSearch;
   using  ITrackSummaryTool::updateSharedHitCount;
   using  ITrackSummaryTool::updateAdditionalInfo;
@@ -56,11 +57,17 @@ public:
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
 
+  /** method which can be used to update the summary of a track
+   * it, without doing shared hit/ or hole search.
+   * If a summary is present is modified in place
+   * otherwise a new one is created.
+   */
+  virtual void updateTrackSummary(Track& track,
+                                  const Trk::PRDtoTrackMap* prd_to_track_map,
+                                  bool suppress_hole_search = false) const = 0;
 
   /* Start from a copy of the existing input track summary if there,
-   * otherwise start from a new one. Fill it and return it.
-   * but without doing the hole search.
-   * Does not modify the const track.
+   * otherwise start from a new one, fill it and return it.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track,
