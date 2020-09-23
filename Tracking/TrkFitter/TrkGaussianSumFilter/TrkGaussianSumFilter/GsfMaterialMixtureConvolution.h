@@ -47,10 +47,8 @@ public:
   virtual ~GsfMaterialMixtureConvolution();
 
   //!< AlgTool initialise method
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize() override final;
 
-  //!< AlgTool finalize method
-  virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
   virtual MultiComponentState update(
