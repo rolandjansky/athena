@@ -85,9 +85,28 @@ public:  // methods
   ElementLink<xAOD::VertexContainer> getMaxJetVertexFraction(const xAOD::VertexContainer*,
                                                                    const std::vector<float>&) const;
 
+private:  // methods
 
-private:  // data
+  // Local method to count the number of pileup tracks in the event
+  int getPileupTrackCount(const xAOD::Vertex*, 
+  const xAOD::TrackParticleContainer*&, 
+  const jet::TrackVertexAssociation*) const; 
 
+protected:
+
+  std::vector<float> getEmptyJetVertexFraction(const xAOD::VertexContainer*) const;
+
+  // Local method to return the primary and pileup track pT sums
+  // this method also allows the standard jvf to be calculated
+  std::pair<float,float>
+  getJetVertexTrackSums(const xAOD::Vertex*,
+                        const std::vector<const xAOD::TrackParticle*>&, 
+                        const jet::TrackVertexAssociation*) const;
+
+  // Local method to return the HS vertex - that of type PriVtx
+  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+
+  bool m_isTrigger;  
   // Configurable parameters
   std::string m_verticesName;
   std::string m_assocTracksName;
@@ -99,27 +118,6 @@ private:  // data
   float m_kcorrJVF;
   float m_PUtrkptcut;
 
-private:  // methods
-
-  std::vector<float> getEmptyJetVertexFraction(const xAOD::VertexContainer*) const;
-
-  // Local method to count the number of pileup tracks in the event
-  int getPileupTrackCount(const xAOD::Vertex*, 
-  const xAOD::TrackParticleContainer*&, 
-  const jet::TrackVertexAssociation*) const; 
-
-  // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
-
-  // Local method to return the primary and pileup track pT sums
-  // this method also allows the standard jvf to be calculated
-  std::pair<float,float>
-  getJetVertexTrackSums(const xAOD::Vertex*,
-                        const std::vector<const xAOD::TrackParticle*>&, 
-                        const jet::TrackVertexAssociation*) const;
-
-protected:
-  bool m_isTrigger;  
 };
 
 
