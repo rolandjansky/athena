@@ -114,14 +114,15 @@ private:
   const MultiComponentStateOnSurface* makePerigee(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
-    const SmoothedTrajectory*,
+    const SmoothedTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   //* Calculate the fit quality */
-  const Trk::FitQuality* buildFitQuality(const Trk::SmoothedTrajectory&) const;
+  std::unique_ptr<Trk::FitQuality> buildFitQuality(
+    const Trk::SmoothedTrajectory&) const;
 
   /** Gsf smoothe trajectory*/
-  SmoothedTrajectory* fit(
+  std::unique_ptr<SmoothedTrajectory> fit(
     const EventContext& ctx,
     Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
@@ -137,7 +138,7 @@ private:
     const EventContext& ctx,
     const Trk::TrackStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
-    Trk::SmoothedTrajectory* smoothedTrajectory) const;
+    Trk::SmoothedTrajectory& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
   std::unique_ptr<ForwardTrajectory> fitPRD(
