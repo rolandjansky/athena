@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,11 +9,6 @@
 #include "G4VisAttributes.hh"
 #include "G4Colour.hh"
 
-
-TRTVisualization* TRTVisualization::s_pVisualization = NULL;
-
-
-  // Called by GetPointer
 
 TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 {
@@ -30,8 +25,6 @@ TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 TRTVisualization::~TRTVisualization()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization" << endmsg;
-
-  s_pVisualization = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization done" << endmsg;
 }
@@ -104,6 +97,6 @@ void TRTVisualization::Visualize(G4LogicalVolume* pLogicalVolume,
       std::cerr << "***** TRTVisualization::Visualize *****" << std::endl;
       std::cerr << "  Invalid colour index " << colourIndex << "." << std::endl;
       std::cerr << "  Exit!" << std::endl << std::endl;
-      exit(0);
+      std::abort();
   }
 }

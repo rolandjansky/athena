@@ -18,11 +18,12 @@
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSpaceTimePoint/SpaceTimePoint.h"
+#include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 
 #include <bitset>
 #include <string>
+#include <memory>
 
-class MdtCalibrationSvcSettings;
 class MdtCalibrationSvcInput;
 
 namespace Muon {
@@ -72,7 +73,6 @@ namespace Muon {
       MdtDriftCircleOnTrackCreator(const std::string&,const std::string&,const IInterface*);
       virtual ~MdtDriftCircleOnTrackCreator()=default;
       virtual StatusCode initialize();
-      virtual StatusCode finalize();
 
       /** @brief Calibrate a MdtPrepData object. The result is stored in a new MdtDriftCircleOnTrack object.
       Included calibrations:
@@ -201,7 +201,7 @@ namespace Muon {
       double                               m_fixedError; //!< Error used when m_doFixed error =true or m_scaleErrorManually = true
       double                               m_globalToLocalTolerance; 
       
-      MdtCalibrationSvcSettings*           m_mdtCalibSvcSettings; 
+      std::unique_ptr<MdtCalibrationSvcSettings>           m_mdtCalibSvcSettings; 
 
       // Member variables used to fill the default error strategy
       MuonDriftCircleErrorStrategy        m_errorStrategy; //!< Error strategy for created ROTs

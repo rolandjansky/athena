@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawEvent/LArFebHeader.h"
@@ -35,7 +35,7 @@ LArFebHeader::LArFebHeader(const HWIdentifier febid):m_FEBId(febid) {
 LArFebHeader::~LArFebHeader() 
 {}
 
-int LArFebHeader::degray(int x)
+int LArFebHeader::degray(unsigned int x)
 { // like explained in: http://mathworld.wolfram.com/GrayCode.html
 
   int i,j,sum;
@@ -62,7 +62,7 @@ int LArFebHeader::degray(int x)
               else
                 tmp1 = 0;
               if (i>0)
-                tmp2 = x & ((1<<i)-1);
+                tmp2 = x & ((1u<<i)-1);
               //    printf("tmp1 =%x tmp2=%x\n",tmp1,tmp2 );
 
               x=tmp1|tmp2;

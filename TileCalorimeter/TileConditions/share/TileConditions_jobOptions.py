@@ -143,12 +143,7 @@ if not 'TileCommissioning' in dir():
     if jobproperties.Beam.beamType != 'collisions':
         TileCommissioning = True
     else:
-        try:
-            from RecExConfig.RecFlags import rec
-            TileCommissioning = rec.Commissioning()
-        except:
-            msg.info("No RecFlags available - looks like a simulation job")
-            TileCommissioning = False
+        TileCommissioning = False
         
 if TileCommissioning:
     msg.info("Adjusting TileInfo to return cell noise for Opt.Filter with iterations")

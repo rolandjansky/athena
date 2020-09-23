@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
@@ -65,7 +65,7 @@ InDetMaterialManager::InDetMaterialManager(const std::string& managerName, Store
 }
 
 InDetMaterialManager::InDetMaterialManager(const std::string& managerName,
-                                           const InDetDD::AthenaComps* athenaComps)
+                                           InDetDD::AthenaComps* athenaComps)
   : m_managerName(managerName),
   m_msg(managerName),
   m_extraFunctionality(true),
@@ -557,7 +557,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& materialName
 
     std::vector<double> factors;
     std::vector<std::string> components;
-    for (MaterialCompositionMap::const_iterator iter = iterRange.first; iter != iterRange.second; iter++) {
+    for (MaterialCompositionMap::const_iterator iter = iterRange.first; iter != iterRange.second; ++iter) {
       double factorTmp = iter->second.factor;
       if (iter->second.actualLength > 0) factorTmp *= iter->second.actualLength / length;
       factors.push_back(factorTmp);
@@ -606,7 +606,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
 const GeoMaterial*
 InDetMaterialManager::getMaterialForVolumeLength(const std::string& name,
                                                  const std::vector<std::string>& materialComponents,
-                                                 const std::vector<double> factors,
+                                                 const std::vector<double>& factors,
                                                  double volume,
                                                  double length) {
   // Make sure we have a valid volume size.

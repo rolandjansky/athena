@@ -16,7 +16,7 @@ def VTuneProfilerServiceCfg(flags, **kwargs):
 
     VTuneProfilerService = CompFactory.VTuneProfilerService
     acc = ComponentAccumulator()
-    acc.addService(VTuneProfilerService(**kwargs))
+    acc.addService(VTuneProfilerService(**kwargs), create=True)
     acc.setAppProperty("AuditAlgorithms", True)
     acc.setAppProperty("AuditTools", True)
     acc.setAppProperty("AuditServices", True)

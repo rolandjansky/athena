@@ -14,15 +14,12 @@
 
 #include "GaudiKernel/EventIDRange.h"
 #include "StoreGate/WriteCondHandle.h"
+#include "MuonRegSelCondAlg.h"
+
 
 #include <iostream>
 #include <fstream>
 #include <string>
-
-
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-
-#include "MDT_RegSelCondAlg.h"
 
 
 
@@ -42,7 +39,6 @@ MuonRegSelCondAlg::MuonRegSelCondAlg(const std::string& name, ISvcLocator* pSvcL
 StatusCode MuonRegSelCondAlg::initialize()
 {
   ATH_MSG_DEBUG("MuonRegSelCondAlg::initialize() ");
-  ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("MuonRegSelCondAlg::initialize() " << m_tableKey );
   return StatusCode::SUCCESS;
@@ -50,7 +46,7 @@ StatusCode MuonRegSelCondAlg::initialize()
 
 
 
-StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
+StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx )  const
 {
   ATH_MSG_DEBUG("MuonRegSelCondAlg::execute() -- enter -- ");
   
@@ -69,21 +65,11 @@ StatusCode MuonRegSelCondAlg::execute(const EventContext& ctx)  const
     return StatusCode::SUCCESS;
   }
 
-
- 
-
-  SG::ReadCondHandle<MuonMDT_CablingMap> cabling( m_cablingKey, ctx );
+  /// create the new lookup table
 
   EventIDRange id_range;
-  
-  if( !cabling.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << cabling.key());
-    return StatusCode::FAILURE;
-  }   
 
-  /// create the new lookuo table
-
-  std::unique_ptr<IRegSelLUT> rd = createTable( *cabling );
+  std::unique_ptr<IRegSelLUT> rd = createTable( ctx, id_range );
 
   if ( !rd ) return StatusCode::FAILURE;
 

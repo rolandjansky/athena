@@ -44,8 +44,10 @@ getattr (ROOT.xAOD, 'TrackParticleContainer_v1', None)
 getattr (ROOT.xAOD, 'Jet_v1', None)
 
 #Typed nullptr:
-jetAssocNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.JetAssociationBase)
-muonNull=cppyy.bind_object(cppyy.nullptr,cppyy.gbl.Analysis.Muon)
+JetAssociationBase = getattr (cppyy.gbl, 'JetAssociationBase', None)
+Muon = getattr (cppyy.gbl, 'Muon', None)
+jetAssocNull = cppyy.bind_object(cppyy.nullptr, JetAssociationBase) if JetAssociationBase else None
+muonNull = cppyy.bind_object(cppyy.nullptr, Muon) if Muon else None
 
 
 # Work around a cling bug.

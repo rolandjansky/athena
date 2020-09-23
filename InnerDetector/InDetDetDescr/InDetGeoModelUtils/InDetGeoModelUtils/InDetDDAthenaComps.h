@@ -24,19 +24,18 @@ public:
   AthenaComps(const std::string & msgStreamName);
 
   //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
   //Declaring the Method providing Verbosity Level
-  bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
 
   void setDetStore(StoreGateSvc *);
   void setGeoDbTagSvc(IGeoDbTagSvc *);
   void setRDBAccessSvc(IRDBAccessSvc *);
   void setGeometryDBSvc(IGeometryDBSvc *);
 
-  StoreGateSvc * detStore() const;
+  const StoreGateSvc * detStore() const;
   const IGeoDbTagSvc * geoDbTagSvc() const;
-  IRDBAccessSvc * rdbAccessSvc() const;
   const IGeometryDBSvc * geomDB() const;
   
   StoreGateSvc * detStore();
@@ -46,7 +45,7 @@ public:
   
 private:
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember m_msg;
   
   StoreGateSvc * m_detStore;
   IGeoDbTagSvc * m_geoDbTagSvc;
@@ -55,7 +54,12 @@ private:
 
 };
 
-inline StoreGateSvc * AthenaComps::detStore ATLAS_NOT_THREAD_SAFE () const
+inline StoreGateSvc * AthenaComps::detStore()
+{
+  return m_detStore;
+}
+
+inline const StoreGateSvc * AthenaComps::detStore() const
 {
   return m_detStore;
 }
@@ -65,25 +69,16 @@ inline const IGeoDbTagSvc * AthenaComps::geoDbTagSvc() const
   return m_geoDbTagSvc;
 }
 
-inline IRDBAccessSvc * AthenaComps::rdbAccessSvc ATLAS_NOT_THREAD_SAFE () const
-{
-  return m_rdbAccessSvc;
-}
-
 inline const IGeometryDBSvc * AthenaComps::geomDB() const
 {
   return m_geometryDBSvc;
-}
-
-inline StoreGateSvc * AthenaComps::detStore()
-{
-  return m_detStore;
 }
 
 inline IGeoDbTagSvc * AthenaComps::geoDbTagSvc()
 {
   return m_geoDbTagSvc;
 }
+
 
 inline IRDBAccessSvc * AthenaComps::rdbAccessSvc()
 {

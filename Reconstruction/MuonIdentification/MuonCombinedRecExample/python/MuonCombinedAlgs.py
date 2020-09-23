@@ -191,6 +191,9 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         topSequence += getAlgorithm("MuonCreatorAlg")
         if InDetFlags.doR3LargeD0():
             topSequence += getAlgorithm("MuonCreatorAlg_LargeD0")
+ 
+        # setting this here, in the new configuration it will be easier to do
+        topSequence.MuonCreatorAlg.MuonCreatorTool.ParticleCaloExtensionTool.StartFromPerigee=True
 
         if muonCombinedRecFlags.doMuGirl() and muonCombinedRecFlags.doMuGirlLowBeta():
             topSequence += getAlgorithm("StauCreatorAlg")

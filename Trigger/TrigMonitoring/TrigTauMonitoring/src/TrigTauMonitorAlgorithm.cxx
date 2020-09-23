@@ -135,6 +135,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     if(nTracks==1){
        tau_vec_1p.push_back(pairObj.first);
     }else if(nTracks>1){
+       ATH_MSG_DEBUG("NTracks Offline: " << nTracks);
        tau_vec_np.push_back(pairObj.first);
     }
   }
@@ -162,6 +163,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     if(nTracks==1){
       tau_vec_1p.push_back(feat);
     }else if(nTracks>1){
+      ATH_MSG_DEBUG("NTracks Online: " << nTracks);
       tau_vec_np.push_back(feat);
     }
   }
@@ -223,17 +225,14 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
                                                     }return detail;});
   auto ptDetectorAxis     = Monitored::Collection("ptDetectorAxis", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     return TMath::Log10(std::min(tau->ptDetectorAxis() / 1000.0, 100.0));});
-
-  auto massTrkSys         = Monitored::Collection("massTrkSys", tau_vec,  [] (const xAOD::TauJet* tau){
+  auto massTrkSys         = Monitored::Collection("massTrkSys", tau_vec,  [&nProng] (const xAOD::TauJet* tau){
                                                 float detail = -999;
-                                                if ((tau->detail(xAOD::TauJetParameters::massTrkSys, detail))&&(tau->nTracks()>1)){
+                                                if ( tau->detail(xAOD::TauJetParameters::massTrkSys, detail) && nProng.find("MP") != std::string::npos ){
                                                   detail = TMath::Log10(std::max(detail, 140.0f));
                                                 }return detail;});
 
-
-
     
-  fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis,massTrkSys);                                              
+  fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis,massTrkSys);     
   
 }
 
@@ -316,7 +315,7 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
 
     float max_cluster_dr = 1.0;
     
-    if(tau->jetLink().isValid()) {
+    if(!tau->jetLink().isValid()) {
       continue;
     }
 
@@ -324,8 +323,6 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
     if (!jetSeed) {
       ATH_MSG_ERROR("Tau jet link is invalid.");
     } 
-
-    ATH_MSG_DEBUG("After trying to get the jet link " << jetSeed->pt());
 
     if(!jetSeed->getConstituents().isValid()) {
       continue;
@@ -344,8 +341,6 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
 	clusters.push_back(cl);
       }
     }
-
-    ATH_MSG_DEBUG("After loop on jet constituents");
   
     auto et_cmp = [](const xAOD::CaloCluster *lhs,
 		     const xAOD::CaloCluster *rhs) {

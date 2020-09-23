@@ -137,7 +137,7 @@ namespace egammaParameters {
     e2ts1 = 26,
     /** @brief energy of the cell corresponding to second energy maximum in the first sampling */
     e2tsts1 = 27,
-    /** @brief shower shape in the shower core : [E(+/-3)-E(+/-1)]/E(+/-1), where E(+/-n) is the energy in Â± n strips around the strip with highest energy */
+    /** @brief shower shape in the shower core : [E(+/-3)-E(+/-1)]/E(+/-1), where E(+/-n) is the energy in +- n strips around the strip with highest energy */
     fracs1 = 28,
     /** @brief same as egammaParameters::weta1 but without corrections 
   on particle impact point inside the cell */
@@ -161,7 +161,7 @@ namespace egammaParameters {
     pos7 = 35,
     /** @brief  barycentre in sampling 1 calculated in 3 strips*/
     barys1 = 36,
-    /** @brief shower width is determined in a window detaxdphi = 0,0625 Ã~0,2, corresponding typically to 20 strips in eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum */
+    /** @brief shower width is determined in a window detaxdphi = 0,0625 ~0,2, corresponding typically to 20 strips in eta : wtot1=sqrt{sum Ei x ( i-imax)^2 / sum Ei}, where i is the strip number and imax the strip number of the first local maximum */
     wtots1 = 37,
     /** @brief energy reconstructed in the strip with the minimal value between the first and second maximum */
     emins1 = 38,

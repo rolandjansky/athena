@@ -5,23 +5,6 @@
 
 atlas_subdir( SystematicsHandles )
 
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEventInfo
-   PRIVATE
-   Control/xAODRootAccess
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODTau
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
-
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles

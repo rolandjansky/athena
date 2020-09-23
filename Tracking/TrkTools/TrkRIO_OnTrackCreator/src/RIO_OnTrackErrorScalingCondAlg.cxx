@@ -134,6 +134,7 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::execute() {
         std::pair<unsigned int, unsigned int> idx = m_attributeMap.at(attr_name);
         if (idx.first != std::numeric_limits<unsigned int>::max()) {
           assert( idx.first < error_scaling.size());
+          // cppcheck-suppress assertWithSideEffect
           assert( idx.second < error_scaling[idx.first]->params().size());
 
           const int nvals=alist[att_i++].data<int>();

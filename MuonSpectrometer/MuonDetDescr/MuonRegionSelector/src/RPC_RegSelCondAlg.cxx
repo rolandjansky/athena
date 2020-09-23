@@ -42,10 +42,17 @@ StatusCode RPC_RegSelCondAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
+std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
 
-  SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
-  const RpcCablingCondData* rpcCabling{*cablingCondData};
+  SG::ReadCondHandle<RpcCablingCondData> cablingCondData( m_rpcReadKey, ctx );
+
+  if( !cablingCondData.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingCondData.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }   
+
+
+  const RpcCablingCondData* cabling{*cablingCondData};
 
   const MuonGM::MuonDetectorManager* manager = nullptr;
 
@@ -78,7 +85,7 @@ std::unique_ptr<RegSelSiLUT> RPC_RegSelCondAlg::createTable( const MuonMDT_Cabli
     }
     
     std::vector<uint32_t> robIds;
-    if ( (rpcCabling->giveROB_fromPRD(prdHashId, robIds)).isFailure() ) { 
+    if ( (cabling->giveROB_fromPRD(prdHashId, robIds)).isFailure() ) { 
       ATH_MSG_ERROR( "RegSelCondAlg_RPC could not get ROBid" );
       return std::unique_ptr<RegSelSiLUT>(nullptr);
     }

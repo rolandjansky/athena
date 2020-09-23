@@ -15,7 +15,7 @@ class InDetMaterialManager;
 class InDetServMatGeometryManager
 {
 public:
-  InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
+  InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
  
   ~InDetServMatGeometryManager();
   
@@ -182,7 +182,7 @@ private:
   IRDBRecordset_ptr m_scalingTable;
 
   // Access to athena components
-  const InDetDD::AthenaComps * m_athenaComps;
+  InDetDD::AthenaComps * m_athenaComps;
 
   // Material Manager
   InDetMaterialManager * m_matMgr;
