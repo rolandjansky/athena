@@ -66,6 +66,16 @@ namespace DerivationFramework {
     std::string m_fjvtMomentKey;
     bool m_dofjvt;
 
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_customSumTrk;
+    ToolHandle<IJetModifier> m_customSumTrkTool;
+    std::string m_customSumTrkMomentKey;
+    bool m_docustomSumTrk;
+
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_customJvf;
+    ToolHandle<IJetModifier> m_customJvfTool;
+    std::string m_customJvfMomentKey;
+    bool m_docustomJvf;
+
     // MV-fJVT     @author: louis.portales@cern.ch
     std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt;
     std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_Sumcle;

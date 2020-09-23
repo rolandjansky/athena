@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetVertexTaggerTool.h
+// JetCustomVertexTaggerTool.h
 
-#ifndef JETMOMENTTOOLS_JETVERTEXTAGGERTOOL_H
-#define JETMOMENTTOOLS_JETVERTEXTAGGERTOOL_H
+#ifndef JETMOMENTTOOLS_JETCUSTOMVERTEXTAGGERTOOL_H
+#define JETMOMENTTOOLS_JETCUSTOMVERTEXTAGGERTOOL_H
 
 /// James Frost \n
 /// November 2014
@@ -56,6 +56,7 @@
 #include "JetEDM/TrackVertexAssociation.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
+#include "JetMomentTools/JetVertexTaggerTool.h"
 
 #include <vector>
 #include <string>
@@ -65,54 +66,33 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-class JetVertexTaggerTool
-: public asg::AsgTool,
-  virtual public IJetModifier,
-  virtual public IJetUpdateJvt {
-  ASG_TOOL_CLASS2(JetVertexTaggerTool,IJetModifier,IJetUpdateJvt)
+class JetCustomVertexTaggerTool : public JetVertexTaggerTool {
+  ASG_TOOL_CLASS2(JetCustomVertexTaggerTool,IJetModifier,IJetUpdateJvt)
 
 public:
   // Constructor from tool name
-  JetVertexTaggerTool(const std::string& name);
-
-  // Initialization.
-  StatusCode initialize();
+  JetCustomVertexTaggerTool(const std::string& name);
 
   // Inherited methods to modify a jet
-  virtual int modify(xAOD::JetContainer& jetCont) const;
-
-  // Finalization.
-  StatusCode finalize();
- 
-  // Evaluate JVT from Rpt and JVFcorr.
-  float evaluateJvt(float rpt, float jvfcorr) const;
+  virtual int modify(xAOD::JetContainer& jetCont) const override;
 
   // Update JVT by scaling Rpt byt the ratio of the current and original jet pT values.
   //   jet - jet for which JVT is updated
   //   sjvt - name of the existing JVT moment (and prefix for RpT and JVFcorr).
   //   scale - name of the jet scale holding the original pT
   // The new value for JVT is returned.
-  float updateJvt(const xAOD::Jet& jet) const;
+  float updateJvt(const xAOD::Jet& jet) const override;
 
-  // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex() const;
+  const xAOD::Vertex* associatedVertex(const xAOD::TrackParticle* track) const;
+  float getSumPtTrkPt500(const xAOD::Jet* jet, const xAOD::Vertex* pv) const;
 
-protected:  // data
+private:  // data
 
   // Configurable parameters
-  std::string m_verticesName;
-  std::string m_assocTracksName;
-  std::string m_tvaName;
-  std::string m_tracksName;
-  std::string m_jvfCorrName;
-  std::string m_sumPtTrkName;
-  std::string m_jvtlikelihoodHistName;
-  std::string m_jvtfileName;
-  std::string m_jvtName;
-  ToolHandle<IJetTrackSelector> m_htsel;
-  TString m_fn;
-  TFile * m_jvtfile;
-  TH2F * m_jvthisto;
+  std::string m_customSumPtTrkName;
+  float m_z0cutHighEta;
+  float m_z0cutLowEta;
+  float m_z0etaDiv;
 
 };
 
