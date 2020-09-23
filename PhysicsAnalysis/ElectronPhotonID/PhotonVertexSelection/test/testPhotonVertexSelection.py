@@ -125,10 +125,10 @@ else:
   print ('Analysing %s from %s' % (options.container, options.inputfile))
 
   import ROOT
-  ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
 
   # Initialize the xAOD infrastructure:
   ROOT.xAOD.Init().ignore()
+  ROOT.xAOD.EgammaContainer()
 
   # Setup the tools
   vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")

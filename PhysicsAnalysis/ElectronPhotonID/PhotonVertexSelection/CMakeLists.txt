@@ -50,9 +50,6 @@ atlas_add_dictionary( PhotonVertexSelectionDict
 
 # Test(s) in the package:
 if( XAOD_STANDALONE )
-   # FIX ME: temporarily disabled as part of the migration of
-   # AnalysisBase to master
-
-   # atlas_add_test( PhotonVertexSelection_test
-   #    SCRIPT test/testPhotonVertexSelection.py )
+   atlas_add_test( PhotonVertexSelection_test
+      SCRIPT test/testPhotonVertexSelection.py )
 endif()
