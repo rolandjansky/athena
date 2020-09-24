@@ -82,7 +82,7 @@ class FlagAddress(object):
 
         if self._flags.hasFlag( merged ):
             return self._flags._get( merged )
-            self.dump("Trig.*")
+
         raise RuntimeError( "No such flag: {}  The name is likely incomplete.".format(merged) )
 
     def __setattr__( self, name, value ):
