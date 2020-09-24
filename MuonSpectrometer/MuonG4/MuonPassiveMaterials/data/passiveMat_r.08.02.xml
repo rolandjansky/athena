@@ -6089,33 +6089,420 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
     <posXYZ  volume="CuivreCable"    X_Y_Z="    0;-541 ;SerZ"  rot="  0.;90.;0." />
 </composition>
 
-<composition  name="services3" >	
-    <posRPhiZ  volume="services2"    R_Phi_Z=" SerStart; Zero ; Zero"   />
+<!-- flexible chain sector 9
+
+name       = "Flexible Chain Sector 9-35Volumes"
+version    = "0.0"
+date       = "01.03.2019"
+author     = "Niko Tsutskiridze - Georgian Team" -->
+
+
+<!-- Towing ARM -->
+<box  name="TowingArm_main"     material="ShieldSteel" X_Y_Z=" 263.; 795.; 2480." />
+<box  name="TowingArm_main_Subtr"     material="ShieldSteel" X_Y_Z="250.; 782.; 2500." />
+
+<subtraction  name="TowingArm_Sub" >
+  <posXYZ   volume="TowingArm_main" />
+  <posXYZ   volume="TowingArm_main_Subtr" />
+</subtraction>
+
+<box  name="TowingARM_Plate_main"     material="ShieldSteel" X_Y_Z="102.; 550.; 550." />
+<box  name="TowingARM_Plate_Subtr"     material="ShieldSteel" X_Y_Z="102.; 510.; 510. " />
+
+<subtraction  name="TowingArm_Plate" >
+  <posXYZ   volume="TowingARM_Plate_main" />
+  <posXYZ   volume="TowingARM_Plate_Subtr" X_Y_Z=" 10. ; 0. ; 0. " />
+</subtraction>
+
+<composition  name="TowingArm" >
+  <posXYZ  volume="TowingArm_Sub"   rot="0. ; 0. ; 0." />
+  <posXYZ  volume="TowingArm_Plate"  X_Y_Z="182.6; 0. ; 930. " rot="   0. ; 0. ; 0." />
+</composition>
+<!-- End Towing ARM -->
+
+<!-- Drag Chain -->
+<box  name="DragChain_Main"  material="ShieldSteel" X_Y_Z=" 5555.; 804.; 17.5" />
+<tubs name="DragChain_Tube" material="ShieldSteel" Rio_Z="912.5; 930.; 804." profile="0.; 90." nbPhi="36."/>
+<box  name="DragChain_SmMain" material="ShieldSteel" X_Y_Z=" 17.5; 804.; 275." />
+
+<union name="DragChain" >
+  <posXYZ  volume="DragChain_Main"/>
+  <posXYZ  volume="DragChain_Tube" X_Y_Z="2777.5; 0. ; 921.25 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="DragChain_SmMain" X_Y_Z="3698.75; 0. ; 1056.75 "/>
+</union>
+<!-- End Towing ARM -->
+
+<!-- Pipes -->
+<box  name="Pipe_Main"  material="ShieldSteel" X_Y_Z=" 5425.; 439.; 2.05" />
+<tubs name="Pipe_Tube" material="ShieldSteel" Rio_Z="900.; 902.05; 439." profile="0.; 90." nbPhi="36."/>
+<box  name="Pipe_SmMain" material="ShieldSteel" X_Y_Z=" 2.05; 439.; 5114." />
+
+<union name="FCH_Pipes" >
+  <posXYZ  volume="Pipe_Main" X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Pipe_Tube" X_Y_Z="2712.5; 0. ; 901.025 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="Pipe_SmMain" X_Y_Z="3613.525; 0. ; 3454.025 "/>
+</union>
+<!-- End Pipes -->
+
+<!-- Cables -->
+<box  name="Cable_Main"  material="Copper" X_Y_Z=" 5425.; 720.; 6.7" />
+<tubs name="Cable_Tube" material="Copper" Rio_Z="1013.3; 1020.; 720." profile="0.; 90." nbPhi="36."/>
+<box  name="Cable_SmMain" material="Copper" X_Y_Z=" 6.7; 720.; 2504." />
+
+<union name="FCH_Cable" >
+  <posXYZ  volume="Cable_Main" X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Cable_Tube" X_Y_Z="2712.5; 0. ; 1016.65 " rot="  270. ; 0. ; 0." />
+  <posXYZ  volume="Cable_SmMain" X_Y_Z="3729.15; 0. ; 2266.65 "/>
+</union>
+<!-- End Cables -->
+
+<!-- Support -->
+<box  name="Support_MaBox"  material="ShieldSteel" X_Y_Z=" 5230.; 1005.; 750." />
+<box  name="Support_MaCutBox1"  material="ShieldSteel" X_Y_Z=" 5240.; 1005.; 336.9" />
+<box  name="Support_MaCutBox2"  material="ShieldSteel" X_Y_Z=" 5130.; 895.; 760." />
+
+<subtraction  name="Support_Ma" >
+  <posXYZ   volume="Support_MaBox"  />
+  <posXYZ   volume="Support_MaCutBox1" X_Y_Z="0.; 12.6 ; -181.15 " rot=" 0. ; 0. ; 0."/>
+  <posXYZ   volume="Support_MaCutBox1" X_Y_Z="0.; 12.6 ; 181.15 " rot=" 0. ; 0. ; 0."/>
+  <posXYZ   volume="Support_MaCutBox2" X_Y_Z="0.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<gvxy name="Support_Leg1" material="ShieldSteel" dZ="700.">
+  <gvxy_point X_Y="-50.; -50."/>
+  <gvxy_point X_Y="-50.; -40."/>
+  <gvxy_point X_Y="-6.5; -40."/>
+  <gvxy_point X_Y="-6.5; 40."/>
+  <gvxy_point X_Y="-50.; 40."/>
+  <gvxy_point X_Y="-50.; 50."/>
+  <gvxy_point X_Y="50.; 50."/>
+  <gvxy_point X_Y="50.; 40."/>
+  <gvxy_point X_Y="6.5; 40."/>
+  <gvxy_point X_Y="6.5; -40."/>
+  <gvxy_point X_Y="50.; -40."/>
+  <gvxy_point X_Y="50.; -50."/>
+</gvxy>
+
+<gvxy name="Support_Leg2" material="ShieldSteel" dZ="522.7">
+  <gvxy_point X_Y="-50.; -50."/>
+  <gvxy_point X_Y="-50.; -31.4"/>
+  <gvxy_point X_Y="-9.3; -31.4"/>
+  <gvxy_point X_Y="-9.3; 40."/>
+  <gvxy_point X_Y="-50.; 31.4"/>
+  <gvxy_point X_Y="-50.; 50."/>
+  <gvxy_point X_Y="50.; 50."/>
+  <gvxy_point X_Y="50.; 31.4"/>
+  <gvxy_point X_Y="9.3; 31.4"/>
+  <gvxy_point X_Y="9.3; -31.4"/>
+  <gvxy_point X_Y="50.; -31.4"/>
+  <gvxy_point X_Y="50.; -50."/>
+</gvxy>
+
+<composition  name="FCH_SupportLeg" >
+  <posXYZ  volume="Support_Leg1"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 90. ; 0." />
+  <posXYZ  volume="Support_Leg2"  X_Y_Z="-257.5; 311.36 ; 0. " rot="0. ; 90. ; 90." />
 </composition>
 
-<var  name="FlChx"    value="200"/>
-<var  name="FlChy"    value="1000"/>
-<var  name="FlChz"    value="3200"/>
-<box  name="Flexible" material="Aluminium1"     X_Y_Z="FlChx;FlChy;FlChz"  />
-<tubs name="Virage"   material="Aluminium1"     Rio_Z="800;1000;1000"  profile="0;90"    />
+<gvxy name="Support_SidePl1" material="ShieldSteel" dZ="3150.5">
+  <gvxy_point X_Y="150.; 62.5"/>
+  <gvxy_point X_Y="156.; 62.5"/>
+  <gvxy_point X_Y="156.; -62.5"/>
+  <gvxy_point X_Y="-156.; -62.5"/>
+  <gvxy_point X_Y="-156.; 62.5"/>
+  <gvxy_point X_Y="-150.; 62.5"/>
+  <gvxy_point X_Y="-150.; -56.7"/>
+  <gvxy_point X_Y="150.; -57.7"/>
+</gvxy>
 
-<composition name="FlexibleChain2"> 
-   <posXYZ volume="Flexible"  X_Y_Z="   FlChy-FlChx/2.; 0.; 0."  />
-   <posXYZ volume="Flexible"  X_Y_Z="  -FlChz/2.      ; 0.;FlChz/2.+FlChy-FlChx/2." rot=" 0.; 90.; 0." />
-   <posXYZ volume="Flexible"  X_Y_Z="-3*FlChz/2.      ; 0.;FlChz/2.+FlChy-FlChx/2." rot=" 0.; 90.; 0." />
-   <posXYZ volume="Virage"    X_Y_Z="               0.; 0.;FlChz/2."                rot="90.;  0.; 0." />
+<gvxy name="Support_SidePl2" material="ShieldSteel" dZ="2300.">
+  <gvxy_point X_Y="-150.; 812.5"/>
+  <gvxy_point X_Y="-156.; 812.5"/>
+  <gvxy_point X_Y="-156.; 937.5"/>
+  <gvxy_point X_Y="156.; 937.5"/>
+  <gvxy_point X_Y="156.; 812.5"/>
+  <gvxy_point X_Y="150.; 812.5"/>
+  <gvxy_point X_Y="150.; 931.7"/>
+  <gvxy_point X_Y="-150.; 931.7"/>
+</gvxy>
+
+<composition  name="Support_SidePl" >
+  <posXYZ  volume="Support_SidePl1"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SidePl2"  X_Y_Z="0.; 0. ; 425.25 " rot="0. ; 0. ; 0." />
 </composition>
 
-<composition  name="servicesAtZ0" >	
+<gvxy name="Support_SideFrPl1" material="ShieldSteel" dZ="14.">
+  <gvxy_point X_Y="-379.; -329.5"/>
+  <gvxy_point X_Y="-379.; -444.5"/>
+  <gvxy_point X_Y="-928.5; -594.5"/>
+  <gvxy_point X_Y="-1118.5; -594.5"/>
+  <gvxy_point X_Y="-1118.5; -220.5"/>
+  <gvxy_point X_Y="-300.; 594.5"/>
+  <gvxy_point X_Y="300.; 594.5"/>
+  <gvxy_point X_Y="1118.5; -220.5"/>
+  <gvxy_point X_Y="1118.5; -594.5"/>
+  <gvxy_point X_Y="928.5; -594.5"/>
+  <gvxy_point X_Y="379.; -444.5"/>
+  <gvxy_point X_Y="379.; -329.5"/>
+</gvxy>
+
+<box  name="Support_SideFrPl2_Box"  material="ShieldSteel" X_Y_Z=" 431.5; 1054.; 76." />
+<box  name="Support_SideFrPl2_Cut"  material="ShieldSteel" X_Y_Z=" 431.5; 1000.; 80." />
+
+<subtraction  name="Support_SideFrPl2" >
+  <posXYZ   volume="Support_SideFrPl2_Box"  />
+  <posXYZ   volume="Support_SideFrPl2_Cut" X_Y_Z="27.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<box  name="Support_SideFrPl3_Box"  material="ShieldSteel" X_Y_Z=" 1252.; 100.; 708." />
+<box  name="Support_SideFrPl3_Cut"  material="ShieldSteel" X_Y_Z=" 1252.; 110.; 650." />
+
+<subtraction  name="Support_SideFrPl3" >
+  <posXYZ   volume="Support_SideFrPl3_Box"  />
+  <posXYZ   volume="Support_SideFrPl3_Cut" X_Y_Z="29.; 0. ; 0. " rot=" 0. ; 0. ; 0."/>
+</subtraction>
+
+<composition  name="FCH_Support" >
+  <posXYZ  volume="Support_Ma"  X_Y_Z="0.; 0. ; 0. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_SupportLeg"  X_Y_Z="-2283.; -1075.31 ; 333.5 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_SupportLeg"  X_Y_Z="-2283.; -1075.31 ; -333.5 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SidePl"  X_Y_Z="3636.8; -439.8 ; 2825.25 " rot="0. ; 180. ; 0." />
+  <posXYZ  volume="Support_SidePl"  X_Y_Z="3636.8; -439.8 ; -2825.25 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl1"  X_Y_Z="3241.3; -500. ; 0. " rot="0. ; 90. ; 90." />
+  <posXYZ  volume="Support_SideFrPl2"  X_Y_Z="3668.55; -2.6 ; 1156.51 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl2"  X_Y_Z="3668.55; -2.6 ; -1156.51 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="Support_SideFrPl3"  X_Y_Z="3263.3; 576.92 ; 0. " rot="0. ; 0. ; 0." />
+</composition>
+<!-- End Support -->
+
+<composition  name="FlexibleChainSector9" >
+  <posXYZ  volume="TowingArm"   X_Y_Z="-4469.28; 0. ; 2659.1 " rot="   0. ; 0. ; 0." />
+  <posXYZ  volume="TowingArm"  X_Y_Z="-4469.28; 0. ; -2659.1 " rot="   180. ; 0. ; 0." />
+  <posXYZ  volume="DragChain"  X_Y_Z="-8197.5; 0. ; 222.75 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="DragChain"  X_Y_Z="-8197.5; 0. ; -222.75 " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Pipes"  X_Y_Z="-8090.84; -158.75 ; 194.625 " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Pipes"  X_Y_Z="-8090.84; -158.75 ; -194.625 " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Cable"  X_Y_Z="-8091.32; -21. ; 79. " rot="0. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Cable"  X_Y_Z="-8091.32; -21. ; -79. " rot="180. ; 0. ; 0." />
+  <posXYZ  volume="FCH_Support"  X_Y_Z="-8103.; 2.5 ; 0. " rot="0. ; 0. ; 0." />
+</composition>
+
+<!-- end of flexible chain sector 9 -->
+
+<!-- flexible chain sector 11 and 15
+
+name       = "41_Vol_-_FlexibleChainSector11-15"
+version    = "0.0"
+date       = "07-06-2019"
+author     = "Niko Tsutskiridze, Davit Shekiladze" -->
+
+<!-- Support -->
+<box   name="Support_BottomPlate"     material="ShieldSteel"  X_Y_Z=" 4300.; 9.5; 506." />
+<box   name="Support_SidesPlates"     material="ShieldSteel"  X_Y_Z=" 4312.; 828.5; 25." />
+<box   name="Support_SidesPlatesCutBox"     material="ShieldSteel"  X_Y_Z=" 1956.; 710.; 30." />
+
+<subtraction name="Support_SidesPlatesSubtr" >
+   <posXYZ  volume="Support_SidesPlates"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesCutBox"  X_Y_Z=" -1078. ; -40.75 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesCutBox"  X_Y_Z=" 1078. ; -40.75 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_MidlPlates"     material="ShieldSteel"  X_Y_Z=" 4312.; 814.9; 20." />
+<box   name="Support_MidlPlatesCutBox"     material="ShieldSteel"  X_Y_Z=" 1954.; 615.; 25." />
+
+<subtraction name="Support_MidlPlatesSubtr" >
+   <posXYZ  volume="Support_MidlPlates"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesCutBox"  X_Y_Z=" -1079. ; -0.05 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesCutBox"  X_Y_Z=" 1079. ; -0.05 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<composition name="Support_SidesPlatesM" >
+   <posXYZ  volume="Support_SidesPlatesSubtr"   X_Y_Z=" 0. ; 405.547 ; 265.6  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_SidesPlatesSubtr"   X_Y_Z=" 0. ; 405.547 ; -265.6  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_MidlPlatesSubtr"   X_Y_Z=" 0. ; 412.35 ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<gvxy  name="Support_WingPlate"  material="ShieldSteel"  dZ="2287." >
+  <gvxy_point  X_Y=" -114.148; 64.757 " />
+  <gvxy_point  X_Y=" -114.148; -69.961 " />
+  <gvxy_point  X_Y=" -119.041; -69.961 " />
+  <gvxy_point  X_Y=" -119.041; 69.961 " />
+  <gvxy_point  X_Y=" 119.041; 69.961 " />
+  <gvxy_point  X_Y=" 119.041; -69.961 " />
+  <gvxy_point  X_Y=" 114.148; -69.961 " />
+  <gvxy_point  X_Y=" 114.148; 64.757 " />
+</gvxy>
+
+<box   name="Support_WingBox1"     material="ShieldSteel"  X_Y_Z=" 297.155; 896.845; 100." />
+<box   name="Support_WingCutBox1"     material="ShieldSteel"  X_Y_Z=" 238.155; 846.845; 110." />
+
+<subtraction name="Support_WingBox1Subtr" >
+   <posXYZ  volume="Support_WingBox1"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox1"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+
+<box   name="Support_WingBox"     material="ShieldSteel"  X_Y_Z=" 302.155; 901.845; 100." />
+<box   name="Support_WingCutBox"     material="ShieldSteel"  X_Y_Z=" 238.155; 846.845; 110." />
+
+<subtraction name="Support_WingBoxSubtr" >
+   <posXYZ  volume="Support_WingBox"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_WingBox2"     material="ShieldSteel"  X_Y_Z=" 291.; 866.094; 100." />
+<box   name="Support_WingCutBox2"     material="ShieldSteel"  X_Y_Z=" 246.155; 821.094; 110." />
+
+<subtraction name="Support_WingBox2Subtr" >
+   <posXYZ  volume="Support_WingBox2"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox2"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<box   name="Support_WingBox3"     material="ShieldSteel"  X_Y_Z=" 242.; 629.5; 1041." />
+<box   name="Support_WingCutBox3"     material="ShieldSteel"  X_Y_Z=" 217.; 600.; 1050." />
+
+<subtraction name="Support_WingBox3Subtr" >
+   <posXYZ  volume="Support_WingBox3"   X_Y_Z=" 0. ; 0. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCutBox3"  X_Y_Z=" 0. ; 0. ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<composition  name="Support_WingSidepartsLeft" >
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; 344.027 ; 0." rot=" 0.; 0.;0." />
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; -344.027 ; 0." rot=" 180.; 0.;0." />
+   <posXYZ  volume="Support_WingBox1Subtr"   X_Y_Z=" 0. ; 0.; 583.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 1087.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -133.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -794.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox2Subtr"   X_Y_Z=" 18.6 ; 15.3; 1237.2 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox3Subtr"   X_Y_Z=" -11. ; 3.6; -1744. "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<composition  name="Support_WingSidepartsRight" >
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; 344.027 ; 0." rot=" 0.; 0.;0." />
+   <posXYZ  volume="Support_WingPlate"    X_Y_Z=" 0. ; -344.027 ; 0." rot=" 180.; 0.;0." />
+   <posXYZ  volume="Support_WingBox1Subtr"   X_Y_Z=" 0. ; 0.; -583.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; -1087.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 133.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBoxSubtr"   X_Y_Z=" 0. ; 0.; 794.5 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox2Subtr"   X_Y_Z=" 18.6 ; 15.3; -1237.2 "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingBox3Subtr"   X_Y_Z=" -11. ; 3.6; 1744. "  rot=" 0. ; 0. ; 0. "/>
+</composition>
+
+<box   name="Support_WingCentBottom"     material="ShieldSteel"  X_Y_Z=" 1396.; 795.; 18." />
+
+<tubs   name="Support_WingCentBottomCutTube"  material="ShieldSteel"  Rio_Z=" 0. ; 385. ; 20. "  nbPhi="32" />
+<subtraction name="Support_WingCentBottomCut" >
+   <posXYZ  volume="Support_WingCentBottom"   X_Y_Z=" 0. ; 10. ; 0.  "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCentBottomCutTube"  X_Y_Z=" 690. ; 292.5 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+   <posXYZ  volume="Support_WingCentBottomCutTube"  X_Y_Z=" -690. ; 292.5 ; 0. "  rot=" 0. ; 0. ; 0. "/>
+</subtraction>
+
+<gvxy  name="Support_WingMiddleTopPlate"  material="ShieldSteel"  dZ="14." >
+  <gvxy_point  X_Y=" -463.; 290.825 " />
+  <gvxy_point  X_Y=" -463.; -290.825 " />
+  <gvxy_point  X_Y=" -563.; -290.825 " />
+  <gvxy_point  X_Y=" -563.; 390.825 " />
+  <gvxy_point  X_Y=" 563.; 390.825 " />
+  <gvxy_point  X_Y=" 563.; -290.825 " />
+  <gvxy_point  X_Y=" 463.; -290.825 " />
+  <gvxy_point  X_Y=" 463.; 290.825 " />
+</gvxy>
+
+<gvxy  name="Support_WingMiddleBackPlate"  material="ShieldSteel"  dZ="100." >
+  <gvxy_point  X_Y=" -263.; 410.525 " />
+  <gvxy_point  X_Y=" -263.; -410.525 " />
+  <gvxy_point  X_Y=" -288.; -410.525 " />
+  <gvxy_point  X_Y=" -288.; 430.525 " />
+  <gvxy_point  X_Y=" 288.; 430.525 " />
+  <gvxy_point  X_Y=" 288.; -410.525 " />
+  <gvxy_point  X_Y=" 263.; -410.525 " />
+  <gvxy_point  X_Y=" 263.; 410.525 " />
+</gvxy>
+
+<composition  name="Support_WingMiddle" >
+    <posXYZ  volume="Support_WingCentBottomCut"  X_Y_Z=" 2690. ; -4.774 ; 0." rot=" 90.; -90.;0."    />
+    <posXYZ  volume="Support_WingMiddleTopPlate"  X_Y_Z=" 3065.32 ; 835.9 ; 0." rot=" 90.; -90.;0."    />
+    <posXYZ  volume="Support_WingMiddleBackPlate"  X_Y_Z=" 2324.5 ; 418.6 ; 0." rot=" 0.; 90.;0."    />
+</composition>
+
+<!-- End Support -->
+
+<!-- Drag Chain-->
+<box name="plate_of_drag_chain1" material="ShieldSteel" X_Y_Z="4639.; 640.; 16."/>
+<tubs name="plate_of_drag_chain2" material="ShieldSteel" Rio_Z="409.; 425.; 640." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_drag_chain3" material="ShieldSteel" X_Y_Z="16; 640.; 324.5"/>
+
+<composition  name="Drag_Chain_assembly" >
+  <posXYZ  volume="plate_of_drag_chain1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_drag_chain2"    X_Y_Z="  2319.55; 0.; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_drag_chain3"    X_Y_Z="  2736.5; 0.; -579.3" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Drag_Chain" >
+  <posXYZ  volume="Drag_Chain_assembly"    X_Y_Z=" 178.09; 387.39; -134." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="Drag_Chain_assembly"    X_Y_Z=" 178.09; 387.39; 134." rot=" 180.; 0.; 0."/>
+</composition>
+<!--End Drag Chain-->
+
+<!--  Cable-->
+<box name="plate_of_Cable1" material="Copper" X_Y_Z="4609.; 192.; 16."/>
+<tubs name="plate_of_Cable2" material="Copper" Rio_Z="409.; 425.; 192." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_Cable3" material="Copper" X_Y_Z="16.; 192.; 3282."/>
+
+<composition  name="Cable_assembly" >
+  <posXYZ  volume="plate_of_Cable1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_Cable2"    X_Y_Z="  2304.55; 0; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_Cable3"    X_Y_Z="  2721.5; 0.; -2058.05" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Cable" >
+  <posXYZ  volume="Cable_assembly"    X_Y_Z=" 163.09; 554.39;  -180." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="Cable_assembly"    X_Y_Z=" 163.09; 554.39;  180." rot=" 180.; 0.; 0."/>
+</composition>
+<!--End  Cable-->
+
+<!--  Pipes-->
+<box name="plate_of_Pipes1" material="ShieldSteel" X_Y_Z="4609.; 240.; 16."/>
+<tubs name="plate_of_Pipes2" material="ShieldSteel" Rio_Z="409.; 425.; 240." profile="90.; 90." nbPhi="32"/>
+<box name="plate_of_Pipes3" material="ShieldSteel" X_Y_Z="16.; 240.; 3282."/>
+
+<composition  name="Pipes_assembly" >
+  <posXYZ  volume="plate_of_Pipes1"    X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ  volume="plate_of_Pipes2"    X_Y_Z="  2304.55; 0.; -417." rot=" 90.; 90.; 0."/>
+  <posXYZ  volume="plate_of_Pipes3"    X_Y_Z="  2721.5; 0.; -2058.05" rot=" 0.; 0.; 0."/>
+</composition>
+
+<composition  name="Pipes" >
+  <posXYZ  volume="Pipes_assembly"    X_Y_Z=" 163.09; 287.39;  180." rot=" 180.; 0.; 0."/>
+  <posXYZ  volume="Pipes_assembly"    X_Y_Z=" 163.09; 287.39;  -180." rot=" 0.; 0.; 0."/>
+</composition>
+<!--End Pipes-->
+
+<composition  name="Flexible_Chain_Sector11-15" >
+     <posXYZ  volume="Support_BottomPlate"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Support_SidesPlatesM"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Support_WingSidepartsLeft"  X_Y_Z=" 2913.853 ; 402.7 ; -1985.5" rot=" 0.; 0.; 0."  />
+     <posXYZ  volume="Support_WingSidepartsRight"  X_Y_Z=" 2913.853 ; 402.7 ; 1985.5" rot=" 0.; 0.; 0."  />
+     <posXYZ  volume="Support_WingMiddle"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Drag_Chain"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Cable"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+     <posXYZ  volume="Pipes"    X_Y_Z=" 0. ; 0. ; 0." rot=" 0.; 0.;0." />
+</composition>
+
+<composition  name="FlexibleChainSector11-15" >
+     <posXYZ  volume="Flexible_Chain_Sector11-15"    X_Y_Z=" -5446.554 ; -5631.994 ; 0." rot=" 0.; 0.;45." />
+     <posXYZ  volume="Flexible_Chain_Sector11-15"    X_Y_Z=" 5446.554 ; -5631.994 ; 0." rot=" 0.; 180.; -45." />
+</composition>
+
+<!-- end of flexible chain sector 11 and 15 -->
+
+<composition  name="servicesAtZ0" >
    <posXYZ    volume="EMCaloPipeI"    X_Y_Z="  Zero;  7000 ; Zero"  rot=" 90.; 0.;0." />
    <posXYZ    volume="EMCaloPipeO"    X_Y_Z="  Zero; -5000 ;  100"  rot=" 90.; 0.;0." />
    <posXYZ    volume="services1"      X_Y_Z="  Zero;  Zero ; Zero"  rot="  0.; 0.;0." />
    <posRPhiZ  volume="services1"      R_Phi_Z="Zero;    45 ; Zero"  rot="  0.; 0.;0." />
    <posRPhiZ  volume="services1"      R_Phi_Z="Zero;   135 ; Zero"  rot="  0.; 0.;0." />
-   <posRPhiZ  volume="services3"      R_Phi_Z="Zero;   225 ; Zero"  rot="  0.; 0.;0." />
-   <posRPhiZ  volume="services3"      R_Phi_Z="Zero;   315 ; Zero"  rot="180.; 0.;0." />
-   <posXYZ volume="FlexibleChain2"  X_Y_Z=" -5440.;0.;-2750."  />
-   <posXYZ volume="FlexibleChain2"  X_Y_Z=" -5440.;0.;+2750."   rot="180.; 0.; 0."/>
+   <posXYZ volume="FlexibleChainSector9"  X_Y_Z="0;0;0"   rot="0;0;0"/>
+   <posXYZ volume="FlexibleChainSector11-15"  X_Y_Z="0;0;0"   rot="0;0;0"/>
 </composition>
 </section>
 
