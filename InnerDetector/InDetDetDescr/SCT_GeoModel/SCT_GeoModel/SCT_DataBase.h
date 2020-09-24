@@ -19,7 +19,7 @@ class SCT_DataBase
   
 public:
 
-  SCT_DataBase(SCT_GeoModelAthenaComps* athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe AthenaComps::rdbAccessSvc const method is used.
+  SCT_DataBase(SCT_GeoModelAthenaComps* athenaComps);
 
   SCT_GeoModelAthenaComps* athenaComps();
 
