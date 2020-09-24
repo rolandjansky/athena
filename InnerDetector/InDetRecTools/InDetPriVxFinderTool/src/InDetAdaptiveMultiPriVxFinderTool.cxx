@@ -342,38 +342,32 @@ bool InDetAdaptiveMultiPriVxFinderTool::vtxEtaDependentCut(const xAOD::TrackPart
   double trackEta = (trk)->eta();
   const xAOD::ParametersCovMatrix_t covTrk = trk->definingParametersCovMatrix();
   
-  if ( fabs((trk)->pt()) < m_etaDependentCutsSvc->getMinPtAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("track pt: " << fabs((trk)->pt()) << " LOWER than min pt: " << m_etaDependentCutsSvc->getMinPtAtEta(trackEta) << "");
+  if ( getCount(*trk,xAOD::numberOfSCTHits)==-1 || getCount(*trk,xAOD::numberOfPixelHits)==-1 ) {
+    etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
+    ATH_MSG_WARNING("Failed to access Strips or Pixels infos, missing summaryValue() ");
   }
-  else if ( fabs((trk)->d0()) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("track d0: " << fabs((trk)->d0()) << " HIGHER than max d0: "<< m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) << "" );
-  }
-  else if ( fabs((trk)->z0()) > m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("track z0: " << fabs((trk)->z0()) << " HIGHER than max z0: "<< m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) << "" );
-  }
-  else if ( fabs((trk)->d0())/Amg::error(covTrk,Trk::d0) > m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) ) {
-    etaSelectionPassed_temp = false;
-    ATH_MSG_DEBUG("track error d0 significance: " << fabs(Amg::error(covTrk, 0))/Amg::error(covTrk,Trk::d0) << " HIGHER than max err d0 significance: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
-  }
-  else if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ) {
-    if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < 0 ) {
-      etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
-      ATH_MSG_WARNING("Failed to access Silicon Hits Counts");
-    } 
-    else {
+  else {
+    if ( fabs((trk)->pt()) < m_etaDependentCutsSvc->getMinPtAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track pt: " << fabs((trk)->pt()) << " LOWER than min pt: " << m_etaDependentCutsSvc->getMinPtAtEta(trackEta) << "");
+    }
+    else if ( fabs((trk)->d0()) > m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track d0: " << fabs((trk)->d0()) << " HIGHER than max d0: "<< m_etaDependentCutsSvc->getMaxPrimaryImpactAtEta(trackEta) << "" );
+    }
+    else if ( fabs((trk)->z0()) > m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track z0: " << fabs((trk)->z0()) << " HIGHER than max z0: "<< m_etaDependentCutsSvc->getMaxZImpactAtEta(trackEta) << "" );
+    }
+    else if ( fabs((trk)->d0())/Amg::error(covTrk,Trk::d0) > m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) ) {
+      etaSelectionPassed_temp = false;
+      ATH_MSG_DEBUG("track error d0 significance: " << fabs(Amg::error(covTrk, 0))/Amg::error(covTrk,Trk::d0) << " HIGHER than max err d0 significance: "<< m_etaDependentCutsSvc->getSigIPd0MaxAtEta(trackEta) << "" );
+    }
+    else if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) ) {
       etaSelectionPassed_temp = false;
       ATH_MSG_DEBUG("SilHits: " << getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min SilHits: " << m_etaDependentCutsSvc->getMinSiHitsAtEta(trackEta) << "");
     }
-  }
-  else if ( getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) ) {
-    if ( getCount(*trk,xAOD::numberOfSCTHits)+getCount(*trk,xAOD::numberOfPixelHits) < 0 ) {
-      etaSelectionPassed_temp = false; // track rejected, missing summaryValue() infos
-      ATH_MSG_WARNING("Failed to access Pixel Hits Counts");
-    }
-    else {
+    else if ( getCount(*trk,xAOD::numberOfPixelHits) < m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) ) {
       etaSelectionPassed_temp = false;
       ATH_MSG_DEBUG("PixHits: " << getCount(*trk,xAOD::numberOfPixelHits) << " LOWER than min PixHits: " << m_etaDependentCutsSvc->getMinPixelHitsAtEta(trackEta) << ""); 
     }
