@@ -251,7 +251,7 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    topSequence += PFEGammaPFOAssoc
 
 jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
-print("RUN_FE_NOW_PLS")
+
 #Add new FlowElement creators
 if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
@@ -268,4 +268,8 @@ if jobproperties.eflowRecFlags.useFlowElements:
 
   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
   PFMuonFlowElementAssoc=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
+  #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements 
+  print(PFMuonFlowElementAssoc.m_LinkNeutralFEClusters)
+
+  print("RUN_MUONFLOWELEMS_PLS")
   topSequence += PFMuonFlowElementAssoc

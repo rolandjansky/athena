@@ -92,22 +92,16 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
     
     //loop over muons in container
     for(const xAOD::Muon* muon: *muonChargedFEWriteDecorHandle){
-      // retrieve a link to an ID track where possible
-      const ElementLink<xAOD::TrackParticleContainer> muonTrackContLink=muon->inDetTrackParticleLink();
-      const xAOD::TrackParticleContainer* TrkCont=muonTrackContLink.getDataPtr();
-      if(TrkCont->size()>0){
-	for(const xAOD::TrackParticle* MuonTrkParticle: *TrkCont){
-	  size_t MuonTrkIndex=MuonTrkParticle->index();
-	  if(MuonTrkIndex==FETrackIndex){
-	    // Add Muon element link to a vector
-	    // index() is the unique index of the muon in the muon container
-	    FEMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
-	    // Add flow element link to a vector
-	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
-	    muonChargedFEVec.at(muon->index()).push_back(FlowElementLink_t(*ChargedFEReadHandle,FE->index()));
-	  } // matching block
-	} // TrkCont loop
-      } // Size check
+      const xAOD::TrackParticle* muon_trk=muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);      
+      size_t MuonTrkIndex=muon_trk->index();
+      if(MuonTrkIndex==FETrackIndex){
+	// Add Muon element link to a vector
+	// index() is the unique index of the muon in the muon container
+	FEMuonLinks.push_back( MuonLink_t(*muonReadHandle, muon->index()));
+	// Add flow element link to a vector
+	// index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	muonChargedFEVec.at(muon->index()).push_back(FlowElementLink_t(*ChargedFEReadHandle,FE->index()));
+      } // matching block
     }// end of muon loop
     
     // Add vector of muon element links as decoration to FlowElement container
