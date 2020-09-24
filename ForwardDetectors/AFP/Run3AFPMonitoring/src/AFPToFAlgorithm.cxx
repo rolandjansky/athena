@@ -27,7 +27,8 @@ AFPToFAlgorithm::~AFPToFAlgorithm() {}
 StatusCode AFPToFAlgorithm::initialize() {
 	using namespace Monitored;
 
-	m_HitmapGroupsToF = buildToolMap<int>(m_tools,"AFPToFTool", m_stationNamesToF);
+	m_StationNamesGroup = buildToolMap<int>(m_tools,"AFPToFTool", m_stationNamesToF);
+	m_TrainsToFGroup = buildToolMap<int>(m_tools, "AFPToFTool", m_trainsToF);
 
 	// We must declare to the framework in initialize what SG objects we are going to use
 	SG::ReadHandleKey<xAOD::AFPToFHitContainer> afpToFHitContainerKey("AFPToFHits");
@@ -47,6 +48,10 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	auto numberOfHit_S3 = Monitored::Scalar<int>("numberOfHit_S3", 0);
 	auto trainID = Monitored::Scalar<int>("trainID", 0); 
 	auto barInTrainID = Monitored::Scalar<int>("barInTrainID", 0); 
+	auto barInTrainAllA = Monitored::Scalar<int>("barInTrainAllA", 0);
+	auto barInTrainIDA = Monitored::Scalar<int>("barInTrainIDA", 0); 
+	auto barInTrainAllC = Monitored::Scalar<int>("barInTrainAllC", 0);
+	auto barInTrainIDC = Monitored::Scalar<int>("barInTrainIDC", 0); 
     
 	lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -71,16 +76,26 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 		{
 			numberOfHit_S0 = hitsItr->trainID();
 			fill("AFPToFTool", numberOfHit_S0);
+			
+			barInTrainIDA = hitsItr->barInTrainID();
+			fill(m_tools[m_TrainsToFGroup.at(m_trainsToF.at(hitsItr->trainID()))], barInTrainIDA);
+			barInTrainAllA = (hitsItr->trainID()*4)+barInTrainIDA;
+			fill("AFPToFTool", barInTrainAllA);
 		}
 		else if(hitsItr->isSideC())
 		{
 			numberOfHit_S3 = hitsItr->trainID();
 			fill("AFPToFTool", numberOfHit_S3);
+			
+			barInTrainIDC = hitsItr->barInTrainID();
+			fill(m_tools[m_TrainsToFGroup.at(m_trainsToF.at(hitsItr->trainID()))], barInTrainIDC);
+			barInTrainAllC = (hitsItr->trainID()*4)+barInTrainIDC;
+			fill("AFPToFTool", barInTrainAllC);
 		}
 
 		if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)
 		{
-			fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], barInTrainID, trainID);
+			fill(m_tools[m_StationNamesGroup.at(m_stationNamesToF.at(hitsItr->stationID()))], barInTrainID, trainID);
 		}
 	}
 
