@@ -10,7 +10,7 @@
 class TRTParameters;
 class TRTProcessingOfEndCapHits;
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersForEndCapHits // Thread unsafe TRTParameters and TRTProcessingOfEndCapHits classes are used.
+class TRTParametersForEndCapHits
 {
 public:
   TRTParametersForEndCapHits(TRTProcessingOfEndCapHits*);
