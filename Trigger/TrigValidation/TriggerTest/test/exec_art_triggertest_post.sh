@@ -80,15 +80,6 @@ else
   echo "art-result:  999 CheckCounts"
 fi
 
-### COST
-
-if [ -f trig_cost.root ]; then 
-  echo $(date "+%FT%H:%M %Z")"     Running CostMon"
-  timeout 2h RunTrigCostD3PD -f trig_cost.root --outputTagFromAthena --costMode > costMon.log 2>&1
-else 
-  echo $(date "+%FT%H:%M %Z")"     file trig_cost.root does not exist thus RunTrigCostD3PD will not be run"
-fi
-
 ### ZEROCOUNTS CHECK
 
 # SKIP_CHAIN_DUMP=1 skips this step
