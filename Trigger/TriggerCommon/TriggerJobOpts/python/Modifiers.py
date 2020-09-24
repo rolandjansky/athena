@@ -589,27 +589,6 @@ class forceMuonDataPrep(_modifier):
     def preSetup(self):
         pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
 
-class FakeLVL1(_modifier):
-    """
-    setup fake LVL1 RoIs
-    """
-    def postSetup(self):
-        from TrigFake.TrigFakeConf import FakeLvl1RoIatFixedEtaPhi
-        fake = FakeLvl1RoIatFixedEtaPhi()
-        fake.FakeMuonRoiPhi=TriggerFlags.CosmicSlice.FakeLVL1ROIPhi()
-        fake.FakeMuonRoiEta=TriggerFlags.CosmicSlice.FakeLVL1ROIEta()
-        #fake.FakeMuonRoiEta=0.5
-        fake.FakeMuonRoiLabel=TriggerFlags.CosmicSlice.FakeLVL1Threshold()
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool =  fake
-            if (TriggerFlags.CosmicSlice.forceLVL2Accept()):
-                svcMgr.HltEventLoopMgr.ForceLvl2Accept =  True
-            if (TriggerFlags.CosmicSlice.filterEmptyROB()):
-                svcMgr.ROBDataProviderSvc.filterEmptyROB=True
-
-
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
