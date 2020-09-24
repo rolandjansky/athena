@@ -6,7 +6,7 @@ def load_files_for_fcp_scenario(MASS, CHARGE, X, Y):
     import os, shutil, sys
 
     CODE=int(20000000)+int(X)*1000+int(Y)*10
-    print("Trying to load %d, %d for particle with code %d" % (X, Y, CODE))
+    print("Trying to load %s, %s for particle with code %s" % (X, Y, CODE))
 
     pdgLine1="M {code}                         {intmass}.E+03       +0.0E+00 -0.0E+00 fcp           +\n".format(code=CODE,intmass=int(MASS))
     pdgLine2="W {code}                         0.E+00         +0.0E+00 -0.0E+00 fcp           +\n".format(code=CODE)
