@@ -39,7 +39,7 @@ StatusCode  CaloClusterLocalCalib::initialize() {
     return StatusCode::FAILURE;
   }
   //Retrieve classification tool (if necessary)
-  if (m_classificationTool.size()>0) {
+  if (!m_classificationTool.empty()) {
     ATH_CHECK(m_classificationTool.retrieve());
     msg(MSG::INFO) << "Found classification tool " << m_classificationTool[0] << endmsg;
   }
@@ -49,7 +49,7 @@ StatusCode  CaloClusterLocalCalib::initialize() {
   msg(MSG::INFO) <<"Loaded "<< m_calibTools.size() <<" hadronic calibration tools"<<endmsg;
   
   // check that at least one reco status is defined
-  if ( m_recoStatus.size() == 0 ) {
+  if ( m_recoStatus.empty() ) {
     msg(MSG::ERROR) << "Please specify at least one valid reco status with ClusterRecoStatus = [...] for this calib tool " << endmsg;
     return StatusCode::FAILURE;
   }
@@ -100,7 +100,7 @@ StatusCode  CaloClusterLocalCalib::execute(const EventContext& ctx,
         CaloCellContainer* myCellColl = new CaloCellContainer(SG::OWN_ELEMENTS);  
         xAOD::CaloCluster* myCluster  = CaloClusterStoreHelper::makeCluster(myCellColl);
         int cellIndex = 0; 
-        CaloCell* CellReplica = 0;     
+        CaloCell* CellReplica = nullptr;     
 //         Iterate over cells of old cluster and replicate them with energy weighted by -1 if negative and add it to the new cluster
         xAOD::CaloCluster::cell_iterator cellIter = theCluster->cell_begin();  
         for(;cellIter!=theCluster->cell_end();cellIter++) {

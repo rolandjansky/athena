@@ -19,17 +19,6 @@
 
 namespace ROIB {
 
-  const unsigned int RoIBResult::emLink[4]   = {EM1_DOFL, EM2_DOFL, EM3_DOFL, EM4_DOFL};
-  const unsigned int RoIBResult::jLink[2]    = {J1_DOFL, J2_DOFL};
-
-  RoIBResult::RoIBResult( const MuCTPIResult& muctpi, const CTPResult& ctp, const std::vector< JetEnergyResult >& jetEnergy,
-                          const std::vector< EMTauResult >& emtau )
-    : m_RoIBResultMuCTPI( muctpi ), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ),
-      m_RoIBResultL1Topo() {
-
-  }
-
   RoIBResult::RoIBResult( MuCTPIResult&& muctpi,
                           CTPResult&& ctp,
                           std::vector< JetEnergyResult >&& jetEnergy,
@@ -42,36 +31,26 @@ namespace ROIB {
   {
   }
 
-  RoIBResult::RoIBResult( const CTPResult& ctp, 
-			  const std::vector< EMTauResult >& emtau, 
-			  const std::vector< JetEnergyResult >& jetEnergy )
-    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ),
+  RoIBResult::RoIBResult( CTPResult&& ctp, 
+			  std::vector< EMTauResult >&& emtau, 
+			  std::vector< JetEnergyResult >&& jetEnergy )
+    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( std::move(ctp) ),
+      m_RoIBResultJetEnergy( std::move(jetEnergy) ), m_RoIBResultEMTau( std::move(emtau) ),
       m_RoIBResultL1Topo() {
 
   }
 
-  RoIBResult::RoIBResult( const CTPResult& ctp, const std::vector< EMTauResult >& emtau )
-    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy(), m_RoIBResultEMTau( emtau ),
+  RoIBResult::RoIBResult( CTPResult&& ctp, std::vector< EMTauResult >&& emtau )
+    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( std::move(ctp) ),
+      m_RoIBResultJetEnergy(), m_RoIBResultEMTau( std::move(emtau) ),
       m_RoIBResultL1Topo() {
   }
 
-  RoIBResult::RoIBResult( const CTPResult& ctp )
-    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
+  RoIBResult::RoIBResult( CTPResult&& ctp )
+    : m_RoIBResultMuCTPI(), m_RoIBResultCTP( std::move(ctp) ),
       m_RoIBResultJetEnergy(), m_RoIBResultEMTau(),
       m_RoIBResultL1Topo() {
 
-  }
-
-  RoIBResult::RoIBResult()
-    : m_RoIBResultMuCTPI(), m_RoIBResultCTP(),
-      m_RoIBResultJetEnergy(), m_RoIBResultEMTau(),
-      m_RoIBResultL1Topo() {
-
-  }
-
-  RoIBResult::~RoIBResult() {
   }
 
   const MuCTPIResult& RoIBResult::muCTPIResult() const {
@@ -94,8 +73,8 @@ namespace ROIB {
     return m_RoIBResultL1Topo;
   }
 
-  void RoIBResult::l1TopoResult(const std::vector< L1TopoResult >& vL1TopoResult){
-    m_RoIBResultL1Topo = vL1TopoResult;
+  void RoIBResult::l1TopoResult(std::vector< L1TopoResult >&& vL1TopoResult) noexcept{
+    m_RoIBResultL1Topo = std::move(vL1TopoResult);
   }
 
   const std::string RoIBResult::dump() const

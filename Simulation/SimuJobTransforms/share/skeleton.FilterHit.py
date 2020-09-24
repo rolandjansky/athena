@@ -114,9 +114,9 @@ else:
     raise RuntimeError("No outputHitsFile provided.")
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 try:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput() )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", athenaCommonFlags.PoolHitsOutput(), noTag=True )
 except:
-    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root" )
+    Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=True )
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
 

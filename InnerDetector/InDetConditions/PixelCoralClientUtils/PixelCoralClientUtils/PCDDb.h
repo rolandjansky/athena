@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _PCDDb_h_
-#define _PCDDb_h_
+#ifndef PIXELCORALCLIENTUTILS_PCDDB_H
+#define PIXELCORALCLIENTUTILS_PCDDB_H
 
 #include <string>
 
@@ -20,10 +20,12 @@ namespace coral {
 class PCDDb
 {
  public:
-  PCDDb(std::string connString, std::string tableName, bool verbose, bool load_text);
+  PCDDb(const std::string& connString,
+        const std::string& tableName,
+        bool verbose, bool load_text);
   ~PCDDb();
 
-  bool init(std::string tag, int revision);
+  bool init(const std::string& tag, int revision);
   int next();
   bool set(int idmod_cur, PixelCoralClientUtils::PixelCalibData& pcd);
 

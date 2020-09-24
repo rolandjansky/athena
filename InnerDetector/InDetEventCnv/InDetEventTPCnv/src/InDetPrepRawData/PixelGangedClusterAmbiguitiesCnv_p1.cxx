@@ -20,7 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // Thread unsafe DataHandle class is used.
+void PixelGangedClusterAmbiguitiesCnv_p1::transToPers
 (const InDet::PixelGangedClusterAmbiguities* transObj, InDet::PixelGangedClusterAmbiguities_p1* persObj, MsgStream &log)
 {
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endmsg;
@@ -39,7 +39,7 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // T
     InDet::PixelGangedClusterAmbiguities::const_iterator itrE =  transObj->end();
     InDet::PixelGangedClusterAmbiguities::const_iterator previous_itr = transObj->begin();
     
-    const DataHandle<InDet::PixelClusterContainer> dh, dhEnd;
+    SG::ConstIterator<InDet::PixelClusterContainer> dh, dhEnd;
     StatusCode sc = m_storeGate->retrieve(dh, dhEnd);
     if (sc.isFailure()){
       log << MSG::WARNING <<"No containers found!"<< endmsg;

@@ -95,7 +95,8 @@ std::string connectionString(const std::string &connection_string_in) {
 /** Constructor.
     Open a database identified by the connection string.
 */
-PixCoralClient::PixCoralClient(std::string id1, bool verbose, coral::AccessMode access_mode, const char* tableName)
+PixCoralClient::PixCoralClient(const std::string& id1,
+                               bool verbose, coral::AccessMode access_mode, const char* tableName)
   : m_connString(connectionString(id1)),
     m_accessMode(access_mode),
     m_connectionService(connectionService(verbose)),
@@ -180,7 +181,7 @@ void PixCoralClient::printTables(const char* /* option */)
 //--------------------------------------------------------------------------
 /** Get the description of a table identified by an input string on the database and print it on stdout.
  */
-void PixCoralClient::printTableDesc(std::string tableName)
+void PixCoralClient::printTableDesc(const std::string& tableName)
 {
   if (m_verbose) std::cout << "\nCOOLCORAL Client: " << tableName <<" Table description" << std::endl;
 
@@ -215,7 +216,7 @@ void PixCoralClient::printTableDesc(std::string tableName)
 /** Get the content of a table identified by an input string on the 
     database and print its number of lines.
  */
-void PixCoralClient::printTableContent(std::string tableName){
+void PixCoralClient::printTableContent(const std::string& tableName){
   if (m_verbose) std::cout << "\nCOOLCORAL Client: " << tableName 
 			   <<" Table content"<< std::endl;
    
@@ -418,7 +419,7 @@ void PixCoralClient::fillTables(CAN::SerialNumber_t serialNumber,
 
   if (m_verbose) std::cout << " Filling table " << m_pixeltable << " for analysis "<< serialNumber << std::endl;
   coral::ITableDataEditor& pixel_editor = m_session->nominalSchema().tableHandle(m_pixeltable ).dataEditor();
-  coral::AttributeList pixel_row;
+  coral::AttributeList pixel_row ATLAS_THREAD_SAFE; // Not shared, ok
 
   //unsigned int id = serialNumber;
   time_t date = time(0);
@@ -485,7 +486,7 @@ void PixCoralClient::fillTables(const char* option){
 
   if (m_verbose) std::cout << " Filling table " << m_pixeltable << std::endl;
   coral::ITableDataEditor& pixel_editor = m_session->nominalSchema().tableHandle(m_pixeltable ).dataEditor();
-  coral::AttributeList pixel_row;
+  coral::AttributeList pixel_row ATLAS_THREAD_SAFE; // Not shared, ok
 
   //unsigned int id = serialNumber;
   time_t date = time(0);
@@ -553,7 +554,7 @@ void PixCoralClient::fillTables(const char* option){
 /** Get results for a particular analysis ID
     Optionally get only variable "varname" and/or connectivity object connName
  */
-void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, std::string varname, std::string connName){
+void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, const std::string& varname, const std::string& connName){
 
   std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
   if (varname != "") std::cout<<", variable " << varname;
@@ -574,7 +575,7 @@ void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, std::string varname
   query->defineOutputType("DATE",coral::AttributeSpecification::typeNameForType<time_t>()); 
   query->addToOutputList("FK"); 
   std::string pixel_cond = m_pixeltable+".ANAL_ID = :analid";
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok
   pixel_condData.extend<CAN::SerialNumber_t>( "analid" );
   query->setCondition( pixel_cond, pixel_condData);
   pixel_condData[0].data<CAN::SerialNumber_t>() = anal_id;
@@ -584,7 +585,8 @@ void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, std::string varname
   while ( cursor.next() ) {
     const coral::AttributeList &row0 = cursor.currentRow();
     std::time_t timet = GMTtoLocalTime(row0[1].data<time_t>());
-    std::string time = ctime(&timet);
+    char buf[32];
+    std::string time = ctime_r(&timet, buf);
     std::cout << "  ANAL_ID = " << row0[0].data<CAN::SerialNumber_t>() 
 	      << "  DATE = " << time.substr(0,time.size()-1)
 	      << "   FK = " << row0[2].data<long long>() << std::endl; 
@@ -613,7 +615,7 @@ void PixCoralClient::queryTable(CAN::SerialNumber_t anal_id, std::string varname
 
 	// Second query to get entries in each table
 	std::string pixel_cond_2 = (*tName)+".FK = :analfk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>( "analfk" );
 	pixel_condData_2[0].data<long long>() = row0[2].data<long long>();
 	if (varname != "") {
@@ -686,7 +688,7 @@ void PixCoralClient::createAuxTables(){
       m_session->nominalSchema().createTable( key_columns );
       // Fill the first key
       coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
-      coral::AttributeList rowBuffer;
+      coral::AttributeList rowBuffer ATLAS_THREAD_SAFE; // Not shared, ok
       rowBuffer.extend<long long>( "KEY" );
       long long& key = rowBuffer[ "KEY" ].data<long long>();
       key = 1000;
@@ -715,7 +717,7 @@ long long PixCoralClient::updateKey(){
 
   coral::ITableDataEditor& keyeditor = m_session->nominalSchema().tableHandle( FK_TABLE ).dataEditor();
   std::string updateAction = "KEY = KEY + :offset";
-  coral::AttributeList updateData;
+  coral::AttributeList updateData ATLAS_THREAD_SAFE; // Not shared, ok
   updateData.extend<long long>("offset");
   updateData[0].data<long long>() = 1;
   //long rowsUpdated = 
@@ -1036,7 +1038,7 @@ void PixCoralClient::getAnalysisResultsFromDB(std::vector<CAN::SerialNumber_t> a
       rod_list_query.addToOutputList( "I.FK" ,"FK");
       rod_list_query.addToTableList("CALIB_ANAL","I");
 
-      coral::AttributeList analysis_id_condition_inputs;
+      coral::AttributeList analysis_id_condition_inputs ATLAS_THREAD_SAFE; // Not shared, ok
       std::string analysis_id_condition;
       createCondition<CAN::SerialNumber_t>(analysis_id, "I","ANAL_ID","id",analysis_id_condition_inputs,analysis_id_condition,use_attr_list);
       rod_list_query.setCondition(analysis_id_condition, analysis_id_condition_inputs);
@@ -1045,7 +1047,7 @@ void PixCoralClient::getAnalysisResultsFromDB(std::vector<CAN::SerialNumber_t> a
       // Get the list of columns
 
       // prepare the query condition
-      coral::AttributeList condition_inputs;
+      coral::AttributeList condition_inputs ATLAS_THREAD_SAFE; // Not shared, ok
       std::string condition;
       condition = "R.FK = V.FK";
       if (!connName.empty() ) {
@@ -1155,7 +1157,7 @@ template <> inline void extendAttributeList<CAN::AverageResult_t>(coral::Attribu
 
 
 // special handling for PixelMap_t
-template <> inline void addValueToRow<PixelMap_t> ATLAS_NOT_THREAD_SAFE (coral::AttributeList &attribute_list, const PixelMap_t &value) { // Thread unsafe PixCoralClient class is used.
+template <> inline void addValueToRow<PixelMap_t> (coral::AttributeList &attribute_list, const PixelMap_t &value) {
   attribute_list["VALUE"].setValue(PixCoralClient::PixelMapToCLOB(value));
 }
 
@@ -1211,7 +1213,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
   unsigned int empty_conn_names=0;
   for (typename std::map<std::string, std::map<std::string, T> >::const_iterator iter=results->begin<T>();
        iter != results->end<T>();
-       iter ++) {
+       ++iter) {
 
     if (iter->first.empty()) {
       empty_var_names++;
@@ -1221,7 +1223,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
     std::string tname = iter->first;
     if (m_verbose) std::cout << " Filling table " << table_name << " for variable " << tname  << std::endl;
     coral::ITableDataEditor& pixel_editor_2 = m_session->nominalSchema().tableHandle(table_name).dataEditor();
-    coral::AttributeList pixel_row_2;
+    coral::AttributeList pixel_row_2 ATLAS_THREAD_SAFE; // Not shared, ok
     pixel_row_2.extend<long long>("FK");
     pixel_row_2.extend<std::string>("CONNECTIVITY");
     pixel_row_2.extend<std::string>("VARIABLE");
@@ -1231,7 +1233,7 @@ int PixCoralClient::fillTable(long long fk, CAN::AnalysisResultList_t *results){
     std::unique_ptr<coral::IBulkOperation>  pixel_bulk_2(pixel_editor_2.bulkInsert(pixel_row_2,iter->second.size()));
     for (typename std::map<std::string, T >::const_iterator val_iter=iter->second.begin();
 	 val_iter != iter->second.end();
-	 val_iter ++) {
+	 ++val_iter) {
 
       if (val_iter->first.empty()) {
 	empty_conn_names++;
@@ -1358,7 +1360,7 @@ int PixCoralClient::fillTablePixelCalibData(long long fk, const char* option){
 
   {
     coral::ITableDataEditor& pixel_editor_2 = m_session->nominalSchema().tableHandle(m_pixeltable+"_PCD").dataEditor();
-    coral::AttributeList pixel_row_2;
+    coral::AttributeList pixel_row_2 ATLAS_THREAD_SAFE; // Not shared, ok
     pixel_editor_2.rowBuffer(pixel_row_2);
     int mysize = 1;
     coral::IBulkOperation* pixel_bulk_2= pixel_editor_2.bulkInsert(pixel_row_2,mysize);
@@ -1428,7 +1430,7 @@ int PixCoralClient::fillTablePixelCalibData(long long fk, const char* option){
     and fill an AnalysisResultList_t container
     Optionally get only variable "varname" and/or connectivity object connName
  */
-CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, std::string varname, std::string connName){
+CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::string& varname, const std::string& connName){
 
   if (m_verbose) {
     std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
@@ -1453,7 +1455,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
   query->defineOutputType("DATE",coral::AttributeSpecification::typeNameForType<time_t>()); 
   query->addToOutputList("FK"); 
   std::string pixel_cond = m_pixeltable+".ANAL_ID = :analid";
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok
   pixel_condData.extend<CAN::SerialNumber_t>( "analid" );
   query->setCondition( pixel_cond, pixel_condData);
   pixel_condData[0].data<CAN::SerialNumber_t>() = anal_id;
@@ -1464,7 +1466,8 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
     const coral::AttributeList &row0 = cursor.currentRow();
     if (m_verbose) {
       std::time_t timet = GMTtoLocalTime(row0[1].data<time_t>());
-      std::string time = ctime(&timet);
+      char buf[32];
+      std::string time = ctime_r(&timet, buf);
       std::cout << "  ANAL_ID = " << row0[0].data<CAN::SerialNumber_t>() 
 		<< "  DATE = " << time.substr(0,time.size()-1)
 		<< "   FK = " << row0[2].data<long long>() << std::endl;
@@ -1495,7 +1498,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
 
 	// Second query to get entries in each table
 	std::string pixel_cond_2 = (*tName)+".FK = :analfk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>( "analfk" );
 	pixel_condData_2[0].data<long long>() = row0[2].data<long long>();
 	if (varname != "") {
@@ -1564,7 +1567,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
     objects connName and fill an AnalysisResultList_t container
     Optionally get only variable "varname" 
  */
-CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, std::string varname){
+CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNumber_t anal_id, const std::vector<std::string> &connName, const std::string& varname){
 
   if (m_verbose) {
     std::cout << "\n COOLCORAL Client: " << m_pixeltable <<" Putting table content in AnalysisResultList for analysis " << anal_id;
@@ -1594,7 +1597,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
   query->defineOutputType("DATE",coral::AttributeSpecification::typeNameForType<time_t>()); 
   query->addToOutputList("FK"); 
   std::string pixel_cond = m_pixeltable+".ANAL_ID = :analid";
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok
   pixel_condData.extend<CAN::SerialNumber_t>( "analid" );
   query->setCondition( pixel_cond, pixel_condData);
   pixel_condData[0].data<CAN::SerialNumber_t>() = anal_id;
@@ -1605,7 +1608,8 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
     const coral::AttributeList &row0 = cursor.currentRow();
     if (m_verbose) {
       std::time_t timet = GMTtoLocalTime(row0[1].data<time_t>());
-      std::string time = ctime(&timet);
+      char buf[32];
+      std::string time = ctime_r(&timet, buf);
       std::cout << "  ANAL_ID = " << row0[0].data<CAN::SerialNumber_t>() 
 		<< "  DATE = " << time.substr(0,time.size()-1)
 		<< "   FK = " << row0[2].data<long long>() << std::endl;
@@ -1635,7 +1639,7 @@ CAN::AnalysisResultList_t PixCoralClient::getAnalysisResultsFromDB(CAN::SerialNu
 
 	// Second query to get entries in each table
 	std::string pixel_cond_2 = (*tName)+".FK = :analfk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>( "analfk" );
 	pixel_condData_2[0].data<long long>() = row0[2].data<long long>();
 	if (varname != "") {
@@ -1757,7 +1761,7 @@ void PixCoralClient::getCalibrationDataFromDB(const char* option){
     pos = str.find_first_of(delimiters, lastPos);
   }
 
-  coral::AttributeList pixel_condData;
+  coral::AttributeList pixel_condData ATLAS_THREAD_SAFE; // Not shared, ok
   std::string pixel_cond = m_pixeltable+".TAG = :tag";
   pixel_condData.extend<std::string>( "tag" );
   pixel_condData[0].data<std::string>() = tag;
@@ -1773,7 +1777,8 @@ void PixCoralClient::getCalibrationDataFromDB(const char* option){
     const coral::AttributeList &row0 = cursor.currentRow();
     if (m_verbose) {
       std::time_t timet = GMTtoLocalTime(row0[3].data<time_t>());
-      std::string time = ctime(&timet);
+      char buf[32];
+      std::string time = ctime_r(&timet, buf);
       std::cout << "  TAG = " << row0[0].data<std::string>() 
 		<< "  REVISION = " << row0[1].data<int>()
 		<< "  SOURCES = " << row0[2].data<std::string>()
@@ -1809,7 +1814,7 @@ void PixCoralClient::getCalibrationDataFromDB(const char* option){
 
 	// Second query to get entries in each table
 	std::string pixel_cond_2 = (*tName)+".FK = :fk";
-	coral::AttributeList pixel_condData_2;
+	coral::AttributeList pixel_condData_2 ATLAS_THREAD_SAFE; // Not shared, ok
 	pixel_condData_2.extend<long long>( "fk" );
 	pixel_condData_2[0].data<long long>() = row0[4].data<long long>();
 	query_2->setCondition( pixel_cond_2, pixel_condData_2);
@@ -1950,7 +1955,7 @@ namespace PixA {
 
 
 
-  unsigned int encodePixelID ATLAS_NOT_THREAD_SAFE (unsigned int mod_column, unsigned int mod_row) { // Thread unsafe ModuleSpecialPixelMap class is used.
+  unsigned int encodePixelID (unsigned int mod_column, unsigned int mod_row) {
     unsigned int chip = 0, column = 0, row = 0;
 
     PixelCoord_t pix(mod_column, mod_row);
@@ -2054,7 +2059,7 @@ PixelMap_t PixCoralClient::CLOBtoPixelMap(const std::string & clob) {
 //------------------------------------------------
 /// Get value from PVSS archive
 //------------------------------------------------
-double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const coral::TimeStamp &since, const coral::TimeStamp &until)
+double PixCoralClient::get_value_from_PVSSarch(const std::string& element_name, const coral::TimeStamp &since, const coral::TimeStamp &until)
 {
   double result=0;
 
@@ -2073,7 +2078,7 @@ double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const c
     subQuery1.addToOutputList( "ELEMENT_NAME" );
     subQuery1.addToOutputList( "ALIAS" );
     subQuery1.addToTableList( "ELEMENTS" );
-    coral::AttributeList cond1;
+    coral::AttributeList cond1 ATLAS_THREAD_SAFE; // Not shared, ok
     cond1.extend<std::string>( "el_name" );
     subQuery1.setCondition( "ELEMENT_NAME = :el_name", cond1 );
     query->addToTableList( "A" );
@@ -2085,7 +2090,7 @@ double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const c
     subQuery2.addToTableList( "EVENTHISTORY" );
     query->addToTableList( "B" );
 
-    coral::AttributeList time;
+    coral::AttributeList time ATLAS_THREAD_SAFE; // Not shared, ok
     time.extend<coral::TimeStamp>( "since" );
     time.extend<coral::TimeStamp>( "until" );
 
@@ -2098,7 +2103,7 @@ double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const c
     time[1].data<coral::TimeStamp>() = until;
 
     coral::ICursor& cursor = query->execute();
-    coral::AttributeList sel;
+    coral::AttributeList sel ATLAS_THREAD_SAFE; // Not shared, ok
     if ( cursor.next() ){ sel = cursor.currentRow();
 
     result = sel[3].data<double>();
@@ -2121,7 +2126,7 @@ double PixCoralClient::get_value_from_PVSSarch(std::string element_name, const c
 //------------------------------------------------
 /// Get value from PVSS archive
 //------------------------------------------------
-double PixCoralClient::get_values_from_PVSSarch(std::string element_name, const coral::TimeStamp &since, const coral::TimeStamp &until){
+double PixCoralClient::get_values_from_PVSSarch(const std::string& element_name, const coral::TimeStamp &since, const coral::TimeStamp &until){
 
     double result=0;
 
@@ -2138,7 +2143,7 @@ double PixCoralClient::get_values_from_PVSSarch(std::string element_name, const 
     subQuery1.addToOutputList( "ELEMENT_ID" );
     subQuery1.addToOutputList( "ELEMENT_NAME" );
     subQuery1.addToTableList( "ELEMENTS" );
-    coral::AttributeList cond1;
+    coral::AttributeList cond1 ATLAS_THREAD_SAFE; // Not shared, ok
     cond1.extend<std::string>( "el_name" );
     subQuery1.setCondition( "ELEMENT_NAME = :el_name", cond1 );
     query->addToTableList( "A" );
@@ -2150,7 +2155,7 @@ double PixCoralClient::get_values_from_PVSSarch(std::string element_name, const 
     subQuery2.addToTableList( "EVENTHISTORY" );
     query->addToTableList( "B" );
 
-    coral::AttributeList time;
+    coral::AttributeList time ATLAS_THREAD_SAFE; // Not shared, ok
     time.extend<coral::TimeStamp>( "since" );
     time.extend<coral::TimeStamp>( "until" );
 
@@ -2163,7 +2168,7 @@ double PixCoralClient::get_values_from_PVSSarch(std::string element_name, const 
     time[1].data<coral::TimeStamp>() = until;
 
     coral::ICursor& cursor = query->execute();
-    coral::AttributeList sel;
+    coral::AttributeList sel ATLAS_THREAD_SAFE; // Not shared, ok
     //    if ( cursor.next() ){ 
     while ( cursor.next() ){ 
       sel = cursor.currentRow();
@@ -2200,7 +2205,7 @@ void PixCoralClient::get_alias_from_PVSSarch(){
 //     time[1].data<coral::TimeStamp>() = until;
 
     coral::ICursor& cursor = query->execute();
-    coral::AttributeList sel;
+    coral::AttributeList sel ATLAS_THREAD_SAFE; // Not shared, ok
     //    if ( cursor.next() ){ 
     std::cout << "NAME\t\t\t ALIAS" << std::endl;
     while ( cursor.next() ){ 

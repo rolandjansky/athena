@@ -24,7 +24,7 @@ namespace ROIB {
     EMTauRoI( uint32_t );
     /* Init to 0 */
     EMTauRoI();
-    ~EMTauRoI();
+    ~EMTauRoI() = default;
     
     /* Method to update the RoI word format */
     void update();

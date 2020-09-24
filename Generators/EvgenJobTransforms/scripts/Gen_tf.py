@@ -56,7 +56,9 @@ class EvgenExecutor(athenaExecutor):
         if os.path.exists('/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'):
             datCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'
             os.environ["DATAPATH"] = datCvmfsDir+":"+os.environ["DATAPATH"]
-        dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
+#        dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
+        dsidpar = (self._trf.argdict["jobConfig"].value).values()
+        dsidparam = list(dsidpar)[0][0]
         # Adding cvmfs path to JOBOPTSEARCHPATH
         BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/"
 

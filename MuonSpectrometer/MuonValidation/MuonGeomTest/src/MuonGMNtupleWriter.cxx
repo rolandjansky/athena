@@ -27,10 +27,6 @@ namespace MuonGM {
 
   }
 
-  MuonGMNtupleWriter::~MuonGMNtupleWriter() {
-
-  }
-
   StatusCode MuonGMNtupleWriter::initialize() {
 
     // MuonDetectorManager from the conditions store
@@ -123,7 +119,11 @@ namespace MuonGM {
 	for( int i3 = 0;i3<MuonDetectorManager::NRpcStatPhi; ++i3 ){
 	  for( int i4 = 0;i4<MuonDetectorManager::NDoubletR; ++i4 ){
 	    for( int i5 = 0;i5<MuonDetectorManager::NDoubletZ; ++i5 ){
-	      const RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(i1,i2,i3,i4,i5);
+          int stationName = MuonDetMgr->rpcStationName(i1);
+          bool isValid=false;
+          Identifier id = MuonDetMgr->rpcIdHelper()->channelID(stationName, i2, i3, i4, i5, 1, 1, 1, 1, true, &isValid); // last 5 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid
+          if (!isValid) continue;
+	      const RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(id);
 	      if( !detEl ) continue;
 	      ++nrpc;
 
@@ -210,10 +210,6 @@ namespace MuonGM {
       delete fout;
     }
   }  
-
-  StatusCode MuonGMNtupleWriter::finalize() {
-    return AthAlgorithm::finalize();
-  }
 
 }
 

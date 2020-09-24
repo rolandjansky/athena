@@ -717,7 +717,7 @@ namespace LVL1MUCTPI {
       }
 
       // create MuCTPI RDO
-      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, std::move(dataWord) );
       CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
       ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
                      << m_rdoOutputLocId );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HitManagement/HitIdHelper.h"
@@ -72,10 +72,9 @@ void HitIdHelper::PrintFields()
 
 void HitIdHelper::Print(int id)
 {
-  int l=1;
   for (unsigned int i=0;i<8*sizeof(int);i++)
     {
-      if ((id & (l<<i))) std::cout<<"1";
+      if ((id & (1u<<i))) std::cout<<"1";
       else std::cout<<"0";
     }
   std::cout<<std::endl;

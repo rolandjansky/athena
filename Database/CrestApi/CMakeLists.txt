@@ -19,5 +19,7 @@ atlas_add_library( CrestApi
 # Test(s) in the package.
 atlas_add_test( test
    SOURCES test/test.cxx
-   LINK_LIBRARIES CrestApi
+   LINK_LIBRARIES CrestApi nlohmann_json::nlohmann_json
+   INCLUDE_DIRS ${CURL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${CURL_LIBRARIES} ${Boost_LIBRARIES} -lstdc++fs
    POST_EXEC_SCRIPT nopost.sh )

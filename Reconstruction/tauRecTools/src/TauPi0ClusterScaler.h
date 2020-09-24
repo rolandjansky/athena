@@ -28,8 +28,6 @@ public:
     ASG_TOOL_CLASS2(TauPi0ClusterScaler, TauRecToolBase, ITauToolBase)
     virtual ~TauPi0ClusterScaler();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) const override; 
 
 private:

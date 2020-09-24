@@ -43,7 +43,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonRotCreator", "MuonRotCreator" )
 
 addTool( "MuonRecExample.MuonRecTools.MuonCombinePatternTool", "MuonCombinePatternTool" )
 addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternTool", "MuonHoughPatternTool" )
-addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPatternFinderTool" ) 
+addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPatternFinderTool" )
 
 addService("MuonRecExample.MuonRecTools.AtlasTrackingGeometrySvc","AtlasTrackingGeometrySvc")
 
@@ -54,7 +54,7 @@ addTool( "Trk::MaterialEffectsUpdator", "MuonMaterialEffectsUpdator" )
 addTool("MuonRecExample.MuonRecTools.MuonRK_Propagator","MuonRK_Propagator")
 addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MuonSTEP_Propagator")
 addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MuonPropagator")
-addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator") 
+addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator")
 addTool("Trk::STEP_Propagator", "MuonStraightLinePropagator")
 
 addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonExtrapolator")
@@ -85,7 +85,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitt
 
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentum", "MuonSegmentMomentum" )
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField")
-    
+
 addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" )
 
 addTool( "MuonRecExample.MuonRecTools.MdtSegmentT0Fitter", "MdtSegmentT0Fitter" )
@@ -96,7 +96,7 @@ addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitS
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )
 
-addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinder", "MuonClusterSegmentFinder") 
+addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinder", "MuonClusterSegmentFinder")
 addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonClusterSegmentFinderTool" )
 #N.B. Both of these are tools. They do slightly different things, but the naming is unfortunate.
 
@@ -174,7 +174,7 @@ addTool( "MuonRecExample.MooreTools.MuonTrackScoringTool", "MuonTrackScoringTool
 
 addTool( "Muon::MuonAmbiTrackSelectionTool", "MuonAmbiSelectionTool" )
 
-addTool( "MuonRecExample.MooreTools.MuonAmbiProcessor", "MuonAmbiProcessor" ) 
+addTool( "MuonRecExample.MooreTools.MuonAmbiProcessor", "MuonAmbiProcessor" )
 
 addTool( "MuonRecExample.MooreTools.MuonTrackSelectorTool", "MuonTrackSelectorTool" )
 
@@ -217,7 +217,7 @@ if MuonGeometryFlags.hasCSC():
     addTool("MuonRecExample.CscTools.CalibCscStripFitter","CalibCscStripFitter")
     addTool("MuonRecExample.CscTools.SimpleCscClusterFitter","SimpleCscClusterFitter")
     addTool("MuonRecExample.CscTools.CscSplitClusterFitter","CscSplitClusterFitter")
-    
+
     addTool("MuonRecExample.CscTools.Csc2dSegmentMaker","Csc2dSegmentMaker")
     addTool("MuonRecExample.CscTools.Csc4dSegmentMaker","Csc4dSegmentMaker")
     addTool("MuonRecExample.CscTools.CscSegmentUtilTool","CscSegmentUtilTool")
@@ -260,6 +260,7 @@ addTool("Muon::MuonSegmentCombinationCleanerTool","MuonSegmentCombinationCleaner
 
 addTool( "MuonRecExample.MuonStandalone.MuonTrackSteering", "MuonTrackSteering" )
 addTool("MuonRecExample.MuonRecTools.MuonSegmentFittingTool", "MuonSegmentFittingTool")
+addTool("MuonRecExample.MuonRecTools.MuonLayerSegmentFinderTool", "MuonLayerSegmentFinderTool")
 
 ################################################################################
 # MS vertex

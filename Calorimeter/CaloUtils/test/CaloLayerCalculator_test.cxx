@@ -74,7 +74,7 @@ Testcell clust1[] = {
   {  0,  0, 0 },
 };
 static const float clust1_eta0 = static_cast<float> (0.3 + deta/2);
-static const float clust1_phi0 = static_cast<float> (range.fix (dphi*128 + dphi/2));
+static const float clust1_phi0 = static_cast<float> (CaloPhiRange::fix (dphi*128 + dphi/2));
 
 void clust1_check (CaloLayerCalculator& calc, double wt=1)
 {
@@ -97,7 +97,7 @@ Testcell clust2[] = {
   {  0,  0,   0 },
 };
 static const float clust2_eta0 = static_cast<float> (0.3 + deta/2);
-static const float clust2_phi0 = static_cast<float> (range.fix (dphi*32 + dphi/2));
+static const float clust2_phi0 = static_cast<float> (CaloPhiRange::fix (dphi*32 + dphi/2));
 
 void clust2_check (CaloLayerCalculator& calc)
 {
@@ -181,7 +181,7 @@ void make_cells (CaloCellContainer* cont,
     cont->push_back (make_cell (descr,
                                 cells->energy,
                                 static_cast<float> (eta),
-                                static_cast<float> (range.fix (phi))));
+                                static_cast<float> (CaloPhiRange::fix (phi))));
   }
 }
 
@@ -243,7 +243,7 @@ int main()
   }  
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
-  StoreGateSvc* sg = 0;
+  StoreGateSvc* sg = nullptr;
   assert ( svcLoc->service("StoreGateSvc", sg).isSuccess() );
 
   CaloTester tester;

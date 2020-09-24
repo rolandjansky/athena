@@ -64,10 +64,6 @@
 
 #include "BPhysHelper.h"
 
-#include "TVector3.h"
-#include "TLorentzVector.h"
-#include "TMatrixTSym.h"
-
 #include <assert.h>
 
 
@@ -87,7 +83,7 @@ namespace xAOD {
        *  @param[in] hypo  Name of the hypothesis
        *  @param[in] b     Pointer to the xAOD::Vertex
        */
-      BPhysHypoHelper(const std::string hypo, const xAOD::Vertex* b) :
+      BPhysHypoHelper(const std::string &hypo, const xAOD::Vertex* b) :
         BPhysHelper(b),
         m_hypo(hypo)
       {
@@ -104,8 +100,8 @@ namespace xAOD {
        *  @returns: mass or error, -9999999. in case the augmentation doesn't exist
        */
       
-      float mass();     //!< invariant mass
-      float massErr();  //!< invariant mass error
+      float mass() const;     //!< invariant mass
+      float massErr() const;  //!< invariant mass error
 
       /** Set given invariant mass and its error
        * 

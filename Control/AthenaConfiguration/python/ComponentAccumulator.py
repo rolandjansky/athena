@@ -121,6 +121,8 @@ class ComponentAccumulator(object):
              log = logging.getLogger("ComponentAccumulator")
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
+             import traceback
+             traceback.print_stack()
          if getattr(self,'_privateTools',None) is not None:
              log = logging.getLogger("ComponentAccumulator")
              log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
@@ -609,6 +611,7 @@ class ComponentAccumulator(object):
         # Without this here, pyroot can sometimes get confused
         # and report spurious type mismatch errors about this object.
         import ROOT
+        ROOT.gROOT.SetBatch(True)
         ROOT.Gaudi
 
         appPropsToSet, mspPropsToSet, bshPropsToSet = self.gatherProps(OutputLevel)

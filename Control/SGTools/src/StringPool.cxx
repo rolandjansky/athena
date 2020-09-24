@@ -10,6 +10,8 @@
 
 
 #include "SGTools/StringPool.h"
+#include "SGTools/transientKey.h"
+#include "SGTools/exceptions.h"
 #include "CxxUtils/crc64.h"
 #include <map>
 #include <unordered_map>
@@ -84,8 +86,9 @@ bool StringPoolImpl::registerKey (StringPool::sgkey_t key,
     p.first = aux;
     p.second = str;
   }
-  else if (i->second.first != aux || i->second.second != str)
+  else if (i->second.first != aux || i->second.second != str) {
     return false;
+  }
   return true;
 }
 
@@ -226,7 +229,8 @@ StringPool::~StringPool()
  * @param aux Auxiliary data to include along with the string.
  * @return A key identifying the string.
  *         A given string will always return the same key.
- *         Will abort in case of a hash collision!
+ *         Will throw ExcSgkeyCollision in case of a hash collision
+ *         (for a non-transient string)!
  */
 StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
                                              sgaux_t aux /*= 0*/)
@@ -234,9 +238,28 @@ StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
   uint64_t crc = CxxUtils::crc64 (str);
   if (aux) crc = CxxUtils::crc64addint (crc, aux);
   sgkey_t key = (crc & sgkey_t_max);
-  if (!m_impl->registerKey (key, str, aux))
-    std::abort();
-  return key;
+  if (m_impl->registerKey (key, str, aux)) {
+    return key;
+  }
+
+  // Hash collision...
+  // If we have a transient key, then adjust the hash to avoid a collision.
+  if (SG::isTransientKey (str)) {
+    sgkey_t new_key = ( (key+1) & sgkey_t_max);
+    while (!m_impl->registerKey (new_key, str, aux)) {
+      new_key = ( (new_key+1) & sgkey_t_max);
+      if (key == new_key) std::abort();
+    }
+    return new_key;
+  }
+
+  // Otherwise raise an exception.
+  sgaux_t old_aux = 0;
+  const std::string* old_str = keyToString (key, old_aux);
+  if (!old_str) std::abort(); // Shouldn't happen.
+  throw ExcSgkeyCollision (str, aux,
+                           *old_str, old_aux,
+                           key);
 }
 
 

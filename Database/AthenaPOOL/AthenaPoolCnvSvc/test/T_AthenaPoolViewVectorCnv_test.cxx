@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaPoolCnvSvc/test/T_AthenaPoolViewVectorCnv_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -34,10 +32,10 @@
 using namespace AthenaPoolCnvSvcTest;
 
 
-std::string YCont_v1_guid2 = "7E1826B9-3666-42B3-A2E7-C916BD10A5B8";
-std::string YCont_v2_guid2 = "80C19103-FE9B-4227-8E48-8C0DB468F892";
-std::string YCont_v1_guid = "C5454482-92F6-4EE5-BBAB-44B36D571942";
-std::string YCont_v2_guid = "CA993B46-C358-4F5E-9EE2-3693A8F3CDAF";
+const std::string YCont_v1_guid2 = "7E1826B9-3666-42B3-A2E7-C916BD10A5B8";
+const std::string YCont_v2_guid2 = "80C19103-FE9B-4227-8E48-8C0DB468F892";
+const std::string YCont_v1_guid = "C5454482-92F6-4EE5-BBAB-44B36D571942";
+const std::string YCont_v2_guid = "CA993B46-C358-4F5E-9EE2-3693A8F3CDAF";
 
 
 class ViewVectorBaseTest
@@ -121,11 +119,13 @@ public:
 };
 
 
-void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
+void test1 (ISvcLocator* svcloc,
+            SGTest::TestStore& store,
+            TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 {
   std::cout << "test1\n";
   SG::sgkey_t sgkey =
-    SGTest::store.stringToKey ("vec", ClassID_traits<DataVector<Y_v2> >::ID());
+    store.stringToKey ("vec", ClassID_traits<DataVector<Y_v2> >::ID());
   T_AthenaPoolCnv<ViewVector<DataVector<Y_v2> > > cnv (svcloc);
   assert (cnv.initialize().isSuccess());
 
@@ -233,13 +233,13 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& testsvc, DataVector<Y_v2>& vec)
 }
 
 
-DataVector<Y_v2>& makeVecs()
+DataVector<Y_v2>& makeVecs (SGTest::TestStore& store)
 {
   auto vec = std::make_unique<DataVector<Y_v2> >();
   for (size_t i = 0; i < 10; i++)
     vec->push_back (new Y_v2(i));
   DataVector<Y_v2>& ret = *vec.get();
-  SGTest::store.record (vec.release(), "vec");
+  store.record (vec.release(), "vec");
   return ret;
 }
 
@@ -247,9 +247,9 @@ DataVector<Y_v2>& makeVecs()
 int main()
 {
   CxxUtils::ubsan_suppress ([]() {TInterpreter::Instance(); });
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> testStore = SGTest::getTestStore();
   ISvcLocator* pSvcLoc = nullptr;
-  if (!Athena_test::initGaudi("test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("AthenaPoolCnvSvc/test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }
@@ -261,8 +261,8 @@ int main()
     std::abort();
   
   gSystem->Load("libAthenaPoolCnvSvcTestDict");
-  DataVector<Y_v2>& vec = makeVecs();
-  test1 (pSvcLoc, *svc, vec);
+  DataVector<Y_v2>& vec = makeVecs (*testStore);
+  test1 (pSvcLoc, *testStore, *svc, vec);
   test2 (pSvcLoc, *svc, vec);
 }
 

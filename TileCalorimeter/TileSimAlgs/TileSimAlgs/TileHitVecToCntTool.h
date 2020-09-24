@@ -151,6 +151,8 @@ private:
   float m_nPhotoElectrons[7];                         //!< number of photo electrons per GeV in samplings
 
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use
+  /// Random Stream Name
+  Gaudi::Property<std::string> m_randomStreamName{this, "RandomStreamName", "Tile_HitVecToCnt", ""};
 
   std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
   std::vector<TileHit*> m_allHits_DigiHSTruth;           //!< vector for all TileHits

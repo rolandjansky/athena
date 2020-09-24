@@ -38,6 +38,8 @@ private:
   // Threfore these services have to be configured & instantiated in jobs that use this tool (and L1Decoder itself).
   SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
   SG::ReadHandleKey<TrigConf::L1Menu>  m_L1MenuKey{ this, "L1TriggerMenu", "DetectorStore+L1TriggerMenu", "L1 Menu" };
+
+  Gaudi::Property<bool> m_useTBPBit{ this, "UseTBPBits", false, "When true, use Trigger Before Prescale bits instead of Trigger After Veto (for testing only)" };
 };
 
 

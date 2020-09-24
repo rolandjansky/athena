@@ -26,8 +26,6 @@ public:
     ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);
     virtual ~TauPi0ClusterCreator();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
 						xAOD::CaloClusterContainer& pi0CaloClusContainer,

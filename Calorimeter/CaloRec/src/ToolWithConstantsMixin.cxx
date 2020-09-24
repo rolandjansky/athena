@@ -41,12 +41,12 @@ namespace CaloRec {
  * DataHandle be const.
  */
 ToolWithConstantsMixin::ToolWithConstantsMixin()
-  : m_detStore(0),
+  : m_detStore(nullptr),
     m_use_callback(true),
     m_order(0),
     m_isdummy(false),
-    m_coolInlineTool (0),
-    m_toolSvc (0)
+    m_coolInlineTool (nullptr),
+    m_toolSvc (nullptr)
 {
 }
 
@@ -209,7 +209,7 @@ ToolWithConstantsMixin::processConstantsFromDB (IOVSVC_CALLBACK_ARGS_K(keys))
       << "In Callback function ToolWithConstants::processConstantsFromDB" 
       << endmsg;
 
-  if (m_folderName.size()>0) {
+  if (!m_folderName.empty()) {
     //COOL-inline case
     if (std::find(keys.begin(),keys.end(),m_folderName)==keys.end()) {
        log << MSG::DEBUG

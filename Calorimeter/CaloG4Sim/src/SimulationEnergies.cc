@@ -151,7 +151,7 @@ namespace CaloG4
     // Extract the values we need from the result.  Note that it's at
     // this point we decide which of the available-energy calculations
     // is to be used in a calibration hit.
-    if(energies.size()!=0) energies.clear();
+    if(!energies.empty()) energies.clear();
 
     energies.push_back( category.energy[SimulationEnergies::kEm] );
     energies.push_back( category.energy[SimulationEnergies::kNonEm] );
@@ -207,7 +207,7 @@ namespace CaloG4
     G4TrackStatus status = pTrack->GetTrackStatus();
     G4double dEStepVisible = step->GetTotalEnergyDeposit();
     G4int processSubTypeValue=0;
-    if ( step->GetPostStepPoint()->GetProcessDefinedStep() != 0 ) {
+    if ( step->GetPostStepPoint()->GetProcessDefinedStep() != nullptr ) {
       //from G4VProcess.hh
       processSubTypeValue =
         step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessSubType();
@@ -285,7 +285,7 @@ namespace CaloG4
     G4bool allOK = true;
 #endif
 
-    if ( pTrack->GetNextVolume() == 0 )
+    if ( pTrack->GetNextVolume() == nullptr )
     {
       // this particle escaped World volume at this step
       // checking for abnormal case
@@ -524,7 +524,7 @@ namespace CaloG4
       G4String volumeName = touchableHandle->GetVolume()->GetName();
       eep = registry->GetProcessing( volumeName );
 
-      if ( eep != 0 ) {
+      if ( eep != nullptr ) {
         // Call the appropriate routine.
         return eep->Process( fakeStep );
       }

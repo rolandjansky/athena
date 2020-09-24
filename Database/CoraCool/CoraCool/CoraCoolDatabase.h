@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORACOOL_CORACOOLDATABASE_H
@@ -25,7 +25,7 @@ class CoraCoolDatabase {
  public:
   // instantiate a new CoraCoolDatabase instance
   // this should not normally be used - use openDatabase in CoraCoolDatabaseSvc
-  CoraCoolDatabase(const std::string m_dbconn, cool::IDatabasePtr cooldb,
+  CoraCoolDatabase(const std::string& m_dbconn, cool::IDatabasePtr cooldb,
 	       coral::IConnectionService& coralsvc, const bool readonly=false);
 
   // connect to the underlying database, return true if connected
@@ -49,9 +49,9 @@ class CoraCoolDatabase {
      const std::string& coraltable,
      const cool::IRecordSpecification& fkspec,
      const cool::IRecordSpecification& payloadspec,
-     const std::string coralfk,
-     const std::string coralpk,
-     const std::string description="",
+     const std::string& coralfk,
+     const std::string& coralpk,
+     const std::string& description="",
      const cool::FolderVersioning::Mode mode=cool::FolderVersioning::SINGLE_VERSION,
      const bool createParents=false);
 
@@ -68,7 +68,7 @@ class CoraCoolDatabase {
   // parse the COOL folder description to extract the CORAL table name,
   // COOL and CORAL foreign and primary key names
   // returns true if all information extracted, false if syntax problems
-  bool parseFolderDescription(const std::string folderdesc,
+  bool parseFolderDescription(const std::string& folderdesc,
 			      std::string& tablename,
 			      std::string& keycolcool,
 			      std::string& fkeycolcoral,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,11 +9,11 @@
 //#include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
-#include <sstream>
-#include <iomanip>
-#include <math.h>
-#include <iostream>
 #include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 
 
@@ -32,7 +32,7 @@ int CaloLocalHadCoeff::LocalHadDimension::getBin(float &x) const
     return -100;
   }
   int i_bin = -1;
-  if( !m_xbins.size() ) { // flat binning
+  if( m_xbins.empty() ) { // flat binning
     i_bin = (int)((x - m_xmin)/m_dx);
   }else{ // user binning
     for(i_bin=0; i_bin<(int)m_xbins.size(); i_bin++){
@@ -103,14 +103,14 @@ bool CaloLocalHadCoeff::isFilled(const int bin) const
   switch(getAreaFromBin(bin)->getType()) {
     case CaloLocalHadDefs::AREA_DMLOOKUP: case CaloLocalHadDefs::AREA_STD: {
       int ient =  CaloLocalHadDefs::BIN_ENTRIES;
-      if(m_CoeffSet[bin][ient] == 0) return false;
-      else return true;
+      return m_CoeffSet[bin][ient] != 0;
     }
     case CaloLocalHadDefs::AREA_DMFIT:{
-      if(m_CoeffSet[bin][CaloLocalHadDefs::BIN_P0] == 0 && 
+      return !(m_CoeffSet[bin][CaloLocalHadDefs::BIN_P0] == 0 && 
+
          m_CoeffSet[bin][CaloLocalHadDefs::BIN_P1] == 0 &&
-         m_CoeffSet[bin][CaloLocalHadDefs::BIN_P2] == 0) return false;
-      else return true;
+
+         m_CoeffSet[bin][CaloLocalHadDefs::BIN_P2] == 0);
     }
     case CaloLocalHadDefs::AREA_DMSMPW:{
       bool bf=false;
@@ -204,7 +204,7 @@ const CaloLocalHadCoeff::LocalHadArea * CaloLocalHadCoeff::getArea(int n_area) c
   if(n_area >= 0 && n_area<(int)m_AreaSet.size() ) {
     return &(m_AreaSet[n_area]);
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -252,7 +252,7 @@ const CaloLocalHadCoeff::LocalHadCoeff * CaloLocalHadCoeff::getCoeff(const int &
   if ( iBin >= 0 && iBin < (int)m_CoeffSet.size() ) {
     return (& m_CoeffSet[iBin]);
   }else{
-    return 0;
+    return nullptr;
   }
 }
 
@@ -320,7 +320,7 @@ bool CaloLocalHadCoeff::getInterpArrays(const int n_area, const std::vector<int>
   // sanity check
   if(n_area<0 || n_area > (int)m_AreaSet.size()) return false;
   const LocalHadArea *area=&(m_AreaSet[n_area]);
-  if(!dim.size()) {
+  if(dim.empty()) {
     std::cout << "CaloLocalHadCoeff::getInterpArrays() -> Error! Empty dimension list" << std::endl;
     return false;
   }else if( (int)dim.size() > area->getNdim()) {

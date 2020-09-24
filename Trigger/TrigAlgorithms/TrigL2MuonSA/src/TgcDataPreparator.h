@@ -15,7 +15,7 @@
 #include "TgcDataPreparatorOptions.h"
 #include "TgcData.h"
 #include "RecMuonRoIUtils.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonTGC_Cabling/MuonTGC_CablingSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -82,7 +82,7 @@ class TgcDataPreparator: public AthAlgTool
         this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"};
 
       // Region Selector
-      ServiceHandle<IRegSelSvc> m_regionSelector;
+      ToolHandle<IRegSelTool> m_regionSelector;
 
       // ROB DataProvider
       ServiceHandle<IROBDataProviderSvc> m_robDataProvider;

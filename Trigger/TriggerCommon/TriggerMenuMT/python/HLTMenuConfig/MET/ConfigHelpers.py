@@ -11,7 +11,7 @@ import six
 
 # The keys from the MET chain dict that directly affect reconstruction
 # The order here is important as it also controls the dict -> string conversion
-recoKeys = ["EFrecoAlg", "calib", "addInfo"]
+recoKeys = ["EFrecoAlg", "calib", "jetDataType", "jetCalib", "addInfo"]
 
 def extractMETRecoDict(chainDict, fillDefaults=True):
     """ Extract the keys relevant to reconstruction from a provided dictionary
@@ -40,7 +40,11 @@ def metRecoDictToString(recoDict, skipDefaults=True):
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
     keys = ["recoAlg", "dataType", "calib", "jetCalib", "trkopt", "cleaning"]
-    return {k: recoDict.get(k, JetChainParts_Default[k]) for k in keys}
+    jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in keys}
+    if "jetDataType" in recoDict:
+        # Allow for the renaming dataType -> jetDataType
+        jrd["dataType"] = recoDict["jetDataType"]
+    return jrd
 
 
 

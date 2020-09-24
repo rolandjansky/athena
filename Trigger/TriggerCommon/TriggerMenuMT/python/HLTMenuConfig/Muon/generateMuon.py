@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, getChainStepName, createStepView
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
@@ -26,7 +26,6 @@ def EFMuonViewDataVerifierCfg():
                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                           ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
                                           ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                          ( 'Trk::SolenoidParametrization' , 'ConditionStore+SolenoidParametrization' ) #TODO schedule the correct condAlg to produce this
                                       ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
@@ -115,7 +114,7 @@ def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
     
     # Step 1 (L2MuonSA)
-    stepName = getChainStepName('Muon', 1)
+    stepName = 'L2MuonSA'
     stepReco, stepView = createStepView(stepName)
 
     acc = ComponentAccumulator()
@@ -215,7 +214,7 @@ def generateChains( flags, chainDict ):
     # Please set up L2muComb step here
 
     #EF MS only
-    stepEFMSName = getChainStepName('EFMSMuon', 2)
+    stepEFMSName = 'EFMSMuon'
     stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
 
     #Clone and replace offline flags so we can set muon trigger specific values

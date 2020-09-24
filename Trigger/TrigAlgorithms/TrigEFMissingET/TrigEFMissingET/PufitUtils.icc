@@ -1,0 +1,74 @@
+/**
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+
+namespace HLT
+{
+  namespace MET
+  {
+    namespace PufitUtils
+    {
+      template <std::size_t N>
+      void trimmedMeanAndVariance(
+          const PufitMultiGrid<N> &grid,
+          std::size_t type,
+          double trimFraction,
+          double &mean,
+          double &variance)
+      {
+        // Construct a list of sorted tower energies
+        std::vector<double> sorted;
+        sorted.reserve(grid.nTowers());
+        for (const typename PufitMultiGrid<N>::Tower &tower : grid)
+        {
+          double sumEt = tower.sumEt(type);
+          sorted.insert(
+              std::lower_bound(sorted.begin(), sorted.end(), sumEt),
+              sumEt);
+        }
+        trimmedMeanAndVariance(sorted, trimFraction, mean, variance);
+      }
+
+      template <std::size_t N>
+      void unmaskedMeanAndVariance(
+          const PufitMultiGrid<N> &grid, std::size_t type, double &mean, double &variance)
+      {
+        double sum = 0;
+        double squaredSum = 0;
+        std::size_t n = 0;
+        for (const typename PufitMultiGrid<N>::Tower &tower : grid)
+        {
+          if (tower.masked())
+            continue;
+          ++n;
+          double sumEt = tower.sumEt(type);
+          sum += sumEt;
+          squaredSum += sumEt * sumEt;
+        }
+        mean = sum / n;
+        variance = squaredSum / n - mean * mean;
+      }
+
+      template <typename Grid>
+      GridDisplacement selectGrid(
+          const PufitMultiGridSet<Grid> &grids, std::size_t type)
+      {
+        GridDisplacement maximum = NoDisplacement;
+        double maxSum = 0;
+        for (std::size_t d = 0; d < 4; ++d)
+        {
+          double sum = 0;
+          for (const typename Grid::Tower &tower : grids[GridDisplacement(d)])
+            if (tower.masked())
+              sum += tower.sumEt(type);
+          if (sum > maxSum)
+          {
+            maximum = GridDisplacement(d);
+            maxSum = sum;
+          }
+        }
+        return maximum;
+      }
+    } // namespace PufitUtils
+  }   // namespace MET
+} // namespace HLT

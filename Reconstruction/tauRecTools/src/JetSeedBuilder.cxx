@@ -12,38 +12,23 @@
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauJet.h"
 
-
-
+//______________________________________________________________________________
 JetSeedBuilder::JetSeedBuilder(const std::string& name) :
   TauRecToolBase(name) {
 }
 
-
-
+//______________________________________________________________________________
 JetSeedBuilder::~JetSeedBuilder() {
 }
 
-
-
-StatusCode JetSeedBuilder::initialize() {
-  return StatusCode::SUCCESS;
-}
-
-
-
-StatusCode JetSeedBuilder::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-
-
+//______________________________________________________________________________
 StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) const {
 
   ATH_MSG_DEBUG("Starting execute");
 
   const xAOD::Jet* jetSeed = nullptr;
   if (pTau.jetLink().isValid()) {
-    jetSeed = * pTau.jetLink();
+    jetSeed = pTau.jet();
   }
   else { 
     ATH_MSG_ERROR("seed is not a jet -> tau will not be reconstructed");
@@ -76,4 +61,3 @@ StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) const {
 }
 
 #endif
-

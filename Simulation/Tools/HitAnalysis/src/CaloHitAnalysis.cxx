@@ -290,7 +290,7 @@ StatusCode CaloHitAnalysis::execute() {
   const DataHandle<TileHitVector> hitVec;
   //const TileHitVector* hitVec;
   if (evtStore()->retrieve(hitVec,"TileHitVec") == StatusCode::SUCCESS && m_tileMgr && m_tileID) {
-    for (auto i_hit : *hitVec) {
+    for (const auto& i_hit : *hitVec) {
       Identifier pmt_id = (i_hit).identify();
       Identifier cell_id = m_tileID->cell_id(pmt_id);
       const CaloDetDescrElement* ddElement = (m_tileID->is_tile_aux(cell_id)) ? 0 : m_tileMgr->get_cell_element(cell_id);

@@ -7,7 +7,7 @@
 
 
 # load dict for MyCutClass
-pylcgdict.loadDictionary("PyAnalysisExamplesDict")
+pylcgdict.load_library("libPyAnalysisExamplesDict")
 
 # instantiate a C++ class from python
 cut = g.MyCutClass(30*GeV)

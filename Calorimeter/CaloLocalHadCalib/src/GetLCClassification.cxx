@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -42,7 +42,7 @@
 GetLCClassification::GetLCClassification(const std::string& name, 
 					 ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_outputFile(0),
+    m_outputFile(nullptr),
     m_clusterCollName("CaloTopoCluster"),
     m_NormalizationType("Lin"),
     m_NormalizationTypeNumber(0),
@@ -165,7 +165,7 @@ StatusCode GetLCClassification::initialize()
   int neta = (ieta>=0?m_dimensions[ieta].bins():1);
   int nphi = (iphi>=0?m_dimensions[iphi].bins():1);
   int nlogE = m_dimensions[ilogE].bins();
-  m_hclus.resize(nside*neta*nphi*nlogE,0);
+  m_hclus.resize(nside*neta*nphi*nlogE,nullptr);
   for ( int jside=0;jside<nside;jside++) {
     for ( int jeta=0;jeta<neta;jeta++) {
       for ( int jphi=0;jphi<nphi;jphi++) {

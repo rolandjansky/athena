@@ -2,28 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// 01.03.2006, AUTHOR: OLIVER KORTNER
-// Modified: 15.07.2006 by O. Kortner, error calculation corrected,
-//                                     chi^2 refit functionality added.
-//           13.01.2007 by O. Kortner, bug fix in candidate treatment, some
-//                                     candidates were considered to be
-//                                     identical although different;
-//                                     modifications to improve the
-//                                     reconstruction efficiency at very high
-//                                     background count rates.
-//           27.03.2007 by O. Kortner, distances with signs filled into
-//                                     MuonCalibSegment.
-//           23.03.2007 by O. Kortner, isnan check for chi^2.
-//           08.06.2007 by O. Kortner, final track segment has rphi position and
-//                                     direction of the initial segment.
-//           23.06.2006 by O. Kortner, add convention for rphi track if the
-//                                     pattern recognition has failed to
-//                                     provide it.
-//           26.11.2007 by O. Kortner, fix for segment refinement.
-//           13.12.2007 by O. Kortner, time-out added.
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 #ifndef QuasianalyticLineReconstructionH
 #define QuasianalyticLineReconstructionH
 
@@ -46,27 +24,19 @@
 ///
 /// \date 01.03.2006, 16.07.2006, 13.12.2007
 
-//::::::::::::::::::
-//:: HEADER FILES ::
-//::::::::::::::::::
-
-// CLHEP //
-//#include "CLHEP/config/CLHEP.h"
-
-// STL //
-#include <vector>
-
-// MuonCalib //
 #include "MdtCalibInterfaces/IMdtPatRecFitter.h"
+
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MdtCalibFitters/IndexSet.h"
 #include "MdtCalibFitters/DCSLFitter.h"
+#include "CxxUtils/checker_macros.h"
 
+#include <vector>
 
 namespace MuonCalib {
 
-class QuasianalyticLineReconstruction : public IMdtPatRecFitter {
+class ATLAS_NOT_THREAD_SAFE QuasianalyticLineReconstruction : public IMdtPatRecFitter {
 
 public:
 // Constructors //
@@ -119,6 +89,9 @@ public:
 	void setTimeOut(const double & time_out);
 					///< set the time-out for the track
 					///< finding to time_out (in seconds)
+    void setMaxRadius(const double& maxR);
+					///< set the max innerRadius, default for MDT
+					///< sMDT 7.1mm, MDT 14.6mm
 // methods required by the base class "IMdtSegmentFitter" //
 	bool fit(MuonCalibSegment & r_segment) const;
 	                                ///< reconstruction of the track using

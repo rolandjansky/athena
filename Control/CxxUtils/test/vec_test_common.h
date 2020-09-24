@@ -361,12 +361,21 @@ void
 test_permute(const VEC& v1)
 {
   VEC v2;
-  // Put the element at v1[0] to all the lanes of v2
-  CxxUtils::mask_type_t<VEC> first{ 0 };
-  CxxUtils::vpermute(v2, v1, first);
+  // invert elements
   constexpr size_t N = CxxUtils::vec_size<VEC>();
+  if constexpr (N == 2) {
+    CxxUtils::vpermute<1, 0>(v2, v1);
+  } else if constexpr (N == 4) {
+    CxxUtils::vpermute<3, 2, 1, 0>(v2, v1);
+  } else if constexpr (N == 8) {
+    CxxUtils::vpermute<7, 6, 5, 4, 3, 2, 1, 0>(v2, v1);
+  } else {
+    // N==16
+    CxxUtils::vpermute<15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0>(
+      v2, v1);
+  }
   for (size_t i = 0; i < N; i++) {
-    assert(v2[i] == v1[0]);
+    assert(v2[i] == v1[(N-1)-i]);
   }
 }
 

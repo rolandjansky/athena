@@ -75,7 +75,7 @@ StatusCode LayerTestTool::processEvent()
 
   if (evtStore()->retrieve(trCollection,m_key).isSuccess()) {
    
-    for(auto e : *trCollection){
+    for(const auto& e : *trCollection){
 
       m_energy = e.GetEnergy();
       m_n_energy->Fill(m_energy);

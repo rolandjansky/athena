@@ -23,10 +23,6 @@ namespace ROIB {
   {
   }
 
-  EMTauRoI::~EMTauRoI() {
-
-  }
-
   void EMTauRoI::update() {
     // Obsolete a long time ago.
     m_roIWord = RoIFormatUpdater::UpdateEMTauRoI(m_roIWord) ;

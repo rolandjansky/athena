@@ -18,10 +18,9 @@
 // FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/ReadDecorHandleKey.h"
-#include "StoreGate/ReadDecorHandle.h"
-#include "StoreGate/WriteDecorHandleKey.h"
-#include "StoreGate/WriteDecorHandle.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 // EDM includes
 #include "xAODJet/JetContainer.h"
@@ -55,7 +54,6 @@
 
     // Athena algtool's Hooks
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
     virtual StatusCode decorate(const xAOD::JetContainer& jetCont) const override;
 

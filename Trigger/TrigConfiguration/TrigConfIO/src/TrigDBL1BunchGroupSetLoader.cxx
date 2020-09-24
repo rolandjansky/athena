@@ -5,66 +5,60 @@
 
 TrigConf::TrigDBL1BunchGroupSetLoader::TrigDBL1BunchGroupSetLoader(const std::string & connection) : 
    TrigDBLoader("TrigDBL1BunchGroupSetLoader", connection)
-{}
-
-TrigConf::TrigDBL1BunchGroupSetLoader::~TrigDBL1BunchGroupSetLoader()
-{}
-
-namespace {
-   std::vector<TrigConf::QueryDefinition>
-   getQueryDefinitions() {
-      std::vector<TrigConf::QueryDefinition> queries;
-      { // query for table dev1 and dev2
-         queries.emplace_back();
-         auto & q = queries.back();
-         // tables
-         q.addToTableList ( "L1_BUNCH_GROUP_SET" );
-         // bind vars
-         q.extendBinding<int>("key");
-         // conditions
-         q.extendCondition("L1BGS_ID = :key");
-         // attributes
-         q.extendOutput<coral::Blob>( "L1BGS_DATA" );
-         // the field with the data
-         q.setDataName("L1BGS_DATA");
-      }
-      return queries;
+{
+   { // query for all schema versions
+      auto & q = m_queries[1];
+      // tables
+      q.addToTableList ( "L1_BUNCH_GROUP_SET" );
+      // bind vars
+      q.extendBinding<int>("key");
+      // conditions
+      q.extendCondition("L1BGS_ID = :key");
+      // attributes
+      q.extendOutput<coral::Blob>( "L1BGS_DATA" );
+      // the field with the data
+      q.setDataName("L1BGS_DATA");
    }
 }
+
+TrigConf::TrigDBL1BunchGroupSetLoader::~TrigDBL1BunchGroupSetLoader() = default;
 
 bool
 TrigConf::TrigDBL1BunchGroupSetLoader::loadBunchGroupSet ( unsigned int bgsk,
                                                            TrigConf::L1BunchGroupSet & bgs,
                                                            const std::string & outFileName ) const
 {
-   auto session = createDBSession();
-   session->transaction().start( /*bool readonly=*/ true);
-   bool querySuccess { false };
-   for( auto & qdef : getQueryDefinitions() ) {
+   boost::property_tree::ptree pt;
+   {
+      auto session = createDBSession();
+      session->transaction().start( /*bool readonly=*/ true);
+      QueryDefinition qdef = getQueryDefinition(session.get(), m_queries);
       try {
          qdef.setBoundValue<int>("key", bgsk);
          auto q = qdef.createQuery( session.get() );
          auto & cursor = q->execute();
-         querySuccess = true;
          if ( ! cursor.next() ) {
-            throw std::runtime_error( "TrigDBL1BunchGroupSetLoader: L1 bunchgroup key " + std::to_string(bgsk) + " not available" );
+            TRG_MSG_ERROR("Tried reading L1 bunchgroup set, but L1 bunchgroup key " << bgsk << " is not available" );
+            throw TrigConf::NoBGSKException("TrigDBL1BunchGroupSetLoader: L1 bunchgroup key " + std::to_string(bgsk) + " not available");
          }
          const coral::AttributeList& row = cursor.currentRow();
          const coral::Blob& dataBlob = row[qdef.dataName()].data<coral::Blob>();
          writeRawFile( dataBlob, outFileName );
-         boost::property_tree::ptree pt;
          blobToPtree( dataBlob, pt );
-         bgs.setData(std::move(pt));
-         bgs.setBGSK(bgsk);
-         break;
       }
       catch(coral::QueryException & ex) {
-         continue;
+         TRG_MSG_ERROR("When reading L1 bunchgroup set for L1 bunchgroup key " << bgsk << " a coral::QueryException was caught ( " << ex.what() <<" )" );
+         throw TrigConf::QueryException("TrigDBL1BunchGroupSetLoader: " + std::string(ex.what()));
       }
    }
-   if( ! querySuccess ) {
-      TRG_MSG_ERROR("Could not read the L1 bunchgroup set data from the database, all query attempts failed");
-      return false;
+   try {
+      bgs.setData(std::move(pt));
+      bgs.setBGSK(bgsk);
+   }
+   catch(std::exception & ex) {
+      bgs.clear();
+      TRG_MSG_ERROR("When reading L1 bunchgroup set for L1 BGSK " << bgsk << " a parsing error occured ( " << ex.what() <<" )" );
+      throw TrigConf::ParsingException("TrigDBL1BunchGroupSetLoader: parsing error " + std::string(ex.what()));
    }
 
    return true;

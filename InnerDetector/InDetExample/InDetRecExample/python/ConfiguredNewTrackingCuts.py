@@ -212,6 +212,8 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
+      self.__minRoIClusterEt         = 4500. * Units.MeV #Default cut to mimic rel21-ish
+
 
     if self.__indetflags.cutLevel() >= 14 :
       self.__minPT                   = 0.5 * Units.GeV

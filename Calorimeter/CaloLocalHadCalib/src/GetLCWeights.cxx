@@ -46,7 +46,7 @@
 GetLCWeights::GetLCWeights(const std::string& name, 
 			   ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),
-    m_outputFile(0),
+    m_outputFile(nullptr),
     m_clusterCollName("CaloTopoCluster"),
     m_useInversionMethod(true),
     m_NormalizationType("Lin"),
@@ -263,7 +263,7 @@ StatusCode GetLCWeights::initialize()
       int nside = (iside>=0?m_dimensions[isamp][iside].bins():1);
       int neta = (ieta>=0?m_dimensions[isamp][ieta].bins():1);
       int nphi = (iphi>=0?m_dimensions[isamp][iphi].bins():1);
-      m_weight[theSampling].resize(nside*neta*nphi,0);
+      m_weight[theSampling].resize(nside*neta*nphi,nullptr);
       for ( int jside=0;jside<nside;jside++) {
 	for ( int jeta=0;jeta<neta;jeta++) {
 	  for ( int jphi=0;jphi<nphi;jphi++) {
@@ -374,7 +374,7 @@ StatusCode GetLCWeights::execute()
     IdentifierHash myHashMin,myHashMax;
     calo_id->calo_cell_hash_range (ic,myHashMin,myHashMax);
     maxHashSize = myHashMax-myHashMin;
-    cellVector[ic].resize(maxHashSize,0);
+    cellVector[ic].resize(maxHashSize,nullptr);
   }
 
   // loop over all cell members of all clusters and fill cell vector
@@ -417,7 +417,7 @@ StatusCode GetLCWeights::execute()
       ClusWeight * myClus = new ClusWeight();
       myClus->iClus = iClus;
       myClus->weight = cellIter.weight();
-      myClus->next = 0;
+      myClus->next = nullptr;
       myClus->eCalibTot = 0;
       ClusWeight * theList = cellVector[otherSubDet][(unsigned int)myHashId];
       if ( theList ) {
@@ -487,8 +487,8 @@ StatusCode GetLCWeights::execute()
 	  const Identifier myId = pCell->ID();
 	  const CaloDetDescrElement* myCDDE=pCell->caloDDE();
 	  const int caloSample = myCDDE->getSampling();//m_calo_id->calo_sample(myId);
-	  if ( m_isampmap[caloSample].size() > 0 && 
-	       m_weight[caloSample].size() > 0 ) {
+	  if ( !m_isampmap[caloSample].empty() && 
+	       !m_weight[caloSample].empty() ) {
 	    int isideCell = 0;
 	    int ietaCell = 0;
 	    int iphiCell = 0;
@@ -596,7 +596,7 @@ StatusCode GetLCWeights::execute()
   for(unsigned int ic=0;ic<CaloCell_ID::NSUBCALO; ic++) {
     for (unsigned int ii = 0;ii<cellVector[ic].size();ii++ ) {
       ClusWeight * theList = cellVector[ic][ii];
-      ClusWeight * prev = 0;
+      ClusWeight * prev = nullptr;
       while ( theList) {
 	while ( theList->next ) {
 	  prev = theList;
@@ -604,11 +604,11 @@ StatusCode GetLCWeights::execute()
 	}
 	delete theList;
 	if ( prev ) 
-	  prev->next = 0;
+	  prev->next = nullptr;
 	else 
-	  cellVector[ic][ii] = 0;
+	  cellVector[ic][ii] = nullptr;
 	theList = cellVector[ic][ii];
-	prev = 0;
+	prev = nullptr;
       }
     }
   }

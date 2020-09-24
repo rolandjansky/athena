@@ -10,6 +10,7 @@ ApplicationMgr.EventLoop = "MinimalEventLoopMgr"; //for minimal service creation
 
 //If someone tries to use the MetaDataSvc, ensure the container name is set
 MetaDataSvc.MetaDataContainer = "MetaDataHdr";
+MetaDataSvc.OutputLevel=6; //Silence an annoying error
 
 //make the MessageSvc display a bit wider
 MessageSvc.Format = "% F%30W%S%7W%R%T %0W%M";

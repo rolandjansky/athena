@@ -23,10 +23,12 @@
 
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
 #include "JetInterface/IJetTrackSelector.h"
 #include "JetInterface/IJetDecorator.h"
 #include "JetEDM/TrackVertexAssociation.h"
-#include "StoreGate/WriteDecorHandleKeyArray.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKeyArray.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"

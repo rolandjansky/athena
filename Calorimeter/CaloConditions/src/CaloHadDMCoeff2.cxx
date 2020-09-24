@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloConditions/CaloHadDMCoeff2.h"
 
 #include "boost/io/ios_state.hpp"
 
-#include <sstream>
+#include <cmath>
 #include <iomanip>
-#include <math.h>
+#include <sstream>
 
 /* ***************************************************************************
 c-tor
@@ -57,7 +57,7 @@ const CaloHadDMCoeff2::HadDMArea * CaloHadDMCoeff2::getHadDMArea(int n_area) con
   if(n_area >= 0 && n_area<(int)m_DMAreaSet.size() ) {
     return &(m_DMAreaSet[n_area]);
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -80,7 +80,7 @@ const CaloHadDMCoeff2::HadDMCoeff * CaloHadDMCoeff2::getHadDMCoeff(const int & i
   if ( iBin > -1 && iBin < (int)m_DMCoeffSet.size() ) {
     return (& m_DMCoeffSet[iBin]);
   }else{
-    return 0;
+    return nullptr;
   }
 }
 

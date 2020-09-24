@@ -20,7 +20,7 @@ import AthenaCommon.SystemOfUnits as Units
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
-cppyy.loadDictionary('egammaEnumsDict')
+cppyy.load_library('libegammaEnumsDict')
 from ROOT import egammaPID
 from ROOT import egammaParameters
 

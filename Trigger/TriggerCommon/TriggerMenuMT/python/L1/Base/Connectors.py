@@ -35,6 +35,7 @@ class CType(Enum):
 class CFormat(Enum):
     MULT = (1, 'multiplicity')
     TOPO = (2, 'topological')
+    SIMPLE = (3, 'simple')
     def __init__(self, _, cformat ):
         self.cformat = cformat
 
@@ -44,6 +45,8 @@ class CFormat(Enum):
             return CFormat.MULT
         elif label == 'topological':
             return CFormat.TOPO
+        elif label == 'simple':
+            return CFormat.SIMPLE
         else:
             raise NotImplementedError
 
@@ -58,6 +61,9 @@ class MenuConnectorsCollection(object):
     def __iter__(self):
         return iter(self.connectors.values())
 
+    def __contains__(self, name):
+        return name in self.connectors
+
     def addConnector(self, connDef):
         name, cformat, ctype, legacy, boardName = map(connDef.__getitem__,["name", "format", "type", "legacy", "board"])
 
@@ -66,47 +72,10 @@ class MenuConnectorsCollection(object):
 
         log.debug("Adding connector %s, format %s, legacy set to %s, and connType %s", name, cformat, legacy, ctype)
         if CType.from_str(ctype) is CType.ELEC:
-            newConnector = ElectricalConnector(name, cformat, legacy)
+            newConnector = ElectricalConnector(name, cformat, legacy, connDef)
         else:
-            newConnector = Connector(name, cformat, ctype, legacy)
+            newConnector = OpticalConnector(name, cformat, ctype, legacy, connDef)
         self.connectors[name] = newConnector
-
-        
-        # treat differently depending on the "format", which can be: 'topological' or 'multiplicity'        
-        if connDef["format"] == 'multiplicity':
-            # multiplicity connectors contain all the triggerlines in a flat "thresholds" list
-            startbit = 0
-            for thrName in connDef["thresholds"]:
-                nbits = connDef["nbitsDefault"]
-                if type(thrName)==tuple:
-                    (thrName,nbits) = thrName
-                if thrName is None:
-                    startbit += nbits
-                    continue
-                tl = TriggerLine( name = thrName, startbit = startbit, nbits = nbits)
-                startbit += nbits
-                newConnector.addTriggerLine(tl)
-
-        elif connDef["format"] == 'topological':
-            # topological connectors when they are electrical
-            # connectors contain the triggerlines in up to four
-            # algorithm groups, each corresponding to a different (fpga,clock) setting
-
-            currentTopoCategory = AlgCategory.getCategoryFromBoardName(boardName)
-
-            if newConnector.ctype == CType.ELEC:
-                for thrG in connDef["algorithmGroups"]:
-                    (newConnector.fpga, newConnector.clock) = map(thrG.__getitem__,["fpga","clock"])
-                    fpga,clock = map(thrG.__getitem__,["fpga","clock"])
-                    for topo in thrG["algorithms"]:
-                        bit = topo.outputbits[0] if isinstance(topo.outputbits, tuple) else topo.outputbits
-                        for (i, tl) in enumerate(topo.outputlines):
-                            # for topoological triggerlines the names have to be prefixed as they are in the item definitions
-                            tlname = currentTopoCategory.prefix + tl
-                            newConnector.addTriggerLine( TriggerLine( name = tlname, startbit = bit+i, nbits = 1 ), fpga, clock )
-
-        else:
-            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological'")
 
         if newConnector.ctype == CType.CTPIN:
             try:
@@ -131,17 +100,19 @@ class MenuConnectorsCollection(object):
 
 
 class Connector(object):
-    __slots__ = [ 'name', 'cformat', 'ctype', 'legacy', 'triggerLines']
-    def __init__(self, name, cformat, ctype, legacy):
+    __slots__ = [ 'name', 'cformat', 'ctype', 'legacy', 'boardName', 'triggerLines']
+    def __init__(self, connDef):
         """
         @param name name of the connector
         @param cformat can be 'topological' or 'multiplicity'
         @param ctype can be 'ctpin', 'electrical', or 'optical'
         """
+        name, cformat, ctype, legacy, boardName = map(connDef.__getitem__,["name", "format", "type", "legacy", "board"])
         self.name    = name
         self.cformat = CFormat.from_str(cformat)
         self.ctype   = CType.from_str(ctype)
         self.legacy  = bool(legacy)
+        self.boardName = boardName
         self.triggerLines = []
 
     def addTriggerLine(self, tl):
@@ -162,14 +133,73 @@ class Connector(object):
         return confObj
 
 
+class OpticalConnector(Connector):
+    __slots__ = [ 'name', 'cformat', 'ctype', 'legacy', 'triggerLines']
+    def __init__(self, name, cformat, ctype, legacy, connDef):
+        """
+        @param name name of the connector
+        @param cformat can be 'topological' or 'multiplicity'
+        @param ctype can be 'ctpin', 'electrical', or 'optical'
+        """
+        super(OpticalConnector,self).__init__(connDef = connDef)
+
+        # treat differently depending on the "format", which can be: 'topological' or 'multiplicity'
+        if connDef["format"] == 'multiplicity':
+            # multiplicity connectors contain all the triggerlines in a flat "thresholds" list
+            startbit = 0
+            for thrName in connDef["thresholds"]:
+                nbits = connDef["nbitsDefault"]
+                if type(thrName)==tuple:
+                    (thrName,nbits) = thrName
+                if thrName is None:
+                    startbit += nbits
+                    continue
+                tl = TriggerLine( name = thrName, startbit = startbit, nbits = nbits)
+                startbit += nbits
+                self.addTriggerLine(tl)
+        else:
+            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological'" % (name,connDef["format"]))
+
+
 class ElectricalConnector(Connector):
-    def __init__(self, name, cformat, legacy):
+    def __init__(self, name, cformat, legacy, connDef):
         """
         @param name name of the connector
         @param cformat can be 'topological' or 'multiplicity'
         """
-        super(ElectricalConnector,self).__init__(name = name, cformat = cformat, ctype = 'electrical', legacy = legacy)
+        super(ElectricalConnector,self).__init__(connDef = connDef)
         self.triggerLines = { 0 : {0:[],1:[]}, 1 : {0:[],1:[]} }
+
+        if self.cformat == CFormat.TOPO:
+            # topological connectors when they are electrical
+            # connectors contain the triggerlines in up to four
+            # algorithm groups, each corresponding to a different (fpga,clock) setting
+            currentTopoCategory = AlgCategory.getCategoryFromBoardName(self.boardName)
+            for thrG in connDef["algorithmGroups"]:
+                fpga,clock = map(thrG.__getitem__,["fpga","clock"])
+                for topo in thrG["algorithms"]:
+                    bit = topo.outputbits[0] if isinstance(topo.outputbits, tuple) else topo.outputbits
+                    for (i, tl) in enumerate(topo.outputlines):
+                        # for topoological triggerlines the names have to be prefixed as they are in the item definitions
+                        tlname = currentTopoCategory.prefix + tl
+                        self.addTriggerLine( TriggerLine( name = tlname, startbit = bit+i, nbits = 1 ), fpga, clock )
+        elif self.cformat == CFormat.SIMPLE:
+            for sigG in connDef["signalGroups"]:
+                clock = sigG["clock"]
+                startbit = 0
+                for signal in sigG["signals"]:
+                    nbits = connDef["nbitsDefault"]
+                    if type(signal)==tuple:
+                        (signal,nbits) = signal
+                    if signal is None:
+                        startbit += nbits
+                        continue
+                    tl = TriggerLine( name = signal, startbit = startbit, nbits = nbits)
+                    startbit += nbits
+                    self.addTriggerLine(tl, 0, clock)
+        else:
+            raise RuntimeError("Property 'format' of connector %s is '%s' but must be either 'multiplicity' or 'topological'" % (name,connDef["format"]))
+
 
     def addTriggerLine(self, tl, fpga, clock):
         self.triggerLines[fpga][clock].append( tl )
@@ -184,12 +214,18 @@ class ElectricalConnector(Connector):
         if self.legacy:
             confObj["legacy"] = self.legacy
         confObj["triggerlines"] = odict()
-        for fpga in [0,1]:
-            fpgas = "fpga%i" % fpga
-            confObj["triggerlines"][fpgas] = odict()
+        if self.cformat == CFormat.TOPO:
+            for fpga in [0,1]:
+                fpgas = "fpga%i" % fpga
+                confObj["triggerlines"][fpgas] = odict()
+                for clock in [0,1]:
+                    clocks = "clock%i" % clock
+                    confObj["triggerlines"][fpgas][clocks] = [tl.json() for tl in self.triggerLines[fpga][clock]]
+        elif self.cformat == CFormat.SIMPLE:
+            confObj["triggerlines"] = odict()
             for clock in [0,1]:
                 clocks = "clock%i" % clock
-                confObj["triggerlines"][fpgas][clocks] = [tl.json() for tl in self.triggerLines[fpga][clock]]
+                confObj["triggerlines"][clocks] = [tl.json() for tl in self.triggerLines[0][clock]]
         return confObj
 
 

@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonCalibIdentifier )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/Identifier
-                          PRIVATE
-                          MuonSpectrometer/MuonIdHelpers
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

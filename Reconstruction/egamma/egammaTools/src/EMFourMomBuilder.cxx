@@ -50,7 +50,6 @@ EMFourMomBuilder::initialize()
 
   ATH_MSG_DEBUG(" Initializing EMFourMomBuilder");
   m_eg_resol = std::make_unique<eg_resolution>(m_ResolutionConfiguration);
-  m_eg_resol->msg().setLevel(this->msg().level());
   return StatusCode::SUCCESS;
 }
 

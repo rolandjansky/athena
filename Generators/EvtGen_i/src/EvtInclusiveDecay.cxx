@@ -678,7 +678,7 @@ double EvtInclusiveDecay::invMass(HepMC::ConstGenParticlePtr p1, HepMC::ConstGen
   double dimuPx = p2Px + p1Px;
   double dimuPy = p2Py + p1Py;
   double dimuPz = p2Pz + p1Pz;
-  double invMass = sqrt(dimuE*dimuE - dimuPx*dimuPx - dimuPy*dimuPy - dimuPz*dimuPz);
+  double invMass = std::sqrt(dimuE*dimuE - dimuPx*dimuPx - dimuPy*dimuPy - dimuPz*dimuPz);
   
   return invMass;
 }
@@ -817,8 +817,10 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 #ifdef HEPMC3
 std::string EvtInclusiveDecay::pdgName(HepMC::ConstGenParticlePtr p, bool statusHighlighting, std::set<HepMC::GenParticlePtr>* barcodeList) {
   std::ostringstream buf;
+  bool inlist=false;
+  for (auto pinl: *barcodeList) if (pinl&&p) if (pinl.get()==p.get()) inlist=true;
   if (statusHighlighting) {
-    if ( ((barcodeList!=0) && (barcodeList->find(p) != barcodeList->end())) ||
+    if ( ((barcodeList!=0) && (inlist)) ||  
          ((barcodeList==0) && isToBeDecayed(p,false)) )
       buf << "\033[7m";   // reverse
     if (p->status() != 1) {

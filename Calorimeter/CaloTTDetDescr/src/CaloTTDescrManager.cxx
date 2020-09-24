@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -23,7 +23,7 @@
 CaloTTDescrManager::CaloTTDescrManager() 
     :
     m_is_initialized(false),
-    m_calo_lvl1_id(0)
+    m_calo_lvl1_id(nullptr)
 {
 }
 
@@ -42,7 +42,7 @@ CaloTTDescrManager::find_calo_region	(const Identifier& region) const
   } else {
     // no CaloTTDescrRegion corresponding to Identifier
     // this is expected as some Identifiers have no real counter part)
-    return(0);
+    return(nullptr);
   }
    
 }

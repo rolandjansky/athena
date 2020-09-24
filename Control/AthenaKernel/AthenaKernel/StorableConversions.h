@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_STORABLECONVERSIONS_H
@@ -103,7 +103,7 @@ namespace SG {
    * to use instead @c SG::DVLDataBucket\<T>.
    *
    * Further, if @c T derives from @c DataVector or @c DataList (as declared
-   * by @c SG_BASE), then we also want to use @c SG::DVLDataBucket\<T>.
+   * by @c SG_BASES), then we also want to use @c SG::DVLDataBucket\<T>.
    *
    * Further, we don't want this code to depend on @c DataVector
    * or @c SG::DVLDataBucket.  That behavior is enabled only
@@ -132,7 +132,7 @@ namespace SG {
   struct DataBucketTrait
   {
     // The first base of @c T (or @c SG::NoBase).
-    typedef typename SG::BaseType<typename SG::Bases<T>::Base1>::type base1;
+    typedef typename SG::BaseType<typename SG::Bases<T>::bases::Base1>::type base1;
 
     // Test to see if it's valid.
     typedef typename boost::is_same<base1, SG::NoBase>::type has_base;
@@ -186,7 +186,6 @@ namespace SG {
                      bool isConst /*= true*/)
   {
     typedef typename std::remove_const<T>::type T_nc;
-    typedef typename DataBucketTrait<T_nc>::type bucket_t;
     DataBucketTrait<T_nc>::init();
 
     //check inputs
@@ -200,19 +199,11 @@ namespace SG {
     }
 
     // get T* from DataBucket:
-    SG::DataBucket<T_nc>* bucketPtr = dynamic_cast<bucket_t*>(pDObj);
-    bool success(0 != bucketPtr);
-    if (success)
-      pTrans = *bucketPtr;
-    else {
-      // Try to use BaseInfo information to convert pointers.
-      DataBucketBase* b = dynamic_cast<DataBucketBase*>(pDObj);
-      if (b) {
-        pTrans = b->template cast<T_nc> (irt, isConst);
-        if (pTrans)
-          success = true;
-      }
-    }
+    // All objects in the event store nowadays are instances
+    // of DataBucket, so just do a static_cast.
+    DataBucketBase* b = static_cast<DataBucketBase*>(pDObj);
+    pTrans = b->template cast<T_nc> (irt, isConst);
+    bool success = pTrans != nullptr;
 
 #ifndef NDEBUG
     if (!quiet && !success) {

@@ -50,27 +50,30 @@ class IVxCandidateXAODVertex
   /*
    * Virtual destructor.
    */
-  virtual ~IVxCandidateXAODVertex(){};
+  virtual ~IVxCandidateXAODVertex()=default;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
   /**
-   * Convert xAOD::Vertex to a VxCandidate. 
+   * Convert xAOD::Vertex to a VxCandidate.
    * @param xAODVx input object
    * @param vxVertex return object, owned by the clients.
    */
-  virtual StatusCode createVxCandidate(const xAOD::Vertex &xAODVx, Trk::VxCandidate* &vxVertex) const = 0;
+  virtual StatusCode createVxCandidate(const xAOD::Vertex& xAODVx,
+                                       Trk::VxCandidate*& vxVertex) const = 0;
 
   /**
    * Convert a VxCandidate to a VxVertex. Return object is own by the clients.
-   * If a null pointer is given as output, then a new object is created with its own AuxStore.
-   * Otherwise pass a new xAOD::Vertex object already attached to an aux store (preferred).
+   * If a null pointer is given as output, then a new object is created with its
+   * own AuxStore. Otherwise pass a new xAOD::Vertex object already attached to
+   * an aux store (preferred).
    * @param vxVertex input object
    * @param xAODVx return object, owned by the clients
    */
-  virtual StatusCode createXAODVertex(const Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx) = 0;
-}; 
+  virtual StatusCode createXAODVertex(const Trk::VxCandidate& vxVertex,
+                                      xAOD::Vertex*& xAODVx) const = 0;
+};
 
 } //namespace Trk
 #endif //> !TRKVXEDMCVN_IVXCANDIDATEXAODVERTEX_H

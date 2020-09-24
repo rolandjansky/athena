@@ -91,7 +91,6 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 
         #
         #  TrkTrackSummaryTool: no shared hits  no hole search
-        #  still public due to TrackParticleCreatorTool
         #
         GSFBuildInDetTrackSummaryTool = (
             TrackingCommon.getInDetTrackSummaryTool(
@@ -100,13 +99,13 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
                 doSharedHits=False,
                 doHolesInDet=False,
                 TRT_ElectronPidTool=GSFBuildTRT_ElectronPidTool,
-                PixelToTPIDTool=GSFBuildPixelToTPIDTool)
+                PixelToTPIDTool=GSFBuildPixelToTPIDTool,
+                private=True)
         )
 
         #
         #  Track Particle Creator tool (private not in ToolSvc)
-        #  But needs a public extrapolator and
-        #  InDetTrackSummaryTool still...
+        #  But needs a public extrapolator
         #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
@@ -115,7 +114,6 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
             Extrapolator=AtlasPublicExtrapolator(),
-            TrackSummaryTool=GSFBuildInDetTrackSummaryTool,
             UseTrackSummaryTool=False)
         #
         #  Track slimming (private not in ToolSvc)

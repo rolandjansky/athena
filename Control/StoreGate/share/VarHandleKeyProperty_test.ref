@@ -28,4 +28,3 @@ test3
 test4
 test5
 VarHandleKey::assign failure: SG::ExcBadHandleKey: Bad key format for VarHandleKey: `key "FooSvc+xxx/aaa": keys with "/" only allowed for ConditionStore - store is "FooSvc"'
-JobOptionsSvc       ERROR Unable to set the property 'k1' of 'test5'. Check option and algorithm names, type and bounds.

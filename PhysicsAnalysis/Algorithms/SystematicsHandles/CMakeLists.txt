@@ -29,30 +29,9 @@ atlas_add_library( SystematicsHandlesLib
    PRIVATE_LINK_LIBRARIES RootCoreUtils
    xAODJet xAODMuon xAODEgamma xAODTau )
 
-atlas_add_test( cc_SysReadHandle
-   SOURCES test/cc_SysReadHandle.cxx
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
-
-atlas_add_test( cc_SysCopyHandle
-   SOURCES test/cc_SysCopyHandle.cxx
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib xAODEventInfo xAODJet
-   SystematicsHandlesLib )
-
 if( XAOD_STANDALONE )
    atlas_add_test( ut_CopyHelpers
       SOURCES test/ut_CopyHelpers.cxx
       LINK_LIBRARIES xAODRootAccess AsgTools xAODBase xAODJet
       SystematicsHandlesLib )
 endif()
-
-atlas_add_test( cc_SysWriteHandle
-   SOURCES test/cc_SysWriteHandle.cxx
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
-
-atlas_add_test( cc_SysListHandle
-   SOURCES test/cc_SysListHandle.cxx
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
-
-atlas_add_test( cc_SysDecorationHandle
-   SOURCES test/cc_SysDecorationHandle.cxx
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )

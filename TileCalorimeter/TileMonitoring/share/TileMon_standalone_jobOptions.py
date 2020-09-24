@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 #**************************************************************
@@ -7,6 +7,8 @@
 # jopOptions file for Tile Monitoring in Athena 
 #
 #==============================================================
+
+from __future__ import print_function
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -69,7 +71,7 @@ if doTileTMDBDigitsMon:
         TileTMDBDigitsMon.SummaryUpdateFrequency = 1000
 
     ManagedAthenaTileMon.AthenaMonTools += [ TileTMDBDigitsMon ]
-    print TileTMDBDigitsMon
+    print(TileTMDBDigitsMon)
 
 if doTileTMDBRawChannelMon:
     TileTMDBRawChannelDspMon = CfgMgr.TileTMDBRawChannelMonTool(name		= 'TileTMDBRawChannelDspMon'
@@ -80,7 +82,7 @@ if doTileTMDBRawChannelMon:
 
 
     ManagedAthenaTileMon.AthenaMonTools += [TileTMDBRawChannelDspMon ]
-    print TileTMDBRawChannelDspMon
+    print(TileTMDBRawChannelDspMon)
 
     TileTMDBRawChannelMon = CfgMgr.TileTMDBRawChannelMonTool(name		          = 'TileTMDBRawChannelMon'
                                                               , OutputLevel	          = INFO
@@ -91,7 +93,7 @@ if doTileTMDBRawChannelMon:
 
 
     ManagedAthenaTileMon.AthenaMonTools += [TileTMDBRawChannelMon ]
-    print TileTMDBRawChannelMon
+    print(TileTMDBRawChannelMon)
 
 if doTileL2Mu:
 
@@ -203,9 +205,9 @@ if doTileCells:
 
         ManagedAthenaMBTSMon.AthenaMonTools += [ TileMBTSMon ]
 
-        print ManagedAthenaMBTSMon
+        print(ManagedAthenaMBTSMon)
 
-print ManagedAthenaTileMon
+print(ManagedAthenaTileMon)
 
 
 import os

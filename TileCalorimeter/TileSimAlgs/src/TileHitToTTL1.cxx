@@ -213,8 +213,8 @@ StatusCode TileHitToTTL1::execute() {
   double Rndm[16];      // Can't use variable size array
 
   // Prepare RNG Service
-  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this, m_randomStreamName);
+  rngWrapper->setSeed( m_randomStreamName, Gaudi::Hive::currentContext() );
 
   /*........................................................................*/
   // Get hit container from TES and create TTL1 and MBTS container

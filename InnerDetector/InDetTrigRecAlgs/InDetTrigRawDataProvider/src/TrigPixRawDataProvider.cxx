@@ -36,7 +36,7 @@ namespace InDet {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "PixelRDOs_EFID");
     declareProperty("RawDataProviderTool", m_rawDataTool);
-    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixBSErr");
+    declareProperty("DecodingErrorsKey", m_decodingErrorsKey="PixelByteStreamErrs");
   }
 
   TrigPixRawDataProvider::~TrigPixRawDataProvider(){
@@ -112,7 +112,7 @@ namespace InDet {
     }
 
     if( !evtStore()->transientContains<IDCInDetBSErrContainer>(m_decodingErrorsKey) ) {
-      m_decodingErrors = new IDCInDetBSErrContainer(m_id->wafer_hash_max(),  std::numeric_limits<IDCInDetBSErrContainer::ErrorCode>::min());
+      m_decodingErrors = new IDCInDetBSErrContainer(m_rawDataTool->SizeOfIDCInDetBSErrContainer(),  std::numeric_limits<int>::min());
       ATH_CHECK(evtStore()->record(m_decodingErrors, m_decodingErrorsKey));
     } else {
       ATH_CHECK(evtStore()->retrieve(m_decodingErrors, m_decodingErrorsKey));

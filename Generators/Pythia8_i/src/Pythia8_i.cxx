@@ -11,7 +11,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/assign/std/vector.hpp>
 
 // calls to fortran routines
 #include "CLHEP/Random/RandFlat.h"
@@ -22,7 +21,6 @@
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
-using boost::assign::operator+=;
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -147,7 +145,7 @@ StatusCode Pythia8_i::genInitialize() {
         val = findValue(cmd, "BeamRemnants:reconnectRange");
         if(val != ""){
           cmd = "ColourReconnection:range = " + val;
-          m_commands += "ColourReconnection:mode = 0";
+          m_commands.push_back( "ColourReconnection:mode = 0");
         }
       }
         
@@ -172,7 +170,7 @@ StatusCode Pythia8_i::genInitialize() {
     
     boost::erase_all(splits[0], " ");
     m_pythia->settings.addParm(splits[0], 0., false, false, 0., 0.);
-    m_commands+=param;
+    m_commands.push_back( param);
   }
 
   for(const std::string &mode : m_userModes){
@@ -185,7 +183,7 @@ StatusCode Pythia8_i::genInitialize() {
     
     boost::erase_all(splits[0], " ");
     m_pythia->settings.addMode(splits[0], 0, false, false, 0, 0);
-    m_commands+=mode;
+    m_commands.push_back(mode);
   }
   
   // Now apply the settings from the JO
@@ -330,9 +328,9 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }else{
     canInit = canInit && m_pythia->readString("Beams:frameType = 1");
-    canInit = canInit && m_pythia->readString("Beams:idA = " + boost::lexical_cast<std::string>(beam1));
-    canInit = canInit && m_pythia->readString("Beams:idB = " + boost::lexical_cast<std::string>(beam2));
-    canInit = canInit && m_pythia->readString("Beams:eCM = " + boost::lexical_cast<std::string>(m_collisionEnergy));
+    canInit = canInit && m_pythia->readString("Beams:idA = " + std::to_string(beam1));
+    canInit = canInit && m_pythia->readString("Beams:idB = " + std::to_string(beam2));
+    canInit = canInit && m_pythia->readString("Beams:eCM = " + std::to_string(m_collisionEnergy));
   }
   
   if(m_procPtr != 0){

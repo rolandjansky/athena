@@ -28,7 +28,6 @@ Trk::Track::Track()
   , m_cachedOutlierVector{}
   , m_perigeeParameters{}
   , m_fitQuality(nullptr)
-  , m_trackSummary(nullptr)
 {
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Track, so increment total count
@@ -45,7 +44,6 @@ Trk::Track::Track(
   , m_cachedOutlierVector{}
   , m_perigeeParameters{}
   , m_fitQuality(fitQuality)
-  , m_trackSummary(nullptr)
   , m_trackInfo(info)
 {
   // find the Perigee params they will become valid given the outcome
@@ -62,7 +60,6 @@ Trk::Track::Track(const Trk::Track& rhs)
   , m_cachedOutlierVector{}
   , m_perigeeParameters{}
   , m_fitQuality(nullptr)
-  , m_trackSummary(nullptr)
 {
   //Do the actual payload copy
   copyHelper(rhs);
@@ -79,8 +76,7 @@ Trk::Track::operator=(const Trk::Track& rhs)
     // First clear this object
     delete m_fitQuality;
     m_fitQuality = nullptr;
-    delete m_trackSummary;
-    m_trackSummary = nullptr;
+    m_trackSummary.reset(nullptr);
     // Invalidate the caches
     m_cachedParameterVector.reset();
     m_cachedMeasurementVector.reset();
@@ -110,7 +106,7 @@ Trk::Track::copyHelper(const Trk::Track& rhs)
   }
   // create & copy other variables
   if (rhs.trackSummary() != nullptr) {
-    m_trackSummary = new Trk::TrackSummary(*(rhs.m_trackSummary));
+    m_trackSummary = std::make_unique<Trk::TrackSummary>(*(rhs.m_trackSummary));
   }
   // Create the TrackStateVector and the perigeeParameters
   if (rhs.m_trackStateVector != nullptr) {
@@ -154,7 +150,6 @@ Trk::Track::Track(Trk::Track&& rhs) noexcept
   // but undefined state make the ptr null.
   rhs.m_trackStateVector = nullptr;
   rhs.m_fitQuality = nullptr;
-  rhs.m_trackSummary = nullptr;
 
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new Track, so increment total count
@@ -168,7 +163,6 @@ Trk::Track::operator=(Trk::Track&& rhs) noexcept
     // First clear this object
     // same as dtor of the object
     delete m_fitQuality;
-    delete m_trackSummary;
     delete m_trackStateVector;
     // move from rhs to this
     m_trackStateVector = std::move(rhs.m_trackStateVector);
@@ -182,7 +176,6 @@ Trk::Track::operator=(Trk::Track&& rhs) noexcept
     // but undefined state make the ptr null.
     rhs.m_trackStateVector = nullptr;
     rhs.m_fitQuality = nullptr;
-    rhs.m_trackSummary = nullptr;
   }
   return *this;
 }
@@ -190,7 +183,6 @@ Trk::Track::operator=(Trk::Track&& rhs) noexcept
 Trk::Track::~Track()
 {
   delete m_fitQuality;
-  delete m_trackSummary;
   // the following is DataVectors
   // and so delete the contained objects automatically.
   delete m_trackStateVector;
@@ -339,10 +331,9 @@ void Trk::Track::setInfo(const TrackInfo& input)
   m_trackInfo = input;
 }
 
-void Trk::Track::setTrackSummary(Trk::TrackSummary* input)
+void Trk::Track::setTrackSummary(std::unique_ptr<Trk::TrackSummary> input)
 {
-  delete m_trackSummary;  // delete existing
-  m_trackSummary = input; // add new
+  m_trackSummary = std::move(input);
 }
 
 void Trk::Track::reset()

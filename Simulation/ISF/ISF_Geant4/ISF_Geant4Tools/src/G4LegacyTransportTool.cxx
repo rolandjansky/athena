@@ -148,7 +148,7 @@ void iGeant4::G4LegacyTransportTool::initializeOnce()
 
   // Send UI commands
   ATH_MSG_DEBUG("G4 Command: Trying at the end of initializeOnce()");
-  for (auto g4command : m_g4commands) {
+  for (const auto& g4command : m_g4commands) {
     int returnCode = ui->ApplyCommand( g4command );
     commandLog(returnCode, g4command);
   }

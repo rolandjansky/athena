@@ -153,6 +153,6 @@ atlas_build_lvl1_trigger_menu( MC_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( Cosmic_run3_v1 )
 atlas_build_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
 atlas_build_lvl1_trigger_menu( Dev_HI_run3_v1 )
-
+atlas_build_lvl1_trigger_menu( LS2_v1_TriggerValidation_mc_prescale )
 
 

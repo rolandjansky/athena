@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBEXTRANTUPLEANALYSIS_MUONCALIBSELECTOR_H
 #define MUONCALIBEXTRANTUPLEANALYSIS_MUONCALIBSELECTOR_H
+
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 
@@ -13,7 +15,7 @@ namespace MuonCalib {
   class MuonCalibExtendedTrack;
   class MuonCalibTrackSummary;
 
-  class MuonCalibSelector {
+  class ATLAS_NOT_THREAD_SAFE MuonCalibSelector {
   public: 
     typedef std::vector<const MuonCalibExtendedSegment*> SegVec;
     typedef SegVec::iterator                             SegIt;

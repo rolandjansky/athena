@@ -97,6 +97,8 @@ private:
   float m_minPtCut;
   /** @brief Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits **/
   float m_maxDeltaR_innermost;
+  /** @brief no vertex && no innermost hit -> amb. Use true in reconstruction to have more ambiguous  **/
+  bool m_noVertexNoInnermostAsAmb;
   /** @When used as a selector reject/accpet ambiguous cases */
   bool m_acceptAmbiguous;  
 }; // End: class definition

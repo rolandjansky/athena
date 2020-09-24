@@ -672,7 +672,7 @@ StatusCode LArFCalSamplingFraction::doCalib()
 /// FCal Analysis with Calibration Hits on
 /// Added by JPA, June 2005
 
-void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string name, const CaloCalibrationHit *CalibHit)
+void LArFCalSamplingFraction::FCalCalibAnalysis(const std::string& name, const CaloCalibrationHit *CalibHit)
 {
     Identifier id = CalibHit->cellID();
     double energy = CalibHit->energyTotal();
@@ -751,7 +751,7 @@ void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_itera
         // Note: old GenParticles used HepLorentzVectors, now they use HepMC::FourVectors
 
         // Get the kinematic variables
-        HepMC::FourVector HMCmom = theParticle->momentum();
+        const HepMC::FourVector& HMCmom = theParticle->momentum();
         CLHEP::HepLorentzVector momentum(CLHEP::Hep3Vector(HMCmom.px(), HMCmom.py(), HMCmom.pz()), HMCmom.e());
 
         HepMC::FourVector HMC3vec(0.0,0.0,0.0,0.0);

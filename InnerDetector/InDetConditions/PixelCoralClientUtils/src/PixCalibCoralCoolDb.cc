@@ -25,7 +25,8 @@ using namespace std;
 //
 // this code is based on CoraCoolExample by R. Hawkings
 //
-PixCalibCoralCoolDb::PixCalibCoralCoolDb(string dbString, int /*verbose*/) :
+PixCalibCoralCoolDb::PixCalibCoralCoolDb(const std::string& dbString,
+                                         int /*verbose*/) :
   m_dbstring(dbString)
 {
 
@@ -104,7 +105,7 @@ bool PixCalibCoralCoolDb::load(cool::ValidityKey vkx)
   return true;
 }
 
-bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile , long long FK ) // Thread unsafe coral::AttributeList class is used.
+bool PixCalibCoralCoolDb::saveCalibData ( string textfile , long long FK )
 {
   cool::RecordSpecification payloadspec;
   // primary / foreign keys
@@ -178,7 +179,8 @@ bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile 
   cout << "read " << nsave << " channels" << endl;
 
   // prepare data to save in the payload
-  coral::AttributeList data = folder->emptyAttrList();
+  // No sharing, ok.
+  coral::AttributeList data ATLAS_THREAD_SAFE = folder->emptyAttrList();
   data["PrimKey"].data<int>() = 0;
   data["ForeignKey"].data<long long>() = FK;
   coral::Blob& blob = data["data"].data<coral::Blob>();
@@ -206,7 +208,7 @@ bool PixCalibCoralCoolDb::saveCalibData ATLAS_NOT_THREAD_SAFE ( string textfile 
   return true;
 }
 
-bool PixCalibCoralCoolDb::referenceToRunInterval(long long FK, cool::ValidityKey vk1,cool::ValidityKey vk2, const std::string tagname)
+bool PixCalibCoralCoolDb::referenceToRunInterval(long long FK, cool::ValidityKey vk1,cool::ValidityKey vk2, const std::string& tagname)
 {
   cool::RecordSpecification payloadspec;
   // primary / foreign keys

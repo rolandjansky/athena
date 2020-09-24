@@ -16,7 +16,7 @@ class Geo2G4AssemblyFactory
 {
  public:
   Geo2G4AssemblyFactory();
-  Geo2G4AssemblyVolume* Build(const PVConstLink thePhys,
+  Geo2G4AssemblyVolume* Build(const PVConstLink& thePhys,
                                           bool& descend);
 
  private:

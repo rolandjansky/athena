@@ -39,6 +39,7 @@
 // ROOT includes
 #include "TTree.h"
 // STL includes
+#include <cmath>
 #include <iostream>
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -223,7 +224,7 @@ namespace G4UA{
       //assert(parent);
       
       G4ThreeVector mom = preStep->GetMomentum();
-      G4ThreeVector pos = preStep->GetPosition();
+      const G4ThreeVector& pos = preStep->GetPosition();
       
       // info about generating particle
       G4Track * track = aStep->GetTrack();
@@ -364,7 +365,7 @@ namespace G4UA{
 	  
 	  m_vtx_p_diff = pbal.mag();
 	  m_vtx_plong_diff = pbal*mom/m_p_mother;
-	  m_vtx_pperp_diff = sqrt(m_vtx_p_diff*m_vtx_p_diff-m_vtx_plong_diff*m_vtx_plong_diff);
+	  m_vtx_pperp_diff = std::sqrt(m_vtx_p_diff*m_vtx_p_diff-m_vtx_plong_diff*m_vtx_plong_diff);
 	  
 	  m_interactions->Fill();
 	  
@@ -466,7 +467,7 @@ namespace G4UA{
 
         //4ParticleDefinition* particleDefinition = track->GetDefinition();
 
-        const G4ThreeVector g4pos = track->GetPosition();
+        const G4ThreeVector& g4pos = track->GetPosition();
         //const double gTime = track->GetGlobalTime();
         const HepGeom::Point3D<double> position(g4pos.x(),g4pos.y(),g4pos.z());
 

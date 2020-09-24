@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -10,9 +10,6 @@
 
 // This files header
 #include "InDetPerformanceMonitoring/ZmumuEvent.h"
-
-// Package Headers
-#include "InDetPerformanceMonitoring/PerfMonServices.h"
 
 // ATLAS headers
 #include "CLHEP/Random/RandFlat.h"
@@ -27,7 +24,6 @@
 ZmumuEvent::ZmumuEvent()
 {
   m_xSampleName = "ZMM";
-  m_container = PerfMonServices::MUID_COLLECTION;
   m_doDebug = false;
   // Setup the muon tags
   m_uMuonTags   = 2;
@@ -60,20 +56,15 @@ const std::string ZmumuEvent::getRegion() const{
 
 
 
-bool ZmumuEvent::Reco()
+bool ZmumuEvent::Reco (const xAOD::MuonContainer& muonContainer,
+                       const xAOD::VertexContainer& vertexContainer)
 {
   // Clear out the previous events record.
   Clear();
-  const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
-  if (!pxMuonContainer){
-    return false;
-  }
-  else{
-    if(m_doDebug){     std::cout << pxMuonContainer->size() << " combined muon "<<std::endl; }
-    for (const auto & pxCMuon: *pxMuonContainer){
-	    // Apply muon cuts
-	    if ( m_xMuonID.passSelection( pxCMuon ) ) RecordMuon( pxCMuon );
-    }
+  if(m_doDebug){     std::cout << muonContainer.size() << " combined muon "<<std::endl; }
+  for (const xAOD::Muon* pxCMuon: muonContainer){
+    // Apply muon cuts
+    if ( m_xMuonID.passSelection( pxCMuon, vertexContainer ) ) RecordMuon( pxCMuon );
   }
   // Reconstruct the invariant mass ( based on mu-sys pt ).
   ReconstructKinematics();
@@ -286,26 +277,22 @@ unsigned int ZmumuEvent::getNegMuon( ZTYPE eType )
     }
 }
 
-const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
+const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/,
+                                                      const xAOD::TrackParticleContainer& trackParticleContainer)
 {
-  const xAOD::TrackParticleContainer*  pxTrackContainer =
-    PerfMonServices::getContainer<xAOD::TrackParticleContainer>( PerfMonServices::TRK_COLLECTION );
-  if ( pxTrackContainer )
-    {
-	  for (const auto & pxTrack: *pxTrackContainer){
-	  if(!(pxTrack)) continue;
-	  const Trk::Track* pxTrkTrack = pxTrack->track();
-	  if ( !pxTrack->track() ) continue;
-	  const Trk::Perigee* pxPerigee = pxTrkTrack->perigeeParameters() ;
-	  if ( !pxPerigee ) continue;
-	  const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
-	  const float fTrkEta   = pxPerigee->eta();
-	  float fDPhi = std::fabs( fTrkPhi -  m_pxMETrack[MUON1]->phi() );
-	  float fDEta = std::fabs( fTrkEta -  m_pxMETrack[MUON2]->eta() );
-	  float fDR = std::sqrt( fDPhi*fDPhi + fDEta*fDEta );
-	  if ( fDR < 0.3f ) return pxTrack;
-	}
-    }
+  for (const xAOD::TrackParticle* pxTrack: trackParticleContainer){
+    if(!(pxTrack)) continue;
+    const Trk::Track* pxTrkTrack = pxTrack->track();
+    if ( !pxTrack->track() ) continue;
+    const Trk::Perigee* pxPerigee = pxTrkTrack->perigeeParameters() ;
+    if ( !pxPerigee ) continue;
+    const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
+    const float fTrkEta   = pxPerigee->eta();
+    float fDPhi = std::fabs( fTrkPhi -  m_pxMETrack[MUON1]->phi() );
+    float fDEta = std::fabs( fTrkEta -  m_pxMETrack[MUON2]->eta() );
+    float fDR = std::sqrt( fDPhi*fDPhi + fDEta*fDEta );
+    if ( fDR < 0.3f ) return pxTrack;
+  }
   // if ()
   return nullptr;
 }

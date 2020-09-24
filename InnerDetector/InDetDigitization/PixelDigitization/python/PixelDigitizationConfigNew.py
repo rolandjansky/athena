@@ -316,19 +316,21 @@ def PixelOverlayDigitizationCfg(flags, **kwargs):
 
 
 # additional specialisations
-def PixelDigitizationHSCfg(flags, name="PixelDigitizationHS", **kwargs):
+def PixelDigitizationHSCfg(flags, **kwargs):
     """Return ComponentAccumulator for Hard-Scatter-only Pixel digitization and Output"""
-    acc = PixelDigitizationHSToolCfg(flags)
-    kwargs["PileUpTools"] = acc.popPrivateTools()
-    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(PixelDigitizationHSToolCfg(flags))
+    kwargs["PileUpTools"] = tool
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     acc.merge(PixelOutputCfg(flags))
     return acc
 
 
-def PixelDigitizationPUCfg(flags, name="PixelDigitizationPU", **kwargs):
+def PixelDigitizationPUCfg(flags, **kwargs):
     """Return ComponentAccumulator with Pile-up-only Pixel digitization and Output"""
-    acc = PixelDigitizationPUToolCfg(flags)
-    kwargs["PileUpTools"] = acc.popPrivateTools()
-    acc = PixelDigitizationBasicCfg(flags, name=name, **kwargs)
+    acc = ComponentAccumulator()
+    tool = acc.popToolsAndMerge(PixelDigitizationPUToolCfg(flags))
+    kwargs["PileUpTools"] = tool
+    acc.merge(PileUpToolsCfg(flags, **kwargs))
     acc.merge(PixelOutputCfg(flags))
     return acc

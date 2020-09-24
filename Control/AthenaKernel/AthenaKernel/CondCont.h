@@ -656,6 +656,9 @@ private:
 };
 
 
+CLASS_DEF( CondContBase , 34480459 , 1 )
+
+
 ///////////////////////////////////////////////////////////////////////////
 
 
@@ -797,10 +800,6 @@ template <typename T>
 struct Bases<CondCont<T> >
 {
   using bases = BaseList<CondContBase>;
-  typedef CondContBase Base1;               
-  typedef NoBase Base2;          
-  typedef NoBase Base3;      
-  typedef NoBase Base4;      
 };
 } // namespace SG
 
@@ -820,8 +819,8 @@ class CondContBaseInfo<D>         \
 public:                           \
   typedef CondCont<B> Base;       \
 };                                 \
-SG_BASE(CondCont<D>, CondCont<B>); \
-SG_BASE(D, B)
+SG_BASES(CondCont<D>, CondCont<B>);\
+SG_BASES(D, B)
   
 
 

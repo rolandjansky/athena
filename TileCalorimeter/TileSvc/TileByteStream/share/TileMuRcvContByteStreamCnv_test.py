@@ -53,6 +53,7 @@ import glob
 import sys
 import string
 import ROOT
+ROOT.gROOT.SetBatch(True)
 import math
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit

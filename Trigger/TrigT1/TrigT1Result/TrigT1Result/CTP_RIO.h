@@ -33,7 +33,7 @@ public:
   uint32_t getDetectorEventType() const{return m_detEventType;}
   uint32_t getNumberDataWords() const{return m_nDataWords;}
   uint32_t getNumberStatusWords() const{return m_nStatusWords;}
-  std::vector<uint32_t> getStatusWords() const{return m_statusWords;}
+  const std::vector<uint32_t>& getStatusWords() const{return m_statusWords;}
 
   void sourceId(uint32_t val) {m_sourceId = val;}
   void runNumber(uint32_t val) {m_runNumber = val;}

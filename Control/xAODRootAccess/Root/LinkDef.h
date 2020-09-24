@@ -1,18 +1,15 @@
 // Dear emacs, this is -*- c++ -*-
-
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
-// $Id: LinkDef.h 687014 2015-08-03 09:30:27Z krasznaa $
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
 #ifndef XAODROOTACCESS_LINKDEF_H
 #define XAODROOTACCESS_LINKDEF_H
 
 // Local include(s):
-#include "xAODRootAccess/tools/TEventBranch.h"
-#include "xAODRootAccess/tools/TEventTree.h"
-#include "xAODRootAccess/tools/TMetaBranch.h"
-#include "xAODRootAccess/tools/TMetaTree.h"
+#include "xAODRootAccess/tools/xAODTEventBranch.h"
+#include "xAODRootAccess/tools/xAODTEventTree.h"
+#include "xAODRootAccess/tools/xAODTMetaBranch.h"
+#include "xAODRootAccess/tools/xAODTMetaTree.h"
 #include "xAODRootAccess/tools/TTransTrees.h"
 #include "xAODRootAccess/tools/TReturnCode.h"
 #include "xAODRootAccess/tools/TFileMerger.h"
@@ -29,10 +26,10 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ namespace xAOD;
-#pragma link C++ class xAOD::TEventBranch;
-#pragma link C++ class xAOD::TEventTree;
-#pragma link C++ class xAOD::TMetaBranch;
-#pragma link C++ class xAOD::TMetaTree;
+#pragma link C++ class xAODTEventBranch;
+#pragma link C++ class xAODTEventTree;
+#pragma link C++ class xAODTMetaBranch;
+#pragma link C++ class xAODTMetaTree;
 #pragma link C++ class xAOD::TTransTrees;
 #pragma link C++ class xAOD::TReturnCode;
 #pragma link C++ class xAOD::TFileMerger;

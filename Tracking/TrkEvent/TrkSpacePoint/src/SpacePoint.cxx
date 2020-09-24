@@ -63,6 +63,7 @@ namespace Trk
     cov<<
       lc(0,0),lc(0,1),0.,
       lc(1,0),lc(1,1),0.,
+      // cppcheck-suppress constStatement
       0.     ,0.     ,0.;
 
     const Amg::RotationMatrix3D& R = associatedSurface().transform().rotation();

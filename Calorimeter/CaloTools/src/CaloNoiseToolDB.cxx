@@ -64,7 +64,7 @@ CaloNoiseToolDB::initialize()
 
   m_cached = ICalorimeterNoiseTool::TOTALNOISE;
 
-  if (m_folderNames.size()==0) {
+  if (m_folderNames.empty()) {
     ATH_MSG_ERROR( "No database folder name give to read noise! Please set " << name() << ".FolderNames=[...]"  );
     return StatusCode::FAILURE;
   }
@@ -211,7 +211,7 @@ CaloNoiseToolDB::updateMap( IOVSVC_CALLBACK_ARGS_K(keys) )
 	continue;
       }
 
-      if (channelsFound.insert(iColl->first).second==false) {
+      if (!channelsFound.insert(iColl->first).second) {
 	ATH_MSG_ERROR( "Channel " << iColl->first << " encountered twice during this callback! Don't know what to do."  );
 	return StatusCode::FAILURE;
       }

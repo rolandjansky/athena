@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -16,67 +16,67 @@
 //
 //-----------------------------------------------------------------------
 #include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <sstream>
-#include <fstream>
-#include <math.h>
 
 #include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
 #include "CaloLocalHadCalib/CaloLocalHadCoeffHelper.h"
 
 
 CaloHadDMCoeffData::CaloHadDMCoeffData(TTree *tree) :
-  fChain(0),
+  fChain(nullptr),
   fCurrent(0),
   m_ncls(0),
   m_mc_pdg(0),
   m_mc_ener(0),
   m_mc_eta(0),
   m_mc_phi(0),
-  m_cls_ener(0),
-  m_cls_ener_unw(0),
-  m_cls_lambda(0),
-  m_cls_eta(0),
-  m_cls_phi(0),
-  m_cls_smpener(0),
-  m_cls_smpener_unw(0),
+  m_cls_ener(nullptr),
+  m_cls_ener_unw(nullptr),
+  m_cls_lambda(nullptr),
+  m_cls_eta(nullptr),
+  m_cls_phi(nullptr),
+  m_cls_smpener(nullptr),
+  m_cls_smpener_unw(nullptr),
   m_narea(0),
-  m_cls_eprep(0),
-  m_cls_dmener(0),
+  m_cls_eprep(nullptr),
+  m_cls_dmener(nullptr),
   m_engClusSumCalib(0),
-  m_cls_engcalib(0),
-  m_cls_recostat(0),
-  m_cls_pi0prob(0),
-  m_cls_isol(0),
-  m_cls_oocener(0),
-  m_cls_calib_emfrac(0),
-  m_cls_engcalibpres(0),
-  b_ncls(0),
-  b_mc_pdg(0),
-  b_mc_ener(0),
-  b_mc_eta(0),
-  b_mc_phi(0),
-  b_cls_ener(0),
-  b_cls_ener_unw(0),
-  b_cls_lambda(0),
-  b_cls_eta(0),
-  b_cls_phi(0),
-  b_cls_smpener_unw(0),
-  b_m_narea(0),
-  b_cls_eprep(0),
-  b_cls_dmener(0),
-  b_engClusSumCalib(0),
-  b_cls_engcalib(0),
-  b_cls_recostat(0),
-  b_cls_pi0prob(0),
-  b_cls_isol(0),
-  b_cls_oocener(0),
-  b_cls_calib_emfrac(0),
-  b_cls_engcalibpres(0),
+  m_cls_engcalib(nullptr),
+  m_cls_recostat(nullptr),
+  m_cls_pi0prob(nullptr),
+  m_cls_isol(nullptr),
+  m_cls_oocener(nullptr),
+  m_cls_calib_emfrac(nullptr),
+  m_cls_engcalibpres(nullptr),
+  b_ncls(nullptr),
+  b_mc_pdg(nullptr),
+  b_mc_ener(nullptr),
+  b_mc_eta(nullptr),
+  b_mc_phi(nullptr),
+  b_cls_ener(nullptr),
+  b_cls_ener_unw(nullptr),
+  b_cls_lambda(nullptr),
+  b_cls_eta(nullptr),
+  b_cls_phi(nullptr),
+  b_cls_smpener_unw(nullptr),
+  b_m_narea(nullptr),
+  b_cls_eprep(nullptr),
+  b_cls_dmener(nullptr),
+  b_engClusSumCalib(nullptr),
+  b_cls_engcalib(nullptr),
+  b_cls_recostat(nullptr),
+  b_cls_pi0prob(nullptr),
+  b_cls_isol(nullptr),
+  b_cls_oocener(nullptr),
+  b_cls_calib_emfrac(nullptr),
+  b_cls_engcalibpres(nullptr),
   m_MaxEventsPerFile(0),
   m_classify_type(kCLASSIFY_USE_PDG)
 {
-  if (tree == 0) {
+  if (tree == nullptr) {
     //std::cout << "CaloHadDMCoeffData::CaloHadDMCoeffData() -> Error. No pointer to the tree!" << std::endl;
     return;
   }
@@ -149,24 +149,24 @@ void CaloHadDMCoeffData::Init(TTree *tree)
   m_engClusSumCalib = 0.0;
 
   // Set object pointer
-  m_cls_ener = 0;
-  m_cls_ener_unw = 0;
-  m_cls_lambda = 0;
-  m_cls_eta = 0;
-  m_cls_phi = 0;
+  m_cls_ener = nullptr;
+  m_cls_ener_unw = nullptr;
+  m_cls_lambda = nullptr;
+  m_cls_eta = nullptr;
+  m_cls_phi = nullptr;
   //m_cls_emfrac = 0;
   //m_cls_smpener = 0;
-  m_cls_smpener_unw = 0;
+  m_cls_smpener_unw = nullptr;
   //m_cls_ibin = 0;
-  m_cls_eprep = 0;
-  m_cls_dmener = 0;
-  m_cls_engcalib = 0;
-  m_cls_recostat = 0;
-  m_cls_pi0prob = 0;
-  m_cls_isol = 0;
-  m_cls_oocener = 0;
-  m_cls_calib_emfrac = 0;
-  m_cls_engcalibpres = 0;
+  m_cls_eprep = nullptr;
+  m_cls_dmener = nullptr;
+  m_cls_engcalib = nullptr;
+  m_cls_recostat = nullptr;
+  m_cls_pi0prob = nullptr;
+  m_cls_isol = nullptr;
+  m_cls_oocener = nullptr;
+  m_cls_calib_emfrac = nullptr;
+  m_cls_engcalibpres = nullptr;
   // Set branch addresses and branch pointers
   if (!tree) return;
   fChain = tree;

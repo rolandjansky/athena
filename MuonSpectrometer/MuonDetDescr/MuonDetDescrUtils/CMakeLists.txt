@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonDetDescrUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          MuonSpectrometer/MuonStationIndex
-			  PRIVATE
-			  DetectorDescription/AGDD/AGDDKernel
-			  MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry )
-
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Tree Core MathCore Hist pthread )
 

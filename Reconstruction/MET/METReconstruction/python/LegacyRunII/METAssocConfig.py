@@ -41,9 +41,8 @@ def getAssociator(config,suffix,doPFlow=False,
     tool = None
 
     import cppyy
-    try: cppyy.loadDictionary('METReconstructionDict')
-    except: pass
-
+    cppyy.include("METRecoInterface/METRecoCommon.h")
+  
     doModClus = (modConstKey!="" and not doPFlow)
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCoralClientUtils/PCDkr.h"
@@ -36,7 +36,9 @@ using namespace std;
 /** Constructor.
     Open the default database and seal context.
  */
-PCDkr::PCDkr(string connString, string tableName, int verbose) :
+PCDkr::PCDkr(const std::string& connString,
+             const std::string& tableName,
+             int verbose) :
   m_connString(connString), m_pixeltable(tableName),
   m_verbose(verbose), m_session(0) {}
 
@@ -115,7 +117,7 @@ void PCDkr::load()
 
 /** add a new record to DB
  */
-void PCDkr::save(string tag, string cid)
+void PCDkr::save(const std::string& tag, const std::string& cid)
 {
   // start timer
   struct timeval start_time, end_time;
@@ -171,7 +173,7 @@ void PCDkr::createTable()
 /** validate a record
     example: Integration_Basic/src/DmlOperations.cpp
  */
-void PCDkr::validate(string tag)
+void PCDkr::validate(const std::string& tag)
 {
   transactionStartUpdate(); 
 

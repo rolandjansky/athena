@@ -11,7 +11,7 @@
 
 import cppyy
 try :
-    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.load_library('libElectronPhotonSelectorToolsDict')
 except :
     pass
 

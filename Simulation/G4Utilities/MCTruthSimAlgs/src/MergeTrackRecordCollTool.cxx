@@ -47,7 +47,7 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
           return StatusCode::FAILURE;
         }
 
-        for(auto trcit : *oldColl) {
+        for(const auto& trcit : *oldColl) {
           outputCollection->push_back( TrackRecord(trcit) );
         }
         ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
@@ -96,7 +96,7 @@ StatusCode MergeTrackRecordCollTool::processAllSubEvents(const EventContext& ctx
         return StatusCode::FAILURE;
       }
 
-      for (auto trcit : oldColl) {
+      for (const auto& trcit : oldColl) {
         outputCollection->push_back( TrackRecord(trcit) );
       }
 
