@@ -200,7 +200,7 @@ StatusCode TauJetRNNEvaluator::get_clusters(
     auto cItr = clusters.begin();
     while( cItr != clusters.end() ){
       const xAOD::CaloCluster* cluster = (*cItr);
-      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
 
       if (tauAxis.DeltaR(clusterP4) > m_max_cluster_dr) {
         clusters.erase(cItr);

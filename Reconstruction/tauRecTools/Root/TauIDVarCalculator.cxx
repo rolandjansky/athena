@@ -102,7 +102,7 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   float eHad1AtEMScaleFixed = 0.;
 
   for (const xAOD::CaloCluster* cluster  : clusterList) {
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     
     if( tauAxis.DeltaR(clusterP4) > 0.2 ) continue;
     
