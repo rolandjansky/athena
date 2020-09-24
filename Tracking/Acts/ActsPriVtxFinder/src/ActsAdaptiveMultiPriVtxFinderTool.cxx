@@ -250,7 +250,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
       , 0. , 0. , 0. , 0., 0., 1.;
       
-      allTracks.emplace_back(trk.get(),Acts::BoundTrackParameters(geoContext, covMat, actsParams, perigeeSurface));
+      allTracks.emplace_back(trk.get(),Acts::BoundTrackParameters(perigeeSurface, actsParams, covMat));
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;
