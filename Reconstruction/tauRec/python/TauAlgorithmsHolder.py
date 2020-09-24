@@ -388,7 +388,6 @@ def getPi0ClusterCreator():
     
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
-                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters",
                                                 TauVertexCorrection = getTauVertexCorrection(),
                                                 IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                 )
@@ -923,6 +922,58 @@ def getTauIDVarCalculator():
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
 
+def getTauEleRNNEvaluator(_n,
+        NetworkFile1P="", NetworkFile3P="",
+        OutputVarname="RNNEleScore", MaxTracks=10,
+        MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar",
+        InputLayerTracks="tracks", InputLayerClusters="clusters",
+        OutputLayer="rnneveto_output", OutputNode="sig_prob"):
+
+    _name = sPrefix + _n 
+    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
+    tool = TauJetRNNEvaluator(name=_name,
+                              NetworkFile1P=NetworkFile1P,
+                              NetworkFile3P=NetworkFile3P,
+                              OutputVarname=OutputVarname,
+                              MaxTracks=MaxTracks,
+                              MaxClusters=MaxClusters,
+                              MaxClusterDR=MaxClusterDR,
+                              InputLayerScalar=InputLayerScalar,
+                              InputLayerTracks=InputLayerTracks,
+                              InputLayerClusters=InputLayerClusters,
+                              OutputLayer=OutputLayer,
+                              OutputNode=OutputNode,
+                              TauVertexCorrection = getTauVertexCorrection(),
+                              IncShowerSubtr = tauFlags.useShowerSubClusters())
+
+    cached_instances[_name] = tool
+    return tool
+
+def getTauWPDecoratorEleRNN():
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.load_library('libxAODTau_cDict')
+
+    _name = sPrefix + 'TauWPDecoratorEleRNN'
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    myTauWPDecorator = TauWPDecorator( name=_name,
+                                       flatteningFile1Prong="rnneveto_mc16d_flat_1p.root",
+                                       flatteningFile3Prong="rnneveto_mc16d_flat_3p.root",
+                                       CutEnumVals =
+                                       [ ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNLoose,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNMedium,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.EleRNNTight ],
+                                       SigEff1P = [0.95, 0.90, 0.85],
+                                       SigEff3P = [0.98, 0.95, 0.90],
+                                       UseEleBDT = True ,
+                                       ScoreName = "RNNEleScore",
+                                       NewScoreName = "RNNEleScoreSigTrans",
+                                       DefineWPs = True,
+                                       )
+    cached_instances[_name] = myTauWPDecorator
+    return myTauWPDecorator
+              
 def getTauDecayModeNNClassifier():
     _name = sPrefix + 'TauDecayModeNNClassifier'
 

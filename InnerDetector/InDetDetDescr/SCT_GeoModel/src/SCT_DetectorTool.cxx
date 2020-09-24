@@ -48,7 +48,7 @@ SCT_DetectorTool::SCT_DetectorTool(const std::string& type,
 //
 
 StatusCode
-SCT_DetectorTool::create ATLAS_NOT_THREAD_SAFE () // Thread unsafe SCT_DetectorFactory constructor is used.
+SCT_DetectorTool::create()
 {
   // Get the detector configuration.
   ATH_CHECK(m_geoDbTagSvc.retrieve());

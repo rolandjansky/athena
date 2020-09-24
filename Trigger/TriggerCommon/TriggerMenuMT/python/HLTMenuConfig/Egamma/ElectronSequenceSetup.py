@@ -28,12 +28,6 @@ def fastElectronSequence(ConfigFlags):
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
 
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
-      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATE"):
-      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
-    
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():

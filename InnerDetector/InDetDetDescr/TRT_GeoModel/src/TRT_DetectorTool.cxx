@@ -68,7 +68,7 @@ TRT_DetectorTool::~TRT_DetectorTool()
 
 //////////////  Create the Detector Node corresponding to this tool //////////////
 //
-StatusCode TRT_DetectorTool::create ATLAS_NOT_THREAD_SAFE () // Thread unsafe TRTDetectorFactory_Full class is used.
+StatusCode TRT_DetectorTool::create()
 { 
 
   // Get the detector configuration.

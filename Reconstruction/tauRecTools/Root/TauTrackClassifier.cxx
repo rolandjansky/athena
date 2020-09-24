@@ -113,12 +113,6 @@ TrackMVABDT::~TrackMVABDT()
 }
 
 //______________________________________________________________________________
-StatusCode TrackMVABDT::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
 StatusCode TrackMVABDT::initialize()
 {
   ATH_CHECK(addWeightsFile());

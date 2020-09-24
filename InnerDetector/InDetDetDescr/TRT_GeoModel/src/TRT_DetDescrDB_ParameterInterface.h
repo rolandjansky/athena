@@ -23,7 +23,7 @@ public:
 
    
   // Only allowed constructor
-  TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe SetValues method is used.
+  TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps);
 
   ~TRT_DetDescrDB_ParameterInterface();
   // delete copy c'tor

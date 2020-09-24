@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
@@ -387,6 +388,7 @@ def defineMenu():
         'L1_CEP-CJ50' ,
         'L1_CEP-CJ50.ETA21',
 
+        #ATR-21371
         'L1_ALFA_ANY',
         'L1_ALFA_ELAST15', 'L1_ALFA_ELAST18',
         'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L', # L1_ALFA_Calib
@@ -814,7 +816,7 @@ def defineMenu():
         'L1_eEM15VHI_2eTAU12IM_gXERHO35' : 477,
         'L1_eEM15VH_MU10' : 478,
         'L1_eEM18VHI_3jJ20' : 489,
-        'L1_eEM20VHI_eTAU20IM_2eTAU20_jJ25_3jJ20' :  490,
+        'L1_ALFA_ANY' : 490,
         'L1_eEM20VH_3eEM10VH' : 491,
         'L1_eEM22VHI' : 492,
         'L1_eEM20VHI' : 493, 

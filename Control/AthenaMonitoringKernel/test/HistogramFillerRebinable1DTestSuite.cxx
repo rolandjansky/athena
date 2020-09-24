@@ -64,12 +64,14 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldKeepNumberOfBinsForValueInHistogramsRange() {
       Monitored::Scalar<double> var("var", 2.9);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
+
+
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -79,13 +81,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldDoubleNumberOfBinsForBoundaryValueOf3() {
       Monitored::Scalar<double> var("var", 3.0);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(16);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -95,13 +97,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldDoubleNumberOfBinsForValueSlightlySmallerThan5() {
       Monitored::Scalar<double> var("var", 4.9);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(16);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -111,13 +113,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldQuadrupleNumberOfBinsForBoundaryValueOf5() {
       Monitored::Scalar<double> var("var", 5.0);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(32);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -127,13 +129,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldQuadrupleNumberOfBinsForValueSlightlyBiggerThan5() {
       Monitored::Scalar<double> var("var", 5.1);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(32);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -143,13 +145,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldQuadrupleNumberOfBinsForValueSlightlySmallerThan9() {
       Monitored::Scalar<double> var("var", 8.9);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(32);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -159,13 +161,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldOctupleNumberOfBinsForBoundaryValueOf9() {
       Monitored::Scalar<double> var("var", 9.0);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(64);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -175,13 +177,13 @@ class HistogramFillerRebinable1DTestSuite {
 
     void test_shouldOctupleNumberOfBinsForValueSlightlyBiggerThan9() {
       Monitored::Scalar<double> var("var", 9.1);
-      m_testObj->setMonitoredVariables({var});
+      HistogramFiller::VariablesPack vars({&var});
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
       VALUE(m_histogram->GetXaxis()->GetXmax()) EXPECTED(3.0);
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(64);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -194,7 +196,7 @@ class HistogramFillerRebinable1DTestSuite {
 
   // ==================== Initialization & run ====================
   public:
-    HistogramFillerRebinable1DTestSuite() 
+    HistogramFillerRebinable1DTestSuite()
       : m_log(Athena::getMessageSvc(), "HistogramFillerRebinable1DTestSuite") {
     }
 
@@ -224,7 +226,7 @@ class HistogramFillerRebinable1DTestSuite {
     HistogramDef m_histogramDef;
     shared_ptr<MockHistogramProvider> m_histogramProvider;
     shared_ptr<TH1D> m_histogram;
-    
+
     shared_ptr<HistogramFillerRebinable1D> m_testObj;
 };
 

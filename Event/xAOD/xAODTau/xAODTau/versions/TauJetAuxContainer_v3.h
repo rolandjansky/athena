@@ -318,6 +318,10 @@ namespace xAOD {
     // RNN tau ID
     std::vector< float > RNNJetScore;
     std::vector< float > RNNJetScoreSigTrans;
+
+    // RNN tau eVeto
+    std::vector< float > RNNEleScore;
+    std::vector< float > RNNEleScoreSigTrans;
     
   }; // class TauJetAuxContainer_v3
 

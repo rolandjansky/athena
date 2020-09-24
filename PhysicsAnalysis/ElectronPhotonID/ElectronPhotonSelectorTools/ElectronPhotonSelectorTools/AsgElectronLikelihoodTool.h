@@ -27,7 +27,7 @@ namespace Root{
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
 {
-  ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, CP::ISelectionTool)
+  ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
 
 public:
   /** Standard constructor */

@@ -13,7 +13,6 @@
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "CxxUtils/phihelper.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-#include "TrkParameters/TrackParameters.h"
 #include <cmath>
 
 namespace {
@@ -63,7 +62,6 @@ d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
   }
   return result;
 }
-
 /** @brief method to determine the second order derivative of the pdf at a given
  * value*/
 double
@@ -93,94 +91,10 @@ width(int i, const std::array<std::vector<Component>, 5>& mixture)
   return pdf;
 }
 
-} // end of anonymous namespace
-
-std::array<double, 10>
-Trk::MultiComponentStateModeCalculator::calculateMode(
-  const Trk::MultiComponentState& multiComponentState)
-{
-  std::array<double, 10> modes{};
-  // Check to see if the multi-component state is measured
-  if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
-    return modes;
-  }
-
-  std::array<std::vector<Component>, 5> mixture;
-
-  fillMixture(multiComponentState, mixture);
-
-  /* loop over the 5 direction , d0,z0,phi,theta,qOverP*/
-
-  for (int i = 0; i < 5; i++) {
-
-    double largerPdfComponent = 0.0;
-    double largerMeanComponent = 0.0;
-    /*
-     * Loop over the mixture in the ith direction and find the  component
-     * whose mean give the larger value for the Gaussian Mixture pdf.
-     * This should be a good enough starting point for the mode
-     * finding in this direction
-     */
-    for (const Component& component : mixture[i]) {
-      double pdfValue = pdf(component.mean, i, mixture);
-      if (pdfValue > largerPdfComponent) {
-        largerPdfComponent = pdfValue;
-        largerMeanComponent = component.mean;
-      }
-    }
-    modes[i] = findMode(largerMeanComponent, i, mixture);
-    // Calculate the FWHM and return this back so that it can be used to correct
-    // the covariance matrix
-    if (largerMeanComponent != modes[i]) {
-      // mode calculation was successful now calulate FWHM
-      double currentWidth = width(i, mixture);
-      modes[i + 5] = -1; // Failure is flagged with a value less than 0;
-
-      double pdfVal = pdf(modes[i], i, mixture);
-      double highX(0);
-      double lowX(0);
-
-      double upperbound = modes[i] + 1.5 * currentWidth;
-      while (true) {
-        if (pdf(upperbound, i, mixture) > pdfVal * 0.5) {
-          upperbound += currentWidth;
-        } else {
-          break;
-        }
-      }
-
-      bool highXFound =
-        findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture);
-
-      double lowerbound = modes[i] - 1.5 * currentWidth;
-      while (true) {
-        if (pdf(lowerbound, i, mixture) > pdfVal * 0.5) {
-          lowerbound -= currentWidth;
-        } else {
-          break;
-        }
-      }
-      bool lowXFound =
-        findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture);
-      if (highXFound && lowXFound) {
-        double FWHM = highX - lowX;
-        modes[i + 5] = FWHM / 2.35482; // 2 * sqrt( 2* log(2))
-      }
-      // Ensure that phi is between -pi and pi
-      if (i == 2) {
-        modes[i] = CxxUtils::wrapToPi(modes[i]);
-      }
-    }
-  }
-  return modes;
-}
-
 void
-Trk::MultiComponentStateModeCalculator::fillMixture(
-  const Trk::MultiComponentState& multiComponentState,
-  std::array<std::vector<Component>, 5>& mixture)
+fillMixture(const Trk::MultiComponentState& multiComponentState,
+            std::array<std::vector<Component>, 5>& mixture)
 {
-
   constexpr Trk::ParamDefs parameter[5] = {
     Trk::d0, Trk::z0, Trk::phi, Trk::theta, Trk::qOverP
   };
@@ -209,9 +123,8 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
       // FIXME ATLASRECTS-598 this std::abs() should not be necessary... for
       // some reason cov(qOverP,qOverP) can be negative
       double sigma = sqrt(std::abs((*measuredCov)(parameter[i], parameter[i])));
-
-      // Ensure that we don't have any problems with the cyclical nature of phi
-      // Use first state as reference point
+      // Ensure that we don't have any problems with the cyclical nature of
+      // phi Use first state as reference point
       if (i == 2) { // phi
         double deltaPhi =
           multiComponentState.begin()->first->parameters()[2] - mean;
@@ -223,14 +136,14 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
       }
       mixture[i].emplace_back(weight, mean, sigma);
     }
+
   }
 }
 
 double
-Trk::MultiComponentStateModeCalculator::findMode(
-  double xStart,
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
+findMode(double xStart,
+         int i,
+         const std::array<std::vector<Component>, 5>& mixture)
 {
 
   int iteration(0);
@@ -271,49 +184,17 @@ Trk::MultiComponentStateModeCalculator::findMode(
 }
 
 double
-Trk::MultiComponentStateModeCalculator::findModeGlobal(
-  double mean,
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
+findRoot(double& result,
+         double xlo,
+         double xhi,
+         double value,
+         double i,
+         const std::array<std::vector<Component>, 5>& mixture)
 {
-
-  double start(-1);
-  double end(1);
-  if (mean > 0.0) {
-    start = mean / 2;
-    end = 3 * mean / 2;
-  } else if (mean < 0.0) {
-    start = 3 * mean / 2;
-    end = mean / 2;
-  }
-
-  double mode(0);
-  double maximum(-1);
-  double iterate(std::abs(mean / 1000));
-
-  for (double counter(start); counter < end; counter += iterate) {
-    double value(pdf(counter, i, mixture));
-    if (value > maximum) {
-      maximum = value;
-      mode = counter;
-    }
-  }
-  return mode;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::findRoot(
-  double& result,
-  double xlo,
-  double xhi,
-  double value,
-  double i,
-  const std::array<std::vector<Component>, 5>& mixture)
-{
-  // Do the root finding using the Brent-Decker method. Returns a boolean status
-  // and loads 'result' with our best guess at the root if true. Prints a
-  // warning if the initial interval does not bracket a single root or if the
-  // root is not found after a fixed number of iterations.
+  // Do the root finding using the Brent-Decker method. Returns a boolean
+  // status and loads 'result' with our best guess at the root if true. Prints
+  // a warning if the initial interval does not bracket a single root or if
+  // the root is not found after a fixed number of iterations.
 
   double a(xlo);
   double b(xhi);
@@ -415,4 +296,92 @@ Trk::MultiComponentStateModeCalculator::findRoot(
   result = b;
 
   return false;
+}
+
+} // end of anonymous namespace
+
+std::array<double, 10>
+Trk::MultiComponentStateModeCalculator::calculateMode(
+  const Trk::MultiComponentState& multiComponentState)
+{
+  // Check to see if the multi-component state is measured
+  if (!MultiComponentStateHelpers::isMeasured(multiComponentState)) {
+    return {};
+  }
+
+  std::array<std::vector<Component>, 5> mixture;
+
+  fillMixture(multiComponentState, mixture);
+  return calculateMode(mixture);
+}
+
+std::array<double, 10>
+Trk::MultiComponentStateModeCalculator::calculateMode(
+  const std::array<std::vector<Component>, 5>& mixture)
+{
+  std::array<double, 10> modes{};
+  /* loop over the 5 direction , d0,z0,phi,theta,qOverP*/
+
+  for (int i = 0; i < 5; i++) {
+
+    double largerPdfComponent = 0.0;
+    double largerMeanComponent = 0.0;
+    /*
+     * Loop over the mixture in the ith direction and find the  component
+     * whose mean give the larger value for the Gaussian Mixture pdf.
+     * This should be a good enough starting point for the mode
+     * finding in this direction
+     */
+    for (const Component& component : mixture[i]) {
+      double pdfValue = pdf(component.mean, i, mixture);
+      if (pdfValue > largerPdfComponent) {
+        largerPdfComponent = pdfValue;
+        largerMeanComponent = component.mean;
+      }
+    }
+    modes[i] = findMode(largerMeanComponent, i, mixture);
+    // Calculate the FWHM and return this back so that it can be used to correct
+    // the covariance matrix
+    if (largerMeanComponent != modes[i]) {
+      // mode calculation was successful now calulate FWHM
+      double currentWidth = width(i, mixture);
+      modes[i + 5] = -1; // Failure is flagged with a value less than 0;
+
+      double pdfVal = pdf(modes[i], i, mixture);
+      double highX(0);
+      double lowX(0);
+
+      double upperbound = modes[i] + 1.5 * currentWidth;
+      while (true) {
+        if (pdf(upperbound, i, mixture) > pdfVal * 0.5) {
+          upperbound += currentWidth;
+        } else {
+          break;
+        }
+      }
+
+      bool highXFound =
+        findRoot(highX, modes[i], upperbound, pdfVal * 0.5, i, mixture);
+
+      double lowerbound = modes[i] - 1.5 * currentWidth;
+      while (true) {
+        if (pdf(lowerbound, i, mixture) > pdfVal * 0.5) {
+          lowerbound -= currentWidth;
+        } else {
+          break;
+        }
+      }
+      bool lowXFound =
+        findRoot(lowX, lowerbound, modes[i], pdfVal * 0.5, i, mixture);
+      if (highXFound && lowXFound) {
+        double FWHM = highX - lowX;
+        modes[i + 5] = FWHM / 2.35482; // 2 * sqrt( 2* log(2))
+      }
+      // Ensure that phi is between -pi and pi
+      if (i == 2) {
+        modes[i] = CxxUtils::wrapToPi(modes[i]);
+      }
+    }
+  }
+  return modes;
 }

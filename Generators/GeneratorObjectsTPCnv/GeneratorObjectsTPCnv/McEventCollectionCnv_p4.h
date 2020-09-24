@@ -129,17 +129,27 @@ class McEventCollectionCnv_p4 : public T_AthenaPoolTPCnvBase<
    *  vertex is added to the persistent is added to the persistent
    *  @c GenEvent.
    */
+#ifdef HEPMC3
+  void writeGenVertex( HepMC::ConstGenVertexPtr vtx,
+                       McEventCollection_p4& persEvt ) const;
+#else
   void writeGenVertex( const HepMC::GenVertex& vtx,
                        McEventCollection_p4& persEvt ) const;
+#endif
 
   /** @brief Method to write a persistent @c GenParticle object
    *  It returns the index of the persistent @c GenParticle into the
    *  collection of persistent of @c GenParticles from the
    *  persistent @c GenEvent
    */
+#ifdef HEPMC3   
+  int writeGenParticle( HepMC::ConstGenParticlePtr p,
+                        McEventCollection_p4& persEvt ) const;
+#else
   int writeGenParticle( const HepMC::GenParticle& p,
                         McEventCollection_p4& persEvt ) const;
 
+#endif
   ///////////////////////////////////////////////////////////////////
   // Protected data:
   ///////////////////////////////////////////////////////////////////

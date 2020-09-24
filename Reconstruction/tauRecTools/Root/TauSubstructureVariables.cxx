@@ -103,7 +103,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   for (auto cluster : vClusters){
     totalEnergy += cluster->e();
 		
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     dr = tauAxis.DeltaR(clusterP4);    
     
     if (0.2 <= dr && dr < 0.4) {

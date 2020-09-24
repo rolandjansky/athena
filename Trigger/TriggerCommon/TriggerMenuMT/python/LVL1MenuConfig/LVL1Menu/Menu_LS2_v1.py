@@ -626,6 +626,9 @@ def defineMenu():
         ##     'L1_CALREQ0_P1', 'L1_CALREQ1_P1', 'L1_CALREQ2_P1',
 
         #ALFA
+        'L1_ALFA_ANY',
+        'L1_ALFA_B7L1U','L1_ALFA_B7L1L','L1_ALFA_A7L1U','L1_ALFA_A7L1L','L1_ALFA_A7R1U','L1_ALFA_A7R1L','L1_ALFA_B7R1U','L1_ALFA_B7R1L',
+        
 #        'L1_ALFA_SDIFF5','L1_ALFA_SDIFF6','L1_ALFA_SDIFF7','L1_ALFA_SDIFF8',
 #        'L1_MBTS_1_A_ALFA_C','L1_MBTS_1_C_ALFA_A','L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO',
 #        'L1_MBTS_2_A_ALFA_C','L1_MBTS_2_C_ALFA_A','L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO','L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO',
@@ -994,7 +997,14 @@ def defineMenu():
         'L1_MBTS_1_1_EMPTY' : 168,
         'L1_BPH-8M15-2MU4-BO' : 165,
         'L1_CALREQ2' : 511,
-
+        'L1_ALFA_B7L1U' : 489,
+        'L1_ALFA_ANY'   : 490,
+        'L1_ALFA_A7L1U' : 491,
+        'L1_ALFA_A7L1L' : 492,
+        'L1_ALFA_A7R1U' : 493,
+        'L1_ALFA_A7R1L' : 494,
+        'L1_ALFA_B7R1U' : 495,
+        'L1_ALFA_B7R1L' : 496,
 }
 
 

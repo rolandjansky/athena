@@ -49,6 +49,8 @@
 	std::vector<int> middleBCIDsVector;
 	std::vector<int> endBCIDsVector;
 	
+	unsigned int efficiencyHistogramCounter=0;
+	
 	bool isInListVector(const int bcid, const std::vector<int>&arr)
 	{
 		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
@@ -70,8 +72,8 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 
 	using namespace Monitored;
 
-	m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
-	m_TrackGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
+	m_StationPlaneGroup = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
+	m_StationGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
 
 
 	// We must declare to the framework in initialize what SG objects we are going to use:
@@ -124,7 +126,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	// Declare the quantities which should be monitored:
 	auto lb = Monitored::Scalar<int>("lb", 0);
 	auto muPerBCID = Monitored::Scalar<float>("muPerBCID", 0.0);
-	auto run = Monitored::Scalar<int>("run",0);
+	//auto run = Monitored::Scalar<int>("run",0);
 	auto weight = Monitored::Scalar<float>("weight", 1.0);
 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
@@ -142,6 +144,9 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	auto layerEfficiency = Monitored::Scalar<float>("layerEfficiency", 0.0);
 	auto layerNumber = Monitored::Scalar<int>("layerNumber", 0);
+	
+	auto planeHits = Monitored::Scalar<int>("planeHits", 0);
+	auto planeHitsAll = Monitored::Scalar<int>("planeHitsAll", 0);
 	
 	
 	lb = GetEventInfo(ctx)->lumiBlock();
@@ -165,7 +170,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	nSiHits = afpHitContainer->size();
 	fill("AFPSiLayerTool", lb, nSiHits);
 
-
 	for(const xAOD::AFPSiHit *hitsItr: *afpHitContainer)
 	{
 		lb = GetEventInfo(ctx)->lumiBlock();
@@ -175,10 +179,15 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 		
 		if (hitsItr->stationID()<4 && hitsItr->stationID()>=0 && hitsItr->pixelLayerID()<4 && hitsItr->pixelLayerID()>=0) 
 		{
-			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip, pixelColIDChip);
-			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
-			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
-			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip, pixelColIDChip);
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelRowIDChip);
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], pixelColIDChip);
+			fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);
+			
+			planeHits = hitsItr->pixelLayerID();
+			fill(m_tools[m_StationGroup.at(m_stationnames.at(hitsItr->stationID()))], planeHits);
+			planeHitsAll = (hitsItr->stationID())*4+hitsItr->pixelLayerID();
+			fill("AFPSiLayerTool", planeHitsAll);
 			
 		}
 		else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
@@ -193,7 +202,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		trackX = track.x;
 		trackY = track.y;
-		fill(m_tools[m_TrackGroup.at(m_stationnames.at(track.station))], trackY, trackX);
+		fill(m_tools[m_StationGroup.at(m_stationnames.at(track.station))], trackY, trackX);
 	}
 
 	// Cluster histograms 
@@ -201,7 +210,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	{
 		clusterX = cluster.x;
 		clusterY = cluster.y;
-		fill(m_tools[m_HitmapGroups.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
+		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
 	}
 	
 	// Synch histograms:
@@ -239,6 +248,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 			for(int i = 0; i < 4; i++)
 			{
 				clustersPerStationFloat = clusterCounterStationA[previouslbStationA][i];
+				clusterCounterStationA[previouslbStationA][i] = 0;
 				if(muPerBCID != 0 && clustersPerStationFloat!=0)
 				{
 					clustersPerStationFloat = clustersPerStationFloat/(muPerBCID*counterForEventsStationA*4);
@@ -249,25 +259,25 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsStation(Monitored::Scalar<int> &lb,
 				{
 					auto clustersPerStation = Monitored::Scalar<float>("clustersPerStation", 0.0);
 					clustersPerStation = clustersPerStationFloat;
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStation);
+					fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lb, clustersPerStation);
 				}
 				else if (histogramType == 'F')
 				{
 					auto clustersPerStationFront = Monitored::Scalar<float>("clustersPerStationFront", 0.0);
 					clustersPerStationFront = clustersPerStationFloat;
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationFront);
+					fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lb, clustersPerStationFront);
 				}
 				else if (histogramType == 'M')
 				{
 					auto clustersPerStationMiddle = Monitored::Scalar<float>("clustersPerStationMiddle", 0.0);
 					clustersPerStationMiddle = clustersPerStationFloat;
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationMiddle);
+					fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lb, clustersPerStationMiddle);
 				}
 				else if (histogramType == 'E')
 				{
 					auto clustersPerStationEnd = Monitored::Scalar<float>("clustersPerStationEnd", 0.0);
 					clustersPerStationEnd = clustersPerStationFloat;
-					fill(m_tools[m_TrackGroup.at(m_stationnames.at(i))], lb, clustersPerStationEnd);
+					fill(m_tools[m_StationGroup.at(m_stationnames.at(i))], lb, clustersPerStationEnd);
 				}
 			}
 			previouslbStationA=lb;
@@ -296,6 +306,7 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 				for(int j=0; j<4; j++)
 				{
 					clustersPerPlaneFloat = clusterCounterPlane[previouslbPlane][i][j];
+					clusterCounterPlane[previouslbPlane][i][j] = 0;
 					if(muPerBCID != 0 && clustersPerPlaneFloat != 0)
 					{
 						clustersPerPlaneFloat = clustersPerPlaneFloat/(muPerBCID*counterForEventsPlane);
@@ -309,25 +320,25 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 					{
 						auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 0.0);
 						clustersPerPlane = clustersPerPlaneFloat;
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
+						fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlane);
 					}
 					else if(histogramType == 'F')
 					{
 						auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
 						clustersPerPlaneFront = clustersPerPlaneFloat;
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
+						fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
 					}
 					else if(histogramType == 'M')
 					{
 						auto clustersPerPlaneMiddle = Monitored::Scalar<float>("clustersPerPlaneMiddle", 0.0);
 						clustersPerPlaneMiddle = clustersPerPlaneFloat;
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
+						fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneMiddle);
 					}
 					else if(histogramType == 'E')
 					{
 						auto clustersPerPlaneEnd = Monitored::Scalar<float>("clustersPerPlaneEnd", 0.0);
 						clustersPerPlaneEnd = clustersPerPlaneFloat;
-						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
+						fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneEnd);
 					}
 				}
 			}
@@ -346,4 +357,5 @@ void AFPSiLayerAlgorithm::fillSynchHistogramsPlane(Monitored::Scalar<int> &lb, i
 		{++clusterCounterPlane[lb][cluster.station][cluster.layer];}
 	}
 }
+
 

@@ -26,13 +26,9 @@ namespace Monitored {
         parseDefinition();
     }
 
-    virtual HistogramFillerTree* clone() const override {
-      return new HistogramFillerTree( *this );
-    }
-
-    virtual unsigned fill() const override {
-      // handling of the cutmask
-      auto cutMaskValuePair = getCutMaskFunc();
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+      // handling of the cutmask      
+      auto cutMaskValuePair = getCutMaskFunc(vars.cut);
       if (cutMaskValuePair.first == 0) { return 0; }
       if (ATH_UNLIKELY(cutMaskValuePair.first > 1)) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFillerTree");
@@ -42,10 +38,10 @@ namespace Monitored {
         if (! cutMaskValuePair.second(0)) { return 0; }
       }
 
-      if (ATH_UNLIKELY(m_monVariables.size() != m_branchDefs.size())) {
+      if (ATH_UNLIKELY(vars.size() != m_branchDefs.size())) {
         MsgStream log(Athena::getMessageSvc(), "HistogramFillerTree");
         log << MSG::ERROR << "Mismatch of passed variables and expected variables for " << m_histDef->alias 
-                          << "(" << m_monVariables.size() << ", " << m_branchDefs.size() << ")" << endmsg;
+                          << "(" << vars.size() << ", " << m_branchDefs.size() << ")" << endmsg;
         return 0;
       }
 
@@ -63,7 +59,8 @@ namespace Monitored {
           ++idx; continue;
         }
         TBranch* branch = static_cast<TBranch*>(branchList->At(idxgood));
-        m_fillerFunctions[idx](branch, m_monVariables[idx].get());
+	std::cout << "Calling filler function for var : " <<  vars.var[idx]->name() << " branch " << branch->GetName() << "\n";
+        m_fillerFunctions[idx](branch, *vars.var[idx]);
         ++idx; ++idxgood;
       }
       for (Int_t i = 0; i < branchList->GetEntries(); ++i) {
@@ -71,7 +68,7 @@ namespace Monitored {
 
       }
       tree->SetEntries(tree->GetEntries() + 1);
-      return 1;
+      return 1;     
     }
 
   private:

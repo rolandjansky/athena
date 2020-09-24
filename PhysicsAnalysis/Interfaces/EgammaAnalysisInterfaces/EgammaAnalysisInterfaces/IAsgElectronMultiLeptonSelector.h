@@ -13,20 +13,20 @@
 
 */
 // Include the interfaces
-#include "AsgAnalysisInterfaces/ISelectionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 
-class IAsgElectronMultiLeptonSelector : virtual public CP::ISelectionTool
+class IAsgElectronMultiLeptonSelector : virtual public IAsgSelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronMultiLeptonSelector)
 
 public:
 
-  /// @name IAsgElectronMultiLeptonSelector methods in addition to the ISelectionTool ones
+  /// @name IAsgElectronMultiLeptonSelector methods in addition to the IAsgSelectionTool ones
   ///{@
 
-  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept method with pointer to electron */
