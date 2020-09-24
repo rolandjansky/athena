@@ -75,14 +75,13 @@ namespace Trk
 
           if(initPar != nullptr)
           {
-            //This does not play well with const correctness
             //Either we should return non-const parameters from the extrapolator
             //as the owner here has to delete them
             //Or we need to clone  
-            const Trk::TrackParameters* extrapolatedPerigee(m_extrapolator->extrapolate(*initPar,perigeeSurface));
+            auto extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(*initPar,perigeeSurface));
             if(extrapolatedPerigee != nullptr)
             {
-              (*t_it).setPerigeeAtVertex(const_cast<Trk::TrackParameters*>(extrapolatedPerigee));
+              (*t_it).setPerigeeAtVertex(extrapolatedPerigee->clone());
             } else {
               msg(MSG::ERROR)  << " Extrapolation failed; VxTrackAtertex will not be updated" << endmsg;
             }//end of successfull extrapolation check
