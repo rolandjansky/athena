@@ -141,9 +141,9 @@ class caldata{
   /**flag indicating if any calibration has been made*/ bool calflag;
   /**flag indicating if an R-t calibration has been made*/ bool rtflag;
   /**flag indicating if a t0 calibration has been made*/ bool t0flag;
-  /**the 1D time residual histogram (100 bins)*/ float* m_treshist;
-  /**the 1D residual histogram (100 bins)*/ float* reshist;
-  /**the 2D rt histogram (20x32 bins)*/ float* rthist;
+  /**the 1D time residual histogram (100 bins)*/ std::vector<float> m_treshist;
+  /**the 1D residual histogram (100 bins)*/ std::vector<float> reshist;
+  /**the 2D rt histogram (20x32 bins)*/ std::vector<float> rthist;
   /**the rt graph*/ RtGraph* rtgraph;
 };
 
@@ -187,7 +187,10 @@ public:
      @param[in] rtr which rt-relation to use
      @param[in] rtb which rt binning to use
   */
-  Calibrator(int,std::string,int,int,std::string,std::string,float);
+  Calibrator(int,const std::string&,int,int,const std::string&,const std::string&,float);
+
+  Calibrator (const Calibrator&) = delete;
+  Calibrator& operator= (const Calibrator&) = delete;
 
   /**
      Destructor
