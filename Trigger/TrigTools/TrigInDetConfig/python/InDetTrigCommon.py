@@ -143,7 +143,7 @@ def ambiguityScoringTool_builder(name, config):
     #1] Is this really what we want here? 
     #2] TODO: Somehow merge/adapt the settings in InDetTrigConfigSettings.py?
 
-    if config.PT().isSignature('cosmicsN'):
+    if config.PT.isSignature('cosmicsN'):
         #Can potentially recreate the isntance of the tool here and in the if config just have a list of parameters needed to be changed for the tool
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigScoringToolCosmics_SiPattern 
         return InDetTrigScoringToolCosmics_SiPattern
@@ -157,9 +157,9 @@ def ambiguityScoringTool_builder(name, config):
         kwargs = setDefaults( kwargs,
                               Extrapolator        = InDetTrigExtrapolator, 
                               DriftCircleCutTool  = InDetTrigTRTDriftCircleCut,
-                              SummaryTool         = trackSummaryTool_getter( config.PT().setting().doTRT() ),
+                              SummaryTool         = trackSummaryTool_getter( config.PT.setting.doTRT ),
                               #to have a steeper turn-n curve
-                              minPt               = config.PT().setting().pTmin(), #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
+                              minPt               = config.PT.setting.pTmin, #TODO: double check values, implement 0.95 for MinBias?  #InDetTrigCutValues.minPT(), #config.pTmin(),
                               maxRPhiImp          = InDetTrigCutValues.maxPrimaryImpact(),
                               maxZImp             = InDetTrigCutValues.maxZImpact(),
                               maxEta              = InDetTrigCutValues.maxEta(),
@@ -177,7 +177,7 @@ def ambiguityScoringTool_builder(name, config):
                              )
 
         #Change some of the parameters in case of beamgas signature
-        if config.PT().isSignature('beamgas'):
+        if config.PT.isSignature('beamgas'):
             from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsBeamGas
             kwargs = setDefaults( kwargs,
                                   minPt          = EFIDTrackingCutsBeamGas.minPT(),
@@ -208,7 +208,7 @@ def associationTool_getter():
 def trackFitterTool_getter(config):
       #For now load from RecLoadTools where the config is based on: InDetTrigFlags.trackFitterType()  (gaussian, kalman, globalChi2, ...)
       #There are also variations of cosmic/TRT fitters -> Decision which fitter to return  has to be adapted based on the signature as well
-      if config.PT().isSignature('cosmicsN'):
+      if config.PT.isSignature('cosmicsN'):
          from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitterCosmics
          return InDetTrigTrackFitterCosmics
       else:
@@ -218,11 +218,11 @@ def trackFitterTool_getter(config):
 def trackSelectionTool_getter(config):
       #TODO this might need to be revisited!
 
-      if config.PT().isSignature('beamgas'):
+      if config.PT.isSignature('beamgas'):
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import InDetTrigAmbiTrackSelectionToolBeamGas
         return InDetTrigAmbiTrackSelectionToolBeamGas
 
-      elif config.PT().isSignature('cosmicsN'):
+      elif config.PT.isSignature('cosmicsN'):
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import  InDetTrigAmbiTrackSelectionToolCosmicsN
         return InDetTrigAmbiTrackSelectionToolCosmicsN
 
@@ -243,11 +243,11 @@ def ambiguityProcessorTool_builder( name, config):
    kwargs = {}
 
    #Add parameters to empty kwargs
-   if config.PT().isSignature('cosmicsN'):
+   if config.PT.isSignature('cosmicsN'):
      kwargs = setDefaults( kwargs,
                            SuppressHoleSearch = False,
                            RefitPrds =  False)
-   elif config.PT().isSignature('electron') and InDetTrigFlags.doBremRecovery():
+   elif config.PT.isSignature('electron') and InDetTrigFlags.doBremRecovery():
      import AthenaCommon.SystemOfUnits as Units
      kwargs = setDefaults( kwargs,
                            tryBremFit  = True,
@@ -264,12 +264,12 @@ def ambiguityProcessorTool_builder( name, config):
    #Set/Get subtools
    #trackFitterTool    = trackFitterTool_getter(config),
 
-   scoringTool        = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name()),
+   scoringTool        = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name),
                                                       config = config)
 
    associationTool    = associationTool_getter()
 
-   trackSummaryTool   = trackSummaryTool_getter( config.PT().setting().doTRT() )
+   trackSummaryTool   = trackSummaryTool_getter( config.PT.setting.doTRT )
 
    trackSelectionTool = trackSelectionTool_getter(config)
 
@@ -308,19 +308,19 @@ def ambiguitySolverAlg_builder(name, config):
       #Get correct name for the ouput TrkTrack collection
       def getTrackOutput():
          #If we are also applying TRT then this collection is just intermediate
-         if config.PT().setting().doTRT():
-            return  config.PT().trkTracksAS() #"%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
+         if config.PT.setting.doTRT:
+            return  config.PT.trkTracksAS() #"%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', get_name_suffix( config.name() ))
          #Otherwise use final collection name
          else:
-            return  config.PT().trkTracksPT()
+            return  config.PT.trkTracksPT()
 
       #-----------------------
       #Set/Get subtools
-      ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.name()),
+      ambiguityProcessor = ambiguityProcessorTool_builder( name   = get_full_name( 'AmbiguityProcessor', config.name),
                                                            config = config ) 
 
       return Trk__TrkAmbiguitySolver( name               = name,
-                                      TrackInput         = get_scoredmap( get_name_suffix(config.name() )),
+                                      TrackInput         = get_scoredmap( get_name_suffix(config.name )),
                                       TrackOutput        = getTrackOutput(),
                                       AmbiguityProcessor = ambiguityProcessor
                                     )
@@ -335,7 +335,7 @@ def ambiguityScoreProcessorTool_builder( name, config):
 
       #-----------------------
       #Set/Get subtools
-      scoringTool = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name() ),
+      scoringTool = ambiguityScoringTool_builder( name   = get_full_name( 'AmbiguityScoringTool',config.name ),
                                                   config = config)
 
       associationTool    = associationTool_getter()
@@ -361,8 +361,8 @@ def ambiguityScoreAlg_builder(name, config):
       #                                                               config = config )
 
       return Trk__TrkAmbiguityScore(   name                    = name,
-                                       TrackInput              = [ config.FT().trkTracksFTF()  ], 
-                                       TrackOutput             = get_scoredmap( get_name_suffix( config.name() ) ),
+                                       TrackInput              = [ config.FT.trkTracksFTF()  ], 
+                                       TrackOutput             = get_scoredmap( get_name_suffix( config.name ) ),
                                        #Disable processor, see: https://gitlab.cern.ch/atlas/athena/-/merge_requests/36431
                                        AmbiguityScoreProcessor = None, #ambiguityScoreProcessor,  
                                     )

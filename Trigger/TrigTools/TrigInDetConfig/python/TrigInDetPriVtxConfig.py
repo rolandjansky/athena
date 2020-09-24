@@ -302,7 +302,7 @@ def vertexFinder_builder( signature, inputTracks, outputVertices ) :
 def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config ) :
 
     return vertexFinder_builder( signature      = whichSignature, 
-                                 inputTracks    = config.FT().tracksFTF(),
+                                 inputTracks    = config.FT.tracksFTF(),
                                  outputVertices = outputVtxCollection )
     
 
