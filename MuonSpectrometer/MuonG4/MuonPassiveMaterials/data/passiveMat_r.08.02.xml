@@ -9808,9 +9808,9 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 </section>
 
 <section name       = "HFtruck"
-         version    = "7.0"
-         date       = "22 November 2008"
-         author     = "Laurent"
+         version    = "0.0"
+         date       = "13-09-2017"
+         author     = "Besik Kekelia"
          top_volume = "HFTruckRail">
 
 <!--     name       =  HFTruck                       section name       = "Supports"  -->
@@ -9823,163 +9823,394 @@ box name="JTC_JTCB_BottomCentralCut" material="PolyBoron207HD5" X_Y_Z=" 2.*(JTC_
 -->
 
 <defaults   unit_length="mm"   />
-<!--  Spokes U profile -->
-<var  name="HFTCBLthi" value="5"/>
-<var  name="HFTCBext"  value="400"/>
-<var  name="HFTCBext2" value="200"/>
-<var  name="HFTCBhei"  value="100"/>
-<var  name="HFTCBSthi" value="6"/>
 
-<var  name="HFTCBLxa"  value="HFTCBext/2." />
-<var  name="HFTCBLya"  value="0."        />
-<var  name="HFTCBLxb"  value="HFTCBLxa"  />
-<var  name="HFTCBLyb"  value="HFTCBhei"  />
-<var  name="HFTCBLxc"  value="HFTCBLxb -HFTCBSthi" />
-<var  name="HFTCBLyc"  value="HFTCBLyb"  />
-<var  name="HFTCBLxd"  value="HFTCBLxc"  />
-<var  name="HFTCBLyd"  value="HFTCBLthi" />
+<!--  Description of HF Truck  -->
 
-<var name="HFT_leng"     value="5400" />
-<var name="HFT_width"    value="2210" />
-<var name="HFT_Decal"    value="HFT_width/2.+40"/>
-<var name="HFT_feet"     value="6662" />
-<var name="HFT_RFP"      value="1522" />
-<var name="HFT_RPR"      value="4630" />
-<var name="HFT_RP2"      value="2200" />
-<var name="HFT_RP3"      value="5000" />
-<var name="TubPos"       value="HFT_RFP+1300" />
-<var name="feePos"       value="2092" />
-<var name="ZtruckPos"    value="17850" />
-<var name="Zup"          value="9850" />
-<var name="Tshape"       value="540" />
-<var name="Sup2"         value="Tshape+1075" />
-<var name="HFT_Deca"     value="1700" />
-
-<box name="HFTsup1" material="Iron2"    X_Y_Z="Tshape;100;HFT_leng-10" />
-<box name="HFTsup2" material="Iron2"    X_Y_Z="Tshape;100;HFT_width" />
-<box name="HFTcot1" material="Iron1"    X_Y_Z="540;100;880"         />
-<box name="HFTame1" material="Iron1"    X_Y_Z="679;60;HFT_leng-10." />
-
-<tubs  name="HFTubes"   material="Iron1"  Rio_Z="244; 254;HFT_width"  nbPhi="20" />
-<tubs  name="HFTube2"   material="Iron1"  Rio_Z="104; 154;2105"       nbPhi="20" />
-
-<composition name="HFTruckSuppor1">
-   <posXYZ volume="HFTcot1"            X_Y_Z="Zero;Zero; HFT_leng/2.+50" rot="90.;Zero;Zero"/>
-   <posXYZ volume="HFTcot1"            X_Y_Z="Zero;Zero;-HFT_leng/2.-50" rot="90.;Zero;Zero"/>
-   <posXYZ volume="HFTame1"            X_Y_Z="Zero;Zero;Zero" rot="Zero;Zero;90."/>
-   <posXYZ volume="HFTsup1"            X_Y_Z="Zero; 390;Zero"  />
-   <posXYZ volume="HFTsup1"            X_Y_Z="Zero;-390;Zero"  />
-</composition>
-
-<box name="HFTfee1" material="Iron2"    X_Y_Z="639;60;HFT_feet-10." />
-<box name="HFTfee2" material="Iron1"    X_Y_Z="540;60;HFT_feet"    />
-<composition name="HFTruckFeet2">
-   <posXYZ volume="HFTfee1"            X_Y_Z="Zero;Zero;Zero" rot="Zero;Zero;90."/>
-   <posXYZ volume="HFTfee2"            X_Y_Z="Zero; 350;Zero"  />
-   <posXYZ volume="HFTfee2"            X_Y_Z="Zero;-350;Zero"  />
-</composition>
-
-<composition name="HFTruckFeet1">
-  <posXYZ  volume="HFTruckFeet2"      X_Y_Z="Zero;-HFT_leng/2.;Zero"  rot="90.;0.;0." />
-</composition>
-
-<gvxysx name="HFTProfiles2" material="Aluminium1" dZ="HFT_leng">
-  <gvxy_point X_Y="HFTCBLxa;HFTCBLya"/>
-  <gvxy_point X_Y="HFTCBLxb;HFTCBLyb"/>
-  <gvxy_point X_Y="HFTCBLxc;HFTCBLyc"/>
-  <gvxy_point X_Y="HFTCBLxd;HFTCBLyd"/>
-</gvxysx>
-
-<composition name="HFTProfiles1">
-   <posXYZ volume="HFTProfiles2"            X_Y_Z="Zero;Zero;Zero" rot="0.;0.;180."/>
-</composition>
-
-<composition name="HFTUPorfile">
-   <posXYZ volume="HFTProfiles1"            X_Y_Z="Zero;Zero;-7." rot="90.;0.; 20."/>
-   <posXYZ volume="HFTProfiles2"            X_Y_Z="Zero;Zero; 7." rot="90.;0.;-20."/>
-</composition>
-
-<var  name="HFTCBLxa2"  value="HFTCBext2/2." />
-<var  name="HFTCBLya2"  value="0."        />
-<var  name="HFTCBLxb2"  value="HFTCBLxa2"  />
-<var  name="HFTCBLyb2"  value="HFTCBhei"  />
-<var  name="HFTCBLxc2"  value="HFTCBLxb2 -HFTCBSthi" />
-<var  name="HFTCBLyc2"  value="HFTCBLyb2"  />
-<var  name="HFTCBLxd2"  value="HFTCBLxc2"  />
-<var  name="HFTCBLyd2"  value="HFTCBLthi" />
-
-<gvxysx name="HFTProfiles3" material="Aluminium1" dZ="HFT_leng-1400">
-  <gvxy_point X_Y="HFTCBLxa2;HFTCBLya2"/>
-  <gvxy_point X_Y="HFTCBLxb2;HFTCBLyb2"/>
-  <gvxy_point X_Y="HFTCBLxc2;HFTCBLyc2"/>
-  <gvxy_point X_Y="HFTCBLxd2;HFTCBLyd2"/>
-</gvxysx>
-
-<composition name="HFTProfiles4">
-   <posXYZ volume="HFTProfiles3"            X_Y_Z="Zero;Zero;Zero" rot="0.;0.;180."/>
-</composition>
-
-<!--  Spokes Rail same position that the feet rail -->
-<gvxy     name="HFTExtremityRail1"    material="Iron"   dZ="HFT_leng+200"  >
-  <gvxy_point X_Y="RAIL_CeRxb;RAIL_CeRyb"/>
-  <gvxy_point X_Y="RAIL_CeRxc;RAIL_CeRyc"/>
-  <gvxy_point X_Y="RAIL_CeRxd;RAIL_CeRyd"/>
-  <gvxy_point X_Y="RAIL_CeRxe;RAIL_CeRye"/>
-  <gvxy_point X_Y="RAIL_CeRxf;RAIL_CeRyf"/>
-  <gvxy_point X_Y="RAIL_CeRxg;RAIL_CeRyg"/>
-  <gvxy_point X_Y="RAIL_CeRxh;RAIL_CeRyh"/>
-  <gvxy_point X_Y="RAIL_CeRxi;RAIL_CeRyi"/>
-  <gvxy_point X_Y="RAIL_CeRxj;RAIL_CeRyj"/>
-  <gvxy_point X_Y="RAIL_CeRxk;RAIL_CeRyk"/>
-  <gvxy_point X_Y="RAIL_CeRxl;RAIL_CeRyl"/>
-  <gvxy_point X_Y="RAIL_CeRxm;RAIL_CeRym"/>
+<!--  Description of Column C1-L, C2-R  -->
+<gvxy name="Column" material="Iron" dZ="6662.">
+<gvxy_point X_Y="1485.; 1645."/>
+<gvxy_point X_Y="1525.; 1645."/>
+<gvxy_point X_Y="1525.; 1409.5"/>
+<gvxy_point X_Y="2225.; 1409.5"/>
+<gvxy_point X_Y="2225.; 1645."/>
+<gvxy_point X_Y="2265.; 1645."/>
+<gvxy_point X_Y="2265.; 1105."/>
+<gvxy_point X_Y="2225.; 1105."/>
+<gvxy_point X_Y="2225.; 1340.5"/>
+<gvxy_point X_Y="1525.; 1340.5"/>
+<gvxy_point X_Y="1525.; 1105."/>
+<gvxy_point X_Y="1485.; 1105."/>
 </gvxy>
 
-<composition name="HFTruckFeet">
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z=" HFT_Decal;RAIL_Ypos-HFT_RFP; feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z=" HFT_Decal;RAIL_Ypos-HFT_RFP;-feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z="-HFT_Decal;RAIL_Ypos-HFT_RFP; feePos" />
-  <posXYZ  volume="HFTruckFeet1"       X_Y_Z="-HFT_Decal;RAIL_Ypos-HFT_RFP;-feePos" />
+<tubs name="Column_Tube" material="Iron" Rio_Z="147.95; 254.; 2680.9" nbPhi="32"/>
 
-  <posXYZ  volume="HFTruckSuppor1"     X_Y_Z=" HFT_Decal;RAIL_Ypos-450.;Zero"    /> 
-  <posXYZ  volume="HFTruckSuppor1"     X_Y_Z="-HFT_Decal;RAIL_Ypos-450.;Zero"    />
+<composition  name="Column_C1-L_C2-R" >
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; 0. " rot=" 90.; 0.; 180." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; -2750. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Column" X_Y_Z=" 0.; 0.; -2750. " rot=" 90.; 0.; 180." />
+  <posXYZ  volume="Column_Tube" X_Y_Z=" 1875.; 2068.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Column_Tube" X_Y_Z=" -1875.; 2068.; 0. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Column C1-L, C2-R  -->
 
-  <posXYZ  volume="HFTExtremityRail1"  X_Y_Z="-HFT_Decal;RAIL_Ypos     ;Zero"    />
-  <posXYZ  volume="HFTExtremityRail1"  X_Y_Z=" HFT_Decal;RAIL_Ypos     ;Zero"    /> 
 
-  <posXYZ  volume="HFTubes"            X_Y_Z=" Zero;RAIL_Ypos-HFT_RFP  ; feePos"           rot="0.; 90.;0." />
-  <posXYZ  volume="HFTubes"            X_Y_Z=" Zero;RAIL_Ypos-HFT_RFP  ;-feePos"           rot="0.; 90.;0." />
+<!--  Description of Beam  -->
+<gvxy name="Beam_1" material="Iron" dZ="5319.9">
+<gvxy_point X_Y="-1645.; 4211.05"/>
+<gvxy_point X_Y="-1645.; 4171.05"/>
+<gvxy_point X_Y="-1420.05; 4171.05"/>
+<gvxy_point X_Y="-1420.05; 3371.05"/>
+<gvxy_point X_Y="-1645.; 3371.05"/>
+<gvxy_point X_Y="-1645.; 3331.05"/>
+<gvxy_point X_Y="-1109.95; 3331.05"/>
+<gvxy_point X_Y="-1109.95; 3371.05"/>
+<gvxy_point X_Y="-1329.95; 3371.05"/>
+<gvxy_point X_Y="-1329.95; 4171.05"/>
+<gvxy_point X_Y="-1109.95; 4171.05"/>
+<gvxy_point X_Y="-1109.95; 4211.05"/>
+</gvxy>
 
+<box name="Beam_Box" material="Iron" X_Y_Z="880.; 40.; 540."/>
+
+<composition  name="Beam" >
+  <posXYZ  volume="Beam_1" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 90.; 0." />
+  <posXYZ  volume="Beam_1" X_Y_Z=" 0.; 0.; -2750. " rot=" 0.; 90.; 0." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" -2680.; 3771.05; 1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" 2680.; 3771.05; 1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" -2680.; 3771.05; -1375. " rot=" 0.; 0.; 90." />
+  <posXYZ  volume="Beam_Box" X_Y_Z=" 2680.; 3771.05; -1375. " rot=" 0.; 0.; 90." />
+</composition>
+<!-- end of  Description of Beam  -->
+
+<!--  Description of Rail  -->
+
+<gvxy name="Rail_1" material="Iron" dZ="5400.">
+<gvxy_point X_Y="-1740.; 4659.14"/>
+<gvxy_point X_Y="-1010.; 4659.14"/>
+<gvxy_point X_Y="-1010.; 4559.14"/>
+<gvxy_point X_Y="-1345.; 4559.14"/>
+<gvxy_point X_Y="-1345.; 4319.14"/>
+<gvxy_point X_Y="-1150.; 4319.14"/>
+<gvxy_point X_Y="-1150.; 4259.14"/>
+<gvxy_point X_Y="-1600.; 4259.14"/>
+<gvxy_point X_Y="-1600.; 4319.14"/>
+<gvxy_point X_Y="-1405.; 4319.14"/>
+<gvxy_point X_Y="-1405.; 4559.14"/>
+<gvxy_point X_Y="-1740.; 4559.14"/>
+</gvxy>
+
+<composition  name="Rail" >
+  <posXYZ  volume="Rail_1" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 90.; -0.708" />
+  <posXYZ  volume="Rail_1" X_Y_Z=" 0.; 0.; -2750. " rot=" 0.; 90.; -0.708" />
+</composition>
+<!-- end of  Description of Rail  -->
+
+
+<!--  Description of Shims  -->
+<gvxy name="Shims_1" material="Iron" dZ="238.">
+<gvxy_point X_Y="-2700.; 4291.76"/>
+<gvxy_point X_Y="2700.; 4225.029"/>
+<gvxy_point X_Y="2700.; 4211."/>
+<gvxy_point X_Y="-2700.; 4211."/>
+</gvxy>
+
+<composition  name="Shims" >
+  <posXYZ  volume="Shims_1" X_Y_Z=" 0.; 1.; 1375. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Shims_1" X_Y_Z=" 0.; 1.; -1375. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Shims  -->
+
+<!--  Description of Bracing  -->
+<gvxy name="Bracing_1" material="Aluminium" dZ="4038.">
+<gvxy_point X_Y="1745.; 99.5"/>
+<gvxy_point X_Y="1745.; 120."/>
+<gvxy_point X_Y="2005.; 120."/>
+<gvxy_point X_Y="2005.; 99.5"/>
+<gvxy_point X_Y="1883.; 99.5"/>
+<gvxy_point X_Y="1883.; -99.5"/>
+<gvxy_point X_Y="2005.; -99.5"/>
+<gvxy_point X_Y="2005.; -120."/>
+<gvxy_point X_Y="1745.; -120."/>
+<gvxy_point X_Y="1745.; -99.5"/>
+<gvxy_point X_Y="1847.; -99.5"/>
+<gvxy_point X_Y="1847.; 99.5"/>
+</gvxy>
+
+<gvxy name="subt_box" material="Aluminium" dZ="4038.">
+<gvxy_point X_Y="1735.46; 120.05"/>
+<gvxy_point X_Y="2016.3; 120.05"/>
+<gvxy_point X_Y="2016.3; -120.05"/>
+<gvxy_point X_Y="1735.46; -120.05"/>
+</gvxy>
+
+ <subtraction name="Sub_Bracing_1" >
+  <posXYZ volume="Bracing_1" X_Y_Z=" 0.; 0.; 0." rot=" -60.3; 0.; 0."/>
+  <posXYZ volume="subt_box" X_Y_Z=" 0.; 0; 0." rot=" 60.3; 0.; 0."/>
+ </subtraction>
+
+<gvxy name="Bracing_2" material="Aluminium" dZ="3588.">
+<gvxy_point X_Y="-120.; 120."/>
+<gvxy_point X_Y="-102.; 120."/>
+<gvxy_point X_Y="-102.; 6.25"/>
+<gvxy_point X_Y="102.; 6.25"/>
+<gvxy_point X_Y="102.; 120."/>
+<gvxy_point X_Y="120.; 120."/>
+<gvxy_point X_Y="120.; -120."/>
+<gvxy_point X_Y="102.; -120."/>
+<gvxy_point X_Y="102.; -6.25"/>
+<gvxy_point X_Y="-102.; -6.25"/>
+<gvxy_point X_Y="-102.; -120."/>
+<gvxy_point X_Y="-120.; -120."/>
+</gvxy>
+
+<box name="sub_Bracing_2" material="Aluminium" X_Y_Z="241.1; 240.1; 3600."/>
+
+ <subtraction name="Sub_Bracing_2" >
+  <posXYZ volume="Bracing_2" X_Y_Z=" 0.; 0.; 0." rot=" 0; 90.; 38.2"/>
+  <posXYZ volume="sub_Bracing_2" X_Y_Z=" 0.; 0; 0." rot=" 0.; 90.; -38.2"/>
+ </subtraction>
+
+<composition  name="Bracing" >
+  <posXYZ  volume="Bracing_1" X_Y_Z=" 0.; 0.; 0. " rot="60.3; 0.; 0." />
+  <posXYZ  volume="Sub_Bracing_1" X_Y_Z=" 0.; 0.; 0. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_1" X_Y_Z=" -3750.; 0.; 0. " rot="60.3; 0.; 0." />
+  <posXYZ  volume="Sub_Bracing_1" X_Y_Z=" -3750.; 0.; 0. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; -712.3; 1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; -712.3; 1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; 1990.7; 1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; 1990.7; 1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; -712.3; -1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; -712.3; -1375. " rot="0.; 0.; 0." />
+  <posXYZ  volume="Bracing_2" X_Y_Z=" 0.; 1990.7; -1375. " rot="0.; 90.; -38.2" />
+  <posXYZ  volume="Sub_Bracing_2" X_Y_Z=" 0.; 1990.7; -1375. " rot="0.; 0.; 0." />
 </composition>
 
-<composition name="HFTUPorfile1">
-   <posXYZ volume="HFTProfiles3"            X_Y_Z="Zero;Zero; 3." rot="90.;0.; 55."/>
-   <posXYZ volume="HFTProfiles4"            X_Y_Z="Zero;Zero;-3." rot="90.;0.;-55."/>
+<!-- end of  Description of Bracing  -->
+
+
+<!--  Description of Brackets  -->
+<gvxy name="Brackets_1" material="Iron" dZ="880.">
+<gvxy_point X_Y="-2145.; -2028.9"/>
+<gvxy_point X_Y="-1605.; -2028.9"/>
+<gvxy_point X_Y="-1605.; -2094.9"/>
+<gvxy_point X_Y="-1845.; -2094.9"/>
+<gvxy_point X_Y="-1845.; -3175."/>
+<gvxy_point X_Y="-1605.; -3175."/>
+<gvxy_point X_Y="-1605.; -3241."/>
+<gvxy_point X_Y="-2145.; -3241."/>
+<gvxy_point X_Y="-2145.; -3175."/>
+<gvxy_point X_Y="-1905.; -3175."/>
+<gvxy_point X_Y="-1905.; -2094.9"/>
+<gvxy_point X_Y="-2145.; -2094.9"/>
+</gvxy>
+
+<composition  name="Brackets" >
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 0.; 0.; 665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 0.; 0.; -665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 3750.; 0.; 665. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Brackets_1" X_Y_Z=" 3750.; 0.; -665. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Brackets  -->
+
+<!--  Description of Inox  -->
+<box name="Inox_1" material="Iron" X_Y_Z="267.; 5478.; 36.8"/>
+
+<composition  name="Inox" >
+  <posXYZ  volume="Inox_1" X_Y_Z=" -2398.5; 500.; 1086.55 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Inox_1" X_Y_Z=" -2398.5; 500.; -1086.55 " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Inox  -->
+
+<!--  Description of Infrastructure  -->
+<gvxy name="Infrastructure_Feet_1" material="Iron" dZ="974.">
+<gvxy_point X_Y="1935.; -467."/>
+<gvxy_point X_Y="1935.; -478."/>
+<gvxy_point X_Y="1878.25; -478."/>
+<gvxy_point X_Y="1878.25; -576."/>
+<gvxy_point X_Y="1935.; -576."/>
+<gvxy_point X_Y="1935.; -587."/>
+<gvxy_point X_Y="1815.; -587."/>
+<gvxy_point X_Y="1815.; -576."/>
+<gvxy_point X_Y="1871.75; -576."/>
+<gvxy_point X_Y="1871.75; -478."/>
+<gvxy_point X_Y="1815.; -478."/>
+<gvxy_point X_Y="1815.; -467."/>
+</gvxy>
+
+<box name="Infrastructure_box_1" material="Iron" X_Y_Z="4449.1; 11.3; 1949.1"/>
+
+<gvxy name="Infrastructure_Feet_2" material="Iron" dZ="974.">
+<gvxy_point X_Y="-1476.; 1355.95"/>
+<gvxy_point X_Y="-1476.; 1349.05"/>
+<gvxy_point X_Y="-1510.15; 1349.05"/>
+<gvxy_point X_Y="-1510.15; 1222.85"/>
+<gvxy_point X_Y="-1476.; 1222.85"/>
+<gvxy_point X_Y="-1476.; 1215.95"/>
+<gvxy_point X_Y="-1549.; 1215.95"/>
+<gvxy_point X_Y="-1549.; 1222.85"/>
+<gvxy_point X_Y="-1515.95; 1222.85"/>
+<gvxy_point X_Y="-1514.85; 1349.05"/>
+<gvxy_point X_Y="-1549.; 1349.05"/>
+<gvxy_point X_Y="-1549.; 1355.95"/>
+</gvxy>
+
+<box name="Infrastructure_box_2" material="Iron" X_Y_Z="5360.; 20.4; 510."/>
+
+<composition  name="Infrastructure" >
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" 0.; 2809.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" 0.; 2809.05; -1054. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" -3750.; 2809.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_1" X_Y_Z=" -3750.; 2809.05; -1054. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_1" X_Y_Z=" 0.; 3301.75; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 0.; 0.; 610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 0.; 0.; -610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 3025.; 0.; 610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_Feet_2" X_Y_Z=" 3025.; 0.; -610.5 " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_2" X_Y_Z=" 0.; 1366.2; 379. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Infrastructure_box_2" X_Y_Z=" 0.; 1366.2; -379. " rot=" 0.; 0.; 0." />
+</composition>
+<!-- end of  Description of Infrastructure  -->
+
+<!--  Description of JF Table  -->
+
+<!--  Description of JF Table Beam  -->
+
+<box name="Table_Beam_2" material="Iron" X_Y_Z="3500.; 50.; 500."/>
+<tubs name="sub_tube" material="Iron" Rio_Z="0.; 155.; 2700." nbPhi="32"/>
+
+ <subtraction name="Sub_Beam_2" >
+  <posXYZ volume="Table_Beam_2" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" -825.; 0.; 0." rot=" 90.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" 825.; 0.; 0." rot=" 90.; 0.; 0."/>
+ </subtraction>
+
+<gvxy name="Table_Beam_3" material="Iron" dZ="500.">
+<gvxy_point X_Y="-1750.; -225."/>
+<gvxy_point X_Y="-979.29; -225."/>
+<gvxy_point X_Y="-679.29; -525."/>
+<gvxy_point X_Y="679.29; -525."/>
+<gvxy_point X_Y="979.29; -225."/>
+<gvxy_point X_Y="1750.; -225."/>
+<gvxy_point X_Y="1750.; -317."/>
+<gvxy_point X_Y="958.; -317."/>
+<gvxy_point X_Y="700.; -575."/>
+<gvxy_point X_Y="-700.; -575."/>
+<gvxy_point X_Y="-958.; -317."/>
+<gvxy_point X_Y="-1750.; -317."/>
+</gvxy>
+
+ <subtraction name="Sub_Table_Beam_3" >
+  <posXYZ volume="Table_Beam_3" X_Y_Z=" 0.; 0.; 0." rot=" 0; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" -825.; 0.; 0." rot=" 90.; 0.; 0."/>
+  <posXYZ volume="sub_tube" X_Y_Z=" 825.; 0.; 0." rot=" 90.; 0.; 0."/>
+ </subtraction>
+
+<box name="Table_Beam_4" material="Iron" X_Y_Z="80.; 199.9; 500."/>
+<box name="Table_Beam_5" material="Iron" X_Y_Z="400.; 199.9; 50."/>
+<box name="Table_Beam_6" material="Iron" X_Y_Z="50.; 400.; 500."/>
+
+<gvxy name="Table_Beam_7" material="Iron" dZ="499.9">
+<gvxy_point X_Y="-640.05; 250."/>
+<gvxy_point X_Y="-540.05; 250."/>
+<gvxy_point X_Y="-540.05; 34."/>
+<gvxy_point X_Y="540.05; 34."/>
+<gvxy_point X_Y="540.05; 250."/>
+<gvxy_point X_Y="640.05; 250."/>
+<gvxy_point X_Y="640.05; -250."/>
+<gvxy_point X_Y="540.05; -250."/>
+<gvxy_point X_Y="540.05; -34."/>
+<gvxy_point X_Y="-540.05; -34."/>
+<gvxy_point X_Y="-540.05; -250."/>
+<gvxy_point X_Y="-640.05; -250."/>
+</gvxy>
+
+<composition  name="JF_Table_Beam_1" >
+  <posXYZ  volume="Sub_Beam_2" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_Table_Beam_3" X_Y_Z=" 0.; 0.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_4" X_Y_Z=" 1080.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_4" X_Y_Z=" -1080.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; 225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" -1550.; -125.; -225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; 225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_5" X_Y_Z=" 1549.95; -125.; -225. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_6" X_Y_Z=" 1775.1; -75.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Table_Beam_7" X_Y_Z=" 0.; -275.; 0. " rot=" 90.; 0.; 0." />
 </composition>
 
+<!-- end of  Description of JF Table Beam  -->
 
-<composition  name="HFTruckRail2" >
-  <posXYZ  volume="HFTruckFeet"       X_Y_Z="           HFT_Deca ; Zero                ; Zero "   />
-  <posXYZ  volume="HFTUPorfile"       X_Y_Z="           HFT_Deca ; RAIL_Ypos-HFT_RPR   ; feePos" />
-  <posXYZ  volume="HFTUPorfile"       X_Y_Z="           HFT_Deca ; RAIL_Ypos-HFT_RPR   ;-feePos" />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z=" HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP2   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z="-HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP2   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z=" HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP3   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTUPorfile1"      X_Y_Z="-HFT_Decal+HFT_Deca ; RAIL_Ypos-HFT_RP3   ; Zero"            rot="0.; 90.;0." />
-  <posXYZ  volume="HFTsup2"           X_Y_Z=" HFT_Deca           ; RAIL_Ypos+Tshape-50 ; feePos-HFT_Deca"  rot="0.; 90.;0." />
-  <posXYZ  volume="HFTsup2"           X_Y_Z=" HFT_Deca           ; RAIL_Ypos+Tshape-50 ;-feePos+HFT_Deca"  rot="0.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca-800       ; RAIL_Ypos+Sup2      ; feePos-HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca+800       ; RAIL_Ypos+Sup2      ; feePos-HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca-800       ; RAIL_Ypos+Sup2      ;-feePos+HFT_Deca"  rot="90.; 90.;0." />
-  <posXYZ  volume="HFTube2"           X_Y_Z=" HFT_Deca+800       ; RAIL_Ypos+Sup2      ;-feePos+HFT_Deca"  rot="90.; 90.;0." />
+<!--  Description of JF Table Cross Bar  -->
+
+<box name="HF_Cross_Bar_1" material="Iron" X_Y_Z="200.; 200.; 1049.9"/>
+<box name="HF_Cross_Bar_sub_box" material="Iron" X_Y_Z="170.; 170.; 1100."/>
+
+<subtraction name="Sub_HF_Cross_Bar" >
+  <posXYZ volume="HF_Cross_Bar_1" X_Y_Z=" 0.; 0.; 0." rot=" 0; 0.; 0."/>
+  <posXYZ volume="HF_Cross_Bar_sub_box" X_Y_Z=" 0.; 0.; 0." rot=" 0.; 0.; 0."/>
+ </subtraction>
+<!-- end of  Description of JF Table Cross Bar  -->
+
+<!--  Description of Jacks  -->
+<tubs name="Jacks_1" material="ShieldBrass" Rio_Z="122.5; 149.; 1540." nbPhi="32"/>
+<tubs name="Jacks_2" material="ShieldBrass" Rio_Z="120.; 245.; 90." nbPhi="32"/>
+<tubs name="Jacks_3" material="ShieldBrass" Rio_Z="0.; 103.5; 1570." nbPhi="32"/>
+<tubs name="Jacks_4" material="ShieldBrass" Rio_Z="105.; 155.; 100." nbPhi="32"/>
+<tubs name="Jacks_5" material="ShieldBrass" Rio_Z="0.; 80.; 160." nbPhi="32"/>
+
+<composition  name="Jacks" >
+  <posXYZ  volume="Jacks_1" X_Y_Z=" 0.; -745.; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_2" X_Y_Z=" 0.; 70.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_3" X_Y_Z=" 0.; 900.05; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_4" X_Y_Z=" 0.; 1735.1; 0. " rot=" 90.; 0.; 0." />
+  <posXYZ  volume="Jacks_5" X_Y_Z=" 0.; 1787.; 0. " rot=" 90.; 0.; 0." />
+</composition>
+<!--  end of Description of Jacks  -->
+
+<!--  Description of Motorised NuT  -->
+
+<box name="Motorised_NuT" material="Aluminium" X_Y_Z="290.; 280.; 300."/>
+
+<!--  end of Description of Motorised NuT  -->
+
+<composition  name="JF_Table" >
+  <posXYZ  volume="JF_Table_Beam_1" X_Y_Z=" 0.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="JF_Table_Beam_1" X_Y_Z=" 0.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_HF_Cross_Bar" X_Y_Z=" 1552.5; -120.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Sub_HF_Cross_Bar" X_Y_Z=" -1552.5; -120.; 0. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" 825.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" -825.; 0.; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" 825.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Jacks" X_Y_Z=" -825.; 0.; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" 410.; 195.05; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" 410.; 195.05; -775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" -410.; 195.05; 775. " rot=" 0.; 0.; 0." />
+  <posXYZ  volume="Motorised_NuT" X_Y_Z=" -410.; 195.05; -775. " rot=" 0.; 0.; 0." />
+</composition>
+
+<!--  end of Description of JF Table Beam  -->
+<composition  name="Truck_A_C" >
+<posXYZ volume="Column_C1-L_C2-R" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Beam" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Rail" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Shims" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Bracing" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Brackets" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Inox" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ volume="Infrastructure" X_Y_Z=" 0. ; 0. ; 0." />
+  <posXYZ  volume="JF_Table" X_Y_Z=" 0.; 5000.; 0. " rot=" 0.; 90.; 0." />
 </composition>
 
 <composition  name="HFTruckRail" >
-  <posXYZ  volume="HFTruckRail2"      X_Y_Z=" Zero; Zero; ZtruckPos"  rot="0.;270.;0." />
-  <posXYZ  volume="HFTruckRail2"      X_Y_Z=" Zero; Zero;-ZtruckPos"  rot="0.; 90.;0." />
+  <posXYZ volume="Truck_A_C"      X_Y_Z=" 0. ; -9000.; 19132." />
+  <posXYZ volume="Truck_A_C"      X_Y_Z=" 0. ; -9000.; -19132." />
 </composition>
 
+
 </section>
+
 
 <section name       = "RUN2_Services"
          version    = "1.0"

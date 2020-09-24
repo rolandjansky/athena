@@ -8,5 +8,5 @@ Previously the AGDD primary numbers were contained in an xml block inside the [a
 Content
 ---
 
-`passiveMat_r.08.02.xml`: Run 2 detector geometry, based on AGDD xml block of `amdb_simrec.r.08.01`, fixes of JFSH and JTSH, fixed floor position
+`passiveMat_r.08.02.xml`: Run 2 detector geometry, based on AGDD xml block of `amdb_simrec.r.08.01`, fixes of JFSH and JTSH, fixed floor position, update HFTruck description
 
