@@ -39,15 +39,11 @@ Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
-
+  if( m_maximumNumberOfComponents > 16){
+      ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+      return StatusCode::FAILURE;
+  }
   ATH_CHECK(m_materialEffects.retrieve());
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode
-Trk::GsfMaterialMixtureConvolution::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

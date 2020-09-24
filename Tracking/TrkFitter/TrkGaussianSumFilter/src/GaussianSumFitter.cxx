@@ -69,10 +69,8 @@ Trk::GaussianSumFitter::initialize()
   StatusCode sc;
   // Request the GSF extrapolator
   ATH_CHECK(m_extrapolator.retrieve());
-
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used
-  // in fit
   if (m_rioOnTrackCreator.retrieve().isFailure()) {
     if (!m_refitOnMeasurementBase) {
       ATH_MSG_FATAL("Attempting to use PrepRawData with no RIO_OnTrack creator "
@@ -83,7 +81,16 @@ Trk::GaussianSumFitter::initialize()
       "Request to retrieve the RIO_OnTrack Creator"
       << "failed but track is fit at the MeasurementBase level... Continuing!");
   }
-
+  if (m_overideMaterialEffectsSwitch) {
+    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
+                 "jobOptions... New "
+                 "Trk::ParticleHypothesis: "
+                 << m_overideMaterialEffects);
+  }
+  if( m_maximumNumberOfComponents > 16){
+      ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+      return StatusCode::FAILURE;
+  }
   // Initialise the closest track parameters search algorithm
   Amg::Vector3D referencePosition(m_sortingReferencePoint[0],
                                   m_sortingReferencePoint[1],
@@ -91,19 +98,11 @@ Trk::GaussianSumFitter::initialize()
 
   m_trkParametersComparisonFunction =
     std::make_unique<Trk::TrkParametersComparisonFunction>(referencePosition);
-
   Trk::ParticleSwitcher particleSwitcher;
   m_overideParticleHypothesis =
     particleSwitcher.particle[m_overideMaterialEffects];
-  if (m_overideMaterialEffectsSwitch) {
-    ATH_MSG_INFO("Material effects in forwards fitter have been overiden by "
-                 "jobOptions... New "
-                 "Trk::ParticleHypothesis: "
-                 << m_overideMaterialEffects);
-  }
-
   m_inputPreparator = std::make_unique<TrackFitInputPreparator>();
-  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
+
   return StatusCode::SUCCESS;
 }
 
