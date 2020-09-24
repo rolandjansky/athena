@@ -31,6 +31,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <type_traits>
+
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
@@ -55,7 +57,19 @@ public:
         return StatusCode::FAILURE;
       }
      }
-     joSvc->set( name+"."+property , Gaudi::Utils::toString ( value ) );
+
+     if constexpr (std::is_convertible<W, std::string>::value) {
+       // If value is already convertible to a string, don't use toString().
+       // Otherwise, toString() will add quotes around the string,
+       // which confuses things further on.
+       // (These quotes used to be removed by the old 
+       // IJobOptionsSvc::addPropertyToCatalogue interface, but IOptionsSvc::set
+       // doesn't do that.)
+       joSvc->set( name+"."+property , std::string (value) );
+     }
+     else {
+       joSvc->set( name+"."+property , Gaudi::Utils::toString ( value ) );
+     }
      return StatusCode::SUCCESS;
    }
    
