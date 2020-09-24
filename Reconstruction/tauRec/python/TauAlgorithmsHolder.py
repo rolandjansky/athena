@@ -388,7 +388,6 @@ def getPi0ClusterCreator():
     
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
-                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters",
                                                 TauVertexCorrection = getTauVertexCorrection(),
                                                 IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                 )
