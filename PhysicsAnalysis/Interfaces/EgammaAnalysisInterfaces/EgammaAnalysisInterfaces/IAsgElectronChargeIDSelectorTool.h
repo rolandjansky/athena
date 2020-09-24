@@ -14,23 +14,23 @@
 */
 
 // Include the interfaces
-#include "AsgAnalysisInterfaces/ISelectionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "GaudiKernel/EventContext.h"
 
-class IAsgElectronChargeIDSelectorTool : virtual public CP::ISelectionTool
+class IAsgElectronChargeIDSelectorTool : virtual public IAsgSelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronChargeIDSelectorTool)
 
  public:
 
-  /// @name IAsgElectronChargeIDSelectorTool  methods in Addition to the ISelectionTool ones
+  /// @name IAsgElectronChargeIDSelectorTool  methods in Addition to the IAsgSelectionTool ones
   /// Some are there to mainly support the calls done from the online/Trigger side 
   /// @{
 
-  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
   virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
   /// accept method with pointer to electron 
   virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
