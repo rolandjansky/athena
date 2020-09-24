@@ -43,7 +43,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         
         # the geometry builder alg tool
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__GeometryBuilderCond
-        AtlasGeometryBuilder = Trk__GeometryBuilderCond(name = 'AtlasGeometryBuilder')
+        AtlasGeometryBuilder = Trk__GeometryBuilderCond(name = 'AtlasGeometryBuilderCond')
         # switch the building outputlevel on 
         AtlasGeometryBuilder.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
         
@@ -67,7 +67,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
               from InDetTrackingGeometry.ConfiguredInDetTrackingGeometryBuilderCond import ConfiguredInDetTrackingGeometryBuilderCond as IDGeometryBuilder
           else:
               from InDetTrackingGeometry.ConfiguredStagedTrackingGeometryBuilderCond import ConfiguredStagedTrackingGeometryBuilderCond as IDGeometryBuilder
-          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilder')
+          InDetTrackingGeometryBuilder = IDGeometryBuilder(name ='InDetTrackingGeometryBuilderCond')
                 
           InDetTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
           InDetTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
@@ -82,7 +82,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
            ToolSvc += CaloVolumeCreator
 
            from CaloTrackingGeometry.ConfiguredCaloTrackingGeometryBuilderCond import ConfiguredCaloTrackingGeometryBuilderCond as ConfiguredCaloGeo 
-           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder');
+           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilderCond');
            CaloTrackingGeometryBuilder.TrackingVolumeCreator = CaloVolumeCreator
            CaloTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            CaloTrackingGeometryBuilder.OutputLevel           = TrkDetFlags.CaloBuildingOutputLevel()
