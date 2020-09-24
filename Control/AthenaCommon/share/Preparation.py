@@ -75,7 +75,7 @@ else:
    min_cppyy_vmem_growth = None
 
 from PyUtils.Helpers import ROOT6Setup
-ROOT6Setup()
+ROOT6Setup(batch=opts.run_batch)
 
 if min_cppyy_vmem_growth:
    grow_vmem( vmem_before_cppyy + min_cppyy_vmem_growth )
