@@ -15,7 +15,7 @@
 #include <xAODRootAccess/TEvent.h>
 #include <xAODRootAccess/tools/TFileAccessTracer.h>
 #include <xAODRootAccess/TStore.h>
-// #include <xAODRootAccess/D3PDPerfStats.h>
+#include <xAODRootAccess/LoadDictionaries.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/StatusCode.h>
@@ -63,6 +63,19 @@ namespace EL
         ANA_MSG_ERROR ("duplicate TEventModule??");
         return ::StatusCode::FAILURE;
       }
+
+      // In order to properly read some of the xAOD objects and tools
+      // operating on them the dictionaries, some of the xAOD
+      // dictionaries need to be initialized in the right order and
+      // before all other dictionaries.  This particular function
+      // takes care of that.
+      //
+      // For now that is just included as the first thing when setting
+      // up the TEvent object, as both are only needed for processing
+      // xAODs and actually loading these dictionaries is not a
+      // lightweight operation.  Should more flexibility be required,
+      // an option and/or a dedicated module could be added for it.
+      ANA_CHECK (xAOD::LoadDictionaries());
 
       std::string modeStr = data.m_metaData->castString
         (Job::optXaodAccessMode);
