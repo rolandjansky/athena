@@ -99,6 +99,7 @@ namespace met {
 
     double GetPUProb(double jet_eta, double jet_phi,double jet_pt,  double jet_jvt, double jet_fjvt, float avgmu);
     double GetPhiUnc(double jet_eta, double jet_phi,double jet_pt);
+    static unsigned int getEtaBin(double jet_eta);
 
     std::tuple<double,double,double> CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi);
 
@@ -129,7 +130,6 @@ namespace met {
     int    m_softTermParam;
     double m_softTermReso;
     bool   m_treatPUJets;
-    bool   m_treatPUJetsOld;
     bool   m_doPhiReso;
     bool   m_applyBias;
     bool   m_jerForEMu;

@@ -82,7 +82,6 @@ namespace met {
     declareProperty("SoftTermParam",        m_softTermParam = met::Random );
     declareProperty("SoftTermReso",         m_softTermReso  = 10.0        );
     declareProperty("TreatPUJets",          m_treatPUJets   = true        );
-    declareProperty("TreatPUJetsOld",       m_treatPUJetsOld= false       );
     declareProperty("DoPhiReso",            m_doPhiReso     = false       );
     declareProperty("ApplyBias",            m_applyBias     = false       );
     declareProperty("DoJerForEMu",          m_jerForEMu     = false       ); // run jet resolution for all electrons and muons
@@ -675,21 +674,8 @@ namespace met {
                                     float avgmu) {
 
     double unc=0.0;
-    if(m_treatPUJetsOld){
-      if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
-        unc=0.95;
-      }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-        unc=0.4;
-      }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
-        unc=0.4;
-      }else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
-        unc=0.2;
-      }else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
-        unc=0.07;
-      }
-      return unc;
-    }
 
+    // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
     if(m_JetCollection == "AntiKt4EMTopoJets"){
       if(jet_eta<2.4){
         if(jet_pt<30){
@@ -899,25 +885,8 @@ namespace met {
 
   double METSignificance::GetPhiUnc(double jet_eta, double jet_phi,double jet_pt){
 
-    unsigned xbin=0, ybin=0;
-    if(-4.5<jet_eta && -3.8>=jet_eta)      xbin=1;
-    else if(-3.8<jet_eta && -3.5>=jet_eta) xbin=2;
-    else if(-3.5<jet_eta && -3.0>=jet_eta) xbin=3;
-    else if(-3.0<jet_eta && -2.7>=jet_eta) xbin=4;
-    else if(-2.7<jet_eta && -2.4>=jet_eta) xbin=5;
-    else if(-2.4<jet_eta && -1.5>=jet_eta) xbin=6;
-    else if(-1.5<jet_eta && -0.5>=jet_eta) xbin=7;
-    else if(-0.5<jet_eta &&  0.0>=jet_eta) xbin=8;
-    else if(0.0<jet_eta  &&  0.5>=jet_eta) xbin=9;
-    else if(0.5<jet_eta  &&  1.5>=jet_eta) xbin=10;
-    else if(1.5<jet_eta  &&  2.4>=jet_eta) xbin=11;
-    else if(2.4<jet_eta  &&  2.7>=jet_eta) xbin=12;
-    else if(2.7<jet_eta  &&  3.0>=jet_eta) xbin=13;
-    else if(3.0<jet_eta  &&  3.5>=jet_eta) xbin=14;
-    else if(3.5<jet_eta  &&  3.8>=jet_eta) xbin=15;
-    else if(3.8<jet_eta                  ) xbin=16;
-
-    ybin = jet_phi>0.0 ? int(jet_phi/0.4)+9 : int(jet_phi/0.4)+8;
+    unsigned int xbin = getEtaBin(jet_eta);
+    unsigned int ybin = jet_phi>0.0 ? int(jet_phi/0.4)+9 : int(jet_phi/0.4)+8;
 
     // Stored as bin content = Mean, error = RMS, we want to use the RMS.
     if(!m_phi_reso_pt20 || !m_phi_reso_pt50 || !m_phi_reso_pt100){
@@ -931,6 +900,27 @@ namespace met {
     else if(jet_pt<100.0)
       return m_phi_reso_pt50->GetBinError(xbin, ybin);
     return m_phi_reso_pt100->GetBinError(xbin, ybin);
+  }
+
+  unsigned int METSignificance::getEtaBin(double jet_eta){
+    // For the phi uncertainty lookup
+    if(-4.5<jet_eta && -3.8>=jet_eta)      return 1;
+    else if(-3.8<jet_eta && -3.5>=jet_eta) return 2;
+    else if(-3.5<jet_eta && -3.0>=jet_eta) return 3;
+    else if(-3.0<jet_eta && -2.7>=jet_eta) return 4;
+    else if(-2.7<jet_eta && -2.4>=jet_eta) return 5;
+    else if(-2.4<jet_eta && -1.5>=jet_eta) return 6;
+    else if(-1.5<jet_eta && -0.5>=jet_eta) return 7;
+    else if(-0.5<jet_eta &&  0.0>=jet_eta) return 8;
+    else if(0.0<jet_eta  &&  0.5>=jet_eta) return 9;
+    else if(0.5<jet_eta  &&  1.5>=jet_eta) return 10;
+    else if(1.5<jet_eta  &&  2.4>=jet_eta) return 11;
+    else if(2.4<jet_eta  &&  2.7>=jet_eta) return 12;
+    else if(2.7<jet_eta  &&  3.0>=jet_eta) return 13;
+    else if(3.0<jet_eta  &&  3.5>=jet_eta) return 14;
+    else if(3.5<jet_eta  &&  3.8>=jet_eta) return 15;
+    else if(3.8<jet_eta                  ) return 16;
+    return 0;
   }
 
   std::tuple<double,double,double> METSignificance::CovMatrixRotation(double var_x, double var_y, double cv_xy, double Phi){
@@ -1003,12 +993,14 @@ namespace met {
   }
 
   /// Parameterization with PtSoft Direction //
+  // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
   double METSignificance::BiasPtSoftdir(const double PtSoft){
     if (PtSoft<60.) return (0.145)+(-0.45)*PtSoft;
     else return (0.145)+(-0.45)*(60.);
   }
 
   // variation in ptsoft direction
+  // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
   double METSignificance::VarparPtSoftdir(const double PtSoft, const double SoftSumet){
     if (SoftSumet<25){
       if (PtSoft<50.) return 41.9+3.8*PtSoft+0.1*pow(PtSoft,2)-12.7+ 1.39*SoftSumet-0.03*pow(SoftSumet,2);
@@ -1020,11 +1012,13 @@ namespace met {
     }
   }
 
+  // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
   double METSignificance::Var_Ptsoft(const double PtSoft){
     if (PtSoft<45.) return 40. + 2*PtSoft + 0.1*pow(PtSoft,2);
     else return 40. + 2*45 + 0.1*pow(45,2);
   }
 
+  // Coefficients from Doug Schaefer <schae@cern.ch> and the MET subgroup
   double METSignificance::Bias_PtSoftParall(const double PtSoft_Parall)
   {
     if (-60.<=PtSoft_Parall && PtSoft_Parall<0.) return -8. -0.4*PtSoft_Parall;
