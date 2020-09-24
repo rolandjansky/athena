@@ -1257,23 +1257,50 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
         mod_output = open(os.getcwd()+'/events.lhe','w')
 
     #Removing empty lines and bad comments in LHE
+    #and check for existence of weights
+    initrwgt=None
     nEmpty=0
+    lhe_weights=[]
     with open(orig_input,'r') as fileobject:
         for line in fileobject:
             if line.strip():
-                if '#' not in line:
-                    mod_output.write(line)
-                elif '>' not in line[ line.find('#'): ]:
-                    mod_output.write(line)
+                # search for bad characters (neccessary until at least MG5 2.8.1)
+                newline=line
+                if '#' not in newline:
+                    newline=newline
+                elif '>' not in newline[ newline.find('#'): ]:
+                    newline=newline
                 else:
-                    mglog.warning('Found bad LHE line with an XML mark in a comment: "'+line.strip()+'"')
-                    mod_output.write(line[:line.find('#')]+'#'+ (line[line.find('#'):].replace('>','-')))
+                    mglog.warning('Found bad LHE line with an XML mark in a comment: "'+newline.strip()+'"')
+                    newline=newline[:newline.find('#')]+'#'+ (newline[newline.find('#'):].replace('>','-'))
+                # check for weightnames that should exist, simplify nominal weight names
+                if initrwgt==False:
+                    pass
+                elif "</initrwgt>" in newline:
+                    initrwgt=False
+                elif "<initrwgt>" in newline:
+                    initrwgt=True
+                elif not initrwgt is None:
+                    newline=newline.replace('_DYNSCALE-1','')
+                    if '</weight>' in newline:
+                        iend=newline.find('</weight>')
+                        istart=newline[:iend].rfind('>')
+                        lhe_weights+=[newline[istart+1:iend].strip()]
+                mod_output.write(newline)           
             else:
                 nEmpty=nEmpty+1
     mod_output.close()
-
     mglog.info('Removed '+str(nEmpty)+' empty lines from LHEF')
-
+    
+    mglog.info("The following  "+str(len(lhe_weights))+" weights have been written to the LHE file: "+",".join(lhe_weights))
+    expected_weights=get_expected_reweight_names(get_reweight_card(process_dir))
+    expected_weights+=get_expected_systematic_names(MADGRAPH_PDFSETTING)
+    mglog.info("Checking whether the following expected weights are in LHE file: "+",".join(expected_weights))
+    for w in expected_weights:
+        if not w in lhe_weights:
+            raise RuntimeError("Did not find expected weight "+w+" in lhe file. Did the reweight or systematics module crash?")
+    mglog.info("Found all required weights!")
+    
     if lhe_version:
         mod_output2 = open(os.getcwd()+'/events.lhe','r')
         test=mod_output2.readline()
@@ -1321,6 +1348,36 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     mglog.info('All done with output arranging!')
     return outputDS
 
+def get_expected_reweight_names(reweight_card_loc):
+    if reweight_card_loc is None:
+        return []
+    names=[]
+    f_rw=open(reweight_card_loc)
+    for line in f_rw:
+        if not 'launch' in line:
+            continue
+        match=re.match(r'launch.*--rwgt_info\s*=\s*(\S+).*',line.strip())
+        if len(match.groups())!=1:
+            raise RuntimeError('Unexpected format of reweight card in line'+line)
+        else:
+            names+=[match.group(1)]
+    f_rw.close()
+    return names
+
+def get_expected_systematic_names(syst_setting):
+    names=[]
+    names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':syst_setting['central_pdf']}]
+    if 'pdf_variations' in syst_setting and isinstance(syst_setting['pdf_variations'],list):
+        for pdf in syst_setting['pdf_variations']:
+            names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf+1}]
+    if 'alternative_pdfs' in syst_setting and isinstance(syst_setting['alternative_pdfs'],list):
+        for pdf in syst_setting['alternative_pdfs']:
+            names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf}]
+    if 'scale_variations' in syst_setting and isinstance(syst_setting['scale_variations'],list):
+        for mur in syst_setting['scale_variations']:
+            for muf in syst_setting['scale_variations']:
+                names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':mur,'muf':muf,'pdf':syst_setting['central_pdf']}]
+    return names
 
 def setup_bias_module(bias_module,process_dir):
     run_card = process_dir+'/Cards/run_card.dat'
