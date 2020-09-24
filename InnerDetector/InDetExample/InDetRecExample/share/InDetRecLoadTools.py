@@ -1953,7 +1953,9 @@ if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
 
   svcMgr += InDetEtaDependentCutsSvc
 
+  
   InDetVertexEtaDependentCutSvc = InDet__InDetEtaDependentCutsSvc("InDetVertexEtaDependentCutSvc")
+  InDetPriVxFinderTool.InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
   InDetVertexEtaDependentCutSvc.etaBins                 = [0., 2.0, 2.6, 4.0]
   InDetVertexEtaDependentCutSvc.minPT                   = [1000., 950., 900]
   InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm] # d0
