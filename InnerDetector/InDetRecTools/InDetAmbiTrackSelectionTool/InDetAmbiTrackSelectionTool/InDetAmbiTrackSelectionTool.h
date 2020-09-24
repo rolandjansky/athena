@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,8 +57,7 @@ namespace InDet
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize() override;
 
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack ATLAS_NOT_THREAD_SAFE
-      (const Trk::Track *track, const Trk::TrackScore score, Trk::PRDtoTrackMap &prd_to_track_map) const override;
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score, Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:
       

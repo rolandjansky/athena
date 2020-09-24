@@ -28,8 +28,6 @@
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 
-#include "CxxUtils/checker_macros.h"
-
 #include "GaudiKernel/ToolHandle.h"
 
 #include <cmath> //for std::fabs in implementation of structs in this header
@@ -71,10 +69,9 @@ namespace InDet
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize() override;
 
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack ATLAS_NOT_THREAD_SAFE
-      (const Trk::Track*,
-       const Trk::TrackScore score,
-       Trk::PRDtoTrackMap &prd_to_track_map) const override;
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track*,
+                                                            const Trk::TrackScore score,
+                                                            Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:
     
@@ -289,7 +286,7 @@ namespace InDet
                                CacheEntry* ent) const;
 
     /** Update the pixel clusters split information*/
-    void updatePixelClusterInformation ATLAS_NOT_THREAD_SAFE (TSoS_Details& tsosDetails) const;
+    void updatePixelClusterInformation(TSoS_Details& tsosDetails) const;
       
     /** Check if the cluster is compatible with a hadronic cluster*/
     bool isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
