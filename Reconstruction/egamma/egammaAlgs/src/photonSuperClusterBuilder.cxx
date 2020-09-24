@@ -58,7 +58,7 @@ photonSuperClusterBuilder::finalize()
 }
 
 StatusCode
-photonSuperClusterBuilder::execute_r(const EventContext& ctx) const
+photonSuperClusterBuilder::execute(const EventContext& ctx) const
 {
 
   // Retrieve input egammaRec container.

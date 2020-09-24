@@ -6,7 +6,7 @@
 #define EGAMMAALGS_EGAMMASUPERCLUSTERBUILDER_H
 
 // INCLUDE HEADER FILES:
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -29,7 +29,7 @@ class CaloDetDescrManager;
  *  The inheritance should be private. This class should never be instantiated
  *  by itself, and hence has no interface class
  **/
-class egammaSuperClusterBuilder : public AthAlgorithm
+class egammaSuperClusterBuilder : public AthReentrantAlgorithm
 {
 
 protected:
