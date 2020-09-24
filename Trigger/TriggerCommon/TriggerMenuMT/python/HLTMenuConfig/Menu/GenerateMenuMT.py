@@ -67,7 +67,7 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
                               'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'Test'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True
@@ -81,7 +81,7 @@ class GenerateMenuMT(object):
         self.doMinBiasChains        = True
         self.doHeavyIonChains       = True
         self.doCosmicChains         = True
-        self.doCalibrationChains    = True
+        self.doCalibChains    = True
         self.doStreamingChains      = True
         self.doMonitorChains        = True
         self.doBeamspotChains       = True
@@ -398,7 +398,11 @@ class GenerateMenuMT(object):
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
         # check if all the signature files can be imported files can be imported
+        log.debug("[__generateChainConfig] signaturesToGenerate: %s",  self.signaturesToGenerate)
+
         for sig in self.signaturesToGenerate:
+            log.debug("[__generateChainConfig] sig: %s", sig)
+            
             try:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':

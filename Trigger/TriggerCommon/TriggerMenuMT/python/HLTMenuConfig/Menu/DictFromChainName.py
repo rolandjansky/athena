@@ -273,7 +273,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
-                                  (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
+                                  (AllowedCalibChainIdentifiers, 'Calib', 'calib'),
                                   (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb') ]:
@@ -357,7 +357,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         log.debug('Chainparts: %s', chainparts)
         if (chainProperties['signature'] != 'Cosmic') \
-                & (chainProperties['signature'] != 'Calibration')\
+                & (chainProperties['signature'] != 'Calib')\
                 & (chainProperties['signature'] != 'Streaming') \
                 & (chainProperties['signature'] != 'Beamspot') \
                 & (chainProperties['signature'] != 'Monitor') :
