@@ -15,6 +15,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "TF1.h"
 
+<<<<<<< HEAD
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
 // set drift electron's timing and charge via above vector before use function
@@ -26,26 +27,24 @@ double shaperResponseFunction(double *x, double *par){
   }
   return response;
 }
+=======
+>>>>>>> a4700095198... Merge branch 'vmmShaper' into '21.3'
 
 /*******************************************************************************/
 MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
   m_peakTime(0),
-  m_alpha(0),
   m_timeWindowLowerOffset(0),
   m_timeWindowUpperOffset(0),
   m_electronicsThreshold(0),
   m_stripDeadTime(0),
   m_artDeadTime(0),
-  m_stripResponseQThreshold(0),
-  m_stripResponseDriftGapWidth(0),
-  m_stripResponseDriftVelocity(0),
-  m_useNeighborLogic(true),
-  m_decoupleShaperFunctionParamaters(false)
+  m_useNeighborLogic(true)
 {
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
+<<<<<<< HEAD
   
   float peakTimeMultiplier = 0;
   
@@ -69,6 +68,10 @@ void MM_ElectronicsResponseSimulation::initialize()
     
   }
   
+=======
+  m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime);
+  m_vmmShaper->initialize();
+>>>>>>> a4700095198... Merge branch 'vmmShaper' into '21.3'
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::clearValues()
@@ -99,114 +102,63 @@ MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(co
 }
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
+  float scaledThreshold = m_electronicsThreshold * thresholdScaleFactor;
   for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
-    
-    //find min and max times for each strip:
-    double maxChargeThisStrip = 0;
-    double maxChargeLeftNeighbor = 0;
-    double maxChargeRightNeighbor = 0;
-    
+
+    // find min and max times for each strip:
+    bool thisStripFired = false;
+    double leftStripFired = false;
+    double rightStripFired = false;
+
     // find the maximum charge:
-    if(m_useNeighborLogic){// only check neighbor strips if VMM neighbor logic is enabled
+    if (m_useNeighborLogic) {  // only check neighbor strips if VMM neighbor logic is enabled
       if ( ii > 0 ) {
-	shaperInputTime = tStrip.at(ii-1);
-	shaperInputCharge = qStrip.at(ii-1);
-    // for now by pass the VMM charge measurement and use the total charge on the strip
-    // maxChargeLeftNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-    maxChargeLeftNeighbor = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
+       leftStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii-1), tStrip.at(ii-1), scaledThreshold);
       }
-      
+
       if ( ii+1 < numberofStrip.size() ) {
-	shaperInputTime = tStrip.at(ii+1);
-	shaperInputCharge = qStrip.at(ii+1);
-    // for now by pass the VMM charge measurement and use the total charge on the strip
-    //maxChargeRightNeighbor = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-    maxChargeRightNeighbor = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
+       rightStripFired =  m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii+1), tStrip.at(ii+1), scaledThreshold);
       }
     }
-    shaperInputTime = tStrip.at(ii);
-    shaperInputCharge = qStrip.at(ii);
-    //  for now by pass the VMM charge measurement and use the total charge on the strip
-    //  maxChargeThisStrip = m_h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-    maxChargeThisStrip = std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0);
 
-    float scaledThreshold = m_electronicsThreshold * thresholdScaleFactor;
-    
-    //check if neighbor strip was above threshold
-    bool neighborFired = maxChargeLeftNeighbor > scaledThreshold || maxChargeRightNeighbor > scaledThreshold;
-    
+    thisStripFired = m_vmmShaper->hasChargeAboveThreshold(qStrip.at(ii), tStrip.at(ii), scaledThreshold);
+
+    // check if neighbor strip was above threshold
+    bool neighborFired = leftStripFired || rightStripFired;
+
     // Look at strip if it or its neighbor was above threshold  and if neighbor logic of the VMM is enabled:
-    if (maxChargeThisStrip > scaledThreshold || (m_useNeighborLogic && neighborFired) ) {
-      shaperInputTime = tStrip.at(ii);
-      shaperInputCharge = qStrip.at(ii);
-      // float localPeak = 0;
-      float localPeakt = 0;
-      // not used for now since VMM charge measurement is temporarily by passed
-      // float localPeakq = 0;
+    if (thisStripFired || (m_useNeighborLogic && neighborFired)) {
+      double charge, time;
 
-      float stepSize = 0.1;  // ns(?) step size corresponding to VMM discriminator
+      // if strip is below threshold but read through NL reduce threshold to low value of 1e to still find the peak
+      float tmpScaledThreshold = (thisStripFired ? scaledThreshold : 1);
 
-      for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-
-	float thisStep = m_timeWindowLowerOffset+jj*stepSize;
-	float nextStep = m_timeWindowLowerOffset+(jj+1)*stepSize;
-	float oneAfterStep = m_timeWindowLowerOffset+(jj+2)*stepSize;
-
-
-	//check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
-	if ( ( m_h_intFn->Eval(thisStep,0,0) < m_h_intFn->Eval(nextStep,0,0) ) && ( m_h_intFn->Eval(nextStep,0,0) > m_h_intFn->Eval(oneAfterStep,0,0) ) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_h_intFn->Eval(oneAfterStep+0.001)-m_h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_h_intFn->Derivative() does not work. WHY? 2016/07/18
-
-      localPeakt = nextStep;
-      // not used for now since VMM charge measurement is temporarily by passed
-      // localPeakq = m_h_intFn->Eval(nextStep,0,0);
+      m_vmmShaper->vmmPeakResponse(qStrip.at(ii), tStrip.at(ii), tmpScaledThreshold, charge, time);
 
       m_nStripElectronics.push_back(numberofStrip.at(ii));
-      m_tStripElectronicsAbThr.push_back(localPeakt);
-      // m_qStripElectronics.push_back(localPeakq);
-      m_qStripElectronics.push_back(std::accumulate(shaperInputCharge.begin(), shaperInputCharge.end(), 0.0));
-    }
-	//                }
-      }
+      m_tStripElectronicsAbThr.push_back(time);
+      m_qStripElectronics.push_back(charge);
     }
   }
-}///end of VMM response function
-/*******************************************************************************/
-
-
+}
 
 
 void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip, const float thresholdScaleFactor){
-  
-  
-  for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {  
-    
-    shaperInputTime = tStrip.at(ii);
-    shaperInputCharge = qStrip.at(ii);
-    
-    float localThresholdt = 0;
-    float localThresholdq = 0;
-    
-    float stepSize = 0.1; //ns(?) step size corresponding to VMM discriminator
-    
-    float scaledThreshold = m_electronicsThreshold*thresholdScaleFactor;
+  float scaledThreshold = m_electronicsThreshold*thresholdScaleFactor;
 
-    for (int jj = 0; jj < (m_timeWindowUpperOffset-m_timeWindowLowerOffset)/stepSize; jj++) {
-      
-      float thisStep = m_timeWindowLowerOffset+jj*stepSize;
-      float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;
-      
-      if ( ( m_h_intFn->Eval(thisStep,0,0) >  scaledThreshold) && (m_h_intFn->Eval(thisStep+0.001)-m_h_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( m_h_intFn->Eval(preStep,0,0) <  scaledThreshold) ) {
-	localThresholdt = thisStep;
-	localThresholdq = m_h_intFn->Eval(thisStep,0,0);
-	m_nStripElectronics.push_back(numberofStrip.at(ii));
-	m_tStripElectronicsAbThr.push_back(localThresholdt);
-	m_qStripElectronics.push_back(localThresholdq);
-      }
+  for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
+    double localThresholdt = 0;
+    double localThresholdq = 0;
+
+    m_vmmShaper->vmmThresholdResponse(qStrip.at(ii), tStrip.at(ii), scaledThreshold, localThresholdq, localThresholdt);
+
+    if (localThresholdt  > 0) {
+        m_nStripElectronics.push_back(numberofStrip.at(ii));
+        m_tStripElectronicsAbThr.push_back(localThresholdt);
+        m_qStripElectronics.push_back(localThresholdq);
     }
   }
-}///end of VMM response function
-/*******************************************************************************/
-
+}
 
 MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::getTheFastestSignalInVMM(
 	const MM_DigitToolOutput & ElectronicThresholdOutput,
@@ -482,7 +434,6 @@ bool MM_ElectronicsResponseSimulation::deadChannel(int id, float time, std::vect
 
 MM_ElectronicsResponseSimulation::~MM_ElectronicsResponseSimulation()
 {
-	if (m_h_intFn) delete m_h_intFn;
 	clearValues();
 }
 /*******************************************************************************/
