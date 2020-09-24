@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
-#include "CxxUtils/checker_macros.h"
 #include <vector>
 
 namespace Trk 
@@ -39,12 +38,9 @@ namespace Trk
         replacing the input track. The second element of the returned tuple is true if the input track does not
         reuire cleaning, fulfils the quality criteria and should be kept.
     */
-    // Implementation in InDetDenseEnvAmbiTrackSelectionTool
-    // is not thread-safe.
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack ATLAS_NOT_THREAD_SAFE
-      (const Trk::Track *track,
-       const Trk::TrackScore score,
-       Trk::PRDtoTrackMap &prd_to_track_map) const =0;
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
+                                                            const Trk::TrackScore score,
+                                                            Trk::PRDtoTrackMap &prd_to_track_map) const =0;
   };
 
 } // end of namespace
