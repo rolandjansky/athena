@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <typeinfo>
@@ -68,7 +68,7 @@ LArDigit::operator std::string() const{
 }
 
 // set method
-void LArDigit::setSamples(std::vector<short> samples)
+void LArDigit::setSamples(const std::vector<short>& samples)
 {
   m_samples.clear();
   m_samples = samples;

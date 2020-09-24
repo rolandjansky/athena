@@ -1,9 +1,9 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
  
-__author__ = "Mark Sutton"
-__doc__    = "InDetTrigConfigSettings"
-__all__    = [ "getInDetTrigConfig", "printDefinedSlices" ]
+__author__ = "Mark Sutton, Matous Vozak"
+__doc__    = "ConfigSettings"
+__all__    = [ "getInDetTrigConfig" ]
 
 
 
@@ -68,63 +68,63 @@ class _Settings :
    
    @property
    def d0SeedMax(self):
-   	return self._d0SeedMax
+      return self._d0SeedMax
    
    @property
    def d0SeedPPSMax(self):
-   	return self._d0SeedPPSMax
+      return self._d0SeedPPSMax
    
    @property
    def doZFinder(self):
-   	return self._doZFinder
+      return self._doZFinder
    
    @property
    def doResMon(self):
-   	return self._doResMon
+      return self._doResMon
    
    @property
    def doSpPhiFiltering(self):
-   	return self._doSpPhiFiltering
+      return self._doSpPhiFiltering
    
    @property
    def doCloneRemoval(self):
-   	return self._doCloneRemoval
+      return self._doCloneRemoval
    
    @property
    def checkRedundantSeeds(self):
-   	return self._checkRedundantSeeds
+      return self._checkRedundantSeeds
    
    @property
    def dRdoubletMax(self):
-   	return self._dRdoubletMax 
+      return self._dRdoubletMax 
    
    @property
    def seedRadBinWidth(self):
-   	return self._seedRadBinWidth
+      return self._seedRadBinWidth
    
    @property
    def etaHalfWidth(self):
-   	return self._etaHalfWidth
+      return self._etaHalfWidth
    
    @property
    def phiHalfWidth(self):
-   	return self._phiHalfWidth
+      return self._phiHalfWidth
    
    @property
    def doFullScan(self):
-   	return self._doFullScan
+      return self._doFullScan
    
    @property
    def monPS(self):
-   	return self._monPS
+      return self._monPS
    
    @property
    def monPtMin(self):
-   	return self._monPtMin
+      return self._monPtMin
    
    @property
    def doTRT(self):
-   	return self._doTRT
+      return self._doTRT
    
    def printout(self): 
       print( self._name, " :")

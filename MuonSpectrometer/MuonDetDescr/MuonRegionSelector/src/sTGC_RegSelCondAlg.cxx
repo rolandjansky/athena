@@ -50,8 +50,25 @@ sTGC_RegSelCondAlg::sTGC_RegSelCondAlg(const std::string& name, ISvcLocator* pSv
 
 
 
+StatusCode sTGC_RegSelCondAlg::initialize() {
+  ATH_CHECK(MuonRegSelCondAlg::initialize());
+  ATH_CHECK(m_mdtCablingKey.initialize());
+  return StatusCode::SUCCESS;
+}
 
-std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const MuonMDT_CablingMap* /* mdtCabling */ ) const { 
+
+
+std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext& ctx, EventIDRange& id_range ) const { 
+
+  /// get the MDT cabling map as a proxy for the id_range
+  
+  SG::ReadCondHandle<MuonMDT_CablingMap> mdtCabling( m_mdtCablingKey, ctx );
+ 
+  if( !mdtCabling.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << mdtCabling.key());
+    return std::unique_ptr<RegSelSiLUT>(nullptr);
+  }   
+  
 
   /// no NSW cabling available at the moment ...
 

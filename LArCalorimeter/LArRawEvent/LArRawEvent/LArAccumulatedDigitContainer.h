@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -34,8 +34,6 @@ class LArAccumulatedDigitContainer : public DataVector<LArAccumulatedDigit> {
   inline int isLastStep() const { return (m_StepIndex==m_NStep-1); }
   //private:    
 
-  /** @brief SG ownership policy  */
-  SG::OwnershipPolicy  m_ownPolicy ;
   unsigned int m_NStep, m_StepIndex;
 };
 

@@ -23,44 +23,33 @@
 #define GeV 1000
 const float TauSubstructureVariables::DEFAULT = -1111.;
 
-//**********************************
-// Constructor
-//**********************************
+
 
 TauSubstructureVariables::TauSubstructureVariables( const std::string& name )
   : TauRecToolBase(name) {
-  declareProperty("VertexCorrection", m_doVertexCorrection = false);
   declareProperty("IncShowerSubtr", m_incShowerSubtr = true);
 }
 
-//**********************************
-// Destructor
-//**********************************
+
 
 TauSubstructureVariables::~TauSubstructureVariables() {
 }
 
-//************************************
-// Execute method
-//************************************
+
+
+StatusCode TauSubstructureVariables::initialize() {
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  return StatusCode::SUCCESS;
+}
+
+
 
 StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
 
-  const xAOD::Jet* taujetseed = pTau.jet();
-  if (!taujetseed) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
-  } 
-
-  //*****************************************************
-  // calculate some tau substructure variables
-  //*****************************************************
-
   CaloClusterVariables CaloClusterVariablesTool;
-  CaloClusterVariablesTool.setVertexCorrection(m_doVertexCorrection);
   CaloClusterVariablesTool.setIncSub(m_incShowerSubtr);
 
-  bool isFilled = CaloClusterVariablesTool.update(pTau);
+  bool isFilled = CaloClusterVariablesTool.update(pTau, m_tauVertexCorrection);
 
   if (!isFilled) {
     ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
@@ -95,50 +84,49 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   double clusELead = DEFAULT;
   double clusESubLead = DEFAULT;
 
-  // Loop through jets, get links to clusters
+  if (! pTau.jetLink().isValid()) {
+    ATH_MSG_ERROR("Tau jet link is invalid.");
+    return StatusCode::FAILURE;
+  }
+  const xAOD::Jet *jetSeed = pTau.jet();
+  
+  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+  
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+
+  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+
   std::vector<const xAOD::CaloCluster*> vClusters;
-  ATH_CHECK(tauRecTools::GetJetClusterList(taujetseed, vClusters, m_incShowerSubtr));
-
-  for (auto incluster : vClusters){
-
-    // calc total energy
-    totalEnergy += incluster->e();
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, vClusters, m_incShowerSubtr));
+  
+  for (auto cluster : vClusters){
+    totalEnergy += cluster->e();
 		
-    //apply Vertex correction on a temporary
-    TLorentzVector tempclusvec;
-    if (m_doVertexCorrection && pTau.vertexLink())
-      tempclusvec = CaloVertexedClusterType(*incluster, pTau.vertex()->position()).p4();
-    else
-      tempclusvec = CaloVertexedClusterType(*incluster).p4();
-
-    dr = pTau.p4().DeltaR(tempclusvec);
-    if (0.2 <= dr && dr < 0.4) 
-      {
-	calo_iso += tempclusvec.Et();
-      }
-    else if (dr < 0.2)
-      {
-	double clusEnergyBE = ( incluster->energyBE(0) + incluster->energyBE(1) + incluster->energyBE(2) );
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    dr = tauAxis.DeltaR(clusterP4);    
+    
+    if (0.2 <= dr && dr < 0.4) {
+	  calo_iso += clusterP4.Et();
+    }
+    else if (dr < 0.2) {
+	  double clusEnergyBE = ( cluster->energyBE(0) + cluster->energyBE(1) + cluster->energyBE(2) );
 		    
-	if (clusEnergyBE > clusELead) 
-	  {
+	  if (clusEnergyBE > clusELead) {
 	    //change current leading cluster to subleading
 	    clusESubLead = clusELead;
 	    subLeadClusVec = leadClusVec;
 
 	    //set energy and 4-vector of leading cluster
 	    clusELead = clusEnergyBE;
-	    leadClusVec.SetPtEtaPhiM(clusELead/std::cosh(tempclusvec.Eta()), tempclusvec.Eta(), tempclusvec.Phi(), 0.);
+	    leadClusVec.SetPtEtaPhiM(clusELead/std::cosh(clusterP4.Eta()), clusterP4.Eta(), clusterP4.Phi(), 0.);
 	  }
-	else if (clusEnergyBE > clusESubLead) 
-	  {
+	  else if (clusEnergyBE > clusESubLead) {
 	    //set energy and 4-vector of subleading cluster only
 	    clusESubLead = clusEnergyBE;
-	    subLeadClusVec.SetPtEtaPhiM(clusESubLead/std::cosh(tempclusvec.Eta()), tempclusvec.Eta(), tempclusvec.Phi(), 0.);
+	    subLeadClusVec.SetPtEtaPhiM(clusESubLead/std::cosh(clusterP4.Eta()), clusterP4.Eta(), clusterP4.Phi(), 0.);
 	  }
-
-      }
-		
+    }	
   }
 
   if (clusELead > 0.) {
@@ -219,7 +207,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
     float dR = 0.;
 
     for (size_t i=0; i < numTrack; ++i) {
-      dR = pTau.track(i)->p4().DeltaR(pTau.p4());
+      dR = pTau.track(i)->p4().DeltaR(tauAxis);
       if (dR > dRmax) dRmax = dR;
     }
     pTau.setDetail(xAOD::TauJetParameters::dRmax, dRmax);

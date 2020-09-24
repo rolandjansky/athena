@@ -330,7 +330,11 @@ namespace Muon {
       std::vector<ICscClusterFitter::Result> results, results0;
       results = m_clusterUtilTool->getRefitCluster(MClus,tantheta);
       results0 = m_clusterUtilTool->getRefitCluster(MClus,0);
-      
+
+      if(results.empty() || results0.empty()){
+	ATH_MSG_VERBOSE("No fit result");
+	return new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus(),MClus->time());
+      }
       ICscClusterFitter::Result res, res0;
       res = results[0];
       res0 = results0[0]; // result at normal angle to make error blown correctly in case of cosmic

@@ -105,7 +105,6 @@ def analyseCombinations(combinations_in_menu, alignmentGroups_in_combinations):
          
         return sig_to_set
 
-
 # takes the list of signatures in a chain and changes it to be the post-grouping signatures
 # e.g. ['Electron','Muon'] ==> ['Egamma','Muon] 
 def setChainSignatures(signatures, lengthOfChainConfigs):
@@ -123,3 +122,4 @@ def setChainSignatures(signatures, lengthOfChainConfigs):
         # maybe they should all be added to the_signature_grouping, even if they never
         # need to be merged together
     return signatures, lengthOfChainConfigs
+

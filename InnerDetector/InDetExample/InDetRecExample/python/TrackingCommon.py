@@ -362,7 +362,7 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
                           useTTrainedNetworks                = useTTrainedNetworks,
                           NnCollectionReadKey                = 'PixelClusterNN',
                           NnCollectionWithTrackReadKey       = 'PixelClusterNNWithTrack',
-                          NnCollectionJSONReadKey            = 'PixelClusterNNJSON')
+                          NnCollectionJSONReadKey            = '' if useTTrainedNetworks else 'PixelClusterNNJSON')
     return InDet__NnClusterizationFactory(name=the_name, **kwargs)
 
 @makePublicTool

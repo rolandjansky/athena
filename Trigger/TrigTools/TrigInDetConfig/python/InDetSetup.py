@@ -29,10 +29,10 @@ def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
   return viewAlgs
 
 def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
-  if config == None :
+  if config is None :
     raise ValueError('makeInDetAlgs() No config provided!')
   #Add suffix to the algorithms
-  signature =  '_{}'.format( config.name() )
+  signature =  '_{}'.format( config.name )
 
   #Global keys/names for Trigger collections 
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -306,15 +306,15 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       #Load signature configuration (containing cut values, names of collections, etc)
       #from .InDetTrigConfigSettings import getInDetTrigConfig
       #configSetting = getInDetTrigConfig( whichSignature )
-      if config == None:
+      if config is None:
             raise ValueError('makeInDetAlgs() No signature config specified')
 
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT().signatureType() )
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = config.FT().trkTracksFTF() 
-      theFTF.doCloneRemoval = config.FT().setting().doCloneRemoval()
+      theFTF.TracksName     = config.FT.trkTracksFTF() 
+      theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
 
       viewAlgs.append(theFTF)
 
@@ -325,12 +325,12 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
 
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
-                                                                TrackName = config.FT().trkTracksFTF(),
+                                                                TrackName = config.FT.trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
       
       #In general all FTF trackParticle collections are recordable except beamspot to save space
-      theTrackParticleCreatorAlg.TrackParticlesName = config.FT().tracksFTF( doRecord = config.isRecordable() )
+      theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
 
       viewAlgs.append(theTrackParticleCreatorAlg)
 

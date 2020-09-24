@@ -21,7 +21,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
         viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=recordable(RoIs))
         jetTrkSeq += viewAlgs
-        tracksname =  IDTrigConfig.FT().tracksFTF( doRecord = IDTrigConfig.isRecordable() ) 
+        tracksname =  IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
         verticesname = recordable("HLT_IDVertex_FS")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices

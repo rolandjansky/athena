@@ -54,7 +54,7 @@ job.options().setString( ROOT.EL.Job.optSubmitDirMode, "unique" )
 
 from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
-print algSeq # For debugging
+print(algSeq) # For debugging
 for alg in algSeq:
     job.algsAdd( alg )
     pass

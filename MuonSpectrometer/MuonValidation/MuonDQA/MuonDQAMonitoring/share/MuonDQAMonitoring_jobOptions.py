@@ -17,7 +17,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    print("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 #--------------------------------------------------------------  
@@ -31,7 +31,7 @@ else:
 MuonDQAFlags.doMuonMonitoring = True
  
 if not 'DQMonFlags' in dir():
-    print "DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now"
+    print("DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now")
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     monEnv="tier0ESD"
 

@@ -18,33 +18,21 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h" 
-#include "AsgTools/ToolHandleArray.h"
-
 //Helper Includes
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h"
-#include "MuonPrepRawData/MuonCluster.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 
-//standard library includes
-#include <fstream> 
-#include <cstdlib>
-#include <iostream>
 
 namespace Muon {
   class MMPrepData;
@@ -56,15 +44,7 @@ namespace {
 }
 
 //stl includes                                                                                              
-                                                                    
-#include <sstream>
 #include <string>
-#include <vector>
-#include <map>
-#include <set>
-
-//root includes
-class TString;
 
 class MMRawDataMonAlg: public AthMonitorAlgorithm {
  public:

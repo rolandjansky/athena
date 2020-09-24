@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJiveXML/TrigInDetTrackRetriever.h"
@@ -99,20 +99,18 @@ namespace JiveXML {
 	  //Get associated hits
 	  int numHits = 0;
 	  if ( (*itr)->siSpacePoints() ){
-	    std::vector<const TrigSiSpacePoint*>::iterator itus = (*itr)->siSpacePoints()->begin();
-	    for (; itus != (*itr)->siSpacePoints()->end() ; ++itus){
-	      hitsvec.push_back(DataType(((*itus)->clusters( ).first)->identify().get_compact()));
+            for (const TrigSiSpacePoint* sp : *(*itr)->siSpacePoints()) {
+	      hitsvec.push_back(DataType((sp->clusters( ).first)->identify().get_compact()));
 	      ++numHits;
-	      if((*itus)->clusters( ).second != 0){
-		hitsvec.push_back(DataType(((*itus)->clusters( ).second)->identify().get_compact()));
+	      if(sp->clusters( ).second != 0){
+		hitsvec.push_back(DataType((sp->clusters( ).second)->identify().get_compact()));
 		++numHits;
 	      }
 	    }
 	  }
 	  if ( (*itr)->trtDriftCircles() ) {
-	    std::vector<const InDet::TRT_DriftCircle*>::iterator itus = (*itr)->trtDriftCircles()->begin();
-	    for (; itus != (*itr)->trtDriftCircles()->end() ; ++itus){
-	      hitsvec.push_back(DataType(((*itus)->identify().get_compact())));
+            for (const InDet::TRT_DriftCircle* dc : *(*itr)->trtDriftCircles()) {
+	      hitsvec.push_back(DataType((dc->identify().get_compact())));
 	      ++numHits;
 	    }
 	  }

@@ -22,7 +22,7 @@ def makeInDetPrecisionTracking( config = None,
   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
 
   #Expects configuration  
-  if config == None:
+  if config is None:
     raise ValueError('PrecisionTracking No configuration provided!')
 
   #-----------------------------------------------------------------------------
@@ -144,11 +144,12 @@ def makeInDetPrecisionTracking( config = None,
 
             from InDetTrigRecExample.InDetTrigCommonTools import  InDetTrigTRT_DriftCircleTool
  
-            from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+            #from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
             from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__TRT_RIO_Maker
             InDetTrigTRTRIOMaker = InDet__TRT_RIO_Maker( name = "%sTRTDriftCircleMaker%s"%(algNamePrefix, signature),
                                                      TRTRIOLocation = TrigTRTKeys.DriftCircles,
                                                      TRTRDOLocation = TRT_RDO_Key,
+                                                     #FIXME:
                                                      #EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',signature)],
                                                      #PhiHalfWidth = InDetTrigSliceSettings[('phiHalfWidth',signature)],
                                                      #doFullScan =   InDetTrigSliceSettings[('doFullScan',signature)],
@@ -310,13 +311,12 @@ def makeInDetPrecisionTracking( config = None,
   ToolSvc += InDetTrigMTRecTrackParticleContainerCnvTool
   #print (InDetTrigMTRecTrackParticleContainerCnvTool)
   
-  from TrigEDMConfig.TriggerEDMRun3 import recordable
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
   InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( name = "%sxAODParticleCreatorAlg%s" %( algNamePrefix, signature),
                                                                       # Properties below are used for:  TrackCollection -> xAOD::TrackParticle
                                                                         ConvertTracks = True,  #Turn on  retrieve of TrackCollection, false by default
                                                                         TrackContainerName                        = outPTTracks,
-                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles, #recordable( outPTTrackParticles ), 
+                                                                        xAODTrackParticlesFromTracksContainerName = outPTTrackParticles,
                                                                         TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
                                                                        ## Properties below are used for: Rec:TrackParticle, aod -> xAOD::TrackParticle (Turn off)
                                                                         ConvertTrackParticles = False,  # Retrieve of Rec:TrackParticle, don't need this atm

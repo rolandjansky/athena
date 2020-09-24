@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def getCaloExtenstionBuilderAlgorithm(inputFlags, cutLevel = "TightPrimary", minPT = 100.0):
+def getCaloExtenstionBuilderAlgorithm(inputFlags):
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
     Trk__ParticleCaloExtensionTool = CompFactory.Trk.ParticleCaloExtensionTool
     extrapPFlowCfg = AtlasExtrapolatorCfg(inputFlags)
@@ -9,9 +9,5 @@ def getCaloExtenstionBuilderAlgorithm(inputFlags, cutLevel = "TightPrimary", min
         
     CaloExtensionBuilderAlg = CompFactory.Trk.CaloExtensionBuilderAlg 
     CaloExtensionBuilderAlg = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool)
-
-    InDet__InDetTrackSelectionTool = CompFactory.InDet.InDetTrackSelectionTool    
-    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name = "CaloExtensionBuilderTrackSelectionTool",minPt = minPT, CutLevel = cutLevel, minNSiHits = 7) # SiHits = PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors    
-    CaloExtensionBuilderAlg.TrkSelection = TrackSelectionToolHC
      
     return CaloExtensionBuilderAlg

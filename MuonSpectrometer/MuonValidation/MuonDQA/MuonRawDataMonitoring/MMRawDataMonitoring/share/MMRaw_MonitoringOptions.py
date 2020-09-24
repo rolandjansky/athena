@@ -4,7 +4,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 isTier0Flag = not athenaCommonFlags.isOnline()
 
 if not 'MuonDQAFlags' in dir():
-    print "MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now"
+    print("MuonDQAFlags.py: MuonDQAFlags not yet imported - I import them now")
     from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
 
 mmRawMonMan = AthenaMonManager(name="MMRawMonManager",

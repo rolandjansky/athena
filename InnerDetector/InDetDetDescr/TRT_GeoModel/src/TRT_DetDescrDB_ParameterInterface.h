@@ -23,7 +23,7 @@ public:
 
    
   // Only allowed constructor
-  TRT_DetDescrDB_ParameterInterface(const InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe SetValues method is used.
+  TRT_DetDescrDB_ParameterInterface(InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe SetValues method is used.
 
   ~TRT_DetDescrDB_ParameterInterface();
   // delete copy c'tor
@@ -49,7 +49,7 @@ public:
   
 private:
 
-  const InDetDD::AthenaComps * m_athenaComps;
+  InDetDD::AthenaComps * m_athenaComps;
 
   const InDetDD::DistortedMaterialManager * m_distortedMatManager;
   TopLevelPlacements * m_placements;

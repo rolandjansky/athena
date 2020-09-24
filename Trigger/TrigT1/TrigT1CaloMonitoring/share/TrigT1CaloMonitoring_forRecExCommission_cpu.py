@@ -6,7 +6,7 @@
 # @author Peter Faulkner
 #
 if not 'DQMonFlags' in dir():
-    print "TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now"
+    print("TrigT1CaloMonitoring_forRecExCommission.py: DQMonFlags not yet imported - I import them now")
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     
 # On Tier0 select monitoring tools according to processing step

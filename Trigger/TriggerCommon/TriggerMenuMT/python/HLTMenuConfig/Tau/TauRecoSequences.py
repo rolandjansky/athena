@@ -243,10 +243,10 @@ def tauIdTrackSequence( RoIs , name):
 
 
     if "FTFTrackInView" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT().tracksFTF(), step = "Track")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "Track")
       tauIdTrackSequence += tauPreselectionAlg
     elif "TrackTwo" in name:
-      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT().tracksFTF(), step = "TrackTwo")
+      tauPreselectionAlg = _algoTauPreselection(inputRoIs = RoIs, tracks = IDTrigConfig.FT.tracksFTF(), step = "TrackTwo")
       tauIdTrackSequence += tauPreselectionAlg      
 
     #Precision Tracking

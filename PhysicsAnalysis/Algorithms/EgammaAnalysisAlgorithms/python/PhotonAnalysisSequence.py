@@ -10,6 +10,8 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 # E/gamma import(s).
 from xAODEgamma.xAODEgammaParameters import xAOD
 
+import PATCore.ParticleDataType
+
 def makePhotonAnalysisSequence( dataType, workingPoint,
                                 deepCopyOutput = False,
                                 postfix = '',
@@ -167,10 +169,10 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Fast
+          PATCore.ParticleDataType.Fast
     elif dataType == 'mc':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          ROOT.PATCore.ParticleDataType.Full
+          PATCore.ParticleDataType.Full
         pass
     alg.outOfValidity = 2 #silent
     alg.outOfValidityDeco = 'bad_eff' + postfix

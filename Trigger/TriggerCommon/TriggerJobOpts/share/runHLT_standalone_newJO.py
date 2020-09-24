@@ -9,9 +9,18 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
+
+
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT   = True
 flags.Detector.GeometryTRT   = True
+flags.Detector.GeometryID    = True
+flags.Detector.GeometryBpipe = True
+flags.Detector.GeometryCavern = False
+flags.Detector.GeometryPixel = True
+flags.Detector.GeometrySCT   = True
+flags.Detector.GeometryTRT   = True
+
 flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True
 flags.Detector.GeometryMDT   = True
@@ -19,13 +28,21 @@ flags.Detector.GeometryTGC   = True
 flags.Detector.GeometryCSC   = True
 flags.Detector.GeometryRPC   = True
 
+
+flags.Detector.RecoPixel = True
+flags.Detector.RecoSCT   = True
+
+
 # Output configuration - currently testing offline workflow
 flags.Trigger.writeBS = False
 flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
 flags.Trigger.CostMonitoring.doCostMonitoring = True
-
+flags.Scheduler.CheckDependencies = True
+flags.Scheduler.ShowDataDeps = True
+flags.Scheduler.ShowDataFlow = True
+flags.Scheduler.ShowControlFlow = True
 
 import importlib
 setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
@@ -47,7 +64,8 @@ flags.InDet.usePixelDCS=False
 
 flags.lock()
 
-from AthenaCommon.Constants import DEBUG,WARNING
+
+from AthenaCommon.Constants import INFO,DEBUG,WARNING
 acc = MainServicesCfg( flags )
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -71,9 +89,6 @@ from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
 
 
-from TrigInDetConfig.TrigInDetConfig import TrigInDetCondConfig
-acc.merge( TrigInDetCondConfig( flags ) )
-
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 acc.getEventAlgo( "L1Decoder" ).ctpUnpacker.UseTBPBits=True # test setup
 
@@ -84,12 +99,15 @@ logging.getLogger('forcomps').setLevel(DEBUG)
 acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
 acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
 acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
-acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
-acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
+acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
+acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
-acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
-acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
+
+
+acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
+
 
 fname = "runHLT_standalone_newJO.pkl"
 print( "Storing config in the file {}".format( fname ) )

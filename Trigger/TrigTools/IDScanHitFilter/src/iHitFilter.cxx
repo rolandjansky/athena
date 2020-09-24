@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,10 +32,11 @@ using std::cerr;
 using std::endl;
 using std::memset;
 
-int iHitFilter::initialise(long maxlayers, double maxeta) 
+int iHitFilter::initialise(long maxlayers, long maxBarrelLayer, double maxeta) 
 {
 
   m_IdScan_MaxNumLayers = maxlayers;
+  m_maxBarrelLayer      = maxBarrelLayer;
   m_IdScan_MaxEta       = maxeta;
 
   if ( m_fullScan ) m_useROIphiHalfWidth = M_PI;
@@ -272,7 +273,7 @@ GroupList iHitFilter::execute()
 
   for ( ; hitItr != hitEnd;  ++hitItr ) {
     sp_key = makeHashKey( (*hitItr)->rotatedPhi(), (*hitItr)->eta() );
-    (*m_binMap)[sp_key].AddHit( *hitItr );
+    (*m_binMap)[sp_key].AddHit( *hitItr, m_IdScan_MaxNumLayers, m_maxBarrelLayer );
 #ifdef IDSCAN_DEBUG
     std::cout << "IDSCAN_DEBUG hitfilter: layer/phi/z/eta/sp_key: " 
 	      << (*hitItr)->layer() << " / " << (*hitItr)->phi() << " / " << (*hitItr)->z() << " / " << sp_key << std::endl;
@@ -289,8 +290,8 @@ GroupList iHitFilter::execute()
     for ( hitItr = m_internalSPs->begin(); hitItr != hitEnd;  ++hitItr ) {
       if ( (*hitItr)->layer() == 0 ) {
  	sp_key = this->makeHashKey( (*hitItr)->rotatedPhi(), (*hitItr)->eta() );
-	(*m_binMap)[sp_key+offset].AddHit( *hitItr );
-	(*m_binMap)[sp_key-offset].AddHit( *hitItr );
+	(*m_binMap)[sp_key+offset].AddHit( *hitItr, m_IdScan_MaxNumLayers, m_maxBarrelLayer );
+	(*m_binMap)[sp_key-offset].AddHit( *hitItr, m_IdScan_MaxNumLayers, m_maxBarrelLayer );
       }
     }
   }

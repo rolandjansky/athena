@@ -325,7 +325,7 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
           nHitsAlpha = ceil(2 * TMath::Pi() * r / binResolution);
         }
         else{
-          //d = 2•r•sin (a/2r) this distance at the upper r must be 1mm for layer 1 or 5, 5mm otherwise. 
+          //d = 2*r*sin (a/2r) this distance at the upper r must be 1mm for layer 1 or 5, 5mm otherwise. 
           TAxis* y = (TAxis*)h->GetYaxis();
           double angle = y->GetBinUpEdge(iy) - y->GetBinLowEdge(iy);
           double r = x->GetBinUpEdge(ix);

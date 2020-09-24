@@ -47,14 +47,21 @@ public:
     Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map,
     bool suppress_hole_search = false) const = 0;
-
-  /** create a summary object from passed Track.*/
+  
+   /* Start from a copy of the existing input track summary if there,
+    * otherwise start from a new one. Fill it and return it.
+    * Does not modify the const track.
+    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
 
-  /** create a summary object of passed track without doing the tedious hole
-   * search. */
+
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * but without doing the hole search.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;

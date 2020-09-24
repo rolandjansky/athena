@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonCombinedTimingTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef RECMUONCOMBINEDTIMINGTOOL_H
 #define RECMUONCOMBINEDTIMINGTOOL_H
 
@@ -15,11 +11,6 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkToolInterfaces/ITrackTimingTool.h"
 #include "xAODMuon/Muon.h"
-
-namespace Trk {
-class ITrackTimingTool;
-}
-// namespace Muon { class ISegmentTimingTool; }
 
 namespace Rec {
 class IMuonPropertiesTool;
@@ -38,12 +29,10 @@ class MuonCombinedTimingTool : virtual public IMuonCombinedTimingTool, public At
     MuonCombinedTimingTool(const std::string&, const std::string&, const IInterface*);
 
     /** default destructor */
-    virtual ~MuonCombinedTimingTool();
+    virtual ~MuonCombinedTimingTool()=default;
 
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize();
 
     virtual std::vector<Trk::SpaceTimePoint*> timeMeasurements(const xAOD::Muon& muon) const;
 

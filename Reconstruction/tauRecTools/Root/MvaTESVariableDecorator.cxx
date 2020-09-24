@@ -24,9 +24,9 @@ MvaTESVariableDecorator::~MvaTESVariableDecorator() {
 
 StatusCode MvaTESVariableDecorator::initialize() {
 
-  ATH_CHECK( m_aveIntPerXKey.initialize() );
-
-  ATH_CHECK( m_vertexInputContainer.initialize(!m_vertexInputContainer.key().empty()) );
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  ATH_CHECK(m_aveIntPerXKey.initialize());
+  ATH_CHECK(m_vertexContainerKey.initialize(SG::AllowEmpty));
   
   return StatusCode::SUCCESS;
 }
@@ -46,9 +46,9 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   } 
 
   int nVtxPU = 0;
-  if(!m_vertexInputContainer.key().empty()) {
+  if(!m_vertexContainerKey.empty()) {
     // Get the primary vertex container from StoreGate
-    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexContainerKey );
     if (!vertexInHandle.isValid()) {
       ATH_MSG_WARNING ("Could not retrieve HiveDataObj with key " << vertexInHandle.key() << ", will set nVtxPU=0.");
     }
@@ -68,8 +68,6 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   acc_nVtxPU(xTau) = nVtxPU;
 
   // Decorate jet seed variables
-  const xAOD::Jet* jet_seed = xTau.jet();
-  
   double center_lambda=0.       , first_eng_dens=0.      , em_probability=0.      , second_lambda=0.      ;
   double mean_center_lambda=0.  , mean_first_eng_dens=0. , mean_em_probability=0. , mean_second_lambda=0. ;
   double mean_presampler_frac=0., lead_cluster_frac = 0. ;
@@ -80,42 +78,56 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
   clusters_EM_P4.SetPtEtaPhiM(0,0,0,0);
   TLorentzVector clusters_had_P4;
   clusters_had_P4.SetPtEtaPhiM(0,0,0,0);
+ 
+  if (! xTau.jetLink().isValid()) {
+    ATH_MSG_ERROR("Tau jet link is invalid.");
+    return StatusCode::FAILURE;
+  }
+  const xAOD::Jet *jetSeed = xTau.jet();
+  
+  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed); 
 
-  const TLorentzVector& LC_P4 = xTau.p4(xAOD::TauJetParameters::DetectorAxis);
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (xTau.vertexLink().isValid()) tauVertex = xTau.vertex();
+
+  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(xTau);
 
   // Loop through jets, get links to clusters
   std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jet_seed, clusterList, m_incShowerSubtr, LC_P4, 0.2));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
 
   // Loop through clusters and jet constituents
-  for (auto cl : clusterList){
+  for (const xAOD::CaloCluster* cluster : clusterList){
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+  
+    if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
 
-    clE = cl->calE();
+    clE = cluster->calE();
     Etot += clE;
 
     if(clE>lead_cluster_frac) lead_cluster_frac = clE;
 
-    if(cl->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA,center_lambda))
+    if(cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA,center_lambda))
       mean_center_lambda += clE*center_lambda;
     else ATH_MSG_WARNING("Failed to retrieve moment: CENTER_LAMBDA");
 
-    if(cl->retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ENG_DENS,first_eng_dens))
+    if(cluster->retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ENG_DENS,first_eng_dens))
       mean_first_eng_dens += clE*first_eng_dens;
     else ATH_MSG_WARNING("Failed to retrieve moment: FIRST_ENG_DENS");
 
-    if(cl->retrieveMoment(xAOD::CaloCluster::MomentType::EM_PROBABILITY,em_probability)) {
+    if(cluster->retrieveMoment(xAOD::CaloCluster::MomentType::EM_PROBABILITY,em_probability)) {
       mean_em_probability += clE*em_probability;
 
-      if(em_probability>0.5) clusters_EM_P4 += cl->p4(xAOD::CaloCluster::State::CALIBRATED);      
-      else clusters_had_P4 += cl->p4(xAOD::CaloCluster::State::CALIBRATED);
+      if(em_probability>0.5) clusters_EM_P4 += cluster->p4(xAOD::CaloCluster::State::CALIBRATED);      
+      else clusters_had_P4 += cluster->p4(xAOD::CaloCluster::State::CALIBRATED);
     }
     else ATH_MSG_WARNING("Failed to retrieve moment: EM_PROBABILITY");
 
-    if(cl->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA,second_lambda))
+    if(cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA,second_lambda))
       mean_second_lambda += clE*second_lambda;
     else ATH_MSG_WARNING("Failed to retrieve moment: SECOND_LAMBDA");
 
-    mean_presampler_frac += (cl->eSample(CaloSampling::PreSamplerB) + cl->eSample(CaloSampling::PreSamplerE));
+    mean_presampler_frac += (cluster->eSample(CaloSampling::PreSamplerB) + cluster->eSample(CaloSampling::PreSamplerE));
   }
   
   // ----calculate mean values
@@ -154,7 +166,7 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) const {
 
   // ----retrieve Ghost Muon Segment Count (for punch-through studies)
   int nMuSeg=0;
-  if(!jet_seed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
+  if(!jetSeed->getAttribute<int>("GhostMuonSegmentCount", nMuSeg)) nMuSeg=0;
   xTau.setDetail(xAOD::TauJetParameters::GhostMuonSegmentCount, nMuSeg);
   
   // ----summing corrected Pi0 PFO energies
