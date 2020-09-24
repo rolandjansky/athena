@@ -31,7 +31,7 @@ class PixelITkClusterErrorData {
     std::map< const Identifier, std::vector<double> > getConstMap() const {return m_constmap;}
 
     void setDeltaError(const Identifier* pixelId,
-                       double period,
+                       double period_phi, double period_sinheta,
                        double delta_x_slope, double delta_x_offset, double error_x,
                        double delta_y_slope, double delta_y_offset, double error_y );
         

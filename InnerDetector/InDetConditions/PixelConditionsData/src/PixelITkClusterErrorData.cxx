@@ -45,14 +45,15 @@ std::pair<double,double> PixelITkClusterErrorData::getDelta(const Identifier* pi
                                                             int sizeZ, double eta) const{
 
   std::vector<double> value = m_constmap.at(*pixelId);
-  double period = value[0];
-  double delta_x_slope = value[1];
-  double delta_x_offset = value[2];
-  double delta_y_slope = value[4];
-  double delta_y_offset = value[5];
+  double period_phi = value[0];
+  double period_sinheta = value[1];
+  double delta_x_slope = value[2];
+  double delta_x_offset = value[3];
+  double delta_y_slope = value[5];
+  double delta_y_offset = value[6];
 
-  double delta_x = delta_x_slope * fabs(angle - period*(sizePhi-2)) + delta_x_offset;
-  double delta_y = delta_y_slope * fabs(sinh(fabs(eta)) - period*(sizeZ-2)) + delta_y_offset;
+  double delta_x = delta_x_slope * fabs(angle - period_phi*(sizePhi-2)) + delta_x_offset;
+  double delta_y = delta_y_slope * fabs(sinh(fabs(eta)) - period_sinheta*(sizeZ-2)) + delta_y_offset;
 
   return std::make_pair(delta_x,delta_y);
 
@@ -63,8 +64,8 @@ std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifie
 
   std::vector<double> value = m_constmap.at(*pixelId);
 
-  double delta_x_error = value[3];
-  double delta_y_error = value[6];
+  double delta_x_error = value[4];
+  double delta_y_error = value[7];
 
   return std::make_pair(delta_x_error,delta_y_error);
 
@@ -75,11 +76,11 @@ std::pair<double,double> PixelITkClusterErrorData::getDeltaError(const Identifie
 // SET METHODS
 
 void PixelITkClusterErrorData::setDeltaError(const Identifier* pixelId,
-					     double period,
+					     double period_phi, double period_sinheta,
 					     double delta_x_slope, double delta_x_offset, double error_x,
 					     double delta_y_slope, double delta_y_offset, double error_y){
 
-  std::vector<double> linevalues = {period,
+  std::vector<double> linevalues = {period_phi, period_sinheta,
 				    delta_x_slope, delta_x_offset, error_x,
 				    delta_y_slope, delta_y_offset, error_y};
 
@@ -99,7 +100,7 @@ void PixelITkClusterErrorData::print(std::string file) const {
   for(auto& x : m_constmap){
 
     std::vector<double> value = x.second;
-    *outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << std::endl;
+    *outfile << m_pixelID->wafer_hash(x.first) << " " << value[0] << " " << value[1] << " " << value[2] << " " << value[3] << " " << value[4] << " " << value[5] << " " << value[6] << " " << value[7] << std::endl;
 
   }
 
@@ -118,11 +119,12 @@ void PixelITkClusterErrorData::load(std::string file){
        
     //
     // Data in the file is stored in the following columns:
-    // waferID_hash : period : delta_x_slope : delta_x_offset : delta_error_x : delta_y_slope : delta_y_offset : delta_error_y
+    // waferID_hash : period_phi : period_sinheta : delta_x_slope : delta_x_offset : delta_error_x : delta_y_slope : delta_y_offset : delta_error_y
     //
 
     int waferID_hash_int;
-    double period;
+    double period_phi;
+    double period_sinheta;
     double delta_x_slope;
     double delta_x_offset;
     double delta_error_x;
@@ -132,12 +134,12 @@ void PixelITkClusterErrorData::load(std::string file){
 
     while(!infile.eof()){
 
-      infile >> waferID_hash_int >> period >> delta_x_slope >> delta_x_offset >> delta_error_x >> delta_y_slope >> delta_y_offset >> delta_error_y;
+      infile >> waferID_hash_int >> period_phi >> period_sinheta >> delta_x_slope >> delta_x_offset >> delta_error_x >> delta_y_slope >> delta_y_offset >> delta_error_y;
         
       IdentifierHash waferID_hash(waferID_hash_int);
       Identifier pixelId = m_pixelID->wafer_id(waferID_hash);
       setDeltaError(&pixelId,
-		    period,
+		    period_phi, period_sinheta,
 		    delta_x_slope, delta_x_offset, delta_error_x,
 		    delta_y_slope, delta_y_offset, delta_error_y);
 

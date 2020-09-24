@@ -29,9 +29,11 @@ if geoFlags.isSLHC() and not hasattr(condSeq, 'PixelITkOfflineCalibCondAlg'):
     from AthenaCommon.GlobalFlags import globalflags
     CoolDataBaseFolder = '/PIXEL/ITkClusterError'
     DetDescrVersion = globalflags.DetDescrVersion()
-    if(DetDescrVersion.startswith('ATLAS-P2-ITK-22')):
-        ctag = 'PixelITkError_v3'
+
+    if(DetDescrVersion.startswith('ATLAS-P2-ITK-17') or DetDescrVersion.startswith('ATLAS-P2-ITK-22')):
+        ctag = 'PixelITkError_v3_' + DetDescrVersion
     else:
-        print "Undefined ITkClusterErrorData tag"
+        ctag = 'PixelITkError_v4_' + DetDescrVersion
+
     cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
     conddb.addFolderSplitMC('PIXEL',cfoldertag,cfoldertag)

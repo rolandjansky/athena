@@ -91,14 +91,6 @@ StatusCode InDet::LayerProviderXML::initialize()
       ATH_MSG_INFO("SurfaceCollection with " << m_surfcoll->size() << " elements successfully registered in StoreGate");
    }
 
-  // create root file for simple vizualisation of modules positions
-  createMainFileRZ("InDetLayoutRZ");
-  std::string filename = "InDet";
-  //if(m_doSCT || m_startLayer>0)
-  filename += m_identification;
-  filename += "LayoutRZ";
-  openDumpFileRZ(filename);
-
   return StatusCode::SUCCESS;
 }
 
@@ -195,6 +187,8 @@ void InDet::LayerProviderXML::createPixelBarrel(std::vector< const Trk::Layer* >
   bool isPixel = true;
   unsigned int nTemplates = m_pixBarrelBuilder->nbOfLayers();
 
+  std::vector< const Trk::Layer* > detectionLayer = {};
+  
   for(unsigned int itmp=0;itmp<nTemplates;itmp++) {
     Trk::CylinderLayer* layer = m_pixBarrelBuilder->createActiveLayer(itmp,m_startLayer,m_endLayer);
     
@@ -215,8 +209,11 @@ void InDet::LayerProviderXML::createPixelBarrel(std::vector< const Trk::Layer* >
     }
 
     // Save layer in vector
-    cylinderLayers.push_back(layer);
+    detectionLayer.push_back(layer);
   }
+  
+  // here I want to create the passive layers as well
+  cylinderLayers = m_pixBarrelBuilder->createPassiveLayers(detectionLayer);
 
 //   FOR DEBUGGING
 //   for (unsigned int ll = 0; ll< cylinderLayers.size(); ll++) {
