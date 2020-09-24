@@ -196,24 +196,21 @@ namespace InDet{
       if( listSecondTracks.size()==2 ){         // If there are 2 only tracks
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Start Ntr=2 vertex check"<<endmsg;
         int Charge=0;
-	uint8_t BLshared=0;
-	uint8_t PXshared=0;
-        for (auto i_ntrk : listSecondTracks) {
-            Charge +=  (int) i_ntrk->charge();
-            uint8_t retval=0;
-            if( i_ntrk->summaryValue( retval, xAOD::numberOfPixelSharedHits)  )  PXshared  += retval;
-            if( i_ntrk->summaryValue( retval, xAOD::numberOfInnermostPixelLayerSharedHits) )  BLshared  += retval;
-        }
+        for (auto i_ntrk : listSecondTracks) { Charge +=  (int) i_ntrk->charge();}
 	vrtVrtDist(primVrt, fitVertex, errorMatrix, Signif3D);
-        if(m_useVertexCleaning){
-          if(!Check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return 0;
-          if(m_fillHist){
-            double xDif=fitVertex.x()-m_xLayerB, yDif=fitVertex.y()-m_yLayerB ; 
-            double Dist2D=std::sqrt(xDif*xDif+yDif*yDif);
-            if     (Dist2D < m_rLayerB-vrtRadiusError(fitVertex,errorMatrix))  m_hb_blshared->Fill((float)BLshared,m_w_1);
-            else if(Dist2D > m_rLayerB+vrtRadiusError(fitVertex,errorMatrix))  m_hb_pxshared->Fill((float)PXshared,m_w_1);
-         }
-        } //end 2tr vertex cleaning code
+// Check track pixel hit patterns vs vertex position.
+        if(m_useVertexCleaningPix){
+          if(!check2TrVertexInPixel(listSecondTracks[0],listSecondTracks[1],fitVertex,errorMatrix)) return 0;
+        }
+// Check track first measured points vs vertex position.
+        if(m_useVertexCleaningFMP){
+          float hitR1  = listSecondTracks[0]->radiusOfFirstHit();
+          float hitR2  = listSecondTracks[1]->radiusOfFirstHit();
+          float vrErr  = vrtRadiusError(fitVertex, errorMatrix);
+          if(std::abs(hitR1-hitR2)>25.) return 0;                                 // Hits in different pixel layers
+          if( fitVertex.perp()-std::min(hitR1,hitR2) > 2.*vrErr) return 0; // Vertex is behind hit in pixel 
+        }
+//--------
 //
         if(m_fillHist){ if(Charge){m_hb_totmass2T1->Fill(Momentum.M(),m_w_1);}else{m_hb_totmass2T0->Fill(Momentum.M(),m_w_1);} }
         if( !Charge && std::abs(Momentum.M()-m_massK0)<15. ) {       // Final rejection of K0
@@ -522,10 +519,11 @@ namespace InDet{
                  if(getIdHF(selectedTracks[i]))m_curTup->idMC[i]=2;
 	         if(getMCPileup(selectedTracks[i]))m_curTup->idMC[i]=3;
 		 m_curTup->wgtB[i]=trkScore[i][0]; m_curTup->wgtL[i]=trkScore[i][1]; m_curTup->wgtG[i]=trkScore[i][2]; 
-		 m_curTup->Sig3D[i]=TrkSig3D[i];
+		 m_curTup->sig3D[i]=TrkSig3D[i];
 		 m_curTup->chg[i]=tmpPerigee[4]<0. ? 1: -1;
                  m_curTup->ibl[i]=hitIBL[i];
 		 m_curTup->bl[i]=hitBL[i];
+                 m_curTup->fhitR[i]=selectedTracks[i]->radiusOfFirstHit();
 		 TLorentzVector TLV=selectedTracks[i]->p4();
 		 m_curTup->pTvsJet[i]=TLV.Perp(jetDir.Vect());
 		 TLorentzVector normJ;  normJ.SetPtEtaPhiM(1.,jetDir.Eta(),jetDir.Phi(),0.);
@@ -569,7 +567,7 @@ namespace InDet{
              }
              m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z(),*state);
              tmpVrt.i=i; tmpVrt.j=j;
-             m_fitSvc->setRobustness(4, *state);
+             m_fitSvc->setRobustness(6, *state);
              sc=VKalVrtFitBase(tracksForFit,tmpVrt.fitVertex, tmpVrt.momentum, Charge,
                                tmpVrt.errorMatrix, tmpVrt.chi2PerTrk, tmpVrt.trkAtVrt, tmpVrt.chi2,
                                *state, true);
@@ -578,13 +576,15 @@ namespace InDet{
 	     if(std::abs(tmpVrt.fitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
              Dist2D=tmpVrt.fitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
+
+	     double vrErr  = vrtRadiusError(tmpVrt.fitVertex, tmpVrt.errorMatrix);
+             if(vrErr>1.5&&getVrtScore(i,j,trkScore) < 4.*m_cutBVrtScore) continue;
+
              double mass_PiPi =  tmpVrt.momentum.M();  
 	     if(mass_PiPi > m_Vrt2TrMassLimit)      continue;  // can't be from B decay
              vrtVrtDist(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Signif3D);
 	     tmpVrt.signif3D=Signif3D;
              vrtVrtDist2D(primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, tmpVrt.signif2D);
-//This selection should not be used in the multi-vertex with primary mode
-	     if(!m_multiWithPrimary)if(getVrtScore(i,j,trkScore)*(1.-TMath::Prob(Signif3D*Signif3D,3)) < m_cutBVrtScore) continue;
 //---
              TVector3 SVmPV(tmpVrt.fitVertex.x()-primVrt.x(),tmpVrt.fitVertex.y()-primVrt.y(),tmpVrt.fitVertex.z()-primVrt.z());
              tmpVrt.dRSVPV=jetDir.DeltaR(TLorentzVector(SVmPV, 1.)); //DeltaR SV-PV vs jet
@@ -595,8 +595,15 @@ namespace InDet{
              if((!m_multiWithPrimary) &&(!m_getNegativeTail) && (!m_getNegativeTag) &&  jetVrtDir<0. )  continue; /* secondary vertex behind primary*/
 	     if(vPos<-100.) continue;                                              /* Secondary vertex is too far behind primary*/
 //
-// Check pixel hits vs vertex positions.
-             if(m_useVertexCleaning && !Check2TrVertexInPixel(selectedTracks[i],selectedTracks[j],tmpVrt.fitVertex,tmpVrt.errorMatrix)) continue;
+// Check track pixel hit patterns vs vertex position.
+             if(m_useVertexCleaningPix && !check2TrVertexInPixel(selectedTracks[i],selectedTracks[j],tmpVrt.fitVertex,tmpVrt.errorMatrix)) continue;
+// Check track first measured points vs vertex position.
+             if(m_useVertexCleaningFMP){
+               float ihitR  = selectedTracks[i]->radiusOfFirstHit();
+               float jhitR  = selectedTracks[j]->radiusOfFirstHit();
+               if(std::abs(ihitR-jhitR)>25.) continue;                            // Hits in different pixel layers
+               if( tmpVrt.fitVertex.perp()-std::min(ihitR,jhitR) > 2.*vrErr) continue; // Vertex is behind hit in pixel 
+             }
 //--------
 //
              double signif3Dproj=vrtVrtDist( primVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, jetDir);
@@ -776,7 +783,7 @@ namespace InDet{
 
 
    template <class Track>
-   bool InDetVKalVxInJetTool::Check2TrVertexInPixel( const Track* p1, const Track* p2,
+   bool InDetVKalVxInJetTool::check2TrVertexInPixel( const Track* p1, const Track* p2,
                                               Amg::Vector3D &fitVertex, std::vector<double> & vrtErr)
    const
    {

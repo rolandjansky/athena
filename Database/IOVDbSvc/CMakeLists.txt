@@ -96,6 +96,7 @@ atlas_add_test( ReadFromFileMetaData_test
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    AthenaKernel IOVDbDataModel AthenaPoolUtilities CoraCool CxxUtils TestTools
+   IOVDbMetaDataToolsLib
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( IOVDbFolder_test

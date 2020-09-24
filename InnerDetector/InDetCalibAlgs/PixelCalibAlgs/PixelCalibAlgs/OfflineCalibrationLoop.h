@@ -19,7 +19,7 @@ class PixelChargeInterpolationValidation;
 
 class OfflineCalibrationLoop;
 
-class ATLAS_NOT_THREAD_SAFE OfflineCalibrationLoop: public PixelNtupleTracks { // Thread unsafe PixelChargeInterpolationCalibration class is used.
+class OfflineCalibrationLoop: public PixelNtupleTracks {
 
 public :
 	// Modified stuff

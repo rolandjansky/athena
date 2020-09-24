@@ -381,11 +381,11 @@ class _TileInfoConfigurator( TileInfoLoader ):
             dbConnStr = 'DCS_OFL'
             from IOVDbSvc.CondDB import conddb
             if useHV:
-                conddb.addFolder(dbConnStr, "/TILE/DCS/HV", className = 'CondAttrListCollection')
+                conddb.addFolder(dbConnStr, "/TILE/DCS/HV<key>/TILE/DCS/HV</key>", className = 'CondAttrListCollection')
             if useHVSET:
-                conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET", className = 'CondAttrListCollection')
+                conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET<key>/TILE/DCS/HVSET</key>", className = 'CondAttrListCollection')
             if useSTATUS:
-                conddb.addFolder(dbConnStr, "/TILE/DCS/STATES", className = 'CondAttrListCollection')
+                conddb.addFolder(dbConnStr, "/TILE/DCS/STATES<key>/TILE/DCS/STATES</key>", className = 'CondAttrListCollection')
 
             from TileConditions.TileConditionsConf import TileDCSCondAlg
             condSequence += TileDCSCondAlg(name = dcsCondAlg,

@@ -13,38 +13,34 @@ namespace Monitored {
     VecHistogramFiller1D(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
       : HistogramFiller1D(definition, provider) {}
 
-    virtual VecHistogramFiller1D* clone() const override {
-      return new VecHistogramFiller1D( *this );
-    }
 
-    virtual unsigned fill() const override {
-      if (m_monVariables.size() != 1) { return 0; }
-      const IMonitoredVariable& var = m_monVariables[0].get();
+    virtual unsigned fill(const HistogramFiller::VariablesPack& vars) const override {
+      if ( ATH_UNLIKELY( vars.var[0] == nullptr or vars.size() != 0 ) ) { return 0; }
 
       std::function<bool(size_t)> cutMaskAccessor;
-      if (m_monCutMask) {
+      if (vars.cut) {
         // handling of the cutmask
-        auto cutMaskValuePair = getCutMaskFunc();
+        auto cutMaskValuePair = getCutMaskFunc(vars.cut);
         if (cutMaskValuePair.first == 0) { return 0; }
-        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != var.size())) {
+        if (ATH_UNLIKELY(cutMaskValuePair.first > 1 && cutMaskValuePair.first != vars.var[0]->size())) {
           MsgStream log(Athena::getMessageSvc(), "VecHistogramFiller1D");
           log << MSG::ERROR << "CutMask does not match the size of plotted variable: "
-              << cutMaskValuePair.first << " " << var.size() << endmsg;
+              << cutMaskValuePair.first << " " << vars.var[0]->size() << endmsg;
         }
         cutMaskAccessor = cutMaskValuePair.second;
       }
 
       auto histogram = this->histogram<TH1>();
       const unsigned offset = m_histDef->kVecUO ? 0 : 1;
-      for (unsigned i = 0; i < var.size(); ++i) {
+      for (unsigned i = 0; i < vars.var[0]->size(); ++i) {
         if (cutMaskAccessor && cutMaskAccessor(i)) {
-          const double value = var.get(i);
+          const double value = vars.var[0]->get(i);
           histogram->AddBinContent(i+offset, value);
           histogram->SetEntries(histogram->GetEntries() + value);
         }
       }
 
-      return var.size();
+      return vars.var[0]->size();
     }
   };
 }

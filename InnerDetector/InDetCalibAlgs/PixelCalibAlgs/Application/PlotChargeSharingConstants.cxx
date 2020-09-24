@@ -14,7 +14,7 @@
 
 using namespace PixelCalib;
 
-int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe PixelChargeInterpolationPlot class is used.
+int main (int argc, char *argv[]){
 
 	TApplication myapp("application", 0 , 0);
 

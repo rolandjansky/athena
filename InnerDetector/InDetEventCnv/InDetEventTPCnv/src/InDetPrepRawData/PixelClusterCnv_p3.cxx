@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -158,11 +158,11 @@ void PixelClusterCnv_p3::transToPers( const InDet::PixelCluster *transObj, InDet
   // Save offset to wafer id for the cluster id
   Identifier waferId =  m_pixId2->wafer_id(clusId); // remove the eta/phi of channel id
   *pit = static_cast<InDet::PixelCluster_p3::rdo_diff_type>( m_pixId2->calc_offset(waferId, clusId) );
-  pit++;
+  ++pit;
   
   for (const Identifier& id : transObj->rdoList()) {
     *pit = static_cast<InDet::PixelCluster_p3::rdo_diff_type>( m_pixId2->calc_offset(clusId, id) );
-    pit++;
+    ++pit;
   }
 
   // Setting of cluster properties:

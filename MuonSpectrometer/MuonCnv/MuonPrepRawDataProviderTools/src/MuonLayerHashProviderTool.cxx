@@ -20,12 +20,6 @@ namespace Muon {
 
   }
 
-  MuonLayerHashProviderTool::~MuonLayerHashProviderTool() { }
-
-  StatusCode MuonLayerHashProviderTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode MuonLayerHashProviderTool::initialize() {
 
     ATH_CHECK(m_idHelperSvc.retrieve());

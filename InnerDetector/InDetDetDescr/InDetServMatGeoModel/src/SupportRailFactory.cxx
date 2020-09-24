@@ -32,7 +32,7 @@
 #include <math.h>
 
 
-SupportRailFactory::SupportRailFactory(const InDetDD::AthenaComps * athenaComps, 
+SupportRailFactory::SupportRailFactory(InDetDD::AthenaComps * athenaComps, 
 				       InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

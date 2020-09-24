@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/RpcRawDataProvider.h"
-#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
+
 #include <algorithm>
 // --------------------------------------------------------------------
 // Constructor
@@ -11,20 +11,10 @@
 Muon::RpcRawDataProvider::RpcRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::RPC_RawDataProviderToolMT/RpcRawDataProviderTool", this),
   m_regionSelector  ("RegSelSvc",name) 
 {
-  declareProperty ("ProviderTool", m_rawDataTool);
   declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
-
-// Destructor
-
-Muon::RpcRawDataProvider::~RpcRawDataProvider(){
-}
-
-// --------------------------------------------------------------------
-// Initialize
 
 StatusCode Muon::RpcRawDataProvider::initialize() {
   ATH_MSG_INFO( "RpcRawDataProvider::initialize"  );
@@ -43,12 +33,6 @@ StatusCode Muon::RpcRawDataProvider::initialize() {
   
   return StatusCode::SUCCESS;
 }
-
-StatusCode Muon::RpcRawDataProvider::finalize() {
-  return StatusCode::SUCCESS;
-}
-// --------------------------------------------------------------------
-// Execute
 
 StatusCode Muon::RpcRawDataProvider::execute() {
   ATH_MSG_VERBOSE( "RpcRawDataProvider::execute"  );

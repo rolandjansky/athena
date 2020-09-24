@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -29,11 +29,10 @@ PixelClusterCnv_p2::createPixelCluster (const InDet::PixelCluster_p2* persObj,
   Identifier id (persObj->m_clusId);
   Identifier::value_type id32 = id.get_compact();
   std::vector<Identifier>::iterator tit = rdoList.begin();
-  for(std::vector<InDet::PixelCluster_p2::rdo_diff_type>::const_iterator it = persObj->m_rdoList.begin(); 
-                                                            it != persObj->m_rdoList.end();it++)
+  for (const InDet::PixelCluster_p2::rdo_diff_type& rdo : persObj->m_rdoList)
   {
-    *tit = Identifier((Identifier::value_type) *it + id32);
-    tit++;
+    *tit = Identifier((Identifier::value_type) rdo + id32);
+    ++tit;
   }
 
   InDet::SiWidth width;
@@ -99,10 +98,9 @@ void PixelClusterCnv_p2::transToPers( const InDet::PixelCluster *transObj, InDet
   
   
   std::vector<InDet::PixelCluster_p2::rdo_diff_type>::iterator pit = persObj->m_rdoList.begin();
-  for (std::vector<Identifier>::const_iterator it=transObj->rdoList().begin(); it != transObj->rdoList().end(); it++) {
-  
-   *pit = (InDet::PixelCluster_p2::rdo_diff_type)  (it->get_compact()) - persObj->m_clusId  ;
-    pit++;
+  for (const Identifier& id : transObj->rdoList()) {
+   *pit = (InDet::PixelCluster_p2::rdo_diff_type)  (id.get_compact()) - persObj->m_clusId  ;
+   ++pit;
   }
   
 }

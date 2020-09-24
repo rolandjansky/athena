@@ -35,7 +35,7 @@
 
 #include <sstream>
 
-SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					     InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

@@ -7,21 +7,11 @@ import sys
 from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-from PixelDigitization.PixelDigitizationConfigNew import (
-    ChargeCollProbSvcCfg, EnergyDepositionToolCfg, SensorSimPlanarToolCfg, SensorSim3DToolCfg,
-    BarrelRD53SimToolCfg, EndcapRD53SimToolCfg, BarrelFEI4SimToolCfg, DBMFEI4SimToolCfg,
-    BarrelFEI3SimToolCfg, EndcapFEI3SimToolCfg, PixelDigitizationBasicToolCfg, PixelDigitizationToolCfg,
-    PixelGeantinoTruthDigitizationToolCfg, PixelDigitizationHSToolCfg, PixelDigitizationPUToolCfg,
-    PixelDigitizationSplitNoMergePUToolCfg, PixelDigitizationOverlayToolCfg, PixelRangeCfg,
-    PixelDigitizationHSCfg, PixelDigitizationPUCfg, PixelDigitizationOverlayCfg,
-)
+from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationHSCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)

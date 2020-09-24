@@ -32,7 +32,7 @@
 #define SKIPCYLINDER 3
 //#define NUMBEROFCYLINDER 7
 
-PixelServMatFactoryDC3::PixelServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps, 
+PixelServMatFactoryDC3::PixelServMatFactoryDC3(InDetDD::AthenaComps * athenaComps, 
 					       InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

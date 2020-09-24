@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAINTERPROCESS_PROCESSGROUP_H
@@ -7,6 +7,7 @@
 
 #include "AthenaInterprocess/Process.h"
 #include "AthenaInterprocess/IdentifiedSharedQueue.h"
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 
 namespace AthenaInterprocess {
@@ -29,10 +30,10 @@ class ProcessGroup {
 
    virtual ~ProcessGroup();
 
-   pid_t launchProcess();  // Add one new process to the group
+   pid_t launchProcess ATLAS_NOT_THREAD_SAFE ();  // Add one new process to the group
 
-   int map_async(const IMessageDecoder* func, const ScheduledWork* args, pid_t pid=0); // If pid=0 map on the entire group
-   int wait(int options = 0); 
+   int map_async ATLAS_NOT_THREAD_SAFE (const IMessageDecoder* func, const ScheduledWork* args, pid_t pid=0); // If pid=0 map on the entire group
+   int wait ATLAS_NOT_THREAD_SAFE (int options = 0); 
    pid_t wait_once(bool& flag); // flag=true if process succeeded, flag=false otherwise
    ProcessResult* pullOneResult(); // The caller takes ownership on the result 
 
@@ -41,7 +42,7 @@ class ProcessGroup {
    const std::vector<ProcessStatus>& getStatuses() const;
 
  private:
-   bool create();
+   bool create ATLAS_NOT_THREAD_SAFE ();
 
    std::vector<Process> m_processes;
    std::vector<ProcessStatus> m_statuses;

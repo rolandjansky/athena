@@ -228,8 +228,7 @@ if DetFlags.pixel_on():
                 PixeldEdxAlg.CalibrationFile="dtpar_signed_234.txt"
             else:
                 PixeldEdxAlg.CalibrationFile="mcpar_signed_234.txt"
-
-
+ 
 #
 # --- Load SCT Conditions Services
 #

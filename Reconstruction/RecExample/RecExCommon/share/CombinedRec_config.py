@@ -29,7 +29,7 @@ pdr.flag_domain('CaloExtensionBuilder')
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
     try:        
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-        CaloExtensionBuilder("NoCut", 500.) #Arguments are cutLevel and minPt for track selection
+        CaloExtensionBuilder() 
     except Exception:
         treatException("Cannot include CaloExtensionBuilder !")
 

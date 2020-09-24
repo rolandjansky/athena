@@ -13,7 +13,7 @@
 class TRTParameters;
 
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersOfStrawPlanes // Thread unsafe TRTParameters class is used.
+class TRTParametersOfStrawPlanes
 {
   friend class TRTConstructionOfStrawPlanes;
 
@@ -21,14 +21,14 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfStrawPlanes // Thread unsafe TRTParam
     TRTParametersOfStrawPlanes();
     ~TRTParametersOfStrawPlanes();
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-    bool msgLevel (MSG::Level lvl) const   { return m_msg.get().level() <= lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
+    bool msgLevel (MSG::Level lvl)   { return m_msg.get().level() <= lvl; }
 
   private:
     TRTParametersOfStrawPlanes (const TRTParametersOfStrawPlanes&); 
     TRTParametersOfStrawPlanes& operator= (const TRTParametersOfStrawPlanes&); 
     void DefineParameters();
-    void PrintParameters() const;
+    void PrintParameters(MsgStream& msg) const;
 
     double m_innerRadiusOfStrawPlanesAB;
     double m_innerRadiusOfStrawPlaneC;
@@ -72,9 +72,9 @@ class ATLAS_NOT_THREAD_SAFE TRTParametersOfStrawPlanes // Thread unsafe TRTParam
     double m_lengthOfWiresAB;
     double m_lengthOfWireC;
 
-    TRTParameters* m_pParameters;
+    const TRTParameters* m_pParameters;
 
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+    Athena::MsgStreamMember m_msg;
 
 };
 

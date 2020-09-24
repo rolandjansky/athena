@@ -84,7 +84,7 @@ namespace InDetDD {
   }
 
   ServiceVolumeMakerMgr::ServiceVolumeMakerMgr(IRDBRecordset_ptr table, const ServiceVolumeSchema& schema,
-                                               const InDetDD::AthenaComps* athenaComps)
+                                               InDetDD::AthenaComps* athenaComps)
     : m_table(table),
     m_schema(schema),
     m_athenaComps(athenaComps)
@@ -218,7 +218,7 @@ namespace InDetDD {
   }
 
   std::vector<double>
-  ServiceVolumeMakerMgr::readLayerShift ATLAS_NOT_THREAD_SAFE () const { // Thread unsafe IRDBAccessSvc* InDetDD::AthenaComps::rdbAccessSvc() const is used.
+  ServiceVolumeMakerMgr::readLayerShift() const {
     std::vector<double> layerShift;
 
     IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();
@@ -243,7 +243,7 @@ namespace InDetDD {
 
   ServiceVolumeMaker::ServiceVolumeMaker(const std::string& label,
                                          IRDBRecordset_ptr table, const ServiceVolumeSchema& schema,
-                                         const InDetDD::AthenaComps* athenaComps)
+                                         InDetDD::AthenaComps* athenaComps)
     : m_label(label) {
     m_mgr = new ServiceVolumeMakerMgr(table, schema, athenaComps);
     m_layerShift = m_mgr->readLayerShift();

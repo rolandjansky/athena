@@ -25,7 +25,8 @@ args = parser.parse_args()
 defaultTestFlags(ConfigFlags, args)
 overlayMetadataCheck(ConfigFlags)
 postprocessAndLockFlags(ConfigFlags, args)
-
+ConfigFlags.initAll()
+ConfigFlags.dump()
 # Construct our accumulator to run
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))

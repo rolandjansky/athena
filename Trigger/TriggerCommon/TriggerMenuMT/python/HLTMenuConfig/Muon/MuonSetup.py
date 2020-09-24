@@ -575,18 +575,6 @@ def muEFSARecoSequence( RoIs, name ):
   if not conddb.folderRequested( "/MDT/TUBE_STATUS/DEAD_TUBE" ):
     EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
 
-  if name != 'FS':
-    # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
-    EFMuonViewDataVerifier.DataObjects += [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                           ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' )]
-    if MuonGeometryFlags.hasCSC():
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                             ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
-                                             ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements')]
-
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
   from AthenaCommon.AlgSequence import AthSequencer
   from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
@@ -699,9 +687,6 @@ def muEFCBRecoSequence( RoIs, name ):
   from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    ViewVerifyMS.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
   if not conddb.folderRequested( "/PIXEL/PixdEdx" ):
     ViewVerifyMS.DataObjects += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
 
@@ -952,13 +937,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
 
   # Make sure required objects are still available at whole-event level
-  from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-    viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                               ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
-
   if not globalflags.InputFormat.is_bytestream():
     viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]

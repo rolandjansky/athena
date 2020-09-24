@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -292,7 +292,7 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
   std::map<HepMcParticleLink, unsigned int> true_hits_map_trt;
   
   // get TrigSiSpacePoints
-  std::vector <const TrigSiSpacePoint*>* p_sp_vec = p_trk->siSpacePoints();
+  const std::vector <const TrigSiSpacePoint*>* p_sp_vec = p_trk->siSpacePoints();
   
   // check TrigSiSpacePoints are there and if so carry on
   if (p_sp_vec) {
@@ -300,8 +300,8 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TrackTruth() : TrigInDetTrack has " 
            << p_sp_vec->size() << " SiSpacePoints" << endmsg;
 
-    std::vector<const TrigSiSpacePoint*>::iterator spIter = p_sp_vec->begin();
-    std::vector<const TrigSiSpacePoint*>::iterator lastSP = p_sp_vec->end();
+    std::vector<const TrigSiSpacePoint*>::const_iterator spIter = p_sp_vec->begin();
+    std::vector<const TrigSiSpacePoint*>::const_iterator lastSP = p_sp_vec->end();
     
     // make local vector to contain GenParticles corresponding to space point
     std::vector<HepMcParticleLink>* p_gp_vec = new std::vector<HepMcParticleLink>;
@@ -354,15 +354,15 @@ bool TrigInDetTrackTruthMaker::TrackTruth(const TrigInDetTrack* p_trk, TrigInDet
   } // ! if (siSpacePoints exist)
 
   // get TRT_DriftCircles
-  std::vector<const InDet::TRT_DriftCircle*>* p_dc_vec = p_trk->trtDriftCircles();
+  const std::vector<const InDet::TRT_DriftCircle*>* p_dc_vec = p_trk->trtDriftCircles();
   
   // check TRT_DriftCircles are there and if so carry on
   if (p_dc_vec) {
     if (msgLvl(MSG::VERBOSE)) msg() << MSG::VERBOSE << "TrackTruth() : TrigInDetTrack has " 
            << p_dc_vec->size() << " TRT_DriftCircles" << endmsg;
     
-    std::vector<const InDet::TRT_DriftCircle*>::iterator dcIter = p_dc_vec->begin();
-    std::vector<const InDet::TRT_DriftCircle*>::iterator lastSP = p_dc_vec->end();
+    std::vector<const InDet::TRT_DriftCircle*>::const_iterator dcIter = p_dc_vec->begin();
+    std::vector<const InDet::TRT_DriftCircle*>::const_iterator lastSP = p_dc_vec->end();
     
     // make vector to contain GenParticles corresponding to drift circle
     std::vector<HepMcParticleLink>* p_gp_vec = new std::vector<HepMcParticleLink>;

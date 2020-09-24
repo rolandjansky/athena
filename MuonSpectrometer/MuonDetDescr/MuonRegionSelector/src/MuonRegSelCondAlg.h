@@ -11,6 +11,7 @@
 #ifndef MuonRegSelCondAlg_h
 #define MuonRegSelCondAlg_h
 
+#include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -38,23 +39,18 @@ public:
   MuonRegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute (const EventContext& ctx) const override;
+  virtual StatusCode  execute(const EventContext& ctx) const override;
 
-  virtual std::unique_ptr<RegSelSiLUT> createTable( const MuonMDT_CablingMap* cabling ) const = 0;   
+  virtual std::unique_ptr<RegSelSiLUT> createTable( const EventContext& ctx, EventIDRange& id_range ) const = 0;   
 
  private:
 
   std::string m_managerName;
   bool        m_printTable;
  
-  SG::ReadCondHandleKey<MuonMDT_CablingMap> m_cablingKey
-    { this, "Cabling", "MuonMDT_CablingMap", "Key of output MDT cabling map" };
-
   /// Output conditions object
   SG::WriteCondHandleKey<IRegSelLUTCondData> m_tableKey  
     { this, "RegSelLUT", "RegSelLUTCondData", "Region Selector lookup table" };
-
-
 
 };
 

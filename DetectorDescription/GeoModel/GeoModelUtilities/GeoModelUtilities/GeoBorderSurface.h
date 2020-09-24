@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GeoBorderSurface_h
@@ -13,7 +13,7 @@ class GeoOpticalSurface;
 class GeoBorderSurface 
 {
  public:
-  GeoBorderSurface(std::string name,
+  GeoBorderSurface(const std::string& name,
 		   GeoOpticalPhysVol* pv1,
 		   GeoOpticalPhysVol* pv2,
 		   GeoOpticalSurface* opticalSurface);

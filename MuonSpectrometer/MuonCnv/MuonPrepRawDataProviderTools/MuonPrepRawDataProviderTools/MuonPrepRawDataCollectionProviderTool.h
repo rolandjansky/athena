@@ -22,8 +22,6 @@ static const InterfaceID IID_MuonPrepRawDataCollectionProviderTool("Muon::MuonPr
 
 namespace Muon {
 
-  class MuonLayerHashProviderTool;
-
   class MuonPrepRawDataCollectionProviderTool :  public AthAlgTool {
   public:
 
@@ -82,7 +80,7 @@ namespace Muon {
   private:
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<MuonLayerHashProviderTool> m_layerHashProvider; 
+    ToolHandle<MuonLayerHashProviderTool> m_layerHashProvider{this,"MuonLayerHashProviderTool","Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool"}; 
     
     /** storegate keys of PRDs*/
     std::vector< std::string > m_locations;

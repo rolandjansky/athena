@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
@@ -23,7 +23,7 @@ GeoModelExperiment::GeoModelExperiment( GeoPhysVol * physVol )
 GeoModelExperiment::~GeoModelExperiment()  {
   // Unref all temporary volumes
   std::vector<GeoPhysVol*>::iterator it = m_tmpVolumes.begin();
-  for(; it!=m_tmpVolumes.end(); it++) 
+  for(; it!=m_tmpVolumes.end(); ++it) 
     (*it)->unref();
 
   m_physVol->unref();

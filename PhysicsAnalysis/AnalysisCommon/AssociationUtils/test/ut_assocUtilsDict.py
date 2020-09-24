@@ -1,16 +1,12 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # Test the reflex dictionary usage in PyROOT to
 # instantiate and configure the overlap removal tool(s).
 
 import sys
 sys.argv.append('-b')
-
-# Setup libs
-from ROOT import gROOT
-gROOT.Macro('$ROOTCOREDIR/scripts/load_packages.C')
 
 # Import using the PyROOT bindings and reflex dictionary
 from ROOT import ORUtils
@@ -25,11 +21,11 @@ def test_sc(statuscode):
 def test_tool_init(tool_type, verbose=False):
     """Performs simple construction and default initialization of a tool"""
     if verbose:
-        print 'Initializing tool', tool_type.__name__
+        print( 'Initializing tool %s' % tool_type.__name__ )
     tool = tool_type(tool_type.__name__)
     test_sc(tool.initialize())
     if verbose:
-        print '  => Success'
+        print( '  => Success' )
     return tool
 
 # Configure the new master tool

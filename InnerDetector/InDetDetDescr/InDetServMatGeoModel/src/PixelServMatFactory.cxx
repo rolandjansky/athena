@@ -30,7 +30,7 @@
 #include <iostream>
 
 
-PixelServMatFactory::PixelServMatFactory(const InDetDD::AthenaComps * athenaComps)
+PixelServMatFactory::PixelServMatFactory(InDetDD::AthenaComps * athenaComps)
   : InDetDD::SubDetectorFactoryBase(athenaComps)
 {}
 

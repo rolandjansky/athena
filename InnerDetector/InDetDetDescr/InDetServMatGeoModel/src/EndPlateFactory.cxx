@@ -30,7 +30,7 @@
 #include <iostream>
 
 
-EndPlateFactory::EndPlateFactory(const InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
+EndPlateFactory::EndPlateFactory(InDetDD::AthenaComps * athenaComps, InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  
 }
