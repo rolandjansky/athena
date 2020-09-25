@@ -38,20 +38,18 @@ void SCT_InducedChargedModel::Init(float vdepl, float vbias) {
   }
   
 //--------------------------------------------------------
-  if (m_coutLevel >=0) {
-    ATH_MSG_INFO(" EfieldModel  0(uniform E), 1(Flat Diode Model), 2 (FEM solusions)\t\t"<< m_EfieldModel );
-    ATH_MSG_INFO(" DepletionVoltage_VD\t"<< m_VD <<" V");
-    ATH_MSG_INFO(" BiasVoltage_VB     \t"<< m_VB  <<" V");
-    ATH_MSG_INFO(" MagneticField_B    \t"<< m_B  <<" Tesla"); 
-    ATH_MSG_INFO(" Temperature_T      \t"<< m_T  <<" K");
-    ATH_MSG_INFO(" TransportTimeStep  \t"<< m_transportTimeStep <<" ns");
-    ATH_MSG_INFO(" TransportTimeMax\t"<< m_transportTimeMax <<" ns");
-    ATH_MSG_INFO(" BulkDepth\t\t"<< m_bulk_depth << " cm");
-    ATH_MSG_INFO(" DepletionDepth\t\t"<< m_depletion_depth << " cm");
-    ATH_MSG_INFO(" StripPitch\t\t"<< m_strip_pitch << " cm");
-    ATH_MSG_INFO(" CoutLevel\t\t"<< m_coutLevel );
-    ATH_MSG_INFO("--- Induced Charged Model Paramter (End) ---------");  
-  }
+
+  ATH_MSG_INFO(" EfieldModel  0(uniform E), 1(Flat Diode Model), 2 (FEM solusions)\t\t"<< m_EfieldModel );
+  ATH_MSG_INFO(" DepletionVoltage_VD\t"<< m_VD <<" V");
+  ATH_MSG_INFO(" BiasVoltage_VB     \t"<< m_VB  <<" V");
+  ATH_MSG_INFO(" MagneticField_B    \t"<< m_B  <<" Tesla"); 
+  ATH_MSG_INFO(" Temperature_T      \t"<< m_T  <<" K");
+  ATH_MSG_INFO(" TransportTimeStep  \t"<< m_transportTimeStep <<" ns");
+  ATH_MSG_INFO(" TransportTimeMax\t"<< m_transportTimeMax <<" ns");
+  ATH_MSG_INFO(" BulkDepth\t\t"<< m_bulk_depth << " cm");
+  ATH_MSG_INFO(" DepletionDepth\t\t"<< m_depletion_depth << " cm");
+  ATH_MSG_INFO(" StripPitch\t\t"<< m_strip_pitch << " cm");
+  ATH_MSG_INFO("--- Induced Charged Model Paramter (End) ---------");  
   
   return;
 }
@@ -215,6 +213,7 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
         y = m_y_origin_min;
         isInBulk = false;
      }
+
 //   get induced current by subtracting induced charges
      for (int istrip = -2 ; istrip < 3 ; istrip++) {
         double qnew = -induced( istrip, x, y);
@@ -375,12 +374,10 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
 //---------- case for flat diode model ------------------------------
    if(m_EfieldModel==1) {       
        if(m_VB > abs(m_VD)) { 
-          //Ey = (m_VB+m_VD)/m_depletion_depth 
           Ey = (m_VB+m_VD)/m_bulk_depth 
                 - 2.*m_VD*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
        } else {
           if ( m_bulk_depth - y < m_depletion_depth && m_depletion_depth >0.) {
-             //double Emax = 2.* m_depletion_depth * m_VD /
              double Emax = 2.* m_depletion_depth * abs(m_VD) /
                         (m_bulk_depth*m_bulk_depth);
              Ey = Emax*(1-(m_bulk_depth-y)/m_depletion_depth);

@@ -57,7 +57,6 @@ class SCT_InducedChargedModel{
    double m_transportTimeMax = 50.0;     // maximun tracing time [nsec]
    double m_x0;
    double m_y0;
-   int    m_coutLevel = 1 ;
 
 //------parameters mostly fixed but can be changed externally  ------------
    double m_bulk_depth =  0.0285 ; // in [cm]
