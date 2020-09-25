@@ -268,6 +268,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
 
   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
   PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
-  #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements 
-  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
+  #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
+  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=False
+  PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # second switch combined with first implies Muon topoclusters are linked to neutral Flow Elements
   topSequence += PFMuonFlowElementAssocAlg
