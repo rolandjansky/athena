@@ -989,7 +989,7 @@ StatusCode MuFastSteering::findMuonSignature(const std::vector<const TrigRoiDesc
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer          idtracks,
+StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContainer&         idtracks,
 					       const std::vector<const TrigRoiDescriptor*> roids,
 					       const std::vector<const LVL1::RecMuonRoI*>  muonRoIs,
 					       DataVector<xAOD::L2CombinedMuon>&           outputCBs,
@@ -1036,7 +1036,9 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
     else  ATH_MSG_DEBUG("IO TEST: xAOD::TrackParticleContainer has " << (idtracks).size() << " tracks --> Start inside-out mode!");
 
     std::vector<TrigL2MuonSA::TrackPattern> trackPatterns;
+    int idtrack_idx = -1;
     for (auto idtrack : idtracks) {
+      idtrack_idx++;
       ATH_MSG_DEBUG("IO TEST: FTF track key:" << m_FTFtrackKey.key() << " pt = " << idtrack->pt()/1000 << " GeV");
       ATH_MSG_DEBUG("IO TEST: FTF track key:" << m_FTFtrackKey.key() << " eta/phi = " << idtrack->eta() << "/" << idtrack->phi());
 
@@ -1148,16 +1150,18 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	    		m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
 	    		m_stgcHits, m_mmHits,
 	    		trackPatterns.back(), outputSAs);
-	    float cbpt = (idtrack->charge() > 0) ? idtrack->pt() : -1.*idtrack->pt();
 	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
 	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(-9);
+	    muonCB->setStrategy(0);
 	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(cbpt);
+	    muonCB->setPt(idtrack->pt());
 	    muonCB->setEta(idtrack->eta());
 	    muonCB->setPhi(idtrack->phi());
+	    muonCB->setCharge(idtrack->charge());
 	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
 	    muonCB->setMuSATrackLink(muonSAEL);
+	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
+	    muonCB->setIdTrackLink(idtrkEL);
 	    outputCBs.push_back(muonCB);
 	  }
 	  continue;
@@ -1244,16 +1248,18 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 	    		m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
 	    		m_stgcHits, m_mmHits,
 	    		trackPatterns.back(), outputSAs);
-	    float cbpt = (idtrack->charge() > 0) ? idtrack->pt() : -1.*idtrack->pt();
 	    xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
 	    muonCB->makePrivateStore();
-	    muonCB->setStrategy(-9);
+	    muonCB->setStrategy(0);
 	    muonCB->setErrorFlag(-9);
-	    muonCB->setPt(cbpt);
+	    muonCB->setPt(idtrack->pt());
 	    muonCB->setEta(idtrack->eta());
 	    muonCB->setPhi(idtrack->phi());
+	    muonCB->setCharge(idtrack->charge());
 	    ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
 	    muonCB->setMuSATrackLink(muonSAEL);
+	    ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
+	    muonCB->setIdTrackLink(idtrkEL);
 	    outputCBs.push_back(muonCB);
 	  }
 	  continue;
@@ -1287,16 +1293,18 @@ StatusCode MuFastSteering::findMuonSignatureIO(const xAOD::TrackParticleContaine
 		    m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits,
 		    m_stgcHits, m_mmHits,
 		    trackPatterns.back(), outputSAs);
-	float cbpt = (idtrack->charge() > 0) ? idtrack->pt() : -1.*idtrack->pt();
 	xAOD::L2CombinedMuon* muonCB = new xAOD::L2CombinedMuon();
 	muonCB->makePrivateStore();
-	muonCB->setStrategy(-9);
+	muonCB->setStrategy(0);
 	muonCB->setErrorFlag(-9);
-	muonCB->setPt(cbpt);
+	muonCB->setPt(idtrack->pt());
 	muonCB->setEta(idtrack->eta());
 	muonCB->setPhi(idtrack->phi());
+	muonCB->setCharge(idtrack->charge());
 	ElementLink<xAOD::L2StandAloneMuonContainer> muonSAEL(outputSAs, outputSAs.size()-1);
 	muonCB->setMuSATrackLink(muonSAEL);
+	ElementLink<xAOD::TrackParticleContainer> idtrkEL(idtracks, idtrack_idx);
+	muonCB->setIdTrackLink(idtrkEL);
 	outputCBs.push_back(muonCB);
       }
 

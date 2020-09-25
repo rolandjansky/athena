@@ -87,7 +87,7 @@ class MuFastSteering : public HLT::FexAlgo,
 			       DataVector<xAOD::TrigComposite>&			outputComposite );
 
   /** findMuonSignatureIO(), includes reconstract algorithms for inside-out mode **/
-  StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer             idtracks,
+  StatusCode findMuonSignatureIO(const xAOD::TrackParticleContainer&            idtracks,
 				 const std::vector<const TrigRoiDescriptor*>    roids,
 				 const std::vector<const LVL1::RecMuonRoI*>     muonRoIs,
 				 DataVector<xAOD::L2CombinedMuon>&              outputCBs,

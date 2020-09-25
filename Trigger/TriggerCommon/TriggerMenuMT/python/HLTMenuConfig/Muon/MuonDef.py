@@ -110,7 +110,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
             "fast":[['getmuFast']],
             "Comb":[['getmuFast', 'getmuComb']],
-            "l2io":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
+            "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
@@ -153,16 +153,14 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
-        doL2ioOvlpRm = False
-        if "l2io" in self.chainName:
-            doL2ioOvlpRm = True
-        if doL2ioOvlpRm:
-            return self.getStep(2, 'muComb', [mul2IOOvlpRmSequenceCfg] )
-
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
         else:
            return self.getStep(2, 'muComb', [muCombSequenceCfg] )
+
+    # --------------------
+    def getmuCombIO(self):
+        return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg] )
 
     # --------------------
     def getmuEFSA(self):
