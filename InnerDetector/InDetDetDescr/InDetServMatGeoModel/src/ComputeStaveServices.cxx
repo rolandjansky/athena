@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/ComputeStaveServices.h"
@@ -11,10 +11,11 @@ using namespace std;
 
 
 StaveServices ComputeStaveServices::compute( DetType::Type type, DetType::Part part, int layerNumber,
-					     int nModulesPerStave, int nChipsPerModule) const
+					     int nModulesPerStave, int nChipsPerModule,
+                                             MsgStream& msg) const
 
 {
-  msg(MSG::DEBUG) << "Computing services for " << DetType::name( type, part) << " layer " << layerNumber 
+  msg << MSG::DEBUG << "Computing services for " << DetType::name( type, part) << " layer " << layerNumber 
 		  << " with " << nModulesPerStave << " modulesPerStave and " 
 		  << nChipsPerModule << " chipsPerModule" << endmsg;
   
@@ -63,12 +64,13 @@ StaveServices ComputeStaveServices::compute( DetType::Type type, DetType::Part p
     nGroups = nModulesPerStave / max_SP_group_size;
     if (nModulesPerStave % max_SP_group_size != 0) nGroups++;
     nModules =  max_SP_group_size;
-    msg(MSG::DEBUG) << "Using " << nGroups << " powering groups with " << max_SP_group_size << " modules each" << endl;
+    msg << MSG::DEBUG  << "Using " << nGroups << " powering groups with " << max_SP_group_size << " modules each" << endl;
   }
 
   int lvGauge = computeLVGaugeSerial( type, part, layerNumber, 
 				      nModules, moduleCurrent, moduleVoltage,
-				      poweringLoss, lossInCable, cableLen);
+				      poweringLoss, lossInCable, cableLen,
+                                      msg);
 
   std::vector<int> lvg( nGroups, lvGauge);
   return StaveServices( type, part, layerNumber, nHV, nDCS, nData, lvg);
@@ -92,7 +94,8 @@ int computeLVGauge( int nModules, double moduleCurrent, double moduleVoltage, in
 */
 int ComputeStaveServices::computeLVGaugeSerial( DetType::Type type, DetType::Part part, int layerNumber,
 						int nModules, double moduleCurrent, double moduleVoltage,
-						double poweringLoss, double lossInCable, double cableLen) const
+						double poweringLoss, double lossInCable, double cableLen,
+                                                MsgStream& msg) const
 {
   /*
   cout << "computeLVGaugeSerial: nModules = " << nModules
@@ -115,8 +118,8 @@ int ComputeStaveServices::computeLVGaugeSerial( DetType::Type type, DetType::Par
 
   int gauge = ccaw::closestResistivityCcawGauge( resistivityPerMeter);
 
-  msg(MSG::DEBUG) << DetType::name( type, part) << " layer " << layerNumber
-		  << " SP loop power " << stavePower << " [W], current " << moduleCurrent 
+  msg << MSG::DEBUG  << DetType::name( type, part) << " layer " << layerNumber
+                     << " SP loop power " << stavePower << " [W], current " << moduleCurrent 
     // << " [A], cablePowerLoss " << cablePowerDissipation 
 		  << " [W], desired resistivity " << resistivityPerMeter 
 		  << " [Ohm/m], closest gauge " << gauge << endl;

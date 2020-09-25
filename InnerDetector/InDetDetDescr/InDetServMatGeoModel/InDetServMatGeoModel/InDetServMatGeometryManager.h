@@ -15,7 +15,7 @@ class InDetMaterialManager;
 class InDetServMatGeometryManager
 {
 public:
-  InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
+  InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps);
  
   ~InDetServMatGeometryManager();
   
