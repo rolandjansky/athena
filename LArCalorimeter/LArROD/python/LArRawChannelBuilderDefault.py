@@ -33,13 +33,17 @@ def LArRawChannelBuilderDefault():
             else:
                 fld="/LAR/Configuration/DSPThresholdFlat/Thresholds"
                 theLArRawChannelBuilder.Run2DSPThresholdsKey=fld
+            conddb.addFolder (db, fld, className=obj)
         else:   
-           fld="/LAR/NoiseOfl/DSPThresholds"
-           theLArRawChannelBuilder.Run2DSPThresholdsKey=fld
-           db = 'LAR_OFL'
-
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolder (db, fld, className=obj)
+           from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+           if CommonGeometryFlags.Run() == "RUN1": # back to flat threshold
+                theLArRawChannelBuilder.useDB = False
+                theLArRawChannelBuilder.Run2DSPThresholdsKey=''
+           else:
+                fld="/LAR/NoiseOfl/DSPThresholds"
+                theLArRawChannelBuilder.Run2DSPThresholdsKey=fld
+                db = 'LAR_OFL'
+                conddb.addFolder (db, fld, className=obj)
 
         topSequence += theLArRawChannelBuilder
 
