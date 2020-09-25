@@ -13,9 +13,7 @@
 
 void SCT_InducedChargedModel::Init(float vdepl, float vbias) {
 
-  if (m_coutLevel >=0) {
-    std::cout<<"--- Induced Charged Model Paramter (Begin) --------"<<std::endl;
-  }
+  ATH_MSG_INFO("--- Induced Charged Model Paramter (Begin) --------");
 
 //---------------setting basic parameters---------------------------
 
@@ -41,18 +39,18 @@ void SCT_InducedChargedModel::Init(float vdepl, float vbias) {
   
 //--------------------------------------------------------
   if (m_coutLevel >=0) {
-    std::cout<<" EfieldModel  0(uniform E), 1(Flat Diode Model), 2 (FEM solusions)\t\t"<< m_EfieldModel <<std::endl;
-    std::cout<<" DepletionVoltage_VD\t"<< m_VD <<" V"<<std::endl;
-    std::cout<<" BiasVoltage_VB     \t"<< m_VB  <<" V"<<std::endl;
-    std::cout<<" MagneticField_B    \t"<< m_B  <<" Tesla"<<std::endl; 
-    std::cout<<" Temperature_T      \t"<< m_T  <<" K"<<std::endl;
-    std::cout<<" TransportTimeStep  \t"<< m_transportTimeStep <<" ns"<<std::endl;
-    std::cout<<" TransportTimeMax\t"<< m_transportTimeMax <<" ns"<<std::endl;
-    std::cout<<" BulkDepth\t\t"<< m_bulk_depth << " cm"<<std::endl;
-    std::cout<<" DepletionDepth\t\t"<< m_depletion_depth << " cm"<<std::endl;
-    std::cout<<" StripPitch\t\t"<< m_strip_pitch << " cm"<<std::endl;
-    std::cout<<" CoutLevel\t\t"<< m_coutLevel <<std::endl;
-    std::cout<<"--- Induced Charged Model Paramter (End) ---------"<<std::endl;  
+    ATH_MSG_INFO(" EfieldModel  0(uniform E), 1(Flat Diode Model), 2 (FEM solusions)\t\t"<< m_EfieldModel );
+    ATH_MSG_INFO(" DepletionVoltage_VD\t"<< m_VD <<" V");
+    ATH_MSG_INFO(" BiasVoltage_VB     \t"<< m_VB  <<" V");
+    ATH_MSG_INFO(" MagneticField_B    \t"<< m_B  <<" Tesla"); 
+    ATH_MSG_INFO(" Temperature_T      \t"<< m_T  <<" K");
+    ATH_MSG_INFO(" TransportTimeStep  \t"<< m_transportTimeStep <<" ns");
+    ATH_MSG_INFO(" TransportTimeMax\t"<< m_transportTimeMax <<" ns");
+    ATH_MSG_INFO(" BulkDepth\t\t"<< m_bulk_depth << " cm");
+    ATH_MSG_INFO(" DepletionDepth\t\t"<< m_depletion_depth << " cm");
+    ATH_MSG_INFO(" StripPitch\t\t"<< m_strip_pitch << " cm");
+    ATH_MSG_INFO(" CoutLevel\t\t"<< m_coutLevel );
+    ATH_MSG_INFO("--- Induced Charged Model Paramter (End) ---------");  
   }
   
   return;
@@ -72,13 +70,12 @@ void SCT_InducedChargedModel::init_mud_e(double T) {
    m_vs_e=1.53E9*pow( T,-0.87);
    m_Ec_e = 1.01*pow( T, 1.55);
    m_beta_e = 2.57E-2* pow(T,0.66);
-   if(m_coutLevel >= 0) {
-   std::cout<<"---- parameters for electron transport -----"<<std::endl;
-   std::cout<<" m_vs_e        = "<< m_vs_e << std::endl;
-   std::cout<<" m_Ec_e        = "<< m_Ec_e << std::endl;
-   std::cout<<" m_beta_e      = "<< m_beta_e << std::endl;
-   std::cout<<"--------------------------------------------"<<std::endl;
-   }
+
+   ATH_MSG_INFO("---- parameters for electron transport -----");
+   ATH_MSG_INFO(" Saturation drift velosity = "<< m_vs_e );
+   ATH_MSG_INFO(" Phenomenological equation paramter Ec = "<< m_Ec_e);
+   ATH_MSG_INFO(" Phenomenological equation paramter Beta = "<< m_beta_e );
+   ATH_MSG_INFO("--------------------------------------------");
 
    return ;
 }
@@ -97,13 +94,12 @@ void SCT_InducedChargedModel::init_mud_h(double T) {
   m_vs_h = 1.62E8 * pow( T, -0.52);
   m_Ec_h = 1.24 * pow( T, 1.68);
   m_beta_h = 0.46 * pow(T,0.17);
-
-  if(m_coutLevel >= 0) {
-    std::cout<<"----parameters for hole transport -----"<<std::endl;
-    std::cout<<" m_vs_h        = "<< m_vs_h << std::endl;
-    std::cout<<" m_Ec_h        = "<< m_Ec_h << std::endl;
-    std::cout<<" m_beta_h      = "<< m_beta_h << std::endl;
-  }
+  
+  ATH_MSG_INFO("---- parameters for hole transport ---------");
+  ATH_MSG_INFO(" Saturation drift velosity = "<< m_vs_h );
+  ATH_MSG_INFO(" Phenomenological equation paramter Ec = "<< m_Ec_h);
+  ATH_MSG_INFO(" Phenomenological equation paramter Beta = "<< m_beta_h );
+  ATH_MSG_INFO("--------------------------------------------");
 
   return ;
 }
@@ -158,11 +154,6 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
         int jj = istrip + 2;
         double dq = qnew - qstrip[jj];
         qstrip[jj] = qnew ;
-        if(m_coutLevel>2 && istrip==0) {
-           sprintf ( m_cid,"hole : %4.2f ns\tx=%6.2f \ty=%6.2f \tdq[0]=%6.4f"
-               , t_current,x*1e4,y*1e4,dq);
-           std::cout<<m_cid<<std::endl;
-        }
 
 	int jt = int( (t_current+0.001) / m_transportTimeStep) ; 
         if(jt < 200) {
@@ -177,9 +168,6 @@ void SCT_InducedChargedModel::holeTransport(double x0, double y0, double* Q_m2, 
 
      }
    }  // end of hole tracing 
-   if (m_coutLevel>1) 
-      std::cout<<"holeTransport : x,y=("<< x0*1.e4<<","<<y0*1.e4<<")->("
-      <<x*1.e4<<"," <<y*1.e4 <<") t="<<t_current<<std::endl;
 
    return ;
 }
@@ -233,11 +221,6 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
         int jj = istrip + 2;
         double dq = qnew - qstrip[jj];
         qstrip[jj] = qnew ;
-        if(m_coutLevel>2 && istrip==0) {
-           sprintf ( m_cid,"elec : %4.2f ns\tx=%6.2f \ty=%6.2f \tdq[0]=%6.4f"
-               , t_current,x*1e4,y*1e4,dq);
-           std::cout<<m_cid<<std::endl;
-        }
 
 	int jt = int( (t_current + 0.001) / m_transportTimeStep);
         if(jt< 200) {
@@ -252,9 +235,6 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
 
      }
    }  // end of electron tracing 
-   if (m_coutLevel>1) 
-      std::cout<<"elecTransport : x,y=("<< x0*1.e4<<","<<y0*1.e4<<")->("
-      <<x*1.e4<<"," <<y*1.e4 <<") t="<<t_current<<std::endl;
 
    return ;
 }
@@ -263,8 +243,7 @@ void SCT_InducedChargedModel::electronTransport(double x0, double y0, double* Q_
 //      parameters for electron transport
 //---------------------------------------------------------------
 bool SCT_InducedChargedModel::electron(double x_e, double y_e, double &vx_e, double &vy_e, double &D_e) {
-//double kB= 1.38E-23;       // [m^2*kg/s^2/K]
-//double e= 1.602E-19;       // [Coulomb]
+
 double E, Ex, Ey, mu_e, v_e, r_e, tanLA_e, secLA, cosLA, sinLA;
 EField(x_e, y_e, Ex, Ey);    // [V/cm]
 if( Ey > 0.) {
@@ -290,8 +269,7 @@ if( Ey > 0.) {
 //      parameters for hole transport
 //---------------------------------------------------------------
 bool SCT_InducedChargedModel::hole(double x_h, double y_h, double &vx_h, double &vy_h, double &D_h) {
-//double kB= 1.38E-23;       // [m^2*kg/s^2/K]
-//double e= 1.602E-19;       // [Coulomb]
+
 double E, Ex, Ey, mu_h, v_h, r_h, tanLA_h, secLA, cosLA, sinLA;
 EField( x_h, y_h, Ex, Ey);  // [V/cm]
 if( Ey > 0.) {
@@ -334,9 +312,6 @@ double SCT_InducedChargedModel::induced (int istrip, double x, double y)
             + m_PotentialValue[ix1][iy]  *fx*(1.-fy)
             + m_PotentialValue[ix][iy1]  *(1.-fx)*fy
             + m_PotentialValue[ix1][iy1] *fx*fy ;
-   //cout <<"x,y,iy="<<x*1e4<<" "<<y*1e4<<" "<<iy<<" istrip,xc,dx,ix="
-   //<<istrip<<" "<<xc*1e4<<" " <<dx*1e4<<" "<<ix<<" fx,fy="<<fx
-   //<<" " <<fy<< ", P="<<P<<endl;
 
    return P;
 }
@@ -367,8 +342,7 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
        if( xx > xhalfpitch ) xxx = m_strip_pitch - xx;
        int ix = int(xxx/deltax) ;
        double fx = (xxx - ix*deltax) / deltax;         
-//       std::cout <<"x,y,ix,iy,fx,fy,xx,xxx= "<<x<<" "<<y<<" "<<ix
-//       <<" "<<iy<<" "<<fx<<" "<<fy<<" "<<xx<<" "<<xxx<<std::endl;
+
        int ix1=ix+1;
        int iy1=iy+1;
        double Ex00 = 0., Ex10 = 0., Ex01 = 0., Ex11 = 0.;
@@ -383,7 +357,6 @@ void SCT_InducedChargedModel::EField( double x, double y, double &Ex, double &Ey
 //---------------- end of data bank search---
        Ex = Ex00*(1.-fx)*(1.-fy) + Ex10*fx*(1.-fy)
               + Ex01*(1.-fx)*fy + Ex11*fx*fy ;
-//     std::cout <<"xx, xhalfpitch = "<< xx << " "<< xhalfpitch<<std::endl;
        if(xx > xhalfpitch ) Ex = -Ex;
        Ey = Ey00*(1.-fx)*(1.-fy) + Ey10*fx*(1.-fy)
               + Ey01*(1.-fx)*fy + Ey11*fx*fy ;
@@ -431,7 +404,7 @@ void SCT_InducedChargedModel::loadICMParameters(){
 
   if(m_VD<-180 || m_VD>70 ){
     m_EfieldModel = 1; // Change to FDM
-    std::cout<<"Changed to Flat Diode Model since deplettion volage is out of range. (-180 < m_VD < 70 is allow.)"<<Std::endl;  
+    ATH_MSG_INFO("Changed to Flat Diode Model since deplettion volage is out of range. (-180 < m_VD < 70 is allow.)");  
   }
 
   // For Ramo Potential 

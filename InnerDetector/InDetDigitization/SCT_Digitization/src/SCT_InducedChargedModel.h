@@ -14,6 +14,8 @@
 #include "TH2.h"
 #include "TFile.h"
 
+#include "AthenaKernel/MsgStreamMember.h"
+
 class SCT_InducedChargedModel{
 
  public:
@@ -35,7 +37,15 @@ class SCT_InducedChargedModel{
   void init_mud_h(double T) ;
   void loadICMParameters() ;
 
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) { return m_msg.get().level() <= lvl; }
+
  private:
+
+  // Private message stream member
+  mutable Athena::MsgStreamMember m_msg;
   
 //------parameters given externally by jobOptions ------------------
    int    m_EfieldModel = 2 ; // 0(uniform E), 1(flat diode model), 2 (FEM solusions)
