@@ -14,14 +14,10 @@ from DerivationFrameworkHiggs.TruthCategories import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from AthenaCommon.GlobalFlags import globalflags
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
     from DerivationFrameworkMCTruth.HFHadronsCommon import *
-
-# testing globalflags
-is_MC = (globalflags.DataSource()=='geant4')
-print "is_MC = ",is_MC
 
 #====================================================================
 # SET UP STREAM   
@@ -456,7 +452,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq)
 
 # Augment AntiKt4 jets with QG tagging variables
 truthjetalg='AntiKt4TruthJets'
-if not DerivationFrameworkIsMonteCarlo:
+if not DerivationFrameworkHasTruth:
 	truthjetalg=None
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=HIGG8D1Seq,algname="QGTaggerToolAlg",truthjetalg=truthjetalg)
