@@ -252,8 +252,8 @@ StatusCode HLTMETMonTool::book() {
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
   
-  // jXENOISECUT L1 histograms
-  monFolderName = monGroupName + "/jXENOISECUT";
+  // jNOISECUT L1 histograms
+  monFolderName = monGroupName + "/jNOISECUT";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -1159,7 +1159,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     fillL1BasicHistograms(l1_noisecut_mex,l1_noisecut_mex_log,l1_noisecut_mey,l1_noisecut_mey_log,l1_noisecut_met,l1_noisecut_met_log,l1_noisecut_sumet,l1_noisecut_sumet_log,l1_noisecut_phi,saturated_noisecut);
   }
 
-  // L1 jXENOISECUT
+  // L1 jNOISECUT
   monFolderName = monGroupName + "/jNOISECUT";
   setCurrentMonGroup(monFolderName.c_str());
 
