@@ -4,6 +4,7 @@
 
 #include "METMakerAlg.h"
 #include "METInterface/IMETMaker.h"
+#include "METUtilities/METHelpers.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETComposition.h"
@@ -262,12 +263,12 @@ namespace met {
 
     MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
     if((*newMet)[m_softtrkname]) trksource = (*newMet)[m_softtrkname]->source();
-    if( m_metmaker->buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
+    if( buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
       ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
     }
     MissingETBase::Types::bitmask_t clsource = MissingETBase::Source::LCTopo;
     if((*newMet)[m_softclname]) clsource = (*newMet)[m_softclname]->source();
-    if( m_metmaker->buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
+    if( buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
       ATH_MSG_WARNING("Building MET FinalClus sum failed.");
     }
 

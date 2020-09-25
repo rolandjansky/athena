@@ -86,11 +86,6 @@ class IMETRebuilder : virtual public asg::IAsgTool {
 				   const std::string& softJetScale,
 				   float& stvf,
 				   const xAOD::MissingETComponent* comp_softtrk) = 0;
-
-  ///
-
-  virtual StatusCode buildMETSum(const std::string& totalName,
-				 xAOD::MissingETContainer* metCont) = 0;
 };
 
 #endif
