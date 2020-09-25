@@ -14,23 +14,24 @@
 class GeoPixelDetailedStaveSupport : public GeoPixelStaveSupport {
 
 public:  
-  GeoPixelDetailedStaveSupport() ATLAS_CTORDTOR_NOT_THREAD_SAFE;
-  virtual GeoVPhysVol* Build();
-  virtual GeoVPhysVol* getPhysVol ATLAS_NOT_THREAD_SAFE () const {return m_physVol;}
-  virtual const GeoTrf::Transform3D & transform() const {return m_transform;}
-  virtual double thicknessP() const {return m_thicknessP;}
-  virtual double thicknessN() const {return m_thicknessN;}
-  virtual GeoSimplePolygonBrep* computeStaveEnvelopShape( double safetyMargin);
-  virtual GeoPhysVol* getEndblockEnvelopShape( int ) const;
-  virtual GeoTransform* getEndblockEnvelopShapeTrf( int ) const;
-  virtual double getEndblockZpos() const { return m_endblockZpos; };
-  virtual double getServiceZpos() const { return m_serviceZpos; };
-  virtual double getEndblockLength() const { return m_endblockLength+m_endblockSrvLength; };
+  GeoPixelDetailedStaveSupport(InDetDD::PixelDetectorManager* ddmgr,
+                               PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
+  virtual GeoVPhysVol* getPhysVol() override {return m_physVol;}
+  virtual const GeoTrf::Transform3D & transform() const override {return m_transform;}
+  virtual double thicknessP() const override {return m_thicknessP;}
+  virtual double thicknessN() const override {return m_thicknessN;}
+  virtual GeoSimplePolygonBrep* computeStaveEnvelopShape( double safetyMargin) override;
+  virtual GeoPhysVol* getEndblockEnvelopShape( int ) const override;
+  virtual GeoTransform* getEndblockEnvelopShapeTrf( int ) const override;
+  virtual double getEndblockZpos() const override { return m_endblockZpos; };
+  virtual double getServiceZpos() const override { return m_serviceZpos; };
+  virtual double getEndblockLength() const override { return m_endblockLength+m_endblockSrvLength; };
   virtual void computeStaveEnvelopTransformAndSize(double moduleThickN,double moduleThickP, double moduleWidth,
-						   double moduleThickN3D,double moduleThickP3D, double moduleWidth3D);
-  virtual int PixelNModule() const { return m_PlanarModuleNumber+m_3DModuleNumber; }
-  virtual int PixelNPlanarModule() const { return m_PlanarModuleNumber; }
-  virtual int PixelN3DModule() const { return m_3DModuleNumber; }
+						   double moduleThickN3D,double moduleThickP3D, double moduleWidth3D) override;
+  virtual int PixelNModule() const override { return m_PlanarModuleNumber+m_3DModuleNumber; }
+  virtual int PixelNPlanarModule() const  override{ return m_PlanarModuleNumber; }
+  virtual int PixelN3DModule() const override { return m_3DModuleNumber; }
 
 private:
   GeoVPhysVol* m_physVol;

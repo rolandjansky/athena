@@ -8,10 +8,11 @@
 #include "GeoVPixelFactory.h"
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelPigtail : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelPigtail : public GeoVPixelFactory {
  public:
-  GeoPixelPigtail();
-  virtual GeoVPhysVol* Build();
+  GeoPixelPigtail(InDetDD::PixelDetectorManager* ddmgr,
+                  PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
  private:
   

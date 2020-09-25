@@ -14,13 +14,17 @@
 class PixelSwitches;
 class PixelGeoModelAthenaComps;
 
+namespace PixelGeoDC2 {
+  class PixelGeometryManager;
+}
+
 class PixelDetectorFactoryDC2 : public InDetDD::DetectorFactoryBase {
 
  public:
   
   // Constructor:
   PixelDetectorFactoryDC2(PixelGeoModelAthenaComps * athenaComps,
-			  const PixelSwitches & switches) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::DetectorFactoryBase::detStore method is used.
+			  const PixelSwitches & switches);
   
   // Destructor:
   ~PixelDetectorFactoryDC2();
@@ -39,6 +43,7 @@ class PixelDetectorFactoryDC2 : public InDetDD::DetectorFactoryBase {
   PixelDetectorFactoryDC2(const PixelDetectorFactoryDC2 &right);
   // private data
   InDetDD::PixelDetectorManager     *m_detectorManager;
+  PixelGeoDC2::PixelGeometryManager* m_geometryManager;
   
  
 };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,7 +15,10 @@
 #include<cmath>
 #include <sstream>
 
-GeoPixelFluid::GeoPixelFluid(int type)
+GeoPixelFluid::GeoPixelFluid(InDetDD::PixelDetectorManager* ddmgr,
+                             PixelGeometryManager* mgr,
+                             int type)
+  : GeoVPixelFactory (ddmgr, mgr)
 {
   m_index    = m_gmt_mgr->PixelFluidIndex(type);
   double z1  = m_gmt_mgr->PixelFluidZ1(m_index);
