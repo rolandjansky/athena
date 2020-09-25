@@ -193,7 +193,8 @@ class ComponentAccumulator(object):
         self.printCondAlgs (summariseProps = summariseProps,
                             onlyComponents = onlyComponents)
         self._msg.info( "Services" )
-        self._msg.info( [ s[0].name for s in filterComponents (self._services, onlyComponents) ] )
+        self._msg.info( [ s[0].name + (" (created) " if s[0].name in self._servicesToCreate else "") 
+                              for s in filterComponents (self._services, onlyComponents) ] )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for (t, flag) in filterComponents (self._publicTools, onlyComponents):

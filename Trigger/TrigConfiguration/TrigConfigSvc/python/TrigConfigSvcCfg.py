@@ -215,8 +215,8 @@ def HLTConfigSvcCfg( flags ):
 def TrigConfigSvcCfg( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
-    acc.addService( getL1ConfigSvc( flags ) )
-    acc.addService( getHLTConfigSvc( flags ) )
+    acc.addService( getL1ConfigSvc( flags ), create=True )
+    acc.addService( getHLTConfigSvc( flags ), create=True )
     return acc
 
 def L1PrescaleCondAlgCfg( flags ):
