@@ -351,6 +351,22 @@ private:
   PMonSD::SemiDetHelper * m_pmonsd;
 
   bool m_pf;
+
+private:
+
+  // In serial Athena each job starts w/ Before AthMasterSeq Execute auditor call
+  // and ends w/ After AthMasterSeq Execute auditor call. However, in MT this is
+  // not the case. Although this Service is not MT-safe (see PerfMonMTSvc)
+  // we still use it in MT = 1 jobs. There we use the incident algorithms as a
+  // workaround.
+
+  // Component name that'll trigger begin event
+  Gaudi::Property<std::string> m_compBeginEvent {
+    this, "compBeginEvent", "AthMasterSeq", "Component name that'll trigger begin event" };
+
+  // Component name that'll trigger end event
+  Gaudi::Property<std::string> m_compEndEvent {
+    this, "compEndEvent", "AthMasterSeq", "Component name that'll trigger end event" };
 }; 
 
 /// I/O operators
