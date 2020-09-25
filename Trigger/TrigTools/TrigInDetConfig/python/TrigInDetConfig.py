@@ -24,7 +24,7 @@ def SiDetElementsRoadMaker_xkCfg( flags, **kwargs ):
                                                       PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
                                                       usePixel     = flags.Detector.RecoPixel, # DetFlags.haveRIO.pixel_on(),
                                                       useSCT       = flags.Detector.RecoSCT, #DetFlags.haveRIO.SCT_on(),
-                                                      RoadWidth    = 10, #InDetTrigCutValues.RoadWidth()
+                                                      RoadWidth    = flags.InDet.Tracking.roadWidth,
                                                         )
   acc.addPublicTool( tool )
   return acc
@@ -114,7 +114,6 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   """
   based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py , should be moved elsewhere
   """
-  import AthenaCommon.SystemOfUnits as Unit
   name = kwargs.pop("name", "SiTrackMaker_xk")
   acc = ComponentAccumulator()
   acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
@@ -131,16 +130,16 @@ def SiTrackMaker_xkCfg(flags, **kwargs):
   tool = CompFactory.InDet.SiTrackMaker_xk( name,
                                             RoadTool                 = acc.getPublicTool( "InDetTrigSiDetElementsRoadMaker" ),
                                             CombinatorialTrackFinder = combTrackFinderTool,
-                                            pTmin                    = 1000*Unit.MeV, # TODO use flag for these props
-                                            nClustersMin             = 7,
-                                            nHolesMax                = 3,
-                                            nHolesGapMax             = 3,
-                                            SeedsFilterLevel         = 0,
-                                            Xi2max                   = 15,
-                                            Xi2maxNoAdd              = 35,
-                                            nWeightedClustersMin     = 6,
+                                            pTmin                    = flags.InDet.Tracking.minPT,
+                                            nClustersMin             = flags.InDet.Tracking.minClusters,
+                                            nHolesMax                = flags.InDet.Tracking.nHolesMax,
+                                            nHolesGapMax             = flags.InDet.Tracking.nHolesGapMax,
+                                            SeedsFilterLevel         = flags.InDet.Tracking.seedFilterLevel,
+                                            Xi2max                   = flags.InDet.Tracking.Xi2max,
+                                            Xi2maxNoAdd              = flags.InDet.Tracking.Xi2maxNoAdd,
+                                            nWeightedClustersMin     = flags.InDet.Tracking.nWeightedClustersMin,
                                             #CosmicTrack             = InDetFlags.doCosmics(),
-                                            Xi2maxMultiTracks        = 15,
+                                            Xi2maxMultiTracks        = flags.InDet.Tracking.Xi2max, # follwoing: Trigger/TrigTools/TrigInDetConfig/python/EFIDTracking.py
                                             UseAssociationTool       = False )
   acc.addPublicTool( tool )
   return acc
@@ -208,7 +207,7 @@ def InDetTrackSummaryHelperToolCfg(flags, **kwargs):
                                                        TRTStrawSummarySvc = trtStrawSummaryTool,
                                                        usePixel      = flags.Detector.RecoPixel,  #DetFlags.haveRIO.pixel_on(),
                                                        useSCT        = flags.Detector.RecoSCT,  #DetFlags.haveRIO.SCT_on(),
-                                                       useTRT        = True, # flags.Detector.TRTOn,  #DetFlags.haveRIO.TRT_on()
+                                                       useTRT        = flags.Detector.RecoTRT, # flags.Detector.TRTOn,  #DetFlags.haveRIO.TRT_on()
                                                          )
 
   acc.addPublicTool( tool )
@@ -433,6 +432,7 @@ def TrigInDetCondCfg( flags ):
   return acc
 
 def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
+
   #If signature specified add suffix to the name of each algorithms
   signature =  "_" + signatureName if signatureName else ''
 
@@ -622,7 +622,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") )
 
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "TrigSPFinder"+ signature,
+  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder_"+ signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
                                                                     SCT_ClustersName       = "SCT_TrigClusters",
@@ -672,7 +672,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                          ReadKey  = "PixelDetectorElementCollection",
                                                                          WriteKey = "PixelDetElementBoundaryLinks_xk") )
 
-  ftf = CompFactory.TrigFastTrackFinder( name = "FTF" + signature,
+  ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder_" + signature,
                                          LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
                                          SpacePointProviderTool   = acc.getPublicTool( "TrigSPConversionTool" + signature.lower() ),
                                          TrackSummaryTool         = acc.getPublicTool( "TrigSummaryTool_FTF" ),
@@ -682,51 +682,47 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                          RoIs = roisKey,
                                          trigZFinder = CompFactory.TrigZFinder(),
                                          doZFinder = False, # this and all below, copied over from comparison with running JOs, TODO find a proper surce of this settings
-                                         SeedRadBinWidth =  2,
-                                         TrackInitialD0Max = 20.0,
+                                         SeedRadBinWidth =  flags.InDet.Tracking.seedRadBinWidth,
+                                         TrackInitialD0Max = 1000. if flags.InDet.Tracking.extension == 'cosmics' else 20.0,
                                          TracksName = "TrigFastTrackFinder_Tracks"+signature,
                                          OutputCollectionSuffix = signature,
                                          TripletDoPSS = False,
-                                         Triplet_D0Max = 4.0,
-                                         Triplet_D0_PPS_Max = 1.7,
+                                         Triplet_D0Max = flags.InDet.Tracking.d0SeedMax,
+                                         Triplet_D0_PPS_Max = flags.InDet.Tracking.d0SeedPPSMax,
                                          Triplet_MaxBufferLength = 3,
                                          Triplet_MinPtFrac = 1,
                                          Triplet_nMaxPhiSlice = 53,
-                                         doCloneRemoval = True,
-                                         doResMon = False,
-                                         doSeedRedundancyCheck = True,
-                                         pTmin = 1000.0,
+                                         doCloneRemoval = flags.InDet.Tracking.doCloneRemoval,
+                                         doResMon = flags.InDet.Tracking.doResMon,
+                                         doSeedRedundancyCheck = flags.InDet.Tracking.checkRedundantSeeds,
+                                         pTmin = flags.InDet.Tracking.minPT,
                                          useNewLayerNumberScheme = True,
-                                         MinHits = 5
-                                           )
-  #ftf.RoIs = roisKey
-  ftf.OutputLevel=DEBUG
+                                         MinHits = 5)
   acc.addEventAlgo( ftf )
 
-  #CondSvc=CompFactory.CondSvc
-  #acc.addService(CondSvc())
+  creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
+                                                          Extrapolator = acc.getPublicTool( "TrigInDetExtrapolator" ),
+                                                          TrackSummaryTool = acc.getPublicTool( "TrigSummaryTool_FTF" ),
+                                                          KeepParameters = True,
+                                                          ComputeAdditionalInfo = True)
+  acc.addPublicTool(creatorTool)
 
-
-  #from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-  #from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-
-  #InDet__TrigTrackingxAODCnvMT=CompFactory.InDet.TrigTrackingxAODCnvMT
-  #theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
-  #                                                         doIBLresidual = False,
-  #                                                         TrackName = "TrigFastTrackFinder_Tracks",
-  #                                                         TrackParticlesName = "IDTrack",
-  #                                                         ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-  #theTrackParticleCreatorAlg.roiCollectionName = roisKey
-  #acc.addEventAlgo(theTrackParticleCreatorAlg)
-
-
+  trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                          TrackName = ftf.TracksName,
+                                                          TrackParticlesName = "TrigFastTrackFinder_Tracks_" + signature,
+                                                          ParticleCreatorTool = acc.getPublicTool("InDetTrigParticleCreatorToolFTF"))
+  acc.addEventAlgo(trackParticleCnv)
 
   return acc
 
-def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
+def indetInViewRecoCfg( inflags, viewMakerName, signature='' ):
   """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now
   There would certainly be additional algorithms
   """
+  # redirect InDet.Tracking flags to point to a specific trigger setting
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signature)
+
+
   from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
   reco = InViewReco( viewMakerName )
   algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs, signatureName=signature )
@@ -761,7 +757,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))
 
-    acc.merge( TrigInDetConfig( ConfigFlags ) )
+    acc.merge( indetInViewRecoCfg( ConfigFlags, viewMakerName="IMTest", signature="Electron" ) )
     from RegionSelector.RegSelConfig import regSelCfg
     rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )

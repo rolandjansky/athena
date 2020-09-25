@@ -7,6 +7,7 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 
 #include <algorithm>
+#include <array>
 #include "TFile.h"
 #include "TH2.h"
 
