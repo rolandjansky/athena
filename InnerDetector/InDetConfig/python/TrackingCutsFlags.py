@@ -173,21 +173,25 @@ def roadWidth_ranges( inflags ):
     {'-16':  20.0,
     '17-':  12.0 } )
 
-def keepAllConfirmedSeeds_ranges( inflags ):
+def keepAllConfirmedPixelSeeds_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
     {'-17':  False,
     '18-':  True } )
-
-def maxSeedsPerSP_ranges( inflags ):
-    return select( inflags.InDet.cutLevel,
-    {'-17':  5,
-    '18-':  1 } )
 
 def minRoIClusterEt_ranges( inflags ):
     return select( inflags.InDet.cutLevel,
     {'-18':  0.0,
     '19-':  6000. * Units.MeV } )
 
+def maxSeedsPerSP_Pixels_ranges( inflags ):
+    return select( inflags.InDet.cutLevel,
+    {'-17':  5,
+    '18-':   1 } )
+
+def maxSeedsPerSP_Strips_ranges( inflags ):
+    return select( inflags.InDet.cutLevel,
+    {'-17':  5,
+    '18-':   5 } )
 
 ################################################################
     ## create set of tracking cut flags
@@ -199,7 +203,6 @@ def createTrackingFlags():
     icf = AthConfigFlags()
 
     icf.addFlag("extension", "" ) ### for extension
-    icf.addFlag("maxSCTHoles", 0 )
 
     icf.addFlag("minPT", minPT_ranges )
     icf.addFlag("minSecondaryPt", minSecondaryPT_ranges ) #Pt cut for back tracking + segment finding for these
@@ -264,8 +267,10 @@ def createTrackingFlags():
     icf.addFlag("maxTracksPerSharedPRD", 0)  ## is 0 ok for default??
     icf.addFlag("maxdImpactPPSSeeds", 2)
     icf.addFlag("maxdImpactSSSSeeds", maxdImpactSSSSeeds_ranges)
-    icf.addFlag("keepAllConfirmedSeeds", keepAllConfirmedSeeds_ranges)
-    icf.addFlag("maxSeedsPerSP", maxSeedsPerSP_ranges)
+    icf.addFlag("maxSeedsPerSP_Pixels", maxSeedsPerSP_Pixels_ranges)
+    icf.addFlag("maxSeedsPerSP_Strips", maxSeedsPerSP_Strips_ranges)
+    icf.addFlag("keepAllConfirmedPixelSeeds", keepAllConfirmedPixelSeeds_ranges)
+    icf.addFlag("keepAllConfirmedStripSeeds", False)
 
     # --- min pt cut for brem
     icf.addFlag("minPTBrem", 1. * Units.GeV) # off
@@ -485,7 +490,8 @@ def createR3LargeD0TrackingFlags():
     icf.maxdImpactSSSSeeds      = 300.0
     icf.doZBoundary             = True
     icf.keepAllConfirmedSeeds   = True
-    icf.maxSeedsPerSP           = 1
+    icf.maxSeedsPerSP_Strips           = 1
+    icf.keepAllConfirmedStripSeeds  = True
 
     return icf
 
@@ -520,7 +526,7 @@ def createLowPtLargeD0TrackingFlags():
 def createLowPtTrackingFlags():
     icf = createTrackingFlags()
     icf.extension        = "LowPt"
-    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPT + 0.3) * Units.GeV
+    icf.maxPT = lambda pcf: (1e6  if pcf.InDet.doMinBias else pcf.InDet.Tracking.minPt + 0.3) * Units.GeV
     icf.minPT            = 0.050 * Units.GeV
     icf.minClusters      = 5
     icf.minSiNotShared   = 4
@@ -608,7 +614,6 @@ def createForwardTracksTrackingFlags():
     icf.maxPrimaryImpact = 5. * Units.mm
     icf.roadWidth        = 12.
     icf.maxdImpactSSSSeeds = 5.0
-    icf.maxSeedsPerSP    = 1
     icf.keepAllConfirmedSeeds = True
     icf.SecondarynHolesMax = 2
     icf.SecondarynHolesGapMax = 2
@@ -823,7 +828,6 @@ def createPixelTrackingFlags():
     icf.maxPrimaryImpact = lambda pcf: 1000. * Units.mm if pcf.Beam.Type =="cosmics" else 5. * Units.mm 
     icf.roadWidth        = lambda pcf: 60.0 if pcf.Beam.Type =="cosmics" else 12.0
     icf.maxdImpactSSSSeeds = 5.0
-    icf.maxSeedsPerSP    = 1
     icf.keepAllConfirmedSeeds = True
     icf.SecondarynHolesMax = 2
     icf.SecondarynHolesGapMax = 2
@@ -979,11 +983,11 @@ def createDBMTrackingFlags():
 #####################################################################
 
 if __name__ == "__main__":
-  #from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-  #from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  #ConfigFlags = createTrackingFlags()
-  from InDetConfig.InDetConfigFlags import createInDetConfigFlags
-  ConfigFlags = createInDetConfigFlags()
+
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.TestDefaults import defaultTestFiles
+  ConfigFlags.Input.Files=defaultTestFiles.RAW
+  
   from AthenaCommon.Logging import logging
   l = logging.getLogger('AthConfigFlags')
   from AthenaCommon.Constants import WARNING
@@ -998,7 +1002,11 @@ if __name__ == "__main__":
 
   assert ConfigFlags.InDet.HeavyIonTracking.minSiNotShared == 7, "wrong value, overwrite"
   assert ConfigFlags.InDet.HeavyIonTracking.minRoIClusterEt == 0.0, "wrong value, overwrite"
+
+  print("ConfigFlags.InDet.SCTandTRTTracking.minPT",ConfigFlags.InDet.SCTandTRTTracking.minPT)
+  print("type(ConfigFlags.InDet.SCTandTRTTracking)",type(ConfigFlags.InDet.SCTandTRTTracking)) 
+  
   #ConfigFlags.dump()
-  print( "allok" )  
+  print( "allok" )   
 
 
