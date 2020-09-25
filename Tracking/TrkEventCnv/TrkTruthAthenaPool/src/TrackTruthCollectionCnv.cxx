@@ -7,7 +7,9 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p0.h"
 #include "TrkTruthTPCnv/TrackTruthCollection_p1.h"
+#include "TrkTruthTPCnv/TrackTruthCollection_p2.h"
 #include "TrkTruthTPCnv/TrackTruthCollectionCnv_p1.h"
+#include "TrkTruthTPCnv/TrackTruthCollectionCnv_p2.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -21,6 +23,8 @@ pool::Guid TrackTruthCollectionCnv::p0_guid("8BC86D69-DBC4-4B34-8273-513D9BE771D
 
 pool::Guid TrackTruthCollectionCnv::p1_guid("ED2B4B64-7CF6-48B3-8C40-29F8501A6090");
 
+pool::Guid TrackTruthCollectionCnv::p2_guid("44F35B21-838A-4C4E-B09B-971CEA0EB70A");
+
 
 //================================================================
 TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) : 
@@ -29,7 +33,7 @@ TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) :
 
 //================================================================
 TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCollection* trans) {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv");
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv");
   log<<MSG::DEBUG<<"Writing TrackTruthCollection_p1"<<endreq;
   TrackTruthCollectionPERS* pers=new TrackTruthCollectionPERS();
   m_converter_p1.transToPers(trans,pers,log); 
@@ -38,10 +42,16 @@ TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCo
 
 //================================================================
 TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv" );
   std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
-  
-  if (compareClassGuid(p1_guid)) {
+
+  if (compareClassGuid(p2_guid)) {
+    log<<MSG::DEBUG<<"Read TrackTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
+    Trk::TrackTruthCollection_p2* pers=poolReadObject<Trk::TrackTruthCollection_p2>();
+    m_converter_p2.persToTrans(pers, trans.get(), log);
+    delete pers;
+  }
+  else if (compareClassGuid(p1_guid)) {
     log<<MSG::DEBUG<<"Read TrackTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
     Trk::TrackTruthCollection_p1* pers=poolReadObject<Trk::TrackTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);

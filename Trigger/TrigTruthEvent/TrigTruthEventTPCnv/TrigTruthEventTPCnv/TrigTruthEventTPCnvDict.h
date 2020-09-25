@@ -7,6 +7,7 @@
 
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp2.h"
+#include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_tlp3.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_old.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMap_old_cnv.h"

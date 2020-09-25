@@ -9,9 +9,11 @@
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p1.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p1.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p2.h"
-#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p3.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p2.h"
+#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p3.h"
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p3.h"
+#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollection_p4.h"
+#include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p4.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"

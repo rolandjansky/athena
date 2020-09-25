@@ -6,7 +6,7 @@
 
 LUCID_RawDataContainer_PERS* LUCID_RawDataContainerCnv::createPersistent(LUCID_RawDataContainer* transCont) {
 
-  MsgStream mlog(messageService(), "LUCID_RawDataContainerCnv");
+  MsgStream mlog(msgSvc(), "LUCID_RawDataContainerCnv");
 
   mlog << MSG::DEBUG << "In LUCID_RawDataContainerCnv::createPersistent " << endreq;
   
@@ -18,7 +18,7 @@ LUCID_RawDataContainer_PERS* LUCID_RawDataContainerCnv::createPersistent(LUCID_R
 
 LUCID_RawDataContainer* LUCID_RawDataContainerCnv::createTransient() {
   
-  MsgStream mlog(messageService(), "LUCID_RawDataContainer");
+  MsgStream mlog(msgSvc(), "LUCID_RawDataContainer");
 
   mlog << MSG::DEBUG << "In LUCID_RawDataContainerCnv::createTransient " << endreq;
   

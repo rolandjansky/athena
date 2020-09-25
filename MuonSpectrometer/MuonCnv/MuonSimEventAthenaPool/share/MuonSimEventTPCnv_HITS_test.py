@@ -24,3 +24,8 @@ noMuon = True
 noID = True
 include ('AthenaPoolUtilities/TPCnvTest.py')
 
+# Disable LAr alignment to avoid spurious warnings
+# when running in AthSimulation.
+svcMgr.GeoModelSvc.AlignCallbacks = False
+from IOVDbSvc.CondDB import conddb
+conddb.blockFolder ('/LAR/Align')

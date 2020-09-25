@@ -23,5 +23,5 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 StoreGateSvc         INFO Initializing StoreGateSvc - package version StoreGate-02-39-03
 Testing HepMcParticleLink streamer Event index 0, Barcode 10005 --- Event index 1, Barcode 10005
-HepMcParticleLink    INFO find_hostkey: Using TruthEvent as McEventCollection key for this job 
+HepMcParticleLink    INFO find_hostkey: Using StoreGateSvc/TruthEvent as McEventCollection key for this job 
 *** GenParticleLink_test OK ***
