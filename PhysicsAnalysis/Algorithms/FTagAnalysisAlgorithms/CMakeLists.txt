@@ -6,14 +6,6 @@
 # The name of the package:
 atlas_subdir( FTagAnalysisAlgorithms )
 
-atlas_depends_on_subdirs(
-    PUBLIC
-    Event/xAOD/xAODJet
-    PhysicsAnalysis/Algorithms/SelectionHelpers
-    PhysicsAnalysis/Algorithms/SystematicsHandles
-    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-    PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces )
-
 atlas_add_library( FTagAnalysisAlgorithmsLib
    FTagAnalysisAlgorithms/*.h FTagAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS FTagAnalysisAlgorithms

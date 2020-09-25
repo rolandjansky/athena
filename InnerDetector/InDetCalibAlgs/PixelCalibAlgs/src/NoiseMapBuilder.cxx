@@ -314,7 +314,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
 // execute
 //
 //=========================================================
-StatusCode NoiseMapBuilder::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe DataHandle template is used.
+StatusCode NoiseMapBuilder::execute(){
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
 
   // retrieve EventInfo
@@ -334,7 +334,7 @@ StatusCode NoiseMapBuilder::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe D
   }
 
   // retrieve PixelRDO container
-  const DataHandle< PixelRDO_Container > pixelRDOs;
+  const PixelRDO_Container* pixelRDOs = nullptr;
   sc = sgSvc()->retrieve(pixelRDOs, m_pixelRDOKey);
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve pixel RDO container at " << m_pixelRDOKey );

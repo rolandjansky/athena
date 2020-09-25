@@ -154,7 +154,7 @@ void TRTParametersForBarrelHits::DefineParameters() const
 
 // Called by TRTParametersForBarrelHits
 
-void TRTParametersForBarrelHits::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile is used.
+void TRTParametersForBarrelHits::PrintParameters() const
 {
 
   if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForBarrelHits::PrintParameters" << G4endl; }

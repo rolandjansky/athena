@@ -217,7 +217,7 @@ def MC12LLPTruthServiceCfg(ConfigFlags, name="ISF_MC12TruthLLPService", **kwargs
 
 
 def MC12PlusTruthServiceCfg(ConfigFlags, name="ISF_MC12PlusTruthService", **kwargs):
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID] )
     return MC12TruthServiceCfg(ConfigFlags, name, **kwargs)
 
@@ -240,7 +240,7 @@ def MC15MSTruthStrategies():
 
 def MC15TruthServiceCfg(ConfigFlags, name="ISF_MC15TruthService", **kwargs):
     result = ComponentAccumulator()
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     if "TruthStrategies" not in kwargs:
         truthCfgs = [
@@ -267,7 +267,7 @@ def MC15aTruthServiceCfg(ConfigFlags, name="ISF_MC15aTruthService", **kwargs):
 
 
 def MC15aPlusTruthServiceCfg(ConfigFlags, name="ISF_MC15aPlusTruthService", **kwargs):
-    AtlasRegion = ROOT.AtlasDetDescr
+    AtlasRegion = ROOT.AtlasDetDescr.AtlasRegion
 
     kwargs.setdefault("ForceEndVtxInRegions", [AtlasRegion.fAtlasID])
     result = MC15TruthServiceCfg(ConfigFlags, name, **kwargs)

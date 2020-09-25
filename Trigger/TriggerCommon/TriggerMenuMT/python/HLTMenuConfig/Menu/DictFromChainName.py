@@ -273,7 +273,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
             for chainCategory in [(['mb'], 'MinBias', 'mb'),
                                   (['hi'], 'HeavyIon', 'mb'),
                                   (AllowedCosmicChainIdentifiers, 'Cosmic', 'cosmic'),
-                                  (AllowedCalibChainIdentifiers, 'Calibration', 'calib'),
+                                  (AllowedCalibChainIdentifiers, 'Calib', 'calib'),
                                   (AllowedMonitorChainIdentifiers, 'Monitor', 'calib'),
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb') ]:
@@ -357,7 +357,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         log.debug('Chainparts: %s', chainparts)
         if (chainProperties['signature'] != 'Cosmic') \
-                & (chainProperties['signature'] != 'Calibration')\
+                & (chainProperties['signature'] != 'Calib')\
                 & (chainProperties['signature'] != 'Streaming') \
                 & (chainProperties['signature'] != 'Beamspot') \
                 & (chainProperties['signature'] != 'Monitor') :
@@ -440,8 +440,8 @@ def analyseChainName(chainName, L1thresholds, L1item):
 
         # ---- remove properties that aren't allowed in the chain properties for a given siganture ----
         forbiddenProperties = set(chainProperties.keys()) - set(allowedSignaturePropertiesAndValues.keys())
-        log.debug('chainPropertie:s %s', set(chainProperties.keys()))
-        log.debug('allowedSignaturePropertiesAndValues: %s', set(allowedSignaturePropertiesAndValues.keys()))
+        log.debug('chainProperties: %s', sorted(set(chainProperties.keys())))
+        log.debug('allowedSignaturePropertiesAndValues: %s', sorted(set(allowedSignaturePropertiesAndValues.keys())))
         for fb in forbiddenProperties:
             forbiddenValue = chainProperties.pop(fb)
             assert forbiddenValue == '', "Property {} not allowed for signature '{}', but specified '{}'".format (fb, chainProperties['signature'], forbiddenValue)

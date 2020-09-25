@@ -17,9 +17,7 @@ class PixelChargeInterpolationHistograms;
 class PixelChargeInterpolationPlot;
 class PixelChargeInterpolationParameters;
 
-class PixelChargeInterpolationCalibration;
-
-class ATLAS_NOT_THREAD_SAFE PixelChargeInterpolationCalibration{ // Thread unsafe PixelChargeInterpolationPlot class is used.
+class PixelChargeInterpolationCalibration{
 
 public :
 	// Modified stuff

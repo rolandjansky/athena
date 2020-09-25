@@ -21,6 +21,7 @@
 /// Standard Constructor
 AmdcDb::AmdcDb(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc) 
+  , m_emptyRecordset(new AmdcDbRecordset())
   , p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
 {
   p_AmdcDbSvcFromAmdc = 0 ;
@@ -306,15 +307,15 @@ IRDBRecordset_ptr AmdcDb::getRecordsetPtr(const std::string& node,
                                           const std::string& /*tag2node*/ ,
                                           const std::string& /*connName*/)
 {
-  IRDBRecordset_ptr pIRDBRecordset; 
   if(tag=="RDB") {
-    pIRDBRecordset = p_AmdcDbSvcFromRDB->getRecordset(node);
+    return p_AmdcDbSvcFromRDB->getRecordset(node);
   }
   else if(tag=="Amdc") {
-    pIRDBRecordset = p_AmdcDbSvcFromAmdc->getRecordset(node);
+    return p_AmdcDbSvcFromAmdc->getRecordset(node);
   }
-
-  return pIRDBRecordset;
+  else {
+    return m_emptyRecordset;
+  }
 }
 
 // Functions of IRDBAccessSvc Not implemented

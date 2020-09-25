@@ -459,7 +459,7 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
     }
   }
   //if(m_minCoord>m_maxCoord) {
-  // std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
+  //std::cout<<"WRONG ORDER: m_minCoord="<<m_minCoord<<" m_maxCoord="<<m_maxCoord<<std::endl;
   // }
   //float tmp = m_maxCoord;m_maxCoord = m_minCoord;m_minCoord = tmp;
   //}

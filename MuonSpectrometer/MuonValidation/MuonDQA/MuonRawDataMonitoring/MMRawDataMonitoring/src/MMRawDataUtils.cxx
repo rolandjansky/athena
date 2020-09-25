@@ -17,14 +17,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
          
 
 #include "MMRawDataMonitoring/MMRawDataMonAlg.h"
-#include <TError.h>
 #include <string>
-#include <TBox.h>
-#include <TList.h>
-#include <TLine.h>
-#include <TColor.h>
-#include <TString.h>
-#include <TRegexp.h>
 #include <stdexcept>
 
 int MMRawDataMonAlg::get_PCB_from_channel(int channel) const {
@@ -64,8 +57,8 @@ int MMRawDataMonAlg::get_sectorPhi_from_stationPhi_stName(int stationPhi,const s
 int MMRawDataMonAlg::get_sectorEta_from_stationEta(int stationEta) const {
  
   //  1<-0  0-> 1
-  if (std::abs(stationEta==1)) return 0;                                                            
-  if (std::abs(stationEta==2)) return 1;
+  if (std::abs(stationEta)==1) return 0;                                                            
+  if (std::abs(stationEta)==2) return 1;
 
   return -1;
 

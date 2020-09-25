@@ -32,7 +32,10 @@
 
 using namespace InDetDD;
 
-GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D) 
+GeoPixelSiCrystal::GeoPixelSiCrystal(InDetDD::PixelDetectorManager* ddmgr,
+                                     PixelGeometryManager* mgr,
+                                     bool isBLayer, bool isModule3D)
+  : GeoVPixelFactory (ddmgr, mgr)
 {
   // 
   //Builds the design for this crystal

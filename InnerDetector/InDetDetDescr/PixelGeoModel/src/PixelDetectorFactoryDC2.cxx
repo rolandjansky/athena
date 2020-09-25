@@ -30,34 +30,33 @@ using InDetDD::SiCommonItems;
 using namespace PixelGeoDC2;
 
 
-PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps * athenaComps,
+PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(PixelGeoModelAthenaComps * athenaComps,
 						 const PixelSwitches & switches)						 
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(0)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
-  GeoVPixelFactory::SetDDMgr(m_detectorManager);
 
   // Create the geometry manager.
-  PixelGeometryManager * geometryManager =  PixelGeometryManager::GetPointer();
+  m_geometryManager =  new OraclePixGeoManager();
   
   // Pass the switches
-  geometryManager->SetServices(switches.services());
-  geometryManager->SetG3CompatibleDigits(switches.g3CompatibleDigits());
-  geometryManager->SetDC1Geometry(switches.dc1Geometry());
-  geometryManager->SetAlignable(switches.alignable());
-  geometryManager->SetInitialLayout(switches.initialLayout());
+  m_geometryManager->SetServices(switches.services());
+  m_geometryManager->SetG3CompatibleDigits(switches.g3CompatibleDigits());
+  m_geometryManager->SetDC1Geometry(switches.dc1Geometry());
+  m_geometryManager->SetAlignable(switches.alignable());
+  m_geometryManager->SetInitialLayout(switches.initialLayout());
 
   // Create SiCommonItems ans store it in geometry manager. 
   // These are items that are shared by all elements
   std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(athenaComps->getIdHelper())};
-  geometryManager->setCommonItems(commonItems.get());
+  m_geometryManager->setCommonItems(commonItems.get());
 
   m_detectorManager->setCommonItems(std::move(commonItems));
  
   bool initialLayoutIdDict = (m_detectorManager->tag() == "initial_layout");
-  if (geometryManager->InitialLayout() != initialLayoutIdDict ) {
+  if (m_geometryManager->InitialLayout() != initialLayoutIdDict ) {
     if(msgLvl(MSG::WARNING)) 
       msg(MSG::WARNING) << "IdDict tag is \"" << m_detectorManager->tag() 
 			<< "\" which is inconsistent with the layout choosen!"
@@ -68,7 +67,7 @@ PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps 
   //
   // Set Version information
   //
-  std::string versionTag = geometryManager->versionTag();
+  std::string versionTag = m_geometryManager->versionTag();
   std::string versionName = "DC2";
   std::string layout = "Final";
   std::string description = "DC2 Geometry";
@@ -76,23 +75,23 @@ PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps 
   int versionMinorNumber = 2;
   int versionPatchNumber = 0;
 
-  if (geometryManager->G3CompatibleDigits()) {
+  if (m_geometryManager->G3CompatibleDigits()) {
     description += ", G3 Compatible Digits";
     versionMinorNumber = 1;
   }
 
-  if (geometryManager->InitialLayout()) {
+  if (m_geometryManager->InitialLayout()) {
     layout = "Initial";
   }
   
   // We determine if we are running DC1 geoemtry via 
   // Barrel version number in NOVA 
-  if (geometryManager->DC1Geometry()) {
+  if (m_geometryManager->DC1Geometry()) {
      versionName = "DC1";
      description = "DC1 Geometry (300um B-Layer pixels)";
      versionMajorNumber = 1;
      versionMinorNumber = 2;
-     if (geometryManager->G3CompatibleDigits()) {
+     if (m_geometryManager->G3CompatibleDigits()) {
        description += ", G3 Compatible Digits";
        versionMinorNumber = 1;
      }
@@ -120,23 +119,21 @@ PixelDetectorFactoryDC2::~PixelDetectorFactoryDC2()
 //## Other Operations (implementation)
 void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
 {
-  PixelGeometryManager * geometryManager =  PixelGeometryManager::GetPointer();
-
   if(msgLvl(MSG::INFO)) {
     msg(MSG::INFO) << "Building Pixel Detector" << endmsg;
     msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/Gaudi::Units::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ(true)/Gaudi::Units::micrometer << "um" << endmsg;
   }  
-  geometryManager->SetCurrentLD(0);
-  geometryManager->SetBarrel();
+  m_geometryManager->SetCurrentLD(0);
+  m_geometryManager->SetBarrel();
   if(msgLvl(MSG::INFO)) 
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/Gaudi::Units::micrometer << "um" << endmsg;   
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/Gaudi::Units::micrometer << "um" << endmsg;   
   
   //
   // Create the Pixel Envelope...
-  GeoPixelEnvelope pe;
+  GeoPixelEnvelope pe (m_detectorManager, m_geometryManager);
   GeoVPhysVol* pephys = pe.Build() ;
   GeoAlignableTransform * transform = new GeoAlignableTransform(GeoTrf::Transform3D::Identity());
   
@@ -149,7 +146,7 @@ void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
   world->add(pephys);
 
   // Store alignable transform
-  Identifier id = geometryManager->getIdHelper()->wafer_id(0,0,0,0);
+  Identifier id = m_geometryManager->getIdHelper()->wafer_id(0,0,0,0);
   m_detectorManager->addAlignableTransform(2, id, transform, pephys);
 
   //
@@ -168,7 +165,7 @@ void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
   }
 
   // Register the callbacks and keys and the level corresponding to the key.
-  if (geometryManager->Alignable()) {
+  if (m_geometryManager->Alignable()) {
     m_detectorManager->addFolder("/Indet/Align");
     m_detectorManager->addChannel("/Indet/Align/ID",     2, InDetDD::global);
     m_detectorManager->addChannel("/Indet/Align/PIX",    1, InDetDD::global);

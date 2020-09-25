@@ -14,16 +14,18 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     tracksname = ""
     verticesname = ""
 
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+    IDTrigConfig = getInDetTrigConfig( 'jet' )
+
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-        # Guess FS rather than making it jet-specific?
-        viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=recordable(RoIs) )
+        viewAlgs = makeInDetAlgsNoView( config = IDTrigConfig, rois=recordable(RoIs))
         jetTrkSeq += viewAlgs
-        tracksname = recordable("HLT_IDTrack_FS_FTF")
+        tracksname =  IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
         verticesname = recordable("HLT_IDVertex_FS")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", tracksname, verticesname )
+    vtxAlgs = makeVertices( "jet", tracksname, verticesname, IDTrigConfig )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 

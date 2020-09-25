@@ -1,16 +1,7 @@
-################################################################################
-# Package: DCSCalculator2
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DCSCalculator2 )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Database/CoolRunQuery
-                          TileCalorimeter/TileCalib/TileCalibBlobObjs
-                          DataQuality/DQDefects
-                          DataQuality/DQUtils )
 
 # External dependencies:
 find_package( sqlalchemy )

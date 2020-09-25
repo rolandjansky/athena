@@ -19,9 +19,9 @@ class SCT_DataBase
   
 public:
 
-  SCT_DataBase(const SCT_GeoModelAthenaComps* athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe AthenaComps::rdbAccessSvc const method is used.
+  SCT_DataBase(SCT_GeoModelAthenaComps* athenaComps);
 
-  const SCT_GeoModelAthenaComps* athenaComps() const;
+  SCT_GeoModelAthenaComps* athenaComps();
 
   IRDBRecordset_ptr weightTable() const;
   IRDBRecordset_ptr scalingTable() const;
@@ -100,7 +100,7 @@ private:
 
 private:
 
-  const SCT_GeoModelAthenaComps* m_athenaComps;
+  SCT_GeoModelAthenaComps* m_athenaComps;
 
   std::string m_sctVersionTag;
 

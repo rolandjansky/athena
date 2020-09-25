@@ -9,12 +9,14 @@
 class GeoLogVol;
 class GeoPixelSiCrystal;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelModule : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelModule : public GeoVPixelFactory {
 
  public:
-  GeoPixelModule(GeoPixelSiCrystal &theSensor);
+  GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr,
+                 GeoPixelSiCrystal &theSensor);
   virtual ~GeoPixelModule();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   double Thickness();
   double ThicknessN();
   double ThicknessN_noSvc();

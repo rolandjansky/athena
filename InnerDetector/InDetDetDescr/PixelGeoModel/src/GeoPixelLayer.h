@@ -10,11 +10,12 @@
 class GeoPhysVol;
 class GeoTransform;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelLayer : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelLayer : public GeoVPixelFactory {
 
  public:
-  GeoPixelLayer();
-  virtual GeoVPhysVol* Build();
+  GeoPixelLayer(InDetDD::PixelDetectorManager* ddmgr,
+                PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 
   GeoPhysVol* getSupportA(){ return m_supportPhysA; }
   GeoPhysVol* getSupportC(){ return m_supportPhysC; }

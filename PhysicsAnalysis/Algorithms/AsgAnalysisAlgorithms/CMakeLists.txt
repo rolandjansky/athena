@@ -4,40 +4,13 @@
 
 atlas_subdir( AsgAnalysisAlgorithms )
 
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthContainersInterfaces
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCutFlow
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODMetaData
-   PhysicsAnalysis/Algorithms/SelectionHelpers
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/AnalysisCommon/PATCore
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/IsolationSelection
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
-   PRIVATE
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTruth
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
-
 atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
    LINK_LIBRARIES AthContainers AthContainersInterfaces AsgTools xAODBase
      xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
      PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces AssociationUtilsLib
-     IsolationSelectionLib
+     IsolationSelectionLib PMGAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES xAODCore xAODCutFlow xAODMetaData xAODJet xAODMuon xAODTau xAODEgamma xAODTracking xAODTruth
      RootCoreUtils )
 

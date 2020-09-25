@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -110,8 +110,11 @@
 #include <iomanip>
 #include <algorithm>
 
-GeoPixelServices::GeoPixelServices(InDetDD::Zone * pixZone) 
-  : m_pixServBuilder(0),
+GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr,
+                                   InDetDD::Zone * pixZone) 
+  : GeoVPixelFactory(ddmgr, mgr),
+    m_pixServBuilder(0),
     m_servMatBuilder(0),
     m_layerShift(0)
 {
@@ -346,7 +349,7 @@ void GeoPixelServices::initialize(const std::string & a)
   } 
 
   IRDBRecordset_ptr table = m_gmt_mgr->getPixelServiceRecordset(a);
- 
+
   InDetDD::ServiceVolumeMaker volMaker(label, table, schema, m_gmt_mgr->athenaComps());
   for (unsigned int i = 0; i < volMaker.numElements(); ++i) {
     m_services.push_back(volMaker.make(i));

@@ -1664,7 +1664,7 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
       }
       
       if (trigRoI) {
-	newTrigRoI = createSingleTrigRoiDescriptor( trigRoI->eta(), trigRoI->phi(), m_dEtaRoI, m_dPhiRoI, trigRoI->roiId() );
+	newTrigRoI = new TrigRoiDescriptor(unsigned(0), unsigned(trigRoI->roiId()), trigRoI->eta(), trigRoI->etaMinus(), trigRoI->etaPlus(), trigRoI->phi(), trigRoI->phiMinus(), trigRoI->phiPlus());
 	m_Roi_StillToBeAttached = newTrigRoI;
 	m_roi = newTrigRoI;
       } // if trigRoI

@@ -231,7 +231,7 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            key = (className, self.extractFolder(folder))
+            key = [className, self.extractFolder(folder)]
             if key not in condInputLoader.Load:
                 condInputLoader.Load += [ key ]
 

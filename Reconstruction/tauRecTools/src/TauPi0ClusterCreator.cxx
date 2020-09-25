@@ -33,6 +33,12 @@ TauPi0ClusterCreator::~TauPi0ClusterCreator()
 {
 }
 
+
+StatusCode TauPi0ClusterCreator::initialize() {
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  return StatusCode::SUCCESS;
+}
+
 //______________________________________________________________________________
 StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicClusterPFOContainer,
@@ -61,14 +67,28 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         shotVector.push_back( thisShot );
     }
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
+ 
+    if (! pTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return StatusCode::FAILURE;
+    }
+    const xAOD::Jet *jetSeed = pTau.jet();
+    
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
 
-    for (auto cluster: pPi0ClusterContainer){
-
+    for (const xAOD::CaloCluster* cluster: pPi0ClusterContainer){
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+        
         // selection
-        if (cluster->pt() < m_clusterEtCut)   continue;
+        if (clusterP4.Pt() < m_clusterEtCut)   continue;
         // Cluster container has clusters for all taus.
         // Only run on clusters that belong to this tau
-        if (cluster->p4().DeltaR(pTau.p4()) > .4) continue;
+        if (clusterP4.DeltaR(tauAxis) > 0.4) continue;
 
         // Get shots in this cluster. Need to use (CaloCluster*) (*clusterItr) 
         // (not a copy!) since the pointer will otherwise be different than in clusterToShotMap
@@ -237,13 +257,28 @@ std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap
                                                    clusterItrEnd(pPi0ClusterContainer.end());
         float weightInCluster=-1.;
         float weightInPreviousCluster=-1;
+    
+        const xAOD::Jet *jetSeed = pTau.jet();
+        if (!jetSeed) {
+          ATH_MSG_ERROR("Tau jet link is invalid.");
+          return clusterToShotMap;
+        }
+        const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+        const xAOD::Vertex* tauVertex = nullptr;
+        if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+      
+        TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+
         for (; clusterItr != clusterItrEnd; ++clusterItr){
             xAOD::CaloCluster* cluster = (xAOD::CaloCluster*) (*clusterItr);
+            TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+            
             weightInCluster=-1.;
-            if (cluster->p4().Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
+            if (clusterP4.Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
             // Cluster container has clusters for all taus.
             // Only run on clusters that belong to this tau
-            if (cluster->p4().DeltaR(pTau.p4()) > .4)  continue;
+            if (clusterP4.DeltaR(tauAxis) > 0.4)  continue;
             const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
             CaloClusterCellLink::const_iterator cellItr  = theCellLink->begin();
             CaloClusterCellLink::const_iterator cellItrE = theCellLink->end();
@@ -391,27 +426,36 @@ std::vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster( const xAOD::Cal
 //______________________________________________________________________________
 bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer) const
 {
-    const xAOD::Jet* tauJetSeed = pTau.jet();
-    if (!tauJetSeed) {
-        ATH_MSG_ERROR("Could not retrieve tau jet seed");
-        return false;
+    if (! pTau.jetLink().isValid()) {
+      ATH_MSG_ERROR("Tau jet link is invalid.");
+      return false;
     }
+    const xAOD::Jet *jetSeed = pTau.jet();
+    
+    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    
+    const xAOD::Vertex* tauVertex = nullptr;
+    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+    
     std::vector<const xAOD::CaloCluster*> clusterList;
-
-    StatusCode sc = tauRecTools::GetJetClusterList(tauJetSeed, clusterList, m_incShowerSubtr);
+    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr);
     if (!sc) return false;
 
-    for (auto cluster : clusterList){
+    for (const xAOD::CaloCluster* cluster : clusterList){
         // Procedure: 
         // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
         // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
         // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
-        if(cluster->e()<=0.) continue;
+        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+        
+        if(clusterP4.E()<=0.) continue;
 
         // Only need clusters in core cone. Others are not needed for subtraction
-        if(pTau.p4().DeltaR(cluster->p4()) > 0.2) continue;
+        if(tauAxis.DeltaR(clusterP4) > 0.2) continue;
 
         // Loop over cells to calculate cluster energy in Hcal
         double clusterE_Hcal=0.;

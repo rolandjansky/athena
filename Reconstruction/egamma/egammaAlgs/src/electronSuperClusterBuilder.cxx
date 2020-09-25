@@ -55,7 +55,7 @@ electronSuperClusterBuilder::finalize()
 }
 
 StatusCode
-electronSuperClusterBuilder::execute_r(const EventContext& ctx) const
+electronSuperClusterBuilder::execute(const EventContext& ctx) const
 {
 
   SG::ReadHandle<EgammaRecContainer> egammaRecs(m_inputEgammaRecContainerKey, ctx);

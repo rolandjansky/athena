@@ -40,7 +40,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactoryDC3::InDetServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps)
+InDetServMatFactoryDC3::InDetServMatFactoryDC3(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_manager(0)
 {}
@@ -54,7 +54,7 @@ InDetServMatFactoryDC3::~InDetServMatFactoryDC3()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe rdbAccessSvc method is used.
+void InDetServMatFactoryDC3::create(GeoPhysVol *world )
 {
 
 

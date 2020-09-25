@@ -1002,7 +1002,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
 }
 
 
-//////////////////////////////////////////////// Privé //////////////////////////////////////////////////////
+//////////////////////////////////////////////// Privat //////////////////////////////////////////////////////
  
 /**Helper to get last calo TSOS with TP*/
 const Trk::TrackStateOnSurface* Trk::TrkMaterialProviderTool::getCaloExitTSOS(const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS, Trk::PropDirection dir) const
@@ -1142,8 +1142,8 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
   // delete the view container
   delete caloTSOS;
 }
-void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
-						  DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
+void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
+						  const DataVector<const Trk::TrackStateOnSurface>::iterator& firstMS, 
                                                   double X0ScaleMS, double ElossScaleMS) const
 {
 

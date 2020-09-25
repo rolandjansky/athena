@@ -71,7 +71,7 @@ StatusCode PixMapOverlayWriter::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixMapOverlayWriter::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ModuleSpecialPixelMap class is used.
+StatusCode PixMapOverlayWriter::execute (){
 
   auto spm = std::make_unique<DetectorSpecialPixelMap>();
   for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){

@@ -13,7 +13,7 @@ TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExte
 
 #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
 from RecExConfig.RecFlags import rec
-if True == rec.readESD:
+if rec.readESD==True:
    TrackCaloExtensionTool.PFParticleCache = ""
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
@@ -243,9 +243,12 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
     PFONeutralCreatorAlgorithm.AddShowerSubtractedClusters = True
 
 topSequence += PFONeutralCreatorAlgorithm
+from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
+jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
+jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
-
+   
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
@@ -253,7 +256,7 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
 jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 #Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements:
+if jobproperties.eflowRecFlags.useFlowElements: 
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
   PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
   topSequence += PFChargedFlowElementCreatorAlgorithm 
@@ -266,9 +269,19 @@ if jobproperties.eflowRecFlags.useFlowElements:
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
 
+  # Electron/Photon linkers to flow elements
+  from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
+  PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
+  topSequence +=PFEGamFlowElementAssoc
+
+  # Muon linker to flow elements
   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
   PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
   #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
   PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=False
   PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # second switch combined with first implies Muon topoclusters are linked to neutral Flow Elements
   topSequence += PFMuonFlowElementAssocAlg
+
+
+
+

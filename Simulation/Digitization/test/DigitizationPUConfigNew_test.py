@@ -15,6 +15,7 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 from Digitization.DigitizationParametersConfig import writeDigitizationMetadata
 from MCTruthSimAlgs.RecoTimingConfig import MergeRecoTimingObjCfg
+from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
 from DigitizationPUConfigNew_test_setup import (
     test_HighPtMinbiasHitsFile,
@@ -109,6 +110,7 @@ acc.merge(MergeCalibHitsCfg(ConfigFlags))
 #acc.getEventAlgo("OutputStreamRDO").AcceptAlgs = ["StandardPileUpToolsAlg"]
 
 # Dump config
+acc.merge(JobOptsDumperCfg(ConfigFlags, FileName="DigiPUConfig.txt"))
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
 acc.printConfig(withDetails=True)

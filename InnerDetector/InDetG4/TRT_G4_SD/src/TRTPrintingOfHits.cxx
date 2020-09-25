@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -17,7 +17,7 @@
 
 TRTPrintingOfHits::TRTPrintingOfHits(): m_msg("TRTPrintingOfHits")
 {
-  TRTParameters* pParameters = TRTParameters::GetPointer();
+  const TRTParameters* pParameters = TRTParameters::GetPointer();
 
   m_printMessages = pParameters->GetInteger("PrintMessages");
 

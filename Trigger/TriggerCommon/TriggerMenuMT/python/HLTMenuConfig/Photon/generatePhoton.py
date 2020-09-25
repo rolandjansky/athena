@@ -8,7 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
-from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -31,7 +30,7 @@ def generateChains(flags, chainDict):
 
     l2CaloHypo = l2CaloHypoCfg( flags,
                                 name = 'L2PhotonCaloHypo',
-                                CaloClusters = recordable('HLT_FastCaloEMClusters') )
+                                CaloClusters = 'HLT_FastCaloEMClusters' )
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 

@@ -72,7 +72,7 @@ def TileInfoLoaderCfg(flags, **kwargs):
 
 
     TileInfoLoader=CompFactory.TileInfoLoader
-    acc.addService(TileInfoLoader(**kwargs), primary = True)
+    acc.addService(TileInfoLoader(**kwargs), primary = True, create=True)
 
     return acc
 
