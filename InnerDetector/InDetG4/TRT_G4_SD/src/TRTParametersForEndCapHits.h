@@ -10,7 +10,7 @@
 class TRTParameters;
 class TRTProcessingOfEndCapHits;
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersForEndCapHits // Thread unsafe TRTParameters and TRTProcessingOfEndCapHits classes are used.
+class TRTParametersForEndCapHits
 {
 public:
   TRTParametersForEndCapHits(TRTProcessingOfEndCapHits*);
@@ -22,7 +22,7 @@ private:
 
   int m_printMessages; // FIXME not used?
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;
 
   int m_verboseLevel;

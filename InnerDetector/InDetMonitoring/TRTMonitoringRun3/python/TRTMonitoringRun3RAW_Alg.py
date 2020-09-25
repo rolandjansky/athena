@@ -2,16 +2,28 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
-    from AthenaMonitoring import AthMonitorCfgHelperOld as AthMonitorCfgHelper
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
+        from AthenaMonitoring import AthMonitorCfgHelper
+        isOnline = inputFlags.Common.isOnline
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        rv = ComponentAccumulator()
+    else:
+        from AthenaMonitoring import AthMonitorCfgHelperOld as AthMonitorCfgHelper
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        isOnline = athenaCommonFlags.isOnline
     helper = AthMonitorCfgHelper(inputFlags, 'TRTMonitoringCfg')
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     algTRTMonitoringRun3RAW = helper.addAlgorithm(CompFactory.TRTMonitoringRun3RAW_Alg,
                                                   'AlgTRTMonitoringRun3RAW',
-                                                  ByteStreamErrors= "" if inputFlags.isMC else "TRT_ByteStreamErrs"
+                                                  ByteStreamErrors= "" if inputFlags.Input.isMC else "TRT_ByteStreamErrs",
+                                                  TrackSummaryTool= "InDetTrackSummaryTool"
                                               )
 
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if isRun3Cfg():
+        from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
+        algTRTMonitoringRun3RAW.TrackSummaryTool = rv.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
 
     maxLumiBlock         = 200
     numberOfBarrelStacks = 32
@@ -108,7 +120,7 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                 rdoEndcapGroup.defineHistogram('HitWMap_Ar_passed,HitWMap_Ar;hHitWMap_Ar_{0}'.format(side[iside]),type='TEfficiency',title='Leading Edge in Time Window: Argon Straws (E{0});Straw Number in Stack;Probability'.format(side[iside]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=strawMax[ibe],xmin=0,xmax=strawMax[ibe])   
         for iside in range(2):
             regionTag = ' (' + beId[ibe] + sideId[iside] + ')'
-            regionMarker = (beId[ibe] + sideId[iside]) if athenaCommonFlags.isOnline is True else (sideId[iside])
+            regionMarker = (beId[ibe] + sideId[iside]) if isOnline is True else (sideId[iside])
             rdoLLHLOccGroup = helper.addGroup(algTRTMonitoringRun3RAW,'RDOLLHLOccHistograms{0}{1}'.format(ibe,iside))
             rdoLLHLOccGroup.defineHistogram('AvgHLOcc_side_x,AvgHLOcc_side_y;hAvgHLOcc_{0}'.format(regionMarker),type='TProfile',title='Avg. HL Occupancy{0};{1};Occupancy'.format(regionTag,stackOrSector[ibe]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=1,xmax=33)
             rdoLLHLOccGroup.defineHistogram('AvgLLOcc_side_x,AvgLLOcc_side_y;hAvgLLOcc_{0}'.format(regionMarker),type='TProfile',title='Avg. LL Occupancy{0};{1};Occupancy'.format(regionTag,stackOrSector[ibe]),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=1,xmax=33)
@@ -209,4 +221,8 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                 shiftTrackEndcapGroup.defineHistogram('StrawEffDetPhi_E_passed,StrawEffDetPhi_E;hStrawEffDetPhi_{0}'.format(sideId[iside]),type='TEfficiency',title='Straw Efficiency on Track with {0} mm Cut vs #phi(2D){1};Stack;Avg. Straw Efficiency'.format(distance,regionTag),path='TRT/Shift/{0}'.format(barrelOrEndcap[ibe]),xbins=32,xmin=0,xmax=32)
     ### Finished Booking TRT Hits Histograms ###
 
-    return helper.result()
+    if isRun3Cfg():
+        rv.merge(helper.result())
+        return rv
+    else:
+        return helper.result()

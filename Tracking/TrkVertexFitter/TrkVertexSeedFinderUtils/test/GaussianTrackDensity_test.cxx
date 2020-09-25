@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file TrkVertexSeedFinderUtils/test/GaussianTrackDensity_test.cxx
@@ -10,22 +10,19 @@
 
 
 #undef NDEBUG
-#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
-#include "TestTools/initGaudi.h"
-#include "TestTools/FLOATassert.h"
-#include "TestTools/expect_exception.h"
-#include "TestTools/random.h"
-#include "GaudiKernel/SystemOfUnits.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TInterpreter.h"
-#include <iostream>
+#include "TestTools/FLOATassert.h"
+#include "TestTools/expect_exception.h"
+#include "TestTools/initGaudi.h"
+#include "TestTools/random.h"
+#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
 #include <cassert>
 #include <cmath>
+#include <iostream>
 
-
-// Can't link against these --- they're in a component library.
-#include "../src/GaussianTrackDensity.cxx"
 
 
 using Gaudi::Units::mm;
@@ -104,7 +101,7 @@ void test2 (Trk::GaussianTrackDensity& tool)
     else {
       z = z1dist(rng);
     }
-      
+
     Amg::Vector3D pos { x, y, z };
     double pt = ptdist(rng);
     double phi = phidist(rng);

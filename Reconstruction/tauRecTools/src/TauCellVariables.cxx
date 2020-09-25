@@ -27,11 +27,11 @@ TauCellVariables::~TauCellVariables() {
 //______________________________________________________________________________
 StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
-  const xAOD::Jet* pJetSeed = pTau.jet();
-  if (!pJetSeed) {
+  if (! pTau.jetLink().isValid()) {
     ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
     return StatusCode::FAILURE;
   }
+  const xAOD::Jet* pJetSeed = pTau.jet();
   
   ATH_MSG_VERBOSE("cluster position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
 
@@ -76,17 +76,19 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
       double cellEta = cell->eta();
       double cellET = cell->et();
       double cellEnergy = cell->energy();
+      TLorentzVector tauAxis = pTau.p4(xAOD::TauJetParameters::DetectorAxis);
 
       // correct cell four momentum based on tau vertex
-      if (m_doVertexCorrection && pTau.vertexLink()) {
+      if (m_doVertexCorrection && pTau.vertexLink().isValid()) {
         CaloVertexedCell vxCell (*cell, pTau.vertex()->position());
         cellPhi = vxCell.phi();
         cellEta = vxCell.eta();
         cellET = vxCell.et();
         cellEnergy = vxCell.energy();
+        tauAxis = pTau.p4(xAOD::TauJetParameters::IntermediateAxis);
       }
       
-      double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),cellEta,cellPhi);
+      double dR = Tau1P3PKineUtils::deltaR(tauAxis.Eta(), tauAxis.Phi(), cellEta, cellPhi);
       CaloSampling::CaloSample calo = cell->caloDDE()->getSampling();
       
       // use cells with dR < m_cellCone relative to tau intermediate axis:

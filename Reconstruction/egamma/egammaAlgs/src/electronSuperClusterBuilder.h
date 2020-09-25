@@ -29,13 +29,7 @@ public:
   // Tool standard routines.
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final
-  {
-    return execute_r(Algorithm::getContext());
-  }
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
+  StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   bool matchSameTrack(const xAOD::TrackParticle& seedTrack,

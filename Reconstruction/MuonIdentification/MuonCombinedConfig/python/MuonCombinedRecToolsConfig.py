@@ -224,7 +224,7 @@ def MuonCreatorToolCfg(flags, name="MuonCreatorTool", **kwargs):
     kwargs.setdefault("TrackParticleCreator", acc.getPrimary() )
     result.merge(acc)
 
-    acc = ParticleCaloExtensionToolCfg(flags)
+    acc = ParticleCaloExtensionToolCfg(flags,StartFromPerigee=True)
     kwargs.setdefault("ParticleCaloExtensionTool", acc.getPrimary() )
     result.merge(acc)
 

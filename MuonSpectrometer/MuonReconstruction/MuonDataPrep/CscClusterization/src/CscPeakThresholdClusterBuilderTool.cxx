@@ -72,8 +72,7 @@ CscPeakThresholdClusterBuilderTool::CscPeakThresholdClusterBuilderTool(const std
                                                                        const std::string& aname,
                                                                        const IInterface*  parent)
     : AthAlgTool(type, aname, parent),
-      m_digit_key("CSC_Measurements"),
-      m_fullEventDone(false)
+      m_digit_key("CSC_Measurements")
 {
 
     declareInterface<ICscClusterBuilder>(this);

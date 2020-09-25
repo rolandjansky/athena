@@ -8,10 +8,14 @@
 #include <fstream>
 
 
-TRTParameters* TRTParameters::s_pParameters = NULL;
+const TRTParameters* TRTParameters::GetPointer()
+{
+  static TRTParameters parameters ATLAS_THREAD_SAFE;
+  return &parameters;
+}
 
 
-  // Called by GetPointer
+// Called by GetPointer
 
 TRTParameters::TRTParameters() : m_msg("TRTParameters")
 {
@@ -34,15 +38,13 @@ TRTParameters::~TRTParameters()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters" << endmsg;
 
-  s_pParameters = NULL;
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "####### Destructor TRTParameters done" << endmsg;
 }
 
 
   // Called by TRTParameters
 
-void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) // Thread unsafe exit function is used.
+void TRTParameters::ReadInputFile(std::string fileName)
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::ReadInputFile" << endmsg;
 
@@ -55,7 +57,7 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
     std::cerr << "***** TRTParameters::ReadInputFile *****" << std::endl;
     std::cerr << "  Cannot open input file '" << fileName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 
   int inputState = 0;
@@ -88,7 +90,7 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
 	std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
         std::cerr << "  Cannot find symbol '='." << std::endl;
         std::cerr << "  Exit!" << std::endl << std::endl;
-        exit(0);
+        std::abort();
       }
     }
     else if (inputState == 3)
@@ -108,7 +110,7 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
           std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
           std::cerr << "  Unexpected symbol '>'." << std::endl;
           std::cerr << "  Exit!" << std::endl << std::endl;
-          exit(0);
+          std::abort();
         }
       }
       else if (inputString == "<")
@@ -119,7 +121,7 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
         std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
         std::cerr << "  Unexpected symbol '<'." << std::endl;
         std::cerr << "  Exit!" << std::endl << std::endl;
-        exit(0);
+        std::abort();
       }
       else
       {
@@ -138,7 +140,7 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
     std::cerr << "  Last parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Cannot find symbol '>' at the end of file." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 
   inputFile.close();
@@ -149,10 +151,8 @@ void TRTParameters::ReadInputFile ATLAS_NOT_THREAD_SAFE (std::string fileName) /
 
   // Called by TRTParameters
 
-void TRTParameters::PrintListOfParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile class is used.
+void TRTParameters::PrintListOfParameters() const
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters" << endmsg;
-
   TRTOutputFile* pOutputFile = TRTOutputFile::GetPointer();
 
   std::ofstream& output = pOutputFile->GetReference();
@@ -164,14 +164,12 @@ void TRTParameters::PrintListOfParameters ATLAS_NOT_THREAD_SAFE () const // Thre
     i != m_multimapOfParameters.end(); ++i)
     output << "  " << (*i).first << "=" << (*i).second << std::endl;
   output << std::endl;
-
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParameters::PrintListOfParameters done" << endmsg;
 }
 
 
   // Called on demand
 
-int TRTParameters::GetInteger ATLAS_NOT_THREAD_SAFE (std::string parameterName) const // Thread unsafe exit function is used.
+int TRTParameters::GetInteger(std::string parameterName) const
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -187,7 +185,7 @@ int TRTParameters::GetInteger ATLAS_NOT_THREAD_SAFE (std::string parameterName) 
     std::cerr << "***** TRTParameters::GetInteger *****" << std::endl;
     std::cerr << "  Cannot find parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -196,14 +194,14 @@ int TRTParameters::GetInteger ATLAS_NOT_THREAD_SAFE (std::string parameterName) 
     std::cerr << "  Parameter '" << parameterName << "' has " << numberOfItems
            << " copies." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-double TRTParameters::GetDouble ATLAS_NOT_THREAD_SAFE (std::string parameterName) const // Thread unsafe exit function is used.
+double TRTParameters::GetDouble(std::string parameterName) const
 {
   int numberOfItems = m_multimapOfParameters.count(parameterName);
 
@@ -219,7 +217,7 @@ double TRTParameters::GetDouble ATLAS_NOT_THREAD_SAFE (std::string parameterName
     std::cerr << "***** TRTParameters::GetDouble *****" << std::endl;
     std::cerr << "  Cannot find parameter '" << parameterName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -228,15 +226,15 @@ double TRTParameters::GetDouble ATLAS_NOT_THREAD_SAFE (std::string parameterName
     std::cerr << "  Parameter '" << parameterName << "' has " << numberOfItems
            << " copies." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-void TRTParameters::GetIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, int arraySize, // Thread unsafe exit function is used.
-  int* array) const
+void TRTParameters::GetIntegerArray(std::string arrayName, int arraySize,
+                                    int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -252,7 +250,7 @@ void TRTParameters::GetIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName
     std::cerr << "***** TRTParameters::GetIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -262,15 +260,15 @@ void TRTParameters::GetIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName
            << "." << std::endl;
     std::cerr << "  Demanded size is " << arraySize << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-void TRTParameters::GetDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, int arraySize, // Thread unsafe exit function is used.
-  double* array) const
+void TRTParameters::GetDoubleArray(std::string arrayName, int arraySize,
+                                   double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -286,7 +284,7 @@ void TRTParameters::GetDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName,
     std::cerr << "***** TRTParameters::GetDoubleArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -296,15 +294,15 @@ void TRTParameters::GetDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName,
            << "." << std::endl;
     std::cerr << "  Demanded size is " << arraySize << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-void TRTParameters::GetPartOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
-  int numberOfDemandedElements, int* array) const
+void TRTParameters::GetPartOfIntegerArray(std::string arrayName,
+                                          int numberOfDemandedElements, int* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -320,7 +318,7 @@ void TRTParameters::GetPartOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arr
     std::cerr << "***** TRTParameters::GetPartOfIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -331,15 +329,15 @@ void TRTParameters::GetPartOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arr
     std::cerr << "  Number of demanded elements " << numberOfDemandedElements
            << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-void TRTParameters::GetPartOfDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
-  int numberOfDemandedElements, double* array) const
+void TRTParameters::GetPartOfDoubleArray(std::string arrayName,
+                                         int numberOfDemandedElements, double* array) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -355,7 +353,7 @@ void TRTParameters::GetPartOfDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arra
     std::cerr << "***** TRTParameters::GetPartOfDoubleArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -366,15 +364,15 @@ void TRTParameters::GetPartOfDoubleArray ATLAS_NOT_THREAD_SAFE (std::string arra
     std::cerr << "  Number of demanded elements " << numberOfDemandedElements
            << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }
 
 
   // Called on demand
 
-int TRTParameters::GetElementOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string arrayName, // Thread unsafe exit function is used.
-  int elementIndex) const
+int TRTParameters::GetElementOfIntegerArray(std::string arrayName,
+                                            int elementIndex) const
 {
   int numberOfItems = m_multimapOfParameters.count(arrayName);
 
@@ -390,7 +388,7 @@ int TRTParameters::GetElementOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string a
     std::cerr << "***** TRTParameters::GetElementOfIntegerArray *****" << std::endl;
     std::cerr << "  Cannot find array '" << arrayName << "'." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
   else
   {
@@ -400,6 +398,6 @@ int TRTParameters::GetElementOfIntegerArray ATLAS_NOT_THREAD_SAFE (std::string a
            << arrayName << "'." << std::endl;
     std::cerr << "  Array size " << numberOfItems << "." << std::endl;
     std::cerr << "  Exit!" << std::endl << std::endl;
-    exit(0);
+    std::abort();
   }
 }

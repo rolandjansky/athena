@@ -25,7 +25,7 @@ else:
 #--------------------------------------------------------------  
 
 if not 'DQMonFlags' in dir():
-   print "MuonDQAMonitoring_Tier0.py: DQMonFlags not yet imported - I import them now"
+   print("MuonDQAMonitoring_Tier0.py: DQMonFlags not yet imported - I import them now")
    from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 if DQMonFlags.monManEnvironment() == 'tier0Raw':

@@ -10,6 +10,7 @@ from MuonConfig.MuonByteStreamCnvTestConfig import TgcDigitToTgcRDOCfg
 from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -22,19 +23,20 @@ def TGC_LastXing():
     return 75
 
 
-def TGC_RangeToolCfg(flags, name="TGC_Range", **kwargs):
+def TGC_RangeCfg(flags, name="TGC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for TGC"""
     kwargs.setdefault("FirstXing", TGC_FirstXing())
     kwargs.setdefault("LastXing", TGC_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["TGCSimHitCollection#TGC_Hits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def TGC_DigitizationToolCfg(flags, name="TgcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured TgcDigitizationTool"""
     acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TGC_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", TGC_FirstXing())
         kwargs.setdefault("LastXing", TGC_LastXing())

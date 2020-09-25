@@ -1,16 +1,12 @@
-#include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
-#include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
+#include "../GaussianDensityTestAlg.h"
 #include "TrkVertexSeedFinderUtils/FsmwMode1dFinder.h"
+#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
+#include "TrkVertexSeedFinderUtils/Mode3dFromFsmw1dFinder.h"
 #include "TrkVertexSeedFinderUtils/Mode3dTo1dFinder.h"
+#include "TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder.h"
 #include "TrkVertexSeedFinderUtils/SeedNewtonTrkDistanceFinder.h"
 #include "TrkVertexSeedFinderUtils/Trk2DDistanceFinder.h"
-#include "TrkVertexSeedFinderUtils/SimpleVertexClusterFinder.h"
-#include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
-#include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
-#include "TrkVertexSeedFinderUtils/Mode3dFromFsmw1dFinder.h"
-#include "../ImagingSeedTuningAlg.h"
-#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
-#include "../GaussianDensityTestAlg.h"
+#include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
 
 using namespace Trk ;
 
@@ -20,10 +16,6 @@ DECLARE_COMPONENT( Mode3dTo1dFinder )
 DECLARE_COMPONENT( SeedNewtonTrkDistanceFinder )
 DECLARE_COMPONENT( FsmwMode1dFinder )
 DECLARE_COMPONENT( Trk2DDistanceFinder )
-DECLARE_COMPONENT( SimpleVertexClusterFinder )
-DECLARE_COMPONENT( LocalMax1DClusterFinder )
-DECLARE_COMPONENT( VertexImageMaker )
 DECLARE_COMPONENT( Mode3dFromFsmw1dFinder )
-DECLARE_COMPONENT( ImagingSeedTuningAlg )
 DECLARE_COMPONENT( GaussianTrackDensity )
 DECLARE_COMPONENT( GaussianDensityTestAlg )

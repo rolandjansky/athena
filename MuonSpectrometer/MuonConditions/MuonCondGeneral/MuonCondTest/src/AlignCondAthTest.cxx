@@ -2,16 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonCondTest/AlignCondAthTest.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonAlignmentData/CorrContainer.h"
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -32,13 +29,8 @@ AlignCondAthTest::AlignCondAthTest(const std::string& name, ISvcLocator* pSvcLoc
 }
  
 StatusCode AlignCondAthTest::initialize(){
-//
 
-  ATH_MSG_INFO( "in initialize()"  );
-  if (StatusCode::SUCCESS != detStore()->retrieve(m_MuonDetMgrDS)) {
-    ATH_MSG_FATAL("Couldn't load MuonDetectorManager");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_MuonDetMgrDS));
 
   ATH_CHECK(m_idHelperSvc.retrieve());
 
@@ -134,15 +126,6 @@ StatusCode AlignCondAthTest::execute() {
   }
   // if(checkCscGeometry().isFailure()) return StatusCode::FAILURE;
 
-  return StatusCode::SUCCESS;
-//
-}
- 
-StatusCode AlignCondAthTest::finalize() {
-//
-
-  ATH_MSG_INFO( "in finalize()"  );
-//
   return StatusCode::SUCCESS;
 //
 }

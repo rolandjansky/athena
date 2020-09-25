@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -53,7 +53,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from AsgAnalysisAlgorithms.AsgAnalysisAlgorithmsTest import makeOverlapSequence
 algSeq = makeOverlapSequence (dataType)
-print algSeq # For debugging
+print( algSeq ) # For debugging
 for alg in algSeq :
     job.algsAdd( alg )
     pass

@@ -131,7 +131,7 @@ def createSimConfigFlags():
     # map from runNumber to timestamp; migrated from RunDMCFlags.py
     def getRunToTimestampDict():
         # this wrapper is intended to avoid an initial import
-        from RunToTimestampData import RunToTimestampDict
+        from G4AtlasApps.RunToTimestampData import RunToTimestampDict
         return RunToTimestampDict
     scf.addFlag("Sim.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
 

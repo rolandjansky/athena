@@ -7,7 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
-
 # Note: various experimentalDigi uses not migrated
 
 def GenericMergeMcEventCollCfg(flags, name="MergeMcEventCollTool", **kwargs):
@@ -119,7 +118,7 @@ def TrackRecord_LastXing():
     return 1
 
 
-def TrackRangeCfg(flags, name="TrackRange" , **kwargs):
+def TrackRangeCfg(flags, name="TrackRange", **kwargs):
     """Return a Track configured PileUpXingFolder tool"""
     # this is the time of the xing in ns
     kwargs.setdefault("FirstXing", TrackRecord_FirstXing())
@@ -226,7 +225,7 @@ def TimingObj_LastXing():
     return 1
 
 
-def TimingObjRangeCfg(flags, name="TimingObjRange" , **kwargs):
+def TimingObjRangeCfg(flags, name="TimingObjRange", **kwargs):
     """Return a RecoTiming configured PileUpXingFolder tool"""
     #this is the time of the xing in ns
     kwargs.setdefault("FirstXing", TimingObj_FirstXing())

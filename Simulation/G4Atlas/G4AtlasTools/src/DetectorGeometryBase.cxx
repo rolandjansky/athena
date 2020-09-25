@@ -162,7 +162,7 @@ void DetectorGeometryBase::ResetEnvelope()
 {
 }
 
-void DetectorGeometryBase::SetDetectorName(const std::string s)
+void DetectorGeometryBase::SetDetectorName(const std::string& s)
 {
   m_detectorName=s;
 }

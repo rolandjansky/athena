@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -102,8 +102,10 @@ public:
 
 
   /** @brief Accumulate new values  */
-  bool setAddSubStep(const CaloGain::CaloGain gain_value, const HWIdentifier chid, 
-		     const std::vector<uint64_t> sampleSum, const std::vector <uint64_t> sampleSquare, 
+  bool setAddSubStep(const CaloGain::CaloGain gain_value,
+                     const HWIdentifier chid, 
+		     const std::vector<uint64_t>& sampleSum,
+                     const std::vector <uint64_t>& sampleSquare, 
 		     const unsigned nTrigger);
 
   void setAddSubStep(CaloGain::CaloGain gain_value, std::vector<uint32_t> sampleSum, 

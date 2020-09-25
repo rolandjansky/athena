@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
  
   ~iHitFilter();
   
-  int initialise(long maxlayers=19, double maxeta=3.0);
+  int initialise(long maxlayers, long maxBarrelLayer, double maxeta=3.0);
 
   double  getLayerThreshold() const { return m_layerThreshold; }
 
@@ -145,7 +145,8 @@ protected:                      // data members
   /// locally set parameters for number of layers (and max eta ??)
   long   m_IdScan_MaxNumLayers;
   double m_IdScan_MaxEta;
-  
+
+  long m_maxBarrelLayer = 6;
 };
 
 

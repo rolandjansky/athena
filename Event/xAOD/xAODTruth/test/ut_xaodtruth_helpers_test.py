@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This is a simple unit test for checking the health of the truth helper
 # functions in the standalone analysis environment.
@@ -33,7 +33,7 @@ def main():
     t = treeMgr.eventTree()
 
     # Loop on the first few events:
-    for entry in xrange( 10 ):
+    for entry in range( 10 ):
         # Load the event:
         if t.GetEntry( entry ) < 0:
             print( "Couldn't load entry %i from the input!" % entry )
@@ -56,7 +56,7 @@ def main():
             pass
         pass
 
-    return 0;
+    return 0
 
 # Execute the main function:
 if __name__ == "__main__":

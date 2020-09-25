@@ -35,6 +35,33 @@
 // various DataPool<Xyz>.
 namespace SG {
 
+#ifdef HEPMC3
+
+
+  template<>
+  inline void
+  ArenaAllocatorBase::destroy_fcn<HepMC::GenParticlePtr>(ArenaAllocatorBase::pointer p)
+  {
+  //GenParticlePtr is smart pointer
+  }
+
+  template<>
+  inline void
+  ArenaAllocatorBase::destroy_fcn<HepMC::GenVertexPtr>(ArenaAllocatorBase::pointer p)
+  {
+  //GenVertexPtr is smart pointer
+  }
+
+  template<>
+  inline void
+  ArenaAllocatorBase::destroy_fcn<HepMC::GenEvent>(ArenaAllocatorBase::pointer p)
+  {
+    HepMC::GenEvent* evt = reinterpret_cast<HepMC::GenEvent*>(p);
+    evt->~GenEvent();
+  }
+
+#else
+
   template<>
   inline void
   ArenaAllocatorBase::destroy_fcn<HepMC::GenParticle>(ArenaAllocatorBase::pointer p)
@@ -66,9 +93,26 @@ namespace SG {
     delete evt->m_pdf_info; evt->m_pdf_info = 0;
     evt->~GenEvent();
   }
+#endif  
 } // end namespace SG
 
 namespace HepMC {
+ #ifdef HEPMC3
+  struct DataPool {
+
+    typedef ::DataPool<HepMC::GenEvent> GenEvtPool_t;
+    /// an arena of @c HepMC::GenEvent for efficient object instantiation
+    GenEvtPool_t evt;
+
+    typedef ::DataPool<HepMC::GenVertexPtr> GenVtxPool_t;
+    /// an arena of @c HepMC::GenVertex for efficient object instantiation
+    GenVtxPool_t vtx;
+
+    typedef ::DataPool<HepMC::GenParticlePtr> GenPartPool_t;
+    /// an arena of @c HepMC::GenParticle for efficient object instantiation
+    GenPartPool_t part;
+  };
+#else
   struct DataPool {
 
     typedef ::DataPool<HepMC::GenEvent> GenEvtPool_t;
@@ -84,6 +128,7 @@ namespace HepMC {
     GenPartPool_t part;
   };
 
+#endif
 } // end namespace HepMC
 
 #endif // GENERATOROBJECTSATHENAPOOL_HEPMCDATAPOOL_H

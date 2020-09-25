@@ -57,7 +57,7 @@ then
     --maxEvents $events \
     --conditionsTag OFLCOND-MC16-SDR-20 \
     --geometryVersion ATLAS-R2-2016-01-00-01 \
-    --postInclude 'OverlayConfiguration.OverlayTestHelpers.JobOptsDumperCfg' \
+    --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
     --postExec 'with open("ConfigOverlay.pkl", "wb") as f: acc.store(f)' \
     --imf False \
     --athenaopts="--threads=1"

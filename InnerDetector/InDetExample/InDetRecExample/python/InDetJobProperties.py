@@ -1145,6 +1145,12 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class useNNTTrainedNetworks(InDetFlagsJobProperty):
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
   statusOn     = True 
@@ -2757,6 +2763,7 @@ _list_InDetJobProperties = [Enabled,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
+                            useNNTTrainedNetworks,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
                             doDBMstandalone,

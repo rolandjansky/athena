@@ -142,7 +142,6 @@ def tauCaloSequence(ConfigFlags):
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
     tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                   ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
@@ -169,7 +168,6 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
@@ -205,11 +203,6 @@ def tauIdTrackSequence( RoIs , name):
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     if globalflags.InputFormat.is_bytestream():
       viewVerify.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
@@ -290,11 +283,6 @@ def tauCoreTrackSequence( RoIs, name ):
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 
-
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
-                                 ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
 
     tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
 

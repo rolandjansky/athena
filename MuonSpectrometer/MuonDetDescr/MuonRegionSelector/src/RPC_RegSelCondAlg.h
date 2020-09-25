@@ -28,11 +28,14 @@ public:
 
   RPC_RegSelCondAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  std::unique_ptr<RegSelSiLUT> createTable( const MuonMDT_CablingMap* mdtCabling ) const override;
+  std::unique_ptr<RegSelSiLUT> createTable( const EventContext& ctx, EventIDRange& id_range ) const override;
 
   virtual StatusCode initialize() override;
+
 private:
-  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
+
+  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey
+    { this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData" };
 
 };
 

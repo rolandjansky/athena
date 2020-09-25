@@ -26,6 +26,11 @@ def main():
         logger.error( "Failed to call xAOD::Init(...)" )
         return 1
 
+    # Pre-load some dictionaries. To avoid ROOT-10940.
+    ROOT.xAOD.L2CombinedMuonContainer()
+    ROOT.xAOD.TrigElectronContainer()
+    ROOT.xAOD.MuonContainer()
+
     # Create the objects to test:
     from xAODRootAccess.TPyEvent import TPyEvent
     event = TPyEvent()
@@ -59,7 +64,7 @@ def main():
         return 1
 
     # Loop over 10 events from the input file:
-    for entry in xrange( 10 ):
+    for entry in range( 10 ):
 
         # Load the event:
         tree.GetEntry( entry )

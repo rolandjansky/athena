@@ -18,8 +18,7 @@ def getTrigDecisionTool(flags):
     rv = ComponentAccumulator()
 
     if flags.DQ.isReallyOldStyle:
-        from AthenaCommon.AppMgr import ToolSvc
-        rv.addPublicTool(ToolSvc.TrigDecisionTool)
+        rv.addPublicTool(CompFactory.Trig.TrigDecisionTool('TrigDecisionTool'))
         getTrigDecisionTool.rv = rv
         return getTrigDecisionTool.rv
 
@@ -29,7 +28,12 @@ def getTrigDecisionTool(flags):
     tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
     tdt.TrigConfigSvc = cfgsvc
 
-    tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
+    if not flags.Input.isMC and flags.Input.Format == 'BS' and min(flags.Input.RunNumber) <= 380000:
+        # need to work through exact details here
+        # tdt.UseOldEventInfoDecisionFormat = True
+        tdt.NavigationFormat = "TrigComposite"
+    else:
+        tdt.NavigationFormat = "TrigComposite" if 'HLTNav_Summary' in flags.Input.Collections else "TriggerElement"
     rv.addPublicTool(tdt)
     # Other valid option of NavigationFormat is "TriggerElement" for Run 2 navigation. 
     # This option to be removed and "TrigComposite" the only valid choice once a R2->R3 converter is put in place. 

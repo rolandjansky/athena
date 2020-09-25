@@ -22,7 +22,7 @@ from AthenaCommon.Utils.unixtools import FindFile
 
 class TrigInDetReco(ExecStep):
 
-    def __init__(self, name='TrigInDetReco'):
+    def __init__(self, name='TrigInDetReco', postexec_file='' ):
         ExecStep.__init__(self, name)
 ##        super(TrigInDetReco, self).__init__(name)
         self.type = 'Reco_tf'
@@ -57,6 +57,12 @@ class TrigInDetReco(ExecStep):
             'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
+
+        if postexec_file!='' : 
+            pe_file = open( postexec_file )
+            self.postexec_trig += ";"+pe_file.read()            
+            print( "postexec_trig: ", self.postexec_trig )
+
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
         self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 
@@ -140,6 +146,7 @@ class TrigInDetdictStep(Step):
         os.system( 'get_files -data TIDAdata_cuts.dat' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat' )
         os.system( 'get_files -data TIDAdata_cuts-offline.dat' )
+        os.system( 'get_files -jo   TIDAml_extensions.py' ) 
         super(TrigInDetdictStep, self).configure(test)
 
 

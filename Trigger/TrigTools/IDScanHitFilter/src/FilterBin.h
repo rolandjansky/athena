@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ class FilterBin
   void AddLdirect( long layer_id );
   void AddLindirect( FixedBitSet& bits );
 
-  void AddHit( IdScanSpPoint* spptr );
+  void AddHit( IdScanSpPoint* spptr, long maxLayers, long maxBarrelLayer);
   void AddTriplet( IdScanSpPoint* iPtr,
 		   IdScanSpPoint* jPtr,
 		   IdScanSpPoint* kPtr );
@@ -48,9 +48,6 @@ class FilterBin
   void exchangeBits( FilterBin& otherBin );
   std::list<IdScanSpPoint* >&       hitList();
   const std::list<IdScanSpPoint* >& hitList() const;
-
-  static void setMaxLayers ATLAS_NOT_THREAD_SAFE (long layer)      { m_maxLayers = layer; }
-  static void setMaxBarrelLayer ATLAS_NOT_THREAD_SAFE (long layer) { m_maxBarrelLayer = layer; }
 
 private:
   void neighborKeys( long key, long* np ) const; 
@@ -60,20 +57,16 @@ private:
 
   FixedBitSet m_Ldirect;                        // keeps direct layers
   FixedBitSet m_Ltotal;                         // keeps direct+indirect layers
-
-  // statics set once during initialize() via the above non-thread-safe methods:
-  static long m_maxLayers ATLAS_THREAD_SAFE;
-  static long m_maxBarrelLayer ATLAS_THREAD_SAFE;
 };
 
 
 inline std::ostream& operator<<(std::ostream& s, const FilterBin& f) { 
   s << "[ Nhits="    << f.NumberOfHits() 
     << "\t Nlayers=" << f.NumberOfLayers() << "\taddr=" << (void*)&f << "\t]";
-  
-  std::list<IdScanSpPoint*>::const_iterator spitr(f.hitList().begin());
-  std::list<IdScanSpPoint*>::const_iterator spend(f.hitList().end());
-  for ( ; spitr!=spend ; spitr++ ) s << "\n\t" << *(*spitr);
+
+  for (const IdScanSpPoint* hit : f.hitList()) {
+    s << "\n\t" << *hit;
+  }
   return s;
 }
 
@@ -102,14 +95,14 @@ inline void FilterBin::AddLindirect( FixedBitSet& bits ) {
 }
 
 
-inline void FilterBin::AddHit(IdScanSpPoint* spptr) 
+inline void FilterBin::AddHit(IdScanSpPoint* spptr, long maxLayers, long maxBarrelLayer) 
 { 
 
   m_HitList.push_back( spptr ); 
   long lr = spptr->layer();
   this->AddLdirect( lr );
-  if ( lr==0 || lr==m_maxBarrelLayer ){
-    this->AddLdirect( m_maxLayers+lr );
+  if ( lr==0 || lr==maxBarrelLayer ){
+    this->AddLdirect( maxLayers+lr );
   }
 
 }

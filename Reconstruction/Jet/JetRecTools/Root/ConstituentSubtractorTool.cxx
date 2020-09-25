@@ -20,6 +20,7 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
 
   declareProperty("MaxDeltaR", m_maxDeltaR=0.25);
   declareProperty("Alpha", m_alpha=0.);
+  declareProperty("GhostArea", m_ghostArea=0.01);
   declareProperty("MaxEta", m_maxEta=2.5);
 
   // Option to disregard cPFOs in the weight calculation
@@ -51,7 +52,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   contrib::ConstituentSubtractor subtractor;
   subtractor.set_max_standardDeltaR(m_maxDeltaR); // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
   subtractor.set_alpha(m_alpha);  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
-  subtractor.set_ghost_area(0.01); // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
+  subtractor.set_ghost_area(m_ghostArea); // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
 
   // prepare PseudoJet input from
   std::vector<PseudoJet>  full_event; full_event.reserve( cont->size() );

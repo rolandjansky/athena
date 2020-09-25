@@ -266,6 +266,10 @@ namespace xAOD {
     // RNN tau ID
     AUX_VARIABLE( RNNJetScore );
     AUX_VARIABLE( RNNJetScoreSigTrans ); 
+
+    //RNN tau eVeto
+    AUX_VARIABLE( RNNEleScore );
+    AUX_VARIABLE( RNNEleScoreSigTrans ); 
     
   }
   

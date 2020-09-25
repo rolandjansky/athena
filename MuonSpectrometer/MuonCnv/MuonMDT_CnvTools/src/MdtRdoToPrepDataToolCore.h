@@ -88,10 +88,7 @@ namespace Muon
 
     const MdtCsmContainer* getRdoContainer();
     void processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect );
-    bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );
-  
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
+    bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );    
         
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         

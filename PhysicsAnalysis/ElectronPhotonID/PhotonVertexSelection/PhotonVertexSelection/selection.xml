@@ -8,10 +8,6 @@
   
   <class name="CP::IElectronRemovalTool" />
   <class name="CP::ElectronRemovalTool" />
-
-  <class name="asg::AnaToolHandle<CP::IPhotonVertexSelectionTool>" />
-  <class name="asg::AnaToolHandle<CP::IPhotonPointingTool>" />
-  <class name="asg::AnaToolHandle<CP::IElectronRemovalTool>" />
   
   <function pattern="xAOD::PVHelpers::*" />
   

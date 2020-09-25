@@ -283,7 +283,15 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent(const EventContext& ctx, SiC
 void InDet::SiCombinatorialTrackFinder_xk::newEvent
 (const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data, Trk::TrackInfo info, const TrackQualityCuts& Cuts) const
 {
-  if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
+  
+  if (not data.isInitialized()) {
+    //Check if to use PRDAssociation before initializing all the tools
+    int useasso;
+    if(!Cuts.getIntCut   ("UseAssociationTool"  ,useasso      )) useasso = 0;
+    data.tools().setAssociation(useasso);
+
+    initializeCombinatorialData(ctx, data);
+  }
 
   newEvent(ctx, data);
   data.trackinfo() = info;

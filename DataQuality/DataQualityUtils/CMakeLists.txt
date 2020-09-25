@@ -1,14 +1,7 @@
-################################################################################
-# Package: DataQualityUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityUtils )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          DataQuality/DataQualityInterfaces
-                          DataQuality/ZLumiScripts )
 
 # External dependencies:
 find_package( Boost COMPONENTS regex filesystem thread system )
@@ -76,8 +69,7 @@ atlas_add_library( DataQualityUtils
 
 atlas_add_executable( han-results-print
                       src/han_results_print.cxx
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} DataQualityInterfaces DataQualityUtils )
+                      LINK_LIBRARIES DataQualityUtils )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

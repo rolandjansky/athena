@@ -12,6 +12,7 @@ from TRT_PAI_Process.TRT_PAI_ProcessConfigNew import TRT_PAI_Process_KrToolCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 
 
@@ -31,8 +32,7 @@ def TRT_RangeCfg(flags, name="TRTRange", **kwargs):
     kwargs.setdefault("LastXing", TRT_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0) #default 0 no dataproxy reset
     kwargs.setdefault("ItemList", ["TRTUncompressedHitCollection#TRTUncompressedHits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwargs):
@@ -69,8 +69,12 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     acc.setPrivateTools(tool)
     return acc
 
+
 def TRT_DigitizationToolCfg(flags, name="TRTDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured TRT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputObjectName", flags.Overlay.BkgPrefix + "TRT_RDOs")
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "TRT_SDO_Map")
@@ -78,40 +82,61 @@ def TRT_DigitizationToolCfg(flags, name="TRTDigitizationTool", **kwargs):
         kwargs.setdefault("OutputObjectName", "TRT_RDOs")
         kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    return TRT_DigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def TRT_DigitizationGeantinoTruthToolCfg(flags, name="TRT_GeantinoTruthDigitizationTool", **kwargs):
     """Return ComponentAccumulator with Geantino configured TRT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("ParticleBarcodeVeto", 0)
-    return TRT_DigitizationToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(TRT_DigitizationToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def TRT_DigitizationHSToolCfg(flags, name="TRT_DigitizationToolHS", **kwargs):
     """Return ComponentAccumulator with Hard Scatter configured TRT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "TRT_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 1)
-    return TRT_DigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def TRT_DigitizationPUToolCfg(flags, name="TRT_DigitizationToolPU", **kwargs):
     """Return ComponentAccumulator with Pile Up configured TRT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "TRT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_PU_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 2)
-    return TRT_DigitizationBasicToolCfg(flags, name, **kwargs)
+    acc.merge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
+    return acc
 
 
 def TRT_DigitizationSplitNoMergePUToolCfg(flags, name="TRT_DigitizationToolSplitNoMergePU", **kwargs):
     """Return ComponentAccumulator with PileUpTRT_Hits configured TRT digitization tool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(TRT_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("DataObjectName", "PileupTRTUncompressedHits")
     kwargs.setdefault("OutputObjectName", "TRT_PU_RDOs")
     kwargs.setdefault("OutputSDOName", "TRT_PU_SDO_Map")
     kwargs.setdefault("Override_noiseInSimhits", 0)
     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-    return TRT_DigitizationBasicToolCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(TRT_DigitizationBasicToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def TRT_OverlayDigitizationToolCfg(flags, name="TRT_OverlayDigitizationTool", **kwargs):

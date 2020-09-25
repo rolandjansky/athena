@@ -39,8 +39,7 @@ class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 
   template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,
                                  const T*& oldContainer);
-  template<class T, class U, class V> StatusCode deepCopy(T*& containerOut,
-                                                          U*& containerStoreOut,
+  template<class W, class V, class T> StatusCode deepCopy(W& writeHandle,
                                                           const V* dummyContainerType,
                                                           const T*& oldContainer) const;
 
@@ -89,25 +88,19 @@ class TrigTauRecMergedMT: public AthReentrantAlgorithm {
 };
 
   // Function to perform deep copy on container
-  template<class T, class U, class V>
-  StatusCode TrigTauRecMergedMT::deepCopy(T*& container,
-                                          U*& containerStore,
-                                          const V* /*dummyContainerElementType*/,
+  template<class W, class V, class T>
+    StatusCode TrigTauRecMergedMT::deepCopy(W& writeHandle,
+                                          const V* ,
                                           const T*& oldContainer) const {
-   // The new container should be null, check here
-   if(container==0 && containerStore==0){
-     container = new T();
-     containerStore = new U();
-     container->setStore(containerStore);
-   }else{
-     ATH_MSG_FATAL("Proviced non-null containters, not initializing please provide null containers: ");
-     return StatusCode::FAILURE;
+   if(!writeHandle.isValid()){
+      ATH_MSG_FATAL("Provided with an invalid write handle ");
+      return StatusCode::FAILURE;
    }
    if(oldContainer != nullptr){
      for( const V* v : *oldContainer ){
        V* newV = new V();
        // Put objects into new container
-       container->push_back(newV);
+       writeHandle->push_back(newV);
        // Copy across aux store
        *newV = *v;
      }

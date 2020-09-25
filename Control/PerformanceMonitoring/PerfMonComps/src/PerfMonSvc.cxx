@@ -594,10 +594,6 @@ StatusCode PerfMonSvc::initialize()
     PMON_ERROR("Unable to get the IncidentSvc");
     return StatusCode::FAILURE;
   }
-  const long highestPriority = static_cast<long>(-1);
-  const long lowestPriority  = 0;
-  incSvc->addListener( this, IncidentType::BeginEvent, highestPriority );
-  incSvc->addListener( this, IncidentType::EndEvent,    lowestPriority );
   incSvc->addListener( this, IncidentType::SvcPostFinalize );
 
   // make sure the correct auditor is configured and running
@@ -850,33 +846,6 @@ void PerfMonSvc::handle( const Incident& inc )
 
   if ( inc.type() == IncidentType::SvcPostFinalize ) {
     postFinalize();
-    return;
-  }
-
-  // Performing performance-monitoring for BeginEvent incident
-  if ( inc.type() == IncidentType::BeginEvent ) {
-    static bool s_firstEvt = true;
-    if ( s_firstEvt ) {
-      s_firstEvt = false;
-      stopAud( "ini", "PerfMonSlice" );
-      // capture the number of algorithms - here
-      ServiceHandle<IAlgManager> mgr("ApplicationMgr", this->name());
-      m_nalgs = mgr->getAlgorithms().size();
-      m_ntuple.comp["ini"].clear();
-      m_ntuple.comp["cbk"].clear();
-      m_ntuple.comp["preLoadProxies"].clear();
-    }
-    startAud( "evt", "PerfMonSlice" );
-    PMON_VERBOSE("[" << IncidentType::BeginEvent << "] handled");
-    return;
-  }
-
-  // Performing performance-monitoring for EndEvent incident
-  if ( inc.type() == IncidentType::EndEvent ) {
-    // make sure we update the data from declareInfo...
-    poll();
-    stopAud( "evt", "PerfMonSlice" );
-    PMON_VERBOSE("[" << IncidentType::EndEvent << "] handled");
     return;
   }
 
@@ -1146,6 +1115,23 @@ do_msg_mon(int lvl,
 void PerfMonSvc::startAud( const std::string& stepName,
                            const std::string& compName )
 {
+  // Performing performance-monitoring for BeginEvent
+  if ( compName == "AthMasterSeq" && stepName == "evt" ) {
+    static bool s_firstEvt = true;
+    if ( s_firstEvt ) {
+      s_firstEvt = false;
+      stopAud( "ini", "PerfMonSlice" );
+      // capture the number of algorithms - here
+      ServiceHandle<IAlgManager> mgr("ApplicationMgr", this->name());
+      m_nalgs = mgr->getAlgorithms().size();
+      m_ntuple.comp["ini"].clear();
+      m_ntuple.comp["cbk"].clear();
+      m_ntuple.comp["preLoadProxies"].clear();
+    }
+    startAud( "evt", "PerfMonSlice" );
+    return;
+  }
+
   if (m_extraPrintouts) {
     double vmem,rss;
     PMonSD::get_vmem_rss_kb(vmem,rss);
@@ -1172,6 +1158,14 @@ void PerfMonSvc::startAud( const std::string& stepName,
 void PerfMonSvc::stopAud( const std::string& stepName,
                           const std::string& compName )
 {
+  // Performing performance-monitoring for EndEvent
+  if ( compName == "AthMasterSeq" && stepName == "evt" ) {
+    // make sure we update the data from declareInfo...
+    poll();
+    stopAud( "evt", "PerfMonSlice" );
+    return;
+  }
+
   if (m_pmonsd)
     m_pmonsd->stopAud(stepName,compName,m_nevts);
 

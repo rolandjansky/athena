@@ -136,7 +136,7 @@ class MdtDigitizationTool : public PileUpToolBase {
  private:
   CLHEP::HepRandomEngine*   getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
   int                       digitizeTime(double time, bool isHPTDC, CLHEP::HepRandomEngine *rndmEngine) const;
-  double                    minimumTof(Identifier DigitId) const;
+  double                    minimumTof(Identifier DigitId, const MuonGM::MuonDetectorManager* detMgr) const;
 
   bool                      insideMatchingWindow(double time) const;
   bool                      insideMaskWindow(double time) const;

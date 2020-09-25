@@ -17,9 +17,7 @@ namespace PixelCalib{
 
 class PixelChargeInterpolationParameters;
 
-class PixelChargeInterpolationPlot;
-
-class ATLAS_NOT_THREAD_SAFE PixelChargeInterpolationPlot{ // static variable is used.
+class PixelChargeInterpolationPlot{
 
 public :
   PixelChargeInterpolationPlot(const PixelChargeInterpolationParameters &parameters, bool oneconst = false);

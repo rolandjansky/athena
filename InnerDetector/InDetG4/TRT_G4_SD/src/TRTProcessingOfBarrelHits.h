@@ -12,7 +12,7 @@ class TRTSensitiveDetector;
 
 class G4Step;
 
-class ATLAS_NOT_THREAD_SAFE TRTProcessingOfBarrelHits // Thread unsafe TRTParameters and TRTSensitiveDetector classes are used.
+class TRTProcessingOfBarrelHits
 {
   friend class TRTParametersForBarrelHits;
 
@@ -51,7 +51,7 @@ private:
   int* m_strawIDToLayerIDB;
   int* m_strawIDToLayerIDC;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
   TRTSensitiveDetector* m_pSensitiveDetector;
 
   int m_verboseLevel;

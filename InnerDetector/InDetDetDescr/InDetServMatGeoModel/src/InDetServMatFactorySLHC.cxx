@@ -40,7 +40,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps * athenaComps)
+InDetServMatFactorySLHC::InDetServMatFactorySLHC(InDetServMatAthenaComps * athenaComps)
   :  InDetDD::DetectorFactoryBase(athenaComps),
      m_athenaComps(athenaComps),
      m_manager(0)

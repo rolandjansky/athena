@@ -26,8 +26,14 @@ TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   declareProperty("IncShowerSubtr", m_incShowerSubtr);
 }
 
+StatusCode TauIDVarCalculator::initialize()
+{  
+  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
+  return StatusCode::SUCCESS;
+}
+
 StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
-{ 
+{
   static const SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
   float ipSigLeadTrk=0.;
   if(!tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, ipSigLeadTrk))
@@ -75,33 +81,37 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   std::vector<CaloSampling::CaloSample> Had1Samps = { 
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
-  // Get Clusters via Jet Seed 
-  const xAOD::Jet *jetSeed = tau.jet();
-  if (!jetSeed) {
+  if (! tau.jetLink().isValid()) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
-  } 
+  }
+  const xAOD::Jet *jetSeed = tau.jet();
+  
+  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+  
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+  
+  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
-  const TLorentzVector& p4IntAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
+  std::vector<const xAOD::CaloCluster*> clusterList;
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
+  
   float eEMAtEMScaleFixed = 0.;
   float eHadAtEMScaleFixed = 0.;
   float eHad1AtEMScaleFixed = 0.;
 
-  // Loop through jets, get links to clusters
-  std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr));
-
-  for( auto cl : clusterList){
+  for (const xAOD::CaloCluster* cluster  : clusterList) {
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     
-    // Only take clusters with dR<0.2 w.r.t IntermediateAxis
-    if( p4IntAxis.DeltaR(cl->p4(xAOD::CaloCluster::UNCALIBRATED)) > 0.2 ) continue;
+    if( tauAxis.DeltaR(clusterP4) > 0.2 ) continue;
     
     for( auto samp : EMSamps )
-      eEMAtEMScaleFixed += cl->eSample(samp);
+      eEMAtEMScaleFixed += cluster->eSample(samp);
     for( auto samp : HadSamps )
-      eHadAtEMScaleFixed += cl->eSample(samp);
+      eHadAtEMScaleFixed += cluster->eSample(samp);
     for( auto samp : Had1Samps )
-      eHad1AtEMScaleFixed += cl->eSample(samp);  
+      eHad1AtEMScaleFixed += cluster->eSample(samp);  
   }
   acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0. ? 
       eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;

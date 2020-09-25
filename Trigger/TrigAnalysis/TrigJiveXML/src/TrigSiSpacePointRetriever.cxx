@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJiveXML/TrigSiSpacePointRetriever.h"
@@ -21,13 +21,13 @@ namespace JiveXML {
     AthAlgTool(type, name, parent),
     m_typeName("TrigS3D"),
     m_pixelHelper(nullptr),
-    m_sctHelper(nullptr)
+    m_sctHelper(nullptr),
+    m_pixelSpContainerName ("TrigPixelSpacePoints"),
+    m_SCT_SpContainerName  ("TrigSCT_SpacePoints")
   {
 
     declareInterface<IDataRetriever>(this);
 
-    m_pixelSpContainerName = "TrigPixelSpacePoints";
-    m_SCT_SpContainerName  = "TrigSCT_SpacePoints";
     declareProperty("PixelSpacePoints", m_pixelSpContainerName);
     declareProperty("SCTSpacePoints"  , m_SCT_SpContainerName);
   }

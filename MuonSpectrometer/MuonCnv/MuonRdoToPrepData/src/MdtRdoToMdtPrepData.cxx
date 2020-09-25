@@ -20,7 +20,6 @@ m_seededDecoding(false),
 m_roiCollectionKey("OutputRoIs"),
 m_mdtCollection("MDT_DriftCircles")
 {
-    declareProperty("DecodingTool",       m_tool,       "mdt rdo to prep data conversion tool" );
     declareProperty("PrintInputRdo",      m_print_inputRdo, "If true, will dump information about the input RDOs");
     declareProperty("PrintPrepData",      m_print_prepData, "If true, will dump information about the resulting PRDs");
     declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
