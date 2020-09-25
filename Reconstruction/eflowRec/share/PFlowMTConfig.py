@@ -267,9 +267,7 @@ if jobproperties.eflowRecFlags.useFlowElements:
   topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
 
   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
-  PFMuonFlowElementAssoc=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
+  PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
   #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements 
-  print(PFMuonFlowElementAssoc.m_LinkNeutralFEClusters)
-
-  print("RUN_MUONFLOWELEMS_PLS")
-  topSequence += PFMuonFlowElementAssoc
+  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
+  topSequence += PFMuonFlowElementAssocAlg

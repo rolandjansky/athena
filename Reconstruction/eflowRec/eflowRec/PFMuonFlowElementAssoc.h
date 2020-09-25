@@ -59,9 +59,8 @@ private:
   /* Write key for adding Muon link decorations to neutral Flow Elements */
   SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_NeutralFEmuonWriteDecorKey;
 
-  Gaudi::Property<bool> m_LinkNeutralFEClusters{this,"m_LinkNeutralFEClusters",false,"Toggle usage of linkage of Neutral FlowElements - false by default"};
+  Gaudi::Property<bool> m_LinkNeutralFEClusters{this,"m_LinkNeutralFEClusters",false,"Toggle usage of linkage of Neutral FlowElements - false by default (EXPERIMENTAL)"};
 
-
+  Gaudi::Property<bool> m_UseMuonTopoClusters{this,"m_UseMuonTopoClusters",false,"Toggle usage of linker of muon associated topoclusters to flow elements - false by default (EXPERIMENTAL)"};
 };
-
 #endif // PFMUONFLOWELEMENTASSOC.H

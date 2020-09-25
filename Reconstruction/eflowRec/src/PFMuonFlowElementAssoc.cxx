@@ -111,6 +111,15 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   //////////////////////////////////////////////////
   //   Loop over Neutral FlowElements
   //////////////////////////////////////////////////
+  /** 
+      In short, this feature is an experimental linker between neutral FEs and Muons either by the following:
+      Case 1) Retrieve the CaloCluster(s) from the muon, and get any topocluster(s) associated to those, then link the topoclusters to the neutral FEs
+      Case 2) Retrieve the CaloCluster(s) from the muon then link to the neutral FEs
+ 
+      This code is switched using two switches:
+      m_LinkNeutralFEClusters (turns on the experimental feature)
+      m_UseMuonTopoClusters (True= Case 1, False = Case 2)
+  **/
   if(m_LinkNeutralFEClusters){
     ATH_MSG_DEBUG("Experimental: Cluster Linkers between neutral FEs and Muons are used");
     for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
@@ -125,16 +134,37 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	
 	//access object from element link
 	const xAOD::CaloClusterContainer* clustercont = ClusterLink.getDataPtr();
+
 	for (const xAOD::CaloCluster* cluster: *clustercont){
-	  size_t cluster_index=cluster->index();
-	  if(cluster_index==FEclusterindex){
-	    // Add Muon element link to a vector
-	    // index() is the unique index of the muon in the muon container   
-	    FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
-	    // index() is the unique index of the cFlowElement in the cFlowElementcontaine
-	    muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
-	  } // end of matching cluster index block	    	
-	}  // loop over elementlink vector
+	  if(m_UseMuonTopoClusters){
+	    // get the linker to the topo clusters
+	    std::vector<ElementLink<xAOD::CaloClusterContainer>> linksToTopoClusters=cluster->auxdata<std::vector<ElementLink<xAOD::CaloClusterContainer>> >("constituentClusterLinks");
+	    for (ElementLink<xAOD::CaloClusterContainer> TopoClusterLink: linksToTopoClusters){
+	      const xAOD::CaloClusterContainer* MuonTopoClusters=TopoClusterLink.getDataPtr();
+	      for (const xAOD::CaloCluster* MuonTopoCluster: *MuonTopoClusters){
+		size_t MuonTopoCluster_index=MuonTopoCluster->index();
+		if(MuonTopoCluster_index==FEclusterindex){
+		  // Add Muon element link to a vector
+		  // index() is the unique index of the muon in the muon container   
+		  FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+		  // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+		  muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+		} // check block of index matching
+	      } // loop over list of topoclusters	      
+	    } // end of loop over element links
+	  } //end of TopoCluster specific block
+	  else{ // case when we don't use Topoclusters, just match the caloclusters to the flow element
+	    size_t cluster_index=cluster->index();
+	    if(cluster_index==FEclusterindex){
+	      // Add Muon element link to a vector
+	      // index() is the unique index of the muon in the muon container   
+	      FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
+	      // index() is the unique index of the cFlowElement in the cFlowElementcontaine
+	      muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
+	    } // end of matching cluster index block	    	
+	  } // end of calocluster specific block
+	  
+	}  // loop over caloclusters
       } // loop over muons
       NeutralFEmuonWriteDecorHandle(*FE)=FEMuonLinks;
     } // loop over neutral FE
