@@ -33,6 +33,7 @@ def main():
 ## Get the base transform with all arguments added
 def getTransform():
     trf = transform(executor = athenaExecutor(name = 'athena', 
+                                              substep='HelloWorld',
                                               skeletonFile=None,
                                               skeletonCA="PyJobTransforms.HelloWorldSkeleton"))
     addAthenaArguments(trf.parser)

@@ -25,7 +25,7 @@
 TGC_LinearSegmentMakerTool::TGC_LinearSegmentMakerTool(const std::string& type, const std::string& name,
                                                        const IInterface* pIID)
     : AthAlgTool(type, name, pIID),
-      m_pIdHelper(NULL)
+      m_pIdHelper(nullptr)
 {
     declareInterface<Muon::IMuonSegmentMaker>(this);
     declareProperty("OutlierChi2", m_fExclChi2 = 10.0);
@@ -35,29 +35,12 @@ StatusCode
 TGC_LinearSegmentMakerTool::initialize()
 {
     ATH_MSG_INFO("Initializing TGC_LinearSegmentMakerTool - package version " << PACKAGE_VERSION);
-    StatusCode sc = StatusCode::SUCCESS;
 
-    // initialize TgcIdHelper
-    StoreGateSvc* pDetStore = NULL;
-    sc                      = svcLoc()->service("DetectorStore", pDetStore);
-    if (sc.isFailure() || pDetStore == NULL) {
-        ATH_MSG_ERROR("Cannot locate DetectorStore");
-        return sc;
-    }
-    sc = pDetStore->retrieve(m_pMuonMgr);
-    if (sc.isFailure() || m_pMuonMgr == NULL) {
-        ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager");
-        return sc;
-    }
-    m_pIdHelper = m_pMuonMgr->tgcIdHelper();
+    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    ATH_CHECK(detStore()->retrieve(muDetMgr));
+    m_pIdHelper = muDetMgr->tgcIdHelper();
 
     ATH_CHECK(m_pIntersector.retrieve());
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-TGC_LinearSegmentMakerTool::Finalize()
-{
     return StatusCode::SUCCESS;
 }
 

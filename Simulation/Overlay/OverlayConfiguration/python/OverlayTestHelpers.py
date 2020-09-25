@@ -6,17 +6,13 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from argparse import ArgumentParser
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.ComponentFactory import CompFactory
 from OverlayConfiguration.OverlayHelpers import setupOverlayDetectorFlags
+from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
 
-def JobOptsDumperCfg(flags):
+def OverlayJobOptsDumperCfg(flags):
     """Configure event loop for overlay"""
-    JobOptsDumperAlg = CompFactory.JobOptsDumperAlg
-    acc = ComponentAccumulator()
-    acc.addEventAlgo(JobOptsDumperAlg(FileName="OverlayTestConfig.txt"))
-    return acc
+    return JobOptsDumperCfg(flags, FileName="OverlayTestConfig.txt")
 
 
 def CommonTestArgumentParser(prog):

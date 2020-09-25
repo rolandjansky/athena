@@ -25,6 +25,10 @@ public:
     }
     delete [] m_names;
   }
+
+  MuonEtaPhiRIO_OnTrackErrorScalingKit (const MuonEtaPhiRIO_OnTrackErrorScalingKit&) = delete;
+  MuonEtaPhiRIO_OnTrackErrorScalingKit& operator= (const MuonEtaPhiRIO_OnTrackErrorScalingKit&) = delete;
+
   virtual unsigned int nParametres() const override {
     return MuonEtaPhiRIO_OnTrackErrorScaling::kNParamTypes;
   }
@@ -55,7 +59,7 @@ public:
 
 namespace {
   // register all kits with the help of a dummy function which sets a global anonymous bool
-  bool registered = ( [] () ATLAS_NOT_THREAD_SAFE -> bool {
+  bool registered = ( [] () -> bool {
     return
          RIO_OnTrackErrorScalingKitManager::instance().registerKit("RPCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("RPC"))
       && RIO_OnTrackErrorScalingKitManager::instance().registerKit("TGCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("TGC"))

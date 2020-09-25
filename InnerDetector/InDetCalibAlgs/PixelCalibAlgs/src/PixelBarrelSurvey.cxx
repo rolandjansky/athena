@@ -78,7 +78,7 @@ StatusCode PixelBarrelSurvey::initialize(){
     return StatusCode::FAILURE;
   } 
 
-  int sc = PixelConvert::ReadMap(file_name);
+  int sc = PixelConvert::ReadMap(file_name, m_map);
   if ( sc ) {
     msg(MSG::FATAL) << "Error in accessing file " << file_name << endmsg;
     return StatusCode::FAILURE;
@@ -143,7 +143,7 @@ StatusCode PixelBarrelSurvey::execute() {
       HepGeom::Point3D<double> v0=trans*x0;
       HepGeom::Point3D<double> v1=trans*x1;
       unsigned int prodID=(theStave->module[i].serialNumber)%1000000;
-      Identifier hashID(PixelConvert::GetID(prodID));
+      Identifier hashID(PixelConvert::GetID(m_map, prodID));
       std::cout << m_pixelID->show_to_string(hashID) 
 	  << " " << v0.x() << " " << v0.y() << " " << v0.z()
 	  << " " << v1.x() << " " << v1.y() << " " << v1.z()

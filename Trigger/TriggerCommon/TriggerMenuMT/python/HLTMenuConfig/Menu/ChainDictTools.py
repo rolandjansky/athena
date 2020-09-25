@@ -65,7 +65,7 @@ def splitInterSignatureChainDict(chainDict):
                     
     #log.info("ListOfSplitChainDicts", chainPart['chainPartName'])
     
-    #oder the splitted dicts
+    #order the splitted dicts
     orderedListOfSplitChainDicts = []
     if "mergingOrder" not in chainDict:
         log.debug("No merging order given for chain %s.", chainDict['chainName'])

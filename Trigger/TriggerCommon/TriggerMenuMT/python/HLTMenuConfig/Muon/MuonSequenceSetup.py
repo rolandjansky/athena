@@ -136,11 +136,6 @@ def muCombAlgSequence(ConfigFlags):
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
 
     extraLoads = []
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
-      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
-      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
 
     for decision in muonChainFilter.InputDecisions:
       extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]

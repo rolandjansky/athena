@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelCalibAlgs/PixelBarrelSurveyUtils.h"
+#include "PixelCalibAlgs/PixelConvert.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include <vector>
 #include <string>
@@ -39,5 +40,6 @@ class PixelBarrelSurvey:public AthAlgorithm {
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   AlignableTransform *m_transforms;
   DetCondCFloat *m_distorsions;
+  PixelConvert::Map m_map;
 };
  

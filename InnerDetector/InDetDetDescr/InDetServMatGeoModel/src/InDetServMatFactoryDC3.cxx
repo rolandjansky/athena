@@ -40,7 +40,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 #include <iostream>
 
-InDetServMatFactoryDC3::InDetServMatFactoryDC3(const InDetDD::AthenaComps * athenaComps)
+InDetServMatFactoryDC3::InDetServMatFactoryDC3(InDetDD::AthenaComps * athenaComps)
   : InDetDD::DetectorFactoryBase(athenaComps),
     m_manager(0)
 {}

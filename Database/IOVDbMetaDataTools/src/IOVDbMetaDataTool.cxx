@@ -231,10 +231,12 @@ StatusCode
 IOVDbMetaDataTool::registerFolder(const std::string& folderName, 
                                   const std::string& folderDescription) const
 {
+    // lock the tool before getMetaDataContainer() call
+    std::scoped_lock  guard( m_mutex );
+
     ATH_MSG_DEBUG("begin registerFolder ");
 
-    IOVMetaDataContainer* cont = getMetaDataContainer(folderName, folderDescription);
-    if (!cont) {
+    if( ! getMetaDataContainer(folderName, folderDescription) ) {
         ATH_MSG_ERROR("Unable to register folder " << folderName);
         return(StatusCode::FAILURE);
     } 
@@ -250,6 +252,9 @@ IOVDbMetaDataTool::registerFolder(const std::string& folderName,
 StatusCode IOVDbMetaDataTool::addPayload (const std::string& folderName
 					  , CondAttrListCollection* payload) const
 {
+  // lock the tool while it is modifying the folder
+  std::scoped_lock  guard( m_mutex );
+
   ATH_MSG_DEBUG("begin addPayload ");
   
   // Check if the  folder has already been found
@@ -302,6 +307,7 @@ StatusCode
 IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& folderName, 
                                                          CondAttrListCollection*& coll) const
 {
+    // protected by lock in processInputFileMetaData()
 
     /// Modify a Payload for a particular folder - replaces one of the
     /// internal attributes
@@ -384,10 +390,20 @@ IOVDbMetaDataTool::modifyPayload ATLAS_NOT_THREAD_SAFE  (const std::string& fold
 
 //--------------------------------------------------------------------------
 
+IOVMetaDataContainer*
+IOVDbMetaDataTool::findMetaDataContainer(const std::string& folderName) const
+{
+  // lock the tool before this call
+  // Return the folder if it is in the meta data store
+  return m_metaDataStore->tryRetrieve<IOVMetaDataContainer>(folderName);
+}
+
+
 IOVMetaDataContainer* 
 IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName
                                         , const std::string& folderDescription) const
 {
+  // protected by locks in addPayload() and registerFolder()
   ATH_MSG_DEBUG("begin getMetaDataContainer ");
 
   IOVMetaDataContainer* cont{nullptr};
@@ -419,6 +435,9 @@ IOVDbMetaDataTool::getMetaDataContainer(const std::string& folderName
 
 StatusCode IOVDbMetaDataTool::processInputFileMetaData(const std::string& fileName)
 {
+  // lock the tool while it is processing input metadata 
+  std::scoped_lock  guard( m_mutex );
+
   ATH_MSG_DEBUG("processInputFileMetaData: file name " << fileName);
 
   // Retrieve all meta data containers from InputMetaDataStore

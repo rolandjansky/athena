@@ -9,10 +9,12 @@
 
 #include "AthenaRootSharedWriterSvc.h"
 
+#include "TClass.h"
 #include "TFile.h"
 #include "TFileMerger.h"
-#include "TMessage.h"
+#include "TKey.h"
 #include "TMemFile.h"
+#include "TMessage.h"
 #include "TMonitor.h"
 #include "TServerSocket.h"
 #include "TSocket.h"
@@ -47,6 +49,15 @@ struct ParallelFileMerger : public TObject
    {
       fMerger.AddFile(input);
       Bool_t result = fMerger.PartialMerge(TFileMerger::kIncremental | TFileMerger::kResetable | TFileMerger::kKeepCompression);
+      TIter nextKey(input->GetListOfKeys());
+      while (TKey* key = static_cast<TKey*>(nextKey())) {
+         TClass *cl = TClass::GetClass(key->GetClassName());
+         if (0 != cl->GetResetAfterMerge()) {
+            key->Delete();
+            input->GetListOfKeys()->Remove(key);
+            delete key;
+         }
+      }
       return result;
    }
 };
@@ -106,7 +117,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
                m_rootMonitor->Add(client);
                ATH_MSG_INFO("ROOT Monitor add client: " << m_rootClientIndex << ", " << client);
             } else {
-               TMessage* message;
+               TMessage* message = nullptr;
                socket->Recv(message);
                if (message == nullptr) {
                   ATH_MSG_WARNING("ROOT Monitor got no message from socket: " << socket);
@@ -139,6 +150,7 @@ StatusCode AthenaRootSharedWriterSvc::share(int numClients) {
                   }
                   info->MergeTrees(transient.get());
                }
+               delete message; message = nullptr;
             }
          }
       } else if (m_rootMonitor == nullptr) {

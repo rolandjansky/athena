@@ -33,17 +33,13 @@ namespace Monitored {
       }
     }
 
-    virtual HistogramFillerRebinableAxis* clone() const override {
-      return new HistogramFillerRebinableAxis( *this );
-    }
-
-    virtual unsigned fill() const override {
-      if (AXIS >= this->m_monVariables.size()) { return 0; }
-      if (this->m_monVariables[AXIS].get().size()==0) { return 0; }
+    virtual unsigned fill( const HistogramFiller::VariablesPack& vars ) const override {
+      if (AXIS >= vars.size() ) { return 0; }
+      if (vars.var[AXIS]->size()==0) { return 0; }
 
       double min = std::numeric_limits<double>::max();
       double max = std::numeric_limits<double>::min();
-      const IMonitoredVariable& var = this->m_monVariables[AXIS].get();
+      const IMonitoredVariable& var = *vars.var[AXIS];
       for (size_t i = 0; i < var.size(); i++) {
         const double v = var.get(i);
         if (v < min) min = v;
@@ -62,7 +58,7 @@ namespace Monitored {
         if (max >= axis->GetXmax()) hist->ExtendAxis(max, axis);
         if (min < axis->GetXmin()) hist->ExtendAxis(min, axis);
       }
-      return BASE::fill();
+      return BASE::fill( vars );
     }
 
   private:

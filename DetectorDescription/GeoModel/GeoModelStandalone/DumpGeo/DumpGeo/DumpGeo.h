@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -12,7 +12,6 @@
 //  This is the Athena algorithm to dump the geometry      //
 //                                                         //
 /////////////////////////////////////////////////////////////
-
 
 #ifndef DumpGeo_DumpGeo
 #define DumpGeo_DumpGeo
@@ -30,11 +29,10 @@ class DumpGeo: public AthAlgorithm,
 {
  public:
   DumpGeo(const std::string& name, ISvcLocator* pSvcLocator);
-  ~DumpGeo();
+  ~DumpGeo()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
   void handle(const Incident& inc);
 

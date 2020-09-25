@@ -531,7 +531,7 @@ const Trk::TrackingGeometry* InDet::RobustTrackingGeometryBuilder::trackingGeome
                                                                    "Container");
                                                                    
    // get the dimensions from the envelope service 
-   RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getInDetRZValues();
+   const RZPairVector& envelopeDefs = m_enclosingEnvelopeSvc->getInDetRZBoundary();
    ATH_MSG_VERBOSE("       -> retrieved Inner Detector envelope definitions at size " << envelopeDefs.size());
    double enclosingVolumeRadius = envelopeDefs[1].first;
    double enclosingVolumeHalfZ  = fabs(envelopeDefs[1].second);

@@ -30,7 +30,7 @@
 #include <iostream>
 
 
-SquirrelCageFactory::SquirrelCageFactory(const InDetDD::AthenaComps * athenaComps, 
+SquirrelCageFactory::SquirrelCageFactory(InDetDD::AthenaComps * athenaComps, 
 					 InDetMaterialManager * matManager)
   : InDetDD::SubDetectorFactoryBase(athenaComps, matManager)
 {  

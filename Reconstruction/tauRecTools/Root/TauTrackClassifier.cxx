@@ -98,7 +98,7 @@ TrackMVABDT::TrackMVABDT(const std::string& sName)
   , m_iBackgroundType(xAOD::TauJetParameters::classifiedFake)
   , m_iExpectedFlag(xAOD::TauJetParameters::unclassified)
   , m_rReader(nullptr)
-  , m_mAvailableVars({})
+  , m_inputVariableNames()
 {
   declareProperty( "InputWeightsPath", m_sInputWeightsPath );
   declareProperty( "Threshold", m_fThreshold );
@@ -113,93 +113,23 @@ TrackMVABDT::~TrackMVABDT()
 }
 
 //______________________________________________________________________________
-StatusCode TrackMVABDT::finalize()
-{
-  for( std::pair<TString, float*> p : m_mAvailableVars ) delete p.second;
-  m_mAvailableVars.clear();
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
 StatusCode TrackMVABDT::initialize()
 {
-  m_mAvailableVars={
-    {"TracksAuxDyn.tauPt", new float(0)}
-    , {"TracksAuxDyn.jetSeedPt", new float(0)}
-    , {"TracksAuxDyn.tauEta", new float(0)}
-    , {"TracksAuxDyn.trackEta", new float(0)}
-    , {"TracksAuxDyn.z0sinThetaTJVA", new float(0)}
-    , {"TracksAuxDyn.rConv", new float(0)}
-    , {"TracksAuxDyn.rConvII", new float(0)}
-    , {"TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII", new float(0)}
-    , {"TracksAuxDyn.DRJetSeedAxis", new float(0)}
-    , {"TracksAuxDyn.dRJetSeedAxis", new float(0)}
-    , {"TracksAux.d0", new float(0)}
-    , {"TracksAux.qOverP", new float(0)}
-    , {"TracksAux.theta", new float(0)}
-    , {"TracksAux.eProbabilityHT", new float(0)}
-    , {"TracksAux.numberOfInnermostPixelLayerHits", new float(0)}
-    , {"TracksAux.numberOfPixelHits", new float(0)}
-    , {"TracksAux.numberOfPixelDeadSensors", new float(0)}
-    , {"TracksAux.numberOfPixelSharedHits", new float(0)}
-    , {"TracksAux.numberOfSCTHits", new float(0)}
-    , {"TracksAux.numberOfSCTDeadSensors", new float(0)}
-    , {"TracksAux.numberOfSCTSharedHits", new float(0)}
-    , {"TracksAux.numberOfTRTHighThresholdHits", new float(0)}
-    , {"TracksAux.numberOfTRTHits", new float(0)}
-    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors", new float(0)}
-    , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors", new float(0)}
-    
-    , {"TauTracksAuxDyn.tauPt", new float(0)}
-    , {"TauTracksAuxDyn.jetSeedPt", new float(0)}
-    , {"TauTracksAuxDyn.tauEta", new float(0)}
-    , {"TauTracksAuxDyn.trackEta", new float(0)}
-    , {"TauTracksAuxDyn.z0sinThetaTJVA", new float(0)}
-    , {"TauTracksAuxDyn.rConv", new float(0)}
-    , {"TauTracksAuxDyn.rConvII", new float(0)}
-    , {"TauTracksAuxDyn.dRJetSeedAxis", new float(0)}
-    , {"TauTracksAuxDyn.d0", new float(0)}
-    , {"TauTracksAuxDyn.qOverP", new float(0)}
-    , {"TauTracksAuxDyn.theta", new float(0)}
-    , {"TauTracksAuxDyn.eProbabilityHT", new float(0)}
-    , {"TauTracksAuxDyn.numberOfInnermostPixelLayerHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelSharedHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfSCTHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-    , {"TauTracksAuxDyn.numberOfSCTSharedHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfTRTHighThresholdHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfTRTHits", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-    
-    
-    , {"1/(TauTracksAuxDyn.trackPt)", new float(0)}
-    , {"fabs(TauTracksAuxDyn.qOverP)", new float(0)}
-    , {"TauTracksAuxDyn.numberOfContribPixelLayers", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-    , {"TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-    , {"TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-    , {"TauTracksAux.pt", new float(0)}
-  };
-    
   ATH_CHECK(addWeightsFile());
   
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
+StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau) const
 {
   /// If TT/IT gives TT, only run TT/CR; otherwise, run IT/FT 
   if (xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag)==false)
     return StatusCode::SUCCESS;
   
-  ATH_CHECK(setVars(xTrack, xTau));
-  double dValue = m_rReader->GetClassification();
+  std::vector<float> values;
+  ATH_CHECK(calculateVariables(xTrack, xTau, values));
+  double dValue = m_rReader->GetClassification(values);
   
   xTrack.setFlag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag, false);
   if (m_fThreshold < dValue)
@@ -218,7 +148,7 @@ StatusCode TrackMVABDT::addWeightsFile()
   m_sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
   
-  m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, m_sInputWeightsPath.c_str() );
+  m_rReader = tauRecTools::configureMVABDT( m_inputVariableNames, m_sInputWeightsPath.c_str() );
   if(m_rReader==nullptr) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;
@@ -228,7 +158,7 @@ StatusCode TrackMVABDT::addWeightsFile()
 }
 
 //______________________________________________________________________________
-StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau)
+StatusCode TrackMVABDT::calculateVariables(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, std::vector<float>& values) const
 {
   const xAOD::TrackParticle* xTrackParticle = xTrack.track();
   uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
@@ -263,67 +193,74 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
   float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
   float fNumberOfSCTHoles = float(iNumberOfSCTHoles);
 
+  std::map<TString, float> valueMap;
   // Could use the same naming convention in the BDT to simplify 
-  setVar("TracksAuxDyn.jetSeedPt") = xTau.ptJetSeed();
-  setVar("TracksAuxDyn.tauPt") = xTau.ptIntermediateAxis();
-  setVar("TracksAuxDyn.tauEta") = xTau.etaIntermediateAxis();
-  setVar("TracksAuxDyn.z0sinThetaTJVA") = xTrack.z0sinThetaTJVA(xTau);
-  setVar("TracksAuxDyn.rConv") = xTrack.rConv(xTau);
-  setVar("TracksAuxDyn.rConvII") = xTrack.rConvII(xTau);
-  setVar("TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII") = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
-  setVar("TracksAuxDyn.DRJetSeedAxis") = xTrack.dRJetSeedAxis(xTau);
-  setVar("TracksAuxDyn.dRJetSeedAxis") = xTrack.dRJetSeedAxis(xTau);
-  setVar("TracksAuxDyn.trackEta") = xTrackParticle->eta();
-  setVar("TracksAux.d0") = xTrackParticle->d0();
-  setVar("TracksAux.qOverP") = xTrackParticle->qOverP();
-  setVar("TracksAux.theta") = xTrackParticle->theta();
-  setVar("TracksAux.eProbabilityHT") = fTracksEProbabilityHT;
-  setVar("TracksAux.numberOfInnermostPixelLayerHits") = fTracksNumberOfInnermostPixelLayerHits;
-  setVar("TracksAux.numberOfPixelHits") = fTracksNPixelHits;
-  setVar("TracksAux.numberOfPixelDeadSensors") = fTracksNPixelDeadSensors;
-  setVar("TracksAux.numberOfPixelSharedHits") = fTracksNPixelSharedHits;
-  setVar("TracksAux.numberOfSCTHits") = fTracksNSCTHits;
-  setVar("TracksAux.numberOfSCTDeadSensors") = fTracksNSCTDeadSensors;
-  setVar("TracksAux.numberOfSCTSharedHits") = fTracksNSCTSharedHits;
-  setVar("TracksAux.numberOfTRTHighThresholdHits") = fTracksNTRTHighThresholdHits;
-  setVar("TracksAux.numberOfTRTHits") = fTracksNTRTHits;
-  setVar("TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors") = fTracksNPixHits;
-  setVar("TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors") = fTracksNSiHits;
+  valueMap["TracksAuxDyn.jetSeedPt"] = xTau.ptJetSeed();
+  valueMap["TracksAuxDyn.tauPt"] = xTau.ptIntermediateAxis();
+  valueMap["TracksAuxDyn.tauEta"] = xTau.etaIntermediateAxis();
+  valueMap["TracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinThetaTJVA(xTau);
+  valueMap["TracksAuxDyn.rConv"] = xTrack.rConv(xTau);
+  valueMap["TracksAuxDyn.rConvII"] = xTrack.rConvII(xTau);
+  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
+  valueMap["TracksAuxDyn.DRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
+  valueMap["TracksAuxDyn.dRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
+  valueMap["TracksAuxDyn.trackEta"] = xTrackParticle->eta();
+  valueMap["TracksAux.d0"] = xTrackParticle->d0();
+  valueMap["TracksAux.qOverP"] = xTrackParticle->qOverP();
+  valueMap["TracksAux.theta"] = xTrackParticle->theta();
+  valueMap["TracksAux.eProbabilityHT"] = fTracksEProbabilityHT;
+  valueMap["TracksAux.numberOfInnermostPixelLayerHits"] = fTracksNumberOfInnermostPixelLayerHits;
+  valueMap["TracksAux.numberOfPixelHits"] = fTracksNPixelHits;
+  valueMap["TracksAux.numberOfPixelDeadSensors"] = fTracksNPixelDeadSensors;
+  valueMap["TracksAux.numberOfPixelSharedHits"] = fTracksNPixelSharedHits;
+  valueMap["TracksAux.numberOfSCTHits"] = fTracksNSCTHits;
+  valueMap["TracksAux.numberOfSCTDeadSensors"] = fTracksNSCTDeadSensors;
+  valueMap["TracksAux.numberOfSCTSharedHits"] = fTracksNSCTSharedHits;
+  valueMap["TracksAux.numberOfTRTHighThresholdHits"] = fTracksNTRTHighThresholdHits;
+  valueMap["TracksAux.numberOfTRTHits"] = fTracksNTRTHits;
+  valueMap["TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors"] = fTracksNPixHits;
+  valueMap["TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors"] = fTracksNSiHits;
 
-  setVar("TauTracksAuxDyn.jetSeedPt") = xTau.ptJetSeed();
-  setVar("TauTracksAuxDyn.tauPt") = xTau.ptIntermediateAxis();
-  setVar("TauTracksAuxDyn.tauEta") = xTau.etaIntermediateAxis();
-  setVar("TauTracksAuxDyn.z0sinThetaTJVA") = xTrack.z0sinThetaTJVA(xTau);
-  setVar("TauTracksAuxDyn.rConv") = xTrack.rConv(xTau);
-  setVar("TauTracksAuxDyn.rConvII") = xTrack.rConvII(xTau);
-  setVar("TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII") = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
-  setVar("TauTracksAuxDyn.dRJetSeedAxis") = xTrack.dRJetSeedAxis(xTau);
-  setVar("TauTracksAuxDyn.trackEta") = xTrackParticle->eta();
-  setVar("TauTracksAuxDyn.d0") = xTrackParticle->d0();
-  setVar("TauTracksAuxDyn.qOverP") = xTrackParticle->qOverP();
-  setVar("TauTracksAuxDyn.theta") = xTrackParticle->theta();
-  setVar("TauTracksAuxDyn.eProbabilityHT") = fTracksEProbabilityHT;
-  setVar("TauTracksAuxDyn.numberOfInnermostPixelLayerHits") = fTracksNumberOfInnermostPixelLayerHits;
-  setVar("TauTracksAuxDyn.numberOfPixelHits") = fTracksNPixelHits;
-  setVar("TauTracksAuxDyn.numberOfPixelDeadSensors") = fTracksNPixelDeadSensors;
-  setVar("TauTracksAuxDyn.numberOfPixelSharedHits") = fTracksNPixelSharedHits;
-  setVar("TauTracksAuxDyn.numberOfSCTHits") = fTracksNSCTHits;
-  setVar("TauTracksAuxDyn.numberOfSCTDeadSensors") = fTracksNSCTDeadSensors;
-  setVar("TauTracksAuxDyn.numberOfSCTSharedHits") = fTracksNSCTSharedHits;
-  setVar("TauTracksAuxDyn.numberOfTRTHighThresholdHits") = fTracksNTRTHighThresholdHits;
-  setVar("TauTracksAuxDyn.numberOfTRTHits") = fTracksNTRTHits;
-  setVar("TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors") = fTracksNPixHits;
-  setVar("TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors") = fTracksNSiHits;
+  valueMap["TauTracksAuxDyn.jetSeedPt"] = xTau.ptJetSeed();
+  valueMap["TauTracksAuxDyn.tauPt"] = xTau.ptIntermediateAxis();
+  valueMap["TauTracksAuxDyn.tauEta"] = xTau.etaIntermediateAxis();
+  valueMap["TauTracksAuxDyn.z0sinThetaTJVA"] = xTrack.z0sinThetaTJVA(xTau);
+  valueMap["TauTracksAuxDyn.rConv"] = xTrack.rConv(xTau);
+  valueMap["TauTracksAuxDyn.rConvII"] = xTrack.rConvII(xTau);
+  valueMap["TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII"] = xTrack.rConv(xTau)/xTrack.rConvII(xTau);
+  valueMap["TauTracksAuxDyn.dRJetSeedAxis"] = xTrack.dRJetSeedAxis(xTau);
+  valueMap["TauTracksAuxDyn.trackEta"] = xTrackParticle->eta();
+  valueMap["TauTracksAuxDyn.d0"] = xTrackParticle->d0();
+  valueMap["TauTracksAuxDyn.qOverP"] = xTrackParticle->qOverP();
+  valueMap["TauTracksAuxDyn.theta"] = xTrackParticle->theta();
+  valueMap["TauTracksAuxDyn.eProbabilityHT"] = fTracksEProbabilityHT;
+  valueMap["TauTracksAuxDyn.numberOfInnermostPixelLayerHits"] = fTracksNumberOfInnermostPixelLayerHits;
+  valueMap["TauTracksAuxDyn.numberOfPixelHits"] = fTracksNPixelHits;
+  valueMap["TauTracksAuxDyn.numberOfPixelDeadSensors"] = fTracksNPixelDeadSensors;
+  valueMap["TauTracksAuxDyn.numberOfPixelSharedHits"] = fTracksNPixelSharedHits;
+  valueMap["TauTracksAuxDyn.numberOfSCTHits"] = fTracksNSCTHits;
+  valueMap["TauTracksAuxDyn.numberOfSCTDeadSensors"] = fTracksNSCTDeadSensors;
+  valueMap["TauTracksAuxDyn.numberOfSCTSharedHits"] = fTracksNSCTSharedHits;
+  valueMap["TauTracksAuxDyn.numberOfTRTHighThresholdHits"] = fTracksNTRTHighThresholdHits;
+  valueMap["TauTracksAuxDyn.numberOfTRTHits"] = fTracksNTRTHits;
+  valueMap["TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors"] = fTracksNPixHits;
+  valueMap["TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors"] = fTracksNSiHits;
 
-  setVar("1/(TauTracksAuxDyn.trackPt)") = 1./xTrackParticle->pt();
-  setVar("fabs(TauTracksAuxDyn.qOverP)") = std::abs(xTrackParticle->qOverP());
-  setVar("TauTracksAuxDyn.numberOfContribPixelLayers") = fNumberOfContribPixelLayers;
-  setVar("TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles") = fTracksNPixHits+fNumberOfPixelHoles;
-  setVar("TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles") = fTracksNSiHits+fNumberOfPixelHoles+fNumberOfSCTHoles;
-  setVar("TauTracksAuxDyn.numberOfPixelHoles") = fNumberOfPixelHoles;
-  setVar("TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfPixelHoles+fNumberOfSCTHoles;
-  setVar("TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfSCTHoles;
-  setVar("TauTracksAux.pt") = xTrackParticle->pt();
+  valueMap["1/(TauTracksAuxDyn.trackPt)"] = 1./xTrackParticle->pt();
+  valueMap["fabs(TauTracksAuxDyn.qOverP)"] = std::abs(xTrackParticle->qOverP());
+  valueMap["TauTracksAuxDyn.numberOfContribPixelLayers"] = fNumberOfContribPixelLayers;
+  valueMap["TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles"] = fTracksNPixHits+fNumberOfPixelHoles;
+  valueMap["TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles"] = fTracksNSiHits+fNumberOfPixelHoles+fNumberOfSCTHoles;
+  valueMap["TauTracksAuxDyn.numberOfPixelHoles"] = fNumberOfPixelHoles;
+  valueMap["TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles"] = fNumberOfPixelHoles+fNumberOfSCTHoles;
+  valueMap["TauTracksAuxDyn.numberOfSCTHoles"] = fNumberOfSCTHoles;
+  valueMap["TauTracksAux.pt"] = xTrackParticle->pt();
+
+  values.clear();
+  values.reserve(m_inputVariableNames.size());
+  for (auto varName : m_inputVariableNames) {
+    values.push_back(valueMap[varName]);
+  }
 
   return StatusCode::SUCCESS;  
 }

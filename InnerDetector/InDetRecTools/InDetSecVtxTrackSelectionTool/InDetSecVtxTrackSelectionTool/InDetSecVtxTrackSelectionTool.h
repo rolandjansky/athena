@@ -39,7 +39,7 @@ namespace InDet {
 
     /// Create a proper constructor for Athena
     ASG_TOOL_CLASS2( InDetSecVtxTrackSelectionTool,
-		     CP::ISelectionTool,
+		     IAsgSelectionTool,
 		     InDet::IInDetTrackSelectionTool )
     
   public:

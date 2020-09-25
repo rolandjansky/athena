@@ -82,7 +82,8 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
         stepName = "Step1_jet_"+jetDefStr
-        jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, None, **self.recoDict ) # the None will be used for flags in future
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, ConfigFlags, **self.recoDict ) # the None will be used for flags in future
 
         return ChainStep(stepName, [jetSeq1], multiplicity=[1], chainDicts=[self.dict])
 

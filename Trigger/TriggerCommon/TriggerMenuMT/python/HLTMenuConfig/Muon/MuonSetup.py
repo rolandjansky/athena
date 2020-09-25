@@ -552,9 +552,6 @@ def muCombRecoSequence( RoIs, name ):
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
 
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-    ViewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
@@ -620,25 +617,6 @@ def muEFSARecoSequence( RoIs, name ):
                                         ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
                                         ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   efAlgs.append( EFMuonViewDataVerifier )
-
-  # Only load these objects if they aren't available in conddb
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( "/MDT/DQMF/DEAD_ELEMENT" ):
-    EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/DQMF/DEAD_ELEMENT' )]
-  if not conddb.folderRequested( "/MDT/TUBE_STATUS/DEAD_TUBE" ):
-    EFMuonViewDataVerifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/MDT/TUBE_STATUS/DEAD_TUBE' )]
-
-  if name != 'FS':
-    # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
-    EFMuonViewDataVerifier.DataObjects += [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                           ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' )]
-    if MuonGeometryFlags.hasCSC():
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                             ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
-    if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
-      EFMuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
-                                             ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements')]
 
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
   from AthenaCommon.AlgSequence import AthSequencer
@@ -748,12 +726,8 @@ def muEFCBRecoSequence( RoIs, name ):
 
   muEFCBRecoSequence += ViewVerifyMS
 
-  # Add conditions data if not already available
-  from IOVDbSvc.CondDB import conddb
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  if not conddb.folderRequested( "/PIXEL/PixdEdx" ):
-    ViewVerifyMS.DataObjects += [( 'AthenaAttributeList' , 'ConditionStore+/PIXEL/PixdEdx' )]
 
   if not globalflags.InputFormat.is_bytestream():
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
@@ -1002,9 +976,9 @@ def efmuisoRecoSequence( RoIs, Muons ):
                              ( 'xAOD::MuonContainer' , 'StoreGateSvc+IsoViewMuons' )]
 
   # Make sure required objects are still available at whole-event level
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
   if not globalflags.InputFormat.is_bytestream():
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
     viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
     topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,6 +16,8 @@
 
 // SubDetectorEnvelopes includes
 #include "SubDetectorEnvelopes/RZPair.h"
+
+#include "CxxUtils/checker_macros.h"
 
 class IEnvelopeDefSvc : virtual public IInterface {
   /**
@@ -47,15 +49,6 @@ class IEnvelopeDefSvc : virtual public IInterface {
     const RZPairVector &getCaloRZBoundary()     const { return getRZBoundary(AtlasDetDescr::fAtlasCalo);    }
     const RZPairVector &getMuonRZBoundary()     const { return getRZBoundary(AtlasDetDescr::fAtlasMS);      }
     const RZPairVector &getCavernRZBoundary()   const { return getRZBoundary(AtlasDetDescr::fAtlasCavern);  }
-
-    /** legacy methods
-          Any client should update to use the methods defined above!
-          The following lecagy methods will be phased out once all clients have migrated to the new methods above */
-    RZPairVector &getBeamPipeRZValues( unsigned short = 0) const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasForward) ); }
-    RZPairVector &getInDetRZValues( unsigned short = 0)    const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasID) );      }
-    RZPairVector &getCaloRZValues( unsigned short = 0)     const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasCalo) );    }
-    RZPairVector &getMuonRZValues( unsigned short = 0)     const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasMS) );      }
-    RZPairVector &getCavernRZValues( unsigned short = 0)   const { return const_cast<RZPairVector&>( getRZBoundary(AtlasDetDescr::fAtlasCavern) );  }
 
   protected:
     /** mirror the given srcRZ RZPairVector in the XY-plane to describe all corner points

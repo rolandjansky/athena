@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #include "DumpGeo/DumpGeo.h"
 
@@ -13,7 +12,6 @@
 #include <iomanip>
 #include <cstdlib> //For setenv
 
-
 //____________________________________________________________________
 DumpGeo::DumpGeo(const std::string& name, ISvcLocator* svcLocator):
   AthAlgorithm(name, svcLocator),
@@ -22,11 +20,6 @@ DumpGeo::DumpGeo(const std::string& name, ISvcLocator* svcLocator):
   declareProperty("NoGui",m_noGui=false);
 
   ::setenv("LCGPATCH_COINMULTISELECT","1",1);
-}
-
-//____________________________________________________________________
-DumpGeo::~DumpGeo()
-{
 }
 
 //____________________________________________________________________
@@ -60,16 +53,8 @@ StatusCode DumpGeo::initialize()
 StatusCode DumpGeo::execute()
 {
   msg(MSG::DEBUG) <<" in execute() " << endmsg;
-  return StatusCode::FAILURE;
-}
-
-//____________________________________________________________________
-StatusCode DumpGeo::finalize()
-{
-  msg(MSG::INFO) <<" in finalize() " << endmsg;
   return StatusCode::SUCCESS;
 }
-
 
 //____________________________________________________________________
 void DumpGeo::handle(const Incident& inc)

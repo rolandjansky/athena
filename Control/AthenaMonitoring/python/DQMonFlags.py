@@ -227,7 +227,7 @@ class doAFPMon(JobProperty):
     """Switch for AFP monitoring"""
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 list+=[doAFPMon]
 
 class doHIMon(JobProperty):
@@ -413,6 +413,13 @@ class specialCleaningConfiguration(JobProperty):
     allowedTypes=['dict']
     StoredValue={}
 list+=[specialCleaningConfiguration]
+
+class doNewMonitoring(JobProperty):
+    """ Global switch for monitoring """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doNewMonitoring]
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

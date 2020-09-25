@@ -318,14 +318,15 @@ namespace Trk
 					// you need to extrapolate the original perigee ((*BTIter).originalPerigee) really to the
 					// found vertex. The first propagation above is only to the starting point. But here we
 					// want to store it wrt. to the last fitted vertex
-					Trk::TrackParameters * extrapolatedPerigee = const_cast<Trk::TrackParameters*> ( m_extrapolator->extrapolate ( * ( *BTIter ).originalPerigee, perigeeSurface ) );
+					auto extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters> ( m_extrapolator->extrapolate ( * ( *BTIter ).originalPerigee, perigeeSurface ) );
 					if ( extrapolatedPerigee==nullptr )
 					{
-						extrapolatedPerigee = ( ( *BTIter ).originalPerigee )->clone();
+						extrapolatedPerigee = std::unique_ptr<const Trk::TrackParameters>(((*BTIter).originalPerigee)->clone());
 						ATH_MSG_DEBUG("Could not extrapolate these track parameters to final vertex position! Storing original position as final one ...");
 					}
-
-					Trk::VxTrackAtVertex* tmpVxTrkAtVtx = new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, extrapolatedPerigee, ( *BTIter ).originalPerigee ) ;
+          //VxTrackAtVertex will own the clone of the extrapolatedPerigee
+					Trk::VxTrackAtVertex* tmpVxTrkAtVtx = new Trk::VxTrackAtVertex ( ( *BTIter ).chi2, extrapolatedPerigee->clone(), 
+                                                                           ( *BTIter ).originalPerigee ) ;
 					tracksAtVertex.push_back ( *tmpVxTrkAtVtx );
 					// TODO: here is where the vxTracksAtVertex pointers are deleted
 					delete tmpVxTrkAtVtx; // TODO: is this ok?

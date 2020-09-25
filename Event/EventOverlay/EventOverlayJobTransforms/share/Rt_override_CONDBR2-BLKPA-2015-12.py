@@ -127,6 +127,13 @@ conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",forc
 conddb.blockFolder("/SCT/DAQ/Config/Module")
 conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
 
+conddb.blockFolder("/LAR/BadChannels/BadChannels")
+conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LARBadChannelsBadChannels-HECAQ3Missing",force=True,forceMC=True)
+conddb.blockFolder("/LAR/BadChannels/MissingFEBs")
+conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs")
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True)
+
 dofolderoverrides = True
 if dofolderoverrides:
 	printfunc ("ACH - overriding folder access patterns")

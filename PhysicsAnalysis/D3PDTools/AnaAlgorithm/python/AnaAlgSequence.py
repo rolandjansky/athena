@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # System import(s):
 import copy
@@ -152,7 +152,7 @@ class AnaAlgSequence( AlgSequence ):
                 continue
 
             # Set the input name(s):
-            for inputLabel, inputPropName in meta.inputPropName.iteritems():
+            for inputLabel, inputPropName in meta.inputPropName.items():
                 if not inputLabel in currentInputs.keys():
                     continue
                 setattr( alg, inputPropName, currentInputs[ inputLabel ] )
@@ -174,7 +174,7 @@ class AnaAlgSequence( AlgSequence ):
                   copy.deepcopy( affectingSystematics )
 
                 # Loop over the outputs of the algorithm.
-                for outputLabel, outputPropName in meta.outputPropName.iteritems():
+                for outputLabel, outputPropName in meta.outputPropName.items():
                     if outputLabel not in tmpIndex.keys():
                         tmpIndex[ outputLabel ] = 1
                         pass
@@ -241,7 +241,7 @@ class AnaAlgSequence( AlgSequence ):
         # Set the output name(s) of the last algorithm (that provides output)
         # to the requested value:
         currentOutputs = copy.deepcopy( outputNameDict )
-        for alg, meta in reversed( zip( self, self._algorithmMeta ) ):
+        for alg, meta in reversed( list( zip( self, self._algorithmMeta ) ) ):
 
             # Stop the loop if we're already done.
             if len( currentOutputs ) == 0:
@@ -250,7 +250,7 @@ class AnaAlgSequence( AlgSequence ):
             # If the algorithm has (an) output(s), set them up appropriately.
             # Remembering which "final" output still needs to be set.
             if meta.outputPropName:
-                for outputLabel, outputKey in meta.outputPropName.iteritems():
+                for outputLabel, outputKey in meta.outputPropName.items():
                     if outputLabel in currentOutputs.keys():
                         setattr( alg, outputKey, currentOutputs[ outputLabel ] )
                         del currentOutputs[ outputLabel ]
@@ -260,7 +260,7 @@ class AnaAlgSequence( AlgSequence ):
 
             # Set up the input name(s) of the algorithm correctly, in case this
             # is needed...
-            for inputLabel, inputKey in meta.inputPropName.iteritems():
+            for inputLabel, inputKey in meta.inputPropName.items():
                 if inputLabel in currentOutputs.keys():
                     setattr( alg, inputKey, currentOutputs[ inputLabel ] )
                     pass
@@ -377,7 +377,7 @@ class AnaAlgSequence( AlgSequence ):
         if algIndex == -1:
             raise AttributeError( 'Algorithm/sequence with name "%s" was not ' \
                                   'found' % name )
-        
+
         # Remove the element from the base class:
         super( AnaAlgSequence, self ).__delattr__( name )
 
@@ -587,14 +587,14 @@ class TestAnaAlgSeqMultiInputContainer( unittest.TestCase ):
         self.assertEqual( self.seq.ZCombiner.container2Regex,
                           '(^$)|(^MU_.*)' )
         self.assertEqual( self.seq.ZCalibrator.inputRegex,
-                          '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
+                          '(^$)|(^EL_.*)|(^EG_.*)|(^MU_.*)' )
         return
 
     ## Test that the correct value is returned for the users for the affecting
     ## systematics.
     def test_affectingSystematics( self ):
         self.assertEqual( self.seq.affectingSystematics(),
-                          '(^$)|(^MU_.*)|(^EL_.*)|(^EG_.*)' )
+                          '(^$)|(^EL_.*)|(^EG_.*)|(^MU_.*)' )
         return
 
 ## Test case for a sequence starting from a single container, producing

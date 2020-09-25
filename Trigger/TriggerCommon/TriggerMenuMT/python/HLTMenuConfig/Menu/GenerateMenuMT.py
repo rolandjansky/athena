@@ -16,7 +16,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig, applyHLTPrescale
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import analyseCombinations, groupSignatures, setChainSignatures
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import analyseCombinations
 from TriggerMenuMT.HLTMenuConfig.CommonSequences import EventBuildingSequenceSetup
 
 from AthenaCommon.Logging import logging
@@ -67,7 +67,7 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau',
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias',
                               'Monitor', 'Calib', 'Streaming', 'Combined', 'MinBias', 'Test'] #, AFP
-        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming','Monitor','Beamspot','Cosmic', 'Calib'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True
@@ -81,7 +81,7 @@ class GenerateMenuMT(object):
         self.doMinBiasChains        = True
         self.doHeavyIonChains       = True
         self.doCosmicChains         = True
-        self.doCalibrationChains    = True
+        self.doCalibChains    = True
         self.doStreamingChains      = True
         self.doMonitorChains        = True
         self.doBeamspotChains       = True
@@ -168,7 +168,7 @@ class GenerateMenuMT(object):
 
         all_chains = []
         combinations_in_menu = []
-        signatures_to_align = set()
+        alignmentGroups_to_align = set()
         length_of_configs = {}
         for chain in chainsInMenu:
             log.debug("Now processing chain: %s ", chain) 
@@ -185,46 +185,33 @@ class GenerateMenuMT(object):
             
             all_chains += [(chainDict,chainConfig,lengthOfChainConfigs)]
             
-            #update the signature length dictionary if we have a longer number of steps
+            #update the alignment group length dictionary if we have a longer number of steps
             #or the signature isn't registered in the dictionary yet
-            for config_length, config_sig in lengthOfChainConfigs:
-                if config_sig in length_of_configs:
-                    if config_length > length_of_configs[config_sig]:
-                        length_of_configs[config_sig] = config_length
+            for config_length, config_grp in lengthOfChainConfigs:
+                if config_grp in length_of_configs:
+                    if config_length > length_of_configs[config_grp]:
+                        length_of_configs[config_grp] = config_length
                 else:
-                    length_of_configs[config_sig] = config_length
+                    length_of_configs[config_grp] = config_length
 
-            # find the chains that contain more than one signature - what combinations do we need to deal with?
-            # using sets here so we don't end up with duplicates - though in the future this may have to be revisited
-            # if we split signatures into multiple types of algorithm
-            if len(set(chainDict['signatures'])) > 1:  
-                combinations_in_menu += [list(set(chainDict['signatures']))]
-                for sig in list(set(chainDict['signatures'])):
-                    signatures_to_align.update([sig])
+            # find the chains that contain more than one alignment group, to keep track
+            # of what combinations do we need to deal with.
+            # we're using sets here so we don't end up with duplicates
+            if len(set(chainDict['alignmentGroups'])) > 1:  
+                combinations_in_menu += [list(set(chainDict['alignmentGroups']))]
+                for align_group in list(set(chainDict['alignmentGroups'])):
+                    alignmentGroups_to_align.update([align_group])
         
         # align event building sequences
         EventBuildingSequenceSetup.alignEventBuildingSteps(all_chains)
 
-        #will likely always be true, but the grouping could be redefined
-        groupPeskySignatures = True
-        
-        if groupPeskySignatures:    
-            # do some replacing of Electron --> Egamma, Photon --> Egamma
-            # Jet/MET/b-jet --> JetMET
-            # B-physics chains are hard-coded as muon chains, since they run muons
-            #    --> any B-->ee chains would need to be set as egamma!
-        
-            # these modified signatures are only used for the aligning! We don't overwrite 
-            # any of the signatures the chains are in.
-            combinations_in_menu,signatures_to_align,length_of_configs = groupSignatures(combinations_in_menu, signatures_to_align,length_of_configs)
-
-
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
-        signature_sets_to_align = analyseCombinations(combinations_in_menu, signatures_to_align, doGroupSignatures = groupPeskySignatures)
+        alignmentGroup_sets_to_align = analyseCombinations(combinations_in_menu, alignmentGroups_to_align)
         
-        log.debug('Aligning the following signatures with sets: %s',signature_sets_to_align)
-        
+        log.debug('Aligning the following signatures with sets: %s',sorted(alignmentGroup_sets_to_align))
+        log.debug('Length of each of the alignment groups: %s',length_of_configs)
+
         for chainDict,chainConfig,lengthOfChainConfigs in all_chains:
         
               # start by ordering electron, photon, muon by having e+mu, g+mu, e+g chains
@@ -236,50 +223,47 @@ class GenerateMenuMT(object):
               # is greater than the number of electron steps combined chain. Assume that the max length of an electron chain occurs 
               # in a combined chain.
               
-              signatures = chainDict['signatures']
-              
-              if groupPeskySignatures:
-                signatures, lengthOfChainConfigs = setChainSignatures(signatures, lengthOfChainConfigs)
-    
+              alignmentGroups = chainDict['alignmentGroups']
+            
               #parallel-merged single-signature chains or single signature chains. Anything that needs no splitting!
-              if len(set(signatures)) == 1: 
-                  if signatures[0] not in signature_sets_to_align or len(signature_sets_to_align[signatures[0]]) == 1:
-                      # no need to align lonely signatures
-                      # the latter condition should never happen, because we only put in signatures that are 
+              if len(set(alignmentGroups)) == 1: 
+                  if alignmentGroups[0] not in alignmentGroup_sets_to_align or len(alignmentGroup_sets_to_align[alignmentGroups[0]]) == 1:
+                      # no need to align lonely alignment groups
+                      # the latter condition should never happen, because we only put in alignment groups that are 
                       # in combined chains, and thus will need *some* aligning. but good to check in any case.
-                      log.debug("Finished with retrieving chain configuration for chain %s", chain.name)
+                      log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName'])
                       chainConfig.numberAllSteps()
                       TriggerConfigHLT.registerChain( chainDict, chainConfig )
                       continue
-                  elif signatures[0] == signature_sets_to_align[signatures[0]][0]:
+                  elif alignmentGroups[0] == alignmentGroup_sets_to_align[alignmentGroups[0]][0]:
                       # if it's the first chain in the set to be aligned, again - nothing to do here.
-                      log.debug("Finished with retrieving chain configuration for chain %s", chain.name) 
+                      log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName']) 
                       chainConfig.numberAllSteps()
                       TriggerConfigHLT.registerChain( chainDict, chainConfig )
                       continue                       
                   else:
                       # now we know that empty steps are necessary before this chain. we can loop through and add accordingly
                       # but we want to do this in reverse
-                      the_align_sigs = signature_sets_to_align[signatures[0]][:signature_sets_to_align[signatures[0]].index(signatures[0])]
+                      the_align_sigs = alignmentGroup_sets_to_align[alignmentGroups[0]][:alignmentGroup_sets_to_align[alignmentGroups[0]].index(alignmentGroups[0])]
                       the_align_sigs.reverse()
                       
                       for align_sig in the_align_sigs:
                           chainConfig.insertEmptySteps(chainDict,'Empty'+align_sig+'Align',length_of_configs[align_sig],0)         
 
-                      log.debug("Finished with retrieving chain configuration for chain %s", chain.name)
+                      log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName'])
                       chainConfig.numberAllSteps()
                       TriggerConfigHLT.registerChain( chainDict, chainConfig )
                           
-              elif len(signatures) == 2:
+              elif len(alignmentGroups) == 2:
                   #check for a few bad conditions first:
-                  if(signatures[0] not in signature_sets_to_align or signatures[1] not in signature_sets_to_align):
-                      log.error(" one of the signatures in %s is not available in the sets to align dictionary!", signatures)
-                  elif signature_sets_to_align[signatures[0]] != signature_sets_to_align[signatures[1]]:
-                      log.error(" the two signatures %s point to different sets in the sets to align dictionary. Set1: %s, set2: %s!", 
-                                signatures, signature_sets_to_align[signatures[0]],signature_sets_to_align[signatures[1]])
+                  if(alignmentGroups[0] not in alignmentGroup_sets_to_align or alignmentGroups[1] not in alignmentGroup_sets_to_align):
+                      log.error(" one of the alignmentGroups in %s is not available in the sets to align dictionary!", alignmentGroups)
+                  elif alignmentGroup_sets_to_align[alignmentGroups[0]] != alignmentGroup_sets_to_align[alignmentGroups[1]]:
+                      log.error(" the two alignmentGroups %s point to different sets in the sets to align dictionary. Set1: %s, set2: %s!", 
+                                alignmentGroups, alignmentGroup_sets_to_align[alignmentGroups[0]],alignmentGroup_sets_to_align[alignmentGroups[1]])
                 
-                  if len(signature_sets_to_align[signatures[0]]) == 2:
-                      
+                  if len(alignmentGroup_sets_to_align[alignmentGroups[0]]) == 2:
+
                       # if the pair is on its own, then we just make sure the first signature's number
                       # of steps is equal to the max in that signature (so the next signature starts at the right step)
                       
@@ -287,63 +271,74 @@ class GenerateMenuMT(object):
                       # overwrite duplicates yet. 
                       # probably, at some point, will need to divide this beyond signature but instead as unique sequence within a signature. 
                       # munoL1 is already one case...
-                      length_firstsig = 0
-                      max_length_firstsig = length_of_configs[signature_sets_to_align[signatures[0]][0]]
-                      for config_length,config_sig in lengthOfChainConfigs:
-                          if config_sig == signature_sets_to_align[signatures[0]][0]:
-                              length_firstsig = config_length
-                      if length_firstsig < max_length_firstsig:
-                          #too short! gotta add padding steps between two signatures...
-                          needed_steps = max_length_firstsig - length_firstsig
-                          chainConfig.insertEmptySteps(chainDict,'Empty'+signature_sets_to_align[signatures[0]][0]+'Align',needed_steps,length_firstsig) 
+                      length_firstgrp = 0
+                      max_length_firstgrp = length_of_configs[alignmentGroup_sets_to_align[alignmentGroups[0]][0]]
+                      for config_length,config_grp in lengthOfChainConfigs:
+                          if config_grp == alignmentGroup_sets_to_align[alignmentGroups[0]][0]:
+                              length_firstgrp = config_length
+                      if length_firstgrp < max_length_firstgrp:
+                          #too short! need to add padding steps between two alignment groups...
+                          needed_steps = max_length_firstgrp - length_firstgrp
+                          chainConfig.insertEmptySteps(chainDict,'Empty'+alignmentGroup_sets_to_align[alignmentGroups[0]][0]+'Align',needed_steps,length_firstgrp) 
                       
-                      elif length_firstsig > max_length_firstsig:
-                          log.error("%s first signature length %d is greater than the max calculated, %d",chainDict.name,length_firstsig, max_length_firstsig)     
+                      elif length_firstgrp > max_length_firstgrp:
+                          log.error("%s first signature length %d is greater than the max calculated, %d",chainDict.name,length_firstgrp, max_length_firstgrp)     
                   
-                      log.debug("Finished with retrieving chain configuration for chain %s", chain.name)
+                      log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName'])
                       chainConfig.numberAllSteps()
                       TriggerConfigHLT.registerChain( chainDict, chainConfig )
   
 
                   #this should probably work for signatures > 2, but might be a few gotchas (and errors need updating)
-                  if len(signature_sets_to_align[signatures[0]]) > 2:
-                      if(signatures[0] not in signature_sets_to_align or signatures[1] not in signature_sets_to_align):
-                          log.error(" one of the signatures in %s is not available in the sets to align dictionary!", signatures)
-                      elif signature_sets_to_align[signatures[0]] != signature_sets_to_align[signatures[1]]:
-                          log.error(" the two signatures %s point to different sets in the sets to align dictionary. Set1: %s, set2: %s!", 
-                                     signatures, signature_sets_to_align[signatures[0]], signature_sets_to_align[signatures[1]])
+                  elif len(alignmentGroup_sets_to_align[alignmentGroups[0]]) > 2:
+                      if(alignmentGroups[0] not in alignmentGroup_sets_to_align or alignmentGroups[1] not in alignmentGroup_sets_to_align):
+                          log.error(" one of the alignmentGroups in %s is not available in the sets to align dictionary!", alignmentGroups)
+                      elif alignmentGroup_sets_to_align[alignmentGroups[0]] != alignmentGroup_sets_to_align[alignmentGroups[1]]:
+                          log.error(" the two alignmentGroups %s point to different sets in the sets to align dictionary. Set1: %s, set2: %s!", 
+                                     alignmentGroups, alignmentGroup_sets_to_align[alignmentGroups[0]], alignmentGroup_sets_to_align[alignmentGroups[1]])
                       
-                      # we need to know which signatures are in the chain in which order. Assume this is always stored correctly.
+                      # we need to know which alignmentGroups are in the chain in which order. Assume this is always stored correctly.
                       # (this should be true)
                       
                       # never need to align the last chain - it can end a different length, no problem.
                       # ignore any signatures after the end of those in this chain
 
-                      the_align_sigs = signature_sets_to_align[signatures[1]][:signature_sets_to_align[signatures[1]].index(signatures[1])]
-                      the_align_sigs.reverse()
-                      
-                      for align_sig in the_align_sigs:
-                          max_length_sig = length_of_configs[align_sig]
-                          if align_sig in signatures:
-                              length_sig = 0
-                              for config_length,config_sig in lengthOfChainConfigs:
-                                  if config_sig == align_sig:
-                                      length_sig = config_length
-                              if length_sig < max_length_sig:
-                                  #too short! gotta add padding steps between two signatures...
-                                  needed_steps = max_length_sig - length_sig
-                                  chainConfig.insertEmptySteps(chainDict,'Empty'+align_sig+'Align',needed_steps,length_sig) 
+                      alignGroups_set = alignmentGroup_sets_to_align[alignmentGroups[1]][:alignmentGroup_sets_to_align[alignmentGroups[1]].index(alignmentGroups[1])]
+                      alignGroups_set.reverse()
+                      grp_masks = [x in alignmentGroups for x in alignGroups_set]
+                      grp_lengths = []
+                      for align_grp,grp_in_chain in zip(alignGroups_set,grp_masks):
+                          if grp_in_chain:
+                              for config_length,config_grp in lengthOfChainConfigs:
+                                if config_grp == align_grp: 
+                                    grp_lengths += [config_length]
+                          else:
+                              grp_lengths += [0]
+                          
+                      for istep,(align_grp,grp_in_chain,length_in_chain) in enumerate(zip(alignGroups_set,grp_masks,grp_lengths)):
+                          # We're working our way backwards through the chain 
+                          # need to know how many steps are already before us!
+                          nSteps_before_grp = 0
+                          if istep < len(grp_lengths)-1: 
+                              nSteps_before_grp = sum(grp_lengths[istep+1:])
+                          max_length_grp = length_of_configs[align_grp]
+                          if grp_in_chain:
+                              if length_in_chain < max_length_grp:
+                                  #too short! gotta add padding steps between two alignmentGroups...
+                                  needed_steps = max_length_grp - length_in_chain
+                                  start_step = nSteps_before_grp + length_in_chain
+                                  chainConfig.insertEmptySteps(chainDict,'Empty'+align_grp+'Align',needed_steps,start_step) 
                           else:
                               # this sig isn't in the chain, but we still will need empty steps for it
                               # always add them to the start, because we're running in reverse order
-                              chainConfig.insertEmptySteps(chainDict,'Empty'+align_sig+'Align',length_of_configs[align_sig],0) 
+                              chainConfig.insertEmptySteps(chainDict,'Empty'+align_grp+'Align',length_of_configs[align_grp],nSteps_before_grp) 
                     
-                      log.debug("Finished with retrieving chain configuration for chain %s", chain.name) 
+                      log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName']) 
                       chainConfig.numberAllSteps()
                       TriggerConfigHLT.registerChain( chainDict, chainConfig )               
               
               else: 
-                  log.error("Menu can't deal with combined chains with more than two signatures at the moment. oops...")
+                  log.error("Menu can't deal with combined chains with more than two alignmentGroups at the moment. oops...")
 
               if not TriggerConfigHLT.isChainRegistered(chainDict['chainName']):
                 log.error("Chain %s has not been registered in the menu!", chainDict['chainName'])
@@ -403,7 +398,11 @@ class GenerateMenuMT(object):
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
         # check if all the signature files can be imported files can be imported
+        log.debug("[__generateChainConfig] signaturesToGenerate: %s",  self.signaturesToGenerate)
+
         for sig in self.signaturesToGenerate:
+            log.debug("[__generateChainConfig] sig: %s", sig)
+            
             try:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':
@@ -445,13 +444,17 @@ class GenerateMenuMT(object):
 
         # Loop over all chainDicts and send them off to their respective assembly code
         listOfChainConfigs = []
-        lengthOfChainConfigs = []
+        tmp_lengthOfChainConfigs = []
 
-        for chainDict in chainDicts:
-            chainConfigs = None
-            currentSig = chainDict['signature']
-            chainName = chainDict['chainName']
-            log.debug('Checking chainDict for chain %s in signature %s' , chainName, currentSig)
+        for chainPartDict in chainDicts:
+            chainPartConfig = None
+            currentSig = chainPartDict['signature']
+            currentAlignGroup = None
+            if len(chainPartDict['chainParts']) == 1:
+                currentAlignGroup = chainPartDict['chainParts'][0]['alignmentGroup']
+            
+            chainName = chainPartDict['chainName']
+            log.debug('Checking chainDict for chain %s in signature %s, alignment group %s' , chainName, currentSig, currentAlignGroup)
 
             sigFolder = ''
             if currentSig == 'Electron' or currentSig == 'Photon':
@@ -464,16 +467,28 @@ class GenerateMenuMT(object):
             if currentSig in self.availableSignatures and currentSig != 'Combined':
                 try:                    
                     log.debug("Trying to get chain config for %s in folder %s", currentSig, sigFolder)
-                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
-                    chainConfigs = eval(functionToCall)
+                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainPartDict)' 
+                    chainPartConfig = eval(functionToCall)
                 except RuntimeError:
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:
-                log.error('Chain %s ignored - Signature not available', chainDict['chainName'])
-            listOfChainConfigs.append(chainConfigs)
-            lengthOfChainConfigs.append((len(chainConfigs.steps),currentSig))
+                log.error('Chain %s ignored - Signature not available', chainPartDict['chainName'])
+            log.debug("Chain %s chain configs: %s",chainPartDict['chainName'],chainPartConfig)
+            listOfChainConfigs.append(chainPartConfig)
+            tmp_lengthOfChainConfigs.append((chainPartConfig.nSteps,chainPartConfig.alignmentGroups))
 
+        # this will be a list of lists for inter-sig combined chains and a list with one 
+        # multi-element list for intra-sig combined chains
+        # here, we flatten it accordingly (works for both cases!)
+        lengthOfChainConfigs = []
+        for nSteps, aGrps in tmp_lengthOfChainConfigs:
+            if len(nSteps) != len(aGrps):
+                log.error("Chain part has %s steps and %s alignment groups - these don't match!",nSteps,aGrps)
+            else:
+                for a,b in zip(nSteps,aGrps):
+                    lengthOfChainConfigs.append((a,b))         
+            
         ## if log.isEnabledFor(logging.DEBUG):
         ##     import pprint
         ##     pp = pprint.PrettyPrinter(indent=4, depth=8)

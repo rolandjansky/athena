@@ -77,7 +77,7 @@ void TauPi0ClusterScaler::resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContaine
         const xAOD::CaloCluster* cl = pfo->cluster(0);
 
         // apply cluster vertex correction 
-        if(pTau.vertexLink()){
+        if(pTau.vertexLink().isValid()){
             auto clcorr = xAOD::CaloVertexedTopoCluster(*cl, pTau.vertex()->position());
             pfo->setP4(clcorr.pt(), clcorr.eta(), clcorr.phi(), 0.0);
         }

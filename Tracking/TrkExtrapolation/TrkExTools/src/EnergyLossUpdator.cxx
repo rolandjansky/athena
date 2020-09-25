@@ -57,24 +57,6 @@ Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string &t, const std::strin
   declareProperty("OptimalRadiation", m_optimalRadiation);
 }
 
-// destructor
-Trk::EnergyLossUpdator::~EnergyLossUpdator() {
-}
-
-// Athena standard methods
-// initialize
-StatusCode
-Trk::EnergyLossUpdator::initialize() {
-  ATH_MSG_INFO("initialize()");
-  return StatusCode::SUCCESS;
-}
-
-// finalize
-StatusCode
-Trk::EnergyLossUpdator::finalize() {
-  ATH_MSG_INFO("finalize() successful");
-  return StatusCode::SUCCESS;
-}
 
 // public interface method
 double

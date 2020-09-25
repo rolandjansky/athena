@@ -40,7 +40,7 @@ namespace Trk
    */ 
 
   //Not THREAD_SAFE due to const_cast 
-  class ATLAS_NOT_THREAD_SAFE DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
+  class DummyVertexSmoother : public AthAlgTool, virtual public IVertexSmoother
   {
   public:
   

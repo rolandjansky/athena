@@ -106,14 +106,20 @@ namespace MuonGM {
 
     const MuonClusterReadoutElement* getMuonClusterReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
 
+    /// Returns the const detector readout elements
     const MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4) const;
-    MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4);
     const sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4) const;
     const MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4) const;
     const TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3) const;
-    TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3);
     const CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4) const;
+
+    //// Non const version
+    MdtReadoutElement* getMdtReadoutElement(int i1, int i2, int i3, int i4);
+    sTgcReadoutElement* getsTgcReadoutElement(int i1, int i2, int i3, int i4);
+    MMReadoutElement* getMMReadoutElement(int i1, int i2, int i3, int i4);
+    TgcReadoutElement* getTgcReadoutElement(int i1, int i2, int i3);
     CscReadoutElement* getCscReadoutElement(int i1, int i2, int i3, int i4);
+
 
     const MdtReadoutElement* getMdtRElement_fromIdFields(int i1, int i2, int i3, int i4) const;
     //!< access via extended identifier field (no unpacking)
@@ -397,19 +403,19 @@ namespace MuonGM {
     const MmIdHelper* m_mmIdHelper;
 
     // 115.6 kBytes.
-    MdtReadoutElement*   m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
-    CscReadoutElement*   m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
-    RpcReadoutElement*   m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
-    TgcReadoutElement*   m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
-    sTgcReadoutElement*  m_stgArray[NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
-    MMReadoutElement*    m_mmcArray[NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
+    std::unique_ptr<MdtReadoutElement>   m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
+    std::unique_ptr<CscReadoutElement>   m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
+    std::unique_ptr<RpcReadoutElement>   m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
+    std::unique_ptr<TgcReadoutElement>   m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
+    std::unique_ptr<sTgcReadoutElement>  m_stgArray[NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
+    std::unique_ptr<MMReadoutElement>    m_mmcArray[NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
     //
     const MdtReadoutElement *m_mdtArrayByHash[MdtRElMaxHash];
     const CscReadoutElement *m_cscArrayByHash[CscRElMaxHash];
     const RpcReadoutElement *m_rpcArrayByHash[RpcRElMaxHash];
     const TgcReadoutElement *m_tgcArrayByHash[TgcRElMaxHash];
 
-    std::map< std::string, MuonStation * > m_MuonStationMap;
+    std::map< std::string, std::unique_ptr<MuonStation> > m_MuonStationMap;
 
     unsigned int m_n_mdtRE;
     unsigned int m_n_cscRE;
@@ -426,10 +432,10 @@ namespace MuonGM {
     // pointers to the XxxDetectorElements (with granularity a la EDM)
     std::vector<std::unique_ptr<const TgcReadoutParams> > m_TgcReadoutParamsVec;
 
-    MdtDetectorElement* m_mdtDEArray[MdtDetElMaxHash];
-    RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
-    TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];
-    CscDetectorElement* m_cscDEArray[CscDetElMaxHash];
+    std::unique_ptr<MdtDetectorElement> m_mdtDEArray[MdtDetElMaxHash];
+    std::unique_ptr<RpcDetectorElement> m_rpcDEArray[RpcDetElMaxHash];
+    std::unique_ptr<TgcDetectorElement> m_tgcDEArray[TgcDetElMaxHash];
+    std::unique_ptr<CscDetectorElement> m_cscDEArray[CscDetElMaxHash];
 
     ALineMapContainer m_aLineContainer;
     BLineMapContainer m_bLineContainer;
@@ -438,7 +444,7 @@ namespace MuonGM {
     /// RPC name caches
     std::map<int,int> m_rpcStatToIdx;
     std::map<int,int> m_rpcIdxToStat;
-    
+
 
   };
 

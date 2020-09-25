@@ -105,7 +105,7 @@ def createCFTree(CFseq):
     recoSeqSet=set()
     hypoSet=set()
     for menuseq in CFseq.step.sequences:
-        menuseq.addToSequencer(recoSeqSet, hypoSet)
+        menuseq.addToSequencer(recoSeqSet,hypoSet)
   
     #list(dict.fromkeys()) is guaranteed to respect ordering from python 3.7 onwards
     stepReco += list(dict.fromkeys([recoseq for recoseq in recoSeqSet]))

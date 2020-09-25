@@ -21,7 +21,7 @@ class G4HCofThisEvent;
 class G4Step;
 class G4TouchableHistory;
 
-class ATLAS_NOT_THREAD_SAFE TRTSensitiveDetector : public G4VSensitiveDetector // Thread unsafe TRTParameters, TRTProcessingOfBarrelHits, TRTProcessingOfEndCapHits classes is used.
+class TRTSensitiveDetector : public G4VSensitiveDetector
 {
  FRIEND_TEST( TRTSensitiveDetectortest, Initialize);
  FRIEND_TEST( TRTSensitiveDetectortest, ProcessHits );
@@ -84,7 +84,7 @@ class ATLAS_NOT_THREAD_SAFE TRTSensitiveDetector : public G4VSensitiveDetector /
   // The hits collection
   SG::WriteHandle<TRTUncompressedHitCollection> m_HitColl; //pUncompressedHitCollection;
 
-  TRTParameters* m_pParameters;
+  const TRTParameters* m_pParameters;
 
   TRTProcessingOfBarrelHits* m_pProcessingOfBarrelHits;
   TRTProcessingOfEndCapHits* m_pProcessingOfEndCapHits;

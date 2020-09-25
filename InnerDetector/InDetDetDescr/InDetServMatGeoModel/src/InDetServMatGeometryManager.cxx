@@ -12,7 +12,7 @@
 
 #include "GaudiKernel/SystemOfUnits.h"
 
-InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps)   
+InDetServMatGeometryManager::InDetServMatGeometryManager(InDetDD::AthenaComps * athenaComps)   
   : m_athenaComps(athenaComps),
     m_matMgr(0)
 {

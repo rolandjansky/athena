@@ -123,9 +123,9 @@ def _loadSingleFile(fname, args):
                 conf = [to_json, props[0], props[1]]
 
             elif isinstance(cfg, collections.defaultdict):  # old configuration
+                cfg.update(pickle.load(input_file))
+                conf.append(pickle.load(input_file))
                 conf.append(cfg)
-                for _ in range(2):
-                    conf.append(pickle.load(input_file))
         print("... Read", len(conf), "items from python pickle file: ", fname)
 
     elif fname.endswith(".json"):

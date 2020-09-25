@@ -1,25 +1,17 @@
 ## CaloExtensionBuilderAlg Stuff
-# Defined as function such that the user can change the cut level and minPt
 
-
-def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
+def CaloExtensionBuilder():
     try: 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
     except:
-        mlog.error("could not import TrackToCaloConf.Trk__ParticleCaloExtensionTool")
+        mlog.error("could not import" "TrackToCaloConf.Trk__ParticleCaloExtensionTool")
         mlog.error("could not import TrkExTools.AtlasExtrapolator")
         mlog.error (traceback.format_exc())
     try:
         from TrackToCalo.TrackToCaloConf import Trk__CaloExtensionBuilderAlg as CaloExtensionBuilderAlg
     except:
         mlog.error("could not import TrackToCaloConf.Trk__CaloExtensionBuilderAlg")
-        mlog.error (traceback.format_exc())
-    try:
-        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-        from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    except:
-        mlog.error("could not import InDetTrackSelectionTool.InDet__InDetTrackSelectionTool")
         mlog.error (traceback.format_exc())
     try:
         from AthenaCommon.AppMgr import ToolSvc
@@ -43,15 +35,6 @@ def CaloExtensionBuilder( cutLevel = "TightPrimary", minPT = 100.0 ):
     CaloExtensionBuilderTool = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool)
 
     from AthenaCommon.BeamFlags import jobproperties
-
-    TrackSelectionToolHC = InDet__InDetTrackSelectionTool(name            = "CaloExtensionBuilderTrackSelectionTool",
-                                                           minPt           = minPT,
-                                                           CutLevel        = cutLevel,
-                                                           minNSiHits      = 7) # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-    
-        
-    CaloExtensionBuilderTool.TrkSelection         = TrackSelectionToolHC    
-
     ToolSvc += CaloExtensionBuilderTool.LastCaloExtentionTool
 
     topSequence += CaloExtensionBuilderTool

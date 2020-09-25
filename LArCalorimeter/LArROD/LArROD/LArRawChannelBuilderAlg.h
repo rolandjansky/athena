@@ -14,6 +14,7 @@
 
 #include "LArElecCalib/ILArPedestal.h"
 #include "LArRawConditions/LArADC2MeV.h"
+#include "LArRawConditions/LArDSPThresholdsComplete.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h" 
 #include "LArCabling/LArOnOffIdMapping.h"
@@ -51,7 +52,8 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
 
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-  SG::ReadCondHandleKey<AthenaAttributeList> m_thresholdsKey{this, "DSPThresholdsKey","/LAR/NoiseOfl/DSPThresholds", "SG Key for thresholds to compute time and quality"};
+  SG::ReadCondHandleKey<LArDSPThresholdsComplete> m_run1DSPThresholdsKey{this, "Run1DSPThresholdsKey","", "SG Key for thresholds to compute time and quality, run 1"};
+  SG::ReadCondHandleKey<AthenaAttributeList> m_run2DSPThresholdsKey{this, "Run2DSPThresholdsKey","", "SG Key for thresholds to compute time and quality, run 2"};
 
 
   //Other jobOptions:

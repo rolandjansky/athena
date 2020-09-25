@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 786914 2016-11-28 14:58:47Z krumnack $
-################################################################################
-# Package: SampleHandler
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SampleHandler )
@@ -15,7 +12,7 @@ atlas_depends_on_subdirs(
    Control/AthToolSupport/AsgTesting )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO PyROOT Proof )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO ROOTTPython Proof )
 find_package( GTest )
 
 # Component(s) in the package:

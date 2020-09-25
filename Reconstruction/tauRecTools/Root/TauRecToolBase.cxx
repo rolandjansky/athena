@@ -148,7 +148,7 @@ StatusCode TauRecToolBase::executeDev(xAOD::TauJet&) {
   return StatusCode::FAILURE;
 }
 #else
-StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) {
+StatusCode TauRecToolBase::executePi0CreateROI(xAOD::TauJet& /*pTau*/, CaloCellContainer& /*caloCellContainer*/, std::vector<CaloCell*>& /*map*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }

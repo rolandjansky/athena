@@ -99,10 +99,8 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
       }
     }
     // Covert to original hit patterns
-    std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap   = stripMap.begin();
-    std::map<std::vector<uint16_t>, uint16_t>::iterator jtMap_e = stripMap.end();
-    for(; jtMap!=jtMap_e; jtMap++) {
-      if(jtMap->second<=31) {
+    for (auto& jtPair : stripMap) {
+      if(jtPair.second<=31) {
         // x    : 5-bit variable
         // f(x) : OR function above, Digit->RDO conversion
         // g(x) : originalHitBits which satisfies f(g(f(x))) = f(x), RDO->Digit conversion
@@ -116,9 +114,9 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
           // 24  25  26  27  28  29  30  31
           16, 17,  0, 19, 24, 25, 28, 31
         };
-        jtMap->second = originalHitBits[jtMap->second];
+        jtPair.second = originalHitBits[jtPair.second];
       } else {
-        jtMap->second = 0;
+        jtPair.second = 0;
       }
     }
     // TGC2 Endcap Strip OR channel treatement preparation end
@@ -248,11 +246,10 @@ StatusCode TgcRdoToTgcDigit::decodeTgc( const TgcRdo *rdoColl,
           }
 
           // check duplicate digits
-          TgcDigitCollection::const_iterator it_tgcDigit;
           bool duplicate = false;
-          for (it_tgcDigit=collection->begin(); it_tgcDigit != collection->end(); it_tgcDigit++) {
-            if ((newDigit->identify() == (*it_tgcDigit)->identify()) &&
-                (newDigit->bcTag()    == (*it_tgcDigit)->bcTag())) {
+          for (const TgcDigit* digit : *collection) {
+            if ((newDigit->identify() == digit->identify()) &&
+                (newDigit->bcTag()    == digit->bcTag())) {
               duplicate = true;
               ATH_MSG_DEBUG( "Duplicate TGC Digit removed"   );
               break;

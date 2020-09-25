@@ -21,7 +21,6 @@ namespace Muon {
 
   MuonLayerHoughTool::MuonLayerHoughTool(const std::string& type, const std::string& name, const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_detMgr(nullptr),
     m_ntechnologies(UINT_MAX), // gets set inside initialize()
     m_techToTruthNameIdx()
   {
@@ -39,7 +38,8 @@ namespace Muon {
     } else {
       m_truthSummaryTool.disable();
     }
-    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
+    const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
+    ATH_CHECK( detStore()->retrieve( muDetMgr ) );
 
     if( m_doNtuple ){
       if (Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
@@ -62,7 +62,7 @@ namespace Muon {
       m_ntuple = 0;
     }
     
-    initializeSectorMapping();
+    initializeSectorMapping(muDetMgr);
 
     // if m_truthNames is empty, fill it if running on truth
     if( m_truthNames.empty() && m_doTruth ){
@@ -2156,7 +2156,7 @@ namespace Muon {
   }
 
   // all chambers are mapped onto a layer and sector map
-  void MuonLayerHoughTool::initializeSectorMapping() {
+  void MuonLayerHoughTool::initializeSectorMapping(const MuonGM::MuonDetectorManager* detMgr) {
     m_collectionsPerSector.resize(MuonStationIndex::numberOfSectors());
     // set sector numbers
     unsigned int nsectorHashMax = MuonStationIndex::sectorLayerHashMax();
@@ -2229,7 +2229,7 @@ namespace Muon {
     it = m_idHelperSvc->tgcIdHelper().module_begin();
     it_end = m_idHelperSvc->tgcIdHelper().module_end();
     for( ;it!=it_end; ++it ){
-      const MuonGM::TgcReadoutElement* detEl = m_detMgr->getTgcReadoutElement(*it);
+      const MuonGM::TgcReadoutElement* detEl = detMgr->getTgcReadoutElement(*it);
       if( !detEl ) {
         ATH_MSG_DEBUG(" No detector element found for " << m_idHelperSvc->toString(*it) );
         continue;

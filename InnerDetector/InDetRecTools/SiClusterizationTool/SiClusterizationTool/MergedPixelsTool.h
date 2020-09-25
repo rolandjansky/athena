@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <vector>
+#include <array>
 
 class PixelID;
 
@@ -56,25 +57,18 @@ namespace InDet {
     Identifier ID ;
   };
 
-  class network {
+  struct network {
   public:
-    network():
-      NC(0), CON({0,0,0,0,0,0,0,0}) {};
-      
-    ~network() {};
-
-    int               NC;
-    std::array<int,8> CON;
+    int               NC{};
+    std::array<int,8> CON{};
   };
   
   const auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
-    if(id1.COL == id2.COL) 
-      return id1.ROW < id2.ROW;
+    if(id1.COL == id2.COL) return id1.ROW < id2.ROW;
     return id1.COL < id2.COL;
   };
  
-  class MergedPixelsTool : public PixelClusteringToolBase
-  {
+  class MergedPixelsTool : public PixelClusteringToolBase{
   public:
 
 

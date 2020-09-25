@@ -58,7 +58,7 @@ public:
 
 namespace {
   // register all kits with the help of a dumm function which sets a global anonymous bool
-  bool registered = ( []() ATLAS_NOT_THREAD_SAFE-> bool {
+  bool registered = ( []() -> bool {
     return
          RIO_OnTrackErrorScalingKitManager::instance().registerKit("PixelRIO_OnTrackErrorScaling",    new PixelRIO_OnTrackErrorScalingKit)
       && RIO_OnTrackErrorScalingKitManager::instance().registerKit("PixelRIO_OnTrackErrorScalingRun1",new PixelRIO_OnTrackErrorScalingRun1Kit)

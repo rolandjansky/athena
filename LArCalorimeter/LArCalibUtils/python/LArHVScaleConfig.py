@@ -39,7 +39,7 @@ def LArHVScaleCfg(configFlags):
         result.addCondAlgo(hvpath)
 
         LArHVCondAlg=CompFactory.LArHVCondAlg
-        hvcond = LArHVCondAlg("LArHVPathologyAlg",HVPathologies="LArHVPathology",OutputHVData="LArHVData")
+        hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
         result.addCondAlgo(hvcond)
 
         from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg

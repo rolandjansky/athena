@@ -12,7 +12,7 @@
 class TRTUncompressedHit;
 class TRTOutputFile;
 
-class ATLAS_NOT_THREAD_SAFE TRTPrintingOfHits // Thread unsafe TRTOutputFile class is used.
+class TRTPrintingOfHits
 {
   public:
     TRTPrintingOfHits();
@@ -20,7 +20,7 @@ class ATLAS_NOT_THREAD_SAFE TRTPrintingOfHits // Thread unsafe TRTOutputFile cla
 
     void PrintUncompressedHit(TRTUncompressedHit*);
 
-    MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+    MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
     bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
   private:
@@ -31,8 +31,7 @@ class ATLAS_NOT_THREAD_SAFE TRTPrintingOfHits // Thread unsafe TRTOutputFile cla
 
     TRTOutputFile* m_pOutputFile;
 
-    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
+    Athena::MsgStreamMember m_msg;
 };
 
 #endif //TRT_G4_SD_TRTPrintingOfHits_hh
