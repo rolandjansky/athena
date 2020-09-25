@@ -164,6 +164,7 @@ namespace Prompt
 
     double                                                 m_minFitProb;
     double                                                 m_minCandOverSeedFitProbRatio;
+    unsigned                                               m_maxExtraTracks;
 
     std::string                                            m_outputStream;
 
