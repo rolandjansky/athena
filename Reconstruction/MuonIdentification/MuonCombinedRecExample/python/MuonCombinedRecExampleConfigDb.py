@@ -39,7 +39,8 @@ addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMaterialProviderTool","
 
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg_LargeD0",
-                                                                      InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),                                 
+                                                                      InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),  
+                                                                                                     
                                                                       TagMap="caloTagMap_LargeD0")
 
 
@@ -58,7 +59,8 @@ addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidate
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg",
                                     "MuonCombinedInDetCandidateAlg_LargeD0",
                                     TrackParticleLocation=[InDetKeys.xAODLargeD0TrackParticleContainer()],
-                                    InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),                                    
+                                    InDetCandidateLocation=MuonCbKeys.InDetTrackParticlesLargeD0(),  
+									TrackSelector="MuonCombinedInDetDetailedTrackSelectorTool_LargeD0",
                                     DoSiliconAssocForwardMuons=False)
 
 
@@ -113,6 +115,14 @@ addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagAmbiguitySolverTool"
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTagTool","MuonSegmentTagTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
+addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool",
+        "MuonCombinedInDetDetailedTrackSelectorTool_LargeD0",
+        IPd0Max=1.e4,
+        nHitPix=0,
+        nHitSct=4,
+        
+)
+
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedForwardTrackSelectorTool", nHitSct=0)
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonInDetForwardCandidateTool","MuonInDetForwardCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
