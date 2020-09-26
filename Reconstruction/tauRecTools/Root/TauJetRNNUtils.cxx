@@ -525,48 +525,19 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda   (const xAOD::TauJet &tau, const
 
 
 bool FirstEngDensOverClustersMeanFirstEngDens    (const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out){
-  if (!tau.jetLink().isValid()){
-    return false;
-  }
-  const xAOD::Jet *jetSeed = tau.jet();
-   
-  std::vector<const xAOD::CaloCluster *> clusters;
-  bool            incShowerSubtracted(true);
-  auto check_tauClusters = tauRecTools::GetJetClusterList(jetSeed, clusters, incShowerSubtracted);
-
-  std::size_t nClustersTotal = clusters.size();
-
-  // Number of tracks to save
-  std::size_t nClustersSave = nClustersTotal;
-  std::size_t n_clusterMax(6);
-  if (n_clusterMax > 0) {
-    nClustersSave = std::min((n_clusterMax),nClustersTotal);
-  }
-  // Sort clusters in descending et order
-  auto et_cmp = [](const xAOD::CaloCluster *lhs,
-		     const xAOD::CaloCluster *rhs) {
-    return lhs->et() > rhs->et();
-  };
-  std::sort(clusters.begin(), clusters.end(), et_cmp);
-  
-  float Etot(0.);
-  using MomentType = xAOD::CaloCluster::MomentType;
-  const xAOD::CaloCluster *cls(0);
-  for (std::size_t i = 0; i < nClustersSave; ++i) {
-    cls = clusters[i];
-
-    TLorentzVector cluster_P4 = cls->p4(xAOD::CaloCluster::State::CALIBRATED);
-    Etot += cls->calE();
-  }
-	
   // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
   // divided by ETot to make it dimension-less, 
-  // so we need to evaluate the differance of log10(cluster_firstEngDens) and the ClustersMeanFirstEngDens
-  float min_FirstEng = 1e-10;
-  float cluster_FirstEngDens       = std::max(cluster.getMomentValue(MomentType::FIRST_ENG_DENS), (double)min_FirstEng);
-  out = std::log10(cluster_FirstEngDens/std::max(Etot, min_FirstEng)) - tau.auxdata<float>("ClustersMeanFirstEngDens");
+  // so we need to evaluate the differance of log10(clusterFirstEngDens/clusterTotalEnergy) and the ClustersMeanFirstEngDens
+  double clusterFirstEngDens = 0.0;
+  bool status = cluster.retrieveMoment(MomentType::FIRST_ENG_DENS, clusterFirstEngDens);
+  if (clusterFirstEngDens < 1e-6) clusterFirstEngDens = 1e-6;
+
+  float clusterTotalEnergy = tau.auxdata<float>("ClusterTotalEnergy");
+  if (clusterTotalEnergy < 1e-6) clusterTotalEnergy = 1e-6;
+
+  out = std::log10(clusterFirstEngDens/clusterTotalEnergy) - tau.auxdata<float>("ClustersMeanFirstEngDens");
   
-  return true;
+  return status;
 }
 
 } // namespace Cluster
