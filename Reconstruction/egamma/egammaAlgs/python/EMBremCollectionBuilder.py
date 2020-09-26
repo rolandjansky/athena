@@ -86,6 +86,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             HoleSearch=None,
             PixelToTPIDTool=GSFBuildPixelToTPIDTool,
             TestBLayerTool=GSFBuildTestBLayerTool,
+            ClusterSplitProbabilityName=TrackingCommon.combinedClusterSplitProbName(),
             DoSharedHits=False,
             private=True)
 
