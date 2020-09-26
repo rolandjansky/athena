@@ -440,7 +440,7 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOC
     TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
     
     std::vector<const xAOD::CaloCluster*> clusterList;
-    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_incShowerSubtr);
+    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
     if (!sc) return false;
 
     for (const xAOD::CaloCluster* cluster : clusterList){
