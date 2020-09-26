@@ -95,18 +95,24 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 
     // in the trigger, z0sintheta IP and corresponding significance are meaningless if we use the beamspot
     if(vxcand && (inTrigger() || (!inTrigger() && vxcand->vertexType() != xAOD::VxType::NoVtx))) {
-      static const SG::AuxElement::Decorator<float> dec_d0IPsig("d0IPsig");
-      static const SG::AuxElement::Decorator<float> dec_z0sinthetaIPsig("z0sinthetaIPsig");
+      static const SG::AuxElement::Decorator<float> dec_d0_TV("d0_TV");
+      static const SG::AuxElement::Decorator<float> dec_z0sintheta_TV("z0sintheta_TV");
+      static const SG::AuxElement::Decorator<float> dec_d0_sig_TV("d0_sig_TV");
+      static const SG::AuxElement::Decorator<float> dec_z0sintheta_sig_TV("z0sintheta_sig_TV");
 
       for(auto track : pTau.allTracks()) {
 	myIPandSigma = std::unique_ptr<const Trk::ImpactParametersAndSigma>(m_trackToVertexIPEstimator->estimate(track->track(), vxcand));
 	if(myIPandSigma) {
-	  dec_d0IPsig(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
-	  dec_z0sinthetaIPsig(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
+	  dec_d0_TV(*track) = myIPandSigma->IPd0;
+	  dec_z0sintheta_TV(*track) = myIPandSigma->IPz0SinTheta;
+	  dec_d0_sig_TV(*track) = (myIPandSigma->sigmad0 != 0.) ? (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ) : -999.;
+	  dec_z0sintheta_sig_TV(*track) = (myIPandSigma->sigmaz0SinTheta != 0.) ? (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ) : -999.;
 	}
 	else {
-	  dec_d0IPsig(*track) = -999.;
-	  dec_z0sinthetaIPsig(*track) = -999.;
+	  dec_d0_TV(*track) = -999.;
+	  dec_z0sintheta_TV(*track) = -999.;
+	  dec_d0_sig_TV(*track) = -999.;
+	  dec_z0sintheta_sig_TV(*track) = -999.;
 	}
       }
     }
