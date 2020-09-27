@@ -24,8 +24,7 @@ std::unique_ptr<CaloCell_ID> make_calo_id (bool do_neighbours = false)
     LArEM_ID,
     LArHEC_ID,
     LArFCAL_ID,
-    TileID,
-    HGTD_ID> (do_neighbours);
+    TileID> (do_neighbours);
 }
 
 

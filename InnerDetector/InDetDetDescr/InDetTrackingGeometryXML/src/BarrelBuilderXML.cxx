@@ -46,7 +46,8 @@ InDet::BarrelBuilderXML::BarrelBuilderXML(const std::string& t, const std::strin
   m_barrelLayerBinsZ(100),
   m_barrelLayerBinsPhi(1),
   m_customMaterial(false),
-  m_impMatDescription(false)
+  m_impMatDescription(false),
+  m_maxPassiveEnvelopeDistance(50.)
 {
   declareInterface<BarrelBuilderXML>(this);
 
@@ -112,6 +113,14 @@ void InDet::BarrelBuilderXML::setPixelCase(bool isPixel)
   m_pixelCase = isPixel;
   // Set pixel or SCT case for stave builder
   m_staveBuilder->setPixelCase(m_pixelCase);
+}
+
+std::vector< std::pair<float, float> > InDet::BarrelBuilderXML::getPassiveBarrelLayers() const
+{
+  std::vector< std::pair<float, float> > radii_length_cylinder = {};
+  if(m_pixelCase) radii_length_cylinder = m_xmlReader->getPixelPassiveBarrelLayers(); 
+
+  return radii_length_cylinder;
 }
 
 InDet::BarrelLayerTmp *InDet::BarrelBuilderXML::getLayerTmp(unsigned int ilayer) const
@@ -507,6 +516,86 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   
   return activeLayer;
 }
+
+/////////////////////////////////////////
+// Create Passive Cylinders for Barrel //
+/////////////////////////////////////////
+
+ std::vector< const Trk::Layer* > InDet::BarrelBuilderXML::createPassiveLayers(std::vector< const Trk::Layer* >& detectionLayers ) const {
+   
+   std::vector < std::pair < float, float > > radii_halfLength = getPassiveBarrelLayers();
+   
+   // if you don't need to add passive layers, returns directly the active ones
+   if (radii_halfLength.size()==0)
+     return detectionLayers;
+   
+   // otherwise you continue and build the vector of layer you need   
+   std::vector< const Trk::Layer* > finalLayers = {};   
+   unsigned int passiveIndex = 0;
+   
+   // get the first active layer
+   const Trk::CylinderLayer* cLayer = dynamic_cast<const Trk::CylinderLayer*>(detectionLayers.front());
+   
+   // the detection layers are already sorted, so look at the passive layer radii and see if you have to add some before the first active
+   for (passiveIndex = 0; passiveIndex < radii_halfLength.size(); passiveIndex++) {
+     float radius = radii_halfLength.at(passiveIndex).first;
+         
+     if (radius > (cLayer->bounds().r() + cLayer->thickness())) break;
+     
+     if (radius > (cLayer->bounds().r() - cLayer->thickness() - m_maxPassiveEnvelopeDistance)) {
+       // build the passive layer and add it to the final layers
+       float halfLength = radii_halfLength.at(passiveIndex).second;
+       const Trk::LayerMaterialProperties* passiveLayerMaterial = barrelLayerMaterial(radius,halfLength,nullptr);
+       finalLayers.push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(radius,halfLength), 
+                                                    *passiveLayerMaterial,
+                                                    5.,0, 0));
+     }
+   }
+   
+   // then look in between layers
+   for (unsigned int activeIndex = 0; activeIndex<detectionLayers.size()-1; activeIndex++) {
+     
+     finalLayers.push_back(detectionLayers.at(activeIndex));
+     const Trk::CylinderLayer* sLayer = dynamic_cast<const Trk::CylinderLayer*>(detectionLayers.at(activeIndex));
+     const Trk::CylinderLayer* fLayer = dynamic_cast<const Trk::CylinderLayer*>(detectionLayers.at(activeIndex+1));
+     
+     while (passiveIndex<radii_halfLength.size() and 
+            radii_halfLength.at(passiveIndex).first > (sLayer->bounds().r() + sLayer->thickness()) and 
+            radii_halfLength.at(passiveIndex).first < (fLayer->bounds().r() - fLayer->thickness())) {
+       float radius = radii_halfLength.at(passiveIndex).first;
+       float halfLength = radii_halfLength.at(passiveIndex).second;
+       // build the passive layer and add it to the final layers
+       const Trk::LayerMaterialProperties* passiveLayerMaterial = barrelLayerMaterial(radius,halfLength, nullptr);
+       finalLayers.push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(radius,halfLength), 
+                                                    *passiveLayerMaterial,
+                                                    5., 0, 0));
+       passiveIndex++;
+     }
+   }
+   
+   // get the last active layer
+   finalLayers.push_back(detectionLayers.back());
+   cLayer = dynamic_cast<const Trk::CylinderLayer*>(detectionLayers.back());
+   
+   // at last you look beyond the last active layer
+   for (; passiveIndex < radii_halfLength.size(); passiveIndex++) {
+     
+     float radius = radii_halfLength.at(passiveIndex).first;
+     
+     if (radius < (cLayer->bounds().r() + cLayer->thickness() + m_maxPassiveEnvelopeDistance)) {
+       // build the passive layer and add it to the final layers
+       float halfLength = radii_halfLength.at(passiveIndex).second;
+       const Trk::LayerMaterialProperties* passiveLayerMaterial = barrelLayerMaterial(radius,halfLength,nullptr);
+       finalLayers.push_back(new Trk::CylinderLayer(new Trk::CylinderBounds(radius,halfLength), 
+                                                    *passiveLayerMaterial,
+                                                    5., 0, 0));
+     } else break;
+   }
+   
+   return finalLayers;
+   
+ }
+
 
 ////////////////////////////////////
 // Create Cylinder Barrel Modules  //

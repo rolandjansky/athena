@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,13 +30,14 @@ IblPlanarChargeTool::IblPlanarChargeTool(const std::string& type, const std::str
 	SubChargesTool(type,name,parent),
 	m_numberOfSteps(50),
 	m_numberOfCharges(10),
-	m_diffusionConstant(.007)
+	m_diffusionConstant(.007),
+	m_doSlimEdges(true) //this is what is wanted for Run2/3, but not ITk
 
 { 
 	declareProperty("numberOfSteps",m_numberOfSteps,"Geant4:number of steps for IblPlanar");
 	declareProperty("numberOfCharges",m_numberOfCharges,"Geant4:number of charges for IblPlanar");
 	declareProperty("diffusionConstant",m_diffusionConstant,"Geant4:Diffusion Constant for IblPlanar");
-
+	declareProperty("doSlimEdges", m_doSlimEdges, "Whether the dead areas are modeled with hard-coded cuts");
 }
 
 class DetCondCFloat;
@@ -80,24 +81,16 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 {
   ATH_MSG_DEBUG("Applying IBLPLANAR charge processor");
-  HepMcParticleLink McLink = HepMcParticleLink(phit->particleLink());
-  if (m_needsMcEventCollHelper)
-    McLink.setEventCollection( getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) );
+  const EBC_EVCOLL evColl = (m_needsMcEventCollHelper) ? getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) : EBC_MAINEVCOLL;
+  const bool isEventIndexIsPosition = (phit.eventId()==0);
+  HepMcParticleLink McLink(phit->trackNumber(), phit.eventId(), evColl, isEventIndexIsPosition);
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
   electronHolePairsPerEnergy = siProperties.electronHolePairsPerEnergy();
-/*  
-  const PixelModuleDesign *p_design= dynamic_cast<const PixelModuleDesign *>(&(Module.design() ) );
-  double pixel_size_x = Module.width()/p_design->rows();
-  double pixel_size_y = Module.length()/p_design->columns();
-  double module_size_x = Module.width();
-  double module_size_y = Module.length();
-  ATH_MSG_INFO("IBLPLANAR: PixelSize = (" << pixel_size_x << "," << pixel_size_y << ")"); 
-  ATH_MSG_INFO("IBLPLANAR: ModuleSize = (" << module_size_x << "," << module_size_y << ")");
-*/
+
   double stepsize = sensorThickness/m_numberOfSteps;
   double tanLorentz = Module.getTanLorentzAnglePhi();
   const CLHEP::Hep3Vector pos=phit->localStartPosition();
@@ -148,28 +141,29 @@ StatusCode IblPlanarChargeTool::charge(const TimedHitPtr<SiHit> &phit,
       double xPhiD=xPhi1+spess*tanLorentz+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
       double xEtaD=xEta1+rdif*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
 
-// Slim Edge for IBL planar sensors:
-// TODO: Access these from somewhere          
-      if(std::abs(xEtaD) > 20.440)e1=0.;
-          if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
-            if(xEtaD>0){
-              e1=e1*(68.13-xEtaD*3.333);            
-              xEtaD = xEtaD - 0.250;
-            }else{  
-              e1=e1*(68.13+xEtaD*3.333);            
-              xEtaD = xEtaD + 0.250;
-            }  
-          }
-      if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
-            if(xEtaD>0){
-              e1=e1*(41.2-xEtaD*2.);             
-              xEtaD = xEtaD - 0.250;
-            }else{  
-              e1=e1*(41.2+xEtaD*2.);            
-              xEtaD = xEtaD + 0.250;
-            }  
-          }
-          
+      if(m_doSlimEdges){
+	// Slim Edge for IBL planar sensors:
+	// TODO: Access these from somewhere          
+	if(std::abs(xEtaD) > 20.440)e1=0.;
+	if(std::abs(xEtaD)< 20.440 && std::abs(xEtaD)> 20.200){
+	  if(xEtaD>0){
+	    e1=e1*(68.13-xEtaD*3.333);            
+	    xEtaD = xEtaD - 0.250;
+	  }else{  
+	    e1=e1*(68.13+xEtaD*3.333);            
+	    xEtaD = xEtaD + 0.250;
+	  }  
+	}
+	if(std::abs(xEtaD)< 20.200 && std::abs(xEtaD)> 20.100){
+	  if(xEtaD>0){
+	    e1=e1*(41.2-xEtaD*2.);             
+	    xEtaD = xEtaD - 0.250;
+	  }else{  
+	    e1=e1*(41.2+xEtaD*2.);            
+	    xEtaD = xEtaD + 0.250;
+	  }  
+	}
+      }
 
       // Get the charge position in Reconstruction local coordinates.
       SiLocalPosition chargePos = Module.hitLocalToLocal(xEtaD, xPhiD);

@@ -82,7 +82,7 @@ namespace InDet {
 
   class ModuleTmp {
   public:
-    ModuleTmp() { lengthChips= widthMaxChips = widthMinChips = 0; thickness = length = widthmin = widthmax = pitchEta = pitchPhi = 0; }
+    ModuleTmp() { lengthChips= widthMaxChips = widthMinChips = 0; thickness = length = widthmin = widthmax = pitchEta = pitchPhi = 0; edgel = edgen = edgew = -1.; }
     ~ModuleTmp() {}
 
     inline void Print() {
@@ -91,6 +91,7 @@ namespace InDet {
 		<< " Width min/max in chips = " << widthMaxChips  << "/"<< widthMinChips  << std::endl;
       std::cout << "     Length = " << length << " Width min/max = " << widthmin << "/" << widthmax << " [mm]" << std::endl;
       std::cout << "     Pixel pitchEta = " << pitchEta << " pitchPhi = " << pitchPhi << " [mm] "<< std::endl;
+      if(edgel>0 && edgen>0 && edgew>0) std::cout << "     Edges wide = " << edgew << " narrow = " << edgen << " inlength = " << edgel << " [mm]" << std::endl;
     }
 
     std::string name;
@@ -105,6 +106,9 @@ namespace InDet {
     double thickness_sensor; // Thickness in mm (sensor only)
     double pitchEta;         // pixel pitch in mm
     double pitchPhi;         // pixel pitch in mm
+    double edgew;   // Edges in mm
+    double edgen;
+    double edgel;
   };
 
   class StaveTmp {

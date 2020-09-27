@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file ISF_Config/python/ISF_jobProperties.py
 ## @purpose Python module to hold common flags to configure JobOptions
@@ -109,8 +109,13 @@ class Simulator(JobProperty):
 class HITSMergingRequired(JobProperty):
     """The configured set of simulators requires merging of HITS collections"""
     statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
+    allowedTypes = ['dict']
+    StoredValue = {'ID':True, 'CALO':True, 'MUON':True}
+    def anyOn(self):
+        if self.statusOn:
+            return (True in self.StoredValue.values())
+        else:
+            return False
 
 class UsingGeant4(JobProperty):
     """Will this job be using Geant4?"""

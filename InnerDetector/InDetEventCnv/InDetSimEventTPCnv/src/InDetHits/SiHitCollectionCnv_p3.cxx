@@ -60,7 +60,7 @@ const double SiHitCollectionCnv_p3::m_2bHalfMaximum = pow(2.0, 15.0);
 const int SiHitCollectionCnv_p3::m_2bMaximum = (unsigned short)(-1);
 
 
-void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitCollection_p3* persCont, MsgStream &/*log*/)
+void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitCollection_p3* persCont, MsgStream &log)
 {
   // Finds hits belonging to a "string" (in which the end point of one hit is the same as the start point of the next) and
   // persistifies the end point of each hit plus the start point of the first hit in each string.
@@ -102,7 +102,16 @@ void SiHitCollectionCnv_p3::transToPers(const SiHitCollection* transCont, SiHitC
 
       lastLink = &(siHit->particleLink());
       persCont->m_barcode.push_back(lastLink->barcode());
-      persCont->m_mcEvtIndex.push_back(lastLink->eventIndex());
+      unsigned short index{0};
+      const HepMcParticleLink::index_type position =
+        lastLink->getEventPositionInCollection();
+      if (position!=0) {
+        index = lastLink->eventIndex();
+        if(lastLink->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+          log << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+        }
+      }
+      persCont->m_mcEvtIndex.push_back(index);
       persCont->m_evtColl.push_back(lastLink->getEventCollectionAsChar());
 
       if (idx > 0) {
@@ -299,7 +308,12 @@ void SiHitCollectionCnv_p3::persToTrans(const SiHitCollection_p3* persCont, SiHi
 
         HepGeom::Point3D<double> endThis( endLast + r );
 
-        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::getEventCollection(persCont->m_evtColl[idxBC]) );
+        bool flag = false;
+        if (persCont->m_mcEvtIndex[idxBC] == 0) {
+          flag = true;
+        }
+
+        HepMcParticleLink partLink( persCont->m_barcode[idxBC], persCont->m_mcEvtIndex[idxBC], HepMcParticleLink::ExtendedBarCode::getEventCollection(persCont->m_evtColl[idxBC]), flag );
         transCont->Emplace( endLast, endThis, eneLoss, meanTime, partLink, persCont->m_id[idxId]);
 
         endLast = endThis;

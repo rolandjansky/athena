@@ -548,7 +548,8 @@ StatusCode PixelFastDigitizationTool::digitize()
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
 
-  
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while (m_thpcsi->nextDetectorElement(i, e)) {
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
@@ -903,12 +904,17 @@ StatusCode PixelFastDigitizationTool::digitize()
 
       (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelCluster));
  
-      
-      HepMcParticleLink trklink(hit->particleLink());
+
       if (m_needsMcEventCollHelper) {
-        MsgStream* amsg = &(msg());
-        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg) );
+        if(hit.pileupType()!=lastPileupType) {
+          MsgStream* amsg = &(msg());
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg);
+          lastPileupType=hit.pileupType();
+        }
       }
+      const bool isEventIndexIsPosition = (hit.eventId()==0);
+      HepMcParticleLink trklink(hit->trackNumber(), hit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
+
       if (trklink.isValid()){
         const int barcode( trklink.barcode());
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {

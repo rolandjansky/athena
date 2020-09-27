@@ -68,7 +68,14 @@
     class ITrackToVertexIPEstimator;
     class ITrackParticleCreatorTool;
   }
-  
+
+class BeamPipeDetectorManager;
+
+namespace InDetDD {
+  class PixelDetectorManager;
+}
+class PixelID;
+
 //------------------------------------------------------------------------
 namespace InDet {
 
@@ -263,6 +270,11 @@ namespace InDet {
 
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  
+      bool m_useITkMaterialRejection;
+      const BeamPipeDetectorManager*       m_beamPipeMgr;
+      const InDetDD::PixelDetectorManager* m_pixelManager;
+      const PixelID* m_pixelHelper;
+      std::unique_ptr<TH2F> m_ITkPixMaterialMap;
 
       double m_massPi ;
       double m_massP ;

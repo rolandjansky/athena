@@ -228,11 +228,10 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	 if (m_ITkGeometry) {
      Trk::DetectorRegion region;
      
-     if (m_pixelId->is_barrel(id)) {
-       const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(rot->detectorElement()); 
-       if (detEl->isInclined())  region = Trk::pixelBarrelInclined;
-       else region = Trk::pixelBarrelFlat;
-     } else region = Trk::pixelEndcap;
+     const InDetDD::SiDetectorElement* detEl = dynamic_cast<const InDetDD::SiDetectorElement*>(rot->detectorElement());
+     if (detEl->isInclined())  region = Trk::pixelBarrelInclined;
+     else if (m_pixelId->is_barrel(id)) region = Trk::pixelBarrelFlat;
+     else region = Trk::pixelEndcap;
 
      detailedInfo.addHit(region, m_pixelId->layer_disk(id), m_pixelId->eta_module(id));
      

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,7 +56,16 @@ public:
 			    SiChargedDiodeCollection& chargedDiodes,
 			    const InDetDD::SiDetectorElement &Module);  
 
-  //Constants that can be set by user  
+  
+  
+private:
+  /** empty constructor, make private */
+  IblPlanarBichselChargeTool();
+
+void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
+private:
+
+ //Constants that can be set by user  
   int m_numberOfSteps;    //number of steps for particle traveling perpendicular to detector element
   int m_numberOfCharges;  
   double m_diffusionConstant;
@@ -67,13 +76,7 @@ public:
                                                        // We will assume all delta-ray is electron, with all energy deposited in silicon layer. So the 4-momentum can be reconstructed using energy and direction
   bool   m_doPU;                                       // whether we apply Bichsel model on PU
   ToolHandle<BichselSimTool> m_BichselSimTool;         // if yes, you need to load related tool here
-  
-private:
-  /** empty constructor, make private */
-  IblPlanarBichselChargeTool();
-
-void simulateBow(const InDetDD::SiDetectorElement * element,double& xi, double& yi, const double zi, double& xf, double& yf, const double zf) const;
-private:
+  bool m_doSlimEdges;
   
 	};
 

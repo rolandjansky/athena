@@ -114,18 +114,31 @@ void GeoDetModulePixel::preBuild()
 
   //  chip sizes
 
-  double edgel = getDouble("FrontEndChip", chipIndex, "inlength");
-  //  double edgen = getDouble("FrontEndChip", chipIndex, "narrow");
-  double edgew = getDouble("FrontEndChip", chipIndex, "wide");
+  double edgel = 0.;
+  double edgew = 0.;
+  if(getSchemaVersion() < 5){
+    edgel = getDouble("FrontEndChip", chipIndex, "inlength");
+    edgew = getDouble("FrontEndChip", chipIndex, "wide");
+  }
+  else{
+    edgel = getDouble("Module", m_moduleIndex, "inlength");
+    edgew = getDouble("Module", m_moduleIndex, "wide");
+  }
 
   // MODULE sizes : chip sizes are set to the sizes defined in the XML files
   //                edges are added to the sensor size (sensor are named board in this code)
 
-  m_chipWidth = widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth")+(widthChip-1)*2.*edgew;
-  m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength")+(lengthChip-1)*2.*edgel;
+  m_chipWidth = widthChip * getDouble("FrontEndChip", chipIndex, "chipWidth");
+  m_chipLength = lengthChip * getDouble("FrontEndChip", chipIndex, "chipLength");
+  if(getSchemaVersion() < 5){
+    // Not relevant for proper quad chips immplementation
+    m_chipWidth  += (widthChip-1)*2.*edgew;
+    m_chipLength += (lengthChip-1)*2.*edgel;
+  }
+
   //This is not always present, and so is usually zero
   m_chipGap = 0.0; 
-  if(getSchemaVersion() > 3) getDouble("FrontEndChip", chipIndex, "chipGap", 0);
+  if(getSchemaVersion() > 3) m_chipGap = getDouble("FrontEndChip", chipIndex, "chipGap", 0);
   else  m_basics->msgStream()<<MSG::DEBUG<<"MODULE XML : "<<m_moduleIndex<<"  - "<<moduleName<<" "<<chipName<<" "<<chipIndex<<"   geoIndex "<<geoModuleIndex<<" old schema ("<<getSchemaVersion()<<") setting chipGap to zero..."<<endreq;
 
   // sensor geometry

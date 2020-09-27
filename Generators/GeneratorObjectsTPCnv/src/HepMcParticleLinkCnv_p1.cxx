@@ -31,11 +31,15 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
                                            HepMcParticleLink* transObj,
                                            MsgStream &/*msg*/ )
 {
+  bool flag = false;
+  if (persObj->m_mcEvtIndex == 0) {
+    flag = true;
+  }
   transObj->m_extBarcode =
     HepMcParticleLink::ExtendedBarCode( persObj->m_barcode,
                                         persObj->m_mcEvtIndex,
                                         EBC_MAINEVCOLL,
-                                        persObj->m_mcEvtIndex==0);
+                                        flag);
   transObj->m_have_particle = false;
   transObj->m_particle = nullptr;
 
@@ -44,9 +48,18 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
 
 void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
                                            HepMcParticleLink_p1* persObj,
-                                           MsgStream &/*msg*/ )
+                                           MsgStream &msg )
 {
-  persObj->m_mcEvtIndex = transObj->getEventPositionInCollection();
+  unsigned short index{0};
+  const HepMcParticleLink::index_type position =
+    transObj->getEventPositionInCollection();
+  if (position!=0) {
+    index = transObj->eventIndex();
+    if(transObj->eventIndex()!=static_cast<HepMcParticleLink::index_type>(index)) {
+      msg << MSG::WARNING << "Attempting to persistify an eventIndex larger than max unsigned short!" << endmsg;
+    }
+  }
+  persObj->m_mcEvtIndex = index;
   persObj->m_barcode    = transObj->m_extBarcode.barcode();
 
   return;

@@ -491,24 +491,37 @@ namespace InDet{
 //
 //---  Check interactions on pixel layers
 //
-          if(m_useMaterialRejection && nth==2 && isolVrt){
-	    double xvt=(*WrkVrtSet)[iv].vertex.x(); double yvt=(*WrkVrtSet)[iv].vertex.y();
-            float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
-            float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-            float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
-            float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
-            if(m_existIBL){              // 4-layer pixel detector
-               if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  continue;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_RlayerB)  < 2.5)  continue;
-               if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)  continue;
-               if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)  continue;
-            }else{                       // 3-layer pixel detector
-               if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  continue;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_RlayerB)  < 3.5)  continue;
-               if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)  continue;
-               if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  continue;
-            }
-          }
+          if(nth==2 && isolVrt){
+
+	    if(m_useMaterialRejection){
+	      double xvt=(*WrkVrtSet)[iv].vertex.x();
+	      double yvt=(*WrkVrtSet)[iv].vertex.y();
+	      float Dist2DBP=std::hypot(xvt-m_Xbeampipe, yvt-m_Ybeampipe);
+	      float Dist2DBL=std::hypot(xvt-m_XlayerB, yvt-m_XlayerB);
+	      float Dist2DL1=std::hypot(xvt-m_Xlayer1, yvt-m_Xlayer1);
+	      float Dist2DL2=std::hypot(xvt-m_Xlayer2, yvt-m_Xlayer2);
+	      if(m_existIBL){              // 4-layer pixel detector
+		if( std::abs(Dist2DBP-m_Rbeampipe)< 1.0)  continue;           // Beam Pipe removal
+		if( std::abs(Dist2DBL-m_RlayerB)  < 2.5)  continue;
+		if( std::abs(Dist2DL1-m_Rlayer1)  < 3.0)  continue;
+		if( std::abs(Dist2DL2-m_Rlayer2)  < 3.0)  continue;
+	      }else{                       // 3-layer pixel detector
+		if( std::abs(Dist2DBP-m_Rbeampipe)< 1.5)  continue;           // Beam Pipe removal
+		if( std::abs(Dist2DBL-m_RlayerB)  < 3.5)  continue;
+		if( std::abs(Dist2DL1-m_Rlayer1)  < 4.0)  continue;
+		if( std::abs(Dist2DL2-m_Rlayer2)  < 5.0)  continue;
+	      }
+	    }
+
+	    if(m_useITkMaterialRejection){
+	      double xvt = (*WrkVrtSet)[iv].vertex.x(); double yvt = (*WrkVrtSet)[iv].vertex.y();
+	      double zvt = (*WrkVrtSet)[iv].vertex.z(); double Rvt = sqrt(xvt*xvt+yvt*yvt);
+	      int bin = m_ITkPixMaterialMap->FindBin(zvt,Rvt);
+	      if(m_ITkPixMaterialMap->GetBinContent(bin)>0) continue;
+	    }
+
+	  }
+
 //---  Check V0s and conversions
           if(nth==2 && (*WrkVrtSet)[iv].vertexCharge==0 && isolVrt){
              double mass_PiPi =  (*WrkVrtSet)[iv].vertexMom.M();  

@@ -18,7 +18,6 @@
 #include "CaloIdCnv/LArEM_SuperCell_IDDetDescrCnv.h"
 #include "CaloIdCnv/LArFCAL_IDDetDescrCnv.h"
 #include "CaloIdCnv/LArFCAL_SuperCell_IDDetDescrCnv.h"
-#include "CaloIdCnv/HGTD_IDDetDescrCnv.h"
 #include "CaloIdCnv/LArMiniFCAL_IDDetDescrCnv.h"
 #include "CaloIdCnv/LArHEC_IDDetDescrCnv.h"
 #include "CaloIdCnv/LArHEC_SuperCell_IDDetDescrCnv.h"
@@ -39,7 +38,6 @@ DECLARE_CONVERTER_FACTORY(LArEM_SuperCell_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(LArFCAL_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(LArFCAL_SuperCell_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(LArMiniFCAL_IDDetDescrCnv)
-DECLARE_CONVERTER_FACTORY(HGTD_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(LArHEC_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(LArHEC_SuperCell_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(TileIDDetDescrCnv)
@@ -60,7 +58,6 @@ DECLARE_FACTORY_ENTRIES	( CaloIdCnv ) {
     DECLARE_CONVERTER	( LArFCAL_IDDetDescrCnv );
     DECLARE_CONVERTER	( LArFCAL_SuperCell_IDDetDescrCnv );
     DECLARE_CONVERTER	( LArMiniFCAL_IDDetDescrCnv );
-    DECLARE_CONVERTER	( HGTD_IDDetDescrCnv );
     DECLARE_CONVERTER	( LArHEC_IDDetDescrCnv );
     DECLARE_CONVERTER	( LArHEC_SuperCell_IDDetDescrCnv );
     DECLARE_CONVERTER	( TileIDDetDescrCnv );

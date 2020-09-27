@@ -10,9 +10,11 @@ def getBCMSensorSD(name="BCMSensorSD", **kwargs):
     bare_collection_name = "BCMHits"
     mergeable_collection_suffix = "_G4"
     merger_input_property = "BCMHits"
+    region = "ID"
     hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
                                                               mergeable_collection_suffix,
-                                                              merger_input_property)
+                                                              merger_input_property,
+                                                              region)
     kwargs.setdefault("LogicalVolumeNames", ["Pixel::bcmDiamondLog"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.BCMSensorSDTool(name, **kwargs)

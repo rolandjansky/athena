@@ -705,7 +705,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
            SiLocalPosition chargePos = Module.hitLocalToLocal( centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi() );
 
            //The following lines are adapted from SiDigitization's Inserter class
-           SiSurfaceCharge scharge( chargePos,SiCharge( induced_charge,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+           const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
+           const bool isEventIndexIsPosition = (phit.eventId()==0);
+           HepMcParticleLink McLink(phit->trackNumber(), phit.eventId(), evColl, isEventIndexIsPosition);
+           SiSurfaceCharge scharge( chargePos,SiCharge( induced_charge,hitTime(phit),SiCharge::track,McLink));
            SiCellId diode = Module.cellIdOfPosition(scharge.position());
            SiCharge charge = scharge.charge();
            if (diode.isValid()) {

@@ -7,6 +7,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "ReadoutGeometryBase/SiLocalPosition.h"
+#include "GeneratorObjects/McEventCollection.h"
 
 #include "TTree.h"
 #include "TString.h"
@@ -122,6 +123,7 @@ PixelRDOAnalysis::PixelRDOAnalysis(const std::string& name, ISvcLocator *pSvcLoc
   , m_h_globalX(nullptr)
   , m_h_globalY(nullptr)
   , m_h_globalZ(nullptr)
+  , m_h_TruthMatchedRDOs(nullptr)
   , m_tree(nullptr)
   , m_ntupleFileName("/ntuples/file1")
   , m_ntupleDirName("/PixelRDOAnalysis/")
@@ -518,7 +520,12 @@ StatusCode PixelRDOAnalysis::initialize() {
   m_h_globalZ = new TH1F("h_globalZ","h_globalZ; z [mm]",750,-3000.,3000.);
   ATH_CHECK(m_thistSvc->regHist(m_path + m_h_globalZ->GetName(), m_h_globalZ));
 
-
+  m_h_TruthMatchedRDOs = new TH1F("h_TruthMatchedPixelRDOs", "h_TruthMatchedPixelRDOs", 4, 1, 5);
+  TString truthMatchBinLables[4] = { "All RDOs", "Truth Matched", "HS Matched", "Unmatched" };
+  for(unsigned int ibin = 1; ibin < 5; ibin++) {
+    m_h_TruthMatchedRDOs->GetXaxis()->SetBinLabel(ibin, truthMatchBinLables[ibin-1]);
+  }
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_TruthMatchedRDOs->GetName(), m_h_TruthMatchedRDOs));
   return StatusCode::SUCCESS;
 }
 
@@ -567,6 +574,18 @@ StatusCode PixelRDOAnalysis::execute() {
   }
   // Raw Data
   SG::ReadHandle<PixelRDO_Container> p_pixelRDO_cont (m_inputKey);
+  //Adding SimMap and McEvent here for added truthMatching checks
+  SG::ReadHandle<InDetSimDataCollection> simDataMapPixel (m_inputTruthKey);
+  SG::ReadHandle<McEventCollection> mcEventCollection("TruthEvent");
+  bool doTruthMatching = true;
+  const HepMC::GenEvent* hardScatterEvent(nullptr);
+
+  if (mcEventCollection->size()==0){
+    ATH_MSG_WARNING("Failed to retrieve a nonzero sized truth event collection, disabling truthMatching");
+    doTruthMatching = false;
+  }
+  if(doTruthMatching) hardScatterEvent = mcEventCollection->at(0);
+
   if(p_pixelRDO_cont.isValid()) {
     // loop over RDO container
     PixelRDO_Container::const_iterator rdoCont_itr(p_pixelRDO_cont->begin());
@@ -587,6 +606,30 @@ StatusCode PixelRDOAnalysis::execute() {
       const InDetDD::SiDetectorElement *detEl = m_pixelManager->getDetectorElement(rdoIDColl);
       
       for ( ; rdo_itr != rdo_end; ++rdo_itr ) {
+        if(doTruthMatching){
+          m_h_TruthMatchedRDOs->Fill(1.5);
+          bool findMatch = false; 
+          if(simDataMapPixel.isValid()){
+            InDetSimDataCollection::const_iterator iter = (*simDataMapPixel).find((*rdo_itr)->identify());
+        
+            if ( iter != (*simDataMapPixel).end() ) {
+              const InDetSimData& sdo = iter->second;
+              const std::vector< InDetSimData::Deposit >& deposits = sdo.getdeposits();
+              std::vector< InDetSimData::Deposit >::const_iterator nextdeposit = deposits.begin();
+              std::vector< InDetSimData::Deposit >::const_iterator lastdeposit = deposits.end();
+              for( ; nextdeposit!=lastdeposit; ++nextdeposit) {
+	              const HepMcParticleLink& particleLink = nextdeposit->first;
+                if(particleLink.isValid() && !findMatch){
+                  const HepMC::GenParticle *genPart(particleLink.cptr());
+                  if(genPart->parent_event() == hardScatterEvent) m_h_TruthMatchedRDOs->Fill(3.5);
+                  m_h_TruthMatchedRDOs->Fill(2.5);
+                  findMatch = true;
+                }
+              }
+            }
+          }
+          if(!findMatch) m_h_TruthMatchedRDOs->Fill(4.5);
+        }
         const Identifier rdoID((*rdo_itr)->identify());
         const unsigned int rdoWord((*rdo_itr)->getWord());
         const int pixPhiIx(m_pixelID->phi_index(rdoID));
@@ -653,7 +696,7 @@ StatusCode PixelRDOAnalysis::execute() {
           }          
         }        
 
-        if (detEl->isBarrel()) {
+        if (detEl->isBarrel() || detEl->isInclined()) {
           m_h_brlLayer->Fill(pixLayerDisk);
           m_h_brlPhiMod->Fill(pixPhiMod);
           m_h_brlEtaMod->Fill(pixEtaMod);
@@ -693,7 +736,6 @@ StatusCode PixelRDOAnalysis::execute() {
   }
 
   // Sim Data
-  SG::ReadHandle<InDetSimDataCollection> simDataMapPixel (m_inputTruthKey);
   if(simDataMapPixel.isValid()) {
     // loop over SDO container
     InDetSimDataCollection::const_iterator sdo_itr(simDataMapPixel->begin());

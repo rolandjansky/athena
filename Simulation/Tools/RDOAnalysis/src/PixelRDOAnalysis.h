@@ -172,6 +172,8 @@ private:
   TH1* m_h_globalY;
   TH1* m_h_globalZ;
 
+  TH1* m_h_TruthMatchedRDOs;
+
   TTree* m_tree;
   std::string m_ntupleFileName;
   std::string m_ntupleDirName;

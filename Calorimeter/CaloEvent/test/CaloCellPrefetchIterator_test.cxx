@@ -41,7 +41,6 @@ CaloCell_ID* make_helper (TileID* tile_id)
   LArHEC_ID*  hec_id  = new LArHEC_ID;
   LArFCAL_ID* fcal_id = new LArFCAL_ID;
   LArMiniFCAL_ID* minifcal_id = new LArMiniFCAL_ID;
-  HGTD_ID* hgtd_id = new HGTD_ID;
 
   IdDictParser* parser = new IdDictParser;
   parser->register_external_entity ("LArCalorimeter",
@@ -54,7 +53,6 @@ CaloCell_ID* make_helper (TileID* tile_id)
   fcal_id->initialize_from_dictionary (idd);
   minifcal_id->set_do_neighbours (false);
   minifcal_id->initialize_from_dictionary (idd);
-  hgtd_id->initialize_from_dictionary (idd);
   tile_id->set_do_neighbours (false);
   tile_id->initialize_from_dictionary (idd);
 
@@ -62,8 +60,7 @@ CaloCell_ID* make_helper (TileID* tile_id)
                                               hec_id,
                                               fcal_id,
                                               minifcal_id,
-                                              tile_id,
-					      hgtd_id);
+                                              tile_id);
   calo_helper->initialize_from_dictionary (idd);
   return calo_helper;
 }

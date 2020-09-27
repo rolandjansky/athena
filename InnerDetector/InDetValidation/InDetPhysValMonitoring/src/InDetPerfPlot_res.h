@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_InDetPerfPlot_res
@@ -20,7 +20,7 @@
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
-#include "GetMeanWidth.h"
+#include "InDetPhysValMonitoring/ResolutionHelper.h"
 
 // std includes
 #include <string>
@@ -128,11 +128,11 @@ private:
   std::vector<std::string> m_paramNames;
 
   // class and methods for evaluating mean and width of distributions
-  IDPVM::GetMeanWidth m_getMeanWidth;
-  IDPVM::GetMeanWidth::methods m_meanWidthMethod;
+  IDPVM::ResolutionHelper m_resolutionHelper;
+  IDPVM::ResolutionHelper::methods m_resolutionMethod;
   
   void initializePlots();
-  void Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
+  void Refinement(TH1D* temp, IDPVM::ResolutionHelper::methods p_method,
 		  int var, int j, const std::vector<TH1*>& tvec,
 		  const std::vector<TH1*>& rvec);
   void finalizePlots();

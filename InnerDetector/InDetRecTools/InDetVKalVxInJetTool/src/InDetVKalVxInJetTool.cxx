@@ -9,6 +9,12 @@
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TMath.h"
 //
 //-------------------------------------------------
@@ -84,7 +90,11 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
     m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool"),
     m_useEtaDependentCuts(false),
-    m_etaDependentCutsSvc("",name)
+    m_etaDependentCutsSvc("",name),
+    m_useITkMaterialRejection(false),
+    m_beamPipeMgr(nullptr),
+    m_pixelManager(nullptr),
+    m_pixelHelper(nullptr)
    {
 //
 // Declare additional interface
@@ -143,6 +153,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("SVResolutionR",  m_SVResolutionR, "Radial resolution of SVs. Needed for correct pixel layers crossing checks" );
     declareProperty("useMaterialRejection",  m_useMaterialRejection, "Reject vertices from hadronic interactions in detector material" );
+    declareProperty("useITkMaterialRejection",  m_useITkMaterialRejection, "Reject vertices from hadronic interactions in detector material using ITk layout" );
     declareProperty("useVertexCleaning",     m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
 
     declareProperty("MassType",  m_MassType, "Type of vertex mass returned by finder. Single Vertex Finder only!" );
@@ -398,6 +409,120 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
      if(m_RobustFit>7)m_RobustFit=7;
      if(m_RobustFit<0)m_RobustFit=0;
+
+     if(m_useITkMaterialRejection){
+
+       ATH_MSG_INFO("Building material rejection map from BeamPipe and PixelDetectorManager");
+
+       ATH_CHECK(detStore()->retrieve(m_beamPipeMgr, "BeamPipe"));
+       ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
+       ATH_CHECK(detStore()->retrieve(m_pixelHelper, "PixelID"));
+
+       static constexpr int nbins_R = 75;
+       double bins_R[nbins_R+1];
+       for(unsigned int i=0; i<=14; i++) bins_R[i] = 2*i - 1.;          // 2 mm bin width below R=27 mm, centered on R=24 mm (beampipe)
+       bins_R[15] = 30.; // 27-30 makes junction with pixel bins
+       static constexpr double Rbinwidth_pixel = 6.;
+       for(unsigned int i=1; i<=60; i++) bins_R[i+15] = 30 + Rbinwidth_pixel*i; // 6 mm bin width beyond R=30 mm
+
+       static constexpr int nbins_Z = 1000;
+       static constexpr double zmax = 3000.;
+       static constexpr double zbinwidth = 2*zmax/nbins_Z;
+
+       std::string mapName = "ITkMaterialMap_"+m_instanceName;
+       m_ITkPixMaterialMap = std::make_unique<TH2F>(mapName.c_str(),mapName.c_str(),nbins_Z,-zmax,zmax,nbins_R,bins_R); // x-axis = global z coordinates, -3240 mm to +3240 mm, 6 mm bin width / y-axis = global R coordinates, variable bin width
+
+
+       // Retrieve the beam pipe radius from the SectionC03 volume
+
+       double beamPipeRadius = m_Rbeampipe;
+       PVConstLink beamPipeTopVolume =  m_beamPipeMgr->getTreeTop(0);
+       const GeoLogVol* beamPipeLogVolume = beamPipeTopVolume->getLogVol();
+       const GeoTube* beamPipeTube = 0;
+
+       if (beamPipeLogVolume){
+	 beamPipeTube = dynamic_cast<const GeoTube*>(beamPipeLogVolume->getShape());
+	 if (beamPipeTube){
+
+	   for(unsigned int i=0;i<beamPipeTopVolume->getNChildVols();i++){
+
+	     if(beamPipeTopVolume->getNameOfChildVol(i)=="SectionC03"){
+	       PVConstLink childTopVolume =  beamPipeTopVolume->getChildVol(i);
+	       const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
+	       const GeoTube* childTube = 0;
+
+	       if (childLogVolume){
+		 childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
+		 if (childTube){
+		   beamPipeRadius = 0.5 * (childTube->getRMax()+childTube->getRMin());
+		 }
+	       }
+
+	       break; //Exit loop after SectionC03 is found
+	     }
+
+	   } // Loop over child volumes
+
+	 }
+       } // if(beamPipeLogVolume)
+
+       ATH_MSG_INFO("BeamPipeRadius used for material rejection="<<beamPipeRadius);
+
+       // Fill map with beam pipe radius for all z
+       for(double z = -zmax + 0.5*zbinwidth; z<zmax; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,beamPipeRadius);
+
+
+       InDetDD::SiDetectorElementCollection::const_iterator iter;
+       for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
+	 // get the ID
+	 Identifier Pixel_ModuleID = (*iter)->identify();
+	 // check the validity
+	 if (Pixel_ModuleID.is_valid()) {
+	   const InDetDD::SiDetectorElement *module = m_pixelManager->getDetectorElement(Pixel_ModuleID);
+
+	   //Take into account full module extent
+	   int bec = m_pixelHelper->barrel_ec(Pixel_ModuleID);
+	   bool isInclined = module->isInclined();
+
+	   if(isInclined){
+	     double zMin_mod = module->zMin();
+	     double zMax_mod = module->zMax();
+	     double rMin_mod = module->rMin();
+	     double rMax_mod = module->rMax();
+	     if(zMin_mod>0){
+	       double alpha = (rMin_mod-rMax_mod)/(zMax_mod-zMin_mod);
+	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		 double R = rMax_mod + alpha*(z-zMin_mod);
+		 m_ITkPixMaterialMap->Fill(z,R);
+	       }
+	     }
+	     else{
+	       double alpha = (rMax_mod-rMin_mod)/(zMax_mod-zMin_mod);
+	       for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth){
+		 double R = rMin_mod + alpha*(z-zMin_mod);
+		 m_ITkPixMaterialMap->Fill(z,R);
+	       }
+	     }
+	   }
+
+	   else if(bec==0){ // flat barrel
+	     double zMin_mod = module->zMin();
+	     double zMax_mod = module->zMax();
+	     double R = module->center().perp();
+	     for(double z=zMin_mod; z<=zMax_mod; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,R);
+	   }
+
+	   else{ // endcap disks
+	     double rMin_mod = module->rMin();
+	     double rMax_mod = module->rMax();
+	     double z = module->center().z();
+	     for(double R=rMin_mod; R<=rMax_mod; R+=Rbinwidth_pixel) m_ITkPixMaterialMap->Fill(z,R);
+	   }
+
+	 }
+       } // end loop over pixel modules
+
+     }
 
      return StatusCode::SUCCESS;
 

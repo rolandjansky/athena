@@ -695,7 +695,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
   ATH_MSG_VERBOSE( "Number of charges: " << chList.size() );
   ATH_MSG_VERBOSE( "Number of TOT: " << totList.size() );
 
- 
+
   //Calculate the centre of the cluster
   int phiPixelIndexMin, phiPixelIndexMax, etaPixelIndexMin, etaPixelIndexMax;
   InDetDD::SiCellId cellIdWeightedPosition= getCellIdWeightedPosition( pixelCluster, &phiPixelIndexMin, &phiPixelIndexMax, &etaPixelIndexMin, &etaPixelIndexMax);
@@ -771,7 +771,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
     int absphiPixelIndex = m_PixelHelper->phi_index(rId)-phiPixelIndexWeightedPosition    + centralIndexX;
     int absetaPixelIndex = m_PixelHelper->eta_index(rId)-etaPixelIndexWeightedPosition + centralIndexY;
   
-    ATH_MSG_VERBOSE( " Phi Index: " << m_PixelHelper->phi_index(rId) << " absphiPixelIndex: " << absphiPixelIndex << " eta Idx: " << m_PixelHelper->eta_index(rId) << " absetaPixelIndex: " << absetaPixelIndex << " charge " << *charge );
+    ATH_MSG_VERBOSE( " Phi Index: " << m_PixelHelper->phi_index(rId) << " absphiPixelIndex: " << absphiPixelIndex << " eta Idx: " << m_PixelHelper->eta_index(rId) << " absetaPixelIndex: " << absetaPixelIndex );
   
     if (absphiPixelIndex <0 || absphiPixelIndex >= (int)sizeX)
     {
@@ -1074,33 +1074,39 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
     return InDetDD::SiCellId();
   }
   const std::vector<Identifier>& rdos  = pixelCluster->rdoList();  
-
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
-  const std::vector<float>& chList     = pixelCluster->chargeList();
 
+  const std::vector<float>& chList     = pixelCluster->chargeList();
   ATH_MSG_VERBOSE( "Number of charges: " << chList.size() );
+
+  const std::vector<int>& totList     = pixelCluster->totList();
+  ATH_MSG_VERBOSE( "Number of TOT: " << totList.size() );
+
   std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
   std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
 
-  auto charge = chList.begin();    
+  auto charge = chList.begin();
+  auto tot = totList.begin();
 
   InDetDD::SiLocalPosition sumOfWeightedPositions(0,0,0);
-  double sumOfCharge=0;
+  double sumOfChargeTot=0;
 
   int phiPixelIndexMin =  99999;
   int phiPixelIndexMax = -99999;
   int etaPixelIndexMin =  99999;
   int etaPixelIndexMax = -99999;
 
-  for (; rdosBegin!= rdosEnd; ++rdosBegin, ++charge)
+  for (; rdosBegin!= rdosEnd; ++rdosBegin)
   {
   
     Identifier rId =  *rdosBegin;
     int phiPixelIndex = m_PixelHelper->phi_index(rId);
     int etaPixelIndex = m_PixelHelper->eta_index(rId);
   
-    ATH_MSG_VERBOSE(" Adding pixel phiPixelIndex: " << phiPixelIndex << " etaPixelIndex: " << etaPixelIndex << " charge: " << *charge );
-    
+    float charge_tot = chList.empty() ? (*tot) : (*charge);
+
+    ATH_MSG_VERBOSE(" Adding pixel phiPixelIndex: " << phiPixelIndex << " etaPixelIndex: " << etaPixelIndex );
+
     // SiLocalPosition PixelModuleDesign::positionFromColumnRow(const int column, const int row) const;
     //
     // Given row and column index of diode, returns position of diode center
@@ -1116,9 +1122,9 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
     // 
     InDetDD::SiLocalPosition siLocalPosition( design->positionFromColumnRow(etaPixelIndex,phiPixelIndex) ); 
     ATH_MSG_VERBOSE ( "Local Position: Row = " << siLocalPosition.xRow() << ", Col = " << siLocalPosition.xColumn() );
-  
-    sumOfWeightedPositions += (*charge)*siLocalPosition;
-    sumOfCharge += (*charge);
+
+    sumOfWeightedPositions += charge_tot*siLocalPosition;
+    sumOfChargeTot += charge_tot;
 
     if (phiPixelIndex < phiPixelIndexMin)
       phiPixelIndexMin = phiPixelIndex; 
@@ -1132,10 +1138,13 @@ InDetDD::SiCellId PixelPrepDataToxAOD::getCellIdWeightedPosition(  const InDet::
     if (etaPixelIndex > etaPixelIndexMax)
       etaPixelIndexMax = etaPixelIndex;
 
-  }
-  sumOfWeightedPositions /= sumOfCharge;
+    if ( (not chList.empty()) && charge != chList.end()) charge++;
+    if ( (not totList.empty()) && tot != totList.end()) tot++;
 
-  ATH_MSG_VERBOSE ( "Wighted position: Row = " << sumOfWeightedPositions.xRow() << ", Col = " << sumOfWeightedPositions.xColumn() );
+  }
+  sumOfWeightedPositions /= sumOfChargeTot;
+
+  ATH_MSG_VERBOSE ( "Weighted position: Row = " << sumOfWeightedPositions.xRow() << ", Col = " << sumOfWeightedPositions.xColumn() );
 
   if(rphiPixelIndexMin) *rphiPixelIndexMin = phiPixelIndexMin;
   if(rphiPixelIndexMax) *rphiPixelIndexMax = phiPixelIndexMax;

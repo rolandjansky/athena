@@ -378,7 +378,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
   //iterate over hits and fill id-keyed drift time map
   IdContext tgcContext = m_idHelper->module_context();
   
-  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  EBC_EVCOLL currentMcEventCollection(EBC_MAINEVCOLL); // Base on enum defined in HepMcParticleLink.h
   int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
 
   TimedHitCollection<TGCSimHit>::const_iterator i, e; 
@@ -481,15 +481,15 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	  // link to MC info
 	  //const HepMcParticleLink & particleLink = hit.particleLink();
 	  // create here deposit for MuonSimData, link and tof
-	  HepMcParticleLink trklink(phit->particleLink());
-	  if (m_needsMcEventCollHelper) {
-	    if(phit.pileupType()!=lastPileupType){
-        MsgStream* amsg = &(msg());
-	      currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
-	      lastPileupType=phit.pileupType();
-	    }
-	    trklink.setEventCollection(currentMcEventCollection);
-	  }
+          if (m_needsMcEventCollHelper) {
+            if(phit.pileupType()!=lastPileupType) {
+              MsgStream* amsg = &(msg());
+              currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType(), amsg);
+              lastPileupType=phit.pileupType();
+            }
+          }
+          const bool isEventIndexIsPosition = (phit.eventId()==0);
+          HepMcParticleLink trklink(phit->trackNumber(), phit.eventId(), currentMcEventCollection, isEventIndexIsPosition);
 	  MuonSimData::Deposit deposit(trklink, MuonMCData(tof, 0));
 	  std::vector<MuonSimData::Deposit> deposits;
 	  deposits.push_back(deposit);

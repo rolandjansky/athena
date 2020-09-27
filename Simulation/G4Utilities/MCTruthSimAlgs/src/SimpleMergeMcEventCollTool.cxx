@@ -65,7 +65,7 @@ StatusCode SimpleMergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
       const McEventCollection *pMEC(nullptr);
       ATH_CHECK(seStore.retrieve(pMEC, m_truthCollKey.value()));
       ATH_MSG_DEBUG ("processBunchXing: SubEvt McEventCollection from StoreGate " << seStore.name() );
-      ATH_CHECK(this->processEvent(pMEC));
+      ATH_CHECK(this->processEvent(pMEC,iEvt->index()));
       ++iEvt;
     }
   return StatusCode::SUCCESS;
@@ -110,8 +110,9 @@ StatusCode SimpleMergeMcEventCollTool::processAllSubEvents()
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (timedTruthListIter != endOfTimedTruthList)
     {
+      const PileUpTimeEventIndex& currentPileUpTimeEventIndex(timedTruthListIter->first);
       const McEventCollection *pBackgroundMcEvtColl(&*(timedTruthListIter->second));
-      ATH_CHECK(this->processEvent(pBackgroundMcEvtColl));
+      ATH_CHECK(this->processEvent(pBackgroundMcEvtColl, currentPileUpTimeEventIndex.index()));
       ++timedTruthListIter;
     } //timed colls
 
@@ -121,20 +122,21 @@ StatusCode SimpleMergeMcEventCollTool::processAllSubEvents()
 
 /// Common methods
 
-StatusCode SimpleMergeMcEventCollTool::processFirstSubEvent(const McEventCollection *pMcEvtColl)
+StatusCode SimpleMergeMcEventCollTool::processFirstSubEvent(const McEventCollection *pMcEvtColl, const int currentBkgEventIndex)
 {
   m_newevent=false;
   m_outputMcEventCollection = new McEventCollection(*pMcEvtColl);
+  m_outputMcEventCollection->back()->set_event_number(currentBkgEventIndex);
   // Need to record output McEventCollection straight away so that
   // it is available for other PileUpTools to use.
   ATH_CHECK(evtStore()->record(m_outputMcEventCollection, m_truthCollKey));
   return StatusCode::SUCCESS;
 }
 
-StatusCode SimpleMergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtColl)
+StatusCode SimpleMergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtColl, const int currentBkgEventIndex)
 {
   ATH_MSG_VERBOSE ( "processEvent()" );
-  if(m_newevent) { return processFirstSubEvent(pMcEvtColl); }
+  if(m_newevent) { return processFirstSubEvent(pMcEvtColl, currentBkgEventIndex); }
 
   if (pMcEvtColl->empty())
     {
@@ -146,6 +148,7 @@ StatusCode SimpleMergeMcEventCollTool::processEvent(const McEventCollection *pMc
   HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));
   // FIXME no protection against multiple GenEvents having the same event number
   m_outputMcEventCollection->push_back(new HepMC::GenEvent(currentBackgroundEvent));
+  m_outputMcEventCollection->back()->set_event_number(currentBkgEventIndex);
   ++m_nBkgEventsReadSoFar;
   return StatusCode::SUCCESS;
 }

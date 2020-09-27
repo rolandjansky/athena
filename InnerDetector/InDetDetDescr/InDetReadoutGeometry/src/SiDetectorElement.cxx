@@ -247,21 +247,26 @@ int SiDetectorElement::getPixelLayer() const {
 }
 
 bool SiDetectorElement::isInclined() const {
-  if (isPixel() && isBarrel()) {
+
+  if (isPixel()) {
     if (!m_cacheValid) updateCache();
     // Used for ITk Layout
-    // allows to distinguish flat from inclined barrel modules
+    // allows to distinguish flat from inclined modules
     // In a perfect aligned detector
-    // - The z component of the normal vector to the surface of flat barrel modules is 0 
-    // - For inclined modules, it is !=0
+    // - The z component of the normal vector to the surface of flat barrel modules is 0 and of endcap rings is 1
+    // - For inclined modules, it is >0 and <1
     // Since inclined modules have an inclination > 45 degrees wrt the beam line, 
     // it should be safe to ask for the z component of the normal vector 
     // to be bigger than cos(45) = sqrt(2)/2 = , considering that alignment 
-    // constants wouldn't apply a big change    
+    // constants wouldn't apply a big change
+
+    // Temporary implementation, should be made a property of the design class in future geotags
+
     double myNormalZ = this->normal()[Amg::z];
-    double exp_value = 0.7071; // sqrt(2)/2
-    
-    return(fabs(myNormalZ) > exp_value);
+    double exp_value_min = 0.7071; // sqrt(2)/2
+    double exp_value_max = 0.99;
+
+    return(fabs(myNormalZ) > exp_value_min && fabs(myNormalZ) < exp_value_max);
     
   } else {
     return false;

@@ -44,12 +44,12 @@ public:
   /// \name structors
   //@{
   HepMcParticleLink() : m_particle(nullptr), m_have_particle(false) { }
-  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex = 0, EBC_EVCOLL evColl=EBC_MAINEVCOLL) : m_particle(nullptr), m_have_particle(false)
-  { m_extBarcode = ExtendedBarCode(barCode, eventIndex, evColl, (!barCode && !eventIndex));}
-  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex, std::string evCollName) : m_particle(nullptr), m_have_particle(false)
-  { m_extBarcode = ExtendedBarCode(barCode, eventIndex, find_enumFromKey(evCollName), (!barCode && !eventIndex));}
-  HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex = 0, EBC_EVCOLL evColl=EBC_MAINEVCOLL);
-  HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex, std::string evCollName);
+  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex = 0, EBC_EVCOLL evColl=EBC_MAINEVCOLL, bool isIndexEventPosition=false) : m_particle(nullptr), m_have_particle(false)
+  { m_extBarcode = ExtendedBarCode(barCode, eventIndex, evColl, ((!barCode && !eventIndex) || isIndexEventPosition));}
+  HepMcParticleLink(barcode_type barCode, uint32_t eventIndex, std::string evCollName, bool isIndexEventPosition=false) : m_particle(nullptr), m_have_particle(false)
+  { m_extBarcode = ExtendedBarCode(barCode, eventIndex, find_enumFromKey(evCollName), ((!barCode && !eventIndex) || isIndexEventPosition));}
+  HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex = 0, EBC_EVCOLL evColl=EBC_MAINEVCOLL, bool isIndexEventPosition=false);
+  HepMcParticleLink(const HepMC::GenParticle* p, uint32_t eventIndex, std::string evCollName, bool isIndexEventPosition=false);
   HepMcParticleLink(const HepMcParticleLink& rhs) :
     m_particle(rhs.m_particle),
     m_extBarcode(rhs.m_extBarcode),
@@ -120,7 +120,8 @@ public:
   index_type getEventNumberForEventPosition(index_type position) const; //if the an old event index (position in the collection) is stored, returns the event number of the corresponding GenEvent
   static index_type getEventPositionForEventNumber(EBC_EVCOLL evColl, index_type evNumber); //Returns the position/index in the specified collection of the event having the given event number
   index_type getEventPositionInCollection() const { if (m_extBarcode.isIndexAsEventPosition()) return m_extBarcode.eventIndex(); else return getEventPositionForEventNumber(this->getEventCollection(),m_extBarcode.eventIndex());};//Returns the position/index of the event in the collection
-  index_type eventIndex() const { if (m_extBarcode.isIndexAsEventPosition()) return getEventNumberForEventPosition(m_extBarcode.eventIndex()); else return index_type(m_extBarcode.eventIndex()); }
+  index_type eventIndex() const { if (m_extBarcode.isIndexAsEventPosition()) {return getEventNumberForEventPosition(m_extBarcode.eventIndex());} return index_type(m_extBarcode.eventIndex()); }
+  bool isIndexAsEventPosition() const { return m_extBarcode.isIndexAsEventPosition(); }
   EBC_EVCOLL getEventCollection() const { return m_extBarcode.getEventCollection(); };
   void setEventCollection(EBC_EVCOLL evColl) { m_extBarcode.setEventCollection(evColl); };
   static std::string getEventCollectionAsString(EBC_EVCOLL evColl);
@@ -145,7 +146,10 @@ public:
 
   class ExtendedBarCode {
   public:
-    ExtendedBarCode() : m_BC(0), m_evtIndex(0), m_isIndexEventPosition(0) {setEventCollection(EBC_MAINEVCOLL);}
+    /// All 1's. Used to represent an undefined index/position.
+    constexpr static index_type UNDEFINED = ~static_cast<index_type>(0);
+
+    ExtendedBarCode() : m_BC(0), m_evtIndex(0), m_isIndexEventPosition(false) {setEventCollection(EBC_MAINEVCOLL);}
     ExtendedBarCode(barcode_type barcode, index_type eventIndex, EBC_EVCOLL evtColl=EBC_MAINEVCOLL, bool isIndexEventPosition=false) :
       m_BC(barcode), m_evtIndex(eventIndex), m_isIndexEventPosition(isIndexEventPosition)
     {

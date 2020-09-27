@@ -260,6 +260,15 @@ bool PixelGeneralXMLHelper::isBCMPrimePresent() const
   }
 }
 
+bool PixelGeneralXMLHelper::propagateDeadEdgeToSensorPosition() const
+{
+  if (getSchemaVersion() > 5) return getBoolean("PixelGeneral", 0, "HasSensorDeadEdge");
+  else  {
+    msg(MSG::DEBUG)<<"XML: Old schema ("<<getSchemaVersion()<<"), dead edges not propagated to sensor positions";
+    return false;
+  }
+}
+
 double PixelGeneralXMLHelper::getLayerRMin(int ilayer) const
 {
   std::ostringstream ostr; 

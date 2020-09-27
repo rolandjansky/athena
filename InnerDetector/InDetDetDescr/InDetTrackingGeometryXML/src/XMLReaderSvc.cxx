@@ -74,6 +74,7 @@ StatusCode InDet::XMLReaderSvc::initialize()
     parseFile(m_xml_pixStaves.c_str(),"PixelStaves","PixelStave");
     ATH_MSG_INFO("Reading Pixel Barrel Layer templates");
     parseFile(m_xml_pixBarrelLayers.c_str(),"PixelBarrelLayers","PixelBarrelLayer");
+    parseFile(m_xml_pixBarrelLayers.c_str(),"PixelBarrelLayers","PassiveBarrelLayers");
     ATH_MSG_INFO("Reading Pixel Endcap Layer templates");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapRing");
     parseFile(m_xml_pixEndcapLayers.c_str(),"PixelEndcapLayers","PixelEndcapDisc");
@@ -110,6 +111,7 @@ void InDet::XMLReaderSvc::parseNode(std::string section, DOMNode *node)
   else if(section.find("Module")           != std::string::npos) parseModuleXML(node);
   else if(section.find("PixelStave")       != std::string::npos) parseStaveXML(node,m_tmp_pixStave);
   else if(section.find("PixelBarrelLayer") != std::string::npos) parseBarrelLayerXML(node,m_tmp_pixBarrelLayer);
+  else if(section.find("PassiveBarrelLayers") != std::string::npos) parsePassiveBarrelLayerXML(node);
   else if(section.find("PixelEndcapRing" ) != std::string::npos) parseEndcapXML(node,m_tmp_pixEndcapLayer);
   else if(section.find("PixelEndcapDisc" ) != std::string::npos) parseEndcapXML(node,m_tmp_pixEndcapLayer);
   else if(section.find("SCTStave")         != std::string::npos) parseStaveXML(node,m_tmp_sctStave);
@@ -322,6 +324,10 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
   XMLCh* TAG_chipthickness = transcode("chipThickness");
   XMLCh* TAG_hybdthickness = transcode("hybridThickness");
   XMLCh* TAG_sp3Dthickness = transcode("support3DThickness");
+  XMLCh* TAG_edges     = transcode("Edges");
+  XMLCh* TAG_ewide     = transcode("wide");
+  XMLCh* TAG_enarrow   = transcode("narrow");
+  XMLCh* TAG_elength   = transcode("inlength");
 
   ModuleTmp *module = new ModuleTmp;
 
@@ -345,6 +351,19 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
     else if( XMLString::equals(currentElement->getTagName(), TAG_chipthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_hybdthickness))  module->thickness  += atof(getString(currentNode));
     else if( XMLString::equals(currentElement->getTagName(), TAG_sp3Dthickness))  module->thickness  += atof(getString(currentNode));
+    else if( XMLString::equals(currentElement->getTagName(), TAG_edges)){
+      DOMNodeList* edgesList = currentElement->getChildNodes();
+      const XMLSize_t edgesCount = edgesList->getLength();
+      for( XMLSize_t xx = 0; xx < edgesCount; ++xx ) {
+	DOMNode* edgeNode = edgesList->item(xx);
+	if(edgeNode->getNodeType() != DOMNode::ELEMENT_NODE) continue; // not an element
+	// Found node which is an Element. Re-cast node as element
+	DOMElement* edgeElement = dynamic_cast< xercesc::DOMElement* >( edgeNode );
+	if( XMLString::equals(edgeElement->getTagName(), TAG_ewide))        module->edgew   = atof(getString(edgeNode));
+	else if( XMLString::equals(edgeElement->getTagName(), TAG_enarrow)) module->edgen   = atof(getString(edgeNode));
+	else if( XMLString::equals(edgeElement->getTagName(), TAG_elength)) module->edgel   = atof(getString(edgeNode));
+      }// End of loop on edges node elements
+    }
   } // End of loop on module node elements
 
   if(module->chip_type.size()==0) return;
@@ -495,6 +514,35 @@ void InDet::XMLReaderSvc::parseBarrelLayerXML(DOMNode* node, std::vector< InDet:
     if(msgLvl(MSG::DEBUG))
       layer->Print();
   }
+}
+
+
+void InDet::XMLReaderSvc::parsePassiveBarrelLayerXML(DOMNode* node)
+{
+  XMLCh* TAG_layerradii      = transcode("Radii");
+  XMLCh* TAG_layerhalflength = transcode("HalfLength");
+  
+  std::vector<double> tmpRadii;
+  std::vector<double> tmpHalfLength;
+  
+  DOMNodeList* list = node->getChildNodes();
+  const XMLSize_t nodeCount = list->getLength();
+  
+  for( XMLSize_t xx = 0; xx < nodeCount; ++xx ) {
+    DOMNode* currentNode = list->item(xx);
+    if(currentNode->getNodeType() != DOMNode::ELEMENT_NODE) continue; // not an element
+
+    // Found node which is an Element. Re-cast node as element
+    DOMElement* currentElement = dynamic_cast< xercesc::DOMElement* >( currentNode );
+    
+    if (XMLString::equals(currentElement->getTagName(),TAG_layerradii)) tmpRadii = getVectorDouble(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_layerhalflength)) tmpHalfLength = getVectorDouble(currentNode);
+  }
+  
+  for (unsigned int layer = 0; layer < tmpRadii.size(); layer++) 
+    m_pixBarrelLayerPassiveRadiiHalfLength.push_back(std::make_pair(tmpRadii.at(layer), tmpHalfLength.at(layer)));
+
+  return;  
 }
 
 void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::EndcapLayerTmp *>& vtmp)
@@ -800,8 +848,15 @@ void InDet::XMLReaderSvc::computeModuleSize(InDet::ModuleTmp *module)
   module->widthmax  = module->widthMaxChips*chip->width+chip->edgew; 
 
   if(chip->name.find("RD53") != std::string::npos) {
-    module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
-    module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
+    if(module->edgel>0 && module->edgew>0){
+      //New format with quad chips, interchip gap not needed
+      module->length = module->lengthChips*chip->length;
+      module->widthmax = module->widthMaxChips*chip->width;
+    }
+    else{
+      module->length = module->lengthChips*chip->length+(module->lengthChips-1)*2.*chip->edgel;
+      module->widthmax = module->widthMaxChips*chip->width+(module->widthMaxChips-1)*2.*chip->edgew;
+    }
     module->widthmin = module->widthmax;
   }
   else {
@@ -890,6 +945,11 @@ std::vector<InDet::StaveTmp*> InDet::XMLReaderSvc::getPixelStaveTemplate(unsigne
   if(staves.size()==0) ATH_MSG_WARNING("InDet no Pixel Stave template found for layer " << ilayer);
   
   return staves;
+}
+
+std::vector< std::pair<float, float> > InDet::XMLReaderSvc::getPixelPassiveBarrelLayers() const
+{
+  return m_pixBarrelLayerPassiveRadiiHalfLength;
 }
 
 std::vector<InDet::StaveTmp*> InDet::XMLReaderSvc::getSCTStaveTemplate(unsigned int ilayer) const

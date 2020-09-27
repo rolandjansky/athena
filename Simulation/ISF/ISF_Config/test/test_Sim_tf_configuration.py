@@ -65,19 +65,19 @@ class TestATLFASTII(unittest.TestCase):
                          actual_last_ath_alg_sequence_entry)
 
     def test___ISF_Collection_merger_InputBCMHits_contains_only_G4_collection(self):
-        expected_input_hits = ['BCMHits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputBCMHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputBLMHits_contains_only_G4_collection(self):
-        expected_input_hits = ['BLMHits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputBLMHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputCSCHits_contains_only_G4_collection(self):
-        expected_input_hits = ['CSC_Hits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputCSCHits',
             expected_input_hits)
@@ -113,37 +113,37 @@ class TestATLFASTII(unittest.TestCase):
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputMDTHits_contains_only_G4_collection(self):
-        expected_input_hits = ['MDT_Hits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputMDTHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputPixelHits_contains_only_G4_collection(self):
-        expected_input_hits = ['PixelHits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputPixelHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputRPCHits_contains_only_G4_collection(self):
-        expected_input_hits = ['RPC_Hits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputRPCHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputSCTHits_contains_only_G4_collection(self):
-        expected_input_hits = ['SCT_Hits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputSCTHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputTGCHits_contains_only_G4_collection(self):
-        expected_input_hits = ['TGC_Hits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputTGCHits',
             expected_input_hits)
 
     def test___ISF_Collection_merger_InputTRTUncompressedHits_contains_only_G4_collection(self):
-        expected_input_hits = ['TRTUncompressedHits_G4']
+        expected_input_hits = []
         self._assert_ISF_CollectionMerger_property_unordered_equal(
             'InputTRTUncompressedHits',
             expected_input_hits)

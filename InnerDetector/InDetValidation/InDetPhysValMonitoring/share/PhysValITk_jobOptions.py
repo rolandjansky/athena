@@ -7,39 +7,10 @@
 # set up for reading pool.root format files (AOD,ESD,IDTRKVALDAOD)
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-# read single file: warious options
-#.......................................................................
-# FNAME=[ "AOD.pool.root" ]
-# runDAOD = False # set to False for AOD/ESD and True for IDTRKVALDAOD
-#.......................................................................
-# FNAME=[ "ESD.pool.root" ]
-# runDAOD = False # set to False for AOD/ESD and True for IDTRKVALDAOD
-#.......................................................................
-# FNAME=[ "IDTRKVALDAOD.pool.root" ]
-# runDAOD = True # set to False for AOD/ESD and True for IDTRKVALDAOD
-#.......................................................................
-# uncomment this for testing: step 1.9, mu=0 single muon with pt=100GeV samples:
-#FNAME=[ "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/bb/50/DAOD_IDTRKVALID.11169418._000001.pool.root.1",
-#        "root://eosatlas.cern.ch//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_14TeV/1e/72/DAOD_IDTRKVALID.11169418._000002.pool.root.1" ]
-#.......................................................................
-# uncomment this for testing: step 3, mu=0 file. For a quick run also set theApp.EvtMax to 10 or so
-# todo: replace this with cergroup file, once we get some step3 files there 
-FNAME=[ "/eos/user/l/lmijovic/atlas/nosyn/upgrade/inputs/step3_shared/step3prod_test_18082018/ttbar/step3/DAOD_IDTRKVALID_digi.pool.root" ]
-
 # uncomment to set a single input file via the athena command line options (athena -c "INFILE='blah.root'" )
 if "INFILE" in globals():
       FNAME= [INFILE]
 
-#.......................................................................
-# uncomment to read multiple files:
-#import glob
-#FNAME=glob.glob('indir/*pool.root*')
-#runDAOD = True # set to False for AOD/ESD and True for IDTRKVALDAODs
-#.......................................................................
-# uncomment this to process samples as in ascii (1 sample / line):
-# with open('samples.txt','r') as inSamp:
-#   FNAME = [line.rstrip('\n') for line in inSamp]
-# runDAOD = True # set to False for AOD/ESD and True for IDTRKVALDAODs
 #.......................................................................
 # this flag is necessary to run correctly over DAODs.
 # It is set automatically from the name
@@ -61,7 +32,6 @@ if "DAOD_IDTRKVALID" in svcMgr.EventSelector.InputCollections[0]:
 
 # pre- and post- includes files needed to read input files
 from AthenaCommon.GlobalFlags import globalflags
-#globalflags.DetGeo = 'atlas'
 
 from RecExConfig.InputFilePeeker import inputFileSummary
 globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
@@ -92,23 +62,28 @@ xmlTags = [
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
+foundGeoTag = False
 for geoTag, layoutDescr, layoutOption in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
+      foundGeoTag = True
       print "preIncludes for ",layoutDescr, " layout"
       if (layoutOption!=""): 
          SLHC_Flags.LayoutOption=layoutOption
       from InDetRecExample.InDetJobProperties import InDetFlags
-      include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       if (layoutDescr!=""):
          include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
       else:
          include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
       include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
-      if geoTag=="ATLAS-P2-ITK-10" or geoTag=="ATLAS-P2-ITK-09" :
-         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
-      else:
-         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')
+      include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       break
+
+if(not foundGeoTag):
+   from InDetRecExample.InDetJobProperties import InDetFlags
+   include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
+   include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
+   include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
+
    
 # Just turn on the detector components we need
 from AthenaCommon.DetFlags import DetFlags
@@ -134,6 +109,10 @@ for geoTag, layoutDescr, layoutOption in xmlTags:
       else:
          include('InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py')
       break
+
+if(not foundGeoTag):
+   include('InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py')
+
 
 #-----------------------------------------------------------------------
 

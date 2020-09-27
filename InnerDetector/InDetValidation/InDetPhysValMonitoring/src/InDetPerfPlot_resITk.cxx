@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file InDetPerfPlot_resITk.cxx
@@ -12,7 +12,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <cmath>
 
 InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent, sDir),
-  m_meanWidthMethod(IDPVM::GetMeanWidth::iterRMS_convergence),
+  m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence),
   m_primTrk(false),
   m_secdTrk(false),
   m_allTrk(false),
@@ -259,14 +259,12 @@ InDetPerfPlot_resITk::initializePlots() {
   int nBinsEta = m_nEtaBins;
   float nMinEta = m_etaMin;
   float nMaxEta = m_etaMax;
-  int nBinsPt = 50.0;
-  float nMinPt = 0.0;
-  float nMaxPt = 500.0;
 
-  Float_t ptlimits[50];
-  for (int i=0; i<50; ++i) {
-    ptlimits[i] = 1000.0* std::exp((i-49.0)/6.804);
-  }
+  int nBinsPt = m_nPtBins;
+  float nMinPt = 0.;
+  float nMaxPt = 50.0;
+
+  Float_t* ptlimits = m_PtBins;
 
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     ///pull
@@ -405,7 +403,7 @@ InDetPerfPlot_resITk::initializePlots() {
         Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
                  0), m_paramProp[iparam].limRes.at(1), false);
     }
-    m_resITk_resHelperpt[iparam]->GetXaxis()->Set(49,ptlimits);
+    m_resITk_resHelperpt[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
 
 
     std::vector<double> binsForPull = populateLogLinearBinning(1000,2e-2,100,true);
@@ -413,7 +411,7 @@ InDetPerfPlot_resITk::initializePlots() {
     tmpTitle = tmpName + "; true track p_{T} [GeV]; (" + m_paramProp[iparam].paraLabel + "^{reco}-" +
                m_paramProp[iparam].paraLabel + "^{true})/#sigma_{" + m_paramProp[iparam].paraLabel + "}";
     m_resITk_pullHelperpt[iparam] = Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, binsForPull, false);
-    m_resITk_pullHelperpt[iparam]->GetXaxis()->Set(49,ptlimits);
+    m_resITk_pullHelperpt[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
 
     tmpName = "pullHelpereta_" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track #eta; (" + m_paramProp[iparam].paraLabel + "^{reco}-" +
@@ -483,7 +481,7 @@ InDetPerfPlot_resITk::initializePlots() {
         Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
                  0), m_paramProp[iparam].limRes.at(1), false);
       }
-    m_resITk_resHelperpt_pos[iparam]->GetXaxis()->Set(49,ptlimits);
+    m_resITk_resHelperpt_pos[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_pos";
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
@@ -504,7 +502,7 @@ InDetPerfPlot_resITk::initializePlots() {
         Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(
                  0), m_paramProp[iparam].limRes.at(1), false);
     }
-    m_resITk_resHelperpt_neg[iparam]->GetXaxis()->Set(49,ptlimits);
+    m_resITk_resHelperpt_neg[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = m_paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_neg";
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + m_paramProp[iparam].paraLabel + ytitle[ires] +
@@ -516,10 +514,7 @@ InDetPerfPlot_resITk::initializePlots() {
     tmpName = "resHelperetapt_" + m_paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track p_{T}; true track #eta; " + m_paramProp[iparam].paraLabel + "^{reco}-" +
                m_paramProp[iparam].paraLabel + "^{true} " + m_paramProp[iparam].paraUnit;
-/*    m_resITk_resHelperetapt[iparam] = Book3D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, nBinsEta, nMinEta, nMaxEta,
-                                             m_paramProp[iparam].nBinsRes, m_paramProp[iparam].limRes.at(0),
-                                             m_paramProp[iparam].limRes.at(1), false);
-*/
+
     for (unsigned int ires = 0; ires < 2; ires++) {
       for (int ibin = 0; ibin < 4; ibin++) {
         int tmpInt = ibin + 1;
@@ -553,8 +548,7 @@ InDetPerfPlot_resITk::initializePlots() {
     tmpTitle = tmpName + "; true track p_{T}; #sigma_{" + m_paramProp[iparam].paraLabel + "} " +
                m_paramProp[iparam].paraUnit;
     m_resITk_meanProfpt[iparam] = BookTProfile(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, -1.0, 1.0, false);
-    m_resITk_meanProfpt[iparam]->GetXaxis()->Set(49,ptlimits);
-//    m_resITk_meanProfpt[iparam]->GetXaxis()->Set(m_nPtBins, m_PtBins);
+    m_resITk_meanProfpt[iparam]->GetXaxis()->Set(nBinsPt,ptlimits);
 
   }
 
@@ -568,8 +562,7 @@ InDetPerfPlot_resITk::initializePlots() {
                                     nBinsEta, nMinEta, nMaxEta, false);
   m_resITk_chargeID_vs_pt = Book1D("chargeID_vs_pt", "chargeID_vs_pt; truth track p_{T} [GeV]; Fraction of misID [%]",
                                    nBinsPt, nMaxPt, nMaxPt, false);
-    m_resITk_chargeID_vs_pt->GetXaxis()->Set(49,ptlimits);
-//  m_resITk_chargeID_vs_pt->GetXaxis()->Set(m_nPtBins, m_PtBins);
+  m_resITk_chargeID_vs_pt->GetXaxis()->Set(nBinsPt,ptlimits);
 
   m_resITk_momTail = Book1D("momTail", "momTail", 2, 0., 2., false);
   m_resITk_momTail->GetXaxis()->SetBinLabel(1, "Core");
@@ -579,8 +572,7 @@ InDetPerfPlot_resITk::initializePlots() {
                                    nBinsEta, nMinEta, nMaxEta, false);
   m_resITk_momTail_vs_pt = Book1D("momTail_vs_pt", "momTail_vs_pt; truth track p_{T} [GeV]; Fraction of p_{T}-tail [%]",
                                   nBinsPt, nMinPt, nMaxPt, false);
-    m_resITk_momTail_vs_pt->GetXaxis()->Set(49,ptlimits);
-  m_resITk_momTail_vs_pt->GetXaxis()->Set(m_nPtBins, m_PtBins);
+  m_resITk_momTail_vs_pt->GetXaxis()->Set(nBinsPt,ptlimits);
   m_resITk_momTail_vs_phi = Book1D("momTail_vs_phi", "momTail_vs_phi; truth track #phi; Fraction of p_{T}-tail [%]",
                                    nBinsEta, nMinEta, nMaxEta, false);
 
@@ -831,22 +823,20 @@ InDetPerfPlot_resITk::getTrackParameters(const xAOD::TruthParticle& truthprt) {
 void
 InDetPerfPlot_resITk::finalizePlots() {
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {    
-    makeResolutions(m_resITk_resHelpereta[iparam], m_resITk_Resolution_vs_eta[iparam],
-                    m_resITk_ResProjections_vs_eta[iparam], true);
-    makeResolutions(m_resITk_resHelperpt[iparam], m_resITk_Resolution_vs_pt[iparam],
-                    m_resITk_ResProjections_vs_pt[iparam], true);
-    makeResolutions(m_resITk_resHelperpt_pos[iparam], m_resITk_Resolution_vs_pt_pos[iparam]);
-    makeResolutions(m_resITk_resHelperpt_neg[iparam], m_resITk_Resolution_vs_pt_neg[iparam]);
-    makeResolutions(m_resITk_resHelpereta_pos[iparam], m_resITk_Resolution_vs_eta_pos[iparam]);
-    makeResolutions(m_resITk_resHelpereta_neg[iparam], m_resITk_Resolution_vs_eta_neg[iparam]);
-/*    makeResolutions(m_resITk_resHelperetapt[iparam], m_resITk_Resolution_vs_pt_EtaBin[iparam],
-                    m_resITk_Resolution_vs_eta_PtBin[iparam]);
-*/
+    m_resolutionHelper.makeResolutions(m_resITk_resHelpereta[iparam], m_resITk_Resolution_vs_eta[iparam][0], m_resITk_Resolution_vs_eta[iparam][1],
+				       m_resITk_ResProjections_vs_eta[iparam], true, m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_resHelperpt[iparam], m_resITk_Resolution_vs_pt[iparam][0], m_resITk_Resolution_vs_pt[iparam][1],
+				       m_resITk_ResProjections_vs_pt[iparam], true, m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_resHelperpt_pos[iparam], m_resITk_Resolution_vs_pt_pos[iparam][0], m_resITk_Resolution_vs_pt_pos[iparam][1], m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_resHelperpt_neg[iparam], m_resITk_Resolution_vs_pt_neg[iparam][0], m_resITk_Resolution_vs_pt_neg[iparam][1], m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_resHelpereta_pos[iparam], m_resITk_Resolution_vs_eta_pos[iparam][0], m_resITk_Resolution_vs_eta_pos[iparam][1], m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_resHelpereta_neg[iparam], m_resITk_Resolution_vs_eta_neg[iparam][0], m_resITk_Resolution_vs_eta_neg[iparam][1], m_resolutionMethod);
+
     // add for the pull vs pT
-    makeResolutions(m_resITk_pullHelperpt[iparam], m_resITk_pullResolution_vs_pt[iparam],
-                    m_resITk_pullProjections_vs_pt[iparam], true);
-    makeResolutions(m_resITk_pullHelpereta[iparam], m_resITk_pullResolution_vs_eta[iparam],
-                    m_resITk_pullProjections_vs_eta[iparam], true);
+    m_resolutionHelper.makeResolutions(m_resITk_pullHelperpt[iparam], m_resITk_pullResolution_vs_pt[iparam][0], m_resITk_pullResolution_vs_pt[iparam][1],
+				       m_resITk_pullProjections_vs_pt[iparam], true, m_resolutionMethod);
+    m_resolutionHelper.makeResolutions(m_resITk_pullHelpereta[iparam], m_resITk_pullResolution_vs_eta[iparam][0], m_resITk_pullResolution_vs_eta[iparam][1],
+				       m_resITk_pullProjections_vs_eta[iparam], true, m_resolutionMethod);
   }
 
   for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
@@ -866,235 +856,6 @@ InDetPerfPlot_resITk::finalizePlots() {
 
 }
 
-void
-InDetPerfPlot_resITk::getMeanWidthResultsModUnits(TH1* p_input_hist, std::vector<float>& p_result,
-						  IDPVM::GetMeanWidth::methods p_method) {
-  // LM: reason for using this function:
-  //   orignial code was set up to only have resolution resuls in um,
-  //   while inputs are in mm. Do not want to do a substantial rewrite.
-  double mm2um = 1000.;
-
-  if (!p_result.empty()) {
-    p_result.clear();
-  }
-  m_getMeanWidth.setResults(p_input_hist, p_method);
-  for (auto it : m_getMeanWidth.getDebugs())
-    ATH_MSG_DEBUG(it);
-  for (auto it : m_getMeanWidth.getInfos())
-    ATH_MSG_INFO(it);
-  for (auto it : m_getMeanWidth.getWarnings())
-    ATH_MSG_WARNING(it);
-  for (auto it : m_getMeanWidth.getErrors())
-    ATH_MSG_ERROR(it);
-  p_result.push_back(m_getMeanWidth.getRMS());
-  p_result.push_back(m_getMeanWidth.getRMSError());
-  p_result.push_back(m_getMeanWidth.getMean());
-  p_result.push_back(m_getMeanWidth.getMeanError());
-  p_result.push_back(m_getMeanWidth.getFracOut());
-  p_result.push_back(m_getMeanWidth.getFracOutUnc());
-  p_result.push_back(m_getMeanWidth.getFracUOflow());
-  p_result.push_back(m_getMeanWidth.getBinsWithinRes());
-
-  TString vari = p_input_hist->GetName();
-  if ( !vari.Contains("pull") &&
-       (vari.Contains("d0") || vari.Contains("z0")) ) {
-    // the  mean, meanerror, RMS and RMSerror
-    // are conventionally first four elements of results vector
-    p_result[0]*= mm2um;
-    p_result[1]*= mm2um;
-    p_result[2]*= mm2um;
-    p_result[3]*= mm2um;
-  }
-
-}
-
-void
-InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4]) {
-
-  // Should fix this in a better way
-  TString hname = h->GetName();
-
-  // warnings in case input histograms have large % events in under- and over- flow bins 
-  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
-  // warnings in case of too few bins within resolution
-  std::vector< std::pair<unsigned int,double> > warnBinsWithinRes;
-
-  if (hname.Contains("Helpereta")) {
-    for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
-      std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
-      TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_EtaBins[ieta]),
-                                         h->GetXaxis()->FindBin(m_EtaBins[ieta + 1]));
-      if (tmp->Integral() < 1) {
-        continue;
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp, result, m_meanWidthMethod);
-      hres[0]->SetBinContent(ieta + 1, result.at(0));
-      hres[0]->SetBinError(ieta + 1, result.at(1));
-      hres[1]->SetBinContent(ieta + 1, result.at(2));
-      hres[1]->SetBinError(ieta + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.)
-	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ieta + 1,result.at(7)));
-      result.clear();
-      /*	  
-	      std::vector<float> result;
-	      IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-              getMeanWidthResultsModUnits(tmp, result, altMeanWidthMethod);
-              hres[2]->SetBinContent(ieta+1,result.at(0));
-              hres[2]->SetBinError(ieta+1,result.at(1));
-              hres[3]->SetBinContent(ieta+1,result.at(2));
-              hres[3]->SetBinError(ieta+1,result.at(3));*/
-      delete tmp;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[1]->GetName(),warnBinsWithinRes));
-    }
-  }
-  else if (hname.Contains("Helperpt")) {
-    if (!warnUOBinFrac.empty())
-      warnUOBinFrac.clear();
-    for (unsigned int ipt = 0; ipt < m_nPtBins; ipt++) {
-      std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ipt + 1);
-      TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
-                                         h->GetXaxis()->FindBin(m_PtBins[ipt + 1]));
-      if (tmp->Integral() < 1) {
-        continue;
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp, result, m_meanWidthMethod);
-      hres[0]->SetBinContent(ipt + 1, result.at(0));
-      hres[0]->SetBinError(ipt + 1, result.at(1));
-      hres[1]->SetBinContent(ipt + 1, result.at(2));
-      hres[1]->SetBinError(ipt + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.) 
-	warnUOBinFrac.push_back(std::make_pair(ipt + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ipt + 1,result.at(7)));
-      result.clear();
-      
-/*		  
-	    std::vector<float> result;
-	    IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-            getMeanWidthResultsModUnits(tmp, result, altMeanWidthMethod);
-            hres[2]->SetBinContent(ipt+1,result.at(0));
-            hres[2]->SetBinError(ipt+1,result.at(1));
-            hres[3]->SetBinContent(ipt+1,result.at(2));
-            hres[3]->SetBinError(ipt+1,result.at(3));*/
-      delete tmp;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[1]->GetName(),warnBinsWithinRes));
-    }
-    
-  }// end of "Helperpt"
-
-} // end of makeResolutions
-
-void
-InDetPerfPlot_resITk::makeResolutions(TH2* h, TH1* hres[4], TH1* hproj[m_nEtaBins], bool save) {
-  TString hname = h->GetName();
-  // warnings in case input histograms have large % events in under- and over- flow bins 
-  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
-  // warnings in case of too few bins within resolution
-  std::vector< std::pair<unsigned int,double> > warnBinsWithinRes;
-
-  if (hname.Contains("Helpereta")) {
-    for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
-      // Mapping of eta bins between TH2 and TH1 must be consistent, otherwise resolutions are asymmetric
-      std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ieta + 1);
-      TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_EtaBins[ieta]),
-                                         h->GetXaxis()->FindBin(m_EtaBins[ieta + 1]-0.05));
-      
-      if (tmp->Integral() < 1) {
-        continue;
-      }
-      if (save) {
-        cloneHistogram(tmp, hproj[ieta]);
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp, result, m_meanWidthMethod);
-      hres[0]->SetBinContent(ieta + 1, result.at(0));
-      hres[0]->SetBinError(ieta + 1, result.at(1));
-      hres[1]->SetBinContent(ieta + 1, result.at(2));
-      hres[1]->SetBinError(ieta + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.) 
-	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ieta + 1,result.at(7)));
-      result.clear();
-      /*	  
-	      std::vector<float> result;
-	      IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-              getMeanWidthResultsModUnits(hproj[ieta], result, altMeanWidthMethod);	  
-              hres[2]->SetBinContent(ieta+1,result.at(0));
-              hres[2]->SetBinError(ieta+1,result.at(1));
-              hres[3]->SetBinContent(ieta+1,result.at(2));
-              hres[3]->SetBinError(ieta+1,result.at(3));*/
-      delete tmp;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[1]->GetName(),warnBinsWithinRes));
-    }
-  } else if (hname.Contains("Helperpt")) {
-    if (!warnUOBinFrac.empty())
-      warnUOBinFrac.clear();
-    for (unsigned int ipt = 0; ipt < m_nPtBins; ipt++) {
-      std::string tmpName = h->GetName() + std::string("py_bin") + std::to_string(ipt + 1);
-      TH1D* tmp = (TH1D*) h->ProjectionY(tmpName.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
-                                         h->GetXaxis()->FindBin(m_PtBins[ipt + 1]));
-      if (tmp->Integral() < 1) {
-        continue;
-      }
-      if (save) {
-        cloneHistogram(tmp, hproj[ipt]);
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp, result, m_meanWidthMethod);
-      hres[0]->SetBinContent(ipt + 1, result.at(0));
-      hres[0]->SetBinError(ipt + 1, result.at(1));
-      hres[1]->SetBinContent(ipt + 1, result.at(2));
-      hres[1]->SetBinError(ipt + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.)
-	warnUOBinFrac.push_back(std::make_pair(ipt + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ipt + 1,result.at(7)));
-      result.clear();
-      /*  std::vector<float> result;
-          IDPVM::GetMeanWidth::methods altMeanWidthMethod = Gauss_fit;
-          getMeanWidthResultsModUnits((hproj[ipt], result, altMeanWidthMethod);
-          hres[2]->SetBinContent(ipt+1,result.at(0));
-          hres[2]->SetBinError(ipt+1,result.at(1));
-          hres[3]->SetBinContent(ipt+1,result.at(2));
-          hres[3]->SetBinError(ipt+1,result.at(3));*/
-      delete tmp;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres[1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres[1]->GetName(),warnBinsWithinRes));
-    }
-  }
-}
 
 void
 InDetPerfPlot_resITk::cloneHistogram(TH1D* h, TH1* hcopy) {
@@ -1107,97 +868,3 @@ InDetPerfPlot_resITk::cloneHistogram(TH1D* h, TH1* hcopy) {
     hcopy->SetBinError(ibin, binError);
   }
 }
-
-void
-InDetPerfPlot_resITk::makeResolutions(TH3* h, TH1* hres_eta[4][4], TH1* hres_pt[4][4]) {
-
-  // warnings in case input histograms have large % events in under- and over- flow bins
-  std::vector< std::pair<unsigned int,double> > warnUOBinFrac;
-  // warnings in case of too few bins within resolution
-  std::vector< std::pair<unsigned int,double> > warnBinsWithinRes;
-
-  float BinEta[5] = {
-    0.0, 1.0, 1.5, 2.7, 5.0
-  };
-  float BinPt[5] = {
-    0.0, 1.0, 2.0, 5.0, 500.0
-  };
-
-  for (unsigned int ieta = 0; ieta < 4; ieta++) {
-    for (unsigned int ipt = 0; ipt < m_nPtBins; ipt++) {
-      std::string tmpName = h->GetName() + std::string("pz_binPt") + std::to_string(ipt + 1) +
-                            std::string("pz_binEta") + std::to_string(ieta + 1);
-      std::string tmpName1 = tmpName + std::string("_neg");
-      std::string tmpName2 = tmpName + std::string("_pos");
-      TH1D* tmp1 = (TH1D*) h->ProjectionZ(tmpName1.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
-                                          h->GetXaxis()->FindBin(m_PtBins[ipt + 1]),
-                                          h->GetYaxis()->FindBin(-BinEta[ieta + 1]),
-                                          h->GetYaxis()->FindBin(-BinEta[ieta]));
-      TH1D* tmp2 = (TH1D*) h->ProjectionZ(tmpName2.c_str(), h->GetXaxis()->FindBin(m_PtBins[ipt]),
-                                          h->GetXaxis()->FindBin(m_PtBins[ipt + 1]),
-                                          h->GetYaxis()->FindBin(BinEta[ieta]),
-                                          h->GetYaxis()->FindBin(BinEta[ieta + 1]));
-      tmp1->Add(tmp2);
-      if (tmp1->Integral() < 1) {
-        continue;
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp1, result, m_meanWidthMethod);
-      hres_eta[ieta][0]->SetBinContent(ipt + 1, result.at(0));
-      hres_eta[ieta][0]->SetBinError(ipt + 1, result.at(1));
-      hres_eta[ieta][1]->SetBinContent(ipt + 1, result.at(2));
-      hres_eta[ieta][1]->SetBinError(ipt + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.)
-	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ieta + 1,result.at(7)));
-      result.clear();
-      delete tmp1;
-      delete tmp2;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres_eta[ieta][0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres_eta[ieta][1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres_eta[ieta][0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres_eta[ieta][1]->GetName(),warnBinsWithinRes));
-    }
-  }
-
-  for (unsigned int ipt = 0; ipt < 4; ipt++) {
-    if (!warnUOBinFrac.empty())
-      warnUOBinFrac.clear();
-    for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
-      std::string tmpName = h->GetName() + std::string("pz_binPt") + std::to_string(ipt + 1) +
-                            std::string("pz_binEta") + std::to_string(ieta + 1);
-      TH1D* tmp =
-        (TH1D*) h->ProjectionZ(tmpName.c_str(), h->GetXaxis()->FindBin(BinPt[ipt]), h->GetXaxis()->FindBin(
-                                 BinPt[ipt + 1]), h->GetYaxis()->FindBin(m_EtaBins[ieta]),
-                               h->GetYaxis()->FindBin(m_EtaBins[ieta + 1]));
-      if (tmp->Integral() < 1) {
-        continue;
-      }
-      std::vector<float> result;
-      getMeanWidthResultsModUnits(tmp, result,m_meanWidthMethod);
-      hres_pt[ipt][0]->SetBinContent(ieta + 1, result.at(0));
-      hres_pt[ipt][0]->SetBinError(ieta + 1, result.at(1));
-      hres_pt[ipt][1]->SetBinContent(ieta + 1, result.at(2));
-      hres_pt[ipt][1]->SetBinError(ieta + 1, result.at(3));
-      if (result.size()>6 && result.at(6)>0.)
-	warnUOBinFrac.push_back(std::make_pair(ieta + 1,result.at(6)));
-      if (result.size()>7 && result.at(7)>0.)
-	warnBinsWithinRes.push_back(std::make_pair(ipt + 1,result.at(7)));
-      result.clear();
-      delete tmp;
-    }
-    if (!warnUOBinFrac.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres_pt[ipt][0]->GetName(),warnUOBinFrac));
-      ATH_MSG_WARNING(m_getMeanWidth.reportUOBinVal(hres_pt[ipt][1]->GetName(),warnUOBinFrac));
-    }
-    if (!warnBinsWithinRes.empty()) {
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres_pt[ipt][0]->GetName(),warnBinsWithinRes));
-      ATH_MSG_WARNING(m_getMeanWidth.reportBinsWithinRes(hres_pt[ipt][1]->GetName(),warnBinsWithinRes));
-    }
-  }// end of loop over ipt bins
-}// end of makeResolution

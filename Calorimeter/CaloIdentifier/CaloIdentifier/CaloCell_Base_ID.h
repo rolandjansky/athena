@@ -42,7 +42,7 @@ public:
   typedef Identifier::size_type  size_type ;
 
   /** enumeration of sub calorimeters*/
-  enum SUBCALO { LAREM = 0, LARHEC = 1, LARFCAL = 2, TILE = 3, LARMINIFCAL = 4, HGTD=5, NSUBCALO = 6, NOT_VALID=CaloIDHelper::NOT_VALID /*999999*/ };
+  enum SUBCALO { LAREM = 0, LARHEC = 1, LARFCAL = 2, TILE = 3, LARMINIFCAL = 4, NSUBCALO = 5, NOT_VALID=CaloIDHelper::NOT_VALID /*999999*/ };
 
   /** enumeration of samplings (i.e.layers) separately for various sub calorimeters */
   //typedef CaloSampling::CaloSample CaloSample;
@@ -65,7 +65,6 @@ public:
                    const LArFCAL_Base_ID*  fcal_id, 
                    const LArMiniFCAL_ID*   minifcal_id,
                    const Tile_Base_ID*     tile_id,
-                   const HGTD_ID*     hgtd_id,
 		   bool supercell);
 
   ~CaloCell_Base_ID();
@@ -245,11 +244,6 @@ public:
   /** test if the id belongs to the Tiles positive side*/
   bool  is_tile_positive                (const Identifier id) const;
 
-  /** test if the id belongs to the HGTD */
-  bool	is_hgtd   	(const Identifier id) const;
-  /** test if the hash id belongs to the HGTD */
-  bool	is_hgtd   	(const IdentifierHash caloHash) const;
-
   /** returns an int taken from SUBCALO enum and describing the subCalo to which the Id belongs. */
   int         sub_calo    (const Identifier         id)const;
   /** returns an int taken from SUBCALO enum and describing the subCalo to which the hash Id belongs. */
@@ -348,12 +342,6 @@ public:
     const Tile_Base_ID*        tile_idHelper() const 
       {     return m_tileHelper;
       }
-
-    /** access to HGTD idHelper 
-     */
-    const HGTD_ID*        hgtd_idHelper() const 
-      {     return m_hgtdHelper;
-      }
       
 
   /** access to hashes for neighbours      return == 0 for neighbours found  <br>
@@ -384,7 +372,6 @@ private:
   const LArFCAL_Base_ID*      m_fcalHelper;
   const LArMiniFCAL_ID*       m_minifcalHelper;
   const Tile_Base_ID*         m_tileHelper;
-  const HGTD_ID*              m_hgtdHelper;
   const CaloIDHelper*         m_helpers[NSUBCALO];
 
   size_type                     m_cell_hash_max;

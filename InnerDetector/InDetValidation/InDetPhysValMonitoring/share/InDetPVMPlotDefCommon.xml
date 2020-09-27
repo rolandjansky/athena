@@ -1247,7 +1247,7 @@
   <y title="Entries"/>
 </h>
 <h id="vx_track_eta" type="TH1F" title="Tracks at vertex #eta">
-  <x title="#eta" n="100" lo="-2.7" hi="2.7"/>
+  <x title="#eta" n="100" lo="-&ETA;" hi="&ETA;"/>
   <y title="Entries"/>
 </h>
 <h id="vx_track_nSiHits" type="TH1F" title="Tracks at vertex number of Silicon Hits">

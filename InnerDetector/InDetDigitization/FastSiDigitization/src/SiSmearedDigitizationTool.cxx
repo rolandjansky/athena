@@ -604,11 +604,13 @@ StatusCode SiSmearedDigitizationTool::retrieveTruth(){
 template<typename CLUSTER>
 StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * map, CLUSTER * cluster, TimedHitPtr<SiHit> hit){
 
-  HepMcParticleLink trklink(hit->particleLink());
+  EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   if (m_needsMcEventCollHelper) {
     MsgStream* amsg = &(msg());
-    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg) );
+    evColl = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType(), amsg);
   }
+  const bool isEventIndexIsPosition = (hit.eventId()==0);
+  HepMcParticleLink trklink(hit->trackNumber(), hit.eventId(), evColl, isEventIndexIsPosition);
   ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << trklink);
   if (trklink.isValid()){
     const int barcode( trklink.barcode());
