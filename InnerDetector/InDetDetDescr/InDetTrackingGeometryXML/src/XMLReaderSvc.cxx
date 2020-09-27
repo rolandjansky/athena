@@ -1098,6 +1098,21 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
     <label name=\"positive_barrel\" value=\"+1\"  />\n\
     <label name=\"positive_endcap\" value=\"+2\"  />\n\
   </field>\n\
+\n\
+  <field name=\"hgtd_endcap\">\n\
+    <label name=\"negative_endcap\" value=\"-1\" />\n\
+    <label name=\"positive_endcap\" value=\"+1\" />\n\
+  </field>\n\
+\n\
+  <field name=\"hgtd_disk\">\n\
+    <label name=\"inner_disk\" value=\"0\" />\n\
+    <label name=\"outer_disk\" value=\"1\" />\n\
+  </field>\n\
+\n\
+  <field name=\"hgtd_side\">\n\
+    <label name=\"front_side\" value=\"0\" />\n\
+    <label name=\"back_side\" value=\"1\" />\n\
+  </field>\n\
 \n " << std::endl;
 }
 
@@ -1128,9 +1143,9 @@ void InDet::XMLReaderSvc::writeHgtdDict(std::ofstream& file)
   for (unsigned int row = 0; row < disk_front_modules_per_row.size(); row++) {
     file << " <region group=\"hgtd\" >" << std::endl;
     file << "    <range field=\"part\" value=\"HGTD\" />" << std::endl;
-    file << "    <range field=\"endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
-    file << "    <range field=\"disk\" values=\"inner_disk outer_disk\" />" << std::endl;
-    file << "    <range field=\"side\" value=\"front_side\" /> " << std::endl;
+    file << "    <range field=\"hgtd_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
+    file << "    <range field=\"hgtd_disk\" values=\"inner_disk outer_disk\" />" << std::endl;
+    file << "    <range field=\"hgtd_side\" value=\"front_side\" /> " << std::endl;
     file << "    <range field=\"quadrant\" minvalue=\"0\" maxvalue=\"3\" wraparound=\"TRUE\" />" << std::endl;
     file << "    <range field=\"row\" value=\"" << row << "\" />" << std::endl;
     file << "    <range field=\"module\" minvalue=\"0\" maxvalue=\"" << disk_front_modules_per_row.at(row)-1 << "\" />" << std::endl;
@@ -1143,9 +1158,9 @@ void InDet::XMLReaderSvc::writeHgtdDict(std::ofstream& file)
   for (unsigned int row = 0; row < disk_back_modules_per_row.size(); row++) {
     file << " <region group=\"hgtd\" >" << std::endl;
     file << "    <range field=\"part\" value=\"HGTD\" />" << std::endl;
-    file << "    <range field=\"endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
-    file << "    <range field=\"disk\" values=\"inner_disk outer_disk\" />" << std::endl;
-    file << "    <range field=\"side\" value=\"back_side\" /> " << std::endl;
+    file << "    <range field=\"hgtd_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
+    file << "    <range field=\"hgtd_disk\" values=\"inner_disk outer_disk\" />" << std::endl;
+    file << "    <range field=\"hgtd_side\" value=\"back_side\" /> " << std::endl;
     file << "    <range field=\"quadrant\" minvalue=\"0\" maxvalue=\"3\" wraparound=\"TRUE\" />" << std::endl;
     file << "    <range field=\"row\" value=\"" << row << "\" />" << std::endl;
     file << "    <range field=\"module\" minvalue=\"0\" maxvalue=\"" << disk_back_modules_per_row.at(row)-1 << "\" />" << std::endl;
@@ -1153,7 +1168,7 @@ void InDet::XMLReaderSvc::writeHgtdDict(std::ofstream& file)
     file << "    <range field=\"eta_index\" minvalue=\"0\" maxvalue=\"29\" />" << std::endl;
     file << "  </region>" << std::endl;
   }
-
+  file << std::endl;
 }
 
 void InDet::XMLReaderSvc::writeSctEndcapDict(std::ofstream& file)
