@@ -21,6 +21,7 @@
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "eflowRec/PFEGammaPFOAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
+#include "eflowRec/PFTauFlowElementAssoc.h"
 
 DECLARE_COMPONENT( eflowOverlapRemoval )
 DECLARE_COMPONENT( PFLeptonSelector )
@@ -45,3 +46,4 @@ DECLARE_COMPONENT( eflowCellEOverPTool_mc12_JetETMiss)
 DECLARE_COMPONENT(  eflowCellEOverPTool_mc12_HLLHC)
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_LC)
 DECLARE_COMPONENT( PFEGamFlowElementAssoc )
+DECLARE_COMPONENT( PFTauFlowElementAssoc )
