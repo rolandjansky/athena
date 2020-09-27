@@ -102,6 +102,7 @@ namespace InDet {
     void writeSctBarrelDict(std::ofstream& file);
     void writeSctEndcapDict(std::ofstream& file);
     void writeSctGMXDict(std::ofstream& file);
+    void writeHgtdDict(std::ofstream& file);
     // Init stage to be done after initialization!
     void retrieveTools();
 
@@ -130,7 +131,7 @@ namespace InDet {
     
     std::vector< std::pair<float, float> > m_pixBarrelLayerPassiveRadiiHalfLength;
 
-    bool m_doPix, m_doSCT, m_isGMX, m_createDict, m_readXMLfromDB;  
+    bool m_doPix, m_doSCT, m_doHGTD, m_isGMX, m_createDict, m_readXMLfromDB;  
   };
 }
 
