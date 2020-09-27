@@ -1830,18 +1830,19 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     if InDetFlags.useBeamConstraint():
       InDetPriVxFinderTool.BeamConstraint = 1
 
-  from InDetEtaDependentCuts.InDetEtaDependentCutsConf import InDet__InDetEtaDependentCutsSvc
-  InDetVertexEtaDependentCutSvc = InDet__InDetEtaDependentCutsSvc("InDetVertexEtaDependentCutSvc")
-  InDetPriVxFinderTool.InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
-  InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
-  InDetVertexEtaDependentCutSvc.etaBins                 = [0., 2.0, 2.6, 4.0]
-  InDetVertexEtaDependentCutSvc.minPT                   = [1000., 950., 900]
-  InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm] # d0
-  InDetVertexEtaDependentCutSvc.maxZImpact              = [200. * Units.mm] # z0
-  InDetVertexEtaDependentCutSvc.IPsigd0Max              = [5.] # sig-d0
-  InDetVertexEtaDependentCutSvc.minClusters             = [1]  # min Si Hits
-  InDetVertexEtaDependentCutSvc.minPixelHits            = [1]  # min Pixel Hits 
-  svcMgr += InDetVertexEtaDependentCutSvc
+      if InDetFlags.useEtaDependentCuts() and InDetNewTrackingCuts.mode() == "SLHC":
+          from InDetEtaDependentCuts.InDetEtaDependentCutsConf import InDet__InDetEtaDependentCutsSvc
+          InDetVertexEtaDependentCutSvc = InDet__InDetEtaDependentCutsSvc("InDetVertexEtaDependentCutSvc")
+          InDetPriVxFinderTool.InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
+          InDetEtaDependentCutsSvc = InDetVertexEtaDependentCutSvc
+          InDetVertexEtaDependentCutSvc.etaBins                 = [0., 2.0, 2.6, 4.0]
+          InDetVertexEtaDependentCutSvc.minPT                   = [1000., 950., 900]
+          InDetVertexEtaDependentCutSvc.maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm] # d0
+          InDetVertexEtaDependentCutSvc.maxZImpact              = [200. * Units.mm] # z0
+          InDetVertexEtaDependentCutSvc.IPsigd0Max              = [5.] # sig-d0
+          InDetVertexEtaDependentCutSvc.minClusters             = [1]  # min Si Hits
+          InDetVertexEtaDependentCutSvc.minPixelHits            = [1]  # min Pixel Hits 
+          svcMgr += InDetVertexEtaDependentCutSvc
 
   
 
