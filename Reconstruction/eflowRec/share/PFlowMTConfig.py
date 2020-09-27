@@ -28,7 +28,7 @@ from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg()
 
 TrackSelectionTool.CutLevel = "TightPrimary"
-TrackSelectionTool.minPt = 500.0 
+TrackSelectionTool.minPt = 500.0
 
 PFTrackSelector.trackSelectionTool = TrackSelectionTool
 
@@ -82,7 +82,7 @@ if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    MatchingTool.ClusterPositionType = 'PlainEtaPhi' # str
    MatchingTool.DistanceType        = 'EtaPhiSquareDistance'
    MatchingTool.MatchCut = 0.2*0.2 # float
-   
+
 PFAlgorithm.SubtractionToolList += [PFCellLevelSubtractionTool]
 
 from eflowRec.eflowRecConf import PFRecoverSplitShowersTool
@@ -94,7 +94,7 @@ PFRecoverSplitShowersTool.eflowCellEOverPTool=CellEOverPTool_Recover
 
 if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
    PFRecoverSplitShowersTool.RecoverIsolatedTracks = True
-   
+
 if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
    PFRecoverSplitShowersTool.useUpdated2015ChargedShowerSubtraction = False
 
@@ -110,18 +110,18 @@ PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
 PFClusterMomentsMaker.MaxAxisAngle = 20*deg
-PFClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
+PFClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 PFClusterMomentsMaker.MinBadLArQuality = 4000
 PFClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 PFClusterMomentsMaker.OutputLevel = INFO
 PFClusterMomentsMaker.MomentsNames = [
-   "FIRST_PHI" 
+   "FIRST_PHI"
    ,"FIRST_ETA"
-   ,"SECOND_R" 
+   ,"SECOND_R"
    ,"SECOND_LAMBDA"
    ,"DELTA_PHI"
    ,"DELTA_THETA"
-   ,"DELTA_ALPHA" 
+   ,"DELTA_ALPHA"
    ,"CENTER_X"
    ,"CENTER_Y"
    ,"CENTER_Z"
@@ -129,11 +129,11 @@ PFClusterMomentsMaker.MomentsNames = [
    ,"CENTER_LAMBDA"
    ,"LATERAL"
    ,"LONGITUDINAL"
-   ,"FIRST_ENG_DENS" 
-   ,"ENG_FRAC_EM" 
-   ,"ENG_FRAC_MAX" 
-   ,"ENG_FRAC_CORE" 
-   ,"FIRST_ENG_DENS" 
+   ,"FIRST_ENG_DENS"
+   ,"ENG_FRAC_EM"
+   ,"ENG_FRAC_MAX"
+   ,"ENG_FRAC_CORE"
+   ,"FIRST_ENG_DENS"
    ,"SECOND_ENG_DENS"
    ,"ISOLATION"
    ,"EM_PROBABILITY"
@@ -184,8 +184,8 @@ if jobproperties.eflowRecFlags.useCalibHitTruth:
 
    PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2=PFCalibClusterMomentsMaker
 
-   
-                                           
+
+
 from eflowRec.eflowRecConf import PFClusterCollectionTool
 PFClusterCollectionTool_default = PFClusterCollectionTool("PFClusterCollectionTool")
 
@@ -234,7 +234,7 @@ from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
 PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
 if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
-   
+
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
    PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
    PFONeutralCreatorAlgorithm.EOverPMode=True
@@ -248,25 +248,29 @@ jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
 jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
-   
+
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
 
 #Add new FlowElement creators
-if jobproperties.eflowRecFlags.useFlowElements: 
+if jobproperties.eflowRecFlags.useFlowElements:
   from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
   PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
-  topSequence += PFChargedFlowElementCreatorAlgorithm 
+  topSequence += PFChargedFlowElementCreatorAlgorithm
 
   from eflowRec.eflowRecConf import PFNeutralFlowElementCreatorAlgorithm
   PFNeutralFlowElementCreatorAlgorithm = PFNeutralFlowElementCreatorAlgorithm("PFNeutralFlowElementCreatorAlgorithm")
-  topSequence += PFNeutralFlowElementCreatorAlgorithm 
+  topSequence += PFNeutralFlowElementCreatorAlgorithm
 
   from eflowRec.eflowRecConf import PFLCNeutralFlowElementCreatorAlgorithm
   PFLCNeutralFlowElementCreatorAlgorithm = PFLCNeutralFlowElementCreatorAlgorithm("PFLCNeutralFlowElementCreatorAlgorithm")
-  topSequence += PFLCNeutralFlowElementCreatorAlgorithm 
+  topSequence += PFLCNeutralFlowElementCreatorAlgorithm
 
   from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
   PFEGamFlowElementAssoc=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
   topSequence +=PFEGamFlowElementAssoc
+
+  from eflowRec.eflowRecConf import PFTauFlowElementAssoc
+  PFTauFlowElementAssoc=PFTauFlowElementAssoc("PFTauFlowElementAssoc")
+  topSequence += PFTauFlowElementAssoc
