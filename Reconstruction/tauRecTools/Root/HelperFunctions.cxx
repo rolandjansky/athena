@@ -148,7 +148,7 @@ std::unique_ptr<MVAUtils::BDT> tauRecTools::configureMVABDT(std::vector<TString>
 
 
 
-const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool incShowerSubtracted) {
+const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool useSubtractedCluster) {
   using namespace tauRecTools::msgHelperFunction;
 
   // If using subtracted clusters, need to store unmodified to check if charged are duplicates
@@ -176,7 +176,7 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
         continue;
       }
 
-	  if (incShowerSubtracted){
+	  if (useSubtractedCluster){
 	    ElementLink<xAOD::CaloClusterContainer> subClusLink;
 	    pfo->attribute("PFOShowerSubtractedClusterLink", subClusLink);
 	    if ( !subClusLink.isValid() ){
@@ -185,7 +185,6 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
 	    }
 	    else {
 	      clusterList.push_back( (*subClusLink) );
-	      dupList.push_back( pfo->cluster(0) );
 	    }
 	  }
 	  else {
@@ -198,10 +197,7 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
     }
   }
 
-  // Get clusters from charged PFOs
-  std::vector<const xAOD::CaloCluster*> checkList;
-  if (incShowerSubtracted) checkList = dupList;
-  else checkList = clusterList;
+  if (useSubtractedCluster) return StatusCode::SUCCESS; 
 
   for (const xAOD::JetConstituent* constituent : constituents){
     if ( constituent->type() != xAOD::Type::ParticleFlow ) break;
@@ -212,9 +208,8 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
 	for (u_int index=0; index<pfo->nCaloCluster(); index++){
 	  const xAOD::CaloCluster* cluster = pfo->cluster(index);
 	  // check it is not duplicate of one in neutral list
-	  if ( std::find(checkList.begin(), checkList.end(), cluster) == checkList.end() ) {
+	  if ( std::find(clusterList.begin(), clusterList.end(), cluster) == clusterList.end() ) {
 	    clusterList.push_back(cluster);
-	    checkList.push_back(cluster);
 	  }
 	}
   }
