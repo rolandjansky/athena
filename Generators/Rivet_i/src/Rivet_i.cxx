@@ -39,11 +39,10 @@
 using namespace std;
 
 
-/// Convert to inherit from GenBase, now we're developing Rivet 2 interfacing for R19+ only
+/// Convert to inherit from GenBase, now we're developing Rivet 3 interfacing for R21+ only
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -58,7 +57,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("HistoPreload", m_preload="");
   declareProperty("AnalysisPath", m_anapath="");
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
-  declareProperty("DoRootHistos", m_doRootHistos=true);
+  declareProperty("DoRootHistos", m_doRootHistos=false);
   declareProperty("SkipWeights", m_skipweights=false);
   declareProperty("MatchWeights", m_matchWeights="");
   declareProperty("UnmatchWeights", m_unmatchWeights="");
@@ -201,7 +200,7 @@ StatusCode Rivet_i::execute() {
   const HepMC::GenEvent* checkedEvent = checkEvent(event);
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
-  //
+
   if(!checkedEvent) {
     ATH_MSG_ERROR("Check on HepMC event failed!");
     return StatusCode::FAILURE;
@@ -315,19 +314,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
 
   // weight-name cleaning
   const HepMC::WeightContainer& old_wc = event->weights();
-  std::ostringstream stream;
-  old_wc.print(stream);
-  string str =  stream.str();
-  // if it only has one element, 
-  // then it doesn't use named weights
-  // --> no need for weight-name cleaning
-  if (str.size() > 1) {
-    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
-    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
-      orig_order[item.second] = item.first;
-    }
-    map<string, double> new_name_to_value;
-    map<string, string> old_name_to_new_name;
+  vector<string> old_wnames = old_wc.weight_names();
+  if (old_wnames.size()) {
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
     vector<pair<string,string> > w_subs = {
@@ -360,47 +348,42 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       }
     }
     // END OF TEMP
-    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
-         i != std::sregex_iterator(); ++i ) {
-      std::smatch m = *i;
-      vector<string> temp = ::split(m.str(), "[,]");
-      if (temp.size() == 2 || temp.size() == 3) {
-        string wname = temp[0];
-        if (temp.size() == 3)  wname += "," + temp[1];
-        string old_name = string(wname);
-        double value = old_wc[wname];
-        for (const auto& sub : w_subs) {
-          size_t start_pos = wname.find(sub.first);
-          while (start_pos != std::string::npos) {
-            wname.replace(start_pos, sub.first.length(), sub.second);
-            start_pos = wname.find(sub.first);
-          }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
+    for (const string& old_name : old_wnames) {
+      string wname = string(old_name);
+      double value = old_wc[old_name];
+      for (const auto& sub : w_subs) {
+        size_t start_pos = wname.find(sub.first);
+        while (start_pos != std::string::npos) {
+          wname.replace(start_pos, sub.first.length(), sub.second);
+          start_pos = wname.find(sub.first);
         }
-        // Pulling some logic from the Rivet development branch
-        // until we have a release with this patch:
-
-        // Check if weight name matches a supplied string/regex and filter to select those only
-        bool match = select_patterns.empty();
-        for (const std::regex& re : select_patterns) {
-          if ( std::regex_match(wname, re) ) {
-            match = true;
-            break;
-          }
-        }
-        // Check if the remaining weight names match supplied string/regexes and *de*select accordingly
-        bool unmatch = false;
-        for (const std::regex& re : deselect_patterns) {
-          if ( std::regex_match(wname, re) ) { unmatch = true; break; }
-        }
-        if (!match || unmatch) continue;
-
-        // end of borrowing logic from the Rivet development branch
-        new_name_to_value[wname] = value;
-        old_name_to_new_name[old_name] = wname;
       }
+      // Pulling some logic from the Rivet development branch
+      // until we have a release with this patch:
+
+      // Check if weight name matches a supplied string/regex and filter to select those only
+      bool match = select_patterns.empty();
+      for (const std::regex& re : select_patterns) {
+        if ( std::regex_match(wname, re) ) {
+          match = true;
+          break;
+        }
+      }
+      // Check if the remaining weight names match supplied string/regexes and *de*select accordingly
+      bool unmatch = false;
+      for (const std::regex& re : deselect_patterns) {
+        if ( std::regex_match(wname, re) ) { unmatch = true; break; }
+      }
+      if (!match || unmatch) continue;
+
+      // end of borrowing logic from the Rivet development branch
+      new_name_to_value[wname] = value;
+      old_name_to_new_name[old_name] = wname;
     }
     auto itEnd = old_name_to_new_name.end();
-    for (const string& old_name : orig_order) {
+    for (const string& old_name : old_wnames) {
       if (old_name_to_new_name.find(old_name) == itEnd)  continue;
       const string& new_name = old_name_to_new_name[old_name];
       new_wc[ new_name ] = new_name_to_value[new_name];

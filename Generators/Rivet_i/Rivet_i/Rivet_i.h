@@ -6,7 +6,7 @@
 #define RIVET_I_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+//#include "GaudiKernel/ServiceHandle.h"
 
 #include "Rivet/AnalysisHandler.hh"
 
@@ -15,7 +15,6 @@
 
 class ISvcLocator;
 class StoreGateSvc;
-class IHepMCWeightSvc;
 //class ITHistSvc;
 
 
@@ -45,20 +44,11 @@ public:
 
 private:
 
-  /// Book an AIDA::IDataPointSet into the THistSvc as a TH1D at path @param path
-//  StatusCode regHist(const AIDA::IDataPointSet& dps, const std::string& path);
-
-  /// Book an AIDA::IDataPointSet into the THistSvc as a TGraph at path @param path
-//  StatusCode regGraph(const AIDA::IDataPointSet& dps, const std::string& path);
-
   // Check and potentially modify events for correct units, beam particles, ...
   const HepMC::GenEvent* checkEvent(const HepMC::GenEvent* event);
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
-
-  // A pointer to the HepMCWeightSvc
-  ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc; 
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
@@ -83,9 +73,7 @@ private:
 
   /// @brief Will we convert Rivet's internal histo format into a ROOT histo for streaming with THistSvc?
   ///
-  /// The default is yes
-  /// Currently (03.01.12) there is no conversion for 2D distributions, in which case you
-  /// want to set this to False
+  /// The default is no, as the corresponding stream was removed in Rivet 3.0
   bool m_doRootHistos;
 
   /// The name of the run (prepended to plot paths).

@@ -40,9 +40,11 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
                 continue
             basefragment_settings[s]=the_base_fragment[s]
         else:
-            mgsyslog.warning('base fragment include does not define "'+s+'"')
             if s=='central_pdf':               
                 raise RuntimeError('No "central_pdf" configured in base fragment')   
+            if s=='alternative_dynamic_scales':
+                continue
+            mgsyslog.warning('base fragment or pdf settings does not define "'+s+'"')
 
     ### Check base fragment input
     for s in basefragment_settings:
@@ -131,7 +133,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
             
 
     ### Set scale variations to be included as weights
-    if useNLOotf and basefragment_settings['scale_variations'] is None:
+    if basefragment_settings['scale_variations'] is None:
         runcard_settings['reweight_scale']='False'
     if basefragment_settings['scale_variations'] is not None:
         if useNLOotf:
