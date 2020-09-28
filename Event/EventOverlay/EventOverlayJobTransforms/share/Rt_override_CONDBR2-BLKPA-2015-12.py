@@ -123,9 +123,9 @@ conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEA","MuonAlignTGCEndC
 conddb.addFolderWithTag("MUONALIGN_OFL","/MUONALIGN/TGC/SIDEC","MuonAlignTGCEndCapCAlign-0001-DEFAULT",force=True,forceMC=True,className='CondAttrListCollection')
 
 conddb.blockFolder("/SCT/DAQ/Config/Chip")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Chip","/SCT/DAQ/Config/Chip",force=True,className="CondAttrListVec")
 conddb.blockFolder("/SCT/DAQ/Config/Module")
-conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True)
+conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",force=True,className="CondAttrListVec")
 
 conddb.blockFolder("/LAR/BadChannels/BadChannels")
 conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels")
