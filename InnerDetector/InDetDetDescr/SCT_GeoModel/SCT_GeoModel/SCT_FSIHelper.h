@@ -15,7 +15,7 @@ class SCT_DataBase;
 class FSILocation
 {
 public:
-  FSILocation(std::string name,
+  FSILocation(const std::string& name,
 	      double radius,
 	      double phi,
 	      int side);
