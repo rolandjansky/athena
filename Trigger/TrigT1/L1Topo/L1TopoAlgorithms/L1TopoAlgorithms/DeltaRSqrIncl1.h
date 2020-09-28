@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  DeltaRSqrIncl1.h
 //  TopoCore
@@ -42,8 +42,6 @@ namespace TCS {
       parType_t      p_MinET2 = { 0 };
       parType_t      p_OneBarrel = { 0 };
      
-      TH1 * m_histAccept[3] = {};
-      TH1 * m_histReject[3] = {};
    };
    
 }

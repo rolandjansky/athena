@@ -20,7 +20,6 @@
 
 REGISTER_ALG_TCS(DeltaRApproxBoxCutIncl2)
 
-using namespace std;
 
 namespace {
    unsigned int
@@ -98,19 +97,16 @@ TCS::DeltaRApproxBoxCutIncl2::initialize() {
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
+ 
    // book histograms
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int EtaPhi_bin=100;
-       float EtaPhi_min=0;
-       float EtaPhi_max=70;
-       // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_DeltaRApproxBoxCutIncl2_bit%d", i);
-       snprintf(hname_reject, buf_len, "Reject_DeltaRApproxBoxCutIncl2_bit%d", i);
-       registerHist(m_histAccept[i] = new TH2F(hname_accept, hname_accept, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
-       registerHist(m_histReject[i] = new TH2F(hname_reject, hname_reject, EtaPhi_bin, EtaPhi_min, EtaPhi_max, EtaPhi_bin, EtaPhi_min, EtaPhi_max));
-   }      
+       std::string hname_accept = "hDeltaRApproxBoxCutIncl2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaRApproxBoxCutIncl2_reject_bit"+std::to_string((int)i);
+       // deta vs dphi
+       bookHist(m_histAccept, hname_accept, "DETA vs DPHI", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i], 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+       bookHist(m_histReject, hname_reject, "DETA vs DPHI", 100, p_DeltaEtaMin[i], p_DeltaEtaMax[i], 100, p_DeltaPhiMin[i], p_DeltaPhiMax[i]);
+   }
+   
    return StatusCode::SUCCESS;
 }
 
@@ -166,9 +162,9 @@ TCS::DeltaRApproxBoxCutIncl2::process( const std::vector<TCS::TOBArray const *> 
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
 			if(fillAccept and not alreadyFilled) {
-			  fillHist2D(m_histAccept[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			  fillHist2D(m_histAccept[i],(float)deltaEta,(float)deltaPhi);
 			} else if(fillReject) {
-			  fillHist2D(m_histReject[i]->GetName(),(float)deltaEta,(float)deltaPhi);
+			  fillHist2D(m_histReject[i],(float)deltaEta,(float)deltaPhi);
 			}
                         msgss << "DeltaRApproxBoxCutIncl2 alg bit" << i << (accept?" pass":" fail") << "|";
                     }
