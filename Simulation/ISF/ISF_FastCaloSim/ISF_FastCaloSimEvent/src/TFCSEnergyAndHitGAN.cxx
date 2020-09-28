@@ -249,6 +249,16 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     simulstate.setAuxInfo<int>("GANlayer"_FCShash,layer);
     TFCSLateralShapeParametrizationHitBase::Hit hit;
 
+    TH2D* h = &element.second;
+    int xBinNum = h->GetNbinsX();
+    //If only one bin in r means layer is empty, no value should be added
+    if (xBinNum == 1) {
+        ATH_MSG_VERBOSE(" Layer "<< layer
+         << " has only one bin in r, this means is it not used, skipping (this is needed to keep correct syncronisation of voxel and layers)");
+        //delete h;
+        continue;
+    }
+
     if(get_number_of_bins()>0) {
       const int bin=get_bin(simulstate,truth,extrapol);
       if(bin>=0 && bin<(int)get_number_of_bins()) {
@@ -291,15 +301,6 @@ bool TFCSEnergyAndHitGAN::fillEnergy(TFCSSimulationState& simulstate, const TFCS
     int nHitsAlpha;
     int nHitsR;
 
-    TH2D* h = &element.second;
-    int xBinNum = h->GetNbinsX();
-    //If only one bin in r means layer is empty, no value should be added
-    if (xBinNum == 1) {
-        ATH_MSG_VERBOSE(" Layer "<< layer
-         << " has only one bin in r, this means is it not used, skipping (this is needed to keep correct syncronisation of voxel and layers)");
-        //delete h;
-        continue;
-    }
     int yBinNum = h->GetNbinsY();
     for (int iy = 1; iy <= yBinNum; ++iy){
       for (int ix = 1; ix <= xBinNum; ++ix){

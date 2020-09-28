@@ -1,9 +1,9 @@
-# Versions of the various externals to build before starting the build of
+1# Versions of the various externals to build before starting the build of
 # this project, when doing a full stack nightly build.
 #
 # Remember that when specifying the name of a branch, you *must* put
 # an "origin/" prefix before it. For tags however this is explicitly
 # forbidden.
 
-AthenaExternalsVersion = 1.0.48
+AthenaExternalsVersion = 1.0.48.4
 GaudiVersion = v27r1.019
