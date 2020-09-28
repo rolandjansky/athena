@@ -17,7 +17,7 @@ conddb.addOverride("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/4samples1phase","LARElecC
 svcMgr.PoolSvc.ReadCatalog+=["xmlcatalog_file:"+"/cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml"]
 
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 
 conddb.blockFolder("/TRT/Cond/DigVers")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True,
@@ -80,7 +80,7 @@ if DetFlags.writeRDOPool.pixel_on():
     conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
 
 conddb.blockFolder("/PIXEL/PixdEdx")
-conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True)
+conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True,className="AthenaAttributeList")
 mcIDoverlay=False
 if mcIDoverlay:
     printfunc ("ACH777: Using MC overlay Lorentz DB settings")

@@ -19,7 +19,7 @@ conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-UPD1-00",force
 conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE","PixDCSTemp-UPD1-00",force=True,forceData=True)
 conddb.blockFolder("/PIXEL/ReadoutSpeed")
-conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True)
+conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed",force=True,className="AthenaAttributeList")
 conddb.blockFolder("/PIXEL/PixReco")
 conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixReco","PixReco-SIM-RUN12-000-01",force=True,forceMC=True)
 
