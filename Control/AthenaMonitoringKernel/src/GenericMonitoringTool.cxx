@@ -103,7 +103,26 @@ namespace Monitored {
 
 void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const {
   std::scoped_lock guard(m_fillMutex);
-  for ( auto filler: m_fillers ) {
+  const std::vector<std::shared_ptr<Monitored::HistogramFiller>>* fillerList{nullptr};
+  bool makeCache = false;
+  std::vector<std::shared_ptr<Monitored::HistogramFiller>> matchedFillerList;
+  m_key.clear();
+  if (m_useCache) {
+    m_key.reserve(monitoredVariables.size());
+    for (const auto& mv : monitoredVariables) {
+      m_key.push_back(mv.get().name());
+    }
+    const auto match = m_fillerCacheMap.find(m_key);
+    if (match != m_fillerCacheMap.end()) {
+      fillerList = &(match->second);
+    } else {
+      fillerList = &m_fillers;
+      makeCache = true;
+    }
+  } else {
+    fillerList = &m_fillers;
+  }
+  for ( auto filler: *fillerList ) {
     m_vars.reset();
     const int fillerCardinality = filler->histogramVariablesNames().size() + (filler->histogramWeightName().empty() ? 0: 1) + (filler->histogramCutMaskName().empty() ? 0 : 1);
 
@@ -112,6 +131,7 @@ void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapp
         if ( var.get().name().compare( filler->histogramVariablesNames()[0] ) == 0 )  {
 	  m_vars.var[0] = &var.get();
           filler->fill( m_vars );
+          if (makeCache) { matchedFillerList.push_back(filler); }
           break;
         }
       }
@@ -141,6 +161,7 @@ void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapp
       }
       if ( matchesCount == fillerCardinality ) {
 	filler->fill( m_vars );
+  if (makeCache) { matchedFillerList.push_back(filler); }
       } else if ( ATH_UNLIKELY( matchesCount != 0 ) ) { // something has matched, but not all, worth informing user
 	bool reasonFound = false;
 	if (ATH_UNLIKELY(!filler->histogramWeightName().empty() && !m_vars.weight)) {
@@ -163,6 +184,9 @@ void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapp
 	}
       }
     }
+  }
+  if (makeCache) {
+    m_fillerCacheMap[m_key] = matchedFillerList;
   }
 }
 

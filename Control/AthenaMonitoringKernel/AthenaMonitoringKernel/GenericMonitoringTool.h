@@ -80,10 +80,13 @@ private:
   Gaudi::Property<std::vector<std::string> > m_histograms { this, "Histograms", {},  "Definitions of histograms"};
   Gaudi::Property<bool> m_explicitBooking { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   Gaudi::Property<bool> m_failOnEmpty { this, "FailOnEmpty", true, "Fail in initialize() if no histograms defined" };
+  BooleanProperty m_useCache { this, "UseCache", false, "Cache filler lookups" };
 
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< plain list of fillers
   mutable std::mutex m_fillMutex;
   mutable Monitored::HistogramFiller::VariablesPack m_vars ATLAS_THREAD_SAFE;
+  mutable std::map<std::vector<std::string>,std::vector<std::shared_ptr<Monitored::HistogramFiller>>> m_fillerCacheMap ATLAS_THREAD_SAFE;
+  mutable std::vector<std::string> m_key ATLAS_THREAD_SAFE;
 };
 
 /**
