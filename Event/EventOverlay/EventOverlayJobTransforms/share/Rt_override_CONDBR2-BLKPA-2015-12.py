@@ -129,10 +129,10 @@ conddb.addFolderSplitMC("SCT","/SCT/DAQ/Config/Module","/SCT/DAQ/Config/Module",
 
 conddb.blockFolder("/LAR/BadChannels/BadChannels")
 conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels")
-conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LARBadChannelsBadChannels-HECAQ3Missing",force=True,forceMC=True)
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LARBadChannelsBadChannels-HECAQ3Missing",force=True,forceMC=True,className="CondAttrListCollection")
 conddb.blockFolder("/LAR/BadChannels/MissingFEBs")
 conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs")
-conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True)
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True,className="AthenaAttributeList")
 
 dofolderoverrides = True
 if dofolderoverrides:

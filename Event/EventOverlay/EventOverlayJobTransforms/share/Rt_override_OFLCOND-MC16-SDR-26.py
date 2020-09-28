@@ -31,10 +31,10 @@ printfunc ("RT OVERRIDE, for OFLCOND-MC16-SDR-26 MC condition tag ")
 
 conddb.blockFolder("/LAR/BadChannels/BadChannels");
 conddb.blockFolder("/LAR/BadChannelsOfl/BadChannels");
-conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LArBadChannelsBadChannels-IOVDEP-08",force=True,forceMC=True);
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/BadChannels","LArBadChannelsBadChannels-IOVDEP-08",force=True,forceMC=True,className="CondAttrListCollection");
 conddb.blockFolder("/LAR/BadChannels/MissingFEBs");
 conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs");
-conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True)
+conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True,className="AthenaAttributeList")
 
 if not "EOJT_alignMC" in globals():
     printfunc ("EOJT_alignMC not found in globals(), so aligning ID to data conditions")
