@@ -82,35 +82,35 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
     ATH_MSG_DEBUG("Found a vertex to correct with incoming PDG code = " << pdgIn);
     ATH_MSG_VERBOSE("Next Vertex:");
     if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
-      nextVtx->print();
+      HepMC::Print::line(nextVtx);
     }
     const HepMC::FourVector &nextVec = nextVtx->position();
     const CLHEP::HepLorentzVector nextPos( nextVec.x(), nextVec.y(), nextVec.z(), nextVec.t() );
     ATH_MSG_VERBOSE("Current Vertex:");
     if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
-      curVtx->print();
+       HepMC::Print::line(curVtx);
     }
     if (applyPatch) {
       HepMC::GenVertexPtr prevVtx = curVtx->particles_in().front()->production_vertex();
       ATH_MSG_VERBOSE("Previous Vertex:");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
-        prevVtx->print();
+        HepMC::Print::line(prevVtx);
       }
       const HepMC::FourVector &prevVec = prevVtx->position();
       const CLHEP::HepLorentzVector prevPos( prevVec.x(), prevVec.y(), prevVec.z(), prevVec.t() );
       CLHEP::HepLorentzVector newPos = 0.5*(prevPos+nextPos);
-      curVtx->set_position(newPos);
+      curVtx->set_position(HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()));
       ATH_MSG_DEBUG("Revised current Vertex");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
-        curVtx->print();
+        HepMC::Print::line(curVtx);
       }
     }
     if (removePatch) {
       CLHEP::HepLorentzVector newPos = nextPos;
-      curVtx->set_position(newPos);
+      curVtx->set_position(HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()));
       ATH_MSG_DEBUG("Revised current Vertex");
       if (ATH_UNLIKELY(this->msgLvl (MSG::VERBOSE))) {
-        curVtx->print();
+        HepMC::Print::line(curVtx);
       }
     }
   }
