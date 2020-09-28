@@ -179,12 +179,6 @@ StatusCode ComboHypo::execute(const EventContext& context ) const {
       nRequiredUnique += requiredMultiplicity;
 
       HLT::Identifier legId = TrigCompositeUtils::createLegName(chainId, legIndex);
-      // If there is only one leg, then we just use the chain's name.
-      if (multiplicityPerLeg.size() == 1) {
-        ATH_MSG_DEBUG(chainId << " has multiplicityPerLeg.size() == 1, so we don't use legXXX_HLT_YYY, we just use HLT_YYY");
-        legId = chainId; 
-      }
-
       const DecisionID requiredDecisionIDLeg = legId.numeric();
       ATH_MSG_DEBUG("Container " << legIndex << ", looking at leg : " << legId );
      

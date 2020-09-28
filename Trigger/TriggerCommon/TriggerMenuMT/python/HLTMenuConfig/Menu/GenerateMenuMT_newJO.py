@@ -82,7 +82,7 @@ def generateMenu( flags ):
 
             chainDicts = splitInterSignatureChainDict(mainChainDict)
             listOfChainConfigs = []
-
+            print("aaa", chainDicts)
             for chainDict in chainDicts:
                 signature = chainDict['signature'].lower()
 
@@ -105,19 +105,9 @@ def generateMenu( flags ):
     log.info('Obtained Menu Chain objects')
 
     # pass all menuChain to CF builder
-    useReworked = True
-
-    if useReworked:
-        menuAcc.wasMerged()
-        menuAcc = generateDecisionTree(menuChains)
-    else:
-        menuAcc.wasMerged()
-        menuAcc = ComponentAccumulator()
-        mainSequenceName = 'HLTAllSteps'
-        menuAcc.addSequence( seqAND(mainSequenceName) )
-        chainsAcc = generateDecisionTreeOld(menuAcc.getSequence(mainSequenceName), menuChains, allChainDicts)
-        menuAcc.merge(chainsAcc)
-
+    menuAcc.wasMerged()
+    menuAcc = generateDecisionTree(menuChains)
+    
     menuAcc.printConfig()
 
     log.info('CF is built')

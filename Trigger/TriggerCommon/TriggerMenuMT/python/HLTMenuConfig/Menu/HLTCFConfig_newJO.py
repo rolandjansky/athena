@@ -1,13 +1,16 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
+from PyUtils.Decorators import memoize
+from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqAND
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import (isComboHypoAlg,
+                                                             isHypoBase,
+                                                             isInputMakerBase)
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import isInputMakerBase, isHypoBase, isComboHypoAlg
-from AthenaCommon.CFElements import parOR, seqAND, findAllAlgorithms
-from AthenaCommon.Logging import logging
+
 log = logging.getLogger( __name__ )
 
 def printStepsMatrix(matrix):
@@ -19,15 +22,15 @@ def printStepsMatrix(matrix):
             print('---- {}: {}'.format(chainName, namesInCell))  # noqa: ATL901
     print('-------------------------')  # noqa: ATL901
 
-def memoize(f):
-    """ caches call of the helper functions, (copied from the internet) remove when we move to python 3.2 or newer and rplace by functools.lru_cache"""
-    memo = {}
-    def helper(*x):
-        tupledx = tuple(x)
-        if tupledx not in memo:
-            memo[tupledx] = f(*x)
-        return memo[tupledx]
-    return helper
+# def memoize(f):
+#     """ caches call of the helper functions, (copied from the internet) remove when we move to python 3.2 or newer and rplace by functools.lru_cache"""
+#     memo = {}
+#     def helper(*x):
+#         tupledx = tuple(x)
+#         if tupledx not in memo:
+#             memo[tupledx] = f(*x)
+#         return memo[tupledx]
+#     return helper
 
 def generateDecisionTree(chains):
     acc = ComponentAccumulator()
@@ -192,7 +195,7 @@ def generateDecisionTree(chains):
             prevCounter = stepCounter-1
             prevName = chain.steps[prevCounter-1].name # counting steps from 1, for indexing need one less
             prevStep = chain.steps[prevCounter-1]
-            if prevStep.isCombo:
+            if prevStep.isCombo:                
                 prevHypoAlg = findComboHypoAlg( prevCounter, prevName )
             else:
                 prevHypoAlg = findHypoAlg( prevCounter, prevName )
@@ -207,6 +210,8 @@ def generateDecisionTree(chains):
         for stepCounter, step in enumerate( chain.steps, 1 ):
             getFilterAlg( stepCounter, step.name )
             menuSeqName = getSingleMenuSeq( stepCounter, step.name ).name
+            log.info("zzz {} mult {} step {} is combo {}".format(chain.name, step.multiplicity, stepCounter, step.isCombo))
+
             if step.isCombo:
                 # add sequences that allows reconstructions to be run in parallel, followed (in sequence) by the combo hypo
                 comboSeq, comboRecoSeq = getComboSequences( stepCounter, step.name )
@@ -275,12 +280,17 @@ def generateDecisionTree(chains):
                 hypoOut = CFNaming.hypoAlgOutName( hypoAlg.name )
                 hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOut,
                     "{} hypo output".format( hypoAlg.name )  )
+                print("kkk", chainDict)
                 hypoAlg.HypoTools.append( step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict ) )
                 pass
 
             if step.isCombo:
                 for seqCounter in range( len( step.sequences ) ) :
                     chainLegDict = splitChainInDict( chain.name )[seqCounter]
+                    # hack for multiplicity chains of the same signature, it should be handled in splitChainInDrict, TODO eliminate it, needs discussion wiht menu
+                    if len( step.sequences ) == 1: 
+                        from DecisionHandling.TrigCompositeUtils import legName
+                        chainLegDict['chainName'] = legName( chainLegDict['chainName'], 0)
                     __setup( seqCounter, chainLegDict )
 
                     comboHypoAlg = findComboHypoAlg( stepCounter, step.name )
@@ -326,6 +336,7 @@ def generateDecisionTree(chains):
             else:
                 hypoAlg = findHypoAlg( stepCounter, step.name )
                 log.info("  HypoAlg {} Inputs {} Outputs {} Tools {}".format( hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions, [t.name for t in hypoAlg.HypoTools] ) )
+    #kaboom
     return acc
 
 
