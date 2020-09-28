@@ -470,6 +470,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
                                                                        AssociationTool  = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                        TrackSummaryTool = TrackingCommon.getInDetTrackSummaryTool(),
                                                                        SelectionTool    = InDetAmbiTrackSelectionToolCosmics,
+                                                                       OutputClusterSplitProbabilityName = 'InDetAmbiguityProcessorCosmicsSplitProb',
                                                                        SuppressTrackFit = True,
                                                                        ForceRefit       = False,
                                                                        RefitPrds        = False)

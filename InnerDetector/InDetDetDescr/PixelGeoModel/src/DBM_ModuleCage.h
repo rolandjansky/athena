@@ -17,9 +17,10 @@
  *
  */
 
-class ATLAS_NOT_THREAD_SAFE DBM_ModuleCage : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class DBM_ModuleCage : public GeoVPixelFactory {
   public:
-    GeoVPhysVol* Build();
+    using GeoVPixelFactory::GeoVPixelFactory;
+    virtual GeoVPhysVol* Build() override;
   private:
 };
 

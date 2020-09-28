@@ -137,7 +137,7 @@ namespace Monitored {
 
     // convenience function to provide a function that interprets the cutmask
     std::pair<size_t, std::function<bool(size_t)>> getCutMaskFunc(const Monitored::IMonitoredVariable* mask ) const {
-      std::function<bool(size_t)> cutMaskValue = [mask] (size_t){ return true; }; // default is true
+      std::function<bool(size_t)> cutMaskValue = [] (size_t){ return true; }; // default is true
       size_t maskSize = 1;
       if ( mask != nullptr ) {
         maskSize = mask->size();

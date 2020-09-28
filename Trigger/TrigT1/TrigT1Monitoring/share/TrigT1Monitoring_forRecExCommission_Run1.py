@@ -1,1 +1,2 @@
-print "No TrigT1Monitoring tools for RUN1"
+printfunc ("No TrigT1Monitoring tools for RUN1")
+

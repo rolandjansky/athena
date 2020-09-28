@@ -62,7 +62,7 @@ namespace Trk {
         static  const std::vector<const TrackingVolume*>                           s_emptyVector;
    };
 
-  inline void GlueVolumesDescriptor::registerGlueVolumes ATLAS_NOT_CONST_THREAD_SAFE (BoundarySurfaceFace bSurf, 
+  inline void GlueVolumesDescriptor::registerGlueVolumes ATLAS_NOT_THREAD_SAFE (BoundarySurfaceFace bSurf, 
                                                                                        std::vector<const TrackingVolume*>& vols) const{
 
     const_cast<GlueVolumesDescriptor*>(this)->registerGlueVolumes(bSurf,vols);

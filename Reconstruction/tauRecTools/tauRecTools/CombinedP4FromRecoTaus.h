@@ -31,6 +31,8 @@ public:
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
 
   bool getUseCaloPtFlag(const xAOD::TauJet& tau) const;
+  
+  double getCaloResolution(const xAOD::TauJet& tau) const;
 
 private:
   struct Variables
@@ -91,9 +93,6 @@ private:
   int getIndexEta(const float& eta) const;
 
   float getNsigmaCompatibility(const float& et_TauRec) const;
-
-  //high pt flag
-  double getCaloResolution(const xAOD::TauJet& tau) const;
 
   const std::vector<std::string> m_modeNames = {"1p0n","1p1n","1pXn","3p0n","3pXn"};
   const std::vector<std::string> m_etaBinNames = {"0", "1", "2", "3", "4"};//("<0.3"), ("<0.8"), ("<1.3"), ("<1.6"), ("<2.5")

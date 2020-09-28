@@ -16,17 +16,18 @@
 
 class GeoTransform;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelIBLFwdSvcCADModel :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelIBLFwdSvcCADModel :  public GeoVPixelFactory {
 
 public:  
 
-  GeoPixelIBLFwdSvcCADModel(int);
-  virtual GeoVPhysVol* Build();
+  GeoPixelIBLFwdSvcCADModel(InDetDD::PixelDetectorManager* ddmgr,
+                            PixelGeometryManager* mgr, int);
+  virtual GeoVPhysVol* Build() override;
 
-  GeoPhysVol* getSupportA() const { return m_supportPhysA; }
-  GeoPhysVol* getSupportC() const { return m_supportPhysC; }
-  GeoTransform* getSupportTrfA() const { return m_xformSupportA; }
-  GeoTransform* getSupportTrfC() const { return m_xformSupportC; }
+  GeoPhysVol* getSupportA() { return m_supportPhysA; }
+  GeoPhysVol* getSupportC() { return m_supportPhysC; }
+  GeoTransform* getSupportTrfA() { return m_xformSupportA; }
+  GeoTransform* getSupportTrfC() { return m_xformSupportC; }
 
  private:
 

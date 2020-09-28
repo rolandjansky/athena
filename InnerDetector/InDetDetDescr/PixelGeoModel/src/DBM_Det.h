@@ -20,10 +20,10 @@
   Diamond Beam Monitor detector builder
   */  
 
-class ATLAS_NOT_THREAD_SAFE DBM_Det : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class DBM_Det : public GeoVPixelFactory {
  public:
-  DBM_Det();
-  virtual  GeoVPhysVol* Build();
+  DBM_Det(InDetDD::PixelDetectorManager* ddmgr, PixelGeometryManager* mgr);
+  virtual  GeoVPhysVol* Build() override;
   
  private:
   

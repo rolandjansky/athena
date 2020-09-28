@@ -9,10 +9,11 @@
 class GeoPixelSiCrystal;
 class GeoLogVol;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelRingSLHC : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelRingSLHC : public GeoVPixelFactory {
  public:
-  GeoPixelRingSLHC(GeoPixelSiCrystal& sensor);
-  virtual GeoVPhysVol* Build();
+  GeoPixelRingSLHC(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr, GeoPixelSiCrystal& sensor);
+  virtual GeoVPhysVol* Build() override;
 
  private:  
   GeoPixelSiCrystal& m_sensor;

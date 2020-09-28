@@ -16,7 +16,6 @@ namespace Trk
 {
 
 class Track;
-class ITrackSummaryTool;
 class TrackSummary;
 
 /**Concrete implementation of the ITrackScoringTool pABC*/
@@ -34,9 +33,6 @@ class TrackSummary;
     TrackScore simpleScore( const Track& track, const TrackSummary& trackSummary ) const override;
 
   private:
-    /**\todo make this const, once createSummary method is const*/
-    ToolHandle<ITrackSummaryTool> m_trkSummaryTool;
-
     /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/
     std::vector<TrackScore> m_summaryTypeScore;
   }; 

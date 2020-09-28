@@ -29,7 +29,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/TRT_DriftFunctionTool
                           InnerDetector/InDetSimEvent
                           Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkTruthData 
+                          Tracking/TrkEvent/TrkTruthData
+                          Tracking/TrkEvent/TrkEventUtils
                           Generators/AtlasHepMC )
 
 # External dependencies:
@@ -41,7 +42,7 @@ atlas_add_component( InDetPrepRawDataToxAOD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps StoreGateLib SGtests Identifier InDetByteStreamErrors PixelConditionsData xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData TRT_DriftFunctionToolLib PixelCablingLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps StoreGateLib SGtests Identifier InDetByteStreamErrors PixelConditionsData xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData TrkEventUtils TRT_DriftFunctionToolLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

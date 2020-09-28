@@ -1116,7 +1116,7 @@ void PerfMonSvc::startAud( const std::string& stepName,
                            const std::string& compName )
 {
   // Performing performance-monitoring for BeginEvent
-  if ( compName == "AthMasterSeq" && stepName == "evt" ) {
+  if ( compName == m_compBeginEvent && stepName == "evt" ) {
     static bool s_firstEvt = true;
     if ( s_firstEvt ) {
       s_firstEvt = false;
@@ -1129,6 +1129,10 @@ void PerfMonSvc::startAud( const std::string& stepName,
       m_ntuple.comp["preLoadProxies"].clear();
     }
     startAud( "evt", "PerfMonSlice" );
+    return;
+  }
+  else if ( compName == m_compEndEvent && stepName == "evt" ) {
+    // Avoid mismatched start/stop that leads to bogus measurements
     return;
   }
 
@@ -1159,10 +1163,14 @@ void PerfMonSvc::stopAud( const std::string& stepName,
                           const std::string& compName )
 {
   // Performing performance-monitoring for EndEvent
-  if ( compName == "AthMasterSeq" && stepName == "evt" ) {
+  if ( compName == m_compEndEvent && stepName == "evt" ) {
     // make sure we update the data from declareInfo...
     poll();
     stopAud( "evt", "PerfMonSlice" );
+    return;
+  }
+  else if ( compName == m_compBeginEvent && stepName == "evt" ) {
+    // Avoid mismatched start/stop that leads to bogus measurements
     return;
   }
 

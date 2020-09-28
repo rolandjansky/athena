@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@
 #include "TrkTrack/TrackInfo.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 //================ Constructor =================================================
 
@@ -68,6 +69,7 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::finalize()
 //============================================================================================
 std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const Trk::Track *ptrTrack,
                                                                                     const Trk::TrackScore score,
+                                                                                    Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                                                     Trk::PRDtoTrackMap &prd_to_track_map) const
 {
   // flag if the track is ok (true) or needs cleaning (false)
@@ -285,7 +287,8 @@ std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTr
         } else {
    
           // split clusters are not allowed to be shared at all, unless       
-          if ( clus->isSplit() )  {
+          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = splitProbContainer.splitProbability(clus);
+          if ( splitProb.isSplit() )  {
             ATH_MSG_VERBOSE ("-----> Pixel cluster is split, reject shared hit !!!");
             tsosType[index]    = RejectedHit;
             // mark track as bad !
@@ -296,9 +299,9 @@ std::tuple<Trk::Track*,bool> InDet::InDetAmbiTrackSelectionTool::getCleanedOutTr
           // is cluster compatible with being a shared cluster ?
           // A.S.: also a hack for the max size: allows large clusters that are exluded from the splitter to be shared
           //       needs isExcluded() flag in the future
-          if (clus->splitProbability1() < m_sharedProbCut && clus->rdoList().size() <= size_t(m_maxSplitSize) ) {
+          if (splitProb.splitProbability1() < m_sharedProbCut && clus->rdoList().size() <= size_t(m_maxSplitSize) ) {
             ATH_MSG_VERBOSE ("-----> Pixel cluster is not compatible with being shared (splitProb = " 
-                             << clus->splitProbability1() << ") , reject shared hit !!!");
+                             << splitProb.splitProbability1() << ") , reject shared hit !!!");
             tsosType[index]    = RejectedHit;
             // mark track as bad !
             TrkCouldBeAccepted = false; // we have to remove at least one PRD
