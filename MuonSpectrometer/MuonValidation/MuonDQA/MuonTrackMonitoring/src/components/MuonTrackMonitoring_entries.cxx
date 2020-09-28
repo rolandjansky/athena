@@ -3,6 +3,9 @@
         2020 Matthias Schott - Uni Mainz
 */
 
-#include "../MuonTrackMonitorAlgorithm.h"
+#include "MuonTrackMonitoring/MuonTrackMonitorAlgorithm.h"
+#include "MuonTrackMonitoring/MuonGenericTracksMon.h"
+
+DECLARE_COMPONENT( MuonGenericTracksMon )
 DECLARE_COMPONENT( MuonTrackMonitorAlgorithm )
 
