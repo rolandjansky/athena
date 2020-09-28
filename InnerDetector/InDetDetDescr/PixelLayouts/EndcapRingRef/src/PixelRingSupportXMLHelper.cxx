@@ -48,11 +48,9 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
 
 bool PixelRingSupportXMLHelper::putLHBeforeRHrings(){
   bool m_LHBeforeRHrings = 0;
-  std::cout<<"GETSCHEMAVERSION "<<getSchemaVersion()<<std::endl;
   if(getSchemaVersion() > 5) {
  return getBoolean("LHBeforeRHRings",m_LHBeforeRHrings, "putLHBeforeRHRings");
 }
- // else return false;
     else return true;
 }
 
