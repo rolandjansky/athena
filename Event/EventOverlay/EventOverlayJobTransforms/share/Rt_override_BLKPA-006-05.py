@@ -9,7 +9,7 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/RT","TrtCalibRt-MCnewDigi_ToTon_7T
 conddb.blockFolder("/MDT/RT")
 conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 conddb.blockFolder("/PIXEL/HLT/DCS/HV")
 conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-UPD1-00",force=True,forceData=True)

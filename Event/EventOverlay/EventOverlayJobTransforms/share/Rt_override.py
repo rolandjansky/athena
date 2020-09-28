@@ -9,8 +9,8 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/T0","TrtCalibT0-Physics-BLK-UPD4-F
 conddb.blockFolder("/MDT/RT")
 conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-00",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT-UPD4-09-BLOB",force=True,forceData=True)
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True)
+#conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT-UPD4-09-BLOB",force=True,forceData=True,className="CondAttrListCollection")
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-00-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 #can try using MC T0 constants, or force a data tag to use
 conddb.blockFolder("/MDT/T0")

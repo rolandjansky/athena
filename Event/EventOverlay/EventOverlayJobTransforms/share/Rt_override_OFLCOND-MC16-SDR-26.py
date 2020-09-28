@@ -7,7 +7,7 @@ from RecExConfig.RecAlgsFlags import recAlgs
 #conddb.blockFolder("/MDT/RT")
 #conddb.addFolderWithTag("MDT_OFL","/MDT/RT","MDTRT_Sim-04",force=True,forceMC=True)
 conddb.blockFolder("/MDT/RTBLOB")
-conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True)
+conddb.addFolderWithTag("MDT_OFL","/MDT/RTBLOB","MDTRT_Sim-04-BLOB",force=True,forceMC=True,className="CondAttrListCollection")
 
 #from Guillaume
 conddb.blockFolder("/LAR/LArCellPositionShift");
