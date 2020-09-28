@@ -21,13 +21,14 @@
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Operators.h"
 
 
 void compare (const HepMcParticleLink& p1,
               const HepMcParticleLink& p2)
 {
   assert ( p1.isValid() == p2.isValid() );
-  assert ( p1.barcode() == p2.barcode() );
+  assert ( HepMC::barcode(p1) == HepMC::barcode(p2) );
   assert ( p1.eventIndex() == p2.eventIndex() );
   assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
@@ -73,12 +74,12 @@ void testit (const CscSimData& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticle*>& genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
+  auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  HepMcParticleLink dummyHMPL(HepMC::barcode(particle),particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
   Athena_test::Leakcheck check;
 
@@ -100,7 +101,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 int main()
 {
   ISvcLocator* pSvcLoc = nullptr;
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
