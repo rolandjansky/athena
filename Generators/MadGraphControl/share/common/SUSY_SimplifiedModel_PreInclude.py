@@ -2,6 +2,7 @@
 #  Gets us ready for on-the-fly SUSY SM generation
 
 # Simple variable setups
+param_blocks = {} # For general params
 decoupled_mass = '4.5E9'
 masses = {}
 for p in ['1000001','1000002','1000003','1000004','1000005','1000006','2000001','2000002','2000003','2000004','2000005','2000006','1000021',\
@@ -36,11 +37,11 @@ run_settings = {'event_norm':'sum',
                 'drjj':0.0,
                 'lhe_version':'3.0',
                 'cut_decays':'F',
-                'pdflabel':"'lhapdf'",
-                'lhaid':247000,
                 'pdgs_for_merging_cut': '1, 2, 3, 4, 21', # Terrible default in MG
                 'ickkw':0,
                 'xqcut':0} # use CKKW-L merging (yes, this is a weird setting)
+# Set up default PDF and systematic settings (note: action in import module)
+from MadGraphControl.MadGraph_NNPDF30NLO_Base_Fragment import *
 
 # Setting for writing out a gridpack
 writeGridpack = False
@@ -53,6 +54,9 @@ keepOutput = False
 
 # fixing LHE files after madspin?  do that here.
 fixEventWeightsForBridgeMode=False
+
+# In case you want to keep lifetimes in the LHE files
+add_lifetimes_lhe = False
 
 from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
 phys_short = get_physics_short()

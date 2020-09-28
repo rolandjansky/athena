@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelDiskSLHC.h"
@@ -28,7 +28,9 @@ using std::endl;
 using std::abs;
 
 
-GeoPixelDiskSLHC::GeoPixelDiskSLHC() 
+GeoPixelDiskSLHC::GeoPixelDiskSLHC(InDetDD::PixelDetectorManager* ddmgr,
+                                   PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
 {}
 
 /**
@@ -65,7 +67,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
     //
     // Define the sensor to be used, it will be the same for each ring
     //
-    GeoPixelSiCrystal theSensor(false);
+    GeoPixelSiCrystal theSensor(m_DDmgr, m_gmt_mgr, false);
 
 
     double zpos = m_gmt_mgr->PixelRingZpos();
@@ -76,7 +78,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
     if (ringSide == 0 || ringSide == 1) {
       // front rings first (away from IP)
       m_gmt_mgr->setDiskFront();
-      GeoPixelRingSLHC gpRingF(theSensor);
+      GeoPixelRingSLHC gpRingF(m_DDmgr, m_gmt_mgr, theSensor);
       GeoTransform* xfront = new GeoTransform( GeoTrf::Translate3D(0, 0, zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
       diskPhys->add( new GeoIdentifierTag(2*iring) );
@@ -88,7 +90,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
     if (ringSide == 0 || ringSide == -1) {
       // then back rings (near IP)
       m_gmt_mgr->setDiskBack();
-      GeoPixelRingSLHC gpRingB(theSensor);
+      GeoPixelRingSLHC gpRingB(m_DDmgr, m_gmt_mgr, theSensor);
       GeoTransform* xback = new GeoTransform( GeoTrf::Translate3D(0, 0, -zpos) );
       diskPhys->add( new GeoNameTag("PixelECRing") );
       diskPhys->add( new GeoIdentifierTag(2*iring+1) ); // unique
@@ -99,7 +101,7 @@ GeoVPhysVol* GeoPixelDiskSLHC::Build( ) {
   //
   // Place the supports for the disks:
   //
-  GeoPixelDiskSupports pds;
+  GeoPixelDiskSupports pds (m_DDmgr, m_gmt_mgr);
   for(int ii =0; ii< pds.NCylinders(); ii++) {
     pds.SetCylinder(ii);
     GeoNameTag* tag = new GeoNameTag("DiskSupport");

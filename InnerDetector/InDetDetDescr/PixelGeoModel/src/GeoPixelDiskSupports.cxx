@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPixelDiskSupports.h"
@@ -11,7 +11,10 @@
 
 #include <sstream>
 
-GeoPixelDiskSupports::GeoPixelDiskSupports() {
+GeoPixelDiskSupports::GeoPixelDiskSupports(InDetDD::PixelDetectorManager* ddmgr,
+                                           PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr, mgr)
+{
   //
   // Initialize the vectors
   //
@@ -36,7 +39,7 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
 
 GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
   //
-  // Dimensions: (_nframe set with teh SetCylinder method)
+  // Dimensions: (_nframe set with the SetCylinder method)
   //
   double rmin = m_rmin[m_nframe];
   double rmax = m_rmax[m_nframe];

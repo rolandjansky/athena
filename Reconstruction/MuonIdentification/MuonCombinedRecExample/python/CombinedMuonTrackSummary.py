@@ -71,8 +71,14 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   HoleSearch      = ToolSvc.CombinedMuonIDHoleSearch,
   usePixel        = DetFlags.haveRIO.pixel_on(),
   useSCT          = DetFlags.haveRIO.SCT_on(),
-  useTRT          = DetFlags.haveRIO.TRT_on() )
- 
+  useTRT          = DetFlags.haveRIO.TRT_on(),
+  ClusterSplitProbabilityName = TrackingCommon.combinedClusterSplitProbName())
+
+#@TODO the value of the ClusterSplitProbabilityName depends on the input ID tracks that have been used
+#      for the combined muons. So, this tool is not universally usable. For example online muons are
+#      based on tracks for which the cluster splitting probabilities are not computed. For such cases
+#      the property should be set to an empty string.
+
 # default CombinedMuonTrackSummary
 # @TODO doHolesMuon = False correct ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool

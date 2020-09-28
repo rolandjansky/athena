@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Build The TMT.
@@ -22,7 +22,9 @@
 #include <utility> //std::swap
 #include <cmath>
 
-GeoPixelTMT::GeoPixelTMT():
+GeoPixelTMT::GeoPixelTMT(InDetDD::PixelDetectorManager* ddmgr,
+                         PixelGeometryManager* mgr):
+  GeoPixelStaveSupport(ddmgr, mgr),
   m_transform(GeoTrf::Transform3D::Identity())
 {
   m_physVol = Build();
@@ -35,7 +37,7 @@ GeoPixelTMT::~GeoPixelTMT(){
 
 GeoVPhysVol* GeoPixelTMT::Build() {
 
-  // we want to use a assemby, tehrefor we need to dummy volume to trigger the mechanism
+  // we want to use an assembly; therefore, we need a dummy volume to trigger the mechanism
   const GeoMaterial* ether = m_mat_mgr->getMaterial("special::Ether");
   GeoBox* dummybox= new GeoBox(4711., 4711., 4711.);
   GeoLogVol* dummyTMT = new GeoLogVol("TMT",dummybox,ether);

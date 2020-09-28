@@ -12,18 +12,14 @@
 class ComputeStaveServices {
 public:
 
-  ComputeStaveServices(Athena::MsgStreamMember& msg):m_msg(msg) {}
+  ComputeStaveServices() {}
 
-  StaveServices compute( DetType::Type, DetType::Part, int layerNumber, int nModulesPerStave, int nChipsPerModule) const;
+  StaveServices compute( DetType::Type, DetType::Part, int layerNumber, int nModulesPerStave, int nChipsPerModule,
+                         MsgStream& msg) const;
   int computeLVGaugeSerial( DetType::Type, DetType::Part, int layerNumber, 
 			    int nModules, double moduleCurrent, double moduleVoltage,
-			    double poweringLoss, double lossInCable, double cableLen) const;
-
- private:
-  // the message stream (same for all derived classes)
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-  
+			    double poweringLoss, double lossInCable, double cableLen,
+                            MsgStream& msg) const;
 };
 
 #endif

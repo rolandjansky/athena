@@ -43,6 +43,7 @@ class MuonAmbiTrackSelectionTool : virtual public Trk::IAmbiTrackSelectionTool, 
     virtual StatusCode initialize() override;
 
     virtual std::tuple<Trk::Track *, bool> getCleanedOutTrack(const Trk::Track *track, const Trk::TrackScore score,
+                                                              Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                               Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:

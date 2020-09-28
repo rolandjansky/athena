@@ -20,7 +20,7 @@ PixelGeoModelAthenaComps::setBCM(IGeoSubDetTool * bcmTool)
 }
 
 IGeoSubDetTool * 
-PixelGeoModelAthenaComps::bcm ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
+PixelGeoModelAthenaComps::bcm()
 {
   return m_bcmTool;
 }
@@ -32,7 +32,7 @@ PixelGeoModelAthenaComps::setBLM(IGeoSubDetTool * blmTool)
 }
 
 IGeoSubDetTool * 
-PixelGeoModelAthenaComps::blm ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
+PixelGeoModelAthenaComps::blm()
 {
   return m_blmTool;
 }
@@ -44,7 +44,7 @@ PixelGeoModelAthenaComps::setServiceBuilderTool(IInDetServMatBuilderTool * servi
 }
 
 IInDetServMatBuilderTool * 
-PixelGeoModelAthenaComps::serviceBuilderTool ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
+PixelGeoModelAthenaComps::serviceBuilderTool()
 {
   return m_serviceBuilderTool;
 }
