@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797214 2017-02-14 19:51:39Z ssnyder $
 #
 # Build configuration for the xAODRootAccess package.
 #
@@ -74,7 +73,7 @@ macro( _add_test name )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
-if( NOT SIMULATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    _add_test( ut_xaodrootaccess_metadata_test )
 endif()
 _add_test( ut_xaodrootaccess_remap_test )
@@ -84,16 +83,6 @@ _add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
 _add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
 _add_test( ut_xaodrootaccess_tchain_test )
-#_add_test( ut_xaodrootaccess_tevent_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
-#_add_test( ut_xaodrootaccess_transtree_test )
 _add_test( ut_xaodrootaccess_tstore_test )
-
-# Run the scripted tests for the package:
-#atlas_add_test( ut_xaodrootaccess_tpyevent_test
-#   SCRIPT test/ut_xaodrootaccess_tpyevent_test.py PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_tpystore_test
-#   SCRIPT test/ut_xaodrootaccess_tpystore_test.py PROPERTIES TIMEOUT 600 )
-#atlas_add_test( ut_xaodrootaccess_transtree2_test
-#   SCRIPT test/ut_xaodrootaccess_transtree2_test.py PROPERTIES TIMEOUT 600 )
