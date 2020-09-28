@@ -114,7 +114,7 @@ JetChainParts = {
     'addInfo'      : ['perf'],
 
     'TLA'          : [],
-    'dataScouting' : [],
+    'dataScouting' : ['JetDS'],
 
     'topo'         : AllowedTopos_jet,
 

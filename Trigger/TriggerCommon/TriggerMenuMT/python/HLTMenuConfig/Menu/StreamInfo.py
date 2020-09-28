@@ -42,6 +42,8 @@ _all_streams = [
     StreamInfo('Background', 'physics', True, True),
     StreamInfo('Standby', 'physics', True, True),
     StreamInfo('L1Calo', 'physics', True, True),
+    # TLA/PEB/DATA SCOUTING (physics) STREAMS
+    StreamInfo('JetDS','physics',True,False),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
     # MONITORING STREAMS
