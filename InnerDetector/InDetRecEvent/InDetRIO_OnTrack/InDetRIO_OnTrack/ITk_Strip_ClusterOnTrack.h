@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// Strip_ClusterOnTrack.h, (c) ATLAS Detector software
+// ITk_Strip_ClusterOnTrack.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETRIO_ONTRACK_STRIPCLUSTERONTRACK_H
-#define INDETRIO_ONTRACK_STRIPCLUSTERONTRACK_H
+#ifndef INDETRIO_ONTRACK_ITKSTRIPCLUSTERONTRACK_H
+#define INDETRIO_ONTRACK_ITKSTRIPCLUSTERONTRACK_H
 
 // Base classes
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetPrepRawData/Strip_Cluster.h"
+#include "InDetPrepRawData/ITk_Strip_Cluster.h"
 
-// for ElementLink to IdentifiableContainer Strip_ClusterContainer
-#include "InDetPrepRawData/Strip_ClusterContainer.h"
+// for ElementLink to IdentifiableContainer ITk_Strip_ClusterContainer
+#include "InDetPrepRawData/ITk_Strip_ClusterContainer.h"
 #include "DataModel/ElementLink.h"
 
 namespace Trk {
@@ -28,30 +28,30 @@ namespace InDetDD {
    class SiDetectorElement;
 }
 
-typedef ElementLink<InDet::Strip_ClusterContainer> ElementLinkToIDCStrip_ClusterContainer;
+typedef ElementLink<InDet::ITk_Strip_ClusterContainer> ElementLinkToIDCITk_Strip_ClusterContainer;
 
 namespace InDet{
 
-  /**@class Strip_ClusterOnTrack
+  /**@class ITk_Strip_ClusterOnTrack
   Specific class to represent the Strip measurements.
   It does not currently extend the interface of InDet::SiClusterOnTrack.
      
   @author Veronique.Boisvert@cern.ch, Edward.Moyse@cern.ch, Andreas.Salzburger@cern.ch
    */
-  class Strip_ClusterOnTrack :   public SiClusterOnTrack{
+  class ITk_Strip_ClusterOnTrack :   public SiClusterOnTrack{
 
     public:
       friend class  Trk::ITrkEventCnvTool;
       /**For POOL only. Do not use*/
-      Strip_ClusterOnTrack();
+      ITk_Strip_ClusterOnTrack();
       /**Copy constructor*/
-      Strip_ClusterOnTrack(const Strip_ClusterOnTrack &);
+      ITk_Strip_ClusterOnTrack(const ITk_Strip_ClusterOnTrack &);
 
     /** Constructor with parameters :
       RIO/PrepRawData pointer, LocalPosition*, LocalErrorMatrix*, idDE&
       The base class owns local position, error matrix, this class owns global pos. 
       Everything else is owned elsewhere. */
-      Strip_ClusterOnTrack( const InDet::Strip_Cluster* RIO, 
+      ITk_Strip_ClusterOnTrack( const InDet::ITk_Strip_Cluster* RIO, 
                           const Trk::LocalParameters* locpars, 
                           const Amg::MatrixX* locerr, 
                           const IdentifierHash& idDE,
@@ -62,7 +62,7 @@ namespace InDet{
       Global Position
       The base class owns local position, error matrix, this class owns global pos. 
       Everything else is owned elsewhere. */
-      Strip_ClusterOnTrack( const InDet::Strip_Cluster* RIO, 
+      ITk_Strip_ClusterOnTrack( const InDet::ITk_Strip_Cluster* RIO, 
                           const Trk::LocalParameters* locpars, 
                           const Amg::MatrixX* locerr, 
                           const IdentifierHash& idDE,
@@ -73,7 +73,7 @@ namespace InDet{
       RIO/PrepRawData pointer, LocalPosition*, LocalErrorMatrix*, idDE&
       The base class owns local position, error matrix, this class owns global pos. 
       Everything else is owned elsewhere. */
-      Strip_ClusterOnTrack( const InDet::Strip_Cluster* RIO, 
+      ITk_Strip_ClusterOnTrack( const InDet::ITk_Strip_Cluster* RIO, 
                           const Trk::LocalParameters& locpars, 
                           const Amg::MatrixX& locerr, 
                           const IdentifierHash& idDE,
@@ -84,14 +84,14 @@ namespace InDet{
       Global Position
       The base class owns local position, error matrix, this class owns global pos. 
       Everything else is owned elsewhere. */
-      Strip_ClusterOnTrack( const InDet::Strip_Cluster* RIO, 
+      ITk_Strip_ClusterOnTrack( const InDet::ITk_Strip_Cluster* RIO, 
                           const Trk::LocalParameters& locpars, 
                           const Amg::MatrixX& locerr, 
                           const IdentifierHash& idDE,
                           const Amg::Vector3D& globalPosition,
                           bool isbroad=false); 
       
-      Strip_ClusterOnTrack( const ElementLinkToIDCStrip_ClusterContainer& RIO,
+      ITk_Strip_ClusterOnTrack( const ElementLinkToIDCITk_Strip_ClusterContainer& RIO,
                           const Trk::LocalParameters& locpars, 
                           const Amg::MatrixX& locerr, 
                           IdentifierHash idDE,
@@ -100,10 +100,10 @@ namespace InDet{
                           double positionAlongStrip);
 
       /**Assignment operator*/
-      Strip_ClusterOnTrack &operator=(const Strip_ClusterOnTrack &);
+      ITk_Strip_ClusterOnTrack &operator=(const ITk_Strip_ClusterOnTrack &);
 
       /** Destructor */
-      virtual ~Strip_ClusterOnTrack();
+      virtual ~ITk_Strip_ClusterOnTrack();
      
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface
@@ -111,7 +111,7 @@ namespace InDet{
       virtual const Amg::Vector3D& globalPosition() const final;
      
       /** Pseudo-constructor */
-      Strip_ClusterOnTrack* clone() const ;
+      ITk_Strip_ClusterOnTrack* clone() const ;
 
     /** returns the surface for the local to global transformation
       - fullfills the Trk::MeasurementBase interface
@@ -119,12 +119,12 @@ namespace InDet{
       const Trk::Surface& associatedSurface() const;
 
     	
-    /** returns the PrepRawData - is a Strip_Cluster in this scope
+    /** returns the PrepRawData - is a ITk_Strip_Cluster in this scope
       - fullfills the Trk::RIO_OnTrack interface
      */
-      virtual const InDet::Strip_Cluster* prepRawData() const;
+      virtual const InDet::ITk_Strip_Cluster* prepRawData() const;
 
-    const ElementLinkToIDCStrip_ClusterContainer& prepRawDataLink() const;
+    const ElementLinkToIDCITk_Strip_ClusterContainer& prepRawDataLink() const;
      
   
     /** returns the detector element, assoicated with the PRD of this class
@@ -145,9 +145,9 @@ namespace InDet{
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
  
-      /** Strip_Cluster - the RIO (PRD, PrepRawData)*/
-//       mutable const Strip_Cluster*   m_rio;
-      ElementLinkToIDCStrip_ClusterContainer m_rio; 
+      /** ITk_Strip_Cluster - the RIO (PRD, PrepRawData)*/
+//       mutable const ITk_Strip_Cluster*   m_rio;
+      ElementLinkToIDCITk_Strip_ClusterContainer m_rio; 
       /** corresponding detector element*/
       const InDetDD::SiDetectorElement* m_detEl;
       
@@ -155,30 +155,30 @@ namespace InDet{
       
   };
 
-  inline Strip_ClusterOnTrack* Strip_ClusterOnTrack::clone() const 
+  inline ITk_Strip_ClusterOnTrack* ITk_Strip_ClusterOnTrack::clone() const 
   { 
-    return new Strip_ClusterOnTrack(*this); 
+    return new ITk_Strip_ClusterOnTrack(*this); 
   }
     
-  inline const Strip_Cluster* Strip_ClusterOnTrack::prepRawData() const
+  inline const ITk_Strip_Cluster* ITk_Strip_ClusterOnTrack::prepRawData() const
   { 
     // somehow one has to ask first if it is valid ... otherwise it always returns 0 ...
     if (m_rio.isValid()) return m_rio.cachedElement();
     else return 0;
   }  
   
-  inline const ElementLinkToIDCStrip_ClusterContainer&
-  Strip_ClusterOnTrack::prepRawDataLink() const
+  inline const ElementLinkToIDCITk_Strip_ClusterContainer&
+  ITk_Strip_ClusterOnTrack::prepRawDataLink() const
   {
     return m_rio;
   }
     
-  inline const InDetDD::SiDetectorElement* Strip_ClusterOnTrack::detectorElement() const
+  inline const InDetDD::SiDetectorElement* ITk_Strip_ClusterOnTrack::detectorElement() const
   { 
     return m_detEl; 
   }
 
-  inline double Strip_ClusterOnTrack::positionAlongStrip() const
+  inline double ITk_Strip_ClusterOnTrack::positionAlongStrip() const
   {
     return m_positionAlongStrip;
   }

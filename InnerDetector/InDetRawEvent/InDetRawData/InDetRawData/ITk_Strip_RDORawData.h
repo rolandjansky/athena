@@ -1,27 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// SCT_RawData.h
-//   Header file for class SCT_RawData
+// ITk_Strip_RawData.h
+//   Header file for class ITk_Strip_RawData
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Class to implement RawData for SCT
+// Class to implement RawData for ITk_Strip
 ///////////////////////////////////////////////////////////////////
-// Version 1.0 13/08/2002 Veronique Boisvert
+// Version 0.1 15/09/2020 James Smith
 ///////////////////////////////////////////////////////////////////
 
-#ifndef SITRACKEREVENT_STRIP_RDORAWDATA_H
-#define SITRACKEREVENT_STRIP_RDORAWDATA_H
+#ifndef SITRACKEREVENT_ITK_STRIP_RDORAWDATA_H
+#define SITRACKEREVENT_ITK_STRIP_RDORAWDATA_H
 
 // Base class
 #include "InDetRawData/InDetRawData.h"
 
 
 
-class Strip_RDORawData :  public InDetRawData{
+class ITk_Strip_RDORawData :  public InDetRawData{
 
 
   ///////////////////////////////////////////////////////////////////
@@ -31,10 +31,10 @@ public:
 
   // Constructor with parameters:
   // offline hash Id, last, word
-  Strip_RDORawData(const Identifier rdoId, const unsigned int word);
+  ITk_Strip_RDORawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~Strip_RDORawData();
+  virtual ~ITk_Strip_RDORawData();
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 
@@ -58,7 +58,7 @@ public:
 private:
 
   
-  Strip_RDORawData();
+  ITk_Strip_RDORawData();
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
@@ -72,4 +72,4 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-#endif // SITRACKEREVENT_STRIP_RAWDATA_H
+#endif // SITRACKEREVENT_ITK_STRIP_RAWDATA_H

@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-//   Implementation file for class Strip_ClusterOnTrackTool
+//   Implementation file for class ITk_Strip_ClusterOnTrackTool
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// AlgTool used for Strip_ClusterOnTrack object production
+// AlgTool used for ITk_Strip_ClusterOnTrack object production
 ///////////////////////////////////////////////////////////////////
 // started 21/04/2004 I.Gavrilenko -- see ChangeLog
 ///////////////////////////////////////////////////////////////////
 
-#include "SiClusterOnTrackTool/Strip_ClusterOnTrackTool.h"
+#include "SiClusterOnTrackTool/ITk_Strip_ClusterOnTrackTool.h"
 
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
@@ -37,7 +37,7 @@ namespace
 // Constructor
 ///////////////////////////////////////////////////////////////////
 
-InDet::Strip_ClusterOnTrackTool::Strip_ClusterOnTrackTool
+InDet::ITk_Strip_ClusterOnTrackTool::ITk_Strip_ClusterOnTrackTool
 (const std::string& t,const std::string& n,const IInterface* p) :
   AthAlgTool(t,n,p),
   m_errorScalingTool("Trk::RIO_OnTrackErrorScalingTool/RIO_OnTrackErrorScalingTool"),
@@ -48,7 +48,7 @@ InDet::Strip_ClusterOnTrackTool::Strip_ClusterOnTrackTool
   m_option_errorStrategy(-1),
   m_option_correctionStrategy(-1)
 {
-  // declareInterface<Strip_ClusterOnTrackTool>(this);
+  // declareInterface<ITk_Strip_ClusterOnTrackTool>(this);
   declareInterface<IRIO_OnTrackCreator>(this);
 
   declareProperty("ErrorScalingTool", m_errorScalingTool,
@@ -69,13 +69,13 @@ InDet::Strip_ClusterOnTrackTool::Strip_ClusterOnTrackTool
 // Destructor  
 ///////////////////////////////////////////////////////////////////
 
-InDet::Strip_ClusterOnTrackTool::~Strip_ClusterOnTrackTool(){}
+InDet::ITk_Strip_ClusterOnTrackTool::~ITk_Strip_ClusterOnTrackTool(){}
 
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::Strip_ClusterOnTrackTool::initialize()
+StatusCode InDet::ITk_Strip_ClusterOnTrackTool::initialize()
 {
   msg(MSG::INFO) << "A strategy to ";
   switch (m_option_errorStrategy) {
@@ -85,7 +85,7 @@ StatusCode InDet::Strip_ClusterOnTrackTool::initialize()
     case  2:  msg(MSG::INFO)<< "assign tuned, angle-dependent SCT errors"; break;
     default:  msg(MSG::INFO)<< " -- NO, UNKNOWN. Pls check jobOptions!"; break;
   }
-  msg(MSG::INFO)<< " will be applied during Strip_ClusterOnTrack making" << endmsg;
+  msg(MSG::INFO)<< " will be applied during ITk_Strip_ClusterOnTrack making" << endmsg;
   if (m_option_correctionStrategy == 0) {
     msg(MSG::INFO) << "SCT cluster positions will be corrected" << endmsg;
   }
@@ -105,21 +105,21 @@ StatusCode InDet::Strip_ClusterOnTrackTool::initialize()
 // Finalize
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::Strip_ClusterOnTrackTool::finalize()
+StatusCode InDet::ITk_Strip_ClusterOnTrackTool::finalize()
 {
   return StatusCode::SUCCESS;
  }
 
 ///////////////////////////////////////////////////////////////////
-// Trk::Strip_ClusterOnTrack  production
+// Trk::ITk_Strip_ClusterOnTrack  production
 ///////////////////////////////////////////////////////////////////
 
-const InDet::Strip_ClusterOnTrack* InDet::Strip_ClusterOnTrackTool::correct
+const InDet::ITk_Strip_ClusterOnTrack* InDet::ITk_Strip_ClusterOnTrackTool::correct
 (const Trk::PrepRawData& rio,const Trk::TrackParameters& trackPar) const
 {
 
-  const InDet::Strip_Cluster* SC = 0;
-  if(!(SC = dynamic_cast<const InDet::Strip_Cluster*> (&rio))) return 0;
+  const InDet::ITk_Strip_Cluster* SC = 0;
+  if(!(SC = dynamic_cast<const InDet::ITk_Strip_Cluster*> (&rio))) return 0;
 
   const InDet::SiWidth width = SC->width();
   const Amg::Vector2D& colRow = width.colRow();
@@ -195,7 +195,7 @@ if (boundsy>0 && distance*cosAlpha> boundsy){ //skip this for Annulus (which has
   distance=boundsy/cosAlpha-1;
  }
 
-// Strip_ClusterOnTrack production
+// ITk_Strip_ClusterOnTrack production
   //
   Trk::LocalParameters locpar;
   if (loct.y()<0) distance=-distance;
@@ -309,11 +309,11 @@ if (boundsy>0 && distance*cosAlpha> boundsy){ //skip this for Annulus (which has
     locpar[Trk::locX] += correction;
   }
   bool isbroad=(m_option_errorStrategy==0) ? true : false;
-  return new InDet::Strip_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
+  return new InDet::ITk_Strip_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
 }
 
 
-double InDet::Strip_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
+double InDet::ITk_Strip_ClusterOnTrackTool::getCorrection(double phi, int nstrip) const {
 
   float corr1[30] = { 0.3, 0.8, 1.1, 1.5, 1.9, 1.9, 2.1, 2.4, 2.3, 2.6,
                       2.6, 2.7, 2.8, 2.7, 2.5, 2.6, 2.8, 2.6, 2.6, 2.7,
@@ -337,7 +337,7 @@ double InDet::Strip_ClusterOnTrackTool::getCorrection(double phi, int nstrip) co
 }
 
 
-double InDet::Strip_ClusterOnTrackTool::getError(double phi, int nstrip) const {
+double InDet::ITk_Strip_ClusterOnTrackTool::getError(double phi, int nstrip) const {
 
   float sigma1[60] = { 22.1, 21.8, 21.4, 21.0, 20.5, 20.0, 19.6, 19.1, 18.5, 18.0,
                        17.4, 17.0, 16.4, 15.8, 15.4, 14.9, 14.4, 14.1, 13.3, 13.1,
@@ -387,11 +387,11 @@ double InDet::Strip_ClusterOnTrackTool::getError(double phi, int nstrip) const {
 }
 
 ///////////////////////////////////////////////////////////////////
-// Trk::Strip_ClusterOnTrack  production for AnnulusBounds 
+// Trk::ITk_Strip_ClusterOnTrack  production for AnnulusBounds 
 ///////////////////////////////////////////////////////////////////
 
-const InDet::Strip_ClusterOnTrack* InDet::Strip_ClusterOnTrackTool::correctAnnulus
-    (const InDet::Strip_Cluster* SC, const Trk::TrackParameters&) const
+const InDet::ITk_Strip_ClusterOnTrack* InDet::ITk_Strip_ClusterOnTrackTool::correctAnnulus
+    (const InDet::ITk_Strip_Cluster* SC, const Trk::TrackParameters&) const
 {
 
   if(!SC) return 0;
@@ -403,11 +403,11 @@ const InDet::Strip_ClusterOnTrack* InDet::Strip_ClusterOnTrackTool::correctAnnul
   Amg::Vector3D                     glob  (SC->globalPosition ());
   bool isbroad=(m_option_errorStrategy==0) ? true : false;
 
-  return new InDet::Strip_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
+  return new InDet::ITk_Strip_ClusterOnTrack (SC,locpar,cov,iH,glob,isbroad);
 } 
 
-const InDet::Strip_ClusterOnTrack* InDet::Strip_ClusterOnTrackTool::correctAnnulusPC
-    (const InDet::Strip_Cluster* SC, const Trk::TrackParameters& trackPar) const
+const InDet::ITk_Strip_ClusterOnTrack* InDet::ITk_Strip_ClusterOnTrackTool::correctAnnulusPC
+    (const InDet::ITk_Strip_Cluster* SC, const Trk::TrackParameters& trackPar) const
 {
   ATH_MSG_VERBOSE(name() << " " << __FUNCTION__);
   if(!SC) return 0;
@@ -485,7 +485,7 @@ const InDet::Strip_ClusterOnTrack* InDet::Strip_ClusterOnTrackTool::correctAnnul
   Amg::Vector3D glob = *glob_ptr;
   delete glob_ptr;
 
-  InDet::Strip_ClusterOnTrack* cot = new InDet::Strip_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
+  InDet::ITk_Strip_ClusterOnTrack* cot = new InDet::ITk_Strip_ClusterOnTrack(SC, locparPC, cov, iH, glob, isbroad);
   // note: cot has the original surface set. cot->associatedSurface() will return the XY plane surface,
   // NOT the PC disc surface
   return cot;

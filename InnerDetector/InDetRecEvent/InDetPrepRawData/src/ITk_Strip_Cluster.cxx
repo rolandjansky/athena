@@ -1,17 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// Strip_Cluster.cxx
-//   Implementation file for class Strip_Cluster
+// ITk_Strip_Cluster.cxx
+//   Implementation file for class ITk_Strip_Cluster
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Version 1.0 15/07/2003 Veronique Boisvert
+// Version 0.1 15/09/2020 James Smith
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetPrepRawData/Strip_Cluster.h"
+#include "InDetPrepRawData/ITk_Strip_Cluster.h"
 // forward includes
 #include "GaudiKernel/MsgStream.h"
 #include "InDetPrepRawData/SiWidth.h"
@@ -20,7 +20,7 @@
 
 namespace InDet{
 
-	Strip_Cluster::Strip_Cluster( 
+	ITk_Strip_Cluster::ITk_Strip_Cluster( 
 							const Identifier& RDOId,
 							const Amg::Vector2D& locpos, 
 							const std::vector<Identifier>& rdoList,
@@ -32,7 +32,7 @@ namespace InDet{
 		m_hitsInThirdTimeBin=0;
 	}
 
-Strip_Cluster::Strip_Cluster( 
+ITk_Strip_Cluster::ITk_Strip_Cluster( 
             const Identifier& RDOId,
             const Amg::Vector2D& locpos, 
             std::vector<Identifier>&& rdoList,
@@ -47,27 +47,27 @@ Strip_Cluster::Strip_Cluster(
         }
 
 	// Default constructor:
-	Strip_Cluster::Strip_Cluster():SiCluster()
+	ITk_Strip_Cluster::ITk_Strip_Cluster():SiCluster()
 	{
 	  m_hitsInThirdTimeBin=0;
 	}
 
 	//copy constructor:
-	Strip_Cluster::Strip_Cluster(const Strip_Cluster& RIO):
+	ITk_Strip_Cluster::ITk_Strip_Cluster(const ITk_Strip_Cluster& RIO):
 		SiCluster(RIO)
 	{
 		m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
 	}
 
         //move constructor:
-        Strip_Cluster::Strip_Cluster(Strip_Cluster&& RIO):
+        ITk_Strip_Cluster::ITk_Strip_Cluster(ITk_Strip_Cluster&& RIO):
           SiCluster(std::move(RIO)),
           m_hitsInThirdTimeBin (RIO.m_hitsInThirdTimeBin)
         {
         }
 
 	//assignment operator
-	Strip_Cluster& Strip_Cluster::operator=(const Strip_Cluster& RIO){
+	ITk_Strip_Cluster& ITk_Strip_Cluster::operator=(const ITk_Strip_Cluster& RIO){
 		if(&RIO != this) {
                   SiCluster::operator=(RIO);
                   m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
@@ -76,7 +76,7 @@ Strip_Cluster::Strip_Cluster(
 	}
 
         //move operator
-        Strip_Cluster& Strip_Cluster::operator=(Strip_Cluster&& RIO) {
+        ITk_Strip_Cluster& ITk_Strip_Cluster::operator=(ITk_Strip_Cluster&& RIO) {
           if(&RIO != this) {
             SiCluster::operator=(std::move(RIO));
             m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
@@ -85,28 +85,28 @@ Strip_Cluster::Strip_Cluster(
         }
 
 
-	MsgStream&    operator << (MsgStream& stream,    const Strip_Cluster& prd)
+	MsgStream&    operator << (MsgStream& stream,    const ITk_Strip_Cluster& prd)
 	{
 			return prd.dump(stream);
 	}
 
-	std::ostream& operator << (std::ostream& stream, const Strip_Cluster& prd)
+	std::ostream& operator << (std::ostream& stream, const ITk_Strip_Cluster& prd)
 	{
 			return prd.dump(stream);
 	}
 
-	MsgStream& Strip_Cluster::dump( MsgStream&    stream) const
+	MsgStream& ITk_Strip_Cluster::dump( MsgStream&    stream) const
 	{
-			stream << "Strip_Cluster object"<<std::endl;
+			stream << "ITk_Strip_Cluster object"<<std::endl;
 			stream <<  "Base class (SiCluster):" << std::endl;
 			this->SiCluster::dump(stream);
 
 			return stream;
 	}
 
-	std::ostream& Strip_Cluster::dump( std::ostream&    stream) const
+	std::ostream& ITk_Strip_Cluster::dump( std::ostream&    stream) const
 	{
-			stream << "Strip_Cluster object"<<std::endl;
+			stream << "ITk_Strip_Cluster object"<<std::endl;
 			stream <<  "Base class (SiCluster):" << std::endl;
 			this->SiCluster::dump(stream);
 

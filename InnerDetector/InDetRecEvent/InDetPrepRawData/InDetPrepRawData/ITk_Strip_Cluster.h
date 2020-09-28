@@ -3,8 +3,8 @@
 */
 
  ///////////////////////////////////////////////////////////////////
-// Strip_Cluster.h
-//   Header file for class Strip_Cluster
+// ITk_Strip_Cluster.h
+//   Header file for class ITk_Strip_Cluster
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,8 @@
 // Version 1.0 23/07/2004 John Baines
 ///////////////////////////////////////////////////////////////////
 
-#ifndef TRKPREPRAWDATA_STRIP_CLUSTER_H
-#define TRKPREPRAWDATA_STRIP_CLUSTER_H
+#ifndef TRKPREPRAWDATA_ITK_STRIP_CLUSTER_H
+#define TRKPREPRAWDATA_ITK_STRIP_CLUSTER_H
 
 // Base class
 #include "InDetPrepRawData/SiCluster.h"
@@ -35,16 +35,16 @@ namespace InDet{
 
 class SiWidth;
 
-class Strip_Cluster : public SiCluster {
+class ITk_Strip_Cluster : public SiCluster {
  public:
   /** Public, Copy, operator=, constructor*/
-  Strip_Cluster();
-  Strip_Cluster(const Strip_Cluster &);
-  Strip_Cluster(Strip_Cluster &&);
-  Strip_Cluster &operator=(const Strip_Cluster &);
-  Strip_Cluster &operator=(Strip_Cluster &&);
+  ITk_Strip_Cluster();
+  ITk_Strip_Cluster(const ITk_Strip_Cluster &);
+  ITk_Strip_Cluster(ITk_Strip_Cluster &&);
+  ITk_Strip_Cluster &operator=(const ITk_Strip_Cluster &);
+  ITk_Strip_Cluster &operator=(ITk_Strip_Cluster &&);
 
-  Strip_Cluster( 
+  ITk_Strip_Cluster( 
                 const Identifier& RDOId,
                 const Amg::Vector2D& locpos, 
                 const std::vector<Identifier>& rdoList,
@@ -54,7 +54,7 @@ class Strip_Cluster : public SiCluster {
               );
 
   // For use by tp converter.
-  Strip_Cluster( 
+  ITk_Strip_Cluster( 
                 const Identifier& RDOId,
                 const Amg::Vector2D& locpos, 
                 std::vector<Identifier>&& rdoList,
@@ -84,27 +84,27 @@ class Strip_Cluster : public SiCluster {
 
 };
 
- inline uint16_t Strip_Cluster::hitsInThirdTimeBin() const
+ inline uint16_t ITk_Strip_Cluster::hitsInThirdTimeBin() const
  {
    return m_hitsInThirdTimeBin;  
  }
  
- inline void Strip_Cluster::setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin) 
+ inline void ITk_Strip_Cluster::setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin) 
  {
    m_hitsInThirdTimeBin = hitsInThirdTimeBin;
  }
  
 
- inline int Strip_Cluster::stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const {
+ inline int ITk_Strip_Cluster::stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const {
    return stripNumberWithinCluster <= 16 ? (int)((m_hitsInThirdTimeBin >> stripNumberWithinCluster) & 0x1): 0;
    
  }
  
 
 
- MsgStream&    operator << (MsgStream& stream,    const Strip_Cluster& prd);
- std::ostream& operator << (std::ostream& stream, const Strip_Cluster& prd);
+ MsgStream&    operator << (MsgStream& stream,    const ITk_Strip_Cluster& prd);
+ std::ostream& operator << (std::ostream& stream, const ITk_Strip_Cluster& prd);
 
 
 }
-#endif // TRKPREPRAWDATA_STRIP_CLUSTER_H
+#endif // TRKPREPRAWDATA_ITK_STRIP_CLUSTER_H

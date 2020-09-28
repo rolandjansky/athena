@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,11 +8,11 @@
  
  ***************************************************************************/
 
-//<doc><file>	$Id: Strip_RDO_Collection.h,v 1.9 2007-05-28 12:47:23 kgnanvo Exp $
+//<doc><file>	$Id: ITk_Strip_RDO_Collection.h,v 1.9 2007-05-28 12:47:23 kgnanvo Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-#ifndef INDETRAWDATA_STRIP_RDO_COLLECTION_H
-# define INDETRAWDATA_STRIP_RDO_COLLECTION_H
+#ifndef INDETRAWDATA_ITK_STRIP_RDO_COLLECTION_H
+# define INDETRAWDATA_ITK_STRIP_RDO_COLLECTION_H
 
 #include "CLIDSvc/CLASS_DEF.h"
 #include "InDetRawData/InDetRawDataCollection.h"
@@ -20,19 +20,19 @@
 #include "InDetRawData/SCT_TB03_RawData.h"
 #include "InDetRawData/SCT_TB04_RawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetRawData/Strip_RDORawData.h"
+#include "InDetRawData/ITk_Strip_RDORawData.h"
 class MsgStream;
 
-typedef InDetRawDataCollection< Strip_RDORawData >
-	Strip_RDO_Collection; 
+typedef InDetRawDataCollection< ITk_Strip_RDORawData >
+	ITk_Strip_RDO_Collection; 
 
-CLASS_DEF(Strip_RDO_Collection, 286321, 1)
+CLASS_DEF(ITk_Strip_RDO_Collection, 1081737352, 1)
 
 /**Overload of << operator for MsgStream for debug output*/
-MsgStream& operator << ( MsgStream& sl, const Strip_RDO_Collection& coll);
+MsgStream& operator << ( MsgStream& sl, const ITk_Strip_RDO_Collection& coll);
 
 /**Overload of << operator for std::ostream for debug output*/ 
-std::ostream& operator << ( std::ostream& sl, const Strip_RDO_Collection& coll);
+std::ostream& operator << ( std::ostream& sl, const ITk_Strip_RDO_Collection& coll);
 
 
 typedef InDetRawDataCollection< SCT_TB03_RawData >
@@ -60,4 +60,4 @@ CLASS_DEF(SCT3_RDO_Collection, 1339040427 , 1)
 
 //CLASS_DEF( SCT_RDO_constvector, 1159798379, 1 )
 
-#endif // INDETRAWDATA_STRIP_RDO_COLLECTION_H
+#endif // INDETRAWDATA_ITK_STRIP_RDO_COLLECTION_H

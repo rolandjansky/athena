@@ -13,21 +13,25 @@
 // Version 1.0 25/09/2002 Veronique Boisvert
 ///////////////////////////////////////////////////////////////////
 
-#ifndef STRIP_CLUSTERCONTAINER_H
-#define STRIP_CLUSTERCONTAINER_H
+#ifndef ITK_STRIP_CLUSTERCOLLECTION_H
+#define ITK_STRIP_CLUSTERCOLLECTION_H
 
 #include "SGTools/CLASS_DEF.h"
-#include "TrkPrepRawData/PrepRawDataContainer.h"
-#include "InDetPrepRawData/Strip_ClusterCollection.h"
-#include "AthLinks/DeclareIndexingPolicy.h"
+#include "TrkPrepRawData/PrepRawDataCollection.h"
+#include "InDetPrepRawData/ITk_Strip_Cluster.h"
 
 // Containers
 // numbers obtained using clid.db
 namespace InDet {
-  typedef Trk::PrepRawDataContainer< Strip_ClusterCollection > Strip_ClusterContainer; 
+  typedef Trk::PrepRawDataCollection< ITk_Strip_Cluster > ITk_Strip_ClusterCollection;
+
+  /**Overload of << operator for MsgStream for debug output*/
+  MsgStream& operator << ( MsgStream& sl, const ITk_Strip_ClusterCollection& coll);
+
+  /**Overload of << operator for std::ostream for debug output*/ 
+  std::ostream& operator << ( std::ostream& sl, const ITk_Strip_ClusterCollection& coll);
 }
 
-CLASS_DEF(InDet::Strip_ClusterContainer,286324,1)
-CONTAINER_IS_IDENTCONT(InDet::Strip_ClusterContainer)
+CLASS_DEF(InDet::ITk_Strip_ClusterCollection, 1206433936, 1)
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACLASS_DEF_H

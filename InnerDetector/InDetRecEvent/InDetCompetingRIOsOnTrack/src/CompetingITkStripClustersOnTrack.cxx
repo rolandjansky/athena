@@ -1,22 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// CompetingStrip_ClustersOnTrack.cxx, (c) ATLAS Detector software
+// CompetingITkStripClustersOnTrack.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 // Trk
 #include "TrkSurfaces/Surface.h"
 #include "GaudiKernel/MsgStream.h"
 // InDet
-#include "InDetCompetingRIOsOnTrack/CompetingStrip_ClustersOnTrack.h"
+#include "InDetCompetingRIOsOnTrack/CompetingITkStripClustersOnTrack.h"
 // std
 #include <math.h>
 
 //#include <iostream.h>
 // default constructor
-InDet::CompetingStrip_ClustersOnTrack::CompetingStrip_ClustersOnTrack():
+InDet::CompetingITkStripClustersOnTrack::CompetingITkStripClustersOnTrack():
         Trk::CompetingRIOsOnTrack(),
         //m_associatedSurface(0),
         m_globalPosition(0),
@@ -26,13 +26,13 @@ InDet::CompetingStrip_ClustersOnTrack::CompetingStrip_ClustersOnTrack():
         {}
 
 // copy constructor
-InDet::CompetingStrip_ClustersOnTrack::CompetingStrip_ClustersOnTrack(const InDet::CompetingStrip_ClustersOnTrack& compROT) :
+InDet::CompetingITkStripClustersOnTrack::CompetingITkStripClustersOnTrack(const InDet::CompetingITkStripClustersOnTrack& compROT) :
         Trk::CompetingRIOsOnTrack(compROT),
         m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
         m_containedChildRots(0) {
-    //        cout << "CompetingStrip_ClustersOnTrack: in copy constructor" << endl;
-    m_containedChildRots = new std::vector< const InDet::Strip_ClusterOnTrack* >;
-    std::vector< const InDet::Strip_ClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
+    //        cout << "CompetingITkStripClustersOnTrack: in copy constructor" << endl;
+    m_containedChildRots = new std::vector< const InDet::ITk_Strip_ClusterOnTrack* >;
+    std::vector< const InDet::ITk_Strip_ClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
         m_containedChildRots->push_back((*rotIter)->clone());
         //        cout << "pushed back cloned ROT" << endl;
@@ -40,9 +40,9 @@ InDet::CompetingStrip_ClustersOnTrack::CompetingStrip_ClustersOnTrack(const InDe
 }
 
 // explicit constructor
-InDet::CompetingStrip_ClustersOnTrack::CompetingStrip_ClustersOnTrack(
+InDet::CompetingITkStripClustersOnTrack::CompetingITkStripClustersOnTrack(
     //const Trk::Surface* sf,
-    std::vector<const InDet::Strip_ClusterOnTrack*>* childrots,
+    std::vector<const InDet::ITk_Strip_ClusterOnTrack*>* childrots,
     std::vector<AssignmentProb>* assgnProb
     //        const Trk::TrackParameters*  assumedTrkPars,
     //const Trk::LocalParameters* effecLocalPars,
@@ -62,7 +62,7 @@ m_containedChildRots(childrots)
 
 }
 
-InDet::CompetingStrip_ClustersOnTrack& InDet::CompetingStrip_ClustersOnTrack::operator=(const InDet::CompetingStrip_ClustersOnTrack& compROT) {
+InDet::CompetingITkStripClustersOnTrack& InDet::CompetingITkStripClustersOnTrack::operator=(const InDet::CompetingITkStripClustersOnTrack& compROT) {
     if (this!=&compROT) {
         // assingment operator of base class
         Trk::CompetingRIOsOnTrack::operator=(compROT);
@@ -74,7 +74,7 @@ InDet::CompetingStrip_ClustersOnTrack& InDet::CompetingStrip_ClustersOnTrack::op
         // delete surface if not owned by detElement
         //if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
         //    delete m_associatedSurface;
-        m_containedChildRots = new std::vector<const InDet::Strip_ClusterOnTrack*>;
+        m_containedChildRots = new std::vector<const InDet::ITk_Strip_ClusterOnTrack*>;
 //         if (compROT.m_associatedSurface) {
 //             // copy only if surface is not one owned by a detector Element
 //             m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
@@ -84,14 +84,14 @@ InDet::CompetingStrip_ClustersOnTrack& InDet::CompetingStrip_ClustersOnTrack::op
         m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
         //        m_assumedTrackParameters     = compROT.m_assumedTrackParameters ? compROT.m_assumedTrackParameters->clone() : 0;
         //m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
-        std::vector<const InDet::Strip_ClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
+        std::vector<const InDet::ITk_Strip_ClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
         for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
             m_containedChildRots->push_back((*rotIter)->clone());
     }
     return (*this);
 }
 
-InDet::CompetingStrip_ClustersOnTrack::~CompetingStrip_ClustersOnTrack() {
+InDet::CompetingITkStripClustersOnTrack::~CompetingITkStripClustersOnTrack() {
     // delete surface if not owned by detElement
 //    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
 //         delete m_associatedSurface;
@@ -101,15 +101,15 @@ InDet::CompetingStrip_ClustersOnTrack::~CompetingStrip_ClustersOnTrack() {
     //    delete m_assumedTrackParameters;
 }
 
-void InDet::CompetingStrip_ClustersOnTrack::clearChildRotVector() {
-    std::vector<const InDet::Strip_ClusterOnTrack*>::const_iterator rotIter = m_containedChildRots->begin();
+void InDet::CompetingITkStripClustersOnTrack::clearChildRotVector() {
+    std::vector<const InDet::ITk_Strip_ClusterOnTrack*>::const_iterator rotIter = m_containedChildRots->begin();
     for (; rotIter!=m_containedChildRots->end(); ++rotIter)
         delete (*rotIter);
 }
 
-MsgStream& InDet::CompetingStrip_ClustersOnTrack::dump( MsgStream& out ) const {
+MsgStream& InDet::CompetingITkStripClustersOnTrack::dump( MsgStream& out ) const {
   using std::ios;
-  out << "Trk::CompetingStrip_ClustersOnTrack with [" << numberOfContainedROTs() 
+  out << "Trk::CompetingITkStripClustersOnTrack with [" << numberOfContainedROTs() 
       << "] competing RIO_OnTrack objects" << std::endl;
   out << "  - " << (this->ROTsHaveCommonSurface(true)?"on common surface":
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
@@ -120,9 +120,9 @@ MsgStream& InDet::CompetingStrip_ClustersOnTrack::dump( MsgStream& out ) const {
   return out;
 }
 
-std::ostream& InDet::CompetingStrip_ClustersOnTrack::dump( std::ostream& out ) const {
+std::ostream& InDet::CompetingITkStripClustersOnTrack::dump( std::ostream& out ) const {
   using std::ios;
-  out << "Trk::CompetingStrip_ClustersOnTrack with [" << numberOfContainedROTs() 
+  out << "Trk::CompetingITkStripClustersOnTrack with [" << numberOfContainedROTs() 
       << "] competing RIO_OnTrack objects" << std::endl;
   out << "  - " << (this->ROTsHaveCommonSurface(true)?"on common surface":
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
@@ -134,11 +134,11 @@ std::ostream& InDet::CompetingStrip_ClustersOnTrack::dump( std::ostream& out ) c
 }
 
 // Have all the contained ROTs a common associated surface?
-bool InDet::CompetingStrip_ClustersOnTrack::ROTsHaveCommonSurface(const bool) const {
+bool InDet::CompetingITkStripClustersOnTrack::ROTsHaveCommonSurface(const bool) const {
     return true;
 }
 
-void InDet::CompetingStrip_ClustersOnTrack::setLocalParametersAndErrorMatrix() {
+void InDet::CompetingITkStripClustersOnTrack::setLocalParametersAndErrorMatrix() {
 
   if (ROTsHaveCommonSurface()) {
     //std::cout << "weight matrices: " << std::endl;
@@ -220,7 +220,7 @@ void InDet::CompetingStrip_ClustersOnTrack::setLocalParametersAndErrorMatrix() {
             int orderInput = (weightMatrix_maxIndex(0,0) > weightMatrix_maxIndex(1,1)) ? -1 : 1;
             int orderOutput = (meanWeightMatrix(0,0) > meanWeightMatrix(1,1)) ? -1 : 1;
             if (orderInput*orderOutput < 0) {
-                std::cout << "Trk::CompetingStrip_ClustersOnTrack: order of dimensions does not match!!!";
+                std::cout << "Trk::CompetingITkStripClustersOnTrack: order of dimensions does not match!!!";
             }
             
             //m_localParams[Trk::locX] = meanMeasX;
@@ -229,7 +229,7 @@ void InDet::CompetingStrip_ClustersOnTrack::setLocalParametersAndErrorMatrix() {
             Trk::DefinedParameter Par2(meanMeasY, Trk::loc2);
             m_localParams = Trk::LocalParameters(Par1, Par2);
         } else {
-            std::cout << "Trk::CompetingStrip_ClustersOnTrack: can not handle parameter key " << paramKey << std::endl;
+            std::cout << "Trk::CompetingITkStripClustersOnTrack: can not handle parameter key " << paramKey << std::endl;
         }
     } else {
         // not more than one non-vanishing ROT: use the ROT with highest prob
