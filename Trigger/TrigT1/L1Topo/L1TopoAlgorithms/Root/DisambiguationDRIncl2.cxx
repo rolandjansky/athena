@@ -20,10 +20,9 @@
 
 REGISTER_ALG_TCS(DisambiguationDRIncl2)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DisambiguationDRIncl2:     "
+#define LOG std::cout << "TCS::DisambiguationDRIncl2:     "
 
 
 TCS::DisambiguationDRIncl2::DisambiguationDRIncl2(const std::string & name) : DecisionAlg(name)

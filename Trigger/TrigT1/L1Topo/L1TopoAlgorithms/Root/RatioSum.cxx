@@ -22,10 +22,8 @@
 
 REGISTER_ALG_TCS(RatioSum)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::RatioSum::RatioSum(const std::string & name) : DecisionAlg(name)

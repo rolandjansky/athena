@@ -28,8 +28,8 @@
 #include "L1TopoSimulationUtils/Kinematics.h"
 //
 REGISTER_ALG_TCS(ExclusiveJets)
-using namespace std;
-TCS::ExclusiveJets::ExclusiveJets(const string & name) : DecisionAlg(name)
+
+TCS::ExclusiveJets::ExclusiveJets(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
@@ -84,33 +84,25 @@ TCS::ExclusiveJets::initialize() {
   }
    
    TRG_MSG_INFO("number output : " << numberOutputBits());
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int eta1_min = p_MinEta1[i];
-       int eta1_max = p_MaxEta1[i];
-       int eta2_min = p_MinEta1[i];
-       int eta2_max = p_MaxEta1[i];
-       int et_min = p_MinET1[i];
-       int xi_min = p_XiMin[i];
-       int xi_max = p_XiMax[i];
-       // mass histograms
-       snprintf(hname_accept, buf_len, "Accept_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
-       snprintf(hname_reject, buf_len, "Reject_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
-       registerHist(m_histAcceptExclusiveJets[i] = new TH2F(hname_accept, hname_accept, 100, 0.0, 2*xi_max, 100, 0.0, 2*xi_max));
-       registerHist(m_histRejectExclusiveJets[i] = new TH2F(hname_reject, hname_reject, 100, 0.0, 2*xi_max, 100, 0.0, 2*xi_max));
+   
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hExclusiveJets_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hExclusiveJets_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAcceptX, hname_accept, "Xi1 vs Xi2", 100, p_XiMin[i], p_XiMax[i], 100, p_XiMin[i], p_XiMax[i]);
+       bookHist(m_histRejectX, hname_reject, "Xi1 vs Xi2", 100, p_XiMin[i], p_XiMax[i], 100, p_XiMin[i], p_XiMax[i]);
        // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
-       snprintf(hname_reject, buf_len, "Reject_%s-J%d-%dETA%d-%dETA%d_%s_bit%d_%dM%d_Eta1Eta2", name().c_str(), et_min, eta1_min, eta1_max, eta2_min, eta2_max, className().c_str(), i, xi_min, xi_max);
-       registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, 100, -50.0, +50.0, 100, -50.0, +50.0));
-       registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, 100, -50.0, +50.0, 100, -50.0, +50.0));
+       bookHist(m_histAcceptEta1Eta2, hname_accept, "ETA vs ETA", 100, p_MinEta1[i], p_MaxEta1[i], 100, p_MinEta2[i], p_MaxEta2[i]);
+       bookHist(m_histRejectEta1Eta2, hname_reject, "ETA vs ETA", 100, p_MinEta1[i], p_MaxEta1[i], 100, p_MinEta2[i], p_MaxEta2[i]);
    }
+   
  
    return StatusCode::SUCCESS;
 }
 TCS::StatusCode
-TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & input,
-				       const vector<TCS::TOBArray *> & output,
+TCS::ExclusiveJets::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+				       const std::vector<TCS::TOBArray *> & output,
 				       Decision & decision ) // Not really bitwise, keep the name for the future
 {
    if(input.size() == 1) {     
@@ -151,11 +143,11 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
 		  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
 		}
 		if(fillAccept and not alreadyFilled) {
-		  fillHist2D(m_histAcceptExclusiveJets[i]->GetName(),xi_1,xi_2);
-		  fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		  fillHist2D(m_histAcceptX[i],xi_1,xi_2);
+		  fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
 		  } else if(fillReject) {
-		  fillHist2D(m_histRejectExclusiveJets[i]->GetName(),xi_1,xi_2);
-		  fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
+		  fillHist2D(m_histRejectX[i],xi_1,xi_2);
+		  fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
 		}
 		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		
@@ -168,8 +160,8 @@ TCS::ExclusiveJets::processBitCorrect( const vector<TCS::TOBArray const *> & inp
    return TCS::StatusCode::SUCCESS;
 }
 TCS::StatusCode
-TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
-			     const vector<TCS::TOBArray *> & output,
+TCS::ExclusiveJets::process( const std::vector<TCS::TOBArray const *> & input,
+			     const std::vector<TCS::TOBArray *> & output,
 			     Decision & decision )
 {
    if(input.size() == 1) {     
@@ -210,11 +202,11 @@ TCS::ExclusiveJets::process( const vector<TCS::TOBArray const *> & input,
 		  output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
 		}
 		if(fillAccept and not alreadyFilled) {
-		  fillHist2D(m_histAcceptExclusiveJets[i]->GetName(),xi_1,xi_2);
-		  fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		  fillHist2D(m_histAcceptX[i],xi_1,xi_2);
+		  fillHist2D(m_histAcceptEta1Eta2[i],eta1, eta2);
 		  } else if(fillReject) {
-		  fillHist2D(m_histRejectExclusiveJets[i]->GetName(),xi_1,xi_2);
-		  fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
+		  fillHist2D(m_histRejectX[i],xi_1,xi_2);
+		  fillHist2D(m_histRejectEta1Eta2[i],eta1, eta2);
 		}
 		TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " xi_1 = " << xi_1);
 		  
