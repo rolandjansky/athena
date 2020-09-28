@@ -36,6 +36,7 @@ find_package( GSL )
 find_package( Davix )
 find_package( PNG )
 find_package( BLAS )
+find_package( xz )
 
 # AIDA dependency, because Gaudi needs it
 # Need to ensure AIDA is in the ROOT_INCLUDE_PATH for python dictionaries
