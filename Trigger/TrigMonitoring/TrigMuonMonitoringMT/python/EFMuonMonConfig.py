@@ -76,6 +76,16 @@ def EFMuonMonConfig(helper):
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=96,ymin=-ROOT.TMath.Pi(),ymax=ROOT.TMath.Pi())
 
 
+        # EFIso
+        histGroup.defineHistogram(chain+'_PtCone03;EFIso_PtCone03',
+                                  title='EFIso sum Pt in 0.3 cone '+chain+';Sum p_{T} [GeV];Events',
+                                  type='TH1F', path='',xbins=50, xmin=0., xmax=25.)
+
+        histGroup.defineHistogram(chain+'_PtCone03overMuonPt;EFIso_PtCone03overMuonPt',
+                                  title='EFIso sum Pt in 0.3 cone / muon Pt '+chain+';Sum p_{T} in 0.3 cone / muon p_{T};Events',
+                                  type='TH1F', path='',xbins=100,xmin=0.,xmax=0.5)
+
+
         # OfflineSA
         histGroup.defineHistogram(chain+'_OfflineSA_Pt;OfflineSA_Pt',
                                   title='OfflineSA Pt '+chain+';p_{T} [GeV];Events', 
@@ -250,5 +260,16 @@ def EFMuonMonConfig(helper):
                                   title='EtaCor OfflineCB (matched to EFCB) vs. OfflineCB (matched to L2CB) '+chain+';OfflineCB matched to EFCB #eta;OfflineCB matched to L2CB #eta',
                                   cutmask=chain+'_matchedL2CB',
                                   type='TH2F', path='',xbins=108,xmin=-2.7,xmax=2.7, ybins=108,ymin=-2.7,ymax=2.7)
+
+
+        # EFIso vs. OfflineIso muons
+        histGroup.defineHistogram(chain+'_MatchedEFPIsotCone03,'+chain+'_OfflineIsoPtCone03;EFIso_OfflineIso_CorPtCone03',
+                                  title='sum Pt in 0.3 cone correlation EFIso vs. OfflineIso '+chain+';EFIso Sum p_{T} [GeV];OfflineIso Sum p_{T} [GeV];Events',
+                                  type='TH2F', path='',xbins=50, xmin=0., xmax=25., ybins=50, ymin=0., ymax=25.)
+
+        histGroup.defineHistogram(chain+'_MatchedEFIsoPtCone03overMuonPt,'+chain+'_OfflineIsoPtCone03overMuonPt;EFIso_OfflineIso_CorPtCone03overMuonPt',
+                                  title='sum Pt in 0.3 cone / muon Pt correlation EFIso vs. OfflineIso '+chain+';EFIso Sum p_{T} in 0.3 cone / muon p_{T};OfflineIso Sum p_{T} in 0.3 cone / muon p_{T};Events',
+                                  type='TH2F', path='',xbins=100,xmin=0.,xmax=0.5, ybins=100,ymin=0.,ymax=0.5)
+
 
     return
