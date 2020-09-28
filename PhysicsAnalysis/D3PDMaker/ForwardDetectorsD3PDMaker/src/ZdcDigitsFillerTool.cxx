@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ZdcDigitsFillerTool.cxx 524378 2012-11-04 10:06:03Z ssnyder $
@@ -54,9 +54,6 @@ namespace D3PD {
        * Get mapping from detector store
        */
       CHECK( detStore()->retrieve( m_zdcID ) );
-
-      // Initialize the singleton:
-      ZdcCablingService::getInstance()->setZdcID( m_zdcID );
 
       ATH_MSG_INFO( "ZdcDigitsFillerTool---> Initialized" );
 
