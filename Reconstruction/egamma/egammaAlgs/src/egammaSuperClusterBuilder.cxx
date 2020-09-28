@@ -183,11 +183,11 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
     float dEta(fabs(ref->eta() - clus->eta()));
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaBarrel && dPhi < m_searchWindowPhiBarrel);
-  } 
+  }
     float dEta(fabs(ref->eta() - clus->eta()));
     float dPhi(fabs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap);
-  
+
 }
 
 std::unique_ptr<xAOD::CaloCluster>

@@ -66,7 +66,7 @@ private:
   Gaudi::Property<std::size_t> m_numberOfPixelHits{
     this,
     "NumberOfReqPixelHits",
-    1,
+    0,
     "Number of required pixel hits for electrons"
   };
 
