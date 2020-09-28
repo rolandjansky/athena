@@ -1106,12 +1106,10 @@ else:
        DummyCollection = []
        if InDetFlags.doTRTExtension() :
          DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
-       else :
-         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
        merger_track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits(namePrefix                 = 'DisappearingSplitProb',
                                                                                      ClusterSplitProbabilityName= DisappearingClusterSplitProbContainer)
        from InDetRecExample.TrackingCommon                        import getInDetPRDtoTrackMapToolGangedPixels
-       assert( TrackingCommon.pixelClusterSplitProbName() == DisappearingClusterSplitProbContainer)
+       #assert( TrackingCommon.pixelClusterSplitProbName() == DisappearingClusterSplitProbContainer)
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
