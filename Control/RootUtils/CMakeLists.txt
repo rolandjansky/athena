@@ -13,25 +13,23 @@ find_package( ROOT COMPONENTS RIO Hist Tree Core MathCore ROOTTPython
 atlas_generate_reflex_dictionary( dict_cpp RootUtils
    HEADER ${CMAKE_CURRENT_SOURCE_DIR}/RootUtils/RootUtilsDict.h
    SELECTION ${CMAKE_CURRENT_SOURCE_DIR}/RootUtils/selection.xml
-   INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES CxxUtils )
 
 atlas_add_library( RootUtils
    src/*.cxx ${dict_cpp}
    PUBLIC_HEADERS RootUtils
-   INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES CxxUtils ${Boost_LIBRARIES}
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CxxUtils )
 add_dependencies( RootUtils RootUtilsDictGen )
 
 atlas_add_library( RootUtilsPyROOT
    src/pyroot/*.cxx
    PUBLIC_HEADERS RootUtils
    INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} RootUtils
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+   ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+   CxxUtils )
 
 atlas_add_dictionary( RootUtilsPyROOTDict
    RootUtils/RootUtilsPyROOTDict.h
