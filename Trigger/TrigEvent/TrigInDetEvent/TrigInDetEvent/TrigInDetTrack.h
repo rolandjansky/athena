@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGINDETTRACK_H
@@ -154,7 +154,8 @@ class TrigInDetTrack {
   /** Chi2 of the track fit normalized on number of DOF */
   double chi2() const { return m_chi2; }
   /** Pixel and SCT spacepoints associated with track */
-  std::vector <const TrigSiSpacePoint*>* siSpacePoints() const { return m_siSpacePoints; }
+  std::vector <const TrigSiSpacePoint*>* siSpacePoints() { return m_siSpacePoints; }
+  const std::vector <const TrigSiSpacePoint*>* siSpacePoints() const { return m_siSpacePoints; }
 
   /** Number of Pixel spacepoints associated with track */
   inline int  NPixelSpacePoints() const { return m_NPixelSpacePoints;}
@@ -173,7 +174,10 @@ class TrigInDetTrack {
   /** Number of high-threshold TRT hits associated with track */
   inline int NTRHits()    const { return m_NTRHits;    } 
   /** TRT drift circles associated with track */
-  std::vector<const InDet::TRT_DriftCircle*>* trtDriftCircles() const {
+  std::vector<const InDet::TRT_DriftCircle*>* trtDriftCircles() {
+    return m_trtDriftCircles;
+  }
+  const std::vector<const InDet::TRT_DriftCircle*>* trtDriftCircles() const {
     return m_trtDriftCircles;
   }
   /** RDOs associated with track */
