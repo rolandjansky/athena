@@ -203,7 +203,7 @@ Most Powheg parameters exist for multiple processes. Important ones are listed h
 
 | Parameter name | Meaning | Allowed values | Notes and examples |
 | :------------: | :-----: | :------------: |:----------------: |
-| `PDF`          | Choice of nominal and (optionally) variation PDF sets | A single LHAPDF ID (`int`) or a list` of LHAPDF IDs. You can find a table of all available LHAPDF sets and their IDs [here](https://lhapdf.hepforge.org/pdfsets). Some more unusual ones might not be installed in the ATLAS setup, so be aware of that. Ask experts for help if necessary.
+| `PDF`          | Choice of nominal and (optionally) variation PDF sets | A single LHAPDF ID (`int`) or a `list` of LHAPDF IDs. You can find a table of all available LHAPDF sets and their IDs [here](https://lhapdf.hepforge.org/pdfsets). Some more unusual ones might not be installed in the ATLAS setup, so be aware of that. Ask experts for help if necessary.
 
 
 
