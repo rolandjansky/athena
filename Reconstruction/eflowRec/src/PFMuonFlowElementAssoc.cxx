@@ -9,6 +9,11 @@
 #include "xAODPFlow/FlowElementContainer.h" 
 #include "xAODPFlow/FlowElement.h" 
 
+//includes for CaloCluster algo
+#include "CaloEvent/CaloCell.h"
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
+#include "Identifier/Identifier.h"
+
 typedef ElementLink<xAOD::MuonContainer> MuonLink_t; 
 typedef ElementLink<xAOD::FlowElementContainer> FlowElementLink_t; 
 //
@@ -126,6 +131,18 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       //get the index of the cluster corresponding to the Neutral FlowElements
       size_t FEclusterindex=FE->otherObjects().at(0)->index();
       
+      // FE->otherObjects returns a vector of IParticles. We only want the first one
+      const xAOD::IParticle* FE_Iparticle=FE->otherObjects().at(0);
+      //dynamic cast to CaloCluster
+      const xAOD::CaloCluster* FE_cluster=dynamic_cast<const xAOD::CaloCluster*>(FE_Iparticle); //cast to CaloCluster
+      
+      // retrieve the link to cells
+      const CaloClusterCellLink* CellLink = FE_cluster->getCellLinks();
+      // build the iterator(s) for the looping over the elements inside the CellLink
+      CaloClusterCellLink::const_iterator FE_FirstCell=CellLink->begin();
+      CaloClusterCellLink::const_iterator FE_LastCell=CellLink->end();
+					     
+      
       //design the vector of ElementLinks
       std::vector<MuonLink_t> FEMuonLinks;
       for (const xAOD::Muon* muon: *muonNeutralFEWriteDecorHandle ){
@@ -154,14 +171,36 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	    } // end of loop over element links
 	  } //end of TopoCluster specific block
 	  else{ // case when we don't use Topoclusters, just match the caloclusters to the flow element
-	    size_t cluster_index=cluster->index();
-	    if(cluster_index==FEclusterindex){
+	    //if we don't match topoclusters, do something more complex: 
+	    // Retrieve cells in both the FE cluster and muon cluster
+	    // Define the link as where at least one calo cell is shared between the FE cluster and the Muon Cluster
+	    
+	    //retrieve cells associated to Muon cluster
+	    const CaloClusterCellLink* Muon_Clus_CellLink=cluster->getCellLinks();
+	    //get the iterator on the links
+	    CaloClusterCellLink::const_iterator Muon_Clus_FirstCell=Muon_Clus_CellLink->begin();
+	    CaloClusterCellLink::const_iterator Muon_Clus_LastCell=Muon_Clus_CellLink->end();
+
+	    //Now we check if any match. Current algo allows for at least one match.
+	    bool isCellMatched=false;
+	    for(; Muon_Clus_FirstCell != Muon_Clus_LastCell; ++Muon_Clus_FirstCell){
+	      Identifier index_muoncell=Muon_Clus_FirstCell->ID();
+	      for (; FE_FirstCell != FE_LastCell; FE_FirstCell++){
+		Identifier index_FEcell=FE_FirstCell->ID();
+		if(index_FEcell==index_muoncell){
+		  isCellMatched=true;
+		}
+	      }
+	    } // end of double loop block for cell matching
+	    if(isCellMatched){ // cell matched => Link the two objects.
 	      // Add Muon element link to a vector
 	      // index() is the unique index of the muon in the muon container   
 	      FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 	      // index() is the unique index of the cFlowElement in the cFlowElementcontaine
 	      muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
-	    } // end of matching cluster index block	    	
+	    }
+
+	    
 	  } // end of calocluster specific block
 	  
 	}  // loop over caloclusters

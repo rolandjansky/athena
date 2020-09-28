@@ -245,7 +245,7 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
 topSequence += PFONeutralCreatorAlgorithm
 from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
-jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
+
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    
@@ -272,13 +272,13 @@ if jobproperties.eflowRecFlags.useFlowElements:
   # Electron/Photon linkers to flow elements
   from eflowRec.eflowRecConf import PFEGamFlowElementAssoc
   PFEGamFlowElementAssocAlg=PFEGamFlowElementAssoc("PFEGamFlowElementAssoc")
-  topSequence +=PFEGamFlowElementAssoc
+  topSequence +=PFEGamFlowElementAssocAlg
 
   # Muon linker to flow elements
   from eflowRec.eflowRecConf import PFMuonFlowElementAssoc
   PFMuonFlowElementAssocAlg=PFMuonFlowElementAssoc("PFMuonFlowElementAssocAlgorithm")
   #Gaudi switch to add the experimental linker between muon clusters and neutral flow elements (FE)
-  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=False
+  PFMuonFlowElementAssocAlg.m_LinkNeutralFEClusters=True
   PFMuonFlowElementAssocAlg.m_UseMuonTopoClusters=False # second switch combined with first implies Muon topoclusters are linked to neutral Flow Elements
   topSequence += PFMuonFlowElementAssocAlg
 
