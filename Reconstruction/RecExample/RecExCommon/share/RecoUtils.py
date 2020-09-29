@@ -185,9 +185,9 @@ if not rec.OutputLevel.isDefault():
 
 #Adjust the message format for threaded vs serial jobs
 if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    ServiceMgr.MessageSvc.Format = "% F%50W%S%4W%R%e%s%8W%R%T %0W%M"
+    ServiceMgr.MessageSvc.Format = "% F%50W%C%4W%R%e%s%8W%R%T %0W%M"
 else:
-    ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+    ServiceMgr.MessageSvc.Format = "% F%50W%C%7W%R%T %0W%M" 
 
 
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
