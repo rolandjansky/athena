@@ -25,6 +25,7 @@
 #include "xAODTrigEgamma/TrigPhoton.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/EgammaContainer.h"
+#include "xAODBase/IParticleContainer.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

@@ -42,10 +42,10 @@ StatusCode TrigEgammaDiphotonDPhiHypoTool::initialize()
 bool TrigEgammaDiphotonDPhiHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
 
 //retrieve the electrons 
-  std::vector<ElementLink<xAOD::EgammaContainer>> selected_photons;
+  std::vector<ElementLink<xAOD::IParticleContainer>> selected_photons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto photonLink = TrigCompositeUtils::findLink<xAOD::EgammaContainer>( *EL, featureString() ).link;
+    auto photonLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
     selected_photons.push_back(photonLink);
   }
   auto photonLink1=selected_photons[0];
