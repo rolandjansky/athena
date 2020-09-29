@@ -66,7 +66,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(std::vector<IdentifierHash>&, std
 //*****************************************
 //************** Process for the givenId EF Filter case...
 /// This decode function is for single-thread running only
-StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
+StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIdhs) {  
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
@@ -151,22 +151,16 @@ StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscR
     }
 
     if (oldId != stationId) {
-      auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
-      if (nullptr == it_coll) {
-	CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
-	newCollection->setIdentifier(stationId);
-	collection = newCollection;
-	if ( m_outputCollection->addCollection(newCollection, cscHashId).isFailure() )
-	  ATH_MSG_WARNING ("Couldn't record CscStripPrepdataCollection with key="
-			   << (unsigned int) cscHashId << " in StoreGate!" );
-	decodedIdhs.push_back(cscHashId); //Record that this collection contains data
-      } else {  // It won't be needed because we already skipped decoded one (should be checked it's true)
-
-//Hack for transition to athenaMT classes
-	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
-	collection = oldCollection;
-	cscHashId = collection->identifyHash();
+      auto newCollection = std::make_unique<CscStripPrepDataCollection>(cscHashId);
+      newCollection->setIdentifier(stationId);
+      collection = newCollection.get();
+      if ( m_outputCollection->addCollection(newCollection.release(), cscHashId).isFailure() )
+      {
+        ATH_MSG_ERROR ("Couldn't add CscStripPrepdataCollection with key="
+                         << (unsigned int) cscHashId << " to container!" );
+        return StatusCode::FAILURE;
       }
+      decodedIdhs.push_back(cscHashId); //Record that this collection contains data
       oldId = stationId;
     }
     
@@ -255,7 +249,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscR
 
 //************** Process for all in case of Offline
 /// This decode function is for single-thread running only
-StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
+StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
 {
   
   typedef CscRawDataContainer::const_iterator collection_iterator;
@@ -320,24 +314,17 @@ StatusCode CscRdoToCscPrepDataToolCore::decode ATLAS_NOT_THREAD_SAFE (const CscR
 	}
 
 	if (oldId != stationId) {
-	  auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
-	  if (nullptr == it_coll) {
-	    CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
-	    newCollection->setIdentifier(stationId);
-	    collection = newCollection;
-	    if ( m_outputCollection->addCollection(newCollection, cscHashId).isFailure() )
-	      ATH_MSG_WARNING( "Couldn't record CscStripPrepdataCollection with key=" << (unsigned int) cscHashId
-			       << " in StoreGate!" );
-	    decodedIdhs.push_back(cscHashId); //Record that this collection contains data
+          auto newCollection = std::make_unique<CscStripPrepDataCollection>(cscHashId);
+          newCollection->setIdentifier(stationId);
+          collection = newCollection.get();
+          if ( m_outputCollection->addCollection(newCollection.release(), cscHashId).isFailure() )
+          {
+            ATH_MSG_ERROR( "Couldn't add CscStripPrepdataCollection with key=" << (unsigned int) cscHashId
+                           << " to container!" );
+            return StatusCode::FAILURE;
+          }
+          decodedIdhs.push_back(cscHashId); //Record that this collection contains data
 	    
-	  } else {  
-//Hack for transition to athenaMT classes
-            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
-
-	    collection = oldCollection;
-	    cscHashId = collection->identifyHash();
-	    
-	  }
 	  oldId = stationId;
 	}
 

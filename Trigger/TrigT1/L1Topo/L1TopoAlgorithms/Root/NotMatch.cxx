@@ -18,7 +18,6 @@
 
 REGISTER_ALG_TCS(NotMatch)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
 #define LOG cout << "TCS::NotMatch:     "
@@ -122,7 +121,7 @@ TCS::NotMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & inp
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) {
           bool all_unmatched = true;
-          vector<GenericTOB*> unmatched_tobs;
+	  std::vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
@@ -172,7 +171,7 @@ TCS::NotMatch::process( const std::vector<TCS::TOBArray const *> & input,
       unsigned int deltaR2= 999;
       for(unsigned int i=0; i<numberOutputBits(); ++i) { 
        bool all_unmatched = true;
-       vector<GenericTOB*> unmatched_tobs;
+       std::vector<GenericTOB*> unmatched_tobs;
        for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)

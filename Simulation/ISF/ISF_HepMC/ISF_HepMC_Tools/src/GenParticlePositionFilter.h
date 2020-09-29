@@ -45,7 +45,11 @@ namespace ISF {
       StatusCode  finalize();
 
       /** does the given particle pass the filter? */
+#ifdef HEPMC3
+      bool pass(HepMC::ConstGenParticlePtr particle) const;
+#else
       bool pass(const HepMC::GenParticle& particle) const;
+#endif 
 	  
 	private:
       ServiceHandle<IGeoIDSvc>          m_geoIDSvc;

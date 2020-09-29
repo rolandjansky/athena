@@ -24,11 +24,7 @@
 
 // Forward declarations
 #include "AtlasHepMC/GenEvent_fwd.h"
-
-namespace HepMC 
-{
-  class GenVertex;
-}  
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 namespace Simulation
 {
@@ -57,7 +53,7 @@ namespace Simulation
   private:
 
     /** Ensure that the GenEvent::signal_process_vertex has been set */
-    HepMC::GenVertex* GetSignalProcessVertex(const HepMC::GenEvent& ge) const;
+    HepMC::ConstGenVertexPtr GetSignalProcessVertex(const HepMC::GenEvent& ge) const;
     
     SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection { this, "InputMcEventCollection", "TruthEvent", "The name of the input McEventCollection" };
     

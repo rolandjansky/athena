@@ -160,6 +160,15 @@ class MuonMatchingTool : public AthAlgTool {
    */
   const xAOD::Muon* matchEFIso(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
+  /**
+   * @brief Function that searches for an EF isolation muon (EFIso) candidate and judges if it is matched to a given track particle.
+   * @param mu Offline muon around which EFIso candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @return Pointer to the matched candidate. This is inValid link when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   */
+  const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> matchEFIsoLinkInfo( const xAOD::Muon *mu, std::string trig) const;
+
 
   /**
    * @brief Function that searches for an offline muon matched to L2SA muon

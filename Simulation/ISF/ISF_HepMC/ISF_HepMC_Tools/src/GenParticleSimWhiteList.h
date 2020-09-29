@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "AtlasHepMC/GenParticle.h"
 namespace ISF {
 
     class ISFParticle;
@@ -44,11 +45,19 @@ namespace ISF {
       StatusCode  finalize();
 
       /** passes through to the private version */
+#ifdef HEPMC3
+      bool pass(HepMC::ConstGenParticlePtr particle ) const;
+#else
       bool pass(const HepMC::GenParticle& particle ) const;
+#endif
 
      private:
       /** returns true if the the particle and all daughters are on the white list */
+#ifdef HEPMC3
+      bool pass(HepMC::ConstGenParticlePtr particle , std::vector<int> & used_vertices ) const;
+#else
       bool pass(const HepMC::GenParticle& particle , std::vector<int> & used_vertices ) const;
+#endif
       std::vector<std::string>          m_whiteLists;            //!< The location of the white lists
       std::vector<long int>             m_pdgId;                //!< Allowed PDG IDs
       bool                              m_qs;                   //!< Switch for quasi-stable particle simulation

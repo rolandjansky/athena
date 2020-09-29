@@ -211,8 +211,8 @@ class TrigInDetCompStep(RefComparisonStep):
         if (self.test=='ttbar'):
             self.output_dir = self.output_dir+"-"+self.slice
 
-        if (self.type == 'offl'):
-            self.output_dir = self.output_dir+'-offl'    
+        if (self.type == 'offline'):
+            self.output_dir = self.output_dir+'-offline'    
             self.input_file = 'data-hists-offline.root'
 
         self.args += self.input_file + ' ' 

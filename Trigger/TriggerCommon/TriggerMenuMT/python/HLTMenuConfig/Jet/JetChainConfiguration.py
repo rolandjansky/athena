@@ -62,13 +62,21 @@ class JetChainConfiguration(ChainConfigurationBase):
         # --------------------
         # Only one step for now, but we might consider adding steps for
         # reclustering and trimming workflows
-        steps=[self.getJetChainStep()]
+
+        step1_jetCollectionName, step1= self.getJetChainStep()
+        steps=[step1]
 
         chainSteps = []
         for step in steps:
             chainSteps+=[step]
-    
+         
+         
+        if "JetDS" in self.chainName:
+           TLAStep = self.getJetTLAChainStep(step1_jetCollectionName)
+           chainSteps+= [TLAStep]
+        
         myChain = self.buildChain(chainSteps)
+
         return myChain
         
 
@@ -84,13 +92,18 @@ class JetChainConfiguration(ChainConfigurationBase):
         stepName = "Step1_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, ConfigFlags, **self.recoDict ) # the None will be used for flags in future
-
-        return ChainStep(stepName, [jetSeq1], multiplicity=[1], chainDicts=[self.dict])
-
-
+        step1_jetCollectionName = jetSeq1.hypo.Alg.Jets 
+        chainStep1 = ChainStep(stepName, [jetSeq1], multiplicity=[1], chainDicts=[self.dict])
         
-            
-            
+        return step1_jetCollectionName, chainStep1
 
-        
-                
+    def getJetTLAChainStep(self, jetCollectionName):
+        #maybe not needed
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetTLAConfiguration import jetTLAMenuSequence
+
+        stepName = "Step2_jetTLA_"+jetCollectionName
+        jetSeq2 = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName ) # the None will be used for flags in future
+        chainStep2 = ChainStep(stepName, [jetSeq2], multiplicity=[1], chainDicts=[self.dict])
+
+        return chainStep2
+

@@ -248,6 +248,7 @@ topSequence += PFONeutralCreatorAlgorithm
 from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
 
+
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
 
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc

@@ -23,7 +23,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM8I', 'EM10VH', 'EM12', 'EM15', 'EM15VH'  ],
+            "thresholds" : [ 'EM3', 'EM7', 'EM8VH', 'EM10VH', 'EM12', 'EM15', 'EM15VH', 'EM15VHI' ],
             "zeroBias" : "ZB_EM15"
         },
         {
@@ -32,7 +32,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'EM15VHI', 'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM' ]
+            "thresholds" : [ 'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 'EM30VHI' ]
         },
         {
             "name" : "TAU1",
@@ -40,7 +40,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA12IT', 'HA15', 'HA20', 'HA20IL' ]
+            "thresholds" : [ 'HA5', 'HA8', 'HA12', 'HA12IL', 'HA12IM', 'HA15', 'HA20', 'HA20IL' ]
         },
         
         {
@@ -49,7 +49,7 @@ def defineLegacyInputsMenu():
             "nbitsDefault" : 3,
             "type" : "ctpin",
             "legacy" : True,
-            "thresholds" : [ 'HA20IM', 'HA20IT', 'HA25', 'HA25IT', 'HA30', 'HA40', 'HA60', 'HA100' ]
+            "thresholds" : [ 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60', 'HA90', 'HA100' ]
         }
     ]
 
@@ -69,8 +69,8 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J12', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30', 'J40', # 8 x JETs and central jets
-                'J20.0ETA49', 'J30.0ETA49', # 2 x VBF
+                'J12', 'J12.0ETA23', 'J15', 'J15.0ETA25','J20', 'J25','J25.0ETA23','J30', # 8 x JETs and central jets
+                'J12.0ETA28', 'J20.0ETA49', # 2 x VBF
             ]
         },
         {
@@ -81,9 +81,9 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J35.0ETA23','J40.0ETA25', 'J45.0ETA20', # 3 x Central Jet
-                'J50', 'J75', 'J85', 'J100', 'J120', 'J400', # 6 Jets
-                'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', 'J12.0ETA23', # 6 x FJ              
+                'J30.0ETA49', 'J35.0ETA23', 'J40.0ETA25', # 3 x central Jet
+                'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J400', # 6 jets + 1 central jet
+                'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', # 6 x FJ
             ]
         },
         {
@@ -231,6 +231,12 @@ def defineLegacyInputsMenu():
                         TopoMenuDef( "0DR04-MU6ab-CJ25ab",    outputbits = 7  ),
                         TopoMenuDef( "10MINDPHI-CJ20ab-XE50", outputbits = 8  ),
                         TopoMenuDef( "0DR24-2CMU4ab",         outputbits = 9  ),
+                        TopoMenuDef( "FTK-J100s1",            outputbits = 10  ),
+                        TopoMenuDef( "MULT-CMU4ab",           outputbits = (11,12), outputlines = [ "MULT-CMU4ab[0]",
+                                                                                                    "MULT-CMU4ab[1]" ] ),
+                        TopoMenuDef( "MULT-CMU6ab",           outputbits = (13,14), outputlines  = [ "MULT-CMU6ab[0]",
+                                                                                                     "MULT-CMU6ab[1]" ] ),
+                        TopoMenuDef( "FTK-MU10s1",            outputbits = 15  ),
                     ]
                 },
                 {
@@ -247,6 +253,7 @@ def defineLegacyInputsMenu():
                         TopoMenuDef( "LATE-MU10s1",           outputbits = 10 ),
                         TopoMenuDef( "SC111-CJ15abpETA26",    outputbits = 11 ),
                         TopoMenuDef( "SC85-CJ15abpETA26",     outputbits = 12 ),
+                        TopoMenuDef( "FTK-EM20s1",            outputbits = 13 ),
                     ]
                 },
                 {

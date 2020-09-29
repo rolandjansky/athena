@@ -46,8 +46,6 @@ private:
     parType_t      p_PhiMax = { 0 };
     parType_t      p_PhiMin = { 0 };
 
-    TH2 * m_histAccept[1] = {};
-    TH2 * m_histReject[1] = {};
 };
 
 }

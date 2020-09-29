@@ -861,26 +861,46 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', d.minDr*d.minDr, 0)
             alg.addvariable('DeltaRMax', d.maxDr*d.maxDr, 0)
             tm.registerTopoAlgo(alg)
-            
+
+
+        # MULT-BIT            
+        for x in [
+            {"otype1" : "CMU" ,"ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU}, #MULT-CMU4ab
+            {"otype1" : "CMU" ,"ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU}, #MULT-CMU6ab
+            ]:
+            class d:
+                pass
+            for k in x:
+                setattr (d, k, x[k])
+            toponame = "MULT-%s%s%s" % (d.otype1, str(d.ocut1), d.olist1) # noqa: F821
+            toponames = [toponame+"[0]", toponame+"[1]"]
+            log.debug("Define %s", toponames)
+            inputList = [d.otype1 + d.olist1]  # noqa: F821
+            alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames)
+            alg.addgeneric('InputWidth', d.inputwidth1) # noqa: F821
+            alg.addgeneric('NumResultBits', 2)
+            alg.addvariable('MinET', d.ocut1-1) # for MU threshold -1   # noqa: F821
+            tm.registerTopoAlgo(alg)        
+
+
         # dimu INVM items
+        toponame = "8INVM15-2CMU4ab"
+        log.debug("Define %s", toponame)        
+        inputList = ['CMUab']
+        alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame )
+        alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+        alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+        alg.addgeneric('NumResultBits', 1)
+        alg.addvariable('MinMSqr', 8*8)
+        alg.addvariable('MaxMSqr', 15*15)
+        alg.addvariable('MinET1', 4)
+        alg.addvariable('MinET2', 4)        
+        tm.registerTopoAlgo(alg)
+
 
         if not usev8:
             algolist=[
-                #            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0},
-                #            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0},
-                #            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 1},
-                #            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" :"CMU","ocut2" : 4, "onebarrel": 0},
-
-
-                #            {"minInvm": 4, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},
-                #            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0},
-                #            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1},
-                #            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
-                #SX
-                #{"minInvm": 1, "maxInvm": 19, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #1INVM19-CMU4ab-MU4ab
                 {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #2INVM8-CMU4ab-MU4ab
-                #{"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #1INVM19-2CMU4ab
-                #{"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #2INVM8-2CMU4ab
                 {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1}, #2INVM8-ONEBARREL-MU6ab-MU4ab
             ]
         if usev8:

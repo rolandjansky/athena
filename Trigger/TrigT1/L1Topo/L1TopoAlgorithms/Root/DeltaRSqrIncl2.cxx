@@ -21,10 +21,9 @@
 
 REGISTER_ALG_TCS(DeltaRSqrIncl2)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DeltaRSqrIncl2:     "
+#define LOG std::cout << "TCS::DeltaRSqrIncl2:     "
 
 TCS::DeltaRSqrIncl2::DeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
 {
@@ -76,16 +75,16 @@ TCS::DeltaRSqrIncl2::initialize() {
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);  
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int deltaR_max = sqrt(p_DeltaRMax[i]);
-       // mass
-       snprintf(hname_accept, buf_len, "Accept_DeltaRSqrIncl2_bit%d", i);
-       snprintf(hname_reject, buf_len, "Reject_DeltaRSqrIncl2_bit%d", i);
-       registerHist(m_histAccept[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*deltaR_max));
-       registerHist(m_histReject[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*deltaR_max));
-   }   
+
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hDeltaRSqrIncl2_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hDeltaRSqrIncl2_reject_bit"+std::to_string((int)i);
+       // dR
+       bookHist(m_histAccept, hname_accept, "DR", 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
+       bookHist(m_histReject, hname_reject, "DR", 100, sqrt(p_DeltaRMin[i]), sqrt(p_DeltaRMax[i]));
+  }
+    
    return StatusCode::SUCCESS;
 }
 
@@ -121,9 +120,9 @@ TCS::DeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *>
 		     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                    }
 		   if(fillAccept and not alreadyFilled) {
-		     fillHist1D(m_histAccept[i]->GetName(),sqrt((float)deltaR2));
+		     fillHist1D(m_histAccept[i],sqrt((float)deltaR2));
 		   } else if(fillReject) {
-		     fillHist1D(m_histReject[i]->GetName(),sqrt((float)deltaR2));
+		     fillHist1D(m_histReject[i],sqrt((float)deltaR2));
 		   }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                  }
@@ -169,9 +168,9 @@ TCS::DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
 		   output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
 		 }
 		 if(fillAccept and not alreadyFilled) {
-		   fillHist1D(m_histAccept[i]->GetName(),sqrt((float)deltaR2));
+		   fillHist1D(m_histAccept[i],sqrt((float)deltaR2));
 		 } else if(fillReject) {
-		   fillHist1D(m_histReject[i]->GetName(),sqrt((float)deltaR2));
+		   fillHist1D(m_histReject[i],sqrt((float)deltaR2));
 		 }
 		 TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                }

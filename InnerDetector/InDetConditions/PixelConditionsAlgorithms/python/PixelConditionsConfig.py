@@ -53,7 +53,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             DBMTimeOffset=[5.0,5.0,5.0]
         )
 
-    if flags.Input.isMC:
+    if flags.Input.isMC or flags.Overlay.DataOverlay:
         # Digitization parameters
         CondArgs.update(
             BunchSpace=25.0,

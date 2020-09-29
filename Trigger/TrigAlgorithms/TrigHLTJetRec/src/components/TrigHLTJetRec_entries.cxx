@@ -28,6 +28,7 @@
 #include "TrigHLTJetRec/EMTopoRejectionTool.h"
 #include "TrigHLTJetRec/PFlowRejectionTool.h"
 #include "TrigHLTJetRec/NonPositiveEnergyRejectionTool.h"
+#include "TrigHLTJetRec/TrigHLTJetTLASelector.h"
 
 DECLARE_COMPONENT(IParticleNullRejectionTool)
 DECLARE_COMPONENT(IParticlePtEtaRejectionTool)
@@ -61,3 +62,6 @@ DECLARE_COMPONENT( TrigJetFromPseudojet )
 
 DECLARE_COMPONENT( TriggerJetBuildTool )
 DECLARE_COMPONENT( TriggerJetGroomerTool )
+
+DECLARE_COMPONENT( TrigHLTJetTLASelector )
+

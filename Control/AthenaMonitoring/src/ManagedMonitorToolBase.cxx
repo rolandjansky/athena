@@ -756,7 +756,7 @@ initialize()
      if (joSvc->has(name))
        var = joSvc->get(name);
      else
-       ATH_MSG_ERROR("Cannot read " << name);
+       ATH_MSG_DEBUG("Cannot read " << name);  // on purpose not an ERROR (will be set by setMonManager)
    };
    getProp( m_fileKey, client + ".FileKey");
    getProp( m_dataTypeStr, client + ".DataType");

@@ -20,9 +20,6 @@
 
 REGISTER_ALG_TCS(Multiplicity)
 
-using namespace std;
-
-
 
 TCS::Multiplicity::Multiplicity(const std::string & name) : DecisionAlg(name)
 {
@@ -72,7 +69,7 @@ TCS::Multiplicity::process( const std::vector<TCS::TOBArray const *> & input,
      // counter
      int nmuon = 0;
      // vector of tobs passing cuts
-     vector<TCS::GenericTOB*> TOBvector;
+     std::vector<TCS::GenericTOB*> TOBvector;
 
      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < nLeading;

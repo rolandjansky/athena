@@ -209,7 +209,7 @@ class useOldVertexFitterAPI(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class useShowerSubClusters(JobProperty):
+class useSubtractedCluster(JobProperty):
     """ switch on use of shower subtracted clusters
     """
     statusOn=True
@@ -224,7 +224,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useShowerSubClusters]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

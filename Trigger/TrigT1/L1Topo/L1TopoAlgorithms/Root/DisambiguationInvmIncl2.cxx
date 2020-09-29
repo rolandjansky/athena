@@ -24,10 +24,9 @@
 
 REGISTER_ALG_TCS(DisambiguationInvmIncl2)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DisambiguationInvmIncl2:     "
+#define LOG std::cout << "TCS::DisambiguationInvmIncl2:     "
 
 namespace {
 unsigned int

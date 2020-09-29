@@ -115,7 +115,7 @@ class TileRODMonitorAlgorithm : public TileMonitorAlgorithm {
     std::vector<std::vector<int>> m_dspChanTimeGroups;
 
     std::vector<uint32_t> m_tileRobIds;
-    static const int MAX_TILE_ROBS = 32;
+    static constexpr int MAX_TILE_ROBS = 32;
 };
 
 
