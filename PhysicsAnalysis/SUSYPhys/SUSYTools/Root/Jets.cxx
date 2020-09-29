@@ -479,19 +479,21 @@ namespace ST {
       }
     }
 
-    if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
-      if(!isFat && m_currentSyst.name().find("__2") != std::string::npos){
-	// Use the PDSmeared uncertainties tool on the systematic with PDsmear in the name
-	CP::CorrectionCode result = m_jetUncertaintiesPDSmearTool->applyCorrection(input);
-        switch (result) {
-        case CP::CorrectionCode::Error:
-          ATH_MSG_ERROR( "Failed to apply JES correction" );
-          break;
-        case CP::CorrectionCode::OutOfValidityRange:
-          ATH_MSG_WARNING( "JES correction OutOfValidity range."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
-          break;
-        default:
-          break;
+    if(m_jetUncertaintiesPDsmearing){
+      if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
+        if(!isFat && m_currentSyst.name().find("__2") != std::string::npos){
+          // Use the PDSmeared uncertainties tool on the systematic with PDsmear in the name
+          CP::CorrectionCode result = m_jetUncertaintiesPDSmearTool->applyCorrection(input);
+          switch (result) {
+            case CP::CorrectionCode::Error:
+              ATH_MSG_ERROR( "Failed to apply JES correction" );
+              break;
+            case CP::CorrectionCode::OutOfValidityRange:
+              ATH_MSG_WARNING( "JES correction OutOfValidity range."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+              break;
+            default:
+              break;
+          }
         }
       }
     }

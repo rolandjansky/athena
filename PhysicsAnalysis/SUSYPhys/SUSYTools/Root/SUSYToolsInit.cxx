@@ -323,7 +323,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
-  } else  ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
+  } else{
+    ATH_MSG_DEBUG("Do not retrieve the jet PD Smearing tool if it is not configured");
+    //ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
+  }
 
   ATH_MSG_INFO("Set up FatJet Uncertainty tool if using...");
   // Initialise jet uncertainty tool for fat jets
