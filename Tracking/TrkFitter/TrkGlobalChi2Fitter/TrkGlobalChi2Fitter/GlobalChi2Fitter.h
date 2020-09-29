@@ -531,6 +531,27 @@ namespace Trk {
       ParticleHypothesis
     ) const;
 
+    /**
+     * @brief Helper method which performs an extrapolation with additional
+     * logic for hole search.
+     *
+     * This method is a wrapper around extrapolateStepwise from the
+     * extrapolator interface, with the added functionality that it will null
+     * any returned track parameters which are on the start and end surface.
+     *
+     * @param[in] ctx An event context for extrapolation.
+     * @param[in] src The track parameters to start extrapolating from.
+     * @param[in] dst The track state to extrapolate to.
+     * @param[in] propdir The propagation direction.
+     * @return A vector of track states, just like normal extrapolation.
+     */
+    std::vector<std::unique_ptr<const TrackParameters>> holesearchExtrapolation(
+      const EventContext & ctx,
+      const TrackParameters & src,
+      const GXFTrackState & dst,
+      PropDirection propdir
+    ) const;
+
     std::unique_ptr<const TrackParameters> makePerigee(
       Cache &,
       const TrackParameters &,

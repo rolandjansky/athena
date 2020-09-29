@@ -139,6 +139,14 @@ namespace {
       return nullptr;
     }
   }
+
+  bool trackParametersClose(const Trk::TrackParameters & a, const Trk::TrackParameters & b, double e) {
+    return (
+      std::abs(a.parameters()[0] - b.parameters()[0]) < e &&
+      std::abs(a.parameters()[1] - b.parameters()[1]) < e &&
+      std::abs(a.parameters()[2] - b.parameters()[2]) < e
+    );
+  }
 }
 
 namespace Trk {
@@ -7218,6 +7226,57 @@ namespace Trk {
   }
 
   GlobalChi2Fitter::~GlobalChi2Fitter() {
+  }
+
+  std::vector<std::unique_ptr<const TrackParameters>> GlobalChi2Fitter::holesearchExtrapolation(
+    const EventContext & ctx,
+    const TrackParameters & src,
+    const GXFTrackState & dst,
+    PropDirection propdir
+  ) const {
+    /*
+     * First, we conduct a bog standard stepwise extrapolation. This will
+     * yield some unwanted results, but we will filter those later.
+     */
+    std::vector<std::unique_ptr<const TrackParameters>> rv = m_extrapolator->extrapolateStepwise(
+      ctx, src, *dst.surface(), propdir, false
+    );
+
+    /*
+     * It is possible for the first returned track parameter to be on the same
+     * surface as we started on. That's probably due to some rounding errors.
+     * We check for this possibility, and set the pointer to null if it
+     * occurs. Note that this leaves some null pointers in the returned vector
+     * but this is more performant compared to removing them properly.
+     */
+    if (
+      rv.size() > 0 && (
+        &rv.front()->associatedSurface() == dst.surface() ||
+        &rv.front()->associatedSurface() == &src.associatedSurface() ||
+        trackParametersClose(*rv.front(), src, 0.001) ||
+        trackParametersClose(*rv.front(), *dst.trackParameters(), 0.001)
+      )
+    ) {
+      rv.front().reset(nullptr);
+    }
+
+    /*
+     * Same logic, but for the last returned element. In that case, we get a
+     * set of parameters on the destination surface, which we also do not
+     * want.
+     */
+    if (
+      rv.size() > 1 && (
+        &rv.back()->associatedSurface() == dst.surface() ||
+        &rv.back()->associatedSurface() == &src.associatedSurface() ||
+        trackParametersClose(*rv.back(), src, 0.001) ||
+        trackParametersClose(*rv.back(), *dst.trackParameters(), 0.001)
+      )
+    ) {
+      rv.back().reset(nullptr);
+    }
+
+    return rv;
   }
 
   GlobalChi2Fitter::PropagationResult GlobalChi2Fitter::calculateTrackParametersPropagateHelper(
