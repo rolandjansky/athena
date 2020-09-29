@@ -74,6 +74,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode fillEvt(HepMC::GenEvent *evt);
+  virtual StatusCode fillWeights(HepMC::GenEvent *evt);
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
@@ -145,6 +146,7 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
+  double m_mergingWeight, m_enhanceWeight;
   std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
   std::vector<std::string> m_weightCommands;
