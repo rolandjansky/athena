@@ -3,12 +3,13 @@
 */
 
 // GoodRunsLists includes
-#include "GRLSelectorAlg.h"
-
+#include <GoodRunsLists/GRLSelectorAlg.h>
+#include <AnaAlgorithm/FilterReporter.h>
+#include <AsgTools/MessageCheck.h>
 #include "xAODEventInfo/EventInfo.h"
 
-GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator )
-										    , m_grlTool("GoodRunsListSelectionTool")
+GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AnaAlgorithm( name, pSvcLocator )
+										    , m_grlTool("GoodRunsListSelectionTool", this)
 {
 
   declareProperty( "Tool", m_grlTool , "The GoodRunsListSelectionTool" );
@@ -21,32 +22,27 @@ GRLSelectorAlg::~GRLSelectorAlg() {}
 
 StatusCode GRLSelectorAlg::initialize() {
   //ATH_MSG_INFO ("Initializing " << name() << "...");
-  m_total=0;
-  m_passed=0;
-  CHECK( m_grlTool.retrieve() );
+  ANA_CHECK( m_grlTool.retrieve() );
+  ANA_CHECK( m_filterParams.initialize() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode GRLSelectorAlg::finalize() {
   //  ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  ATH_MSG_INFO("Events passing GRL " << m_grlTool.name() << " : " << m_passed << " / " << m_total);
+  ANA_CHECK (m_filterParams.finalize());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode GRLSelectorAlg::execute() {  
-  setFilterPassed(false);
+  EL::FilterReporter filter (m_filterParams, false);
 
-  m_total++;
   const xAOD::EventInfo* evtInfo = 0;
-  CHECK( evtStore()->retrieve( evtInfo ) );
+  ANA_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   if(!m_grlTool->passRunLB(*evtInfo)) return StatusCode::SUCCESS;
 
-  m_passed++;
-  setFilterPassed(true);
+  filter.setPassed (true);
 
   return StatusCode::SUCCESS;
 }
-
-

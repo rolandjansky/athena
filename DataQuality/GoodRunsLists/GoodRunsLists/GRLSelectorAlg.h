@@ -5,8 +5,9 @@
 #ifndef GOODRUNSLISTS_GRLSELECTORALG_H
 #define GOODRUNSLISTS_GRLSELECTORALG_H 1
 
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h" //included under assumption you'll want to use some tools! Remove if you don't!
+#include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AnaAlgorithm/FilterReporterParams.h>
+#include <AsgTools/ToolHandle.h> //included under assumption you'll want to use some tools! Remove if you don't!
 
 #include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 
@@ -17,7 +18,7 @@
 ///masterseq += CfgMgr.GRLSelectorAlg(Tool=ToolSvc.myGRLTool)
 
 
-class GRLSelectorAlg: public ::AthAlgorithm { 
+class GRLSelectorAlg: public EL::AnaAlgorithm { 
  public: 
   GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~GRLSelectorAlg(); 
@@ -28,9 +29,7 @@ class GRLSelectorAlg: public ::AthAlgorithm {
 
  private: 
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
-  int m_passed = 0;
-  int m_total = 0;
-
+  EL::FilterReporterParams m_filterParams {this, "Good Runs Lists selection"};
 }; 
 
 #endif //> !GOODRUNSLISTS_GRLSELECTORALG_H
