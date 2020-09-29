@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
 topSequence += PFLeptonSelector
@@ -245,7 +247,6 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
 topSequence += PFONeutralCreatorAlgorithm
 from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
-jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
 
