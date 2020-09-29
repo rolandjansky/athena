@@ -127,6 +127,8 @@ class ConfigDBLoader(ConfigLoader):
                     connection = connect(userpw["user"], userpw["password"], tns, threaded=False)
                 elif connSvc.startswith("frontier:"):
                     raise NotImplementedError("Python-loading of trigger configuration from Frontier has not yet been implemented")
+                elif connSvc.startswith("sqlite_file:"):
+                    raise NotImplementedError("Python-loading of trigger configuration from sqlite has not yet been implemented")
                 return connection, schema
             except Exception as e:
                 raise RuntimeError(e)
