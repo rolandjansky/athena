@@ -29,6 +29,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODEgamma/ElectronContainer.h"
+#include "xAODBase/IParticleContainer.h"
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"

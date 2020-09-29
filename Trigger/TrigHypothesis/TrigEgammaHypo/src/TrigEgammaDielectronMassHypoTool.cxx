@@ -48,10 +48,10 @@ StatusCode TrigEgammaDielectronMassHypoTool::initialize()
 bool TrigEgammaDielectronMassHypoTool::executeAlg(std::vector<LegDecision> &combination) const {
 
 //retrieve the electrons 
-  std::vector<ElementLink<xAOD::ElectronContainer>> selected_electrons;
+  std::vector<ElementLink<xAOD::IParticleContainer>> selected_electrons;
   for (auto el: combination){
     auto EL= el.second;    
-    auto electronLink = TrigCompositeUtils::findLink<xAOD::ElectronContainer>( *EL, featureString() ).link;
+    auto electronLink = TrigCompositeUtils::findLink<xAOD::IParticleContainer>( *EL, featureString() ).link;
     selected_electrons.push_back(electronLink);
   }
   auto electronLink1=selected_electrons[0];
