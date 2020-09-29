@@ -5,11 +5,17 @@
 #ifndef TRIGHLTMONITORING_TRIGHLTMONITORALGORITHM_H
 #define TRIGHLTMONITORING_TRIGHLTMONITORALGORITHM_H
 
+#include <set>
+#include <string>
+#include <vector>
+
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
 #include "TrigSteeringEvent/HLTResultMT.h"   
 #include "StoreGate/ReadHandleKey.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 class TrigHLTMonitorAlgorithm : public AthMonitorAlgorithm {
  public:

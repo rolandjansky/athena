@@ -19,10 +19,9 @@
 
 REGISTER_ALG_TCS(JetMatch)
 
-using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::JetMatch::JetMatch(const std::string & name) : DecisionAlg(name)
@@ -80,7 +79,7 @@ TCS::JetMatch::process( const std::vector<TCS::TOBArray const *> & input,
    }
 
    // vector of passing tob
-   vector<TCS::GenericTOB*> TOBvector;
+   std::vector<TCS::GenericTOB*> TOBvector;
 
    // loop over all jets
    unsigned int objC(0);

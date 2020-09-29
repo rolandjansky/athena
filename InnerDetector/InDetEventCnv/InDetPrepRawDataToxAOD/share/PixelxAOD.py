@@ -86,8 +86,10 @@ ToolSvc += PixelMonitoringSkimmingTool
 #################
 ### Setup decorators tools
 #################
+import InDetRecExample.TrackingCommon as TrackingCommon
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
-xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
+xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
+                                                ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
 xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
 xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
 xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = True

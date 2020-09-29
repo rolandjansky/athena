@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOROBJECTSHIJINGEVENTPARAMS_H
@@ -40,7 +40,7 @@ class HijingEventParams
 
 
   float get_psi(int n) const;
-  void  set_psi(int ihar,float psi) const;
+  void  set_psi(int ihar,float psi);
 
 
 private:
@@ -55,7 +55,7 @@ private:
   float m_b = 0;
   float m_bphi = 0; 
 
-  mutable float m_psi_1 = 0,m_psi_2 = 0,m_psi_3 = 0,m_psi_4 = 0,m_psi_5 = 0,m_psi_6 = 0;
+  float m_psi_1 = 0,m_psi_2 = 0,m_psi_3 = 0,m_psi_4 = 0,m_psi_5 = 0,m_psi_6 = 0;
 };
 
 inline
@@ -104,7 +104,7 @@ inline  float HijingEventParams::get_psi(int ihar) const
     return 0; 
 }
 
-inline  void HijingEventParams::set_psi(int ihar, float psi) const 
+inline  void HijingEventParams::set_psi(int ihar, float psi)
 { 
     if(ihar==1) m_psi_1=psi;
     if(ihar==2) m_psi_2=psi;

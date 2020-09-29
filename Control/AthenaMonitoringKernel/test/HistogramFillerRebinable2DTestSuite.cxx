@@ -22,7 +22,7 @@
 #include "AthenaKernel/getMessageSvc.h"
 
 #include "TH2D.h"
-
+#include "AthenaMonitoringKernel/HistogramFiller.h"
 #include "AthenaMonitoringKernel/MonitoredScalar.h"
 #include "../src/HistogramFiller/HistogramFillerRebinable.h"
 
@@ -60,7 +60,7 @@ class HistogramFillerRebinable2DTestSuite {
     void test_shouldKeepNumberOfBinsForValueInHistogramsRange() {
       Monitored::Scalar<double> var1("var1", 2.9);
       Monitored::Scalar<double> var2("var2", 4.9);
-      m_testObj->setMonitoredVariables({var1, var2});
+      HistogramFiller::VariablesPack vars({&var1, &var2});
 
       auto check = [&](){
         VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(8);
@@ -71,7 +71,7 @@ class HistogramFillerRebinable2DTestSuite {
         VALUE(m_histogram->GetYaxis()->GetXmax()) EXPECTED(5.0);
       };
       check();
-      m_testObj->fill();
+      m_testObj->fill(vars);
       check();
       VALUE(m_histogram->GetBinContent(8,5)) EXPECTED(1.0);
     }
@@ -79,9 +79,9 @@ class HistogramFillerRebinable2DTestSuite {
     void test_shouldDoubleNumberOfBinsForValueOutsideRange() {
       Monitored::Scalar<double> var1("var1", 3.0);
       Monitored::Scalar<double> var2("var2", 5.0);
-      m_testObj->setMonitoredVariables({var1, var2});
+      HistogramFiller::VariablesPack vars({&var1, &var2});
 
-      m_testObj->fill();
+      m_testObj->fill(vars);
 
       VALUE(m_histogram->GetXaxis()->GetNbins()) EXPECTED(16);
       VALUE(m_histogram->GetXaxis()->GetXmin()) EXPECTED(1.0);
@@ -125,7 +125,7 @@ class HistogramFillerRebinable2DTestSuite {
     HistogramDef m_histogramDef;
     shared_ptr<MockHistogramProvider> m_histogramProvider;
     shared_ptr<TH2D> m_histogram;
-    
+
     shared_ptr<HistogramFillerRebinable2D> m_testObj;
 };
 

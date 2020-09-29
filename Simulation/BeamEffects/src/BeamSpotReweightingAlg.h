@@ -24,11 +24,7 @@
 
 // Forward declarations
 #include "AtlasHepMC/GenEvent_fwd.h"
-
-namespace HepMC 
-{
-  class GenVertex;
-}  
+#include "AtlasHepMC/GenVertex_fwd.h"
 
 namespace Simulation
 {

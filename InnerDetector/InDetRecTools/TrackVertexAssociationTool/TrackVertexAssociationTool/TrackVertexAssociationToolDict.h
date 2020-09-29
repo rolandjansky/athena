@@ -14,5 +14,6 @@
 #include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/ElectronTrackVertexAssociationTool.h"
 #include "TrackVertexAssociationTool/MuonTrackVertexAssociationTool.h"
+#include "TrackVertexAssociationTool/MVATrackVertexAssociationTool.h"
 
 #endif //TrackVertexAssociationTool

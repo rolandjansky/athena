@@ -69,6 +69,17 @@ namespace TCS {
       */
       bool fillHistos() const;
 
+   protected:
+     std::vector<std::string> m_histAccept;
+     std::vector<std::string> m_histReject;
+     std::vector<std::string> m_histAcceptM;
+     std::vector<std::string> m_histRejectM;
+     std::vector<std::string> m_histAcceptX;
+     std::vector<std::string> m_histRejectX;
+     std::vector<std::string> m_histAcceptEta1Eta2;
+     std::vector<std::string> m_histRejectEta1Eta2;
+
+
    private:
 
       virtual StatusCode doReset();

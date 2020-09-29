@@ -193,6 +193,7 @@ def defineInputsMenu():
                     TopoMenuDef( '0DR28-TAU20abi-TAU12abi',        outputbits = 7 ),
                     TopoMenuDef( '0DR28-MU10ab-TAU12abi',          outputbits = 8 ),
                     TopoMenuDef( 'LATE-MU10s1',                    outputbits = 9 ),
+                    TopoMenuDef( '8INVM15-2CMU4ab',                outputbits = 13 ),
                     TopoMenuDef( '0DR15-2MU6ab',                   outputbits = 14 ),
                     TopoMenuDef( '8INVM15-0DR22-2MU6ab',           outputbits = 15 )
                 ]

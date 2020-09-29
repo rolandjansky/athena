@@ -290,7 +290,7 @@ void TRTCalibrator::DumpStrawData(int isid){
 }
 
 
-bool TRTCalibrator::IsSubLev(std::string key, int lev, std::string sublev){  
+bool TRTCalibrator::IsSubLev(const std::string& key, int lev, const std::string& sublev){  
   
   std::string sl=sublev;
 
@@ -305,7 +305,7 @@ bool TRTCalibrator::IsSubLev(std::string key, int lev, std::string sublev){
 
 }
 
-int TRTCalibrator::GetSubLevels(std::string key, int lev, std::set<int>* levels){ 
+int TRTCalibrator::GetSubLevels(const std::string& key, int lev, std::set<int>* levels){ 
 
   std::string sl=SubLev(key,lev);
 
@@ -418,26 +418,27 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
   }
 
   //configure the calibrators
-  for (std::vector<std::string>::iterator it = m_doRt.begin();        it != m_doRt.end();        it++) calibrators[*it]->dort=true;
-  for (std::vector<std::string>::iterator it = m_doT0.begin();        it != m_doT0.end();        it++) calibrators[*it]->dot0=true;
-  for (std::vector<std::string>::iterator it = m_doRes.begin();       it != m_doRes.end();       it++) calibrators[*it]->dores=true;
-  for (std::vector<std::string>::iterator it = m_beQuiet.begin();     it != m_beQuiet.end();     it++) calibrators[*it]->bequiet=true;
-  for (std::vector<std::string>::iterator it = m_doOutPrint.begin();  it != m_doOutPrint.end();  it++) calibrators[*it]->printt0=true;
-  for (std::vector<std::string>::iterator it = m_doRtPrint.begin();   it != m_doRtPrint.end();   it++)  calibrators[*it]->printrt=true;
-  for (std::vector<std::string>::iterator it = m_doLogPrint.begin();  it != m_doLogPrint.end();  it++) calibrators[*it]->printlog=true;
-  for (std::vector<std::string>::iterator it = m_useBoardRef.begin(); it != m_useBoardRef.end(); it++) calibrators[*it]->usebref=true;
-  for (std::map<std::string,Calibrator*>::iterator it = calibrators.begin(); it != calibrators.end(); it++){
-    (it->second)->usep0=m_useP0;
-    (it->second)->floatp3=m_floatP3;
-    (it->second)->useshortstraws=m_DoShortStrawCorrection;
+  for (const std::string& s : m_doRt)        calibrators[s]->dort=true;
+  for (const std::string& s : m_doT0)        calibrators[s]->dot0=true;
+  for (const std::string& s : m_doRes)       calibrators[s]->dores=true;
+  for (const std::string& s : m_beQuiet)     calibrators[s]->bequiet=true;
+  for (const std::string& s : m_doOutPrint)  calibrators[s]->printt0=true;
+  for (const std::string& s : m_doRtPrint)   calibrators[s]->printrt=true;
+  for (const std::string& s : m_doLogPrint)  calibrators[s]->printlog=true;
+  for (const std::string& s : m_useBoardRef) calibrators[s]->usebref=true;
+  for (std::pair<const std::string, Calibrator*>& p : calibrators) {
+    Calibrator* calib = p.second;
+    calib->usep0=m_useP0;
+    calib->floatp3=m_floatP3;
+    calib->useshortstraws=m_DoShortStrawCorrection;
 
-    if (m_doRt.size()==0) (it->second)->nort=true;
-    if (m_doT0.size()==0) (it->second)->not0=true;
+    if (m_doRt.size()==0) calib->nort=true;
+    if (m_doT0.size()==0) calib->not0=true;
     
     std::set<int> selset;
-    GetSubLevels(m_selstring,(it->second)->level+1,&selset); //get the set of selections for level "level+1" from the m_selstring ... 
-    for (std::set<int>::iterator imod=selset.begin(); imod!=selset.end(); imod++){
-      (it->second)->selection = selset;//... and configure the calibrator with them
+    GetSubLevels(m_selstring,calib->level+1,&selset); //get the set of selections for level "level+1" from the m_selstring ...
+    for (std::set<int>::iterator imod=selset.begin(); imod!=selset.end(); ++imod){
+      calib->selection = selset;//... and configure the calibrator with them
     }
   }     
 
@@ -461,26 +462,27 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
   calibratorsAr["Straw"]                =&Straw_Ar;
 
   //configure the calibrators
-  for (std::vector<std::string>::iterator it = m_doRt.begin();        it != m_doRt.end();        it++) calibratorsAr[*it]->dort=true;
-  for (std::vector<std::string>::iterator it = m_doT0.begin();        it != m_doT0.end();        it++) calibratorsAr[*it]->dot0=true;
-  for (std::vector<std::string>::iterator it = m_doRes.begin();       it != m_doRes.end();       it++) calibratorsAr[*it]->dores=true;
-  for (std::vector<std::string>::iterator it = m_beQuiet.begin();     it != m_beQuiet.end();     it++) calibratorsAr[*it]->bequiet=true;
-  for (std::vector<std::string>::iterator it = m_doOutPrint.begin();  it != m_doOutPrint.end();  it++) calibratorsAr[*it]->printt0=true;
-  for (std::vector<std::string>::iterator it = m_doRtPrint.begin();   it != m_doRtPrint.end();   it++)  calibratorsAr[*it]->printrt=true;
-  for (std::vector<std::string>::iterator it = m_doLogPrint.begin();  it != m_doLogPrint.end();  it++) calibratorsAr[*it]->printlog=true;
-  for (std::vector<std::string>::iterator it = m_useBoardRef.begin(); it != m_useBoardRef.end(); it++) calibratorsAr[*it]->usebref=true;
-  for (std::map<std::string,Calibrator*>::iterator it = calibratorsAr.begin(); it != calibratorsAr.end(); it++){
-    (it->second)->usep0=m_useP0;
-    (it->second)->floatp3=m_floatP3;
-    (it->second)->useshortstraws=m_DoShortStrawCorrection;
+  for (const std::string& s : m_doRt)        calibratorsAr[s]->dort=true;
+  for (const std::string& s : m_doT0)        calibratorsAr[s]->dot0=true;
+  for (const std::string& s : m_doRes)       calibratorsAr[s]->dores=true;
+  for (const std::string& s : m_beQuiet)     calibratorsAr[s]->bequiet=true;
+  for (const std::string& s : m_doOutPrint)  calibratorsAr[s]->printt0=true;
+  for (const std::string& s : m_doRtPrint)   calibratorsAr[s]->printrt=true;
+  for (const std::string& s : m_doLogPrint)  calibratorsAr[s]->printlog=true;
+  for (const std::string& s : m_useBoardRef) calibratorsAr[s]->usebref=true;
+  for (std::pair<const std::string, Calibrator*>& p : calibratorsAr) {
+    Calibrator* calib = p.second;
+    calib->usep0=m_useP0;
+    calib->floatp3=m_floatP3;
+    calib->useshortstraws=m_DoShortStrawCorrection;
 
-    if (m_doRt.size()==0) (it->second)->nort=true;
-    if (m_doT0.size()==0) (it->second)->not0=true;
+    if (m_doRt.size()==0) calib->nort=true;
+    if (m_doT0.size()==0) calib->not0=true;
 
     std::set<int> selset;
-    GetSubLevels(m_selstring,(it->second)->level+1,&selset); //get the set of selections for level "level+1" from the m_selstring ... 
-    for (std::set<int>::iterator imod=selset.begin(); imod!=selset.end(); imod++){
-      (it->second)->selection = selset;//... and configure the calibrator with them
+    GetSubLevels(m_selstring,calib->level+1,&selset); //get the set of selections for level "level+1" from the m_selstring ... 
+    for (std::set<int>::iterator imod=selset.begin(); imod!=selset.end(); ++imod){
+      calib->selection = selset;//... and configure the calibrator with them
     }
   }
 
@@ -959,59 +961,59 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
 
   //if (m_SplitBarrel){
   
-  for (std::map<std::string,BDdetector>::iterator it = m_trt.t.begin(); it != m_trt.t.end(); it++){
+  for (std::pair<const std::string, BDdetector>& pt : m_trt.t) {
     
     if (TRT.Skip()) break;
-    if (TRT.HasKey(it->first)) {
-      trtdir = TRT.Calibrate(m_histfile,it->first,SubLev(m_options,1),&startdata);
-      if (TRT.printt0) t0calfile << Form("-3 -1 -1 -1 -1 : %e %e",TRT.data[it->first].t0,TRT.data[it->first].t0err) << std::endl;
-      if (TRT.printrt) rtcalfile << Form("-3 -1 -1 -1 -1 : %i %e %e %e %e",rtint,TRT.data[it->first].rtpar[0],TRT.data[it->first].rtpar[1],TRT.data[it->first].rtpar[2],TRT.data[it->first].rtpar[3]) << std::endl;
+    if (TRT.HasKey(pt.first)) {
+      trtdir = TRT.Calibrate(m_histfile,pt.first,SubLev(m_options,1),&startdata);
+      if (TRT.printt0) t0calfile << Form("-3 -1 -1 -1 -1 : %e %e",TRT.data[pt.first].t0,TRT.data[pt.first].t0err) << std::endl;
+      if (TRT.printrt) rtcalfile << Form("-3 -1 -1 -1 -1 : %i %e %e %e %e",rtint,TRT.data[pt.first].rtpar[0],TRT.data[pt.first].rtpar[1],TRT.data[pt.first].rtpar[2],TRT.data[pt.first].rtpar[3]) << std::endl;
     }
-    for (std::map<std::string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); id++){
+    for (std::pair<const std::string, BDlayer>& pd : pt.second.d) {
       
       if(Detector.Skip()) break; 
-      if(Detector.HasKey(id->first)){
-        detdir = Detector.Calibrate(trtdir,id->first,SubLev(m_options,2),&TRT.data[it->first]);
+      if(Detector.HasKey(pd.first)){
+        detdir = Detector.Calibrate(trtdir,pd.first,SubLev(m_options,2),&TRT.data[pt.first]);
       }
-      for (std::map<std::string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); il++){
+      for (std::pair<const std::string, BDmodule>& pl : pd.second.l) {
 
         if(Layer.Skip()) break;
-        if(Layer.HasKey(il->first)){
-          laydir = Layer.Calibrate(detdir,il->first,SubLev(m_options,3),&Detector.data[id->first]);
-          if (Layer.printt0) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << std::endl;
-          if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << std::endl;
+        if(Layer.HasKey(pl.first)){
+          laydir = Layer.Calibrate(detdir,pl.first,SubLev(m_options,3),&Detector.data[pd.first]);
+          if (Layer.printt0) t0calfile << Form("%i %i -1 -1 -1 : %e %e",Layer.data[pl.first].det,Layer.data[pl.first].lay,Layer.data[pl.first].t0,Layer.data[pl.first].t0err) << std::endl;
+          if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",Layer.data[pl.first].det,Layer.data[pl.first].lay,rtint,Layer.data[pl.first].rtpar[0],Layer.data[pl.first].rtpar[1],Layer.data[pl.first].rtpar[2],Layer.data[pl.first].rtpar[3]) << std::endl;
           if (!m_SplitBarrel) {
-            if (Layer.printt0) t0calfile    << Form("%i %i -1 -1 -1 : %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,Layer.data[il->first].t0,Layer.data[il->first].t0err) << std::endl;
-            if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",-Layer.data[il->first].det,Layer.data[il->first].lay,rtint,Layer.data[il->first].rtpar[0],Layer.data[il->first].rtpar[1],Layer.data[il->first].rtpar[2],Layer.data[il->first].rtpar[3]) << std::endl;
+            if (Layer.printt0) t0calfile    << Form("%i %i -1 -1 -1 : %e %e",-Layer.data[pl.first].det,Layer.data[pl.first].lay,Layer.data[pl.first].t0,Layer.data[pl.first].t0err) << std::endl;
+            if (Layer.printrt) rtcalfile    << Form("%i %i -1 -1 -1 : %i %e %e %e %e",-Layer.data[pl.first].det,Layer.data[pl.first].lay,rtint,Layer.data[pl.first].rtpar[0],Layer.data[pl.first].rtpar[1],Layer.data[pl.first].rtpar[2],Layer.data[pl.first].rtpar[3]) << std::endl;
           }
         }
-        for (std::map<std::string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); im++){
+        for (std::pair<const std::string, BDboard>& pm : pl.second.m) {
 
           if(Module.Skip()) break; 
-          if(Module.HasKey(im->first)){ 
-            moddir = Module.Calibrate(laydir,im->first,SubLev(m_options,4),&Layer.data[il->first]);
-            if (Module.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,Module.data[im->first].t0,Module.data[im->first].t0err) << std::endl;
-            if (Module.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[im->first].det,Module.data[im->first].lay,Module.data[im->first].mod,rtint,Module.data[im->first].rtpar[0],Module.data[im->first].rtpar[1],Module.data[im->first].rtpar[2],Module.data[im->first].rtpar[3]) << std::endl;
+          if(Module.HasKey(pm.first)){ 
+            moddir = Module.Calibrate(laydir,pm.first,SubLev(m_options,4),&Layer.data[pl.first]);
+            if (Module.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module.data[pm.first].det,Module.data[pm.first].lay,Module.data[pm.first].mod,Module.data[pm.first].t0,Module.data[pm.first].t0err) << std::endl;
+            if (Module.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module.data[pm.first].det,Module.data[pm.first].lay,Module.data[pm.first].mod,rtint,Module.data[pm.first].rtpar[0],Module.data[pm.first].rtpar[1],Module.data[pm.first].rtpar[2],Module.data[pm.first].rtpar[3]) << std::endl;
           } 
-          for (std::map<std::string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ib++){
+          for (std::pair<const std::string, BDchip>& pb : pm.second.b) {
 
             if(Board.Skip()) break; 
-            if(Board.HasKey(ib->first)){ 
-              brddir = Board.Calibrate(moddir,ib->first,SubLev(m_options,5),&Module.data[im->first]);
+            if(Board.HasKey(pb.first)){ 
+              brddir = Board.Calibrate(moddir,pb.first,SubLev(m_options,5),&Module.data[pm.first]);
             } 
-            for (std::map<std::string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ic++){
+            for (std::pair<const std::string, BDstraw>& pc : pb.second.c) {
 
               if(Chip.Skip()) break; 
-              if(Chip.HasKey(ic->first)){ 
-                chpdir = Chip.Calibrate(brddir,ic->first,SubLev(m_options,6),&Board.data[ib->first]);
+              if(Chip.HasKey(pc.first)){ 
+                chpdir = Chip.Calibrate(brddir,pc.first,SubLev(m_options,6),&Board.data[pb.first]);
               }
-              for (std::map<std::string,BDzero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); is++){
+              for (std::pair<const std::string, BDzero>& ps : pc.second.s) {
 
                 if(Straw.Skip()) break;
-                if(Straw.HasKey(is->first)){ 
-                  Straw.Calibrate(chpdir,is->first,SubLev(m_options,7),&Chip.data[ic->first]);
-                  if (Straw.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,Straw.data[is->first].t0,Straw.data[is->first].t0err) << std::endl;
-                  if (Straw.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw.data[is->first].det,Straw.data[is->first].lay,Straw.data[is->first].mod,Straw.data[is->first].stl,Straw.data[is->first].stw,rtint,Straw.data[is->first].rtpar[0],Straw.data[is->first].rtpar[1],Straw.data[is->first].rtpar[2],Straw.data[is->first].rtpar[3]) << std::endl;
+                if(Straw.HasKey(ps.first)){ 
+                  Straw.Calibrate(chpdir,ps.first,SubLev(m_options,7),&Chip.data[pc.first]);
+                  if (Straw.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw.data[ps.first].det,Straw.data[ps.first].lay,Straw.data[ps.first].mod,Straw.data[ps.first].stl,Straw.data[ps.first].stw,Straw.data[ps.first].t0,Straw.data[ps.first].t0err) << std::endl;
+                  if (Straw.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw.data[ps.first].det,Straw.data[ps.first].lay,Straw.data[ps.first].mod,Straw.data[ps.first].stl,Straw.data[ps.first].stw,rtint,Straw.data[ps.first].rtpar[0],Straw.data[ps.first].rtpar[1],Straw.data[ps.first].rtpar[2],Straw.data[ps.first].rtpar[3]) << std::endl;
                 
 
                 }
@@ -1033,52 +1035,51 @@ bool TRTCalibrator::calibrate ATLAS_NOT_THREAD_SAFE () {
 
   if (m_DoArXenonSep){
 
-  for (std::map<std::string,BDdetector>::iterator it = m_trt.t.begin(); it != m_trt.t.end(); it++){
+  for (std::pair<const std::string, BDdetector>& pt : m_trt.t) {
 
     if (TRT_Ar.Skip()) break;
-    if (TRT_Ar.HasKey(it->first)) {
-      trtdirAr = TRT_Ar.Calibrate(m_histfile,it->first,SubLev(m_options,1),&startdata);
+    if (TRT_Ar.HasKey(pt.first)) {
+      trtdirAr = TRT_Ar.Calibrate(m_histfile,pt.first,SubLev(m_options,1),&startdata);
     }
-    for (std::map<std::string,BDlayer>::iterator id = (it->second.d).begin() ; id != (it->second.d).end(); id++){
+    for (std::pair<const std::string, BDlayer>& pd : pt.second.d) {
 
       if(Detector_Ar.Skip()) break;
-      if(Detector_Ar.HasKey(id->first)){
-        detdirAr = Detector_Ar.Calibrate(trtdirAr,id->first,SubLev(m_options,2),&TRT_Ar.data[it->first]);
+      if(Detector_Ar.HasKey(pd.first)){
+        detdirAr = Detector_Ar.Calibrate(trtdirAr,pd.first,SubLev(m_options,2),&TRT_Ar.data[pt.first]);
       }
-      for (std::map<std::string,BDmodule>::iterator il = (id->second.l).begin(); il != (id->second.l).end(); il++){
+      for (std::pair<const std::string, BDmodule>& pl : pd.second.l) {
 
         if(Layer_Ar.Skip()) break;
-        if(Layer_Ar.HasKey(il->first)){
-          laydirAr = Layer_Ar.Calibrate(detdirAr,il->first,SubLev(m_options,3),&Detector_Ar.data[id->first]);
+        if(Layer_Ar.HasKey(pl.first)){
+          laydirAr = Layer_Ar.Calibrate(detdirAr,pl.first,SubLev(m_options,3),&Detector_Ar.data[pd.first]);
        
         }
-        for (std::map<std::string,BDboard>::iterator im = (il->second.m).begin(); im != (il->second.m).end(); im++){
+        for (std::pair<const std::string, BDboard>& pm : pl.second.m) {
 
           if(Module_Ar.Skip()) break;
-          if(Module_Ar.HasKey(im->first)){
-            moddirAr = Module_Ar.Calibrate(laydirAr,im->first,SubLev(m_options,4),&Layer_Ar.data[il->first]);
-            if (Module_Ar.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module_Ar.data[im->first].det,Module_Ar.data[im->first].lay,Module_Ar.data[im->first].mod,Module_Ar.data[im->first].t0,Module_Ar.data[im->first].t0err) << std::endl;
-            if (Layer_Ar.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module_Ar.data[im->first].det,Module_Ar.data[im->first].lay,Module_Ar.data[im->first].mod,rtint,Module_Ar.data[im->first].rtpar[0],Module_Ar.data[im->first].rtpar[1],Module_Ar.data[im->first].rtpar[2],Module_Ar.data[im->first].rtpar[3]) << std::endl;
+          if(Module_Ar.HasKey(pm.first)){
+            moddirAr = Module_Ar.Calibrate(laydirAr,pm.first,SubLev(m_options,4),&Layer_Ar.data[pl.first]);
+            if (Module_Ar.printt0) t0calfile << Form("%i %i %i -1 -1 : %e %e",Module_Ar.data[pm.first].det,Module_Ar.data[pm.first].lay,Module_Ar.data[pm.first].mod,Module_Ar.data[pm.first].t0,Module_Ar.data[pm.first].t0err) << std::endl;
+            if (Layer_Ar.printrt) rtcalfile    << Form("%i %i %i -1 -1 : %i %e %e %e %e",Module_Ar.data[pm.first].det,Module_Ar.data[pm.first].lay,Module_Ar.data[pm.first].mod,rtint,Module_Ar.data[pm.first].rtpar[0],Module_Ar.data[pm.first].rtpar[1],Module_Ar.data[pm.first].rtpar[2],Module_Ar.data[pm.first].rtpar[3]) << std::endl;
           }
-          for (std::map<std::string,BDchip>::iterator ib = (im->second.b).begin(); ib != (im->second.b).end(); ib++){
-
+          for (std::pair<const std::string, BDchip>& pb : pm.second.b) {
             if(Board_Ar.Skip()) break;
-            if(Board_Ar.HasKey(ib->first)){
-              brddirAr = Board_Ar.Calibrate(moddirAr,ib->first,SubLev(m_options,5),&Module_Ar.data[im->first]);
+            if(Board_Ar.HasKey(pb.first)){
+              brddirAr = Board_Ar.Calibrate(moddirAr,pb.first,SubLev(m_options,5),&Module_Ar.data[pm.first]);
             }
-            for (std::map<std::string,BDstraw>::iterator ic = (ib->second.c).begin(); ic != (ib->second.c).end(); ic++){
+            for (std::pair<const std::string, BDstraw>& pc : pb.second.c) {
 
               if(Chip_Ar.Skip()) break;
-              if(Chip_Ar.HasKey(ic->first)){
-                chpdirAr = Chip_Ar.Calibrate(brddirAr,ic->first,SubLev(m_options,6),&Board_Ar.data[ib->first]);
+              if(Chip_Ar.HasKey(pc.first)){
+                chpdirAr = Chip_Ar.Calibrate(brddirAr,pc.first,SubLev(m_options,6),&Board_Ar.data[pb.first]);
               }
-              for (std::map<std::string,BDzero>::iterator is = (ic->second.s).begin(); is != (ic->second.s).end(); is++){
+              for (std::pair<const std::string, BDzero>& ps : pc.second.s) {
 
                 if(Straw_Ar.Skip()) break;
-                if(Straw_Ar.HasKey(is->first)){
-                  Straw_Ar.Calibrate(chpdirAr,is->first,SubLev(m_options,7),&Chip_Ar.data[ic->first]);
-                  if (Straw_Ar.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw_Ar.data[is->first].det,Straw_Ar.data[is->first].lay,Straw_Ar.data[is->first].mod,Straw_Ar.data[is->first].stl,Straw_Ar.data[is->first].stw,Straw_Ar.data[is->first].t0,Straw_Ar.data[is->first].t0err) << std::endl;
-                  if (Straw_Ar.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw_Ar.data[is->first].det,Straw_Ar.data[is->first].lay,Straw_Ar.data[is->first].mod,Straw_Ar.data[is->first].stl,Straw_Ar.data[is->first].stw,rtint,Straw_Ar.data[is->first].rtpar[0],Straw_Ar.data[is->first].rtpar[1],Straw_Ar.data[is->first].rtpar[2],Straw_Ar.data[is->first].rtpar[3]) << std::endl;
+                if(Straw_Ar.HasKey(ps.first)){
+                  Straw_Ar.Calibrate(chpdirAr,ps.first,SubLev(m_options,7),&Chip_Ar.data[pc.first]);
+                  if (Straw_Ar.printt0) t0calfile << Form("%i %i %i %i %i : %e %e",Straw_Ar.data[ps.first].det,Straw_Ar.data[ps.first].lay,Straw_Ar.data[ps.first].mod,Straw_Ar.data[ps.first].stl,Straw_Ar.data[ps.first].stw,Straw_Ar.data[ps.first].t0,Straw_Ar.data[ps.first].t0err) << std::endl;
+                  if (Straw_Ar.printrt) rtcalfile << Form("%i %i %i %i %i : %i %e %e %e %e",Straw_Ar.data[ps.first].det,Straw_Ar.data[ps.first].lay,Straw_Ar.data[ps.first].mod,Straw_Ar.data[ps.first].stl,Straw_Ar.data[ps.first].stw,rtint,Straw_Ar.data[ps.first].rtpar[0],Straw_Ar.data[ps.first].rtpar[1],Straw_Ar.data[ps.first].rtpar[2],Straw_Ar.data[ps.first].rtpar[3]) << std::endl;
                 }
               }
             }

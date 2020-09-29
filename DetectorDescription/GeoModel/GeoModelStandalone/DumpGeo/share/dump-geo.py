@@ -354,6 +354,10 @@ if (vp1InputFiles != []):
 else:
     vp1Extrapolator = False
 
+# do not need to run execute since layout is dumped during initialize
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.EvtMax = 0
+
 #watch LAr HV:
 if ( vp1LarHvData ):
     from time import time

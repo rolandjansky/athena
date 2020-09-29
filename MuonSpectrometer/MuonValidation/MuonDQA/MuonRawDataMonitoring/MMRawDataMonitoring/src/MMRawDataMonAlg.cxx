@@ -15,36 +15,20 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
-#include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
-#include "MuonSegment/MuonSegment.h"
 
 #include "MMRawDataMonitoring/MMRawDataMonAlg.h"
-#include "TrkEventPrimitives/FitQuality.h"
 
-#include "AnalysisTriggerEvent/LVL1_ROI.h"
-#include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
-#include "TrkTrack/TrackCollection.h"
-#include "TrkTrack/Track.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "MuonPrepRawData/MMPrepData.h"
 
-//root includes
-#include <TMath.h>
-#include <math.h>
-#include <sstream>
-#include <TH2F.h>
-#include <cmath>
-
 namespace {
 
-  int PCB;
   static constexpr double const toDeg = 180/M_PI;
 
   //1e=1.6X10-4 fC                                                                                          
@@ -212,11 +196,10 @@ StatusCode MMRawDataMonAlg::fillMMOverviewVects( const Muon::MMPrepData* prd, MM
   float mu_TPC_chi2=prd->chisqProb();
 
   Amg::Vector3D pos    = prd->globalPosition();
-  TVector3 v (pos.x(),pos.y(),pos.z());
   
   float R=std::hypot(pos.x(),pos.y());
 
-  PCB=get_PCB_from_channel(channel);
+  int PCB=get_PCB_from_channel(channel);
 
   //MM gaps are back to back, so the direction of the drift (time) is different for the even and odd gaps -> flip for the even gaps
 
@@ -466,7 +449,7 @@ void MMRawDataMonAlg::clusterFromTrack(const xAOD::TrackParticleContainer*  muon
 		
 		int sectorPhi=get_sectorPhi_from_stationPhi_stName(stPhi,stName);
 		
-		PCB=get_PCB_from_channel(ch);
+		int PCB=get_PCB_from_channel(ch);
 		
 		auto& vects=overviewPlots;
 		

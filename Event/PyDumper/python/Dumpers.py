@@ -45,7 +45,8 @@ getattr (ROOT.xAOD, 'Jet_v1', None)
 
 #Typed nullptr:
 JetAssociationBase = getattr (cppyy.gbl, 'JetAssociationBase', None)
-Muon = getattr (cppyy.gbl, 'Muon', None)
+Analysis = getattr (cppyy.gbl, 'Analysis', None)
+Muon = getattr (Analysis, 'Muon', None) if Analysis else None
 jetAssocNull = cppyy.bind_object(cppyy.nullptr, JetAssociationBase) if JetAssociationBase else None
 muonNull = cppyy.bind_object(cppyy.nullptr, Muon) if Muon else None
 

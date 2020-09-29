@@ -19,10 +19,8 @@
 
 REGISTER_ALG_TCS(Ratio2)
 
-using namespace std;
-
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << name() << ":     "
+#define LOG std::cout << name() << ":     "
 
 
 TCS::Ratio2::Ratio2(const std::string & name) : DecisionAlg(name)

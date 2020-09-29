@@ -7,10 +7,11 @@
 
 #include "GeoVPixelFactory.h"
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelDiskSLHC : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelDiskSLHC : public GeoVPixelFactory {
  public:
-  GeoPixelDiskSLHC();
-  virtual GeoVPhysVol* Build();
+  GeoPixelDiskSLHC(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr);
+  virtual GeoVPhysVol* Build() override;
 };
 
 #endif

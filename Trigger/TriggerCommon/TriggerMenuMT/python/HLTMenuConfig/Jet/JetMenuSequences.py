@@ -19,7 +19,7 @@ def jetMenuSequence(configFlags,**recoDict):
     hypo = TrigJetHypoAlgMT("TrigJetHypoAlgMT_"+jetRecoDictToString(recoDict))
     hypo.Jets = sequenceOut
 
-    return  MenuSequence( Sequence    = JetAthSequence,
-                          Maker       = InputMakerAlg,
-                          Hypo        = hypo,
-                          HypoToolGen = trigJetHypoToolFromDict )
+    return  MenuSequence(   Sequence    = JetAthSequence,
+                            Maker       = InputMakerAlg,
+                            Hypo        = hypo,
+                            HypoToolGen = trigJetHypoToolFromDict )

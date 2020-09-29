@@ -21,9 +21,9 @@
 namespace Trk {
 namespace MultiComponentStateModeCalculator {
 
+// Simple representation of 1D component
 struct Component
 {
-  // Default ctors/dtor/assignment operators
   Component() = default;
   ~Component() = default;
   Component(const Component&) = default;
@@ -41,36 +41,14 @@ struct Component
   double sigma = 0;
 };
 
-/** @brief  Method to calculate mode*/
+/** @brief  Method to calculate mode with MultiComponentState
+ * state as input */
 std::array<double, 10>
 calculateMode(const MultiComponentState&);
 
-/**
- * method to extract the weight, mean and sigma values from the
-  multi-component state*/
-void
-fillMixture(const MultiComponentState&,
-            std::array<std::vector<Component>, 5>& mixture);
-
-/**
- * method to find the mode using the Newton-Raphson method based on a
- *   starting guess
- */
-double
-findMode(double, int, const std::array<std::vector<Component>, 5>& mixture);
-
-double
-findModeGlobal(double,
-               int,
-               const std::array<std::vector<Component>, 5>& mixture);
-
-double
-findRoot(double& result,
-         double xlo,
-         double xhi,
-         double value,
-         double i,
-         const std::array<std::vector<Component>, 5>& mixture);
+/** @brief  Method to calculate mode*/
+std::array<double, 10>
+calculateMode(const std::array<std::vector<Component>, 5>& mixture);
 
 } // namespace MultiComponentStateModeCalculator
 

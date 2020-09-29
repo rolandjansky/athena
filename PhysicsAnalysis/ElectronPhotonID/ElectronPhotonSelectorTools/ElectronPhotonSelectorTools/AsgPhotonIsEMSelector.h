@@ -39,7 +39,7 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
 
 {
   ASG_TOOL_CLASS3(AsgPhotonIsEMSelector, IAsgPhotonIsEMSelector,
-		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
+		  IAsgEGammaIsEMSelector, IAsgSelectionTool)
 
   public:
 

@@ -46,10 +46,6 @@ namespace TCS {
       parType_t      p_MinEta2 = { 0 };
       parType_t      p_MaxEta2 = { 0 };
 
-      TH1 * m_histAcceptM[6] = {};
-      TH1 * m_histRejectM[6] = {};
-      TH2 * m_histAcceptEta1Eta2[6] = {};
-      TH2 * m_histRejectEta1Eta2[6] = {};
    };
    
 }

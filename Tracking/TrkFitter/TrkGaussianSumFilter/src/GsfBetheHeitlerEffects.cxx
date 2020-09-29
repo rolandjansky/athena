@@ -238,8 +238,8 @@ Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> orderPolynomial;
   fin >> m_transformationCode;
   //
-  if (not inRange(m_numberOfComponents, 0, 100)) {
-    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-100: "
+  if (not inRange(m_numberOfComponents, 0, 8)) {
+    ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-8: "
                   << m_numberOfComponents);
     return false;
   }
@@ -288,8 +288,8 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
     //
-    if (not inRange(m_numberOfComponentsHighX0, 0, 100)) {
-      ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-100: "
+    if (not inRange(m_numberOfComponentsHighX0, 0, 8)) {
+      ATH_MSG_ERROR("numberOfComponents Parameter out of range 0-8: "
                     << m_numberOfComponentsHighX0);
       return false;
     }

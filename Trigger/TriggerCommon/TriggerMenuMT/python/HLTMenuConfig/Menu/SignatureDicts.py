@@ -22,7 +22,8 @@ SliceIDDict = {
     'MinBias' : 'mb',
     'HeavyIon' : 'hi',
     'Cosmic'  : 'cosmic',
-    'Calibration'   : 'calib',
+    'Calib'   : 'calib',
+    #'Calib'   : 'calib',
     'Streaming'     : 'streamer',
     'Monitor'    : 'mon',
     'Beamspot'      : 'beamspot',
@@ -113,7 +114,7 @@ JetChainParts = {
     'addInfo'      : ['perf'],
 
     'TLA'          : [],
-    'dataScouting' : [],
+    'dataScouting' : ['JetDS'],
 
     'topo'         : AllowedTopos_jet,
 
@@ -632,8 +633,8 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
 ##stramingInfo not use in ChainConfiguration, only to distinguish streaming
 
 CalibChainParts = {
-    'signature'      : ['Calibration'],
-    'alignmentGroup' : ['Calibration'],
+    'signature'      : ['Calib'],
+    'alignmentGroup' : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : AllowedCalibChainIdentifiers,
@@ -649,14 +650,14 @@ CalibChainParts = {
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----
 CalibChainParts_Default = {
-    'signature'      : ['Calibration'],
-    'alignmentGroup' : ['Calibration'],
+    'signature'      : ['Calib'],
+    'alignmentGroup' : ['Calib'],
     'chainPartName'  : '',
     'L1threshold'    : '',
     'purpose'        : [],
     'addInfo'        : [],
     'hypo'           : '',
-    'hits'           : [],
+    # 'hits'           : [],
     'streamingInfo'  : [],
     'threshold'      : '',
     'multiplicity'   : '',
@@ -849,7 +850,7 @@ def getSignatureInformation(signature):
         return [HeavyIonChainParts_Default, HeavyIonChainParts]
     if signature == "Cosmic":
         return [CosmicChainParts_Default, CosmicChainParts]
-    if signature == "Calibration":
+    if signature == "Calib":
         return [CalibChainParts_Default, CalibChainParts]
     if signature == "Streaming":
         return [StreamingChainParts_Default, StreamingChainParts]
@@ -862,7 +863,7 @@ def getSignatureInformation(signature):
     if signature == "Test":
         return [TestChainParts_Default, TestChainParts]
     else:
-        raise RuntimeError("ERROR Cannot find corresponding dictionary")
+        raise RuntimeError("ERROR Cannot find corresponding dictionary for signature", signature)
 
 #==========================================================
 # Analysis the base pattern: <mult><signatureType><threshold><extraInfo>

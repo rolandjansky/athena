@@ -51,13 +51,13 @@ namespace Monitored {
      * @param  i       index for IMonitoredVariable value lookup
      */
     template<Axis AXIS, typename H>
-    double getFillValue(const H* hist, const IMonitoredVariable& var, size_t i) {
-      if ( var.hasStringRepresentation() ) {
+    double getFillValue(const H* hist, const IMonitoredVariable* var, size_t i) {
+      if ( var->hasStringRepresentation() ) {
         const TAxis* axis = getAxis<AXIS>(hist);
-        const int binNumber = axis->FindFixBin( var.getString(i).c_str() );
+        const int binNumber = axis->FindFixBin( var->getString(i).c_str() );
         return axis->GetBinCenter(binNumber);
       } else {
-        return var.get(i);
+        return var->get(i);
       }
     }
 

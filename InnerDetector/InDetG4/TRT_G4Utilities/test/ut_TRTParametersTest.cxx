@@ -91,6 +91,7 @@ BOOST_AUTO_TEST_CASE(GetPartOfExistingDoubleArray, * utf::tolerance(0.01) ){
 BOOST_AUTO_TEST_SUITE_END()
 
 
+// cppcheck-suppress unknownMacro
 BOOST_FIXTURE_TEST_SUITE(Test_TRTOutputFile , setupOutputFile)
 BOOST_AUTO_TEST_CASE(OutputToFile  ){
   auto & f(p->GetReference());

@@ -69,8 +69,9 @@ namespace InDet
     /** standard Athena-Algorithm method */
     virtual StatusCode finalize() override;
 
-    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track*,
+    virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
+                                                            Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                                             Trk::PRDtoTrackMap &prd_to_track_map) const override;
 
   private:
@@ -272,6 +273,7 @@ namespace InDet
       
     /** Fill the two structs TrackHitDetails & TSoS_Details full of information*/
     void fillTrackDetails(const Trk::Track* ptrTrack,
+                          Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                           const Trk::PRDtoTrackMap &prd_to_track_map,
                           TrackHitDetails& trackHitDetails,
                           TSoS_Details& tsosDetails ) const;
@@ -279,6 +281,7 @@ namespace InDet
     /** Determine which hits to keep on this track*/
     bool decideWhichHitsToKeep(const Trk::Track*,
                                const Trk::TrackScore score,
+                               Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                Trk::PRDtoTrackMap &prd_to_track_map,
                                TrackHitDetails& trackHitDetails,
                                TSoS_Details& tsosDetails,
@@ -286,7 +289,8 @@ namespace InDet
                                CacheEntry* ent) const;
 
     /** Update the pixel clusters split information*/
-    void updatePixelClusterInformation(TSoS_Details& tsosDetails) const;
+    void setPixelClusterSplitInformation(TSoS_Details& tsosDetails,
+                                         Trk::ClusterSplitProbabilityContainer &clusterSplitProbMap) const;
       
     /** Check if the cluster is compatible with a hadronic cluster*/
     bool isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
@@ -304,6 +308,7 @@ namespace InDet
     */
     int checkOtherTracksValidity(const Trk::RIO_OnTrack*,
                                  bool isSplitable,
+                                 Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                  Trk::PRDtoTrackMap &prd_to_track_map,
                                  int& maxiShared,
                                  int& maxothernpixel,

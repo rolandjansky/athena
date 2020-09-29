@@ -203,10 +203,9 @@ void IDScanHitFilter::makeTracks( GroupList& idScanGroups, TrigInDetTrackCollect
 							      1.0/ptInv );
 
     std::vector<const TrigSiSpacePoint*> spacePointsOnTrack;
-    for(std::list<IdScanSpPoint *>::iterator hitItr=gItr->groupHits().begin();
-	hitItr!=gItr->groupHits().end();hitItr++) 
+    for (IdScanSpPoint* sp : gItr->groupHits())
       {
-	spacePointsOnTrack.push_back( (**hitItr).commonSP() );
+	spacePointsOnTrack.push_back( sp->commonSP() );
       }
     std::vector<const TrigSiSpacePoint*>* spv = new std::vector<const TrigSiSpacePoint*>;
     spv->assign(spacePointsOnTrack.begin(),spacePointsOnTrack.end());

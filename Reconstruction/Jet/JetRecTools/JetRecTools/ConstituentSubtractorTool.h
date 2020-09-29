@@ -35,6 +35,7 @@ private:
 
   float m_maxDeltaR;
   float m_alpha;
+  float m_ghostArea;
   float m_maxEta;
   bool m_ignoreChargedPFOs;
 

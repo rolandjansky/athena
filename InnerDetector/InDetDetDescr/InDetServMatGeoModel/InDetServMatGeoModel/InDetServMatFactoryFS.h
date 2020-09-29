@@ -33,7 +33,7 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   // manager
   virtual const InDetDD::InDetServMatManager* getDetectorManager () const;
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
+  MsgStream& msg (MSG::Level lvl) { return m_msg << lvl; }
 
  private:  
   
@@ -45,7 +45,7 @@ class InDetServMatFactoryFS : public GeoVDetectorFactory  {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   InDetDD::InDetServMatManager   *m_manager;
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
+  Athena::MsgStreamMember m_msg;
 };
 
 #endif
