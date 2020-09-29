@@ -481,35 +481,6 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   muFastAlg.InsideOutMode = InsideOutMode
   muFastAlg.TrackParticlesContainerName = TrackParticlesName
 
-  # Debug for L2IO
-  from AthenaCommon.Constants import DEBUG, INFO
-  muFastAlg.OutputLevel = DEBUG
-  muFastAlg.DataPreparator.OutputLevel = DEBUG
-  muFastAlg.PatternFinder.OutputLevel = DEBUG
-  muFastAlg.StationFitter.OutputLevel = DEBUG
-  muFastAlg.TrackFitter.OutputLevel = DEBUG
-  muFastAlg.TrackExtrapolator.OutputLevel = DEBUG
-  muFastAlg.BackExtrapolator.OutputLevel = DEBUG
-  muFastAlg.CalibrationStreamer.OutputLevel = DEBUG
-  muFastAlg.CscSegmentMaker.OutputLevel = DEBUG
-  muFastAlg.MonTool.OutputLevel = INFO
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcRoadDefiner
-  rpc_roaddefiner = TrigL2MuonSA__RpcRoadDefiner()
-  rpc_roaddefiner.OutputLevel = DEBUG
-  ToolSvc += rpc_roaddefiner
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcPatFinder
-  rpc_patfinder = TrigL2MuonSA__RpcPatFinder()
-  rpc_patfinder.OutputLevel = DEBUG
-  ToolSvc += rpc_patfinder
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcRoadDefiner
-  tgc_roaddefiner = TrigL2MuonSA__TgcRoadDefiner()
-  tgc_roaddefiner.OutputLevel = DEBUG
-  ToolSvc += tgc_roaddefiner
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
-  rpc_datapreparator = TrigL2MuonSA__RpcDataPreparator()
-  rpc_datapreparator.OutputLevel = DEBUG
-  ToolSvc += rpc_datapreparator
-
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
 

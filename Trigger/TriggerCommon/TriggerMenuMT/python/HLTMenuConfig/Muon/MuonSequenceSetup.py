@@ -128,9 +128,6 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter.L2MuCombContainer = sequenceOut
     muonChainFilter.WriteMuFast = False
     muonChainFilter.WriteMuComb = True
-    # Debug for L2IO
-    from AthenaCommon.Constants import DEBUG
-    muonChainFilter.OutputLevel = DEBUG
 
     # for nominal muComb
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
@@ -152,9 +149,6 @@ def muCombAlgSequence(ConfigFlags):
     insideoutMuonChainFilter.L2MuFastContainer = sequenceOutL2SAIO
     insideoutMuonChainFilter.WriteMuFast = True
     insideoutMuonChainFilter.WriteMuComb = False
-    # Debug for L2IO
-    from AthenaCommon.Constants import DEBUG
-    insideoutMuonChainFilter.OutputLevel = DEBUG
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
