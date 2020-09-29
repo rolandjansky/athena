@@ -662,6 +662,7 @@ namespace Trk {
       const GXFTrackState &,
       PropDirection,
       MagneticFieldProperties,
+      bool,
       bool
     ) const;
 
@@ -692,6 +693,7 @@ namespace Trk {
      * @param[in] propdir The propagation direction.
      * @param[in] bf The magnetic field properties.
      * @param[in] calcderiv If set, calculate the derivative.
+     * @param[in] holesearch If set, search for holes.
      *
      * @return An instance of PropagationResult, which is a struct with three
      * members. Firstly, it contains a unique pointer to a set of track
@@ -710,6 +712,7 @@ namespace Trk {
       const GXFTrackState &,
       PropDirection,
       MagneticFieldProperties,
+      bool,
       bool
     ) const;
 

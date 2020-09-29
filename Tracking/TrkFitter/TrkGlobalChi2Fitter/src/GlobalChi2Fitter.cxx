@@ -7285,7 +7285,8 @@ namespace Trk {
     const GXFTrackState & ts,
     PropDirection propdir,
     MagneticFieldProperties bf,
-    bool calcderiv
+    bool calcderiv,
+    bool holesearch
   ) const {
     std::unique_ptr<const TrackParameters> rv;
     TransportJacobian * jac = nullptr;
@@ -7308,10 +7309,16 @@ namespace Trk {
       }
     }
 
+    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> extrapolation;
+
+    if (holesearch) {
+      extrapolation = holesearchExtrapolation(ctx, prev, ts, propdir);
+    }
+
     return PropagationResult {
       std::move(rv),
       std::unique_ptr<TransportJacobian>(jac),
-      {}
+      std::move(extrapolation)
     };
   }
 
@@ -7321,19 +7328,20 @@ namespace Trk {
     const GXFTrackState & ts,
     PropDirection propdir,
     MagneticFieldProperties bf,
-    bool calcderiv
+    bool calcderiv,
+    bool holesearch
   ) const {
     PropagationResult rv;
 
     rv = calculateTrackParametersPropagateHelper(
-      ctx, prev, ts, propdir, bf, calcderiv
+      ctx, prev, ts, propdir, bf, calcderiv, holesearch
     );
 
     if (rv.m_parameters == nullptr) {
       propdir = invertPropdir(propdir);
 
       rv = calculateTrackParametersPropagateHelper(
-        ctx, prev, ts, propdir, bf, calcderiv
+        ctx, prev, ts, propdir, bf, calcderiv, holesearch
       );
     }
 
@@ -7377,7 +7385,8 @@ namespace Trk {
         *states[hitno],
         propdir,
         trajectory.m_fieldprop,
-        calcderiv
+        calcderiv,
+        false
       );
 
       if (
@@ -7457,7 +7466,8 @@ namespace Trk {
         *states[hitno],
         propdir,
         trajectory.m_fieldprop,
-        calcderiv
+        calcderiv,
+        false
       );
 
       if (
