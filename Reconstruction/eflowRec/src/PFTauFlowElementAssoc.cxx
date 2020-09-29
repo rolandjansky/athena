@@ -13,14 +13,7 @@ typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
 
 PFTauFlowElementAssoc::PFTauFlowElementAssoc(const std::string& name,
               ISvcLocator* pSvcLocator): AthReentrantAlgorithm(name, pSvcLocator)
-{
-  // Declare the decoration keys
-  declareProperty ("TauNeutralFEDecorKey", m_tauNeutralFEWriteDecorKey = "TauJets.neutralFELinks");
-  declareProperty ("TauChargedFEDecorKey", m_tauChargedFEWriteDecorKey = "TauJets.chargedFELinks");
-
-  declareProperty ("NeutralFETauDecorKey", m_neutralFETauWriteDecorKey = "JetETMissNeutralFlowElements.FE_TauLinks");
-  declareProperty ("ChargedFETauDecorKey", m_chargedFETauWriteDecorKey = "JetETMissChargedFlowElements.FE_TauLinks");
-}
+{}
 
 PFTauFlowElementAssoc::~PFTauFlowElementAssoc() {}
 
@@ -39,10 +32,6 @@ StatusCode PFTauFlowElementAssoc::initialize() {
 
   ATH_MSG_DEBUG("Initialization completed successfully");
 
-  return StatusCode::SUCCESS;
-}
-
-StatusCode PFTauFlowElementAssoc::finalize() {
   return StatusCode::SUCCESS;
 }
 

@@ -44,7 +44,6 @@ public:
 
   virtual StatusCode initialize();
   virtual StatusCode execute(const EventContext &ctx) const;
-  virtual StatusCode finalize();
 
 private:
 
@@ -55,13 +54,13 @@ private:
   SG::ReadHandleKey<xAOD::FlowElementContainer> m_chargedFEReadHandleKey{this,"JetETMissChargedFlowElementContainer","JetETMissChargedFlowElements","ReadHandleKey for charged FlowElements"};
 
   /** The write key for adding Neutral Flow Element links to the taus */
-  SG::WriteDecorHandleKey<xAOD::TauJetContainer> m_tauNeutralFEWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::TauJetContainer> m_tauNeutralFEWriteDecorKey{this,"TauNeutralFEDecorKey","TauJets.neutralFELinks","WriteDecorHandleKey for adding neutral FE links to taus"};
   /** The write key for adding Charged Flow Element links to the taus */
-  SG::WriteDecorHandleKey<xAOD::TauJetContainer> m_tauChargedFEWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::TauJetContainer> m_tauChargedFEWriteDecorKey{this,"TauChargedFEDecorKey","TauJets.chargedFELinks","WriteDecorHandleKey for adding charged FE links to taus"};
   /** The write key for adding tau element links to the Neutral Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralFETauWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_neutralFETauWriteDecorKey{this,"NeutralFETauDecorKey","JetETMissNeutralFlowElements.FE_TauLinks","WriteDecorHandleKey for adding tau links to neutral FEs"};
   /** The write key for adding tau element links to the Charged Flow Elements */
-  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedFETauWriteDecorKey;
+  SG::WriteDecorHandleKey<xAOD::FlowElementContainer> m_chargedFETauWriteDecorKey{this,"ChargedFETauDecorKey","JetETMissChargedFlowElements.FE_TauLinks","WriteDecorHandleKey for adding tau links to charged FEs"};
 
 };
 
