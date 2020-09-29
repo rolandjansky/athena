@@ -30,6 +30,7 @@ from AthenaCommon.GlobalFlags import globalflags
 # no truth info for data xAODs
 if DerivationFrameworkHasTruth:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  print " added addStandardTruthContents Successfully >>>>>> ", DerivationFrameworkHasTruth
   addStandardTruthContents()
 
 #====================================================================
@@ -63,10 +64,10 @@ HION6ThinningHelper.AppendToStream(HION6Stream)
 #================
 # ELECTRONS
 #================
-EL10 = "(Electrons.pt > 10*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL13 = "(Electrons.pt > 13*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL15 = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
-EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL10 = "(Electrons.pt > 10*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL13 = "(Electrons.pt > 13*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL15 = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
+EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
 
 #================
 # MUONS
@@ -81,7 +82,11 @@ MU20 = "(Muons.pt > 20*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muo
 # JETS
 #================
 
-akt4EMcalib_15 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
+#igb: should be > 15*GeV
+akt4EMTopocalib_15 = "(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5)"
+akt4EMPFlowcalib_15 = "(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 10*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.5)"
+akt4HIcalib_15 = "(AntiKt4HIJets.pt > 10*GeV && abs(AntiKt4HIJets.eta) < 2.5)"
+
 akt10LCtrimmedcalib_200 = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.5)"
 
 #================
@@ -113,10 +118,11 @@ print "HION6StringSkimmingTool_lep: ", HION6StringSkimmingTool_lep
 #=============================================
 
 HION6_LEP10 = "( (count("+EL10+") >= 2) || (count("+MU10+") >= 2) || (count("+EL10+")>= 1 && count("+MU10+") >= 1) )"
+HION6_LEP13 = "( (count("+EL13+") >= 2) || (count("+MU13+") >= 2) || (count("+EL13+")>= 1 && count("+MU13+") >= 1) )"
 HION6_LEP15 = "( (count("+EL15+") >= 2) || (count("+MU15+") >= 2) || (count("+EL15+")>= 1 && count("+MU15+") >= 1) )"
 HION6_LEP20 = "( (count("+EL20+") >= 1) || (count("+MU20+") >= 1) )"
 
-HION6_Selection_dilep = "( ("+HION6_LEP15+") || (("+HION6_LEP10+") && ("+HION6_LEP20+")) )"
+HION6_Selection_dilep = "( ("+HION6_LEP13+") || (("+HION6_LEP10+") && ("+HION6_LEP15+")) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HION6StringSkimmingTool_dilep = DerivationFramework__xAODStringSkimmingTool(
@@ -134,7 +140,7 @@ print "StringSkimmingTool_lep: ", HION6StringSkimmingTool_dilep
 #=============================================
 skimmingTools_jet=[]
 
-HION6_Selection_jet = "( (count("+akt4EMcalib_15+") >= 1) )"
+HION6_Selection_jet = "( (count("+akt4EMTopocalib_15+") >= 1) || (count("+akt4EMPFlowcalib_15+") >= 1) || (count("+akt4HIcalib_15+") >= 1) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HION6StringSkimmingTool_jet = DerivationFramework__xAODStringSkimmingTool(
@@ -152,8 +158,8 @@ print "StringSkimmingTool_jet: ", HION6StringSkimmingTool_jet
 # 4 JET EVENT SELECTION
 #=============================================
 
-#HION6_Selection_4jet = "( (count("+akt4EMcalib_15+") >= 4) || (count("+largeR_200+") >= 1) )"
-HION6_Selection_4jet = "( (count("+akt4EMcalib_15+") >= 4) )"
+#HION6_Selection_4jet = "( (count("+akt4EMTopocalib_15+") >= 4) || (count("+largeR_200+") >= 1) )"
+HION6_Selection_4jet = "( (count("+akt4EMTopocalib_15+") >= 4) || (count("+akt4EMPFlowcalib_15+") >= 4) || (count("+akt4HIcalib_15+") >= 4) )"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HION6StringSkimmingTool_4jet = DerivationFramework__xAODStringSkimmingTool(
@@ -200,7 +206,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 HION6Sequence = CfgMgr.AthSequencer("HION6Sequence")
 
 #  Skim on Single Leptons and 4 jets, DiLeptons and jets, or both the channels by selecting different kernels below
-HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("SingleORDileptonsKernel", SkimmingTools=[SingleORDileptons])
+HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("SingleORDileptonsKernel", SkimmingTools = [SingleORDileptons] )
 #HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("SingleLeptonsANDJetsKernel", SkimmingTools=[SingleLeptonsANDJets])
 #HION6Sequence +=CfgMgr.DerivationFramework__DerivationKernel("DiLeptonsANDJetsKernel", SkimmingTools=[DiLeptonsANDJets])
 
@@ -228,7 +234,8 @@ applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",HION6Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets
-HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
+#igb: comment it out
+#HION6Sequence += CfgMgr.DerivationFramework__DerivationKernel("HION6SkimmingKernel_jet", SkimmingTools = skimmingTools_jet)
 
 # Retagging to get BTagging_AntiKt4EMPFlow Collection (not present in primary AOD)
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -272,11 +279,17 @@ DerivationFrameworkJob += HION6Sequence
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('HION6', HION6Stream)
 
+
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HION6SlimmingHelper = SlimmingHelper("HION6SlimmingHelper")
-HION6SlimmingHelper.AllVariables = ["AntiKt2HIJets","AntiKt3HIJets","AntiKt4HIJets","AntiKt4HITrackJets","CaloSums","HIEventShape","ZdcModules","ZdcTriggerTowers","ZdcSums","MBTSForwardEventInfo", "MBTSModules"]
-HION6SlimmingHelper.AppendContentToStream(HION6Stream)
+HION6SlimmingHelper.AllVariables += ["AntiKt2HIJets","AntiKt3HIJets","AntiKt4HIJets","AntiKt4HITrackJets","CaloSums","HIEventShape","ZdcModules","ZdcTriggerTowers","ZdcSums","MBTSForwardEventInfo", "MBTSModules"]
 
+if DerivationFrameworkHasTruth:
+    HION6SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","AntiKt8TruthJets","AntiKt10TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles","TruthElectrons"]
+    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
+    addTruth3ContentToSlimmerTool(HION6SlimmingHelper)
+
+HION6SlimmingHelper.AppendContentToStream(HION6Stream)
 
 #This enables L1EnergySums
 OtherContent = [
