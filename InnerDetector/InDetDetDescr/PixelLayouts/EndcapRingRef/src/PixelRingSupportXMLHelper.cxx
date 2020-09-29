@@ -48,7 +48,7 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
 
 bool PixelRingSupportXMLHelper::putLHBeforeRHrings(){
   bool m_LHBeforeRHrings = 0;
-  if(getSchemaVersion() > 5) {
+  if(getSchemaVersion() > 6) {
     return getBoolean("LHBeforeRHRings",m_LHBeforeRHrings, "putLHBeforeRHRings");
   }
   else return true;
@@ -56,7 +56,7 @@ bool PixelRingSupportXMLHelper::putLHBeforeRHrings(){
 
 bool PixelRingSupportXMLHelper::swapFrontBackModulePhiPosition(){
   bool m_swapFrontBack = 0;
-  if(getSchemaVersion() > 5) return getBoolean("ModulePhiPosition",m_swapFrontBack, "swapFrontBack");
+  if(getSchemaVersion() > 6) return getBoolean("ModulePhiPosition",m_swapFrontBack, "swapFrontBack");
   else return false;
 }
 
