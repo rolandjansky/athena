@@ -47,7 +47,7 @@ namespace Trk {
     const MeasurementBase *measurement(void);
 
     void setTrackParameters(std::unique_ptr<const TrackParameters>);
-    const TrackParameters *trackParameters(void);
+    const TrackParameters *trackParameters(void) const;
     
     GXFMaterialEffects *materialEffects();
     const Surface *surface() const;
@@ -150,7 +150,7 @@ namespace Trk {
     return m_covariancematrix;
   }
 
-  inline const TrackParameters *GXFTrackState::trackParameters(void) {
+  inline const TrackParameters *GXFTrackState::trackParameters(void) const {
     return m_trackpar.get();
   }
 
