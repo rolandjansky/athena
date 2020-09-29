@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -29,9 +29,9 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include <TMath.h>
-#include "TrkExInterfaces/IExtrapolator.h"
+//#include "TrkExInterfaces/IExtrapolator.h"
 
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
+//#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -68,15 +68,10 @@ namespace InDet
 
   InDetJetFitterUtils::InDetJetFitterUtils(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
-    m_LinearizedTrackFactory("Trk::FullLinearizedTrackFactory/FullLinearizedTrackFactory", this),
-    m_extrapolator("Trk::Extrapolator/InDetExtrapolator", this),
     m_extrapolatorIsAvailable(false),
     m_linearizedTrackFactoryIsAvailable(false)
   { 
     
-    declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
-    declareProperty("Extrapolator",m_extrapolator);
-
     declareInterface< InDetJetFitterUtils >(this) ;
 
   }
@@ -526,7 +521,7 @@ namespace InDet
     
     if (m_linearizedTrackFactoryIsAvailable==false)
     {
-      msg(MSG::ERROR) << "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." << endmsg;
+      ATH_MSG_ERROR( "Cannot perform requested extrapolation. No extrapolator defined...Returning 0 compatibility..." );
       return std::pair<double,double>(0,0);
     }
     

@@ -20,9 +20,15 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
+namespace OverlayTesting {
+  class TRTOverlay_test;
+}
+
 class TRTOverlay : public AthReentrantAlgorithm
 {
 public:
+
+  friend class OverlayTesting::TRTOverlay_test;
 
   TRTOverlay(const std::string &name, ISvcLocator *pSvcLocator);
 
@@ -53,12 +59,12 @@ private:
   // Following tools, services and configurables are there only for the correct of HT hits
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service"};      // Random number service
 
-  double                                 m_HTOccupancyCorrectionB;
-  double                                 m_HTOccupancyCorrectionEC;
-  double                                 m_HTOccupancyCorrectionB_noE;
-  double                                 m_HTOccupancyCorrectionEC_noE;
-  ToolHandle<InDet::ITRT_LocalOccupancy> m_TRT_LocalOccupancyTool{this, "TRT_LocalOccupancyTool", "TRT_LocalOccupancy", ""};
-  ToolHandle<ITRT_StrawStatusSummaryTool>   m_TRTStrawSummaryTool{this, "TRTStrawSummaryTool", "TRT_StrawStatusSummaryTool", ""};
+  Gaudi::Property<double> m_HTOccupancyCorrectionB{this, "TRT_HT_OccupancyCorrectionBarrel", 0.110, ""};
+  Gaudi::Property<double> m_HTOccupancyCorrectionEC{this, "TRT_HT_OccupancyCorrectionEndcap", 0.090, ""};
+  Gaudi::Property<double> m_HTOccupancyCorrectionB_noE{this, "TRT_HT_OccupancyCorrectionBarrelNoE", 0.060, ""};
+  Gaudi::Property<double> m_HTOccupancyCorrectionEC_noE{this, "TRT_HT_OccupancyCorrectionEndcapNoE", 0.050, ""};
+  ToolHandle<InDet::ITRT_LocalOccupancy>  m_TRT_LocalOccupancyTool{this, "TRT_LocalOccupancyTool", "TRT_LocalOccupancy", ""};
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{this, "TRTStrawSummaryTool", "TRT_StrawStatusSummaryTool", ""};
 
 };
 

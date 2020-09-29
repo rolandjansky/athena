@@ -42,7 +42,7 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
 {
 
   ASG_TOOL_CLASS3(AsgForwardElectronIsEMSelector, IAsgForwardElectronIsEMSelector,
-		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
+		  IAsgEGammaIsEMSelector, IAsgSelectionTool)
 
   public:
   /** Standard constructor */

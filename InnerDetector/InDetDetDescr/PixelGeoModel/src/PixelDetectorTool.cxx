@@ -72,7 +72,7 @@ StatusCode PixelDetectorTool::initialize()
 /**
  ** Create the Detector Node corresponding to this tool
  **/
-StatusCode PixelDetectorTool::create ATLAS_NOT_THREAD_SAFE () // Thread unsafe PixelDetectorFactorySR1 and PixelDetectorFactory constructors are used.
+StatusCode PixelDetectorTool::create()
 { 
   StatusCode result = StatusCode::SUCCESS;
 
@@ -343,9 +343,9 @@ StatusCode PixelDetectorTool::clear()
 }
   
 StatusCode   
-PixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () // Thread unsafe DataHandle template and StoreGateSvc::regFcn method are used.
+PixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
-
+   // Thread unsafe DataHandle template and StoreGateSvc::regFcn method are used.
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
 
@@ -448,6 +448,7 @@ PixelDetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () // Thread unsafe Da
   }
   return sc;
 
+  return StatusCode::SUCCESS;
 }
   
 StatusCode 

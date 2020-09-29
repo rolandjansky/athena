@@ -53,7 +53,7 @@ InDetServMatBuilderToolSLHC::~InDetServMatBuilderToolSLHC()
 
 
 //================ Initialize =================================================
-StatusCode InDetServMatBuilderToolSLHC::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe build method is used.
+StatusCode InDetServMatBuilderToolSLHC::initialize()
 {
   
   StatusCode sc = AlgTool::initialize();
@@ -106,13 +106,13 @@ const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC:
   return m_services;
 }
 
-void InDetServMatBuilderToolSLHC::geoInit ATLAS_NOT_THREAD_SAFE () // Thread unsafe InDetServMatGeometryManager constructor is used.
+void InDetServMatBuilderToolSLHC::geoInit()
 {
   m_geoMgr = new InDetServMatGeometryManager(m_athenaComps);
 }
 
 
-void InDetServMatBuilderToolSLHC::build ATLAS_NOT_THREAD_SAFE () // 
+void InDetServMatBuilderToolSLHC::build()
 {
   // Do nothing if services are not to be built.
   geoInit();
@@ -161,7 +161,7 @@ void InDetServMatBuilderToolSLHC::build ATLAS_NOT_THREAD_SAFE () //
   fixMissingMaterials();
 
   typedef  std::vector<ServiceVolume*>::const_iterator iter;
-  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); i++) {
+  for (iter i=tracker->serviceVolumes().begin(); i!=tracker->serviceVolumes().end(); ++i) {
     /*
     msg(MSG::INFO) << "Calling ServiceVolume->dump() for the " << n++ << "th time" << endmsg;
     (**i).dump();  // for DEBUG only
@@ -219,7 +219,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
   param->setZmax(vol.zMax());
   param->setZsymm(true);
   for (std::vector<ServiceMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
-    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+    for ( ServiceMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ++ient) {
       /*
       msg(MSG::INFO) << "Inside components loop, comp = " << ient->name 
 		     << " number " << ient->number 

@@ -9,6 +9,9 @@
 
 #undef NDEBUG
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include <iostream>
 #include <limits>
 #include <list>

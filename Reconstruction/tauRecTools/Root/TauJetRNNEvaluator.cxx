@@ -32,7 +32,7 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name):
     declareProperty("OutputLayer", m_output_layer = "rnnid_output");
     declareProperty("OutputNode", m_output_node = "sig_prob");
     
-    declareProperty("IncShowerSubtr", m_incShowerSubtr = true, "use shower subtracted clusters in calo calculations");
+    declareProperty("UseSubtractedCluster", m_useSubtractedCluster = true, "use shower subtracted clusters in calo calculations");
 }
 
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
@@ -194,13 +194,13 @@ StatusCode TauJetRNNEvaluator::get_clusters(
     TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
     std::vector<const xAOD::CaloCluster*> clusters;
-    ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusters, m_incShowerSubtr));
+    ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusters, m_useSubtractedCluster));
 
     // remove clusters that do not meet dR requirement
     auto cItr = clusters.begin();
     while( cItr != clusters.end() ){
       const xAOD::CaloCluster* cluster = (*cItr);
-      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
 
       if (tauAxis.DeltaR(clusterP4) > m_max_cluster_dr) {
         clusters.erase(cItr);

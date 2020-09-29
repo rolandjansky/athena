@@ -1,13 +1,7 @@
-################################################################################
-# Package: DataQualityConfigurations
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityConfigurations )
-
-# Requires DQI for binary build - this turns out not to do much, but keep for indication
-# Actual heavy lifting done by DEPENDS in add_custom_command
-atlas_depends_on_subdirs(PRIVATE DataQuality/DataQualityInterfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

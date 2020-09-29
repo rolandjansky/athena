@@ -1,5 +1,11 @@
 # This comes after all Simplified Model setup files
 from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card,check_reset_proc_number
+from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
+
+phys_short = get_physics_short()
+
+if 'rpv' in phys_short.lower() and not 'import ' in process:
+    raise RuntimeError('Please import a model when using an RPV decay; these are not handled by the standard MSSM model in MadGraph')
 
 # Set maximum number of events if the event multiplier has been modified
 if evt_multiplier>0:
@@ -10,15 +16,13 @@ if evt_multiplier>0:
 else:
     # Sensible default
     nevts=evgenConfig.nEventsPerJob*2.
-run_settings.update({'nevents':nevts})
+run_settings.update({'nevents':int(nevts)})
 
 # Only needed for something non-standard (not 1/4 heavy mass)
 if ktdurham is not None:
     run_settings.update({'ktdurham':ktdurham})
 
 # systematic variation
-from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
-phys_short = get_physics_short()
 if 'scup' in phys_short:
     syst_mod=dict_index_syst[0]
 elif 'scdw' in phys_short:
@@ -33,33 +37,28 @@ elif 'qcdw' in phys_short:
     syst_mod=dict_index_syst[7]
 
 # Pass arguments as a dictionary: the "decays" argument is not accepted in older versions of MadGraphControl
+if 'mass' in [x.lower() for x in param_blocks]:
+    raise RuntimeError('Do not provide masses in param_blocks; use the masses variable instead')
+param_blocks['MASS']=masses
+# Add decays in if needed
+if len(decays)>0: param_blocks['DECAY']=decays
 argdict = {'runArgs'        : runArgs,
            'process'        : process,
-           'params'         : {'MASS':masses},
+           'params'         : param_blocks,
            'fixEventWeightsForBridgeMode': fixEventWeightsForBridgeMode,
            'madspin_card'   : madspin_card,
            'keepOutput'     : keepOutput, # Should only ever be true for testing!
            'run_settings'   : run_settings, # All goes into the run card
            'writeGridpack'  : writeGridpack,
            'syst_mod'       : syst_mod,
-           'param_card'     : param_card # Only set if you *can't* modify the default param card to get your settings
+           'param_card'     : param_card, # Only set if you *can't* modify the default param card to get your settings
+            'add_lifetimes_lhe' : add_lifetimes_lhe
            }
-# Add decays in if needed
-if len(decays)>0: argdict['params']['DECAY']=decays
 
 # First the standard case: No input LHE file
 if not hasattr(runArgs,'inputGeneratorFile') or runArgs.inputGeneratorFile is None:
-    # Try-except block to handle grid pack generation
-    try:
-        ktdurham = SUSY_Generation(**argdict)
-    except RuntimeError as rte:
-        for an_arg in rte.args:
-            if 'Gridpack sucessfully created' in an_arg:
-                print 'Handling exception and exiting'
-                theApp.finalize()
-                theApp.exit()
-        print 'Unhandled exception - re-raising'
-        raise rte
+    # Note that for gridpack generation, the job will exit after this command
+    ktdurham = SUSY_Generation(**argdict)
 
 else:
     # These manipulations require a dummy SUSY process
@@ -69,20 +68,29 @@ else:
     param_card_old = process_dir+'/Cards/param_card.dat'
     ktdurham = -1
     import tarfile
-    myTarball = tarfile.open(runArgs.inputGeneratorFile)
-    myEvents = None
-    for afile in myTarball.getnames():
-        if afile.endswith('.events'): myEvents = afile
-    if myEvents is None:
-        raise RuntimeError('No input events file found!')
+    if tarfile.is_tarfile(runArgs.inputGeneratorFile):
+        myTarball = tarfile.open(runArgs.inputGeneratorFile)
+        myEvents = None
+        for afile in myTarball.getnames():
+            if afile.endswith('.events'): myEvents = afile
+        if myEvents is None:
+            raise RuntimeError('No input events file found!')
+        else:
+            events_file = myTarball.extractfile( myEvents )
+            update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
+        myTarball.close()
     else:
-        events_file = myTarball.extractfile( myEvents )
-        update_lhe_file(lhe_file_old=myEvents,param_card_old=param_card_old,masses=masses)
-        for aline in events_file:
-            if 'ktdurham' in aline and "=" in aline:
-                ktdurham = float(aline.split('=')[0].strip())
-                break
-    myTarball.close()
+        # Assume this is already an unzipped file -- happens when we run on multiple LHEs
+        update_lhe_file(lhe_file_old=runArgs.inputGeneratorFile,param_card_old=param_card_old,masses=masses)
+        with open(runArgs.inputGeneratorFile,'r') as events_file:
+            for aline in events_file:
+                if 'ktdurham' in aline and "=" in aline:
+                    ktdurham = float(aline.split('=')[0].strip())
+                    break
 
     if madspin_card is not None:
         # Do a stupid addition of madspin - requires a dummy process

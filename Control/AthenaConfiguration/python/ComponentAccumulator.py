@@ -24,8 +24,9 @@ from AthenaConfiguration.UnifyProperties import unifySet
 
 class ConfigurationError(RuntimeError):
     pass
+_basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc", "GeoModelSvc/GeoModelSvc", "DetDescrCnvSvc/DetDescrCnvSvc")
 
-_basicServicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc','CoreDumpSvc','VTuneProfilerService','EvtIdModifierSvc'))
+
 
 def printProperties(msg, c, nestLevel = 0, printDefaults=False):
     # Iterate in sorted order.
@@ -81,7 +82,7 @@ class ComponentAccumulator(object):
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._servicesToCreate=set(_basicServicesToCreate)
+        self._servicesToCreate=[]
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service 
 
@@ -192,7 +193,8 @@ class ComponentAccumulator(object):
         self.printCondAlgs (summariseProps = summariseProps,
                             onlyComponents = onlyComponents)
         self._msg.info( "Services" )
-        self._msg.info( [ s[0].name for s in filterComponents (self._services, onlyComponents) ] )
+        self._msg.info( [ s[0].name + (" (created) " if s[0].name in self._servicesToCreate else "") 
+                              for s in filterComponents (self._services, onlyComponents) ] )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for (t, flag) in filterComponents (self._publicTools, onlyComponents):
@@ -395,9 +397,12 @@ class ComponentAccumulator(object):
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.name, "Services") 
         self._lastAddedComponent=newSvc.name
-        if create: self._servicesToCreate.add(newSvc.name)
-        return 
 
+        if create:
+            sname = newSvc.getFullJobOptName()
+            if sname not in self._servicesToCreate:
+                self._servicesToCreate.append(sname)
+        return
 
     def addPublicTool(self,newTool,primary=False):
         if newTool.__component_type__ != "AlgTool":
@@ -572,9 +577,7 @@ class ComponentAccumulator(object):
             self.addCondAlgo(condAlg) #Profit from deduplicaton here
 
         for svc in other._services:
-            self.addService(svc) #Profit from deduplicaton here
-
-        self._servicesToCreate.update(other._servicesToCreate)
+            self.addService(svc, create = svc.getFullJobOptName() in other._servicesToCreate) #Profit from deduplicaton here
 
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
@@ -667,8 +670,13 @@ class ComponentAccumulator(object):
             extSvc += [
                 svc.getFullJobOptName(),
             ]
-            if svc.name in self._servicesToCreate:
+            if svc.getFullJobOptName() in self._servicesToCreate:
                 svcToCreate.append(svc.getFullJobOptName())
+
+        # order basic services
+        for bs in reversed(_basicServicesToCreateOrder):
+            if bs in svcToCreate:
+                svcToCreate.insert(0, svcToCreate.pop( svcToCreate.index(bs) ) )
 
         extSvc.append("PyAthena::PyComponentMgr/PyComponentMgr")
 
@@ -1034,7 +1042,6 @@ def appendCAtoAthena(ca):
     _log = logging.getLogger( "conf2toConfigurable".ljust(32) )
     _log.info( "Merging of CA to global ..." )
 
-
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len( ca.getPublicTools() ) != 0:
         _log.info( "Merging public tools" )
@@ -1049,6 +1056,8 @@ def appendCAtoAthena(ca):
             instance = conf2toConfigurable( comp, indent="  " )
             if instance not in ServiceMgr:
                 ServiceMgr += instance
+        for svcName in ca._servicesToCreate:
+            theApp.CreateSvc += [svcName]
 
     if  len(ca._conditionsAlgs) != 0:
         _log.info( "Merging condition algorithms" )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include <map>
 #include <memory>
@@ -170,7 +172,7 @@ namespace InDetDD {
 
     // Alignment stuff
     // DEPRECATED - kept for compatibilty with Lisbon CondDB
-    void addKey(const std::string & key, int level);
+    void addKey ATLAS_NOT_THREAD_SAFE (const std::string & key, int level);
     // DEPRECATED use addChannel
     void addKey(const std::string & key, int level, FrameType frame);
 

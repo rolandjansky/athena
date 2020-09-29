@@ -27,7 +27,7 @@ const float TauSubstructureVariables::DEFAULT = -1111.;
 
 TauSubstructureVariables::TauSubstructureVariables( const std::string& name )
   : TauRecToolBase(name) {
-  declareProperty("IncShowerSubtr", m_incShowerSubtr = true);
+  declareProperty("UseSubtractedCluster", m_useSubtractedCluster = true);
 }
 
 
@@ -47,7 +47,7 @@ StatusCode TauSubstructureVariables::initialize() {
 StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
 
   CaloClusterVariables CaloClusterVariablesTool;
-  CaloClusterVariablesTool.setIncSub(m_incShowerSubtr);
+  CaloClusterVariablesTool.setIncSub(m_useSubtractedCluster);
 
   bool isFilled = CaloClusterVariablesTool.update(pTau, m_tauVertexCorrection);
 
@@ -98,12 +98,12 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
 
   std::vector<const xAOD::CaloCluster*> vClusters;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, vClusters, m_incShowerSubtr));
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, vClusters, m_useSubtractedCluster));
   
   for (auto cluster : vClusters){
     totalEnergy += cluster->e();
 		
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(cluster, tauVertex, jetVertex);
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     dr = tauAxis.DeltaR(clusterP4);    
     
     if (0.2 <= dr && dr < 0.4) {

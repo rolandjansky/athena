@@ -5,6 +5,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 def getTileFirstXing():
     """Return the earliest bunch crossing time for which interactions will be sent to the TileHitVecToCntTool"""
@@ -16,14 +17,12 @@ def getTileLastXing():
     return 150
 
 
-def getTileRange(name = 'TileRange', **kwargs):
+def TileRangeCfg(flags, name = 'TileRange', **kwargs):
     """Return a PileUpXingFolder tool for Tile"""
     kwargs.setdefault('FirstXing', getTileFirstXing() )
     kwargs.setdefault('LastXing',  getTileLastXing() )
     kwargs.setdefault('ItemList', ['TileHitVector#TileHitVec', 'TileHitVector#MBTSHits'] )
-
-    PileUpXingFolder=CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def TileHitVecToCntToolCfg(flags, **kwargs):
@@ -77,6 +76,10 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", getTileFirstXing() )
         kwargs.setdefault("LastXing",  getTileLastXing() )
+
+    if flags.Detector.OverlayTile:
+        rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
+        acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
 
     TileHitVecToCntTool=CompFactory.TileHitVecToCntTool
     acc.setPrivateTools(TileHitVecToCntTool(**kwargs))

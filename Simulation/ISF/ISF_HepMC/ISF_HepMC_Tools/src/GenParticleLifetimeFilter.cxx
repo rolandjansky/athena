@@ -27,10 +27,18 @@ ISF::GenParticleLifetimeFilter::GenParticleLifetimeFilter( const std::string& t,
 
 
 /** does the given particle pass the filter? */
+#ifdef HEPMC3
+bool ISF::GenParticleLifetimeFilter::pass(HepMC::ConstGenParticlePtr particle) const
+#else
 bool ISF::GenParticleLifetimeFilter::pass(const HepMC::GenParticle& particle) const
+#endif
 {
   // the GenParticle end vertex
+#ifdef HEPMC3
+  auto  endVtx = particle->end_vertex();
+#else
   auto endVtx = particle.end_vertex();
+#endif
   // no production vertex?
   if (!endVtx) {
     ATH_MSG_DEBUG("GenParticle does not have an end vertex, this is fine");
@@ -40,7 +48,11 @@ bool ISF::GenParticleLifetimeFilter::pass(const HepMC::GenParticle& particle) co
   const auto& end4Vec = endVtx->position();
 
   // the GenParticle production vertex
+#ifdef HEPMC3
+  auto  prodVtx = particle->production_vertex();
+#else
   auto  prodVtx = particle.production_vertex();
+#endif
   // no production vertex?
   if (!prodVtx) {
     ATH_MSG_DEBUG("GenParticle does not have a production vertex, filtering it out");

@@ -23,19 +23,16 @@ if 'InDetTrigFlags' not in dir():
 
 
 
-def makeInDetAlgsNoView( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True ):
+def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
 
-  viewAlgs, viewVerify = makeInDetAlgs( whichSignature, separateTrackParticleCreator, rois, doFTF, None )
+  viewAlgs, viewVerify = makeInDetAlgs( config, rois, doFTF, None)
   return viewAlgs
 
-def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier' ):
-  #If signature specified add suffix to the algorithms
-  signature =  whichSignature if whichSignature else ''
-  if signature != "" and separateTrackParticleCreator == "":
-    separateTrackParticleCreator = signature
-
-  if signature == "" :
-    raise ValueError('makeInDetAlgs() No signature specified')
+def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifier='IDViewDataVerifier'):
+  if config is None :
+    raise ValueError('makeInDetAlgs() No config provided!')
+  #Add suffix to the algorithms
+  signature =  '_{}'.format( config.name )
 
   #Global keys/names for Trigger collections 
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
@@ -306,33 +303,35 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
 
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   if doFTF: 
+      #Load signature configuration (containing cut values, names of collections, etc)
+      #from .InDetTrigConfigSettings import getInDetTrigConfig
+      #configSetting = getInDetTrigConfig( whichSignature )
+      if config is None:
+            raise ValueError('makeInDetAlgs() No signature config specified')
+
       from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
-      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
-      theFTF.RoIs = rois
-      theFTF.TracksName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator
-      
-      #the following doCloneRemoval modification should be set up in the InDetTrigSliceSettings once legacy trigger not needed
-      if whichSignature=="Electron":
-         theFTF.doCloneRemoval = True
+      #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
+      theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
+      theFTF.RoIs           = rois
+      theFTF.TracksName     = config.FT.trkTracksFTF() 
+      theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
 
       viewAlgs.append(theFTF)
 
 
       from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-      from TrigEDMConfig.TriggerEDMRun3 import recordable
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
-      trackCollection = "HLT_IDTrack_" + separateTrackParticleCreator + "_FTF"
 
 
-      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + whichSignature,
-                                                                TrackName = "TrigFastTrackFinder_Tracks_" + separateTrackParticleCreator,
+      theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
+                                                                TrackName = config.FT.trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
     
-      if separateTrackParticleCreator == "BeamSpot" : 
-         theTrackParticleCreatorAlg.TrackParticlesName = trackCollection
-      else:
-         theTrackParticleCreatorAlg.TrackParticlesName = recordable( trackCollection )
+      
+      #In general all FTF trackParticle collections are recordable except beamspot to save space
+      theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
+
       viewAlgs.append(theTrackParticleCreatorAlg)
 
 

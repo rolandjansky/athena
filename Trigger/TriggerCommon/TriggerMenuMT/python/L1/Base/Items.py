@@ -46,11 +46,13 @@ class MenuItemsCollection(object):
         if item is None:
             return self
         if item.name in self.items:
-            log.warning("LVL1 item %s is already in the menu, will not add it again", item.name)
-            return self
+            msg = "LVL1 item %s is already in the menu, will not add it again" % item.name
+            log.error(msg)
+            raise RuntimeError(msg)
         if item.ctpid in [x.ctpid for x in self.items.values()]:
-            log.warning("LVL1 item with ctpid %i is already in the menu, will not add %s", item.ctpid, item.name)
-            return self
+            msg = "LVL1 item %s with ctpid %i is already in the menu, will not add %s with the same ctpid" % (self.itemById(item.ctpid).name, item.ctpid, item.name)
+            log.error(msg)
+            raise RuntimeError(msg)
         self.items[ item.name ] = item
         return self
     
@@ -59,6 +61,10 @@ class MenuItemsCollection(object):
 
     def __len__(self):
         return len(self.items)
+
+    def itemById(self,ctpid):
+        itemById = {it.ctpid:it for it in self.items.values()}
+        return itemById[ctpid] if ctpid in itemById else None
 
     def itemNames(self):
         return self.items.keys()

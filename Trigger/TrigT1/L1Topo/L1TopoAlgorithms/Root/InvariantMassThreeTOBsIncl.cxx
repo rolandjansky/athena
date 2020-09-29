@@ -39,9 +39,8 @@
 
 REGISTER_ALG_TCS(InvariantMassThreeTOBsIncl)
 
-using namespace std;
 
-TCS::InvariantMassThreeTOBsIncl::InvariantMassThreeTOBsIncl(const string & name) : DecisionAlg(name)
+TCS::InvariantMassThreeTOBsIncl::InvariantMassThreeTOBsIncl(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 3);
    defineParameter("MaxTob", 0); 
@@ -98,17 +97,15 @@ TCS::InvariantMassThreeTOBsIncl::initialize() {
    }
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
-   for (unsigned int i=0; i<numberOutputBits();i++) {
-       const int buf_len = 512;
-       char hname_accept[buf_len], hname_reject[buf_len];
-       int mass_min = sqrt(p_InvMassMin[i]);
-       int mass_max = sqrt(p_InvMassMax[i]);
-       // mass histograms
-       snprintf(hname_accept, buf_len, "Accept_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_%s_%s_bit%d_%dM%d", name().c_str(), className().c_str(), i, mass_min, mass_max);
-       registerHist(m_histAcceptINVThree[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
-       registerHist(m_histRejectINVThree[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
+   // book histograms
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+       std::string hname_accept = "hInvariantMassThreeTOBsIncl_accept_bit"+std::to_string((int)i);
+       std::string hname_reject = "hInvariantMassThreeTOBsIncl_reject_bit"+std::to_string((int)i);
+       // mass
+       bookHist(m_histAccept, hname_accept, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
+       bookHist(m_histReject, hname_reject, "INVM", 100, sqrt(p_InvMassMin[i]), sqrt(p_InvMassMax[i]));
    }
+   
 
  
    return StatusCode::SUCCESS;
@@ -117,8 +114,8 @@ TCS::InvariantMassThreeTOBsIncl::initialize() {
 
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const vector<TCS::TOBArray const *> & input,
-						 const vector<TCS::TOBArray *> & output,
+TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+						 const std::vector<TCS::TOBArray *> & output,
 						 Decision & decision )
 {
 
@@ -158,7 +155,7 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const vector<TCS::TOBArray c
 		  const bool fillReject = fillHistos() and not fillAccept;
 		  const bool alreadyFilled = decision.bit(i);
 		  if( accept ) {
-		    vector<TCS::GenericTOB*> TOBvector;
+		    std::vector<TCS::GenericTOB*> TOBvector;
 		    TOBvector.push_back( *tob1 );
 		    TOBvector.push_back( *tob2 );
 		    TOBvector.push_back( *tob3 );
@@ -167,9 +164,9 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const vector<TCS::TOBArray c
 		    TOBvector.clear();
 		  }
 		  if(fillAccept and not alreadyFilled) {
-		    fillHist1D(m_histAcceptINVThree[i]->GetName(),sqrt(invmass2));
+		    fillHist1D(m_histAccept[i],sqrt(invmass2));
 		  } else if(fillReject) {
-		    fillHist1D(m_histRejectINVThree[i]->GetName(),sqrt(invmass2));
+		    fillHist1D(m_histReject[i],sqrt(invmass2));
 		  }
 		  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
 		  
@@ -188,8 +185,8 @@ TCS::InvariantMassThreeTOBsIncl::processBitCorrect( const vector<TCS::TOBArray c
 }
 
 TCS::StatusCode
-TCS::InvariantMassThreeTOBsIncl::process( const vector<TCS::TOBArray const *> & input,
-					  const vector<TCS::TOBArray *> & output,
+TCS::InvariantMassThreeTOBsIncl::process( const std::vector<TCS::TOBArray const *> & input,
+					  const std::vector<TCS::TOBArray *> & output,
 					  Decision & decision )
 {
 
@@ -230,7 +227,7 @@ TCS::InvariantMassThreeTOBsIncl::process( const vector<TCS::TOBArray const *> & 
 		  const bool fillReject = fillHistos() and not fillAccept;
 		  const bool alreadyFilled = decision.bit(i);
 		  if( accept ) {
-		    vector<TCS::GenericTOB*> TOBvector;
+		    std::vector<TCS::GenericTOB*> TOBvector;
 		    TOBvector.push_back( *tob1 );
 		    TOBvector.push_back( *tob2 );
 		    TOBvector.push_back( *tob3 );
@@ -239,9 +236,9 @@ TCS::InvariantMassThreeTOBsIncl::process( const vector<TCS::TOBArray const *> & 
 		    TOBvector.clear();
 		  }
 		  if(fillAccept and not alreadyFilled) {
-		    fillHist1D(m_histAcceptINVThree[i]->GetName(),sqrt(invmass2));
+		    fillHist1D(m_histAccept[i],sqrt(invmass2));
 		  } else if(fillReject) {
-		    fillHist1D(m_histRejectINVThree[i]->GetName(),sqrt(invmass2));
+		    fillHist1D(m_histReject[i],sqrt(invmass2));
 		  }
 		  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
 		  

@@ -111,7 +111,7 @@ def tileCondCfg( flags ):
     TileInfoLoader, TileCablingSvc=CompFactory.getComps("TileInfoLoader","TileCablingSvc",)
     infoLoaderSvc = TileInfoLoader()
     infoLoaderSvc.NoiseScaleIndex= 2
-    acc.addService( infoLoaderSvc ) 
+    acc.addService(infoLoaderSvc, create = True)
 #    acc.addToAppProperty('CreateSvc', [infoLoaderSvc.getFullName()] )
 
 

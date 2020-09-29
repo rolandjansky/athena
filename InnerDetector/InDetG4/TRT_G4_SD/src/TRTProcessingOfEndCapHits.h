@@ -12,7 +12,7 @@ class TRTSensitiveDetector;
 
 class G4Step;
 
-class ATLAS_NOT_THREAD_SAFE TRTProcessingOfEndCapHits // Thread unsafe TRTParameters and TRTSensitiveDetector classes are used.
+class TRTProcessingOfEndCapHits
 {
   friend class TRTParametersForEndCapHits;
 

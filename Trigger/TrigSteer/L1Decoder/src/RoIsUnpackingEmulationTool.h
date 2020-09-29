@@ -32,9 +32,6 @@ class RoIsUnpackingEmulationTool : public RoIsUnpackingToolBase {
   virtual StatusCode start() override;
   
  private: 
-  // Used indirectly to place the HLT JSON object into the DetStore
-  ServiceHandle<TrigConf::IHLTConfigSvc> m_hltConfigSvc{this, "HLTConfigSvc", "TrigConf::HLTConfigSvc/HLTConfigSvc", ""};
-
 
   ///@{ @name Properties
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigRoIsKey{

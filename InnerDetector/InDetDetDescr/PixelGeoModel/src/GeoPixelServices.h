@@ -14,15 +14,16 @@ namespace InDetDD {
   class ServiceVolume;
 }
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelServices : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelServices : public GeoVPixelFactory {
 public:
-  GeoPixelServices(InDetDD::Zone * envelopeZone = 0);
+  GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
+                   PixelGeometryManager* mgr, InDetDD::Zone * envelopeZone = 0);
   ~GeoPixelServices();
-  virtual GeoVPhysVol* Build();
+  virtual GeoVPhysVol* Build() override;
   void initialize(const std::string &);
   void initializeOld(const std::string &);
-  InDetDD::VolumeBuilder * getBuilder() const {return m_pixServBuilder;}
-  InDetDD::VolumeBuilder * getServMatBuilder() const {return m_servMatBuilder;}
+  InDetDD::VolumeBuilder * getBuilder() {return m_pixServBuilder;}
+  InDetDD::VolumeBuilder * getServMatBuilder() {return m_servMatBuilder;}
 
 private:
   

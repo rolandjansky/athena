@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
                           Tracking/TrkEvent/TrkRIO_OnTrack
+                          Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
                           Control/StoreGate
                           PRIVATE

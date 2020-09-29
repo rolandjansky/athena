@@ -40,6 +40,7 @@ Purpose : create a collection of JetMissingEtJetTag
 #include "JetInterface/IJetUpdateJvt.h"
 #include "METInterface/IMETMaker.h"
 
+#include "METUtilities/METHelpers.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
@@ -683,14 +684,14 @@ StatusCode JetMetTagTool::recomputeMissingEt() {
   // compute Track soft term
   MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
   if((*newMet)[m_metPVSoftTrkName]) trksource = (*newMet)[m_metPVSoftTrkName]->source();
-  if( m_metmaker->buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
+  if( met::buildMETSum("FinalTrk", newMet, trksource).isFailure() ){
     ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
   }
 
   // compute cluster soft term
   MissingETBase::Types::bitmask_t clsource = MissingETBase::Source::LCTopo;
   if((*newMet)[m_metSoftClusName]) clsource = (*newMet)[m_metSoftClusName]->source();
-  if( m_metmaker->buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
+  if( met::buildMETSum("FinalClus", newMet, clsource).isFailure() ) {
     ATH_MSG_WARNING("Building MET FinalClus sum failed.");
   }
   return StatusCode::SUCCESS;

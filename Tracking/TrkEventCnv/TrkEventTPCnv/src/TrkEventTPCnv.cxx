@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // generate the T/P converter entries
@@ -20,6 +20,8 @@
 #include "TrkEventTPCnv/V0ContainerCnv_tlp2.h"
 #include "TrkEventTPCnv/SegmentCollection_tlp1.h"
 #include "TrkEventTPCnv/SegmentCollection_tlp2.h"
+
+#include "TrkEventTPCnv/TrkClusterSplitProbabilityContainer/ClusterSplitProbabilityContainerCnv_p1.h"
 
 //-----------------------------------------------------------------------------
 // TrkTrack
@@ -143,6 +145,7 @@
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkParticleBase/TrackParticleBase_p1.h"
 
+
 DECLARE_TPCNV_FACTORY(MVFVxContainerCnv_tlp1,
                       MVFVxContainer,
                       Trk::MVFVxContainer_tlp1,
@@ -167,7 +170,12 @@ DECLARE_TPCNV_FACTORY(VxContainerCnv_tlp2,
                       VxContainer,
                       Trk::VxContainer_tlp2,
                       Athena::TPCnvVers::Current)
-                     
+
+DECLARE_TPCNV_FACTORY(Trk::ClusterSplitProbabilityContainerCnv_p1,
+                      Trk::ClusterSplitProbabilityContainer,
+                      Trk::ClusterSplitProbabilityContainer_p1,
+                      Athena::TPCnvVers::Current)
+
 typedef T_TPCnv<VxContainer, Trk::VxContainer_tlp1 >
 		VxContainerARACnv_tlp1;
 DECLARE_ARATPCNV_FACTORY(VxContainerARACnv_tlp1,

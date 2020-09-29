@@ -30,7 +30,7 @@ float NumJetVarTool::value(const xAOD::EventInfo & /*eventinfo not used in this 
       ATH_MSG_ERROR("Input JetContainer could not be found or is empty");
       return 0.;
     } else {
-      ATH_MSG_WARNING("Input JetContainer could not be found or is empty");
+      ATH_MSG_DEBUG("Input JetContainer could not be found or is empty");
       return 0.;
     }
   }

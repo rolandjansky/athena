@@ -23,7 +23,6 @@ class MvaTESEvaluator
     
   virtual StatusCode initialize() override;
   virtual StatusCode execute(xAOD::TauJet& xTau) const override;
-  virtual StatusCode finalize() override { return StatusCode::SUCCESS; }
   
  private:
   // MVA input variables (provide all variables in float)

@@ -39,6 +39,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "PATCore/AcceptData.h"
+#include "METUtilities/METHelpers.h"
 
 using namespace xAOD;
 
@@ -906,7 +907,7 @@ namespace MissingEtDQA {
       }
       MissingETBase::Types::bitmask_t trksource = MissingETBase::Source::Track;
       if((*met_Reb)["PVSoftTrk"]) trksource = (*met_Reb)["PVSoftTrk"]->source();
-      if( (*m_metmaker)->buildMETSum("FinalTrk", met_Reb, trksource).isFailure() ){
+      if( met::buildMETSum("FinalTrk", met_Reb, trksource).isFailure() ){
     	ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
       }
       MissingETBase::Types::bitmask_t clsource;
@@ -914,7 +915,7 @@ namespace MissingEtDQA {
       else clsource = MissingETBase::Source::UnknownSignal;
       
       if((*met_Reb)["SoftClus"]) clsource = (*met_Reb)["SoftClus"]->source();
-      if( (*m_metmaker)->buildMETSum("FinalClus", met_Reb, clsource).isFailure() ) {
+      if( met::buildMETSum("FinalClus", met_Reb, clsource).isFailure() ) {
     	ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       }
 
@@ -1271,7 +1272,7 @@ namespace MissingEtDQA {
       	}
 
       	if((*met_Calo)["SoftClus"]) clsource = (*met_Calo)["SoftClus"]->source();
-      	if( (*m_metmaker)->buildMETSum("FinalClus", met_Calo, clsource).isFailure() ) {
+      	if( met::buildMETSum("FinalClus", met_Calo, clsource).isFailure() ) {
       	  ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       	}
 

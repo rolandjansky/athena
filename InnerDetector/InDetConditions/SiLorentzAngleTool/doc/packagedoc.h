@@ -1,112 +1,33 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
 
 @page SiLorentzAngleTool_page SiLorentzAngleTool Package
 
-@authors Grant Gorfine
+@authors Grant Gorfine, Susumu.Oda@cern.ch
 
 @section SiLorentzAngleTool_SiLorentzAngleToolIntro Introduction
 
-Service for providing Lorentz angle (and the corresponding shift of the measurement)
+Tool for providing Lorentz angle (and the corresponding shift of the measurement)
 for each detector element. 
 
-@section SiLorentzAngleTool_SiLorentzAngleToolUsage Usage Notes
+@section SiLorentzAngleTool_SiLorentzAngleToolOverview Class Overview
 
-A python module has been provided for easy setup.
-To load simply include the following in your job options.
+- SiLorentzAngleCondData: Data class to hold Lorentz angle related data
+- SiLorentzAngleTool: The main tool. Inherit ISiLorentzAngleTool of InDetCondTools package
+- PixelSiLorentzAngleCondAlg: Condition algorithm for Pixel
+- SCTSiLorentzAngleCondAlg: Condition algorithm for SCT
+- SCTSiLorentzAngleTestAlg: Test algorithm of SiLorentzAngleTool for SCT. Can be run by testSCTLorentzAngle.py  
 
-@verbatim
-  from SiLorentzAngleTool.LorentzAngleSvcSetup import lorentzAngleSvc
-@endverbatim
+@section SiLorentzAngleTool_SiLorentzAngleToolConfiguration Configuration
 
-This will setup both pixel and SCT. If you only want to setup them up separately you can do
+@subsection SiLorentzAngleTool_SiLorentzAngleToolNewJobConfig In the new job configuration
+- PixelLorentzAngleConfig.py and SCT_LorentzAngleConfig.py are used to configure SiLorentzAngleTool for Pixel and SCT, respectively.
 
-@verbatim
-  from SiLorentzAngleTool.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-  from SiLorentzAngleTool.SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
-@endverbatim
-
-
-By default it will determine whether to use DB or not from GeoModel.
-To force usage of DB (that is, use SiliconConditionsServices which should
-normally read from DB):
-
-@verbatim
-  lorentzAngleSvc.forceUseDB()
-@endverbatim
-
-for both pixel and SCT or to set pixel and SCT separately do:
-
-@verbatim
-  lorentzAngleSvc.pixelForceUseDB()
-  lorentzAngleSvc.sctForceUseDB()
-@endverbatim
-
-If you used PixelLorentzAngleSvcSetup or SCTLorentzAngleSvcSetup do:
-
-@verbatim
-  pixelLorentzAngleSvcSetup.forceUseDB()
-  sctLorentzAngleSvcSetup.forceUseDB()
-@endverbatim
-
-For more configuration one can get access to the service configurable via
-members pixel and sct: Eg:
-
-@verbatim
-  lorentzAngleSvc.pixel.OutputLevel = VERBOSE
-  lorentzAngleSvc.sct.OutputLevel = VERBOSE
-  print lorentzAngleSvc.pixel
-  print lorentzAngleSvc.sct
-@endverbatim
-
-or 
-
-@verbatim
-  pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc.OutputLevel = VERBOSE
-  sctLorentzAngleSvcSetup.SCTLorentzAngleSvc.OutputLevel = VERBOSE
-  print pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc
-  print sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
-@endverbatim
-
-You can also access the pixel and sct SiliconConditionsSvc:
-
-@verbatim
-  lorentzAngleSvc.PixelSiliconConditionsSvc.CheckGeoModel = False # same as forceUseDB
-  lorentzAngleSvc.SCT_SiliconConditionsSvc.CheckGeoModel = False # same as forceUseDB
-  print lorentzAngleSvc.PixelSiliconConditionsSvc
-  print lorentzAngleSvc.SCT_SiliconConditionsSvc
-@endverbatim
-
-or 
-@verbatim
-  pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc.CheckGeoModel = False # same as forceUseDB
-  sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc.CheckGeoModel = False # same as forceUseDB
-  print pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
-  print sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
-@endverbatim
-
-Alternatively, you can also access the services by:
-
-@verbatim
-  from SiLorentzAngleTool.LorentzAngleSvcSetup import PixelLorentzAngleSvc,SCTLorentzAngleSvc
-  PixelLorentzAngleSvc.OutputLevel = VERBOSE
-  SCTLorentzAngleSvc.OutputLevel = VERBOSE
-@endverbatim
-
-or 
-
-@verbatim
-  from SiLorentzAngleTool.PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
-  PixelLorentzAngleSvc.OutputLevel = VERBOSE
-
-  from SiLorentzAngleTool.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvc
-  SCTLorentzAngleSvc.OutputLevel = VERBOSE
-@endverbatim
-
-
-
+@subsection SiLorentzAngleTool_SiLorentzAngleToolOldJobConfig In the old job configuration
+- PixelLorentzAngleToolSetup.py and SCTLorentzAngleToolSetup.py are used to configure SiLorentzAngleTool for Pixel and SCT, respectively.
+- SiLorentzAngleToolConfig.py and SiLorentzAngleToolConfigDb.py can be used to retrieve SiLorentzAngleTool using ConfiguredFactory (https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConfiguredFactory). However, PixelLorentzAngleToolSetup.py and SCTLorentzAngleToolSetup.py are necessary to configure condition alogrithms.
 
 */

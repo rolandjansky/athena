@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DBM_Det.h"
@@ -16,8 +16,11 @@
 
 #include <iostream>
 
-DBM_Det::DBM_Det() {
-
+DBM_Det::DBM_Det(InDetDD::PixelDetectorManager* ddmgr,
+                 PixelGeometryManager* mgr)
+  : GeoVPixelFactory (ddmgr,
+                      mgr)
+{
   double Trans_Y = 0.;
   
   // Radius to beamline
@@ -46,7 +49,7 @@ GeoVPhysVol* DBM_Det::Build()
   GeoFullPhysVol* Phys = new GeoFullPhysVol(Log);
 
   // add PP0 board
-  DBM_PP0 pp0Board;
+  DBM_PP0 pp0Board (m_DDmgr, m_gmt_mgr);
   GeoVPhysVol* pp0BoardPhys = pp0Board.Build();
   GeoTrf::Translate3D pp0Pos(0., 0., -halflength + m_gmt_mgr->DBMPP0Thick()/2. + safety);
   GeoTransform* pp0xform = new GeoTransform(pp0Pos);
@@ -56,7 +59,7 @@ GeoVPhysVol* DBM_Det::Build()
   Phys->add(pp0BoardPhys);	      
 
   //we are now adding four DBM telescopes
-  DBM_Telescope dbm;
+  DBM_Telescope dbm (m_DDmgr, m_gmt_mgr);
   for(int i=0; i<4; i++)
     {
       m_gmt_mgr->SetEta(0);

@@ -18,6 +18,7 @@
 // HepMC includes
 #include "AtlasHepMC/GenRanges.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/IteratorRange.h"
 
 // forward declarations
 #include "AtlasHepMC/GenParticle_fwd.h"

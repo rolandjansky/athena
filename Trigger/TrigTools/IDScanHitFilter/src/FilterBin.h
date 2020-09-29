@@ -63,10 +63,10 @@ private:
 inline std::ostream& operator<<(std::ostream& s, const FilterBin& f) { 
   s << "[ Nhits="    << f.NumberOfHits() 
     << "\t Nlayers=" << f.NumberOfLayers() << "\taddr=" << (void*)&f << "\t]";
-  
-  std::list<IdScanSpPoint*>::const_iterator spitr(f.hitList().begin());
-  std::list<IdScanSpPoint*>::const_iterator spend(f.hitList().end());
-  for ( ; spitr!=spend ; spitr++ ) s << "\n\t" << *(*spitr);
+
+  for (const IdScanSpPoint* hit : f.hitList()) {
+    s << "\n\t" << *hit;
+  }
   return s;
 }
 

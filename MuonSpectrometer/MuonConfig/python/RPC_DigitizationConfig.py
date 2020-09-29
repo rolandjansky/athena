@@ -10,6 +10,7 @@ from MuonConfig.MuonByteStreamCnvTestConfig import RpcDigitToRpcRDOCfg
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
 from Digitization.TruthDigitizationOutputConfig import TruthDigitizationOutputCfg
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
+from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
 
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -22,14 +23,13 @@ def RPC_LastXing():
     return 125
 
 
-def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
+def RPC_RangeCfg(flags, name="RPC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for RPC"""
     kwargs.setdefault("FirstXing", RPC_FirstXing())
     kwargs.setdefault("LastXing", RPC_LastXing())
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["RPCSimHitCollection#RPC_Hits"])
-    PileUpXingFolder = CompFactory.PileUpXingFolder
-    return PileUpXingFolder(name, **kwargs)
+    return PileUpXingFolderCfg(flags, name, **kwargs)
 
 
 def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
@@ -84,12 +84,17 @@ def RPC_DigitizationToolCommonCfg(flags, name="RpcDigitizationTool", **kwargs):
 
 def RPC_DigitizationToolCfg(flags, name="RpcDigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured RpcDigitizationTool"""
+    acc = ComponentAccumulator()
+    rangetool = acc.popToolsAndMerge(RPC_RangeCfg(flags))
+    acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
     kwargs.setdefault("OutputObjectName", "RPC_DIGITS")
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
-    return RPC_DigitizationToolCommonCfg(flags, name, **kwargs)
+    tool = acc.popToolsAndMerge(RPC_DigitizationToolCommonCfg(flags, name, **kwargs))
+    acc.setPrivateTools(tool)
+    return acc
 
 
 def RPC_OverlayDigitizationToolCfg(flags, name="Rpc_OverlayDigitizationTool", **kwargs):

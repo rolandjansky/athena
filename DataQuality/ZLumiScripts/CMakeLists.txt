@@ -1,12 +1,7 @@
-################################################################################
-# Package: ZLumiScripts
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ZLumiScripts )
-
-# Declare the package's dependencies:
-#atlas_depends_on_subdirs( )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

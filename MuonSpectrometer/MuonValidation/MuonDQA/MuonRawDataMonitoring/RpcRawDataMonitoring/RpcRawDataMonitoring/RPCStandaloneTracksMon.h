@@ -85,7 +85,6 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   ActiveStoreSvc* m_activeStore;
 
-  std::string m_muonSegmentsName;
   std::string m_muonTracksName;
   std::string m_msVertexCollection;
   std::string m_muonExtrapTracksName;

@@ -206,7 +206,7 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     xmin_new=-70;
     xmax_new=70;
   }
-  if ( title.find("DETA") != std::string::npos || title.find("DPHI") != std::string::npos ){
+  if ( title.find("DETA") != std::string::npos || title.find("DPHI") != std::string::npos || title.find("DR") != std::string::npos ){
     xmin_new=0;
     xmax_new=70;
   }
@@ -263,11 +263,11 @@ void ConfigurableAlg::bookHist(std::vector<std::string> &regName, const std::str
     ymin_new=-70;
     ymax_new=70;
   }
-  if ( xName.find("DETA") != std::string::npos || xName.find("DPHI") != std::string::npos ){
+  if ( xName.find("DETA") != std::string::npos || xName.find("DPHI") != std::string::npos || xName.find("DR") != std::string::npos ){
     xmin_new=0;
     xmax_new=70;
   }
-  if ( yName.find("DETA") != std::string::npos || yName.find("DPHI") != std::string::npos ){
+  if ( yName.find("DETA") != std::string::npos || yName.find("DPHI") != std::string::npos || yName.find("DR") != std::string::npos ){
     ymin_new=0;
     ymax_new=70;
   }

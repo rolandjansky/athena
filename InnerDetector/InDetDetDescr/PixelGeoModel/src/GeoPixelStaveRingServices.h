@@ -14,12 +14,14 @@
 
 class GeoTransform;
 
-class ATLAS_NOT_THREAD_SAFE GeoPixelStaveRingServices :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
+class GeoPixelStaveRingServices :  public GeoVPixelFactory {
 
 public:  
 
-  GeoPixelStaveRingServices(GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport);
-  virtual GeoVPhysVol* Build();
+  GeoPixelStaveRingServices(InDetDD::PixelDetectorManager* ddmgr,
+                            PixelGeometryManager* mgr,
+                            GeoPixelLadder& ladder, GeoPixelStaveSupport& staveSupport);
+  virtual GeoVPhysVol* Build() override;
 
   GeoPhysVol* getSupportA(){ return m_supportPhysA; }
   GeoPhysVol* getSupportC(){ return m_supportPhysC; }

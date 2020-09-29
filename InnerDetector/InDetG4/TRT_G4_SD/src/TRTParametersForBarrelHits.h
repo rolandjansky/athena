@@ -10,7 +10,7 @@
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 
-class ATLAS_NOT_THREAD_SAFE TRTParametersForBarrelHits // Thread unsafe TRTParameters and TRTProcessingOfBarrelHits classes are used.
+class TRTParametersForBarrelHits
 {
 public:
   TRTParametersForBarrelHits(TRTProcessingOfBarrelHits*);

@@ -39,6 +39,17 @@ StatusCode  ISF::GenParticleFinalStateFilter::initialize()
 
 
 /** returns true if the the particle is considered stable */
+#ifdef HEPMC3
+bool ISF::GenParticleFinalStateFilter::pass(HepMC::ConstGenParticlePtr particle) const
+{
+  bool passFilter = true;
+  passFilter &= isFinalState(particle);
+  passFilter &= (!m_checkGenSimStable)   || MC::isSimStable(particle);
+  passFilter &= (!m_checkGenInteracting) || MC::isSimInteracting(particle);
+  return passFilter;
+}
+
+#else
 bool ISF::GenParticleFinalStateFilter::pass(const HepMC::GenParticle& particle) const
 {
   bool passFilter = true;
@@ -48,6 +59,7 @@ bool ISF::GenParticleFinalStateFilter::pass(const HepMC::GenParticle& particle) 
 
   return passFilter;
 }
+#endif
 
 
 StatusCode  ISF::GenParticleFinalStateFilter::finalize()
@@ -57,9 +69,18 @@ StatusCode  ISF::GenParticleFinalStateFilter::finalize()
 }
 
 /** checks if the particle is in its final state (no end vertex) */
+#ifdef HEPMC3
+bool ISF::GenParticleFinalStateFilter::isFinalState(HepMC::ConstGenParticlePtr p) const {
+  // particle is in its final state if both:
+  //  * no end_vertex
+  //  * status==1
+  return ( !p->end_vertex() && p->status()==1 );
+}
+#else
 bool ISF::GenParticleFinalStateFilter::isFinalState(const HepMC::GenParticle &p) const {
   // particle is in its final state if both:
   //  * no end_vertex
   //  * status==1
   return ( !p.end_vertex() && p.status()==1 );
 }
+#endif

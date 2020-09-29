@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //  InvariantMassThreeTOBsIncl.h
 //  TopoCore
@@ -36,9 +36,6 @@ namespace TCS {
       parType_t      p_InvMassMax[6] = {0, 0, 0,0,0,0};
       parType_t      p_MinET1[6] = { 0 ,0,0,0,0,0};
       parType_t      p_OneBarrel = { 0 };
-
-      TH1 * m_histAcceptINVThree[6] = {};
-      TH1 * m_histRejectINVThree[6] = {};
 
    };
    

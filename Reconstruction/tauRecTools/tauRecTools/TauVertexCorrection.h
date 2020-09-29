@@ -88,11 +88,12 @@ private:
   /// Switch of the jet vertex correction
   bool m_doJetVertexCorrection;
 
-  /// Whether the seed jet is at EM scale 
-  bool m_isEMScale = false; //!
-
   /// Whehter the seed jet is PFO 
   bool m_isPFO = false; //!
+  
+  /// Calibration state of cluster
+  xAOD::CaloCluster::State m_clusterState; //!
+  
 };
 
 #endif // ITAUVERTEXCORRECTION_H

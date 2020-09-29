@@ -1,0 +1,108 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+inline void
+TrackSummaryTool::updateTrack(Track& track) const
+{
+  computeAndReplaceTrackSummary(
+    track, nullptr, false /*DO NOT suppress hole search*/);
+}
+
+inline void
+TrackSummaryTool::updateTrackSummary(Track& track) const
+{
+  /*suppress hole search*/
+  UpdateSummary(track, nullptr, true);
+  /*Needed for expected B-Layer*/
+  m_idTool->updateExpectedHitInfo(track, *track.trackSummary());
+}
+
+inline void
+TrackSummaryTool::updateTrackSummary(Track& track,
+                                     const Trk::PRDtoTrackMap* prd_to_track_map,
+                                     bool suppress_hole_search) const
+{
+  UpdateSummary(track, prd_to_track_map, suppress_hole_search);
+}
+
+inline void
+TrackSummaryTool::updateSharedHitCount(
+  Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map) const
+{
+  if (!track.trackSummary()) {
+    computeAndReplaceTrackSummary(
+      track, prd_to_track_map, false /*DO NOT suppress hole search*/);
+  } else {
+    updateSharedHitCount(track, prd_to_track_map, *track.trackSummary());
+  }
+}
+
+inline void
+TrackSummaryTool::updateAdditionalInfo(
+  Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map) const
+{
+  if (!track.trackSummary()) {
+    computeAndReplaceTrackSummary(
+      track, prd_to_track_map, false /*DO NOT suppress hole search*/);
+  } else {
+    updateAdditionalInfo(
+      track,
+      prd_to_track_map,
+      *track.trackSummary(),
+      true); // @TODO set to false; true for backward compatibility
+  }
+}
+
+inline void
+TrackSummaryTool::updateSharedHitCount(Track& track) const
+{
+  if (!track.trackSummary()) {
+    computeAndReplaceTrackSummary(
+      track, nullptr, false /*DO NOT suppress hole search*/);
+  } else {
+    updateSharedHitCount(track, nullptr, *track.trackSummary());
+  }
+}
+
+inline void
+TrackSummaryTool::updateAdditionalInfo(
+  const Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  TrackSummary& summary) const
+{
+  updateAdditionalInfo(track, prd_to_track_map, summary, false);
+}
+
+inline void
+TrackSummaryTool::updateAdditionalInfo(Track& track) const
+{
+  if (!track.trackSummary()) {
+    computeAndReplaceTrackSummary(
+      track, nullptr, false /*DO NOT suppress hole search*/);
+  } else {
+    updateAdditionalInfo(
+      track,
+      nullptr,
+      *track.trackSummary(),
+      true); // @TODO set to false; true for backward compatibility
+  }
+}
+inline void
+TrackSummaryTool::UpdateSummary(Track& track,
+                                const Trk::PRDtoTrackMap* prd_to_track_map,
+                                bool suppress_hole_search) const
+{
+  if (!track.trackSummary()) {
+    track.setTrackSummary(std::make_unique<Trk::TrackSummary>());
+  }
+  fillSummary(*(track.trackSummary()),
+              track,
+              prd_to_track_map,
+              m_doHolesInDet && !suppress_hole_search,
+              m_doHolesMuon && !suppress_hole_search);
+}
+}

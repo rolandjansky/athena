@@ -23,7 +23,7 @@ class HLTMenuAccess(TriggerConfigAccess):
         return self["chains"].keys()
 
     def chains(self):
-        return iter(self)
+        return self["chains"]
 
     def streams(self):
         return self["streams"]

@@ -24,7 +24,6 @@ StatusCode RoIsUnpackingEmulationTool::initialize() {
 
   ATH_CHECK( RoIsUnpackingToolBase::initialize() );
   ATH_CHECK( m_trigRoIsKey.initialize() );
-  ATH_CHECK( m_hltConfigSvc.retrieve() );
 
   if (readEmulatedData().isFailure() ) {
     ATH_MSG_ERROR( "Failed to read emulated data" );

@@ -39,9 +39,6 @@ namespace TCS {
       parType_t      p_MinET2[6] = { 0 ,0,0,0,0,0};
       parType_t      p_OneBarrel = { 0 };
 
-      TH1 * m_histAcceptINV1[6] = {};
-      TH1 * m_histRejectINV1[6] = {};
-
    };
    
 }

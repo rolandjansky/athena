@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,10 @@
 #include <algorithm>
 using std::max;
 
-GeoPixelIFlexServices::GeoPixelIFlexServices(int iSection): 
+GeoPixelIFlexServices::GeoPixelIFlexServices(InDetDD::PixelDetectorManager* ddmgr,
+                                             PixelGeometryManager* mgr,
+                                             int iSection)
+  : GeoVPixelFactory(ddmgr, mgr),
   m_section(iSection),
   m_supportPhysA(0),
   m_supportPhysC(0),
@@ -178,7 +181,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     if(flex_material==0)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<flexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
-      exit(EXIT_FAILURE);
+      std::abort();
     } else{
     flex_logVolA = new GeoLogVol("Flex",flex_shapeA,flex_material);
     flex_logVolC = new GeoLogVol("Flex",flex_shapeC,flex_material);
@@ -206,7 +209,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     if(Iflex_material==0)
     {
       m_gmt_mgr->msg(MSG::ERROR)<<"-> error while reading material "<<IflexMatName<<__FILE__<< ":"<< __LINE__<<endmsg;
-      exit(EXIT_FAILURE);
+      std::abort();
     } else{
     flex_logVolA = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
     flex_logVolC = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
