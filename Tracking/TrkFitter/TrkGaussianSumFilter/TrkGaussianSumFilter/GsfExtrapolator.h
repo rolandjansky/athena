@@ -19,8 +19,8 @@
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
-
+#include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -41,9 +41,6 @@ class TrackingVolume;
 class TrackingGeometry;
 class TrackStateOnSurface;
 class MaterialProperties;
-class IMultiComponentStateMerger;
-class IMaterialMixtureConvolution;
-class IMultipleScatteringUpdator;
 /** @class GsfExtrapolator */
 
 class GsfExtrapolator final
