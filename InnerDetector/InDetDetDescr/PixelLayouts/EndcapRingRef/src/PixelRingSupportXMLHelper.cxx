@@ -21,7 +21,7 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       setSchemaVersion(dbUtils.getSchemaVersion(fileName)); //my 
-     InitializeXML();
+      InitializeXML();
       bParsed = ParseBuffer(XMLtext,std::string(""));
     }
   else
@@ -49,9 +49,9 @@ PixelRingSupportXMLHelper::~PixelRingSupportXMLHelper()
 bool PixelRingSupportXMLHelper::putLHBeforeRHrings(){
   bool m_LHBeforeRHrings = 0;
   if(getSchemaVersion() > 5) {
- return getBoolean("LHBeforeRHRings",m_LHBeforeRHrings, "putLHBeforeRHRings");
-}
-    else return true;
+    return getBoolean("LHBeforeRHRings",m_LHBeforeRHrings, "putLHBeforeRHRings");
+  }
+  else return true;
 }
 
 bool PixelRingSupportXMLHelper::swapFrontBackModulePhiPosition(){

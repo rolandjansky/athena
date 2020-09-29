@@ -403,11 +403,8 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
     bool condition = true;
     if (ringHelper.swapFrontBackModulePhiPosition()) {
         condition = bool (m_front_back!=local_front_back);
-
     } else condition = bool (m_front_back==local_front_back);
      if (condition) {
-
-  //  if(m_front_back==local_front_back) {
       //
       // Build both endcaps the same but re-number phiId in endcap C to
       // get correct offline numbering.  Endcap C is obtained by
