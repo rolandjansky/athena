@@ -898,10 +898,6 @@ namespace top {
       bool topParticleLevel=true;
       settings->retrieve("TopParticleLevel",topParticleLevel);
       this->setTopParticleLevel(topParticleLevel);
-      
-      settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
-      settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
-      settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {
@@ -1019,7 +1015,10 @@ namespace top {
       this->setSaveBootstrapWeights(true);
       this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
     }
-
+    
+    settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
+    settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
+    settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
