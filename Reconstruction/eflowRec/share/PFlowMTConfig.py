@@ -245,7 +245,7 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
 topSequence += PFONeutralCreatorAlgorithm
 from eflowRec.eflowRecFlags import jobproperties # set reco flags for eFlowRec algorithms
 jobproperties.eflowRecFlags.usePFEGammaPFOAssoc.set_Value_and_Lock(True)
-jobproperties.eflowRecFlags.useFlowElements.set_Value_and_Lock(True)
+
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    
