@@ -220,7 +220,7 @@ namespace top {
     }
 
     std::string decorationName = "EL_SF_";
-    if(event.m_isLoose && SFComp != top::topSFComp::RECO) decorationName = "EL_LOOSE_SF_";
+    if(event.m_isLoose && !m_config->applyTightSFsInLooseTree() && SFComp != top::topSFComp::RECO) decorationName = "EL_LOOSE_SF_";
     std::string electronID = "";
     std::string electronIso = "";
 
