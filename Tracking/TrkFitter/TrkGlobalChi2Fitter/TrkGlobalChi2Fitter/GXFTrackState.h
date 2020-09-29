@@ -114,6 +114,9 @@ namespace Trk {
      */
     bool getStateType(TrackStateOnSurface::TrackStateOnSurfaceType type) const;
 
+    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & getHoles(void);
+    void setHoles(std::vector<std::unique_ptr<const TrackParameters>> &&);
+
   private:
     std::unique_ptr<const MeasurementBase> m_measurement;       //!< The measurement defining the track state
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> m_tsType;      //!< type of track state, eg Fittable, Outlier, Scatterer, Brem, Hole
@@ -132,7 +135,7 @@ namespace Trk {
     bool m_recalib;             //!< Has this measurement already been recalibrated?
     bool m_measphi;
     Amg::Vector3D m_globpos;
-    std::optional<std::vector<const TrackParameters *>> m_preholes;
+    std::optional<std::vector<std::unique_ptr<const TrackParameters>>> m_holes;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
