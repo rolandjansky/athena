@@ -257,8 +257,8 @@ class CpByteStreamV2Tool : public AthAlgTool {
    const eformat::SubDetector m_subDetector;
    /// Source ID converter
    const L1CaloSrcIdMap m_srcIdMap;
-  /// Property: ROB source IDs
-  std::vector<uint32_t> m_sourceIDsProp;
+   /// Property: ROB source IDs
+   std::vector<uint32_t> m_sourceIDsProp;
 };
 
 } // end namespace

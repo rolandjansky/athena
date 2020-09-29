@@ -89,7 +89,7 @@ StatusCode CpReadByteStreamV1Cnv<Container>::createObj( IOpaqueAddress* pAddr,
   }
 
   // get SourceIDs
-  const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
+  const std::vector<uint32_t>& vID(m_tool->sourceIDs());
 
   // get ROB fragments
   IROBDataProviderSvc::VROBFRAG robFrags;
@@ -105,7 +105,7 @@ StatusCode CpReadByteStreamV1Cnv<Container>::createObj( IOpaqueAddress* pAddr,
     return StatusCode::SUCCESS;
   }
 
-  ATH_CHECK( m_tool->convert(robFrags, collection.get()) );
+  ATH_CHECK( m_tool->convert(nm, robFrags, collection.get()) );
 
   pObj = SG::asStorable(std::move(collection));
 

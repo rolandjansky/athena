@@ -102,8 +102,8 @@ CpByteStreamV2Tool::~CpByteStreamV2Tool()
 
 StatusCode CpByteStreamV2Tool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO ("Initializing " << name() << " - package version "
+                  << PACKAGE_VERSION);
 
     CHECK(m_cpmMaps.retrieve());
     CHECK(m_errorTool.retrieve());
@@ -207,7 +207,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
     LVL1::TriggerTowerKey towerKey;
 
-   // CPM tower map
+    // CPM tower map
     ConstCpmTowerMap  ttMap;
     setupCpmTowerMap(cp->towers(), ttMap, towerKey);
 

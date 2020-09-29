@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_CPBYTESTREAMV1TOOL_H
@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+#include "L1CaloSrcIdMap.h"
+#include "TrigT1CaloUtils/TriggerTowerKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
@@ -62,22 +64,50 @@ class CpByteStreamV1Tool : public AthAlgTool {
    virtual StatusCode finalize();
 
    /// Convert ROB fragments to CPM towers
-   StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::CPMTower>* ttCollection);
+   StatusCode convert(const std::string& sgKey,
+                      const IROBDataProviderSvc::VROBFRAG& robFrags,
+                      DataVector<LVL1::CPMTower>* ttCollection) const;
    /// Convert ROB fragments to CPM hits
-   StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::CPMHits>* hitCollection);
+   StatusCode convert(const std::string& sgKey,
+                      const IROBDataProviderSvc::VROBFRAG& robFrags,
+                      DataVector<LVL1::CPMHits>* hitCollection) const;
    /// Convert ROB fragments to CMM-CP hits
-   StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::CMMCPHits>* hitCollection);
+   StatusCode convert(const std::string& sgKey,
+                      const IROBDataProviderSvc::VROBFRAG& robFrags,
+                      DataVector<LVL1::CMMCPHits>* hitCollection) const;
 
    /// Convert CP Container to bytestream
-   StatusCode convert(const LVL1::CPBSCollectionV1* cp, RawEventWrite* re);
+   StatusCode convert(const LVL1::CPBSCollectionV1* cp, RawEventWrite* re) const;
 
    /// Return reference to vector with all possible Source Identifiers
-   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey);
+   const std::vector<uint32_t>& sourceIDs() const;
 
  private:
+   struct LocalData
+   {
+     /// Tower channels to accept (1=Core, 2=Overlap)
+     int coreOverlap = 0;
+     /// Unpacking error code
+     unsigned int rodErr = 0;
+     /// Hits0 vector for unpacking
+     std::vector<unsigned int> hitsVec0;
+     /// Hits1 vector for unpacking
+     std::vector<unsigned int> hitsVec1;
+     /// Error0 vector for unpacking
+     std::vector<int> errVec0;
+     /// Error1 vector for unpacking
+     std::vector<int> errVec1;
+     /// EM data vector for unpacking
+     std::vector<int> emVec;
+     /// Had data vector for unpacking
+     std::vector<int> hadVec;
+     /// EM error data vector for unpacking
+     std::vector<int> emErrVec;
+     /// Had error data vector for unpacking
+     std::vector<int> hadErrVec;
+     /// Trigger tower key provider
+     LVL1::TriggerTowerKey towerKey;
+   };
 
    enum CollectionType { CPM_TOWERS, CPM_HITS, CMM_CP_HITS };
 
@@ -122,116 +152,88 @@ class CpByteStreamV1Tool : public AthAlgTool {
      CmmCpHitsMap m_cmmHitsMap;
    };
 
+   /// Create list of all source IDs.
+   std::vector<uint32_t> makeSourceIDs() const;
+
    /// Convert bytestream to given container type
-   StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                        CpByteStreamToolData& data);
+   StatusCode convertBs(const std::string& sgKey,
+                        const IROBDataProviderSvc::VROBFRAG& robFrags,
+                        CpByteStreamToolData& data) const;
    /// Unpack CMM-CP sub-block
-   void decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm, CmmHitsData& data);
+   void decodeCmmCp(CmmCpSubBlock* subBlock, int trigCmm, CmmHitsData& data,
+                    LocalData& ld) const;
    /// Unpack CPM sub-block
-   void decodeCpm(CpmSubBlockV1* subBlock, int trigCpm, CpByteStreamToolData& data);
+   void decodeCpm(CpmSubBlockV1* subBlock, int trigCpm, CpByteStreamToolData& data,
+                  LocalData& ld) const;
 
    /// Find a CPM tower for given key
-   const LVL1::CPMTower*  findCpmTower(unsigned int key) const;
+   const LVL1::CPMTower*  findCpmTower(unsigned int key,
+                                       const ConstCpmTowerMap& ttMap) const;
    LVL1::CPMTower*  findCpmTower(const CpmTowerData& data, unsigned int key) const;
    /// Find CPM hits for given crate, module
-   const LVL1::CPMHits*   findCpmHits(int crate, int module) const;
+   const LVL1::CPMHits*   findCpmHits(int crate, int module,
+                                      const ConstCpmHitsMap& hitsMap) const;
    LVL1::CPMHits*   findCpmHits(const CpmHitsData& data, int crate, int module) const;
    /// Find CMM-CP hits for given crate, data ID
-   const LVL1::CMMCPHits* findCmmCpHits(int crate, int dataID) const;
+   const LVL1::CMMCPHits* findCmmCpHits(int crate, int dataID,
+                                        const ConstCmmCpHitsMap& cmmHitsMap) const;
    LVL1::CMMCPHits* findCmmCpHits(const CmmHitsData& data,
                                   int crate, int dataID) const;
 
    /// Set up CPM tower map
-   void setupCpmTowerMap(const CpmTowerCollection* ttCollection);
+   void setupCpmTowerMap(const CpmTowerCollection* ttCollection,
+                         ConstCpmTowerMap& ttMap,
+                         LVL1::TriggerTowerKey& towerKey) const;
    /// Set up CPM hits map
-   void setupCpmHitsMap(const CpmHitsCollection* hitCollection);
+   void setupCpmHitsMap(const CpmHitsCollection* hitCollection,
+                        ConstCpmHitsMap& hitsMap) const;
    /// Set up CMM-CP hits map
-   void setupCmmCpHitsMap(const CmmCpHitsCollection* hitCollection);
+   void setupCmmCpHitsMap(const CmmCpHitsCollection* hitCollection,
+                          ConstCmmCpHitsMap& cmmHitsMap) const;
 
    /// Get number of slices and triggered slice offset for next slink
    bool slinkSlices(int crate, int module, int modulesPerSlink,
-                    int& timeslices, int& trigJem);
+                    int& timeslices, int& trigJem,
+                    const ConstCpmTowerMap& ttMap,
+                    const ConstCpmHitsMap& hitsMap,
+                    const ConstCmmCpHitsMap& cmmHitsMap,
+                    LVL1::TriggerTowerKey& towerKey) const;
 
    /// Channel mapping tool
    ToolHandle<LVL1::IL1CaloMappingTool> m_cpmMaps;
    /// Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 
-   /// Hardware crate number offset
+   /// Property: Hardware crate number offset
    int m_crateOffsetHw;
-   /// Software crate number offset
+   /// Property: Software crate number offset
    int m_crateOffsetSw;
-   /// Sub_block header version
+   /// Property: Sub_block header version
    int m_version;
-   /// Data compression format
+   /// Property: Data compression format
    int m_dataFormat;
    /// Number of channels per module
-   int m_channels;
-   /// Number of crates
+   const int m_channels;
+   /// Property: Number of crates
    int m_crates;
    /// Number of CPM modules per crate
-   int m_modules;
-   /// Number of slinks per crate when writing out bytestream
+   const int m_modules;
+   /// Property: Number of slinks per crate when writing out bytestream
    int m_slinks;
-   /// Default number of slices in simulation
+   /// Property: Default number of slices in simulation
    int m_dfltSlices;
-   /// Force number of slices in bytestream
+   /// Property: Force number of slices in bytestream
    int m_forceSlices;
-   /// Minimum crate number when writing out bytestream
+   /// Property: Minimum crate number when writing out bytestream
    int m_crateMin;
-   /// Maximum crate number when writing out bytestream
+   /// Property: Maximum crate number when writing out bytestream
    int m_crateMax;
-   /// Tower channels to accept (1=Core, 2=Overlap)
-   int m_coreOverlap;
-   /// Unpacking error code
-   unsigned int m_rodErr;
-   /// ROB source IDs
-   std::vector<uint32_t> m_sourceIDs;
+   /// Property: ROB source IDs
+   std::vector<uint32_t> m_sourceIDsProp;
    /// Sub-detector type
-   eformat::SubDetector m_subDetector;
+   const eformat::SubDetector m_subDetector;
    /// Source ID converter
-   L1CaloSrcIdMap* m_srcIdMap;
-   /// Trigger tower key provider
-   LVL1::TriggerTowerKey* m_towerKey;
-   /// CPM sub-block for unpacking
-   CpmSubBlockV1* m_cpmSubBlock;
-   /// CMM-CP sub-block for unpacking
-   CmmCpSubBlock* m_cmmCpSubBlock;
-   /// Hits0 vector for unpacking
-   std::vector<unsigned int> m_hitsVec0;
-   /// Hits1 vector for unpacking
-   std::vector<unsigned int> m_hitsVec1;
-   /// Error0 vector for unpacking
-   std::vector<int> m_errVec0;
-   /// Error1 vector for unpacking
-   std::vector<int> m_errVec1;
-   /// EM data vector for unpacking
-   std::vector<int> m_emVec;
-   /// Had data vector for unpacking
-   std::vector<int> m_hadVec;
-   /// EM error data vector for unpacking
-   std::vector<int> m_emErrVec;
-   /// Had error data vector for unpacking
-   std::vector<int> m_hadErrVec;
-   /// Vector for current CPM sub-blocks
-   DataVector<CpmSubBlockV1> m_cpmBlocks;
-   /// Vector for current CMM-CP hit0 sub-blocks
-   DataVector<CmmCpSubBlock> m_cmmHit0Blocks;
-   /// Vector for current CMM-CP hit1 sub-blocks
-   DataVector<CmmCpSubBlock> m_cmmHit1Blocks;
-   /// CPM tower map
-   ConstCpmTowerMap  m_ttMap;
-   /// CPM hits map
-   ConstCpmHitsMap   m_hitsMap;
-   /// CMM-CP hits map
-   ConstCmmCpHitsMap m_cmmHitsMap;
-   /// ROD Status words
-   std::vector<uint32_t>* m_rodStatus;
-   /// ROD status map
-   std::map<uint32_t, std::vector<uint32_t>* > m_rodStatusMap;
-   /// Event assembler
-   FullEventAssembler<L1CaloSrcIdMap>* m_fea;
-
+   const L1CaloSrcIdMap m_srcIdMap;
 };
 
 } // end namespace
