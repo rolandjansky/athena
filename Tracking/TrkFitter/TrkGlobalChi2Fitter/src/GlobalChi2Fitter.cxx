@@ -23,6 +23,9 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 
+#include "TrkVolumes/Volume.h"
+#include "TrkVolumes/CylinderVolumeBounds.h"
+
 #include "TrkExUtils/TransportJacobian.h"
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -47,6 +50,8 @@
 
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -156,7 +161,8 @@ namespace Trk {
     const IInterface * p
   ):
     base_class(t, n, p),
-    m_trackingGeometrySvc("", n)
+    m_trackingGeometrySvc("", n),
+    m_idVolume(nullptr, std::make_unique<Trk::CylinderVolumeBounds>(560, 2750).release())
   {
     declareProperty("TrackingGeometrySvc", m_trackingGeometrySvc);
   }
@@ -7149,6 +7155,322 @@ namespace Trk {
     return std::make_unique<GXFTrackState>(std::move(per), TrackStateOnSurface::Perigee);
   }
 
+  void GlobalChi2Fitter::holeSearchHelper(
+    const std::vector<std::unique_ptr<const TrackParameters>> & hc,
+    std::set<Identifier> & id_set,
+    std::set<Identifier> & sct_set,
+    TrackHoleCount & rv,
+    bool count_holes,
+    bool count_dead
+  ) const {
+    /*
+     * Our input is a list of track states, which we are iterating over. We
+     * need to examine each one and update the values in our track hole count
+     * accordingly.
+     */
+    for (const std::unique_ptr<const TrackParameters> & tp : hc) {
+      /*
+       * It is possible, expected even, for some of these pointers to be null.
+       * In those cases, it would be dangerous to continue, so we need to make
+       * sure we skip them.
+       */
+      if (tp == nullptr) {
+        continue;
+      }
+
+      /*
+       * Extract the detector element of the track parameter surface for
+       * examination. If for whatever reason there is none (i.e. the surface
+       * is not a detector at all), we can skip it and continue.
+       */
+      const TrkDetElementBase * de = tp->associatedSurface().associatedDetectorElement();
+
+      if (de == nullptr) {
+        continue;
+      }
+
+      Identifier id = de->identify();
+
+      /*
+       * If, for whatever reason, we have already visited this detector, we do
+       * not want to visit it again. Otherwise we might end up with modules
+       * counted twice, and that would be very bad.
+       */
+      if (id_set.find(id) != id_set.end()) {
+        continue;
+      }
+
+      /*
+       * This is the meat of the pudding, we use the boundary checking tool
+       * to see whether this set of parameters is a hole candidate, a dead
+       * module, or not a hole at all.
+       */
+      BoundaryCheckResult bc = m_boundaryCheckTool->boundaryCheck(*tp);
+
+      if (bc == BoundaryCheckResult::DeadElement && count_dead) {
+        /*
+         * If the module is dead, our job is very simple. We just check
+         * whether it is a Pixel or an SCT and increment the appropriate
+         * counter. We also insert the module into our set of visited elements.
+         */
+        if (m_DetID->is_pixel(id)) {
+          ++rv.m_pixel_dead;
+        } else if (m_DetID->is_sct(id)) {
+          ++rv.m_sct_dead;
+        }
+        id_set.insert(id);
+      } else if (bc == BoundaryCheckResult::Candidate && count_holes) {
+        /*
+         * If the module is a candidate, it's much the same, but we also need
+         * to handle double SCT holes.
+         */
+        if (m_DetID->is_pixel(id)) {
+          ++rv.m_pixel_hole;
+        } else if (m_DetID->is_sct(id)) {
+          ++rv.m_sct_hole;
+
+          /*
+           * To check for SCT double holes, we need to first fetch the other
+           * side of the current SCT. Thankfully, the detector description
+           * makes this very easy.
+           */
+          const InDetDD::SiDetectorElement* e = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
+          const Identifier os = e->otherSide()->identify();
+
+          /*
+           * We keep a special set containing only SCT hole IDs. We simply
+           * check whether the ID of the other side of the SCT is in this set
+           * to confirm that we have a double hole. Note that the first side
+           * in a double hole will be counted as a SCT hole only, and the
+           * second side will count as another hole as well as a double hole,
+           * which is exactly the behaviour we would expect to see.
+           */
+          if (sct_set.find(os) != sct_set.end()) {
+            ++rv.m_sct_double_hole;
+          }
+
+          /*
+           * We need to add our SCT to the SCT identifier set if it is a
+           * candidate hit, otherwise known as a hole in this context.
+           */
+          sct_set.insert(id);
+        }
+
+        /*
+         * SCTs are also added to the set of all identifiers to avoid double
+         * counting them.
+         */
+        id_set.insert(id);
+      }
+    }
+  }
+
+  std::vector<std::reference_wrapper<GXFTrackState>> GlobalChi2Fitter::holeSearchStates(
+    GXFTrajectory & trajectory
+  ) const {
+    /*
+     * Firstly, we will need to find the last measurement state on our track.
+     * This will allow us to break the main loop later once we are done with
+     * our work.
+     */
+    GXFTrackState * lastmeas = nullptr;
+
+    for (const std::unique_ptr<GXFTrackState> & s : trajectory.trackStates()) {
+      if (s->getStateType(TrackStateOnSurface::Measurement)) {
+        lastmeas = s.get();
+      }
+    }
+
+    /*
+     * We create a vector of reference wrappers and reserve at least enough
+     * space to contain the entire trajectory. This is perhaps a little
+     * wasteful since we will never need this much space, but it may be more
+     * efficient than taking the resizing pentalty on the chin.
+     */
+    std::vector<std::reference_wrapper<GXFTrackState>> rv;
+    rv.reserve(trajectory.trackStates().size());
+
+    /*
+     * The main body of our method now. We iterate over all track states in
+     * the track, at least until we find the last measurement state as found
+     * above.
+     */
+    for (const std::unique_ptr<GXFTrackState> & s : trajectory.trackStates()) {
+      /*
+       * We are only interested in collecting measurements, perigees, and any
+       * outlier states.
+       */
+      if (
+        s->getStateType(TrackStateOnSurface::Measurement) ||
+        s->getStateType(TrackStateOnSurface::Perigee) ||
+        s->getStateType(TrackStateOnSurface::Outlier)
+      ) {
+        /*
+         * We store a reference to the current track state in our return value
+         * vector.
+         */
+        rv.emplace_back(*s);
+
+        /*
+         * We want to make sure we do not collect any TRT results or other
+         * non-SCT and non-Pixel detector types. For that, we need to access
+         * the details of the detector element and determine the detector type.
+         */
+        const TrkDetElementBase * de = s->trackParameters()->associatedSurface().associatedDetectorElement();
+
+        if (de != nullptr) {
+          Identifier id = de->identify();
+
+          if (!m_DetID->is_pixel(id) && !m_DetID->is_sct(id)) {
+            break;
+          }
+        }
+
+        /*
+         * We also have no interest in going past the final measurement, so we
+         * break out of the loop if we find it.
+         */
+        if (s.get() == lastmeas) {
+          break;
+        }
+      }
+    }
+
+    return rv;
+  }
+
+  std::optional<GlobalChi2Fitter::TrackHoleCount> GlobalChi2Fitter::holeSearchProcess(
+    const EventContext & ctx,
+    const std::vector<std::reference_wrapper<GXFTrackState>> & states
+  ) const {
+    /*
+     * Firstly, we need to guard against tracks having too few measurement
+     * states to perform a good hole search. This is a mechanism that we
+     * inherit from the reference hole search. If we have too few states, we
+     * return a non-extant result to indicate an error state.
+     *
+     * TODO: The minimum value of 3 is also borrowed from the reference
+     * implementation. It's hardcoded for now, but could be a parameter in the
+     * future.
+     */
+    constexpr uint min_meas = 3;
+    if (std::count_if(states.begin(), states.end(), [](const GXFTrackState & s){ return s.getStateType(TrackStateOnSurface::Measurement); }) < min_meas) {
+      return {};
+    }
+
+    bool seen_meas = false;
+    TrackHoleCount rv;
+    std::set<Identifier> id_set;
+    std::set<Identifier> sct_set;
+
+    /*
+     * Using an old-school integer-based for loop because we need to iterate
+     * over successive pairs of states to do an extrapolation between.
+     */
+    for (std::size_t i = 0; i < states.size() - 1; i++) {
+      /*
+       * Gather references to the state at the beginning of the extrapolation,
+       * named beg, and the end, named end.
+       */
+      GXFTrackState & beg = states[i];
+      GXFTrackState & end = states[i + 1];
+
+      /*
+       * Update the boolean keeping track of whether we have seen a measurement
+       * or outlier yet. Once we see one, this will remain true forever, but
+       * it helps us make sure we don't collect holes before the first
+       * measurement.
+       */
+      seen_meas |= beg.getStateType(TrackStateOnSurface::Measurement) || beg.getStateType(TrackStateOnSurface::Outlier);
+
+      /*
+       * Calculate the distance between the position of the starting parameters
+       * and the end parameters. If this distance is sufficiently small, there
+       * can be no elements between them (for example, between two SCTs), and
+       * we don't need to do an extrapolation. This can easily save us a few
+       * microseconds.
+       */
+      double dist = (beg.trackParameters()->position() - end.trackParameters()->position()).norm();
+
+      /*
+       * Only proceed to count holes if we have seen a measurement before (this
+       * may include the starting track state, if it is a measurement) and the
+       * distance between start and end is at least 2.5 millimeters.
+       */
+      if (seen_meas && dist >= 2.5) {
+        /*
+         * First, we retrieve the hole data stored in the beginning state. Note
+         * that this may very well be non-extant, but it is possible for the
+         * fitter to have deposited some hole information into the track state
+         * earlier on in the fitting process.
+         */
+        std::optional<std::vector<std::unique_ptr<const TrackParameters>>> & hc = beg.getHoles();
+        std::vector<std::unique_ptr<const TrackParameters>> states;
+
+        /*
+         * Gather the track states between the start and end of the
+         * extrapolation. If the track state contained hole search information,
+         * we simply move that out and use it. If there was no information, we
+         * do a fresh extrapolation. This can be a CPU hog!
+         */
+        if (hc.has_value()) {
+          states = std::move(*hc);
+        } else {
+          states = holesearchExtrapolation(ctx, *beg.trackParameters(), end, alongMomentum);
+        }
+
+        /*
+         * Finally, we process the collected hole candidate states, checking
+         * them for liveness and other properties. This helper function will
+         * increment the values in rv accordingly.
+         */
+        holeSearchHelper(states, id_set, sct_set, rv, true, true);
+      }
+    }
+
+    /*
+     * Once we are done processing our measurements, we also need to do a
+     * final blind extrapolation to collect and dead modules (but not holes)
+     * behind the last measurement. For this, we do a blind extrapolation
+     * from the final state.
+     */
+    GXFTrackState & last = states.back();
+
+    /*
+     * To do the blind extrapolation, we need to have a set of track parameters
+     * for our last measurement state. We also check whether the position of
+     * the last measurement is still inside the inner detector. If it is not,
+     * we don't need to blindly extrapolate because we're only interested in
+     * collecting inner detector dead modules. This check saves us a few tens
+     * of microseconds.
+     */
+    if (
+      last.trackParameters() != nullptr &&
+      m_idVolume.inside(last.trackParameters()->position())
+    ) {
+      /*
+       * Simply conduct the blind extrapolation, and then use the helper tool
+       * to ensure that the hole counts are updated.
+       */
+      std::vector<std::unique_ptr<const Trk::TrackParameters>> bl = m_extrapolator->extrapolateBlindly(
+        *last.trackParameters(),
+        Trk::alongMomentum,
+        false,
+        Trk::pion,
+        &m_idVolume
+      );
+
+      /*
+       * Note that we have flipped one of the boolean parameters of the helper
+       * method here to make sure it only collects dead modules, not hole
+       * candidates.
+       */
+      holeSearchHelper(bl, id_set, sct_set, rv, false, true);
+    }
+
+    return rv;
+  }
+
   std::unique_ptr<Track> GlobalChi2Fitter::makeTrack(
     const EventContext & ctx,
     Cache & cache,
@@ -7219,6 +7541,52 @@ namespace Trk {
      */
     if (m_createSummary.value()) {
       std::unique_ptr<TrackSummary> ts = std::make_unique<TrackSummary>();
+
+      /*
+       * This segment determines the hole search behaviour of the track fitter.
+       * It is only invoked if the DoHoleSearch parameter is set, but it can
+       * take a significant amount of CPU time, since the hole search is rather
+       * expensive. Beware of that!
+       */
+      if (m_holeSearch.value()) {
+        std::optional<TrackHoleCount> hole_count;
+
+        /*
+         * First, we collect a list of states that will act as our hole search
+         * extrapolation states. This will serve as our source of truth in
+         * regards to which track states we need to extrapolate between.
+         */
+        std::vector<std::reference_wrapper<GXFTrackState>> states = holeSearchStates(tmptrajectory);
+
+        /*
+         * Then, collect the actual hole search infomation using our state list
+         * from before. This is the expensive operation, as it will invoke a
+         * series of extrapolations if not all states have existing hole
+         * information! It will also check all the hole candidates to see if
+         * they are actually holes or not.
+         */
+        hole_count = holeSearchProcess(ctx, states);
+
+        /*
+         * Note that the hole search is not guaranteed to return a useful set
+         * of values. It can, for example, reach an error state if the number
+         * of measurements on a track is below a certain threshold. In that
+         * case, a non-extant result will be returned, which we must guard
+         * against. In that case, the hole counts will remain unset.
+         */
+        if (hole_count.has_value()) {
+          /*
+           * If the hole search did return good results, we can proceed to
+           * simply copy the numerical values in the track summary.
+           */
+          ts->update(Trk::numberOfPixelHoles, hole_count->m_pixel_hole);
+          ts->update(Trk::numberOfSCTHoles, hole_count->m_sct_hole);
+          ts->update(Trk::numberOfSCTDoubleHoles, hole_count->m_sct_double_hole);
+          ts->update(Trk::numberOfPixelDeadSensors, hole_count->m_pixel_dead);
+          ts->update(Trk::numberOfSCTDeadSensors, hole_count->m_sct_dead);
+        }
+      }
+
       rv->setTrackSummary(std::move(ts));
     }
 
