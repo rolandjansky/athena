@@ -143,11 +143,11 @@ public:
   double sctInnerSupport() const;
 
   // Pixel support tubes dimensions: specify name from simple services table
-  double SupportTubeRMin(std::string name) const;
-  double SupportTubeRMax(std::string name) const;
-  double SupportTubeZMin(std::string name) const;
-  double SupportTubeZMax(std::string name) const;
-  int    SupportTubeExists(std::string name) const;
+  double SupportTubeRMin(const std::string& name) const;
+  double SupportTubeRMax(const std::string& name) const;
+  double SupportTubeZMin(const std::string& name) const;
+  double SupportTubeZMax(const std::string& name) const;
+  int    SupportTubeExists(const std::string& name) const;
 
 private:
   // Record sets
@@ -188,7 +188,7 @@ private:
   InDetMaterialManager * m_matMgr;
 
   // index of named support tube in  m_InDetSimpleServices table, -1 if not found. Could be cached for speed.
-  int SupportTubeIndex(std::string name) const;
+  int SupportTubeIndex(const std::string& name) const;
 
 };
 

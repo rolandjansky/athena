@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServicesTracker_H
@@ -46,7 +46,7 @@ public:
   const std::vector<ServiceVolume*>& serviceVolumes() const {return m_volumes;}
 
   // Called by Routing
-  void setServiceVolumes( const std::vector<ServiceVolume*> vc) {m_volumes=vc;}
+  void setServiceVolumes( const std::vector<ServiceVolume*>& vc) {m_volumes=vc;}
 
   // methods called by Builder 
   void constructBarrelLayer( double radius, double zHalfLength, 
