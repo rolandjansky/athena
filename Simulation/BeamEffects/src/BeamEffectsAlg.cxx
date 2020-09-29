@@ -83,19 +83,19 @@ namespace Simulation
   {
     //Ensure that we have a valid signal_process_vertex
 #ifdef HEPMC3
-    if( !HepMC::signal_process_vertex(ge) ) {
+    if( !HepMC::signal_process_vertex(&ge) ) {
       if(m_ISFRun) {
         ATH_MSG_DEBUG("No signal_process_vertex found - creating a dummy GenVertex.");
         HepMC::FourVector signalPos( 0.0, 0.0, 0.0, 0.0);
         HepMC::GenVertexPtr signalVertex = HepMC::newGenVertexPtr( signalPos );
         // ge will now take ownership of the signal process vertex
-        HepMC::set_signal_process_vertex(ge, signalVertex );
+        HepMC::set_signal_process_vertex(&ge, signalVertex );
       }
       else {
-        if (!ge.vertices_empty()) {
+        if (!ge.vertices().empty()) {
           ATH_MSG_DEBUG("No signal_process_vertex found - using the first GenVertex in the event.");
           HepMC::GenVertexPtr signalVertex = ge.vertices().front();
-          HepMC::set_signal_process_vertex(ge,signalVertex );
+          HepMC::set_signal_process_vertex(&ge,signalVertex );
         }
       }
       if( !HepMC::signal_process_vertex(&ge) ) { // Insanity check
