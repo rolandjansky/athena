@@ -37,11 +37,8 @@ from RecExConfig.InputFilePeeker import inputFileSummary
 globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
 globalflags.DetDescrVersion = inputFileSummary['geometry']
 
-# if you are running with a geometry not yet included in xmlTags:
-# add your Geometry and Layout below.
-# than x-check with:
-# GetTfCommand.py --AMI your-recodigi-tag 
-# that pre- and post- includes we schedule are the right ones
+# New geotags do not need any special pre- and post-includes
+# This xmlTags list is kept for backward compatibility and should not be updated
 xmlTags = [
             # step 1.7
             ["ATLAS-P2-ITK-09","ExtBrl_4",""],
@@ -130,6 +127,12 @@ ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 # this fills some extra histograms when not running over DAOD
 # when running over DAOD, decorators should be off to prevent crashes
 if not runDAOD : 
+
+  if(foundGeoTag):
+    from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysHitDecoratorTool
+    hitDecoratorTool = InDetPhysHitDecoratorTool(UseNewITkLayerNumbering = False)
+    ToolSvc += hitDecoratorTool
+
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
   decorators = InDetPhysValDecoratorAlg()
   topSequence += decorators

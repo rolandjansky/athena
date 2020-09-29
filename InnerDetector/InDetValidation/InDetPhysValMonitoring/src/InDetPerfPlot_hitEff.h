@@ -50,7 +50,7 @@ private:
     INVALID_LAYER=-1, INNERMOST, NEXT_TO_INNERMOST, OTHER, N_TYPES
   };
   
-  const static int N_LAYERS = 33;
+  const static int N_LAYERS = 5;
   const static int N_SCTLAYERS = 4;
 
   void initializePlots();

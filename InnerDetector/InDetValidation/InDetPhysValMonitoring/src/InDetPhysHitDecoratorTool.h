@@ -58,6 +58,7 @@ private:
   const double m_ptThreshold;
   bool m_isUnbiased;
   bool m_doUpgrade;
+  bool m_useNewITkLayerNumbering;
   // the following help identify a surface in the detector
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelID;
